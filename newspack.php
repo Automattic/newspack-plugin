@@ -12,4 +12,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSPACK_VERSION', '0.0.1' );
+// Define NEWSPACK_PLUGIN_FILE.
+if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
+	define( 'NEWSPACK_PLUGIN_FILE', __FILE__ );
+}
+
+// Include the main Newspack class.
+if ( ! class_exists( 'Newspack' ) ) {
+	include_once dirname( __FILE__ ) . '/includes/class-newspack.php';
+}

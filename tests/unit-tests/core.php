@@ -16,4 +16,14 @@ class Newspack_Test_Newspack extends WP_UnitTestCase {
 	public function test_newspack_loaded() {
 		$this->assertTrue( defined( 'NEWSPACK_VERSION' ) );
 	}
+
+	/**
+	 * Test that the Newspack class is set up correctly.
+	 */
+	public function test_newspack_class() {
+		$newspack = Newspack::instance();
+
+		$this->assertInstanceOf( Newspack::class, $newspack );
+		$this->assertSame( $newspack, Newspack::instance() );
+	}
 }
