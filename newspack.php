@@ -11,3 +11,5 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+define( 'NEWSPACK_VERSION', '0.0.1' );
