@@ -5,6 +5,8 @@
  * @package Newspack
  */
 
+namespace Newspack;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -54,7 +56,7 @@ final class Newspack {
 	 * e.g. include_once NEWSPACK_ABSPATH . 'includes/foo.php';
 	 */
 	private function includes() {
-
+		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
 	}
 
 	/**
