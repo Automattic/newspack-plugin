@@ -5,7 +5,7 @@
  * Version: 0.0.1-alpha
  * Author: Automattic
  * Author URI: https://newspack.blog/
- * License: GPL3
+ * License: GPL2
  * Text Domain: newspack
  * Domain Path: /languages/
  */
