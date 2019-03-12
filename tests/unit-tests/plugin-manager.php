@@ -56,6 +56,10 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly' ) );
 		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly.tar' ) );
 		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 'hello-dolly' ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( '' ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( true ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( new WP_Error() ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 20 ) );
 	}
 
 	/**

@@ -20,7 +20,8 @@ class Plugin_Manager {
 	 * @return bool
 	 */
 	public static function can_install_plugins() {
-		if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) || ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
+		if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) ||
+			( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
 			return false;
 		}
 
@@ -98,11 +99,7 @@ class Plugin_Manager {
 	 * @return array of 'plugin_slug => plugin_file_path' entries for all installed plugins.
 	 */
 	public static function get_installed_plugins() {
-		$installed_plugins = array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
-		if ( empty( $installed_plugins ) ) {
-			$installed_plugins = [];
-		}
-		return $installed_plugins;
+		return array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
 	}
 
 	/**
@@ -112,6 +109,10 @@ class Plugin_Manager {
 	 * @return string|bool Parsed slug on success. False on failure.
 	 */
 	public static function get_plugin_slug_from_url( $url ) {
+		if ( ! is_string( $url ) ) {
+			return false;
+		}
+
 		$url = wp_http_validate_url( $url );
 		if ( ! $url || ! stripos( $url, '.zip' ) ) {
 			return false;
