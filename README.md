@@ -2,6 +2,8 @@
 
 Welcome to the Newspack plugin repository on GitHub. Here you can browse the source, look at open issues and keep track of development. We also recommend everyone [follow the Newspack blog](https://newspack.blog/) to stay up to date about everything happening in the project.
 
+The Newspack plugin provides tools and guidance for setting up and managing the important features and plugins a modern newsroom needs.
+
 Newspack is an open-source publishing platform built on WordPress for small to medium sized news organizations. It is an “opinionated” platform that stakes out clear, best-practice positions on technology, design, and business practice for news publishers.
 
 ## How to install Newspack on your site
