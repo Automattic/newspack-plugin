@@ -114,23 +114,30 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	public function test_activate_deactivate_installed() {
 		Plugin_Manager::install( $this->plugin_slug );
 
+		// Activate by slug.
 		$this->assertTrue( Plugin_Manager::activate( $this->plugin_slug ) );
 		$this->assertTrue( is_plugin_active( $this->plugin_file ) );
 
 		// If the plugin is already activated, activating it by slug should fail.
 		$this->assertTrue( is_wp_error( Plugin_manager::activate( $this->plugin_slug ) ) );
 
-		$this->assertTrue( Plugin_manager::deactivate( $this->plugin_file ) );
+		// Deactivate by slug.
+		$this->assertTrue( Plugin_manager::deactivate( $this->plugin_slug ) );
 		$this->assertFalse( is_plugin_active( $this->plugin_file ) );
 
 		// If the plugin is already deactivated, deactivating should fail.
 		$this->assertTrue( is_wp_error( Plugin_manager::deactivate( $this->plugin_file ) ) );
 
+		// Activate by URL.
 		$this->assertTrue( Plugin_Manager::activate( $this->plugin_url ) );
 		$this->assertTrue( is_plugin_active( $this->plugin_file ) );
 
 		// If the plugin is already activated, activating it by url should fail.
 		$this->assertTrue( is_wp_error( Plugin_manager::activate( $this->plugin_url ) ) );
+
+		// Deactivate by file.
+		$this->assertTrue( Plugin_manager::deactivate( $this->plugin_file ) );
+		$this->assertFalse( is_plugin_active( $this->plugin_file ) );
 	}
 
 	/**
@@ -143,7 +150,8 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 		// If the plugin is already installed, installing it by slug should fail.
 		$this->assertTrue( is_wp_error( Plugin_manager::install( $this->plugin_slug ) ) );
 
-		$this->assertTrue( Plugin_Manager::uninstall( $this->plugin_file ) );
+		// Uninstall by slug.
+		$this->assertTrue( Plugin_Manager::uninstall( $this->plugin_slug ) );
 		$this->assertFalse( file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_file ) );
 	}
 
@@ -157,6 +165,7 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 		// If the plugin is already installed, installing it by URL should fail.
 		$this->assertTrue( is_wp_error( Plugin_manager::install( $this->plugin_url ) ) );
 
+		// Uninstall by file.
 		$this->assertTrue( Plugin_Manager::uninstall( $this->plugin_file ) );
 		$this->assertFalse( file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_file ) );
 	}

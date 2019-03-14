@@ -82,13 +82,19 @@ class Plugin_Manager {
 	/**
 	 * Deactivate a plugin.
 	 *
-	 * @param string $plugin_file The path to the plugin file. e.g. 'newspack/newspack.php'.
+	 * @param string $plugin The plugin slug (e.g. 'newspack') or path to the plugin file. e.g. ('newspack/newspack.php').
 	 * @return bool True on success. False on failure.
 	 */
-	public static function deactivate( $plugin_file ) {
+	public static function deactivate( $plugin ) {
 		$installed_plugins = self::get_installed_plugins();
-		if ( ! in_array( $plugin_file, $installed_plugins ) ) {
+		if ( ! in_array( $plugin, $installed_plugins ) && ! isset( $installed_plugins[ $plugin ] ) ) {
 			return new WP_Error( 'newspack_plugin_not_installed', __( 'The plugin is not installed.', 'newspack' ) );
+		}
+
+		if ( isset( $installed_plugins[ $plugin ] ) ) {
+			$plugin_file = $installed_plugins[ $plugin ];
+		} else {
+			$plugin_file = $plugin;
 		}
 
 		if ( ! is_plugin_active( $plugin_file ) ) {
@@ -158,17 +164,23 @@ class Plugin_Manager {
 	/**
 	 * Uninstall a plugin.
 	 *
-	 * @param string $plugin_file The path to the plugin file. e.g. 'newspack/newspack.php'.
+	 * @param string $plugin The plugin slug (e.g. 'newspack') or path to the plugin file. e.g. ('newspack/newspack.php').
 	 * @return bool True on success. False on failure.
 	 */
-	public static function uninstall( $plugin_file ) {
+	public static function uninstall( $plugin ) {
 		if ( ! self::can_install_plugins() ) {
 			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'Plugins cannot be uninstalled.', 'newspack' ) );
 		}
 
 		$installed_plugins = self::get_installed_plugins();
-		if ( ! in_array( $plugin_file, $installed_plugins ) ) {
+		if ( ! in_array( $plugin, $installed_plugins ) && ! isset( $installed_plugins[ $plugin ] ) ) {
 			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'The plugin is not installed.', 'newspack' ) );
+		}
+
+		if ( isset( $installed_plugins[ $plugin ] ) ) {
+			$plugin_file = $installed_plugins[ $plugin ];
+		} else {
+			$plugin_file = $plugin;
 		}
 
 		// Deactivate plugin before uninstalling.
