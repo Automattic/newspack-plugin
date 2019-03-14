@@ -95,6 +95,20 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test error handling when activating/deactivating.
+	 */
+	public function test_activate_deactivate_errors() {
+		$this->assertTrue( is_wp_error( Plugin_manager::activate( 'non-existant-plugin' ) ) );
+		$this->assertTrue( is_wp_error( Plugin_manager::deactivate( 'non-existant-plugin' ) ) );
+
+		$this->assertTrue( is_wp_error( Plugin_manager::activate( 'https://downloads.wordpress.org/plugin/non-existant-plugin.zip' ) ) );
+		$this->assertTrue( is_wp_error( Plugin_manager::deactivate( 'https://downloads.wordpress.org/plugin/non-existant-plugin.zip' ) ) );
+
+		$this->assertTrue( is_wp_error( Plugin_manager::activate( 'https://example.org/not-a-zip' ) ) );
+		$this->assertTrue( is_wp_error( Plugin_manager::deactivate( 'https://example.org/not-a-zip' ) ) );
+	}
+
+	/**
 	 * Test that activating/deactivating an installed plugin activates/deactivates the plugin.
 	 */
 	public function test_activate_deactivate_installed() {
@@ -103,11 +117,20 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 		$this->assertTrue( Plugin_Manager::activate( $this->plugin_slug ) );
 		$this->assertTrue( is_plugin_active( $this->plugin_file ) );
 
+		// If the plugin is already activated, activating it by slug should fail.
+		$this->assertTrue( is_wp_error( Plugin_manager::activate( $this->plugin_slug ) ) );
+
 		$this->assertTrue( Plugin_manager::deactivate( $this->plugin_file ) );
 		$this->assertFalse( is_plugin_active( $this->plugin_file ) );
 
+		// If the plugin is already deactivated, deactivating should fail.
+		$this->assertTrue( is_wp_error( Plugin_manager::deactivate( $this->plugin_file ) ) );
+
 		$this->assertTrue( Plugin_Manager::activate( $this->plugin_url ) );
 		$this->assertTrue( is_plugin_active( $this->plugin_file ) );
+
+		// If the plugin is already activated, activating it by url should fail.
+		$this->assertTrue( is_wp_error( Plugin_manager::activate( $this->plugin_url ) ) );
 	}
 
 	/**
@@ -116,6 +139,9 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	public function test_plugin_install_uninstall_wporg() {
 		$this->assertTrue( Plugin_Manager::install( $this->plugin_slug ) );
 		$this->assertTrue( file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_file ) );
+
+		// If the plugin is already installed, installing it by slug should fail.
+		$this->assertTrue( is_wp_error( Plugin_manager::install( $this->plugin_slug ) ) );
 
 		$this->assertTrue( Plugin_Manager::uninstall( $this->plugin_file ) );
 		$this->assertFalse( file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_file ) );
@@ -128,7 +154,24 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 		$this->assertTrue( Plugin_Manager::install( $this->plugin_url ) );
 		$this->assertTrue( file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_file ) );
 
+		// If the plugin is already installed, installing it by URL should fail.
+		$this->assertTrue( is_wp_error( Plugin_manager::install( $this->plugin_url ) ) );
+
 		$this->assertTrue( Plugin_Manager::uninstall( $this->plugin_file ) );
 		$this->assertFalse( file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_file ) );
+	}
+
+	/**
+	 * Test error handling when installing/uninstalling.
+	 */
+	public function test_plugin_install_uninstall_errors() {
+		$this->assertTrue( is_wp_error( Plugin_manager::install( 'non-existant-plugin' ) ) );
+		$this->assertTrue( is_wp_error( Plugin_manager::uninstall( 'non-existant-plugin' ) ) );
+
+		$this->assertTrue( is_wp_error( Plugin_manager::install( 'https://downloads.wordpress.org/plugin/non-existant-plugin.zip' ) ) );
+		$this->assertTrue( is_wp_error( Plugin_manager::uninstall( 'https://downloads.wordpress.org/plugin/non-existant-plugin.zip' ) ) );
+
+		$this->assertTrue( is_wp_error( Plugin_manager::install( 'https://example.org/not-a-zip' ) ) );
+		$this->assertTrue( is_wp_error( Plugin_manager::uninstall( 'https://example.org/not-a-zip' ) ) );
 	}
 }

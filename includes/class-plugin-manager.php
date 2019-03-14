@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use \WP_Error;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -45,7 +47,7 @@ class Plugin_Manager {
 		if ( wp_http_validate_url( $plugin ) ) {
 			$plugin_slug = self::get_plugin_slug_from_url( $plugin );
 			if ( ! $plugin_slug ) {
-				return false;
+				return new WP_Error( 'newspack_invalid_plugin', __( 'Invalid plugin URL.', 'newspack' ) );
 			}
 		}
 
@@ -56,8 +58,8 @@ class Plugin_Manager {
 		if ( ! $plugin_installed ) {
 			$plugin_installed = self::install( $plugin );
 		}
-		if ( ! $plugin_installed ) {
-			return false;
+		if ( is_wp_error( $plugin_installed ) ) {
+			return $plugin_installed;
 		}
 
 		// Refresh the installed plugin list if the plugin isn't present because we just installed it.
@@ -66,12 +68,12 @@ class Plugin_Manager {
 		}
 
 		if ( is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_already_active', __( 'The plugin is already active.', 'newspack' ) );
 		}
 
 		$activated = activate_plugin( $installed_plugins[ $plugin_slug ] );
 		if ( is_wp_error( $activated ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_activation', $activated->get_error_message() );
 		}
 
 		return true;
@@ -86,10 +88,17 @@ class Plugin_Manager {
 	public static function deactivate( $plugin_file ) {
 		$installed_plugins = self::get_installed_plugins();
 		if ( ! in_array( $plugin_file, $installed_plugins ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_not_installed', __( 'The plugin is not installed.', 'newspack' ) );
+		}
+
+		if ( ! is_plugin_active( $plugin_file ) ) {
+			return new WP_Error( 'newspack_plugin_not_active', __( 'The plugin is not active.', 'newspack' ) );
 		}
 
 		deactivate_plugins( $plugin_file );
+		if ( is_plugin_active( $plugin_file ) ) {
+			return new WP_Error( 'newspack_plugin_failed_deactivation', __( 'Failed to deactivate plugin.', 'newspack' ) );
+		}
 		return true;
 	}
 
@@ -136,7 +145,7 @@ class Plugin_Manager {
 	 */
 	public static function install( $plugin ) {
 		if ( ! self::can_install_plugins() ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_install', __( 'Plugins cannot be installed.', 'newspack' ) );
 		}
 
 		if ( wp_http_validate_url( $plugin ) ) {
@@ -154,14 +163,23 @@ class Plugin_Manager {
 	 */
 	public static function uninstall( $plugin_file ) {
 		if ( ! self::can_install_plugins() ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'Plugins cannot be uninstalled.', 'newspack' ) );
 		}
+
+		$installed_plugins = self::get_installed_plugins();
+		if ( ! in_array( $plugin_file, $installed_plugins ) ) {
+			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'The plugin is not installed.', 'newspack' ) );
+		}
+
+		// Deactivate plugin before uninstalling.
+		self::deactivate( $plugin_file );
 
 		$success = (bool) delete_plugins( [ $plugin_file ] );
 		if ( $success ) {
 			wp_clean_plugins_cache();
+			return true;
 		}
-		return $success;
+		return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'The plugin could not be uninstalled.', 'newspack' ) );
 	}
 
 	/**
@@ -174,7 +192,7 @@ class Plugin_Manager {
 		// Quick check to make sure plugin directory doesn't already exist.
 		$plugin_directory = WP_PLUGIN_DIR . '/' . $plugin_slug;
 		if ( is_dir( $plugin_directory ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_already_installed', __( 'The plugin directory already exists.', 'newspack' ) );
 		}
 
 		if ( ! function_exists( 'plugins_api' ) ) {
@@ -203,7 +221,7 @@ class Plugin_Manager {
 		);
 
 		if ( is_wp_error( $plugin_info ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_install', $plugin_info->get_error_message() );
 		}
 
 		return self::install_from_url( $plugin_info->download_link );
@@ -225,15 +243,16 @@ class Plugin_Manager {
 
 		$skin     = new \Automatic_Upgrader_Skin();
 		$upgrader = new \WP_Upgrader( $skin );
+		$upgrader->init();
 
 		$download = $upgrader->download_package( $plugin_url );
 		if ( is_wp_error( $download ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_install', $download->get_error_message() );
 		}
 
 		$working_dir = $upgrader->unpack_package( $download );
 		if ( is_wp_error( $working_dir ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_install', $working_dir->get_error_message() );
 		}
 
 		$result = $upgrader->install_package(
@@ -248,7 +267,7 @@ class Plugin_Manager {
 			]
 		);
 		if ( is_wp_error( $result ) ) {
-			return false;
+			return new WP_Error( 'newspack_plugin_failed_install', $result->get_error_message() );
 		}
 
 		wp_clean_plugins_cache();
