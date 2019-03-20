@@ -41,14 +41,9 @@ class Plugin_Manager {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_slug = $plugin;
-
-		// if it's a url, parse the slug from the URL.
-		if ( wp_http_validate_url( $plugin ) ) {
-			$plugin_slug = self::get_plugin_slug_from_url( $plugin );
-			if ( ! $plugin_slug ) {
-				return new WP_Error( 'newspack_invalid_plugin', __( 'Invalid plugin URL.', 'newspack' ) );
-			}
+		$plugin_slug = self::get_plugin_slug( $plugin );
+		if ( ! $plugin_slug ) {
+			return new WP_Error( 'newspack_invalid_plugin', __( 'Invalid plugin.', 'newspack' ) );
 		}
 
 		$installed_plugins = self::get_installed_plugins();
@@ -118,18 +113,24 @@ class Plugin_Manager {
 	}
 
 	/**
-	 * Parse a plugin slug from the URL to download a plugin.
+	 * Parse a plugin slug from the slug or URL to download a plugin.
 	 *
-	 * @param string $url The URL to a plugin zip file.
+	 * @param string $plugin A plugin slug or the URL to a plugin zip file.
 	 * @return string|bool Parsed slug on success. False on failure.
 	 */
-	public static function get_plugin_slug_from_url( $url ) {
-		if ( ! is_string( $url ) ) {
+	public static function get_plugin_slug( $plugin ) {
+		if ( ! is_string( $plugin ) || empty( $plugin ) ) {
 			return false;
 		}
 
-		$url = wp_http_validate_url( $url );
-		if ( ! $url || ! stripos( $url, '.zip' ) ) {
+		$url = wp_http_validate_url( $plugin );
+
+		// A plugin slug was passed in, so just return it.
+		if ( ! $url ) {
+			return $plugin;
+		}
+
+		if ( ! stripos( $url, '.zip' ) ) {
 			return false;
 		}
 

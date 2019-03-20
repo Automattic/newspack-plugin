@@ -47,19 +47,19 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test the plugin-slug-from-URL parser.
+	 * Test the plugin-slug parser.
 	 */
-	public function test_get_plugin_slug_from_url() {
-		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly.1.6.zip' ) );
-		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly.zip/' ) );
-		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly.zip?foo=blah&1' ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly' ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 'https://downloads.wordpress.org/plugin/hello-dolly.tar' ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 'hello-dolly' ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( '' ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( true ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( new WP_Error() ) );
-		$this->assertEquals( false, Plugin_Manager::get_plugin_slug_from_url( 20 ) );
+	public function test_get_plugin_slug() {
+		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug( 'https://downloads.wordpress.org/plugin/hello-dolly.1.6.zip' ) );
+		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug( 'https://downloads.wordpress.org/plugin/hello-dolly.zip/' ) );
+		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug( 'https://downloads.wordpress.org/plugin/hello-dolly.zip?foo=blah&1' ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug( 'https://downloads.wordpress.org/plugin/hello-dolly' ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug( 'https://downloads.wordpress.org/plugin/hello-dolly.tar' ) );
+		$this->assertEquals( 'hello-dolly', Plugin_Manager::get_plugin_slug( 'hello-dolly' ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug( '' ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug( true ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug( new WP_Error() ) );
+		$this->assertEquals( false, Plugin_Manager::get_plugin_slug( 20 ) );
 	}
 
 	/**
