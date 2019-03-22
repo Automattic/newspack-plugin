@@ -57,6 +57,7 @@ final class Newspack {
 	 */
 	private function includes() {
 		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 	}
 
 	/**

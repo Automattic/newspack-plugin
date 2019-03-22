@@ -47,6 +47,23 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test Plugin_Manager::get_managed_plugins.
+	 */
+	public function test_get_managed_plugins() {
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
+		$this->assertArrayHasKey( 'jetpack', $managed_plugins );
+
+		$expected_jetpack_info = [
+			'name'     => 'Jetpack',
+			'wporg'    => true,
+			'download' => 'jetpack',
+			'status'   => 'uninstalled',
+		];
+		$this->assertEquals( $expected_jetpack_info, $managed_plugins['jetpack'] );
+	}
+
+	/**
 	 * Test the plugin-slug parser.
 	 */
 	public function test_get_plugin_slug() {
