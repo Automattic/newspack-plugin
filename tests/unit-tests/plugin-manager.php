@@ -56,8 +56,7 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 
 		$expected_jetpack_info = [
 			'name'     => 'Jetpack',
-			'wporg'    => true,
-			'download' => 'jetpack',
+			'download' => 'wporg',
 			'status'   => 'uninstalled',
 		];
 		$this->assertEquals( $expected_jetpack_info, $managed_plugins['jetpack'] );

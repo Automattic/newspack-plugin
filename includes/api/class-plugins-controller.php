@@ -7,6 +7,7 @@
 
 namespace Newspack\API;
 
+use \WP_REST_Controller;
 use \WP_Error;
 use Newspack\Plugin_Manager;
 
@@ -15,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API endpoints for managing plugins.
  */
-class Plugins_Controller {
+class Plugins_Controller extends WP_REST_Controller {
 
 	/**
 	 * Endpoint namespace.
@@ -35,6 +36,7 @@ class Plugins_Controller {
 	 * Register the routes.
 	 */
 	public function register_routes() {
+		// Register newspack/v1/plugins endpoint.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->resource_name,
@@ -47,16 +49,227 @@ class Plugins_Controller {
 				'schema' => [ $this, 'get_item_schema' ],
 			]
 		);
+
+		// Register newspack/v1/plugins/some-plugin endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)',
+			[
+				[
+					'methods'             => 'GET',
+					'callback'            => [ $this, 'get_item' ],
+					'permission_callback' => [ $this, 'get_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
+
+		// Register newspack/v1/plugins/some-plugin/activate endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/activate',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'activate_item' ],
+					'permission_callback' => [ $this, 'activate_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
+
+		// Register newspack/v1/plugins/some-plugin/deactivate endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/deactivate',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'deactivate_item' ],
+					'permission_callback' => [ $this, 'deactivate_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
+
+		// Register newspack/v1/plugins/some-plugin/install endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/install',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'install_item' ],
+					'permission_callback' => [ $this, 'install_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
+
+		// Register newspack/v1/plugins/some-plugin/uninstall endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/uninstall',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'uninstall_item' ],
+					'permission_callback' => [ $this, 'uninstall_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
 	}
 
 	/**
 	 * Get info about all managed plugins.
 	 *
-	 * @param WP_REST_Request $request API request object.
-	 * @return WP_REST_Response|WP_Error
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) {
 		return rest_ensure_response( Plugin_Manager::get_managed_plugins() );
+	}
+
+	/**
+	 * Get info about one managed plugin.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+		return rest_ensure_response( $managed_plugins[ $slug ] );
+	}
+
+	/**
+	 * Activate a managed plugin (installing it if needed).
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function activate_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+		if ( 'wporg' === $managed_plugins[ $slug ]['download'] ) {
+			$result = Plugin_Manager::activate( $slug );
+		} else {
+			$result = Plugin_Manager::activate( $managed_plugins[ $slug ]['download'] );
+		}
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->get_item( $request );
+	}
+
+	/**
+	 * Deactivate a managed plugin.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function deactivate_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		$result = Plugin_Manager::deactivate( $slug );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->get_item( $request );
+	}
+
+	/**
+	 * Install a managed plugin.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function install_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+		if ( 'wporg' === $managed_plugins[ $slug ]['download'] ) {
+			$result = Plugin_Manager::install( $slug );
+		} else {
+			$result = Plugin_Manager::install( $managed_plugins[ $slug ]['download'] );
+		}
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->get_item( $request );
+	}
+
+	/**
+	 * Uninstall a managed plugin.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function uninstall_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		$result = Plugin_Manager::uninstall( $slug );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->get_item( $request );
 	}
 
 	/**
@@ -68,7 +281,7 @@ class Plugins_Controller {
 	public function get_items_permissions_check( $request ) {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error(
-				'rest_forbidden',
+				'newspack_rest_forbidden',
 				esc_html__( 'You cannot view this resource.', 'newspack' ),
 				[
 					'status' => $this->authorization_status_code(),
@@ -77,6 +290,127 @@ class Plugins_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check capabilities when getting plugin info.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function get_item_permissions_check( $request ) {
+		return $this->get_items_permissions_check( $request );
+	}
+
+	/**
+	 * Check capabilities when activating (with potential installation) a plugin.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function activate_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'install_plugins' ) || ! current_user_can( 'activate_plugins' ) ) {
+			return new WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => $this->authorization_status_code(),
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check capabilities when deactivating a plugin.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function deactivate_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return new WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => $this->authorization_status_code(),
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check capabilities when installing a plugin.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function install_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return new WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => $this->authorization_status_code(),
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check capabilities when uninstalling a plugin.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function uninstall_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'delete_plugins' ) ) {
+			return new WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => $this->authorization_status_code(),
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check that a plugin slug is for a managed plugin.
+	 *
+	 * @param string $slug The plugin slug.
+	 * @return bool|WP_Error
+	 */
+	protected function validate_managed_plugin( $slug ) {
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+		if ( ! isset( $managed_plugins[ $slug ] ) ) {
+			return new WP_Error(
+				'newspack_rest_invalid_plugin',
+				esc_html__( 'Resource does not exist.', 'newspack' ),
+				[
+					'status' => 404,
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sanitize the slug for a plugin.
+	 *
+	 * @param string $slug The plugin slug.
+	 * @return string
+	 */
+	public function sanitize_plugin_slug( $slug ) {
+		return sanitize_title( $slug );
 	}
 
 	/**
@@ -99,6 +433,31 @@ class Plugins_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
-		return [];
+		return [
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => $this->resource_name,
+			'type'       => 'object',
+			'properties' => [
+				'name'     => [
+					'description' => __( 'The name of the plugin.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'download' => [
+					'description' => __( 'The location of the plugin download.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'status'   => [
+					'description' => __( 'The status of the plugin.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'enum'        => [ 'active', 'inactive', 'uninstalled' ],
+					'readonly'    => true,
+				],
+			],
+		];
 	}
 }

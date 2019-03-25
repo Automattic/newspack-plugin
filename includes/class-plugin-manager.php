@@ -27,13 +27,11 @@ class Plugin_Manager {
 		$managed_plugins = [
 			'jetpack' => [
 				'name'     => __( 'Jetpack', 'newspack' ),
-				'wporg'    => true,
-				'download' => 'jetpack',
+				'download' => 'wporg',
 			],
 			'amp'     => [
 				'name'     => __( 'AMP', 'newspack' ),
-				'wporg'    => true,
-				'download' => 'amp',
+				'download' => 'wporg',
 			],
 		];
 
