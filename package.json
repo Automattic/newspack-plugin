@@ -1,0 +1,41 @@
+{
+  "name": "newspack",
+  "version": "1.0.0",
+  "description": "The Newspack plugin. https://newspack.blog",
+  "bugs": {
+    "url": "https://github.com/Automattic/newspack-plugin/issues"
+  },
+  "homepage": "https://github.com/WordPress/newspack#readme",
+  "devDependencies": {
+    "@wordpress/browserslist-config": "^2.2.2",
+    "autoprefixer": "^9.1.5",
+    "chokidar-cli": "^1.2.1",
+    "node-sass": "^4.9.3",
+    "npm-run-all": "^4.1.5",
+    "postcss-cli": "^6.0.1",
+    "postcss-focus-within": "^3.0.0",
+    "rtlcss": "^2.4.0"
+  },
+  "rtlcssConfig": {
+    "options": {
+      "autoRename": false,
+      "autoRenameStrict": false,
+      "blacklist": {},
+      "clean": true,
+      "greedy": false,
+      "processUrls": false,
+      "stringMap": []
+    },
+    "plugins": [],
+    "map": false
+  },
+  "browserslist": [
+    "extends @wordpress/browserslist-config"
+  ],
+  "scripts": {
+    "build:style-plugins-screen": "node-sass assets/css/sass/plugins-screen.scss assets/css/plugins-screen.css --output-style expanded && postcss -r assets/css/plugins-screen.css",
+    "build:rtl": "rtlcss assets/css/plugins-screen.css assets/css/plugins-screen-rtl.css",
+    "build": "run-p \"build:*\"",
+    "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial"
+  }
+}

@@ -17,6 +17,48 @@ defined( 'ABSPATH' ) || exit;
 class Plugin_Manager {
 
 	/**
+	 * Get info about all the managed plugins and their status.
+	 *
+	 * @todo Define what the structure of this looks like better and load it up from a config or something.
+	 *
+	 * @return array of plugins info.
+	 */
+	public static function get_managed_plugins() {
+		$managed_plugins = [
+			'jetpack' => [
+				'Name'        => __( 'Jetpack', 'newspack' ),
+				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://jetpack.com/',
+				'AuthorURI'   => 'https://automattic.com/',
+				'Download'    => 'wporg',
+			],
+			'amp'     => [
+				'Name'        => __( 'AMP', 'newspack' ),
+				'Description' => esc_html__( 'Enable AMP on your WordPress site, the WordPress way.', 'newspack' ),
+				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
+				'PluginURI'   => 'https://amp-wp.org/',
+				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
+				'Download'    => 'wporg',
+			],
+		];
+		// Add plugin status info.
+		$installed_plugins = self::get_installed_plugins();
+		foreach ( $managed_plugins as $plugin_slug => $managed_plugin ) {
+			$status = 'uninstalled';
+			if ( isset( $installed_plugins[ $plugin_slug ] ) ) {
+				if ( is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
+					$status = 'active';
+				} else {
+					$status = 'inactive';
+				}
+			}
+			$managed_plugins[ $plugin_slug ]['status'] = $status;
+		}
+		return $managed_plugins;
+	}
+
+	/**
 	 * Determine whether plugin installation is allowed in the current environment.
 	 *
 	 * @return bool

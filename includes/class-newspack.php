@@ -57,6 +57,7 @@ final class Newspack {
 	 */
 	private function includes() {
 		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 	}
 
 	/**
@@ -65,6 +66,15 @@ final class Newspack {
 	 */
 	private function init_hooks() {
 
+	}
+
+	/**
+	 * Get the URL for the Newspack plugin directory.
+	 *
+	 * @return string URL
+	 */
+	public static function plugin_url() {
+		return untrailingslashit( plugins_url( '/', NEWSPACK_PLUGIN_FILE ) );
 	}
 }
 Newspack::instance();
