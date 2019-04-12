@@ -53,7 +53,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		// Register newspack/v1/plugins/some-plugin endpoint.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)',
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)',
 			[
 				[
 					'methods'             => 'GET',
@@ -72,7 +72,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		// Register newspack/v1/plugins/some-plugin/activate endpoint.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/activate',
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/activate',
 			[
 				[
 					'methods'             => 'POST',
@@ -91,7 +91,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		// Register newspack/v1/plugins/some-plugin/deactivate endpoint.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/deactivate',
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/deactivate',
 			[
 				[
 					'methods'             => 'POST',
@@ -110,7 +110,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		// Register newspack/v1/plugins/some-plugin/install endpoint.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/install',
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/install',
 			[
 				[
 					'methods'             => 'POST',
@@ -129,7 +129,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		// Register newspack/v1/plugins/some-plugin/uninstall endpoint.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->resource_name . '/(?P<slug>[\a-zA-Z]+)\/uninstall',
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/uninstall',
 			[
 				[
 					'methods'             => 'POST',
