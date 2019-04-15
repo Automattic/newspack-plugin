@@ -17,6 +17,42 @@ defined( 'ABSPATH' ) || exit;
 class Plugin_Manager {
 
 	/**
+	 * Get info about all the managed plugins and their status.
+	 *
+	 * @todo Define what the structure of this looks like better and load it up from a config or something.
+	 *
+	 * @return array of plugins info.
+	 */
+	public static function get_managed_plugins() {
+		$managed_plugins = [
+			'jetpack' => [
+				'name'     => __( 'Jetpack', 'newspack' ),
+				'download' => 'wporg',
+			],
+			'amp'     => [
+				'name'     => __( 'AMP', 'newspack' ),
+				'download' => 'wporg',
+			],
+		];
+
+		// Add plugin status info.
+		$installed_plugins = self::get_installed_plugins();
+		foreach ( $managed_plugins as $plugin_slug => $managed_plugin ) {
+			$status = 'uninstalled';
+			if ( isset( $installed_plugins[ $plugin_slug ] ) ) {
+				if ( is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
+					$status = 'active';
+				} else {
+					$status = 'inactive';
+				}
+			}
+			$managed_plugins[ $plugin_slug ]['status'] = $status;
+		}
+
+		return $managed_plugins;
+	}
+
+	/**
 	 * Determine whether plugin installation is allowed in the current environment.
 	 *
 	 * @return bool
@@ -109,6 +145,10 @@ class Plugin_Manager {
 	 * @return array of 'plugin_slug => plugin_file_path' entries for all installed plugins.
 	 */
 	public static function get_installed_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		return array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
 	}
 
@@ -186,6 +226,10 @@ class Plugin_Manager {
 
 		// Deactivate plugin before uninstalling.
 		self::deactivate( $plugin_file );
+
+		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
 
 		$success = (bool) delete_plugins( [ $plugin_file ] );
 		if ( $success ) {
