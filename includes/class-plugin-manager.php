@@ -33,6 +33,26 @@ class Plugin_Manager {
 				'name'     => __( 'AMP', 'newspack' ),
 				'download' => 'wporg',
 			],
+			'woocommerce'     => [
+				'name'     => __( 'WooCommerce', 'newspack' ),
+				'download' => 'wporg',
+			],
+			'woocommerce-subscriptions'     => [
+				'name'     => __( 'WooCommerce Subscriptions', 'newspack' ),
+				'download' => 'premium', // @todo handle 'premium' in the plugin manager.
+			],
+			'woocommerce-name-your-price'     => [
+				'name'     => __( 'WooCommerce Name Your Price', 'newspack' ),
+				'download' => 'premium',
+			],
+			'woocommerce-one-page-checkout'     => [
+				'name'     => __( 'WooCommerce One Page Checkout', 'newspack' ),
+				'download' => 'premium',
+			],
+			'woocommerce-gateway-stripe'     => [
+				'name'     => __( 'WooCommerce Stripe Gateway', 'newspack' ),
+				'download' => 'premium',
+			],
 		];
 
 		// Add plugin status info.
@@ -341,6 +361,11 @@ class Plugin_Manager {
 	private static function reduce_plugin_info( $plugins, $key ) {
 		$path               = explode( '/', $key );
 		$folder             = current( $path );
+
+		// Strip off any versioning in the folder (e.g. foo-3.2.0).
+		preg_match( '/([a-z\-]+)/', $folder, $matches );
+		$folder = trim( $matches[0], '-' );
+
 		$plugins[ $folder ] = $key;
 		return $plugins;
 	}
