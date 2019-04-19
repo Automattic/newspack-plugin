@@ -153,7 +153,7 @@ class Admin_Plugins_Screen {
 	 * Output success/failure notices on plugin installation.
 	 */
 	public function plugin_install_notices() {
-		if ( isset( $_REQUEST['newspack_install_success'] ) && $_REQUEST['newspack_install_success'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.VIP.ValidatedSanitizedInput.InputNotSanitized, WordPress.VIP.SuperGlobalInputUsage.AccessDetected, WordPress.Security.NonceVerification.NoNonceVerification
+		if ( filter_input( INPUT_GET, 'newspack_install_success', FILTER_VALIDATE_BOOLEAN ) ) {
 			?>
 			<div class="notice notice-success is-dismissible"> 
 				<p><strong><?php echo esc_html__( 'Plugin installed.', 'newspack' ); ?></strong></p>
@@ -162,11 +162,10 @@ class Admin_Plugins_Screen {
 				</button>
 			</div>
 			<?php
-		} elseif ( isset( $_REQUEST['newspack_install_error'], $_REQUEST['plugin'], $_REQUEST['message'] ) && $_REQUEST['newspack_install_error'] && $_REQUEST['plugin'] && $_REQUEST['message'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.VIP.ValidatedSanitizedInput.InputNotSanitized, WordPress.VIP.SuperGlobalInputUsage.AccessDetected, WordPress.Security.NonceVerification.NoNonceVerification
-			$plugin = sanitize_title( $_REQUEST['plugin'] ); // phpcs:ignore WordPress.VIP.SuperGlobalInputUsage.AccessDetected
+		} elseif ( filter_input( INPUT_GET, 'newspack_install_error', FILTER_VALIDATE_BOOLEAN ) && filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_STRING ) && filter_input( INPUT_GET, 'message', FILTER_SANITIZE_STRING ) ) {
+			$plugin = filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_STRING );
 			check_admin_referer( 'newspack-install-error_' . $plugin, '_error_nonce' );
-			
-			$message = $_REQUEST['message']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.VIP.ValidatedSanitizedInput.InputNotSanitized, WordPress.VIP.SuperGlobalInputUsage.AccessDetected
+			$message = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_STRING );
 			?>
 			<div class="notice notice-error is-dismissible"> 
 				<p><strong><?php echo esc_html__( 'Failed to install plugin:', 'newspack' ); ?></strong> <?php echo esc_html( $message ); ?></p>
