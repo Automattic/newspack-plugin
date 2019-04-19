@@ -47,6 +47,29 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test Plugin_Manager::get_managed_plugins.
+	 */
+	public function test_get_managed_plugins() {
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
+		$this->assertArrayHasKey( 'jetpack', $managed_plugins );
+
+		$expected_jetpack_info = [
+			'Name'        => 'Jetpack',
+			'Description' => 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.',
+			'Author'      => 'Automattic',
+			'PluginURI'   => 'https://jetpack.com/',
+			'AuthorURI'   => 'https://automattic.com/',
+			'Download'    => 'wporg',
+			'TextDomain'  => '',
+			'DomainPath'  => '',
+			'Status'      => 'uninstalled',
+			'Version'     => '',
+		];
+		$this->assertEquals( $expected_jetpack_info, $managed_plugins['jetpack'] );
+	}
+
+	/**
 	 * Test the plugin-slug parser.
 	 */
 	public function test_get_plugin_slug() {

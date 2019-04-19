@@ -166,6 +166,10 @@ class Plugin_Manager {
 	 * @return array of 'plugin_slug => plugin_file_path' entries for all installed plugins.
 	 */
 	public static function get_installed_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		return array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
 	}
 
@@ -243,6 +247,10 @@ class Plugin_Manager {
 
 		// Deactivate plugin before uninstalling.
 		self::deactivate( $plugin_file );
+
+		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
 
 		$success = (bool) delete_plugins( [ $plugin_file ] );
 		if ( $success ) {
