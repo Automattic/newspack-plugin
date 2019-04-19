@@ -35,24 +35,13 @@ class Admin_Plugins_Screen {
 		$managed_plugins   = Plugin_Manager::get_managed_plugins();
 		$installed_plugins = Plugin_Manager::get_installed_plugins();
 		
-		$default_info = [
-			'Name'        => '',
-			'Description' => '',
-			'Author'      => '',
-			'Version'     => '',
-			'PluginURI'   => '',
-			'AuthorURI'   => '',
-			'TextDomain'  => '',
-			'DomainPath'  => '',
-		];
-
 		foreach ( $managed_plugins as $slug => $plugin_info ) {
 			// If plugin is already installed, just use that info.
 			if ( isset( $installed_plugins[ $slug ] ) ) {
 				continue;
 			}
 
-			$plugins[ $slug ] = wp_parse_args( $plugin_info, $default_info );
+			$plugins[ $slug ] = $plugin_info;
 		}
 
 		$plugins = $this->order_newspack_plugins_first( $plugins );

@@ -42,7 +42,21 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 			],
 		];
-		// Add plugin status info.
+
+		$default_info = [
+			'Name'        => '',
+			'Description' => '',
+			'Author'      => '',
+			'Version'     => '',
+			'PluginURI'   => '',
+			'AuthorURI'   => '',
+			'TextDomain'  => '',
+			'DomainPath'  => '',
+			'Download'    => '',
+			'Status'      => '',
+		];
+
+		// Add plugin status info and fill in defaults.
 		$installed_plugins = self::get_installed_plugins();
 		foreach ( $managed_plugins as $plugin_slug => $managed_plugin ) {
 			$status = 'uninstalled';
@@ -53,7 +67,8 @@ class Plugin_Manager {
 					$status = 'inactive';
 				}
 			}
-			$managed_plugins[ $plugin_slug ]['status'] = $status;
+			$managed_plugins[ $plugin_slug ]['Status'] = $status;
+			$managed_plugins[ $plugin_slug ]           = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
 		}
 		return $managed_plugins;
 	}
