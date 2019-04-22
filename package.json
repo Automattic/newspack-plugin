@@ -32,5 +32,10 @@
   "browserslist": [
     "extends @wordpress/browserslist-config"
   ],
-  "scripts": {}
+  "scripts": {
+    "build:style-plugins-screen": "node-sass assets/css/sass/plugins-screen.scss assets/css/plugins-screen.css --output-style expanded && postcss -r assets/css/plugins-screen.css",
+    "build:rtl": "rtlcss assets/css/plugins-screen.css assets/css/plugins-screen-rtl.css",
+    "build": "run-p \"build:*\"",
+    "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial"
+  }
 }

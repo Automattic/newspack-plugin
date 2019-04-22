@@ -70,9 +70,16 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'jetpack', $data );
 
 		$expected_jetpack_info = [
-			'name'     => 'Jetpack',
-			'download' => 'wporg',
-			'status'   => 'uninstalled',
+			'Name'        => 'Jetpack',
+			'Description' => 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.',
+			'Author'      => 'Automattic',
+			'PluginURI'   => 'https://jetpack.com/',
+			'AuthorURI'   => 'https://automattic.com/',
+			'Download'    => 'wporg',
+			'TextDomain'  => '',
+			'DomainPath'  => '',
+			'Status'      => 'uninstalled',
+			'Version'     => '',
 		];
 		$this->assertEquals( $expected_jetpack_info, $data['jetpack'] );
 	}
@@ -98,11 +105,12 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$expected_data = [
-			'name'     => 'Jetpack',
-			'download' => 'wporg',
-			'status'   => 'uninstalled',
+			'Name'   => 'Jetpack',
+			'Status' => 'uninstalled',
 		];
-		$this->assertEquals( $expected_data, $response->get_data() );
+		$response_data = $response->get_data();
+		$this->assertEquals( $expected_data['Name'], $response_data['Name'] );
+		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		$request  = new WP_REST_Request( 'GET', $this->api_namespace . '/plugins/this-dont-exist' );
 		$response = $this->server->dispatch( $request );
@@ -133,11 +141,12 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'name'     => 'AMP',
-			'download' => 'wporg',
-			'status'   => 'active',
+			'Name'   => 'AMP',
+			'Status' => 'active',
 		];
-		$this->assertEquals( $expected_data, $response->get_data() );
+		$response_data = $response->get_data();
+		$this->assertEquals( $expected_data['Name'], $response_data['Name'] );
+		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Activating the plugin again should fail.
 		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/activate' );
@@ -148,11 +157,12 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'name'     => 'AMP',
-			'download' => 'wporg',
-			'status'   => 'inactive',
+			'Name'   => 'AMP',
+			'Status' => 'inactive',
 		];
-		$this->assertEquals( $expected_data, $response->get_data() );
+		$response_data = $response->get_data();
+		$this->assertEquals( $expected_data['Name'], $response_data['Name'] );
+		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Dectivating the plugin again should fail.
 		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/deactivate' );
@@ -190,11 +200,12 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'name'     => 'AMP',
-			'download' => 'wporg',
-			'status'   => 'inactive',
+			'Name'   => 'AMP',
+			'Status' => 'inactive',
 		];
-		$this->assertEquals( $expected_data, $response->get_data() );
+		$response_data = $response->get_data();
+		$this->assertEquals( $expected_data['Name'], $response_data['Name'] );
+		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Installing the plugin again should fail.
 		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/install' );
@@ -205,11 +216,12 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'name'     => 'AMP',
-			'download' => 'wporg',
-			'status'   => 'uninstalled',
+			'Name'   => 'AMP',
+			'Status' => 'uninstalled',
 		];
-		$this->assertEquals( $expected_data, $response->get_data() );
+		$response_data = $response->get_data();
+		$this->assertEquals( $expected_data['Name'], $response_data['Name'] );
+		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Uninstalling the plugin again should fail.
 		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/uninstall' );
@@ -235,6 +247,6 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$schema = $response->get_data();
-		$this->assertEquals( 'string', $schema['schema']['properties']['name']['type'] );
+		$this->assertEquals( 'string', $schema['schema']['properties']['Name']['type'] );
 	}
 }

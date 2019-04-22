@@ -189,10 +189,10 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
-		if ( 'wporg' === $managed_plugins[ $slug ]['download'] ) {
+		if ( 'wporg' === $managed_plugins[ $slug ]['Download'] ) {
 			$result = Plugin_Manager::activate( $slug );
 		} else {
-			$result = Plugin_Manager::activate( $managed_plugins[ $slug ]['download'] );
+			$result = Plugin_Manager::activate( $managed_plugins[ $slug ]['Download'] );
 		}
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -238,10 +238,10 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
-		if ( 'wporg' === $managed_plugins[ $slug ]['download'] ) {
+		if ( 'wporg' === $managed_plugins[ $slug ]['Download'] ) {
 			$result = Plugin_Manager::install( $slug );
 		} else {
-			$result = Plugin_Manager::install( $managed_plugins[ $slug ]['download'] );
+			$result = Plugin_Manager::install( $managed_plugins[ $slug ]['Download'] );
 		}
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -438,19 +438,61 @@ class Plugins_Controller extends WP_REST_Controller {
 			'title'      => $this->resource_name,
 			'type'       => 'object',
 			'properties' => [
-				'name'     => [
+				'Name'        => [
 					'description' => __( 'The name of the plugin.', 'newspack' ),
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,
 				],
-				'download' => [
+				'Description' => [
+					'description' => __( 'The description of the plugin.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'Author'      => [
+					'description' => __( 'The author of the plugin.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'Version'     => [
+					'description' => __( 'The version of the plugin (if available).', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'PluginURI'   => [
+					'description' => __( 'The URL of the plugin site.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'AuthorURI'   => [
+					'description' => __( 'The URL of the plugin author.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'TextDomain'  => [
+					'description' => __( 'The textdomain of the plugin (if available).', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'DomainPath'  => [
+					'description' => __( 'The path for the textdomain of the plugin (if available).', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'Download'    => [
 					'description' => __( 'The location of the plugin download.', 'newspack' ),
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,
 				],
-				'status'   => [
+				'Status'      => [
 					'description' => __( 'The status of the plugin.', 'newspack' ),
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],

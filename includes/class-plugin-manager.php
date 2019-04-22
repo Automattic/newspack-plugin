@@ -26,16 +26,37 @@ class Plugin_Manager {
 	public static function get_managed_plugins() {
 		$managed_plugins = [
 			'jetpack' => [
-				'name'     => __( 'Jetpack', 'newspack' ),
-				'download' => 'wporg',
+				'Name'        => __( 'Jetpack', 'newspack' ),
+				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://jetpack.com/',
+				'AuthorURI'   => 'https://automattic.com/',
+				'Download'    => 'wporg',
 			],
 			'amp'     => [
-				'name'     => __( 'AMP', 'newspack' ),
-				'download' => 'wporg',
+				'Name'        => __( 'AMP', 'newspack' ),
+				'Description' => esc_html__( 'Enable AMP on your WordPress site, the WordPress way.', 'newspack' ),
+				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
+				'PluginURI'   => 'https://amp-wp.org/',
+				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
+				'Download'    => 'wporg',
 			],
 		];
 
-		// Add plugin status info.
+		$default_info = [
+			'Name'        => '',
+			'Description' => '',
+			'Author'      => '',
+			'Version'     => '',
+			'PluginURI'   => '',
+			'AuthorURI'   => '',
+			'TextDomain'  => '',
+			'DomainPath'  => '',
+			'Download'    => '',
+			'Status'      => '',
+		];
+
+		// Add plugin status info and fill in defaults.
 		$installed_plugins = self::get_installed_plugins();
 		foreach ( $managed_plugins as $plugin_slug => $managed_plugin ) {
 			$status = 'uninstalled';
@@ -46,9 +67,9 @@ class Plugin_Manager {
 					$status = 'inactive';
 				}
 			}
-			$managed_plugins[ $plugin_slug ]['status'] = $status;
+			$managed_plugins[ $plugin_slug ]['Status'] = $status;
+			$managed_plugins[ $plugin_slug ]           = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
 		}
-
 		return $managed_plugins;
 	}
 
