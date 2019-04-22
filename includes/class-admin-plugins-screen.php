@@ -34,7 +34,7 @@ class Admin_Plugins_Screen {
 	public function inject_managed_plugins( $plugins ) {
 		$managed_plugins   = Plugin_Manager::get_managed_plugins();
 		$installed_plugins = Plugin_Manager::get_installed_plugins();
-		
+
 		foreach ( $managed_plugins as $slug => $plugin_info ) {
 			// If plugin is already installed, just use that info.
 			if ( isset( $installed_plugins[ $slug ] ) ) {
@@ -121,7 +121,7 @@ class Admin_Plugins_Screen {
 			wp_die( esc_html__( 'Sorry, you are not allowed to install plugins.', 'newspack' ) );
 		}
 
-		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_title( $_REQUEST['plugin'] ) : ''; // phpcs:ignore WordPress.VIP.SuperGlobalInputUsage
+		$plugin = filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_STRING );
 		if ( ! $plugin ) {
 			wp_die( esc_html__( 'Invalid plugin.', 'newspack' ) );
 		}
@@ -155,7 +155,7 @@ class Admin_Plugins_Screen {
 	public function plugin_install_notices() {
 		if ( filter_input( INPUT_GET, 'newspack_install_success', FILTER_VALIDATE_BOOLEAN ) ) {
 			?>
-			<div class="notice notice-success is-dismissible"> 
+			<div class="notice notice-success is-dismissible">
 				<p><strong><?php echo esc_html__( 'Plugin installed.', 'newspack' ); ?></strong></p>
 				<button type="button" class="notice-dismiss">
 					<span class="screen-reader-text"><?php echo esc_html__( 'Dismiss.', 'newspack' ); ?></span>
@@ -167,7 +167,7 @@ class Admin_Plugins_Screen {
 			check_admin_referer( 'newspack-install-error_' . $plugin, '_error_nonce' );
 			$message = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_STRING );
 			?>
-			<div class="notice notice-error is-dismissible"> 
+			<div class="notice notice-error is-dismissible">
 				<p><strong><?php echo esc_html__( 'Failed to install plugin:', 'newspack' ); ?></strong> <?php echo esc_html( $message ); ?></p>
 				<button type="button" class="notice-dismiss">
 					<span class="screen-reader-text"><?php echo esc_html__( 'Dismiss.', 'newspack' ); ?></span>
