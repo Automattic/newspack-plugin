@@ -32,5 +32,10 @@
   "browserslist": [
     "extends @wordpress/browserslist-config"
   ],
-  "scripts": {}
+  "scripts": {
+    "build:style-wizard": "node-sass assets/css/sass/wizard.scss assets/css/wizard.css --output-style expanded && postcss -r assets/css/wizard.css",
+    "build:rtl": "rtlcss assets/css/wizard.css assets/css/wizard-rtl.css",
+    "build": "run-p \"build:*\"",
+    "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial"
+  }
 }

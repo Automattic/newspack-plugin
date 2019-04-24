@@ -1,0 +1,156 @@
+$cta_color: #D52C82;
+$cta_color_light: #FF3997;
+
+$text_color: #1A1A1A;
+$text_color_light: #50575D;
+
+
+.newspack-wizard {
+	max-width: 488px;
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+
+	.newspack-wizard__heading {
+		text-align: center;
+	}
+
+	.newspack-wizard__cta {
+		background: $cta_color;
+		color: #FFF;
+		display: block;
+		max-width: 360px;
+		width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+		text-decoration: none;
+		padding: 1em;
+		box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+		border-radius: 3px;
+		cursor: pointer;
+
+		&:hover {
+			background: $cta_color_light;
+		}
+	}
+}
+
+.newspack-card {
+	background: #FFF;
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+	border-radius: 3px;
+	padding: 1.5em;
+	box-sizing: border-box;
+	color: $text_color;
+
+	a {
+		color: $cta_color;
+		text-decoration: none;
+
+		&:hover {
+			color: $cta_color_light;
+		}
+	}
+
+	input[type="text"], input[type="number"], select {
+		background-color: #F6F6F6;
+		border: none;
+		border-bottom: 2px solid #B0B5B8;
+		font-size: 16px;
+		line-height: 3em;
+		height: 3em;
+		padding-left: 1em;
+		padding-right: 1em;
+		box-sizing: border-box;
+		border-radius: 3px 3px 0px 0px;
+
+		&:disabled {
+			border-bottom: none;
+			opacity: .75;
+		}
+	}
+
+	input[type="checkbox"] {
+		border: 2px solid #636D75;
+		height: 1.5em;
+		width: 1.5em;
+
+		&:checked {
+			background-color: $cta_color;
+			border-color: $cta_color;
+
+			&:before {
+				color: #FFF;
+				font-size: 24px;
+			}
+		}
+	}
+}
+
+/**
+ * Subscription management screen.
+ */
+ .newspack-wizard__manage-subscriptions {
+ 	.newspack-card {
+ 		margin-bottom: 10px;
+ 		display: flex;
+ 		justify-content: space-between;
+ 	}
+
+ 	img {
+ 		border-radius: 50%;
+ 		height: 32px;
+ 		width: auto;
+ 		border: 1px solid #D8D8D8;
+ 		margin-left: .5em;
+ 		margin-right: 1.5em;
+ 		margin-top: 1px;
+ 	}
+
+ 	.newspack-wizard__manage-subscriptions__product-info {
+ 		width: 100%;
+
+ 		.product-title {
+ 			font-size: 16px;
+ 			font-weight: bold;
+
+ 			a {
+ 				color: $text_color;
+ 			}
+ 		}
+ 	}
+ }
+
+ /**
+  * Edit/Create subscription screen.
+  */
+  .newspack-wizard__edit-subscription {
+  	font-size: 16px;
+
+  	.product-title {
+  		width: 100%;
+  	}
+
+  	.price-fields,
+  	.chose_price-fields__basic-price-info,
+  	.chose_price-fields__advanced-price-info {
+  		display: flex;
+  		justify-content: space-between;
+  		margin-bottom: 1.5em;
+  		input, select {
+  			width: calc(50% - .5em);
+  		}
+  	}
+
+  	.choose_price-input-container,
+  	.chose_price-fields__hide-min-price,
+  	.image-fields {
+  		margin-top: 2em;
+  		margin-bottom: 2em;
+  	}
+
+  	input[type="submit"] {
+  		margin-top: 2em;
+  	}
+  }

@@ -12,50 +12,57 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Easy interface for managing subscriptions.
  */
-class Subscriptions_Wizard {
+class Subscriptions_Wizard extends Wizard {
+
+	protected $name = 'Newspack: Subscriptions';
+	protected $slug = 'newspack-subscriptions-wizard';
+	protected $capability = 'edit_products';
 
 	/**
 	 * Initialize.
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_dashboard_page' ] );
+		$this->init();
 		add_action( 'admin_init', [ $this, 'save_product_form' ] );
 	}
 
-	public function add_dashboard_page() {
-		add_dashboard_page( 'Newspack: Subscriptions', 'Newspack: Subscriptions', 'edit_products', 'newspack-subscriptions-wizard', [ $this, 'render_wizard' ] );
-	}
-
-	public function render_wizard() {
-		$screen = isset( $_GET['screen'] ) && $_GET['screen'] ? sanitize_title( $_GET['screen'] ) : $this->get_home_screen();
-		$render_method = 'render_' . $screen . '_screen';
-		if ( method_exists( $this, $render_method ) ) {
-			$this->$render_method();
-		}
-	}
-
-	public function get_home_screen() {
+	protected function get_home_screen() {
 		return 'manage_subscriptions';
 	}
 
 	protected function render_manage_subscriptions_screen() {
 		$products = $this->get_subscriptions();
 
-		// header
-
-		foreach ( $products as $product ) {
-			include 'views/subscriptions-wizard/product-details.php';
-		}
 		?>
-		<div>
-			<a href="<?php echo self_admin_url( 'index.php?page=newspack-subscriptions-wizard&screen=edit_subscription' ) ?>">Add another subscription.</a>
+		<div class="newspack-wizard__heading">
+			<h1><?php echo esc_html__( 'Subscriptions', 'newspack' ); ?></h1>
+			<p><?php echo esc_html__( 'Add subscription plans and manage your subscription plans.', 'newspack' ); ?></p>
 		</div>
+
+		<div class="newspack-wizard__manage-subscriptions">
+			<?php
+			foreach ( $products as $product ) {
+				include 'views/subscriptions-wizard/product-details.php';
+			}
+			?>
+		</div>
+
+		<a class="newspack-wizard__cta" href="<?php echo self_admin_url( 'index.php?page=newspack-subscriptions-wizard&screen=edit_subscription' ) ?>">Add a subscription</a>
 		<?php
 	}
 
 	protected function render_edit_subscription_screen() {
 		$product = isset( $_GET['subscription'] ) ? wc_get_product( absint( $_GET['subscription'] ) ) : false;
-		include 'views/subscriptions-wizard/edit-product.php';
+		$heading = $product ? __( 'Edit your subscription', 'newspack' ) : __( 'Add a subscription', 'newspack' );
+		?>
+		<div class="newspack-wizard__heading">
+			<h1><?php echo esc_html( $heading ); ?></h1>
+		</div>
+
+		<div class="newspack-wizard__edit-subscription newspack-card">
+			<?php include 'views/subscriptions-wizard/edit-product.php'; ?>
+		</div>
+		<?php
 	}
 
 	protected function get_subscriptions() {

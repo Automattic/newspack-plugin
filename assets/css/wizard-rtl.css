@@ -1,0 +1,148 @@
+.newspack-wizard {
+  max-width: 488px;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.newspack-wizard .newspack-wizard__heading {
+  text-align: center;
+}
+
+.newspack-wizard .newspack-wizard__cta {
+  background: #D52C82;
+  color: #FFF;
+  display: block;
+  max-width: 360px;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+  text-decoration: none;
+  padding: 1em;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.newspack-wizard .newspack-wizard__cta:hover {
+  background: #FF3997;
+}
+
+.newspack-card {
+  background: #FFF;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+  padding: 1.5em;
+  box-sizing: border-box;
+  color: #1A1A1A;
+}
+
+.newspack-card a {
+  color: #D52C82;
+  text-decoration: none;
+}
+
+.newspack-card a:hover {
+  color: #FF3997;
+}
+
+.newspack-card input[type="text"], .newspack-card input[type="number"], .newspack-card select {
+  background-color: #F6F6F6;
+  border: none;
+  border-bottom: 2px solid #B0B5B8;
+  font-size: 16px;
+  line-height: 3em;
+  height: 3em;
+  padding-right: 1em;
+  padding-left: 1em;
+  box-sizing: border-box;
+  border-radius: 3px 3px 0px 0px;
+}
+
+.newspack-card input[type="text"]:disabled, .newspack-card input[type="number"]:disabled, .newspack-card select:disabled {
+  border-bottom: none;
+  opacity: .75;
+}
+
+.newspack-card input[type="checkbox"] {
+  border: 2px solid #636D75;
+  height: 1.5em;
+  width: 1.5em;
+}
+
+.newspack-card input[type="checkbox"]:checked {
+  background-color: #D52C82;
+  border-color: #D52C82;
+}
+
+.newspack-card input[type="checkbox"]:checked:before {
+  color: #FFF;
+  font-size: 24px;
+}
+
+/**
+ * Subscription management screen.
+ */
+.newspack-wizard__manage-subscriptions .newspack-card {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.newspack-wizard__manage-subscriptions img {
+  border-radius: 50%;
+  height: 32px;
+  width: auto;
+  border: 1px solid #D8D8D8;
+  margin-right: .5em;
+  margin-left: 1.5em;
+  margin-top: 1px;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-wizard__manage-subscriptions__product-info {
+  width: 100%;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-wizard__manage-subscriptions__product-info .product-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/**
+  * Edit/Create subscription screen.
+  */
+.newspack-wizard__edit-subscription {
+  font-size: 16px;
+}
+
+.newspack-wizard__edit-subscription .product-title {
+  width: 100%;
+}
+
+.newspack-wizard__edit-subscription .price-fields,
+.newspack-wizard__edit-subscription .chose_price-fields__basic-price-info,
+.newspack-wizard__edit-subscription .chose_price-fields__advanced-price-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5em;
+}
+
+.newspack-wizard__edit-subscription .price-fields input, .newspack-wizard__edit-subscription .price-fields select,
+.newspack-wizard__edit-subscription .chose_price-fields__basic-price-info input,
+.newspack-wizard__edit-subscription .chose_price-fields__basic-price-info select,
+.newspack-wizard__edit-subscription .chose_price-fields__advanced-price-info input,
+.newspack-wizard__edit-subscription .chose_price-fields__advanced-price-info select {
+  width: calc(50% - .5em);
+}
+
+.newspack-wizard__edit-subscription .choose_price-input-container,
+.newspack-wizard__edit-subscription .chose_price-fields__hide-min-price,
+.newspack-wizard__edit-subscription .image-fields {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.newspack-wizard__edit-subscription input[type="submit"] {
+  margin-top: 2em;
+}
