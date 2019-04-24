@@ -90,6 +90,19 @@
   justify-content: space-between;
 }
 
+.newspack-wizard__manage-subscriptions .newspack-card .delete-subscription {
+  visibility: hidden;
+  color: #D8D8D8;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-card .delete-subscription:hover {
+  color: #50575D;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-card:hover .delete-subscription {
+  visibility: visible;
+}
+
 .newspack-wizard__manage-subscriptions img {
   border-radius: 50%;
   height: 32px;

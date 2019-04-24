@@ -90,6 +90,19 @@
   justify-content: space-between;
 }
 
+.newspack-wizard__manage-subscriptions .newspack-card .delete-subscription {
+  visibility: hidden;
+  color: #D8D8D8;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-card .delete-subscription:hover {
+  text-decoration: underline;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-card:hover .delete-subscription {
+  visibility: visible;
+}
+
 .newspack-wizard__manage-subscriptions img {
   border-radius: 50%;
   height: 32px;
@@ -107,6 +120,10 @@
 .newspack-wizard__manage-subscriptions .newspack-wizard__manage-subscriptions__product-info .product-title {
   font-size: 16px;
   font-weight: bold;
+}
+
+.newspack-wizard__manage-subscriptions .newspack-wizard__manage-subscriptions__product-info .product-title a {
+  color: #1A1A1A;
 }
 
 /**

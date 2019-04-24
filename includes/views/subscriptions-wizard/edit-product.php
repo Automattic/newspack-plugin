@@ -65,23 +65,4 @@ $hide_min_price         = $product ? WC_Name_Your_Price_Helpers::is_minimum_hidd
 	</div>
 	
 	<input type="submit" class="newspack-wizard__cta" value="Save" />
-	<!-- nonce it -->
 </form>
-
-<script>
-(function($){
-	function update_form() {
-		if ( $( '.choose_price-input').is( ':checked' ) ) {
-			$( '.price-fields' ).find( 'input, select' ).attr( 'disabled', true );
-			$( '.choose_price-fields' ).show();
-			$( '.choose_price-fields .subscription_frequency-input' ).attr( 'disabled', false );
-		} else {
-			$( '.price-fields' ).find( 'input, select' ).attr( 'disabled', false );
-			$( '.choose_price-fields' ).hide();
-			$( '.choose_price-fields .subscription_frequency-input' ).attr( 'disabled', true );
-		}
-	};
-	update_form();
-	$( '.choose_price-input' ).on( 'change', update_form );
-})(jQuery)
-</script>

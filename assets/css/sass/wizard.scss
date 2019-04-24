@@ -4,6 +4,7 @@ $cta_color_light: #FF3997;
 $text_color: #1A1A1A;
 $text_color_light: #50575D;
 
+$gray_light: #D8D8D8;
 
 .newspack-wizard {
 	max-width: 488px;
@@ -96,13 +97,28 @@ $text_color_light: #50575D;
  		margin-bottom: 10px;
  		display: flex;
  		justify-content: space-between;
+
+  		.delete-subscription {
+ 			visibility: hidden;
+ 			color: $gray_light;
+
+ 			&:hover {
+ 				color: $text_color_light;
+ 			}
+ 		}
+
+ 		&:hover {
+	  		.delete-subscription {
+	 			visibility: visible;
+	 		}
+ 		}
  	}
 
  	img {
  		border-radius: 50%;
  		height: 32px;
  		width: auto;
- 		border: 1px solid #D8D8D8;
+ 		border: 1px solid $gray_light;
  		margin-left: .5em;
  		margin-right: 1.5em;
  		margin-top: 1px;

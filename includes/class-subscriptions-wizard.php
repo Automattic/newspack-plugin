@@ -24,6 +24,7 @@ class Subscriptions_Wizard extends Wizard {
 	public function __construct() {
 		$this->init();
 		add_action( 'admin_init', [ $this, 'save_product_form' ] );
+		add_action( 'admin_init', [ $this, 'process_subscription_delete' ] );
 	}
 
 	protected function get_home_screen() {
@@ -111,6 +112,23 @@ class Subscriptions_Wizard extends Wizard {
 		$this->save_product( $args );
 	}
 
+	public function process_subscription_delete() {
+		if ( ! isset( $_GET['page'], $_GET['action'], $_GET['subscription'] ) || 'newspack-subscriptions-wizard' !== $_GET['page'] || 'delete' !== $_GET['action'] || ! is_numeric( $_GET['subscription'] ) ) {
+			return;
+		}
+
+		check_admin_referer( 'newspack-delete-subscription_' . absint( $_GET['subscription'] ), 'delete_subscription_nonce' );
+
+		if ( ! current_user_can( 'delete_products' ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to delete subscriptions.', 'newspack' ) );
+		}
+
+		$product = wc_get_product( absint( $_GET['subscription'] ) );
+		if ( $product ) {
+			$product->delete( true );
+		}
+	}
+
 	protected function save_product( $args ) {
 		$defaults = [
 			'id' => 0,
@@ -162,6 +180,18 @@ class Subscriptions_Wizard extends Wizard {
 		}
 
 		$product->save();
+	}
+
+	public function enqueue_scripts_and_styles() {
+		parent::enqueue_scripts_and_styles();
+
+		wp_enqueue_script( 
+			'newspack_subscriptions_wizard', 
+			Newspack::plugin_url() . '/assets/js/subscriptions-wizard.js', 
+			[ 'jquery' ], 
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/js/subscriptions-wizard.js' ), 
+			true 
+		);
 	}
 }
 new Subscriptions_Wizard();
