@@ -42,6 +42,10 @@ class Subscriptions_Wizard extends Wizard {
 
 		<div class="newspack-wizard__manage-subscriptions">
 			<?php
+			if ( empty( $products ) ) {
+				echo '<p class="newspack-card">' . esc_html__( 'You don\'t have any subscription plans set up. Create a subscription to enable recurring donations from your readers.', 'newspack' ) . '</p>';
+			}
+
 			foreach ( $products as $product ) {
 				include 'views/subscriptions-wizard/product-details.php';
 			}
