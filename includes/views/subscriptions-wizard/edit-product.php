@@ -16,7 +16,7 @@ $suggested_max_price    = $suggested_max_price ?: '';
 $hide_min_price         = $product ? WC_Name_Your_Price_Helpers::is_minimum_hidden( $product ) : false;
 $image_placeholder      = wc_placeholder_img_src( 'thumbnail' );
 ?>
-<form method="post" action="<?php echo self_admin_url( 'index.php?page=newspack-subscriptions-wizard' ); ?>">
+<form method="post" action="<?php echo self_admin_url( 'admin.php?page=newspack-subscriptions-wizard' ); ?>">
 	<?php wp_nonce_field( 'newspack-subscriptions-wizard-edit-subscription' ); ?>
 	<input type="hidden" name="save_product_form" value="1" />
 	<input type="hidden" name="id" value="<?php echo absint( $product_id ); ?>" />

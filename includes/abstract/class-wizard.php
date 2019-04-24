@@ -22,12 +22,12 @@ abstract class Wizard {
 	 * Initialize.
 	 */
 	public function init() {
-		add_action( 'admin_menu', [ $this, 'add_dashboard_page' ] );
+		add_action( 'admin_menu', [ $this, 'add_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 	}
 
-	public function add_dashboard_page() {
-		add_dashboard_page( $this->name, $this->name, $this->capability, $this->slug, [ $this, 'render_wizard' ] );
+	public function add_page() {
+		add_submenu_page( 'newspack', $this->name, $this->name, $this->capability, $this->slug, [ $this, 'render_wizard' ] );
 	}
 
 	public function render_wizard() {

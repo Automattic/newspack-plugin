@@ -67,7 +67,11 @@ final class Newspack {
 	 * e.g. add_action( 'foo', 'bar' );
 	 */
 	private function init_hooks() {
+		add_action( 'admin_menu', [ $this, 'register_admin_wizard_container' ], 1 );
+	}
 
+	public function register_admin_wizard_container() {
+		add_menu_page( __( 'Newspack', 'newspack' ), __( 'Newspack', 'newspack' ), 'manage_options', 'newspack', function(){ echo "TODO: A dashboard page here or something."; } );
 	}
 
 	/**

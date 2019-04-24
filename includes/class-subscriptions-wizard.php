@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Subscriptions_Wizard extends Wizard {
 
-	protected $name = 'Newspack: Subscriptions';
+	protected $name = 'Subscriptions';
 	protected $slug = 'newspack-subscriptions-wizard';
 	protected $capability = 'edit_products';
 
@@ -48,7 +48,7 @@ class Subscriptions_Wizard extends Wizard {
 			?>
 		</div>
 
-		<a class="newspack-wizard__cta" href="<?php echo self_admin_url( 'index.php?page=newspack-subscriptions-wizard&screen=edit_subscription' ) ?>">Add a subscription</a>
+		<a class="newspack-wizard__cta" href="<?php echo self_admin_url( 'admin.php?page=newspack-subscriptions-wizard&screen=edit_subscription' ) ?>">Add a subscription</a>
 		<?php
 	}
 
