@@ -166,6 +166,21 @@ $gray_light: #D8D8D8;
   		margin-bottom: 2em;
   	}
 
+  	.image-fields {
+  		display: flex;
+  		align-items: center;
+
+  		.image-preview {
+  			margin-right: 1.5em;
+
+  			img {
+  				max-height: 4em;
+  				width: auto;
+  				border: 1px solid $gray_light;
+  			}
+  		}
+  	}
+
   	input[type="submit"] {
   		margin-top: 2em;
   	}

@@ -96,7 +96,7 @@
 }
 
 .newspack-wizard__manage-subscriptions .newspack-card .delete-subscription:hover {
-  text-decoration: underline;
+  color: #50575D;
 }
 
 .newspack-wizard__manage-subscriptions .newspack-card:hover .delete-subscription {
@@ -158,6 +158,20 @@
 .newspack-wizard__edit-subscription .image-fields {
   margin-top: 2em;
   margin-bottom: 2em;
+}
+
+.newspack-wizard__edit-subscription .image-fields {
+  display: flex;
+  align-items: center;
+}
+
+.newspack-wizard__edit-subscription .image-fields .image-preview {
+  margin-left: 1.5em;
+}
+
+.newspack-wizard__edit-subscription .image-fields .image-preview img {
+  max-height: 4em;
+  width: auto;
 }
 
 .newspack-wizard__edit-subscription input[type="submit"] {

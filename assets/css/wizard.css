@@ -160,6 +160,21 @@
   margin-bottom: 2em;
 }
 
+.newspack-wizard__edit-subscription .image-fields {
+  display: flex;
+  align-items: center;
+}
+
+.newspack-wizard__edit-subscription .image-fields .image-preview {
+  margin-right: 1.5em;
+}
+
+.newspack-wizard__edit-subscription .image-fields .image-preview img {
+  max-height: 4em;
+  width: auto;
+  border: 1px solid #D8D8D8;
+}
+
 .newspack-wizard__edit-subscription input[type="submit"] {
   margin-top: 2em;
 }

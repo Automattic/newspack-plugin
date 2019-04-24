@@ -14,6 +14,7 @@ $suggested_min_price    = $suggested_min_price ?: '';
 $suggested_max_price    = $product ? WC_Name_Your_Price_Helpers::get_maximum_price( $product ) : '';
 $suggested_max_price    = $suggested_max_price ?: '';
 $hide_min_price         = $product ? WC_Name_Your_Price_Helpers::is_minimum_hidden( $product ) : false;
+$image_placeholder      = wc_placeholder_img_src( 'thumbnail' );
 ?>
 <form method="post" action="<?php echo self_admin_url( 'index.php?page=newspack-subscriptions-wizard' ); ?>">
 	<?php wp_nonce_field( 'newspack-subscriptions-wizard-edit-subscription' ); ?>
@@ -22,7 +23,10 @@ $hide_min_price         = $product ? WC_Name_Your_Price_Helpers::is_minimum_hidd
 	<input type="text" class="product-title" name="name" placeholder="What is this product called? e.g. Valued Donor" value="<?php echo esc_attr( $product_name ); ?>" />
 	
 	<div class="image-fields">
-		<a href="#"><?php echo esc_html__( 'Add an image', 'newspack' ); ?></a>
+		<div class="image-preview" data-default="<?php echo esc_attr( $image_placeholder ); ?>"><?php echo $product ? $product->get_image( 'full' ) : wc_placeholder_img( 'thumbnail' ); ?></div>
+		<a class="add-image" href="<?php echo esc_url( get_upload_iframe_src( 'image', $product_id ) ); ?>"><?php echo esc_html__( 'Add an image', 'newspack' ); ?></a>
+		<a class="delete-image" href="#"><?php echo esc_html__( 'Remove image', 'newspack' ); ?></a>
+		<input class="image-form-input" type="hidden" name="image_id" value="<?php echo ( $product ? absint( $product->get_image_id() ) : 0 ) ?>" />
 	</div>
 	
 	<div class="price-fields">

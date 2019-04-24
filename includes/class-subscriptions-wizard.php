@@ -53,6 +53,7 @@ class Subscriptions_Wizard extends Wizard {
 	}
 
 	protected function render_edit_subscription_screen() {
+		wp_enqueue_media();
 		$product = isset( $_GET['subscription'] ) ? wc_get_product( absint( $_GET['subscription'] ) ) : false;
 		$heading = $product ? __( 'Edit your subscription', 'newspack' ) : __( 'Add a subscription', 'newspack' );
 		?>
@@ -153,11 +154,10 @@ class Subscriptions_Wizard extends Wizard {
 
 		$product->set_name( $args['name'] );
 		$product->set_virtual( true );
+		$product->set_image_id( $args['image_id'] );
 
-		// Set One-Page Checkout on for this product.
-		$product->update_meta_data( '_wcopc', true );
-		
-		// @todo set image.
+		// Set One-Page Checkout 'on' for this product.
+		$product->update_meta_data( '_wcopc', 'yes' );
 
 		if ( $args['choose_price'] ) {
 			// Set Name Your Price on for this product.
