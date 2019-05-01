@@ -1,12 +1,13 @@
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, Fragment, render } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import CheckboxInput from '../../components/checkboxInput';
+import Card from '../../components/card';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -18,10 +19,20 @@ class SubscriptionsWizard extends Component {
 	 */
 	render() {
 		return(
-			<CheckboxInput
-		        label="Checkbox is tested?"
-		        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-			/>
+			<Fragment>
+				<Card>
+					<CheckboxInput
+				        label="Checkbox is tested?"
+				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+					/>
+				</Card>
+				<Card>
+					<CheckboxInput
+				        label="Checkbox is tested?"
+				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+					/>
+				</Card>
+			</Fragment>
 		);
 	}
 }
