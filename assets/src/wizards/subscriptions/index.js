@@ -1,7 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, Fragment, render } from '@wordpress/element';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -18,10 +19,17 @@ class SubscriptionsWizard extends Component {
 	 */
 	render() {
 		return(
-			<CheckboxInput
-		        label="Checkbox is tested?"
-		        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-			/>
+			<Fragment>
+				<CheckboxInput
+			        label="Checkbox"
+			        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+				/>
+				<CheckboxInput
+			        label="Checkbox w/Tooltip"
+			        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+			        tooltip="This is tooltip text"
+				/>
+			</Fragment>
 		);
 	}
 }
