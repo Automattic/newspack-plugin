@@ -28,8 +28,9 @@ class SubscriptionsWizard extends Component {
 				</Card>
 				<Card>
 					<CheckboxInput
-				        label="Checkbox is tested?"
+				        label="Checkbox w/Tooltip"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+				        tooltip="This is tooltip text"
 					/>
 				</Card>
 			</Fragment>
