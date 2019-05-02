@@ -2,12 +2,12 @@
  * WordPress dependencies
  */
 import { Component, Fragment, render } from '@wordpress/element';
-import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import CheckboxInput from '../../components/checkboxInput';
+import Card from '../../components/card';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -20,15 +20,19 @@ class SubscriptionsWizard extends Component {
 	render() {
 		return(
 			<Fragment>
-				<CheckboxInput
-			        label="Checkbox"
-			        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-				/>
-				<CheckboxInput
-			        label="Checkbox w/Tooltip"
-			        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-			        tooltip="This is tooltip text"
-				/>
+				<Card>
+					<CheckboxInput
+				        label="Checkbox is tested?"
+				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+					/>
+				</Card>
+				<Card>
+					<CheckboxInput
+				        label="Checkbox w/Tooltip"
+				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+				        tooltip="This is tooltip text"
+					/>
+				</Card>
 			</Fragment>
 		);
 	}
