@@ -14,8 +14,8 @@ class ImageUpload extends Component {
 		super( props );
 		this.state = {
 			frame    : false,
-			image_id : 0,
-			image_url: '',
+			image_id : props.image_id || 0,
+			image_url: props.image_url || '',
 		}
 
 		this.openModal          = this.openModal.bind( this );
@@ -33,6 +33,9 @@ class ImageUpload extends Component {
 		}
 	}
 
+	/**
+	 * Open the WP media modal.
+	 */
 	openModal( evt ) {
 		evt.preventDefault();
 
@@ -56,6 +59,9 @@ class ImageUpload extends Component {
 		this.state.frame.open();
 	}
 
+	/**
+	 * Update the state when an image is selected from the media modal.
+	 */
 	handleImageSelect() {
 		let attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
 		this.setState( {
@@ -64,6 +70,9 @@ class ImageUpload extends Component {
 		} );
 	}
 
+	/**
+	 * Clear the selected image.
+	 */
 	removeImage() {
 		this.setState( {
 			image_id: 0,
@@ -77,7 +86,9 @@ class ImageUpload extends Component {
 	renderImagePreview() {
 		return (
 			<div className="newspack-image-upload has-image">
-				<img className="image-preview" src={ this.state.image_url } />
+				<div className="image-preview">
+					<img src={ this.state.image_url } />
+				</div>
 				<Button className="remove-image" onClick={ this.removeImage }>
 					Remove image
 				</Button>
