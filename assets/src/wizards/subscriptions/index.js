@@ -1,13 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, Fragment, render } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import CheckboxInput from '../../components/checkboxInput';
 import ImageUpload from '../../components/ImageUpload';
+import Card from '../../components/card';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -19,13 +20,24 @@ class SubscriptionsWizard extends Component {
 	 */
 	render() {
 		return(
-			<div>
-				<CheckboxInput
-			        label="Checkbox is tested?"
-			        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-				/>
-				<ImageUpload onChange={ function( data ){ console.log( 'Set image: ' + data.image_id ); } } />
-			</div>
+			<Fragment>
+				<Card>
+					<CheckboxInput
+				        label="Checkbox is tested?"
+				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+					/>
+				</Card>
+				<Card>
+					<CheckboxInput
+				        label="Checkbox w/Tooltip"
+				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+				        tooltip="This is tooltip text"
+					/>
+				</Card>
+				<Card>
+					<ImageUpload onChange={ function( data ){ console.log( 'Set image: ' + data.image_id ); } } />
+				</Card>
+			</Fragment>
 		);
 	}
 }
