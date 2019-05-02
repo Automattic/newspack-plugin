@@ -7,6 +7,7 @@ import { Component, render } from '@wordpress/element';
  * Internal dependencies
  */
 import CheckboxInput from '../../components/checkboxInput';
+import ImageUpload from '../../components/ImageUpload';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -18,10 +19,13 @@ class SubscriptionsWizard extends Component {
 	 */
 	render() {
 		return(
-			<CheckboxInput
-		        label="Checkbox is tested?"
-		        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-			/>
+			<div>
+				<CheckboxInput
+			        label="Checkbox is tested?"
+			        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
+				/>
+				<ImageUpload onChange={ function( data ){ console.log( 'Set image: ' + data.image_id ); } } />
+			</div>
 		);
 	}
 }
