@@ -67,14 +67,5 @@ class Wizard {
 		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
 			return;
 		}
-
-		wp_register_style(
-			'newspack-components',
-			Newspack::plugin_url() . '/assets/dist/components.css',
-			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/components.css' )
-		);
-		wp_style_add_data( 'newspack-components', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-components' );
 	}
 }
