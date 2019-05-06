@@ -1,0 +1,76 @@
+/**
+ * Text/Number Input styles.
+ */
+
+.newspack-input-text {
+	position: relative;
+	width: 440px;
+	height: 56px;
+
+	border: 1px solid #B0B5B8;
+	box-shadow: none;
+	box-sizing: border-box;
+	border-radius: 3px;
+	background: #FFFFFF;
+
+	& .div-label {
+		position: absolute;
+		width: 408px;
+		height: 21px;
+		top: 9px;
+		right: 16px;
+		left: 16px;
+
+		font-size: 12px;
+		line-height: 16px;
+
+		color: #636D75;
+	}
+
+	input[type="text"] {
+		position: absolute;
+		width: 408px;
+		height: 24px;
+		right: 20px;
+		left: 16px;
+
+		border: 0px;
+		box-shadow: none;
+		padding: 0px;
+
+		font-size: 16px;
+		line-height: 24px;
+
+		&.active {
+			top: 17px;
+			color: #2B2D2F;
+		}
+
+		&.with-value {
+			top: 25px;
+			color: #2B2D2F;
+		}
+
+		&.empty {
+			top: 17px;
+			color: #636D75;
+		}
+
+		&:disabled {
+			top: 17px;
+			color: #B0B5B8;
+
+			/* Placeholder styling: */
+			&::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+				color: #B0B5B8;
+				opacity: 1; /* Firefox */
+			}
+			&:-ms-input-placeholder { /* Internet Explorer 10-11 */
+				color: #B0B5B8;
+			}
+			&::-ms-input-placeholder { /* Microsoft Edge */
+				color: #B0B5B8;
+			}
+		}
+	}
+}
