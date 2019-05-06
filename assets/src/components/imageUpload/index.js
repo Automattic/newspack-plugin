@@ -67,22 +67,6 @@ class ImageUpload extends Component {
 	}
 
 	/**
-	 * Render when an image has been uploaded.
-	 */
-	renderImagePreview = () => {
-		return (
-			<div className="newspack-image-upload has-image">
-				<div className="image-preview">
-					<img src={ this.props.image.url } />
-				</div>
-				<Button className="remove-image" onClick={ this.removeImage }>
-					{ __( 'Remove image' ) }
-				</Button>
-			</div>
-		);
-	}
-
-	/**
 	 * Render.
 	 */
 	render = () => {
