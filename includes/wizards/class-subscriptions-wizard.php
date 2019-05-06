@@ -9,6 +9,8 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
+
 /**
  * Easy interface for managing subscriptions.
  */
