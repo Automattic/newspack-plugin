@@ -7,6 +7,11 @@
  */
 import { Tooltip } from '@wordpress/components';
 
+/**
+ * Internal dependencies
+ */
+import './style.scss';
+
 class InfoButton extends Tooltip {
 
 	/**
