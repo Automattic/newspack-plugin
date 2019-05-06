@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { data } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -19,20 +19,9 @@ class ImageUpload extends Component {
 	 * Constructor.
 	 */
 	constructor( props ) {
-		super( props );
+		super( ...arguments );
 		this.state = {
 			frame    : false,
-			image_id : props.image_id || 0,
-			image_url: props.image_url || '',
-		}
-	}
-
-	/**
-	 * Fake an onChange event when this gets updated, so components can listen in.
-	 */
-	componentDidUpdate() {
-		if ( 'onChange' in this.props ) {
-			this.props.onChange( this.state );
 		}
 	}
 
@@ -64,21 +53,17 @@ class ImageUpload extends Component {
 	 * Update the state when an image is selected from the media modal.
 	 */
 	handleImageSelect = () => {
-		let attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
-		this.setState( {
-			image_id: attachment.id,
-			image_url: attachment.url
-		} );
+		const { onChange } = this.props;
+		const attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
+		onChange( attachment );
 	}
 
 	/**
 	 * Clear the selected image.
 	 */
 	removeImage = () => {
-		this.setState( {
-			image_id: 0,
-			image_url: ''
-		} );
+		const { onChange } = this.props;
+		onChange( null );
 	}
 
 	/**
@@ -88,7 +73,7 @@ class ImageUpload extends Component {
 		return (
 			<div className="newspack-image-upload has-image">
 				<div className="image-preview">
-					<img src={ this.state.image_url } />
+					<img src={ this.props.image.url } />
 				</div>
 				<Button className="remove-image" onClick={ this.removeImage }>
 					{ __( 'Remove image' ) }
@@ -101,16 +86,28 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		if ( this.state.image_id ) {
-			return this.renderImagePreview();
-		}
+		const { image } = this.props;
 
 		return (
-			<div className="newspack-image-upload no-image">
-				<Button className="add-image" onClick={ this.openModal }>
-					{ __( 'Add an image' ) }
-				</Button>
-			</div>
+			<Fragment>
+				{ !! image && (
+				<div className="newspack-image-upload has-image">
+					<div className="image-preview">
+						<img src={ image.url } />
+					</div>
+					<Button className="remove-image" onClick={ this.removeImage }>
+						{ __( 'Remove image' ) }
+					</Button>
+				</div>
+				) }
+				{ ! image && (
+					<div className="newspack-image-upload no-image">
+						<Button className="add-image" onClick={ this.openModal }>
+							{ __( 'Add an image' ) }
+						</Button>
+					</div>
+				) }
+			</Fragment>
 		);
 	}
 }

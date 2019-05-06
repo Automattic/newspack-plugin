@@ -15,6 +15,13 @@ import Card from '../../components/card';
  */
 class SubscriptionsWizard extends Component {
 
+	constructor( props ) {
+		super( ...arguments );
+		this.state = {
+			image: null,
+		}
+	}
+
 	/**
 	 * Render the example stub.
 	 */
@@ -35,7 +42,14 @@ class SubscriptionsWizard extends Component {
 					/>
 				</Card>
 				<Card>
-					<ImageUpload onChange={ function( data ){ console.log( 'Set image: ' + data.image_id ); } } />
+					<ImageUpload 
+						image={ this.state.image } 
+						onChange={ image => { 
+							this.setState( { image } );
+							console.log( 'Image:' );
+							console.log( image );
+						} }
+					/>
 				</Card>
 			</Fragment>
 		);
