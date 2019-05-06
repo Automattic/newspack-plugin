@@ -1,6 +1,14 @@
+/**
+ * Image uploader component.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { Component } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { data } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Image select/upload button and modal.
@@ -17,11 +25,6 @@ class ImageUpload extends Component {
 			image_id : props.image_id || 0,
 			image_url: props.image_url || '',
 		}
-
-		this.openModal          = this.openModal.bind( this );
-		this.handleImageSelect  = this.handleImageSelect.bind( this );
-		this.removeImage        = this.removeImage.bind( this );
-		this.renderImagePreview = this.renderImagePreview.bind( this );
 	}
 
 	/**
@@ -36,18 +39,16 @@ class ImageUpload extends Component {
 	/**
 	 * Open the WP media modal.
 	 */
-	openModal( evt ) {
-		evt.preventDefault();
-
+	openModal = () => {
 		if ( this.state.frame ) {
 			this.state.frame.open();
 			return;
 		}
 
 		this.state.frame = wp.media( {
-			title: 'Select or upload image',
+			title: __( 'Select or upload image' ),
 			button: {
-				text: 'Select'
+				text: __( 'Select' )
 			},
 			library: {
 				type: 'image'
@@ -62,7 +63,7 @@ class ImageUpload extends Component {
 	/**
 	 * Update the state when an image is selected from the media modal.
 	 */
-	handleImageSelect() {
+	handleImageSelect = () => {
 		let attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
 		this.setState( {
 			image_id: attachment.id,
@@ -73,7 +74,7 @@ class ImageUpload extends Component {
 	/**
 	 * Clear the selected image.
 	 */
-	removeImage() {
+	removeImage = () => {
 		this.setState( {
 			image_id: 0,
 			image_url: ''
@@ -83,14 +84,14 @@ class ImageUpload extends Component {
 	/**
 	 * Render when an image has been uploaded.
 	 */
-	renderImagePreview() {
+	renderImagePreview = () => {
 		return (
 			<div className="newspack-image-upload has-image">
 				<div className="image-preview">
 					<img src={ this.state.image_url } />
 				</div>
 				<Button className="remove-image" onClick={ this.removeImage }>
-					Remove image
+					{ __( 'Remove image' ) }
 				</Button>
 			</div>
 		);
@@ -99,7 +100,7 @@ class ImageUpload extends Component {
 	/**
 	 * Render.
 	 */
-	render() {
+	render = () => {
 		if ( this.state.image_id ) {
 			return this.renderImagePreview();
 		}
@@ -107,7 +108,7 @@ class ImageUpload extends Component {
 		return (
 			<div className="newspack-image-upload no-image">
 				<Button className="add-image" onClick={ this.openModal }>
-					Add an image
+					{ __( 'Add an image' ) }
 				</Button>
 			</div>
 		);
