@@ -5,6 +5,8 @@
  * @package Newspack\Tests
  */
 
+use Newspack\Newspack;
+
 /**
  * Test base/util functionality.
  */

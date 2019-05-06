@@ -36,7 +36,7 @@ You can see a [list of current feature requests which require votes here](https:
 To submit a patch to Newspack, simply create a pull request to the master branch of the Newspack repository. Please test and provide an explanation for your changes. When opening a pull request, please follow these guidelines:
 
 - **Ensure you stick to the [WordPress Coding Standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/php/) and the [VIP Go Coding Standards](https://vip.wordpress.com/documentation/vip-go/code-review-blockers-warnings-notices/)**
-- Install our pre-commit hook using composer. It'll help with the coding standards by automatically checking code when you commit. To install them  run `composer install` from the command line within the Newspack plugin or theme directory. 
+- Install our pre-commit hook using composer. It'll help with the coding standards by automatically checking code when you commit. To install them  run `composer install` from the command line within the Newspack plugin or theme directory.
 - Ensure you use LF line endings in your code editor. Use [EditorConfig](http://editorconfig.org/) if your editor supports it so that indentation, line endings and other settings are auto configured.
 - When committing, reference your issue number (#1234) and include a note about the fix.
 - Ensure that your code is compatible with PHP 5.6+.
@@ -54,13 +54,13 @@ Every PR should be reviewed and approved by someone other than the author, even 
 
 Any standard WordPress local development environment should be able to run Newspack. The official development environment is [the VIP Go local development environment](https://vip.wordpress.com/documentation/vip-go/local-vip-go-development-environment/) with [VIP Go Skeleton](https://github.com/Automattic/vip-go-skeleton).
 
-Once your environment is set up, run `composer install` and `npm install` to get all of the environmental dependencies. 
+Once your environment is set up, run `composer install` and `npm install` to get all of the environmental dependencies.
 
 ## License
 
-Newspack is licensed under [GNU General Public License v3 (or later)](../LICENSE.md).
+Newspack is licensed under [GNU General Public License v2 (or later)](../LICENSE.md).
 
-All materials contributed should be compatible with the GPLv3. This means that if you own the material, you agree to license it under the GPLv3 license. If you are contributing code that is not your own, such as adding a component from another Open Source project, or adding an `npm` package, you need to make sure you follow these steps:
+All materials contributed should be compatible with the GPLv2. This means that if you own the material, you agree to license it under the GPLv2 license. If you are contributing code that is not your own, such as adding a component from another Open Source project, or adding an `npm` package, you need to make sure you follow these steps:
 
 1. Check that the code has a license. If you can't find one, you can try to contact the original author and get permission to use, or ask them to release under a compatible Open Source license.
-2. Check the license is compatible with [GPLv3](http://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses), note that the Apache 2.0 license is *not* compatible.
+2. Check the license is compatible with [GPLv2](http://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses), note that the Apache 2.0 license is *not* compatible.
