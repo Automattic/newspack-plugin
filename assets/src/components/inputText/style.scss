@@ -43,7 +43,7 @@
 
 	&.active {
 		label {
-			display: none !important;
+			display: none;
 		}
 		input[type="text"] {
 			top: 17px;
@@ -62,7 +62,7 @@
 
 	&.empty {
 		label {
-			display: none !important;
+			display: none;
 		}
 		input[type="text"] {
 			top: 17px;
@@ -72,7 +72,7 @@
 
 	&.disabled {
 		label {
-			display: none !important;
+			display: none;
 		}
 		input[type="text"] {
 			top: 17px;
