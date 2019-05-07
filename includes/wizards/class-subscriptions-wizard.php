@@ -56,7 +56,7 @@ class Subscriptions_Wizard extends Wizard {
 		wp_register_style(
 			'newspack-subscriptions-wizard',
 			Newspack::plugin_url() . '/assets/dist/subscriptions.css',
-			null,
+			[ 'wp-components' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptions.css' )
 		);
 		wp_style_add_data( 'newspack-subscriptions-wizard', 'rtl', 'replace' );
