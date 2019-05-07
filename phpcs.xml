@@ -30,7 +30,7 @@
 	<rule ref="PHPCompatibilityWP"/>
 	<config name="testVersion" value="5.6-"/>
 
-	<arg name="extensions" value="php"/>
+	<arg name="extensions" value="php,js"/>
 
 	<!-- Show sniff codes in all reports -->
 	<arg value="s"/>
@@ -41,4 +41,5 @@
 	<exclude-pattern>*/dev-lib/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/assets/dist/*</exclude-pattern>
 </ruleset>
