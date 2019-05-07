@@ -50,8 +50,17 @@
   ],
   "jest": {
     "setupFilesAfterEnv": [
-      "<rootDir>assets/src/setupTests.js"
-    ]
+      "<rootDir>/assets/src/setupTests.js"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/**/src/**/*test.js?(x)",
+      "!**/.eslintrc.*"
+    ],
+    "transform": {
+      "^.+\\.js?$": "babel-jest"
+    },
+    "verbose": false
   },
   "scripts": {
     "build:style-plugins-screen": "node-sass assets/plugins-screen/plugins-screen.scss assets/plugins-screen/plugins-screen.css --output-style expanded && postcss -r assets/plugins-screen/plugins-screen.css",
