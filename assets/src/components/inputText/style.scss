@@ -13,7 +13,7 @@
 	border-radius: 3px;
 	background: #FFFFFF;
 
-	& .div-label {
+	label {
 		position: absolute;
 		width: 408px;
 		height: 21px;
@@ -23,7 +23,6 @@
 
 		font-size: 12px;
 		line-height: 16px;
-
 		color: #636D75;
 	}
 
@@ -40,23 +39,42 @@
 
 		font-size: 16px;
 		line-height: 24px;
+	}
 
-		&.active {
+	&.active {
+		label {
+			display: none !important;
+		}
+		input[type="text"] {
 			top: 17px;
 			color: #2B2D2F;
 		}
+	}
 
-		&.with-value {
+	&.with-value {
+		label {
+		}
+		input[type="text"] {
 			top: 25px;
 			color: #2B2D2F;
 		}
+	}
 
-		&.empty {
+	&.empty {
+		label {
+			display: none !important;
+		}
+		input[type="text"] {
 			top: 17px;
 			color: #636D75;
 		}
+	}
 
-		&:disabled {
+	&.disabled {
+		label {
+			display: none !important;
+		}
+		input[type="text"] {
 			top: 17px;
 			color: #B0B5B8;
 

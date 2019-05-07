@@ -8,7 +8,7 @@ import { Component, Fragment, render } from '@wordpress/element';
  */
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
-import InputText from '../../components/inputText';
+import InputText from '../../components/InputText';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -34,24 +34,26 @@ class SubscriptionsWizard extends Component {
 				        tooltip="This is tooltip text"
 					/>
 				</Card>
-				<Card>
-					<InputText
-					      label="Text Input with value"
-					      value="Some value"
-					/>
-				</Card>
-				<Card>
-					<InputText
-					      label="Empty Text Input"
-					/>
-				</Card>
-				<Card>
-					<InputText
-					      label="Disabled Text Input"
-					      disabled
-					/>
-				</Card>
 
+				<Card>
+					<InputText
+						label="Text Input with value"
+						value="Input value"
+						onChange={ value => console.log( value ) }
+					/>
+				</Card>
+				<Card>
+					<InputText
+						label="Text Input empty"
+						onChange={ value => console.log( value ) }
+					/>
+				</Card>
+				<Card>
+					<InputText
+						label="Text Input disabled"
+						disabled
+					/>
+				</Card>
 			</Fragment>
 		);
 	}
@@ -61,4 +63,3 @@ render(
   <SubscriptionsWizard />,
   document.getElementById( 'newspack-subscriptions-wizard' )
 );
-
