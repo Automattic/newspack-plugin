@@ -7,6 +7,11 @@
  */
 import { Component } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import './style.scss';
+
 class Card extends Component {
 	/**
 	 * Render.

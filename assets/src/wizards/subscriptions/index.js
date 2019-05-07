@@ -8,6 +8,7 @@ import { Component, Fragment, render } from '@wordpress/element';
  */
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
+import './style.scss';
 
 /**
  * Subscriptions wizard stub for example purposes.

@@ -11,13 +11,6 @@ const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.
 const path = require( 'path' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 
-// Get files for components stylesheet.
-const adminComponentsDir = path.join( __dirname, 'assets', 'src', 'components' );
-const adminComponentsStyles = fs
-  .readdirSync( adminComponentsDir )
-  .filter( adminComponent => fs.existsSync( path.join( __dirname, 'assets', 'src', 'components', adminComponent, 'style.scss' ) ) );
-const adminComponentsStyleFiles = adminComponentsStyles.map( adminComponent => path.join( __dirname, 'assets', 'src', 'components', adminComponent, 'style.scss' ) );
-
 const wizardsDir = path.join( __dirname, 'assets', 'src', 'wizards' );
 
 // Get files for wizards scripts.
@@ -29,23 +22,10 @@ wizardsScripts.forEach( function( wizard ) {
 	wizardsScriptFiles[ wizard ] = path.join( __dirname, 'assets', 'src', 'wizards', wizard, 'index.js' );
 } );
 
-// Get files for wizards styles.
-const wizardsStyles = fs
-  .readdirSync( wizardsDir )
-  .filter( wizard => fs.existsSync( path.join( __dirname, 'assets', 'src', 'wizards', wizard, 'style.scss' ) ) );
-const wizardsStyleFiles = {}
-wizardsStyles.forEach( function( wizard ) {
-	wizardsStyleFiles[ wizard + '-style' ] = path.join( __dirname, 'assets', 'src', 'wizards', wizard, 'style.scss' );
-} );
-
 const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
-		entry: {
-			...wizardsScriptFiles,
-			...wizardsStyleFiles,
-			components: adminComponentsStyleFiles
-		},
+		entry: wizardsScriptFiles,
 		module: {
 			rules: [
 				{
