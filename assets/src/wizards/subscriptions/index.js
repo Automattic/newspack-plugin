@@ -1,4 +1,8 @@
 /**
+ * Subscriptions Wizard.
+ */
+
+/**
  * WordPress dependencies
  */
 import { Component, Fragment, render } from '@wordpress/element';
@@ -8,6 +12,7 @@ import { Component, Fragment, render } from '@wordpress/element';
  */
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
+import FormattedHeader from '../../components/formattedHeader';
 import './style.scss';
 
 /**
@@ -21,13 +26,18 @@ class SubscriptionsWizard extends Component {
 	render() {
 		return(
 			<Fragment>
+				<FormattedHeader
+					headerText="Newspack Components"
+					subHeaderText="Temporary demo of Newspack components"
+				/>
 				<Card>
+					<FormattedHeader
+						headerText="Checkboxes"
+					/>
 					<CheckboxInput
 				        label="Checkbox is tested?"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 					/>
-				</Card>
-				<Card>
 					<CheckboxInput
 				        label="Checkbox w/Tooltip"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
