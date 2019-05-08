@@ -54,7 +54,6 @@
     "setupFilesAfterEnv": [
       "<rootDir>/assets/src/setupTests.js"
     ],
-    "testEnvironment": "jsdom",
     "testMatch": [
       "<rootDir>/**/src/**/*test.js?(x)",
       "!**/.eslintrc.*"
