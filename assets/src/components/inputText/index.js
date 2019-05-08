@@ -38,7 +38,7 @@ const InputText = withFocusOutside(
 		};
 
 		/**
-		 * Get a component's className describing its state.
+		 * Get component's className describing its state.
 		 */
 		getClassName = ( disabled, isEmpty, isActive ) => {
 			let className = "with-value";
