@@ -30,9 +30,9 @@ class FormattedHeader extends Component {
 
 		return (
 			<header className={ classes }>
-				<h2 className="newspack-formatted-header__title">{ headerText }</h2>
+				<h1 className="newspack-formatted-header__title">{ headerText }</h1>
 				{ subHeaderText && (
-					<p className="newspack-formatted-header__subtitle">{ subHeaderText }</p>
+					<h2 className="newspack-formatted-header__subtitle">{ subHeaderText }</h2>
 				) }
 			</header>
 		);
