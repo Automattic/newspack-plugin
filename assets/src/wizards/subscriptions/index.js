@@ -9,7 +9,6 @@ import { Component, Fragment, render } from '@wordpress/element';
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
 import InputText from '../../components/InputText';
-import '../../components/InputText/style.scss';
 import './style.scss';
 
 /**

@@ -7,6 +7,7 @@
  */
 import { TextControl, withFocusOutside } from '@wordpress/components';
 import { Component } from '@wordpress/element';
+import './style.scss';
 
 const InputText = withFocusOutside(
 
