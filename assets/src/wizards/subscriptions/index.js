@@ -35,7 +35,7 @@ class SubscriptionsWizard extends Component {
 				        tooltip="This is tooltip text"
 					/>
 				</Card>
-				<NewspackButton isPrimary />
+				<NewspackButton isDefault />
 			</Fragment>
 		);
 	}
