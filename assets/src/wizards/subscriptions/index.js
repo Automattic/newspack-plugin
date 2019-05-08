@@ -1,4 +1,8 @@
 /**
+ * Subscriptions Wizard.
+ */
+
+/**
  * WordPress dependencies
  */
 import { Component, Fragment, render } from '@wordpress/element';
@@ -8,6 +12,7 @@ import { Component, Fragment, render } from '@wordpress/element';
  */
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
+import FormattedHeader from '../../components/formattedHeader';
 import InputText from '../../components/InputText';
 import './style.scss';
 
@@ -35,35 +40,38 @@ class SubscriptionsWizard extends Component {
 
 		return(
 			<Fragment>
+				<FormattedHeader
+					headerText="Newspack Components"
+					subHeaderText="Temporary demo of Newspack components"
+				/>
 				<Card>
+					<FormattedHeader
+						headerText="Checkboxes"
+					/>
 					<CheckboxInput
 				        label="Checkbox is tested?"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 					/>
-				</Card>
-				<Card>
 					<CheckboxInput
 				        label="Checkbox w/Tooltip"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 				        tooltip="This is tooltip text"
 					/>
 				</Card>
-
 				<Card>
+					<FormattedHeader
+						headerText="Text Inputs"
+					/>
 					<InputText
 						label="Text Input with value"
 						value={ inputTextValue1 }
 						onChange={ value => this.setState( { inputTextValue1: value } ) }
 					/>
-				</Card>
-				<Card>
 					<InputText
 						label="Text Input empty"
 						value={ inputTextValue2 }
 						onChange={ value => this.setState( { inputTextValue2: value } ) }
 					/>
-				</Card>
-				<Card>
 					<InputText
 						label="Text Input disabled"
 						disabled
