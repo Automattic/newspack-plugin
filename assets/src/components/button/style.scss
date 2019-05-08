@@ -36,6 +36,11 @@
 				background-color: $muriel-hot-pink-400;
 				color: $muriel-gray-0;
 			}
+
+			&:active:enabled {
+				background-color: $muriel-hot-pink-700;
+				color: $muriel-white;
+			}
 		}
 
 	}
