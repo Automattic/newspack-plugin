@@ -70,7 +70,7 @@
     "build:style-plugins-screen-rtl": "rtlcss assets/plugins-screen/plugins-screen.css assets/plugins-screen/plugins-screen-rtl.css",
     "build:webpack": "calypso-build --config='./webpack.config.js'",
     "build": "run-p \"build:*\"",
-    "clean": "rm -rf dist/",
+    "clean": "rm -rf assets/dist/",
     "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial",
     "test": "jest"
   }
