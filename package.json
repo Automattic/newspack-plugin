@@ -21,6 +21,7 @@
     "grunt": "^0.4.5",
     "grunt-wp-i18n": "^0.5.4",
     "grunt-wp-readme-to-markdown": "^1.0.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^24.7.1",
     "mini-css-extract-plugin": "0.6.0",
     "node-sass": "^4.9.3",
@@ -50,15 +51,26 @@
   ],
   "jest": {
     "setupFilesAfterEnv": [
-      "<rootDir>assets/src/setupTests.js"
-    ]
+      "<rootDir>/assets/src/setupTests.js"
+    ],
+    "testMatch": [
+      "<rootDir>/**/src/**/*test.js?(x)",
+      "!**/.eslintrc.*"
+    ],
+    "transform": {
+      "^.+\\.js?$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(scss|css)$": "identity-obj-proxy"
+    },
+    "verbose": false
   },
   "scripts": {
     "build:style-plugins-screen": "node-sass assets/plugins-screen/plugins-screen.scss assets/plugins-screen/plugins-screen.css --output-style expanded && postcss -r assets/plugins-screen/plugins-screen.css",
     "build:style-plugins-screen-rtl": "rtlcss assets/plugins-screen/plugins-screen.css assets/plugins-screen/plugins-screen-rtl.css",
     "build:webpack": "calypso-build --config='./webpack.config.js'",
     "build": "run-p \"build:*\"",
-    "clean": "rm -rf dist/",
+    "clean": "rm -rf assets/dist/",
     "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial",
     "test": "jest"
   }
