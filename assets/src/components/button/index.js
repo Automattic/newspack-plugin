@@ -17,7 +17,7 @@ class NewspackButton extends Component {
 		return (
 			<div className="newspack-button">
 				<Button { ...this.props } >
-					<label>Continue</label>
+					Continue
 				</Button>
 			</div>
 		);
