@@ -3,12 +3,17 @@
  */
 
 /**
- * WordPress dependencies
+ * External dependencies.
+ */
+import classnames from 'classnames';
+
+/**
+ * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
 import './style.scss';
 
@@ -18,11 +23,14 @@ class FormattedHeader extends Component {
 	 */
 	render() {
 		const { headerText, subHeaderText } = this.props;
-		const classes = 'newspack-formatted-header' + ( !! subHeaderText ? ' has-subheader' : '' );
+		const classes = classnames(
+			'newspack-formatted-header',
+			!! subHeaderText ? 'has-subheader' : null
+		);
 
 		return (
 			<header className={ classes }>
-				<h1 className="newspack-formatted-header__title">{ headerText }</h1>
+				<h2 className="newspack-formatted-header__title">{ headerText }</h2>
 				{ subHeaderText && (
 					<p className="newspack-formatted-header__subtitle">{ subHeaderText }</p>
 				) }
