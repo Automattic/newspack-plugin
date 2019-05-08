@@ -15,6 +15,8 @@ import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
+import NewspackButton from '../../components/button';
+import { ButtonGroup } from '@wordpress/components';
 import './style.scss';
 
 /**
@@ -92,6 +94,7 @@ class SubscriptionsWizard extends Component {
 						disabled
 					/>
 				</Card>
+				<NewspackButton isPrimary />
 			</Fragment>
 		);
 	}
