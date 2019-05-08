@@ -9,6 +9,7 @@ import { Component, Fragment } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { data } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import './style.scss';
 
 /**
  * Image select/upload button and modal.

@@ -9,15 +9,22 @@ import { Component, Fragment, render } from '@wordpress/element';
 import CheckboxInput from '../../components/checkboxInput';
 import ImageUpload from '../../components/ImageUpload';
 import Card from '../../components/card';
+import InputText from '../../components/InputText';
+import './style.scss';
 
 /**
  * Subscriptions wizard stub for example purposes.
  */
 class SubscriptionsWizard extends Component {
 
-	constructor( props ) {
+	/**
+	 * constructor. Demo of how the parent interacts with the components, and controls their values.
+	 */
+	constructor() {
 		super( ...arguments );
 		this.state = {
+			inputTextValue1: "Input value",
+			inputTextValue2: "",
 			image: null,
 		}
 	}
@@ -26,6 +33,8 @@ class SubscriptionsWizard extends Component {
 	 * Render the example stub.
 	 */
 	render() {
+		const { inputTextValue1, inputTextValue2 } = this.state;
+
 		return(
 			<Fragment>
 				<Card>
@@ -42,13 +51,33 @@ class SubscriptionsWizard extends Component {
 					/>
 				</Card>
 				<Card>
-					<ImageUpload 
-						image={ this.state.image } 
-						onChange={ image => { 
+					<ImageUpload
+						image={ this.state.image }
+						onChange={ image => {
 							this.setState( { image } );
 							console.log( 'Image:' );
 							console.log( image );
 						} }
+					/>
+				</Card>
+				<Card>
+					<InputText
+						label="Text Input with value"
+						value={ inputTextValue1 }
+						onChange={ value => this.setState( { inputTextValue1: value } ) }
+					/>
+				</Card>
+				<Card>
+					<InputText
+						label="Text Input empty"
+						value={ inputTextValue2 }
+						onChange={ value => this.setState( { inputTextValue2: value } ) }
+					/>
+				</Card>
+				<Card>
+					<InputText
+						label="Text Input disabled"
+						disabled
 					/>
 				</Card>
 			</Fragment>
