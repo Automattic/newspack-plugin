@@ -76,7 +76,7 @@ class ImageUpload extends Component {
 		return (
 			<Fragment>
 				{ !! image && (
-				<div className="newspack-image-upload has-image">
+				<div className="muriel-image-upload has-image">
 					<div className="image-preview">
 						<img src={ image.url } />
 					</div>
@@ -86,7 +86,7 @@ class ImageUpload extends Component {
 				</div>
 				) }
 				{ ! image && (
-					<div className="newspack-image-upload no-image">
+					<div className="muriel-image-upload no-image">
 						<Button className="add-image" onClick={ this.openModal }>
 							{ __( 'Add an image' ) }
 						</Button>
