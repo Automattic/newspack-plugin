@@ -16,7 +16,8 @@ import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import NewspackButton from '../../components/button';
-import { ButtonGroup } from '@wordpress/components';
+import FormattedHeader from '../../components/formattedHeader';
+import InputText from '../../components/InputText';
 import './style.scss';
 
 /**
