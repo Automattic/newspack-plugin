@@ -6,11 +6,11 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { Button } from '@wordpress/components';
+import { Button as BaseComponent } from '@wordpress/components';
 
 import './style.scss';
 
-class NewspackButton extends Component {
+class Button extends Component {
 
 	/**
 	 * Render.
@@ -18,9 +18,9 @@ class NewspackButton extends Component {
 	render( props ) {
 		const { value } = this.props;
 		return (
-			<Button className="newspack-button" { ...this.props } />
+			<BaseComponent className="newspack-button" { ...this.props } />
 		);
 	}
 }
 
-export default NewspackButton;
+export default Button;
