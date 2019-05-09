@@ -18,7 +18,9 @@ class Button extends Component {
 	render( props ) {
 		const { value } = this.props;
 		return (
-			<BaseComponent className="newspack-button" { ...this.props } />
+			<div className="newspack-button">
+				<BaseComponent { ...this.props } />
+			</div>
 		);
 	}
 }
