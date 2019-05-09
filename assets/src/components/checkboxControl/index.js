@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl as BaseComponent } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -14,7 +14,7 @@ import { CheckboxControl } from '@wordpress/components';
 import InfoButton from '../../components/infoButton';
 import './style.scss';
 
-class CheckboxInput extends Component {
+class CheckboxControl extends Component {
 
 	/**
 	 * Render.
@@ -22,8 +22,8 @@ class CheckboxInput extends Component {
 	render() {
 		const { tooltip } = this.props;
 		return (
-			<div className="newspack-checkbox">
-				<CheckboxControl { ...this.props } />
+			<div className="muriel-checkbox">
+				<BaseComponent { ...this.props } />
 				{ tooltip && (
 					<InfoButton text={ tooltip } />
 				) }
@@ -32,4 +32,4 @@ class CheckboxInput extends Component {
 	}
 }
 
-export default CheckboxInput;
+export default CheckboxControl;
