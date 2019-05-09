@@ -7,18 +7,18 @@
 	input[type="checkbox"] {
 		width: 22px;
 		height: 22px;
-		border: 2px solid #636D75;
+		border: 2px solid $muriel-gray-500;
 		border-radius: 3px;
 
 		&:checked {
-			background-color: #D52C82;
-			border-color: #D52C82;
+			background-color: $muriel-hot-pink-500;
+			border-color: $muriel-hot-pink-500;
 
 			&:before {
 				font-size: 30px;
 				margin-left: -7px;
 				margin-top: -4px;
-				color: #FFF;
+				color: $muriel-white;
 			}
 		}
 	}

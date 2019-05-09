@@ -1,4 +1,8 @@
 /**
+ * Subscriptions Wizard.
+ */
+
+/**
  * WordPress dependencies
  */
 import { Component, Fragment, render } from '@wordpress/element';
@@ -19,18 +23,36 @@ import './style.scss';
 class SubscriptionsWizard extends Component {
 
 	/**
+	 * constructor. Demo of how the parent interacts with the components, and controls their values.
+	 */
+	constructor() {
+		super( ...arguments );
+		this.state = {
+			inputTextValue1: "Input value",
+			inputTextValue2: ""
+		}
+	}
+
+	/**
 	 * Render the example stub.
 	 */
 	render() {
+		const { inputTextValue1, inputTextValue2 } = this.state;
+
 		return(
 			<Fragment>
+				<FormattedHeader
+					headerText="Newspack Components"
+					subHeaderText="Temporary demo of Newspack components"
+				/>
 				<Card>
+					<FormattedHeader
+						headerText="Checkboxes"
+					/>
 					<CheckboxInput
 				        label="Checkbox is tested?"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 					/>
-				</Card>
-				<Card>
 					<CheckboxInput
 				        label="Checkbox w/Tooltip"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }

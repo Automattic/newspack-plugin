@@ -9,6 +9,8 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
+
 /**
  * Easy interface for managing subscriptions.
  */
@@ -45,19 +47,19 @@ class Subscriptions_Wizard extends Wizard {
 			return;
 		}
 
-		wp_enqueue_script( 
-			'newspack-subscriptions-wizard', 
-			Newspack::plugin_url() . '/assets/dist/subscriptions.js', 
-			[ 'wp-components' ], 
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptions.js' ), 
-			true 
+		wp_enqueue_script(
+			'newspack-subscriptions-wizard',
+			Newspack::plugin_url() . '/assets/dist/subscriptions.js',
+			[ 'wp-components' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptions.js' ),
+			true
 		);
 
 		wp_register_style(
 			'newspack-subscriptions-wizard',
-			Newspack::plugin_url() . '/assets/dist/subscriptions-style.css',
-			[ 'newspack-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptions-style.css' )
+			Newspack::plugin_url() . '/assets/dist/subscriptions.css',
+			[ 'wp-components' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptions.css' )
 		);
 		wp_style_add_data( 'newspack-subscriptions-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-subscriptions-wizard' );
