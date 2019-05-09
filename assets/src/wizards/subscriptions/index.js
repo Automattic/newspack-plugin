@@ -15,7 +15,6 @@ import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
-import InputText from '../../components/InputText';
 import ProgressBar from '../../components/progressBar';
 import './style.scss';
 
