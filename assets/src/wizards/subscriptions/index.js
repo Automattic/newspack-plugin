@@ -17,7 +17,7 @@ import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import NewspackButton from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
-import InputText from '../../components/InputText';
+import InputText from '../../components/inputText';
 import './style.scss';
 
 /**
@@ -95,7 +95,7 @@ class SubscriptionsWizard extends Component {
 						disabled
 					/>
 				</Card>
-				<NewspackButton isPrimary />
+				<NewspackButton isPrimary>Continue</NewspackButton>
 			</Fragment>
 		);
 	}

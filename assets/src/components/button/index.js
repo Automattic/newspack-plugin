@@ -18,9 +18,7 @@ class NewspackButton extends Component {
 	render( props ) {
 		const { value } = this.props;
 		return (
-			<Button className="newspack-button" { ...this.props } >
-				{ value }
-			</Button>
+			<Button className="newspack-button" { ...this.props } />
 		);
 	}
 }
