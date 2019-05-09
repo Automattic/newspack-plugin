@@ -11,6 +11,7 @@
     "@babel/core": "^7.4.0",
     "@wordpress/blocks": "^6.2.0",
     "@wordpress/browserslist-config": "^2.2.2",
+    "@wordpress/components": "^7.3.1",
     "@wordpress/element": "^2.3.0",
     "autoprefixer": "^9.1.5",
     "chokidar-cli": "^1.2.1",

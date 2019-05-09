@@ -10,6 +10,7 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import ImageUpload from '../../components/ImageUpload';
 import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
@@ -28,7 +29,8 @@ class SubscriptionsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			inputTextValue1: "Input value",
-			inputTextValue2: ""
+			inputTextValue2: "",
+			image: null,
 		}
 	}
 
@@ -56,6 +58,19 @@ class SubscriptionsWizard extends Component {
 				        label="Checkbox w/Tooltip"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 				        tooltip="This is tooltip text"
+					/>
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Image Uploader"
+					/>
+					<ImageUpload
+						image={ this.state.image }
+						onChange={ image => {
+							this.setState( { image } );
+							console.log( 'Image:' );
+							console.log( image );
+						} }
 					/>
 				</Card>
 				<Card>
