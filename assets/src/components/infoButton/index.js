@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies
  */
+import { Component } from '@wordpress/element';
 import { Tooltip } from '@wordpress/components';
 
 /**
@@ -12,13 +13,13 @@ import { Tooltip } from '@wordpress/components';
  */
 import './style.scss';
 
-class InfoButton extends Tooltip {
+class InfoButton extends Component {
 
 	/**
 	 * Render.
 	 */
 	render() {
-		return <Tooltip { ...this.props }><div className="newspack-info-button" /></Tooltip>
+		return <Tooltip { ...this.props }><div className="muriel-info-button" /></Tooltip>
 	}
 }
 
