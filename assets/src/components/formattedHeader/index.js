@@ -24,15 +24,15 @@ class FormattedHeader extends Component {
 	render() {
 		const { headerText, subHeaderText } = this.props;
 		const classes = classnames(
-			'newspack-formatted-header',
+			'muriel-formatted-header',
 			!! subHeaderText ? 'has-subheader' : null
 		);
 
 		return (
 			<header className={ classes }>
-				<h1 className="newspack-formatted-header__title">{ headerText }</h1>
+				<h1 className="muriel-formatted-header__title">{ headerText }</h1>
 				{ subHeaderText && (
-					<h2 className="newspack-formatted-header__subtitle">{ subHeaderText }</h2>
+					<h2 className="muriel-formatted-header__subtitle">{ subHeaderText }</h2>
 				) }
 			</header>
 		);

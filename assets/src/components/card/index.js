@@ -17,7 +17,7 @@ class Card extends Component {
 	 * Render.
 	 */
 	render() {
-		return <div className="newspack-card" { ...this.props } />
+		return <div className="muriel-card" { ...this.props } />
 	}
 }
 
