@@ -12,7 +12,8 @@
 		text-align: center;
 
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-		font-size: 12px;
+		font-size: 14px;
+		line-height: 18px;
 		font-weight: 500;
 		color: $muriel-gray-700;
 		text-shadow: none;
@@ -24,6 +25,7 @@
 			border-style: solid;
 			border-width: 1px 1px 2px;
 			cursor: pointer;
+			height: 40px;
 			margin-top: 13px;
 			margin-bottom: 9px;
 
@@ -75,7 +77,7 @@
 	.newspack-button {
 		margin: 0 auto;
     	width: 80%;
-		
+
 		.components-button {
 			width: 100%;
 		    display: block;
