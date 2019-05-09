@@ -1,11 +1,11 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import NewspackButton from './';
+import Button from './';
 
-describe( 'NewspackButton', () => {
+describe( 'Button', () => {
 	describe( 'basic rendering', () => {
-		it( 'should render a NewspackButton element with a value of "Continue"', () => {
-			const button = shallow( <NewspackButton isPrimary value="Continue" /> );
+		it( 'should render a Button element with a value of "Continue"', () => {
+			const button = shallow( <Button isPrimary>Continue</Button> );
 			expect( button.hasClass( 'is-primary' ) ).toBe( true );
 		} );
 	} );
