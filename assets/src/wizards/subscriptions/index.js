@@ -9,7 +9,6 @@ import { Component, Fragment, render } from '@wordpress/element';
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
 import NewspackButton from '../../components/button';
-import { ButtonGroup } from '@wordpress/components';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -35,7 +34,8 @@ class SubscriptionsWizard extends Component {
 				        tooltip="This is tooltip text"
 					/>
 				</Card>
-				<NewspackButton isDefault />
+
+				<NewspackButton isPrimary value="Continue" />
 			</Fragment>
 		);
 	}

@@ -13,11 +13,12 @@ class NewspackButton extends Component {
 	/**
 	 * Render.
 	 */
-	render() {
+	render( props ) {
+		const { value } = this.props;
 		return (
 			<div className="newspack-button">
 				<Button { ...this.props } >
-					Continue
+					{ value }
 				</Button>
 			</div>
 		);
