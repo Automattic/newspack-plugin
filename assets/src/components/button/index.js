@@ -8,6 +8,8 @@
 import { Component } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 
+import './style.scss';
+
 class NewspackButton extends Component {
 
 	/**
