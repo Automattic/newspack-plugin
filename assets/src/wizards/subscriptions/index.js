@@ -77,9 +77,9 @@ class SubscriptionsWizard extends Component {
 						label="Text Input disabled"
 						disabled
 					/>
+					<NewspackButton isPrimary>Continue</NewspackButton>
 				</Card>
 
-				<NewspackButton isPrimary>Continue</NewspackButton>
 			</Fragment>
 		);
 	}
