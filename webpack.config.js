@@ -26,17 +26,6 @@ const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
 		entry: wizardsScriptFiles,
-		module: {
-			rules: [
-				{
-					test: /.scss$/,
-					use: [
-						MiniCssExtractPlugin.loader,
-						'css-loader'
-					]
-				}
-			]
-		},
 		'output-path': path.join( __dirname, 'assets', 'dist' ),
 	}
 );

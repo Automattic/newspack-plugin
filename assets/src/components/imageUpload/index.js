@@ -19,7 +19,7 @@ class ImageUpload extends Component {
 	/**
 	 * Constructor.
 	 */
-	constructor( props ) {
+	constructor() {
 		super( ...arguments );
 		this.state = {
 			frame    : false,
