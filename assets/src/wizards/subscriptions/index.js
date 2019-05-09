@@ -15,6 +15,8 @@ import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
+import InputText from '../../components/InputText';
+import ProgressBar from '../../components/progressBar';
 import './style.scss';
 
 /**
@@ -91,6 +93,15 @@ class SubscriptionsWizard extends Component {
 						label="Text Input disabled"
 						disabled
 					/>
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Progress bar"
+					/>
+					<ProgressBar completed="2" total="3" />
+					<ProgressBar completed="2" total="5" label="Progress made" />
+					<ProgressBar completed="0" total="5" displayFraction />
+					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
 				</Card>
 			</Fragment>
 		);
