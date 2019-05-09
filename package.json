@@ -12,6 +12,7 @@
     "@wordpress/blocks": "^6.2.0",
     "@wordpress/browserslist-config": "^2.2.2",
     "@wordpress/element": "^2.3.0",
+    "@wordpress/components": "^7.3.1",
     "autoprefixer": "^9.1.5",
     "chokidar-cli": "^1.2.1",
     "classnames": "^2.2.6",
