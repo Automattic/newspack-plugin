@@ -12,7 +12,7 @@ import { Component, Fragment, render } from '@wordpress/element';
  */
 import CheckboxInput from '../../components/checkboxInput';
 import Card from '../../components/card';
-import NewspackButton from '../../components/button';
+import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import InputText from '../../components/inputText';
 import './style.scss';
@@ -77,7 +77,7 @@ class SubscriptionsWizard extends Component {
 						label="Text Input disabled"
 						disabled
 					/>
-					<NewspackButton isPrimary>Continue</NewspackButton>
+					<Button isPrimary>Continue</Button>
 				</Card>
 
 			</Fragment>
