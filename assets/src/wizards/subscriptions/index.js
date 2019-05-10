@@ -15,7 +15,6 @@ import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
-import NewspackButton from '../../components/button';
 import Button from '../../components/button';
 import './style.scss';
 
@@ -95,7 +94,6 @@ class SubscriptionsWizard extends Component {
 					/>
 					<Button isPrimary>Continue</Button>
 				</Card>
-				<NewspackButton isPrimary>Continue</NewspackButton>
 			</Fragment>
 		);
 	}
