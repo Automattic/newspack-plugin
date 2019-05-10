@@ -17,8 +17,6 @@ import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import NewspackButton from '../../components/button';
 import Button from '../../components/button';
-import FormattedHeader from '../../components/formattedHeader';
-import InputText from '../../components/inputText';
 import './style.scss';
 
 /**
