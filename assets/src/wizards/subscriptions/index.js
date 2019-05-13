@@ -10,11 +10,13 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import CheckboxInput from '../../components/checkboxInput';
+import ImageUpload from '../../components/ImageUpload';
+import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
-import InputText from '../../components/inputText';
+import TextControl from '../../components/textControl';
+import Button from '../../components/button';
 import './style.scss';
 
 /**
@@ -29,7 +31,8 @@ class SubscriptionsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			inputTextValue1: "Input value",
-			inputTextValue2: ""
+			inputTextValue2: "",
+			image: null,
 		}
 	}
 
@@ -49,11 +52,11 @@ class SubscriptionsWizard extends Component {
 					<FormattedHeader
 						headerText="Checkboxes"
 					/>
-					<CheckboxInput
+					<CheckboxControl
 				        label="Checkbox is tested?"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 					/>
-					<CheckboxInput
+					<CheckboxControl
 				        label="Checkbox w/Tooltip"
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 				        tooltip="This is tooltip text"
@@ -61,19 +64,32 @@ class SubscriptionsWizard extends Component {
 				</Card>
 				<Card>
 					<FormattedHeader
+						headerText="Image Uploader"
+					/>
+					<ImageUpload
+						image={ this.state.image }
+						onChange={ image => {
+							this.setState( { image } );
+							console.log( 'Image:' );
+							console.log( image );
+						} }
+					/>
+				</Card>
+				<Card>
+					<FormattedHeader
 						headerText="Text Inputs"
 					/>
-					<InputText
+					<TextControl
 						label="Text Input with value"
 						value={ inputTextValue1 }
 						onChange={ value => this.setState( { inputTextValue1: value } ) }
 					/>
-					<InputText
+					<TextControl
 						label="Text Input empty"
 						value={ inputTextValue2 }
 						onChange={ value => this.setState( { inputTextValue2: value } ) }
 					/>
-					<InputText
+					<TextControl
 						label="Text Input disabled"
 						disabled
 					/>

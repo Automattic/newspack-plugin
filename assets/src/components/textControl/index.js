@@ -5,11 +5,11 @@
 /**
  * WordPress dependencies
  */
-import { TextControl, withFocusOutside } from '@wordpress/components';
+import { TextControl as BaseComponent, withFocusOutside } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import './style.scss';
 
-const InputText = withFocusOutside(
+const TextControl = withFocusOutside(
 
 	class extends Component {
 
@@ -64,8 +64,8 @@ const InputText = withFocusOutside(
 			const className= this.getClassName( disabled, isEmpty, isActive );
 
 			return (
-				<TextControl
-					className={ "newspack-input-text " + className }
+				<BaseComponent
+					className={ "muriel-input-text " + className }
 					placeholder={ label }
 					{ ...this.props }
 					onClick={ () => this.handleOnClick() }
@@ -75,4 +75,4 @@ const InputText = withFocusOutside(
 	}
 );
 
-export default InputText;
+export default TextControl;

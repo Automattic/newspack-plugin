@@ -1,0 +1,40 @@
+/**
+ * Image uploader styles.
+ */
+
+.muriel-image-upload {
+	button {
+		color: $muriel-hot-pink-500;
+		font-size: 16px;
+		padding: 0;
+		vertical-align: middle;
+	}
+
+	.image-preview {
+		font-size: 16px;
+		margin-right: 2em;
+
+		img {
+			max-width: 240px;
+			height: auto;
+		}
+	}
+
+	&.no-image {
+		.add-image {
+			&:before {
+				content: '';
+				background-image: url( 'image_upload_24px.svg' );
+				width: 24px;
+				height: 24px;
+				margin-right: 2em;
+				margin-top: -2px;
+			}
+		}
+	}
+
+	&.has-image {
+		display: flex;
+		align-items: center;
+	}
+}
