@@ -4,9 +4,7 @@
 
 .muriel-button {
 	.components-button {
-	    padding: 0 20px 1px;
 		text-align: center;
-
 		font-size: 14px;
 		line-height: 18px;
 		font-weight: 500;
@@ -18,11 +16,9 @@
 			border: none;
 			border-radius: 3px;
 			cursor: pointer;
-			height: 40px;
-			max-width: 360px;
-			max-height: 40px;
-			margin-top: 13px;
-			margin-bottom: 9px;
+			height: auto;
+			padding: 13px 0;
+			margin: 14px auto;
 
 			&:hover {
 				border-color: $muriel-gray-500;
