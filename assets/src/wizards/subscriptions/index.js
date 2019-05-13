@@ -10,7 +10,7 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import ImageUpload from '../../components/ImageUpload';
+import ImageUpload from '../../components/imageUpload';
 import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
 import Button from '../../components/button';
