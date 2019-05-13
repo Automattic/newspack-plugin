@@ -23,6 +23,8 @@
 	.muriel-progress-bar__bar {
 		height: 4px;
 		background-color: $muriel-hot-pink-500;
+		-webkit-transition: width 0.25s; /* Safari */
+  		transition: width 0.25s;
 
 		&::before {
 			content: "";

@@ -20,18 +20,16 @@ class ProgressBar extends Component {
 	/**
 	 * Get completion as a percentage.
 	 *
+	 * @param  int completed The number of steps completed.
+	 * @param  int total     The total number of steps.
 	 * @return int
 	 */
-	getCompletionPercentage() {
-		let { completed, total } = this.props;
-		completed = parseInt( completed );
-		total = parseInt( total );
-
+	getCompletionPercentage( completed, total ) {
 		if ( ! total ) {
 			return 100;
 		}
 
-		return Math.min( Math.round( ( completed / total ) * 100 ), 100 );
+		return Math.max( Math.min( Math.round( ( completed / total ) * 100 ), 100 ), 0 );
 	}
 
 	/**
@@ -39,9 +37,11 @@ class ProgressBar extends Component {
 	 */
 	render() {
 		const { label, completed, total, displayFraction } = this.props;
+		const cleanTotal = Math.max( 0, parseInt( total ) || 0 );
+		const cleanCompleted = Math.max( 0, Math.min( ( parseInt( completed ) || 0 ), parseInt( cleanTotal ) ) );
 
 		const barStyle = {
-			width: this.getCompletionPercentage() + '%',
+			width: this.getCompletionPercentage( cleanCompleted, cleanTotal ) + '%',
 		}
 
 		return (
@@ -55,7 +55,7 @@ class ProgressBar extends Component {
 						) }
 						{ displayFraction && (
 							<div className="muriel-progress-bar__fraction">
-								{ completed }/{ total}
+								{ cleanCompleted }/{ cleanTotal}
 							</div>
 						) }
 					</div>

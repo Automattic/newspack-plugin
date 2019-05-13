@@ -32,9 +32,23 @@ describe( 'ProgressBar', () => {
 			expect( bar.find( '.muriel-progress-bar__fraction' ) ).toHaveLength( 1 );
 		} );
 
-		it( 'should render a ProgressBar element with appropriate progress', () => {
+		it( 'should calculate progress correctly', () => {
 			const bar = shallow( <ProgressBar completed="1" total="2" /> );
-			expect( bar.find( '.muriel-progress-bar__bar' ).render().css( 'width' ) ).toBe( '50%' );
+			expect( bar.instance().getCompletionPercentage( 1, 2 ) ).toBe( 50 );
+			expect( bar.instance().getCompletionPercentage( 2, 3 ) ).toBe( 67 );
+			expect( bar.instance().getCompletionPercentage( 6, 3 ) ).toBe( 100 );
+		} );
+
+		it( 'should handle non-numeric values in ProgressBar element', () => {
+			const bar = shallow( <ProgressBar completed="cats" total="dogs" displayFraction /> );
+			expect( bar.find( '.muriel-progress-bar__fraction' ).text() ).toBe( '0/0' );
+			expect( bar.find( '.muriel-progress-bar__bar' ).render().css( 'width' ) ).toBe( '100%' );
+		} );
+
+		it( 'should handle non-logical values in ProgressBar element', () => {
+			const bar = shallow( <ProgressBar completed="3" total="-1" displayFraction /> );
+			expect( bar.find( '.muriel-progress-bar__fraction' ).text() ).toBe( '0/0' );
+			expect( bar.find( '.muriel-progress-bar__bar' ).render().css( 'width' ) ).toBe( '100%' );
 		} );
 	} );
 } );
