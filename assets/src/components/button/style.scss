@@ -42,19 +42,6 @@
 			}
 		}
 
-		&.is-tertiary {
-			color: $muriel-hot-pink-500;
-
-			// We need this huge selector to override core styles.
-			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
-				color: $muriel-hot-pink-700;
-			}
-
-			&:active:focus:enabled {
-				border: 0;
-			}
-		}
-
 	}
 }
 
