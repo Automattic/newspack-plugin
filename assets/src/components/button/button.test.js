@@ -6,7 +6,7 @@ describe( 'Button', () => {
 	describe( 'basic rendering', () => {
 		it( 'should render a Button element with a value of "Continue"', () => {
 			const button = shallow( <Button isPrimary>Continue</Button> );
-			expect( button.render().hasClass( 'newspack-button' ) ).toBe( true );
+			expect( button.render().hasClass( 'muriel-button' ) ).toBe( true );
 		} );
 	} );
 	describe( 'rendering default', () => {
