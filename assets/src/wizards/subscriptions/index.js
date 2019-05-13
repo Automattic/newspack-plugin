@@ -16,7 +16,6 @@ import Card from '../../components/card';
 import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
-import Button from '../../components/button';
 import './style.scss';
 
 /**
