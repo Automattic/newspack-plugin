@@ -3,58 +3,48 @@
  */
 
 .muriel-button {
-	.components-button {
-		text-align: center;
-		font-size: 14px;
-		line-height: 18px;
-		font-weight: 500;
-		color: $muriel-gray-700;
+	text-align: center;
+	font-size: 14px;
+	line-height: 18px;
+	font-weight: 500;
+	color: $muriel-gray-700;
+
+	&.is-button {
+		background-color: $muriel-white;
+		border-color: #CCCCCC;
+		border-radius: 3px;
+		cursor: pointer;
+		height: auto;
+		padding: 13px 0;
+		margin: 14px auto;
+
+		&:active:enabled {
+			border-width: 2px 1px 1px;
+		}
+	}
+
+	&.is-primary {
+		display: block;
+		width: 100%;
+		max-width: calc( 360px - 28px );
 		text-shadow: none;
 
-		&.is-button {
-			background-color: $muriel-white;
-			border-color: #CCCCCC;
-			border-radius: 3px;
-			cursor: pointer;
-			height: auto;
-			padding: 13px 0;
-			margin: 14px auto;
+		border: none;
+		background-color: $muriel-hot-pink-500;
+		box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+		color: $muriel-white;
 
-			&:active:enabled {
-				border-width: 2px 1px 1px;
-			}
-		}
-
-		&.is-primary {
+		&:hover,
+		&:focus:enabled {
+			background-color: $muriel-hot-pink-400;
 			border: none;
-			background-color: $muriel-hot-pink-500;
-			box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-			color: $muriel-white;
-
-			&:hover,
-			&:focus:enabled {
-				background-color: $muriel-hot-pink-400;
-				color: $muriel-gray-0;
-			}
-
-			&:active:enabled {
-				background-color: $muriel-hot-pink-700;
-				color: $muriel-white;
-			}
+			box-shadow: inherit;
+			color: $muriel-gray-0;
 		}
 
-	}
-}
-
-
-.muriel-card {
-	.muriel-button {
-		margin: 0 auto;
-    	width: 80%;
-
-		.components-button {
-			width: 100%;
-		    display: block;
+		&:active:enabled {
+			background-color: $muriel-hot-pink-700;
+			color: $muriel-white;
 		}
 	}
 }

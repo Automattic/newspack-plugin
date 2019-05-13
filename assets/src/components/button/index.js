@@ -17,11 +17,7 @@ class Button extends Component {
 	 */
 	render( props ) {
 		const { value } = this.props;
-		return (
-			<div className="muriel-button">
-				<BaseComponent { ...this.props } />
-			</div>
-		);
+		return <BaseComponent className="muriel-button" { ...this.props } />;
 	}
 }
 
