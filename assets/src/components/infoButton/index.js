@@ -11,6 +11,7 @@ import { Tooltip } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import murielClassnames from '../../shared/js/muriel-classnames';
 import './style.scss';
 
 class InfoButton extends Component {
@@ -19,7 +20,8 @@ class InfoButton extends Component {
 	 * Render.
 	 */
 	render() {
-		return <Tooltip { ...this.props }><div className="muriel-info-button" /></Tooltip>
+		const { className, ...otherProps } = this.props;
+		return <Tooltip { ...otherProps }><div className={ murielClassnames( 'muriel-info-button', className ) } /></Tooltip>
 	}
 }
 

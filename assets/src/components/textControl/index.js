@@ -7,6 +7,11 @@
  */
 import { TextControl as BaseComponent, withFocusOutside } from '@wordpress/components';
 import { Component } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import murielClassnames from '../../shared/js/muriel-classnames';
 import './style.scss';
 
 const TextControl = withFocusOutside(
@@ -58,16 +63,16 @@ const TextControl = withFocusOutside(
 		 */
 		render() {
 			const { isFocused } = this.state;
-			const { label, value, disabled } = this.props;
+			const { className, ...otherProps } = this.props;
+			const { label, value, disabled } = otherProps;
 			const isEmpty = ! value;
 			const isActive = isFocused && ! disabled;
-			const className= this.getClassName( disabled, isEmpty, isActive );
 
 			return (
 				<BaseComponent
-					className={ "muriel-input-text " + className }
+					className={ murielClassnames( "muriel-input-text", className, this.getClassName( disabled, isEmpty, isActive ) ) }
 					placeholder={ label }
-					{ ...this.props }
+					{ ...otherProps }
 					onClick={ () => this.handleOnClick() }
 				/>
 			);

@@ -9,6 +9,11 @@ import { Component, Fragment } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { data } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import murielClassnames from '../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**
@@ -71,12 +76,11 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { image } = this.props;
-
+		const { className, image } = this.props;
 		return (
 			<Fragment>
 				{ !! image && (
-				<div className="muriel-image-upload has-image">
+				<div className={ murielClassnames( 'muriel-image-upload', 'has-image', className ) }>
 					<div className="image-preview">
 						<img src={ image.url } />
 					</div>
@@ -86,7 +90,7 @@ class ImageUpload extends Component {
 				</div>
 				) }
 				{ ! image && (
-					<div className="muriel-image-upload no-image">
+					<div className={ murielClassnames( 'muriel-image-upload', 'no-image', className ) }>
 						<Button className="add-image" onClick={ this.openModal }>
 							{ __( 'Add an image' ) }
 						</Button>
