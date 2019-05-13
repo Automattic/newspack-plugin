@@ -93,6 +93,9 @@ class SubscriptionsWizard extends Component {
 						disabled
 					/>
 					<Button isPrimary>Continue</Button>
+					<Button isPrimary className="is-centered">Continue</Button>
+					<Button isDefault>Continue</Button>
+					<Button isTertiary>Continue</Button>
 				</Card>
 
 			</Fragment>
