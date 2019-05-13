@@ -1,6 +1,8 @@
 /**
- * Button styles,
+ * Button styles
  */
+
+@import '../shared/sass/component';
 
 .muriel-button {
 	text-align: center;
@@ -16,7 +18,6 @@
 		cursor: pointer;
 		height: auto;
 		padding: 13px 0;
-		margin: 14px auto;
 
 		&:active:enabled {
 			border-width: 2px 1px 1px;

@@ -3,6 +3,11 @@
  */
 
 /**
+ * Internal dependencies.
+ */
+ import { murielClassNames } from '../shared/js/muriel-classnames';
+
+/**
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
@@ -17,7 +22,8 @@ class Button extends Component {
 	 */
 	render( props ) {
 		const { value } = this.props;
-		return <BaseComponent className="muriel-button" { ...this.props } />;
+		const { classNames } = this.props;
+		return <BaseComponent { ...this.props } className={ murielClassNames( 'muriel-button', this.props.className ) }  />;
 	}
 }
 

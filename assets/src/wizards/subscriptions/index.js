@@ -92,7 +92,7 @@ class SubscriptionsWizard extends Component {
 						label="Text Input disabled"
 						disabled
 					/>
-					<Button isPrimary>Continue</Button>
+					<Button isPrimary className="is-centered">Continue</Button>
 				</Card>
 
 			</Fragment>
