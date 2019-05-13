@@ -20,10 +20,6 @@
 			padding: 13px 0;
 			margin: 14px auto;
 
-			&:hover {
-				border-color: $muriel-gray-500;
-			}
-
 			&:active:enabled {
 				border-width: 2px 1px 1px;
 			}
