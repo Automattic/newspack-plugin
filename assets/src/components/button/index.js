@@ -8,6 +8,8 @@
 import { Component } from '@wordpress/element';
 import { Button as BaseComponent } from '@wordpress/components';
 
+import classnames from 'classnames';
+
 import './style.scss';
 
 class Button extends Component {
@@ -18,9 +20,7 @@ class Button extends Component {
 	render( props ) {
 		const { value } = this.props;
 		return (
-			<div className="muriel-button">
-				<BaseComponent { ...this.props } />
-			</div>
+			<BaseComponent className={ classnames( 'muriel-button', this.props.className ) } { ...this.props } />
 		);
 	}
 }
