@@ -18,7 +18,6 @@ import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import SelectControl from '../../components/selectControl';
 import ProgressBar from '../../components/progressBar';
-import SelectControl from '../../components/selectControl';
 import './style.scss';
 
 /**

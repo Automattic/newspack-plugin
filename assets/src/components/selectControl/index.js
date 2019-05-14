@@ -11,6 +11,7 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import murielClassnames from '../../shared/js/muriel-classnames';
 import './style.scss';
 
 const SelectControl = withFocusOutside(
@@ -70,14 +71,13 @@ const SelectControl = withFocusOutside(
 		 */
 		render() {
 			const { isFocused } = this.state;
-			const { label, value, disabled, onChange } = this.props;
+			const { value, disabled, onChange } = this.props;
 			const isEmpty = ! value;
 			const isActive = isFocused && ! disabled;
-			const className= this.getClassName( disabled, isEmpty, isActive );
 
 			return (
 				<BaseComponent
-					className={ "muriel-select " + className }
+					className={ murielClassnames( "muriel-select", this.getClassName( disabled, isEmpty, isActive ) ) }
 					{ ...this.props }
 					onClick={ () => this.handleOnClick() }
 					onChange={ value => this.handleOnChange( onChange, value ) }
