@@ -58,28 +58,32 @@ class SubscriptionsWizard extends Component {
 						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
 						buttonText={ __( 'Do it' ) }
 						completedTitle={ __( 'All set!' ) }
-						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+						onClick={ () => this.setState( { currentTask: 1 } ) }
+						onSkip={ () => this.setState( { currentTask: 1 } ) }
 					/>
 					<Task
 						title={ __( 'Set up your paywall' ) }
 						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
 						buttonText={ __( 'Do it' ) }
 						completedTitle={ __( 'All set!' ) }
-						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+						onClick={ () => this.setState( { currentTask: 2 } ) }
+						onSkip={ () => this.setState( { currentTask: 2 } ) }
 					/>
 					<Task
 						title={ __( 'Customize your donations page' ) }
 						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
 						buttonText={ __( 'Do it' ) }
 						completedTitle={ __( 'All set!' ) }
-						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+						onClick={ () => this.setState( { currentTask: 3 } ) }
+						onSkip={ () => this.setState( { currentTask: 3 } ) }
 					/>
 					<Task
 						title={ __( 'Setup Call to Action block' ) }
 						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
 						buttonText={ __( 'Do it' ) }
 						completedTitle={ __( 'All set!' ) }
-						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+						onClick={ () => this.setState( { currentTask: 4 } ) }
+						onSkip={ () => this.setState( { currentTask: 4 } ) }
 					/>
 				</Checklist>
 				<Card>

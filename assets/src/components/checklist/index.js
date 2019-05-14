@@ -60,8 +60,8 @@ class Checklist extends Component {
 						return cloneElement(
 							child,
 							{
-								isCurrent: index === currentTask,
-								isComplete: index < currentTask
+								current: index === currentTask,
+								complete: index < currentTask
 							} );
 					} ) }
 				</div>

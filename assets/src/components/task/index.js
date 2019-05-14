@@ -1,11 +1,12 @@
 /**
- * Checklist for tracking multi-step tasks.
+ * A single checklist task row.
  */
 
 /**
  * WordPress dependencies.
  */
-import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Component, Fragment } from '@wordpress/element';
 import { Dashicon } from '@wordpress/components';
 
 /**
@@ -20,12 +21,35 @@ import './style.scss';
 import classnames from 'classnames';
 
 class Task extends Component {
+	constructor() {
+		super( ...arguments );
+		this.state = {
+			editing: false,
+		}
+	}
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { buttonText, completedTitle, description, isCurrent, isComplete, onClick, title } = this.props;
-		const classes = classnames( "muriel-task", isCurrent ? 'is-current' : null, isComplete ? 'is-complete' : null );
+		const {
+			buttonText,
+			completedTitle,
+			description,
+			current,
+			complete,
+			onClick,
+			onSkip,
+			title
+		} = this.props;
+		const { editing } = this.state;
+		const isActive = editing || current;
+		const isComplete = ! editing && complete;
+		const classes = classnames(
+			"muriel-task",
+			isActive && 'is-active',
+			isComplete && 'is-complete'
+		);
 		return (
 			<div className={ classes }>
 				<div className="checklist__task-icon">
@@ -43,7 +67,15 @@ class Task extends Component {
 				</div>
 				) }
 				<div className="checklist__task-secondary">
-					{ isCurrent && <Button isPrimary onClick={ onClick }>{ buttonText }</Button> }
+					{ isActive && (
+						<Fragment>
+							{ onClick && <Button isPrimary onClick={ e => this.setState( { editing: false }, onClick ) }>{ buttonText }</Button> }
+							{ onSkip && <Button isLink onClick={ e => this.setState( { editing: false }, onSkip ) }>{ __( 'Skip' ) }</Button> }
+						</Fragment>
+					) }
+					{ isComplete && (
+						<Button isLink onClick={ () => this.setState( { editing: true } ) }>{ __( 'Edit' ) }</Button>
+					) }
 				</div>
 			</div>
 		);
