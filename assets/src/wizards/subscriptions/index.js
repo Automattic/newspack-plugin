@@ -16,6 +16,7 @@ import Card from '../../components/card';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import SelectControl from '../../components/selectControl';
+import ProgressBar from '../../components/progressBar';
 import './style.scss';
 
 /**
@@ -129,6 +130,15 @@ class SubscriptionsWizard extends Component {
 							{ value: '3rd', label: 'Third' },
 						] }
 					/>
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Progress bar"
+					/>
+					<ProgressBar completed="2" total="3" />
+					<ProgressBar completed="2" total="5" label="Progress made" />
+					<ProgressBar completed="0" total="5" displayFraction />
+					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
 				</Card>
 			</Fragment>
 		);
