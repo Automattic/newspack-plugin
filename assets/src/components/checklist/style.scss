@@ -3,11 +3,49 @@
 	margin: 14px auto;
 	max-width: 1040px;
 	width: 100%;
-	.muriel-checklist__progress-bar {
-			border: 1px solid $muriel-gray-50;
-			padding: 24px 328px 24px 24px;
-			.muriel-progress-bar {
-				max-width: 187px;
+
+	.muriel-checklist__header {
+		border: 1px solid $muriel-gray-50;
+		padding: 0;
+		position: relative;
+	}
+
+	.muriel-checklist__header-main {
+		padding: 13px 0 13px 24px;
+	}
+
+	.muriel-progress-bar {
+		margin: 0;
+		max-width: 225px;
+		width: 100%;
+	}
+
+	.muriel-checklist__header-secondary {
+		align-items: center;
+		display: flex;
+		height: 100%;
+		position: absolute;
+		right: 0;
+		top: 0;
+
+		label {
+			margin-right: 24px;
+		}
+
+		button {
+			border-left: 1px solid $muriel-gray-50;
+			display: block;
+			height: 100%;
+			justify-content: center;
+			width: 61px;
+
+			&:focus:enabled {
+				box-shadow: none;
 			}
+		}
+	}
+
+	&.is-hide-completed .is-complete {
+		display: none;
 	}
 }
