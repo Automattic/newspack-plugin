@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component, Fragment, render } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -48,56 +49,56 @@ class SubscriptionsWizard extends Component {
 		return(
 			<Fragment>
 				<FormattedHeader
-					headerText="Newspack Components"
-					subHeaderText="Temporary demo of Newspack components"
+					headerText={ __( 'Newspack Components' ) }
+					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
-				<Checklist currentTask={ currentTask }>
+				<Checklist currentTask={ currentTask } progressBarText={ __( 'Your setup list' ) }>
 					<Task
-						title="Set up membership"
-						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-						buttonText="Do it"
-						completedTitle="All set!"
+						title={ __( 'Set up membership' ) }
+						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
+						buttonText={ __( 'Do it' ) }
+						completedTitle={ __( 'All set!' ) }
 						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
 					/>
 					<Task
-						title="Set up your paywall"
-						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-						buttonText="Do it"
-						completedTitle="All set!"
+						title={ __( 'Set up your paywall' ) }
+						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
+						buttonText={ __( 'Do it' ) }
+						completedTitle={ __( 'All set!' ) }
 						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
 					/>
 					<Task
-						title="Customize your donations page"
-						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-						buttonText="Do it"
-						completedTitle="All set!"
+						title={ __( 'Customize your donations page' ) }
+						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
+						buttonText={ __( 'Do it' ) }
+						completedTitle={ __( 'All set!' ) }
 						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
 					/>
 					<Task
-						title="Setup Call to Action block"
-						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-						buttonText="Do it"
-						completedTitle="All set!"
+						title={ __( 'Setup Call to Action block' ) }
+						description={ __( 'Optimize your site for search engines and social media by taking advantage of our SEO tools. We\'ll walk you through important SEO strategies to get more exposure for your business.' ) }
+						buttonText={ __( 'Do it' ) }
+						completedTitle={ __( 'All set!' ) }
 						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
 					/>
 				</Checklist>
 				<Card>
 					<FormattedHeader
-						headerText="Checkboxes"
+						headerText={ __( 'Checkboxes' ) }
 					/>
 					<CheckboxControl
-				        label="Checkbox is tested?"
+				        label={ __( 'Checkbox is tested?' ) }
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 					/>
 					<CheckboxControl
-				        label="Checkbox w/Tooltip"
+				        label={ __( 'Checkbox w/Tooltip' ) }
 				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
 				        tooltip="This is tooltip text"
 					/>
 				</Card>
 				<Card>
 					<FormattedHeader
-						headerText="Image Uploader"
+						headerText={ __( 'Image Uploader' ) }
 					/>
 					<ImageUpload
 						image={ this.state.image }
@@ -110,20 +111,20 @@ class SubscriptionsWizard extends Component {
 				</Card>
 				<Card>
 					<FormattedHeader
-						headerText="Text Inputs"
+						headerText={ __( 'Text Inputs' ) }
 					/>
 					<TextControl
-						label="Text Input with value"
+						label={ __( 'Text Input with value' ) }
 						value={ inputTextValue1 }
 						onChange={ value => this.setState( { inputTextValue1: value } ) }
 					/>
 					<TextControl
-						label="Text Input empty"
+						label={ __( 'Text Input empty' ) }
 						value={ inputTextValue2 }
 						onChange={ value => this.setState( { inputTextValue2: value } ) }
 					/>
 					<TextControl
-						label="Text Input disabled"
+						label={ __( 'Text Input disabled' ) }
 						disabled
 					/>
 					<Button isPrimary className="is-centered">Continue</Button>
@@ -132,12 +133,12 @@ class SubscriptionsWizard extends Component {
 				</Card>
 				<Card>
 					<FormattedHeader
-						headerText="Progress bar"
+						headerText={ __( 'Progress bar' ) }
 					/>
 					<ProgressBar completed="2" total="3" />
-					<ProgressBar completed="2" total="5" label="Progress made" />
+					<ProgressBar completed="2" total="5" label={ __( 'Progress made' ) } />
 					<ProgressBar completed="0" total="5" displayFraction />
-					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
+					<ProgressBar completed="3" total="8" label={ __( 'Progress made' ) } displayFraction />
 				</Card>
 
 				<Button isPrimary>Continue</Button>
