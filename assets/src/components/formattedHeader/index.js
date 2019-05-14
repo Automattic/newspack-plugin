@@ -3,14 +3,14 @@
  */
 
 /**
- * External dependencies.
- */
-import classnames from 'classnames';
-
-/**
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import murielClassnames from '../../shared/js/muriel-classnames';
 
 /**
  * Internal dependencies.
@@ -22,12 +22,8 @@ class FormattedHeader extends Component {
 	 * Render.
 	 */
 	render() {
-		const { headerText, subHeaderText } = this.props;
-		const classes = classnames(
-			'muriel-formatted-header',
-			!! subHeaderText ? 'has-subheader' : null
-		);
-
+		const { className, headerText, subHeaderText } = this.props;
+		const classes = murielClassnames( 'muriel-formatted-header', className, !! subHeaderText ? 'has-subheader' : null );
 		return (
 			<header className={ classes }>
 				<h1 className="muriel-formatted-header__title">{ headerText }</h1>

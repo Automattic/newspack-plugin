@@ -2,6 +2,8 @@
  * Image uploader styles.
  */
 
+@import '../../shared/scss/muriel-component';
+
 .muriel-image-upload {
 	button {
 		color: $muriel-hot-pink-500;
