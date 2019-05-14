@@ -2,6 +2,8 @@
  * Info Button styles
  */
 
+@import '../../shared/scss/muriel-component';
+
 .muriel-info-button {
 	background-image: url( 'info_24px.svg' );
 	position: absolute;

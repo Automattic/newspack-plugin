@@ -11,6 +11,7 @@ import { CheckboxControl as BaseComponent } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import murielClassnames from '../../shared/js/muriel-classnames';
 import InfoButton from '../../components/infoButton';
 import './style.scss';
 
@@ -20,13 +21,12 @@ class CheckboxControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { tooltip } = this.props;
+		const { className, tooltip, ...otherProps } = this.props;
+		const classes = murielClassnames( 'muriel-checkbox', className );
 		return (
-			<div className="muriel-checkbox">
-				<BaseComponent { ...this.props } />
-				{ tooltip && (
-					<InfoButton text={ tooltip } />
-				) }
+			<div className={ classes }>
+				<BaseComponent { ...otherProps } />
+				{ tooltip && <InfoButton text={ tooltip } /> }
 			</div>
 		);
 	}
