@@ -19,8 +19,9 @@ class Button extends Component {
 	 */
 	render( props ) {
 		const { value } = this.props;
+		const { className, ...otherProps } = this.props;
 		return (
-			<BaseComponent className={ classnames( 'muriel-button', this.props.className ) } { ...this.props } />
+			<BaseComponent className={ classnames( 'muriel-button', className ) } { ...otherProps } />
 		);
 	}
 }
