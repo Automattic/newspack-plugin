@@ -16,6 +16,7 @@ import Card from '../../components/card';
 import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
+import SelectControl from '../../components/selectControl';
 import ProgressBar from '../../components/progressBar';
 import SelectControl from '../../components/selectControl';
 import './style.scss';
@@ -99,6 +100,41 @@ class SubscriptionsWizard extends Component {
 					<Button isPrimary className="is-centered">Continue</Button>
 					<Button isDefault className="is-centered">Continue</Button>
 					<Button isTertiary className="is-centered">Continue</Button>
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Select dropdowns"
+					/>
+					<SelectControl
+						label="Select with value"
+						value={ selectValue1 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						value={ selectValue1 }
+						onChange={ value => this.setState( { selectValue1: value } ) }
+					/>
+					<SelectControl
+						label="Select empty"
+						value={ selectValue2 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						onChange={ value => this.setState( { selectValue2: value } ) }
+					/>
+					<SelectControl
+						label="Select disabled"
+						disabled
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+					/>
 				</Card>
 				<Card>
 					<FormattedHeader
