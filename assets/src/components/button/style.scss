@@ -43,6 +43,11 @@
 		}
 	}
 
+	&.is-link {
+		color: $muriel-gray-300;
+		text-decoration: underline;
+	}
+
 	&.is-centered {
 		display: block;
 		width: 100%;
