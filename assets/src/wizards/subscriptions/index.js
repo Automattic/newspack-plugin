@@ -17,6 +17,8 @@ import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import ProgressBar from '../../components/progressBar';
+import Checklist from '../../components/checklist';
+import Task from '../../components/task';
 import './style.scss';
 
 /**
@@ -30,6 +32,7 @@ class SubscriptionsWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			currentTask: 0,
 			inputTextValue1: "Input value",
 			inputTextValue2: "",
 			image: null,
@@ -40,7 +43,7 @@ class SubscriptionsWizard extends Component {
 	 * Render the example stub.
 	 */
 	render() {
-		const { inputTextValue1, inputTextValue2 } = this.state;
+		const { inputTextValue1, inputTextValue2, currentTask } = this.state;
 
 		return(
 			<Fragment>
@@ -48,6 +51,36 @@ class SubscriptionsWizard extends Component {
 					headerText="Newspack Components"
 					subHeaderText="Temporary demo of Newspack components"
 				/>
+				<Checklist currentTask={ currentTask }>
+					<Task
+						title="Set up membership"
+						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
+						buttonText="Do it"
+						completedTitle="All set!"
+						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+					/>
+					<Task
+						title="Set up your paywall"
+						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
+						buttonText="Do it"
+						completedTitle="All set!"
+						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+					/>
+					<Task
+						title="Customize your donations page"
+						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
+						buttonText="Do it"
+						completedTitle="All set!"
+						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+					/>
+					<Task
+						title="Setup Call to Action block"
+						description="Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
+						buttonText="Do it"
+						completedTitle="All set!"
+						onClick={ () => this.setState( { currentTask: currentTask + 1 } ) }
+					/>
+				</Checklist>
 				<Card>
 					<FormattedHeader
 						headerText="Checkboxes"
