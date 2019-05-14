@@ -11,15 +11,14 @@
 	text-shadow: none;
 
 	&.is-button {
-		display: block;
+		display: inline-block;
 		background-color: $muriel-white;
 		border-color: #CCCCCC;
 		border-radius: 3px;
 		cursor: pointer;
-		width: 100%;
 		height: auto;
-		padding: 13px 0;
-		margin: 14px auto;
+		padding: 13px;
+		margin: 14px 7px;
 
 		&:active:enabled {
 			border-width: 2px 1px 1px;
@@ -43,6 +42,12 @@
 			background-color: $muriel-hot-pink-700;
 			color: $muriel-white;
 		}
+	}
+
+	&.is-centered {
+		display: block;
+		width: 100%;
+		margin: 14px auto;
 	}
 
 }
