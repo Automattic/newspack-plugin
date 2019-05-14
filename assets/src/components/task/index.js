@@ -6,11 +6,12 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { Button, Dashicon } from '@wordpress/components';
+import { Dashicon } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
+import Button from '../button';
 import './style.scss';
 
 /**
