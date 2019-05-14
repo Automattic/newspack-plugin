@@ -10,6 +10,7 @@ import { Component, Children, cloneElement } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
+import murielClassnames from '../../shared/js/muriel-classnames';
 import ProgressBar from '../progressBar';
 import './style.scss';
 
@@ -18,9 +19,9 @@ class Checklist extends Component {
 	 * Render.
 	 */
 	render() {
-		const { children, currentTask, progressBarText } = this.props;
+		const { className, children, currentTask, progressBarText, ...otherProps } = this.props;
 		return (
-			<div className="muriel-checklist">
+			<div className={ murielClassnames( 'muriel-checklist', className ) } { ...otherProps }>
 				<div className="muriel-checklist__progress-bar">
 					<ProgressBar completed={ currentTask } total={ Children.count( children ) } displayFraction label={ progressBarText } />
 				</div>
