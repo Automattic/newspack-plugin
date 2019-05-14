@@ -8,7 +8,10 @@
 import { Component } from '@wordpress/element';
 import { Button as BaseComponent } from '@wordpress/components';
 
-import classnames from 'classnames';
+/**
+ * Internal dependencies
+ */
+import murielClassnames from '../../shared/js/muriel-classnames';
 
 import './style.scss';
 
@@ -19,8 +22,9 @@ class Button extends Component {
 	 */
 	render( props ) {
 		const { className, ...otherProps } = this.props;
+		const classes = murielClassnames( 'muriel-button', className );
 		return (
-			<BaseComponent className={ classnames( 'muriel-button', className ) } { ...otherProps } />
+			<BaseComponent className={ classes } { ...otherProps } />
 		);
 	}
 }
