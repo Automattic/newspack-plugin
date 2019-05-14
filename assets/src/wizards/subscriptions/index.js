@@ -10,9 +10,10 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import ImageUpload from '../../components/ImageUpload';
+import ImageUpload from '../../components/imageUpload';
 import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
+import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import ProgressBar from '../../components/progressBar';
@@ -92,6 +93,9 @@ class SubscriptionsWizard extends Component {
 						label="Text Input disabled"
 						disabled
 					/>
+					<Button isPrimary className="is-centered">Continue</Button>
+					<Button isDefault className="is-centered">Continue</Button>
+					<Button isTertiary className="is-centered">Continue</Button>
 				</Card>
 				<Card>
 					<FormattedHeader
@@ -102,6 +106,10 @@ class SubscriptionsWizard extends Component {
 					<ProgressBar completed="0" total="5" displayFraction />
 					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
 				</Card>
+
+				<Button isPrimary>Continue</Button>
+				<Button isDefault>Continue</Button>
+				<Button isTertiary>Continue</Button>
 			</Fragment>
 		);
 	}
