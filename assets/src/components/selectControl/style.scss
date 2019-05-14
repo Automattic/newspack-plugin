@@ -1,0 +1,130 @@
+/**
+ * Select dropdown component styles.
+ */
+
+.muriel-select {
+	position: relative;
+	width: 100%;
+	max-width: 440px;
+	height: 56px;
+
+	border: 1px solid $muriel-gray-200;
+	box-shadow: none;
+	box-sizing: border-box;
+	border-radius: 3px;
+	background: $muriel-white;
+
+	/* Down arrow icon: */
+	&::after {
+		display: block;
+		pointer-events: none; /* click-through to the underlying element */
+		position: relative;
+		float: right;
+		horiz-align: right;
+		line-height: 56px;
+		margin-right: 16px;
+		content: url('arrow_down.svg');
+		z-index: 101;
+		width: 24px;
+		height: 24px;
+	}
+
+	label {
+		position: absolute;
+		width: -webkit-calc(100% - 16px);
+		width:    -moz-calc(100% - 16px);
+		width:         calc(100% - 16px);
+		max-width: 408px;
+		height: 21px;
+		top: 9px;
+		right: 16px;
+		left: 16px;
+
+		font-size: 12px;
+		line-height: 16px;
+		color: $muriel-gray-500;
+	}
+
+	select {
+		position: absolute;
+		width: -webkit-calc(100% - 20px);
+		width:    -moz-calc(100% - 20px);
+		width:         calc(100% - 20px);
+		max-width: 408px;
+		height: 24px;
+		right: 20px;
+		left: 16px;
+
+		border: 0px;
+		box-shadow: none;
+		padding: 0px;
+
+		font-size: 16px;
+		line-height: 24px;
+
+		/* Hide the default down-arrow: */
+		-moz-appearance: none; /* for Firefox */
+		-webkit-appearance: none; /* for Chrome */
+		appearance: none;
+		&::-ms-expand { /* For IE10 */
+			display: none;
+		}
+	}
+
+	&.active {
+		label {
+			display: none;
+		}
+		select {
+			top: 17px;
+			color: $muriel-gray-800;
+		}
+	}
+
+	&.with-value {
+		label {
+		}
+		select {
+			top: 25px;
+			color: $muriel-gray-800;
+		}
+	}
+
+	&.empty {
+		label {
+			background: $muriel-white;
+			pointer-events: none; /* click-through to the underlying select element */
+			top: 17px;
+			font-size: 16px;
+			line-height: 24px;
+			height: 26px;
+			z-index: 100;
+		}
+		select {
+			top: 17px;
+			color: $muriel-gray-500;
+		}
+	}
+
+	&.disabled {
+		label {
+			display: none;
+		}
+		select {
+			top: 17px;
+			color: $muriel-gray-200;
+
+			/* Placeholder styling: */
+			&::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+				color: $muriel-gray-200;
+				opacity: 1; /* Firefox */
+			}
+			&:-ms-input-placeholder { /* Internet Explorer 10-11 */
+				color: $muriel-gray-200;
+			}
+			&::-ms-input-placeholder { /* Microsoft Edge */
+				color: $muriel-gray-200;
+			}
+		}
+	}
+}
