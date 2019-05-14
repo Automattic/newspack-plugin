@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use \WC_Subscriptions_Product;
+
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
@@ -36,6 +38,40 @@ class Subscriptions_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'edit_products';
+
+	public function __construct() {
+		parent::__construct();
+
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	}
+
+	public function register_api_endpoints() {
+		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/', [
+			'methods' => 'GET',
+			'callback' => [ $this, 'get_subscriptions' ],
+			'permission_callback' => [ $this, 'api_permissions_check' ],
+		] );
+	}
+
+	public function get_subscriptions( $request ) {
+		$products = wc_get_products( [
+			'limit' => -1,
+		] );
+
+		$response = [];
+
+		foreach ( $products as $product ) {
+			$response[] = [
+				'id' => $product->get_id(),
+				'name' => $product->get_name(),
+				'price_html' => $product->get_price_html(),
+				'image' => $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' ) ) : wc_placeholder_img_src( 'woocommerce_thumbnail' ),
+				'url' => $product->get_permalink(),
+			];
+		}
+
+		return rest_ensure_response( $response );
+	}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.

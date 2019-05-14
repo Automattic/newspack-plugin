@@ -3,3 +3,21 @@
  */
 #newspack-subscriptions-wizard {
 }
+
+.newspack-manage-subscriptions-screen {
+	max-width: 440px;
+	margin-left: auto;
+	margin-right: auto;
+
+	// temporary
+	button {
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.newspack-manage-subscriptions-screen__finished {
+		display: block;
+		text-align: center;
+	}
+}
