@@ -17,6 +17,7 @@ import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import ProgressBar from '../../components/progressBar';
+import SelectControl from '../../components/selectControl';
 import './style.scss';
 
 /**
@@ -33,6 +34,8 @@ class SubscriptionsWizard extends Component {
 			inputTextValue1: "Input value",
 			inputTextValue2: "",
 			image: null,
+			selectValue1: "2nd",         // pre-selected value
+			selectValue2: "",
 		}
 	}
 
@@ -40,7 +43,7 @@ class SubscriptionsWizard extends Component {
 	 * Render the example stub.
 	 */
 	render() {
-		const { inputTextValue1, inputTextValue2 } = this.state;
+		const { inputTextValue1, inputTextValue2, selectValue1, selectValue2 } = this.state;
 
 		return(
 			<Fragment>
@@ -107,9 +110,46 @@ class SubscriptionsWizard extends Component {
 					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
 				</Card>
 
+				<Card>
+					<FormattedHeader
+						headerText="Select dropdowns"
+					/>
+					<SelectControl
+						label="Select with value"
+						value={ selectValue1 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						value={ selectValue1 }
+						onChange={ value => this.setState( { selectValue1: value } ) }
+					/>
+					<SelectControl
+						label="Select empty"
+						value={ selectValue2 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						onChange={ value => this.setState( { selectValue2: value } ) }
+					/>
+					<SelectControl
+						label="Select disabled"
+						disabled
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+					/>
+				</Card>
+
 				<Button isPrimary>Continue</Button>
 				<Button isDefault>Continue</Button>
 				<Button isTertiary>Continue</Button>
+
 			</Fragment>
 		);
 	}
