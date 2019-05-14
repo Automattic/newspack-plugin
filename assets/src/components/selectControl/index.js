@@ -77,7 +77,7 @@ const SelectControl = withFocusOutside(
 
 			return (
 				<BaseComponent
-					className={ "newspack-select " + className }
+					className={ "muriel-select " + className }
 					{ ...this.props }
 					onClick={ () => this.handleOnClick() }
 					onChange={ value => this.handleOnChange( onChange, value ) }
