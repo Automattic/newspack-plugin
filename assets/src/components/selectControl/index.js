@@ -71,7 +71,7 @@ const SelectControl = withFocusOutside(
 		 */
 		render() {
 			const { isFocused } = this.state;
-			const { value, disabled, className, onChange } = this.props;
+			const { value, disabled, className, onChange, ...otherProps } = this.props;
 			const isEmpty = ! value;
 			const isActive = isFocused && ! disabled;
 			const classes = murielClassnames( "muriel-select", this.getClassName( disabled, isEmpty, isActive ), className );
@@ -79,9 +79,9 @@ const SelectControl = withFocusOutside(
 			return (
 				<BaseComponent
 					className={ classes }
-					{ ...this.props }
 					onClick={ () => this.handleOnClick() }
 					onChange={ value => this.handleOnChange( onChange, value ) }
+					{ ...otherProps }
 				/>
 			);
 		}
