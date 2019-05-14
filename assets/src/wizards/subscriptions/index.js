@@ -181,9 +181,14 @@ class SubscriptionsWizard extends Component {
 					/>
 				</Card>
 
-				<Button isPrimary>Continue</Button>
-				<Button isDefault>Continue</Button>
-				<Button isTertiary>Continue</Button>
+				<Card>
+					<FormattedHeader
+						headerText="Buttons"
+					/>
+					<Button isPrimary>Continue</Button>
+					<Button isDefault>Continue</Button>
+					<Button isTertiary>Continue</Button>
+				</Card>
 
 			</Fragment>
 		);
