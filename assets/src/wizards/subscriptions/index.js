@@ -24,16 +24,30 @@ class SubscriptionsWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			screen: 'manageSubscriptionsScreen',
+			screen: ManageSubscriptionsScreen,
+			screenArgs: [],
 		}
+	}
+
+	/**
+	 * Change the current active screen.
+	 */
+	changeScreen( screen, args ) {
+		this.setState( {
+			screen: screen,
+			screenArgs: args || [],
+		} );
 	}
 
 	/**
 	 * Render the example stub.
 	 */
 	render() {
+		const Screen = this.state.screen;
+		const { screenArgs } = this.state;
+
 		return(
-			<ManageSubscriptionsScreen />
+			<Screen { ...screenArgs } changeScreen={ ( screen, args ) => this.changeScreen( screen, args ) } />
 		);
 	}
 }

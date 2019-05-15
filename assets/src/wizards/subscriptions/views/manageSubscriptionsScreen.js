@@ -7,7 +7,6 @@
  */
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -16,10 +15,12 @@ import apiFetch from '@wordpress/api-fetch';
 import CheckboxControl from '../../../components/checkboxControl';
 import Card from '../../../components/card';
 import FormattedHeader from '../../../components/formattedHeader';
+import Button from '../../../components/button';
 import SubscriptionCard from './subscriptionCard';
+import EditSubscriptionScreen from './editSubscriptionScreen';
 
 /**
- * Subscriptions wizard stub for example purposes.
+ * Subscriptions management screen.
  */
 class ManageSubscriptionsScreen extends Component {
 
@@ -33,7 +34,17 @@ class ManageSubscriptionsScreen extends Component {
 		}
 	}
 
+	/**
+	 * Populate the screen with the latest info when loaded.
+	 */
 	componentDidMount() {
+		this.refreshSubscriptions();
+	}
+
+	/**
+	 * Get subscriptions info.
+	 */
+	refreshSubscriptions() {
 		apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
 			this.setState( {
 				subscriptions: subscriptions,
@@ -42,13 +53,14 @@ class ManageSubscriptionsScreen extends Component {
 	}
 
 	/**
-	 * Render the example stub.
+	 * Render.
 	 */
 	render() {
+		const { changeScreen } = this.props;
 		const { subscriptions } = this.state;
 
 		return(
-			<div className="newspack-manage-subscriptions-screen">
+			<div className='newspack-manage-subscriptions-screen'>
 				<FormattedHeader
 					headerText={ __( 'Any more subscriptions to add?' ) }
 					subHeaderText={ __( 'Subscriptions can provide a stable, recurring source of revenue' ) }
@@ -62,8 +74,8 @@ class ManageSubscriptionsScreen extends Component {
 					tooltip={ __( 'Enabling this makes the subscription price a "Recommended price" and allows subscribers to set the subscription price when purchasing.')}
 					help={ __( 'Mostly used for donations' ) }
 				/>
-				<Button isPrimary>{ __( 'Add another subscription' ) }</Button>
-				<a className="newspack-manage-subscriptions-screen__finished" href="#linktochecklisthere">{ __( "I'm done adding" ) }</a>
+				<Button isPrimary className='is-centered' onClick={ () => changeScreen( EditSubscriptionScreen ) } >{ __( 'Add another subscription' ) }</Button>
+				<a className='newspack-manage-subscriptions-screen__finished' href='#linktochecklisthere'>{ __( "I'm done adding" ) }</a>
 			</div>
 		);
 	}

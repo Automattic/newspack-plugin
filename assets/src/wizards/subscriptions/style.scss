@@ -9,15 +9,51 @@
 	margin-left: auto;
 	margin-right: auto;
 
-	// temporary
-	button {
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-	}
-
 	.newspack-manage-subscriptions-screen__finished {
 		display: block;
 		text-align: center;
+	}
+
+	.newspack-manage-subscriptions-screen__subscription-card {
+		display: flex;
+		justify-content: space-between;
+
+		.delete-subscription {
+			visibility: hidden;
+			color: $muriel-gray-100;
+
+			&:hover {
+				color: $muriel-gray-400;
+			}
+		}
+
+		.product-name {
+			color: $muriel-gray-900;
+			font-size: 16px;
+			font-weight: 500;
+		}
+
+		.product-price {
+			color: $muriel-gray-400;
+		}
+
+		.newspack-manage-subscriptions-screen__subscription-card__product-actions {
+			a {
+				display: block;
+			}
+		}
+
+		img {
+	 		border-radius: 50%;
+	 		height: 32px;
+	 		width: auto;
+	 		border: 1px solid $muriel-gray-400;
+		}
+
+		&:hover {
+			.delete-subscription {
+				visibility: visible;
+			}
+		}
 	}
 }

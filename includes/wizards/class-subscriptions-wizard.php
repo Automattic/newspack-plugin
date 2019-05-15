@@ -64,7 +64,7 @@ class Subscriptions_Wizard extends Wizard {
 			$response[] = [
 				'id' => $product->get_id(),
 				'name' => $product->get_name(),
-				'price_html' => $product->get_price_html(),
+				'price' => wp_strip_all_tags( html_entity_decode( $product->get_price_html() ) ),
 				'image' => $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' ) ) : wc_placeholder_img_src( 'woocommerce_thumbnail' ),
 				'url' => $product->get_permalink(),
 			];
