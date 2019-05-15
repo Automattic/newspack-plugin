@@ -2,6 +2,8 @@
  * Button styles,
  */
 
+@import '../../shared/scss/muriel-component';
+
 .muriel-button {
 	text-align: center;
 	font-size: 14px;
@@ -52,7 +54,6 @@
 		display: block;
 		width: 100%;
 		max-width: 310px;
-		margin: 14px auto;
 	}
 
 }

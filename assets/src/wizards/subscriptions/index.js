@@ -20,6 +20,7 @@ import TextControl from '../../components/textControl';
 import ProgressBar from '../../components/progressBar';
 import Checklist from '../../components/checklist';
 import Task from '../../components/task';
+import SelectControl from '../../components/selectControl';
 import './style.scss';
 
 /**
@@ -37,6 +38,8 @@ class SubscriptionsWizard extends Component {
 			inputTextValue1: "Input value",
 			inputTextValue2: "",
 			image: null,
+			selectValue1: "2nd",
+			selectValue2: "",
 		}
 	}
 
@@ -44,7 +47,7 @@ class SubscriptionsWizard extends Component {
 	 * Render the example stub.
 	 */
 	render() {
-		const { inputTextValue1, inputTextValue2, currentTask } = this.state;
+		const { inputTextValue1, inputTextValue2, selectValue1, selectValue2, currentTask } = this.state;
 
 		return(
 			<Fragment>
@@ -131,9 +134,6 @@ class SubscriptionsWizard extends Component {
 						label={ __( 'Text Input disabled' ) }
 						disabled
 					/>
-					<Button isPrimary className="is-centered">Continue</Button>
-					<Button isDefault className="is-centered">Continue</Button>
-					<Button isTertiary className="is-centered">Continue</Button>
 				</Card>
 				<Card>
 					<FormattedHeader
@@ -144,10 +144,52 @@ class SubscriptionsWizard extends Component {
 					<ProgressBar completed="0" total="5" displayFraction />
 					<ProgressBar completed="3" total="8" label={ __( 'Progress made' ) } displayFraction />
 				</Card>
-
-				<Button isPrimary>Continue</Button>
-				<Button isDefault>Continue</Button>
-				<Button isTertiary>Continue</Button>
+				<Card>
+					<FormattedHeader
+						headerText="Select dropdowns"
+					/>
+					<SelectControl
+						label="Select with value"
+						value={ selectValue1 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						value={ selectValue1 }
+						onChange={ value => this.setState( { selectValue1: value } ) }
+					/>
+					<SelectControl
+						label="Select empty"
+						value={ selectValue2 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						onChange={ value => this.setState( { selectValue2: value } ) }
+					/>
+					<SelectControl
+						label="Select disabled"
+						disabled
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+					/>
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Buttons"
+					/>
+					<Button isPrimary className="is-centered">Continue</Button>
+					<Button isDefault className="is-centered">Continue</Button>
+					<Button isTertiary className="is-centered">Continue</Button>
+					<Button isPrimary>Continue</Button>
+					<Button isDefault>Continue</Button>
+					<Button isTertiary>Continue</Button>
+				</Card>
 			</Fragment>
 		);
 	}
