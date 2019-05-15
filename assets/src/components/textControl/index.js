@@ -36,10 +36,13 @@ const TextControl = withFocusOutside(
 		}
 
 		/**
-		 * Handle component onClick.
+		 * Handle component onClick; also executes the props' onChange handler (the parent's original onClick).
 		 */
-		handleOnClick = () => {
+		handleOnClick = ( onClick ) => {
 			this.setState( { isFocused: true } );
+			if (typeof onClick === "function") {
+				onClick();
+			}
 		};
 
 		/**
@@ -63,7 +66,7 @@ const TextControl = withFocusOutside(
 		 */
 		render() {
 			const { isFocused } = this.state;
-			const { className, ...otherProps } = this.props;
+			const { className, onClick, ...otherProps } = this.props;
 			const { label, value, disabled } = otherProps;
 			const isEmpty = ! value;
 			const isActive = isFocused && ! disabled;
@@ -72,8 +75,8 @@ const TextControl = withFocusOutside(
 				<BaseComponent
 					className={ murielClassnames( "muriel-input-text", className, this.getClassName( disabled, isEmpty, isActive ) ) }
 					placeholder={ label }
+					onClick={ () => this.handleOnClick( onClick ) }
 					{ ...otherProps }
-					onClick={ () => this.handleOnClick() }
 				/>
 			);
 		}
