@@ -10,12 +10,14 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import ImageUpload from '../../components/ImageUpload';
+import ImageUpload from '../../components/imageUpload';
 import CheckboxControl from '../../components/checkboxControl';
 import Card from '../../components/card';
+import Button from '../../components/button';
 import FormattedHeader from '../../components/formattedHeader';
 import TextControl from '../../components/textControl';
 import ProgressBar from '../../components/progressBar';
+import SelectControl from '../../components/selectControl';
 
 /**
  * Subscriptions wizard stub for example purposes.
@@ -31,6 +33,8 @@ class ComponentsDemo extends Component {
 			inputTextValue1: "Input value",
 			inputTextValue2: "",
 			image: null,
+			selectValue1: "2nd",
+			selectValue2: "",
 		}
 	}
 
@@ -38,7 +42,7 @@ class ComponentsDemo extends Component {
 	 * Render the example stub.
 	 */
 	render() {
-		const { inputTextValue1, inputTextValue2 } = this.state;
+		const { inputTextValue1, inputTextValue2, selectValue1, selectValue2 } = this.state;
 
 		return(
 			<Fragment>
@@ -100,6 +104,52 @@ class ComponentsDemo extends Component {
 					<ProgressBar completed="2" total="5" label="Progress made" />
 					<ProgressBar completed="0" total="5" displayFraction />
 					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Select dropdowns"
+					/>
+					<SelectControl
+						label="Select with value"
+						value={ selectValue1 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						value={ selectValue1 }
+						onChange={ value => this.setState( { selectValue1: value } ) }
+					/>
+					<SelectControl
+						label="Select empty"
+						value={ selectValue2 }
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+						onChange={ value => this.setState( { selectValue2: value } ) }
+					/>
+					<SelectControl
+						label="Select disabled"
+						disabled
+						options={ [
+							{ value: '1st', label: 'First' },
+							{ value: '2nd', label: 'Second' },
+							{ value: '3rd', label: 'Third' },
+						] }
+					/>
+				</Card>
+				<Card>
+					<FormattedHeader
+						headerText="Buttons"
+					/>
+					<Button isPrimary className="is-centered">Continue</Button>
+					<Button isDefault className="is-centered">Continue</Button>
+					<Button isTertiary className="is-centered">Continue</Button>
+					<Button isPrimary>Continue</Button>
+					<Button isDefault>Continue</Button>
+					<Button isTertiary>Continue</Button>
 				</Card>
 			</Fragment>
 		);

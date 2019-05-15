@@ -1,11 +1,11 @@
 /**
- * Muriel-styled Text/Number Input.
+ * Muriel-styled Select dropdown.
  */
 
 /**
  * WordPress dependencies
  */
-import { TextControl as BaseComponent, withFocusOutside } from '@wordpress/components';
+import { SelectControl as BaseComponent, withFocusOutside } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 
 /**
@@ -14,7 +14,7 @@ import { Component } from '@wordpress/element';
 import murielClassnames from '../../shared/js/muriel-classnames';
 import './style.scss';
 
-const TextControl = withFocusOutside(
+const SelectControl = withFocusOutside(
 
 	class extends Component {
 
@@ -29,18 +29,28 @@ const TextControl = withFocusOutside(
 		};
 
 		/**
-		 * A `withFocusOutside`'s default function, handler for the focus outside the component event.
+		 * A `withFocusOutside` HOC's default handler.
 		 */
 		handleFocusOutside() {
 			this.setState( { isFocused: false } );
-		}
+		};
+
+		/**
+		 * Handles component onChange; also executes the props' onChange handler (the parent's original onChange).
+		 */
+		handleOnChange = ( onChange, value ) => {
+			if (typeof onChange === 'function' ) {
+				onChange( value );
+			}
+			this.setState( { isFocused: false } );
+		};
 
 		/**
 		 * Handle component onClick; also executes the props' onChange handler (the parent's original onClick).
 		 */
-		handleOnClick = ( onClick ) => {
+		handleOnClick = onClick => {
 			this.setState( { isFocused: true } );
-			if (typeof onClick === "function") {
+			if (typeof onClick === 'function' ) {
 				onClick();
 			}
 		};
@@ -52,10 +62,10 @@ const TextControl = withFocusOutside(
 			let className = "with-value";
 			if ( disabled ) {
 				className = "disabled";
-			} else if ( isEmpty ) {
-				className = "empty";
 			} else if ( isActive ) {
 				className = "active";
+			} else if ( isEmpty ) {
+				className = "empty";
 			}
 
 			return className;
@@ -66,16 +76,16 @@ const TextControl = withFocusOutside(
 		 */
 		render() {
 			const { isFocused } = this.state;
-			const { className, onClick, ...otherProps } = this.props;
-			const { label, value, disabled } = otherProps;
+			const { value, disabled, className, onClick, onChange, ...otherProps } = this.props;
 			const isEmpty = ! value;
 			const isActive = isFocused && ! disabled;
+			const classes = murielClassnames( "muriel-select", this.getClassName( disabled, isEmpty, isActive ), className );
 
 			return (
 				<BaseComponent
-					className={ murielClassnames( "muriel-input-text", className, this.getClassName( disabled, isEmpty, isActive ) ) }
-					placeholder={ label }
+					className={ classes }
 					onClick={ () => this.handleOnClick( onClick ) }
+					onChange={ value => this.handleOnChange( onChange, value ) }
 					{ ...otherProps }
 				/>
 			);
@@ -83,4 +93,4 @@ const TextControl = withFocusOutside(
 	}
 );
 
-export default TextControl;
+export default SelectControl;
