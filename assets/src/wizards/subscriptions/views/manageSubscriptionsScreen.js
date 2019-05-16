@@ -29,6 +29,7 @@ class ManageSubscriptionsScreen extends Component {
 		super( ...arguments );
 		this.state = {
 			subscriptions: [],
+			choosePrice: false,
 		};
 	}
 
@@ -37,6 +38,31 @@ class ManageSubscriptionsScreen extends Component {
 	 */
 	componentDidMount() {
 		this.refreshSubscriptions();
+
+		apiFetch( { path: '/newspack/v1/wizard/subscriptions/choose-price' } ).then( choosePrice => {
+			this.setState( {
+				choosePrice: !! choosePrice,
+			} );
+		} );
+	}
+
+	toggleChoosePrice() {
+		this.setState(
+			{
+				choosePrice: ! this.state.choosePrice,
+			},
+			() => {
+				apiFetch( {
+					path: '/newspack/v1/wizard/subscriptions/choose-price',
+					method: 'post',
+					data: {
+						enabled: this.state.choosePrice,
+					},
+				} ).then( response => {
+					this.refreshSubscriptions();
+				} );
+			}
+		);
 	}
 
 	/**
@@ -55,7 +81,7 @@ class ManageSubscriptionsScreen extends Component {
 	 */
 	render() {
 		const { changeScreen } = this.props;
-		const { subscriptions } = this.state;
+		const { subscriptions, choosePrice } = this.state;
 
 		return (
 			<div className="newspack-manage-subscriptions-screen">
@@ -91,14 +117,13 @@ class ManageSubscriptionsScreen extends Component {
 					);
 				} ) }
 				<CheckboxControl
-					label={ __( 'Allow members to name their price' ) }
-					onChange={ function() {
-						console.log( 'API REQUEST NOW' );
-					} }
+					label={ __( 'Allow members to specify donation amount' ) }
+					onChange={ () => this.toggleChoosePrice() }
 					tooltip={ __(
 						'Enabling this makes the subscription price a "Recommended price" and allows subscribers to set the subscription price when purchasing.'
 					) }
 					help={ __( 'Mostly used for donations' ) }
+					checked={ choosePrice }
 				/>
 				<Button
 					isPrimary

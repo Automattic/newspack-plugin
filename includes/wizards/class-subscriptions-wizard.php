@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Subscriptions_Product, \WC_Product_Simple, \WC_Product_Subscription;
+use \WC_Subscriptions_Product, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,14 +51,14 @@ class Subscriptions_Wizard extends Wizard {
 		// Get all Newspack subscriptions.
 		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/', [
 			'methods' => 'GET',
-			'callback' => [ $this, 'get_subscriptions' ],
+			'callback' => [ $this, 'api_get_subscriptions' ],
 			'permission_callback' => [ $this, 'api_permissions_check' ],
 		] );
 
 		// Get one subscription.
-		register_rest_route( 'newspack/v1/wizard/', '/subscription/(?P<id>\d+)', [
+		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/(?P<id>\d+)', [
 			'methods' => 'GET',
-			'callback' => [ $this, 'get_subscription' ],
+			'callback' => [ $this, 'api_get_subscription' ],
 			'permission_callback' => [ $this, 'api_permissions_check' ],
 			'args' => [
 				'id' => [
@@ -68,9 +68,9 @@ class Subscriptions_Wizard extends Wizard {
 		] );
 
 		// Save a subscription.
-		register_rest_route( 'newspack/v1/wizard/', '/subscription/', [
+		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/', [
 			'methods' => 'POST',
-			'callback' => [ $this, 'save_subscription' ],
+			'callback' => [ $this, 'api_save_subscription' ],
 			'permission_callback' => [ $this, 'api_permissions_check' ],
 			'args' => [
 				'id' => [
@@ -90,9 +90,31 @@ class Subscriptions_Wizard extends Wizard {
 				]
 			],
 		] );
+
+		// Delete a subscription.
+
+		// Get NYP status.
+		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/choose-price/', [
+			'methods' => 'GET',
+			'callback' => [ $this, 'api_get_choose_price' ],
+			'permission_callback' => [ $this, 'api_permissions_check' ],
+		] );
+
+		// Enable/Disable NYP for Newspack subscriptions.
+		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/choose-price/', [
+			'methods' => 'POST',
+			'callback' => [ $this, 'api_set_choose_price' ],
+			'permission_callback' => [ $this, 'api_permissions_check' ],
+			'args' => [
+				'enabled' => [
+					'sanitize_callback' => 'wc_string_to_bool',
+				],
+			],
+		] );
+
 	}
 
-	public function get_subscriptions() {
+	public function api_get_subscriptions() {
 		$products = wc_get_products( [
 			'limit' => -1,
 			'only_get_newspack_subscriptions' => true,
@@ -107,7 +129,7 @@ class Subscriptions_Wizard extends Wizard {
 		return rest_ensure_response( $response );
 	}
 
-	public function get_subscription( $request ) {
+	public function api_get_subscription( $request ) {
 		$params = $request->get_params();
 		$id = $params['id'];
 		$product = wc_get_product( $params['id'] );
@@ -139,7 +161,7 @@ class Subscriptions_Wizard extends Wizard {
 		];
 	}
 
-	public function save_subscription( $request ) {
+	public function api_save_subscription( $request ) {
 		$params = $request->get_params();
 		$defaults = [
 			'id' => 0,
@@ -182,6 +204,36 @@ class Subscriptions_Wizard extends Wizard {
 		$product->save();
 
 		return rest_ensure_response( $this->get_product_data_for_api( $product ) );
+	}
+
+	public function api_get_choose_price() {
+		$products = wc_get_products( [
+			'limit' => 1,
+			'only_get_newspack_subscriptions' => true,
+		] );
+
+		if ( empty( $products ) ) {
+			return rest_ensure_response( false );
+		}
+
+		return rest_ensure_response( (bool) WC_Name_Your_Price_Helpers::is_nyp( $products[0] ) );
+	}
+
+	public function api_set_choose_price( $request ) {
+		$params = $request->get_params();
+		$enabled = $params['enabled'];
+		$setting = $enabled ? 'yes' : '';
+		$products = wc_get_products( [
+			'limit' => -1,
+			'only_get_newspack_subscriptions' => true,
+		] );
+
+		foreach ( $products as $product ) {
+			$product->update_meta_data( '_nyp' , $setting );
+			$product->save();
+		}
+
+		return $this->api_get_choose_price();
 	}
 
 	public function handle_only_get_newspack_subscriptions_query( $query, $query_vars ) {

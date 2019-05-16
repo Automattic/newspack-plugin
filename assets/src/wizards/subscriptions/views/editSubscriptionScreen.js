@@ -41,7 +41,7 @@ class EditSubscriptionScreen extends Component {
 		const { subscriptionID } = this.props;
 
 		if ( !! subscriptionID ) {
-			apiFetch( { path: '/newspack/v1/wizard/subscription/' + subscriptionID } ).then(
+			apiFetch( { path: '/newspack/v1/wizard/subscriptions/' + subscriptionID } ).then(
 				subscription => {
 					this.setState( { ...subscription } );
 				}
@@ -53,7 +53,7 @@ class EditSubscriptionScreen extends Component {
 		const { subscriptionID } = this.props;
 
 		apiFetch( {
-			path: '/newspack/v1/wizard/subscription',
+			path: '/newspack/v1/wizard/subscriptions',
 			method: 'post',
 			data: {
 				id: subscriptionID ? subscriptionID : 0,
@@ -71,7 +71,6 @@ class EditSubscriptionScreen extends Component {
 	 * Render.
 	 */
 	render() {
-		console.log( this.state );
 		const { name, price, frequency } = this.state;
 		const { subscriptionID, changeScreen } = this.props;
 		const editing_existing_subscription = !! subscriptionID;
