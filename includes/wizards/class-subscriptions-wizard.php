@@ -92,6 +92,16 @@ class Subscriptions_Wizard extends Wizard {
 		] );
 
 		// Delete a subscription.
+		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/(?P<id>\d+)', [
+			'methods' => 'DELETE',
+			'callback' => [ $this, 'api_delete_subscription' ],
+			'permission_callback' => [ $this, 'api_permissions_check' ],
+			'args' => [
+				'id' => [
+					'sanitize_callback' => 'absint',
+				],
+			],
+		] );
 
 		// Get NYP status.
 		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/choose-price/', [
@@ -190,6 +200,9 @@ class Subscriptions_Wizard extends Wizard {
 		$product->update_meta_data( '_suggested_price', $args['price'] );
 		$product->update_meta_data( '_hide_nyp_minimum', 'yes' );
 		$product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
+		if ( $this->api_get_choose_price() ) {
+			$product->update_meta_data( '_nyp', 'yes' );
+		}
 
 		// Mark product as created through the Subscription Wizard.
 		$product->update_meta_data( 'newspack_created_subscription', 1 );
@@ -204,6 +217,17 @@ class Subscriptions_Wizard extends Wizard {
 		$product->save();
 
 		return rest_ensure_response( $this->get_product_data_for_api( $product ) );
+	}
+
+	public function api_delete_subscription( $request ) {
+		$params = $request->get_params();
+		$id = $params['id'];
+		$product = wc_get_product( $params['id'] );
+		if ( ! $product ) {
+			return rest_ensure_response( false );
+		}
+
+		return rest_ensure_response( $product->delete( true ) );
 	}
 
 	public function api_get_choose_price() {

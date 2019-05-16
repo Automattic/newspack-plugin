@@ -65,6 +65,17 @@ class ManageSubscriptionsScreen extends Component {
 		);
 	}
 
+	deleteSubscription( id ) {
+		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
+			apiFetch( {
+				path: '/newspack/v1/wizard/subscriptions/' + id,
+				method: 'delete',
+			} ).then( response => {
+				this.refreshSubscriptions();
+			} );
+		}
+	}
+
 	/**
 	 * Get subscriptions info.
 	 */
@@ -109,7 +120,11 @@ class ManageSubscriptionsScreen extends Component {
 								>
 									{ __( 'Edit' ) }
 								</a>
-								<a className="delete-subscription" href="#deletetodo">
+								<a
+									className="delete-subscription"
+									href="#"
+									onClick={ () => this.deleteSubscription( id ) }
+								>
 									{ __( 'Delete' ) }
 								</a>
 							</div>
