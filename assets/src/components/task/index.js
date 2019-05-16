@@ -21,66 +21,52 @@ import './style.scss';
 import classnames from 'classnames';
 
 class Task extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			editing: false,
-		};
-	}
-
 	/**
 	 * Render.
 	 */
 	render() {
 		const {
+			active,
 			buttonText,
+			completed,
 			completedTitle,
 			description,
-			current,
-			complete,
 			onClick,
-			onSkip,
+			onDismiss,
 			title,
 		} = this.props;
-		const { editing } = this.state;
-		const isActive = editing || current;
-		const isComplete = ! editing && complete;
-		const classes = classnames(
-			'muriel-task',
-			isActive && 'is-active',
-			isComplete && 'is-complete'
-		);
+		const classes = classnames( 'muriel-task', active && 'is-active', completed && 'is-completed' );
 		return (
 			<div className={ classes }>
-				<div className="checklist__task-icon">{ isComplete && <Dashicon icon="yes" /> }</div>
-				{ isComplete && (
+				<div className="checklist__task-icon">{ completed && <Dashicon icon="yes" /> }</div>
+				{ completed && (
 					<div className="checklist__task-primary">
 						<h1>{ completedTitle }</h1>
 					</div>
 				) }
-				{ ! isComplete && (
+				{ ! completed && (
 					<div className="checklist__task-primary">
 						<h1>{ title }</h1>
 						<h2>{ description }</h2>
 					</div>
 				) }
 				<div className="checklist__task-secondary">
-					{ isActive && (
+					{ active && (
 						<Fragment>
 							{ onClick && (
-								<Button isPrimary onClick={ e => this.setState( { editing: false }, onClick ) }>
+								<Button isPrimary onClick={ onClick }>
 									{ buttonText }
 								</Button>
 							) }
-							{ onSkip && (
-								<Button isLink onClick={ e => this.setState( { editing: false }, onSkip ) }>
+							{ onDismiss && (
+								<Button isLink onClick={ onDismiss }>
 									{ __( 'Skip' ) }
 								</Button>
 							) }
 						</Fragment>
 					) }
-					{ isComplete && (
-						<Button isLink onClick={ () => this.setState( { editing: true } ) }>
+					{ completed && (
+						<Button isLink onClick={ onClick }>
 							{ __( 'Edit' ) }
 						</Button>
 					) }
