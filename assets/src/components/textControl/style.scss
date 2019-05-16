@@ -30,7 +30,7 @@
 		color: $muriel-gray-500;
 	}
 
-	input[type="text"] {
+	input[type="text"], input[type="number"] {
 		position: absolute;
 		width: -webkit-calc(100% - 16px - 20px);
 		width:    -moz-calc(100% - 16px - 20px);
@@ -51,7 +51,7 @@
 		label {
 			display: none;
 		}
-		input[type="text"] {
+		input[type="text"], input[type="number"] {
 			top: 17px;
 			color: $muriel-gray-800;
 		}
@@ -60,7 +60,7 @@
 	&.with-value {
 		label {
 		}
-		input[type="text"] {
+		input[type="text"], input[type="number"] {
 			top: 25px;
 			color: $muriel-gray-800;
 		}
@@ -70,7 +70,7 @@
 		label {
 			display: none;
 		}
-		input[type="text"] {
+		input[type="text"], input[type="number"] {
 			top: 17px;
 			color: $muriel-gray-500;
 		}
@@ -80,7 +80,7 @@
 		label {
 			display: none;
 		}
-		input[type="text"] {
+		input[type="text"], input[type="number"] {
 			top: 17px;
 			color: $muriel-gray-200;
 
