@@ -25,7 +25,7 @@ class Task extends Component {
 		super( ...arguments );
 		this.state = {
 			editing: false,
-		}
+		};
 	}
 
 	/**
@@ -40,41 +40,49 @@ class Task extends Component {
 			complete,
 			onClick,
 			onSkip,
-			title
+			title,
 		} = this.props;
 		const { editing } = this.state;
 		const isActive = editing || current;
 		const isComplete = ! editing && complete;
 		const classes = classnames(
-			"muriel-task",
+			'muriel-task',
 			isActive && 'is-active',
 			isComplete && 'is-complete'
 		);
 		return (
 			<div className={ classes }>
-				<div className="checklist__task-icon">
-					{ isComplete && <Dashicon icon="yes" /> }
-				</div>
+				<div className="checklist__task-icon">{ isComplete && <Dashicon icon="yes" /> }</div>
 				{ isComplete && (
-				<div className="checklist__task-primary">
-					<h1>{ completedTitle }</h1>
-				</div>
+					<div className="checklist__task-primary">
+						<h1>{ completedTitle }</h1>
+					</div>
 				) }
 				{ ! isComplete && (
-				<div className="checklist__task-primary">
-					<h1>{ title }</h1>
-					<h2>{ description }</h2>
-				</div>
+					<div className="checklist__task-primary">
+						<h1>{ title }</h1>
+						<h2>{ description }</h2>
+					</div>
 				) }
 				<div className="checklist__task-secondary">
 					{ isActive && (
 						<Fragment>
-							{ onClick && <Button isPrimary onClick={ e => this.setState( { editing: false }, onClick ) }>{ buttonText }</Button> }
-							{ onSkip && <Button isLink onClick={ e => this.setState( { editing: false }, onSkip ) }>{ __( 'Skip' ) }</Button> }
+							{ onClick && (
+								<Button isPrimary onClick={ e => this.setState( { editing: false }, onClick ) }>
+									{ buttonText }
+								</Button>
+							) }
+							{ onSkip && (
+								<Button isLink onClick={ e => this.setState( { editing: false }, onSkip ) }>
+									{ __( 'Skip' ) }
+								</Button>
+							) }
 						</Fragment>
 					) }
 					{ isComplete && (
-						<Button isLink onClick={ () => this.setState( { editing: true } ) }>{ __( 'Edit' ) }</Button>
+						<Button isLink onClick={ () => this.setState( { editing: true } ) }>
+							{ __( 'Edit' ) }
+						</Button>
 					) }
 				</div>
 			</div>

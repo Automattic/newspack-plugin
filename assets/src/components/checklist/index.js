@@ -18,12 +18,11 @@ import ProgressBar from '../progressBar';
 import './style.scss';
 
 class Checklist extends Component {
-
 	constructor() {
 		super( ...arguments );
 		this.state = {
 			hideCompleted: false,
-		}
+		};
 	}
 
 	/**
@@ -44,12 +43,20 @@ class Checklist extends Component {
 			<div className={ classes } { ...otherProps }>
 				<div className="muriel-checklist__header">
 					<div className="muriel-checklist__header-main">
-						<ProgressBar completed={ currentTask } total={ Children.count( children ) } displayFraction label={ progressBarText } />
+						<ProgressBar
+							completed={ currentTask }
+							total={ Children.count( children ) }
+							displayFraction
+							label={ progressBarText }
+						/>
 					</div>
 					{ shouldShowHideCompletionUI && (
 						<div className="muriel-checklist__header-secondary">
 							<label htmlFor="muriel-checklist__header-action">{ completedLabel }</label>
-							<Button id="muriel-checklist__header-action" onClick={ () => this.setState( { hideCompleted: ! hideCompleted } ) }>
+							<Button
+								id="muriel-checklist__header-action"
+								onClick={ () => this.setState( { hideCompleted: ! hideCompleted } ) }
+							>
 								<Dashicon icon={ completedIcon } />
 							</Button>
 						</div>
@@ -57,12 +64,10 @@ class Checklist extends Component {
 				</div>
 				<div className="muriel-checklist__tasks">
 					{ Children.map( children, ( child, index ) => {
-						return cloneElement(
-							child,
-							{
-								current: index === currentTask,
-								complete: index < currentTask
-							} );
+						return cloneElement( child, {
+							current: index === currentTask,
+							complete: index < currentTask,
+						} );
 					} ) }
 				</div>
 			</div>
