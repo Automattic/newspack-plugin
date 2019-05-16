@@ -93,11 +93,13 @@ class ManageSubscriptionsScreen extends Component {
 	render() {
 		const { changeScreen } = this.props;
 		const { subscriptions, choosePrice } = this.state;
+		const headerText = subscriptions.length ? __( 'Any more subscriptions to add?' ) : __( 'Add your first subscription' );
+		const buttonText = subscriptions.length ? __( 'Add another subscription' ) : __( 'Add a subscription' );
 
 		return (
 			<div className="newspack-manage-subscriptions-screen">
 				<FormattedHeader
-					headerText={ __( 'Any more subscriptions to add?' ) }
+					headerText={ headerText }
 					subHeaderText={ __( 'Subscriptions can provide a stable, recurring source of revenue' ) }
 				/>
 				{ subscriptions.map( subscription => {
@@ -131,21 +133,23 @@ class ManageSubscriptionsScreen extends Component {
 						</Card>
 					);
 				} ) }
-				<CheckboxControl
-					label={ __( 'Allow members to specify donation amount' ) }
-					onChange={ () => this.toggleChoosePrice() }
-					tooltip={ __(
-						'Enabling this makes the subscription price a "Recommended price" and allows subscribers to set the subscription price when purchasing.'
-					) }
-					help={ __( 'Mostly used for donations' ) }
-					checked={ choosePrice }
-				/>
+				{ !! subscriptions.length && (
+					<CheckboxControl
+						label={ __( 'Allow members to specify donation amount' ) }
+						onChange={ () => this.toggleChoosePrice() }
+						tooltip={ __(
+							'Enabling this makes the subscription price a "Recommended price" and allows subscribers to set the subscription price when purchasing.'
+						) }
+						help={ __( 'Mostly used for donations' ) }
+						checked={ choosePrice }
+					/>
+				) }
 				<Button
 					isPrimary
 					className="is-centered"
 					onClick={ () => changeScreen( EditSubscriptionScreen ) }
 				>
-					{ __( 'Add another subscription' ) }
+					{ buttonText }
 				</Button>
 				<a className="newspack-manage-subscriptions-screen__finished" href="#linktochecklisthere">
 					{ __( "I'm done adding" ) }

@@ -200,7 +200,7 @@ class Subscriptions_Wizard extends Wizard {
 		$product->update_meta_data( '_suggested_price', $args['price'] );
 		$product->update_meta_data( '_hide_nyp_minimum', 'yes' );
 		$product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-		if ( $this->api_get_choose_price() ) {
+		if ( $this->get_choose_price() ) {
 			$product->update_meta_data( '_nyp', 'yes' );
 		}
 
@@ -231,16 +231,20 @@ class Subscriptions_Wizard extends Wizard {
 	}
 
 	public function api_get_choose_price() {
+		return rest_ensure_response( $this->get_choose_price() );
+	}
+
+	public function get_choose_price() {
 		$products = wc_get_products( [
 			'limit' => 1,
 			'only_get_newspack_subscriptions' => true,
 		] );
 
 		if ( empty( $products ) ) {
-			return rest_ensure_response( false );
+			return false;
 		}
 
-		return rest_ensure_response( (bool) WC_Name_Your_Price_Helpers::is_nyp( $products[0] ) );
+		return (bool) WC_Name_Your_Price_Helpers::is_nyp( $products[0] );
 	}
 
 	public function api_set_choose_price( $request ) {
