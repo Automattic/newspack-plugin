@@ -48,7 +48,7 @@ class Checklist extends Component {
 					</div>
 					{ shouldShowHideCompletionUI && (
 						<div className="muriel-checklist__header-secondary">
-							<label for="muriel-checklist__header-action">{ completedLabel }</label>
+							<label htmlFor="muriel-checklist__header-action">{ completedLabel }</label>
 							<Button id="muriel-checklist__header-action" onClick={ () => this.setState( { hideCompleted: ! hideCompleted } ) }>
 								<Dashicon icon={ completedIcon } />
 							</Button>
