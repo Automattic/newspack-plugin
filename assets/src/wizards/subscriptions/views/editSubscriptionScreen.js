@@ -31,7 +31,10 @@ class EditSubscriptionScreen extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			subscription: []
+			name: '',
+			image: null,
+			price: '',
+			frequency: 'month',
 		}
 	}
 
@@ -43,10 +46,11 @@ class EditSubscriptionScreen extends Component {
 	 * Render.
 	 */
 	render() {
-		const { subscription_id, changeScreen } = this.props;
-		const editing_existing_subscription = !! subscription_id;
+		const { name, image, price, frequency } = this.state;
+		const { subscriptionID, changeScreen } = this.props;
+		const editing_existing_subscription = !! subscriptionID;
 		const heading = editing_existing_subscription ? __( 'Edit subscription' ) : __( 'Add a subscription' );
-		const subHeading = editing_existing_subscription ? __( 'Editing an existing subscription' ) : __( 'Adding a new subscription' );
+		const subHeading = editing_existing_subscription ? __( 'You are editing an existing subscription' ) : __( 'You are adding a new subscription' );
 
 		return(
 			<div className='newspack-edit-subscription-screen'>
@@ -55,18 +59,34 @@ class EditSubscriptionScreen extends Component {
 					subHeaderText={ subHeading }
 				/>
 				<Card>
-					<TextControl label={ __( 'What is this product called? e.g. Valued Donor' ) } />
-					<ImageUpload />
-					<TextControl label={ __( 'Price' ) } />
-					<SelectControl label={ __( 'Frequency' ) } options={ [
+					<TextControl
+						label={ __( 'What is this product called? e.g. Valued Donor' ) }
+						value={ name }
+						onChange={ value => this.setState( { name: value } ) }
+					/>
+					<ImageUpload
+						image={ image }
+						onChange={ value => this.setState( { image: value } ) }
+					/>
+					<TextControl
+						type="number"
+						step="0.01"
+						label={ __( 'Price' ) }
+						value={ price }
+						onChange={ value => this.setState( { price: value } ) }
+					/>
+					<SelectControl
+						label={ __( 'Frequency' ) }
+						value={ frequency }
+						options={ [
 							{ value: 'month', label: __( 'per month' ) },
 							{ value: 'year', label: __( 'per year' ) },
 							{ value: 'once', label: __( 'once' ) },
 						] }
-						value={ 'month' }
+						onChange={ value => this.setState( { frequency: value } ) }
 					/>
 					<Button isPrimary className='is-centered' onClick={ () => changeScreen( ManageSubscriptionsScreen ) } >{ __( 'Save' ) }</Button>
-					<a className='newspack-edit-subscription-screen__cancel' href='#goback'>{ __( 'Cancel' ) }</a>
+					<a className='newspack-edit-subscription-screen__cancel' href="#" onClick={ () => changeScreen( ManageSubscriptionsScreen ) }>{ __( 'Cancel' ) }</a>
 				</Card>
 			</div>
 		);
