@@ -1,0 +1,89 @@
+.muriel-task {
+	border: 1px solid $muriel-gray-50;
+	display: flex;
+	padding: 24px 24px 24px 60px;
+	position: relative;
+
+	h1,
+	h2 {
+		max-width: 650px;
+		padding: 0;
+	}
+
+	h1 {
+		color: $muriel-gray-800;
+		font-size: 24px;
+		font-weight: normal;
+		margin: 0 0 10px 0;
+	}
+
+	h2 {
+		color: $muriel-gray-600;
+		font-size: 15px;
+		font-weight: 200;
+		margin: 0;
+	}
+
+	.checklist__task-icon {
+		background: $muriel-white;
+		border: 2px solid $muriel-gray-200;
+		border-radius: 16px;
+		display: block;
+		height: 16px;
+		left: 24px;
+		position: absolute;
+		top: 24px;
+		width: 16px;
+	}
+
+	.checklist__task-primary {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+	}
+
+	.checklist__task-secondary {
+		align-items: flex-end;
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		justify-content: flex-end;
+		padding-left: 10px;
+
+		button {
+			margin: 0 0 13px 0;
+
+			&:focus:enabled {
+				box-shadow: none;
+			}
+		}
+	}
+
+	&:before {
+		border-left: 1px solid $muriel-gray-100;
+		bottom: 0;
+		content: '';
+		display: block;
+		left: 34px;
+		position: absolute;
+		top: 0;
+	}
+
+	&.is-completed {
+		background-color: $muriel-gray-0;
+
+		h1 {
+			color: $muriel-gray-500;
+		}
+
+		.checklist__task-icon {
+			background-color: $muriel-green-400;
+			border: 2px solid $muriel-green-400;
+			svg {
+				width: 16px;
+				height: 16px;
+				color: $muriel-white;
+			}
+		}
+	}
+}

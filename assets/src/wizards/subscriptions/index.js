@@ -7,6 +7,7 @@
  */
 import { Component, render } from '@wordpress/element';
 
+
 /**
  * Internal dependencies
  */
