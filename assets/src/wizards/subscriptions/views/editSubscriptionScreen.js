@@ -101,23 +101,25 @@ class EditSubscriptionScreen extends Component {
 						onChange={ value => this.setState( { name: value } ) }
 					/>
 					<ImageUpload image={ image } onChange={ value => this.setState( { image: value } ) } />
-					<TextControl
-						type="number"
-						step="0.01"
-						label={ __( 'Price' ) }
-						value={ price }
-						onChange={ value => this.setState( { price: value } ) }
-					/>
-					<SelectControl
-						label={ __( 'Frequency' ) }
-						value={ frequency }
-						options={ [
-							{ value: 'month', label: __( 'per month' ) },
-							{ value: 'year', label: __( 'per year' ) },
-							{ value: 'once', label: __( 'once' ) },
-						] }
-						onChange={ value => this.setState( { frequency: value } ) }
-					/>
+					<div className="newspack-edit-subscription-screen__price-settings">
+						<TextControl
+							type="number"
+							step="0.01"
+							label={ __( 'Price' ) }
+							value={ price }
+							onChange={ value => this.setState( { price: value } ) }
+						/>
+						<SelectControl
+							label={ __( 'Frequency' ) }
+							value={ frequency }
+							options={ [
+								{ value: 'month', label: __( 'per month' ) },
+								{ value: 'year', label: __( 'per year' ) },
+								{ value: 'once', label: __( 'once' ) },
+							] }
+							onChange={ value => this.setState( { frequency: value } ) }
+						/>
+					</div>
 					<Button isPrimary className="is-centered" onClick={ () => this.saveSubscription() }>
 						{ __( 'Save' ) }
 					</Button>
