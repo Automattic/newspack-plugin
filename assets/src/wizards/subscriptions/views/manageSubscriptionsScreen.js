@@ -147,6 +147,7 @@ class ManageSubscriptionsScreen extends Component {
 				} ) }
 				{ !! subscriptions.length && (
 					<CheckboxControl
+						className='newspack-manage-subscriptions-screen__choose-price'
 						label={ __( 'Allow members to specify donation amount' ) }
 						onChange={ () => this.toggleChoosePrice() }
 						tooltip={ __(
