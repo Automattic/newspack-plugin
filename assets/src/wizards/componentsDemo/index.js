@@ -23,19 +23,18 @@ import SelectControl from '../../components/selectControl';
  * Subscriptions wizard stub for example purposes.
  */
 class ComponentsDemo extends Component {
-
 	/**
 	 * constructor. Demo of how the parent interacts with the components, and controls their values.
 	 */
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			inputTextValue1: "Input value",
-			inputTextValue2: "",
+			inputTextValue1: 'Input value',
+			inputTextValue2: '',
 			image: null,
-			selectValue1: "2nd",
-			selectValue2: "",
-		}
+			selectValue1: '2nd',
+			selectValue2: '',
+		};
 	}
 
 	/**
@@ -44,30 +43,30 @@ class ComponentsDemo extends Component {
 	render() {
 		const { inputTextValue1, inputTextValue2, selectValue1, selectValue2 } = this.state;
 
-		return(
+		return (
 			<Fragment>
 				<FormattedHeader
 					headerText="Newspack Components"
 					subHeaderText="Temporary demo of Newspack components"
 				/>
 				<Card>
-					<FormattedHeader
-						headerText="Checkboxes"
+					<FormattedHeader headerText="Checkboxes" />
+					<CheckboxControl
+						label="Checkbox is tested?"
+						onChange={ function() {
+							console.log( "Yep, it's tested" );
+						} }
 					/>
 					<CheckboxControl
-				        label="Checkbox is tested?"
-				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-					/>
-					<CheckboxControl
-				        label="Checkbox w/Tooltip"
-				        onChange={ function(){ console.log( 'Yep, it\'s tested' ); } }
-				        tooltip="This is tooltip text"
+						label="Checkbox w/Tooltip"
+						onChange={ function() {
+							console.log( "Yep, it's tested" );
+						} }
+						tooltip="This is tooltip text"
 					/>
 				</Card>
 				<Card>
-					<FormattedHeader
-						headerText="Image Uploader"
-					/>
+					<FormattedHeader headerText="Image Uploader" />
 					<ImageUpload
 						image={ this.state.image }
 						onChange={ image => {
@@ -78,9 +77,7 @@ class ComponentsDemo extends Component {
 					/>
 				</Card>
 				<Card>
-					<FormattedHeader
-						headerText="Text Inputs"
-					/>
+					<FormattedHeader headerText="Text Inputs" />
 					<TextControl
 						label="Text Input with value"
 						value={ inputTextValue1 }
@@ -91,24 +88,17 @@ class ComponentsDemo extends Component {
 						value={ inputTextValue2 }
 						onChange={ value => this.setState( { inputTextValue2: value } ) }
 					/>
-					<TextControl
-						label="Text Input disabled"
-						disabled
-					/>
+					<TextControl label="Text Input disabled" disabled />
 				</Card>
 				<Card>
-					<FormattedHeader
-						headerText="Progress bar"
-					/>
+					<FormattedHeader headerText="Progress bar" />
 					<ProgressBar completed="2" total="3" />
 					<ProgressBar completed="2" total="5" label="Progress made" />
 					<ProgressBar completed="0" total="5" displayFraction />
 					<ProgressBar completed="3" total="8" label="Progress made" displayFraction />
 				</Card>
 				<Card>
-					<FormattedHeader
-						headerText="Select dropdowns"
-					/>
+					<FormattedHeader headerText="Select dropdowns" />
 					<SelectControl
 						label="Select with value"
 						value={ selectValue1 }
@@ -141,12 +131,16 @@ class ComponentsDemo extends Component {
 					/>
 				</Card>
 				<Card>
-					<FormattedHeader
-						headerText="Buttons"
-					/>
-					<Button isPrimary className="is-centered">Continue</Button>
-					<Button isDefault className="is-centered">Continue</Button>
-					<Button isTertiary className="is-centered">Continue</Button>
+					<FormattedHeader headerText="Buttons" />
+					<Button isPrimary className="is-centered">
+						Continue
+					</Button>
+					<Button isDefault className="is-centered">
+						Continue
+					</Button>
+					<Button isTertiary className="is-centered">
+						Continue
+					</Button>
 					<Button isPrimary>Continue</Button>
 					<Button isDefault>Continue</Button>
 					<Button isTertiary>Continue</Button>
@@ -156,7 +150,4 @@ class ComponentsDemo extends Component {
 	}
 }
 
-render(
-  <ComponentsDemo />,
-  document.getElementById( 'newspack-components-demo' )
-);
+render( <ComponentsDemo />, document.getElementById( 'newspack-components-demo' ) );

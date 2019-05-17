@@ -14,23 +14,25 @@ import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import './style.scss';
 
 /**
- * Subscriptions wizard stub for example purposes.
+ * Subscriptions wizard for managing and setting up subscriptions.
  */
 class SubscriptionsWizard extends Component {
-
 	/**
-	 * constructor. Demo of how the parent interacts with the components, and controls their values.
+	 * Constructor.
 	 */
 	constructor() {
 		super( ...arguments );
 		this.state = {
 			screen: ManageSubscriptionsScreen,
 			screenArgs: [],
-		}
+		};
 	}
 
 	/**
 	 * Change the current active screen.
+	 *
+	 * @param object screen React class for screen to load.
+	 * @param object args   Dictionary of params to pass to screen as props.
 	 */
 	changeScreen( screen, args ) {
 		this.setState( {
@@ -40,19 +42,19 @@ class SubscriptionsWizard extends Component {
 	}
 
 	/**
-	 * Render the example stub.
+	 * Render.
 	 */
 	render() {
 		const Screen = this.state.screen;
 		const { screenArgs } = this.state;
 
-		return(
-			<Screen { ...screenArgs } changeScreen={ ( screen, args ) => this.changeScreen( screen, args ) } />
+		return (
+			<Screen
+				{ ...screenArgs }
+				changeScreen={ ( screen, args ) => this.changeScreen( screen, args ) }
+			/>
 		);
 	}
 }
 
-render(
-  <SubscriptionsWizard />,
-  document.getElementById( 'newspack-subscriptions-wizard' )
-);
+render( <SubscriptionsWizard />, document.getElementById( 'newspack-subscriptions-wizard' ) );

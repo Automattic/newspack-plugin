@@ -39,6 +39,9 @@ class Subscriptions_Wizard extends Wizard {
 	 */
 	protected $capability = 'edit_products';
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		parent::__construct();
 
@@ -46,92 +49,123 @@ class Subscriptions_Wizard extends Wizard {
 		add_filter( 'woocommerce_product_data_store_cpt_get_products_query', [ $this, 'handle_only_get_newspack_subscriptions_query' ], 10, 2 );
 	}
 
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
 	public function register_api_endpoints() {
-
 		// Get all Newspack subscriptions.
-		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/', [
-			'methods' => 'GET',
-			'callback' => [ $this, 'api_get_subscriptions' ],
-			'permission_callback' => [ $this, 'api_permissions_check' ],
-		] );
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/subscriptions/',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_subscriptions' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 
 		// Get one subscription.
-		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/(?P<id>\d+)', [
-			'methods' => 'GET',
-			'callback' => [ $this, 'api_get_subscription' ],
-			'permission_callback' => [ $this, 'api_permissions_check' ],
-			'args' => [
-				'id' => [
-					'sanitize_callback' => 'absint',
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/subscriptions/(?P<id>\d+)',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_subscription' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
 				],
-			],
-		] );
+			]
+		);
 
 		// Save a subscription.
-		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/', [
-			'methods' => 'POST',
-			'callback' => [ $this, 'api_save_subscription' ],
-			'permission_callback' => [ $this, 'api_permissions_check' ],
-			'args' => [
-				'id' => [
-					'sanitize_callback' => 'absint',
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/subscriptions/',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_save_subscription' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'        => [
+						'sanitize_callback' => 'absint',
+					],
+					'image'     => [
+						'sanitize_callback' => 'absint',
+					],
+					'name'      => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'price'     => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'frequency' => [
+						'sanitize_callback' => 'sanitize_title',
+					],
 				],
-				'image' => [
-					'sanitize_callback' => 'absint',
-				],
-				'name' => [
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-				'price' => [
-					'sanitize_callback' => 'wc_format_decimal',
-				],
-				'frequency' => [
-					'sanitize_callback' => 'sanitize_title',
-				]
-			],
-		] );
+			]
+		);
 
 		// Delete a subscription.
-		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/(?P<id>\d+)', [
-			'methods' => 'DELETE',
-			'callback' => [ $this, 'api_delete_subscription' ],
-			'permission_callback' => [ $this, 'api_permissions_check' ],
-			'args' => [
-				'id' => [
-					'sanitize_callback' => 'absint',
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/subscriptions/(?P<id>\d+)',
+			[
+				'methods'             => 'DELETE',
+				'callback'            => [ $this, 'api_delete_subscription' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
 				],
-			],
-		] );
+			]
+		);
 
 		// Get NYP status.
-		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/choose-price/', [
-			'methods' => 'GET',
-			'callback' => [ $this, 'api_get_choose_price' ],
-			'permission_callback' => [ $this, 'api_permissions_check' ],
-		] );
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/subscriptions/choose-price/',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_choose_price' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 
 		// Enable/Disable NYP for Newspack subscriptions.
-		register_rest_route( 'newspack/v1/wizard/', '/subscriptions/choose-price/', [
-			'methods' => 'POST',
-			'callback' => [ $this, 'api_set_choose_price' ],
-			'permission_callback' => [ $this, 'api_permissions_check' ],
-			'args' => [
-				'enabled' => [
-					'sanitize_callback' => 'wc_string_to_bool',
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/subscriptions/choose-price/',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_set_choose_price' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'enabled' => [
+						'sanitize_callback' => 'wc_string_to_bool',
+					],
 				],
-			],
-		] );
-
+			]
+		);
 	}
 
+	/**
+	 * Get the Newspack subscriptions.
+	 *
+	 * @return WP_REST_Response containing subscriptions info.
+	 */
 	public function api_get_subscriptions() {
-		$products = wc_get_products( [
-			'limit' => -1,
-			'only_get_newspack_subscriptions' => true,
-		] );
+		$products = wc_get_products(
+			[
+				'limit'                           => -1,
+				'only_get_newspack_subscriptions' => true,
+			]
+		);
 
 		$response = [];
-
 		foreach ( $products as $product ) {
 			$response[] = $this->get_product_data_for_api( $product );
 		}
@@ -139,9 +173,15 @@ class Subscriptions_Wizard extends Wizard {
 		return rest_ensure_response( $response );
 	}
 
+	/**
+	 * Get one subscription.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response containing subscription info.
+	 */
 	public function api_get_subscription( $request ) {
-		$params = $request->get_params();
-		$id = $params['id'];
+		$params  = $request->get_params();
+		$id      = $params['id'];
 		$product = wc_get_product( $params['id'] );
 		if ( ! $product ) {
 			return new WP_Error(
@@ -156,31 +196,43 @@ class Subscriptions_Wizard extends Wizard {
 		return rest_ensure_response( $this->get_product_data_for_api( $product ) );
 	}
 
+	/**
+	 * Get information about one product, suitable for the API.
+	 *
+	 * @param WC_Product $product Product to get info for.
+	 * @return array of information about the product.
+	 */
 	protected function get_product_data_for_api( $product ) {
 		return [
-			'id' => $product->get_id(),
-			'name' => $product->get_name(),
-			'price' => $product->get_regular_price(),
+			'id'            => $product->get_id(),
+			'name'          => $product->get_name(),
+			'price'         => $product->get_regular_price(),
 			'display_price' => wp_strip_all_tags( html_entity_decode( $product->get_price_html() ) ),
-			'url' => $product->get_permalink(),
-			'frequency' => WC_Subscriptions_Product::get_period( $product ) ? WC_Subscriptions_Product::get_period( $product ) : 'once',
-			'image' => [
-				'id' => $product->get_image_id(),
+			'url'           => $product->get_permalink(),
+			'frequency'     => WC_Subscriptions_Product::get_period( $product ) ? WC_Subscriptions_Product::get_period( $product ) : 'once',
+			'image'         => [
+				'id'  => $product->get_image_id(),
 				'url' => $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' ) ) : wc_placeholder_img_src( 'woocommerce_thumbnail' ),
 			],
 		];
 	}
 
+	/**
+	 * Save a subscription.
+	 *
+	 * @param WP_REST_Request $request Product info.
+	 * @return WP_REST_Response Updated product info.
+	 */
 	public function api_save_subscription( $request ) {
-		$params = $request->get_params();
+		$params   = $request->get_params();
 		$defaults = [
-			'id' => 0,
-			'name' => '',
-			'image_id' => 0,
-			'price' => 0.0,
-			'frequency' => 'once'
+			'id'        => 0,
+			'name'      => '',
+			'image_id'  => 0,
+			'price'     => 0.0,
+			'frequency' => 'once',
 		];
-		$args = wp_parse_args( $params, $defaults );
+		$args     = wp_parse_args( $params, $defaults );
 
 		if ( 'once' === $args['frequency'] ) {
 			$product = new \WC_Product_Simple( $args['id'] );
@@ -219,9 +271,15 @@ class Subscriptions_Wizard extends Wizard {
 		return rest_ensure_response( $this->get_product_data_for_api( $product ) );
 	}
 
+	/**
+	 * Delete a subscription.
+	 *
+	 * @param WP_REST_Request $request Request with ID of product to delete.
+	 * @return WP_REST_Response Boolean delete success.
+	 */
 	public function api_delete_subscription( $request ) {
-		$params = $request->get_params();
-		$id = $params['id'];
+		$params  = $request->get_params();
+		$id      = $params['id'];
 		$product = wc_get_product( $params['id'] );
 		if ( ! $product ) {
 			return rest_ensure_response( false );
@@ -230,15 +288,28 @@ class Subscriptions_Wizard extends Wizard {
 		return rest_ensure_response( $product->delete( true ) );
 	}
 
+	/**
+	 * Get whether choose price is enabled through the API.
+	 *
+	 * @return WP_REST_Response Boolean whether it's enabled.
+	 */
 	public function api_get_choose_price() {
 		return rest_ensure_response( $this->get_choose_price() );
 	}
 
-	public function get_choose_price() {
-		$products = wc_get_products( [
-			'limit' => 1,
-			'only_get_newspack_subscriptions' => true,
-		] );
+	/**
+	 * Get whether choose price is enabled.
+	 *
+	 * @return bool
+	 */
+	protected function get_choose_price() {
+		// Check one product to determine whether NYP is enabled, and generalize to all products.
+		$products = wc_get_products(
+			[
+				'limit'                           => 1,
+				'only_get_newspack_subscriptions' => true,
+			]
+		);
 
 		if ( empty( $products ) ) {
 			return false;
@@ -247,27 +318,41 @@ class Subscriptions_Wizard extends Wizard {
 		return (bool) WC_Name_Your_Price_Helpers::is_nyp( $products[0] );
 	}
 
+	/**
+	 * Set choose price to true/false for all Newspack subscriptions.
+	 *
+	 * @param WP_REST_Request $request Enable or disable.
+	 * @return WP_REST_Response The updated setting.
+	 */
 	public function api_set_choose_price( $request ) {
-		$params = $request->get_params();
-		$enabled = $params['enabled'];
-		$setting = $enabled ? 'yes' : '';
-		$products = wc_get_products( [
-			'limit' => -1,
-			'only_get_newspack_subscriptions' => true,
-		] );
+		$params   = $request->get_params();
+		$enabled  = $params['enabled'];
+		$setting  = $enabled ? 'yes' : '';
+		$products = wc_get_products(
+			[
+				'limit'                           => -1,
+				'only_get_newspack_subscriptions' => true,
+			]
+		);
 
 		foreach ( $products as $product ) {
-			$product->update_meta_data( '_nyp' , $setting );
+			$product->update_meta_data( '_nyp', $setting );
 			$product->save();
 		}
 
 		return $this->api_get_choose_price();
 	}
 
+	/**
+	 * Hook into wc_get_products to handle filtering by only products created through the Newspack Subscriptions Wizard.
+	 *
+	 * @param array $query WP_Query args.
+	 * @param array $query_vars Args passed into wc_get_products.
+	 */
 	public function handle_only_get_newspack_subscriptions_query( $query, $query_vars ) {
 		if ( ! empty( $query_vars['only_get_newspack_subscriptions'] ) ) {
 			$query['meta_query'][] = [
-				'key' => 'newspack_created_subscription',
+				'key'   => 'newspack_created_subscription',
 				'value' => 1,
 			];
 		}

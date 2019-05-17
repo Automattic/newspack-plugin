@@ -81,7 +81,7 @@ class Wizard {
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),
 				[
-					'status' => 403
+					'status' => 403,
 				]
 			);
 		}

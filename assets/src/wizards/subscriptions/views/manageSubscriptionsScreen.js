@@ -46,6 +46,9 @@ class ManageSubscriptionsScreen extends Component {
 		} );
 	}
 
+	/**
+	 * Enable/Disable Name-Your-Price for Newspack subscriptions.
+	 */
 	toggleChoosePrice() {
 		this.setState(
 			{
@@ -65,6 +68,11 @@ class ManageSubscriptionsScreen extends Component {
 		);
 	}
 
+	/**
+	 * Delete a subscription.
+	 *
+	 * @param int id Subscription ID.
+	 */
 	deleteSubscription( id ) {
 		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
 			apiFetch( {
@@ -77,7 +85,7 @@ class ManageSubscriptionsScreen extends Component {
 	}
 
 	/**
-	 * Get subscriptions info.
+	 * Get the latest subscriptions info.
 	 */
 	refreshSubscriptions() {
 		apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
@@ -93,8 +101,12 @@ class ManageSubscriptionsScreen extends Component {
 	render() {
 		const { changeScreen } = this.props;
 		const { subscriptions, choosePrice } = this.state;
-		const headerText = subscriptions.length ? __( 'Any more subscriptions to add?' ) : __( 'Add your first subscription' );
-		const buttonText = subscriptions.length ? __( 'Add another subscription' ) : __( 'Add a subscription' );
+		const headerText = subscriptions.length
+			? __( 'Any more subscriptions to add?' )
+			: __( 'Add your first subscription' );
+		const buttonText = subscriptions.length
+			? __( 'Add another subscription' )
+			: __( 'Add a subscription' );
 
 		return (
 			<div className="newspack-manage-subscriptions-screen">
@@ -151,7 +163,10 @@ class ManageSubscriptionsScreen extends Component {
 				>
 					{ buttonText }
 				</Button>
-				<a className="newspack-manage-subscriptions-screen__finished" href="#linktochecklisthere">
+				<a
+					className="newspack-manage-subscriptions-screen__finished is-centered"
+					href="#linktochecklisthere"
+				>
 					{ __( "I'm done adding" ) }
 				</a>
 			</div>

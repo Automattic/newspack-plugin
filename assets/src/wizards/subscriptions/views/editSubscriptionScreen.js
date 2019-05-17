@@ -37,6 +37,9 @@ class EditSubscriptionScreen extends Component {
 		};
 	}
 
+	/**
+	 * Get subscription info if editing a subscription.
+	 */
 	componentDidMount() {
 		const { subscriptionID } = this.props;
 
@@ -49,8 +52,11 @@ class EditSubscriptionScreen extends Component {
 		}
 	}
 
+	/**
+	 * Save the fields to a susbcription.
+	 */
 	saveSubscription() {
-		const { subscriptionID } = this.props;
+		const { subscriptionID, changeScreen } = this.props;
 
 		apiFetch( {
 			path: '/newspack/v1/wizard/subscriptions',
@@ -63,7 +69,7 @@ class EditSubscriptionScreen extends Component {
 				frequency: this.state.frequency,
 			},
 		} ).then( response => {
-			this.props.changeScreen( ManageSubscriptionsScreen );
+			changeScreen( ManageSubscriptionsScreen );
 		} );
 	}
 
