@@ -1,10 +1,10 @@
 export { default as Button } from './button';
 export { default as Card } from './card';
-export { default as CheckboxControl } from './checkboxControl';
+export { default as CheckboxControl } from './checkbox-control';
 export { default as Checklist } from './checklist';
-export { default as FormattedHeader } from './formattedHeader';
-export { default as ImageUpload } from './imageUpload';
-export { default as ProgressBar } from './progressBar';
-export { default as SelectControl } from './selectControl';
-export { default as Task } from './Task';
-export { default as TextControl } from './textControl';
+export { default as FormattedHeader } from './formatted-header';
+export { default as ImageUpload } from './image-upload';
+export { default as ProgressBar } from './progress-bar';
+export { default as SelectControl } from './select-control';
+export { default as Task } from './task';
+export { default as TextControl } from './text-control';

@@ -13,8 +13,7 @@ import { Dashicon } from '@wordpress/components';
  * Internal dependencies.
  */
 import murielClassnames from '../../shared/js/muriel-classnames';
-import Button from '../button';
-import ProgressBar from '../progressBar';
+import { Button, ProgressBar } from '../';
 import './style.scss';
 
 class Checklist extends Component {
