@@ -11,16 +11,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import ImageUpload from '../../components/imageUpload';
-import CheckboxControl from '../../components/checkboxControl';
-import Card from '../../components/card';
-import Button from '../../components/button';
-import FormattedHeader from '../../components/formattedHeader';
-import TextControl from '../../components/textControl';
-import ProgressBar from '../../components/progressBar';
-import Checklist from '../../components/checklist';
-import Task from '../../components/task';
-import SelectControl from '../../components/selectControl';
+import {
+	ImageUpload,
+	CheckboxControl,
+	Card,
+	Button,
+	FormattedHeader,
+	TextControl,
+	ProgressBar,
+	Checklist,
+	Task,
+	SelectControl,
+} from '../../components';
 import './style.scss';
 
 /**
