@@ -25,7 +25,7 @@ class Plugin_Manager {
 	 */
 	public static function get_managed_plugins() {
 		$managed_plugins = [
-			'jetpack' => [
+			'jetpack'                          => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
 				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
 				'Author'      => 'Automattic',
@@ -33,12 +33,27 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com/',
 				'Download'    => 'wporg',
 			],
-			'amp'     => [
+			'amp'                              => [
 				'Name'        => __( 'AMP', 'newspack' ),
 				'Description' => esc_html__( 'Enable AMP on your WordPress site, the WordPress way.', 'newspack' ),
 				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
 				'PluginURI'   => 'https://amp-wp.org/',
 				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
+				'Download'    => 'wporg',
+			],
+			'woocommerce'                      => [
+				'Name'        => __( 'WooCommerce', 'newspack' ),
+				'Description' => esc_html__( 'An eCommerce toolkit that helps you sell anything. Beautifully.', 'newspack' ),
+				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
+				'PluginURI'   => 'https://woocommerce.com/',
+				'AuthorURI'   => 'https://woocommerce.com',
+				'Download'    => 'wporg',
+			],
+			'yith-woocommerce-name-your-price' => [
+				'Name'        => 'YITH WooCommerce Name Your Price',
+				'Description' => '<code><strong>YITH WooCommerce Name Your Price</strong></code> allows your users to choose the price they want to pay for single product. <a href ="https://yithemes.com">Get more plugins for your e-commerce shop on <strong>YITH</strong></a>',
+				'Author'      => 'YITH',
+				'AuthorURI'   => 'https://yithemes.com/',
 				'Download'    => 'wporg',
 			],
 		];
