@@ -139,6 +139,13 @@ class ComponentsDemo extends Component {
 						} }
 						tooltip="This is tooltip text"
 					/>
+					<CheckboxControl
+						label={ __( 'Checkbox w/Help' ) }
+						onChange={ function() {
+							console.log( "Yep, it's tested" );
+						} }
+						help="This is help text"
+					/>
 				</Card>
 				<Card>
 					<FormattedHeader headerText={ __( 'Image Uploader' ) } />
