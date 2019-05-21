@@ -38,6 +38,7 @@ class ComponentsDemo extends Component {
 			checklistProgress: 0,
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
+			inputNumValue: 0,
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
@@ -64,6 +65,7 @@ class ComponentsDemo extends Component {
 			checklistProgress,
 			inputTextValue1,
 			inputTextValue2,
+			inputNumValue,
 			selectValue1,
 			selectValue2,
 		} = this.state;
@@ -162,6 +164,12 @@ class ComponentsDemo extends Component {
 						label={ __( 'Text Input empty' ) }
 						value={ inputTextValue2 }
 						onChange={ value => this.setState( { inputTextValue2: value } ) }
+					/>
+					<TextControl
+						type='number'
+						label={ __( 'Number Input' ) }
+						value={ inputNumValue }
+						onChange={ value => this.setState( { inputNumValue: value } ) }
 					/>
 					<TextControl label={ __( 'Text Input disabled' ) } disabled />
 				</Card>
