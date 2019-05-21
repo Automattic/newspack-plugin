@@ -18,6 +18,7 @@ import {
 	Button,
 	FormattedHeader,
 	TextControl,
+	PluginInstaller,
 	ProgressBar,
 	Checklist,
 	Task,
@@ -76,6 +77,11 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
+				<Card>
+					<PluginInstaller
+						plugins={ [ 'amp', 'jetpack' ] }
+					/>
+				</Card>
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
 					<Task
 						title={ __( 'Set up membership' ) }

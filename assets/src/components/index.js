@@ -4,6 +4,7 @@ export { default as CheckboxControl } from './checkbox-control';
 export { default as Checklist } from './checklist';
 export { default as FormattedHeader } from './formatted-header';
 export { default as ImageUpload } from './image-upload';
+export { default as PluginInstaller } from './plugin-installer';
 export { default as ProgressBar } from './progress-bar';
 export { default as SelectControl } from './select-control';
 export { default as Task } from './task';
