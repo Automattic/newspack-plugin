@@ -83,6 +83,8 @@ const SelectControl = withFocusOutside(
 
 			return (
 				<BaseComponent
+					value={ value }
+					disabled={ !! disabled }
 					className={ classes }
 					onClick={ () => this.handleOnClick( onClick ) }
 					onChange={ value => this.handleOnChange( onChange, value ) }
