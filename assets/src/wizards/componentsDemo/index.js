@@ -79,7 +79,7 @@ class ComponentsDemo extends Component {
 				/>
 				<Card>
 					<PluginInstaller
-						plugins={ [ 'amp', 'jetpack' ] }
+						plugins={ [ 'woocommerce', 'amp', 'yith-woocommerce-name-your-price' ] }
 					/>
 				</Card>
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
