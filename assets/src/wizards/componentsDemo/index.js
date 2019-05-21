@@ -1,5 +1,5 @@
 /**
- * Subscriptions Wizard.
+ * "Components Demo" Wizard.
  */
 
 /**
@@ -26,9 +26,9 @@ import {
 import './style.scss';
 
 /**
- * Subscriptions wizard stub for example purposes.
+ * Components demo for example purposes.
  */
-class SubscriptionsWizard extends Component {
+class ComponentsDemo extends Component {
 	/**
 	 * constructor. Demo of how the parent interacts with the components, and controls their values.
 	 */
@@ -225,4 +225,4 @@ class SubscriptionsWizard extends Component {
 	}
 }
 
-render( <SubscriptionsWizard />, document.getElementById( 'newspack-subscriptions-wizard' ) );
+render( <ComponentsDemo />, document.getElementById( 'newspack-components-demo' ) );
