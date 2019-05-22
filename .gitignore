@@ -29,3 +29,5 @@ Thumbs.db
 
 # Built files
 /assets/dist
+/assets/src/components/dist
+/assets/src/components/node_modules
