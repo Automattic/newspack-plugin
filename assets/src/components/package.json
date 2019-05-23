@@ -1,6 +1,6 @@
 {
   "name": "newspack-components",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "description": "Muriel design system components",
   "author": "Automattic",
   "license": "GPL-2.0-or-later",
@@ -19,7 +19,7 @@
     "url": "https://github.com/Automattic/newspack-plugin.git",
     "directory": "assets/src/components"
   },
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
   "publishConfig": {
     "access": "public"
   },
@@ -28,9 +28,18 @@
     "@wordpress/element": "^2.3.0"
   },
   "devDependencies": {
-    "@automattic/calypso-build": "^2.0.0"
+    "@automattic/calypso-build": "^2.0.0",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "recursive-copy": "2.0.10"
+  },
+  "babel": {
+    "ignore": [
+      "./node_modules"
+    ]
   },
   "scripts": {
-    "prepare": "webpack --config='./webpack.config.js'"
+    "prepublishOnly": "transpile && node copy-styles.js",
+    "postpublish": "rm -r dist"
   }
 }
