@@ -22,9 +22,9 @@ class Card extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, ...otherProps } = this.props;
-		const classes = murielClassnames( 'muriel-card', className );
-		return <div className={ classes } { ...otherProps } />
+		const { className, noBackground, ...otherProps } = this.props;
+		const classes = murielClassnames( 'muriel-card', className, noBackground && 'muriel-card__no-background' );
+		return <div className={ classes } { ...otherProps } />;
 	}
 }
 
