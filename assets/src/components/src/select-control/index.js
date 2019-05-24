@@ -11,7 +11,7 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../shared/js/muriel-classnames';
+import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 const SelectControl = withFocusOutside(

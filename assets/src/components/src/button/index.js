@@ -11,7 +11,7 @@ import { Button as BaseComponent } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../shared/js/muriel-classnames';
+import murielClassnames from '../../../shared/js/muriel-classnames';
 
 import './style.scss';
 

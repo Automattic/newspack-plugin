@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../shared/js/muriel-classnames';
+import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**

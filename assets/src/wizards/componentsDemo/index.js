@@ -22,7 +22,7 @@ import {
 	Checklist,
 	Task,
 	SelectControl,
-} from '../../components';
+} from '../../components/src';
 import './style.scss';
 
 /**

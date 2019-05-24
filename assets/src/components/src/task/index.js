@@ -12,7 +12,7 @@ import { Dashicon } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import Button from '../button';
+import { Button } from '../';
 import './style.scss';
 
 /**

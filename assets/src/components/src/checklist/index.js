@@ -12,7 +12,7 @@ import { Dashicon } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import murielClassnames from '../../shared/js/muriel-classnames';
+import murielClassnames from '../../../shared/js/muriel-classnames';
 import { Button, ProgressBar } from '../';
 import './style.scss';
 

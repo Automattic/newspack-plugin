@@ -11,8 +11,9 @@ import { CheckboxControl as BaseComponent } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../shared/js/muriel-classnames';
-import InfoButton from '../info-button';
+import murielClassnames from '../../../shared/js/muriel-classnames';
+import { InfoButton } from '../';
+
 import './style.scss';
 
 class CheckboxControl extends Component {
