@@ -68,4 +68,23 @@ class Wizard {
 			return;
 		}
 	}
+
+	/**
+	 * Check capabilities for using API.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function api_permissions_check( $request ) {
+		if ( ! current_user_can( $this->capability ) ) {
+			return new \WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
+		}
+		return true;
+	}
 }
