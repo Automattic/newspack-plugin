@@ -1,6 +1,54 @@
 /**
  * Temporary styles for example purposes.
  */
-#newspack-advertising-wizard {
+#newspack-advertising {
 	padding: 14px;
+
+	.newspack-manage-advertising-screen__advertising-card {
+		display: flex;
+		justify-content: space-between;
+
+		.newspack-manage-advertising-screen__advertising-card__product-actions {
+			a {
+				display: block;
+				text-decoration: none;
+			}
+
+			.edit-subscription {
+				color: $muriel-hot-pink-400;
+				font-size: 16px;
+				margin-bottom: .25em;
+
+				&:hover {
+					color: $muriel-hot-pink-700;
+				}
+			}
+		}
+
+		.newspack-manage-advertising-screen__advertising-card__product-info {
+			width: 100%;
+
+			.product-name {
+				color: $muriel-gray-900;
+				font-size: 16px;
+				font-weight: 500;
+				margin-bottom: .25em;
+			}
+
+			.product-price {
+				color: $muriel-gray-400;
+			}
+		}
+
+		img {
+			border-radius: 50%;
+			height: 32px;
+			width: auto;
+			border: 1px solid $muriel-gray-400;
+			margin-right: 1.5em;
+			margin-top: 2px;
+		}
+
+	}
+
 }
