@@ -61,6 +61,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-components-demo.php';
+		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-onboarding-wizard.php';
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-subscriptions-wizard.php';
 	}
 
