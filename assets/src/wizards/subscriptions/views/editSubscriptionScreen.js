@@ -91,13 +91,13 @@ class EditSubscriptionScreen extends Component {
 					<Button isPrimary className="is-centered" onClick={ () => onClickSave( subscription ) }>
 						{ __( 'Save' ) }
 					</Button>
-					<a
-						className="newspack-edit-subscription-screen__cancel"
+					<Button
+						className="newspack-edit-subscription-screen__cancel isLink is-centered is-tertiary"
 						href="#"
 						onClick={ () => onClickCancel() }
 					>
 						{ __( 'Cancel' ) }
-					</a>
+					</Button>
 				</Card>
 			</div>
 		);

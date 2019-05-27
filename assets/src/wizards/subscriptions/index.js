@@ -62,17 +62,21 @@ class SubscriptionsWizard extends Component {
 			path: '/newspack/v1/wizard/subscriptions',
 			method: 'post',
 			data: {
-				id: id,
-				name: name,
-				image_id: image_id,
-				price: price,
-				frequency: frequency,
+				id,
+				name,
+				image_id,
+				price,
+				frequency,
 			},
 		} ).then( response => {
-			this.setState( {
-				editing: false,
-			} );
-			this.refreshSubscriptions();
+			this.setState(
+				{
+					editing: false,
+				},
+				() => {
+					this.refreshSubscriptions();
+				}
+			);
 		} );
 	}
 
@@ -135,7 +139,7 @@ class SubscriptionsWizard extends Component {
 			return (
 				<EditSubscriptionScreen
 					subscription={ editing }
-					onChange={ subscription => { this.setState( { editing: subscription } ); } }
+					onChange={ subscription => this.setState( { editing: subscription } ) }
 					onClickSave={ subscription => this.saveSubscription( subscription ) }
 					onClickCancel={ () => this.setState( { editing: false } ) }
 				/>
