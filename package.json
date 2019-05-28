@@ -52,10 +52,10 @@
   ],
   "jest": {
     "setupFilesAfterEnv": [
-      "<rootDir>/assets/src/setupTests.js"
+      "<rootDir>/assets/setupTests.js"
     ],
     "testMatch": [
-      "<rootDir>/**/src/**/*test.js?(x)",
+      "<rootDir>/**/*test.js?(x)",
       "!**/.eslintrc.*"
     ],
     "transform": {
