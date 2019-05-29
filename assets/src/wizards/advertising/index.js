@@ -23,7 +23,7 @@ import './style.scss';
 /**
  * Components demo for example purposes.
  */
-class Advertising extends Component {
+class AdvertisingWizard extends Component {
 	/**
 	 * Render the example stub.
 	 */
@@ -65,4 +65,4 @@ class Advertising extends Component {
 	}
 }
 
-render( <Advertising />, document.getElementById( 'newspack-advertising' ) );
+render( <AdvertisingWizard />, document.getElementById( 'newspack-advertising-wizard' ) );
