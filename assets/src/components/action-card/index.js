@@ -56,7 +56,6 @@ class ActionCard extends Component {
 			imageLink,
 			onClick,
 			onSecondaryClick,
-			onImageClick,
 		} = this.props;
 		const classes = murielClassnames( 'newspack-action-card', className );
 		const notificationClasses = classnames(
@@ -73,7 +72,6 @@ class ActionCard extends Component {
 							<a href={ imageLink }>
 								<div
 									className="newspack-action-card__image"
-									onClick={ onImageClick }
 									style={ this.backgroundImageStyles( image ) }
 								/>
 							</a>
