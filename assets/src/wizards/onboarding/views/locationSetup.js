@@ -19,32 +19,24 @@ import {
 	SelectControl,
 } from '../../../components';
 
-// @todo pull this info from WC.
-const locationOptions = [
-	{ value: 'us', label: __( 'USA' ) },
-	{ value: 'uk', label: __( 'UK' ) },
-	{ value: 'other', label: __( 'Other' ) },
-];
-const currencyOptions = [
-	{ value: 'usd', label: __( 'USD' ) },
-	{ value: 'euro', label: __( 'Euro' ) },
-];
-
 /**
  * Location Setup Screen.
  */
 class LocationSetup extends Component {
 
 	handleOnChange( key, value ) {
-		/*const { subscription, onChange } = this.props;
-		subscription[ key ] = value;
-		onChange( subscription );*/
+		const { location, onChange } = this.props;
+		location[ key ] = value;
+		onChange( location );
 	}
 
 	/**
 	 * Render.
 	 */
 	render() {
+		const { location, onClickContinue } = this.props;
+		const { countrystate, address1, address2, city, postcode, currency } = location;
+
 		return (
 			<div className='newspack-location-setup-screen'>
 				<FormattedHeader
@@ -54,37 +46,37 @@ class LocationSetup extends Component {
 				<Card>
 					<SelectControl
 						label={ __( 'Where is your business based?' ) }
-						value={ '' }
-						options={ locationOptions }
-						onChange={ value => this.handleOnChange( 'location', value ) }
+						value={ countrystate }
+						options={ newspack_location_info }
+						onChange={ value => this.handleOnChange( 'countrystate', value ) }
 					/>
 					<TextControl
 						label={ __( 'Address' ) }
-						value={ '' }
+						value={ address1 }
 						onChange={ value => this.handleOnChange( 'address1', value ) }
 					/>
 					<TextControl
 						label={ __( 'Address line 2' ) }
-						value={ '' }
+						value={ address2 }
 						onChange={ value => this.handleOnChange( 'address2', value ) }
 					/>
 					<TextControl
 						label={ __( 'City' ) }
-						value={ '' }
+						value={ city }
 						onChange={ value => this.handleOnChange( 'city', value ) }
 					/>
 					<TextControl
 						label={ __( 'Postcode / Zip' ) }
-						value={ '' }
+						value={ postcode }
 						onChange={ value => this.handleOnChange( 'postcode', value ) }
 					/>
 					<SelectControl
 						label={ 'Which currency does your business use?' }
-						value={ '' }
-						options={ currencyOptions }
+						value={ currency }
+						options={ newspack_currency_info }
 						onChange={ value => this.handleOnChange( 'currency', value ) }
 					/>
-					<Button isPrimary className="is-centered" onClick={ () => {} }>
+					<Button isPrimary className="is-centered" onClick={ () => onClickContinue() }>
 						{ __( 'Continue' ) }
 					</Button>
 					<Button
