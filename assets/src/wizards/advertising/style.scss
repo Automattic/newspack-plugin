@@ -8,23 +8,6 @@
 		display: flex;
 		justify-content: space-between;
 
-		.newspack-manage-advertising-screen__advertising-card__product-actions {
-			a {
-				display: block;
-				text-decoration: none;
-			}
-
-			.edit-subscription {
-				color: $muriel-hot-pink-400;
-				font-size: 16px;
-				margin-bottom: .25em;
-
-				&:hover {
-					color: $muriel-hot-pink-700;
-				}
-			}
-		}
-
 		.newspack-manage-advertising-screen__advertising-card__product-info {
 			width: 100%;
 
