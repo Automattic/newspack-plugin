@@ -7,11 +7,13 @@
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import {
+	ActionCard,
 	ImageUpload,
 	CheckboxControl,
 	Card,
@@ -75,6 +77,54 @@ class ComponentsDemo extends Component {
 				<FormattedHeader
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
+					actionText="Install"
+					isButton
+					onClick={ () => { console.log( 'Install clicked' ) } }
+				/>
+				<ActionCard
+					title={ __( 'WooCommerce' ) }
+					description="Version: 3.6.3"
+					actionText={ __( 'Install' ) }
+					secondaryActionText={ __( 'Delete' ) }
+					isButton
+					onClick={ () => { console.log( 'Install clicked' ) } }
+					onSecondaryClick={ () => { console.log( 'Delete clicked' ) } }
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
+					actionText="Installing..."
+					isSpinner
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
+					notification={ <Fragment>Plugin cannot be installed <a href='#'>Retry</a> | <a href='#'>Documentation</a></Fragment> }
+					notificationLevel="error"
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
+					notification={ <Fragment>There is a new version available. <a href='#'>View details</a> or <a href='#'>update now</a></Fragment> }
+					notificationLevel="warning"
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
+					actionText="Active"
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
+					actionText="Set Up"
+					onClick={ () => { console.log( 'Set Up' ) } }
+					isButton
+					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
+					imageLink="https://wordpress.com"
 				/>
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
 					<Task
