@@ -79,52 +79,54 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example One"
+					description="Has an action button."
 					actionText="Install"
 					onClick={ () => { console.log( 'Install clicked' ) } }
 				/>
 				<ActionCard
-					title={ __( 'WooCommerce' ) }
-					description="Version: 3.6.3"
+					title="Example Two"
+					description="Has action button and secondary button (visible on hover)."
 					actionText={ __( 'Edit' ) }
 					secondaryActionText={ __( 'Delete' ) }
-					onClick={ () => { console.log( 'Install clicked' ) } }
+					onClick={ () => { console.log( 'Edit clicked' ) } }
 					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example Three"
+					description="Waiting/in-progress state, no action button."
 					actionText="Installing..."
 					isWaiting
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example Four"
+					description="Error notification"
 					notification={ <Fragment>Plugin cannot be installed <a href='#'>Retry</a> | <a href='#'>Documentation</a></Fragment> }
 					notificationLevel="error"
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example Five"
+					description="Warning notification, action button"
+					actionText="Install"
+					onClick={ () => { console.log( 'Install clicked' ) } }
 					notification={ <Fragment>There is a new version available. <a href='#'>View details</a> or <a href='#'>update now</a></Fragment> }
 					notificationLevel="warning"
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example Six"
+					description="Static text, no button"
 					actionText="Active"
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example Seven"
+					description="Static text, secondary action button."
 					actionText="Active"
 					secondaryActionText={ __( 'Delete' ) }
 					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
 				/>
 				<ActionCard
-					title="WooCommerce"
-					description="Version: 3.6.3"
+					title="Example Eight"
+					description="Image with link and action button."
 					actionText="Set Up"
 					onClick={ () => { console.log( 'Set Up' ) } }
 					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
