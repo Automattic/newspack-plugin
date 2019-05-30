@@ -81,7 +81,7 @@ class ComponentsDemo extends Component {
 				/>
 				<Card>
 					<PluginInstaller
-						plugins={ [ 'woocommerce', 'amp', 'yith-woocommerce-name-your-price' ] }
+						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'fake-plugin' ] }
 					/>
 				</Card>
 				<ActionCard
