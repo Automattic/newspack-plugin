@@ -9,6 +9,7 @@
 	/* General styles */
 
 	color: $muriel-gray-300;
+	font-size: 14px;
 
 	h1, h2 {
 		font-weight: normal;
@@ -19,7 +20,6 @@
 	h1 {
 		color: $muriel-gray-900;
 		font-size: 16px;
-
 		line-height: 21px;
 	}
 
@@ -54,26 +54,19 @@
 
 	.newspack-action-card__region-right {
 		align-items: flex-end;
-		justify-content: center;
+		align-self: center;
 		margin-left: 1.5em;
+	}
 
-		.newspack-action-card__action-type__none {
-			color: $muriel-gray-300;
-		}
+	/* Spinner */
 
-		.newspack-action-card__action-type__spinner {
-			display: flex;
-			align-items: center;
-			color: $muriel-gray-300;
-			.components-spinner {
-				margin-top: 0;
-				margin-bottom: 0;
-			}
-		}
+	.newspack-action-card__container {
+		display: flex;
+	}
 
-		&.newspack-action-card__region-right__double-button {
-			justify-content: flex-start;
-		}
+	.components-spinner {
+		margin-top: 0;
+		margin-bottom: 0;
 	}
 
 	/* Notifications */
@@ -91,10 +84,10 @@
 		background-position: center;
 		background-repeat: no-repeat;
 		background-size: cover;
+		border: 1px solid $muriel-gray-400;
  		border-radius: 50%;
  		height: 32px;
  		width: 32px;
- 		border: 1px solid $muriel-gray-400;
 	}
 
 	/* Buttons */

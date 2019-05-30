@@ -22,17 +22,6 @@ import './style.scss';
 import classnames from 'classnames';
 
 class ActionCard extends Component {
-	actionTypeFromProps = props => {
-		const { isButton, isSpinner } = props;
-		if ( isButton ) {
-			return 'button';
-		}
-		if ( isSpinner ) {
-			return 'spinner';
-		}
-		return 'none';
-	};
-
 	backgroundImageStyles = url => {
 		return url ? { backgroundImage: `url(${ url })` } : {};
 	};
@@ -53,6 +42,7 @@ class ActionCard extends Component {
 			imageLink,
 			onClick,
 			onSecondaryActionClick,
+			isWaiting,
 		} = this.props;
 		const classes = murielClassnames( 'newspack-action-card', className );
 		const notificationClasses = classnames(
@@ -60,9 +50,9 @@ class ActionCard extends Component {
 			'notice',
 			`notice-${ notificationLevel }`,
 			'notice-alt',
-			'update-message',
+			'update-message'
 		);
-		const actionType = this.actionTypeFromProps( this.props );
+		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		return (
 			<Card className={ classes }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -81,21 +71,21 @@ class ActionCard extends Component {
 						<h2>{ description }</h2>
 					</div>
 					{ actionText && (
-						<div
-							className={ classnames(
-								'newspack-action-card__region',
-								'newspack-action-card__region-right',
-								'button' === actionType &&
-									secondaryActionText &&
-									'newspack-action-card__region-right__double-button'
-							) }
-						>
-							{ 'button' === actionType && (
+						<div className="newspack-action-card__region newspack-action-card__region-right">
+							{ actionText && onClick && (
 								<Button isLink onClick={ onClick } className="newspack-action-card__primary_button">
 									{ actionText }
 								</Button>
 							) }
-							{ 'button' === actionType && secondaryActionText && (
+
+							{ actionText && ! onClick && (
+								<div className="newspack-action-card__container">
+									{ isWaiting && <Spinner /> }
+									{ actionText }
+								</div>
+							) }
+
+							{ secondaryActionText && onSecondaryActionClick && (
 								<Button
 									isLink
 									onClick={ onSecondaryActionClick }
@@ -103,15 +93,6 @@ class ActionCard extends Component {
 								>
 									{ secondaryActionText }
 								</Button>
-							) }
-							{ 'spinner' === actionType && (
-								<div className="newspack-action-card__action-type__spinner">
-									<Spinner />
-									{ actionText }
-								</div>
-							) }
-							{ 'none' === actionType && (
-								<p className="newspack-action-card__action-type__none">{ actionText }</p>
 							) }
 						</div>
 					) }

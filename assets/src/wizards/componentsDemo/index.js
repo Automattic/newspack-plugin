@@ -82,7 +82,6 @@ class ComponentsDemo extends Component {
 					title="WooCommerce"
 					description="Version: 3.6.3"
 					actionText="Install"
-					isButton
 					onClick={ () => { console.log( 'Install clicked' ) } }
 				/>
 				<ActionCard
@@ -90,7 +89,6 @@ class ComponentsDemo extends Component {
 					description="Version: 3.6.3"
 					actionText={ __( 'Edit' ) }
 					secondaryActionText={ __( 'Delete' ) }
-					isButton
 					onClick={ () => { console.log( 'Install clicked' ) } }
 					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
 				/>
@@ -98,7 +96,7 @@ class ComponentsDemo extends Component {
 					title="WooCommerce"
 					description="Version: 3.6.3"
 					actionText="Installing..."
-					isSpinner
+					isWaiting
 				/>
 				<ActionCard
 					title="WooCommerce"
@@ -120,9 +118,15 @@ class ComponentsDemo extends Component {
 				<ActionCard
 					title="WooCommerce"
 					description="Version: 3.6.3"
+					actionText="Active"
+					secondaryActionText={ __( 'Delete' ) }
+					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
+				/>
+				<ActionCard
+					title="WooCommerce"
+					description="Version: 3.6.3"
 					actionText="Set Up"
 					onClick={ () => { console.log( 'Set Up' ) } }
-					isButton
 					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 					imageLink="https://wordpress.com"
 				/>
