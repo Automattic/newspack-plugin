@@ -82,13 +82,13 @@
 			color: $muriel-blue-500;
 		}
 	}
-	.newspack-action-card__deletion_button {
+	.newspack-action-card__secondary_button {
 		display: none;
 		&.is-link {
 			color: $muriel-red-300;
 		}
 	}
-	&:hover .newspack-action-card__deletion_button {
+	&:hover .newspack-action-card__secondary_button {
 		display: block;
 	}
 }

@@ -89,10 +89,10 @@ class ComponentsDemo extends Component {
 					title={ __( 'WooCommerce' ) }
 					description="Version: 3.6.3"
 					actionText={ __( 'Edit' ) }
-					deletionText={ __( 'Delete' ) }
+					secondaryActionText={ __( 'Delete' ) }
 					isButton
 					onClick={ () => { console.log( 'Install clicked' ) } }
-					onDeletionClick={ () => { console.log( 'Delete clicked' ) } }
+					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
 				/>
 				<ActionCard
 					title="WooCommerce"
