@@ -23,12 +23,9 @@ import classnames from 'classnames';
 
 class ActionCard extends Component {
 	actionTypeFromProps = props => {
-		const { isButton, isExternalLink, isSpinner } = props;
+		const { isButton, isSpinner } = props;
 		if ( isButton ) {
 			return 'button';
-		}
-		if ( isExternalLink ) {
-			return 'external_link';
 		}
 		if ( isSpinner ) {
 			return 'spinner';
@@ -61,7 +58,9 @@ class ActionCard extends Component {
 		const notificationClasses = classnames(
 			'newspack-action-card__notification',
 			'notice',
-			`notice-${ notificationLevel }`
+			`notice-${ notificationLevel }`,
+			'notice-alt',
+			'update-message',
 		);
 		const actionType = this.actionTypeFromProps( this.props );
 		return (

@@ -46,6 +46,9 @@
 	}
 	.newspack-action-card__notification {
 		margin: 14px 0 0 0;
+		p:before {
+			margin-right: 6px;
+		}
 	}
 	.newspack-action-card__none {
 		color: $muriel-gray-300;
@@ -90,3 +93,4 @@
 		display: block;
 	}
 }
+
