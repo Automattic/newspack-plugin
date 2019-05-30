@@ -101,14 +101,14 @@ class ComponentsDemo extends Component {
 				<ActionCard
 					title="Example Four"
 					description="Error notification"
+					actionText="Install"
+					onClick={ () => { console.log( 'Install clicked' ) } }
 					notification={ <Fragment>Plugin cannot be installed <a href='#'>Retry</a> | <a href='#'>Documentation</a></Fragment> }
 					notificationLevel="error"
 				/>
 				<ActionCard
 					title="Example Five"
 					description="Warning notification, action button"
-					actionText="Install"
-					onClick={ () => { console.log( 'Install clicked' ) } }
 					notification={ <Fragment>There is a new version available. <a href='#'>View details</a> or <a href='#'>update now</a></Fragment> }
 					notificationLevel="warning"
 				/>
