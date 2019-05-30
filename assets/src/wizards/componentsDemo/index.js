@@ -79,7 +79,7 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
-				<Card>
+				<Card noBackground>
 					<PluginInstaller
 						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'fake-plugin' ] }
 					/>
