@@ -34,14 +34,14 @@ class LocationSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { location, onClickContinue } = this.props;
+		const { location, onClickContinue, onClickSkip } = this.props;
 		const { countrystate, address1, address2, city, postcode, currency } = location;
 
 		return (
 			<div className='newspack-location-setup-screen'>
 				<FormattedHeader
 					headerText={ __( 'About your publication' ) }
-					subHeaderText={ __( 'This information is required to accept payments and other features' ) }
+					subHeaderText={ __( 'This information is required for accepting payments and other features' ) }
 				/>
 				<Card>
 					<SelectControl
@@ -76,15 +76,15 @@ class LocationSetup extends Component {
 						options={ newspack_currency_info }
 						onChange={ value => this.handleOnChange( 'currency', value ) }
 					/>
-					<Button isPrimary className="is-centered" onClick={ () => onClickContinue() }>
+					<Button isPrimary className='is-centered' onClick={ () => onClickContinue() }>
 						{ __( 'Continue' ) }
 					</Button>
 					<Button
-						className="isLink is-centered is-tertiary"
-						href="#"
-						onClick={ () => {} }
+						className='isLink is-centered is-tertiary'
+						href='#'
+						onClick={ () => onClickSkip() }
 					>
-						{ __( 'Cancel' ) }
+						{ __( 'Skip' ) }
 					</Button>
 				</Card>
 			</div>

@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import LocationSetup from './views/locationSetup';
+import PaymentSetup from './views/PaymentSetup';
 import './style.scss';
 
 /**
@@ -25,6 +26,7 @@ class OnboardingWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			wizardStep: 2,
 			location: {
 				countrystate: '',
 				address1: '',
@@ -33,11 +35,28 @@ class OnboardingWizard extends Component {
 				postcode: '',
 				currency: '',
 			},
+			stripeSettings: {
+				enabled: false,
+				testMode: false,
+				publishableKey: '',
+				secretKey: '',
+				testPublishableKey: '',
+				testSecretKey: '',
+			}
 		};
 	}
 
 	componentDidMount() {
 		this.refreshLocationInfo();
+		this.refreshStripeInfo();
+	}
+
+	nextWizardStep() {
+		const { wizardStep } = this.state;
+
+		this.setState( {
+			wizardStep: wizardStep + 1
+		} );
 	}
 
 	refreshLocationInfo() {
@@ -56,19 +75,45 @@ class OnboardingWizard extends Component {
 				...this.state.location,
 			},
 		} ).then( response => {
-			console.log( response );
-			// go to next step of wizard
+			this.nextWizardStep();
 		} );
 	}
 
+	refreshStripeInfo() {
+
+	}
+
+	saveStripeSettings() {
+
+	}
+
 	render() {
-		const { location } = this.state;
+		const { wizardStep, location, stripeSettings } = this.state;
+
+		if ( 1 === wizardStep ) {
+			return (
+				<LocationSetup
+					location={ location }
+					onChange={ location => this.setState( { location } ) }
+					onClickContinue={ () => this.saveLocation() }
+					onClickSkip={ () => this.nextWizardStep() }
+				/>
+			);
+		}
+
+		if ( 2 === wizardStep ) {
+			return (
+				<PaymentSetup 
+					stripeSettings={ stripeSettings }
+					onChange={ stripeSettings => this.setState( { stripeSettings } ) }
+					onClickFinish={ () => this.saveStripeSettings() }
+					onClickCancel={ () => this.nextWizardStep() }
+				/>
+			);
+		}
+
 		return (
-			<LocationSetup
-				location={ location }
-				onChange={ location => this.setState( { location } ) }
-				onClickContinue={ () => this.saveLocation() }
-			/>
+			<h3>Wizard complete. TODO: This should redirect to the checklist instead of displaying this message.</h3>
 		);
 	}
 }
