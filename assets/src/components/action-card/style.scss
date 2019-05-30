@@ -83,13 +83,13 @@
 		}
 	}
 	.newspack-action-card__secondary_button {
-		display: none;
+		visibility: hidden;
 		&.is-link {
 			color: $muriel-red-300;
 		}
 	}
 	&:hover .newspack-action-card__secondary_button {
-		display: block;
+		visibility: visible;
 	}
 }
 
