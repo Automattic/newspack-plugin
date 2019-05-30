@@ -99,7 +99,10 @@
 	button.newspack-action-card__secondary_button {
 		visibility: hidden;
 		&.is-link {
-			color: $muriel-red-300;
+			color: $muriel-hot-red-600;
+			&:hover {
+				color: $muriel-hot-red-500;
+			}
 		}
 	}
 
