@@ -48,11 +48,11 @@ class ActionCard extends Component {
 			notification,
 			notificationLevel,
 			actionText,
-			secondaryActionText,
+			deletionText,
 			image,
 			imageLink,
 			onClick,
-			onSecondaryClick,
+			onDeletionClick,
 		} = this.props;
 		const classes = murielClassnames( 'newspack-action-card', className );
 		const notificationClasses = classnames(
@@ -86,7 +86,7 @@ class ActionCard extends Component {
 								'newspack-action-card__region',
 								'newspack-action-card__region-right',
 								'button' === actionType &&
-									secondaryActionText &&
+									deletionText &&
 									'newspack-action-card__region-right__double-button'
 							) }
 						>
@@ -95,13 +95,13 @@ class ActionCard extends Component {
 									{ actionText }
 								</Button>
 							) }
-							{ 'button' === actionType && secondaryActionText && (
+							{ 'button' === actionType && deletionText && (
 								<Button
 									isLink
-									onClick={ onSecondaryClick }
-									className="newspack-action-card__secondary_button"
+									onClick={ onDeletionClick }
+									className="newspack-action-card__deletion_button"
 								>
-									{ secondaryActionText }
+									{ deletionText }
 								</Button>
 							) }
 							{ 'spinner' === actionType && (
