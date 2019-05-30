@@ -65,7 +65,7 @@ class ActionCard extends Component {
 		const actionType = this.actionTypeFromProps( this.props );
 		return (
 			<Card className={ classes }>
-				<div className="newspack-action-card__upper">
+				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ image && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
 							<a href={ imageLink }>
@@ -107,7 +107,7 @@ class ActionCard extends Component {
 							{ 'spinner' === actionType && (
 								<div className="newspack-action-card__action-type__spinner">
 									<Spinner />
-									<p>{ actionText }</p>
+									{ actionText }
 								</div>
 							) }
 							{ 'none' === actionType && (

@@ -5,32 +5,62 @@
 @import '../../shared/scss/muriel-component';
 
 .newspack-action-card {
-	.newspack-action-card__upper {
-		display: flex;
+
+	/* General styles */
+
+	color: $muriel-gray-300;
+
+	h1, h2 {
+		font-weight: normal;
+		margin: 0;
+		padding: 0;
 	}
+
+	h1 {
+		color: $muriel-gray-900;
+		font-size: 16px;
+
+		line-height: 21px;
+	}
+
+	h2 {
+		color: $muriel-gray-600;
+		font-size: 14px;
+		line-height: 16px;
+	}
+
+	/* Regions */
+
 	.newspack-action-card__region {
-		display: flex;
-		flex-grow: 0;
-		flex-direction: column;
 		align-items: flex-start;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 0;
 		margin: 0;
 	}
+
+	.newspack-action-card__region-top {
+		display: flex;
+		flex-direction: row;
+	}
+
 	.newspack-action-card__region-left {
 		margin-right: 1.5em;
 	}
+
 	.newspack-action-card__region-center {
 		flex-grow: 1;
 	}
+
 	.newspack-action-card__region-right {
 		align-items: flex-end;
 		justify-content: center;
 		margin-left: 1.5em;
-		p {
-			margin: 0;
-		}
+
 		.newspack-action-card__action-type__none {
 			color: $muriel-gray-300;
 		}
+
 		.newspack-action-card__action-type__spinner {
 			display: flex;
 			align-items: center;
@@ -40,34 +70,23 @@
 				margin-bottom: 0;
 			}
 		}
+
 		&.newspack-action-card__region-right__double-button {
 			justify-content: flex-start;
 		}
 	}
+
+	/* Notifications */
+
 	.newspack-action-card__notification {
 		margin: 14px 0 0 0;
 		p:before {
 			margin-right: 6px;
 		}
 	}
-	.newspack-action-card__none {
-		color: $muriel-gray-300;
-	}
-	h1, h2 {
-		margin: 0;
-		padding: 0;
-		font-weight: normal;
-	}
-	h1 {
-		font-size: 16px;
-		color: $muriel-gray-900;
-		line-height: 21px;
-	}
-	h2 {
-		color: $muriel-gray-600;
-		font-size: 14px;
-		line-height: 16px;
-	}
+
+	/* Image */
+
 	.newspack-action-card__image {
 		background-position: center;
 		background-repeat: no-repeat;
@@ -77,19 +96,21 @@
  		width: 32px;
  		border: 1px solid $muriel-gray-400;
 	}
-	.newspack-action-card__primary_button {
-		&.is-link {
-			color: $muriel-blue-500;
-		}
+
+	/* Buttons */
+
+	button.is-link {
+		color: $muriel-blue-500;
 	}
-	.newspack-action-card__secondary_button {
+
+	button.newspack-action-card__secondary_button {
 		visibility: hidden;
 		&.is-link {
 			color: $muriel-red-300;
 		}
 	}
-	&:hover .newspack-action-card__secondary_button {
+
+	&:hover button.newspack-action-card__secondary_button {
 		visibility: visible;
 	}
 }
-
