@@ -7,11 +7,13 @@
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import {
+	ActionCard,
 	ImageUpload,
 	CheckboxControl,
 	Card,
@@ -75,6 +77,60 @@ class ComponentsDemo extends Component {
 				<FormattedHeader
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
+				/>
+				<ActionCard
+					title="Example One"
+					description="Has an action button."
+					actionText="Install"
+					onClick={ () => { console.log( 'Install clicked' ) } }
+				/>
+				<ActionCard
+					title="Example Two"
+					description="Has action button and secondary button (visible on hover)."
+					actionText={ __( 'Edit' ) }
+					secondaryActionText={ __( 'Delete' ) }
+					onClick={ () => { console.log( 'Edit clicked' ) } }
+					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
+				/>
+				<ActionCard
+					title="Example Three"
+					description="Waiting/in-progress state, no action button."
+					actionText="Installing..."
+					isWaiting
+				/>
+				<ActionCard
+					title="Example Four"
+					description="Error notification"
+					actionText="Install"
+					onClick={ () => { console.log( 'Install clicked' ) } }
+					notification={ <Fragment>Plugin cannot be installed <a href='#'>Retry</a> | <a href='#'>Documentation</a></Fragment> }
+					notificationLevel="error"
+				/>
+				<ActionCard
+					title="Example Five"
+					description="Warning notification, action button"
+					notification={ <Fragment>There is a new version available. <a href='#'>View details</a> or <a href='#'>update now</a></Fragment> }
+					notificationLevel="warning"
+				/>
+				<ActionCard
+					title="Example Six"
+					description="Static text, no button"
+					actionText="Active"
+				/>
+				<ActionCard
+					title="Example Seven"
+					description="Static text, secondary action button."
+					actionText="Active"
+					secondaryActionText={ __( 'Delete' ) }
+					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
+				/>
+				<ActionCard
+					title="Example Eight"
+					description="Image with link and action button."
+					actionText="Set Up"
+					onClick={ () => { console.log( 'Set Up' ) } }
+					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
+					imageLink="https://wordpress.com"
 				/>
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
 					<Task
