@@ -32,6 +32,8 @@ class WordAds extends Component {
 			posts: false,
 			pages: false,
 			archives: false,
+			topOfPage: false,
+			secondBelowPost: false,
 		};
 	}
 
@@ -44,6 +46,8 @@ class WordAds extends Component {
 			posts,
 			pages,
 			archives,
+			topOfPage,
+			secondBelowPost,
 		} = this.state;
 		return (
 			<Fragment>
@@ -75,6 +79,21 @@ class WordAds extends Component {
 						label="Archives"
 						checked={ archives }
 						onChange={ () => this.setState( { archives: ! archives } ) }
+					/>
+				</Card>
+				<Card>
+					<div className="newspack-card-header">
+						<h1>{ __( 'Additional Ad Placements' ) }</h1>
+					</div>
+					<ToggleControl
+						label="Top of each page"
+						checked={ topOfPage }
+						onChange={ () => this.setState( { topOfPage: ! topOfPage } ) }
+					/>
+					<ToggleControl
+						label="Second ad below post"
+						checked={ secondBelowPost }
+						onChange={ () => this.setState( { secondBelowPost: ! secondBelowPost } ) }
 					/>
 				</Card>
 			</Fragment>
