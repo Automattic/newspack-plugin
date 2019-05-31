@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	FormattedHeader,
 	Card,
+	Button,
 } from '../../../components';
 
 /**
@@ -95,6 +96,10 @@ class WordAds extends Component {
 						checked={ secondBelowPost }
 						onChange={ () => this.setState( { secondBelowPost: ! secondBelowPost } ) }
 					/>
+				</Card>
+				<Card>
+					<Button isPrimary className="is-centered">{  __( 'Save' ) }</Button>
+					<Button isTertiary className="is-centered">{  __( 'Cancel' ) }</Button>
 				</Card>
 			</Fragment>
 		);
