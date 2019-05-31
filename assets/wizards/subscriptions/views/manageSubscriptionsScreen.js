@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, CheckboxControl, FormattedHeader } from '../../../components';
+import { ActionCard, Button, CheckboxControl, FormattedHeader } from '../../../components/src';
 
 /**
  * Subscriptions management screen.

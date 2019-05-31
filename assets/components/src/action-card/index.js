@@ -12,7 +12,7 @@ import { Button, Card } from '../';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../shared/js/muriel-classnames';
+import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**
