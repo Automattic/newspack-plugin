@@ -18,7 +18,7 @@ import {
 	TextControl,
 	ImageUpload,
 	SelectControl,
-} from '../../../components';
+} from '../../../components/src';
 
 /**
  * New/Edit Subscription Screen.
