@@ -27,67 +27,6 @@
 	text-align: center;
 }
 
-.newspack-manage-subscriptions-screen__subscription-card {
-	display: flex;
-	justify-content: space-between;
-
-	img {
- 		border-radius: 50%;
- 		height: 32px;
- 		width: auto;
- 		border: 1px solid $muriel-gray-400;
- 		margin-right: 1.5em;
- 		margin-top: 2px;
-	}
-
-	&:hover {
-		.delete-subscription {
-			visibility: visible;
-		}
-	}
-}
-
-.newspack-manage-subscriptions-screen__subscription-card__product-actions {
-	a {
-		display: block;
-		text-decoration: none;
-	}
-
-	.edit-subscription {
-		color: $muriel-hot-pink-400;
-		font-size: 16px;
-		margin-bottom: .25em;
-
-		&:hover {
-			color: $muriel-hot-pink-700;
-		}
-	}
-
-	.delete-subscription {
-		visibility: hidden;
-		color: $muriel-gray-100;
-
-		&:hover {
-			color: $muriel-gray-400;
-		}
-	}
-}
-
-.newspack-manage-subscriptions-screen__subscription-card__product-info {
-	width: 100%;
-
-	.product-name {
-		color: $muriel-gray-900;
-		font-size: 16px;
-		font-weight: 500;
-		margin-bottom: .25em;
-	}
-
-	.product-price {
-		color: $muriel-gray-400;
-	}
-}
-
 .newspack-manage-subscriptions-screen__finished {
 	text-decoration: none;
 }

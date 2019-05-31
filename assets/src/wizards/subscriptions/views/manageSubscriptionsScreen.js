@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, FormattedHeader, Button, CheckboxControl } from '../../../components';
+import { ActionCard, Button, CheckboxControl, FormattedHeader } from '../../../components';
 
 /**
  * Subscriptions management screen.
@@ -46,31 +46,17 @@ class ManageSubscriptionsScreen extends Component {
 					const { id, image, name, display_price, url } = subscription;
 
 					return (
-						<Card className="newspack-manage-subscriptions-screen__subscription-card" key={ id }>
-							<a href={ url } target="_blank">
-								<img src={ image ? image.url : '' } />
-							</a>
-							<div className="newspack-manage-subscriptions-screen__subscription-card__product-info">
-								<div className="product-name">{ name }</div>
-								<div className="product-price">{ display_price }</div>
-							</div>
-							<div className="newspack-manage-subscriptions-screen__subscription-card__product-actions">
-								<a
-									className="edit-subscription"
-									href="#"
-									onClick={ () => onClickEditSubscription( subscription ) }
-								>
-									{ __( 'Edit' ) }
-								</a>
-								<a
-									className="delete-subscription"
-									href="#"
-									onClick={ () => onClickDeleteSubscription( subscription ) }
-								>
-									{ __( 'Delete' ) }
-								</a>
-							</div>
-						</Card>
+						<ActionCard
+							key={ id }
+							imageLink={ url }
+							image={ image.url }
+							title={ name }
+							description={ display_price }
+							actionText={ __( 'Edit' ) }
+							onClick={ () => onClickEditSubscription( subscription ) }
+							secondaryActionText={ __( 'Delete' ) }
+							onSecondaryActionClick={ () => onClickDeleteSubscription( subscription ) }
+						/>
 					);
 				} ) }
 				{ !! subscriptions.length && (
