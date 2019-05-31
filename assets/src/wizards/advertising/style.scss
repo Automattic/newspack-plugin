@@ -1,6 +1,33 @@
 /**
  * Temporary styles for example purposes.
  */
-#newspack-advertising {
+#newspack-advertising-wizard {
 	padding: 14px;
+
+	.newspack-card-header {
+
+		color: $muriel-gray-300;
+		font-size: 14px;
+		margin-bottom: 1.5em;
+
+		h1, h2 {
+			font-weight: normal;
+			margin: 0;
+			padding: 0;
+		}
+
+		h1 {
+			color: $muriel-gray-900;
+			font-size: 16px;
+			line-height: 21px;
+		}
+
+		h2 {
+			color: $muriel-gray-600;
+			font-size: 14px;
+			line-height: 16px;
+		}
+
+	}
+
 }
