@@ -1,3 +1,4 @@
+export { default as ActionCard } from './action-card';
 export { default as Button } from './button';
 export { default as Card } from './card';
 export { default as CheckboxControl } from './checkbox-control';
