@@ -158,13 +158,13 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing' );
+							actionText = __( 'Setting up...' );
 						} else if ( installationStatus === PLUGIN_STATE_UNINSTALLING ) {
-							actionText = __( 'Removing' );
+							actionText = __( 'Deactivating' );
 						} else if ( Status === 'active' ) {
-							actionText = __( 'Active' );
+							actionText = __( 'In Use' );
 						} else {
-							actionText = __( 'Install' );
+							actionText = __( 'Use' );
 						}
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
@@ -174,9 +174,8 @@ class PluginInstaller extends Component {
 								description={ Description }
 								actionText={ actionText }
 								secondaryActionText={
-									( canUninstall && installationStatus === PLUGIN_STATE_ACTIVE ) && __( 'Uninstall' )
+									( canUninstall && installationStatus === PLUGIN_STATE_ACTIVE ) && __( 'Deactivate' )
 								}
-								deletionText={ __( 'Remove' ) }
 								isWaiting={ isWaiting }
 								onClick={ onClick }
 								onSecondaryActionClick={ () => this.unInstallPlugin( slug ) }
@@ -191,7 +190,7 @@ class PluginInstaller extends Component {
 					className="is-centered"
 					onClick={ this.installAllPlugins }
 				>
-					{ __( 'Install All' ) }
+					{ __( 'Use All' ) }
 				</Button>
 			</div>
 		);
