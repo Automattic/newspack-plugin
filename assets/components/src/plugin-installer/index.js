@@ -125,6 +125,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
+		const { canUninstall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 		const needsInstall = slugs.some( slug => {
@@ -160,7 +161,7 @@ class PluginInstaller extends Component {
 								description={ Description }
 								actionText={ actionText }
 								secondaryActionText={
-									installationStatus === PLUGIN_STATE_ACTIVE && __( 'Uninstall' )
+									( canUninstall && installationStatus === PLUGIN_STATE_ACTIVE ) && __( 'Uninstall' )
 								}
 								deletionText={ __( 'Remove' ) }
 								isWaiting={ isWaiting }

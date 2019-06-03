@@ -82,21 +82,28 @@ class ComponentsDemo extends Component {
 				<Card noBackground>
 					<PluginInstaller
 						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'fake-plugin' ] }
+						canUninstall
 					/>
 				</Card>
 				<ActionCard
 					title="Example One"
 					description="Has an action button."
 					actionText="Install"
-					onClick={ () => { console.log( 'Install clicked' ) } }
+					onClick={ () => {
+						console.log( 'Install clicked' );
+					} }
 				/>
 				<ActionCard
 					title="Example Two"
 					description="Has action button and secondary button (visible on hover)."
 					actionText={ __( 'Edit' ) }
 					secondaryActionText={ __( 'Delete' ) }
-					onClick={ () => { console.log( 'Edit clicked' ) } }
-					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
+					onClick={ () => {
+						console.log( 'Edit clicked' );
+					} }
+					onSecondaryActionClick={ () => {
+						console.log( 'Delete clicked' );
+					} }
 				/>
 				<ActionCard
 					title="Example Three"
@@ -108,33 +115,44 @@ class ComponentsDemo extends Component {
 					title="Example Four"
 					description="Error notification"
 					actionText="Install"
-					onClick={ () => { console.log( 'Install clicked' ) } }
-					notification={ <Fragment>Plugin cannot be installed <a href='#'>Retry</a> | <a href='#'>Documentation</a></Fragment> }
+					onClick={ () => {
+						console.log( 'Install clicked' );
+					} }
+					notification={
+						<Fragment>
+							Plugin cannot be installed <a href="#">Retry</a> | <a href="#">Documentation</a>
+						</Fragment>
+					}
 					notificationLevel="error"
 				/>
 				<ActionCard
 					title="Example Five"
 					description="Warning notification, action button"
-					notification={ <Fragment>There is a new version available. <a href='#'>View details</a> or <a href='#'>update now</a></Fragment> }
+					notification={
+						<Fragment>
+							There is a new version available. <a href="#">View details</a> or{' '}
+							<a href="#">update now</a>
+						</Fragment>
+					}
 					notificationLevel="warning"
 				/>
-				<ActionCard
-					title="Example Six"
-					description="Static text, no button"
-					actionText="Active"
-				/>
+				<ActionCard title="Example Six" description="Static text, no button" actionText="Active" />
 				<ActionCard
 					title="Example Seven"
 					description="Static text, secondary action button."
 					actionText="Active"
 					secondaryActionText={ __( 'Delete' ) }
-					onSecondaryActionClick={ () => { console.log( 'Delete clicked' ) } }
+					onSecondaryActionClick={ () => {
+						console.log( 'Delete clicked' );
+					} }
 				/>
 				<ActionCard
 					title="Example Eight"
 					description="Image with link and action button."
 					actionText="Set Up"
-					onClick={ () => { console.log( 'Set Up' ) } }
+					onClick={ () => {
+						console.log( 'Set Up' );
+					} }
 					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 					imageLink="https://wordpress.com"
 				/>
@@ -235,7 +253,7 @@ class ComponentsDemo extends Component {
 						onChange={ value => this.setState( { inputTextValue2: value } ) }
 					/>
 					<TextControl
-						type='number'
+						type="number"
 						label={ __( 'Number Input' ) }
 						value={ inputNumValue }
 						onChange={ value => this.setState( { inputNumValue: value } ) }
