@@ -17,7 +17,8 @@ import PaymentSetup from './views/PaymentSetup';
 import './style.scss';
 
 /**
- * Subscriptions wizard for managing and setting up subscriptions.
+ * Wizard for setting up ability to take payments. 
+ * May have other settings added to it in the future.
  */
 class OnboardingWizard extends Component {
 	/**
@@ -26,7 +27,7 @@ class OnboardingWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			wizardStep: 2,
+			wizardStep: 1,
 			location: {
 				countrystate: '',
 				address1: '',
@@ -42,23 +43,32 @@ class OnboardingWizard extends Component {
 				secretKey: '',
 				testPublishableKey: '',
 				testSecretKey: '',
-			}
+			},
 		};
 	}
 
+	/**
+	 * Get the saved data for populating the forms when wizard is first loaded.
+	 */
 	componentDidMount() {
 		this.refreshLocationInfo();
 		this.refreshStripeInfo();
 	}
 
+	/**
+	 * Go to the next wizard step.
+	 */
 	nextWizardStep() {
 		const { wizardStep } = this.state;
 
 		this.setState( {
-			wizardStep: wizardStep + 1
+			wizardStep: wizardStep + 1,
 		} );
 	}
 
+	/**
+	 * Get the latest saved info about business location.
+	 */
 	refreshLocationInfo() {
 		apiFetch( { path: '/newspack/v1/wizard/location' } ).then( location => {
 			this.setState( {
@@ -67,6 +77,9 @@ class OnboardingWizard extends Component {
 		} );
 	}
 
+	/**
+	 * Save the current location info.
+	 */
 	saveLocation() {
 		apiFetch( {
 			path: '/newspack/v1/wizard/location',
@@ -79,14 +92,35 @@ class OnboardingWizard extends Component {
 		} );
 	}
 
+	/**
+	 * Get the latest saved Stripe settings.
+	 */
 	refreshStripeInfo() {
-
+		apiFetch( { path: '/newspack/v1/wizard/stripe-settings' } ).then( stripeSettings => {
+			this.setState( {
+				stripeSettings,
+			} );
+		} );
 	}
 
+	/**
+	 * Save the current Stripe settings.
+	 */
 	saveStripeSettings() {
-
+		apiFetch( {
+			path: '/newspack/v1/wizard/stripe-settings',
+			method: 'post',
+			data: {
+				...this.state.stripeSettings,
+			},
+		} ).then( response => {
+			this.nextWizardStep();
+		} );
 	}
 
+	/**
+	 * Render.
+	 */
 	render() {
 		const { wizardStep, location, stripeSettings } = this.state;
 
@@ -103,7 +137,7 @@ class OnboardingWizard extends Component {
 
 		if ( 2 === wizardStep ) {
 			return (
-				<PaymentSetup 
+				<PaymentSetup
 					stripeSettings={ stripeSettings }
 					onChange={ stripeSettings => this.setState( { stripeSettings } ) }
 					onClickFinish={ () => this.saveStripeSettings() }
@@ -113,7 +147,10 @@ class OnboardingWizard extends Component {
 		}
 
 		return (
-			<h3>Wizard complete. TODO: This should redirect to the checklist instead of displaying this message.</h3>
+			<h3>
+				Wizard complete. TODO: This should redirect to the checklist instead of displaying this
+				message.
+			</h3>
 		);
 	}
 }

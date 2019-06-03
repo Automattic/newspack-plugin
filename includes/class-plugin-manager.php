@@ -25,7 +25,7 @@ class Plugin_Manager {
 	 */
 	public static function get_managed_plugins() {
 		$managed_plugins = [
-			'jetpack' => [
+			'jetpack'                    => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
 				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
 				'Author'      => 'Automattic',
@@ -33,12 +33,20 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com/',
 				'Download'    => 'wporg',
 			],
-			'amp'     => [
+			'amp'                        => [
 				'Name'        => __( 'AMP', 'newspack' ),
 				'Description' => esc_html__( 'Enable AMP on your WordPress site, the WordPress way.', 'newspack' ),
 				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
 				'PluginURI'   => 'https://amp-wp.org/',
 				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
+				'Download'    => 'wporg',
+			],
+			'woocommerce-gateway-stripe' => [
+				'Name'        => __( 'WooCommerce Stripe Gateway', 'newspack' ),
+				'Description' => esc_html__( 'Take credit card payments on your store using Stripe.', 'newspack' ),
+				'Author'      => 'WooCommerce',
+				'PluginURI'   => 'https://woocommerce.com/',
+				'AuthorURI'   => 'https://woocommerce.com/',
 				'Download'    => 'wporg',
 			],
 		];
@@ -360,8 +368,12 @@ class Plugin_Manager {
 	 * @return array
 	 */
 	private static function reduce_plugin_info( $plugins, $key ) {
-		$path               = explode( '/', $key );
-		$folder             = current( $path );
+		$path   = explode( '/', $key );
+		$folder = current( $path );
+
+		// Strip version info from key. (e.g. 'woocommerce-stripe-gateway-4.1.2' should just be 'woocommerce-stripe-gateway').
+		$folder = preg_replace( '/[\-0-9\.]+$/', '', $folder );
+
 		$plugins[ $folder ] = $key;
 		return $plugins;
 	}

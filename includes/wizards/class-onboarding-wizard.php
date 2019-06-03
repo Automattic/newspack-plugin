@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Install;
+use \WC_Install, \WC_Payment_Gateways;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -48,6 +48,9 @@ class Onboarding_Wizard extends Wizard {
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 	}
 
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
 	public function register_api_endpoints() {
 		// Get location info.
 		register_rest_route(
@@ -90,8 +93,56 @@ class Onboarding_Wizard extends Wizard {
 				],
 			]
 		);
+
+		// Get Stripe info.
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/stripe-settings/',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_stripe_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Save Stripe info.
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/stripe-settings/',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_save_stripe_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'enabled'            => [
+						'sanitize_callback' => 'wc_string_to_bool',
+					],
+					'testMode'           => [
+						'sanitize_callback' => 'wc_string_to_bool',
+					],
+					'publishableKey'     => [
+						'sanitize_callback' => 'wc_clean',
+					],
+					'secretKey'          => [
+						'sanitize_callback' => 'wc_clean',
+					],
+					'testPublishableKey' => [
+						'sanitize_callback' => 'wc_clean',
+					],
+					'testSecretKey'      => [
+						'sanitize_callback' => 'wc_clean',
+					],
+				],
+			]
+		);
+
 	}
 
+	/**
+	 * Get location info.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
 	public function api_get_location() {
 		$countrystate_raw = wc_get_base_location();
 		$location         = [
@@ -106,15 +157,21 @@ class Onboarding_Wizard extends Wizard {
 		return rest_ensure_response( $location );
 	}
 
+	/**
+	 * Save location info.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
 	public function api_save_location( $request ) {
 		$params   = $request->get_params();
 		$defaults = [
 			'countrystate' => '',
-			'address1' => '',
-			'address2' => '',
-			'city' => '',
-			'postcode' => '',
-			'currency' => '',
+			'address1'     => '',
+			'address2'     => '',
+			'city'         => '',
+			'postcode'     => '',
+			'currency'     => '',
 		];
 		$args     = wp_parse_args( $params, $defaults );
 
@@ -131,6 +188,84 @@ class Onboarding_Wizard extends Wizard {
 		return rest_ensure_response( true );
 	}
 
+	/**
+	 * Get Stripe settings.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_get_stripe_settings() {
+		$defaults = [
+			'enabled'            => false,
+			'testMode'           => false,
+			'publishableKey'     => '',
+			'secretKey'          => '',
+			'testPublishableKey' => '',
+			'testSecretKey'      => '',
+		];
+		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
+
+		if ( ! isset( $gateways['stripe'] ) ) {
+			return rest_ensure_response( $defaults );
+		}
+
+		$stripe   = $gateways['stripe'];
+		$settings = [
+			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
+			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
+			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
+			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
+			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
+			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
+		];
+
+		return rest_ensure_response( $settings );
+	}
+
+	/**
+	 * Save Stripe settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
+	public function api_save_stripe_settings( $request ) {
+		$params   = $request->get_params();
+		$defaults = [
+			'enabled'            => false,
+			'testMode'           => false,
+			'publishableKey'     => '',
+			'secretKey'          => '',
+			'testPublishableKey' => '',
+			'testSecretKey'      => '',
+		];
+		$args     = wp_parse_args( $params, $defaults );
+
+		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
+		if ( ! isset( $gateways['stripe'] ) ) {
+			if ( $args['enabled'] ) {
+				// Stripe is not installed and we want to use it. Install/Activate/Initialize it.
+				Plugin_Manager::activate( 'woocommerce-gateway-stripe' );
+				do_action( 'plugins_loaded' );
+				WC_Payment_Gateways::instance()->init();
+				$gateways = WC_Payment_Gateways::instance()->payment_gateways();
+			} else {
+				// Stripe is not installed and we don't want to use it. No settings needed.
+				return rest_ensure_response( true );
+			}
+		}
+
+		$stripe = $gateways['stripe'];
+		$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
+		$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
+		$stripe->update_option( 'publishable_key', $args['publishableKey'] );
+		$stripe->update_option( 'secret_key', $args['secretKey'] );
+		$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
+		$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Set general settings that our users will want (e.g. no reason for product reviews on a news membership).
+	 */
 	protected function set_smart_defaults() {
 		// Create Shop, My Account, etc. pages if not already created.
 		WC_Install::create_pages(); 
@@ -162,8 +297,8 @@ class Onboarding_Wizard extends Wizard {
 		$countries     = WC()->countries->get_countries();
 		$states        = WC()->countries->get_states();
 		$location_info = [];
-		foreach( $countries as $country_code => $country ) {
-			if ( isset ( $states[ $country_code ] ) ) {
+		foreach ( $countries as $country_code => $country ) {
+			if ( isset( $states[ $country_code ] ) ) {
 				foreach ( $states[ $country_code ] as $state_code => $state ) {
 					$location_info[] = [
 						'value' => $country_code . ':' . $state_code,

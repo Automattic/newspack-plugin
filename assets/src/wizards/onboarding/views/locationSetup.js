@@ -11,19 +11,19 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	Card,
-	FormattedHeader,
-	Button,
-	TextControl,
-	SelectControl,
-} from '../../../components';
+import { Card, FormattedHeader, Button, TextControl, SelectControl } from '../../../components';
 
 /**
  * Location Setup Screen.
  */
 class LocationSetup extends Component {
-
+	/**
+	 * Handle an update to a setting field.
+	 *
+	 * @param string key Setting field
+	 * @param mixed  value New value for field
+	 *
+	 */
 	handleOnChange( key, value ) {
 		const { location, onChange } = this.props;
 		location[ key ] = value;
@@ -38,10 +38,12 @@ class LocationSetup extends Component {
 		const { countrystate, address1, address2, city, postcode, currency } = location;
 
 		return (
-			<div className='newspack-location-setup-screen'>
+			<div className="newspack-location-setup-screen">
 				<FormattedHeader
 					headerText={ __( 'About your publication' ) }
-					subHeaderText={ __( 'This information is required for accepting payments and other features' ) }
+					subHeaderText={ __(
+						'This information is required for accepting payments and other features'
+					) }
 				/>
 				<Card>
 					<SelectControl
@@ -76,12 +78,12 @@ class LocationSetup extends Component {
 						options={ newspack_currency_info }
 						onChange={ value => this.handleOnChange( 'currency', value ) }
 					/>
-					<Button isPrimary className='is-centered' onClick={ () => onClickContinue() }>
+					<Button isPrimary className="is-centered" onClick={ () => onClickContinue() }>
 						{ __( 'Continue' ) }
 					</Button>
 					<Button
-						className='isLink is-centered is-tertiary'
-						href='#'
+						className="isLink is-centered is-tertiary"
+						href="#"
 						onClick={ () => onClickSkip() }
 					>
 						{ __( 'Skip' ) }

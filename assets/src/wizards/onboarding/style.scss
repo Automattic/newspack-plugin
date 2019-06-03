@@ -1,0 +1,23 @@
+.newspack-payment-setup-screen {
+
+	/**
+	 * @todo use a Muriel toggle here.
+	 */
+	.components-toggle-control {
+		font-size: 16px;
+		margin-bottom: 2em;
+		margin-top: 1em;
+	}
+
+	button.is-primary {
+		margin-top: 3em;
+	}
+}
+
+.newspack-payment-setup-screen__settings-heading {
+	margin-bottom: 2em;
+}
+
+.newspack-payment-setup-screen__api-keys-heading {
+	margin-top: 3em;
+}
