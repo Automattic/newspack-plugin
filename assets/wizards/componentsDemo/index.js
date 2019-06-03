@@ -82,7 +82,15 @@ class ComponentsDemo extends Component {
 				<Card noBackground>
 					<PluginInstaller
 						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'fake-plugin' ] }
+					/>
+				</Card>
+				<Card noBackground>
+					<PluginInstaller
+						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 						canUninstall
+						onComplete={ pluginInfo => {
+							console.log( 'All plugins installed successfully', pluginInfo );
+						} }
 					/>
 				</Card>
 				<ActionCard

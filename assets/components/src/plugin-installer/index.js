@@ -57,7 +57,7 @@ class PluginInstaller extends Component {
 				plugin.installationStatus =
 					plugin.Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE;
 			} );
-			this.setState( { pluginInfo } );
+			this.updatePluginInfo( pluginInfo );
 		} );
 	};
 
@@ -81,7 +81,7 @@ class PluginInstaller extends Component {
 				let { pluginInfo } = this.state;
 				pluginInfo[ slug ] = response;
 				pluginInfo[ slug ].installationStatus = PLUGIN_STATE_ACTIVE;
-				this.setState( { pluginInfo } );
+				this.updatePluginInfo( pluginInfo );
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
@@ -100,7 +100,7 @@ class PluginInstaller extends Component {
 				let { pluginInfo } = this.state;
 				pluginInfo[ slug ] = response;
 				pluginInfo[ slug ].installationStatus = PLUGIN_STATE_NONE;
-				this.setState( { pluginInfo } );
+				this.updatePluginInfo( pluginInfo );
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
@@ -111,15 +111,28 @@ class PluginInstaller extends Component {
 	setChecked = ( slug, value ) => {
 		let { pluginInfo } = this.state;
 		pluginInfo[ slug ].checked = value;
-		this.setState( { pluginInfo } );
+		this.updatePluginInfo( pluginInfo );
 	};
 
 	setInstallationStatus = ( slug, value, notification = null ) => {
 		let { pluginInfo } = this.state;
 		pluginInfo[ slug ].installationStatus = value;
 		pluginInfo[ slug ].notification = notification;
-		this.setState( { pluginInfo } );
+		this.updatePluginInfo( pluginInfo );
 	};
+
+	updatePluginInfo = pluginInfo => {
+		const { onComplete } = this.props;
+		this.setState( { pluginInfo }, () => {
+			const { pluginInfo } = this.state;
+			const isDone = Object.values( pluginInfo ).every( plugin  => {
+				return 'active' === plugin.Status;
+			} );
+			if ( isDone && onComplete ) {
+				onComplete( pluginInfo );
+			}
+		} );
+	}
 
 	/**
 	 * Render.
