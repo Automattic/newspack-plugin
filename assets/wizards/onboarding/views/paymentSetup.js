@@ -20,7 +20,7 @@ import {
 	SelectControl,
 	CheckboxControl,
 	InfoButton,
-} from '../../../components';
+} from '../../../components/src';
 
 /**
  * Stripe setup.

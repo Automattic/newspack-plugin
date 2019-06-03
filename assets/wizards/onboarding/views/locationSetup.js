@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, FormattedHeader, Button, TextControl, SelectControl } from '../../../components';
+import { Card, FormattedHeader, Button, TextControl, SelectControl } from '../../../components/src';
 
 /**
  * Location Setup Screen.
