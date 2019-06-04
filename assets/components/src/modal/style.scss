@@ -1,0 +1,52 @@
+.muriel-modal-overlay {
+	margin: 0!important;
+	background: rgba(43, 45, 47, 0.4);
+}
+
+.muriel-modal {
+	border-radius: 3px;
+	overflow: hidden;
+
+	.components-modal__content {
+		padding: 0 2em 2em;
+	}
+
+	.components-modal__header {
+		border: none;
+		display: block;
+		height: 1em;
+		font-size: 16px;
+		margin-top: 2em;
+		margin-bottom: 1em;
+
+		button.components-icon-button {
+			padding: 0;
+			position: absolute;
+			top: -30px;
+			right: -8px;
+
+			svg {
+				width: 30px;
+				height: 30px;
+			}
+
+			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover,
+			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):active {
+				border: none;
+				box-shadow: none;
+			}
+		}
+	}
+
+	.components-modal__header-heading {
+		font-weight: 500;
+	}
+
+	.muriel-button {
+		margin-bottom: 0;
+
+		&:first-of-type {
+			margin-left: 0;
+		}
+	}
+}
