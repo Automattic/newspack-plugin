@@ -298,6 +298,12 @@ class ComponentsDemo extends Component {
 						] }
 						onChange={ value => this.setState( { selectValue2: value } ) }
 					/>
+					{ selectValue2 == '1st' && (
+						<p>1st is selected!</p>
+					) }
+					{ selectValue2 == '2nd' && (
+						<p>2nd is selected!</p>
+					) }
 					<SelectControl
 						label="Select disabled"
 						disabled
