@@ -21,7 +21,6 @@ import {
 	ActionCard,
 } from '../../components';
 import './style.scss';
-import gLogo from './logo-g_small.png';
 
 /**
  * Components demo for example purposes.
@@ -149,7 +148,6 @@ class AdvertisingWizard extends Component {
 							title="Google AdSense"
 							description="AdSense is configured via Google SiteKit."
 							actionText="Activate"
-							image={ gLogo }
 						/>
 						<Button
 							isTertiary
