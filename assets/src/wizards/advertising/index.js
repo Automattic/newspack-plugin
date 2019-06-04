@@ -64,23 +64,27 @@ class AdvertisingWizard extends Component {
 					headerText={ __( 'Which Ad Service would you like to use?' ) }
 					subHeaderText={ __( 'Enhance your Newspack site with advertising. Choose from any combination of the products below.' ) }
 				/>
-				<Card>
-					<div className="newspack-card-header">
-						<h1>{ __( 'Ad Provider' ) }</h1>
-						<h2>{ __( 'Choose your preferred ad provider' ) }</h2>
-					</div>
-					<SelectControl
-						label="Select Ad Provider"
-						value={ adNetwork }
-						options={ [
-							{ value: null, label: 'Select Ad Provider' },
-							{ value: 'wordads', label: 'WordAds from WordPress.com' },
-							{ value: 'gadsense', label: 'Google AdSense' },
-							{ value: 'gadmanager', label: 'Google Ad Manager' },
-						] }
-						onChange={ value => this.setState( { editing: true, adNetwork: value } ) }
-					/>
-				</Card>
+				{ ! editing && (
+					<Fragment>
+						<Card>
+		 					<div className="newspack-card-header">
+		 						<h1>{ __( 'Ad Provider' ) }</h1>
+		 						<h2>{ __( 'Choose your preferred ad provider' ) }</h2>
+		 					</div>
+		 					<SelectControl
+		 						label="Select Ad Provider"
+		 						value={ adNetwork }
+		 						options={ [
+		 							{ value: null, label: 'Select Ad Provider' },
+		 							{ value: 'wordads', label: 'WordAds from WordPress.com' },
+		 							{ value: 'gadsense', label: 'Google AdSense' },
+		 							{ value: 'gadmanager', label: 'Google Ad Manager' },
+		 						] }
+		 						onChange={ value => this.setState( { editing: true, adNetwork: value } ) }
+		 					/>
+		 				</Card>
+					</Fragment>
+				) }
 				{ ( editing && adNetwork != 'gadsense' ) && (
 					<Fragment>
 						<Card>
@@ -130,6 +134,11 @@ class AdvertisingWizard extends Component {
 								className="is-centered"
 								onClick={ () => this.setState( { editing: false } ) }
 							>{  __( 'Save' ) }</Button>
+							<Button
+								isTertiary
+								className="is-centered"
+								onClick={ () => this.setState( { editing: false } ) }
+							>{  __( 'Cancel' ) }</Button>
 						</Card>
 					</Fragment>
 				) }
@@ -140,6 +149,11 @@ class AdvertisingWizard extends Component {
 							description="AdSense is configured via Google SiteKit."
 							actionText="Activate"
 						/>
+						<Button
+							isTertiary
+							className="is-centered"
+							onClick={ () => this.setState( { editing: false } ) }
+						>{  __( 'Cancel' ) }</Button>
 					</Fragment>
 				) }
 			</Fragment>
