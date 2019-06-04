@@ -11,4 +11,8 @@
 	margin: 0 auto 10px auto;
 	max-width: 440px;
 	padding: 24px;
+	&.muriel-card__no-background {
+		background: none;
+		box-shadow: none;
+	}
 }
