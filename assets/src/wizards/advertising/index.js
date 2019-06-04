@@ -18,6 +18,7 @@ import {
 	Card,
 	SelectControl,
 	Button,
+	ActionCard,
 } from '../../components';
 import './style.scss';
 
@@ -130,6 +131,15 @@ class AdvertisingWizard extends Component {
 								onClick={ () => this.setState( { editing: false } ) }
 							>{  __( 'Save' ) }</Button>
 						</Card>
+					</Fragment>
+				) }
+				{ ( editing && adNetwork == 'gadsense' ) && (
+					<Fragment>
+						<ActionCard
+							title="Google AdSense"
+							description="AdSense is configured via Google SiteKit."
+							actionText="Activate"
+						/>
 					</Fragment>
 				) }
 			</Fragment>
