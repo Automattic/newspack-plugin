@@ -268,7 +268,7 @@ class Onboarding_Wizard extends Wizard {
 	 */
 	protected function set_smart_defaults() {
 		// Create Shop, My Account, etc. pages if not already created.
-		WC_Install::create_pages(); 
+		WC_Install::create_pages();
 
 		// Disable coupons and reviews.
 		update_option( 'woocommerce_enable_coupons', 'no' );
@@ -313,7 +313,7 @@ class Onboarding_Wizard extends Wizard {
 			}
 		}
 		wp_localize_script( 'newspack-onboarding-wizard', 'newspack_location_info', $location_info );
-		
+
 		$currencies    = get_woocommerce_currencies();
 		$currency_info = [];
 		foreach ( $currencies as $code => $currency ) {

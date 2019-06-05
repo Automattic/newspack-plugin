@@ -17,7 +17,7 @@ import PaymentSetup from './views/PaymentSetup';
 import './style.scss';
 
 /**
- * Wizard for setting up ability to take payments. 
+ * Wizard for setting up ability to take payments.
  * May have other settings added to it in the future.
  */
 class OnboardingWizard extends Component {

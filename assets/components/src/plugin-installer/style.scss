@@ -1,0 +1,9 @@
+.newspack-plugin-installer__checkbox-row {
+	position: relative;
+	.components-spinner,
+	.newspack-plugin-installer__status {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+}

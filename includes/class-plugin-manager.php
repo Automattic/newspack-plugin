@@ -47,6 +47,26 @@ class Plugin_Manager {
 				'Author'      => 'WooCommerce',
 				'PluginURI'   => 'https://woocommerce.com/',
 				'AuthorURI'   => 'https://woocommerce.com/',
+			],
+			'woocommerce'                => [
+				'Name'        => __( 'WooCommerce', 'newspack' ),
+				'Description' => esc_html__( 'An eCommerce toolkit that helps you sell anything. Beautifully.', 'newspack' ),
+				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
+				'PluginURI'   => 'https://woocommerce.com/',
+				'AuthorURI'   => 'https://woocommerce.com',
+				'Download'    => 'wporg',
+			],
+			'wordpress-seo'              => [
+				'Name'        => 'Yoast SEO',
+				'Description' => 'The first true all-in-one SEO solution for WordPress, including on-page content analysis, XML sitemaps and much more.',
+				'Author'      => 'Team Yoast',
+				'AuthorURI'   => 'https://yoa.st/1uk',
+				'Download'    => 'wporg',
+			],
+			'fake-plugin'                => [
+				'Name'        => 'Fake Plugin',
+				'Description' => 'This is a made-up plugin, meant to error out.',
+				'Author'      => 'Newspack',
 				'Download'    => 'wporg',
 			],
 		];
