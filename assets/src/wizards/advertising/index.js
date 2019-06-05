@@ -35,13 +35,14 @@ class AdvertisingWizard extends Component {
 		// TODO: Query WP via API to grab the current state of options and flll
 		// state from the DB. E.g. which network, which placements?
 		this.state = {
-			adNetwork: false,
+			adNetwork: 'gadsense',
 			frontPage: false,
 			posts: false,
 			pages: false,
 			archives: false,
 			topOfPage: false,
 			secondBelowPost: false,
+			siteKit: "active",
 		};
 	}
 
@@ -99,6 +100,21 @@ class AdvertisingWizard extends Component {
 
 	}
 
+	gAdSenseButtonAction() {
+		const { siteKit } = this.props;
+		switch ( siteKit ) {
+			case "uninstalled":
+				// TODO: Install the plugin.
+				break;
+			case "installed":
+				// TODO: Activate the plugin.
+				break;
+			case "active":
+				// TODO: Go to 'admin.php?page=googlesitekit-settings'
+				break;
+		}
+	}
+
 	/**
 	 * Render the example stub.
 	 */
@@ -111,6 +127,7 @@ class AdvertisingWizard extends Component {
 			archives,
 			topOfPage,
 			secondBelowPost,
+			siteKit,
 		} = this.state;
 
 		if ( ! adNetwork ) {
@@ -222,16 +239,27 @@ class AdvertisingWizard extends Component {
 				</Fragment>
 			);
 		} else if ( adNetwork == 'gadsense' ) {
+
+			// Determine the text for the button.
+			// By default, we assume SiteKit is not installed.
+			let btn_text = __('Install');
+			if ( siteKit == 'active' ) { // Installed and active.
+				btn_text = __('Set Up');
+			} else if ( siteKit == 'inactive' ) { // Installed but not active.
+				btn_text = __('Activate');
+			}
+
 			return (
 				<Fragment>
 					<FormattedHeader
-						headerText={ __( 'Which Ad Service would you like to use?' ) }
-						subHeaderText={ __( 'Enhance your Newspack site with advertising. Choose from any combination of the products below.' ) }
+						headerText={ __( 'Google AdSense' ) }
+						subHeaderText={ __( 'Enhance your Newspack site with advertising from Google\'s AdSense program.' ) }
 					/>
 					<ActionCard
 						title="Google AdSense"
 						description="AdSense is configured via Google SiteKit."
-						actionText="Activate"
+						actionText={ btn_text }
+						onClick={ () => this.gAdSenseButtonAction() }
 					/>
 					<Button
 						isTertiary
