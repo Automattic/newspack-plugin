@@ -1,0 +1,55 @@
+.newspack-dashboard-tier {
+	display: flex;
+	justify-content: center;
+	padding-bottom: 1em;
+	position: relative;
+	padding-top: 1em;
+
+	&::after {
+		content: '';
+		height: 1px;
+		max-width: 745px;
+		width: 100%;
+	 	background-color: $muriel-gray-50;
+	 	position: absolute;
+	 	bottom: 0;
+	}
+
+	&:last-of-type::after {
+		display: none;
+	}
+}
+
+.newspack-dashboard-card {
+	margin: 1em;
+	max-width: 330px;
+	width: 100%;
+	text-align: center;
+
+	a, .newspack-dashboard-card__disabled-link {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-decoration: none;
+	}
+
+	img {
+		max-width: 104px;
+		height: auto;
+	}
+
+	h3 {
+		font-size: 16px;
+		color: $muriel-gray-900;
+	}
+
+	h4 {
+		font-size: 14px;
+		color: $muriel-gray-500;
+		font-weight: normal;
+	}
+
+	&.disabled {
+		opacity: 0.6;
+	}
+}
