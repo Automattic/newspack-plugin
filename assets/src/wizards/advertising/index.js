@@ -35,7 +35,7 @@ class AdvertisingWizard extends Component {
 		// TODO: Query WP via API to grab the current state of options and flll
 		// state from the DB. E.g. which network, which placements?
 		this.state = {
-			adNetwork: 'gadsense',
+			adNetwork: false,
 			frontPage: false,
 			posts: false,
 			pages: false,
