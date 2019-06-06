@@ -1,11 +1,11 @@
 /**
- * Onboarding Wizard.
+ * Subscriptions onboarding Wizard.
  */
 
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, Fragment, render } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
@@ -14,20 +14,25 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/PaymentSetup';
+import { PluginInstaller, Card, FormattedHeader } from '../../components/src';
 import './style.scss';
+
+const REQUIRED_PLUGINS = [ 'woocommerce' ];
 
 /**
  * Wizard for setting up ability to take payments.
  * May have other settings added to it in the future.
  */
-class OnboardingWizard extends Component {
+class SubscriptionsOnboardingWizard extends Component {
 	/**
 	 * Constructor.
 	 */
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			pluginRequirementsMet: false,
 			wizardStep: 1,
+
 			location: {
 				countrystate: '',
 				address1: '',
@@ -44,15 +49,22 @@ class OnboardingWizard extends Component {
 				testPublishableKey: '',
 				testSecretKey: '',
 			},
+			options: {
+				countrystate: [],
+				currency: [],
+			}
 		};
 	}
 
 	/**
 	 * Get the saved data for populating the forms when wizard is first loaded.
 	 */
-	componentDidMount() {
-		this.refreshLocationInfo();
-		this.refreshStripeInfo();
+	componentDidUpdate( prevProps, prevState ) {
+		if ( ! prevState.pluginRequirementsMet && this.state.pluginRequirementsMet ) {
+			this.refreshOptions();
+			this.refreshLocationInfo();
+			this.refreshStripeInfo();
+		}		
 	}
 
 	/**
@@ -63,6 +75,14 @@ class OnboardingWizard extends Component {
 
 		this.setState( {
 			wizardStep: wizardStep + 1,
+		} );
+	}
+
+	refreshOptions() {
+		apiFetch( { path: '/newspack/v1/wizard/location/options' } ).then( options => {
+			this.setState( {
+				options,
+			} );
 		} );
 	}
 
@@ -122,11 +142,28 @@ class OnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { wizardStep, location, stripeSettings } = this.state;
+		const { pluginRequirementsMet, wizardStep, location, stripeSettings, options } = this.state;
+
+		if ( ! pluginRequirementsMet ) {
+			return (
+				<Card noBackground>
+					<FormattedHeader
+						headerText={ __( 'Required plugin' ) }
+						subHeaderText={ __( 'This feature requires the following plugin.') }
+					/>
+					<PluginInstaller
+						plugins={ REQUIRED_PLUGINS }
+						onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
+					/>
+				</Card>
+			);
+		}
 
 		if ( 1 === wizardStep ) {
 			return (
 				<LocationSetup
+					countrystateFields={ options.countrystate }
+					currencyFields={ options.currency }
 					location={ location }
 					onChange={ location => this.setState( { location } ) }
 					onClickContinue={ () => this.saveLocation() }
@@ -154,4 +191,4 @@ class OnboardingWizard extends Component {
 		);
 	}
 }
-render( <OnboardingWizard />, document.getElementById( 'newspack-onboarding-wizard' ) );
+render( <SubscriptionsOnboardingWizard />, document.getElementById( 'newspack-subscriptions-onboarding-wizard' ) );

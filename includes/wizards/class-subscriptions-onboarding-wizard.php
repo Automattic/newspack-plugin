@@ -16,21 +16,21 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 /**
  * Easy interface for setting up general store info.
  */
-class Onboarding_Wizard extends Wizard {
+class Subscriptions_Onboarding_Wizard extends Wizard {
 
 	/**
 	 * The name of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $name = 'Onboarding';
+	protected $name = 'Subscriptions Onboarding';
 
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-onboarding-wizard';
+	protected $slug = 'newspack-subscriptions-onboarding-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -52,6 +52,17 @@ class Onboarding_Wizard extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
+		// Get location options.
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/location/options',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_location_options' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 		// Get location info.
 		register_rest_route(
 			'newspack/v1/wizard/',
@@ -136,6 +147,43 @@ class Onboarding_Wizard extends Wizard {
 			]
 		);
 
+	}
+
+	public function api_get_location_options() {
+		$countries     = WC()->countries->get_countries();
+		$states        = WC()->countries->get_states();
+		$location_info = [];
+		foreach ( $countries as $country_code => $country ) {
+			if ( isset( $states[ $country_code ] ) ) {
+				foreach ( $states[ $country_code ] as $state_code => $state ) {
+					$location_info[] = [
+						'value' => $country_code . ':' . $state_code,
+						'label' => html_entity_decode( $country . ' – ' . $state ),
+					];
+				}
+			} else {
+				$location_info[] = [
+					'value' => $country_code,
+					'label' => html_entity_decode( $country ),
+				];
+			}
+		}
+
+		$currencies    = get_woocommerce_currencies();
+		$currency_info = [];
+		foreach ( $currencies as $code => $currency ) {
+			$currency_info[] = [
+				'value' => $code,
+				'label' => html_entity_decode( $currency ),
+			];
+		}
+
+		return rest_ensure_response(
+			[
+				'countrystate' => $location_info,
+				'currency'     => $currency_info,
+			]
+		);
 	}
 
 	/**
@@ -286,54 +334,22 @@ class Onboarding_Wizard extends Wizard {
 			return;
 		}
 
-		wp_register_script(
-			'newspack-onboarding-wizard',
-			Newspack::plugin_url() . '/assets/dist/onboarding.js',
+		wp_enqueue_script(
+			'newspack-subscriptions-onboarding-wizard',
+			Newspack::plugin_url() . '/assets/dist/subscriptionsOnboarding.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/onboarding.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptionsOnboarding.js' ),
 			true
 		);
 
-		$countries     = WC()->countries->get_countries();
-		$states        = WC()->countries->get_states();
-		$location_info = [];
-		foreach ( $countries as $country_code => $country ) {
-			if ( isset( $states[ $country_code ] ) ) {
-				foreach ( $states[ $country_code ] as $state_code => $state ) {
-					$location_info[] = [
-						'value' => $country_code . ':' . $state_code,
-						'label' => html_entity_decode( $country . ' – ' . $state ),
-					];
-				}
-			} else {
-				$location_info[] = [
-					'value' => $country_code,
-					'label' => html_entity_decode( $country ),
-				];
-			}
-		}
-		wp_localize_script( 'newspack-onboarding-wizard', 'newspack_location_info', $location_info );
-
-		$currencies    = get_woocommerce_currencies();
-		$currency_info = [];
-		foreach ( $currencies as $code => $currency ) {
-			$currency_info[] = [
-				'value' => $code,
-				'label' => html_entity_decode( $currency ),
-			];
-		}
-		wp_localize_script( 'newspack-onboarding-wizard', 'newspack_currency_info', $currency_info );
-
-		wp_enqueue_script( 'newspack-onboarding-wizard' );
-
 		wp_register_style(
-			'newspack-onboarding-wizard',
-			Newspack::plugin_url() . '/assets/dist/onboarding.css',
+			'newspack-subscriptions-onboarding-wizard',
+			Newspack::plugin_url() . '/assets/dist/subscriptionsOnboarding.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/onboarding.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptionsOnboarding.css' )
 		);
-		wp_style_add_data( 'newspack-onboarding-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-onboarding-wizard' );
+		wp_style_add_data( 'newspack-subscriptions-onboarding-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-subscriptions-onboarding-wizard' );
 	}
 }
-new Onboarding_Wizard();
+new Subscriptions_Onboarding_Wizard();

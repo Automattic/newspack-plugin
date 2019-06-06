@@ -34,7 +34,7 @@ class LocationSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { location, onClickContinue, onClickSkip } = this.props;
+		const { location, onClickContinue, onClickSkip, countrystateFields, currencyFields } = this.props;
 		const { countrystate, address1, address2, city, postcode, currency } = location;
 
 		return (
@@ -42,14 +42,14 @@ class LocationSetup extends Component {
 				<FormattedHeader
 					headerText={ __( 'About your publication' ) }
 					subHeaderText={ __(
-						'This information is required for accepting payments and other features'
+						'This information is required for accepting payments'
 					) }
 				/>
 				<Card>
 					<SelectControl
 						label={ __( 'Where is your business based?' ) }
 						value={ countrystate }
-						options={ newspack_location_info }
+						options={ countrystateFields }
 						onChange={ value => this.handleOnChange( 'countrystate', value ) }
 					/>
 					<TextControl
@@ -75,7 +75,7 @@ class LocationSetup extends Component {
 					<SelectControl
 						label={ 'Which currency does your business use?' }
 						value={ currency }
-						options={ newspack_currency_info }
+						options={ currencyFields }
 						onChange={ value => this.handleOnChange( 'currency', value ) }
 					/>
 					<Button isPrimary className="is-centered" onClick={ () => onClickContinue() }>

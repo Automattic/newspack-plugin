@@ -77,7 +77,7 @@ class PaymentSetup extends Component {
 								tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
 							/>
 							<div className="newspack-payment-setup-screen__api-keys-heading">
-								<h4 class="newspack-payment-setup-screen__api-heading">
+								<h4 className="newspack-payment-setup-screen__api-heading">
 									{ __( 'Get your API keys from your Stripe account' ) }
 								</h4>
 								{ testMode && (
