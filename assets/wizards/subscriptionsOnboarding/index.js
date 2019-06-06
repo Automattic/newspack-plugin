@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import LocationSetup from './views/locationSetup';
-import PaymentSetup from './views/PaymentSetup';
+import PaymentSetup from './views/paymentSetup';
 import { PluginInstaller, Card, FormattedHeader } from '../../components/src';
 import './style.scss';
 
@@ -61,7 +61,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 */
 	componentDidUpdate( prevProps, prevState ) {
 		if ( ! prevState.pluginRequirementsMet && this.state.pluginRequirementsMet ) {
-			this.refreshOptions();
+			this.refreshFieldOptions();
 			this.refreshLocationInfo();
 			this.refreshStripeInfo();
 		}		
@@ -78,7 +78,10 @@ class SubscriptionsOnboardingWizard extends Component {
 		} );
 	}
 
-	refreshOptions() {
+	/**
+	 * Get information used for populating complex dropdown menus.
+	 */
+	refreshFieldOptions() {
 		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } ).then( fields => {
 			this.setState( {
 				fields,

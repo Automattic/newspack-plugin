@@ -54,7 +54,7 @@ class PaymentSetup extends Component {
 		} = stripeSettings;
 
 		return (
-			<div className="newspack-payment-setup-screen">
+			<div className='newspack-payment-setup-screen'>
 				<FormattedHeader
 					headerText={ __( 'Set up Stripe' ) }
 					subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
@@ -67,29 +67,31 @@ class PaymentSetup extends Component {
 					/>
 					{ enabled && (
 						<Fragment>
-							<h3 className="newspack-payment-setup-screen__settings-heading">
+							<h3 className='newspack-payment-setup-screen__settings-heading'>
 								{ __( 'Stripe settings' ) }
 							</h3>
 							<CheckboxControl
 								label={ __( 'Use Stripe in test mode' ) }
 								checked={ testMode }
 								onChange={ value => this.handleOnChange( 'testMode', value ) }
-								tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
+								tooltip='Test mode will not capture real payments. Use it for testing your purchase flow.'
 							/>
-							<div className="newspack-payment-setup-screen__api-keys-heading">
-								<h4 className="newspack-payment-setup-screen__api-heading">
-									{ __( 'Get your API keys from your Stripe account' ) }
+							<div className='newspack-payment-setup-screen__api-keys-heading'>
+								<h4 className='newspack-payment-setup-screen__api-heading'>
+									<a href='https://stripe.com/docs/keys#api-keys' target='_blank'>
+										{ __( 'Get your API keys from your Stripe account' ) }
+									</a>
 								</h4>
 								{ testMode && (
 									<Fragment>
 										<TextControl
-											type="password"
+											type='password'
 											value={ testPublishableKey }
 											label={ __( 'Test Publishable Key' ) }
 											onChange={ value => this.handleOnChange( 'testPublishableKey', value ) }
 										/>
 										<TextControl
-											type="password"
+											type='password'
 											value={ testSecretKey }
 											label={ __( 'Test Secret Key' ) }
 											onChange={ value => this.handleOnChange( 'testSecretKey', value ) }
@@ -99,13 +101,13 @@ class PaymentSetup extends Component {
 								{ ! testMode && (
 									<Fragment>
 										<TextControl
-											type="password"
+											type='password'
 											value={ publishableKey }
 											label={ __( 'Publishable Key' ) }
 											onChange={ value => this.handleOnChange( 'publishableKey', value ) }
 										/>
 										<TextControl
-											type="password"
+											type='password'
 											value={ secretKey }
 											label={ __( 'Secret Key' ) }
 											onChange={ value => this.handleOnChange( 'secretKey', value ) }
@@ -122,12 +124,12 @@ class PaymentSetup extends Component {
 							) }
 						</em>
 					) }
-					<Button isPrimary className="is-centered" onClick={ () => onClickFinish() }>
+					<Button isPrimary className='is-centered' onClick={ () => onClickFinish() }>
 						{ __( 'Finish' ) }
 					</Button>
 					<Button
-						className="isLink is-centered is-tertiary"
-						href="#"
+						className='isLink is-centered is-tertiary'
+						href='#'
 						onClick={ () => onClickCancel() }
 					>
 						{ __( 'Cancel' ) }

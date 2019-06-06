@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Install, \WC_Payment_Gateways;
+use \WP_Error, \WC_Install, \WC_Payment_Gateways;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -155,6 +155,16 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_get_fields() {
+		if ( ! function_exists( 'WC' ) ) {
+			return rest_ensure_response( new WP_Error(
+				'newspack_missing_required_plugin',
+				esc_html__( 'The WooCommerce plugin is not installed and activated.', 'newspack' ),
+				[
+					'status' => 400,
+				]
+			) );
+		}
+
 		$countries     = WC()->countries->get_countries();
 		$states        = WC()->countries->get_states();
 		$location_info = [];

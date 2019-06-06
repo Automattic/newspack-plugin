@@ -38,7 +38,7 @@ class LocationSetup extends Component {
 		const { countrystate, address1, address2, city, postcode, currency } = location;
 
 		return (
-			<div className="newspack-location-setup-screen">
+			<div className='newspack-location-setup-screen'>
 				<FormattedHeader
 					headerText={ __( 'About your publication' ) }
 					subHeaderText={ __(
@@ -78,12 +78,12 @@ class LocationSetup extends Component {
 						options={ currencyFields }
 						onChange={ value => this.handleOnChange( 'currency', value ) }
 					/>
-					<Button isPrimary className="is-centered" onClick={ () => onClickContinue() }>
+					<Button isPrimary className='is-centered' onClick={ () => onClickContinue() }>
 						{ __( 'Continue' ) }
 					</Button>
 					<Button
-						className="isLink is-centered is-tertiary"
-						href="#"
+						className='isLink is-centered is-tertiary'
+						href='#'
 						onClick={ () => onClickSkip() }
 					>
 						{ __( 'Skip' ) }
