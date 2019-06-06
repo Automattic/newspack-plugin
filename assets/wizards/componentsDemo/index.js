@@ -25,6 +25,7 @@ import {
 	Checklist,
 	Task,
 	SelectControl,
+	Modal,
 } from '../../components/src';
 import './style.scss';
 
@@ -45,6 +46,7 @@ class ComponentsDemo extends Component {
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
+			modalShown: false,
 		};
 	}
 
@@ -71,6 +73,7 @@ class ComponentsDemo extends Component {
 			inputNumValue,
 			selectValue1,
 			selectValue2,
+			modalShown,
 		} = this.state;
 
 		return (
@@ -79,7 +82,32 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
+				<Card>
+					<FormattedHeader
+						headerText={ __( 'Notice/Modal' ) }
+					/>
+					<Button className="is-centered" isTertiary onClick={ () => this.setState( { modalShown: true } ) } >
+						{ __( 'Open modal' ) }
+					</Button>
+					{ modalShown && (
+						<Modal
+							title="This is the modal title"
+							onRequestClose={ () => this.setState( { modalShown: false } ) }
+						>
+							<p>{ __( 'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.' ) }</p>
+							<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) } >
+								{ __( 'Dismiss' ) }
+							</Button>
+							<Button isDefault onClick={ () => this.setState( { modalShown: false } ) } >
+								{ __( 'Also dismiss' ) }
+							</Button>
+						</Modal>
+					) }
+				</Card>
 				<Card noBackground>
+					<FormattedHeader
+						headerText={ __( 'Plugin installer' ) }
+					/>
 					<PluginInstaller
 						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'fake-plugin' ] }
 						canUninstall
@@ -93,6 +121,9 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 				</Card>
+				<FormattedHeader
+					headerText={ __( 'Action cards' ) }
+				/>
 				<ActionCard
 					title="Example One"
 					description="Has an action button."
@@ -163,6 +194,9 @@ class ComponentsDemo extends Component {
 					} }
 					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 					imageLink="https://wordpress.com"
+				/>
+				<FormattedHeader
+					headerText={ __( 'Checklist' ) }
 				/>
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
 					<Task
