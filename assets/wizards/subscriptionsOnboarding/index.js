@@ -49,7 +49,7 @@ class SubscriptionsOnboardingWizard extends Component {
 				testPublishableKey: '',
 				testSecretKey: '',
 			},
-			options: {
+			fields: {
 				countrystate: [],
 				currency: [],
 			}
@@ -79,9 +79,9 @@ class SubscriptionsOnboardingWizard extends Component {
 	}
 
 	refreshOptions() {
-		apiFetch( { path: '/newspack/v1/wizard/location/options' } ).then( options => {
+		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } ).then( fields => {
 			this.setState( {
-				options,
+				fields,
 			} );
 		} );
 	}
@@ -90,7 +90,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved info about business location.
 	 */
 	refreshLocationInfo() {
-		apiFetch( { path: '/newspack/v1/wizard/location' } ).then( location => {
+		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location' } ).then( location => {
 			this.setState( {
 				location,
 			} );
@@ -102,7 +102,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 */
 	saveLocation() {
 		apiFetch( {
-			path: '/newspack/v1/wizard/location',
+			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
 			method: 'post',
 			data: {
 				...this.state.location,
@@ -116,7 +116,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved Stripe settings.
 	 */
 	refreshStripeInfo() {
-		apiFetch( { path: '/newspack/v1/wizard/stripe-settings' } ).then( stripeSettings => {
+		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings' } ).then( stripeSettings => {
 			this.setState( {
 				stripeSettings,
 			} );
@@ -128,7 +128,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 */
 	saveStripeSettings() {
 		apiFetch( {
-			path: '/newspack/v1/wizard/stripe-settings',
+			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
 			method: 'post',
 			data: {
 				...this.state.stripeSettings,
@@ -142,7 +142,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { pluginRequirementsMet, wizardStep, location, stripeSettings, options } = this.state;
+		const { pluginRequirementsMet, wizardStep, location, stripeSettings, fields } = this.state;
 
 		if ( ! pluginRequirementsMet ) {
 			return (
@@ -162,8 +162,8 @@ class SubscriptionsOnboardingWizard extends Component {
 		if ( 1 === wizardStep ) {
 			return (
 				<LocationSetup
-					countrystateFields={ options.countrystate }
-					currencyFields={ options.currency }
+					countrystateFields={ fields.countrystate }
+					currencyFields={ fields.currency }
 					location={ location }
 					onChange={ location => this.setState( { location } ) }
 					onClickContinue={ () => this.saveLocation() }

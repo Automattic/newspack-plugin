@@ -52,20 +52,20 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
-		// Get location options.
+		// Get fields for options.
 		register_rest_route(
-			'newspack/v1/wizard/',
-			'/location/options',
+			'newspack/v1/wizard/' . $this->slug,
+			'/fields',
 			[
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'api_get_location_options' ],
+				'callback'            => [ $this, 'api_get_fields' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
 
 		// Get location info.
 		register_rest_route(
-			'newspack/v1/wizard/',
+			'newspack/v1/wizard/' . $this->slug,
 			'/location/',
 			[
 				'methods'             => 'GET',
@@ -76,7 +76,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 
 		// Save location info.
 		register_rest_route(
-			'newspack/v1/wizard/',
+			'newspack/v1/wizard/' . $this->slug,
 			'/location/',
 			[
 				'methods'             => 'POST',
@@ -107,7 +107,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 
 		// Get Stripe info.
 		register_rest_route(
-			'newspack/v1/wizard/',
+			'newspack/v1/wizard/' . $this->slug,
 			'/stripe-settings/',
 			[
 				'methods'             => 'GET',
@@ -118,7 +118,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 
 		// Save Stripe info.
 		register_rest_route(
-			'newspack/v1/wizard/',
+			'newspack/v1/wizard/' . $this->slug,
 			'/stripe-settings/',
 			[
 				'methods'             => 'POST',
@@ -149,7 +149,12 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 
 	}
 
-	public function api_get_location_options() {
+	/**
+	 * Get information for populating dropdown menus.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_get_fields() {
 		$countries     = WC()->countries->get_countries();
 		$states        = WC()->countries->get_states();
 		$location_info = [];
