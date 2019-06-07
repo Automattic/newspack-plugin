@@ -84,22 +84,22 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'countrystate' => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'address1'     => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'address2'     => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'city'         => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'postcode'     => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'currency'     => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
 			]
@@ -126,22 +126,22 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'enabled'            => [
-						'sanitize_callback' => 'wc_string_to_bool',
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
 					'testMode'           => [
-						'sanitize_callback' => 'wc_string_to_bool',
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
 					'publishableKey'     => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'secretKey'          => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'testPublishableKey' => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'testSecretKey'      => [
-						'sanitize_callback' => 'wc_clean',
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
 			]
