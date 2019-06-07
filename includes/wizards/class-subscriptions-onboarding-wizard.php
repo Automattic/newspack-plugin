@@ -150,19 +150,34 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	}
 
 	/**
+	 * Check whether WooCommerce is installed and active.
+	 *
+	 * @return bool | WP_Error True on success, WP_Error on failure.
+	 */
+	protected function check_required_plugins_installed() {
+		if ( ! function_exists( 'WC' ) ) {
+			return new WP_Error(
+				'newspack_missing_required_plugin',
+				esc_html__( 'The WooCommerce plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+				[
+					'status' => 400,
+					'level' => 'fatal',
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get information for populating dropdown menus.
 	 *
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_get_fields() {
-		if ( ! function_exists( 'WC' ) ) {
-			return rest_ensure_response( new WP_Error(
-				'newspack_missing_required_plugin',
-				esc_html__( 'The WooCommerce plugin is not installed and activated.', 'newspack' ),
-				[
-					'status' => 400,
-				]
-			) );
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
 		}
 
 		$countries     = WC()->countries->get_countries();
@@ -207,6 +222,11 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_get_location() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$countrystate_raw = wc_get_base_location();
 		$location         = [
 			'countrystate' => '*' === $countrystate_raw['state'] ? $countrystate_raw['country'] : $countrystate_raw['country'] . ':' . $countrystate_raw['state'],
@@ -227,6 +247,11 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean success.
 	 */
 	public function api_save_location( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$params   = $request->get_params();
 		$defaults = [
 			'countrystate' => '',
@@ -257,6 +282,11 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_get_stripe_settings() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$defaults = [
 			'enabled'            => false,
 			'testMode'           => false,
@@ -291,6 +321,11 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean success.
 	 */
 	public function api_save_stripe_settings( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$params   = $request->get_params();
 		$defaults = [
 			'enabled'            => false,
