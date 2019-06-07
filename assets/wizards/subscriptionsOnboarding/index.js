@@ -101,7 +101,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	getErrorNotice( error ) {
 		const { message } = error;
 		return (
-			<div className='notice notice-error notice-alt update-message'>
+			<div className="notice notice-error notice-alt update-message">
 				<p>{ message }</p>
 			</div>
 		);
@@ -120,8 +120,10 @@ class SubscriptionsOnboardingWizard extends Component {
 				title={ __( 'Unrecoverable error' ) }
 				onRequestClose={ () => console.log( 'Redirect to checklist now' ) }
 			>
-				<p><strong>{ message }</strong></p>
-				<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) } >
+				<p>
+					<strong>{ message }</strong>
+				</p>
+				<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 					{ __( 'Return to checklist' ) }
 				</Button>
 			</Modal>
@@ -135,16 +137,18 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * @return Error object with relevant fields and defaults
 	 */
 	parseError( error ) {
-		const { data, message } = error;
+		const { data, message, code } = error;
 		let level = 'fatal';
 		if ( !! data && 'level' in data ) {
 			level = data.level;
+		} else if ( 'rest_invalid_param' === code ) {
+			level = 'notice';
 		}
 
 		return {
 			message,
 			level,
-		}
+		};
 	}
 
 	/**
@@ -173,7 +177,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error: this.parseError( error )
+					error: this.parseError( error ),
 				} );
 			} );
 	}
@@ -184,17 +188,18 @@ class SubscriptionsOnboardingWizard extends Component {
 	refreshLocationInfo() {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
-		} ).then( location => {
-			this.setState( {
-				location,
-				error: false,
-			} );
 		} )
-		.catch( error => {
-			this.setState( {
-				error: this.parseError( error )
+			.then( location => {
+				this.setState( {
+					location,
+					error: false,
+				} );
+			} )
+			.catch( error => {
+				this.setState( {
+					error: this.parseError( error ),
+				} );
 			} );
-		} );
 	}
 
 	/**
@@ -207,16 +212,20 @@ class SubscriptionsOnboardingWizard extends Component {
 			data: {
 				...this.state.location,
 			},
-		} ).then( response => {
-			this.setState( {
-				error: false,				
-			}, this.nextWizardStep );
 		} )
-		.catch( error => {
-			this.setState( {
-				error: this.parseError( error )
+			.then( response => {
+				this.setState(
+					{
+						error: false,
+					},
+					this.nextWizardStep
+				);
+			} )
+			.catch( error => {
+				this.setState( {
+					error: this.parseError( error ),
+				} );
 			} );
-		} );
 	}
 
 	/**
@@ -225,17 +234,18 @@ class SubscriptionsOnboardingWizard extends Component {
 	refreshStripeInfo() {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
-		} ).then( stripeSettings => {
-			this.setState( {
-				stripeSettings,
-				error: false,
-			} );
 		} )
-		.catch( error => {
-			this.setState( {
-				error: this.parseError( error )
+			.then( stripeSettings => {
+				this.setState( {
+					stripeSettings,
+					error: false,
+				} );
+			} )
+			.catch( error => {
+				this.setState( {
+					error: this.parseError( error ),
+				} );
 			} );
-		} );
 	}
 
 	/**
@@ -248,16 +258,20 @@ class SubscriptionsOnboardingWizard extends Component {
 			data: {
 				...this.state.stripeSettings,
 			},
-		} ).then( response => {
-			this.setState( {
-				error: false,
-			}, this.nextWizardStep );
 		} )
-		.catch( error => {
-			this.setState( {
-				error: this.parseError( error )
+			.then( response => {
+				this.setState(
+					{
+						error: false,
+					},
+					this.nextWizardStep
+				);
+			} )
+			.catch( error => {
+				this.setState( {
+					error: this.parseError( error ),
+				} );
 			} );
-		} );
 	}
 
 	/**

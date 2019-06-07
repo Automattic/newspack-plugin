@@ -85,21 +85,26 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 				'args'                => [
 					'countrystate' => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'address1'     => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'address2'     => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 					'city'         => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'postcode'     => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'currency'     => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 				],
 			]
@@ -161,7 +166,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 				esc_html__( 'The WooCommerce plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
 				[
 					'status' => 400,
-					'level' => 'fatal',
+					'level'  => 'fatal',
 				]
 			);
 		}
