@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
+import { Dashicon } from '@wordpress/components';
 import classnames from 'classnames';
 
 /**
@@ -23,35 +24,37 @@ class DashboardCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, image, enabled } = this.props;
-		const classes = classnames( 'newspack-dashboard-card', slug, enabled ? 'enabled' : 'disabled' );
+		const { name, description, slug, url, image, status } = this.props;
+		const classes = classnames( 'newspack-dashboard-card', slug, status );
 
 		const contents = (
-			<Fragment>
+			<div className='newspack-dashboard-card__contents'>
 				{ !! image && (
 					<img src={ image } />
 				) }
 				<h3>{ name }</h3>
 				<h4>{ description }</h4>
-			</Fragment>
+			</div>
 		)
 
-		if ( enabled ) {
-			return (
-				<Card className={ classes } >
-					<a href={ url } >
-						{ contents }
-					</a>
-				</Card>
-			);
-		} else {
+		if ( 'disabled' === status ) {
 			return (
 				<Card className={ classes } >
 					<div className='newspack-dashboard-card__disabled-link'>
 						{ contents }
 					</div>
 				</Card>
-
+			);
+		} else {
+			return (
+				<Card className={ classes } >
+					<a href={ url } >
+						{ 'completed' === status && (
+							<Dashicon icon='yes-alt' size='24' className='newspack-dashboard-card__completed-icon' />
+						) }
+						{ contents }
+					</a>
+				</Card>
 			);
 		}
 	}

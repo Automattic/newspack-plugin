@@ -44,9 +44,11 @@ class Dashboard extends Wizard {
 		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 
-		// Temporary filter to demonstrate disabling a card.
+		// Temporary filter to demonstrate card status.
 		// @todo remove this and do it properly in the checklist class.
-		add_filter( 'newspack_dashboard_enabled_syndication', '__return_false' );
+		add_filter( 'newspack_dashboard_status_syndication', function() { return 'disabled'; } );
+		add_filter( 'newspack_dashboard_status_onboarding', function() { return 'completed'; } );
+		add_filter( 'newspack_dashboard_status_newsletter', function() { return 'completed'; } );
 	}
 
 	protected function get_dashboard() {
@@ -99,8 +101,9 @@ class Dashboard extends Wizard {
 
 		foreach ( $dashboard as &$tier ) {
 			foreach ( $tier as &$card ) {
-				// The checklist hooks into this filter to selectively disable tasks that have uncompleted prerequisites.
-				$card['enabled'] = apply_filters( 'newspack_dashboard_enabled_' . $card['slug'], true );
+				// The checklist hooks into this filter to manage card statuses.
+				// Valid status are: 'enabled', 'disabled', 'completed'.
+				$card['status'] = apply_filters( 'newspack_dashboard_status_' . $card['slug'], 'enabled' );
 			}
 		}
 

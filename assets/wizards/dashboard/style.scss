@@ -25,11 +25,13 @@
 	max-width: 330px;
 	width: 100%;
 	text-align: center;
+	position: relative;
 
 	a, .newspack-dashboard-card__disabled-link {
 		display: flex;
-		flex-direction: column;
+		height: 100%;
 		align-items: center;
+		justify-content: center;
 		text-decoration: none;
 	}
 
@@ -51,5 +53,27 @@
 
 	&.disabled {
 		opacity: 0.6;
+	}
+
+	&.completed {
+		background: none;
+		border: 1px solid rgba(0, 0, 0, .1);
+	}
+
+	.newspack-dashboard-card__completed-icon {
+		fill: $muriel-hot-green-500;
+		position: absolute;
+		top: 40px;
+		right: 80px;
+	}
+}
+
+@media (max-width: 600px) {
+	.newspack-dashboard-tier {
+		display: block;
+	}
+
+	.newspack-dashboard-card {
+		max-width: calc(100% - 6em);
 	}
 }
