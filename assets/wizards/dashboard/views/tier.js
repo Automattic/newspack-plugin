@@ -24,7 +24,9 @@ class Tier extends Component {
 
 		return (
 			<div className="newspack-dashboard-tier">
-				{ items.map( card => <DashboardCard { ...card } key={ card.slug } /> ) }
+				{ items.map( card => (
+					<DashboardCard { ...card } key={ card.slug } />
+				) ) }
 			</div>
 		);
 	}

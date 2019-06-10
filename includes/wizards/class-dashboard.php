@@ -17,13 +17,6 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Dashboard extends Wizard {
 
 	/**
-	 * The name of this wizard.
-	 *
-	 * @var string
-	 */
-	protected $name = 'Newspack';
-
-	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -38,43 +31,54 @@ class Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Display a link to this wizard in the Newspack submenu.
+	 *
+	 * @var bool
+	 */
+	protected $hidden = false;
+
+	/**
 	 * Initialize.
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-
-		// Temporary filter to demonstrate card status.
-		// @todo remove this and do it properly in the checklist class.
-		add_filter( 'newspack_dashboard_status_syndication', function() { return 'disabled'; } );
-		add_filter( 'newspack_dashboard_status_onboarding', function() { return 'completed'; } );
-		add_filter( 'newspack_dashboard_status_newsletter', function() { return 'completed'; } );
 	}
 
+	/**
+	 * Get the information required to build the dashboard.
+	 * Each tier of the dashboard is an array.
+	 * Each card within the tier is an array of [slug, name, url, description, image, status].
+	 *
+	 * @return array
+	 */
 	protected function get_dashboard() {
 		$dashboard = [
 			[
 				[
-					'name'        => __( 'Onboarding', 'newspack' ),
 					'slug'        => 'onboarding',
-					'description' => __( 'Lay the groundwork', 'newspack' ),
-					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042',
-					'url'         => '#',
+					'name'        => Checklists::get_name( 'temporary-demo' ),
+					'url'         => Checklists::get_url( 'temporary-demo' ),
+					'description' => Checklists::get_description( 'temporary-demo' ),
+					'status'      => 'completed',
+					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042', // Temporary for demo purposes.
 				],
 			],
 			[
 				[
-					'name'        => __( 'Memberships', 'newspack' ),
 					'slug'        => 'memberships',
-					'description' => __( 'Set up subscriptions, donations, and paywall', 'newspack' ),
-					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042',
-					'url'         => '#',
+					'name'        => Checklists::get_name( 'memberships' ),
+					'url'         => Checklists::get_url( 'memberships' ),
+					'description' => Checklists::get_description( 'memberships' ),
+					'status'      => Checklists::get_status( 'memberships' ),
+					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042', // Temporary for demo purposes.
 				],
 				[
 					'name'        => __( 'Setup newsletter', 'newspack' ),
 					'slug'        => 'newsletter',
 					'description' => __( 'Reach your audience', 'newspack' ),
-					'url'         => '#',
+					'status'      => 'completed',
+					'url'         => '#todo',
 				],
 			],
 			[
@@ -82,32 +86,54 @@ class Dashboard extends Wizard {
 					'name'        => __( 'Analytics', 'newspack' ),
 					'slug'        => 'analytics',
 					'description' => __( 'Learn about your audience', 'newspack' ),
-					'url'         => '#',
+					'status'      => 'disabled',
+					'url'         => '#todo',
 				],
 				[
 					'name'        => __( 'Engage your audience', 'newspack' ),
 					'slug'        => 'engagement',
 					'description' => __( 'Set up social and commenting integrations', 'newspack' ),
-					'url'         => '#',
+					'status'      => 'disabled',
+					'url'         => '#todo',
 				],
 				[
 					'name'        => __( 'Syndicate your content', 'newspack' ),
 					'slug'        => 'syndication',
 					'description' => __( 'Cross post your articles to other outlets', 'newspack' ),
-					'url'         => '#',
-				]
+					'status'      => 'disabled',
+					'url'         => '#todo',
+				],
 			],
 		];
 
-		foreach ( $dashboard as &$tier ) {
-			foreach ( $tier as &$card ) {
-				// The checklist hooks into this filter to manage card statuses.
-				// Valid status are: 'enabled', 'disabled', 'completed'.
-				$card['status'] = apply_filters( 'newspack_dashboard_status_' . $card['slug'], 'enabled' );
-			}
-		}
-
 		return $dashboard;
+	}
+
+	/**
+	 * Get the name for this wizard.
+	 *
+	 * @return string The wizard name.
+	 */
+	public function get_name() {
+		return __( 'Newspack', 'newspack' );
+	}
+
+	/**
+	 * Get the description of this wizard.
+	 *
+	 * @return string The wizard description.
+	 */
+	public function get_description() {
+		return __( 'The Newspack hub', 'newspack' );
+	}
+
+	/**
+	 * Get the duration of this wizard.
+	 *
+	 * @return string A description of the expected duration (e.g. '10 minutes').
+	 */
+	public function get_length() {
+		return __( '1 day', 'newspack' );
 	}
 
 	/**
@@ -119,16 +145,15 @@ class Dashboard extends Wizard {
 			__( 'Newspack', 'newspack' ), 
 			$this->capability, 
 			$this->slug, 
-			[ $this, 'render_wizard'] 
+			[ $this, 'render_wizard' ] 
 		);
 	}
 
 	/**
-	 * Load up common JS/CSS for wizards.
+	 * Load up JS/CSS.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
-		wp_enqueue_media();
 
 		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
 			return;
@@ -154,4 +179,3 @@ class Dashboard extends Wizard {
 		wp_enqueue_style( 'newspack-dashboard' );
 	}
 }
-new Dashboard();
