@@ -272,4 +272,4 @@ class AdvertisingWizard extends Component {
 	}
 }
 
-render( <AdvertisingWizard />, document.getElementById( 'newspack-advertising-wizard' ) );
+render( <AdvertisingWizard />, document.getElementById( 'newspack-setupads-wizard' ) );

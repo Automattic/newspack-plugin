@@ -28,7 +28,7 @@ class Advertising_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-advertising-wizard';
+	protected $slug = 'newspack-setupads-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -49,7 +49,7 @@ class Advertising_Wizard extends Wizard {
 		}
 
 		wp_enqueue_script(
-			'newspack-advertising-wizard',
+			'newspack-setupads-wizard',
 			Newspack::plugin_url() . '/assets/dist/advertising.js',
 			[ 'wp-components' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.js' ),
@@ -57,13 +57,13 @@ class Advertising_Wizard extends Wizard {
 		);
 
 		wp_register_style(
-			'newspack-advertising-wizard',
+			'newspack-setupads-wizard',
 			Newspack::plugin_url() . '/assets/dist/advertising.css',
 			[ 'wp-components' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.css' )
 		);
-		wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-advertising-wizard' );
+		wp_style_add_data( 'newspack-setupads-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-setupads-wizard' );
 	}
 }
 new Advertising_Wizard();
