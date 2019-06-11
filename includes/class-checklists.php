@@ -179,6 +179,14 @@ class Checklists {
 			wp_die( esc_html__( 'No checklist found.', 'newspack' ) );
 		}
 
+		/**
+		 * The following information is placed into the `newspack_checklist` js variable on a checklist's page:
+		 *
+		 * name         => String name of the checklist.
+		 * description  => String description of the checklist. 
+		 * steps        => Array of wizards. See $checklist_data['steps'] below.
+		 * dashboardURL => String link to the main dashboard, so the checklist can return to the dashboard when needed.
+		 */
 		$checklist_data = [
 			'name'         => self::get_name( $checklist_slug ),
 			'description'  => self::get_description( $checklist_slug ),
@@ -192,6 +200,15 @@ class Checklists {
 				continue;
 			}
 
+			/**
+			 * One checklist step has the following info:
+			 *
+			 * name        => String name of the step.
+			 * description => String description of the step.
+			 * url         => String URL of the wizard.
+			 * length      => String textual description of how long the wizard is expected to take.
+			 * completed   => Boolean whether the wizard has been completed.
+			 */
 			$checklist_data['steps'][] = [
 				'name'        => $wizard->get_name(),
 				'description' => $wizard->get_description(),
