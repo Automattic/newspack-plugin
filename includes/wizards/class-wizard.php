@@ -93,6 +93,21 @@ abstract class Wizard {
 	}
 
 	/**
+	 * Check whether a value is not empty.
+	 * Intended for use as a `validate_callback` when registering API endpoints.
+	 *
+	 * @param mixed $value A param value.
+	 * @return bool
+	 */
+	public function api_validate_not_empty( $value ) {
+		if ( is_string( $value ) ) {
+			$value = trim( $value );
+		}
+
+		return ! empty( $value );
+	}
+
+	/**
 	 * Hide menu items from view so the pages exist, but the menu items do not.
 	 */
 	public function hide_from_menus() {

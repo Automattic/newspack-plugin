@@ -37,8 +37,8 @@ class Checklists {
 				'name'        => __( 'Memberships', 'newspack' ),
 				'description' => __( 'Subscriptions, donations, and paywall', 'newspack' ),
 				'wizards'     => [
+					'subscriptions-onboarding',
 					'subscriptions',
-					'components-demo',
 				],
 			],
 			'temporary-demo' => [

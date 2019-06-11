@@ -27,9 +27,10 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'dashboard'       => new Dashboard(),
-			'subscriptions'   => new Subscriptions_Wizard(),
-			'components-demo' => new Components_Demo(),
+			'dashboard'                => new Dashboard(),
+			'subscriptions-onboarding' => new Subscriptions_Onboarding_Wizard(),
+			'subscriptions'            => new Subscriptions_Wizard(),
+			'components-demo'          => new Components_Demo(),
 		];
 	}
 
