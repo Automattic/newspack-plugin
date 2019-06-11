@@ -40,7 +40,6 @@ final class Newspack {
 	public function __construct() {
 		$this->define_constants();
 		$this->includes();
-		$this->init_hooks();
 	}
 
 	/**
@@ -61,24 +60,13 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-components-demo.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-subscriptions-onboarding-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-subscriptions-wizard.php';
-	}
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-subscriptions-wizard.php';
 
-	/**
-	 * Hook into actions and filters.
-	 * e.g. add_action( 'foo', 'bar' );
-	 */
-	private function init_hooks() {
-		add_action( 'admin_menu', [ $this, 'register_admin_wizard_container' ], 1 );
-	}
-
-	/**
-	 * Register the top-level Newspack section.
-	 */
-	public function register_admin_wizard_container() {
-		add_menu_page( __( 'Newspack', 'newspack' ), __( 'Newspack', 'newspack' ), 'manage_options', 'newspack', function() { echo 'TODO: A dashboard page here or something.'; } ); // phpcs:ignore
+		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
 	}
 
 	/**

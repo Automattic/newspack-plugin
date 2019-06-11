@@ -17,13 +17,6 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Components_Demo extends Wizard {
 
 	/**
-	 * The name of this wizard.
-	 *
-	 * @var string
-	 */
-	protected $name = 'Components Demo';
-
-	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -36,6 +29,40 @@ class Components_Demo extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
+
+	/**
+	 * Display a link to this wizard in the Newspack submenu.
+	 *
+	 * @var bool
+	 */
+	protected $hidden = false;
+
+	/**
+	 * Get the name for this wizard.
+	 *
+	 * @return string The wizard name.
+	 */
+	public function get_name() {
+		return esc_html__( 'Components demo', 'newspack' );
+	}
+
+	/**
+	 * Get the description of this wizard.
+	 *
+	 * @return string The wizard description.
+	 */
+	public function get_description() {
+		return esc_html__( 'A temporary demo of components used to build Newspack', 'newspack' );
+	}
+
+	/**
+	 * Get the duration of this wizard.
+	 *
+	 * @return string A description of the expected duration (e.g. '10 minutes').
+	 */
+	public function get_length() {
+		return esc_html__( '2 minutes', 'newspack' );
+	}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
@@ -66,4 +93,3 @@ class Components_Demo extends Wizard {
 		wp_enqueue_style( 'newspack-components-demo' );
 	}
 }
-new Components_Demo();

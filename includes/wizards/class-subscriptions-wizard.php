@@ -19,13 +19,6 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Subscriptions_Wizard extends Wizard {
 
 	/**
-	 * The name of this wizard.
-	 *
-	 * @var string
-	 */
-	protected $name = 'Subscriptions';
-
-	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -47,6 +40,33 @@ class Subscriptions_Wizard extends Wizard {
 
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'woocommerce_product_data_store_cpt_get_products_query', [ $this, 'handle_only_get_newspack_subscriptions_query' ], 10, 2 );
+	}
+
+	/**
+	 * Get the name for this wizard.
+	 *
+	 * @return string The wizard name.
+	 */
+	public function get_name() {
+		return esc_html__( 'Subscriptions', 'newspack' );
+	}
+
+	/**
+	 * Get the description of this wizard.
+	 *
+	 * @return string The wizard description.
+	 */
+	public function get_description() {
+		return esc_html__( 'Create and manage subscription plans for consistent memberships revenue', 'newspack' );
+	}
+
+	/**
+	 * Get the expected duration of this wizard.
+	 *
+	 * @return string The wizard length.
+	 */
+	public function get_length() {
+		return esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**
@@ -389,4 +409,3 @@ class Subscriptions_Wizard extends Wizard {
 		wp_enqueue_style( 'newspack-subscriptions-wizard' );
 	}
 }
-new Subscriptions_Wizard();

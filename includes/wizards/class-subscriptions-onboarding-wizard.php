@@ -17,14 +17,6 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  * Easy interface for setting up general store info.
  */
 class Subscriptions_Onboarding_Wizard extends Wizard {
-
-	/**
-	 * The name of this wizard.
-	 *
-	 * @var string
-	 */
-	protected $name = 'Subscriptions Onboarding';
-
 	/**
 	 * The slug of this wizard.
 	 *
@@ -46,6 +38,33 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 		parent::__construct();
 
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	}
+
+	/**
+	 * Get the name for this wizard.
+	 *
+	 * @return string The wizard name.
+	 */
+	public function get_name() {
+		return esc_html__( 'Subscriptions Onboarding', 'newspack' );
+	}
+
+	/**
+	 * Get the description of this wizard.
+	 *
+	 * @return string The wizard description.
+	 */
+	public function get_description() {
+		return esc_html__( 'Set up general settings and the Stripe payment gateway', 'newspack' );
+	}
+
+	/**
+	 * Get the expected duration of this wizard.
+	 *
+	 * @return string The wizard length.
+	 */
+	public function get_length() {
+		return esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**
@@ -427,4 +446,3 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 		wp_enqueue_style( 'newspack-subscriptions-onboarding-wizard' );
 	}
 }
-new Subscriptions_Onboarding_Wizard();
