@@ -127,7 +127,7 @@ abstract class Wizard {
 	 * @return string
 	 */
 	public function get_url() {
-		return admin_url( 'admin.php?page=' . $this->slug );
+		return esc_url( admin_url( 'admin.php?page=' . $this->slug ) );
 	}
 
 	/**

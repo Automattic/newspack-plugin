@@ -48,7 +48,7 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return __( 'Subscriptions', 'newspack' );
+		return esc_html__( 'Subscriptions', 'newspack' );
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return __( 'Create and manage subscription plans for consistent memberships revenue', 'newspack' );
+		return esc_html__( 'Create and manage subscription plans for consistent memberships revenue', 'newspack' );
 	}
 
 	/**
@@ -66,7 +66,7 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return string The wizard length.
 	 */
 	public function get_length() {
-		return __( '10 minutes', 'newspack' );
+		return esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**

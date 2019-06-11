@@ -34,16 +34,16 @@ class Checklists {
 		 */
 		self::$checklists = [
 			'memberships'    => [
-				'name'        => __( 'Memberships', 'newspack' ),
-				'description' => __( 'Subscriptions, donations, and paywall', 'newspack' ),
+				'name'        => esc_html__( 'Memberships', 'newspack' ),
+				'description' => esc_html__( 'Subscriptions, donations, and paywall', 'newspack' ),
 				'wizards'     => [
 					'subscriptions-onboarding',
 					'subscriptions',
 				],
 			],
 			'temporary-demo' => [
-				'name'        => __( 'Demo checklist', 'newspack' ),
-				'description' => __( 'A demo checklist', 'newspack' ),
+				'name'        => esc_html__( 'Demo checklist', 'newspack' ),
+				'description' => esc_html__( 'A demo checklist', 'newspack' ),
 				'wizards'     => [
 					'subscriptions',
 					'components-demo',
@@ -112,7 +112,7 @@ class Checklists {
 	public static function get_url( $checklist_slug ) {
 		$checklist = self::get_checklist( $checklist_slug );
 		if ( $checklist ) {
-			return admin_url( 'admin.php?page=newspack-checklist&checklist=' . $checklist_slug );
+			return esc_url( admin_url( 'admin.php?page=newspack-checklist&checklist=' . $checklist_slug ), null, 'link' );
 		}
 
 		return false;
@@ -181,7 +181,6 @@ class Checklists {
 
 		/**
 		 * The following information is placed into the `newspack_checklist` js variable on a checklist's page:
-		 *
 		 * name         => String name of the checklist.
 		 * description  => String description of the checklist. 
 		 * steps        => Array of wizards. See $checklist_data['steps'] below.
@@ -202,7 +201,6 @@ class Checklists {
 
 			/**
 			 * One checklist step has the following info:
-			 *
 			 * name        => String name of the step.
 			 * description => String description of the step.
 			 * url         => String URL of the wizard.

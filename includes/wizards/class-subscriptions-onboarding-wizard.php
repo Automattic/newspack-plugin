@@ -46,7 +46,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return __( 'Subscriptions Onboarding', 'newspack' );
+		return esc_html__( 'Subscriptions Onboarding', 'newspack' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return __( 'Set up general settings and the Stripe payment gateway', 'newspack' );
+		return esc_html__( 'Set up general settings and the Stripe payment gateway', 'newspack' );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard length.
 	 */
 	public function get_length() {
-		return __( '10 minutes', 'newspack' );
+		return esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**

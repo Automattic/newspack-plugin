@@ -115,7 +115,7 @@ class Dashboard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return __( 'Newspack', 'newspack' );
+		return esc_html__( 'Newspack', 'newspack' );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Dashboard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return __( 'The Newspack hub', 'newspack' );
+		return esc_html__( 'The Newspack hub', 'newspack' );
 	}
 
 	/**
@@ -133,7 +133,7 @@ class Dashboard extends Wizard {
 	 * @return string A description of the expected duration (e.g. '10 minutes').
 	 */
 	public function get_length() {
-		return __( '1 day', 'newspack' );
+		return esc_html__( '1 day', 'newspack' );
 	}
 
 	/**

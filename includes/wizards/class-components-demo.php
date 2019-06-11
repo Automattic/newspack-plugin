@@ -43,7 +43,7 @@ class Components_Demo extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return __( 'Components demo', 'newspack' );
+		return esc_html__( 'Components demo', 'newspack' );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Components_Demo extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return __( 'A temporary demo of components used to build Newspack', 'newspack' );
+		return esc_html__( 'A temporary demo of components used to build Newspack', 'newspack' );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Components_Demo extends Wizard {
 	 * @return string A description of the expected duration (e.g. '10 minutes').
 	 */
 	public function get_length() {
-		return __( '2 minutes', 'newspack' );
+		return esc_html__( '2 minutes', 'newspack' );
 	}
 
 	/**
