@@ -127,13 +127,6 @@ class PaymentSetup extends Component {
 					<Button isPrimary className='is-centered' onClick={ () => onClickFinish() }>
 						{ __( 'Finish' ) }
 					</Button>
-					<Button
-						className='isLink is-centered is-tertiary'
-						href='#'
-						onClick={ () => onClickCancel() }
-					>
-						{ __( 'Cancel' ) }
-					</Button>
 				</Card>
 			</div>
 		);

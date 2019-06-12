@@ -309,7 +309,6 @@ class SubscriptionsOnboardingWizard extends Component {
 						location={ location }
 						onChange={ location => this.setState( { location } ) }
 						onClickContinue={ () => this.saveLocation() }
-						onClickSkip={ () => this.nextWizardStep() }
 					/>
 				</Fragment>
 			);
@@ -323,7 +322,6 @@ class SubscriptionsOnboardingWizard extends Component {
 						stripeSettings={ stripeSettings }
 						onChange={ stripeSettings => this.setState( { stripeSettings } ) }
 						onClickFinish={ () => this.saveStripeSettings() }
-						onClickCancel={ () => this.nextWizardStep() }
 					/>
 				</Fragment>
 			);
