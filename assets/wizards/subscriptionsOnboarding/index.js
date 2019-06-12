@@ -294,6 +294,13 @@ class SubscriptionsOnboardingWizard extends Component {
 							plugins={ REQUIRED_PLUGINS }
 							onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
 						/>
+						<Button
+							className='is-centered'
+							isTertiary
+							onClick={ () => ( window.location = newspack_urls['checklists']['memberships'] ) }
+						>
+							{ __( 'Back to checklist') }
+						</Button>
 					</Card>
 				</Fragment>
 			);
@@ -329,12 +336,9 @@ class SubscriptionsOnboardingWizard extends Component {
 			);
 		}
 
-		return (
-			<h3>
-				Wizard complete. TODO: This should redirect to the checklist instead of displaying this
-				message.
-			</h3>
-		);
+		// Redirect to Memberships checklist if all steps are complete.
+		window.location = newspack_urls['checklists']['memberships'];
+		return null;
 	}
 }
 render(

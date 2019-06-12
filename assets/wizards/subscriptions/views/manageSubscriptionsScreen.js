@@ -86,6 +86,13 @@ class ManageSubscriptionsScreen extends Component {
 				>
 					{ buttonText }
 				</Button>
+				<Button
+					className='is-centered'
+					isTertiary
+					onClick={ () => ( window.location = newspack_urls['checklists']['memberships'] ) }
+				>
+					{ __( "I'm done adding" ) }
+				</Button>
 			</div>
 		);
 	}
