@@ -77,11 +77,15 @@ class PaymentSetup extends Component {
 								tooltip='Test mode will not capture real payments. Use it for testing your purchase flow.'
 							/>
 							<div className='newspack-payment-setup-screen__api-keys-heading'>
-								<h4 className='newspack-payment-setup-screen__api-heading'>
-									<a href='https://stripe.com/docs/keys#api-keys' target='_blank'>
-										{ __( 'Get your API keys from your Stripe account' ) }
-									</a>
+								<h4 className='newspack-payment-setup-screen__api-keys-instruction'>
+									{ __( 'Get your API keys from your Stripe account' ) }
 								</h4>
+								<p className='newspack-payment-setup-screen__api-tip'>
+									<a href='https://stripe.com/docs/keys#api-keys' target='_blank'>
+										{ __( 'Learn how' ) }
+									</a>
+								</p>
+
 								{ testMode && (
 									<Fragment>
 										<TextControl
