@@ -71,6 +71,19 @@ abstract class Wizard {
 		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
 			return;
 		}
+
+		// This script is just used for making newspack data available in JS vars.
+		// It should not actually load a JS file.
+		wp_register_script( 'newspack_data', '', [], '1.0', false );
+
+		$urls = [
+			'checklists' => Checklists::get_urls(),
+			'wizards'    => Wizards::get_urls(),
+			'dashboard'  => Wizards::get_url( 'dashboard' ),
+		];
+
+		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
+		wp_enqueue_script( 'newspack_data' );
 	}
 
 	/**
