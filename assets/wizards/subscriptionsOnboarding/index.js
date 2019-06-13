@@ -297,7 +297,7 @@ class SubscriptionsOnboardingWizard extends Component {
 						<Button
 							className='is-centered'
 							isTertiary
-							onClick={ () => ( window.location = newspack_urls['checklists']['memberships'] ) }
+							href={ newspack_urls['checklists']['memberships'] }
 						>
 							{ __( 'Back to checklist') }
 						</Button>
