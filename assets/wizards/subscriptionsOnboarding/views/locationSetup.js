@@ -81,13 +81,6 @@ class LocationSetup extends Component {
 					<Button isPrimary className='is-centered' onClick={ () => onClickContinue() }>
 						{ __( 'Continue' ) }
 					</Button>
-					<Button
-						className='isLink is-centered is-tertiary'
-						href='#'
-						onClick={ () => onClickSkip() }
-					>
-						{ __( 'Skip' ) }
-					</Button>
 				</Card>
 			</div>
 		);
