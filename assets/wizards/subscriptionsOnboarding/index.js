@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/paymentSetup';
-import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../../components/src';
+import { PluginInstaller, Card, FormattedHeader, Modal, Button, Wizard, WizardScreen } from '../../components/src';
 import './style.scss';
 
 const REQUIRED_PLUGINS = [ 'woocommerce' ];
@@ -30,8 +30,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			pluginRequirementsMet: false,
-			wizardStep: 1,
+			currentScreen: 'location-setup',
 			error: false,
 
 			location: {
@@ -60,108 +59,10 @@ class SubscriptionsOnboardingWizard extends Component {
 	/**
 	 * Get the saved data for populating the forms when wizard is first loaded.
 	 */
-	componentDidUpdate( prevProps, prevState ) {
-		const { error, pluginRequirementsMet } = this.state;
-
-		if ( error ) {
-			return;
-		}
-
-		if ( ! prevState.pluginRequirementsMet && this.state.pluginRequirementsMet ) {
-			this.refreshFieldOptions();
-			this.refreshLocationInfo();
-			this.refreshStripeInfo();
-		}
-	}
-
-	/**
-	 * Render any errors that need rendering.
-	 *
-	 * @return null | React object
-	 */
-	getError() {
-		const { error } = this.state;
-		if ( ! error ) {
-			return null;
-		}
-		const { level } = error;
-		if ( 'fatal' === level ) {
-			return this.getFatalError( error );
-		}
-
-		return this.getErrorNotice( error );
-	}
-
-	/**
-	 * Get a notice-level error.
-	 *
-	 * @param Error object already parsed by parseError
-	 * @return React object
-	 */
-	getErrorNotice( error ) {
-		const { message } = error;
-		return (
-			<div className="notice notice-error notice-alt update-message">
-				<p>{ message }</p>
-			</div>
-		);
-	}
-
-	/**
-	 * Get a fatal-level error.
-	 *
-	 * @param Error object already parsed by parseError
-	 * @return React object
-	 */
-	getFatalError( error ) {
-		const { message } = error;
-		return (
-			<Modal
-				title={ __( 'Unrecoverable error' ) }
-				onRequestClose={ () => console.log( 'Redirect to checklist now' ) }
-			>
-				<p>
-					<strong>{ message }</strong>
-				</p>
-				<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
-					{ __( 'Return to checklist' ) }
-				</Button>
-			</Modal>
-		);
-	}
-
-	/**
-	 * Parse an error caught by an API request.
-	 *
-	 * @param Raw error object
-	 * @return Error object with relevant fields and defaults
-	 */
-	parseError( error ) {
-		const { data, message, code } = error;
-		let level = 'fatal';
-		if ( !! data && 'level' in data ) {
-			level = data.level;
-		} else if ( 'rest_invalid_param' === code ) {
-			level = 'notice';
-		}
-
-		return {
-			message,
-			level,
-		};
-	}
-
-	/**
-	 * Go to the next wizard step.
-	 */
-	nextWizardStep() {
-		const { wizardStep, error } = this.state;
-
-		if ( ! error ) {
-			this.setState( {
-				wizardStep: wizardStep + 1,
-			} );
-		}
+	loadInfo() {
+		this.refreshFieldOptions();
+		this.refreshLocationInfo();
+		this.refreshStripeInfo();
 	}
 
 	/**
@@ -177,7 +78,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error: this.parseError( error ),
+					error
 				} );
 			} );
 	}
@@ -197,7 +98,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error: this.parseError( error ),
+					error
 				} );
 			} );
 	}
@@ -217,13 +118,13 @@ class SubscriptionsOnboardingWizard extends Component {
 				this.setState(
 					{
 						error: false,
-					},
-					this.nextWizardStep
+						currentScreen: 'payment-setup',
+					}
 				);
 			} )
 			.catch( error => {
 				this.setState( {
-					error: this.parseError( error ),
+					error
 				} );
 			} );
 	}
@@ -243,7 +144,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error: this.parseError( error ),
+					error
 				} );
 			} );
 	}
@@ -264,12 +165,12 @@ class SubscriptionsOnboardingWizard extends Component {
 					{
 						error: false,
 					},
-					this.nextWizardStep
+					function() { console.log( 'checklist now plz' ); }
 				);
 			} )
 			.catch( error => {
 				this.setState( {
-					error: this.parseError( error ),
+					error: error
 				} );
 			} );
 	}
@@ -278,61 +179,40 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { pluginRequirementsMet, wizardStep, location, stripeSettings, fields } = this.state;
-		const error = this.getError();
+		const { currentScreen, location, stripeSettings, fields } = this.state;
 
-		if ( ! pluginRequirementsMet ) {
-			return (
-				<Fragment>
-					{ error }
-					<Card noBackground>
-						<FormattedHeader
-							headerText={ __( 'Required plugin' ) }
-							subHeaderText={ __( 'This feature requires the following plugin.' ) }
-						/>
-						<PluginInstaller
-							plugins={ REQUIRED_PLUGINS }
-							onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
-						/>
-						<Button
-							className='is-centered'
-							isTertiary
-							href={ newspack_urls['checklists']['memberships'] }
-						>
-							{ __( 'Back to checklist') }
-						</Button>
-					</Card>
-				</Fragment>
-			);
-		}
-
-		if ( 1 === wizardStep ) {
-			return (
-				<Fragment>
-					{ error }
+		return (
+			<Wizard
+				requiredPlugins={ [ 'woocommerce' ] }
+				activeScreen={ currentScreen } 
+				requiredPluginsCancelText={ __( 'Back to checklist' ) }
+				onRequiredPluginsCancel={ () => console.log( 'Checklist' ) }
+				onPluginRequirementsMet={ () => this.loadInfo() }
+			>
+				<WizardScreen
+					identifier='location-setup'
+					completeButtonText={ __( 'Continue' ) }
+					onCompleteButtonClicked={ () => this.saveLocation() }
+				>
 					<LocationSetup
 						countrystateFields={ fields.countrystate }
 						currencyFields={ fields.currency }
 						location={ location }
 						onChange={ location => this.setState( { location } ) }
-						onClickContinue={ () => this.saveLocation() }
 					/>
-				</Fragment>
-			);
-		}
-
-		if ( 2 === wizardStep ) {
-			return (
-				<Fragment>
-					{ error }
+				</WizardScreen>
+				<WizardScreen
+					identifier='payment-setup'
+					completeButtonText={ __( 'Finish' ) }
+					onCompleteButtonClicked={ () => this.saveStripeSettings() }
+				>
 					<PaymentSetup
 						stripeSettings={ stripeSettings }
 						onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-						onClickFinish={ () => this.saveStripeSettings() }
 					/>
-				</Fragment>
-			);
-		}
+				</WizardScreen>
+			</Wizard>
+		);
 
 		// Redirect to Memberships checklist if all steps are complete.
 		window.location = newspack_urls['checklists']['memberships'];

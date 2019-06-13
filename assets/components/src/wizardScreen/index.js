@@ -5,14 +5,10 @@ import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 
-import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
+import { Card, Button } from '../';
 import murielClassnames from '../../../shared/js/muriel-classnames';
 
 class WizardScreen extends Component {
-	constructor( props ) {
-		super( ...arguments );
-	}
-
 	render() {
 		const {
 			identifier,

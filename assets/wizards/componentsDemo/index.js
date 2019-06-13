@@ -49,6 +49,7 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			modalShown: false,
+			activeWizardScreen: 'test-wizard-1',
 		};
 	}
 
@@ -76,8 +77,8 @@ class ComponentsDemo extends Component {
 			selectValue1,
 			selectValue2,
 			modalShown,
+			activeWizardScreen,
 		} = this.state;
-
 
 		return (
 			<Fragment>
@@ -85,11 +86,16 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
-				<Wizard>
+				<Wizard 
+					activeScreen={ activeWizardScreen } 
+					requiredPlugins={ [ 'jetpack' ] }
+					requiredPluginsCancelText={ __( 'Back to checklist' ) }
+					onRequiredPluginsCancel={ () => console.log( 'Checklist' ) }
+				>
 					<WizardScreen
 						identifier='test-wizard-1'
 						completeButtonText={ __( 'Continue to 2' ) }
-						onCompleteButtonClicked='test-wizard-2'
+						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-2' } ) }
 						subCompleteButtonText={ __( 'Back to checklist' ) }
 						onSubCompleteButtonClicked={ () => console.log( 'Checklist' ) }
 					>
@@ -102,9 +108,9 @@ class ComponentsDemo extends Component {
 					<WizardScreen
 						identifier='test-wizard-2'
 						completeButtonText={ __( 'Continue to 3' ) }
-						onCompleteButtonClicked='test-wizard-3'
+						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-3' } ) }
 						subCompleteButtonText={ __( 'Back to 1' ) }
-						onSubCompleteButtonClicked='test-wizard-1'
+						onSubCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 2' ) }
@@ -125,6 +131,7 @@ class ComponentsDemo extends Component {
 						<div>Content and whatnot can go here.</div>
 					</WizardScreen>
 				</Wizard>
+				<hr/>
 				<Card>
 					<FormattedHeader
 						headerText={ __( 'Notice/Modal' ) }

@@ -15,8 +15,6 @@ import { __ } from '@wordpress/i18n';
 import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
 import './style.scss';
 
-//const REQUIRED_PLUGINS = [ 'woocommerce' ];
-
 class Wizard extends Component {
 	constructor( props ) {
 		super( ...arguments );
@@ -24,78 +22,32 @@ class Wizard extends Component {
 		const { requiredPlugins } = props;
 		this.state = {
 			pluginRequirementsMet: requiredPlugins ? false : true,
-			wizardScreen: false,
-			error: false,
 		}
 	}
 
 	getActiveWizardScreen() {
-		const { wizardScreen } = this.state;
-		const { children } = this.props;
+		const { children, activeScreen } = this.props;
 
-		const active = children.find( function( child ) {
+		const activeComponent = children.find( function( child ) {
 			const { identifier } = child.props;
 			if ( ! identifier ) {
 				return false;
 			}
 
-			// If no wizardScreen is active, return the first wizardScreen.
-			if ( ! wizardScreen ) {
-				return true;
-			}
-
-			return identifier === wizardScreen;
+			return identifier === activeScreen;
 		} );
 
-		return active || false;
+		return activeComponent || false;
 	}
 
-	getActiveWizardScreenIdentifier() {
-		const active = this.getActiveWizardScreen();
-		if ( ! active ) {
-			return false;
-		}
-
-		return active.props.identifier;
-	}
-
-	prepareWizardScreen( wizardScreen ) {
-		const { props } = wizardScreen;
-		if ( ! props ) {
-			return wizardScreen;
-		}
-
-		const newProps = {};
-		const { onCompleteButtonClicked, onSubCompleteButtonClicked } = props;
-		if ( 'string' === typeof onCompleteButtonClicked ) {
-			newProps.onCompleteButtonClicked = () => this.setState( { wizardScreen: onCompleteButtonClicked } );
-		}
-
-		if ( 'string' === typeof onSubCompleteButtonClicked ) {
-			newProps.onSubCompleteButtonClicked = () => this.setState( { wizardScreen: onSubCompleteButtonClicked } );
-		}
-
-		return cloneElement( wizardScreen, newProps );
-	}
-
-	componentDidMount() {
+	handlePluginRequirementsMet() {
 		this.setState( {
-			wizardStep: this.getActiveWizardScreenIdentifier(),
+			pluginRequirementsMet: true,
 		} );
-	}
 
-	/**
-	 * Get the saved data for populating the forms when wizard is first loaded.
-	 */
-	componentDidUpdate( prevProps, prevState ) {
-		const { error, pluginRequirementsMet } = this.state;
-
-		if ( error ) {
-			return;
-		}
-
-		if ( ! prevState.pluginRequirementsMet && this.state.pluginRequirementsMet ) {
-			// Get initial info.
+		const { onPluginRequirementsMet } = this.props;
+		if ( !! onPluginRequirementsMet ) {
+			onPluginRequirementsMet();
 		}
 	}
 
@@ -105,7 +57,7 @@ class Wizard extends Component {
 	 * @return null | React object
 	 */
 	getError() {
-		const { error } = this.state;
+		const { error } = this.props;
 		if ( ! error ) {
 			return null;
 		}
@@ -191,7 +143,7 @@ class Wizard extends Component {
 
 	render() {
 		const { pluginRequirementsMet, wizardStep } = this.state;
-		const { requiredPlugins } = this.props;
+		const { requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel } = this.props;
 		const error = this.getError();
 
 		if ( ! pluginRequirementsMet ) {
@@ -205,8 +157,13 @@ class Wizard extends Component {
 						/>
 						<PluginInstaller
 							plugins={ requiredPlugins }
-							onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
+							onComplete={ () => this.handlePluginRequirementsMet() }
 						/>
+						{ requiredPluginsCancelText && (
+							<Button isTertiary className='is-centered' onClick={ () => onRequiredPluginsCancel() }>
+								{ requiredPluginsCancelText }
+							</Button>
+						) }
 					</Card>
 				</Fragment>
 			);
@@ -215,7 +172,7 @@ class Wizard extends Component {
 		return (
 			<Fragment>
 				{ error }
-				{ this.prepareWizardScreen( this.getActiveWizardScreen() ) }
+				{ this.getActiveWizardScreen() }
 			</Fragment>
 		);
 	}

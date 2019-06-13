@@ -34,7 +34,7 @@ class LocationSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { location, onClickContinue, onClickSkip, countrystateFields, currencyFields } = this.props;
+		const { location, countrystateFields, currencyFields } = this.props;
 		const { countrystate, address1, address2, city, postcode, currency } = location;
 
 		return (
@@ -78,9 +78,6 @@ class LocationSetup extends Component {
 						options={ currencyFields }
 						onChange={ value => this.handleOnChange( 'currency', value ) }
 					/>
-					<Button isPrimary className='is-centered' onClick={ () => onClickContinue() }>
-						{ __( 'Continue' ) }
-					</Button>
 				</Card>
 			</div>
 		);

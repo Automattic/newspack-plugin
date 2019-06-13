@@ -43,7 +43,7 @@ class PaymentSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { stripeSettings, onClickFinish, onClickCancel, onChange } = this.props;
+		const { stripeSettings, onChange } = this.props;
 		const {
 			enabled,
 			testMode,
@@ -128,9 +128,6 @@ class PaymentSetup extends Component {
 							) }
 						</em>
 					) }
-					<Button isPrimary className='is-centered' onClick={ () => onClickFinish() }>
-						{ __( 'Finish' ) }
-					</Button>
 				</Card>
 			</div>
 		);
