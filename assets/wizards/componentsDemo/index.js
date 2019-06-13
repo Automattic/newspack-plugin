@@ -26,6 +26,8 @@ import {
 	Task,
 	SelectControl,
 	Modal,
+	Wizard,
+	WizardScreen,
 } from '../../components/src';
 import './style.scss';
 
@@ -76,12 +78,53 @@ class ComponentsDemo extends Component {
 			modalShown,
 		} = this.state;
 
+
 		return (
 			<Fragment>
 				<FormattedHeader
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
+				<Wizard>
+					<WizardScreen
+						identifier='test-wizard-1'
+						completeButtonText={ __( 'Continue to 2' ) }
+						onCompleteButtonClicked='test-wizard-2'
+						subCompleteButtonText={ __( 'Back to checklist' ) }
+						onSubCompleteButtonClicked={ () => console.log( 'Checklist' ) }
+					>
+						<FormattedHeader
+							headerText={ __( 'WizardScreen Component 1' ) }
+							subHeaderText={ __( 'This is #1 wizard screen' ) }
+						/>
+						<div>Content and whatnot can go here.</div>
+					</WizardScreen>
+					<WizardScreen
+						identifier='test-wizard-2'
+						completeButtonText={ __( 'Continue to 3' ) }
+						onCompleteButtonClicked='test-wizard-3'
+						subCompleteButtonText={ __( 'Back to 1' ) }
+						onSubCompleteButtonClicked='test-wizard-1'
+					>
+						<FormattedHeader
+							headerText={ __( 'WizardScreen Component 2' ) }
+							subHeaderText={ __( 'This is #2 wizard screen' ) }
+						/>
+						<div>Content and whatnot can go here.</div>
+					</WizardScreen>
+					<WizardScreen
+						noBackground
+						identifier='test-wizard-3'
+						completeButtonText={ __( 'Finish' ) }
+						onCompleteButtonClicked={ () => console.log( 'Checklist' ) }
+					>
+						<FormattedHeader
+							headerText={ __( 'WizardScreen Component 3' ) }
+							subHeaderText={ __( 'This is #3 wizard screen' ) }
+						/>
+						<div>Content and whatnot can go here.</div>
+					</WizardScreen>
+				</Wizard>
 				<Card>
 					<FormattedHeader
 						headerText={ __( 'Notice/Modal' ) }
