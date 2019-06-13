@@ -119,6 +119,20 @@ class Checklists {
 	}
 
 	/**
+	 * Get all the URLs for all the checklists.
+	 *
+	 * @return array of slug => URL pairs.
+	 */
+	public static function get_urls() {
+		$urls = [];
+		foreach ( self::$checklists as $slug => $checklist ) {
+			$urls[ $slug ] = self::get_url( $slug );
+		}
+
+		return $urls;
+	}
+
+	/**
 	 * Get a checklist's status. Valid stati are: 'enabled', 'disabled', 'completed'.
 	 *
 	 * @todo Make this actually check for whether a checklist is completed.

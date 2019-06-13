@@ -64,6 +64,20 @@ class Wizards {
 	}
 
 	/**
+	 * Get all the URLs for all the wizards.
+	 *
+	 * @return array of slug => URL pairs.
+	 */
+	public static function get_urls() {
+		$urls = [];
+		foreach ( self::$wizards as $slug => $wizard ) {
+			$urls[ $slug ] = $wizard->get_url();
+		}
+
+		return $urls;
+	}
+
+	/**
 	 * Get a wizard's name.
 	 *
 	 * @param string $wizard_slug The wizard to get name for. Use slug from self::$wizards.
