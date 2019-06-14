@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Subscriptions_Product, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
+use \WP_Error, \WC_Subscriptions_Product, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -173,11 +173,36 @@ class Subscriptions_Wizard extends Wizard {
 	}
 
 	/**
+	 * Check whether required lugins are installed and active.
+	 *
+	 * @return bool | WP_Error True on success, WP_Error on failure.
+	 */
+	protected function check_required_plugins_installed() {
+		if ( ! function_exists( 'WC' ) || ! class_exists( 'WC_Subscriptions_Product' ) || ! class_exists( 'WC_Name_Your_Price_Helpers' ) ) {
+			return new WP_Error(
+				'newspack_missing_required_plugin',
+				esc_html__( 'The required plugins are not installed and activated. Install and/or activate them to access this feature.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the Newspack subscriptions.
 	 *
 	 * @return WP_REST_Response containing subscriptions info.
 	 */
 	public function api_get_subscriptions() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$products = wc_get_products(
 			[
 				'limit'                           => -1,
@@ -200,6 +225,11 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return WP_REST_Response containing subscription info.
 	 */
 	public function api_get_subscription( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$params  = $request->get_params();
 		$id      = $params['id'];
 		$product = wc_get_product( $params['id'] );
@@ -223,6 +253,11 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return array of information about the product.
 	 */
 	protected function get_product_data_for_api( $product ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		return [
 			'id'            => $product->get_id(),
 			'name'          => $product->get_name(),
@@ -244,6 +279,11 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return WP_REST_Response Updated product info.
 	 */
 	public function api_save_subscription( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$params   = $request->get_params();
 		$defaults = [
 			'id'        => 0,
@@ -298,6 +338,11 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean delete success.
 	 */
 	public function api_delete_subscription( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$params  = $request->get_params();
 		$id      = $params['id'];
 		$product = wc_get_product( $params['id'] );
@@ -314,6 +359,11 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean whether it's enabled.
 	 */
 	public function api_get_choose_price() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		return rest_ensure_response( $this->get_choose_price() );
 	}
 
@@ -345,6 +395,11 @@ class Subscriptions_Wizard extends Wizard {
 	 * @return WP_REST_Response The updated setting.
 	 */
 	public function api_set_choose_price( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
 		$params   = $request->get_params();
 		$enabled  = $params['enabled'];
 		$setting  = $enabled ? 'yes' : '';

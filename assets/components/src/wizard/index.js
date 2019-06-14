@@ -116,7 +116,7 @@ class Wizard extends Component {
 				<p>
 					<strong>{ message }</strong>
 				</p>
-				<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
+				<Button isPrimary onClick={ () => ( window.location = newspack_urls[ 'dashboard' ] ) }>
 					{ __( 'Return to dashboard' ) }
 				</Button>
 			</Modal>

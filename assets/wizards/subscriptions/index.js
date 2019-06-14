@@ -14,12 +14,15 @@ import { __ } from '@wordpress/i18n';
  */
 import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import EditSubscriptionScreen from './views/editSubscriptionScreen';
-import {
-	FormattedHeader,
-	Wizard,
-	WizardScreen,
-} from '../../components/src';
+import { FormattedHeader, Wizard, WizardScreen } from '../../components/src';
 import './style.scss';
+
+const REQUIRED_PLUGINS = [
+	'woocommerce',
+	'woocommerce-subscriptions',
+	'woocommerce-name-your-price',
+	'woocommerce-one-page-checkout',
+];
 
 /**
  * Subscriptions wizard for managing and setting up subscriptions.
@@ -50,11 +53,17 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest subscriptions info.
 	 */
 	refreshSubscriptions() {
-		apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
-			this.setState( {
-				subscriptions: subscriptions,
+		apiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
+			.then( subscriptions => {
+				this.setState( {
+					subscriptions: subscriptions,
+				} );
+			} )
+			.catch( error => {
+				this.setState( {
+					error,
+				} );
 			} );
-		} );
 	}
 
 	/**
@@ -74,16 +83,22 @@ class SubscriptionsWizard extends Component {
 				price,
 				frequency,
 			},
-		} ).then( response => {
-			this.setState(
-				{
-					editing: false,
-				},
-				() => {
-					this.refreshSubscriptions();
-				}
-			);
-		} );
+		} )
+			.then( response => {
+				this.setState(
+					{
+						editing: false,
+					},
+					() => {
+						this.refreshSubscriptions();
+					}
+				);
+			} )
+			.catch( error => {
+				this.setState( {
+					error,
+				} );
+			} );
 	}
 
 	/**
@@ -96,9 +111,15 @@ class SubscriptionsWizard extends Component {
 			apiFetch( {
 				path: '/newspack/v1/wizard/subscriptions/' + id,
 				method: 'delete',
-			} ).then( response => {
-				this.refreshSubscriptions();
-			} );
+			} )
+				.then( response => {
+					this.refreshSubscriptions();
+				} )
+				.catch( error => {
+					this.setState( {
+						error,
+					} );
+				} );
 		}
 	}
 
@@ -106,11 +127,17 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest info about the choosePrice setting.
 	 */
 	refreshChoosePrice() {
-		apiFetch( { path: '/newspack/v1/wizard/subscriptions/choose-price' } ).then( choosePrice => {
-			this.setState( {
-				choosePrice: !! choosePrice,
+		apiFetch( { path: '/newspack/v1/wizard/subscriptions/choose-price' } )
+			.then( choosePrice => {
+				this.setState( {
+					choosePrice: !! choosePrice,
+				} );
+			} )
+			.catch( error => {
+				this.setState( {
+					error,
+				} );
 			} );
-		} );
 	}
 
 	/**
@@ -128,9 +155,15 @@ class SubscriptionsWizard extends Component {
 					data: {
 						enabled: this.state.choosePrice,
 					},
-				} ).then( response => {
-					this.refreshSubscriptions();
-				} );
+				} )
+					.then( response => {
+						this.refreshSubscriptions();
+					} )
+					.catch( error => {
+						this.setState( {
+							error,
+						} );
+					} );
 			}
 		);
 	}
@@ -174,41 +207,47 @@ class SubscriptionsWizard extends Component {
 			<Fragment>
 				{ heading && <FormattedHeader headerText={ heading } subHeaderText={ subHeading } /> }
 				<Wizard
-					requiredPlugins={ [ 'woocommerce' ] }
+					requiredPlugins={ REQUIRED_PLUGINS }
 					activeScreen={ currentScreen }
 					requiredPluginsCancelText={ __( 'Back to checklist' ) }
-					onRequiredPluginsCancel={ () => window.location = newspack_urls['checklists']['memberships'] }
+					onRequiredPluginsCancel={ () =>
+						( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+					}
 					onPluginRequirementsMet={ () => this.onWizardReady() }
 					error={ error }
 				>
 					<WizardScreen
-						identifier='manage-subscriptions'
+						identifier="manage-subscriptions"
 						completeButtonText={ buttonText }
-						onCompleteButtonClicked={ () => this.setState( 
-							{
+						onCompleteButtonClicked={ () =>
+							this.setState( {
 								editing: {
 									id: 0,
 									name: '',
 									image: null,
 									price: '',
 									frequency: 'month',
-								}
-							} 
-						) }
+								},
+							} )
+						}
 						subCompleteButtonText={ subButtonText }
-						onSubCompleteButtonClicked={ () => window.location = newspack_urls['checklists']['memberships'] }
+						onSubCompleteButtonClicked={ () =>
+							( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+						}
 						noBackground
 					>
 						<ManageSubscriptionsScreen
 							subscriptions={ subscriptions }
 							choosePrice={ choosePrice }
 							onClickEditSubscription={ subscription => this.setState( { editing: subscription } ) }
-							onClickDeleteSubscription={ subscription => this.deleteSubscription( subscription.id ) }
+							onClickDeleteSubscription={ subscription =>
+								this.deleteSubscription( subscription.id )
+							}
 							onClickChoosePrice={ () => this.toggleChoosePrice() }
 						/>
 					</WizardScreen>
 					<WizardScreen
-						identifier='edit-subscription'
+						identifier="edit-subscription"
 						completeButtonText={ buttonText }
 						onCompleteButtonClicked={ () => this.saveSubscription() }
 						subCompleteButtonText={ subButtonText }
