@@ -103,7 +103,6 @@ class ComponentsDemo extends Component {
 							headerText={ __( 'WizardScreen Component 1' ) }
 							subHeaderText={ __( 'This is #1 wizard screen' ) }
 						/>
-						<div>Content and whatnot can go here.</div>
 					</WizardScreen>
 					<WizardScreen
 						identifier='test-wizard-2'
@@ -116,19 +115,17 @@ class ComponentsDemo extends Component {
 							headerText={ __( 'WizardScreen Component 2' ) }
 							subHeaderText={ __( 'This is #2 wizard screen' ) }
 						/>
-						<div>Content and whatnot can go here.</div>
 					</WizardScreen>
 					<WizardScreen
 						noBackground
 						identifier='test-wizard-3'
 						completeButtonText={ __( 'Finish' ) }
-						onCompleteButtonClicked={ () => console.log( 'Checklist' ) }
+						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 3' ) }
 							subHeaderText={ __( 'This is #3 wizard screen' ) }
 						/>
-						<div>Content and whatnot can go here.</div>
 					</WizardScreen>
 				</Wizard>
 				<hr/>

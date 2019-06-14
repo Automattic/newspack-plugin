@@ -13,18 +13,29 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
-import './style.scss';
 
+/**
+ * Manages a bunch of WizardScreen components into a cohesive wizard.
+ * Handles required plugins, errors, screen switching, etc.
+ */
 class Wizard extends Component {
+	/**
+	 * Constructor.
+	 */
 	constructor( props ) {
 		super( ...arguments );
 
 		const { requiredPlugins } = props;
 		this.state = {
 			pluginRequirementsMet: requiredPlugins ? false : true,
-		}
+		};
 	}
 
+	/**
+	 * Get the screen that is currently displayed.
+	 *
+	 * @return Component|false
+	 */
 	getActiveWizardScreen() {
 		const { children, activeScreen } = this.props;
 
@@ -40,6 +51,9 @@ class Wizard extends Component {
 		return activeComponent || false;
 	}
 
+	/**
+	 * Handler that fires when the plugin requirements have been met.
+	 */
 	handlePluginRequirementsMet() {
 		this.setState( {
 			pluginRequirementsMet: true,
@@ -54,26 +68,28 @@ class Wizard extends Component {
 	/**
 	 * Render any errors that need rendering.
 	 *
-	 * @return null | React object
+	 * @return null | Component
 	 */
 	getError() {
 		const { error } = this.props;
 		if ( ! error ) {
 			return null;
 		}
-		const { level } = error;
+
+		const parsedError = this.parseError( error );
+		const { level } = parsedError;
 		if ( 'fatal' === level ) {
-			return this.getFatalError( error );
+			return this.getFatalError( parsedError );
 		}
 
-		return this.getErrorNotice( error );
+		return this.getErrorNotice( parsedError );
 	}
 
 	/**
 	 * Get a notice-level error.
 	 *
 	 * @param Error object already parsed by parseError
-	 * @return React object
+	 * @return Component
 	 */
 	getErrorNotice( error ) {
 		const { message } = error;
@@ -95,20 +111,20 @@ class Wizard extends Component {
 		return (
 			<Modal
 				title={ __( 'Unrecoverable error' ) }
-				onRequestClose={ () => console.log( 'Redirect to checklist now' ) }
+				onRequestClose={ () => ( window.location = newspack_urls[ 'dashboard' ] ) }
 			>
 				<p>
 					<strong>{ message }</strong>
 				</p>
 				<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
-					{ __( 'Return to checklist' ) }
+					{ __( 'Return to dashboard' ) }
 				</Button>
 			</Modal>
 		);
 	}
 
 	/**
-	 * Parse an error caught by an API request.
+	 * Get all the relevant info out of a raw API error response.
 	 *
 	 * @param Raw error object
 	 * @return Error object with relevant fields and defaults
@@ -129,18 +145,8 @@ class Wizard extends Component {
 	}
 
 	/**
-	 * Go to the next wizard step.
+	 * Render.
 	 */
-	nextWizardStep() {
-		const { wizardStep, error } = this.state;
-
-		if ( ! error ) {
-			this.setState( {
-				wizardStep: wizardStep + 1,
-			} );
-		}
-	}
-
 	render() {
 		const { pluginRequirementsMet, wizardStep } = this.state;
 		const { requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel } = this.props;
@@ -160,7 +166,11 @@ class Wizard extends Component {
 							onComplete={ () => this.handlePluginRequirementsMet() }
 						/>
 						{ requiredPluginsCancelText && (
-							<Button isTertiary className='is-centered' onClick={ () => onRequiredPluginsCancel() }>
+							<Button
+								isTertiary
+								className="is-centered"
+								onClick={ () => onRequiredPluginsCancel() }
+							>
 								{ requiredPluginsCancelText }
 							</Button>
 						) }

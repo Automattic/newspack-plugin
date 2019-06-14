@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, Fragment, render } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
@@ -14,6 +14,11 @@ import { __ } from '@wordpress/i18n';
  */
 import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import EditSubscriptionScreen from './views/editSubscriptionScreen';
+import {
+	FormattedHeader,
+	Wizard,
+	WizardScreen,
+} from '../../components/src';
 import './style.scss';
 
 /**
@@ -26,6 +31,7 @@ class SubscriptionsWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			error: false,
 			subscriptions: [],
 			editing: false,
 			choosePrice: false,
@@ -35,7 +41,7 @@ class SubscriptionsWizard extends Component {
 	/**
 	 * Get info when wizard is first loaded.
 	 */
-	componentDidMount() {
+	onWizardReady() {
 		this.refreshSubscriptions();
 		this.refreshChoosePrice();
 	}
@@ -54,8 +60,8 @@ class SubscriptionsWizard extends Component {
 	/**
 	 * Save the fields to a susbcription.
 	 */
-	saveSubscription( subscription ) {
-		const { id, name, image, price, frequency } = subscription;
+	saveSubscription() {
+		const { id, name, image, price, frequency } = this.state.editing;
 		const image_id = image ? image.id : 0;
 
 		apiFetch( {
@@ -133,28 +139,91 @@ class SubscriptionsWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { subscriptions, editing, choosePrice } = this.state;
+		const { subscriptions, editing, choosePrice, error } = this.state;
+		const currentScreen = !! editing ? 'edit-subscription' : 'manage-subscriptions';
+		const editingExistingSubscription = editing && editing.id;
 
-		if ( !! editing ) {
-			return (
-				<EditSubscriptionScreen
-					subscription={ editing }
-					onChange={ subscription => this.setState( { editing: subscription } ) }
-					onClickSave={ subscription => this.saveSubscription( subscription ) }
-					onClickCancel={ () => this.setState( { editing: false } ) }
-				/>
-			);
-		} else {
-			return (
-				<ManageSubscriptionsScreen
-					subscriptions={ subscriptions }
-					choosePrice={ choosePrice }
-					onClickEditSubscription={ subscription => this.setState( { editing: subscription } ) }
-					onClickDeleteSubscription={ subscription => this.deleteSubscription( subscription.id ) }
-					onClickChoosePrice={ () => this.toggleChoosePrice() }
-				/>
-			);
+		let heading = '';
+		let subHeading = '';
+		let buttonText = '';
+		let subButtonText = '';
+		switch ( currentScreen ) {
+			case 'edit-subscription':
+				heading = editingExistingSubscription
+					? __( 'Edit subscription' )
+					: __( 'Add a subscription' );
+				subHeading = editingExistingSubscription
+					? __( 'You are editing an existing subscription' )
+					: __( 'You are adding a new subscription' );
+				buttonText = __( 'Save' );
+				subButtonText = __( 'Cancel' );
+				break;
+			case 'manage-subscriptions':
+				heading = subscriptions.length
+					? __( 'Any more subscriptions to add?' )
+					: __( 'Add your first subscription' );
+				subHeading = __( 'Subscriptions can provide a stable, recurring source of revenue' );
+				buttonText = subscriptions.length
+					? __( 'Add another subscription' )
+					: __( 'Add a subscription' );
+				subButtonText = __( "I'm done adding" );
+				break;
 		}
+
+		return (
+			<Fragment>
+				{ heading && <FormattedHeader headerText={ heading } subHeaderText={ subHeading } /> }
+				<Wizard
+					requiredPlugins={ [ 'woocommerce' ] }
+					activeScreen={ currentScreen }
+					requiredPluginsCancelText={ __( 'Back to checklist' ) }
+					onRequiredPluginsCancel={ () => window.location = newspack_urls['checklists']['memberships'] }
+					onPluginRequirementsMet={ () => this.onWizardReady() }
+					error={ error }
+				>
+					<WizardScreen
+						identifier='manage-subscriptions'
+						completeButtonText={ buttonText }
+						onCompleteButtonClicked={ () => this.setState( 
+							{
+								editing: {
+									id: 0,
+									name: '',
+									image: null,
+									price: '',
+									frequency: 'month',
+								}
+							} 
+						) }
+						subCompleteButtonText={ subButtonText }
+						onSubCompleteButtonClicked={ () => window.location = newspack_urls['checklists']['memberships'] }
+						noBackground
+					>
+						<ManageSubscriptionsScreen
+							subscriptions={ subscriptions }
+							choosePrice={ choosePrice }
+							onClickEditSubscription={ subscription => this.setState( { editing: subscription } ) }
+							onClickDeleteSubscription={ subscription => this.deleteSubscription( subscription.id ) }
+							onClickChoosePrice={ () => this.toggleChoosePrice() }
+						/>
+					</WizardScreen>
+					<WizardScreen
+						identifier='edit-subscription'
+						completeButtonText={ buttonText }
+						onCompleteButtonClicked={ () => this.saveSubscription() }
+						subCompleteButtonText={ subButtonText }
+						onSubCompleteButtonClicked={ () => this.setState( { editing: false } ) }
+					>
+						<EditSubscriptionScreen
+							subscription={ editing }
+							onChange={ subscription => this.setState( { editing: subscription } ) }
+							onClickSave={ subscription => this.saveSubscription( subscription ) }
+							onClickCancel={ () => this.setState( { editing: false } ) }
+						/>
+					</WizardScreen>
+				</Wizard>
+			</Fragment>
+		);
 	}
 }
 

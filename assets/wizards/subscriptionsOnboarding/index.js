@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/paymentSetup';
-import { PluginInstaller, Card, FormattedHeader, Modal, Button, Wizard, WizardScreen } from '../../components/src';
+import { FormattedHeader, Wizard, WizardScreen } from '../../components/src';
 import './style.scss';
 
 const REQUIRED_PLUGINS = [ 'woocommerce' ];
@@ -30,7 +30,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			currentScreen: 'location-setup',
+			currentScreen: '',
 			error: false,
 
 			location: {
@@ -59,7 +59,10 @@ class SubscriptionsOnboardingWizard extends Component {
 	/**
 	 * Get the saved data for populating the forms when wizard is first loaded.
 	 */
-	loadInfo() {
+	onWizardReady() {
+		this.setState( {
+			currentScreen: 'location-setup',
+		} );
 		this.refreshFieldOptions();
 		this.refreshLocationInfo();
 		this.refreshStripeInfo();
@@ -78,7 +81,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error
+					error,
 				} );
 			} );
 	}
@@ -98,7 +101,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error
+					error,
 				} );
 			} );
 	}
@@ -115,16 +118,14 @@ class SubscriptionsOnboardingWizard extends Component {
 			},
 		} )
 			.then( response => {
-				this.setState(
-					{
-						error: false,
-						currentScreen: 'payment-setup',
-					}
-				);
+				this.setState( {
+					error: false,
+					currentScreen: 'payment-setup',
+				} );
 			} )
 			.catch( error => {
 				this.setState( {
-					error
+					error,
 				} );
 			} );
 	}
@@ -144,7 +145,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			} )
 			.catch( error => {
 				this.setState( {
-					error
+					error,
 				} );
 			} );
 	}
@@ -165,12 +166,12 @@ class SubscriptionsOnboardingWizard extends Component {
 					{
 						error: false,
 					},
-					function() { console.log( 'checklist now plz' ); }
+					() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
 				);
 			} )
 			.catch( error => {
 				this.setState( {
-					error: error
+					error: error,
 				} );
 			} );
 	}
@@ -179,44 +180,59 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { currentScreen, location, stripeSettings, fields } = this.state;
+		const { currentScreen, location, stripeSettings, fields, error } = this.state;
+
+		let heading = '';
+		let subHeading = '';
+		switch ( currentScreen ) {
+			case 'location-setup':
+				heading = __( 'About your publication' );
+				subHeading = __( 'This information is required for accepting payments' );
+				break;
+			case 'payment-setup':
+				heading = __( 'Set up Stripe' );
+				subHeading = __( 'Stripe is the recommended gateway for accepting payments' );
+				break;
+		}
 
 		return (
-			<Wizard
-				requiredPlugins={ [ 'woocommerce' ] }
-				activeScreen={ currentScreen } 
-				requiredPluginsCancelText={ __( 'Back to checklist' ) }
-				onRequiredPluginsCancel={ () => console.log( 'Checklist' ) }
-				onPluginRequirementsMet={ () => this.loadInfo() }
-			>
-				<WizardScreen
-					identifier='location-setup'
-					completeButtonText={ __( 'Continue' ) }
-					onCompleteButtonClicked={ () => this.saveLocation() }
+			<Fragment>
+				{ heading && <FormattedHeader headerText={ heading } subHeaderText={ subHeading } /> }
+				<Wizard
+					requiredPlugins={ REQUIRED_PLUGINS }
+					activeScreen={ currentScreen }
+					requiredPluginsCancelText={ __( 'Back to checklist' ) }
+					onRequiredPluginsCancel={ () =>
+						( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+					}
+					onPluginRequirementsMet={ () => this.onWizardReady() }
+					error={ error }
 				>
-					<LocationSetup
-						countrystateFields={ fields.countrystate }
-						currencyFields={ fields.currency }
-						location={ location }
-						onChange={ location => this.setState( { location } ) }
-					/>
-				</WizardScreen>
-				<WizardScreen
-					identifier='payment-setup'
-					completeButtonText={ __( 'Finish' ) }
-					onCompleteButtonClicked={ () => this.saveStripeSettings() }
-				>
-					<PaymentSetup
-						stripeSettings={ stripeSettings }
-						onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-					/>
-				</WizardScreen>
-			</Wizard>
+					<WizardScreen
+						identifier="location-setup"
+						completeButtonText={ __( 'Continue' ) }
+						onCompleteButtonClicked={ () => this.saveLocation() }
+					>
+						<LocationSetup
+							countrystateFields={ fields.countrystate }
+							currencyFields={ fields.currency }
+							location={ location }
+							onChange={ location => this.setState( { location } ) }
+						/>
+					</WizardScreen>
+					<WizardScreen
+						identifier="payment-setup"
+						completeButtonText={ __( 'Finish' ) }
+						onCompleteButtonClicked={ () => this.saveStripeSettings() }
+					>
+						<PaymentSetup
+							stripeSettings={ stripeSettings }
+							onChange={ stripeSettings => this.setState( { stripeSettings } ) }
+						/>
+					</WizardScreen>
+				</Wizard>
+			</Fragment>
 		);
-
-		// Redirect to Memberships checklist if all steps are complete.
-		window.location = newspack_urls['checklists']['memberships'];
-		return null;
 	}
 }
 render(
