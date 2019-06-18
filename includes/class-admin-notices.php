@@ -22,6 +22,51 @@ class Admin_Notices {
 	 */
 	public function __construct() {
 		add_action( 'current_screen', [ $this, 'persist_current_url' ] );
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu' ), 95 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
+	}
+
+	/**
+	 * Add Back to Newspack to the Admin Bar
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Instance of the Admin.
+	 */
+	public function add_admin_bar_menu( $wp_admin_bar ) {
+		if ( ! $this->needs_handoff_return_ui() ) {
+			return;
+		}
+		$newspack_link = get_option( NEWSPACK_LAST_URL_OPTION );
+
+		$admin_bar_menu_args = array(
+			'id'    => 'newspack',
+			'title' => $this->get_admin_bar_menu_title(),
+			'href'  => esc_url( $newspack_link ),
+		);
+		$wp_admin_bar->add_menu( $admin_bar_menu_args );
+	}
+
+	/**
+	 * Enqueue styles for admin bar.
+	 */
+	public function enqueue_styles() {
+
+		wp_register_style(
+			'newspack-admin-bar',
+			Newspack::plugin_url() . '/assets/dist/adminNotices.css',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/adminNotices.css' )
+		);
+		wp_enqueue_style( 'newspack-admin-bar' );
+
+	}
+
+	/**
+	 * Gets the menu title markup.
+	 *
+	 * @return string Admin bar title markup.
+	 */
+	protected function get_admin_bar_menu_title() {
+		return '<span class="newspack-title">' . __( 'Newspack', 'newspack' ) . '</span> <div class="newspack-logo svg"><span class="screen-reader-text">' . __( 'Newspack', 'newspack' ) . '</span></div>';
 	}
 
 	/**
@@ -35,21 +80,12 @@ class Admin_Notices {
 	}
 
 	/**
-	 * Display admin notices on non-Newspack plugin admin pages.
+	 * Should handoff return UI be shown?
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function display_admin_notices() {
-		$newspack_return_path = get_option( NEWSPACK_PLUGIN_VISIT );
-		if ( ! $newspack_return_path ) {
-			return;
-		}
-		$newspack_link = get_option( NEWSPACK_LAST_URL_OPTION );
-		?>
-		<div class="notice notice-error">
-			<p>Back to <a href='<?php echo esc_url( $newspack_link ); ?>'>Newspack</a></p>
-		</div>
-		<?php
+	public static function needs_handoff_return_ui() {
+		return get_option( NEWSPACK_PLUGIN_VISIT ) ? true : false;
 	}
 
 	/**

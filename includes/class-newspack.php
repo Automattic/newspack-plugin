@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\Admin_Notices;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -42,7 +40,6 @@ final class Newspack {
 	public function __construct() {
 		$this->define_constants();
 		$this->includes();
-		add_action( 'admin_notices', [ 'Newspack\Admin_Notices', 'display_admin_notices' ] );
 	}
 
 	/**
