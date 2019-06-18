@@ -10,6 +10,7 @@ namespace Newspack\API;
 use \WP_REST_Controller;
 use \WP_Error;
 use Newspack\Plugin_Manager;
+use Newspack\Admin_Notices;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -135,6 +136,25 @@ class Plugins_Controller extends WP_REST_Controller {
 					'methods'             => 'POST',
 					'callback'            => [ $this, 'uninstall_item' ],
 					'permission_callback' => [ $this, 'uninstall_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
+
+		// Register newspack/v1/plugins/some-plugin/edit endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/edit',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'edit_item' ],
+					'permission_callback' => [ $this, 'edit_item_permissions_check' ],
 					'args'                => [
 						'slug' => [
 							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
@@ -273,6 +293,24 @@ class Plugins_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Edit a managed plugin.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function edit_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		Admin_Notices::register_admin_notice_for_plugin( $slug );
+		return $this->get_item( $request );
+	}
+
+	/**
 	 * Check capabilities when getting plugins info.
 	 *
 	 * @param WP_REST_Request $request API request object.
@@ -370,6 +408,26 @@ class Plugins_Controller extends WP_REST_Controller {
 	 */
 	public function uninstall_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'delete_plugins' ) ) {
+			return new WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => $this->authorization_status_code(),
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check capabilities when editing a plugin.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function edit_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),
@@ -497,6 +555,18 @@ class Plugins_Controller extends WP_REST_Controller {
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 					'enum'        => [ 'active', 'inactive', 'uninstalled' ],
+					'readonly'    => true,
+				],
+				'Slug'        => [
+					'description' => __( 'The slug of the plugin.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'EditLink'    => [
+					'description' => __( 'The edit link of the plugin.', 'newspack' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,
 				],
 			],

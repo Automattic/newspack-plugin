@@ -21,6 +21,7 @@ import {
 	FormattedHeader,
 	TextControl,
 	PluginInstaller,
+	PluginLink,
 	ProgressBar,
 	Checklist,
 	Task,
@@ -82,6 +83,29 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
+				<Card>
+					<FormattedHeader
+						headerText={ __( 'Service Link' ) }
+					/>
+					<PluginLink
+						className="is-centered"
+						modalTitle="Manage AMP"
+						modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
+						plugin="amp"
+					/>
+					<PluginLink
+						className="is-centered"
+						plugin="jetpack"
+					/>
+					<PluginLink
+						className="is-centered"
+						plugin="sitekit"
+					/>
+					<PluginLink
+						className="is-centered"
+						plugin="woocommerce"
+					/>
+				</Card>
 				<Card>
 					<FormattedHeader
 						headerText={ __( 'Notice/Modal' ) }

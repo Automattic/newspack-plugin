@@ -55,16 +55,19 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'jetpack', $managed_plugins );
 
 		$expected_jetpack_info = [
-			'Name'        => 'Jetpack',
-			'Description' => 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.',
+			'Name'        => __( 'Jetpack', 'newspack' ),
+			'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
 			'Author'      => 'Automattic',
 			'PluginURI'   => 'https://jetpack.com/',
 			'AuthorURI'   => 'https://automattic.com/',
 			'Download'    => 'wporg',
+			'EditPath'    => 'admin.php?page=jetpack',
+			'EditLink'    => 'http://example.org/wp-admin/admin.php?page=jetpack',
+			'Slug'        => 'jetpack',
 			'TextDomain'  => '',
 			'DomainPath'  => '',
-			'Status'      => 'uninstalled',
 			'Version'     => '',
+			'Status'      => 'uninstalled',
 		];
 		$this->assertEquals( $expected_jetpack_info, $managed_plugins['jetpack'] );
 	}

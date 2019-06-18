@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Admin_Notices;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -40,6 +42,7 @@ final class Newspack {
 	public function __construct() {
 		$this->define_constants();
 		$this->includes();
+		add_action( 'admin_notices', [ 'Newspack\Admin_Notices', 'display_admin_notices' ] );
 	}
 
 	/**
@@ -67,6 +70,8 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/class-admin-notices.php';
 	}
 
 	/**
