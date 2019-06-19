@@ -99,7 +99,7 @@ class ComponentsDemo extends Component {
 					/>
 					<Handoff
 						className="is-centered"
-						plugin="sitekit"
+						plugin="google-site-kit-wp"
 					/>
 					<Handoff
 						className="is-centered"

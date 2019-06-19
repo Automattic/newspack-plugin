@@ -68,7 +68,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
-			'sitekit'                    => [
+			'google-site-kit-wp'         => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
 				'Author'      => 'Google',
@@ -108,10 +108,10 @@ class Plugin_Manager {
 					$status = 'inactive';
 				}
 			}
-			$managed_plugins[ $plugin_slug ]['Status']   = $status;
-			$managed_plugins[ $plugin_slug ]['Slug']     = $plugin_slug;
+			$managed_plugins[ $plugin_slug ]['Status']      = $status;
+			$managed_plugins[ $plugin_slug ]['Slug']        = $plugin_slug;
 			$managed_plugins[ $plugin_slug ]['HandoffLink'] = isset( $managed_plugins[ $plugin_slug ]['EditPath'] ) ? admin_url( $managed_plugins[ $plugin_slug ]['EditPath'] ) : null;
-			$managed_plugins[ $plugin_slug ]             = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
+			$managed_plugins[ $plugin_slug ]                = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
 		}
 		return $managed_plugins;
 	}
