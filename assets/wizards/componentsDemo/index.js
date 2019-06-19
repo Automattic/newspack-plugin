@@ -85,7 +85,7 @@ class ComponentsDemo extends Component {
 				/>
 				<Card>
 					<FormattedHeader
-						headerText={ __( 'Service Link' ) }
+						headerText={ __( 'Handoff Buttons' ) }
 					/>
 					<Handoff
 						className="is-centered"
