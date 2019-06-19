@@ -1,5 +1,5 @@
 /**
- * Muriel-styled buttons.
+ * Complete UI for Newspack handoff to an external plugin.
  */
 
 /**
@@ -21,7 +21,7 @@ import { assign } from 'lodash';
  */
 import murielClassnames from '../../../shared/js/muriel-classnames';
 
-class PluginLink extends Component {
+class Handoff extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
@@ -53,8 +53,8 @@ class PluginLink extends Component {
 	};
 
 	goToPlugin = plugin => {
-		apiFetch( { path: '/newspack/v1/plugins/' + plugin + '/edit', method: 'POST' } ).then( response => {
-			window.location.href = response.EditLink;
+		apiFetch( { path: '/newspack/v1/plugins/' + plugin + '/handoff', method: 'POST' } ).then( response => {
+			window.location.href = response.HandoffLink;
 		} );
 	}
 
@@ -106,4 +106,4 @@ class PluginLink extends Component {
 	}
 }
 
-export default PluginLink;
+export default Handoff;

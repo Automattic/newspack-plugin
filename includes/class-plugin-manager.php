@@ -110,7 +110,7 @@ class Plugin_Manager {
 			}
 			$managed_plugins[ $plugin_slug ]['Status']   = $status;
 			$managed_plugins[ $plugin_slug ]['Slug']     = $plugin_slug;
-			$managed_plugins[ $plugin_slug ]['EditLink'] = isset( $managed_plugins[ $plugin_slug ]['EditPath'] ) ? admin_url( $managed_plugins[ $plugin_slug ]['EditPath'] ) : null;
+			$managed_plugins[ $plugin_slug ]['HandoffLink'] = isset( $managed_plugins[ $plugin_slug ]['EditPath'] ) ? admin_url( $managed_plugins[ $plugin_slug ]['EditPath'] ) : null;
 			$managed_plugins[ $plugin_slug ]             = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
 		}
 		return $managed_plugins;

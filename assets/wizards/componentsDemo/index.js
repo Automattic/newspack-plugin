@@ -19,9 +19,9 @@ import {
 	Card,
 	Button,
 	FormattedHeader,
+	Handoff,
 	TextControl,
 	PluginInstaller,
-	PluginLink,
 	ProgressBar,
 	Checklist,
 	Task,
@@ -87,21 +87,21 @@ class ComponentsDemo extends Component {
 					<FormattedHeader
 						headerText={ __( 'Service Link' ) }
 					/>
-					<PluginLink
+					<Handoff
 						className="is-centered"
 						modalTitle="Manage AMP"
 						modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
 						plugin="amp"
 					/>
-					<PluginLink
+					<Handoff
 						className="is-centered"
 						plugin="jetpack"
 					/>
-					<PluginLink
+					<Handoff
 						className="is-centered"
 						plugin="sitekit"
 					/>
-					<PluginLink
+					<Handoff
 						className="is-centered"
 						plugin="woocommerce"
 					/>

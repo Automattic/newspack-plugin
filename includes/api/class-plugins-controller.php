@@ -146,15 +146,15 @@ class Plugins_Controller extends WP_REST_Controller {
 			]
 		);
 
-		// Register newspack/v1/plugins/some-plugin/edit endpoint.
+		// Register newspack/v1/plugins/some-plugin/handoff endpoint.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/edit',
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/handoff',
 			[
 				[
 					'methods'             => 'POST',
-					'callback'            => [ $this, 'edit_item' ],
-					'permission_callback' => [ $this, 'edit_item_permissions_check' ],
+					'callback'            => [ $this, 'handoff_item' ],
+					'permission_callback' => [ $this, 'handoff_item_permissions_check' ],
 					'args'                => [
 						'slug' => [
 							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
@@ -293,12 +293,12 @@ class Plugins_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Edit a managed plugin.
+	 * Handoff to a managed plugin.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function edit_item( $request ) {
+	public function handoff_item( $request ) {
 		$slug = $request['slug'];
 
 		$is_valid_plugin = $this->validate_managed_plugin( $slug );
@@ -421,12 +421,12 @@ class Plugins_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check capabilities when editing a plugin.
+	 * Check capabilities when getting handoff data for a plugin.
 	 *
 	 * @param WP_REST_Request $request API request object.
 	 * @return bool|WP_Error
 	 */
-	public function edit_item_permissions_check( $request ) {
+	public function handoff_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new WP_Error(
 				'newspack_rest_forbidden',
@@ -563,7 +563,7 @@ class Plugins_Controller extends WP_REST_Controller {
 					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,
 				],
-				'EditLink'    => [
+				'HandoffLink' => [
 					'description' => __( 'The edit link of the plugin.', 'newspack' ),
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
