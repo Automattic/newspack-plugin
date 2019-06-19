@@ -54,7 +54,7 @@ class Admin_Notices {
 			'newspack-admin-bar',
 			Newspack::plugin_url() . '/assets/dist/adminNotices.css',
 			[],
-			filemtime( dirname( NEWSPACK_HANDOFF ) . '/assets/dist/adminNotices.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/adminNotices.css' )
 		);
 		wp_enqueue_style( 'newspack-admin-bar' );
 
