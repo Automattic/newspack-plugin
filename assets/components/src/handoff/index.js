@@ -66,10 +66,10 @@ class Handoff extends Component {
 		const classes = murielClassnames( 'muriel-button', className );
 		const { pluginInfo, showModal } = this.state;
 		const { modalBody, modalTitle, primaryButton, primaryModalButton, dismissModalButton } = this.textForPlugin( pluginInfo );
-		const { Name, Slug } = pluginInfo;
+		const { Name, Slug, Status } = pluginInfo;
 		return (
 			<Fragment>
-				{ Name && (
+				{ Name && 'active' === Status && (
 					<Button
 						className={ classes }
 						isDefault
@@ -77,6 +77,16 @@ class Handoff extends Component {
 						onClick={ () => this.setState( { showModal: true } ) }
 					>
 						{ primaryButton }
+					</Button>
+				) }
+				{ Name && 'active' !== Status && (
+					<Button
+						className={ classes }
+						isDefault
+						disabled
+						{ ...otherProps }
+					>
+						{ Name + __( ' not installed' ) }
 					</Button>
 				) }
 				{ ! Name && (
