@@ -22,8 +22,8 @@ class Handoff_Banner {
 	 */
 	public function __construct() {
 		add_action( 'current_screen', [ $this, 'persist_current_url' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
-		add_action( 'admin_notices', [ $this, 'insert_handoff_banner' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ], 1 );
+		add_action( 'admin_notices', [ $this, 'insert_handoff_banner' ], 1 );
 	}
 
 	/**
