@@ -5,17 +5,19 @@
 	background-repeat: no-repeat;
 	background-size: 32px 32px;
 	box-shadow: 0 2px 2px #cccccc;
-	left: 0;
 	margin: 0 0 0 -20px;
 	min-height: 52px;
 	padding: 0;
 	position: relative;
 	width: calc( 100% + 20px );
+	.jetpack-pagestyles & {
+		margin-left: 0;
+		width: 100%;
+	}
 }
 .newspack-handoff-banner {
 	display: flex;
 	padding: 0;
-	top: 0;
 	p {
 		align-self: center;
 		flex-grow: 1;
@@ -26,9 +28,5 @@
 		&.is-primary {
 			margin-right: 20px;
 		}
-	}
-	.jetpack-pagestyles & {
-		margin-left: 0;
-		width: 100%;
 	}
 }
