@@ -5,6 +5,7 @@
 	background-repeat: no-repeat;
 	background-size: 32px 32px;
 	box-shadow: 0 2px 2px #cccccc;
+	display: flex;
 	margin: 0 0 0 -20px;
 	min-height: 52px;
 	padding: 0;
@@ -18,6 +19,7 @@
 .newspack-handoff-banner {
 	display: flex;
 	padding: 0;
+	width: 100%;
 	p {
 		align-self: center;
 		flex-grow: 1;
