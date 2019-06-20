@@ -79,7 +79,7 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 			'TextDomain'  => '',
 			'DomainPath'  => '',
 			'EditPath'    => 'admin.php?page=jetpack',
-			'EditLink'    => 'http://example.org/wp-admin/admin.php?page=jetpack',
+			'HandoffLink' => 'http://example.org/wp-admin/admin.php?page=jetpack',
 			'Slug'        => 'jetpack',
 			'Status'      => 'uninstalled',
 			'Version'     => '',

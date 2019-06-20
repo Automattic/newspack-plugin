@@ -68,7 +68,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
 
-		include_once NEWSPACK_ABSPATH . 'includes/class-admin-notices.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
 	}
 
 	/**

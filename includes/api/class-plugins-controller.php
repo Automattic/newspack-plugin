@@ -10,7 +10,7 @@ namespace Newspack\API;
 use \WP_REST_Controller;
 use \WP_Error;
 use Newspack\Plugin_Manager;
-use Newspack\Admin_Notices;
+use Newspack\Handoff_Banner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -306,7 +306,7 @@ class Plugins_Controller extends WP_REST_Controller {
 			return $is_valid_plugin;
 		}
 
-		Admin_Notices::register_admin_notice_for_plugin( $slug );
+		Handoff_Banner::register_handoff_for_plugin( $slug );
 		return $this->get_item( $request );
 	}
 

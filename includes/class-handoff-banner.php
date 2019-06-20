@@ -15,58 +15,55 @@ define( 'NEWSPACK_HANDOFF_RETURN_URL', 'newspack_handoff_return_url' );
 /**
  * Manages the API as a whole.
  */
-class Admin_Notices {
+class Handoff_Banner {
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
 		add_action( 'current_screen', [ $this, 'persist_current_url' ] );
-		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu' ), 95 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
+		add_action( 'admin_notices', [ $this, 'insert_handoff_banner' ] );
 	}
 
 	/**
-	 * Add Back to Newspack to the Admin Bar
+	 * Render element into which Handoff Banner will be rendered.
 	 *
-	 * @param WP_Admin_Bar $wp_admin_bar Instance of the Admin.
+	 * @return void.
 	 */
-	public function add_admin_bar_menu( $wp_admin_bar ) {
+	public function insert_handoff_banner() {
 		if ( ! $this->needs_handoff_return_ui() ) {
 			return;
 		}
-		$newspack_link = get_option( NEWSPACK_HANDOFF_RETURN_URL );
-
-		$admin_bar_menu_args = array(
-			'id'    => 'newspack',
-			'title' => $this->get_admin_bar_menu_title(),
-			'href'  => esc_url( $newspack_link ),
-		);
-		$wp_admin_bar->add_menu( $admin_bar_menu_args );
+		$newspack_handoff_return_url = get_option( NEWSPACK_HANDOFF_RETURN_URL );
+		echo sprintf( "<div id='newspack-handoff-banner' data-primary_button_url='%s'></div>", esc_attr( $newspack_handoff_return_url ) );
 	}
 
 	/**
-	 * Enqueue styles for admin bar.
+	 * Enqueue script and styles for Handoff Banner.
 	 */
 	public function enqueue_styles() {
-
+		if ( ! $this->needs_handoff_return_ui() ) {
+			return;
+		}
+		$handle = 'newspack-handoff-banner';
 		wp_register_style(
-			'newspack-admin-bar',
-			Newspack::plugin_url() . '/assets/dist/adminNotices.css',
+			$handle,
+			Newspack::plugin_url() . '/assets/dist/handoff-banner.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/adminNotices.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/handoff-banner.css' )
 		);
-		wp_enqueue_style( 'newspack-admin-bar' );
+		wp_enqueue_style( $handle );
 
-	}
+		wp_register_script(
+			$handle,
+			Newspack::plugin_url() . '/assets/dist/handoff-banner.js',
+			[ 'wp-element', 'wp-editor', 'wp-components' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/handoff-banner.js' ),
+			true
+		);
+		wp_enqueue_script( $handle );
 
-	/**
-	 * Gets the menu title markup.
-	 *
-	 * @return string Admin bar title markup.
-	 */
-	protected function get_admin_bar_menu_title() {
-		return '<span class="newspack-title">' . __( 'Newspack', 'newspack' ) . '</span> <div class="newspack-logo svg"><span class="screen-reader-text">' . __( 'Newspack', 'newspack' ) . '</span></div>';
 	}
 
 	/**
@@ -75,7 +72,7 @@ class Admin_Notices {
 	 * @param  array $plugin Slug of plugin to be visited.
 	 * @return void
 	 */
-	public static function register_admin_notice_for_plugin( $plugin ) {
+	public static function register_handoff_for_plugin( $plugin ) {
 		update_option( NEWSPACK_HANDOFF, $plugin );
 	}
 
@@ -101,4 +98,4 @@ class Admin_Notices {
 		}
 	}
 }
-new Admin_Notices();
+new Handoff_Banner();

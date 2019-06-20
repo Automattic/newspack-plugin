@@ -62,7 +62,7 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 			'AuthorURI'   => 'https://automattic.com/',
 			'Download'    => 'wporg',
 			'EditPath'    => 'admin.php?page=jetpack',
-			'EditLink'    => 'http://example.org/wp-admin/admin.php?page=jetpack',
+			'HandoffLink' => 'http://example.org/wp-admin/admin.php?page=jetpack',
 			'Slug'        => 'jetpack',
 			'TextDomain'  => '',
 			'DomainPath'  => '',

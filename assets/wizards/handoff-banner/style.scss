@@ -1,0 +1,31 @@
+.newspack-handoff-banner {
+	background-color: white;
+	background-image: url( './newspack-mark.svg' );
+	background-position: 20px center;
+	background-repeat: no-repeat;
+	background-size: 32px 32px;
+	box-shadow: 0 2px 2px #cccccc;
+	display: flex;
+	left: 0;
+	margin: 0 0 0 -20px;
+	padding: 0;
+	position: absolute;
+	top: 0;
+	width: calc( 100% + 20px );
+	z-index: 2000;
+	p {
+		align-self: center;
+		flex-grow: 1;
+		margin: 0 20px 0 72px;
+	}
+	.components-button {
+		margin: 10px 5px;
+		&.is-primary {
+			margin-right: 20px;
+		}
+	}
+	.jetpack-pagestyles & {
+		margin-left: 0;
+		width: 100%;
+	}
+}
