@@ -92,8 +92,6 @@ class ComponentsDemo extends Component {
 					<WizardScreen
 						path='/test-wizard-1'
 						completeButtonText={ __( 'Continue to 2' ) }
-						subCompleteButtonText={ __( 'Back to checklist' ) }
-						onSubCompleteButtonClicked={ () => console.log( 'Checklist' ) }
 						next='test-wizard-2'
 					>
 						<FormattedHeader
@@ -105,7 +103,7 @@ class ComponentsDemo extends Component {
 						path='/test-wizard-2'
 						completeButtonText={ __( 'Continue to 3' ) }
 						subCompleteButtonText={ __( 'Back to 1' ) }
-						onSubCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
+						onSubCompleteButtonClicked={ history => history.push( '/test-wizard-1' ) }
 						next='test-wizard-3'
 					>
 						<FormattedHeader
