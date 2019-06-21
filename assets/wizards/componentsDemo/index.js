@@ -95,9 +95,9 @@ class ComponentsDemo extends Component {
 					<WizardScreen
 						identifier='/test-wizard-1'
 						completeButtonText={ __( 'Continue to 2' ) }
-						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-2' } ) }
 						subCompleteButtonText={ __( 'Back to checklist' ) }
 						onSubCompleteButtonClicked={ () => console.log( 'Checklist' ) }
+						next='test-wizard-2'
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 1' ) }
@@ -107,9 +107,9 @@ class ComponentsDemo extends Component {
 					<WizardScreen
 						identifier='/test-wizard-2'
 						completeButtonText={ __( 'Continue to 3' ) }
-						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-3' } ) }
 						subCompleteButtonText={ __( 'Back to 1' ) }
 						onSubCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
+						next='test-wizard-3'
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 2' ) }
@@ -120,7 +120,7 @@ class ComponentsDemo extends Component {
 						noBackground
 						identifier='/test-wizard-3'
 						completeButtonText={ __( 'Finish' ) }
-						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
+						next='/'
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 3' ) }

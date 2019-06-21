@@ -31,7 +31,6 @@ class WizardScreen extends Component {
 		const {
 			identifier,
 			completeButtonText,
-			onCompleteButtonClicked,
 			subCompleteButtonText,
 			onSubCompleteButtonClicked,
 			children,
@@ -42,7 +41,7 @@ class WizardScreen extends Component {
 		const classes = murielClassnames( 'muriel-wizardScreen', className, identifier, noBackground ? 'muriel-wizardScreen__no-background' : '' );
 
 		return (
-			<Route path={ identifier } exact render={ routeProps => (
+			<Route path={ identifier } render={ routeProps => (
 				<Fragment>
 					<Card className={ classes } noBackground={ noBackground }>
 						<div className="muriel-wizardScreen__content">{ children }</div>
@@ -50,7 +49,7 @@ class WizardScreen extends Component {
 							<Button
 								isPrimary
 								className="is-centered muriel-wizardScreen__completeButton"
-								onClick={ () => onCompleteButtonClicked( identifier ) }
+								href={ `#${next}` }
 							>
 								{ completeButtonText }
 							</Button>
