@@ -93,7 +93,7 @@ class ComponentsDemo extends Component {
 					onRequiredPluginsCancel={ () => console.log( 'Checklist' ) }
 				>
 					<WizardScreen
-						identifier='/test-wizard-1'
+						path='/test-wizard-1'
 						completeButtonText={ __( 'Continue to 2' ) }
 						subCompleteButtonText={ __( 'Back to checklist' ) }
 						onSubCompleteButtonClicked={ () => console.log( 'Checklist' ) }
@@ -105,7 +105,7 @@ class ComponentsDemo extends Component {
 						/>
 					</WizardScreen>
 					<WizardScreen
-						identifier='/test-wizard-2'
+						path='/test-wizard-2'
 						completeButtonText={ __( 'Continue to 3' ) }
 						subCompleteButtonText={ __( 'Back to 1' ) }
 						onSubCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
@@ -118,7 +118,7 @@ class ComponentsDemo extends Component {
 					</WizardScreen>
 					<WizardScreen
 						noBackground
-						identifier='/test-wizard-3'
+						path='/test-wizard-3'
 						completeButtonText={ __( 'Finish' ) }
 						next='/'
 					>
