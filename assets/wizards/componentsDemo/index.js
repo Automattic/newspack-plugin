@@ -49,7 +49,7 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			modalShown: false,
-			activeWizardScreen: 'test-wizard-1',
+			activeWizardScreen: '/test-wizard-1',
 		};
 	}
 
@@ -86,14 +86,14 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
-				<Wizard 
-					activeScreen={ activeWizardScreen } 
+				<Wizard
+					activeScreen={ activeWizardScreen }
 					requiredPlugins={ [ 'jetpack' ] }
 					requiredPluginsCancelText={ __( 'Back to checklist' ) }
 					onRequiredPluginsCancel={ () => console.log( 'Checklist' ) }
 				>
 					<WizardScreen
-						identifier='test-wizard-1'
+						identifier='/test-wizard-1'
 						completeButtonText={ __( 'Continue to 2' ) }
 						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-2' } ) }
 						subCompleteButtonText={ __( 'Back to checklist' ) }
@@ -105,7 +105,7 @@ class ComponentsDemo extends Component {
 						/>
 					</WizardScreen>
 					<WizardScreen
-						identifier='test-wizard-2'
+						identifier='/test-wizard-2'
 						completeButtonText={ __( 'Continue to 3' ) }
 						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-3' } ) }
 						subCompleteButtonText={ __( 'Back to 1' ) }
@@ -118,7 +118,7 @@ class ComponentsDemo extends Component {
 					</WizardScreen>
 					<WizardScreen
 						noBackground
-						identifier='test-wizard-3'
+						identifier='/test-wizard-3'
 						completeButtonText={ __( 'Finish' ) }
 						onCompleteButtonClicked={ () => this.setState( { activeWizardScreen: 'test-wizard-1' } ) }
 					>

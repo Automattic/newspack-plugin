@@ -18,7 +18,7 @@ import './style.scss';
 /**
  * Internal dependencies.
  */
-import { Route } from 'react-router-dom';
+import { Route, Link } from 'react-router-dom';
 
 /**
  * One Wizard screen.
@@ -37,11 +37,12 @@ class WizardScreen extends Component {
 			children,
 			className,
 			noBackground,
+			next,
 		} = this.props;
 		const classes = murielClassnames( 'muriel-wizardScreen', className, identifier, noBackground ? 'muriel-wizardScreen__no-background' : '' );
 
 		return (
-			<Route render={ routeProps => (
+			<Route path={ identifier } exact render={ routeProps => (
 				<Fragment>
 					<Card className={ classes } noBackground={ noBackground }>
 						<div className="muriel-wizardScreen__content">{ children }</div>

@@ -17,7 +17,7 @@ import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
 /**
  * External dependencies.
  */
-import { HashRouter } from 'react-router-dom';
+import { HashRouter, Redirect } from 'react-router-dom';
 
 /**
  * Manages a bunch of WizardScreen components into a cohesive wizard.
@@ -34,26 +34,6 @@ class Wizard extends Component {
 		this.state = {
 			pluginRequirementsMet: requiredPlugins ? false : true,
 		};
-	}
-
-	/**
-	 * Get the screen that is currently displayed.
-	 *
-	 * @return Component|false
-	 */
-	getActiveWizardScreen() {
-		const { children, activeScreen } = this.props;
-
-		const activeComponent = children.find( function( child ) {
-			const { identifier } = child.props;
-			if ( ! identifier ) {
-				return false;
-			}
-
-			return identifier === activeScreen;
-		} );
-
-		return activeComponent || false;
 	}
 
 	/**
@@ -154,12 +134,12 @@ class Wizard extends Component {
 	 */
 	render() {
 		const { pluginRequirementsMet, wizardStep } = this.state;
-		const { requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel } = this.props;
+		const { children, requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel, activeScreen } = this.props;
 		const error = this.getError();
 
 		if ( ! pluginRequirementsMet ) {
 			return (
-				<HashRouter>
+				<HashRouter hashType="noslash">
 					{ error }
 					<Card noBackground>
 						<FormattedHeader
@@ -187,7 +167,8 @@ class Wizard extends Component {
 		return (
 			<HashRouter>
 				{ error }
-				{ this.getActiveWizardScreen() }
+				{ children }
+				<Redirect to={ activeScreen } />
 			</HashRouter>
 		);
 	}
