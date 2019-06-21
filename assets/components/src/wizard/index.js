@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment, cloneElement } from '@wordpress/element';
+import { Children, Component, Fragment, cloneElement } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
@@ -17,7 +17,7 @@ import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
 /**
  * External dependencies.
  */
-import { HashRouter, Redirect } from 'react-router-dom';
+import { HashRouter, Redirect, Switch } from 'react-router-dom';
 
 /**
  * Manages a bunch of WizardScreen components into a cohesive wizard.
@@ -130,6 +130,17 @@ class Wizard extends Component {
 	}
 
 	/**
+	 * Derive the path of the first screen.
+	 */
+	startPath() {
+		const { children } = this.props;
+		if ( Children.count( children ) > 0 && Children.toArray( children )[0].props.path ) {
+			return Children.toArray( children )[0].props.path;
+		}
+		return '/';
+	}
+
+	/**
 	 * Render.
 	 */
 	render() {
@@ -167,7 +178,10 @@ class Wizard extends Component {
 		return (
 			<HashRouter>
 				{ error }
-				{ children }
+				<Switch>
+					{ children }
+					<Redirect to={ this.startPath() } />
+				</Switch>
 			</HashRouter>
 		);
 	}
