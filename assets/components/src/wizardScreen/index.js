@@ -38,7 +38,7 @@ class WizardScreen extends Component {
 			noBackground,
 			next,
 		} = this.props;
-		const classes = murielClassnames( 'muriel-wizardScreen', className, path, noBackground ? 'muriel-wizardScreen__no-background' : '' );
+		const classes = murielClassnames( 'muriel-wizardScreen', className, noBackground ? 'muriel-wizardScreen__no-background' : '' );
 
 		return (
 			<Route path={ path } render={ routeProps => (
