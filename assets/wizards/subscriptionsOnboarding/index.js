@@ -30,7 +30,6 @@ class SubscriptionsOnboardingWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			currentScreen: '',
 			error: false,
 
 			location: {
@@ -60,9 +59,6 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the saved data for populating the forms when wizard is first loaded.
 	 */
 	onWizardReady() {
-		this.setState( {
-			currentScreen: 'location-setup',
-		} );
 		this.refreshFieldOptions();
 		this.refreshLocationInfo();
 		this.refreshStripeInfo();
@@ -109,7 +105,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	/**
 	 * Save the current location info.
 	 */
-	saveLocation() {
+	saveLocation( history ) {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
 			method: 'post',
@@ -120,8 +116,7 @@ class SubscriptionsOnboardingWizard extends Component {
 			.then( response => {
 				this.setState( {
 					error: false,
-					currentScreen: 'payment-setup',
-				} );
+				}, () => { history.push( '/payment-setup' ) } );
 			} )
 			.catch( error => {
 				this.setState( {
@@ -166,7 +161,9 @@ class SubscriptionsOnboardingWizard extends Component {
 					{
 						error: false,
 					},
-					() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+					() => {
+						window.location = newspack_urls[ 'checklists' ][ 'memberships' ]
+					}
 				);
 			} )
 			.catch( error => {
@@ -180,27 +177,11 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { currentScreen, location, stripeSettings, fields, error } = this.state;
-
-		let heading = '';
-		let subHeading = '';
-		switch ( currentScreen ) {
-			case 'location-setup':
-				heading = __( 'About your publication' );
-				subHeading = __( 'This information is required for accepting payments' );
-				break;
-			case 'payment-setup':
-				heading = __( 'Set up Stripe' );
-				subHeading = __( 'Stripe is the recommended gateway for accepting payments' );
-				break;
-		}
-
+		const { location, stripeSettings, fields, error } = this.state;
 		return (
 			<Fragment>
-				{ heading && <FormattedHeader headerText={ heading } subHeaderText={ subHeading } /> }
 				<Wizard
 					requiredPlugins={ REQUIRED_PLUGINS }
-					activeScreen={ currentScreen }
 					requiredPluginsCancelText={ __( 'Back to checklist' ) }
 					onRequiredPluginsCancel={ () =>
 						( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
@@ -211,8 +192,9 @@ class SubscriptionsOnboardingWizard extends Component {
 					<WizardScreen
 						path="/location-setup"
 						completeButtonText={ __( 'Continue' ) }
-						onCompleteButtonClicked={ () => this.saveLocation() }
+						onCompleteButtonClicked={ history => this.saveLocation( history ) }
 					>
+						<FormattedHeader headerText={ __( 'About your publication' ) } subHeaderText={ __( 'This information is required for accepting payments' ) } />
 						<LocationSetup
 							countrystateFields={ fields.countrystate }
 							currencyFields={ fields.currency }
@@ -225,6 +207,7 @@ class SubscriptionsOnboardingWizard extends Component {
 						completeButtonText={ __( 'Finish' ) }
 						onCompleteButtonClicked={ () => this.saveStripeSettings() }
 					>
+						<FormattedHeader headerText={ __( 'Set up Stripe' ) } subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) } />
 						<PaymentSetup
 							stripeSettings={ stripeSettings }
 							onChange={ stripeSettings => this.setState( { stripeSettings } ) }

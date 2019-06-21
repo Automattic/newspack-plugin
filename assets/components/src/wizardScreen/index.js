@@ -52,7 +52,7 @@ class WizardScreen extends Component {
 								isPrimary
 								className="is-centered muriel-wizardScreen__completeButton"
 								onClick={ () => onCompleteButtonClicked( history ) }
-								href={ `#${next}` }
+								href={ next && `#${next}` }
 							>
 								{ completeButtonText }
 							</Button>
