@@ -32,6 +32,7 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://jetpack.com/',
 				'AuthorURI'   => 'https://automattic.com/',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=jetpack',
 			],
 			'amp'                        => [
 				'Name'        => __( 'AMP', 'newspack' ),
@@ -40,6 +41,7 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://amp-wp.org/',
 				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=amp-options',
 			],
 			'woocommerce-gateway-stripe' => [
 				'Name'        => __( 'WooCommerce Stripe Gateway', 'newspack' ),
@@ -47,6 +49,7 @@ class Plugin_Manager {
 				'Author'      => 'WooCommerce',
 				'PluginURI'   => 'https://woocommerce.com/',
 				'AuthorURI'   => 'https://woocommerce.com/',
+				'EditPath'    => 'admin.php?page=wc-settings&tab=checkout&section=stripe',
 			],
 			'woocommerce'                => [
 				'Name'        => __( 'WooCommerce', 'newspack' ),
@@ -55,6 +58,7 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://woocommerce.com/',
 				'AuthorURI'   => 'https://woocommerce.com',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=wc-settings',
 			],
 			'wordpress-seo'              => [
 				'Name'        => 'Yoast SEO',
@@ -62,6 +66,15 @@ class Plugin_Manager {
 				'Author'      => 'Team Yoast',
 				'AuthorURI'   => 'https://yoa.st/1uk',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=wpseo_dashboard',
+			],
+			'google-site-kit-wp'         => [
+				'Name'        => 'Google Site Kit',
+				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
+				'Author'      => 'Google',
+				'AuthorURI'   => 'https://opensource.google.com',
+				'Download'    => 'preinstall',
+				'EditPath'    => 'admin.php?page=googlesitekit-dashboard',
 			],
 			'fake-plugin'                => [
 				'Name'        => 'Fake Plugin',
@@ -95,8 +108,10 @@ class Plugin_Manager {
 					$status = 'inactive';
 				}
 			}
-			$managed_plugins[ $plugin_slug ]['Status'] = $status;
-			$managed_plugins[ $plugin_slug ]           = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
+			$managed_plugins[ $plugin_slug ]['Status']      = $status;
+			$managed_plugins[ $plugin_slug ]['Slug']        = $plugin_slug;
+			$managed_plugins[ $plugin_slug ]['HandoffLink'] = isset( $managed_plugins[ $plugin_slug ]['EditPath'] ) ? admin_url( $managed_plugins[ $plugin_slug ]['EditPath'] ) : null;
+			$managed_plugins[ $plugin_slug ]                = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
 		}
 		return $managed_plugins;
 	}

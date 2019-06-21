@@ -19,6 +19,7 @@ import {
 	Card,
 	Button,
 	FormattedHeader,
+	Handoff,
 	TextControl,
 	PluginInstaller,
 	ProgressBar,
@@ -82,6 +83,29 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
+				<Card>
+					<FormattedHeader
+						headerText={ __( 'Handoff Buttons' ) }
+					/>
+					<Handoff
+						className="is-centered"
+						modalTitle="Manage AMP"
+						modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
+						plugin="amp"
+					/>
+					<Handoff
+						className="is-centered"
+						plugin="jetpack"
+					/>
+					<Handoff
+						className="is-centered"
+						plugin="google-site-kit-wp"
+					/>
+					<Handoff
+						className="is-centered"
+						plugin="woocommerce"
+					/>
+				</Card>
 				<Card>
 					<FormattedHeader
 						headerText={ __( 'Notice/Modal' ) }

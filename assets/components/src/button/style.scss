@@ -19,6 +19,7 @@
 		height: auto;
 		padding: 7px 25px;
 		margin: 14px 7px;
+		text-decoration: none;
 
 		&:active:enabled {
 			border-width: 2px 1px 1px;
@@ -46,8 +47,13 @@
 	}
 
 	&.is-link {
+		background: none;
+		border: none;
 		color: $muriel-gray-300;
 		text-decoration: underline;
+		&:hover {
+			text-decoration: none;
+		}
 	}
 
 	&.is-centered {

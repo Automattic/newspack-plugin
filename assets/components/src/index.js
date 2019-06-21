@@ -4,6 +4,7 @@ export { default as Card } from './card';
 export { default as CheckboxControl } from './checkbox-control';
 export { default as Checklist } from './checklist';
 export { default as FormattedHeader } from './formatted-header';
+export { default as Handoff } from './handoff';
 export { default as InfoButton } from './info-button';
 export { default as ImageUpload } from './image-upload';
 export { default as Modal } from './modal';
