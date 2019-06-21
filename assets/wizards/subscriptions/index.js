@@ -217,7 +217,7 @@ class SubscriptionsWizard extends Component {
 					error={ error }
 				>
 					<WizardScreen
-						identifier="manage-subscriptions"
+						path="/manage-subscriptions"
 						completeButtonText={ buttonText }
 						onCompleteButtonClicked={ () =>
 							this.setState( {
@@ -247,7 +247,7 @@ class SubscriptionsWizard extends Component {
 						/>
 					</WizardScreen>
 					<WizardScreen
-						identifier="edit-subscription"
+						path="/edit-subscription"
 						completeButtonText={ buttonText }
 						onCompleteButtonClicked={ () => this.saveSubscription() }
 						subCompleteButtonText={ subButtonText }

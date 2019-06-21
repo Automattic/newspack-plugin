@@ -12,12 +12,14 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
+import { PluginInstaller, Card, FormattedHeader, Modal, Button, WizardScreen } from '../';
 
 /**
  * External dependencies.
  */
 import { HashRouter, Redirect, Switch } from 'react-router-dom';
+
+const INSTALL_PLUGINS_PATH = '/install-plugins';
 
 /**
  * Manages a bunch of WizardScreen components into a cohesive wizard.
@@ -147,38 +149,34 @@ class Wizard extends Component {
 		const { pluginRequirementsMet, wizardStep } = this.state;
 		const { children, requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel } = this.props;
 		const error = this.getError();
-
-		if ( ! pluginRequirementsMet ) {
-			return (
-				<HashRouter hashType="noslash">
-					{ error }
-					<Card noBackground>
-						<FormattedHeader
-							headerText={ __( 'Required plugin' ) }
-							subHeaderText={ __( 'This feature requires the following plugin.' ) }
-						/>
-						<PluginInstaller
-							plugins={ requiredPlugins }
-							onComplete={ () => this.handlePluginRequirementsMet() }
-						/>
-						{ requiredPluginsCancelText && (
-							<Button
-								isTertiary
-								className="is-centered"
-								onClick={ () => onRequiredPluginsCancel() }
-							>
-								{ requiredPluginsCancelText }
-							</Button>
-						) }
-					</Card>
-				</HashRouter>
-			);
-		}
+		const pluginScreen = ! pluginRequirementsMet && (
+			<WizardScreen path={ INSTALL_PLUGINS_PATH } noBackground>
+				<FormattedHeader
+					headerText={ __( 'Required plugin' ) }
+					subHeaderText={ __( 'This feature requires the following plugin.' ) }
+				/>
+				<PluginInstaller
+					plugins={ requiredPlugins }
+					onComplete={ () => this.handlePluginRequirementsMet() }
+				/>
+				{ requiredPluginsCancelText && (
+					<Button
+						isTertiary
+						className="is-centered"
+						onClick={ () => onRequiredPluginsCancel() }
+					>
+						{ requiredPluginsCancelText }
+					</Button>
+				) }
+			</WizardScreen>
+		);
 
 		return (
 			<HashRouter>
 				{ error }
 				<Switch>
+					{ pluginScreen }
+					{ ! pluginRequirementsMet && <Redirect to={ INSTALL_PLUGINS_PATH } /> }
 					{ children }
 					<Redirect to={ this.startPath() } />
 				</Switch>

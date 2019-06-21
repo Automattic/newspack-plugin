@@ -209,7 +209,7 @@ class SubscriptionsOnboardingWizard extends Component {
 					error={ error }
 				>
 					<WizardScreen
-						identifier="location-setup"
+						path="/location-setup"
 						completeButtonText={ __( 'Continue' ) }
 						onCompleteButtonClicked={ () => this.saveLocation() }
 					>
@@ -221,7 +221,7 @@ class SubscriptionsOnboardingWizard extends Component {
 						/>
 					</WizardScreen>
 					<WizardScreen
-						identifier="payment-setup"
+						path="/payment-setup"
 						completeButtonText={ __( 'Finish' ) }
 						onCompleteButtonClicked={ () => this.saveStripeSettings() }
 					>
