@@ -15,6 +15,11 @@ import { __ } from '@wordpress/i18n';
 import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../';
 
 /**
+ * External dependencies.
+ */
+import { HashRouter } from 'react-router-dom';
+
+/**
  * Manages a bunch of WizardScreen components into a cohesive wizard.
  * Handles required plugins, errors, screen switching, etc.
  */
@@ -154,7 +159,7 @@ class Wizard extends Component {
 
 		if ( ! pluginRequirementsMet ) {
 			return (
-				<Fragment>
+				<HashRouter>
 					{ error }
 					<Card noBackground>
 						<FormattedHeader
@@ -175,15 +180,15 @@ class Wizard extends Component {
 							</Button>
 						) }
 					</Card>
-				</Fragment>
+				</HashRouter>
 			);
 		}
 
 		return (
-			<Fragment>
+			<HashRouter>
 				{ error }
 				{ this.getActiveWizardScreen() }
-			</Fragment>
+			</HashRouter>
 		);
 	}
 }
