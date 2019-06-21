@@ -134,7 +134,7 @@ class Wizard extends Component {
 	 */
 	render() {
 		const { pluginRequirementsMet, wizardStep } = this.state;
-		const { children, requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel, activeScreen } = this.props;
+		const { children, requiredPlugins, requiredPluginsCancelText, onRequiredPluginsCancel } = this.props;
 		const error = this.getError();
 
 		if ( ! pluginRequirementsMet ) {
@@ -168,7 +168,6 @@ class Wizard extends Component {
 			<HashRouter>
 				{ error }
 				{ children }
-				<Redirect to={ activeScreen } />
 			</HashRouter>
 		);
 	}

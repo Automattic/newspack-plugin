@@ -49,7 +49,6 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			modalShown: false,
-			activeWizardScreen: '/test-wizard-1',
 		};
 	}
 
@@ -77,7 +76,6 @@ class ComponentsDemo extends Component {
 			selectValue1,
 			selectValue2,
 			modalShown,
-			activeWizardScreen,
 		} = this.state;
 
 		return (
@@ -87,7 +85,6 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Wizard
-					activeScreen={ activeWizardScreen }
 					requiredPlugins={ [ 'jetpack' ] }
 					requiredPluginsCancelText={ __( 'Back to checklist' ) }
 					onRequiredPluginsCancel={ () => console.log( 'Checklist' ) }
