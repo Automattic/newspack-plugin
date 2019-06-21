@@ -16,9 +16,9 @@ import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**
- * Internal dependencies.
+ * External dependencies.
  */
-import { Route } from 'react-router-dom';
+import { Route, withRouter } from 'react-router-dom';
 
 /**
  * One Wizard screen.
@@ -31,12 +31,14 @@ class WizardScreen extends Component {
 		const {
 			path,
 			completeButtonText,
+			onCompleteButtonClicked,
 			subCompleteButtonText,
 			onSubCompleteButtonClicked,
 			children,
 			className,
 			noBackground,
 			next,
+			history,
 		} = this.props;
 		const classes = murielClassnames( 'muriel-wizardScreen', className, noBackground ? 'muriel-wizardScreen__no-background' : '' );
 
@@ -49,6 +51,7 @@ class WizardScreen extends Component {
 							<Button
 								isPrimary
 								className="is-centered muriel-wizardScreen__completeButton"
+								onClick={ () => onCompleteButtonClicked( history ) }
 								href={ `#${next}` }
 							>
 								{ completeButtonText }
@@ -59,7 +62,7 @@ class WizardScreen extends Component {
 						<Button
 							isTertiary
 							className="is-centered muriel-wizardScreen__subCompleteButton"
-							onClick={ () => onSubCompleteButtonClicked( path ) }
+							onClick={ () => onSubCompleteButtonClicked( history ) }
 						>
 							{ subCompleteButtonText }
 						</Button>
@@ -69,4 +72,10 @@ class WizardScreen extends Component {
 		);
 	}
 }
-export default WizardScreen;
+
+WizardScreen.defaultProps = {
+	onCompleteButtonClicked: () => null,
+	onSubCompleteButtonClicked: () => null,
+}
+
+export default withRouter( WizardScreen );
