@@ -18,7 +18,7 @@ import './style.scss';
 /**
  * Internal dependencies.
  */
-import { Route, Link } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 /**
  * One Wizard screen.
