@@ -34,6 +34,7 @@ class ActionCard extends Component {
 			className,
 			title,
 			description,
+			href,
 			notification,
 			notificationLevel,
 			actionText,
@@ -72,13 +73,13 @@ class ActionCard extends Component {
 					</div>
 					{ actionText && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ actionText && onClick && (
-								<Button isLink onClick={ onClick } className="newspack-action-card__primary_button">
+							{ actionText && ( !! onClick || !! href ) && (
+								<Button isLink href={ href } onClick={ onClick } className="newspack-action-card__primary_button">
 									{ actionText }
 								</Button>
 							) }
 
-							{ actionText && ! onClick && (
+							{ actionText && ( ! onClick && ! href ) && (
 								<div className="newspack-action-card__container">
 									{ isWaiting && <Spinner /> }
 									{ actionText }
