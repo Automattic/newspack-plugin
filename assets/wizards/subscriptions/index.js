@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import EditSubscriptionScreen from './views/editSubscriptionScreen';
+import { withWizard } from '../../components/src';
 import './style.scss';
 
 /**
@@ -39,49 +40,67 @@ class SubscriptionsWizard extends Component {
 	/**
 	 * Get info when wizard is first loaded.
 	 */
-	componentDidMount() {
-		this.refreshSubscriptions();
-		this.refreshChoosePrice();
+	componentDidUpdate( prevProps, prevState ) {
+		const { wizardReady } = this.props;
+		if ( ! prevProps.wizardReady && !! wizardReady ) {
+			this.refreshSubscriptions();
+			this.refreshChoosePrice();
+		}
 	}
 
 	/**
 	 * Get the latest subscriptions info.
 	 */
 	refreshSubscriptions( callback ) {
-		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
-			const result = subscriptions.reduce( ( result, value ) => {
-				result[ value.id ] = value;
-				return result;
-			}, {} );
-			return new Promise( resolve => {
-				this.setState(
-					{
-						subscriptions: result,
-					},
-					() => {
-						resolve( this.state );
-					}
-				);
+		const { clearError, setError } = this.props;
+		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
+			.then( subscriptions => {
+				const result = subscriptions.reduce( ( result, value ) => {
+					result[ value.id ] = value;
+					return result;
+				}, {} );
+				return new Promise( resolve => {
+					this.setState(
+						{
+							subscriptions: result,
+						},
+						() => {
+							clearError();
+							resolve( this.state );
+						}
+					);
+				} );
+			} )
+			.catch( error => {
+				this.setError( error );
 			} );
-		} );
 	}
 
 	/**
 	 * Save the fields to a susbcription.
 	 */
 	saveSubscription( subscription ) {
+		const { clearError, setError } = this.props;
 		const { id, name, image, price, frequency } = subscription;
 		const image_id = image ? image.id : 0;
-		return apiFetch( {
-			path: '/newspack/v1/wizard/subscriptions',
-			method: 'post',
-			data: {
-				id,
-				name,
-				image_id,
-				price,
-				frequency,
-			},
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizard/subscriptions',
+				method: 'post',
+				data: {
+					id,
+					name,
+					image_id,
+					price,
+					frequency,
+				},
+			} )
+				.then( subscription => {
+					clearError().then( () => resolve( subscription ) );
+				} )
+				.catch( error => {
+					setError( error ).then( () => reject( error ) );
+				} );
 		} );
 	}
 
@@ -91,13 +110,18 @@ class SubscriptionsWizard extends Component {
 	 * @param int id Subscription ID.
 	 */
 	deleteSubscription( id ) {
+		const { clearError, setError } = this.props;
 		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
 			apiFetch( {
 				path: '/newspack/v1/wizard/subscriptions/' + id,
 				method: 'delete',
-			} ).then( response => {
-				this.refreshSubscriptions();
-			} );
+			} )
+				.then( response => {
+					this.refreshSubscriptions();
+				} )
+				.catch( error => {
+					this.setError( error );
+				} );
 		}
 	}
 
@@ -147,10 +171,13 @@ class SubscriptionsWizard extends Component {
 	 * Render.
 	 */
 	render() {
+		const { getError, pluginRequirements } = this.props;
 		const { subscriptions, choosePrice } = this.state;
 		return (
 			<HashRouter hashType="slash">
+				{ getError() }
 				<Switch>
+					{ pluginRequirements }
 					<Route
 						path="/"
 						exact
@@ -195,11 +222,11 @@ class SubscriptionsWizard extends Component {
 									}
 									onChange={ this.onSubscriptionChange }
 									onClickSave={ subscription =>
-										this.saveSubscription( subscription ).then( newSubscription =>
-											this.refreshSubscriptions().then( () =>
+										this.saveSubscription( subscription ).then( newSubscription => {
+											return this.refreshSubscriptions().then( () =>
 												routeProps.history.push( `edit/${ newSubscription.id }` )
-											)
-										)
+											);
+										} )
 									}
 								/>
 							);
@@ -212,4 +239,14 @@ class SubscriptionsWizard extends Component {
 	}
 }
 
-render( <SubscriptionsWizard />, document.getElementById( 'newspack-subscriptions-wizard' ) );
+render(
+	createElement(
+		withWizard( SubscriptionsWizard, [
+			'woocommerce',
+			'woocommerce-subscriptions',
+			'woocommerce-name-your-price',
+			'woocommerce-one-page-checkout',
+		] )
+	),
+	document.getElementById( 'newspack-subscriptions-wizard' )
+);
