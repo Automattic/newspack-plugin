@@ -92,7 +92,7 @@ class ComponentsDemo extends Component {
 					<WizardScreen
 						path='/test-wizard-1'
 						completeButtonText={ __( 'Continue to 2' ) }
-						next='test-wizard-2'
+						completeButtonAction={ { path: 'test-wizard-2' } }
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 1' ) }
@@ -102,9 +102,9 @@ class ComponentsDemo extends Component {
 					<WizardScreen
 						path='/test-wizard-2'
 						completeButtonText={ __( 'Continue to 3' ) }
+						completeButtonAction= { { onClick: history => history.push( 'test-wizard-3' ) } }
 						subCompleteButtonText={ __( 'Back to 1' ) }
-						onSubCompleteButtonClicked={ history => history.push( '/test-wizard-1' ) }
-						next='test-wizard-3'
+						subCompleteButtonAction={ history => history.push( '/test-wizard-1' ) }
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 2' ) }
@@ -115,7 +115,7 @@ class ComponentsDemo extends Component {
 						noBackground
 						path='/test-wizard-3'
 						completeButtonText={ __( 'Finish' ) }
-						next='/'
+						completeButtonAction='/'
 					>
 						<FormattedHeader
 							headerText={ __( 'WizardScreen Component 3' ) }

@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Card, Button } from '../';
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import { buttonAttributesForAction, murielClassnames } from '../../../shared/js/';
 import './style.scss';
 
 /**
@@ -24,6 +24,7 @@ import { Route, withRouter } from 'react-router-dom';
  * One Wizard screen.
  */
 class WizardScreen extends Component {
+
 	/**
 	 * Render.
 	 */
@@ -31,13 +32,12 @@ class WizardScreen extends Component {
 		const {
 			path,
 			completeButtonText,
-			onCompleteButtonClicked,
+			completeButtonAction,
 			subCompleteButtonText,
-			onSubCompleteButtonClicked,
+			subCompleteButtonAction,
 			children,
 			className,
 			noBackground,
-			next,
 			history,
 		} = this.props;
 		const classes = murielClassnames( 'muriel-wizardScreen', className, noBackground ? 'muriel-wizardScreen__no-background' : '' );
@@ -51,8 +51,7 @@ class WizardScreen extends Component {
 							<Button
 								isPrimary
 								className="is-centered muriel-wizardScreen__completeButton"
-								onClick={ () => onCompleteButtonClicked( history ) }
-								href={ next && `#${next}` }
+								{ ...buttonAttributesForAction( completeButtonAction, this.props ) }
 							>
 								{ completeButtonText }
 							</Button>
@@ -62,7 +61,7 @@ class WizardScreen extends Component {
 						<Button
 							isTertiary
 							className="is-centered muriel-wizardScreen__subCompleteButton"
-							onClick={ () => onSubCompleteButtonClicked( history ) }
+							{ ...buttonAttributesForAction( subCompleteButtonAction, this.props ) }
 						>
 							{ subCompleteButtonText }
 						</Button>
