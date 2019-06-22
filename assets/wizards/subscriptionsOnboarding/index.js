@@ -14,15 +14,20 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/paymentSetup';
-import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../../components/src';
+import {
+	PluginInstaller,
+	Card,
+	FormattedHeader,
+	Modal,
+	Button,
+	withWizard,
+} from '../../components/src';
 import './style.scss';
 
 /**
  * External dependencies
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
-
-const REQUIRED_PLUGINS = [ 'woocommerce' ];
 
 /**
  * Wizard for setting up ability to take payments.
@@ -287,81 +292,61 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { pluginRequirementsMet, location, stripeSettings, fields } = this.state;
-		const error = this.getError();
-
-		if ( ! pluginRequirementsMet ) {
-			return (
-				<Fragment>
-					{ error }
-					<Card noBackground>
-						<FormattedHeader
-							headerText={ __( 'Required plugin' ) }
-							subHeaderText={ __( 'This feature requires the following plugin.' ) }
-						/>
-						<PluginInstaller
-							plugins={ REQUIRED_PLUGINS }
-							onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
-						/>
-						<Button
-							className="is-centered"
-							isTertiary
-							href={ newspack_urls[ 'checklists' ][ 'memberships' ] }
-						>
-							{ __( 'Back to checklist' ) }
-						</Button>
-					</Card>
-				</Fragment>
-			);
-		}
+		const { error, pluginRequirements } = this.props;
+		const { location, stripeSettings, fields } = this.state;
 		return (
-			<HashRouter hashType="slash">
-				<Switch>
-					<Route
-						path="/"
-						exact
-						render={ routeProps => (
-							<Fragment>
-								{ error }
-								<LocationSetup
-									countrystateFields={ fields.countrystate }
-									currencyFields={ fields.currency }
-									location={ location }
-									onChange={ location => this.setState( { location } ) }
-									onClickContinue={ () =>
-										this.saveLocation().then(
-											() => routeProps.history.push( '/stripe' ),
-											() => null
-										)
-									}
-								/>
-							</Fragment>
-						) }
-					/>
-					<Route
-						path="/stripe"
-						render={ routeProps => (
-							<Fragment>
-								{ error }
-								<PaymentSetup
-									stripeSettings={ stripeSettings }
-									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-									onClickFinish={ () =>
-										this.saveStripeSettings().then(
-											() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
-										)
-									}
-								/>
-							</Fragment>
-						) }
-					/>
-					<Redirect to="/" />
-				</Switch>
-			</HashRouter>
+			<Fragment>
+				{ error }
+				<HashRouter hashType="slash">
+					<Switch>
+						{ pluginRequirements }
+						<Route
+							path="/"
+							exact
+							render={ routeProps => (
+								<Fragment>
+									{ error }
+									<LocationSetup
+										countrystateFields={ fields.countrystate }
+										currencyFields={ fields.currency }
+										location={ location }
+										onChange={ location => this.setState( { location } ) }
+										onClickContinue={ () =>
+											this.saveLocation().then(
+												() => routeProps.history.push( '/stripe' ),
+												() => null
+											)
+										}
+									/>
+								</Fragment>
+							) }
+						/>
+						<Route
+							path="/stripe"
+							render={ routeProps => (
+								<Fragment>
+									{ error }
+									<PaymentSetup
+										stripeSettings={ stripeSettings }
+										onChange={ stripeSettings => this.setState( { stripeSettings } ) }
+										onClickFinish={ () =>
+											this.saveStripeSettings().then(
+												() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+											)
+										}
+									/>
+								</Fragment>
+							) }
+						/>
+						<Redirect to="/" />
+					</Switch>
+				</HashRouter>
+			</Fragment>
 		);
 	}
 }
+
 render(
-	<SubscriptionsOnboardingWizard />,
+	createElement( withWizard( SubscriptionsOnboardingWizard, [ 'woocommerce' ] ) ),
 	document.getElementById( 'newspack-subscriptions-onboarding-wizard' )
 );
