@@ -9,7 +9,6 @@ export { default as InfoButton } from './info-button';
 export { default as ImageUpload } from './image-upload';
 export { default as Modal } from './modal';
 export { default as PluginInstaller } from './plugin-installer';
-export { default as PluginRequirements } from './plugin-requirements';
 export { default as ProgressBar } from './progress-bar';
 export { default as SelectControl } from './select-control';
 export { default as Task } from './task';
