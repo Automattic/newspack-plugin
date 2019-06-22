@@ -41,8 +41,6 @@ class SubscriptionsOnboardingWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			pluginRequirementsMet: false,
-			error: false,
-
 			location: {
 				countrystate: '',
 				address1: '',
@@ -70,13 +68,8 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the saved data for populating the forms when wizard is first loaded.
 	 */
 	componentDidUpdate( prevProps, prevState ) {
-		const { error, pluginRequirementsMet } = this.state;
-
-		if ( error ) {
-			return;
-		}
-
-		if ( ! prevState.pluginRequirementsMet && this.state.pluginRequirementsMet ) {
+		const { wizardReady } = this.props;
+		if ( ! prevProps.wizardReady && !! wizardReady ) {
 			this.refreshFieldOptions();
 			this.refreshLocationInfo();
 			this.refreshStripeInfo();
@@ -84,97 +77,19 @@ class SubscriptionsOnboardingWizard extends Component {
 	}
 
 	/**
-	 * Render any errors that need rendering.
-	 *
-	 * @return null | React object
-	 */
-	getError() {
-		const { error } = this.state;
-		if ( ! error ) {
-			return null;
-		}
-		const { level } = error;
-		if ( 'fatal' === level ) {
-			return this.getFatalError( error );
-		}
-
-		return this.getErrorNotice( error );
-	}
-
-	/**
-	 * Get a notice-level error.
-	 *
-	 * @param Error object already parsed by parseError
-	 * @return React object
-	 */
-	getErrorNotice( error ) {
-		const { message } = error;
-		return (
-			<div className="notice notice-error notice-alt update-message">
-				<p>{ message }</p>
-			</div>
-		);
-	}
-
-	/**
-	 * Get a fatal-level error.
-	 *
-	 * @param Error object already parsed by parseError
-	 * @return React object
-	 */
-	getFatalError( error ) {
-		const { message } = error;
-		return (
-			<Modal
-				title={ __( 'Unrecoverable error' ) }
-				onRequestClose={ () => console.log( 'Redirect to checklist now' ) }
-			>
-				<p>
-					<strong>{ message }</strong>
-				</p>
-				<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
-					{ __( 'Return to checklist' ) }
-				</Button>
-			</Modal>
-		);
-	}
-
-	/**
-	 * Parse an error caught by an API request.
-	 *
-	 * @param Raw error object
-	 * @return Error object with relevant fields and defaults
-	 */
-	parseError( error ) {
-		const { data, message, code } = error;
-		let level = 'fatal';
-		if ( !! data && 'level' in data ) {
-			level = data.level;
-		} else if ( 'rest_invalid_param' === code ) {
-			level = 'notice';
-		}
-
-		return {
-			message,
-			level,
-		};
-	}
-
-	/**
 	 * Get information used for populating complex dropdown menus.
 	 */
 	refreshFieldOptions() {
+		const { clearError, setError } = this.props;
 		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } )
 			.then( fields => {
+				clearError();
 				this.setState( {
 					fields,
-					error: false,
 				} );
 			} )
 			.catch( error => {
-				this.setState( {
-					error: this.parseError( error ),
-				} );
+				setError( error );
 			} );
 	}
 
@@ -182,19 +97,18 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved info about business location.
 	 */
 	refreshLocationInfo() {
+		const { clearError, setError } = this.props;
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
 		} )
 			.then( location => {
+				clearError();
 				this.setState( {
 					location,
-					error: false,
 				} );
 			} )
 			.catch( error => {
-				this.setState( {
-					error: this.parseError( error ),
-				} );
+				setError( error );
 			} );
 	}
 
@@ -202,6 +116,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current location info.
 	 */
 	saveLocation() {
+		const { clearError, setError } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
 				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
@@ -211,24 +126,10 @@ class SubscriptionsOnboardingWizard extends Component {
 				},
 			} )
 				.then( response => {
-					this.setState(
-						{
-							error: false,
-						},
-						() => {
-							resolve();
-						}
-					);
+					clearError().then( () => resolve() );
 				} )
 				.catch( error => {
-					this.setState(
-						{
-							error: this.parseError( error ),
-						},
-						() => {
-							reject();
-						}
-					);
+					setError( error ).then( () => reject() );
 				} );
 		} );
 	}
@@ -237,19 +138,18 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved Stripe settings.
 	 */
 	refreshStripeInfo() {
+		const { clearError, setError } = this.props;
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
 		} )
 			.then( stripeSettings => {
+				clearError();
 				this.setState( {
 					stripeSettings,
-					error: false,
 				} );
 			} )
 			.catch( error => {
-				this.setState( {
-					error: this.parseError( error ),
-				} );
+				setError( error );
 			} );
 	}
 
@@ -257,6 +157,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current Stripe settings.
 	 */
 	saveStripeSettings() {
+		const { clearError, setError } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
 				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
@@ -266,24 +167,10 @@ class SubscriptionsOnboardingWizard extends Component {
 				},
 			} )
 				.then( response => {
-					this.setState(
-						{
-							error: false,
-						},
-						() => {
-							resolve();
-						}
-					);
+					clearError().then( () => resolve() );
 				} )
 				.catch( error => {
-					this.setState(
-						{
-							error: this.parseError( error ),
-						},
-						() => {
-							reject();
-						}
-					);
+					setError( error ).then( () => reject() );
 				} );
 		} );
 	}
@@ -292,11 +179,11 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { error, pluginRequirements } = this.props;
-		const { location, stripeSettings, fields } = this.state;
+		const { getError, pluginRequirements } = this.props;
+		const { error, location, stripeSettings, fields } = this.state;
 		return (
 			<Fragment>
-				{ error }
+				{ getError() }
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
@@ -305,7 +192,6 @@ class SubscriptionsOnboardingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Fragment>
-									{ error }
 									<LocationSetup
 										countrystateFields={ fields.countrystate }
 										currencyFields={ fields.currency }
@@ -325,7 +211,6 @@ class SubscriptionsOnboardingWizard extends Component {
 							path="/stripe"
 							render={ routeProps => (
 								<Fragment>
-									{ error }
 									<PaymentSetup
 										stripeSettings={ stripeSettings }
 										onChange={ stripeSettings => this.setState( { stripeSettings } ) }

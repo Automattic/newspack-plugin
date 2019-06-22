@@ -1,18 +1,17 @@
 /**
- * Wizard Higher-Order Component.
+ * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
 
 /**
  * WordPress dependencies
  */
-import { Component, Fragment, render } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, PluginInstaller } from '../';
+import { Button, Card, FormattedHeader, Modal, PluginInstaller } from '../';
 
 /**
  * External dependencies
@@ -20,38 +19,57 @@ import { Button, Card, FormattedHeader, PluginInstaller } from '../';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 export default function withWizard( WrappedComponent, requiredPlugins ) {
-	// ...and returns another component...
 	return class extends React.Component {
 		constructor( props ) {
 			super( props );
 			this.state = {
 				pluginRequirementsMet: false,
+				error: null,
 			};
-			// this.handleChange = this.handleChange.bind(this);
-			// this.state = {
-			//   data: selectData(DataSource, props)
-			// };
+		}
+
+		/**
+		 * Set the error. Called by Wizards when an error occurs.
+		 *
+		 * @return Promise
+		 */
+		setError = error => {
+			return new Promise( resolve => {
+				this.setState( { error }, () => resolve() );
+			} );
+		}
+
+		/**
+		 * Clear the error. Called by Wizards after successful API calls.
+		 *
+		 * @return Promise
+		 */
+		clearError = error => {
+			return new Promise( resolve => {
+				this.setState( { error: null }, () => resolve() );
+			} );
 		}
 
 		/**
 		 * Render any errors that need rendering.
 		 *
-		 * @return null | Component
+		 * @return error UI
 		 */
-		getError() {
-			const { error } = this.props;
+		getError = () => {
+			const { error } = this.state;
 			if ( ! error ) {
 				return null;
 			}
 
 			const parsedError = this.parseError( error );
-			const { level } = parsedError;
+			// const { level } = parsedError;
+			const level = 'fatal';
 			if ( 'fatal' === level ) {
 				return this.getFatalError( parsedError );
 			}
 
 			return this.getErrorNotice( parsedError );
-		}
+		};
 
 		/**
 		 * Get a notice-level error.
@@ -59,14 +77,14 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @param Error object already parsed by parseError
 		 * @return Component
 		 */
-		getErrorNotice( error ) {
+		getErrorNotice = error => {
 			const { message } = error;
 			return (
 				<div className="notice notice-error notice-alt update-message">
 					<p>{ message }</p>
 				</div>
 			);
-		}
+		};
 
 		/**
 		 * Get a fatal-level error.
@@ -74,7 +92,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @param Error object already parsed by parseError
 		 * @return React object
 		 */
-		getFatalError( error ) {
+		getFatalError = error => {
 			const { message } = error;
 			return (
 				<Modal
@@ -84,12 +102,12 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					<p>
 						<strong>{ message }</strong>
 					</p>
-					<Button isPrimary onClick={ () => ( window.location = newspack_urls[ 'dashboard' ] ) }>
+					<Button isPrimary href={ newspack_urls[ 'dashboard' ] }>
 						{ __( 'Return to dashboard' ) }
 					</Button>
 				</Modal>
 			);
-		}
+		};
 
 		/**
 		 * Get all the relevant info out of a raw API error response.
@@ -97,7 +115,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @param Raw error object
 		 * @return Error object with relevant fields and defaults
 		 */
-		parseError( error ) {
+		parseError = error => {
 			const { data, message, code } = error;
 			let level = 'fatal';
 			if ( !! data && 'level' in data ) {
@@ -110,12 +128,17 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				message,
 				level,
 			};
-		}
+		};
 
+		/**
+		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
+		 *
+		 * @return void
+		 */
 		pluginRequirements = () => {
-			console.log( WrappedComponent );
 			const requiredPluginsCancelText = false;
 			const { pluginRequirementsMet } = this.state;
+			/* After all plugins are loaded, redirect to / (this could be configurable) */
 			if ( pluginRequirementsMet ) {
 				return <Redirect from="/plugin-requirements" to="/" />;
 			}
@@ -144,11 +167,22 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			);
 		};
 
+		/**
+		 * Render.
+		 *
+		 * @return JSX
+		 */
 		render() {
-			// ... and renders the wrapped component with the fresh data!
-			// Notice that we pass through any additional props
+			const { pluginRequirementsMet } = this.state;
 			return (
-				<WrappedComponent error={ this.getError() } pluginRequirements={ this.pluginRequirements() } { ...this.props } />
+				<WrappedComponent
+					wizardReady={ pluginRequirementsMet }
+					setError={ this.setError }
+					clearError={ this.clearError }
+					getError={ this.getError }
+					pluginRequirements={ this.pluginRequirements() }
+					{ ...this.props }
+				/>
 			);
 		}
 	};
