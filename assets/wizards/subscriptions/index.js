@@ -17,6 +17,11 @@ import EditSubscriptionScreen from './views/editSubscriptionScreen';
 import './style.scss';
 
 /**
+ * External dependencies
+ */
+import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+
+/**
  * Subscriptions wizard for managing and setting up subscriptions.
  */
 class SubscriptionsWizard extends Component {
@@ -27,7 +32,6 @@ class SubscriptionsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			subscriptions: [],
-			editing: false,
 			choosePrice: false,
 		};
 	}
@@ -43,10 +47,21 @@ class SubscriptionsWizard extends Component {
 	/**
 	 * Get the latest subscriptions info.
 	 */
-	refreshSubscriptions() {
-		apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
-			this.setState( {
-				subscriptions: subscriptions,
+	refreshSubscriptions( callback ) {
+		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
+			const result = subscriptions.reduce( ( result, value ) => {
+				result[ value.id ] = value;
+				return result;
+			}, {} );
+			return new Promise( resolve => {
+				this.setState(
+					{
+						subscriptions: result,
+					},
+					() => {
+						resolve( this.state );
+					}
+				);
 			} );
 		} );
 	}
@@ -57,8 +72,7 @@ class SubscriptionsWizard extends Component {
 	saveSubscription( subscription ) {
 		const { id, name, image, price, frequency } = subscription;
 		const image_id = image ? image.id : 0;
-
-		apiFetch( {
+		return apiFetch( {
 			path: '/newspack/v1/wizard/subscriptions',
 			method: 'post',
 			data: {
@@ -68,15 +82,6 @@ class SubscriptionsWizard extends Component {
 				price,
 				frequency,
 			},
-		} ).then( response => {
-			this.setState(
-				{
-					editing: false,
-				},
-				() => {
-					this.refreshSubscriptions();
-				}
-			);
 		} );
 	}
 
@@ -129,32 +134,81 @@ class SubscriptionsWizard extends Component {
 		);
 	}
 
+	onSubscriptionChange = subscription => {
+		this.setState( prevState => ( {
+			subscriptions: {
+				...prevState.subscriptions,
+				[ subscription.id ]: subscription,
+			},
+		} ) );
+	};
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { subscriptions, editing, choosePrice } = this.state;
-
-		if ( !! editing ) {
-			return (
-				<EditSubscriptionScreen
-					subscription={ editing }
-					onChange={ subscription => this.setState( { editing: subscription } ) }
-					onClickSave={ subscription => this.saveSubscription( subscription ) }
-					onClickCancel={ () => this.setState( { editing: false } ) }
-				/>
-			);
-		} else {
-			return (
-				<ManageSubscriptionsScreen
-					subscriptions={ subscriptions }
-					choosePrice={ choosePrice }
-					onClickEditSubscription={ subscription => this.setState( { editing: subscription } ) }
-					onClickDeleteSubscription={ subscription => this.deleteSubscription( subscription.id ) }
-					onClickChoosePrice={ () => this.toggleChoosePrice() }
-				/>
-			);
-		}
+		const { subscriptions, choosePrice } = this.state;
+		return (
+			<HashRouter hashType="slash">
+				<Switch>
+					<Route
+						path="/"
+						exact
+						render={ routeProps => (
+							<ManageSubscriptionsScreen
+								subscriptions={ Object.values( subscriptions ) }
+								choosePrice={ choosePrice }
+								onClickDeleteSubscription={ subscription =>
+									this.deleteSubscription( subscription.id )
+								}
+								onClickChoosePrice={ () => this.toggleChoosePrice() }
+							/>
+						) }
+					/>
+					<Route
+						path="/edit/:id"
+						render={ routeProps => {
+							return (
+								<EditSubscriptionScreen
+									subscription={ subscriptions[ routeProps.match.params.id ] || {} }
+									onChange={ this.onSubscriptionChange }
+									onClickSave={ subscription =>
+										this.saveSubscription( subscription ).then( () => this.refreshSubscriptions() )
+									}
+								/>
+							);
+						} }
+					/>
+					<Route
+						path="/create"
+						render={ routeProps => {
+							return (
+								<EditSubscriptionScreen
+									subscription={
+										subscriptions[ 0 ] || {
+											id: 0,
+											name: '',
+											image_id: 0,
+											price: '',
+											frequency: '',
+										}
+									}
+									onChange={ this.onSubscriptionChange }
+									onClickSave={ subscription =>
+										this.saveSubscription( subscription ).then( newSubscription =>
+											this.refreshSubscriptions().then( () =>
+												routeProps.history.push( `edit/${ newSubscription.id }` )
+											)
+										)
+									}
+								/>
+							);
+						} }
+					/>
+					<Redirect to="/" />
+				</Switch>
+			</HashRouter>
+		);
 	}
 }
 

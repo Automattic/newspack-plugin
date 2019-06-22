@@ -41,7 +41,7 @@ class EditSubscriptionScreen extends Component {
 	 * Render.
 	 */
 	render() {
-		const { subscription, onClickSave, onClickCancel } = this.props;
+		const { subscription, onClickSave } = this.props;
 		const { id, name, price, frequency } = subscription;
 		let { image } = subscription;
 		if ( ! image || '0' === image.id ) {
@@ -93,8 +93,7 @@ class EditSubscriptionScreen extends Component {
 					</Button>
 					<Button
 						className="newspack-edit-subscription-screen__cancel isLink is-centered is-tertiary"
-						href="#"
-						onClick={ () => onClickCancel() }
+						href="#/"
 					>
 						{ __( 'Cancel' ) }
 					</Button>

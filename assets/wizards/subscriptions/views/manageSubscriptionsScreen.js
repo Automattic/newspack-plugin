@@ -24,7 +24,6 @@ class ManageSubscriptionsScreen extends Component {
 		const {
 			subscriptions,
 			choosePrice,
-			onClickEditSubscription,
 			onClickDeleteSubscription,
 			onClickChoosePrice,
 		} = this.props;
@@ -53,7 +52,7 @@ class ManageSubscriptionsScreen extends Component {
 							title={ name }
 							description={ display_price }
 							actionText={ __( 'Edit' ) }
-							onClick={ () => onClickEditSubscription( subscription ) }
+							href={ `#edit/${ id }`}
 							secondaryActionText={ __( 'Delete' ) }
 							onSecondaryActionClick={ () => onClickDeleteSubscription( subscription ) }
 						/>
@@ -74,15 +73,7 @@ class ManageSubscriptionsScreen extends Component {
 				<Button
 					isPrimary
 					className="is-centered"
-					onClick={ () =>
-						onClickEditSubscription( {
-							id: 0,
-							name: '',
-							image: null,
-							price: '',
-							frequency: 'month',
-						} )
-					}
+					href="#/create"
 				>
 					{ buttonText }
 				</Button>
