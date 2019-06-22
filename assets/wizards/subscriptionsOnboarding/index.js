@@ -17,6 +17,11 @@ import PaymentSetup from './views/paymentSetup';
 import { PluginInstaller, Card, FormattedHeader, Modal, Button } from '../../components/src';
 import './style.scss';
 
+/**
+ * External dependencies
+ */
+import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+
 const REQUIRED_PLUGINS = [ 'woocommerce' ];
 
 /**
@@ -31,7 +36,6 @@ class SubscriptionsOnboardingWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			pluginRequirementsMet: false,
-			wizardStep: 1,
 			error: false,
 
 			location: {
@@ -152,19 +156,6 @@ class SubscriptionsOnboardingWizard extends Component {
 	}
 
 	/**
-	 * Go to the next wizard step.
-	 */
-	nextWizardStep() {
-		const { wizardStep, error } = this.state;
-
-		if ( ! error ) {
-			this.setState( {
-				wizardStep: wizardStep + 1,
-			} );
-		}
-	}
-
-	/**
 	 * Get information used for populating complex dropdown menus.
 	 */
 	refreshFieldOptions() {
@@ -206,26 +197,35 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current location info.
 	 */
 	saveLocation() {
-		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
-			method: 'post',
-			data: {
-				...this.state.location,
-			},
-		} )
-			.then( response => {
-				this.setState(
-					{
-						error: false,
-					},
-					this.nextWizardStep
-				);
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
+				method: 'post',
+				data: {
+					...this.state.location,
+				},
 			} )
-			.catch( error => {
-				this.setState( {
-					error: this.parseError( error ),
+				.then( response => {
+					this.setState(
+						{
+							error: false,
+						},
+						() => {
+							resolve();
+						}
+					);
+				} )
+				.catch( error => {
+					this.setState(
+						{
+							error: this.parseError( error ),
+						},
+						() => {
+							reject();
+						}
+					);
 				} );
-			} );
+		} );
 	}
 
 	/**
@@ -252,33 +252,42 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current Stripe settings.
 	 */
 	saveStripeSettings() {
-		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
-			method: 'post',
-			data: {
-				...this.state.stripeSettings,
-			},
-		} )
-			.then( response => {
-				this.setState(
-					{
-						error: false,
-					},
-					this.nextWizardStep
-				);
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
+				method: 'post',
+				data: {
+					...this.state.stripeSettings,
+				},
 			} )
-			.catch( error => {
-				this.setState( {
-					error: this.parseError( error ),
+				.then( response => {
+					this.setState(
+						{
+							error: false,
+						},
+						() => {
+							resolve();
+						}
+					);
+				} )
+				.catch( error => {
+					this.setState(
+						{
+							error: this.parseError( error ),
+						},
+						() => {
+							reject();
+						}
+					);
 				} );
-			} );
+		} );
 	}
 
 	/**
 	 * Render.
 	 */
 	render() {
-		const { pluginRequirementsMet, wizardStep, location, stripeSettings, fields } = this.state;
+		const { pluginRequirementsMet, location, stripeSettings, fields } = this.state;
 		const error = this.getError();
 
 		if ( ! pluginRequirementsMet ) {
@@ -295,48 +304,61 @@ class SubscriptionsOnboardingWizard extends Component {
 							onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
 						/>
 						<Button
-							className='is-centered'
+							className="is-centered"
 							isTertiary
-							href={ newspack_urls['checklists']['memberships'] }
+							href={ newspack_urls[ 'checklists' ][ 'memberships' ] }
 						>
-							{ __( 'Back to checklist') }
+							{ __( 'Back to checklist' ) }
 						</Button>
 					</Card>
 				</Fragment>
 			);
 		}
-
-		if ( 1 === wizardStep ) {
-			return (
-				<Fragment>
-					{ error }
-					<LocationSetup
-						countrystateFields={ fields.countrystate }
-						currencyFields={ fields.currency }
-						location={ location }
-						onChange={ location => this.setState( { location } ) }
-						onClickContinue={ () => this.saveLocation() }
+		return (
+			<HashRouter hashType="slash">
+				<Switch>
+					<Route
+						path="/"
+						exact
+						render={ routeProps => (
+							<Fragment>
+								{ error }
+								<LocationSetup
+									countrystateFields={ fields.countrystate }
+									currencyFields={ fields.currency }
+									location={ location }
+									onChange={ location => this.setState( { location } ) }
+									onClickContinue={ () =>
+										this.saveLocation().then(
+											() => routeProps.history.push( '/stripe' ),
+											() => null
+										)
+									}
+								/>
+							</Fragment>
+						) }
 					/>
-				</Fragment>
-			);
-		}
-
-		if ( 2 === wizardStep ) {
-			return (
-				<Fragment>
-					{ error }
-					<PaymentSetup
-						stripeSettings={ stripeSettings }
-						onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-						onClickFinish={ () => this.saveStripeSettings() }
+					<Route
+						path="/stripe"
+						render={ routeProps => (
+							<Fragment>
+								{ error }
+								<PaymentSetup
+									stripeSettings={ stripeSettings }
+									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
+									onClickFinish={ () =>
+										this.saveStripeSettings().then(
+											() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+										)
+									}
+								/>
+							</Fragment>
+						) }
 					/>
-				</Fragment>
-			);
-		}
-
-		// Redirect to Memberships checklist if all steps are complete.
-		window.location = newspack_urls['checklists']['memberships'];
-		return null;
+					<Redirect to="/" />
+				</Switch>
+			</HashRouter>
+		);
 	}
 }
 render(
