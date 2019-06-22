@@ -1,5 +1,9 @@
 /**
+<<<<<<< HEAD
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
+=======
+ * Wizard Higher-Order Component.
+>>>>>>> Wizard HOC, initial commit.
  */
 
 /**
