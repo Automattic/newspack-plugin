@@ -1,9 +1,5 @@
 /**
-<<<<<<< HEAD
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
-=======
- * Wizard Higher-Order Component.
->>>>>>> Wizard HOC, initial commit.
  */
 
 /**
@@ -64,7 +60,8 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			}
 
 			const parsedError = this.parseError( error );
-			const { level } = parsedError;
+			// const { level } = parsedError;
+			const level = 'fatal';
 			if ( 'fatal' === level ) {
 				return this.getFatalError( parsedError );
 			}
@@ -129,16 +126,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				message,
 				level,
 			};
-		};
-
-		/**
-		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
-		 */
-		pluginInstallationComplete = () => {
-			const instance = this.wrappedComponentRef.current;
-			this.setState( { pluginRequirementsMet: true }, () => {
-				instance && instance.onWizardReady && instance.onWizardReady();
-			} );
 		};
 
 		/**
