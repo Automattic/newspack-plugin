@@ -237,19 +237,16 @@ class SubscriptionsWizard extends Component {
 
 render(
 	createElement(
-		withWizard(
-			SubscriptionsWizard,
-			[
-				'woocommerce',
-				'woocommerce-subscriptions',
-				'woocommerce-name-your-price',
-				'woocommerce-one-page-checkout',
-			],
-			{
-				buttonText: __( 'Back to checklist' ),
-				buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
-			}
-		)
+		withWizard( SubscriptionsWizard, [
+			'woocommerce',
+			'woocommerce-subscriptions',
+			'woocommerce-name-your-price',
+			'woocommerce-one-page-checkout',
+		] ),
+		{
+			buttonText: __( 'Back to checklist' ),
+			buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
+		}
 	),
 	document.getElementById( 'newspack-subscriptions-wizard' )
 );

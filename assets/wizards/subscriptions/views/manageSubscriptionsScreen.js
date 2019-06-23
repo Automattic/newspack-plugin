@@ -79,13 +79,6 @@ class ManageSubscriptionsScreen extends Component {
 				<Button isPrimary className="is-centered" href="#/create">
 					{ buttonText }
 				</Button>
-				<Button
-					className="is-centered"
-					isTertiary
-					href={ newspack_urls[ 'checklists' ][ 'memberships' ] }
-				>
-					{ __( "I'm done adding" ) }
-				</Button>
 			</div>
 		);
 	}

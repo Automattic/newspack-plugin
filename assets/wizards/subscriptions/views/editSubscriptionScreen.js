@@ -60,45 +60,43 @@ class EditSubscriptionScreen extends Component {
 		return (
 			<div className="newspack-edit-subscription-screen">
 				<FormattedHeader headerText={ heading } subHeaderText={ subHeading } />
-				<Card>
+				<TextControl
+					label={ __( 'What is this product called? e.g. Valued Donor' ) }
+					value={ name }
+					onChange={ value => this.handleOnChange( 'name', value ) }
+				/>
+				<ImageUpload
+					image={ image }
+					onChange={ value => this.handleOnChange( 'image', value ) }
+				/>
+				<div className="newspack-edit-subscription-screen__price-settings">
 					<TextControl
-						label={ __( 'What is this product called? e.g. Valued Donor' ) }
-						value={ name }
-						onChange={ value => this.handleOnChange( 'name', value ) }
+						type="number"
+						step="0.01"
+						label={ __( 'Price' ) }
+						value={ price }
+						onChange={ value => this.handleOnChange( 'price', value ) }
 					/>
-					<ImageUpload
-						image={ image }
-						onChange={ value => this.handleOnChange( 'image', value ) }
+					<SelectControl
+						label={ __( 'Frequency' ) }
+						value={ frequency }
+						options={ [
+							{ value: 'month', label: __( 'per month' ) },
+							{ value: 'year', label: __( 'per year' ) },
+							{ value: 'once', label: __( 'once' ) },
+						] }
+						onChange={ value => this.handleOnChange( 'frequency', value ) }
 					/>
-					<div className="newspack-edit-subscription-screen__price-settings">
-						<TextControl
-							type="number"
-							step="0.01"
-							label={ __( 'Price' ) }
-							value={ price }
-							onChange={ value => this.handleOnChange( 'price', value ) }
-						/>
-						<SelectControl
-							label={ __( 'Frequency' ) }
-							value={ frequency }
-							options={ [
-								{ value: 'month', label: __( 'per month' ) },
-								{ value: 'year', label: __( 'per year' ) },
-								{ value: 'once', label: __( 'once' ) },
-							] }
-							onChange={ value => this.handleOnChange( 'frequency', value ) }
-						/>
-					</div>
-					<Button isPrimary className="is-centered" onClick={ () => onClickSave( subscription ) }>
-						{ __( 'Save' ) }
-					</Button>
-					<Button
-						className="newspack-edit-subscription-screen__cancel isLink is-centered is-tertiary"
-						href="#/"
-					>
-						{ __( 'Cancel' ) }
-					</Button>
-				</Card>
+				</div>
+				<Button isPrimary className="is-centered" onClick={ () => onClickSave( subscription ) }>
+					{ __( 'Save' ) }
+				</Button>
+				<Button
+					className="newspack-edit-subscription-screen__cancel isLink is-centered is-tertiary"
+					href="#/"
+				>
+					{ __( 'Cancel' ) }
+				</Button>
 			</div>
 		);
 	}
