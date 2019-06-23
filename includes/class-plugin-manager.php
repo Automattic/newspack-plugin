@@ -25,7 +25,7 @@ class Plugin_Manager {
 	 */
 	public static function get_managed_plugins() {
 		$managed_plugins = [
-			'jetpack'                    => [
+			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
 				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
 				'Author'      => 'Automattic',
@@ -34,7 +34,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=jetpack',
 			],
-			'amp'                        => [
+			'amp'                           => [
 				'Name'        => __( 'AMP', 'newspack' ),
 				'Description' => esc_html__( 'Enable AMP on your WordPress site, the WordPress way.', 'newspack' ),
 				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
@@ -43,7 +43,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=amp-options',
 			],
-			'woocommerce-gateway-stripe' => [
+			'woocommerce-gateway-stripe'    => [
 				'Name'        => __( 'WooCommerce Stripe Gateway', 'newspack' ),
 				'Description' => esc_html__( 'Take credit card payments on your store using Stripe.', 'newspack' ),
 				'Author'      => 'WooCommerce',
@@ -51,7 +51,7 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://woocommerce.com/',
 				'EditPath'    => 'admin.php?page=wc-settings&tab=checkout&section=stripe',
 			],
-			'woocommerce'                => [
+			'woocommerce'                   => [
 				'Name'        => __( 'WooCommerce', 'newspack' ),
 				'Description' => esc_html__( 'An eCommerce toolkit that helps you sell anything. Beautifully.', 'newspack' ),
 				'Author'      => 'WordPress.com VIP, XWP, Google, and contributors',
@@ -60,7 +60,31 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wc-settings',
 			],
-			'wordpress-seo'              => [
+			'woocommerce-subscriptions'     => [
+				'Name'        => __( 'WooCommerce Subscriptions', 'newspack' ),
+				'Description' => esc_html__( 'An eCommerce toolkit that helps you sell anything. Beautifully.', 'newspack' ),
+				'Author'      => 'Prospress Inc.',
+				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
+				'AuthorURI'   => 'https://prospress.com',
+				'Download'    => 'wporg', // @todo add premium plugin handling.
+			],
+			'woocommerce-name-your-price'   => [
+				'Name'        => __( 'WooCommerce Name Your Price', 'newspack' ),
+				'Description' => esc_html__( 'WooCommerce Name Your Price allows customers to set their own price for products or donations.', 'newspack' ),
+				'Author'      => 'Kathy Darling',
+				'PluginURI'   => 'http://www.woocommerce.com/products/name-your-price/',
+				'AuthorURI'   => 'http://kathyisawesome.com',
+				'Download'    => 'wporg', // @todo add premium plugin handling.
+			],
+			'woocommerce-one-page-checkout' => [
+				'Name'        => __( 'WooCommerce One Page Checkout', 'newspack' ),
+				'Description' => esc_html__( 'Super fast sales with WooCommerce. Add to cart, checkout & pay all on the one page!', 'newspack' ),
+				'Author'      => 'Prospress Inc.',
+				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-one-page-checkout/',
+				'AuthorURI'   => 'http://prospress.com/',
+				'Download'    => 'wporg', // @todo add premium plugin handling.
+			],
+			'wordpress-seo'                 => [
 				'Name'        => 'Yoast SEO',
 				'Description' => 'The first true all-in-one SEO solution for WordPress, including on-page content analysis, XML sitemaps and much more.',
 				'Author'      => 'Team Yoast',
@@ -68,7 +92,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
-			'google-site-kit-wp'         => [
+			'google-site-kit-wp'            => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
 				'Author'      => 'Google',
@@ -76,7 +100,7 @@ class Plugin_Manager {
 				'Download'    => 'preinstall',
 				'EditPath'    => 'admin.php?page=googlesitekit-dashboard',
 			],
-			'fake-plugin'                => [
+			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
 				'Description' => 'This is a made-up plugin, meant to error out.',
 				'Author'      => 'Newspack',
