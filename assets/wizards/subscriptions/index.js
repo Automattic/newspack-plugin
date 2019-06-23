@@ -172,7 +172,6 @@ class SubscriptionsWizard extends Component {
 		const { subscriptions, choosePrice } = this.state;
 		return (
 			<HashRouter hashType="slash">
-				{ getError() }
 				<Switch>
 					{ pluginRequirements }
 					<Route
