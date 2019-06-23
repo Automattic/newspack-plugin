@@ -11,7 +11,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, CheckboxControl, FormattedHeader } from '../../../components/src';
+import {
+	ActionCard,
+	Button,
+	CheckboxControl,
+	FormattedHeader,
+	withWizardScreen,
+} from '../../../components/src';
 
 /**
  * Subscriptions management screen.
@@ -52,7 +58,7 @@ class ManageSubscriptionsScreen extends Component {
 							title={ name }
 							description={ display_price }
 							actionText={ __( 'Edit' ) }
-							href={ `#edit/${ id }`}
+							href={ `#edit/${ id }` }
 							secondaryActionText={ __( 'Delete' ) }
 							onSecondaryActionClick={ () => onClickDeleteSubscription( subscription ) }
 						/>
@@ -70,17 +76,13 @@ class ManageSubscriptionsScreen extends Component {
 						checked={ choosePrice }
 					/>
 				) }
-				<Button
-					isPrimary
-					className="is-centered"
-					href="#/create"
-				>
+				<Button isPrimary className="is-centered" href="#/create">
 					{ buttonText }
 				</Button>
 				<Button
-					className='is-centered'
+					className="is-centered"
 					isTertiary
-					href={ newspack_urls['checklists']['memberships'] }
+					href={ newspack_urls[ 'checklists' ][ 'memberships' ] }
 				>
 					{ __( "I'm done adding" ) }
 				</Button>
@@ -89,4 +91,4 @@ class ManageSubscriptionsScreen extends Component {
 	}
 }
 
-export default ManageSubscriptionsScreen;
+export default withWizardScreen( ManageSubscriptionsScreen );

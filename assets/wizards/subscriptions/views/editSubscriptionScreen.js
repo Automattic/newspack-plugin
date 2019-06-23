@@ -18,6 +18,7 @@ import {
 	TextControl,
 	ImageUpload,
 	SelectControl,
+	withWizardScreen,
 } from '../../../components/src';
 
 /**
@@ -103,4 +104,4 @@ class EditSubscriptionScreen extends Component {
 	}
 }
 
-export default EditSubscriptionScreen;
+export default withWizardScreen( EditSubscriptionScreen );
