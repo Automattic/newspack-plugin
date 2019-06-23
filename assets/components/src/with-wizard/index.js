@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -17,15 +17,17 @@ import { Button, Card, FormattedHeader, Modal, PluginInstaller } from '../';
  * External dependencies
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { isFunction } from 'lodash';
 
 export default function withWizard( WrappedComponent, requiredPlugins ) {
-	return class extends React.Component {
+	return class extends Component {
 		constructor( props ) {
 			super( props );
 			this.state = {
 				pluginRequirementsMet: false,
 				error: null,
 			};
+			this.wrappedComponentRef = createRef();
 		}
 
 		/**
@@ -37,7 +39,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return new Promise( resolve => {
 				this.setState( { error }, () => resolve() );
 			} );
-		}
+		};
 
 		/**
 		 * Clear the error. Called by Wizards after successful API calls.
@@ -48,7 +50,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return new Promise( resolve => {
 				this.setState( { error: null }, () => resolve() );
 			} );
-		}
+		};
 
 		/**
 		 * Render any errors that need rendering.
@@ -130,6 +132,17 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		};
 
 		/**
+		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
+		 */
+		pluginInstallationComplete = () => {
+			this.setState( { pluginRequirementsMet: true }, () => {
+				if ( isFunction( this.wrappedComponentRef.current.onWizardReady ) ) {
+					this.wrappedComponentRef.current.onWizardReady();
+				}
+			} );
+		};
+
+		/**
 		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
 		 *
 		 * @return void
@@ -153,7 +166,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								/>
 								<PluginInstaller
 									plugins={ requiredPlugins }
-									onComplete={ () => this.setState( { pluginRequirementsMet: true } ) }
+									onComplete={ () => this.pluginInstallationComplete() }
 								/>
 								<Button isTertiary className="is-centered" href={ null }>
 									{ __( 'Back to checklist' ) }
@@ -176,10 +189,11 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<WrappedComponent
 					wizardReady={ pluginRequirementsMet }
-					setError={ this.setError }
 					clearError={ this.clearError }
 					getError={ this.getError }
+					setError={ this.setError }
 					pluginRequirements={ this.pluginRequirements() }
+					ref={ this.wrappedComponentRef }
 					{ ...this.props }
 				/>
 			);

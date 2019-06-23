@@ -65,15 +65,12 @@ class SubscriptionsOnboardingWizard extends Component {
 	}
 
 	/**
-	 * Get the saved data for populating the forms when wizard is first loaded.
+	 * wizardReady will be called when all plugin requirements are met.
 	 */
-	componentDidUpdate( prevProps, prevState ) {
-		const { wizardReady } = this.props;
-		if ( ! prevProps.wizardReady && !! wizardReady ) {
-			this.refreshFieldOptions();
-			this.refreshLocationInfo();
-			this.refreshStripeInfo();
-		}
+	onWizardReady = () => {
+		this.refreshFieldOptions();
+		this.refreshLocationInfo();
+		this.refreshStripeInfo();
 	}
 
 	/**

@@ -38,15 +38,12 @@ class SubscriptionsWizard extends Component {
 	}
 
 	/**
-	 * Get info when wizard is first loaded.
+	 * wizardReady will be called when all plugin requirements are met.
 	 */
-	componentDidUpdate( prevProps, prevState ) {
-		const { wizardReady } = this.props;
-		if ( ! prevProps.wizardReady && !! wizardReady ) {
-			this.refreshSubscriptions();
-			this.refreshChoosePrice();
-		}
-	}
+	onWizardReady = () => {
+		this.refreshSubscriptions();
+		this.refreshChoosePrice();
+	};
 
 	/**
 	 * Get the latest subscriptions info.
