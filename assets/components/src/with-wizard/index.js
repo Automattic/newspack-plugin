@@ -12,11 +12,12 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Button, Card, FormattedHeader, Modal, PluginInstaller } from '../';
+import { buttonProps } from '../../../shared/js/';
 
 /**
  * External dependencies
  */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { Redirect, Route } from 'react-router-dom';
 import { isFunction } from 'lodash';
 
 export default function withWizard( WrappedComponent, requiredPlugins ) {
@@ -124,10 +125,9 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
 		 */
 		pluginInstallationComplete = () => {
+			const instance = this.wrappedComponentRef.current;
 			this.setState( { pluginRequirementsMet: true }, () => {
-				if ( isFunction( this.wrappedComponentRef.current.onWizardReady ) ) {
-					this.wrappedComponentRef.current.onWizardReady();
-				}
+				instance && instance.onWizardReady && instance.onWizardReady();
 			} );
 		};
 
@@ -137,7 +137,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @return void
 		 */
 		pluginRequirements = () => {
-			const requiredPluginsCancelText = false;
 			const { pluginRequirementsMet } = this.state;
 			/* After all plugins are loaded, redirect to / (this could be configurable) */
 			if ( pluginRequirementsMet ) {
@@ -157,9 +156,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 									plugins={ requiredPlugins }
 									onComplete={ () => this.pluginInstallationComplete() }
 								/>
-								<Button isTertiary className="is-centered" href={ null }>
-									{ __( 'Back to checklist' ) }
-								</Button>
 							</Card>
 						) }
 					/>
@@ -174,17 +170,28 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @return JSX
 		 */
 		render() {
-			const { pluginRequirementsMet } = this.state;
+			const { buttonText, buttonAction } = this.props;
 			return (
-				<WrappedComponent
-					wizardReady={ pluginRequirementsMet }
-					clearError={ this.clearError }
-					getError={ this.getError }
-					setError={ this.setError }
-					pluginRequirements={ this.pluginRequirements() }
-					ref={ this.wrappedComponentRef }
-					{ ...this.props }
-				/>
+				<Fragment>
+					{ this.getError() }
+					<WrappedComponent
+						pluginRequirements={ this.pluginRequirements() }
+						clearError={ this.clearError }
+						getError={ this.getError }
+						setError={ this.setError }
+						ref={ this.wrappedComponentRef }
+						{ ...this.props }
+					/>
+					{ buttonText && buttonAction && (
+						<Button
+							isTertiary
+							className="is-centered muriel-wizardScreen__subCompleteButton"
+							{ ...buttonProps( buttonAction ) }
+						>
+							{ buttonText }
+						</Button>
+					) }
+				</Fragment>
 			);
 		}
 	};
