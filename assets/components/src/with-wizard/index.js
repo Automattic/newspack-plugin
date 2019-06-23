@@ -31,6 +31,12 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			this.wrappedComponentRef = createRef();
 		}
 
+		componentDidMount() {
+			if ( ! requiredPlugins ) {
+				this.pluginInstallationComplete();
+			}
+		}
+
 		/**
 		 * Set the error. Called by Wizards when an error occurs.
 		 *
