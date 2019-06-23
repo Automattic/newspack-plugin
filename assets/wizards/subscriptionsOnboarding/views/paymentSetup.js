@@ -20,6 +20,7 @@ import {
 	SelectControl,
 	CheckboxControl,
 	InfoButton,
+	withWizardScreen,
 } from '../../../components/src';
 
 /**
@@ -55,86 +56,77 @@ class PaymentSetup extends Component {
 
 		return (
 			<div className='newspack-payment-setup-screen'>
-				<FormattedHeader
-					headerText={ __( 'Set up Stripe' ) }
-					subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
+				<ToggleControl
+					label={ __( 'Enable Stripe' ) }
+					checked={ enabled }
+					onChange={ value => this.handleOnChange( 'enabled', value ) }
 				/>
-				<Card>
-					<ToggleControl
-						label={ __( 'Enable Stripe' ) }
-						checked={ enabled }
-						onChange={ value => this.handleOnChange( 'enabled', value ) }
-					/>
-					{ enabled && (
-						<Fragment>
-							<h3 className='newspack-payment-setup-screen__settings-heading'>
-								{ __( 'Stripe settings' ) }
-							</h3>
-							<CheckboxControl
-								label={ __( 'Use Stripe in test mode' ) }
-								checked={ testMode }
-								onChange={ value => this.handleOnChange( 'testMode', value ) }
-								tooltip='Test mode will not capture real payments. Use it for testing your purchase flow.'
-							/>
-							<div className='newspack-payment-setup-screen__api-keys-heading'>
-								<h4 className='newspack-payment-setup-screen__api-keys-instruction'>
-									{ __( 'Get your API keys from your Stripe account' ) }
-								</h4>
-								<p className='newspack-payment-setup-screen__api-tip'>
-									<a href='https://stripe.com/docs/keys#api-keys' target='_blank'>
-										{ __( 'Learn how' ) }
-									</a>
-								</p>
+				{ enabled && (
+					<Fragment>
+						<h3 className='newspack-payment-setup-screen__settings-heading'>
+							{ __( 'Stripe settings' ) }
+						</h3>
+						<CheckboxControl
+							label={ __( 'Use Stripe in test mode' ) }
+							checked={ testMode }
+							onChange={ value => this.handleOnChange( 'testMode', value ) }
+							tooltip='Test mode will not capture real payments. Use it for testing your purchase flow.'
+						/>
+						<div className='newspack-payment-setup-screen__api-keys-heading'>
+							<h4 className='newspack-payment-setup-screen__api-keys-instruction'>
+								{ __( 'Get your API keys from your Stripe account' ) }
+							</h4>
+							<p className='newspack-payment-setup-screen__api-tip'>
+								<a href='https://stripe.com/docs/keys#api-keys' target='_blank'>
+									{ __( 'Learn how' ) }
+								</a>
+							</p>
 
-								{ testMode && (
-									<Fragment>
-										<TextControl
-											type='password'
-											value={ testPublishableKey }
-											label={ __( 'Test Publishable Key' ) }
-											onChange={ value => this.handleOnChange( 'testPublishableKey', value ) }
-										/>
-										<TextControl
-											type='password'
-											value={ testSecretKey }
-											label={ __( 'Test Secret Key' ) }
-											onChange={ value => this.handleOnChange( 'testSecretKey', value ) }
-										/>
-									</Fragment>
-								) }
-								{ ! testMode && (
-									<Fragment>
-										<TextControl
-											type='password'
-											value={ publishableKey }
-											label={ __( 'Publishable Key' ) }
-											onChange={ value => this.handleOnChange( 'publishableKey', value ) }
-										/>
-										<TextControl
-											type='password'
-											value={ secretKey }
-											label={ __( 'Secret Key' ) }
-											onChange={ value => this.handleOnChange( 'secretKey', value ) }
-										/>
-									</Fragment>
-								) }
-							</div>
-						</Fragment>
-					) }
-					{ ! enabled && (
-						<em>
-							{ __(
-								'Other gateways can be enabled and set up in the WooCommerce payment gateway settings.'
+							{ testMode && (
+								<Fragment>
+									<TextControl
+										type='password'
+										value={ testPublishableKey }
+										label={ __( 'Test Publishable Key' ) }
+										onChange={ value => this.handleOnChange( 'testPublishableKey', value ) }
+									/>
+									<TextControl
+										type='password'
+										value={ testSecretKey }
+										label={ __( 'Test Secret Key' ) }
+										onChange={ value => this.handleOnChange( 'testSecretKey', value ) }
+									/>
+								</Fragment>
 							) }
-						</em>
-					) }
-					<Button isPrimary className='is-centered' onClick={ () => onClickFinish() }>
-						{ __( 'Finish' ) }
-					</Button>
-				</Card>
+							{ ! testMode && (
+								<Fragment>
+									<TextControl
+										type='password'
+										value={ publishableKey }
+										label={ __( 'Publishable Key' ) }
+										onChange={ value => this.handleOnChange( 'publishableKey', value ) }
+									/>
+									<TextControl
+										type='password'
+										value={ secretKey }
+										label={ __( 'Secret Key' ) }
+										onChange={ value => this.handleOnChange( 'secretKey', value ) }
+									/>
+								</Fragment>
+							) }
+						</div>
+					</Fragment>
+				) }
+				{ ! enabled && (
+					<em>
+						{ __(
+							'Other gateways can be enabled and set up in the WooCommerce payment gateway settings.'
+						) }
+					</em>
+				) }
 			</div>
 		);
 	}
 }
 
-export default PaymentSetup;
+export default withWizardScreen( PaymentSetup );

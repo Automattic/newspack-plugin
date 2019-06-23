@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, FormattedHeader, Button, TextControl, SelectControl } from '../../../components/src';
+import { TextControl, SelectControl, withWizardScreen } from '../../../components/src';
 
 /**
  * Location Setup Screen.
@@ -39,52 +39,41 @@ class LocationSetup extends Component {
 
 		return (
 			<div className='newspack-location-setup-screen'>
-				<FormattedHeader
-					headerText={ __( 'About your publication' ) }
-					subHeaderText={ __(
-						'This information is required for accepting payments'
-					) }
+				<SelectControl
+					label={ __( 'Where is your business based?' ) }
+					value={ countrystate }
+					options={ countrystateFields }
+					onChange={ value => this.handleOnChange( 'countrystate', value ) }
 				/>
-				<Card>
-					<SelectControl
-						label={ __( 'Where is your business based?' ) }
-						value={ countrystate }
-						options={ countrystateFields }
-						onChange={ value => this.handleOnChange( 'countrystate', value ) }
-					/>
-					<TextControl
-						label={ __( 'Address' ) }
-						value={ address1 }
-						onChange={ value => this.handleOnChange( 'address1', value ) }
-					/>
-					<TextControl
-						label={ __( 'Address line 2' ) }
-						value={ address2 }
-						onChange={ value => this.handleOnChange( 'address2', value ) }
-					/>
-					<TextControl
-						label={ __( 'City' ) }
-						value={ city }
-						onChange={ value => this.handleOnChange( 'city', value ) }
-					/>
-					<TextControl
-						label={ __( 'Postcode / Zip' ) }
-						value={ postcode }
-						onChange={ value => this.handleOnChange( 'postcode', value ) }
-					/>
-					<SelectControl
-						label={ 'Which currency does your business use?' }
-						value={ currency }
-						options={ currencyFields }
-						onChange={ value => this.handleOnChange( 'currency', value ) }
-					/>
-					<Button isPrimary className='is-centered' onClick={ () => onClickContinue() }>
-						{ __( 'Continue' ) }
-					</Button>
-				</Card>
+				<TextControl
+					label={ __( 'Address' ) }
+					value={ address1 }
+					onChange={ value => this.handleOnChange( 'address1', value ) }
+				/>
+				<TextControl
+					label={ __( 'Address line 2' ) }
+					value={ address2 }
+					onChange={ value => this.handleOnChange( 'address2', value ) }
+				/>
+				<TextControl
+					label={ __( 'City' ) }
+					value={ city }
+					onChange={ value => this.handleOnChange( 'city', value ) }
+				/>
+				<TextControl
+					label={ __( 'Postcode / Zip' ) }
+					value={ postcode }
+					onChange={ value => this.handleOnChange( 'postcode', value ) }
+				/>
+				<SelectControl
+					label={ 'Which currency does your business use?' }
+					value={ currency }
+					options={ currencyFields }
+					onChange={ value => this.handleOnChange( 'currency', value ) }
+				/>
 			</div>
 		);
 	}
 }
 
-export default LocationSetup;
+export default withWizardScreen( LocationSetup, {} );

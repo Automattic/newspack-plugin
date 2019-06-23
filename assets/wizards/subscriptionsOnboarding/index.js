@@ -40,7 +40,6 @@ class SubscriptionsOnboardingWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			pluginRequirementsMet: false,
 			location: {
 				countrystate: '',
 				address1: '',
@@ -71,7 +70,7 @@ class SubscriptionsOnboardingWizard extends Component {
 		this.refreshFieldOptions();
 		this.refreshLocationInfo();
 		this.refreshStripeInfo();
-	}
+	};
 
 	/**
 	 * Get information used for populating complex dropdown menus.
@@ -176,59 +175,69 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { getError, pluginRequirements } = this.props;
-		const { error, location, stripeSettings, fields } = this.state;
+		const { pluginRequirements } = this.props;
+		const { location, stripeSettings, fields } = this.state;
 		return (
-			<Fragment>
-				{ getError() }
-				<HashRouter hashType="slash">
-					<Switch>
-						{ pluginRequirements }
-						<Route
-							path="/"
-							exact
-							render={ routeProps => (
-								<Fragment>
-									<LocationSetup
-										countrystateFields={ fields.countrystate }
-										currencyFields={ fields.currency }
-										location={ location }
-										onChange={ location => this.setState( { location } ) }
-										onClickContinue={ () =>
-											this.saveLocation().then(
-												() => routeProps.history.push( '/stripe' ),
-												() => null
-											)
-										}
-									/>
-								</Fragment>
-							) }
-						/>
-						<Route
-							path="/stripe"
-							render={ routeProps => (
-								<Fragment>
-									<PaymentSetup
-										stripeSettings={ stripeSettings }
-										onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-										onClickFinish={ () =>
-											this.saveStripeSettings().then(
-												() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
-											)
-										}
-									/>
-								</Fragment>
-							) }
-						/>
-						<Redirect to="/" />
-					</Switch>
-				</HashRouter>
-			</Fragment>
+			<HashRouter hashType="slash">
+				<Switch>
+					{ pluginRequirements }
+					<Route
+						path="/"
+						exact
+						render={ routeProps => (
+							<Fragment>
+								<FormattedHeader
+									headerText={ __( 'About your publication' ) }
+									subHeaderText={ __( 'This information is required for accepting payments' ) }
+								/>
+								<LocationSetup
+									countrystateFields={ fields.countrystate }
+									currencyFields={ fields.currency }
+									location={ location }
+									onChange={ location => this.setState( { location } ) }
+									buttonText={ __( 'Save' ) }
+									buttonAction={ () =>
+										this.saveLocation().then(
+											() => routeProps.history.push( '/stripe' ),
+											() => null
+										)
+									}
+								/>
+							</Fragment>
+						) }
+					/>
+					<Route
+						path="/stripe"
+						render={ routeProps => (
+							<Fragment>
+								<FormattedHeader
+									headerText={ __( 'Set up Stripe' ) }
+									subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
+								/>
+								<PaymentSetup
+									stripeSettings={ stripeSettings }
+									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
+									buttonText={ __( 'Save' ) }
+									buttonAction={ () =>
+										this.saveStripeSettings().then(
+											() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+										)
+									}
+								/>
+							</Fragment>
+						) }
+					/>
+					<Redirect to="/" />
+				</Switch>
+			</HashRouter>
 		);
 	}
 }
 
 render(
-	createElement( withWizard( SubscriptionsOnboardingWizard, [ 'woocommerce' ] ) ),
+	createElement( withWizard( SubscriptionsOnboardingWizard, [ 'woocommerce' ] ), {
+		buttonText: __( 'Back to checklist' ),
+		buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
+	} ),
 	document.getElementById( 'newspack-subscriptions-onboarding-wizard' )
 );
