@@ -128,6 +128,17 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		};
 
 		/**
+		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
+		 */
+		pluginInstallationComplete = () => {
+			this.setState( { pluginRequirementsMet: true }, () => {
+				if ( isFunction( this.wrappedComponentRef.current.onWizardReady ) ) {
+					this.wrappedComponentRef.current.onWizardReady();
+				}
+			} );
+		};
+
+		/**
 		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
 		 *
 		 * @return void
