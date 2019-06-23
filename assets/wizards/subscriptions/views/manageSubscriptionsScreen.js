@@ -13,9 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	ActionCard,
-	Button,
 	CheckboxControl,
-	FormattedHeader,
 	withWizardScreen,
 } from '../../../components/src';
 
@@ -34,22 +32,10 @@ class ManageSubscriptionsScreen extends Component {
 			onClickChoosePrice,
 		} = this.props;
 
-		const headerText = subscriptions.length
-			? __( 'Any more subscriptions to add?' )
-			: __( 'Add your first subscription' );
-		const buttonText = subscriptions.length
-			? __( 'Add another subscription' )
-			: __( 'Add a subscription' );
-
 		return (
 			<div className="newspack-manage-subscriptions-screen">
-				<FormattedHeader
-					headerText={ headerText }
-					subHeaderText={ __( 'Subscriptions can provide a stable, recurring source of revenue' ) }
-				/>
 				{ subscriptions.map( subscription => {
 					const { id, image, name, display_price, url } = subscription;
-
 					return (
 						<ActionCard
 							key={ id }
@@ -76,9 +62,6 @@ class ManageSubscriptionsScreen extends Component {
 						checked={ choosePrice }
 					/>
 				) }
-				<Button isPrimary className="is-centered" href="#/create">
-					{ buttonText }
-				</Button>
 			</div>
 		);
 	}

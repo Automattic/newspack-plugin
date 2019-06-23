@@ -50,16 +50,8 @@ class EditSubscriptionScreen extends Component {
 		}
 
 		const editing_existing_subscription = !! id;
-		const heading = editing_existing_subscription
-			? __( 'Edit subscription' )
-			: __( 'Add a subscription' );
-		const subHeading = editing_existing_subscription
-			? __( 'You are editing an existing subscription' )
-			: __( 'You are adding a new subscription' );
-
 		return (
 			<div className="newspack-edit-subscription-screen">
-				<FormattedHeader headerText={ heading } subHeaderText={ subHeading } />
 				<TextControl
 					label={ __( 'What is this product called? e.g. Valued Donor' ) }
 					value={ name }

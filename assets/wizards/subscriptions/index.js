@@ -179,12 +179,26 @@ class SubscriptionsWizard extends Component {
 						exact
 						render={ routeProps => (
 							<ManageSubscriptionsScreen
+								headerText={
+									Object.values( subscriptions ).length
+										? __( 'Any more subscriptions to add?' )
+										: __( 'Add your first subscription' )
+								}
+								subHeaderText={ __(
+									'Subscriptions can provide a stable, recurring source of revenue'
+								) }
 								subscriptions={ Object.values( subscriptions ) }
 								choosePrice={ choosePrice }
 								onClickDeleteSubscription={ subscription =>
 									this.deleteSubscription( subscription.id )
 								}
 								onClickChoosePrice={ () => this.toggleChoosePrice() }
+								buttonText={
+									subscriptions.length
+										? __( 'Add another subscription' )
+										: __( 'Add a subscription' )
+								}
+								buttonAction="#/create"
 							/>
 						) }
 					/>
@@ -193,6 +207,8 @@ class SubscriptionsWizard extends Component {
 						render={ routeProps => {
 							return (
 								<EditSubscriptionScreen
+									headerText={ __( 'Edit subscription' ) }
+									subHeaderText={ __( 'You are editing an existing subscription' ) }
 									subscription={ subscriptions[ routeProps.match.params.id ] || {} }
 									onChange={ this.onSubscriptionChange }
 									onClickSave={ subscription =>
@@ -207,6 +223,8 @@ class SubscriptionsWizard extends Component {
 						render={ routeProps => {
 							return (
 								<EditSubscriptionScreen
+									headerText={ __( 'Add a subscription' ) }
+									subHeaderText={ __( 'You are adding a new subscription' ) }
 									subscription={
 										subscriptions[ 0 ] || {
 											id: 0,
