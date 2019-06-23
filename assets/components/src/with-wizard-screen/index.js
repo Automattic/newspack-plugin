@@ -10,14 +10,21 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Button, Card } from '../';
+import { Button, Card, FormattedHeader } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
 export default function withWizardScreen( WrappedComponent, config ) {
 	return class extends Component {
 		render() {
-			const { className, buttonText, buttonAction, noBackground } = this.props;
+			const {
+				className,
+				buttonText,
+				buttonAction,
+				headerText,
+				subHeaderText,
+				noBackground,
+			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
 				className,
@@ -25,6 +32,9 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			);
 			return (
 				<Card className={ classes } noBackground={ noBackground }>
+					{ headerText && (
+						<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+					) }
 					<div className="muriel-wizardScreen__content">
 						<WrappedComponent { ...this.props } />
 					</div>
