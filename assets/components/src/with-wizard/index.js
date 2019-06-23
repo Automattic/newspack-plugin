@@ -60,8 +60,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			}
 
 			const parsedError = this.parseError( error );
-			// const { level } = parsedError;
-			const level = 'fatal';
+			const { level } = parsedError;
 			if ( 'fatal' === level ) {
 				return this.getFatalError( parsedError );
 			}
