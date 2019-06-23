@@ -14,3 +14,4 @@ export { default as SelectControl } from './select-control';
 export { default as Task } from './task';
 export { default as TextControl } from './text-control';
 export { default as withWizard } from './with-wizard';
+export { default as withWizardScreen } from './with-wizard-screen';
