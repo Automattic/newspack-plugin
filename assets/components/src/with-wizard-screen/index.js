@@ -12,6 +12,7 @@ import { Component } from '@wordpress/element';
  */
 import { Button, Card } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
+import './style.scss';
 
 export default function withWizardScreen( WrappedComponent, config ) {
 	return class extends Component {
