@@ -49,7 +49,7 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest subscriptions info.
 	 */
 	refreshSubscriptions( callback ) {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
 			.then( subscriptions => {
 				const result = subscriptions.reduce( ( result, value ) => {
@@ -62,7 +62,7 @@ class SubscriptionsWizard extends Component {
 							subscriptions: result,
 						},
 						() => {
-							clearError();
+							setError();
 							resolve( this.state );
 						}
 					);
@@ -77,7 +77,7 @@ class SubscriptionsWizard extends Component {
 	 * Save the fields to a susbcription.
 	 */
 	saveSubscription( subscription ) {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		const { id, name, image, price, frequency } = subscription;
 		const image_id = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
@@ -93,7 +93,7 @@ class SubscriptionsWizard extends Component {
 				},
 			} )
 				.then( subscription => {
-					clearError().then( () => resolve( subscription ) );
+					setError().then( () => resolve( subscription ) );
 				} )
 				.catch( error => {
 					setError( error ).then( () => reject( error ) );
@@ -107,7 +107,7 @@ class SubscriptionsWizard extends Component {
 	 * @param int id Subscription ID.
 	 */
 	deleteSubscription( id ) {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
 			apiFetch( {
 				path: '/newspack/v1/wizard/subscriptions/' + id,

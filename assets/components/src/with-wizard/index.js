@@ -37,18 +37,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 */
 		setError = error => {
 			return new Promise( resolve => {
-				this.setState( { error }, () => resolve() );
-			} );
-		};
-
-		/**
-		 * Clear the error. Called by Wizards after successful API calls.
-		 *
-		 * @return Promise
-		 */
-		clearError = error => {
-			return new Promise( resolve => {
-				this.setState( { error: null }, () => resolve() );
+				this.setState( { error: error || null }, () => resolve() );
 			} );
 		};
 

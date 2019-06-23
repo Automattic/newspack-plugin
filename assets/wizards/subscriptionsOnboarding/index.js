@@ -77,10 +77,10 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get information used for populating complex dropdown menus.
 	 */
 	refreshFieldOptions() {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } )
 			.then( fields => {
-				clearError();
+				setError();
 				this.setState( {
 					fields,
 				} );
@@ -94,12 +94,12 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved info about business location.
 	 */
 	refreshLocationInfo() {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
 		} )
 			.then( location => {
-				clearError();
+				setError();
 				this.setState( {
 					location,
 				} );
@@ -113,7 +113,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current location info.
 	 */
 	saveLocation() {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
 				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
@@ -123,7 +123,7 @@ class SubscriptionsOnboardingWizard extends Component {
 				},
 			} )
 				.then( response => {
-					clearError().then( () => resolve() );
+					setError().then( () => resolve() );
 				} )
 				.catch( error => {
 					setError( error ).then( () => reject() );
@@ -135,12 +135,12 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved Stripe settings.
 	 */
 	refreshStripeInfo() {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
 		} )
 			.then( stripeSettings => {
-				clearError();
+				setError();
 				this.setState( {
 					stripeSettings,
 				} );
@@ -154,7 +154,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current Stripe settings.
 	 */
 	saveStripeSettings() {
-		const { clearError, setError } = this.props;
+		const { setError } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
 				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
@@ -164,7 +164,7 @@ class SubscriptionsOnboardingWizard extends Component {
 				},
 			} )
 				.then( response => {
-					clearError().then( () => resolve() );
+					setError().then( () => resolve() );
 				} )
 				.catch( error => {
 					setError( error ).then( () => reject() );
