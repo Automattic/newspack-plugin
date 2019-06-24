@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import Welcome from './views/welcome/';
 import About from './views/about/';
+import Newsroom from './views/newsroom/';
 import { Card, NewspackLogo, ProgressBar, withWizard } from '../../components/src';
 import './style.scss';
 
@@ -155,12 +156,33 @@ class SetupWizard extends Component {
 						/>
 						<Route
 							path="/about"
-							exact
 							render={ routeProps => (
 								<About
 									headerText={ __( 'About your publication' ) }
 									subHeaderText={ __(
 										'Share a few details so we can start setting up your profile'
+									) }
+									buttonText={ __( 'Continue' ) }
+									buttonAction={ {
+										href: '#/newsroom',
+										onClick: () => this.update(),
+									} }
+									profile={ profile }
+									currencies={ currencies }
+									countries={ countries }
+									updateProfile={ ( key, value ) => {
+										this.setState( { profile: { ...profile, [ key ]: value } } );
+									} }
+								/>
+							) }
+						/>
+						<Route
+							path="/newsroom"
+							render={ routeProps => (
+								<Newsroom
+									headerText={ __( 'Tell us about your Newsroom' ) }
+									subHeaderText={ __(
+										'The description helps set the stage for the step content below'
 									) }
 									buttonText={ __( 'Continue' ) }
 									buttonAction={ {
