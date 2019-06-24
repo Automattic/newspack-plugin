@@ -186,11 +186,9 @@ class SubscriptionsOnboardingWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Fragment>
-								<FormattedHeader
+								<LocationSetup
 									headerText={ __( 'About your publication' ) }
 									subHeaderText={ __( 'This information is required for accepting payments' ) }
-								/>
-								<LocationSetup
 									countrystateFields={ fields.countrystate }
 									currencyFields={ fields.currency }
 									location={ location }
@@ -210,11 +208,9 @@ class SubscriptionsOnboardingWizard extends Component {
 						path="/stripe"
 						render={ routeProps => (
 							<Fragment>
-								<FormattedHeader
+								<PaymentSetup
 									headerText={ __( 'Set up Stripe' ) }
 									subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
-								/>
-								<PaymentSetup
 									stripeSettings={ stripeSettings }
 									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
 									buttonText={ __( 'Save' ) }
