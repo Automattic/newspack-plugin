@@ -199,6 +199,7 @@ class SubscriptionsWizard extends Component {
 										: __( 'Add a subscription' )
 								}
 								buttonAction="#/create"
+								noBackground
 							/>
 						) }
 					/>
