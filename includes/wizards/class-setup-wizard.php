@@ -10,6 +10,9 @@ namespace Newspack;
 use \WP_Error;
 defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
+
+define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
+
 /**
  * Setup Newspack.
  */
@@ -33,6 +36,14 @@ class Setup_Wizard extends Wizard {
 	 * @var bool
 	 */
 	protected $hidden = false;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
+	}
 
 	/**
 	 * Get the name for this wizard.
@@ -83,5 +94,24 @@ class Setup_Wizard extends Wizard {
 		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-setup-wizard' );
+	}
+
+	/**
+	 * If initial setup is incomplete, redirect to Setup Wizard.
+	 */
+	public function redirect_to_setup() {
+		if ( get_option( NEWSPACK_SETUP_COMPLETE ) ) {
+			return;
+		}
+		try {
+			$screen = get_current_screen();
+		} catch ( Exception $e ) {
+			return;
+		}
+		if ( $screen && 'toplevel_page_newspack' === $screen->id ) {
+			$setup_url = Wizards::get_url( 'setup' );
+			wp_safe_redirect( esc_url( $setup_url ) );
+			exit;
+		}
 	}
 }
