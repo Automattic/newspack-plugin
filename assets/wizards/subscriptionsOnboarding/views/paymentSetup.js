@@ -13,13 +13,8 @@ import { ToggleControl } from '@wordpress/components';
  * Internal dependencies
  */
 import {
-	Card,
-	FormattedHeader,
-	Button,
 	TextControl,
-	SelectControl,
 	CheckboxControl,
-	InfoButton,
 	withWizardScreen,
 } from '../../../components/src';
 
