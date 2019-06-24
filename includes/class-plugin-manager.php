@@ -107,6 +107,19 @@ class Plugin_Manager {
 				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
 				'EditPath'    => 'admin.php?page=googlesitekit-splash',
 			],
+			'pwa'                           => [
+				'Name'        => 'PWA',
+				'Description' => 'Feature plugin to bring Progressive Web App (PWA) capabilities to Core',
+				'Author'      => 'PWA Plugin Contributors',
+				'AuthorURI'   => 'https://github.com/xwp/pwa-wp/graphs/contributors',
+				'Download'    => 'wporg',
+			],
+			'gutenberg'                     => [
+				'Name'        => 'Gutenberg',
+				'Description' => 'Printing since 1440. This is the development plugin for the new block editor in core.',
+				'Author'      => 'Gutenberg Team',
+				'Download'    => 'wporg',
+			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
 				'Description' => 'This is a made-up plugin, meant to error out.',
