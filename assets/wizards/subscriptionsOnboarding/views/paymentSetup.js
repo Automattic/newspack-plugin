@@ -113,11 +113,11 @@ class PaymentSetup extends Component {
 					</Fragment>
 				) }
 				{ ! enabled && (
-					<em>
+					<p className='newspack-payment-setup-screen__info'>
 						{ __(
 							'Other gateways can be enabled and set up in the WooCommerce payment gateway settings.'
 						) }
-					</em>
+					</p>
 				) }
 			</div>
 		);
