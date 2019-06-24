@@ -206,7 +206,7 @@ class SubscriptionsOnboardingWizard extends Component {
 									subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
 									stripeSettings={ stripeSettings }
 									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-									buttonText={ __( 'Save' ) }
+									buttonText={ __( 'Finish' ) }
 									buttonAction={ () =>
 										this.saveStripeSettings().then(
 											() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
