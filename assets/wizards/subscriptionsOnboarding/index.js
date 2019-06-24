@@ -235,7 +235,7 @@ class SubscriptionsOnboardingWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SubscriptionsOnboardingWizard), {
+	createElement( withWizard( SubscriptionsOnboardingWizard, [ 'woocommerce' ] ), {
 		buttonText: __( 'Back to checklist' ),
 		buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
 	} ),
