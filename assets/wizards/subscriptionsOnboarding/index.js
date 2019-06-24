@@ -14,14 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/paymentSetup';
-import {
-	PluginInstaller,
-	Card,
-	FormattedHeader,
-	Modal,
-	Button,
-	withWizard,
-} from '../../components/src';
+import { withWizard } from '../../components/src';
 import './style.scss';
 
 /**
