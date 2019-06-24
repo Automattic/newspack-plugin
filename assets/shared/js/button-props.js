@@ -11,5 +11,13 @@ export default function buttonProps( action ) {
 	if ( isString( action ) ) {
 		props.href = action;
 	}
+	if ( isObject( action ) ) {
+		if ( action.onClick ) {
+			props.onClick = action.onClick;
+		}
+		if ( action.href ) {
+			props.href = action.href;
+		}
+	}
 	return props;
 }
