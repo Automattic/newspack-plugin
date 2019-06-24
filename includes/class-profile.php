@@ -118,7 +118,12 @@ class Profile {
 	 * @return object|WP_Error
 	 */
 	public function api_get_profile( $request ) {
-		return rest_ensure_response( $this->newspack_get_profile() );
+		$response = [
+			'profile'    => $this->newspack_get_profile(),
+			'currencies' => newspack_select_prepare( newspack_currencies() ),
+			'countries'  => newspack_select_prepare( newspack_countries() ),
+		];
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -135,7 +140,10 @@ class Profile {
 				self::newspack_update_option( $fieldname, $updates[ $fieldname ] );
 			}
 		}
-		return rest_ensure_response( $this->newspack_get_profile() );
+		$response = [
+			'profile' => $this->newspack_get_profile(),
+		];
+		return rest_ensure_response( $response );
 	}
 
 	/**

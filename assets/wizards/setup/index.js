@@ -38,8 +38,15 @@ class SetupWizard extends Component {
 		this.state = {
 			installing: false,
 			installedPlugins: [],
+			profile: {},
+			currencies: {},
+			countries: {},
 		};
 	}
+
+	componentDidMount = () => {
+		this.retrieveProfile();
+	};
 
 	/**
 	 * Retrieve plugin information, create Promises to install them.
@@ -69,6 +76,36 @@ class SetupWizard extends Component {
 		} );
 	};
 
+	update = () => {
+		this.initiateInstallPlugins();
+		this.updateProfile();
+	};
+
+	updateProfile = () => {
+		const { profile } = this.state;
+		const params = { path: '/newspack/v1/profile/', method: 'POST', data: { profile } };
+		apiFetch( params )
+			.then( response => {
+				const { profile } = response;
+				this.setState( { profile } );
+			} )
+			.catch( error => {
+				console.log( '[Profile Update Error]', error );
+			} );
+	};
+
+	retrieveProfile = () => {
+		const params = { path: '/newspack/v1/profile/', method: 'GET' };
+		apiFetch( params )
+			.then( response => {
+				const { profile, currencies, countries } = response;
+				this.setState( { profile, currencies, countries } );
+			} )
+			.catch( error => {
+				console.log( '[Profile Fetch Error]', error );
+			} );
+	};
+
 	/**
 	 * Create Promise to install one plugin.
 	 */
@@ -94,7 +131,7 @@ class SetupWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { installedPlugins, installing } = this.state;
+		const { installedPlugins, installing, profile, countries, currencies } = this.state;
 		const installProgress = Object.keys( installedPlugins ).length;
 		const installTotal = REQUIRED_PLUGINS.length;
 		return (
@@ -110,7 +147,31 @@ class SetupWizard extends Component {
 									buttonText={ __( 'Get started' ) }
 									buttonAction={ {
 										href: '#/about',
-										onClick: () => this.initiateInstallPlugins(),
+										onClick: () => this.update(),
+									} }
+									profile={ profile }
+								/>
+							) }
+						/>
+						<Route
+							path="/about"
+							exact
+							render={ routeProps => (
+								<About
+									headerText={ __( 'About your publication' ) }
+									subHeaderText={ __(
+										'Share a few details so we can start setting up your profile'
+									) }
+									buttonText={ __( 'Continue' ) }
+									buttonAction={ {
+										href: '#/about',
+										onClick: () => this.update(),
+									} }
+									profile={ profile }
+									currencies={ currencies }
+									countries={ countries }
+									updateProfile={ ( key, value ) => {
+										this.setState( { profile: { ...profile, [ key ]: value } } );
 									} }
 								/>
 							) }
@@ -130,9 +191,7 @@ class SetupWizard extends Component {
 						) }
 						{ installProgress === installTotal && (
 							<p className="newspack-setup-wizard_progress_bar_explainer">
-								{ __(
-									"Plugin installation is complete!"
-								) }
+								{ __( 'Plugin installation is complete!' ) }
 							</p>
 						) }
 					</Card>
