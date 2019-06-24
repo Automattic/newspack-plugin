@@ -239,7 +239,7 @@ class SubscriptionsWizard extends Component {
 									onClickSave={ subscription =>
 										this.saveSubscription( subscription ).then( newSubscription => {
 											return this.refreshSubscriptions().then( () =>
-												routeProps.history.push( `edit/${ newSubscription.id }` )
+												routeProps.history.push( '/' )
 											);
 										} )
 									}
