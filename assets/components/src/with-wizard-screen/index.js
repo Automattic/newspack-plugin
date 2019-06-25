@@ -21,6 +21,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				className,
 				buttonText,
 				buttonAction,
+				buttonDisabled,
 				headerText,
 				subHeaderText,
 				noBackground,
@@ -45,6 +46,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						<Button
 							isPrimary
 							className="is-centered muriel-wizardScreen__completeButton"
+							disabled={ buttonDisabled }
 							{ ...buttonProps( buttonAction ) }
 						>
 							{ buttonText }

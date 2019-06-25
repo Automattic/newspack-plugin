@@ -26,6 +26,10 @@ import { pickBy, includes, forEach } from 'lodash';
 
 const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo' ];
 
+const INSTALLATION_STATE_NONE = 0;
+const INSTALLATION_STATE_INSTALLING = 1;
+const INSTALLATION_STATE_DONE = 2;
+
 /**
  * Wizard for setting up ability to take payments.
  * May have other settings added to it in the future.
@@ -37,7 +41,7 @@ class SetupWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			installing: false,
+			installationState: INSTALLATION_STATE_NONE,
 			installedPlugins: [],
 			profile: {},
 			currencies: {},
@@ -53,12 +57,12 @@ class SetupWizard extends Component {
 	 * Retrieve plugin information, create Promises to install them.
 	 */
 	initiateInstallPlugins = () => {
-		const { installing } = this.state;
+		const { installationState } = this.state;
 		/* First, check if installation has already begun */
-		if ( installing ) {
+		if ( INSTALLATION_STATE_NONE !== installationState ) {
 			return;
 		}
-		this.setState( { installing: true }, () => {
+		this.setState( { installationState: INSTALLATION_STATE_INSTALLING }, () => {
 			apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
 				const requiredPluginInfo = pickBy( response, ( value, key ) =>
 					includes( REQUIRED_PLUGINS, key )
@@ -72,7 +76,11 @@ class SetupWizard extends Component {
 						installedPlugins[ slug ] = true;
 					}
 				} );
-				this.setState( { installedPlugins }, () => Promise.all( pluginPromises ) );
+				this.setState( { installedPlugins }, () =>
+					Promise.all( pluginPromises ).then( () =>
+						this.setState( { installationState: INSTALLATION_STATE_DONE } )
+					)
+				);
 			} );
 		} );
 	};
@@ -132,7 +140,7 @@ class SetupWizard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { installedPlugins, installing, profile, countries, currencies } = this.state;
+		const { installedPlugins, installationState, profile, countries, currencies } = this.state;
 		const installProgress = Object.keys( installedPlugins ).length;
 		const installTotal = REQUIRED_PLUGINS.length;
 		return (
@@ -186,11 +194,12 @@ class SetupWizard extends Component {
 									subHeaderText={ __(
 										'The description helps set the stage for the step content below'
 									) }
-									buttonText={ __( 'Continue' ) }
+									buttonText={ __( 'Finish' ) }
 									buttonAction={ {
 										href: '#/about',
 										onClick: () => this.update(),
 									} }
+									buttonDisabled={ INSTALLATION_STATE_DONE !== installationState }
 									profile={ profile }
 									currencies={ currencies }
 									countries={ countries }
@@ -204,7 +213,7 @@ class SetupWizard extends Component {
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
-				{ !! installing && (
+				{ INSTALLATION_STATE_NONE !== installationState && (
 					<Card noBackground>
 						<ProgressBar completed={ installProgress } total={ installTotal } />
 						{ installProgress < installTotal && (
