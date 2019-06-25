@@ -14,7 +14,13 @@ import { __ } from '@wordpress/i18n';
  */
 import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import EditSubscriptionScreen from './views/editSubscriptionScreen';
+import { withWizard } from '../../components/src';
 import './style.scss';
+
+/**
+ * External dependencies
+ */
+import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 /**
  * Subscriptions wizard for managing and setting up subscriptions.
@@ -27,56 +33,71 @@ class SubscriptionsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			subscriptions: [],
-			editing: false,
 			choosePrice: false,
 		};
 	}
 
 	/**
-	 * Get info when wizard is first loaded.
+	 * wizardReady will be called when all plugin requirements are met.
 	 */
-	componentDidMount() {
+	onWizardReady = () => {
 		this.refreshSubscriptions();
 		this.refreshChoosePrice();
-	}
+	};
 
 	/**
 	 * Get the latest subscriptions info.
 	 */
-	refreshSubscriptions() {
-		apiFetch( { path: '/newspack/v1/wizard/subscriptions' } ).then( subscriptions => {
-			this.setState( {
-				subscriptions: subscriptions,
+	refreshSubscriptions( callback ) {
+		const { setError } = this.props;
+		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
+			.then( subscriptions => {
+				const result = subscriptions.reduce( ( result, value ) => {
+					result[ value.id ] = value;
+					return result;
+				}, {} );
+				return new Promise( resolve => {
+					this.setState(
+						{
+							subscriptions: result,
+						},
+						() => {
+							setError();
+							resolve( this.state );
+						}
+					);
+				} );
+			} )
+			.catch( error => {
+				this.setError( error );
 			} );
-		} );
 	}
 
 	/**
 	 * Save the fields to a susbcription.
 	 */
 	saveSubscription( subscription ) {
+		const { setError } = this.props;
 		const { id, name, image, price, frequency } = subscription;
 		const image_id = image ? image.id : 0;
-
-		apiFetch( {
-			path: '/newspack/v1/wizard/subscriptions',
-			method: 'post',
-			data: {
-				id,
-				name,
-				image_id,
-				price,
-				frequency,
-			},
-		} ).then( response => {
-			this.setState(
-				{
-					editing: false,
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizard/subscriptions',
+				method: 'post',
+				data: {
+					id,
+					name,
+					image_id,
+					price,
+					frequency,
 				},
-				() => {
-					this.refreshSubscriptions();
-				}
-			);
+			} )
+				.then( subscription => {
+					setError().then( () => resolve( subscription ) );
+				} )
+				.catch( error => {
+					setError( error ).then( () => reject( error ) );
+				} );
 		} );
 	}
 
@@ -86,13 +107,18 @@ class SubscriptionsWizard extends Component {
 	 * @param int id Subscription ID.
 	 */
 	deleteSubscription( id ) {
+		const { setError } = this.props;
 		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
 			apiFetch( {
 				path: '/newspack/v1/wizard/subscriptions/' + id,
 				method: 'delete',
-			} ).then( response => {
-				this.refreshSubscriptions();
-			} );
+			} )
+				.then( response => {
+					this.refreshSubscriptions();
+				} )
+				.catch( error => {
+					this.setError( error );
+				} );
 		}
 	}
 
@@ -129,33 +155,121 @@ class SubscriptionsWizard extends Component {
 		);
 	}
 
+	onSubscriptionChange = subscription => {
+		this.setState( prevState => ( {
+			subscriptions: {
+				...prevState.subscriptions,
+				[ subscription.id ]: subscription,
+			},
+		} ) );
+	};
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { subscriptions, editing, choosePrice } = this.state;
-
-		if ( !! editing ) {
-			return (
-				<EditSubscriptionScreen
-					subscription={ editing }
-					onChange={ subscription => this.setState( { editing: subscription } ) }
-					onClickSave={ subscription => this.saveSubscription( subscription ) }
-					onClickCancel={ () => this.setState( { editing: false } ) }
-				/>
-			);
-		} else {
-			return (
-				<ManageSubscriptionsScreen
-					subscriptions={ subscriptions }
-					choosePrice={ choosePrice }
-					onClickEditSubscription={ subscription => this.setState( { editing: subscription } ) }
-					onClickDeleteSubscription={ subscription => this.deleteSubscription( subscription.id ) }
-					onClickChoosePrice={ () => this.toggleChoosePrice() }
-				/>
-			);
-		}
+		const { pluginRequirements } = this.props;
+		const { subscriptions, choosePrice } = this.state;
+		return (
+			<HashRouter hashType="slash">
+				<Switch>
+					{ pluginRequirements }
+					<Route
+						path="/"
+						exact
+						render={ routeProps => (
+							<ManageSubscriptionsScreen
+								headerText={
+									Object.values( subscriptions ).length
+										? __( 'Any more subscriptions to add?' )
+										: __( 'Add your first subscription' )
+								}
+								subHeaderText={ __(
+									'Subscriptions can provide a stable, recurring source of revenue'
+								) }
+								subscriptions={ Object.values( subscriptions ) }
+								choosePrice={ choosePrice }
+								onClickDeleteSubscription={ subscription =>
+									this.deleteSubscription( subscription.id )
+								}
+								onClickChoosePrice={ () => this.toggleChoosePrice() }
+								buttonText={
+									subscriptions.length
+										? __( 'Add another subscription' )
+										: __( 'Add a subscription' )
+								}
+								buttonAction="#/create"
+								noBackground
+							/>
+						) }
+					/>
+					<Route
+						path="/edit/:id"
+						render={ routeProps => {
+							return (
+								<EditSubscriptionScreen
+									headerText={ __( 'Edit subscription' ) }
+									subHeaderText={ __( 'You are editing an existing subscription' ) }
+									subscription={ subscriptions[ routeProps.match.params.id ] || {} }
+									onChange={ this.onSubscriptionChange }
+									onClickSave={ subscription =>
+										this.saveSubscription( subscription ).then( newSubscription => {
+											return this.refreshSubscriptions().then( () =>
+												routeProps.history.push( '/' )
+											);
+										} )
+									}
+								/>
+							);
+						} }
+					/>
+					<Route
+						path="/create"
+						render={ routeProps => {
+							return (
+								<EditSubscriptionScreen
+									headerText={ __( 'Add a subscription' ) }
+									subHeaderText={ __( 'You are adding a new subscription' ) }
+									subscription={
+										subscriptions[ 0 ] || {
+											id: 0,
+											name: '',
+											image_id: 0,
+											price: '',
+											frequency: '',
+										}
+									}
+									onChange={ this.onSubscriptionChange }
+									onClickSave={ subscription =>
+										this.saveSubscription( subscription ).then( newSubscription => {
+											return this.refreshSubscriptions().then( () =>
+												routeProps.history.push( '/' )
+											);
+										} )
+									}
+								/>
+							);
+						} }
+					/>
+					<Redirect to="/" />
+				</Switch>
+			</HashRouter>
+		);
 	}
 }
 
-render( <SubscriptionsWizard />, document.getElementById( 'newspack-subscriptions-wizard' ) );
+render(
+	createElement(
+		withWizard( SubscriptionsWizard, [
+			'woocommerce',
+			'woocommerce-subscriptions',
+			'woocommerce-name-your-price',
+			'woocommerce-one-page-checkout',
+		] ),
+		{
+			buttonText: __( 'Back to checklist' ),
+			buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
+		}
+	),
+	document.getElementById( 'newspack-subscriptions-wizard' )
+);

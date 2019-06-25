@@ -2,37 +2,14 @@
  * Subscriptions Wizard styles.
  */
 
-#newspack-subscriptions-wizard {
-	header.muriel-formatted-header {
-		margin-bottom: 32px;
-	}
-}
-
 /**
  * Subscription management screen.
  */
 .newspack-manage-subscriptions-screen {
-	max-width: 440px;
-	margin-left: auto;
-	margin-right: auto;
-
-	button.is-primary {
-		margin-top: 3em;
+	.newspack-manage-subscriptions-screen__choose-price {
+		margin-top: 2em;
 		margin-bottom: 2em;
 	}
-}
-
-.newspack-manage-subscriptions-screen__finished {
-	display: block;
-	text-align: center;
-}
-
-.newspack-manage-subscriptions-screen__finished {
-	text-decoration: none;
-}
-
-.newspack-manage-subscriptions-screen__choose-price {
-	margin-top: 2em;
 }
 
 /**
@@ -45,7 +22,7 @@
 	}
 
 	button.is-primary {
-		margin-bottom: 2em;
+		margin-top: 2em;
 	}
 }
 

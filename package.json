@@ -30,6 +30,7 @@
     "postcss-cli": "^6.0.1",
     "postcss-focus-within": "^3.0.0",
     "prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.16.4/wp-prettier-1.16.4.tgz",
+    "react-router-dom": "^5.0.1",
     "rtlcss": "^2.4.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
