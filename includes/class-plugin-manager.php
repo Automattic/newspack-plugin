@@ -73,7 +73,7 @@ class Plugin_Manager {
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
 				'Author'      => 'Google',
 				'AuthorURI'   => 'https://opensource.google.com',
-				'Download'    => 'preinstall',
+				'PluginURI'   => 'https://sitekit.withgoogle.com/',
 				'EditPath'    => 'admin.php?page=googlesitekit-dashboard',
 			],
 			'fake-plugin'                => [
@@ -262,7 +262,7 @@ class Plugin_Manager {
 		if ( wp_http_validate_url( $plugin ) ) {
 			return self::install_from_url( $plugin );
 		} else {
-			return self::install_from_wporg( $plugin );
+			return self::install_from_slug( $plugin );
 		}
 	}
 
@@ -304,22 +304,50 @@ class Plugin_Manager {
 	}
 
 	/**
-	 * Install a plugin from the WordPress.org plugin repo.
+	 * Install a plugin by slug.
 	 *
 	 * @param string $plugin_slug The slug for the plugin.
 	 * @return bool True on success. False on failure.
 	 */
-	protected static function install_from_wporg( $plugin_slug ) {
+	protected static function install_from_slug( $plugin_slug ) {
 		// Quick check to make sure plugin directory doesn't already exist.
 		$plugin_directory = WP_PLUGIN_DIR . '/' . $plugin_slug;
 		if ( is_dir( $plugin_directory ) ) {
 			return new WP_Error( 'newspack_plugin_already_installed', __( 'The plugin directory already exists.', 'newspack' ) );
 		}
 
+		$managed_plugins = self::get_managed_plugins();
+		if ( ! isset( $managed_plugins[ $plugin_slug ] ) ) {
+			return new WP_Error(
+				'newspack_plugin_failed_install',
+				__( 'Plugin not found.', 'newspack' )
+			);
+		}
+
+		// Return a useful error if we are unable to get download info for the plugin.
+		if ( empty( $managed_plugins[ $plugin_slug ]['Download'] ) ) {
+			$error_message = __( 'Newspack can not install this plugin. You will need to get it from the plugin\'s site and install it manually.', 'newspack' );
+			if ( ! empty( $managed_plugins[ $plugin_slug ]['PluginURI'] ) ) {
+				/* translators: %s: plugin URL */
+				$error_message = sprintf( __( 'Newspack can not install this plugin. You will need to get it from %s and install it manually.', 'newspack' ), esc_url( $managed_plugins[ $plugin_slug ]['PluginURI'] ) );
+			}
+
+			return new WP_Error(
+				'newspack_plugin_failed_install',
+				$error_message
+			);
+		}
+
+		// If the plugin has a URL as it's Download, install it from there.
+		if ( wp_http_validate_url( $managed_plugins[ $plugin_slug ]['Download'] ) ) {
+			return self::install_from_url( $managed_plugins[ $plugin_slug ]['Download'] );
+		}
+
 		if ( ! function_exists( 'plugins_api' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		}
 
+		// Check WP.org for a download link, and install it from WP.org.
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[

@@ -133,7 +133,7 @@ class ComponentsDemo extends Component {
 						headerText={ __( 'Plugin installer' ) }
 					/>
 					<PluginInstaller
-						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'fake-plugin' ] }
+						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit-wp', 'fake-plugin' ] }
 						canUninstall
 					/>
 				</Card>
