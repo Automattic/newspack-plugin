@@ -151,6 +151,7 @@ class SetupWizard extends Component {
 										onClick: () => this.update(),
 									} }
 									profile={ profile }
+									wideLayout
 								/>
 							) }
 						/>
@@ -173,6 +174,7 @@ class SetupWizard extends Component {
 									updateProfile={ ( key, value ) => {
 										this.setState( { profile: { ...profile, [ key ]: value } } );
 									} }
+									wideLayout
 								/>
 							) }
 						/>
@@ -195,6 +197,7 @@ class SetupWizard extends Component {
 									updateProfile={ ( key, value ) => {
 										this.setState( { profile: { ...profile, [ key ]: value } } );
 									} }
+									wideLayout
 								/>
 							) }
 						/>
