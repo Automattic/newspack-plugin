@@ -79,7 +79,7 @@ class Dashboard extends Wizard {
 					'url'         => Checklists::get_url( 'advertising' ),
 					'description' => Checklists::get_description( 'advertising' ),
 					'status'      => Checklists::get_status( 'advertising' ),
-					'image'       => plugins_url( 'assets/img/ads.svg', NEWSPACK_PLUGIN_FILE ), // Temporary for demo purposes.
+					'image'       => plugins_url( 'assets/img/ads.svg', NEWSPACK_PLUGIN_FILE ),
 				],
 				[
 					'name'        => __( 'Setup newsletter', 'newspack' ),
