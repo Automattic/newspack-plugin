@@ -209,11 +209,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
-		if ( 'wporg' === $managed_plugins[ $slug ]['Download'] ) {
-			$result = Plugin_Manager::activate( $slug );
-		} else {
-			$result = Plugin_Manager::activate( $managed_plugins[ $slug ]['Download'] );
-		}
+		$result = Plugin_Manager::activate( $slug );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

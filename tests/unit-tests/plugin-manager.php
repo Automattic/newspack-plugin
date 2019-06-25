@@ -17,21 +17,21 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	protected $plugin_slug = 'hello-dolly';
+	protected $plugin_slug = 'amp';
 
 	/**
 	 * Plugin file path.
 	 *
 	 * @var string
 	 */
-	protected $plugin_file = 'hello-dolly/hello.php';
+	protected $plugin_file = 'amp/amp.php';
 
 	/**
 	 * URL to plugin download.
 	 *
 	 * @var string
 	 */
-	protected $plugin_url = 'https://downloads.wordpress.org/plugin/hello-dolly.1.6.zip';
+	protected $plugin_url = 'https://downloads.wordpress.org/plugin/amp.1.2.0.zip';
 
 	/**
 	 * Compatibility checks and clean up.
