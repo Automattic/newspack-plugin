@@ -41,7 +41,7 @@ function newspack_string_to_bool( $string ) {
  */
 function newspack_install_activate_theme() {
 	$theme_slug = 'newspack-theme';
-	$theme_url = 'https://github.com/Automattic/newspack-theme/archive/master.zip';
+	$theme_url  = 'https://github.com/Automattic/newspack-theme/archive/master.zip';
 
 	$theme_object = wp_get_theme( $theme_slug );
 	if ( ! $theme_object->exists() ) {
@@ -59,8 +59,8 @@ function newspack_install_activate_theme() {
 		} else if ( $success ) {
 			// Make sure `-master` or `-1.0.1` etc. are not in the theme folder name.
 			// We just want the folder name to be the theme slug.
-			$theme_object = $upgrader->theme_info();
-			$theme_folder = $theme_object->get_template_directory();
+			$theme_object    = $upgrader->theme_info();
+			$theme_folder    = $theme_object->get_template_directory();
 			$expected_folder = $theme_object->get_theme_root() . '/' . $theme_slug;
 			if ( $theme_folder !== $expected_folder ) {
 				rename( $theme_folder, $expected_folder );
