@@ -17,6 +17,7 @@ import {
 	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
+import './style.scss';
 
 /**
  * Location Setup Screen.
@@ -110,26 +111,28 @@ class Newsroom extends Component {
 					] }
 				/>
 				<p>How do you engage with your audience? (select all that apply)</p>
-				<CheckboxControl
-					label={ __( 'Newsletters' ) }
-					checked={ engagement_newsletters }
-					onChange={ value => updateProfile( 'engagement_newsletters', value ) }
-				/>
-				<CheckboxControl
-					label={ __( 'Subscriptions' ) }
-					checked={ engagement_subscriptions }
-					onChange={ value => updateProfile( 'engagement_subscriptions', value ) }
-				/>
-				<CheckboxControl
-					label={ __( 'Social Media' ) }
-					checked={ engagement_social_media }
-					onChange={ value => updateProfile( 'engagement_social_media', value ) }
-				/>
-				<CheckboxControl
-					label={ __( 'User generated content' ) }
-					checked={ engagement_ugc }
-					onChange={ value => updateProfile( 'engagement_ugc', value ) }
-				/>
+				<div className="newspack-setup-wizard_newsroom-screen_plugin_group">
+					<CheckboxControl
+						label={ __( 'Newsletters' ) }
+						checked={ engagement_newsletters }
+						onChange={ value => updateProfile( 'engagement_newsletters', value ) }
+					/>
+					<CheckboxControl
+						label={ __( 'Subscriptions' ) }
+						checked={ engagement_subscriptions }
+						onChange={ value => updateProfile( 'engagement_subscriptions', value ) }
+					/>
+					<CheckboxControl
+						label={ __( 'Social Media' ) }
+						checked={ engagement_social_media }
+						onChange={ value => updateProfile( 'engagement_social_media', value ) }
+					/>
+					<CheckboxControl
+						label={ __( 'User generated content' ) }
+						checked={ engagement_ugc }
+						onChange={ value => updateProfile( 'engagement_ugc', value ) }
+					/>
+				</div>
 			</Fragment>
 		);
 	}
