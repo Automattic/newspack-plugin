@@ -370,7 +370,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 					'level'  => 'notice',
 				]
 			);
-		} elseif ( ! $this->api_validate_not_empty( $args['publishableKey'] ) || ! $this->api_validate_not_empty( $args['secretKey'] ) ) {
+		} elseif ( ! $args['testMode'] && ( ! $this->api_validate_not_empty( $args['publishableKey'] ) || ! $this->api_validate_not_empty( $args['secretKey'] ) ) ) {
 			return new WP_Error(
 				'newspack_missing_required_field',
 				esc_html__( 'Publishable Key and Secret Key are required to use Stripe.', 'newspack' ),
