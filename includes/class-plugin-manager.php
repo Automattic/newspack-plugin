@@ -49,6 +49,7 @@ class Plugin_Manager {
 				'Author'      => 'WooCommerce',
 				'PluginURI'   => 'https://woocommerce.com/',
 				'AuthorURI'   => 'https://woocommerce.com/',
+				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wc-settings&tab=checkout&section=stripe',
 			],
 			'woocommerce'                   => [
