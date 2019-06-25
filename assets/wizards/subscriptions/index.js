@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import EditSubscriptionScreen from './views/editSubscriptionScreen';
-import { withWizard } from '../../components/src';
+import { withWizard, WizardRouter } from '../../components/src';
 import './style.scss';
 
 /**
@@ -171,7 +171,7 @@ class SubscriptionsWizard extends Component {
 		const { pluginRequirements } = this.props;
 		const { subscriptions, choosePrice } = this.state;
 		return (
-			<HashRouter hashType="slash">
+			<WizardRouter hashType="slash">
 				<Switch>
 					{ pluginRequirements }
 					<Route
@@ -253,7 +253,7 @@ class SubscriptionsWizard extends Component {
 					/>
 					<Redirect to="/" />
 				</Switch>
-			</HashRouter>
+			</WizardRouter>
 		);
 	}
 }

@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/paymentSetup';
-import { withWizard } from '../../components/src';
+import { withWizard, WizardRouter } from '../../components/src';
 import './style.scss';
 
 /**
@@ -171,54 +171,52 @@ class SubscriptionsOnboardingWizard extends Component {
 		const { pluginRequirements } = this.props;
 		const { location, stripeSettings, fields } = this.state;
 		return (
-			<HashRouter hashType="slash">
-				<Switch>
-					{ pluginRequirements }
-					<Route
-						path="/"
-						exact
-						render={ routeProps => (
-							<Fragment>
-								<LocationSetup
-									headerText={ __( 'About your publication' ) }
-									subHeaderText={ __( 'This information is required for accepting payments' ) }
-									countrystateFields={ fields.countrystate }
-									currencyFields={ fields.currency }
-									location={ location }
-									onChange={ location => this.setState( { location } ) }
-									buttonText={ __( 'Save' ) }
-									buttonAction={ () =>
-										this.saveLocation().then(
-											() => routeProps.history.push( '/stripe' ),
-											() => null
-										)
-									}
-								/>
-							</Fragment>
-						) }
-					/>
-					<Route
-						path="/stripe"
-						render={ routeProps => (
-							<Fragment>
-								<PaymentSetup
-									headerText={ __( 'Set up Stripe' ) }
-									subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
-									stripeSettings={ stripeSettings }
-									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
-									buttonText={ __( 'Finish' ) }
-									buttonAction={ () =>
-										this.saveStripeSettings().then(
-											() => ( window.location = newspack_urls[ 'checklists' ][ 'reader-revenue' ] )
-										)
-									}
-								/>
-							</Fragment>
-						) }
-					/>
-					<Redirect to="/" />
-				</Switch>
-			</HashRouter>
+			<WizardRouter pagination>
+				{ pluginRequirements }
+				<Route
+					path="/"
+					exact
+					render={ routeProps => (
+						<Fragment>
+							<LocationSetup
+								headerText={ __( 'About your publication' ) }
+								subHeaderText={ __( 'This information is required for accepting payments' ) }
+								countrystateFields={ fields.countrystate }
+								currencyFields={ fields.currency }
+								location={ location }
+								onChange={ location => this.setState( { location } ) }
+								buttonText={ __( 'Save' ) }
+								buttonAction={ () =>
+									this.saveLocation().then(
+										() => routeProps.history.push( '/stripe' ),
+										() => null
+									)
+								}
+							/>
+						</Fragment>
+					) }
+				/>
+				<Route
+					path="/stripe"
+					render={ routeProps => (
+						<Fragment>
+							<PaymentSetup
+								headerText={ __( 'Set up Stripe' ) }
+								subHeaderText={ __( 'Stripe is the recommended gateway for accepting payments' ) }
+								stripeSettings={ stripeSettings }
+								onChange={ stripeSettings => this.setState( { stripeSettings } ) }
+								buttonText={ __( 'Finish' ) }
+								buttonAction={ () =>
+									this.saveStripeSettings().then(
+										() => ( window.location = newspack_urls[ 'checklists' ][ 'reader-revenue' ] )
+									)
+								}
+							/>
+						</Fragment>
+					) }
+				/>
+				<Redirect to="/" />
+			</WizardRouter>
 		);
 	}
 }
