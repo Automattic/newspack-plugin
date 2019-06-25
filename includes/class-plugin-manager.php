@@ -66,7 +66,6 @@ class Plugin_Manager {
 				'Author'      => 'Prospress Inc.',
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
 				'AuthorURI'   => 'https://prospress.com',
-				'Download'    => 'wporg', // @todo add premium plugin handling.
 			],
 			'woocommerce-name-your-price'   => [
 				'Name'        => __( 'WooCommerce Name Your Price', 'newspack' ),
@@ -74,7 +73,6 @@ class Plugin_Manager {
 				'Author'      => 'Kathy Darling',
 				'PluginURI'   => 'http://www.woocommerce.com/products/name-your-price/',
 				'AuthorURI'   => 'http://kathyisawesome.com',
-				'Download'    => 'wporg', // @todo add premium plugin handling.
 			],
 			'woocommerce-one-page-checkout' => [
 				'Name'        => __( 'WooCommerce One Page Checkout', 'newspack' ),
@@ -82,7 +80,6 @@ class Plugin_Manager {
 				'Author'      => 'Prospress Inc.',
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-one-page-checkout/',
 				'AuthorURI'   => 'http://prospress.com/',
-				'Download'    => 'wporg', // @todo add premium plugin handling.
 			],
 			'wordpress-seo'                 => [
 				'Name'        => 'Yoast SEO',
@@ -92,12 +89,13 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
-			'google-site-kit-wp'            => [
+			'google-site-kit'            => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
 				'Author'      => 'Google',
 				'AuthorURI'   => 'https://opensource.google.com',
 				'PluginURI'   => 'https://sitekit.withgoogle.com/',
+				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
 				'EditPath'    => 'admin.php?page=googlesitekit-dashboard',
 			],
 			'fake-plugin'                   => [

@@ -99,7 +99,7 @@ class ComponentsDemo extends Component {
 					/>
 					<Handoff
 						className="is-centered"
-						plugin="google-site-kit-wp"
+						plugin="google-site-kit"
 					/>
 					<Handoff
 						className="is-centered"
@@ -133,7 +133,7 @@ class ComponentsDemo extends Component {
 						headerText={ __( 'Plugin installer' ) }
 					/>
 					<PluginInstaller
-						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit-wp', 'fake-plugin' ] }
+						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit', 'woocommerce-subscriptions', 'fake-plugin' ] }
 						canUninstall
 					/>
 				</Card>
