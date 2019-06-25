@@ -89,7 +89,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
-			'google-site-kit'            => [
+			'google-site-kit'               => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
 				'Author'      => 'Google',
