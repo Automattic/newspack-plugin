@@ -42,17 +42,21 @@ class About extends Component {
 					value={ address2 }
 					onChange={ value => updateProfile( 'address2', value ) }
 				/>
-				<div className="newspack-setup-wizard__form_element_row_notyet">
-					<TextControl
-						label={ __( 'City' ) }
-						value={ city }
-						onChange={ value => updateProfile( 'city', value ) }
-					/>
-					<TextControl
-						label={ __( 'Postcode/Zip' ) }
-						value={ zip }
-						onChange={ value => updateProfile( 'zip', value ) }
-					/>
+				<div className="newspack-setup-wizard__form_element_row">
+					<div style={ { flex: 2 } }>
+						<TextControl
+							label={ __( 'City' ) }
+							value={ city }
+							onChange={ value => updateProfile( 'city', value ) }
+						/>
+					</div>
+					<div style={ { flex: 1 } }>
+						<TextControl
+							label={ __( 'Postcode/Zip' ) }
+							value={ zip }
+							onChange={ value => updateProfile( 'zip', value ) }
+						/>
+					</div>
 				</div>
 				<SelectControl
 					label={ __( 'Currency' ) }
