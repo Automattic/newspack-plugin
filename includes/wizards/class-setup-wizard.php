@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use \WP_Error, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
@@ -43,6 +43,7 @@ class Setup_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 	}
 
 	/**
@@ -68,6 +69,32 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function get_length() {
 		return esc_html__( '10 minutes', 'newspack' );
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+		// Update option when setup is complete.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/complete',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_complete' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Update option when setup is complete.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_complete() {
+		update_option( NEWSPACK_SETUP_COMPLETE, true );
+		return rest_ensure_response( [ 'complete' => true ] );
 	}
 
 	/**

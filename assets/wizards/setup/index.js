@@ -43,6 +43,7 @@ class SetupWizard extends Component {
 		this.state = {
 			installationState: INSTALLATION_STATE_NONE,
 			installedPlugins: [],
+			setupComplete: false,
 			profile: {},
 			currencies: {},
 			countries: {},
@@ -147,10 +148,39 @@ class SetupWizard extends Component {
 	};
 
 	/**
+	 * API call to set option indicating setup is complete.
+	 */
+	completeSetup = () => {
+		const { setError } = this.props;
+		const params = {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
+			method: 'post',
+		};
+		return new Promise( ( resolve, reject ) => {
+			return apiFetch( params )
+				.then( response => {
+					this.setState( { setupComplete: true }, () => resolve( response ) );
+				} )
+				.catch( error => {
+					console.log( '[Complete Setup Error]', error );
+					setError( error );
+					reject( error );
+				} );
+		} );
+	};
+
+	/**
 	 * Render.
 	 */
 	render() {
-		const { installedPlugins, installationState, profile, countries, currencies } = this.state;
+		const {
+			installedPlugins,
+			installationState,
+			profile,
+			countries,
+			currencies,
+			setupComplete,
+		} = this.state;
 		const installProgress = Object.keys( installedPlugins ).length;
 		const installTotal = REQUIRED_PLUGINS.length;
 		return (
@@ -206,8 +236,12 @@ class SetupWizard extends Component {
 									) }
 									buttonText={ __( 'Finish' ) }
 									buttonAction={ {
-										href: '#/about',
-										onClick: () => this.update(),
+										onClick: () =>
+											this.updateProfile().then( response =>
+												this.completeSetup().then(
+													() => window.location = newspack_urls.dashboard
+												)
+											),
 									} }
 									buttonDisabled={ INSTALLATION_STATE_DONE !== installationState }
 									profile={ profile }
