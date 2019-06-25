@@ -307,7 +307,7 @@ class Plugin_Manager {
 	 * Install a plugin by slug.
 	 *
 	 * @param string $plugin_slug The slug for the plugin.
-	 * @return bool True on success. False on failure.
+	 * @return Mixed True on success. WP_Error on failure.
 	 */
 	protected static function install_from_slug( $plugin_slug ) {
 		// Quick check to make sure plugin directory doesn't already exist.
@@ -338,7 +338,7 @@ class Plugin_Manager {
 			);
 		}
 
-		// If the plugin has a URL as it's Download, install it from there.
+		// If the plugin has a URL as its Download, install it from there.
 		if ( wp_http_validate_url( $managed_plugins[ $plugin_slug ]['Download'] ) ) {
 			return self::install_from_url( $managed_plugins[ $plugin_slug ]['Download'] );
 		}
