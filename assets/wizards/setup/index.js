@@ -91,28 +91,38 @@ class SetupWizard extends Component {
 	};
 
 	updateProfile = () => {
+		const { setError } = this.props;
 		const { profile } = this.state;
 		const params = { path: '/newspack/v1/profile/', method: 'POST', data: { profile } };
-		apiFetch( params )
-			.then( response => {
-				const { profile } = response;
-				this.setState( { profile } );
-			} )
-			.catch( error => {
-				console.log( '[Profile Update Error]', error );
-			} );
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( params )
+				.then( response => {
+					const { profile } = response;
+					this.setState( { profile }, () => resolve( response ) );
+				} )
+				.catch( error => {
+					console.log( '[Profile Update Error]', error );
+					setError( { error } );
+					reject( error );
+				} );
+		} );
 	};
 
 	retrieveProfile = () => {
+		const { setError } = this.props;
 		const params = { path: '/newspack/v1/profile/', method: 'GET' };
-		apiFetch( params )
-			.then( response => {
-				const { profile, currencies, countries } = response;
-				this.setState( { profile, currencies, countries } );
-			} )
-			.catch( error => {
-				console.log( '[Profile Fetch Error]', error );
-			} );
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( params )
+				.then( response => {
+					const { profile, currencies, countries } = response;
+					this.setState( { profile, currencies, countries }, () => resolve( response ) );
+				} )
+				.catch( error => {
+					console.log( '[Profile Fetch Error]', error );
+					setError( { error } );
+					reject( error );
+				} );
+		} );
 	};
 
 	/**
