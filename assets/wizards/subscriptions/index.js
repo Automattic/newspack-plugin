@@ -213,7 +213,11 @@ class SubscriptionsWizard extends Component {
 									subscription={ subscriptions[ routeProps.match.params.id ] || {} }
 									onChange={ this.onSubscriptionChange }
 									onClickSave={ subscription =>
-										this.saveSubscription( subscription ).then( () => this.refreshSubscriptions() )
+										this.saveSubscription( subscription ).then( newSubscription => {
+											return this.refreshSubscriptions().then( () =>
+												routeProps.history.push( '/' )
+											);
+										} )
 									}
 								/>
 							);
