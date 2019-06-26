@@ -24,9 +24,10 @@ class Dashboard extends Component {
 		return (
 			<Fragment>
 				<FormattedHeader
-					headerText={ __( 'Welcome to the Newspack Dashboard' ) }
+					className='newspack_dashboard__header'
+					headerText={ __( 'Newspack' ) }
 					subHeaderText={ __(
-						"Here we'll guide you through the setup and launch of your news site"
+						"Here we'll guide you through the steps necessary to get your news site ready for launch"
 					) }
 				/>
 				{ items.map( ( tier, index ) => (

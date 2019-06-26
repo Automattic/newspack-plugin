@@ -56,54 +56,66 @@ class Dashboard extends Wizard {
 		$dashboard = [
 			[
 				[
-					'slug'        => 'onboarding',
-					'name'        => Checklists::get_name( 'temporary-demo' ),
-					'url'         => Checklists::get_url( 'temporary-demo' ),
-					'description' => Checklists::get_description( 'temporary-demo' ),
-					'status'      => 'completed',
-					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042', // Temporary for demo purposes.
-				],
-			],
-			[
-				[
-					'slug'        => 'memberships',
-					'name'        => Checklists::get_name( 'memberships' ),
-					'url'         => Checklists::get_url( 'memberships' ),
-					'description' => Checklists::get_description( 'memberships' ),
-					'status'      => Checklists::get_status( 'memberships' ),
-					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042', // Temporary for demo purposes.
-				],
-				[
-					'name'        => __( 'Setup newsletter', 'newspack' ),
-					'slug'        => 'newsletter',
-					'description' => __( 'Reach your audience', 'newspack' ),
-					'status'      => 'completed',
-					'url'         => '#todo',
-				],
-			],
-			[
-				[
-					'name'        => __( 'Analytics', 'newspack' ),
-					'slug'        => 'analytics',
-					'description' => __( 'Learn about your audience', 'newspack' ),
+					'slug'        => 'site-design',
+					'name'        => esc_html__( 'Site Design', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
 					'status'      => 'disabled',
-					'url'         => '#todo',
 				],
 				[
-					'name'        => __( 'Engage your audience', 'newspack' ),
+					'slug'        => 'reader-revenue',
+					'name'        => Checklists::get_name( 'reader-revenue' ),
+					'url'         => Checklists::get_url( 'reader-revenue' ),
+					'description' => esc_html__( 'Membership, paywall, subscriptions', 'newspack' ),
+					'status'      => Checklists::get_status( 'reader-revenue' ),
+				],
+			],
+			[
+				[
+					'slug'        => 'performance',
+					'name'        => esc_html__( 'Performance', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
+					'status'      => 'disabled',
+				],
+				[
+					'slug'        => 'advertising',
+					'name'        => esc_html__( 'Advertising', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Content monetization', 'newspack' ),
+					'status'      => 'disabled',
+				],
+				[
+					'slug'        => 'seo',
+					'name'        => esc_html__( 'SEO', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
+					'status'      => 'disabled',
+				],
+			],
+			[
+				[
 					'slug'        => 'engagement',
-					'description' => __( 'Set up social and commenting integrations', 'newspack' ),
+					'name'        => esc_html__( 'Engagement', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
 					'status'      => 'disabled',
-					'url'         => '#todo',
 				],
 				[
-					'name'        => __( 'Syndicate your content', 'newspack' ),
-					'slug'        => 'syndication',
-					'description' => __( 'Cross post your articles to other outlets', 'newspack' ),
+					'slug'        => 'analytics',
+					'name'        => esc_html__( 'Analytics', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
 					'status'      => 'disabled',
-					'url'         => '#todo',
 				],
-			],
+				[
+					'slug'        => 'syndication',
+					'name'        => esc_html__( 'Syndication', 'newspack' ),
+					'url'         => '#',
+					'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
+					'status'      => 'disabled',
+				],
+			]
 		];
 
 		return $dashboard;

@@ -33,22 +33,12 @@ class Checklists {
 		 *     wizards: An array of wizard slugs in desired order, corresponding to slugs registered in Wizards class.
 		 */
 		self::$checklists = [
-			'memberships'    => [
-				'name'        => esc_html__( 'Memberships', 'newspack' ),
-				'description' => esc_html__( 'Subscriptions, donations, and paywall', 'newspack' ),
+			'reader-revenue'    => [
+				'name'        => esc_html__( 'Reader Revenue', 'newspack' ),
+				'description' => esc_html__( 'Here are a few things to do to easily set up your membership revenue business model.', 'newspack' ),
 				'wizards'     => [
 					'subscriptions-onboarding',
 					'subscriptions',
-				],
-			],
-			'temporary-demo' => [
-				'name'        => esc_html__( 'Demo checklist', 'newspack' ),
-				'description' => esc_html__( 'A demo checklist', 'newspack' ),
-				'wizards'     => [
-					'subscriptions',
-					'components-demo',
-					'components-demo',
-					'dashboard',
 				],
 			],
 		];
