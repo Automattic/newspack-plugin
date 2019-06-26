@@ -361,6 +361,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 		];
 		$args     = wp_parse_args( $params, $defaults );
 
+		// If Stripe is enabled, make sure the API key fields are non-empty.
 		if ( $args['enabled'] ) {
 			if ( $args['testMode'] && ( ! $this->api_validate_not_empty( $args['testPublishableKey'] ) || ! $this->api_validate_not_empty( $args['testSecretKey'] ) ) ) {
 				return new WP_Error(
