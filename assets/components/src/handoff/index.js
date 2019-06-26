@@ -53,11 +53,11 @@ class Handoff extends Component {
 	};
 
 	goToPlugin = plugin => {
-		const { handoffLink } = this.props;
+		const { editLink } = this.props;
 		apiFetch( {
 			path: '/newspack/v1/plugins/' + plugin + '/handoff',
 			method: 'POST',
-			data: { handoffLink },
+			data: { editLink },
 		} ).then( response => {
 			window.location.href = response.HandoffLink;
 		} );
