@@ -92,12 +92,12 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
-			'google-site-kit-wp'            => [
+			'google-site-kit'            => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
 				'Author'      => 'Google',
-				'AuthorURI'   => 'https://opensource.google.com',
-				'Download'    => 'preinstall',
+				'AuthorURI'   => 'https://sitekit.withgoogle.com/',
+				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
 				'EditPath'    => 'admin.php?page=googlesitekit-dashboard',
 			],
 			'fake-plugin'                   => [
