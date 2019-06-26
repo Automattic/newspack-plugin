@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack advertising setup and management.
+ * Newspack adsense setup.
  *
  * @package Newspack
  */
@@ -8,19 +8,21 @@
 namespace Newspack;
 
 use \WP_Error;
-defined( 'ABSPATH' ) || exit;
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
-/**
- * Easy interface for managing subscriptions.
- */
-class Advertising_Wizard extends Wizard {
 
+defined( 'ABSPATH' ) || exit;
+
+require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
+
+/**
+ * Easy interface for setting up general store info.
+ */
+class Google_AdSense_Wizard extends Wizard {
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-advertising-wizard';
+	protected $slug = 'newspack-google-adsense-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -30,19 +32,12 @@ class Advertising_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Advertising', 'newspack' );
+		return esc_html__( 'Google AdSense', 'newspack' );
 	}
 
 	/**
@@ -51,7 +46,7 @@ class Advertising_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Create and manage advertising networks', 'newspack' );
+		return esc_html__( 'Connect your Newspack site to your Google AdSense account', 'newspack' );
 	}
 
 	/**
@@ -60,27 +55,19 @@ class Advertising_Wizard extends Wizard {
 	 * @return string The wizard length.
 	 */
 	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
+		return esc_html__( '3 minutes', 'newspack' );
 	}
 
 	/**
-	 * Register the endpoints needed for the wizard screens.
-	 */
-	public function register_api_endpoints() {
-
-	}
-
-	/**
-	 * Check whether required plugins are installed and active.
+	 * Check whether SiteKit is installed and active.
 	 *
 	 * @return bool | WP_Error True on success, WP_Error on failure.
 	 */
 	protected function check_required_plugins_installed() {
-
-		if ( ! class_exists( 'Jetpack' ) ) {
+		if ( ! is_defined( 'GOOGLESITEKIT_VERSION' ) ) {
 			return new WP_Error(
 				'newspack_missing_required_plugin',
-				esc_html__( 'The required plugins are not installed and activated. Install and/or activate them to access this feature.', 'newspack' ),
+				esc_html__( 'The Google SiteKit plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
 				[
 					'status' => 400,
 					'level'  => 'fatal',
@@ -97,23 +84,26 @@ class Advertising_Wizard extends Wizard {
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
 		wp_enqueue_media();
+
 		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
 			return;
 		}
+
 		wp_enqueue_script(
-			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/assets/dist/advertising.js',
+			'newspack-google-adsense-wizard',
+			Newspack::plugin_url() . '/assets/dist/googleAdSense.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdSense.js' ),
 			true
 		);
+
 		wp_register_style(
-			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/assets/dist/advertising.css',
+			'newspack-google-adsense-wizard',
+			Newspack::plugin_url() . '/assets/dist/googleAdSense.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdSense.css' )
 		);
-		wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-advertising-wizard' );
+		wp_style_add_data( 'newspack-google-adsense-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-google-adsense-wizard' );
 	}
 }

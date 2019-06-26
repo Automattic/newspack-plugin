@@ -45,7 +45,7 @@ class Checklists {
 				'name'        => esc_html__( 'Advertising', 'newspack' ),
 				'description' => esc_html__( 'Display advertising', 'newspack' ),
 				'wizards'     => [
-					'advertising',
+					'google-adsense',
 				],
 			],
 			'temporary-demo' => [
