@@ -11,11 +11,6 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * External dependencies.
- */
-import { forEach, includes, pickBy } from 'lodash';
-
-/**
  * Internal dependencies.
  */
 import { ActionCard, Button } from '../';
@@ -52,11 +47,15 @@ class PluginInstaller extends Component {
 
 	retrievePluginInfo = plugins => {
 		apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
-			const pluginInfo = pickBy( response, ( value, key ) => includes( plugins, key ) );
-			forEach( pluginInfo, plugin => {
-				plugin.installationStatus =
-					plugin.Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE;
-			} );
+			const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
+				if ( plugins.indexOf( slug ) === -1 ) return result;
+				result[ slug ] = {
+					...response[ slug ],
+					installationStatus:
+						response[ slug ].Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE,
+				};
+				return result;
+			}, {} );
 			this.updatePluginInfo( pluginInfo );
 		} );
 	};
