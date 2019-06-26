@@ -1,4 +1,9 @@
 #newspack-handoff-banner {
+	display: block;
+	padding: 0;
+	position: relative;
+}
+.newspack-handoff-banner {
 	background-color: white;
 	background-image: url( './newspack-mark.svg' );
 	background-position: 20px center;
@@ -9,17 +14,7 @@
 	margin: 20px 0 0 0;
 	min-height: 52px;
 	padding: 0;
-	position: relative;
 	width: calc( 100% - 20px );
-	.jetpack-pagestyles & {
-		margin: 20px;
-		width: calc( 100% - 40px );
-	}
-}
-.newspack-handoff-banner {
-	display: flex;
-	padding: 0;
-	width: 100%;
 	p {
 		align-self: center;
 		flex-grow: 1;
@@ -31,10 +26,14 @@
 			margin-right: 20px;
 		}
 	}
-	@media only screen and (max-width: 660px) {
+	@media only screen and ( max-width: 660px ) {
 		justify-content: flex-end;
 		p {
 			display: none;
 		}
+	}
+	.jetpack-pagestyles & {
+		margin: 20px;
+		width: calc( 100% - 40px );
 	}
 }
