@@ -26,23 +26,25 @@ class GoogleAdSenseWizard extends Component {
 
 	render() {
 		const { pluginRequirements } = this.props;
-		<HashRouter hashType="slash">
-			<Switch>
-				{ pluginRequirements }
-				<Route
-					path="/"
-					exact
-					render={ routeProps => (
-						<Fragment>
-							<FormattedHeader
-								headerText={ __( 'Google AdSense' ) }
-								subHeaderText={ __( 'Work, please.' ) }
-							/>
-						</Fragment>
-					) }
-				/>
-			</Switch>
-		</HashRouter>
+		return (
+			<HashRouter hashType="slash">
+				<Switch>
+					{ pluginRequirements }
+					<Route
+						path="/"
+						exact
+						render={ routeProps => (
+							<Fragment>
+								<FormattedHeader
+									headerText={ __( 'Google AdSense' ) }
+									subHeaderText={ __( 'Work, please.' ) }
+								/>
+							</Fragment>
+						) }
+					/>
+				</Switch>
+			</HashRouter>
+		);
 	}
 
 }
