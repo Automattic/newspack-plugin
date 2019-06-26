@@ -2,6 +2,8 @@
  * Progress bar styles.
  */
 
+@import '../../../shared/scss/muriel-component';
+
 .muriel-progress-bar {
 	margin: 16px 0;
 	position: relative;
@@ -22,7 +24,7 @@
 
 	.muriel-progress-bar__bar {
 		height: 4px;
-		background-color: $muriel-hot-pink-500;
+		background-color: $primary_color;
 		-webkit-transition: width 0.25s; /* Safari */
   		transition: width 0.25s;
 
