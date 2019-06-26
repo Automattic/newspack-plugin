@@ -20,6 +20,7 @@ import {
 	Button,
 	FormattedHeader,
 	Handoff,
+	NewspackLogo,
 	TextControl,
 	PluginInstaller,
 	ProgressBar,
@@ -79,6 +80,7 @@ class ComponentsDemo extends Component {
 
 		return (
 			<Fragment>
+				<NewspackLogo width='250' className='newspack-components-demo_logo' />
 				<FormattedHeader
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
