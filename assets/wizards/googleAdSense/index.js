@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard, FormattedHeader } from '../../components/src';
+import { withWizard, FormattedHeader, Handoff } from '../../components/src';
 import './style.scss';
 
 /**
@@ -29,18 +29,12 @@ class GoogleAdSenseWizard extends Component {
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
-					{ pluginRequirements }
-					<Route
-						path="/"
-						exact
-						render={ routeProps => (
-							<Fragment>
-								<FormattedHeader
-									headerText={ __( 'Google AdSense' ) }
-									subHeaderText={ __( 'Work, please.' ) }
-								/>
-							</Fragment>
-						) }
+					<Handoff
+						plugin='google-site-kit'
+						editPath='admin.php?page=googlesitekit-module-adsense'
+						modalTitle={ __( 'Google SiteKit' ) }
+						modalBody={ __( 'Google AdSense can be configured with the Google SiteKit plugin.' ) }
+						primaryButton={ __( 'Manage SiteKit' ) }
 					/>
 				</Switch>
 			</HashRouter>
