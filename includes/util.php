@@ -521,7 +521,7 @@ function newspack_select_prepare( $arr ) {
 	$result = array();
 	foreach ( $arr as $key => $value ) {
 		$result[] = [
-			'label' => $value,
+			'label' => html_entity_decode( $value ),
 			'value' => $key,
 		];
 	}
