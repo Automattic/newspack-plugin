@@ -46,7 +46,7 @@ class Google_AdSense_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Connect your Newspack site to your Google AdSense account', 'newspack' );
+		return esc_html__( 'Set up Auto Ads to easily ad dsiplay advertising to your website.', 'newspack' );
 	}
 
 	/**
