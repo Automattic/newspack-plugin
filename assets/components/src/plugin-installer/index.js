@@ -110,17 +110,17 @@ class PluginInstaller extends Component {
 			} );
 	};
 
-	setChecked = ( slug, value ) => {
-		let { pluginInfo } = this.state;
-		pluginInfo[ slug ].checked = value;
-		this.updatePluginInfo( pluginInfo );
+	setChecked = ( slug, checked ) => {
+		const { pluginInfo } = this.state;
+		this.updatePluginInfo( { ...pluginInfo, [ slug ]: { ...pluginInfo[ slug ], checked } } );
 	};
 
-	setInstallationStatus = ( slug, value, notification = null ) => {
-		let { pluginInfo } = this.state;
-		pluginInfo[ slug ].installationStatus = value;
-		pluginInfo[ slug ].notification = notification;
-		this.updatePluginInfo( pluginInfo );
+	setInstallationStatus = ( slug, installationStatus, notification = null ) => {
+		const { pluginInfo } = this.state;
+		this.updatePluginInfo( {
+			...pluginInfo,
+			[ slug ]: { ...pluginInfo[ slug ], installationStatus, notification },
+		} );
 	};
 
 	updatePluginInfo = pluginInfo => {
