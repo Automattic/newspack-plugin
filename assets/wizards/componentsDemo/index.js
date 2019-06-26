@@ -84,33 +84,32 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Card>
-					<FormattedHeader
-						headerText={ __( 'Handoff Buttons' ) }
-					/>
+					<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
 					<Handoff
 						className="is-centered"
 						modalTitle="Manage AMP"
 						modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
 						plugin="amp"
 					/>
+					<Handoff className="is-centered" plugin="jetpack" />
+					<Handoff className="is-centered" plugin="google-site-kit" />
+					<Handoff className="is-centered" plugin="woocommerce" />
 					<Handoff
 						className="is-centered"
-						plugin="jetpack"
-					/>
-					<Handoff
-						className="is-centered"
-						plugin="google-site-kit"
-					/>
-					<Handoff
-						className="is-centered"
-						plugin="woocommerce"
-					/>
+						plugin="wordpress-seo"
+						isPrimary
+						editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features"
+					>
+						{ __( 'Specific Yoast Page' ) }
+					</Handoff>
 				</Card>
 				<Card>
-					<FormattedHeader
-						headerText={ __( 'Notice/Modal' ) }
-					/>
-					<Button className="is-centered" isTertiary onClick={ () => this.setState( { modalShown: true } ) } >
+					<FormattedHeader headerText={ __( 'Notice/Modal' ) } />
+					<Button
+						className="is-centered"
+						isTertiary
+						onClick={ () => this.setState( { modalShown: true } ) }
+					>
 						{ __( 'Open modal' ) }
 					</Button>
 					{ modalShown && (
@@ -118,22 +117,31 @@ class ComponentsDemo extends Component {
 							title="This is the modal title"
 							onRequestClose={ () => this.setState( { modalShown: false } ) }
 						>
-							<p>{ __( 'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.' ) }</p>
-							<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) } >
+							<p>
+								{ __(
+									'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
+								) }
+							</p>
+							<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 								{ __( 'Dismiss' ) }
 							</Button>
-							<Button isDefault onClick={ () => this.setState( { modalShown: false } ) } >
+							<Button isDefault onClick={ () => this.setState( { modalShown: false } ) }>
 								{ __( 'Also dismiss' ) }
 							</Button>
 						</Modal>
 					) }
 				</Card>
 				<Card noBackground>
-					<FormattedHeader
-						headerText={ __( 'Plugin installer' ) }
-					/>
+					<FormattedHeader headerText={ __( 'Plugin installer' ) } />
 					<PluginInstaller
-						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit', 'woocommerce-subscriptions', 'fake-plugin' ] }
+						plugins={ [
+							'woocommerce',
+							'amp',
+							'wordpress-seo',
+							'google-site-kit',
+							'woocommerce-subscriptions',
+							'fake-plugin',
+						] }
 						canUninstall
 					/>
 				</Card>
@@ -145,9 +153,7 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 				</Card>
-				<FormattedHeader
-					headerText={ __( 'Action cards' ) }
-				/>
+				<FormattedHeader headerText={ __( 'Action cards' ) } />
 				<ActionCard
 					title="Example One"
 					description="Has an action button."
@@ -219,9 +225,7 @@ class ComponentsDemo extends Component {
 					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 					imageLink="https://wordpress.com"
 				/>
-				<FormattedHeader
-					headerText={ __( 'Checklist' ) }
-				/>
+				<FormattedHeader headerText={ __( 'Checklist' ) } />
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
 					<Task
 						title={ __( 'Set up membership' ) }
