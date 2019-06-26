@@ -80,10 +80,11 @@ class PluginInstaller extends Component {
 		};
 		return apiFetch( params )
 			.then( response => {
-				let { pluginInfo } = this.state;
-				pluginInfo[ slug ] = response;
-				pluginInfo[ slug ].installationStatus = PLUGIN_STATE_ACTIVE;
-				this.updatePluginInfo( pluginInfo );
+				const { pluginInfo } = this.state;
+				this.updatePluginInfo( {
+					...pluginInfo,
+					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_ACTIVE },
+				} );
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
@@ -99,10 +100,11 @@ class PluginInstaller extends Component {
 		};
 		return apiFetch( params )
 			.then( response => {
-				let { pluginInfo } = this.state;
-				pluginInfo[ slug ] = response;
-				pluginInfo[ slug ].installationStatus = PLUGIN_STATE_NONE;
-				this.updatePluginInfo( pluginInfo );
+				const { pluginInfo } = this.state;
+				this.updatePluginInfo( {
+					...pluginInfo,
+					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_NONE },
+				} );
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
