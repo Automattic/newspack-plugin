@@ -303,7 +303,14 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		Handoff_Banner::register_handoff_for_plugin( $slug );
-		return $this->get_item( $request );
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
+		$response = $managed_plugins[ $slug ];
+		if ( isset( $request['editLink'] ) ) {
+			$response['HandoffLink'] = $request['editLink'];
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**

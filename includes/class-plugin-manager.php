@@ -97,7 +97,7 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://opensource.google.com',
 				'PluginURI'   => 'https://sitekit.withgoogle.com/',
 				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
-				'EditPath'    => 'admin.php?page=googlesitekit-dashboard',
+				'EditPath'    => 'admin.php?page=googlesitekit-splash',
 			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
