@@ -32,10 +32,8 @@ class GoogleAdSenseWizard extends Component {
 					<Handoff
 						plugin='google-site-kit'
 						editPath='admin.php?page=googlesitekit-module-adsense'
-						modalTitle={ __( 'Google SiteKit' ) }
-						modalBody={ __( 'Google AdSense can be configured with the Google SiteKit plugin.' ) }
-						primaryButton={ __( 'Manage SiteKit' ) }
-					/>
+						className='is-centered'
+					>Set Up Google AdSense</Handoff>
 				</Switch>
 			</HashRouter>
 		);
