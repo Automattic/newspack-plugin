@@ -33,7 +33,7 @@ class GoogleAdSenseWizard extends Component {
 						plugin='google-site-kit'
 						editPath='admin.php?page=googlesitekit-module-adsense'
 						className='is-centered'
-					>Set Up Google AdSense</Handoff>
+					>{ __( 'Set up Google AdSense' ) }</Handoff>
 				</Switch>
 			</HashRouter>
 		);
