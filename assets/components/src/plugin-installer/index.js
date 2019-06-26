@@ -63,11 +63,14 @@ class PluginInstaller extends Component {
 
 	installAllPlugins = () => {
 		const { pluginInfo } = this.state;
-		const promises = Object.keys( pluginInfo ).map( slug => {
-			const plugin = pluginInfo[ slug ];
-			return plugin.Status !== 'active' ? this.installPlugin( slug ) : null;
-		} );
-		Promise.all( promises );
+		const promises = Object.keys( pluginInfo )
+			.filter( slug => 'active' !== pluginInfo[ slug ].Status )
+			.map( slug => () => this.installPlugin( slug ) );
+		promises.reduce(
+			( promise, action ) =>
+				promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
+			Promise.resolve( [] )
+		);
 	};
 
 	installPlugin = slug => {
@@ -125,14 +128,14 @@ class PluginInstaller extends Component {
 		const { onComplete } = this.props;
 		this.setState( { pluginInfo }, () => {
 			const { pluginInfo } = this.state;
-			const isDone = Object.values( pluginInfo ).every( plugin  => {
+			const isDone = Object.values( pluginInfo ).every( plugin => {
 				return 'active' === plugin.Status;
 			} );
 			if ( isDone && onComplete ) {
 				onComplete( pluginInfo );
 			}
 		} );
-	}
+	};
 
 	/**
 	 * Render.
@@ -174,7 +177,7 @@ class PluginInstaller extends Component {
 								description={ Description }
 								actionText={ actionText }
 								secondaryActionText={
-									( canUninstall && installationStatus === PLUGIN_STATE_ACTIVE ) && __( 'Deactivate' )
+									canUninstall && installationStatus === PLUGIN_STATE_ACTIVE && __( 'Deactivate' )
 								}
 								isWaiting={ isWaiting }
 								onClick={ onClick }
