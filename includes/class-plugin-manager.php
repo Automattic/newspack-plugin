@@ -33,6 +33,10 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com/',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=jetpack',
+				'Configurer'  => [
+					'filename'   => 'class-jetpack-configuration-manager.php',
+					'class_name' => 'Jetpack_Configuration_Manager',
+				],
 			],
 			'amp'                           => [
 				'Name'        => __( 'AMP', 'newspack' ),
@@ -42,6 +46,10 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=amp-options',
+				'Configurer'  => [
+					'filename'   => 'class-amp-configuration-manager.php',
+					'class_name' => 'AMP_Configuration_Manager',
+				],
 			],
 			'woocommerce-gateway-stripe'    => [
 				'Name'        => __( 'WooCommerce Stripe Gateway', 'newspack' ),
