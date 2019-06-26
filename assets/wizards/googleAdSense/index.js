@@ -29,16 +29,18 @@ class GoogleAdSenseWizard extends Component {
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
-					<FormattedHeader
-						headerText={ __( 'Google AdSense' ) }
-						subHeaderText={ __( 'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.' ) }
-					/>
-					<Handoff
-						plugin='google-site-kit'
-						editPath='admin.php?page=googlesitekit-module-adsense'
-						className='is-centered'
-						isPrimary
-					>{ __( 'Set up Google AdSense' ) }</Handoff>
+					<Fragment>
+						<FormattedHeader
+							headerText={ __( 'Google AdSense' ) }
+							subHeaderText={ __( 'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.' ) }
+						/>
+						<Handoff
+							plugin='google-site-kit'
+							editPath='admin.php?page=googlesitekit-module-adsense'
+							className='is-centered'
+							isPrimary
+						>{ __( 'Set up Google AdSense' ) }</Handoff>
+					</Fragment>
 				</Switch>
 			</HashRouter>
 		);
