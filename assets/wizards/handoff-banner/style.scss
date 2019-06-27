@@ -1,4 +1,13 @@
 #newspack-handoff-banner {
+	display: block;
+	margin: 20px 0 0 0;
+	padding: 0;
+	position: relative;
+	&.has-help-tabs {
+		margin-top: 40px;
+	}
+}
+.newspack-handoff-banner {
 	background-color: white;
 	background-image: url( './newspack-mark.svg' );
 	background-position: 20px center;
@@ -6,20 +15,10 @@
 	background-size: 32px 32px;
 	box-shadow: 0 2px 2px #cccccc;
 	display: flex;
-	margin: 0 0 0 -20px;
+	margin: 0;
 	min-height: 52px;
 	padding: 0;
-	position: relative;
-	width: calc( 100% + 20px );
-	.jetpack-pagestyles & {
-		margin-left: 0;
-		width: 100%;
-	}
-}
-.newspack-handoff-banner {
-	display: flex;
-	padding: 0;
-	width: 100%;
+	width: calc( 100% - 20px );
 	p {
 		align-self: center;
 		flex-grow: 1;
@@ -31,10 +30,14 @@
 			margin-right: 20px;
 		}
 	}
-	@media only screen and (max-width: 660px) {
+	@media only screen and ( max-width: 660px ) {
 		justify-content: flex-end;
 		p {
 			display: none;
 		}
+	}
+	.jetpack-pagestyles & {
+		margin: 20px;
+		width: calc( 100% - 40px );
 	}
 }
