@@ -12,9 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Welcome from './views/welcome/';
-import About from './views/about/';
-import Newsroom from './views/newsroom/';
+import { About, ConfigurePlugins, Newsroom, Welcome } from './views/';
 import { Card, NewspackLogo, ProgressBar, withWizard } from '../../components/src';
 import './style.scss';
 
@@ -235,20 +233,35 @@ class SetupWizard extends Component {
 										'The description helps set the stage for the step content below'
 									) }
 									buttonText={ __( 'Finish' ) }
-									buttonAction={ {
-										onClick: () =>
-											this.updateProfile().then( response =>
-												this.completeSetup().then(
-													() => window.location = newspack_urls.dashboard
-												)
-											),
-									} }
+									buttonAction="#/configure-plugins"
 									buttonDisabled={ INSTALLATION_STATE_DONE !== installationState }
 									profile={ profile }
 									currencies={ currencies }
 									countries={ countries }
 									updateProfile={ ( key, value ) => {
 										this.setState( { profile: { ...profile, [ key ]: value } } );
+									} }
+									wideLayout
+								/>
+							) }
+						/>
+						<Route
+							path="/configure-plugins"
+							render={ routeProps => (
+								<ConfigurePlugins
+									noBackground
+									headerText={ __( 'Configure Core Plugins' ) }
+									subHeaderText={ __(
+										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+									) }
+									buttonText={ __( 'Start Configuration' ) }
+									buttonAction={ {
+										onClick: () =>
+											this.updateProfile().then( response =>
+												this.completeSetup().then(
+													() => ( window.location = newspack_urls.dashboard )
+												)
+											),
 									} }
 									wideLayout
 								/>

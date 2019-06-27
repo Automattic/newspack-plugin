@@ -1,0 +1,1 @@
+export { default as PluginLinkCard } from './plugin-link-card';
