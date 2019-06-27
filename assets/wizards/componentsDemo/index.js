@@ -139,6 +139,18 @@ class ComponentsDemo extends Component {
 							'amp',
 							'wordpress-seo',
 							'google-site-kit',
+						] }
+						asProgressBar
+					/>
+				</Card>
+				<Card noBackground>
+					<FormattedHeader headerText={ __( 'Plugin installer' ) } />
+					<PluginInstaller
+						plugins={ [
+							'woocommerce',
+							'amp',
+							'wordpress-seo',
+							'google-site-kit',
 							'woocommerce-subscriptions',
 							'fake-plugin',
 						] }
