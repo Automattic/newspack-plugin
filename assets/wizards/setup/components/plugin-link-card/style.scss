@@ -1,0 +1,47 @@
+.newspack-service-link-card.muriel-component {
+	background: white none center 33px no-repeat;
+	color: black;
+	display: block;
+	padding: 120px 42px 40px 42px;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	white-space: normal;
+	width: 100%;
+	&.jetpack,
+	&:active.jetpack,
+	&:focus.jetpack,
+	&:hover.jetpack {
+		background: white url( './jetpack.svg' ) center 33px no-repeat;
+	}
+	&.google-site-kit,
+	&:active.google-site-kit,
+	&:focus.google-site-kit,
+	&:hover.google-site-kit {
+		background: white url( './sitekit.svg' ) center 33px no-repeat;
+	}
+	.components-spinner {
+		display: block;
+		float: none;
+		margin: 10px auto 0 auto;
+	}
+	&.is-complete {
+		opacity: 0.8;
+	}
+	.checklist__task-icon {
+		background-color: $muriel-green-400;
+		border: 2px solid $muriel-green-400;
+		border-radius: 16px;
+		display: flex;
+		height: 16px;
+		right: 26px;
+		position: absolute;
+		top: 14px;
+		width: 16px;
+		svg {
+			width: 16px;
+			height: 16px;
+			color: $muriel-white;
+		}
+	}
+}
