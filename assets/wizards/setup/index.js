@@ -183,7 +183,7 @@ class SetupWizard extends Component {
 		const installTotal = REQUIRED_PLUGINS.length;
 		return (
 			<Fragment>
-				<NewspackLogo />
+				<NewspackLogo width="240" className="newspack-logo" />
 				<HashRouter hashType="slash">
 					<Switch>
 						<Route

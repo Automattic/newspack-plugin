@@ -28,7 +28,6 @@ import {
 	Task,
 	SelectControl,
 	Modal,
-	NewspackLogo,
 } from '../../components/src';
 import './style.scss';
 
@@ -89,7 +88,6 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Card>
-					<NewspackLogo />
 					<FormattedHeader
 						headerText={ __( 'Handoff Buttons' ) }
 					/>
