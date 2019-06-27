@@ -164,6 +164,25 @@ class Plugins_Controller extends WP_REST_Controller {
 				'schema' => [ $this, 'get_item_schema' ],
 			]
 		);
+
+		// Register newspack/v1/plugins/some-plugin/configure.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->resource_name . '/(?P<slug>[\a-z]+)\/configure',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'configure_item' ],
+					'permission_callback' => [ $this, 'configure_item_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'sanitize_callback' => [ $this, 'sanitize_plugin_slug' ],
+						],
+					],
+				],
+				'schema' => [ $this, 'get_item_schema' ],
+			]
+		);
 	}
 
 	/**
@@ -314,6 +333,46 @@ class Plugins_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Configure a managed plugin (installing and activating it if needed).
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function configure_item( $request ) {
+		$slug = $request['slug'];
+
+		$is_valid_plugin = $this->validate_managed_plugin( $slug );
+		if ( is_wp_error( $is_valid_plugin ) ) {
+			return $is_valid_plugin;
+		}
+
+		$result = Plugin_Manager::activate( $slug );
+		if ( is_wp_error( $result ) ) {
+			/* If the plugin is already installed and active, simply proceed to configuration */
+			if ( 'newspack_plugin_already_active' !== $result->get_error_code() ) {
+				return $result;
+			}
+		}
+
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
+		$plugin = $managed_plugins[ $slug ];
+
+		$configurer = isset( $plugin['Configurer'] ) ? $plugin['Configurer'] : null;
+		if ( $configurer ) {
+			require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/' . $configurer['filename'];
+			$classname        = 'Newspack\\' . $configurer['class_name'];
+			$configurer_class = new $classname();
+			$result           = $configurer_class->configure();
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		return rest_ensure_response( $plugin );
+	}
+
+	/**
 	 * Check capabilities when getting plugins info.
 	 *
 	 * @param WP_REST_Request $request API request object.
@@ -430,6 +489,26 @@ class Plugins_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function handoff_item_permissions_check( $request ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return new WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => $this->authorization_status_code(),
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check capabilities when configuring a plugin.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public function configure_item_permissions_check( $request ) {
 		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new WP_Error(
 				'newspack_rest_forbidden',

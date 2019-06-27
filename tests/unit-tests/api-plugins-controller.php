@@ -83,6 +83,10 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 			'Slug'        => 'jetpack',
 			'Status'      => 'uninstalled',
 			'Version'     => '',
+			'Configurer'  => [
+				'filename'   => 'class-jetpack-configuration-manager.php',
+				'class_name' => 'Jetpack_Configuration_Manager',
+			],
 		];
 		$this->assertEquals( $expected_jetpack_info, $data['jetpack'] );
 	}
