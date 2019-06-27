@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/configuration_managers/class-configuration-manager.php';
 
 /**
- * Common functionality for admin wizards. Override this class.
+ * Provide an interface for configuring and querying the configuration of Jetpack.
  */
 class Jetpack_Configuration_Manager extends Configuration_Manager {
 
@@ -24,9 +24,9 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 	public $slug = 'jetpack';
 
 	/**
-	 * Get this wizard's name.
+	 * Configure AMP for Newspack use.
 	 *
-	 * @return string The wizard name.
+	 * @return bool || WP_Error Return true if successful, or WP_Error if not.
 	 */
 	public function configure() {
 		return true;
