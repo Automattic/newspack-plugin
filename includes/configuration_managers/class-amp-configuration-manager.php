@@ -29,8 +29,9 @@ class AMP_Configuration_Manager extends Configuration_Manager {
 	 * @return string The wizard name.
 	 */
 	public function configure() {
-		if ( ! $this->is_active() ) {
-			return;
+		$active = $this->is_active();
+		if ( ! $active || is_wp_error( $active ) ) {
+			return $active;
 		}
 		if ( class_exists( 'AMP_Options_Manager' ) ) {
 			\AMP_Options_Manager::update_option( 'theme_support', \AMP_Theme_Support::STANDARD_MODE_SLUG );

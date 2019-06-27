@@ -28,21 +28,22 @@ abstract class Configuration_Manager {
 	 */
 	protected function get_plugin_data() {
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
-		try {
-			$plugin = $managed_plugins[ $this->slug ];
-		} catch ( Exception $e ) {
-			return new WP_Error( 'newspack_plugin_not_found', __( 'The plugin is not found.', 'newspack' ) );
+		if ( empty( $managed_plugins[ $this->slug ] ) ) {
+			return new WP_Error( 'newspack_plugin_not_newspack_managed', __( 'The plugin is not managed by Newspack.', 'newspack' ) );
 		}
-		return $plugin;
+		return $managed_plugins[ $this->slug ];
 	}
 
 	/**
 	 * Determines whether the plugin is installed and activated.
 	 *
-	 * @return bool Plugin activation state.
+	 * @return bool||WP_Error Plugin activation state or WP_Error.
 	 */
 	public function is_active() {
 		$plugin = $this->get_plugin_data();
+		if ( is_wp_error( $plugin ) ) {
+			return $plugin;
+		}
 		$status = isset( $plugin['Status'] ) ? $plugin['Status'] : null;
 		return 'active' === $status;
 	}
@@ -50,16 +51,19 @@ abstract class Configuration_Manager {
 	/**
 	 * Determines whether the plugin is installed (but not necessarily activated);
 	 *
-	 * @return bool Plugin installation state.
+	 * @return bool||WP_Error Plugin installation state or WP_Error.
 	 */
 	public function is_installed() {
 		$plugin = $this->get_plugin_data();
+		if ( is_wp_error( $plugin ) ) {
+			return $plugin;
+		}
 		$status = isset( $plugin['Status'] ) ? $plugin['Status'] : null;
 		return 'uninstalled' !== $status;
 	}
 
 	/**
-	 * Option name to determine if plugin has ever been configured by Newspack.s
+	 * Option name to determine if plugin has ever been configured by Newspack.
 	 *
 	 * @return string
 	 */
