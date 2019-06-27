@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { About, ConfigurePlugins, Newsroom, Welcome } from './views/';
-import { Card, NewspackLogo, ProgressBar, withWizard } from '../../components/src';
+import { Card, NewspackLogo, PluginInstaller, withWizard } from '../../components/src';
 import './style.scss';
 
 /**
@@ -22,7 +22,7 @@ import './style.scss';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { pickBy, includes, forEach } from 'lodash';
 
-const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo' ];
+const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo', 'google-site-kit' ];
 
 const INSTALLATION_STATE_NONE = 0;
 const INSTALLATION_STATE_INSTALLING = 1;
@@ -52,40 +52,11 @@ class SetupWizard extends Component {
 		this.retrieveProfile();
 	};
 
-	/**
-	 * Retrieve plugin information, create Promises to install them.
-	 */
-	initiateInstallPlugins = () => {
-		const { installationState } = this.state;
-		/* First, check if installation has already begun */
-		if ( INSTALLATION_STATE_NONE !== installationState ) {
-			return;
-		}
-		this.setState( { installationState: INSTALLATION_STATE_INSTALLING }, () => {
-			apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
-				const requiredPluginInfo = pickBy( response, ( value, key ) =>
-					includes( REQUIRED_PLUGINS, key )
-				);
-				const installedPlugins = {};
-				const pluginPromises = [];
-				forEach( requiredPluginInfo, ( plugin, slug ) => {
-					if ( plugin.Status !== 'active' ) {
-						pluginPromises.push( this.installPlugin( slug ) );
-					} else {
-						installedPlugins[ slug ] = true;
-					}
-				} );
-				this.setState( { installedPlugins }, () =>
-					Promise.all( pluginPromises ).then( () =>
-						this.setState( { installationState: INSTALLATION_STATE_DONE } )
-					)
-				);
-			} );
-		} );
-	};
-
 	update = () => {
-		this.initiateInstallPlugins();
+		const { installationState } = this.state;
+		if ( INSTALLATION_STATE_NONE === installationState ) {
+			this.setState( { installationState: INSTALLATION_STATE_INSTALLING } );
+		}
 		this.updateProfile();
 	};
 
@@ -122,27 +93,6 @@ class SetupWizard extends Component {
 					reject( error );
 				} );
 		} );
-	};
-
-	/**
-	 * Create Promise to install one plugin.
-	 */
-	installPlugin = slug => {
-		const { setError } = this.props;
-		const params = {
-			path: `/newspack/v1/plugins/${ slug }/activate/`,
-			method: 'post',
-		};
-		return apiFetch( params )
-			.then( response => {
-				const { installedPlugins } = this.state;
-				installedPlugins[ slug ] = true;
-				this.setState( { installedPlugins } );
-			} )
-			.catch( error => {
-				console.log( '[Installation Error]', slug, error );
-				setError( error );
-			} );
 	};
 
 	/**
@@ -272,15 +222,19 @@ class SetupWizard extends Component {
 				</HashRouter>
 				{ INSTALLATION_STATE_NONE !== installationState && (
 					<Card noBackground>
-						<ProgressBar completed={ installProgress } total={ installTotal } />
-						{ installProgress < installTotal && (
+						<PluginInstaller
+							asProgressBar
+							plugins={ REQUIRED_PLUGINS }
+							onComplete={ () => this.setState( { installationState: INSTALLATION_STATE_DONE } ) }
+						/>
+						{ INSTALLATION_STATE_INSTALLING !== installationState && (
 							<p className="newspack-setup-wizard_progress_bar_explainer">
 								{ __(
 									"We're installing the core plugins and Newspack theme in the background. You can navigate away from this page"
 								) }
 							</p>
 						) }
-						{ installProgress === installTotal && (
+						{ INSTALLATION_STATE_DONE !== installationState && (
 							<p className="newspack-setup-wizard_progress_bar_explainer">
 								{ __( 'Plugin installation is complete!' ) }
 							</p>
