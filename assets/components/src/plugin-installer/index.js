@@ -203,6 +203,8 @@ class PluginInstaller extends Component {
 								notificationLevel="error"
 							/>
 						);
+					} ) }
+					{ pluginInfo && slugs.length > 0 && (
 						<Button
 							disabled={ ! needsInstall }
 							isPrimary
@@ -210,8 +212,8 @@ class PluginInstaller extends Component {
 							onClick={ this.installAllPlugins }
 						>
 							{ __( 'Use All' ) }
-						</Button>;
-					} ) }
+						</Button>
+					) }
 			</div>
 		);
 	}
