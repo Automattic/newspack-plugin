@@ -1,21 +1,8 @@
 .newspack_dashboard__header {
 	h1.muriel-formatted-header__title {
 		font-size: 3em;
-		font-weight: bold;
 		margin-bottom: 1em;
 		margin-top: 2em;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-
-		&:before {
-			content: '';
-			height: 63px;
-			width: 64px;
-			display: block;
-			margin-right: 16px;
-			background-image: url('data:image/svg+xml,%3Csvg width="64" height="63" viewBox="0 0 64 63" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M31.701 0C14.192 0 0 14.1021 0 31.5C0 48.8979 14.192 63 31.701 63C49.2099 63 63.4019 48.8979 63.4019 31.5C63.4066 14.1021 49.2099 0 31.701 0ZM18.726 44.3973V36.2315L26.9393 44.3927H18.726V44.3973ZM36.2675 44.3973L18.726 26.9624V18.6027L44.6805 44.3927H36.2675V44.3973ZM44.6805 32.6263H43.6585H42.6365H42.1812L40.1326 30.5906H42.6318H43.6539H44.6759V32.6263H44.6805ZM44.6805 26.6347H43.6585H42.6365H36.1467L34.098 24.599H42.6318H43.6539H44.6759V26.6347H44.6805ZM44.6805 20.6384H43.6585H42.6365H30.1122L28.0635 18.6027H42.6272H43.6492H44.6712V20.6384H44.6805Z" fill="black"/%3E%3C/svg%3E');		
-		}
 	}
 }
 
