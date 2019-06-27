@@ -203,15 +203,15 @@ class PluginInstaller extends Component {
 								notificationLevel="error"
 							/>
 						);
+						<Button
+							disabled={ ! needsInstall }
+							isPrimary
+							className="is-centered"
+							onClick={ this.installAllPlugins }
+						>
+							{ __( 'Use All' ) }
+						</Button>;
 					} ) }
-				<Button
-					disabled={ ! needsInstall }
-					isPrimary
-					className="is-centered"
-					onClick={ this.installAllPlugins }
-				>
-					{ __( 'Use All' ) }
-				</Button>
 			</div>
 		);
 	}
