@@ -48,6 +48,7 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			modalShown: false,
+			showPluginInstallerWithProgressBar: false,
 		};
 	}
 
@@ -75,6 +76,7 @@ class ComponentsDemo extends Component {
 			selectValue1,
 			selectValue2,
 			modalShown,
+			showPluginInstallerWithProgressBar,
 		} = this.state;
 
 		return (
@@ -129,6 +131,22 @@ class ComponentsDemo extends Component {
 								{ __( 'Also dismiss' ) }
 							</Button>
 						</Modal>
+					) }
+				</Card>
+				<Card>
+					<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
+					<Button
+						onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
+						className="is-centered"
+						isPrimary
+					>
+						{ __( 'Show Plugin Installer w/Progress Bar' ) }
+					</Button>
+					{ showPluginInstallerWithProgressBar && (
+						<PluginInstaller
+							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit' ] }
+							asProgressBar
+						/>
 					) }
 				</Card>
 				<Card noBackground>
