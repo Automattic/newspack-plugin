@@ -29,10 +29,18 @@
 		}
 	}
 	@media screen and ( max-width: 660px ) {
-		max-width: calc( 342px - 20px );
+		max-width: calc( 100% - 68px );
 		padding: 10px;
+		margin-left: 24px;
+		margin-right: 24px;
 		&.muriel-card__no-background {
-			width: 342px;
+			width: calc( 100% - 48px );
+		}
+		.muriel-card {
+			margin-left: 0;
+			margin-right: 0;
+			max-width: calc( 100% - 20px );
+			width: 100%;
 		}
 	}
 }
