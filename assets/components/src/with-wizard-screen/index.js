@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -31,13 +31,15 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				noBackground ? 'muriel-wizardScreen__no-background' : ''
 			);
 			return (
-				<Card className={ classes } noBackground={ noBackground }>
-					{ headerText && (
-						<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
-					) }
-					<div className="muriel-wizardScreen__content">
-						<WrappedComponent { ...this.props } />
-					</div>
+				<Fragment>
+					<Card className={ classes } noBackground={ noBackground }>
+						{ headerText && (
+							<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+						) }
+						<div className="muriel-wizardScreen__content">
+							<WrappedComponent { ...this.props } />
+						</div>
+					</Card>
 					{ buttonText && buttonAction && (
 						<Button
 							isPrimary
@@ -47,7 +49,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							{ buttonText }
 						</Button>
 					) }
-				</Card>
+				</Fragment>
 			);
 		}
 	};
