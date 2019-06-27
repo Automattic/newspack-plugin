@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button } from '../';
+import { ActionCard, Button, ProgressBar } from '../';
 import './style.scss';
 
 const PLUGIN_STATE_NONE = 0;
@@ -35,7 +35,10 @@ class PluginInstaller extends Component {
 
 	componentDidMount = () => {
 		const { plugins } = this.props;
-		this.retrievePluginInfo( plugins );
+		this.retrievePluginInfo( plugins ).then( () => {
+			const { asProgressBar } = this.props;
+			if ( asProgressBar ) this.installAllPlugins();
+		} );
 	};
 
 	componentDidUpdate = prevProps => {
@@ -46,17 +49,19 @@ class PluginInstaller extends Component {
 	};
 
 	retrievePluginInfo = plugins => {
-		apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
-			const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
-				if ( plugins.indexOf( slug ) === -1 ) return result;
-				result[ slug ] = {
-					...response[ slug ],
-					installationStatus:
-						response[ slug ].Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE,
-				};
-				return result;
-			}, {} );
-			this.updatePluginInfo( pluginInfo );
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
+				const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
+					if ( plugins.indexOf( slug ) === -1 ) return result;
+					result[ slug ] = {
+						...response[ slug ],
+						installationStatus:
+							response[ slug ].Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE,
+					};
+					return result;
+				}, {} );
+				this.updatePluginInfo( pluginInfo ).then( () => resolve() );
+			} );
 		} );
 	};
 
@@ -126,15 +131,18 @@ class PluginInstaller extends Component {
 	};
 
 	updatePluginInfo = pluginInfo => {
-		const { onComplete } = this.props;
-		this.setState( { pluginInfo }, () => {
-			const { pluginInfo } = this.state;
-			const isDone = Object.values( pluginInfo ).every( plugin => {
-				return 'active' === plugin.Status;
+		return new Promise( ( resolve, reject ) => {
+			const { onComplete } = this.props;
+			this.setState( { pluginInfo }, () => {
+				const { pluginInfo } = this.state;
+				const isDone = Object.values( pluginInfo ).every( plugin => {
+					return 'active' === plugin.Status;
+				} );
+				if ( isDone && onComplete ) {
+					onComplete( pluginInfo );
+				}
+				resolve();
 			} );
-			if ( isDone && onComplete ) {
-				onComplete( pluginInfo );
-			}
 		} );
 	};
 
@@ -142,13 +150,21 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { canUninstall } = this.props;
+		const { asProgressBar, canUninstall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 		const needsInstall = slugs.some( slug => {
 			const plugin = pluginInfo[ slug ];
 			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
 		} );
+		if ( asProgressBar ) {
+			const completed = slugs.reduce(
+				( completed, slug ) =>
+					'active' === pluginInfo[ slug ].Status ? completed + 1 : completed,
+				0
+			);
+			return slugs.length > 0 && <ProgressBar completed={ completed } total={ slugs.length } />;
+		}
 		return (
 			<div>
 				{ pluginInfo &&
@@ -188,14 +204,16 @@ class PluginInstaller extends Component {
 							/>
 						);
 					} ) }
-				<Button
-					disabled={ ! needsInstall }
-					isPrimary
-					className="is-centered"
-					onClick={ this.installAllPlugins }
-				>
-					{ __( 'Use All' ) }
-				</Button>
+					{ pluginInfo && slugs.length > 0 && (
+						<Button
+							disabled={ ! needsInstall }
+							isPrimary
+							className="is-centered"
+							onClick={ this.installAllPlugins }
+						>
+							{ __( 'Use All' ) }
+						</Button>
+					) }
 			</div>
 		);
 	}
