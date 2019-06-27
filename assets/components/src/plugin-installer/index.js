@@ -11,11 +11,6 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * External dependencies.
- */
-import { forEach, includes, pickBy } from 'lodash';
-
-/**
  * Internal dependencies.
  */
 import { ActionCard, Button } from '../';
@@ -52,22 +47,29 @@ class PluginInstaller extends Component {
 
 	retrievePluginInfo = plugins => {
 		apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
-			const pluginInfo = pickBy( response, ( value, key ) => includes( plugins, key ) );
-			forEach( pluginInfo, plugin => {
-				plugin.installationStatus =
-					plugin.Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE;
-			} );
+			const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
+				if ( plugins.indexOf( slug ) === -1 ) return result;
+				result[ slug ] = {
+					...response[ slug ],
+					installationStatus:
+						response[ slug ].Status === 'active' ? PLUGIN_STATE_ACTIVE : PLUGIN_STATE_NONE,
+				};
+				return result;
+			}, {} );
 			this.updatePluginInfo( pluginInfo );
 		} );
 	};
 
 	installAllPlugins = () => {
 		const { pluginInfo } = this.state;
-		const promises = Object.keys( pluginInfo ).map( slug => {
-			const plugin = pluginInfo[ slug ];
-			return plugin.Status !== 'active' ? this.installPlugin( slug ) : null;
-		} );
-		Promise.all( promises );
+		const promises = Object.keys( pluginInfo )
+			.filter( slug => 'active' !== pluginInfo[ slug ].Status )
+			.map( slug => () => this.installPlugin( slug ) );
+		promises.reduce(
+			( promise, action ) =>
+				promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
+			Promise.resolve( [] )
+		);
 	};
 
 	installPlugin = slug => {
@@ -78,10 +80,11 @@ class PluginInstaller extends Component {
 		};
 		return apiFetch( params )
 			.then( response => {
-				let { pluginInfo } = this.state;
-				pluginInfo[ slug ] = response;
-				pluginInfo[ slug ].installationStatus = PLUGIN_STATE_ACTIVE;
-				this.updatePluginInfo( pluginInfo );
+				const { pluginInfo } = this.state;
+				this.updatePluginInfo( {
+					...pluginInfo,
+					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_ACTIVE },
+				} );
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
@@ -97,10 +100,11 @@ class PluginInstaller extends Component {
 		};
 		return apiFetch( params )
 			.then( response => {
-				let { pluginInfo } = this.state;
-				pluginInfo[ slug ] = response;
-				pluginInfo[ slug ].installationStatus = PLUGIN_STATE_NONE;
-				this.updatePluginInfo( pluginInfo );
+				const { pluginInfo } = this.state;
+				this.updatePluginInfo( {
+					...pluginInfo,
+					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_NONE },
+				} );
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
@@ -108,31 +112,31 @@ class PluginInstaller extends Component {
 			} );
 	};
 
-	setChecked = ( slug, value ) => {
-		let { pluginInfo } = this.state;
-		pluginInfo[ slug ].checked = value;
-		this.updatePluginInfo( pluginInfo );
+	setChecked = ( slug, checked ) => {
+		const { pluginInfo } = this.state;
+		this.updatePluginInfo( { ...pluginInfo, [ slug ]: { ...pluginInfo[ slug ], checked } } );
 	};
 
-	setInstallationStatus = ( slug, value, notification = null ) => {
-		let { pluginInfo } = this.state;
-		pluginInfo[ slug ].installationStatus = value;
-		pluginInfo[ slug ].notification = notification;
-		this.updatePluginInfo( pluginInfo );
+	setInstallationStatus = ( slug, installationStatus, notification = null ) => {
+		const { pluginInfo } = this.state;
+		this.updatePluginInfo( {
+			...pluginInfo,
+			[ slug ]: { ...pluginInfo[ slug ], installationStatus, notification },
+		} );
 	};
 
 	updatePluginInfo = pluginInfo => {
 		const { onComplete } = this.props;
 		this.setState( { pluginInfo }, () => {
 			const { pluginInfo } = this.state;
-			const isDone = Object.values( pluginInfo ).every( plugin  => {
+			const isDone = Object.values( pluginInfo ).every( plugin => {
 				return 'active' === plugin.Status;
 			} );
 			if ( isDone && onComplete ) {
 				onComplete( pluginInfo );
 			}
 		} );
-	}
+	};
 
 	/**
 	 * Render.
@@ -174,7 +178,7 @@ class PluginInstaller extends Component {
 								description={ Description }
 								actionText={ actionText }
 								secondaryActionText={
-									( canUninstall && installationStatus === PLUGIN_STATE_ACTIVE ) && __( 'Deactivate' )
+									canUninstall && installationStatus === PLUGIN_STATE_ACTIVE && __( 'Deactivate' )
 								}
 								isWaiting={ isWaiting }
 								onClick={ onClick }
