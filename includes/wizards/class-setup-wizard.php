@@ -102,7 +102,6 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
-		wp_enqueue_media();
 		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
 			return;
 		}
