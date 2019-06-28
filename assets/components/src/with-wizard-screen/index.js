@@ -10,7 +10,7 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader } from '../';
+import { Button, Card, FormattedHeader, Handoff } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -31,6 +31,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				className,
 				noBackground ? 'muriel-wizardScreen__no-background' : ''
 			);
+			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
 					<Card className={ classes } noBackground={ noBackground }>
@@ -41,12 +42,21 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							<WrappedComponent { ...this.props } />
 						</div>
 					</Card>
-					{ buttonText && buttonAction && (
+					{ buttonText && !! retrievedButtonProps.plugin && (
+						<Handoff
+							isPrimary
+							className="is-centered muriel-wizardScreen__completeButton"
+							{ ...retrievedButtonProps }
+						>
+							{ buttonText }
+						</Handoff>
+					) }
+					{ buttonText && ! retrievedButtonProps.plugin && (
 						<Button
 							isPrimary
 							className="is-centered muriel-wizardScreen__completeButton"
 							disabled={ buttonDisabled }
-							{ ...buttonProps( buttonAction ) }
+							{ ...retrievedButtonProps }
 						>
 							{ buttonText }
 						</Button>

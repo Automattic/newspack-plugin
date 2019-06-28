@@ -12,6 +12,9 @@ export default function buttonProps( action ) {
 		props.href = action;
 	}
 	if ( isObject( action ) ) {
+		if ( action.handoff ) {
+			props.plugin = action.handoff;
+		}
 		if ( action.onClick ) {
 			props.onClick = action.onClick;
 		}
