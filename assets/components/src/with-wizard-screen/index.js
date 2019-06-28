@@ -42,7 +42,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							<WrappedComponent { ...this.props } />
 						</div>
 					</Card>
-					{ buttonText && !! retrievedButtonProps.plugin && (
+					{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
 						<Handoff
 							isPrimary
 							className="is-centered muriel-wizardScreen__completeButton"
@@ -51,7 +51,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							{ buttonText }
 						</Handoff>
 					) }
-					{ buttonText && ! retrievedButtonProps.plugin && (
+					{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
 						<Button
 							isPrimary
 							className="is-centered muriel-wizardScreen__completeButton"

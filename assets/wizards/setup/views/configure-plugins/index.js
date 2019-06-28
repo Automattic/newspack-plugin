@@ -19,38 +19,19 @@ import './style.scss';
  * Location Setup Screen.
  */
 class ConfigurePlugins extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			configured: {},
-		};
-	}
-
-	handoffReady = pluginInfo => {
-		const { onAllConfigured } = this.props;
-		const { configured } = this.state;
-		if ( pluginInfo.Configured ) {
-			configured[ pluginInfo.Slug ] = true;
-		}
-		this.setState(
-			{ configured },
-			() =>
-				configured[ 'google-site-kit' ] && configured[ 'jetpack' ] && onAllConfigured( configured )
-		);
-	};
-
 	/**
 	 * Render.
 	 */
 	render() {
+		const { pluginInfoReady } = this.props;
 		return (
 			<div className="newspack-setup-wizard__configure-plugins">
-				<PluginLinkCard plugin="jetpack" onReady={ this.handoffReady }>
+				<PluginLinkCard plugin="jetpack" onReady={ pluginInfoReady }>
 					{ __(
 						'The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.'
 					) }
 				</PluginLinkCard>
-				<PluginLinkCard plugin="google-site-kit" onReady={ this.handoffReady }>
+				<PluginLinkCard plugin="google-site-kit" onReady={ pluginInfoReady }>
 					{ __( 'Bringing the best of Google tools to WordPress. ' ) }
 				</PluginLinkCard>
 			</div>
@@ -59,7 +40,7 @@ class ConfigurePlugins extends Component {
 }
 
 ConfigurePlugins.defaultProps = {
-	onAllConfigured: () => null,
+	pluginInfoReady: () => {},
 };
 
 export default withWizardScreen( ConfigurePlugins );

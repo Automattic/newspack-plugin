@@ -45,7 +45,7 @@ class PluginLinkCard extends Component {
 }
 
 PluginLinkCard.defaultProps = {
-	onReady: () => null,
+	onReady: () => {},
 }
 
 export default PluginLinkCard;

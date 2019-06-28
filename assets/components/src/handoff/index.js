@@ -69,7 +69,7 @@ class Handoff extends Component {
 	 * Render.
 	 */
 	render( props ) {
-		const { className, children, useModal, ...otherProps } = this.props;
+		const { className, children, useModal, onReady, ...otherProps } = this.props;
 		const { pluginInfo, showModal } = this.state;
 		const {
 			modalBody,
@@ -127,7 +127,7 @@ class Handoff extends Component {
 }
 
 Handoff.defaultProps = {
-	onReady: () => null,
+	onReady: () => {},
 }
 
 export default Handoff;

@@ -37,7 +37,7 @@ class SetupWizard extends Component {
 		this.state = {
 			installationComplete: false,
 			installedPlugins: [],
-			configurationComplete: false,
+			pluginInfo: {},
 			setupComplete: false,
 			profile: {},
 			currencies: {},
@@ -84,10 +84,6 @@ class SetupWizard extends Component {
 		} );
 	};
 
-	onAllConfigured = configured => {
-		this.setState( { configurationComplete: true } );
-	};
-
 	/**
 	 * API call to set option indicating setup is complete.
 	 */
@@ -110,6 +106,30 @@ class SetupWizard extends Component {
 		} );
 	};
 
+	isConfigurationComplete = () => {
+		const { pluginInfo } = this.state;
+		return (
+			pluginInfo[ 'jetpack' ] &&
+			pluginInfo[ 'jetpack' ].Configured &&
+			pluginInfo[ 'google-site-kit' ] &&
+			pluginInfo[ 'google-site-kit' ].Configured
+		);
+	};
+
+	getFirstPluginToConfigure = () => {
+		const { pluginInfo } = this.state;
+		if ( ! pluginInfo[ 'jetpack' ] || ! pluginInfo[ 'google-site-kit' ] ) {
+			return null;
+		}
+		if ( ! pluginInfo[ 'jetpack' ].Configured ) {
+			return { handoff: 'jetpack' };
+		}
+		if ( ! pluginInfo[ 'google-site-kit' ].Configured ) {
+			return { handoff: 'google-site-kit' };
+		}
+		return null;
+	};
+
 	/**
 	 * Render.
 	 */
@@ -117,7 +137,7 @@ class SetupWizard extends Component {
 		const {
 			installedPlugins,
 			installationComplete,
-			configurationComplete,
+			pluginInfo,
 			profile,
 			countries,
 			currencies,
@@ -196,10 +216,10 @@ class SetupWizard extends Component {
 										'You’re almost done. Please configure the following core plugins to start using Newspack.'
 									) }
 									buttonText={
-										configurationComplete ? __( 'Finish' ) : __( 'Start Configuration' )
+										this.isConfigurationComplete() ? __( 'Finish' ) : __( 'Start Configuration' )
 									}
 									buttonAction={
-										configurationComplete
+										this.isConfigurationComplete()
 											? {
 													onClick: () =>
 														this.updateProfile().then( response =>
@@ -208,10 +228,12 @@ class SetupWizard extends Component {
 															)
 														),
 											  }
-											: null
+											: this.getFirstPluginToConfigure()
 									}
-									onAllConfigured={ this.onAllConfigured }
-									f
+									pluginInfoReady={ plugin => {
+										const { pluginInfo } = this.state;
+										this.setState( { pluginInfo: { ...pluginInfo, [ plugin.Slug ]: plugin } } );
+									} }
 								/>
 							) }
 						/>
