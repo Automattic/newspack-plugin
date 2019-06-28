@@ -64,7 +64,7 @@ class Profile {
 	 * @return string The option value.
 	 */
 	public static function newspack_get_option( $key ) {
-		return get_option( NEWSPACK_PROFILE_OPTION_PREFIX . $key );
+		return get_option( NEWSPACK_PROFILE_OPTION_PREFIX . $key, '' );
 	}
 
 	/**
