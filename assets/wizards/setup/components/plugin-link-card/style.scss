@@ -25,14 +25,11 @@
 		float: none;
 		margin: 10px auto 0 auto;
 	}
-	&.is-complete {
-		opacity: 0.8;
-	}
 	.checklist__task-icon {
 		background-color: $muriel-green-400;
 		border: 2px solid $muriel-green-400;
 		border-radius: 16px;
-		display: flex;
+		display: none;
 		height: 16px;
 		right: 26px;
 		position: absolute;
@@ -42,6 +39,12 @@
 			width: 16px;
 			height: 16px;
 			color: $muriel-white;
+		}
+	}
+	&.is-configured {
+		opacity: 0.8;
+		.checklist__task-icon {
+			display: flex;
 		}
 	}
 }

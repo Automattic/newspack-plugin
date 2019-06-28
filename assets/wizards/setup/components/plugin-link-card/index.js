@@ -28,19 +28,16 @@ class PluginLinkCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { children, complete, description, plugin } = this.props;
+		const { children, description, plugin } = this.props;
 		const classNames = classnames(
 			'newspack-service-link-card',
 			plugin,
-			complete && 'is-complete'
 		);
 		return (
 			<Handoff plugin={ plugin } className={ classNames }>
-				{ complete && (
-					<span className="checklist__task-icon">
-						<Dashicon icon="yes" />
-					</span>
-				) }
+				<span className="checklist__task-icon">
+					<Dashicon icon="yes" />
+				</span>
 				{ children }
 			</Handoff>
 		);
