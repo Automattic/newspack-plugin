@@ -356,20 +356,8 @@ class Plugins_Controller extends WP_REST_Controller {
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
-		$plugin = $managed_plugins[ $slug ];
-
-		$configurer = isset( $plugin['Configurer'] ) ? $plugin['Configurer'] : null;
-		if ( $configurer ) {
-			require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/' . $configurer['filename'];
-			$classname        = 'Newspack\\' . $configurer['class_name'];
-			$configurer_class = new $classname();
-			$result           = $configurer_class->configure();
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-		}
-
-		return rest_ensure_response( $plugin );
+		\Newspack\Configuration_Managers::configure( $slug );
+		return rest_ensure_response( $managed_plugins[ $slug ] );
 	}
 
 	/**
