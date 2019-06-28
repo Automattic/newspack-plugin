@@ -67,7 +67,7 @@ class Handoff extends Component {
 	 * Render.
 	 */
 	render( props ) {
-		const { className, children, ...otherProps } = this.props;
+		const { className, children, useModal, ...otherProps } = this.props;
 		const { pluginInfo, showModal } = this.state;
 		const {
 			modalBody,
@@ -85,7 +85,7 @@ class Handoff extends Component {
 						className={ classes }
 						isDefault
 						{ ...otherProps }
-						onClick={ () => this.setState( { showModal: true } ) }
+						onClick={ () => useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug ) }
 					>
 						{ children ? children : primaryButton }
 					</Button>
