@@ -28,13 +28,13 @@ class PluginLinkCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { children, description, plugin } = this.props;
+		const { children, description, onReady, plugin } = this.props;
 		const classNames = classnames(
 			'newspack-service-link-card',
 			plugin,
 		);
 		return (
-			<Handoff plugin={ plugin } className={ classNames }>
+			<Handoff plugin={ plugin } className={ classNames } onReady={ onReady }>
 				<span className="checklist__task-icon">
 					<Dashicon icon="yes" />
 				</span>
@@ -42,6 +42,10 @@ class PluginLinkCard extends Component {
 			</Handoff>
 		);
 	}
+}
+
+PluginLinkCard.defaultProps = {
+	onReady: () => null,
 }
 
 export default PluginLinkCard;

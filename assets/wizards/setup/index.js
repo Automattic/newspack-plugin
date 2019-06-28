@@ -37,6 +37,7 @@ class SetupWizard extends Component {
 		this.state = {
 			installationComplete: false,
 			installedPlugins: [],
+			configurationComplete: false,
 			setupComplete: false,
 			profile: {},
 			currencies: {},
@@ -83,6 +84,10 @@ class SetupWizard extends Component {
 		} );
 	};
 
+	onAllConfigured = configured => {
+		this.setState( { configurationComplete: true } );
+	};
+
 	/**
 	 * API call to set option indicating setup is complete.
 	 */
@@ -112,6 +117,7 @@ class SetupWizard extends Component {
 		const {
 			installedPlugins,
 			installationComplete,
+			configurationComplete,
 			profile,
 			countries,
 			currencies,
@@ -189,15 +195,23 @@ class SetupWizard extends Component {
 									subHeaderText={ __(
 										'You’re almost done. Please configure the following core plugins to start using Newspack.'
 									) }
-									buttonText={ __( 'Start Configuration' ) }
-									buttonAction={ {
-										onClick: () =>
-											this.updateProfile().then( response =>
-												this.completeSetup().then(
-													() => ( window.location = newspack_urls.dashboard )
-												)
-											),
-									} }
+									buttonText={
+										configurationComplete ? __( 'Finish' ) : __( 'Start Configuration' )
+									}
+									buttonAction={
+										configurationComplete
+											? {
+													onClick: () =>
+														this.updateProfile().then( response =>
+															this.completeSetup().then(
+																() => ( window.location = newspack_urls.dashboard )
+															)
+														),
+											  }
+											: null
+									}
+									onAllConfigured={ this.onAllConfigured }
+									f
 								/>
 							) }
 						/>
@@ -210,9 +224,7 @@ class SetupWizard extends Component {
 								<PluginInstaller
 									asProgressBar
 									plugins={ REQUIRED_PLUGINS }
-									onComplete={ () =>
-										this.setState( { installationComplete: true } )
-									}
+									onComplete={ () => this.setState( { installationComplete: true } ) }
 								/>
 								{ ! installationComplete && (
 									<p className="newspack-setup-wizard_progress_bar_explainer">

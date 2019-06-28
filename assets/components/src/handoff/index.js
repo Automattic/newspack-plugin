@@ -36,7 +36,9 @@ class Handoff extends Component {
 	};
 
 	retrievePluginInfo = plugin => {
+		const { onReady } = this.props;
 		apiFetch( { path: '/newspack/v1/plugins/' + plugin } ).then( pluginInfo => {
+			onReady( pluginInfo );
 			this.setState( { pluginInfo } );
 		} );
 	};
@@ -122,6 +124,10 @@ class Handoff extends Component {
 			</Fragment>
 		);
 	}
+}
+
+Handoff.defaultProps = {
+	onReady: () => null,
 }
 
 export default Handoff;
