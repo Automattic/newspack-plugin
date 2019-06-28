@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { FormattedHeader } from '../../components/src';
+import { FormattedHeader, NewspackLogo } from '../../components/src';
 import Tier from './views/tier';
 import './style.scss';
 
@@ -20,13 +20,15 @@ class Dashboard extends Component {
 	 */
 	render() {
 		const { items } = this.props;
+		const logo = <NewspackLogo width='280' height='64' />
 
 		return (
 			<Fragment>
 				<FormattedHeader
-					headerText={ __( 'Welcome to the Newspack Dashboard' ) }
+					className='newspack_dashboard__header'
+					headerText={ logo }
 					subHeaderText={ __(
-						"Here we'll guide you through the setup and launch of your news site"
+						"Here we'll guide you through the steps necessary to get your news site ready for launch"
 					) }
 				/>
 				{ items.map( ( tier, index ) => (

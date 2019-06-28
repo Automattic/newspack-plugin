@@ -209,7 +209,7 @@ class SubscriptionsOnboardingWizard extends Component {
 									buttonText={ __( 'Finish' ) }
 									buttonAction={ () =>
 										this.saveStripeSettings().then(
-											() => ( window.location = newspack_urls[ 'checklists' ][ 'memberships' ] )
+											() => ( window.location = newspack_urls[ 'checklists' ][ 'reader-revenue' ] )
 										)
 									}
 								/>
@@ -226,7 +226,7 @@ class SubscriptionsOnboardingWizard extends Component {
 render(
 	createElement( withWizard( SubscriptionsOnboardingWizard, [ 'woocommerce' ] ), {
 		buttonText: __( 'Back to checklist' ),
-		buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
+		buttonAction: newspack_urls[ 'checklists' ][ 'reader-revenue' ],
 	} ),
 	document.getElementById( 'newspack-subscriptions-onboarding-wizard' )
 );

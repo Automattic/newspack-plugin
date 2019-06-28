@@ -268,7 +268,7 @@ render(
 		] ),
 		{
 			buttonText: __( 'Back to checklist' ),
-			buttonAction: newspack_urls[ 'checklists' ][ 'memberships' ],
+			buttonAction: newspack_urls[ 'checklists' ][ 'reader-revenue' ],
 		}
 	),
 	document.getElementById( 'newspack-subscriptions-wizard' )

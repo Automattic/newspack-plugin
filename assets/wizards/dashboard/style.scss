@@ -1,3 +1,11 @@
+.newspack_dashboard__header {
+	h1.muriel-formatted-header__title {
+		font-size: 3em;
+		margin-bottom: 1em;
+		margin-top: 2em;
+	}
+}
+
 .newspack-dashboard-tier {
 	display: flex;
 	justify-content: center;
@@ -26,6 +34,8 @@
 	width: 100%;
 	text-align: center;
 	position: relative;
+	box-sizing: border-box;
+	box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2), 0px 2px 2px rgba(0, 0, 0, 0.12), 0px 0px 2px rgba(0, 0, 0, 0.14);
 
 	a, .newspack-dashboard-card__disabled-link {
 		display: flex;
@@ -33,11 +43,17 @@
 		align-items: center;
 		justify-content: center;
 		text-decoration: none;
+
+		&:focus {
+			box-shadow: none;
+			outline: none;
+		}
 	}
 
 	img {
 		max-width: 104px;
 		height: auto;
+		margin-top: 1em;
 	}
 
 	h3 {
@@ -69,11 +85,15 @@
 }
 
 @media (max-width: 600px) {
+	.newspack_dashboard__header {
+		margin-right: 14px;
+	}
+
 	.newspack-dashboard-tier {
 		display: block;
 	}
 
 	.newspack-dashboard-card {
-		max-width: calc(100% - 6em);
+		max-width: calc(100% - 3em);
 	}
 }
