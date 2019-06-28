@@ -21,8 +21,8 @@ class Configuration_Managers {
 	 */
 	protected static $configuration_managers = [
 		'jetpack'         => [
-			'filename'   => 'class-amp-configuration-manager.php',
-			'class_name' => 'AMP_Configuration_Manager',
+			'filename'   => 'class-jetpack-configuration-manager.php',
+			'class_name' => 'Jetpack_Configuration_Manager',
 		],
 		'amp'             => [
 			'filename'   => 'class-amp-configuration-manager.php',
