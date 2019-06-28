@@ -29,16 +29,17 @@ class PluginLinkCard extends Component {
 	 */
 	render() {
 		const { children, description, onReady, plugin } = this.props;
-		const classNames = classnames(
-			'newspack-service-link-card',
-			plugin,
-		);
+		const classNames = classnames( 'newspack-service-link-card', plugin );
 		return (
 			<Handoff plugin={ plugin } className={ classNames } onReady={ onReady }>
-				<span className="checklist__task-icon">
-					<Dashicon icon="yes" />
-				</span>
 				{ children }
+				<div className="newspack-service-link_status-container unconfigured">
+					{ __( 'Configure plugin' ) }
+				</div>
+				<div className="newspack-service-link_status-container configured">
+					<Dashicon icon="yes" className="checklist__task-icon" />
+					{ __( 'Plugin configuration complete' ) }
+				</div>
 			</Handoff>
 		);
 	}
@@ -46,6 +47,6 @@ class PluginLinkCard extends Component {
 
 PluginLinkCard.defaultProps = {
 	onReady: () => {},
-}
+};
 
 export default PluginLinkCard;

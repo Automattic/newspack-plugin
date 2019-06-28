@@ -1,6 +1,5 @@
 .newspack-service-link-card.muriel-component {
 	background: white none center 33px no-repeat;
-	color: black;
 	display: block;
 	padding: 120px 42px 40px 42px;
 	position: relative;
@@ -25,26 +24,33 @@
 		float: none;
 		margin: 10px auto 0 auto;
 	}
+	.newspack-service-link_status-container {
+		display: flex;
+		margin-top: 1em;
+		align-items: center;
+		justify-content: center;
+		display: none;
+		&.unconfigured {
+			color: $muriel-blue-500;
+			display: block;
+		}
+	}
 	.checklist__task-icon {
 		background-color: $muriel-green-400;
-		border: 2px solid $muriel-green-400;
+		border: 1px solid $muriel-green-400;
 		border-radius: 16px;
-		display: none;
-		height: 16px;
-		right: 26px;
-		position: absolute;
-		top: 14px;
 		width: 16px;
-		svg {
-			width: 16px;
-			height: 16px;
-			color: $muriel-white;
-		}
+		height: 16px;
+		color: $muriel-white;
+		margin-right: 12px;
 	}
 	&.is-configured {
 		opacity: 0.8;
-		.checklist__task-icon {
+		.newspack-service-link_status-container {
 			display: flex;
+			&.unconfigured {
+				display: none;
+			}
 		}
 	}
 }

@@ -8,6 +8,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -194,7 +195,9 @@ class SetupWizard extends Component {
 									subHeaderText={ __(
 										'The description helps set the stage for the step content below'
 									) }
-									buttonText={ __( 'Continue' ) }
+									buttonText={
+										installationComplete ? __( 'Continue' ) : <div>{ __( 'Plugins Installing') }<Spinner /></div>
+									}
 									buttonAction={ {
 										href: '#/configure-plugins',
 										onClick: () => this.updateProfile(),
