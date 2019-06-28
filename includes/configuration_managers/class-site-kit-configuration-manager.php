@@ -30,7 +30,11 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	 * @return array
 	 */
 	public function get_modules_info() {
-		return apply_filters( 'googlesitekit_modules_data', array() );
+		if ( empty( get_option( 'googlesitekit_credentials' ) ) ) {
+			return [];
+		}
+
+		return apply_filters( 'googlesitekit_modules_data', [] );
 	}
 
 	/**
