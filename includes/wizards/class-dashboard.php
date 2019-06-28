@@ -60,6 +60,7 @@ class Dashboard extends Wizard {
 					'name'        => esc_html__( 'Site Design', 'newspack' ),
 					'url'         => '#',
 					'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/site-design-icon.png',
 					'status'      => 'disabled',
 				],
 				[
@@ -67,6 +68,7 @@ class Dashboard extends Wizard {
 					'name'        => Checklists::get_name( 'reader-revenue' ),
 					'url'         => Checklists::get_url( 'reader-revenue' ),
 					'description' => esc_html__( 'Membership, paywall, subscriptions', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/reader-revenue-icon.png',
 					'status'      => Checklists::get_status( 'reader-revenue' ),
 				],
 			],
@@ -76,6 +78,7 @@ class Dashboard extends Wizard {
 					'name'        => esc_html__( 'Performance', 'newspack' ),
 					'url'         => '#',
 					'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/performance-icon.png',
 					'status'      => 'disabled',
 				],
 				[
@@ -83,6 +86,7 @@ class Dashboard extends Wizard {
 					'name'        => Checklists::get_name( 'advertising' ),
 					'url'         => Checklists::get_url( 'advertising' ),
 					'description' => esc_html__( 'Content monetization', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/advertising-icon.png',
 					'status'      => Checklists::get_status( 'advertising' ),
 				],
 				[
@@ -90,6 +94,7 @@ class Dashboard extends Wizard {
 					'name'        => esc_html__( 'SEO', 'newspack' ),
 					'url'         => '#',
 					'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/seo-icon.png',
 					'status'      => 'disabled',
 				],
 			],
@@ -99,6 +104,7 @@ class Dashboard extends Wizard {
 					'name'        => esc_html__( 'Engagement', 'newspack' ),
 					'url'         => '#',
 					'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/engagement-icon.png',
 					'status'      => 'disabled',
 				],
 				[
@@ -106,6 +112,7 @@ class Dashboard extends Wizard {
 					'name'        => esc_html__( 'Analytics', 'newspack' ),
 					'url'         => '#',
 					'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/analytics-icon.png',
 					'status'      => 'disabled',
 				],
 				[
@@ -113,6 +120,7 @@ class Dashboard extends Wizard {
 					'name'        => esc_html__( 'Syndication', 'newspack' ),
 					'url'         => '#',
 					'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
+					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/syndication-icon.png',
 					'status'      => 'disabled',
 				],
 			]

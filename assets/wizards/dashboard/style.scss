@@ -43,11 +43,17 @@
 		align-items: center;
 		justify-content: center;
 		text-decoration: none;
+
+		&:focus {
+			box-shadow: none;
+			outline: none;
+		}
 	}
 
 	img {
 		max-width: 104px;
 		height: auto;
+		margin-top: 1em;
 	}
 
 	h3 {
