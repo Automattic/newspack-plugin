@@ -57,7 +57,7 @@ class Handoff extends Component {
 		apiFetch( {
 			path: '/newspack/v1/plugins/' + plugin + '/handoff',
 			method: 'POST',
-			data: { editLink },
+			data: { editLink, handoffReturnUrl: window && window.location.href },
 		} ).then( response => {
 			window.location.href = response.HandoffLink;
 		} );
@@ -85,7 +85,9 @@ class Handoff extends Component {
 						className={ classes }
 						isDefault
 						{ ...otherProps }
-						onClick={ () => useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug ) }
+						onClick={ () =>
+							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
+						}
 					>
 						{ children ? children : primaryButton }
 					</Button>
