@@ -74,6 +74,14 @@ class Dashboard extends Wizard {
 					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042', // Temporary for demo purposes.
 				],
 				[
+					'slug'        => 'advertising',
+					'name'        => Checklists::get_name( 'advertising' ),
+					'url'         => Checklists::get_url( 'advertising' ),
+					'description' => Checklists::get_description( 'advertising' ),
+					'status'      => Checklists::get_status( 'advertising' ),
+					'image'       => 'https://ps.w.org/gutenberg/assets/icon-256x256.jpg?rev=1776042', // Temporary for demo purposes.
+				],
+				[
 					'name'        => __( 'Setup newsletter', 'newspack' ),
 					'slug'        => 'newsletter',
 					'description' => __( 'Reach your audience', 'newspack' ),
