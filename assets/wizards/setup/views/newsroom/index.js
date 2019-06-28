@@ -85,6 +85,7 @@ class Newsroom extends Component {
 						{ label: __( 'Local News' ), value: 'local' },
 						{ label: __( 'National News' ), value: 'national' },
 						{ label: __( 'Topical' ), value: 'topical' },
+						{ label: __( 'Other' ), value: 'other' },
 					] }
 				/>
 				<SelectControl
