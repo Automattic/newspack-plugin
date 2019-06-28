@@ -44,28 +44,39 @@ class Handoff extends Component {
 	textForPlugin = pluginInfo => {
 		const defaults = {
 			modalBody: null,
-			modalTitle: pluginInfo.Name && `${ __( 'Manage' ) } ${pluginInfo.Name}`,
-			primaryButton: pluginInfo.Name && `${ __( 'Manage' ) } ${pluginInfo.Name}`,
+			modalTitle: pluginInfo.Name && `${ __( 'Manage' ) } ${ pluginInfo.Name }`,
+			primaryButton: pluginInfo.Name && `${ __( 'Manage' ) } ${ pluginInfo.Name }`,
 			primaryModalButton: __( 'Manage' ),
 			dismissModalButton: __( 'Dismiss' ),
-		}
+		};
 		return assign( defaults, this.props );
 	};
 
 	goToPlugin = plugin => {
-		apiFetch( { path: '/newspack/v1/plugins/' + plugin + '/handoff', method: 'POST' } ).then( response => {
+		const { editLink } = this.props;
+		apiFetch( {
+			path: '/newspack/v1/plugins/' + plugin + '/handoff',
+			method: 'POST',
+			data: { editLink },
+		} ).then( response => {
 			window.location.href = response.HandoffLink;
 		} );
-	}
+	};
 
 	/**
 	 * Render.
 	 */
 	render( props ) {
-		const { className, ...otherProps } = this.props;
+		const { className, children, ...otherProps } = this.props;
 		const classes = murielClassnames( 'muriel-button', className );
 		const { pluginInfo, showModal } = this.state;
-		const { modalBody, modalTitle, primaryButton, primaryModalButton, dismissModalButton } = this.textForPlugin( pluginInfo );
+		const {
+			modalBody,
+			modalTitle,
+			primaryButton,
+			primaryModalButton,
+			dismissModalButton,
+		} = this.textForPlugin( pluginInfo );
 		const { Name, Slug, Status } = pluginInfo;
 		return (
 			<Fragment>
@@ -76,16 +87,11 @@ class Handoff extends Component {
 						{ ...otherProps }
 						onClick={ () => this.setState( { showModal: true } ) }
 					>
-						{ primaryButton }
+						{ children ? children : primaryButton }
 					</Button>
 				) }
 				{ Name && 'active' !== Status && (
-					<Button
-						className={ classes }
-						isDefault
-						disabled
-						{ ...otherProps }
-					>
+					<Button className={ classes } isDefault disabled { ...otherProps }>
 						{ Name + __( ' not installed' ) }
 					</Button>
 				) }

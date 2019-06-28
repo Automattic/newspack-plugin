@@ -155,7 +155,8 @@ class Dashboard extends Wizard {
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ],
-			$icon
+			$icon,
+			3
 		);
 	}
 
