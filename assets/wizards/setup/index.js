@@ -195,7 +195,10 @@ class SetupWizard extends Component {
 										'The description helps set the stage for the step content below'
 									) }
 									buttonText={ __( 'Continue' ) }
-									buttonAction="#/configure-plugins"
+									buttonAction={ {
+										href: '#/configure-plugins',
+										onClick: () => this.updateProfile(),
+									} }
 									buttonDisabled={ ! installationComplete }
 									profile={ profile }
 									currencies={ currencies }
