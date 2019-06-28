@@ -1,3 +1,5 @@
+@import '../../../../shared/scss/muriel-component';
+
 .newspack-service-link-card.muriel-component {
 	background: white none center 33px no-repeat;
 	display: block;
@@ -31,13 +33,13 @@
 		justify-content: center;
 		display: none;
 		&.unconfigured {
-			color: $muriel-blue-500;
+			color: $primary_color;
 			display: block;
 		}
 	}
 	.checklist__task-icon {
-		background-color: $muriel-green-400;
-		border: 1px solid $muriel-green-400;
+		background-color: $primary_color;
+		border: 1px solid $primary_color;
 		border-radius: 16px;
 		width: 16px;
 		height: 16px;
