@@ -25,7 +25,6 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				headerText,
 				subHeaderText,
 				noBackground,
-				wideLayout,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
@@ -34,7 +33,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			);
 			return (
 				<Fragment>
-					<Card className={ classes } noBackground={ noBackground } wideLayout={ wideLayout }>
+					<Card className={ classes } noBackground={ noBackground }>
 						{ headerText && (
 							<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
 						) }
