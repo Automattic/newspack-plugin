@@ -20,13 +20,17 @@ class Configuration_Managers {
 	 * @var array
 	 */
 	protected static $configuration_managers = [
-		'jetpack' => [
+		'jetpack'         => [
 			'filename'   => 'class-amp-configuration-manager.php',
 			'class_name' => 'AMP_Configuration_Manager',
 		],
-		'amp'     => [
+		'amp'             => [
 			'filename'   => 'class-amp-configuration-manager.php',
 			'class_name' => 'AMP_Configuration_Manager',
+		],
+		'google-site-kit' => [
+			'filename'   => 'class-sitekit-configuration-manager.php',
+			'class_name' => 'SiteKit_Configuration_Manager',
 		],
 	];
 
