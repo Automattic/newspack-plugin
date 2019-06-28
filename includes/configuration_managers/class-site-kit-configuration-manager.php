@@ -64,6 +64,22 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get whether the current user is connected.
+	 *
+	 * @return bool Whether the user is connected to Google through Site Kit.
+	 */
+	public function is_user_connected() {
+		global $wpdb;
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return ! empty( get_user_meta( $user_id, $wpdb->prefix . 'googlesitekit_site_verified_meta', true ) );
+	}
+
+	/**
 	 * Get whether the Site Kit plugin is active and set up.
 	 *
 	 * @return bool Whether Site Kit is active and set up.
