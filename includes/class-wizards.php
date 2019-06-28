@@ -32,6 +32,7 @@ class Wizards {
 			'subscriptions-onboarding' => new Subscriptions_Onboarding_Wizard(),
 			'subscriptions'            => new Subscriptions_Wizard(),
 			'google-adsense'           => new Google_AdSense_Wizard(),
+			'google-ad-manager'        => new Google_Ad_Manager_Wizard(),
 			'components-demo'          => new Components_Demo(),
 			'performance'              => new Performance_Wizard(),
 		];

@@ -46,6 +46,7 @@ class Checklists {
 				'description' => esc_html__( 'Display advertising', 'newspack' ),
 				'wizards'     => [
 					'google-adsense',
+					'google-ad-manager',
 				],
 			],
 		];
