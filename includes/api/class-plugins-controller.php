@@ -210,7 +210,12 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
-		return rest_ensure_response( $managed_plugins[ $slug ] );
+
+		$plugin = $managed_plugins[ $slug ];
+
+		$plugin['Configured'] = \Newspack\Configuration_Managers::is_configured( $slug );
+
+		return rest_ensure_response( $plugin );
 	}
 
 	/**

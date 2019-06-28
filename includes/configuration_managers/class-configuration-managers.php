@@ -69,12 +69,12 @@ class Configuration_Managers {
 	 * Convenience class to get configuration status of a plugin.
 	 *
 	 * @param string $slug The plugin slug.
-	 * @var bool || WP_Error
+	 * @var bool
 	 */
 	public static function is_configured( $slug ) {
 		$configuration_manager = self::configuration_manager_class_for_plugin_slug( $slug );
 		if ( is_wp_error( $configuration_manager ) ) {
-			return $configuration_manager;
+			return false;
 		}
 		return $configuration_manager->is_configured();
 	}
