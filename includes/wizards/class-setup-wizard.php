@@ -129,11 +129,7 @@ class Setup_Wizard extends Wizard {
 		if ( get_option( NEWSPACK_SETUP_COMPLETE ) ) {
 			return;
 		}
-		try {
-			$screen = get_current_screen();
-		} catch ( Exception $e ) {
-			return;
-		}
+		$screen = get_current_screen();
 		if ( $screen && 'toplevel_page_newspack' === $screen->id ) {
 			$setup_url = Wizards::get_url( 'setup' );
 			wp_safe_redirect( esc_url( $setup_url ) );
