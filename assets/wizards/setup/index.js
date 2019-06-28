@@ -24,10 +24,6 @@ import { pickBy, includes, forEach } from 'lodash';
 
 const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo', 'google-site-kit' ];
 
-const INSTALLATION_STATE_NONE = 0;
-const INSTALLATION_STATE_INSTALLING = 1;
-const INSTALLATION_STATE_DONE = 2;
-
 /**
  * Wizard for setting up ability to take payments.
  * May have other settings added to it in the future.
@@ -39,7 +35,7 @@ class SetupWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			installationState: INSTALLATION_STATE_NONE,
+			installationComplete: false,
 			installedPlugins: [],
 			setupComplete: false,
 			profile: {},
@@ -50,14 +46,6 @@ class SetupWizard extends Component {
 
 	componentDidMount = () => {
 		this.retrieveProfile();
-	};
-
-	update = () => {
-		const { installationState } = this.state;
-		if ( INSTALLATION_STATE_NONE === installationState ) {
-			this.setState( { installationState: INSTALLATION_STATE_INSTALLING } );
-		}
-		this.updateProfile();
 	};
 
 	updateProfile = () => {
@@ -123,7 +111,7 @@ class SetupWizard extends Component {
 	render() {
 		const {
 			installedPlugins,
-			installationState,
+			installationComplete,
 			profile,
 			countries,
 			currencies,
@@ -144,7 +132,7 @@ class SetupWizard extends Component {
 									buttonText={ __( 'Get started' ) }
 									buttonAction={ {
 										href: '#/about',
-										onClick: () => this.update(),
+										onClick: () => this.updateProfile(),
 									} }
 									profile={ profile }
 								/>
@@ -161,7 +149,7 @@ class SetupWizard extends Component {
 									buttonText={ __( 'Continue' ) }
 									buttonAction={ {
 										href: '#/newsroom',
-										onClick: () => this.update(),
+										onClick: () => this.updateProfile(),
 									} }
 									profile={ profile }
 									currencies={ currencies }
@@ -182,7 +170,7 @@ class SetupWizard extends Component {
 									) }
 									buttonText={ __( 'Continue' ) }
 									buttonAction="#/configure-plugins"
-									buttonDisabled={ INSTALLATION_STATE_DONE !== installationState }
+									buttonDisabled={ ! installationComplete }
 									profile={ profile }
 									currencies={ currencies }
 									countries={ countries }
@@ -215,28 +203,33 @@ class SetupWizard extends Component {
 						/>
 						<Redirect to="/" />
 					</Switch>
-				</HashRouter>
-				{ INSTALLATION_STATE_NONE !== installationState && (
-					<Card noBackground className='newspack-setup-wizard_plugin-installer_card'>
-						<PluginInstaller
-							asProgressBar
-							plugins={ REQUIRED_PLUGINS }
-							onComplete={ () => this.setState( { installationState: INSTALLATION_STATE_DONE } ) }
-						/>
-						{ INSTALLATION_STATE_INSTALLING !== installationState && (
-							<p className="newspack-setup-wizard_progress_bar_explainer">
-								{ __(
-									"We're installing the core plugins and Newspack theme in the background. You can navigate away from this page"
+					<Route
+						path={ [ '/about', '/newsroom', '/configure-plugins' ] }
+						render={ routeProps => (
+							<div className="newspack-setup-wizard_plugin-installer">
+								<PluginInstaller
+									asProgressBar
+									plugins={ REQUIRED_PLUGINS }
+									onComplete={ () =>
+										this.setState( { installationComplete: true } )
+									}
+								/>
+								{ ! installationComplete && (
+									<p className="newspack-setup-wizard_progress_bar_explainer">
+										{ __(
+											"We're installing the core plugins and Newspack theme in the background. You can navigate away from this page"
+										) }
+									</p>
 								) }
-							</p>
+								{ !! installationComplete && (
+									<p className="newspack-setup-wizard_progress_bar_explainer">
+										{ __( 'Plugin installation is complete!' ) }
+									</p>
+								) }
+							</div>
 						) }
-						{ INSTALLATION_STATE_DONE !== installationState && (
-							<p className="newspack-setup-wizard_progress_bar_explainer">
-								{ __( 'Plugin installation is complete!' ) }
-							</p>
-						) }
-					</Card>
-				) }
+					/>
+				</HashRouter>
 			</Fragment>
 		);
 	}
