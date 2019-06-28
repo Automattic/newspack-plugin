@@ -123,7 +123,7 @@ class Dashboard extends Wizard {
 					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/syndication-icon.png',
 					'status'      => 'disabled',
 				],
-			]
+			],
 		];
 
 		return $dashboard;
