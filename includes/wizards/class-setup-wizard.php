@@ -28,7 +28,7 @@ class Setup_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $capability = 'edit_products';
+	protected $capability = 'install_plugins';
 
 	/**
 	 * Display a link to this wizard in the Newspack submenu.
