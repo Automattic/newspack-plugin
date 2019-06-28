@@ -41,6 +41,13 @@ class Checklists {
 					'subscriptions',
 				],
 			],
+			'advertising'    => [
+				'name'        => esc_html__( 'Advertising', 'newspack' ),
+				'description' => esc_html__( 'Display advertising', 'newspack' ),
+				'wizards'     => [
+					'google-adsense',
+				],
+			],
 		];
 
 		add_action( 'admin_menu', 'Newspack\Checklists::add_page' );
@@ -165,7 +172,7 @@ class Checklists {
 	}
 
 	/**
-	 * Load up the scripts when appropriate. 
+	 * Load up the scripts when appropriate.
 	 * Prepare all of the information about the requested checklist into a 'newspack_checklist' variable.
 	 */
 	public static function enqueue_scripts_and_styles() {
@@ -186,7 +193,7 @@ class Checklists {
 		/**
 		 * The following information is placed into the `newspack_checklist` js variable on a checklist's page:
 		 * name         => String name of the checklist.
-		 * description  => String description of the checklist. 
+		 * description  => String description of the checklist.
 		 * steps        => Array of wizards. See $checklist_data['steps'] below.
 		 * dashboardURL => String link to the main dashboard, so the checklist can return to the dashboard when needed.
 		 */

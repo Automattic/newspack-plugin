@@ -80,10 +80,10 @@ class Dashboard extends Wizard {
 				],
 				[
 					'slug'        => 'advertising',
-					'name'        => esc_html__( 'Advertising', 'newspack' ),
-					'url'         => '#',
+					'name'        => Checklists::get_name( 'advertising' ),
+					'url'         => Checklists::get_url( 'advertising' ),
 					'description' => esc_html__( 'Content monetization', 'newspack' ),
-					'status'      => 'disabled',
+					'status'      => Checklists::get_status( 'advertising' ),
 				],
 				[
 					'slug'        => 'seo',
