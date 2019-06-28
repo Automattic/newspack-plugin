@@ -182,7 +182,7 @@ class SetupWizard extends Component {
 									subHeaderText={ __(
 										'The description helps set the stage for the step content below'
 									) }
-									buttonText={ __( 'Finish' ) }
+									buttonText={ __( 'Continue' ) }
 									buttonAction="#/configure-plugins"
 									buttonDisabled={ INSTALLATION_STATE_DONE !== installationState }
 									profile={ profile }
@@ -221,7 +221,7 @@ class SetupWizard extends Component {
 					</Switch>
 				</HashRouter>
 				{ INSTALLATION_STATE_NONE !== installationState && (
-					<Card noBackground>
+					<Card noBackground className='newspack-setup-wizard_plugin-installer_card'>
 						<PluginInstaller
 							asProgressBar
 							plugins={ REQUIRED_PLUGINS }
