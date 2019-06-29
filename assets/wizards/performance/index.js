@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
+import { Intro } from './views';
 
 /**
  * External dependencies
@@ -50,7 +51,15 @@ class PerformanceWizard extends Component {
 					<Route
 						path="/"
 						exact
-						render={ routeProps => ( <p>TK</p> ) }
+						render={ routeProps => (
+							<Intro
+								noCard
+								headerText={ __( 'Progressive Web App (PWA)' ) }
+								subHeaderText={ __( 'Optimizing your news site for better performance.' ) }
+								buttonText={ __( 'Configure advanced options' ) }
+								buttonAction="#/configure"
+							/>
+						) }
 					/>
 					<Redirect to="/" />
 				</Switch>
