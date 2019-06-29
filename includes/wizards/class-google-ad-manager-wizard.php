@@ -148,7 +148,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad slots info.
 	 */
 	public function api_get_adslots() {
-		$ad_slots = $this->get_ad_slots();
+		$ad_slots = $this->_get_ad_slots();
 		return \rest_ensure_response( $ad_slots );
 	}
 
@@ -163,7 +163,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		$params  = $request->get_params();
 		$id      = $params['id'];
 
-		$ad_slots = $this->get_ad_slots();
+		$ad_slots = $this->_get_ad_slots();
 		if ( ! empty( $ad_slots ) && isset( $ad_slots[ $id ] ) ) {
 			return \rest_ensure_response( $ad_slots[ $id ] );
 		} else {
@@ -195,8 +195,8 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		// Update and existing or add a new ad slot.
 		$adslot = ( 0 === $args['id'] )
-			? $this->add_ad_slot( $args )
-			: $this->update_ad_slot( $args );
+			? $this->_add_ad_slot( $args )
+			: $this->_update_ad_slot( $args );
 
 		return \rest_ensure_response( $adslot );
 	}
@@ -212,11 +212,11 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		$params  = $request->get_params();
 		$id      = $params['id'];
 
-		$ad_slot = $this->get_ad_slot( $id );
+		$ad_slot = $this->_get_ad_slot( $id );
 		if ( \is_wp_error( $ad_slot ) ) {
 			$response = $ad_slot;
 		} else {
-			$response = $this->delete_ad_slot( $id );
+			$response = $this->_delete_ad_slot( $id );
 		}
 
 		return \rest_ensure_response( $response );
@@ -225,7 +225,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	/**
 	 * Get the ad slots from our saved option.
 	 */
-	public function get_ad_slots(){
+	private function _get_ad_slots(){
 		$ad_slots = [];
 		$args = [
 			'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
@@ -250,7 +250,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	/**
 	 * Get a single ad slot.
 	 */
-	public function get_ad_slot( $id ) {
+	private function _get_ad_slot( $id ) {
 		$ad_slot = \get_post( $id );
 		if ( is_a( $ad_slot, 'WP_Post' ) ) {
 			return [
@@ -278,10 +278,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * 		@type string $code The actual pasted ad code.
 	 * }
 	 */
-	public function add_ad_slot( $ad_slot ) {
+	private function _add_ad_slot( $ad_slot ) {
 
 		// Sanitise the values.
-		$ad_slot = $this->sanitise_ad_slot( $ad_slot );
+		$ad_slot = $this->_sanitise_ad_slot( $ad_slot );
 		if ( \is_wp_error( $ad_slot ) ) {
 			return $ad_slot;
 		}
@@ -316,10 +316,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	public function update_ad_slot( $ad_slot ) {
+	private function _update_ad_slot( $ad_slot ) {
 
 		// Sanitise the values.
-		$ad_slot = $this->sanitise_ad_slot( $ad_slot );
+		$ad_slot = $this->_sanitise_ad_slot( $ad_slot );
 		if ( \is_wp_error( $ad_slot ) ) {
 			return $ad_slot;
 		}
@@ -349,7 +349,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	public function delete_ad_slot( $id ) {
+	private function _delete_ad_slot( $id ) {
 
 		$ad_slot_post = \get_post( $id );
 		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
@@ -367,7 +367,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	public function sanitise_ad_slot( $ad_slot ) {
+	private function _sanitise_ad_slot( $ad_slot ) {
 
 		if (
 			! array_key_exists( 'name', $ad_slot ) ||
