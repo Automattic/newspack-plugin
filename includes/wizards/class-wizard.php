@@ -30,7 +30,7 @@ abstract class Wizard {
 
 	/**
 	 * Whether the wizard should be displayed in the Newspack submenu.
-	 * 
+	 *
 	 * @var bool.
 	 */
 	protected $hidden = true;
@@ -59,7 +59,7 @@ abstract class Wizard {
 	 */
 	public function render_wizard() {
 		?>
-		<div class="newspack-wizard" id="<?php echo esc_attr( $this->slug ); ?>">
+		<div class="newspack-wizard <?php echo esc_attr( $this->slug ); ?>" id="<?php echo esc_attr( $this->slug ); ?>">
 		</div>
 		<?php
 	}
