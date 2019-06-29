@@ -25,13 +25,18 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				headerText,
 				subHeaderText,
 				noBackground,
+				noCard,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
 				className,
 				noBackground ? 'muriel-wizardScreen__no-background' : ''
 			);
-			const retrievedButtonProps = buttonProps( buttonAction );
+			const content = (
+				<div className="muriel-wizardScreen__content">
+					<WrappedComponent { ...this.props } />
+				</div>
+			);
 			return (
 				<Fragment>
 					<Card noBackground>
@@ -39,11 +44,12 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
 						) }
 					</Card>
-					<Card className={ classes } noBackground={ noBackground }>
-						<div className="muriel-wizardScreen__content">
-							<WrappedComponent { ...this.props } />
-						</div>
-					</Card>
+					{ !! noCard && content }
+					{ ! noCard && (
+						<Card className={ classes } noBackground={ noBackground }>
+							{ content }
+						</Card>
+					) }
 					{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
 						<Handoff
 							isPrimary
