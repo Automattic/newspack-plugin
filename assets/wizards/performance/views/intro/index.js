@@ -1,5 +1,5 @@
 /**
- * Performance Wizard.
+ * Performance Wizard Intro screen
  */
 
 /**
@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { Card, withWizardScreen } from '../../../../components/src';
 
 /**
- * Wizard for configuring PWA features.
+ * Intro screen for Performnance Wizard
  */
 class Intro extends Component {
 	/**

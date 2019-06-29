@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { Intro } from './views';
+import { AddToHomeScreen, Intro, OfflineUsage, PushNotifications } from './views';
 
 /**
  * External dependencies
@@ -57,7 +57,40 @@ class PerformanceWizard extends Component {
 								headerText={ __( 'Progressive Web App (PWA)' ) }
 								subHeaderText={ __( 'Optimizing your news site for better performance.' ) }
 								buttonText={ __( 'Configure advanced options' ) }
-								buttonAction="#/configure"
+								buttonAction="#/add-to-homescreen"
+							/>
+						) }
+					/>
+					<Route
+						path="/add-to-homescreen"
+						render={ routeProps => (
+							<AddToHomeScreen
+								headerText={ __( 'Enable Add to Homescreen' ) }
+								subHeaderText={ __( 'Encourage your users to add your news site to their homescreen.' ) }
+								buttonText={ __( 'Continue' ) }
+								buttonAction="#/offline-usage"
+							/>
+						) }
+					/>
+					<Route
+						path="/offline-usage"
+						render={ routeProps => (
+							<OfflineUsage
+								headerText={ __( 'Enable Offline Usage' ) }
+								subHeaderText={ __( 'Make your website reliable. Even on flaky internet connections.' ) }
+								buttonText={ __( 'Continue' ) }
+								buttonAction="#/push-notifications"
+							/>
+						) }
+					/>
+					<Route
+						path="/push-notifications"
+						render={ routeProps => (
+							<PushNotifications
+								headerText={ __( 'Enable Push Notifications' ) }
+								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
+								buttonText={ __( 'Continue' ) }
+								buttonAction="#/"
 							/>
 						) }
 					/>
