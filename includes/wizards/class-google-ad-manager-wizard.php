@@ -41,7 +41,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 */
 	public function __construct() {
 		parent::__construct();
-		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		\add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Google Ad Manager', 'newspack' );
+		return \esc_html__( 'Google Ad Manager', 'newspack' );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements.', 'newspack' );
+		return \esc_html__( 'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements.', 'newspack' );
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return string The wizard length.
 	 */
 	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
+		return \esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	public function register_api_endpoints() {
 
 		// Get all Newspack ad slots.
-		register_rest_route(
+		\register_rest_route(
 			'newspack/v1/wizard/',
 			'/adslots/',
 			[
@@ -88,7 +88,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		);
 
 		// Get one ad slot.
-		register_rest_route(
+		\register_rest_route(
 			'newspack/v1/wizard/',
 			'/adslots/(?P<id>\d+)',
 			[
@@ -104,7 +104,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		);
 
 		// Save a ad slot.
-		register_rest_route(
+		\register_rest_route(
 			'newspack/v1/wizard/',
 			'/adslots/',
 			[
@@ -126,7 +126,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		);
 
 		// Delete a ad slot.
-		register_rest_route(
+		\register_rest_route(
 			'newspack/v1/wizard/',
 			'/adslots/(?P<id>\d+)',
 			[
@@ -149,7 +149,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 */
 	public function api_get_adslots() {
 		$ad_slots = $this->get_ad_slots();
-		return rest_ensure_response( $ad_slots );
+		return \rest_ensure_response( $ad_slots );
 	}
 
 	/**
@@ -165,11 +165,11 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		$ad_slots = $this->get_ad_slots();
 		if ( ! empty( $ad_slots ) && isset( $ad_slots[ $id ] ) ) {
-			return rest_ensure_response( $ad_slots[ $id ] );
+			return \rest_ensure_response( $ad_slots[ $id ] );
 		} else {
 			return new WP_Error(
 				'newspack_rest_invalid_adslot',
-				esc_html__( 'Advert does not exist.', 'newspack' ),
+				\esc_html__( 'Advert does not exist.', 'newspack' ),
 				[
 					'status' => 404,
 				]
@@ -191,14 +191,14 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			'name' => '',
 			'code' => '',
 		];
-		$args     = wp_parse_args( $params, $defaults );
+		$args     = \wp_parse_args( $params, $defaults );
 
 		// Update and existing or add a new ad slot.
 		$adslot = ( 0 === $args['id'] )
 			? $this->add_ad_slot( $args )
 			: $this->update_ad_slot( $args );
 
-		return rest_ensure_response( $adslot );
+		return \rest_ensure_response( $adslot );
 	}
 
 	/**
@@ -213,13 +213,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		$id      = $params['id'];
 
 		$ad_slot = $this->get_ad_slot( $id );
-		if ( is_wp_error( $ad_slot ) ) {
+		if ( \is_wp_error( $ad_slot ) ) {
 			$response = $ad_slot;
 		} else {
 			$response = $this->delete_ad_slot( $id );
 		}
 
-		return rest_ensure_response( $response );
+		return \rest_ensure_response( $response );
 	}
 
 	/**
@@ -232,15 +232,15 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			'posts_per_page' => -1,
 		];
 
-		$slots = get_posts( $args );
+		$slots = \get_posts( $args );
 		foreach ( $slots as $slot ) {
 			$ad_slots[] = [
 				'id' => $slot->ID,
 				'name' => $slot->post_title,
-				'code' => get_post_meta( $slot->ID, 'newspack_ad_code', true ),
+				'code' => \get_post_meta( $slot->ID, 'newspack_ad_code', true ),
 			];
 		}
-		
+
 		return $ad_slots;
 	}
 
@@ -248,17 +248,17 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * Get a single ad slot.
 	 */
 	public function get_ad_slot( $id ) {
-		$ad_slot = get_post( $id );
+		$ad_slot = \get_post( $id );
 		if ( is_a( $ad_slot, 'WP_Post' ) ) {
 			return [
 				'id' => $ad_slot->ID,
 				'name' => $ad_slot->post_title,
-				'code' => get_post_meta( $ad_slot->ID, 'newspack_ad_code', true ),
+				'code' => \get_post_meta( $ad_slot->ID, 'newspack_ad_code', true ),
 			];
 		} else {
 			return new WP_Error(
 				'newspack_no_adspot_found',
-				esc_html__( 'No such ad spot.', 'newspack' ),
+				\esc_html__( 'No such ad spot.', 'newspack' ),
 				[
 					'status' => '400',
 				]
@@ -279,23 +279,23 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		// Sanitise the values.
 		$ad_slot = $this->sanitise_ad_slot( $ad_slot );
-		if ( is_wp_error( $ad_slot ) ) {
+		if ( \is_wp_error( $ad_slot ) ) {
 			return $ad_slot;
 		}
 
 		// Save the ad slot.
-		$ad_slot_post = wp_insert_post(
+		$ad_slot_post = \wp_insert_post(
 			[
-				'post_author' => get_current_user_id(),
+				'post_author' => \get_current_user_id(),
 				'post_title' => $ad_slot['name'],
 				'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
 				'post_status' => 'publish',
 			]
 		);
-		if ( is_wp_error( $ad_slot_post ) ) {
+		if ( \is_wp_error( $ad_slot_post ) ) {
 			return new WP_Error(
 				'newspack_ad_slot_exists',
-				esc_html__( 'An advert with that name already exists', 'newspack' ),
+				\esc_html__( 'An advert with that name already exists', 'newspack' ),
 				[
 					'status' => '400',
 				]
@@ -303,7 +303,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		}
 
 		// Add the code to our new post.
-		add_post_meta( $ad_slot_post, 'newspack_ad_code', $ad_slot['code'] );
+		\add_post_meta( $ad_slot_post, 'newspack_ad_code', $ad_slot['code'] );
 
 		return [
 			'id' => $ad_slot_post,
@@ -317,26 +317,26 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		// Sanitise the values.
 		$ad_slot = $this->sanitise_ad_slot( $ad_slot );
-		if ( is_wp_error( $ad_slot ) ) {
+		if ( \is_wp_error( $ad_slot ) ) {
 			return $ad_slot;
 		}
 
-		$ad_slot_post = get_post( $ad_slot['id'] );
+		$ad_slot_post = \get_post( $ad_slot['id'] );
 		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
 			return new WP_Error(
 				'newspack_ad_slot_not_exists',
-				esc_html__( "Can't update an advert that doesn't already exist", 'newspack' ),
+				\esc_html__( "Can't update an advert that doesn't already exist", 'newspack' ),
 				[
 					'status' => '400',
 				]
 			);
 		}
 
-		wp_update_post( [
+		\wp_update_post( [
 			'ID' => $ad_slot['id'],
 			'post_title' => $ad_slot['name'],
 		] );
-		update_post_meta( $ad_slot['id'], 'newspack_ad_code', $ad_slot['code'] );
+		\update_post_meta( $ad_slot['id'], 'newspack_ad_code', $ad_slot['code'] );
 
 		return [
 			'id' => $ad_slot['id'],
@@ -348,17 +348,17 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	public function delete_ad_slot( $id ) {
 
-		$ad_slot_post = get_post( $id );
+		$ad_slot_post = \get_post( $id );
 		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
 			return new WP_Error(
 				'newspack_ad_slot_not_exists',
-				esc_html__( "Can't update an advert that doesn't already exist", 'newspack' ),
+				\esc_html__( "Can't update an advert that doesn't already exist", 'newspack' ),
 				[
 					'status' => '400',
 				]
 			);
 		} else {
-			wp_delete_post( $id );
+			\wp_delete_post( $id );
 			return true;
 		}
 
@@ -372,7 +372,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		) {
 			return new WP_Error(
 				'newspack_invalid_ad_slot_data',
-				esc_html__( 'Ad spot data is invalid - name or code is missing!' ),
+				\esc_html__( 'Ad spot data is invalid - name or code is missing!' ),
 				[
 					'status' => '400',
 				]
@@ -380,7 +380,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		}
 
 		$sanitised_ad_slot = [
-			'name' => esc_html( $ad_slot['name'] ),
+			'name' => \esc_html( $ad_slot['name'] ),
 			'code' => $ad_slot['code'], // esc_js( $ad_slot['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
 
 		];
@@ -403,7 +403,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			return;
 		}
 
-		wp_enqueue_script(
+		\wp_enqueue_script(
 			'newspack-google-ad-manager-wizard',
 			Newspack::plugin_url() . '/assets/dist/googleAdManager.js',
 			[ 'wp-components' ],
@@ -411,13 +411,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			true
 		);
 
-		wp_register_style(
+		\wp_register_style(
 			'newspack-google-ad-manager-wizard',
 			Newspack::plugin_url() . '/assets/dist/googleAdManager.css',
 			[ 'wp-components' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdManager.css' )
 		);
-		wp_style_add_data( 'newspack-google-ad-manager-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-google-ad-manager-wizard' );
+		\wp_style_add_data( 'newspack-google-ad-manager-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-google-ad-manager-wizard' );
 	}
 }
