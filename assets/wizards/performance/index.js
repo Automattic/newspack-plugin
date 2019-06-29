@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import { AddToHomeScreen, Intro, OfflineUsage, PushNotifications } from './views';
+import './style.scss';
 
 /**
  * External dependencies

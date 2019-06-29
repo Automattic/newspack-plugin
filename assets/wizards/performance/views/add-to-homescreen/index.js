@@ -13,7 +13,6 @@ import { ToggleControl } from '@wordpress/components';
  * Internal dependencies
  */
 import { CheckboxControl, ImageUpload, withWizardScreen } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Description and controls for the Add To Homescreen feature.
@@ -40,7 +39,7 @@ class AddToHomeScreen extends Component {
 					) }
 				/>
 				{ settings.add_to_homescreen && (
-					<div className="newspack-performance-wizard_site_icon_container">
+					<div className="newspack-performance-wizard_indented-block">
 						<p><em>{ __( 'Site icons should be square and at least 512 × 512 pixels.' ) }</em></p>
 						<ImageUpload
 							image={ settings.site_icon }
