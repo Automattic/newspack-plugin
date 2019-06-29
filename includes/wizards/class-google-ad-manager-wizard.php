@@ -119,7 +119,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 					'code'     => [
-						'sanitize_callback' => 'esc_js',
+						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
 					],
 				],
 			]
@@ -148,7 +148,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad slots info.
 	 */
 	public function api_get_adslots() {
-		$ad_slots = $this->_get_ad_slots();
+		$ad_slots = $this->get_ad_slots();
 		return rest_ensure_response( $ad_slots );
 	}
 
@@ -163,7 +163,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		$params  = $request->get_params();
 		$id      = $params['id'];
 
-		$ad_slots = $this->_get_ad_slots();
+		$ad_slots = $this->get_ad_slots();
 		if ( ! empty( $ad_slots ) && isset( $ad_slots[ $id ] ) ) {
 			return rest_ensure_response( $ad_slots[ $id ] );
 		} else {
@@ -195,8 +195,8 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		// Update and existing or add a new ad slot.
 		$adslot = ( 0 === $args['id'] )
-			? $this->_add_ad_slot( $args )
-			: $this->_update_ad_slot( $args );
+			? $this->add_ad_slot( $args )
+			: $this->update_ad_slot( $args );
 
 		return rest_ensure_response( $adslot );
 	}
@@ -212,11 +212,11 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		$params  = $request->get_params();
 		$id      = $params['id'];
 
-		$ad_slot = $this->_get_ad_slot( $id );
-		if ( \is_wp_error( $ad_slot ) ) {
+		$ad_slot = $this->get_ad_slot( $id );
+		if ( is_wp_error( $ad_slot ) ) {
 			$response = $ad_slot;
 		} else {
-			$response = $this->_delete_ad_slot( $id );
+			$response = $this->delete_ad_slot( $id );
 		}
 
 		return rest_ensure_response( $response );
@@ -225,36 +225,34 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	/**
 	 * Get the ad slots from our saved option.
 	 */
-	private function _get_ad_slots(){
+	public function get_ad_slots(){
 		$ad_slots = [];
 		$args = [
 			'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
 			'posts_per_page' => -1,
 		];
-		$query = new WP_Query( $args );
-		if ( $query->have_posts() ) {
-\error_log(\var_export($query,true));
-			while ( $query->have_posts() ) {
-				$ad_slots[] = [
-					'id' => get_the_ID(),
-					'name' => get_the_title(),
-					'code' => get_post_meta( get_the_ID(), 'newspack_ad_code', true ),
-				];
-			}
-		}
 
+		$slots = get_posts( $args );
+		foreach ( $slots as $slot ) {
+			$ad_slots[] = [
+				'id' => $slot->ID,
+				'name' => $slot->post_title,
+				'code' => get_post_meta( $slot->ID, 'newspack_ad_code', true ),
+			];
+		}
+		
 		return $ad_slots;
 	}
 
 	/**
 	 * Get a single ad slot.
 	 */
-	private function _get_ad_slot( $id ) {
+	public function get_ad_slot( $id ) {
 		$ad_slot = get_post( $id );
 		if ( is_a( $ad_slot, 'WP_Post' ) ) {
 			return [
 				'id' => $ad_slot->ID,
-				'name' => $ad_slot->title,
+				'name' => $ad_slot->post_title,
 				'code' => get_post_meta( $ad_slot->ID, 'newspack_ad_code', true ),
 			];
 		} else {
@@ -277,26 +275,27 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * 		@type string $code The actual pasted ad code.
 	 * }
 	 */
-	private function _add_ad_slot( $ad_slot ) {
+	public function add_ad_slot( $ad_slot ) {
 
 		// Sanitise the values.
-		$ad_slot = $this->_sanitise_ad_slot( $ad_slot );
-		if ( \is_wp_error( $ad_slot ) ) {
+		$ad_slot = $this->sanitise_ad_slot( $ad_slot );
+		if ( is_wp_error( $ad_slot ) ) {
 			return $ad_slot;
 		}
 
 		// Save the ad slot.
-		$ad_slot_post = \wp_insert_post(
+		$ad_slot_post = wp_insert_post(
 			[
-				'post_author' => \get_current_user_id(),
+				'post_author' => get_current_user_id(),
 				'post_title' => $ad_slot['name'],
 				'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
+				'post_status' => 'publish',
 			]
 		);
-		if ( \is_wp_error( $ad_slot_post ) ) {
+		if ( is_wp_error( $ad_slot_post ) ) {
 			return new WP_Error(
 				'newspack_ad_slot_exists',
-				\esc_html__( 'An advert with that name already exists', 'newspack' ),
+				esc_html__( 'An advert with that name already exists', 'newspack' ),
 				[
 					'status' => '400',
 				]
@@ -304,7 +303,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		}
 
 		// Add the code to our new post.
-		\add_post_meta( $ad_slot_post, 'newspack_ad_code', $ad_slot['code'] );
+		add_post_meta( $ad_slot_post, 'newspack_ad_code', $ad_slot['code'] );
 
 		return [
 			'id' => $ad_slot_post,
@@ -314,15 +313,15 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	private function _update_ad_slot( $ad_slot ) {
+	public function update_ad_slot( $ad_slot ) {
 
 		// Sanitise the values.
-		$ad_slot = $this->_sanitise_ad_slot( $ad_slot );
-		if ( \is_wp_error( $ad_slot ) ) {
+		$ad_slot = $this->sanitise_ad_slot( $ad_slot );
+		if ( is_wp_error( $ad_slot ) ) {
 			return $ad_slot;
 		}
 
-		$ad_slot_post = get_post( $id );
+		$ad_slot_post = get_post( $ad_slot['id'] );
 		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
 			return new WP_Error(
 				'newspack_ad_slot_not_exists',
@@ -333,7 +332,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			);
 		}
 
-		\wp_update_post( [
+		wp_update_post( [
 			'ID' => $ad_slot['id'],
 			'post_title' => $ad_slot['name'],
 		] );
@@ -347,7 +346,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	private function _delete_ad_slot( $id ) {
+	public function delete_ad_slot( $id ) {
 
 		$ad_slot_post = get_post( $id );
 		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
@@ -359,13 +358,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 				]
 			);
 		} else {
-			\wp_delete_post( $id );
+			wp_delete_post( $id );
 			return true;
 		}
 
 	}
 
-	private function _sanitise_ad_slot( $ad_slot ) {
+	public function sanitise_ad_slot( $ad_slot ) {
 
 		if (
 			! array_key_exists( 'name', $ad_slot ) ||
@@ -382,7 +381,8 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		$sanitised_ad_slot = [
 			'name' => esc_html( $ad_slot['name'] ),
-			'code' => esc_js( $ad_slot['code'] ),
+			'code' => $ad_slot['code'], // esc_js( $ad_slot['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
+
 		];
 
 		if ( isset( $ad_slot['id'] ) ) {
