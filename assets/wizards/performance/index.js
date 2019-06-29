@@ -29,7 +29,11 @@ class PerformanceWizard extends Component {
 	 */
 	constructor() {
 		super( ...arguments );
-		this.state = {};
+		this.state = {
+			settings: {
+				'add_to_homescreen': false,
+			},
+		};
 	}
 
 	/**
@@ -39,11 +43,17 @@ class PerformanceWizard extends Component {
 		// TK
 	};
 
+	updateSetting = ( key, value ) => {
+		const { settings } = this.state;
+		this.setState( { settings: { ...settings, [ key ]: value } } );
+	};
+
 	/**
 	 * Render.
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
+		const { settings } = this.state;
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -66,9 +76,13 @@ class PerformanceWizard extends Component {
 						render={ routeProps => (
 							<AddToHomeScreen
 								headerText={ __( 'Enable Add to Homescreen' ) }
-								subHeaderText={ __( 'Encourage your users to add your news site to their homescreen.' ) }
+								subHeaderText={ __(
+									'Encourage your users to add your news site to their homescreen.'
+								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction="#/offline-usage"
+								settings={ settings }
+								updateSetting={ this.updateSetting }
 							/>
 						) }
 					/>
@@ -77,9 +91,13 @@ class PerformanceWizard extends Component {
 						render={ routeProps => (
 							<OfflineUsage
 								headerText={ __( 'Enable Offline Usage' ) }
-								subHeaderText={ __( 'Make your website reliable. Even on flaky internet connections.' ) }
+								subHeaderText={ __(
+									'Make your website reliable. Even on flaky internet connections.'
+								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction="#/push-notifications"
+								settings={ settings }
+								updateSetting={ this.updateSetting }
 							/>
 						) }
 					/>
@@ -91,6 +109,8 @@ class PerformanceWizard extends Component {
 								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction="#/"
+								settings={ settings }
+								updateSetting={ this.updateSetting }
 							/>
 						) }
 					/>
