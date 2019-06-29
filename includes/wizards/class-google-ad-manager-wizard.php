@@ -131,7 +131,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			'/adslots/(?P<id>\d+)',
 			[
 				'methods'             => 'DELETE',
-				'callback'            => [ $this, 'api_delete_adslots' ],
+				'callback'            => [ $this, 'api_delete_adslot' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
