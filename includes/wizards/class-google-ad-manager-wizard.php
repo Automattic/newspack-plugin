@@ -232,13 +232,16 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			'posts_per_page' => -1,
 		];
 
-		$slots = \get_posts( $args );
-		foreach ( $slots as $slot ) {
-			$ad_slots[] = [
-				'id' => $slot->ID,
-				'name' => $slot->post_title,
-				'code' => \get_post_meta( $slot->ID, 'newspack_ad_code', true ),
-			];
+		$query = new \WP_Query( $args );
+		if ( $query->have_posts() ) {
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				$ad_slots[] = [
+					'id'   => \get_the_ID(),
+					'name' => \get_the_title(),
+					'code' => \get_post_meta( get_the_ID(), 'newspack_ad_code', true ),
+				];
+			}
 		}
 
 		return $ad_slots;
