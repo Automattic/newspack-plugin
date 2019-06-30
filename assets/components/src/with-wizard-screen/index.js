@@ -53,7 +53,8 @@ export default function withWizardScreen( WrappedComponent, config ) {
 					) }
 					{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
 						<Button
-							isPrimary
+							isPrimary={ ! buttonDisabled }
+							isDefault={ !! buttonDisabled }
 							className="is-centered muriel-wizardScreen__completeButton"
 							disabled={ buttonDisabled }
 							{ ...retrievedButtonProps }
