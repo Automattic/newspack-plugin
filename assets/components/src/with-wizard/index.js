@@ -31,12 +31,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			this.wrappedComponentRef = createRef();
 		}
 
-		componentDidMount() {
-			if ( ! requiredPlugins ) {
-				this.pluginInstallationComplete();
-			}
-		}
-
 		/**
 		 * Set the error. Called by Wizards when an error occurs.
 		 *
@@ -182,7 +176,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				<Fragment>
 					{ this.getError() }
 					<WrappedComponent
-						pluginRequirements={ this.pluginRequirements() }
+						pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 						clearError={ this.clearError }
 						getError={ this.getError }
 						setError={ this.setError }
