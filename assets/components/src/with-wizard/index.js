@@ -25,7 +25,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		constructor( props ) {
 			super( props );
 			this.state = {
-				pluginRequirementsMet: false,
+				complete: false,
 				error: null,
 			};
 			this.wrappedComponentRef = createRef();
@@ -130,10 +130,10 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
 		 */
-		pluginInstallationComplete = () => {
+		pluginInstallationStatus = ( { complete } ) => {
 			const instance = this.wrappedComponentRef.current;
-			this.setState( { pluginRequirementsMet: true }, () => {
-				instance && instance.onWizardReady && instance.onWizardReady();
+			this.setState( { complete }, () => {
+				complete && instance && instance.onWizardReady && instance.onWizardReady();
 			} );
 		};
 
@@ -143,9 +143,9 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @return void
 		 */
 		pluginRequirements = () => {
-			const { pluginRequirementsMet } = this.state;
+			const { complete } = this.state;
 			/* After all plugins are loaded, redirect to / (this could be configurable) */
-			if ( pluginRequirementsMet ) {
+			if ( complete ) {
 				return <Redirect from="/plugin-requirements" to="/" />;
 			}
 			return (
@@ -160,7 +160,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								/>
 								<PluginInstaller
 									plugins={ requiredPlugins }
-									onStatus={ ( { complete, pluginInfo } ) => complete && this.pluginInstallationComplete() }
+									onStatus={ status => this.pluginInstallationStatus( status ) }
 								/>
 							</Card>
 						) }
