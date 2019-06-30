@@ -25,7 +25,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		constructor( props ) {
 			super( props );
 			this.state = {
-				complete: false,
+				complete: null,
 				error: null,
 			};
 			this.wrappedComponentRef = createRef();
@@ -154,10 +154,12 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 						path="/"
 						render={ routeProps => (
 							<Card noBackground>
-								<FormattedHeader
-									headerText={ __( 'Required plugin' ) }
-									subHeaderText={ __( 'This feature requires the following plugin.' ) }
-								/>
+								{ complete !== null && (
+									<FormattedHeader
+										headerText={ __( 'Required plugin' ) }
+										subHeaderText={ __( 'This feature requires the following plugin.' ) }
+									/>
+								) }
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
