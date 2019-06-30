@@ -165,6 +165,12 @@ class PluginInstaller extends Component {
 		}
 		return (
 			<div>
+				{ ! pluginInfo.length && (
+					<div className="newspack-plugin-installer_waiting">
+						<p>{ __( 'Retrieving plugin information...') }</p>
+						<Spinner />
+					</div>
+				) }
 				{ pluginInfo &&
 					slugs.length > 0 &&
 					slugs.map( slug => {
