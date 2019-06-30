@@ -160,7 +160,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								/>
 								<PluginInstaller
 									plugins={ requiredPlugins }
-									onComplete={ () => this.pluginInstallationComplete() }
+									onStatus={ ( { complete, pluginInfo } ) => complete && this.pluginInstallationComplete() }
 								/>
 							</Card>
 						) }
