@@ -151,7 +151,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<Fragment>
 					<Route
-						path="/plugin-requirements"
+						path="/"
 						render={ routeProps => (
 							<Card noBackground>
 								<FormattedHeader
@@ -165,7 +165,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							</Card>
 						) }
 					/>
-					<Redirect to="/plugin-requirements" />
 				</Fragment>
 			);
 		};
