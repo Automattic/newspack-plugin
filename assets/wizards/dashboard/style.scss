@@ -18,9 +18,9 @@
 		height: 1px;
 		max-width: 745px;
 		width: 100%;
-	 	background-color: $muriel-gray-50;
-	 	position: absolute;
-	 	bottom: 0;
+		background-color: $muriel-gray-50;
+		position: absolute;
+		bottom: 0;
 	}
 
 	&:last-of-type::after {
@@ -35,9 +35,11 @@
 	text-align: center;
 	position: relative;
 	box-sizing: border-box;
-	box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2), 0px 2px 2px rgba(0, 0, 0, 0.12), 0px 0px 2px rgba(0, 0, 0, 0.14);
+	box-shadow: 0px 1px 3px rgba( 0, 0, 0, 0.2 ), 0px 2px 2px rgba( 0, 0, 0, 0.12 ),
+		0px 0px 2px rgba( 0, 0, 0, 0.14 );
 
-	a, .newspack-dashboard-card__disabled-link {
+	a,
+	.newspack-dashboard-card__disabled-link {
 		display: flex;
 		height: 100%;
 		align-items: center;
@@ -73,7 +75,7 @@
 
 	&.completed {
 		background: none;
-		border: 1px solid rgba(0, 0, 0, .1);
+		border: 1px solid rgba( 0, 0, 0, 0.1 );
 	}
 
 	.newspack-dashboard-card__completed-icon {
@@ -82,9 +84,14 @@
 		top: 40px;
 		right: 80px;
 	}
+
+	&:not( .disabled ):hover {
+		box-shadow: 0px 5px 5px rgba( 0, 0, 0, 0.2 ), 0px 3px 14px rgba( 0, 0, 0, 0.12 ),
+			0px 8px 10px rgba( 0, 0, 0, 0.14 );
+	}
 }
 
-@media (max-width: 600px) {
+@media ( max-width: 600px ) {
 	.newspack_dashboard__header {
 		margin-right: 14px;
 	}
@@ -94,6 +101,6 @@
 	}
 
 	.newspack-dashboard-card {
-		max-width: calc(100% - 3em);
+		max-width: calc( 100% - 3em );
 	}
 }
