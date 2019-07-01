@@ -34,10 +34,12 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
-					<Card className={ classes } noBackground={ noBackground }>
+					<Card noBackground>
 						{ headerText && (
 							<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
 						) }
+					</Card>
+					<Card className={ classes } noBackground={ noBackground }>
 						<div className="muriel-wizardScreen__content">
 							<WrappedComponent { ...this.props } />
 						</div>
