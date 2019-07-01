@@ -165,6 +165,26 @@ class SubscriptionsOnboardingWizard extends Component {
 	}
 
 	/**
+	 * Mark this wizard as complete.
+	 */
+	markWizardComplete() {
+		const { setError } = this.props;
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizards/subscriptions-onboarding/complete',
+				method: 'post',
+				data: {},
+			} )
+				.then( response => {
+					setError().then( () => resolve() );
+				} )
+				.catch( error => {
+					setError( error ).then( () => reject() );
+				} );
+		} );
+	}
+
+	/**
 	 * Render.
 	 */
 	render() {
@@ -208,9 +228,12 @@ class SubscriptionsOnboardingWizard extends Component {
 									onChange={ stripeSettings => this.setState( { stripeSettings } ) }
 									buttonText={ __( 'Finish' ) }
 									buttonAction={ () =>
-										this.saveStripeSettings().then(
-											() => ( window.location = newspack_urls[ 'checklists' ][ 'reader-revenue' ] )
-										)
+										this.saveStripeSettings()
+											.then( () => this.markWizardComplete()
+												.then(
+													() => ( window.location = newspack_urls[ 'checklists' ][ 'reader-revenue' ] )
+												)
+											)
 									}
 								/>
 							</Fragment>

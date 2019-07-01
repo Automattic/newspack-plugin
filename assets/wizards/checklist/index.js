@@ -28,6 +28,27 @@ class ChecklistScreen extends Component {
 	}
 
 	/**
+	 * When the checklist is first loaded, set the progress.
+	 * This counts from the first element until the first non-complete element to determine progress.
+	 * This will prevent issues if e.g. a wizard further down the list is complete.
+	 */
+	componentDidMount() {
+		const { steps } = this.props;
+		let numComplete = 0;
+		for ( let i = 0; i < steps.length; ++i ) {
+			if ( steps[i].completed ) {
+				++numComplete;
+			} else {
+				break;
+			}
+		}
+
+		this.setState( {
+			checklistProgress: numComplete,
+		} );
+	}
+
+	/**
 	 * Mark a checklist item as skipped.
 	 * @todo Make this permanent using an API call.
 	 */
@@ -53,7 +74,7 @@ class ChecklistScreen extends Component {
 							title={ step.name }
 							description={ step.description }
 							buttonText={ __( 'Do it' ) }
-							completedTitle={ __( 'All set!' ) }
+							completedTitle={ step.name }
 							completed={ step.completed || checklistProgress > index }
 							onDismiss={ () => this.dismissCheckListItem( index ) }
 							active={ checklistProgress === index }

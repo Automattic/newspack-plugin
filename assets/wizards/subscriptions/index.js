@@ -155,6 +155,26 @@ class SubscriptionsWizard extends Component {
 		);
 	}
 
+	/**
+	 * Mark this wizard as complete.
+	 */
+	markWizardComplete() {
+		const { setError } = this.props;
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizards/subscriptions/complete',
+				method: 'post',
+				data: {},
+			} )
+				.then( response => {
+					setError().then( () => resolve() );
+				} )
+				.catch( error => {
+					setError( error ).then( () => reject() );
+				} );
+		} );
+	}
+
 	onSubscriptionChange = subscription => {
 		this.setState( prevState => ( {
 			subscriptions: {
@@ -216,7 +236,7 @@ class SubscriptionsWizard extends Component {
 										this.saveSubscription( subscription ).then( newSubscription => {
 											return this.refreshSubscriptions().then( () =>
 												routeProps.history.push( '/' )
-											);
+											).then( () => this.markWizardComplete() );
 										} )
 									}
 								/>
@@ -244,7 +264,7 @@ class SubscriptionsWizard extends Component {
 										this.saveSubscription( subscription ).then( newSubscription => {
 											return this.refreshSubscriptions().then( () =>
 												routeProps.history.push( '/' )
-											);
+											).then( () => this.markWizardComplete() );
 										} )
 									}
 								/>
