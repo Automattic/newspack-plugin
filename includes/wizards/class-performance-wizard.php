@@ -101,10 +101,12 @@ class Performance_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	public function api_update_settings( $request ) {
-		require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-progressive-wp-configuration-manager.php';
-		$configuration_manager = new Progressive_WP_Configuration_Manager();
 		if ( empty( $request['settings'] ) ) {
 			return new WP_Error( 'newspack_invalid_update', 'Invalid update' );
+		}
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'progressive-wp' );
+		if ( is_wp_error( $configuration_manager ) ) {
+			return $configuration_manager;
 		}
 		$settings = $request['settings'];
 		if ( ! empty( $settings['site_icon'] ) ) {
@@ -123,8 +125,10 @@ class Performance_Wizard extends Wizard {
 	 * Get all settings
 	 */
 	public function get_settings() {
-		require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-progressive-wp-configuration-manager.php';
-		$configuration_manager = new Progressive_WP_Configuration_Manager();
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'progressive-wp' );
+		if ( is_wp_error( $configuration_manager ) ) {
+			return $configuration_manager;
+		}
 		return [
 			'add_to_homescreen'            => true,
 			'site_icon'                    => $configuration_manager->get( 'site_icon' ),

@@ -32,6 +32,10 @@ class Configuration_Managers {
 			'filename'   => 'class-sitekit-configuration-manager.php',
 			'class_name' => 'SiteKit_Configuration_Manager',
 		],
+		'progressive-wp'  => [
+			'filename'   => 'class-progressive-wp-configuration-manager.php',
+			'class_name' => 'Progressive_WP_Configuration_Manager',
+		],
 	];
 
 	/**
