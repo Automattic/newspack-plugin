@@ -18,6 +18,7 @@ function register_ad_post_type() {
 		[
 			'public' => false,
 			'publicly_queryable' => true,
+			'show_in_rest' => true,
 		]
 	);
 
