@@ -38,6 +38,17 @@ class Components_Demo extends Wizard {
 	protected $hidden = false;
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+			add_action( 'admin_head', array( $this, 'hide_from_menus' ) );
+		}
+	}
+
+	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
