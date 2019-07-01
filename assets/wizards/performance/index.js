@@ -106,7 +106,10 @@ class PerformanceWizard extends Component {
 									'Encourage your users to add your news site to their homescreen.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction={ () => this.updateSettings() }
+								buttonAction={ {
+									onClick: () => this.updateSettings(),
+									href: '#/offline-usage',
+								} }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
@@ -121,7 +124,10 @@ class PerformanceWizard extends Component {
 									'Make your website reliable. Even on flaky internet connections.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction={ () => this.updateSettings() }
+								buttonAction={ {
+									onClick: () => this.updateSettings(),
+									href: '#/push-notifications',
+								} }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
@@ -134,7 +140,11 @@ class PerformanceWizard extends Component {
 								headerText={ __( 'Enable Push Notifications' ) }
 								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction={ () => this.updateSettings() }
+								buttonAction={ () =>
+									this.updateSettings().then(
+										() => ( window.location = newspack_urls[ 'dashboard' ] )
+									)
+								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
