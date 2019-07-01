@@ -11,7 +11,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, FormattedHeader, Checklist, Task } from '../../components/src';
+import { Button, FormattedHeader, Checklist, NewspackLogo, Task } from '../../components/src';
+import './style.scss';
 
 /**
  * Renders any checklist.
@@ -45,6 +46,7 @@ class ChecklistScreen extends Component {
 
 		return (
 			<Fragment>
+				<NewspackLogo compact width="50" className="newspack-logo" />
 				<FormattedHeader headerText={ name } subHeaderText={ description } />
 				<Checklist progressBarText={ __( 'Your setup list' ) }>
 					{ steps.map( ( step, index ) => (

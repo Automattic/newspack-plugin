@@ -152,7 +152,7 @@ class Checklists {
 	 */
 	public static function render_checklist() {
 		?>
-		<div id="newspack-checklist">
+		<div id="newspack-checklist" class="newspack-checklist">
 		</div>
 		<?php
 	}
