@@ -37,6 +37,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 					<WrappedComponent { ...this.props } />
 				</div>
 			);
+			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
 					<Card noBackground>
