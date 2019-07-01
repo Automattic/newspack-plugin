@@ -252,7 +252,7 @@ class SetupWizard extends Component {
 								<PluginInstaller
 									asProgressBar
 									plugins={ REQUIRED_PLUGINS }
-									onComplete={ () => this.setState( { installationComplete: true } ) }
+									onStatus={ installationComplete => this.setState( { installationComplete } ) }
 								/>
 								{ ! installationComplete && (
 									<p className="newspack-setup-wizard_progress_bar_explainer">
