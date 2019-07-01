@@ -25,16 +25,10 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		constructor( props ) {
 			super( props );
 			this.state = {
-				pluginRequirementsMet: false,
+				complete: null,
 				error: null,
 			};
 			this.wrappedComponentRef = createRef();
-		}
-
-		componentDidMount() {
-			if ( ! requiredPlugins ) {
-				this.pluginInstallationComplete();
-			}
 		}
 
 		/**
@@ -130,10 +124,10 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
 		 */
-		pluginInstallationComplete = () => {
+		pluginInstallationStatus = ( { complete } ) => {
 			const instance = this.wrappedComponentRef.current;
-			this.setState( { pluginRequirementsMet: true }, () => {
-				instance && instance.onWizardReady && instance.onWizardReady();
+			this.setState( { complete }, () => {
+				complete && instance && instance.onWizardReady && instance.onWizardReady();
 			} );
 		};
 
@@ -143,29 +137,30 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @return void
 		 */
 		pluginRequirements = () => {
-			const { pluginRequirementsMet } = this.state;
+			const { complete } = this.state;
 			/* After all plugins are loaded, redirect to / (this could be configurable) */
-			if ( pluginRequirementsMet ) {
+			if ( complete ) {
 				return <Redirect from="/plugin-requirements" to="/" />;
 			}
 			return (
 				<Fragment>
 					<Route
-						path="/plugin-requirements"
+						path="/"
 						render={ routeProps => (
 							<Card noBackground>
-								<FormattedHeader
-									headerText={ __( 'Required plugin' ) }
-									subHeaderText={ __( 'This feature requires the following plugin.' ) }
-								/>
+								{ complete !== null && (
+									<FormattedHeader
+										headerText={ __( 'Required plugin' ) }
+										subHeaderText={ __( 'This feature requires the following plugin.' ) }
+									/>
+								) }
 								<PluginInstaller
 									plugins={ requiredPlugins }
-									onComplete={ () => this.pluginInstallationComplete() }
+									onStatus={ status => this.pluginInstallationStatus( status ) }
 								/>
 							</Card>
 						) }
 					/>
-					<Redirect to="/plugin-requirements" />
 				</Fragment>
 			);
 		};
@@ -181,7 +176,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				<Fragment>
 					{ this.getError() }
 					<WrappedComponent
-						pluginRequirements={ this.pluginRequirements() }
+						pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 						clearError={ this.clearError }
 						getError={ this.getError }
 						setError={ this.setError }

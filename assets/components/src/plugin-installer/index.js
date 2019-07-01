@@ -29,7 +29,7 @@ class PluginInstaller extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			pluginInfo: [],
+			pluginInfo: {},
 		};
 	}
 
@@ -132,15 +132,13 @@ class PluginInstaller extends Component {
 
 	updatePluginInfo = pluginInfo => {
 		return new Promise( ( resolve, reject ) => {
-			const { onComplete } = this.props;
+			const { onStatus } = this.props;
 			this.setState( { pluginInfo }, () => {
 				const { pluginInfo } = this.state;
-				const isDone = Object.values( pluginInfo ).every( plugin => {
+				const complete = Object.values( pluginInfo ).every( plugin => {
 					return 'active' === plugin.Status;
 				} );
-				if ( isDone && onComplete ) {
-					onComplete( pluginInfo );
-				}
+				onStatus( { complete, pluginInfo } );
 				resolve();
 			} );
 		} );
@@ -167,6 +165,12 @@ class PluginInstaller extends Component {
 		}
 		return (
 			<div>
+				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length )  && (
+					<div className="newspack-plugin-installer_waiting">
+						<p>{ __( 'Retrieving plugin information...') }</p>
+						<Spinner />
+					</div>
+				) }
 				{ pluginInfo &&
 					slugs.length > 0 &&
 					slugs.map( slug => {
@@ -217,6 +221,10 @@ class PluginInstaller extends Component {
 			</div>
 		);
 	}
+}
+
+PluginInstaller.defaultProps = {
+	onStatus: () => {},
 }
 
 export default PluginInstaller;

@@ -165,13 +165,16 @@ class ComponentsDemo extends Component {
 							'fake-plugin',
 						] }
 						canUninstall
+						onStatus={ ( { complete, pluginInfo } ) => {
+							console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
+						} }
 					/>
 				</Card>
 				<Card noBackground>
 					<PluginInstaller
 						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-						onComplete={ pluginInfo => {
-							console.log( 'All plugins installed successfully', pluginInfo );
+						onStatus={ ( { complete, pluginInfo } ) => {
+							console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
 						} }
 					/>
 				</Card>
