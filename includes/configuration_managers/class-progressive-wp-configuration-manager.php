@@ -31,6 +31,8 @@ class Progressive_WP_Configuration_Manager extends Configuration_Manager {
 	 */
 	public $fields = [
 		'site_icon',
+		'firebase-serverkey',
+		'firebase-senderid',
 	];
 
 	/**
@@ -45,15 +47,44 @@ class Progressive_WP_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Retrieve one value
 	 *
-	 * @param string $field The key of the value.
+	 * @param string $setting The key of the value.
 	 * @var string || WP_Error
 	 */
-	public function get( $field = '' ) {
-		if ( ! in_array( $field, $this->fields ) ) {
-			return new WP_Error( 'newspack_field_not_found', 'Field could not be retrieved' );
+	public function get( $setting = '' ) {
+		if ( ! in_array( $setting, $this->fields ) ) {
+			return new WP_Error( 'newspack_field_not_found', 'Setting could not be retrieved' );
 		}
-		$method = sprintf( 'get_%s', $field );
-		return $this->{ $method }();
+		$method = $this->setting_to_function_name( $setting, 'get' );
+		if ( method_exists( $this, $method ) ) {
+			return $this->{ $method }();
+		}
+		if ( function_exists( 'pwp_settings' ) ) {
+			return pwp_settings()->get_setting( $setting );
+		}
+		return null;
+	}
+
+	/**
+	 * Update one setting value
+	 *
+	 * @param string $setting The setting name.
+	 * @param string $value The setting value.
+	 * @var null || WP_Error
+	 */
+	public function update( $setting = '', $value = '' ) {
+		if ( ! in_array( $setting, $this->fields ) ) {
+			return new WP_Error( 'newspack_field_not_found', 'Field could not be updated' );
+		}
+		$method = $this->setting_to_function_name( $setting, 'update' );
+		if ( method_exists( $this, $method ) ) {
+			return $this->{ $method }( $value );
+		}
+		if ( function_exists( 'pwp_settings' ) ) {
+			$options = get_option( 'pwp-settings' );
+
+			$options[ $setting ] = $value;
+			update_option( 'pwp-settings', $options );
+		}
 	}
 
 	/**

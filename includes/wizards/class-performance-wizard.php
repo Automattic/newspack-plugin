@@ -108,7 +108,13 @@ class Performance_Wizard extends Wizard {
 		}
 		$settings = $request['settings'];
 		if ( ! empty( $settings['site_icon'] ) ) {
-			$configuration_manager->update_site_icon( $settings['site_icon'] );
+			$configuration_manager->update( 'site_icon', $settings['site_icon'] );
+		}
+		if ( ! empty( $settings['push_notification_server_key'] ) ) {
+			$configuration_manager->update( 'firebase-serverkey', $settings['push_notification_server_key'] );
+		}
+		if ( ! empty( $settings['push_notification_sender_id'] ) ) {
+			$configuration_manager->update( 'firebase-senderid', $settings['push_notification_sender_id'] );
 		}
 		return rest_ensure_response( $this->get_settings() );
 	}
@@ -124,8 +130,8 @@ class Performance_Wizard extends Wizard {
 			'site_icon'                    => $configuration_manager->get( 'site_icon' ),
 			'offline_usage'                => true,
 			'push_notifications'           => true,
-			'push_notification_server_key' => 'boo',
-			'push_notification_sender_id'  => 'hoo',
+			'push_notification_server_key' => $configuration_manager->get( 'firebase-serverkey' ),
+			'push_notification_sender_id'  => $configuration_manager->get( 'firebase-senderid' ),
 		];
 	}
 
