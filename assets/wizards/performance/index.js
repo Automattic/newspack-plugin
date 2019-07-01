@@ -31,9 +31,7 @@ class PerformanceWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			settings: {
-				'add_to_homescreen': false,
-			},
+			settings: {},
 		};
 	}
 
@@ -41,8 +39,35 @@ class PerformanceWizard extends Component {
 	 * wizardReady will be called when all plugin requirements are met.
 	 */
 	onWizardReady = () => {
-		// TK
+		this.getSettings();
 	};
+
+	getSettings() {
+		const { setError } = this.props;
+		return apiFetch( { path: '/newspack/v1/wizard/performance' } )
+			.then( settings => {
+				this.setState( { settings } );
+			} )
+			.catch( error => {
+				this.setError( error );
+			} );
+	}
+
+	updateSettings() {
+		const { setError } = this.props;
+		const { settings } = this.state;
+		return apiFetch( {
+			path: '/newspack/v1/wizard/performance',
+			method: 'POST',
+			data: { settings },
+		} )
+			.then( settings => {
+				this.setState( { settings } );
+			} )
+			.catch( error => {
+				this.setError( error );
+			} );
+	}
 
 	updateSetting = ( key, value ) => {
 		const { settings } = this.state;
@@ -81,7 +106,7 @@ class PerformanceWizard extends Component {
 									'Encourage your users to add your news site to their homescreen.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction="#/offline-usage"
+								buttonAction={ () => this.updateSettings() }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
@@ -96,7 +121,7 @@ class PerformanceWizard extends Component {
 									'Make your website reliable. Even on flaky internet connections.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction="#/push-notifications"
+								buttonAction={ () => this.updateSettings() }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
@@ -109,7 +134,7 @@ class PerformanceWizard extends Component {
 								headerText={ __( 'Enable Push Notifications' ) }
 								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction="#/"
+								buttonAction={ () => this.updateSettings() }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>

@@ -29,8 +29,14 @@ class Performance_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $capability = 'manage_options';
-
+	protected $capability = 'install_plugins';
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	}
 	/**
 	 * Get the name for this wizard.
 	 *
@@ -56,6 +62,71 @@ class Performance_Wizard extends Wizard {
 	 */
 	public function get_length() {
 		return esc_html__( '10 minutes', 'newspack' );
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/performance/',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/performance/',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'api_update_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Handle GET endpoint.
+	 */
+	public function api_get_settings() {
+		return rest_ensure_response( $this->get_settings() );
+	}
+
+	/**
+	 * Handle POST endpoint.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public function api_update_settings( $request ) {
+		require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-progressive-wp-configuration-manager.php';
+		$configuration_manager = new Progressive_WP_Configuration_Manager();
+		if ( empty( $request['settings'] ) ) {
+			return new WP_Error( 'newspack_invalid_update', 'Invalid update' );
+		}
+		$settings = $request['settings'];
+		if ( ! empty( $settings['site_icon'] ) ) {
+			$configuration_manager->update_site_icon( $settings['site_icon'] );
+		}
+		return rest_ensure_response( $this->get_settings() );
+	}
+
+	/**
+	 * Get all settings
+	 */
+	public function get_settings() {
+		require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-progressive-wp-configuration-manager.php';
+		$configuration_manager = new Progressive_WP_Configuration_Manager();
+		return [
+			'add_to_homescreen'            => true,
+			'site_icon'                    => $configuration_manager->get( 'site_icon' ),
+			'offline_usage'                => true,
+			'push_notifications'           => true,
+			'push_notification_server_key' => 'boo',
+			'push_notification_sender_id'  => 'hoo',
+		];
 	}
 
 	/**
