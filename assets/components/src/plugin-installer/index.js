@@ -29,7 +29,7 @@ class PluginInstaller extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			pluginInfo: [],
+			pluginInfo: {},
 		};
 	}
 
@@ -165,7 +165,7 @@ class PluginInstaller extends Component {
 		}
 		return (
 			<div>
-				{ ! pluginInfo.length && (
+				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length )  && (
 					<div className="newspack-plugin-installer_waiting">
 						<p>{ __( 'Retrieving plugin information...') }</p>
 						<Spinner />
