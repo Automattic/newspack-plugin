@@ -210,7 +210,12 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
-		return rest_ensure_response( $managed_plugins[ $slug ] );
+
+		$plugin = $managed_plugins[ $slug ];
+
+		$plugin['Configured'] = \Newspack\Configuration_Managers::is_configured( $slug );
+
+		return rest_ensure_response( $plugin );
 	}
 
 	/**
@@ -325,8 +330,11 @@ class Plugins_Controller extends WP_REST_Controller {
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
 		$response = $managed_plugins[ $slug ];
-		if ( isset( $request['editLink'] ) ) {
+		if ( ! empty( $request['editLink'] ) ) {
 			$response['HandoffLink'] = $request['editLink'];
+		}
+		if ( ! empty( $request['handoffReturnUrl'] ) ) {
+			update_option( NEWSPACK_HANDOFF_RETURN_URL, esc_url( $request['handoffReturnUrl'] ) );
 		}
 
 		return rest_ensure_response( $response );
@@ -356,20 +364,8 @@ class Plugins_Controller extends WP_REST_Controller {
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
-		$plugin = $managed_plugins[ $slug ];
-
-		$configurer = isset( $plugin['Configurer'] ) ? $plugin['Configurer'] : null;
-		if ( $configurer ) {
-			require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/' . $configurer['filename'];
-			$classname        = 'Newspack\\' . $configurer['class_name'];
-			$configurer_class = new $classname();
-			$result           = $configurer_class->configure();
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
-		}
-
-		return rest_ensure_response( $plugin );
+		\Newspack\Configuration_Managers::configure( $slug );
+		return rest_ensure_response( $managed_plugins[ $slug ] );
 	}
 
 	/**

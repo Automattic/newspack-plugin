@@ -59,7 +59,9 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-subscriptions-onboarding-wizard.php';
@@ -70,6 +72,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-configuration-managers.php';
 	}
 
 	/**

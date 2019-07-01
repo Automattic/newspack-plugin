@@ -1,0 +1,57 @@
+@import '../../../../shared/scss/muriel-component';
+
+.newspack-service-link-card.muriel-component {
+	background: white none center 33px no-repeat;
+	display: block;
+	padding: 120px 42px 40px 42px;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	white-space: normal;
+	width: 100%;
+	&.jetpack,
+	&:active.jetpack,
+	&:focus.jetpack,
+	&:hover.jetpack {
+		background: white url( './jetpack.svg' ) center 33px no-repeat;
+	}
+	&.google-site-kit,
+	&:active.google-site-kit,
+	&:focus.google-site-kit,
+	&:hover.google-site-kit {
+		background: white url( './sitekit.svg' ) center 33px no-repeat;
+	}
+	.components-spinner {
+		display: block;
+		float: none;
+		margin: 10px auto 0 auto;
+	}
+	.newspack-service-link_status-container {
+		margin-top: 1em;
+		align-items: center;
+		justify-content: center;
+		display: none;
+		&.unconfigured {
+			color: $primary_color;
+			display: block;
+		}
+	}
+	.checklist__task-icon {
+		background-color: $primary_color;
+		border: 1px solid $primary_color;
+		border-radius: 16px;
+		width: 16px;
+		height: 16px;
+		color: $muriel-white;
+		margin-right: 12px;
+	}
+	&.is-configured {
+		opacity: 0.8;
+		.newspack-service-link_status-container {
+			display: flex;
+			&.unconfigured {
+				display: none;
+			}
+		}
+	}
+}

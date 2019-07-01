@@ -88,7 +88,9 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Card>
-					<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
+					<FormattedHeader
+						headerText={ __( 'Handoff Buttons' ) }
+					/>
 					<Handoff
 						className="is-centered"
 						modalTitle="Manage AMP"

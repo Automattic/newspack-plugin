@@ -36,7 +36,9 @@ class Handoff extends Component {
 	};
 
 	retrievePluginInfo = plugin => {
+		const { onReady } = this.props;
 		apiFetch( { path: '/newspack/v1/plugins/' + plugin } ).then( pluginInfo => {
+			onReady( pluginInfo );
 			this.setState( { pluginInfo } );
 		} );
 	};
@@ -57,7 +59,7 @@ class Handoff extends Component {
 		apiFetch( {
 			path: '/newspack/v1/plugins/' + plugin + '/handoff',
 			method: 'POST',
-			data: { editLink },
+			data: { editLink, handoffReturnUrl: window && window.location.href },
 		} ).then( response => {
 			window.location.href = response.HandoffLink;
 		} );
@@ -67,8 +69,7 @@ class Handoff extends Component {
 	 * Render.
 	 */
 	render( props ) {
-		const { className, children, ...otherProps } = this.props;
-		const classes = murielClassnames( 'muriel-button', className );
+		const { className, children, useModal, onReady, ...otherProps } = this.props;
 		const { pluginInfo, showModal } = this.state;
 		const {
 			modalBody,
@@ -77,7 +78,8 @@ class Handoff extends Component {
 			primaryModalButton,
 			dismissModalButton,
 		} = this.textForPlugin( pluginInfo );
-		const { Name, Slug, Status } = pluginInfo;
+		const { Configured, Name, Slug, Status } = pluginInfo;
+		const classes = murielClassnames( 'muriel-button', Configured && 'is-configured', className );
 		return (
 			<Fragment>
 				{ Name && 'active' === Status && (
@@ -85,7 +87,9 @@ class Handoff extends Component {
 						className={ classes }
 						isDefault
 						{ ...otherProps }
-						onClick={ () => this.setState( { showModal: true } ) }
+						onClick={ () =>
+							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
+						}
 					>
 						{ children ? children : primaryButton }
 					</Button>
@@ -120,6 +124,10 @@ class Handoff extends Component {
 			</Fragment>
 		);
 	}
+}
+
+Handoff.defaultProps = {
+	onReady: () => {},
 }
 
 export default Handoff;

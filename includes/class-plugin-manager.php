@@ -23,6 +23,7 @@ class Plugin_Manager {
 	 *
 	 * @return array of plugins info.
 	 */
+
 	public static function get_managed_plugins() {
 		$managed_plugins = [
 			'jetpack'                       => [
@@ -33,10 +34,6 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com/',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=jetpack',
-				'Configurer'  => [
-					'filename'   => 'class-jetpack-configuration-manager.php',
-					'class_name' => 'Jetpack_Configuration_Manager',
-				],
 			],
 			'amp'                           => [
 				'Name'        => __( 'AMP', 'newspack' ),
@@ -46,10 +43,6 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://github.com/ampproject/amp-wp/graphs/contributors',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=amp-options',
-				'Configurer'  => [
-					'filename'   => 'class-amp-configuration-manager.php',
-					'class_name' => 'AMP_Configuration_Manager',
-				],
 			],
 			'woocommerce-gateway-stripe'    => [
 				'Name'        => __( 'WooCommerce Stripe Gateway', 'newspack' ),
@@ -110,6 +103,19 @@ class Plugin_Manager {
 					'filename'   => 'class-site-kit-configuration-manager.php',
 					'class_name' => 'Site_Kit_Configuration_Manager',
 				],
+			],
+			'pwa'                           => [
+				'Name'        => 'PWA',
+				'Description' => 'Feature plugin to bring Progressive Web App (PWA) capabilities to Core',
+				'Author'      => 'PWA Plugin Contributors',
+				'AuthorURI'   => 'https://github.com/xwp/pwa-wp/graphs/contributors',
+				'Download'    => 'wporg',
+			],
+			'gutenberg'                     => [
+				'Name'        => 'Gutenberg',
+				'Description' => 'Printing since 1440. This is the development plugin for the new block editor in core.',
+				'Author'      => 'Gutenberg Team',
+				'Download'    => 'wporg',
 			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',

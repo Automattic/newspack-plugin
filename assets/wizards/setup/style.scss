@@ -1,0 +1,25 @@
+.newspack-logo {
+	display: block;
+	margin: 2em auto;
+}
+.newspack-setup-wizard_progress_bar_explainer {
+	text-align: center;
+}
+.newspack-setup-wizard_plugin-installer {
+	max-width: 450px;
+	margin: 3em auto 0 auto;
+}
+.newspack-setup-wizard_newsroom-screen .components-button {
+	position: relative;
+	.components-spinner {
+		position: absolute;
+		right: 0;
+	}
+}
+#newspack-setup-wizard .muriel-wizardScreen__completeButton {
+	position: relative;
+	.components-spinner {
+		position: absolute;
+		right: 0;
+	}
+}

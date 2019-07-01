@@ -1,0 +1,9 @@
+.newspack-setup-wizard__form_element_row {
+	display:  flex;
+	&  > div {
+		margin: 0 1em 0 0;
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+}

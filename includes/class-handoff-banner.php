@@ -21,7 +21,7 @@ class Handoff_Banner {
 	 * Constructor
 	 */
 	public function __construct() {
-		add_action( 'current_screen', [ $this, 'persist_current_url' ] );
+		add_action( 'current_screen', [ $this, 'clear_handoff_url' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ], 1 );
 		add_action( 'admin_notices', [ $this, 'insert_handoff_banner' ], -10000 );
 	}
@@ -93,14 +93,13 @@ class Handoff_Banner {
 	}
 
 	/**
-	 * If the current admin page is part of the Newspack dashboard, store the URL as an option.
+	 * If the current admin page is part of the Newspack dashboard, clear the handoff URL. This ensures the handoff banner won't be shown on Newspack admin pages.
 	 *
 	 * @param WP_Screen $current_screen The current screen object.
 	 * @return void
 	 */
-	public function persist_current_url( $current_screen ) {
+	public function clear_handoff_url( $current_screen ) {
 		if ( stristr( $current_screen->id, 'newspack' ) ) {
-			update_option( NEWSPACK_HANDOFF_RETURN_URL, filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_URL ) );
 			update_option( NEWSPACK_HANDOFF, null );
 		}
 	}
