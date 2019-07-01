@@ -106,6 +106,10 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://sitekit.withgoogle.com/',
 				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
 				'EditPath'    => 'admin.php?page=googlesitekit-splash',
+				'Configurer'  => [
+					'filename'   => 'class-site-kit-configuration-manager.php',
+					'class_name' => 'Site_Kit_Configuration_Manager',
+				],
 			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
