@@ -11,8 +11,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, PluginInstaller } from '../';
+import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller } from '../';
 import { buttonProps } from '../../../shared/js/';
+import './style.scss';
 
 /**
  * External dependencies
@@ -171,10 +172,11 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @return JSX
 		 */
 		render() {
-			const { buttonText, buttonAction } = this.props;
+			const { buttonText, buttonAction, fullLogo } = this.props;
 			return (
 				<Fragment>
 					{ this.getError() }
+					<NewspackLogo width={ fullLogo ? 240 : 50 } compact={ ! fullLogo } className="newspack-logo" />
 					<WrappedComponent
 						pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 						clearError={ this.clearError }
