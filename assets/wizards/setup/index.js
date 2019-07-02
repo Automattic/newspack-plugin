@@ -14,7 +14,7 @@ import { Spinner } from '@wordpress/components';
  * Internal dependencies
  */
 import { About, ConfigurePlugins, Newsroom, Welcome } from './views/';
-import { Card, PluginInstaller, withWizard } from '../../components/src';
+import { Card, PluginInstaller, withWizard, WizardPagination } from '../../components/src';
 import './style.scss';
 
 /**
@@ -149,6 +149,7 @@ class SetupWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination routes={ [ '/', '/about', '/newsroom', '/configure-plugins' ] } />
 					<Switch>
 						<Route
 							path="/"
