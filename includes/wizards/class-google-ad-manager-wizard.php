@@ -32,11 +32,6 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * The name for the option where we store ad codes.
-	 */
-	protected $option = 'newspack_admanager_adunits';
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
