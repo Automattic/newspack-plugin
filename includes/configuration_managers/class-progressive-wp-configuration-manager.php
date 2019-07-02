@@ -33,6 +33,8 @@ class Progressive_WP_Configuration_Manager extends Configuration_Manager {
 		'site_icon',
 		'firebase-serverkey',
 		'firebase-senderid',
+		'installable-mode',
+		'offline-page',
 	];
 
 	/**
@@ -122,6 +124,26 @@ class Progressive_WP_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function firebase_credentials_set( $set ) {
 		update_option( 'pwp_firebase_credentials_set', $set ? 'yes' : 'no' );
+	}
+
+	/**
+	 * Determine whether a module is enabled.
+	 *
+	 * @param string Module slug.
+	 * @return bool Whether the module is enabled or not.
+	 */
+	public function is_module_enabled( $module ) {
+		switch ( $module ) {
+			case 'add_to_homescreen':
+				return 'none' !== $this->get( 'installable-mode' );
+			case 'offline_usage':
+				$setting = $this->get( 'offline-page' );
+				return 'page' === get_post_type( $setting );
+			case 'push_notifications':
+				return 'yes' === get_option( 'pwp_firebase_credentials_set', 'no' );
+			default:
+				return false;
+		}
 	}
 
 }
