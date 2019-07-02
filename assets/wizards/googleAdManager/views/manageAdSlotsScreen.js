@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -30,7 +30,7 @@ class ManageAdUnitsScreen extends Component {
 		} = this.props;
 
 		return (
-			<div className="newspack-manage-ad-units-screen">
+			<Fragment>
 				{ adUnits.map( adUnit => {
 					const { id, name, code } = adUnit;
 					return (
@@ -44,7 +44,7 @@ class ManageAdUnitsScreen extends Component {
 						/>
 					);
 				} ) }
-			</div>
+			</Fragment>
 		);
 	}
 }
