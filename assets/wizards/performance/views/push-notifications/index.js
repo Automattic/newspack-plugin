@@ -27,7 +27,7 @@ class PushNotifications extends Component {
 			<Fragment>
 				<p>
 					{ __(
-						'You just published new content and you want to let everyone know? Why not send a push notification? We has an integrated connection to Firebase that lets you manage registered devices and send push notifications to all or selected devices!'
+						'You just published new content and you want to let everyone know? Why not send a push notification? We have an integrated connection to Firebase that lets you manage registered devices and send push notifications to all or selected devices!'
 					) }
 				</p>
 				<ToggleControl
