@@ -131,9 +131,11 @@ class GoogleAdManagerWizard extends Component {
 	 */
 	render() {
 		const { adUnits } = this.state;
+		const { pluginRequirements } = this.props;
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
+					{ pluginRequirements }
 					<Route
 						path="/"
 						exact
