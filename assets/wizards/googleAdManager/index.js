@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, render, Fragment } from '@wordpress/element';
+import { Component, render } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
