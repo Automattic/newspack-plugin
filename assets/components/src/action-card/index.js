@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { Dashicon, Spinner } from '@wordpress/components';
 import { Button, Card } from '../';
 
 /**
@@ -37,6 +37,7 @@ class ActionCard extends Component {
 			href,
 			notification,
 			notificationLevel,
+			actionIcon,
 			actionText,
 			secondaryActionText,
 			image,
@@ -54,6 +55,12 @@ class ActionCard extends Component {
 			'update-message'
 		);
 		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
+		let actionDisplay;
+		if ( actionIcon ) {
+			actionDisplay = <Dashicon icon={ actionIcon } />;
+		} else if ( actionText ) {
+			actionDisplay = actionText;
+		}
 		return (
 			<Card className={ classes }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -71,18 +78,18 @@ class ActionCard extends Component {
 						<h1>{ title }</h1>
 						<h2>{ description }</h2>
 					</div>
-					{ actionText && (
+					{ actionDisplay && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ actionText && ( !! onClick || !! href ) && (
+							{ actionDisplay && ( !! onClick || !! href ) && (
 								<Button isLink href={ href } onClick={ onClick } className="newspack-action-card__primary_button">
-									{ actionText }
+									{ actionDisplay }
 								</Button>
 							) }
 
-							{ actionText && ( ! onClick && ! href ) && (
+							{ actionDisplay && ( ! onClick && ! href ) && (
 								<div className="newspack-action-card__container">
 									{ isWaiting && <Spinner /> }
-									{ actionText }
+									{ actionDisplay }
 								</div>
 							) }
 
