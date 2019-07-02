@@ -1,5 +1,5 @@
 /**
- * Google AdSense Wizard.
+ * Google Analytics Wizard.
  */
 
 /**
@@ -24,7 +24,7 @@ import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 /**
  * Subscriptions wizard for managing and setting up subscriptions.
  */
-class GoogleAdSenseWizard extends Component {
+class GoogleAnalyticsWizard extends Component {
 	/**
 	 * Constructor.
 	 */
@@ -54,11 +54,11 @@ class GoogleAdSenseWizard extends Component {
 	}
 
 	/**
-	 * Get whether AdSense setup is complete.
+	 * Get whether Analytics setup is complete.
 	 */
 	refreshComplete() {
 		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/newspack-google-adsense-wizard/adsense-setup-complete' } )
+		return apiFetch( { path: '/newspack/v1/wizard/newspack-google-analytics-wizard/analytics-setup-complete' } )
 			.then( complete => {
 				return new Promise( resolve => {
 					this.setState(
@@ -84,7 +84,7 @@ class GoogleAdSenseWizard extends Component {
 		const { setError } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
-				path: '/newspack/v1/wizards/google-adsense/complete',
+				path: '/newspack/v1/wizards/google-analytics/complete',
 				method: 'post',
 				data: {},
 			} )
@@ -113,22 +113,22 @@ class GoogleAdSenseWizard extends Component {
 						render={ routeProps => (
 							<Fragment>
 								<FormattedHeader
-									headerText={ __( 'Google AdSense' ) }
-									subHeaderText={ __( 'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.' ) }
+									headerText={ __( 'Google Analytics' ) }
+									subHeaderText={ __( 'Connect to your Google Analytics account using the Site Kit plugin.' ) }
 								/>
 								{ complete && (
-									<div className='newspack-google-adsense-wizard__success'>
+									<div className='newspack-google-analytics-wizard__success'>
 										<Dashicon icon="yes-alt" />
-										<h4>{ __( 'AdSense is set up' ) }</h4>
+										<h4>{ __( 'Google Analytics is set up' ) }</h4>
 									</div>
 								) }
 								<Handoff
 									plugin='google-site-kit'
-									editLink='admin.php?page=googlesitekit-module-adsense'
+									editLink='admin.php?page=googlesitekit-module-analytics'
 									className='is-centered'
 									isPrimary={ ! complete }
 									isDefault={ !! complete }
-								>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
+								>{ complete ? __( 'Google Analytics Settings' ) : __( 'Set up Google Analytics' ) }</Handoff>
 							</Fragment>
 						) }
 					/>
@@ -140,13 +140,13 @@ class GoogleAdSenseWizard extends Component {
 
 render(
 	createElement(
-		withWizard( GoogleAdSenseWizard, [
+		withWizard( GoogleAnalyticsWizard, [
 			'google-site-kit',
 		] ),
 		{
-			buttonText: __( 'Back to checklist' ),
-			buttonAction: newspack_urls[ 'checklists' ][ 'advertising' ],
+			buttonText: __( 'Back to dashboard' ),
+			buttonAction: newspack_urls['dashboard'],
 		}
 	),
-	document.getElementById( 'newspack-google-adsense-wizard' )
+	document.getElementById( 'newspack-google-analytics-wizard' )
 );

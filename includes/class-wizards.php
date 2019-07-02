@@ -32,6 +32,7 @@ class Wizards {
 			'subscriptions-onboarding' => new Subscriptions_Onboarding_Wizard(),
 			'subscriptions'            => new Subscriptions_Wizard(),
 			'google-adsense'           => new Google_AdSense_Wizard(),
+			'google-analytics'         => new Google_Analytics_Wizard(),
 			'components-demo'          => new Components_Demo(),
 			'performance'              => new Performance_Wizard(),
 		];
@@ -105,6 +106,21 @@ class Wizards {
 		$wizard = self::get_wizard( $wizard_slug );
 		if ( $wizard ) {
 			return $wizard->get_description();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get whether a wizard is completed.
+	 *
+	 * @param string $wizard_slug The wizard to get completion for. Use slug from self::$wizards.
+	 * @return bool True if completed. False otherwise.
+	 */
+	public static function is_completed( $wizard_slug ) {
+		$wizard = self::get_wizard( $wizard_slug );
+		if ( $wizard ) {
+			return  $wizard->is_completed();
 		}
 
 		return false;

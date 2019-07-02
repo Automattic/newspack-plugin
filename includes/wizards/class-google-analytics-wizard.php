@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack adsense setup.
+ * Newspack Google Analytics setup.
  *
  * @package Newspack
  */
@@ -14,15 +14,15 @@ defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
- * Easy interface for setting up general store info.
+ * Easy interface for setting up GA info.
  */
-class Google_AdSense_Wizard extends Wizard {
+class Google_Analytics_Wizard extends Wizard {
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-google-adsense-wizard';
+	protected $slug = 'newspack-google-analytics-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -46,7 +46,7 @@ class Google_AdSense_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Google AdSense', 'newspack' );
+		return esc_html__( 'Google Analytics', 'newspack' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Google_AdSense_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Set up Auto Ads to easily add display advertising to your website.', 'newspack' );
+		return esc_html__( 'Track your website traffic and user activity.', 'newspack' );
 	}
 
 	/**
@@ -71,24 +71,24 @@ class Google_AdSense_Wizard extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
-		// Get whether adsense is configured or not.
+		// Get whether GA is configured or not.
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
-			'/adsense-setup-complete',
+			'/analytics-setup-complete',
 			[
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'api_get_adsense_setup_complete' ],
+				'callback'            => [ $this, 'api_get_analytics_setup_complete' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
 	}
 
 	/**
-	 * Get whether AdSense setup is complete.
+	 * Get whether GA setup is complete.
 	 *
 	 * @return WP_REST_Response containing info (bool).
 	 */
-	public function api_get_adsense_setup_complete() {
+	public function api_get_analytics_setup_complete() {
 		$required_plugins_installed = $this->check_required_plugins_installed();
 		if ( is_wp_error( $required_plugins_installed ) ) {
 			return rest_ensure_response( $required_plugins_installed );
@@ -99,7 +99,7 @@ class Google_AdSense_Wizard extends Wizard {
 			return rest_ensure_response( $configuration );
 		}
 
-		return rest_ensure_response( $configuration->is_module_configured( 'adsense' ) );
+		return rest_ensure_response( $configuration->is_module_configured( 'analytics' ) );
 	}
 
 	/**
@@ -134,20 +134,20 @@ class Google_AdSense_Wizard extends Wizard {
 		}
 
 		wp_enqueue_script(
-			'newspack-google-adsense-wizard',
-			Newspack::plugin_url() . '/assets/dist/googleAdSense.js',
+			'newspack-google-analytics-wizard',
+			Newspack::plugin_url() . '/assets/dist/googleAnalytics.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdSense.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAnalytics.js' ),
 			true
 		);
 
 		wp_register_style(
-			'newspack-google-adsense-wizard',
-			Newspack::plugin_url() . '/assets/dist/googleAdSense.css',
+			'newspack-google-analytics-wizard',
+			Newspack::plugin_url() . '/assets/dist/googleAnalytics.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdSense.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAnalytics.css' )
 		);
-		wp_style_add_data( 'newspack-google-adsense-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-google-adsense-wizard' );
+		wp_style_add_data( 'newspack-google-analytics-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-google-analytics-wizard' );
 	}
 }
