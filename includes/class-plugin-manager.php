@@ -26,6 +26,14 @@ class Plugin_Manager {
 
 	public static function get_managed_plugins() {
 		$managed_plugins = [
+			'newspack-blocks'               => [
+				'Name'        => esc_html__( 'Newspack Blocks', 'newspack' ),
+				'Description' => esc_html__( 'A collection of blocks for news publishers.' ),
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-blocks/releases/latest/download/newspack-blocks.zip',
+			],
 			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
 				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),

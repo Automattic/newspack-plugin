@@ -47,6 +47,7 @@ class Checklists {
 				'style'       => 'actionCards',
 				'wizards'     => [
 					'google-adsense',
+					'google-ad-manager',
 				],
 			],
 		];
