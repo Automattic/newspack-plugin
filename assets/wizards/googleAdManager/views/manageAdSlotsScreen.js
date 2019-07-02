@@ -13,7 +13,6 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	ActionCard,
-	CheckboxControl,
 	withWizardScreen,
 } from '../../../components/src';
 
