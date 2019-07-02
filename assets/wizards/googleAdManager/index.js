@@ -13,12 +13,12 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
+import ManageAdUnitsScreen from './views/manageAdUnitsScreen';
+import EditAdUnitScreen from './views/editAdUnitsScreen';
 
 /**
  * External dependencies
  */
-import ManageAdUnitsScreen from './views/manageAdUnitsScreen';
-import EditAdUnitScreen from './views/editAdUnitsScreen';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 /**
