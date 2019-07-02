@@ -34,7 +34,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	/**
 	 * The name for the option where we store ad codes.
 	 */
-	protected $option = 'newspack_admanager_adslots';
+	protected $option = 'newspack_admanager_adunits';
 
 	/**
 	 * Constructor.
@@ -76,24 +76,24 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 */
 	public function register_api_endpoints() {
 
-		// Get all Newspack ad slots.
+		// Get all Newspack ad units.
 		\register_rest_route(
 			'newspack/v1/wizard/',
-			'/adslots/',
+			'/adunits/',
 			[
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'api_get_adslots' ],
+				'callback'            => [ $this, 'api_get_adunits' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
 
-		// Get one ad slot.
+		// Get one ad unit.
 		\register_rest_route(
 			'newspack/v1/wizard/',
-			'/adslots/(?P<id>\d+)',
+			'/adunits/(?P<id>\d+)',
 			[
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'api_get_adslots' ],
+				'callback'            => [ $this, 'api_get_adunits' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -103,13 +103,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			]
 		);
 
-		// Save a ad slot.
+		// Save a ad unit.
 		\register_rest_route(
 			'newspack/v1/wizard/',
-			'/adslots/',
+			'/adunits/',
 			[
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'api_save_adslot' ],
+				'callback'            => [ $this, 'api_save_adunit' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id'        => [
@@ -125,13 +125,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			]
 		);
 
-		// Delete a ad slot.
+		// Delete a ad unit.
 		\register_rest_route(
 			'newspack/v1/wizard/',
-			'/adslots/(?P<id>\d+)',
+			'/adunits/(?P<id>\d+)',
 			[
 				'methods'             => 'DELETE',
-				'callback'            => [ $this, 'api_delete_adslot' ],
+				'callback'            => [ $this, 'api_delete_adunit' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -143,33 +143,33 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the Ad Manager ad slots.
+	 * Get the Ad Manager ad units.
 	 *
-	 * @return WP_REST_Response containing ad slots info.
+	 * @return WP_REST_Response containing ad units info.
 	 */
-	public function api_get_adslots() {
-		$ad_slots = $this->_get_ad_slots();
-		return \rest_ensure_response( $ad_slots );
+	public function api_get_adunits() {
+		$ad_units = $this->_get_ad_units();
+		return \rest_ensure_response( $ad_units );
 	}
 
 	/**
-	 * Get one ad slot.
+	 * Get one ad unit.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response containing ad slot info.
+	 * @return WP_REST_Response containing ad unit info.
 	 */
-	public function api_get_adslot( $request ) {
+	public function api_get_adunit( $request ) {
 
 		$params  = $request->get_params();
 		$id      = $params['id'];
 
-		$ad_slots = $this->_get_ad_slots();
-		if ( ! empty( $ad_slots ) && isset( $ad_slots[ $id ] ) ) {
-			return \rest_ensure_response( $ad_slots[ $id ] );
+		$ad_units = $this->_get_ad_units();
+		if ( ! empty( $ad_units ) && isset( $ad_units[ $id ] ) ) {
+			return \rest_ensure_response( $ad_units[ $id ] );
 		} else {
 			return new WP_Error(
-				'newspack_rest_invalid_adslot',
-				\esc_html__( 'Advert does not exist.', 'newspack' ),
+				'newspack_rest_invalid_adunit',
+				\esc_html__( 'Ad unit does not exist.', 'newspack' ),
 				[
 					'status' => 404,
 				]
@@ -179,54 +179,54 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	}
 
 	/**
-	 * Save an ad slot.
+	 * Save an ad unit.
 	 *
-	 * @param WP_REST_Request $request Ad slot info.
-	 * @return WP_REST_Response Updated ad slot info.
+	 * @param WP_REST_Request $request Ad unit info.
+	 * @return WP_REST_Response Updated ad unit info.
 	 */
-	public function api_save_adslot( $request ) {
+	public function api_save_adunit( $request ) {
 		$params   = $request->get_params();
-		$defaults = $adslot = [
+		$defaults = $adunit = [
 			'id'   => 0,
 			'name' => '',
 			'code' => '',
 		];
 		$args     = \wp_parse_args( $params, $defaults );
 
-		// Update and existing or add a new ad slot.
-		$adslot = ( 0 === $args['id'] )
-			? $this->_add_ad_slot( $args )
-			: $this->_update_ad_slot( $args );
+		// Update and existing or add a new ad unit.
+		$adunit = ( 0 === $args['id'] )
+			? $this->_add_ad_unit( $args )
+			: $this->_update_ad_unit( $args );
 
-		return \rest_ensure_response( $adslot );
+		return \rest_ensure_response( $adunit );
 	}
 
 	/**
-	 * Delete an ad slot.
+	 * Delete an ad unit.
 	 *
-	 * @param WP_REST_Request $request Request with ID of ad slot to delete.
+	 * @param WP_REST_Request $request Request with ID of ad unit to delete.
 	 * @return WP_REST_Response Boolean Delete success.
 	 */
-	public function api_delete_adslot( $request ) {
+	public function api_delete_adunit( $request ) {
 
 		$params  = $request->get_params();
 		$id      = $params['id'];
 
-		$ad_slot = $this->_get_ad_slot( $id );
-		if ( \is_wp_error( $ad_slot ) ) {
-			$response = $ad_slot;
+		$ad_unit = $this->_get_ad_unit( $id );
+		if ( \is_wp_error( $ad_unit ) ) {
+			$response = $ad_unit;
 		} else {
-			$response = $this->_delete_ad_slot( $id );
+			$response = $this->_delete_ad_unit( $id );
 		}
 
 		return \rest_ensure_response( $response );
 	}
 
 	/**
-	 * Get the ad slots from our saved option.
+	 * Get the ad units from our saved option.
 	 */
-	private function _get_ad_slots(){
-		$ad_slots = [];
+	private function _get_ad_units(){
+		$ad_units = [];
 		$args = [
 			'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
 			'posts_per_page' => -1,
@@ -236,7 +236,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
 				$query->the_post();
-				$ad_slots[] = [
+				$ad_units[] = [
 					'id'   => \get_the_ID(),
 					'name' => \get_the_title(),
 					'code' => \get_post_meta( get_the_ID(), 'newspack_ad_code', true ),
@@ -244,19 +244,19 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			}
 		}
 
-		return $ad_slots;
+		return $ad_units;
 	}
 
 	/**
-	 * Get a single ad slot.
+	 * Get a single ad unit.
 	 */
-	private function _get_ad_slot( $id ) {
-		$ad_slot = \get_post( $id );
-		if ( is_a( $ad_slot, 'WP_Post' ) ) {
+	private function _get_ad_unit( $id ) {
+		$ad_unit = \get_post( $id );
+		if ( is_a( $ad_unit, 'WP_Post' ) ) {
 			return [
-				'id' => $ad_slot->ID,
-				'name' => $ad_slot->post_title,
-				'code' => \get_post_meta( $ad_slot->ID, 'newspack_ad_code', true ),
+				'id' => $ad_unit->ID,
+				'name' => $ad_unit->post_title,
+				'code' => \get_post_meta( $ad_unit->ID, 'newspack_ad_code', true ),
 			];
 		} else {
 			return new WP_Error(
@@ -270,35 +270,35 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	}
 
 	/**
-	 * Add a new ad slot.
-	 * @param array $ad_slot {
-	 * 		The new ad slot info to add.
+	 * Add a new ad unit.
+	 * @param array $ad_unit {
+	 * 		The new ad unit info to add.
 	 *
-	 * 		@type string $name A descriptive name for the ad slot.
+	 * 		@type string $name A descriptive name for the ad unit.
 	 * 		@type string $code The actual pasted ad code.
 	 * }
 	 */
-	private function _add_ad_slot( $ad_slot ) {
+	private function _add_ad_unit( $ad_unit ) {
 
 		// Sanitise the values.
-		$ad_slot = $this->_sanitise_ad_slot( $ad_slot );
-		if ( \is_wp_error( $ad_slot ) ) {
-			return $ad_slot;
+		$ad_unit = $this->_sanitise_ad_unit( $ad_unit );
+		if ( \is_wp_error( $ad_unit ) ) {
+			return $ad_unit;
 		}
 
-		// Save the ad slot.
-		$ad_slot_post = \wp_insert_post(
+		// Save the ad unit.
+		$ad_unit_post = \wp_insert_post(
 			[
 				'post_author' => \get_current_user_id(),
-				'post_title' => $ad_slot['name'],
+				'post_title' => $ad_unit['name'],
 				'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
 				'post_status' => 'publish',
 			]
 		);
-		if ( \is_wp_error( $ad_slot_post ) ) {
+		if ( \is_wp_error( $ad_unit_post ) ) {
 			return new WP_Error(
-				'newspack_ad_slot_exists',
-				\esc_html__( 'An advert with that name already exists', 'newspack' ),
+				'newspack_ad_unit_exists',
+				\esc_html__( 'An ad unit with that name already exists', 'newspack' ),
 				[
 					'status' => '400',
 				]
@@ -306,29 +306,29 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		}
 
 		// Add the code to our new post.
-		\add_post_meta( $ad_slot_post, 'newspack_ad_code', $ad_slot['code'] );
+		\add_post_meta( $ad_unit_post, 'newspack_ad_code', $ad_unit['code'] );
 
 		return [
-			'id' => $ad_slot_post,
-			'name' => $ad_slot['name'],
-			'code' => $ad_slot['code'],
+			'id' => $ad_unit_post,
+			'name' => $ad_unit['name'],
+			'code' => $ad_unit['code'],
 		];
 
 	}
 
-	private function _update_ad_slot( $ad_slot ) {
+	private function _update_ad_unit( $ad_unit ) {
 
 		// Sanitise the values.
-		$ad_slot = $this->_sanitise_ad_slot( $ad_slot );
-		if ( \is_wp_error( $ad_slot ) ) {
-			return $ad_slot;
+		$ad_unit = $this->_sanitise_ad_unit( $ad_unit );
+		if ( \is_wp_error( $ad_unit ) ) {
+			return $ad_unit;
 		}
 
-		$ad_slot_post = \get_post( $ad_slot['id'] );
-		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
+		$ad_unit_post = \get_post( $ad_unit['id'] );
+		if ( ! is_a( $ad_unit_post, 'WP_Post' ) ) {
 			return new WP_Error(
-				'newspack_ad_slot_not_exists',
-				\esc_html__( "Can't update an advert that doesn't already exist", 'newspack' ),
+				'newspack_ad_unit_not_exists',
+				\esc_html__( "Can't update an ad unit that doesn't already exist", 'newspack' ),
 				[
 					'status' => '400',
 				]
@@ -336,26 +336,26 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		}
 
 		\wp_update_post( [
-			'ID' => $ad_slot['id'],
-			'post_title' => $ad_slot['name'],
+			'ID' => $ad_unit['id'],
+			'post_title' => $ad_unit['name'],
 		] );
-		\update_post_meta( $ad_slot['id'], 'newspack_ad_code', $ad_slot['code'] );
+		\update_post_meta( $ad_unit['id'], 'newspack_ad_code', $ad_unit['code'] );
 
 		return [
-			'id' => $ad_slot['id'],
-			'name' => $ad_slot['name'],
-			'code' => $ad_slot['code'],
+			'id' => $ad_unit['id'],
+			'name' => $ad_unit['name'],
+			'code' => $ad_unit['code'],
 		];
 
 	}
 
-	private function _delete_ad_slot( $id ) {
+	private function _delete_ad_unit( $id ) {
 
-		$ad_slot_post = \get_post( $id );
-		if ( ! is_a( $ad_slot_post, 'WP_Post' ) ) {
+		$ad_unit_post = \get_post( $id );
+		if ( ! is_a( $ad_unit_post, 'WP_Post' ) ) {
 			return new WP_Error(
-				'newspack_ad_slot_not_exists',
-				\esc_html__( "Can't update an advert that doesn't already exist", 'newspack' ),
+				'newspack_ad_unit_not_exists',
+				\esc_html__( "Can't update an ad unit that doesn't already exist", 'newspack' ),
 				[
 					'status' => '400',
 				]
@@ -367,14 +367,14 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	private function _sanitise_ad_slot( $ad_slot ) {
+	private function _sanitise_ad_unit( $ad_unit ) {
 
 		if (
-			! array_key_exists( 'name', $ad_slot ) ||
-			! array_key_exists( 'code', $ad_slot )
+			! array_key_exists( 'name', $ad_unit ) ||
+			! array_key_exists( 'code', $ad_unit )
 		) {
 			return new WP_Error(
-				'newspack_invalid_ad_slot_data',
+				'newspack_invalid_ad_unit_data',
 				\esc_html__( 'Ad spot data is invalid - name or code is missing!' ),
 				[
 					'status' => '400',
@@ -382,17 +382,17 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			);
 		}
 
-		$sanitised_ad_slot = [
-			'name' => \esc_html( $ad_slot['name'] ),
-			'code' => $ad_slot['code'], // esc_js( $ad_slot['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
+		$sanitised_ad_unit = [
+			'name' => \esc_html( $ad_unit['name'] ),
+			'code' => $ad_unit['code'], // esc_js( $ad_unit['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
 
 		];
 
-		if ( isset( $ad_slot['id'] ) ) {
-			$sanitised_ad_slot['id'] = (int) $ad_slot['id'];
+		if ( isset( $ad_unit['id'] ) ) {
+			$sanitised_ad_unit['id'] = (int) $ad_unit['id'];
 		}
 
-		return $sanitised_ad_slot;
+		return $sanitised_ad_unit;
 
 	}
 

@@ -1,5 +1,5 @@
 /**
- * New/Edit Ad Slot Screen.
+ * New/Edit Ad Unit Screen.
  */
 
 /**
@@ -20,34 +20,34 @@ import {
 } from '../../../components/src';
 
 /**
- * New/Edit Ad Slot Screen.
+ * New/Edit Ad Unit Screen.
  */
-class EditAdSlotScreen extends Component {
+class EditAdUnitScreen extends Component {
 	/**
-	 * Handle an update to an ad slot field.
+	 * Handle an update to an ad unit field.
 	 *
-	 * @param string key Ad Slot field
+	 * @param string key Ad Unit field
 	 * @param mixed  value New value for field
 	 *
 	 */
 	handleOnChange( key, value ) {
-		const { adSlot, onChange } = this.props;
-		adSlot[ key ] = value;
-		onChange( adSlot );
+		const { adUnit, onChange } = this.props;
+		adUnit[ key ] = value;
+		onChange( adUnit );
 	}
 
 	/**
 	 * Render.
 	 */
 	render() {
-		const { adSlot, onClickSave } = this.props;
-		const { id, name, code } = adSlot;
+		const { adUnit, onClickSave } = this.props;
+		const { id, name, code } = adUnit;
 
-		const editing_existing_ad_slot = !! id;
+		const editing_existing_ad_unit = !! id;
 		return (
-			<div className="newspack-edit-ad-slot-screen">
+			<div className="newspack-edit-ad-unit-screen">
 				<TextControl
-					label={ __( 'What is this ad slot called?' ) }
+					label={ __( 'What is this ad unit called?' ) }
 					value={ name }
 					onChange={ value => this.handleOnChange( 'name', value ) }
 				/>
@@ -56,11 +56,11 @@ class EditAdSlotScreen extends Component {
 					value={ code }
 					onChange={ value => this.handleOnChange( 'code', value ) }
 				/>
-				<Button isPrimary className="is-centered" onClick={ () => onClickSave( adSlot ) }>
+				<Button isPrimary className="is-centered" onClick={ () => onClickSave( adUnit ) }>
 					{ __( 'Save' ) }
 				</Button>
 				<Button
-					className="newspack-edit-ad-slot-screen__cancel isLink is-centered is-tertiary"
+					className="newspack-edit-ad-unit-screen__cancel isLink is-centered is-tertiary"
 					href="#/"
 				>
 					{ __( 'Cancel' ) }
@@ -70,4 +70,4 @@ class EditAdSlotScreen extends Component {
 	}
 }
 
-export default withWizardScreen( EditAdSlotScreen );
+export default withWizardScreen( EditAdUnitScreen );

@@ -8,7 +8,7 @@
 use Newspack\Wizards, Newspack\Google_Ad_Manager_Wizard;
 
 /**
- * Test ad slot creation and management.
+ * Test ad unit creation and management.
  */
 class Newspack_Test_Ad_Manager_Wizard extends WP_UnitTestCase {
 
@@ -20,102 +20,102 @@ class Newspack_Test_Ad_Manager_Wizard extends WP_UnitTestCase {
 		$this->wizard = Wizards::get_wizard( 'google-ad-manager' );
 		$reflection = new ReflectionClass( 'Newspack\Google_Ad_Manager_Wizard' );
 
-		$this->get_ad_slots = $reflection->getMethod( '_get_ad_slots' );
-		$this->get_ad_slots->setAccessible( true );
+		$this->get_ad_units = $reflection->getMethod( '_get_ad_units' );
+		$this->get_ad_units->setAccessible( true );
 
-		$this->get_ad_slot = $reflection->getMethod( '_get_ad_slot' );
-		$this->get_ad_slot->setAccessible( true );
+		$this->get_ad_unit = $reflection->getMethod( '_get_ad_unit' );
+		$this->get_ad_unit->setAccessible( true );
 
-		$this->add_ad_slot = $reflection->getMethod( '_add_ad_slot' );
-		$this->add_ad_slot->setAccessible( true );
+		$this->add_ad_unit = $reflection->getMethod( '_add_ad_unit' );
+		$this->add_ad_unit->setAccessible( true );
 
-		$this->update_ad_slot = $reflection->getMethod( '_update_ad_slot' );
-		$this->update_ad_slot->setAccessible( true );
+		$this->update_ad_unit = $reflection->getMethod( '_update_ad_unit' );
+		$this->update_ad_unit->setAccessible( true );
 
-		$this->delete_ad_slot = $reflection->getMethod( '_delete_ad_slot' );
-		$this->delete_ad_slot->setAccessible( true );
+		$this->delete_ad_unit = $reflection->getMethod( '_delete_ad_unit' );
+		$this->delete_ad_unit->setAccessible( true );
 	}
 
 	/**
-	 * Test adding a slot.
+	 * Test adding a unit.
 	 */
-	public function test_add_slot() {
-		$slot = [
+	public function test_add_unit() {
+		$unit = [
 			'name' => 'test',
 			'code' => '<script>console.log("test");</script>',
 		];
 
-		$result = $this->add_ad_slot->invokeArgs( $this->wizard, [ $slot ] );
+		$result = $this->add_ad_unit->invokeArgs( $this->wizard, [ $unit ] );
 		$this->assertTrue( $result['id'] > 0 );
-		$this->assertEquals( $slot['name'], $result['name'] );
-		$this->assertEquals( $slot['code'], $result['code'] );
+		$this->assertEquals( $unit['name'], $result['name'] );
+		$this->assertEquals( $unit['code'], $result['code'] );
 
-		$saved_slot = $this->get_ad_slot->invokeArgs( $this->wizard, [ $result['id'] ] );
-		$this->assertEquals( $result, $saved_slot );
+		$saved_unit = $this->get_ad_unit->invokeArgs( $this->wizard, [ $result['id'] ] );
+		$this->assertEquals( $result, $saved_unit );
 	}
 
 	/**
-	 * Test updating a slot.
+	 * Test updating a unit.
 	 */
-	public function test_update_slot() {
-		$slot = [
+	public function test_update_unit() {
+		$unit = [
 			'name' => 'test',
 			'code' => '<script>console.log("test");</script>',
 		];
 
-		$result = $this->add_ad_slot->invokeArgs( $this->wizard, [ $slot ] );
+		$result = $this->add_ad_unit->invokeArgs( $this->wizard, [ $unit ] );
 
 		$update = $result;
 		$update['name'] = 'new test';
 		$update['code'] = '<script>console.log("updated");</script>';
 
-		$update_result = $this->update_ad_slot->invokeArgs( $this->wizard, [ $update ] );
+		$update_result = $this->update_ad_unit->invokeArgs( $this->wizard, [ $update ] );
 		$this->assertEquals( $update, $update_result );
 
-		$saved_slot = $this->get_ad_slot->invokeArgs( $this->wizard, [ $update_result['id'] ] );
-		$this->assertEquals( $update, $saved_slot );
+		$saved_unit = $this->get_ad_unit->invokeArgs( $this->wizard, [ $update_result['id'] ] );
+		$this->assertEquals( $update, $saved_unit );
 	}
 
 	/**
-	 * Test deleting a slot.
+	 * Test deleting a unit.
 	 */
-	public function test_delete_slot() {
-		$slot = [
+	public function test_delete_unit() {
+		$unit = [
 			'name' => 'test',
 			'code' => '<script>console.log("test");</script>',
 		];
 
-		$result = $this->add_ad_slot->invokeArgs( $this->wizard, [ $slot ] );
+		$result = $this->add_ad_unit->invokeArgs( $this->wizard, [ $unit ] );
 
-		$delete_result = $this->delete_ad_slot->invokeArgs( $this->wizard, [ $result['id'] ] );
+		$delete_result = $this->delete_ad_unit->invokeArgs( $this->wizard, [ $result['id'] ] );
 		$this->assertTrue( $delete_result );
 
-		$saved_slot = $this->get_ad_slot->invokeArgs( $this->wizard, [ $result['id'] ] );
-		$this->assertTrue( is_wp_error( $saved_slot ) );
+		$saved_unit = $this->get_ad_unit->invokeArgs( $this->wizard, [ $result['id'] ] );
+		$this->assertTrue( is_wp_error( $saved_unit ) );
 	}
 
 	/**
-	 * Test retrieving all slots.
+	 * Test retrieving all units.
 	 */
-	public function test_get_slots() {
-		$slot1 = [
+	public function test_get_units() {
+		$unit1 = [
 			'name' => 'test1',
 			'code' => '<script>console.log("test1");</script>',
 		];
-		$slot2 = [
+		$unit2 = [
 			'name' => 'test2',
 			'code' => '<script>console.log("test2");</script>',
 		];
 
-		$this->add_ad_slot->invokeArgs( $this->wizard, [ $slot1 ] );
-		$this->add_ad_slot->invokeArgs( $this->wizard, [ $slot2 ] );
+		$this->add_ad_unit->invokeArgs( $this->wizard, [ $unit1 ] );
+		$this->add_ad_unit->invokeArgs( $this->wizard, [ $unit2 ] );
 
-		$slots = $this->get_ad_slots->invokeArgs( $this->wizard, [] );
-		$this->assertEquals( 2, count( $slots ) );
-		foreach ( $slots as $slot ) {
-			$this->assertTrue( $slot['id'] > 0 );
-			$this->assertTrue( $slot['name'] === $slot1['name'] || $slot['name'] === $slot2['name'] );
-			$this->assertTrue( $slot['code'] === $slot1['code'] || $slot['code'] === $slot2['code'] );
+		$units = $this->get_ad_units->invokeArgs( $this->wizard, [] );
+		$this->assertEquals( 2, count( $units ) );
+		foreach ( $units as $unit ) {
+			$this->assertTrue( $unit['id'] > 0 );
+			$this->assertTrue( $unit['name'] === $unit1['name'] || $unit['name'] === $unit2['name'] );
+			$this->assertTrue( $unit['code'] === $unit1['code'] || $unit['code'] === $unit2['code'] );
 		}
 	}
 }

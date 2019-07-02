@@ -1,5 +1,5 @@
 /**
- * Ad Manager Ad Slot Management Screens.
+ * Ad Manager Ad Unit Management Screens.
  */
 
 /**
@@ -20,20 +20,20 @@ import {
 /**
  * Subscriptions management screen.
  */
-class ManageAdSlotsScreen extends Component {
+class ManageAdUnitsScreen extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
 		const {
-			adSlots,
-			onClickDeleteAdSlot,
+			adUnits,
+			onClickDeleteAdUnit,
 		} = this.props;
 
 		return (
-			<div className="newspack-manage-ad-slots-screen">
-				{ adSlots.map( adSlot => {
-					const { id, name, code } = adSlot;
+			<div className="newspack-manage-ad-units-screen">
+				{ adUnits.map( adUnit => {
+					const { id, name, code } = adUnit;
 					return (
 						<ActionCard
 							key={ id }
@@ -41,7 +41,7 @@ class ManageAdSlotsScreen extends Component {
 							actionText={ __( 'Edit' ) }
 							href={ `#edit/${ id }` }
 							secondaryActionText={ __( 'Delete' ) }
-							onSecondaryActionClick={ () => onClickDeleteAdSlot( adSlot ) }
+							onSecondaryActionClick={ () => onClickDeleteAdUnit( adUnit ) }
 						/>
 					);
 				} ) }
@@ -50,4 +50,4 @@ class ManageAdSlotsScreen extends Component {
 	}
 }
 
-export default withWizardScreen( ManageAdSlotsScreen );
+export default withWizardScreen( ManageAdUnitsScreen );

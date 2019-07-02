@@ -17,12 +17,12 @@ import { withWizard, FormattedHeader, Handoff } from '../../components/src';
 /**
  * External dependencies
  */
-import ManageAdSlotsScreen from './views/manageAdSlotsScreen';
-import EditAdSlotScreen from './views/editAdSlotsScreen';
+import ManageAdUnitsScreen from './views/manageAdUnitsScreen';
+import EditAdUnitScreen from './views/editAdUnitsScreen';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 /**
- * AdSlots wizard for managing and setting up adSlots.
+ * AdUnits wizard for managing and setting up adUnits.
  */
 class GoogleAdManagerWizard extends Component {
 
@@ -32,7 +32,7 @@ class GoogleAdManagerWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			adSlots: [],
+			adUnits: [],
 		};
 	}
 
@@ -40,24 +40,24 @@ class GoogleAdManagerWizard extends Component {
 	 * wizardReady will be called when all plugin requirements are met.
 	 */
 	onWizardReady = () => {
-		this.refreshAdSlots();
+		this.refreshAdUnits();
 	};
 
 	/**
-	 * Get the latest adSlots info.
+	 * Get the latest adUnits info.
 	 */
-	refreshAdSlots( callback ) {
+	refreshAdUnits( callback ) {
 		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/adslots' } )
-			.then( adSlots => {
-				const result = adSlots.reduce( ( result, value ) => {
+		return apiFetch( { path: '/newspack/v1/wizard/adunits' } )
+			.then( adUnits => {
+				const result = adUnits.reduce( ( result, value ) => {
 					result[ value.id ] = value;
 					return result;
 				}, {} );
 				return new Promise( resolve => {
 					this.setState(
 						{
-							adSlots: result,
+							adUnits: result,
 						},
 						() => {
 							setError();
@@ -72,14 +72,14 @@ class GoogleAdManagerWizard extends Component {
 	}
 
 	/**
-	 * Save the fields to an ad slot.
+	 * Save the fields to an ad unit.
 	 */
-	saveAdSlot( adSlot ) {
+	saveAdUnit( adUnit ) {
 		const { setError } = this.props;
-		const { id, name, code } = adSlot;
+		const { id, name, code } = adUnit;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
-				path: '/newspack/v1/wizard/adslots',
+				path: '/newspack/v1/wizard/adunits',
 				method: 'post',
 				data: {
 					id,
@@ -87,8 +87,8 @@ class GoogleAdManagerWizard extends Component {
 					code,
 				},
 			} )
-				.then( adSlot => {
-					setError().then( () => resolve( adSlot ) );
+				.then( adUnit => {
+					setError().then( () => resolve( adUnit ) );
 				} )
 				.catch( error => {
 					setError( error ).then( () => reject( error ) );
@@ -97,19 +97,19 @@ class GoogleAdManagerWizard extends Component {
 	}
 
 	/**
-	 * Delete an ad slot.
+	 * Delete an ad unit.
 	 *
-	 * @param int id Ad Slot ID.
+	 * @param int id Ad Unit ID.
 	 */
-	deleteAdSlot( id ) {
+	deleteAdUnit( id ) {
 		const { setError } = this.props;
-		if ( confirm( __( 'Are you sure you want to delete this advert?' ) ) ) {
+		if ( confirm( __( 'Are you sure you want to delete this ad unit?' ) ) ) {
 			apiFetch( {
-				path: '/newspack/v1/wizard/adslots/' + id,
+				path: '/newspack/v1/wizard/adunits/' + id,
 				method: 'delete',
 			} )
 				.then( response => {
-					this.refreshAdSlots();
+					this.refreshAdUnits();
 				} )
 				.catch( error => {
 					this.setError( error );
@@ -117,11 +117,11 @@ class GoogleAdManagerWizard extends Component {
 		}
 	}
 
-	onAdSlotChange = adSlot => {
+	onAdUnitChange = adUnit => {
 		this.setState( prevState => ( {
-			adSlots: {
-				...prevState.adSlots,
-				[ adSlot.id ]: adSlot,
+			adUnits: {
+				...prevState.adUnits,
+				[ adUnit.id ]: adUnit,
 			},
 		} ) );
 	};
@@ -130,8 +130,8 @@ class GoogleAdManagerWizard extends Component {
 	 * Render
 	 */
 	render() {
-		const { adSlots } = this.state;
-		console.log(adSlots);
+		const { adUnits } = this.state;
+		console.log(adUnits);
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -139,23 +139,23 @@ class GoogleAdManagerWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<ManageAdSlotsScreen
+							<ManageAdUnitsScreen
 								headerText={
-									Object.values( adSlots ).length
-										? __( 'Any more adverts to add?' )
-										: __( 'Add your first advert code' )
+									Object.values( adUnits ).length
+										? __( 'Any more ad units to add?' )
+										: __( 'Add your first ad unit.' )
 								}
 								subHeaderText={ __(
 									'Paste your ad code from Google Ad Manager and give it a descriptive name.'
 								) }
-								adSlots={ Object.values( adSlots ) }
-								onClickDeleteAdSlot={ adSlot =>
-									this.deleteAdSlot( adSlot.id )
+								adUnits={ Object.values( adUnits ) }
+								onClickDeleteAdUnit={ adUnit =>
+									this.deleteAdUnit( adUnit.id )
 								}
 								buttonText={
-									adSlots.length
-										? __( 'Add another advert' )
-										: __( 'Add an advert' )
+									adUnits.length
+										? __( 'Add another ad unit' )
+										: __( 'Add an ad unit' )
 								}
 								buttonAction="#/create"
 								noBackground
@@ -166,14 +166,14 @@ class GoogleAdManagerWizard extends Component {
 						path="/edit/:id"
 						render={ routeProps => {
 							return (
-								<EditAdSlotScreen
-									headerText={ __( 'Edit ad slot' ) }
-									subHeaderText={ __( 'You are editing an existing ad slot' ) }
-									adSlot={ adSlots[ routeProps.match.params.id ] || {} }
-									onChange={ this.onAdSlotChange }
-									onClickSave={ adSlot =>
-										this.saveAdSlot( adSlot ).then( newAdSlot => {
-											return this.refreshAdSlots().then( () =>
+								<EditAdUnitScreen
+									headerText={ __( 'Edit ad unit' ) }
+									subHeaderText={ __( 'You are editing an existing ad unit' ) }
+									adUnit={ adUnits[ routeProps.match.params.id ] || {} }
+									onChange={ this.onAdUnitChange }
+									onClickSave={ adUnit =>
+										this.saveAdUnit( adUnit ).then( newAdUnit => {
+											return this.refreshAdUnits().then( () =>
 												routeProps.history.push( '/' )
 											);
 										} )
@@ -186,20 +186,20 @@ class GoogleAdManagerWizard extends Component {
 						path="/create"
 						render={ routeProps => {
 							return (
-								<EditAdSlotScreen
-									headerText={ __( 'Add an ad slot' ) }
-									subHeaderText={ __( 'You are adding a new ad slot' ) }
-									adSlot={
-										adSlots[ 0 ] || {
+								<EditAdUnitScreen
+									headerText={ __( 'Add an ad unit' ) }
+									subHeaderText={ __( 'You are adding a new ad unit' ) }
+									adUnit={
+										adUnits[ 0 ] || {
 											id: 0,
 											name: '',
 											code: '',
 										}
 									}
-									onChange={ this.onAdSlotChange }
-									onClickSave={ adSlot =>
-										this.saveAdSlot( adSlot ).then( newAdSlot => {
-											return this.refreshAdSlots().then( () =>
+									onChange={ this.onAdUnitChange }
+									onClickSave={ adUnit =>
+										this.saveAdUnit( adUnit ).then( newAdUnit => {
+											return this.refreshAdUnits().then( () =>
 												routeProps.history.push( '/' )
 											);
 										} )
