@@ -91,6 +91,17 @@ abstract class Configuration_Manager {
 	}
 
 	/**
+	 * Construct the function name to get or update a setting.
+	 *
+	 * @param string $setting The name of the setting.
+	 * @param string $prefix The prefix of the function. get|update. Default is get.
+	 * @return string Function name.
+	 */
+	public function setting_to_function_name( $setting, $prefix = 'get' ) {
+		return sprintf( '%s_%s', $prefix, str_replace( '-', '_', $setting ) );
+	}
+
+	/**
 	 * Configure the plugin. Meant to be called immediately after installation/activation.
 	 *
 	 * @return void

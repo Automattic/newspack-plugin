@@ -34,6 +34,7 @@ class Wizards {
 			'google-adsense'           => new Google_AdSense_Wizard(),
 			'google-analytics'         => new Google_Analytics_Wizard(),
 			'components-demo'          => new Components_Demo(),
+			'performance'              => new Performance_Wizard(),
 		];
 	}
 
