@@ -32,6 +32,15 @@ class Google_AdSense_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	}
+
+	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
@@ -59,12 +68,47 @@ class Google_AdSense_Wizard extends Wizard {
 	}
 
 	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+		// Get whether adsense is configured or not.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/adsense-setup-complete',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_adsense_setup_complete' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Get whether AdSense setup is complete.
+	 *
+	 * @return WP_REST_Response containing info (bool).
+	 */
+	public function api_get_adsense_setup_complete() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		$configuration = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+		if ( is_wp_error( $configuration ) ) {
+			return rest_ensure_response( $configuration );
+		}
+
+		return rest_ensure_response( $configuration->is_module_configured( 'adsense' ) );
+	}
+
+	/**
 	 * Check whether SiteKit is installed and active.
 	 *
 	 * @return bool | WP_Error True on success, WP_Error on failure.
 	 */
 	protected function check_required_plugins_installed() {
-		if ( ! is_defined( 'GOOGLESITEKIT_VERSION' ) ) {
+		if ( ! defined( 'GOOGLESITEKIT_VERSION' ) ) {
 			return new WP_Error(
 				'newspack_missing_required_plugin',
 				esc_html__( 'The Google Site Kit plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
