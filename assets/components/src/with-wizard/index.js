@@ -32,6 +32,14 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			this.wrappedComponentRef = createRef();
 		}
 
+		componentDidMount = () => {
+			// If there are no requiredPlugins, fire onWizardReady as soon as component mounts.
+			if ( ! requiredPlugins ) {
+				const instance = this.wrappedComponentRef.current;
+				instance && instance.onWizardReady && instance.onWizardReady();
+			}
+		}
+
 		/**
 		 * Set the error. Called by Wizards when an error occurs.
 		 *
