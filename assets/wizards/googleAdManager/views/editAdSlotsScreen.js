@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -51,7 +52,7 @@ class EditAdUnitScreen extends Component {
 					value={ name }
 					onChange={ value => this.handleOnChange( 'name', value ) }
 				/>
-				<TextControl
+				<TextareaControl
 					label={ __( 'Paste the ad code from Google Ad Manager here' ) }
 					value={ code }
 					onChange={ value => this.handleOnChange( 'code', value ) }
