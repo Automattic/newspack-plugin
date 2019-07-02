@@ -219,7 +219,7 @@ class GoogleAdManagerWizard extends Component {
 
 render(
 	createElement(
-		withWizard( GoogleAdManagerWizard, [ 'newspack-blocks' ] ),
+		withWizard( GoogleAdManagerWizard ),
 		{
 			buttonText: __( 'Back to checklist' ),
 			buttonAction: newspack_urls[ 'checklists' ][ 'advertising' ],
