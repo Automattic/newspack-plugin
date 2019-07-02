@@ -1,5 +1,5 @@
 /**
- * Google AdSense Wizard.
+ * Google Analytics Wizard.
  */
 
 /**
