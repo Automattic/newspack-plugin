@@ -102,20 +102,36 @@ class Performance_Wizard extends Wizard {
 	 */
 	public function api_update_settings( $request ) {
 		if ( empty( $request['settings'] ) ) {
-			return new WP_Error( 'newspack_invalid_update', 'Invalid update' );
+			return new WP_Error( 'newspack_invalid_update', __( 'Invalid update' ) );
 		}
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'progressive-wp' );
 		if ( is_wp_error( $configuration_manager ) ) {
 			return $configuration_manager;
 		}
 		$settings = $request['settings'];
-		if ( ! empty( $settings['site_icon'] ) ) {
+		if ( isset( $settings['push_notifications'] ) && $settings['push_notifications'] ) {
+			$push_notification_server_key = isset( $settings['push_notification_server_key'] ) ? trim( $settings['push_notification_server_key'] ) : null;
+			$push_notification_sender_id  = isset( $settings['push_notification_sender_id'] ) ? trim( $settings['push_notification_sender_id'] ) : null;
+			if ( ! $push_notification_server_key || ! $push_notification_sender_id ) {
+				return new WP_Error(
+					'newspack_incomplete_firebase_fields',
+					__( 'Firebase Server Key and Sender ID must be set in order to use Push Notifications.' ),
+					[
+						'status' => 400,
+						'level'  => 'notice',
+					]
+				);
+			}
+		}
+
+
+		if ( isset( $settings['site_icon'] ) ) {
 			$configuration_manager->update( 'site_icon', $settings['site_icon'] );
 		}
-		if ( ! empty( $settings['push_notification_server_key'] ) ) {
+		if ( isset( $settings['push_notification_server_key'] ) ) {
 			$configuration_manager->update( 'firebase-serverkey', $settings['push_notification_server_key'] );
 		}
-		if ( ! empty( $settings['push_notification_sender_id'] ) ) {
+		if ( isset( $settings['push_notification_sender_id'] ) ) {
 			$configuration_manager->update( 'firebase-senderid', $settings['push_notification_sender_id'] );
 		}
 		return rest_ensure_response( $this->get_settings() );
