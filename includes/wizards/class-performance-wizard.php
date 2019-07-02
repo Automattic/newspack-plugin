@@ -126,6 +126,18 @@ class Performance_Wizard extends Wizard {
 
 
 		if ( isset( $settings['site_icon'] ) ) {
+			$height = isset( $settings['site_icon']['height'] ) ? $settings['site_icon']['height'] : 0;
+			$width  = isset( $settings['site_icon']['width'] ) ? $settings['site_icon']['width'] : 0;
+			if ( $height !== $width ) {
+				return new WP_Error(
+					'newspack_site_icon_not_square',
+					__( 'Site icon images must be square.' ),
+					[
+						'status' => 400,
+						'level'  => 'notice',
+					]
+				);
+			}
 			$configuration_manager->update( 'site_icon', $settings['site_icon'] );
 		}
 		if ( isset( $settings['push_notification_server_key'] ) ) {

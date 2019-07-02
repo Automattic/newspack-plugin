@@ -70,7 +70,7 @@ class PerformanceWizard extends Component {
 				data: { settings: submitSettings },
 			} )
 				.then( settings => {
-					this.setState( { settings }, () => resolve() );
+					setError().then( () => this.setState( { settings }, () => resolve() ) );
 				} )
 				.catch( error => {
 					setError( error ).then( () => reject() );
