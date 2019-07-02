@@ -115,4 +115,13 @@ class Progressive_WP_Configuration_Manager extends Configuration_Manager {
 		}
 	}
 
+	/**
+	 * Update Progressive WP's Firebase Credentials Set option
+	 *
+	 * @param bool $set Whether Firebase credentials are set.
+	 */
+	public function firebase_credentials_set( $set ) {
+		update_option( 'pwp_firebase_credentials_set', $set ? 'yes' : 'no' );
+	}
+
 }

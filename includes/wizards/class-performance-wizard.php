@@ -121,6 +121,8 @@ class Performance_Wizard extends Wizard {
 						'level'  => 'notice',
 					]
 				);
+			} else {
+				$configuration_manager->firebase_credentials_set( true );
 			}
 		}
 
