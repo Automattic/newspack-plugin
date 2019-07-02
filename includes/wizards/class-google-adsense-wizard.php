@@ -67,7 +67,7 @@ class Google_AdSense_Wizard extends Wizard {
 		if ( ! is_defined( 'GOOGLESITEKIT_VERSION' ) ) {
 			return new WP_Error(
 				'newspack_missing_required_plugin',
-				esc_html__( 'The Google SiteKit plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+				esc_html__( 'The Google Site Kit plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
 				[
 					'status' => 400,
 					'level'  => 'fatal',
