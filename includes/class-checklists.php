@@ -44,6 +44,7 @@ class Checklists {
 			'advertising'    => [
 				'name'        => esc_html__( 'Advertising', 'newspack' ),
 				'description' => esc_html__( 'Display advertising', 'newspack' ),
+				'style'       => 'actionCards',
 				'wizards'     => [
 					'google-adsense',
 				],
@@ -98,6 +99,21 @@ class Checklists {
 
 		return false;
 
+	}
+
+	/**
+	 * Get a checklist's style.
+	 *
+	 * @param string $checklist_slug The checklist slug, as registered in the self::$checklists variable.
+	 * @return string | bool The list style
+	 */
+	public static function get_style( $checklist_slug ) {
+		$checklist = self::get_checklist( $checklist_slug );
+		if ( $checklist ) {
+			return isset( $checklist['style'] ) ? $checklist['style'] : null;
+		}
+
+		return false;
 	}
 
 	/**
@@ -202,6 +218,7 @@ class Checklists {
 			'description'  => self::get_description( $checklist_slug ),
 			'steps'        => [],
 			'dashboardURL' => Wizards::get_url( 'dashboard' ),
+			'listStyle'    => self::get_style( $checklist_slug ),
 		];
 
 		foreach ( $checklist['wizards'] as $wizard_slug ) {
