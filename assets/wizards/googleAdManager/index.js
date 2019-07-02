@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard, FormattedHeader, Handoff } from '../../components/src';
+import { withWizard } from '../../components/src';
 
 /**
  * External dependencies
