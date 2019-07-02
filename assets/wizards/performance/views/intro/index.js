@@ -7,6 +7,7 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -35,7 +36,6 @@ class Intro extends Component {
 						<strong>{ __( 'Offline usage' ) }</strong>
 						{ __( ', and ' ) }
 						<strong>{ __( 'Push notifications' ) }</strong>.
-
 					</p>
 				</Card>
 				<Card>
@@ -48,19 +48,23 @@ class Intro extends Component {
 						</p>
 						<p>
 							<strong>{ __( 'Speed: ' ) }</strong>
-							{ __(
-								'Will work reliably, no matter the network conditions.'
-							) }<br />
+							{ __( 'Will work reliably, no matter the network conditions.' ) }
+							<br />
 							<strong>{ __( 'Security: ' ) }</strong>
-							{ __(
-								'Served through HTTPS to protect the integrity of your news site.'
-							) }<br />
+							{ __( 'Served through HTTPS to protect the integrity of your news site.' ) }
+							<br />
 							<strong>{ __( 'User experience:  ' ) }</strong>
-							{ __(
-								'Feels like a native app on the device.'
-							) }
+							{ __( 'Feels like a native app on the device.' ) }
 						</p>
 					</div>
+					<p className="newspack-plugin-description">
+						{ __(
+							'Basic PWA options have been automatically set up for you. Advanced options are available in the Progressive WP dashboard.'
+						) }
+						<ExternalLink href="/wp-admin/admin.php?page=progressive-wordpress">
+							{ __( 'Configure advanced options', 'newspack' ) }
+						</ExternalLink>
+					</p>
 				</Card>
 			</Fragment>
 		);
