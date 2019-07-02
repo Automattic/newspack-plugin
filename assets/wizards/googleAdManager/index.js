@@ -131,7 +131,6 @@ class GoogleAdManagerWizard extends Component {
 	 */
 	render() {
 		const { adUnits } = this.state;
-		console.log(adUnits);
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
