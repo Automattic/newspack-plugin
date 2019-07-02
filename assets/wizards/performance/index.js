@@ -49,7 +49,7 @@ class PerformanceWizard extends Component {
 				this.setState( { settings } );
 			} )
 			.catch( error => {
-				this.setError( error );
+				setError( error );
 			} );
 	}
 
@@ -65,7 +65,7 @@ class PerformanceWizard extends Component {
 				this.setState( { settings } );
 			} )
 			.catch( error => {
-				this.setError( error );
+				setError( error );
 			} );
 	}
 
@@ -91,7 +91,9 @@ class PerformanceWizard extends Component {
 							<Intro
 								noCard
 								headerText={ __( 'Performance options' ) }
-								subHeaderText={ __( 'Optimizing your news site for better performance and increased user engagement.' ) }
+								subHeaderText={ __(
+									'Optimizing your news site for better performance and increased user engagement.'
+								) }
 								buttonText={ __( 'Configure advanced options' ) }
 								buttonAction="#/add-to-homescreen"
 							/>
@@ -106,10 +108,9 @@ class PerformanceWizard extends Component {
 									'Encourage your users to add your news site to their homescreen.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction={ {
-									onClick: () => this.updateSettings(),
-									href: '#/offline-usage',
-								} }
+								buttonAction={ () =>
+									this.updateSettings().then( () => routeProps.history.push( '/offline-usage' ) )
+								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
@@ -124,10 +125,11 @@ class PerformanceWizard extends Component {
 									'Make your website reliable. Even on flaky internet connections.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction={ {
-									onClick: () => this.updateSettings(),
-									href: '#/push-notifications',
-								} }
+								buttonAction={ () =>
+									this.updateSettings().then( () =>
+										routeProps.history.push( '/push-notifications' )
+									)
+								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 							/>
