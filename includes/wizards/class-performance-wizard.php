@@ -109,23 +109,31 @@ class Performance_Wizard extends Wizard {
 			return $configuration_manager;
 		}
 		$settings = $request['settings'];
-		if ( isset( $settings['push_notifications'] ) && $settings['push_notifications'] ) {
-			$push_notification_server_key = isset( $settings['push_notification_server_key'] ) ? trim( $settings['push_notification_server_key'] ) : null;
-			$push_notification_sender_id  = isset( $settings['push_notification_sender_id'] ) ? trim( $settings['push_notification_sender_id'] ) : null;
-			if ( ! $push_notification_server_key || ! $push_notification_sender_id ) {
-				return new WP_Error(
-					'newspack_incomplete_firebase_fields',
-					__( 'Firebase Server Key and Sender ID must be set in order to use Push Notifications.' ),
-					[
-						'status' => 400,
-						'level'  => 'notice',
-					]
-				);
+
+		if ( isset( $settings['push_notifications'] ) ) {
+			if ( $settings['push_notifications'] ) {
+				$push_notification_server_key = isset( $settings['push_notification_server_key'] ) ? trim( $settings['push_notification_server_key'] ) : null;
+				$push_notification_sender_id  = isset( $settings['push_notification_sender_id'] ) ? trim( $settings['push_notification_sender_id'] ) : null;
+				if ( ! $push_notification_server_key || ! $push_notification_sender_id ) {
+					return new WP_Error(
+						'newspack_incomplete_firebase_fields',
+						__( 'Firebase Server Key and Sender ID must be set in order to use Push Notifications.' ),
+						[
+							'status' => 400,
+							'level'  => 'notice',
+						]
+					);
+				} else {
+					$configuration_manager->firebase_credentials_set( true );
+				}
 			} else {
-				$configuration_manager->firebase_credentials_set( true );
+				$configuration_manager->firebase_credentials_set( false );
 			}
 		}
 
+		if( isset( $settings['add_to_homescreen'] ) ) {
+			$configuration_manager->update( 'installable-mode', $settings['add_to_homescreen'] ? 'normal' : 'none' );
+		}
 
 		if ( isset( $settings['site_icon'] ) ) {
 			$height = isset( $settings['site_icon']['height'] ) ? $settings['site_icon']['height'] : 0;
@@ -142,6 +150,7 @@ class Performance_Wizard extends Wizard {
 			}
 			$configuration_manager->update( 'site_icon', $settings['site_icon'] );
 		}
+
 		if ( isset( $settings['push_notification_server_key'] ) ) {
 			$configuration_manager->update( 'firebase-serverkey', $settings['push_notification_server_key'] );
 		}
@@ -160,10 +169,10 @@ class Performance_Wizard extends Wizard {
 			return $configuration_manager;
 		}
 		return [
-			'add_to_homescreen'            => true,
+			'add_to_homescreen'            => $configuration_manager->is_module_enabled( 'add_to_homescreen' ),
 			'site_icon'                    => $configuration_manager->get( 'site_icon' ),
 			'offline_usage'                => true,
-			'push_notifications'           => true,
+			'push_notifications'           => $configuration_manager->is_module_enabled( 'push_notifications' ),
 			'push_notification_server_key' => $configuration_manager->get( 'firebase-serverkey' ),
 			'push_notification_sender_id'  => $configuration_manager->get( 'firebase-senderid' ),
 		];
