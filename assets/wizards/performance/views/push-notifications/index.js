@@ -7,7 +7,7 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ToggleControl } from '@wordpress/components';
+import { ToggleControl, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -40,7 +40,10 @@ class PushNotifications extends Component {
 						<div className="newspack-performance-wizard_indented-block">
 							<p>{ __( 'This plugin uses Firebase Cloud Messaging as a messaging service.' ) }</p>
 							<ul>
-								<li>{ __( 'Go to Firebase Console' ) }</li>
+								<li>
+									{ __( 'Go to ' ) }
+									<ExternalLink href="https://console.firebase.google.com/">{ __( 'Firebase Console' ) }</ExternalLink>
+								</li>
 								<li>{ __( 'Click "create new project"' ) }</li>
 								<li>{ __( 'Follow the instructions to create your project' ) }</li>
 								<li>{ __( 'Now navigate to Project setting page' ) }</li>
