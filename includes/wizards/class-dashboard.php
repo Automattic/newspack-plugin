@@ -76,10 +76,9 @@ class Dashboard extends Wizard {
 				[
 					'slug'        => 'performance',
 					'name'        => esc_html__( 'Performance', 'newspack' ),
-					'url'         => '#',
+					'url'         => admin_url( 'admin.php?page=newspack-performance-wizard' ),
 					'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
 					'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/performance-icon.svg',
-					'status'      => 'disabled',
 				],
 				[
 					'slug'        => 'advertising',

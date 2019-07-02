@@ -68,6 +68,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-subscriptions-onboarding-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-subscriptions-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-adsense-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-performance-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';

@@ -33,6 +33,7 @@ class Wizards {
 			'subscriptions'            => new Subscriptions_Wizard(),
 			'google-adsense'           => new Google_AdSense_Wizard(),
 			'components-demo'          => new Components_Demo(),
+			'performance'              => new Performance_Wizard(),
 		];
 	}
 
