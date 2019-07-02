@@ -124,7 +124,7 @@ class GoogleAdSenseWizard extends Component {
 								) }
 								<Handoff
 									plugin='google-site-kit'
-									editPath='admin.php?page=googlesitekit-module-adsense'
+									editLink='admin.php?page=googlesitekit-module-adsense'
 									className='is-centered'
 									isPrimary={ ! complete }
 									isDefault={ !! complete }

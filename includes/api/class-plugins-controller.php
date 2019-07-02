@@ -330,11 +330,14 @@ class Plugins_Controller extends WP_REST_Controller {
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
 		$response = $managed_plugins[ $slug ];
-		if ( ! empty( $request['editLink'] ) ) {
-			$response['HandoffLink'] = $request['editLink'];
+		$edit_link = $request->get_param( 'editLink' );
+		$handoff_return_url = $request->get_param( 'handoffReturnUrl' );
+
+		if ( ! empty( $edit_link ) ) {
+			$response['HandoffLink'] = $edit_link;
 		}
-		if ( ! empty( $request['handoffReturnUrl'] ) ) {
-			update_option( NEWSPACK_HANDOFF_RETURN_URL, esc_url( $request['handoffReturnUrl'] ) );
+		if ( ! empty( $handoff_return_url ) ) {
+			update_option( NEWSPACK_HANDOFF_RETURN_URL, esc_url( $handoff_return_url ) );
 		}
 
 		return rest_ensure_response( $response );

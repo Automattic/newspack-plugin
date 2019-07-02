@@ -124,7 +124,7 @@ class GoogleAnalyticsWizard extends Component {
 								) }
 								<Handoff
 									plugin='google-site-kit'
-									editPath='admin.php?page=googlesitekit-module-analytics'
+									editLink='admin.php?page=googlesitekit-module-analytics'
 									className='is-centered'
 									isPrimary={ ! complete }
 									isDefault={ !! complete }
