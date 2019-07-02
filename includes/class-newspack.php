@@ -40,6 +40,7 @@ final class Newspack {
 	public function __construct() {
 		$this->define_constants();
 		$this->includes();
+		add_action( 'admin_menu', [ $this, 'remove_all_newspack_options' ], 1 );
 	}
 
 	/**
@@ -83,6 +84,20 @@ final class Newspack {
 	 */
 	public static function plugin_url() {
 		return untrailingslashit( plugins_url( '/', NEWSPACK_PLUGIN_FILE ) );
+	}
+
+	/**
+	 * Reset Newspack by removing all newspack prefixed options. Triggered by the query param reset_newspack_settings=1
+	 */
+	public function remove_all_newspack_options() {
+		if ( filter_input( INPUT_GET, 'reset_newspack_settings', FILTER_SANITIZE_STRING ) === '1' ) {
+			$all_options = wp_load_alloptions();
+			foreach ( $all_options as $key => $value ) {
+				if ( strpos( $key, 'newspack' ) === 0 || strpos( $key, '_newspack' ) === 0 ) {
+					delete_option( $key );
+				}
+			}
+		}
 	}
 }
 Newspack::instance();
