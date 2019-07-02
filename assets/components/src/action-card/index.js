@@ -37,16 +37,16 @@ class ActionCard extends Component {
 			href,
 			notification,
 			notificationLevel,
-			actionIcon,
 			actionText,
 			secondaryActionText,
 			image,
 			imageLink,
+			simple,
 			onClick,
 			onSecondaryActionClick,
 			isWaiting,
 		} = this.props;
-		const classes = murielClassnames( 'newspack-action-card', className );
+		const classes = murielClassnames( 'newspack-action-card', simple && 'is_clickable', className );
 		const notificationClasses = classnames(
 			'newspack-action-card__notification',
 			'notice',
@@ -55,14 +55,9 @@ class ActionCard extends Component {
 			'update-message'
 		);
 		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
-		let actionDisplay;
-		if ( actionIcon ) {
-			actionDisplay = <Dashicon icon={ actionIcon } />;
-		} else if ( actionText ) {
-			actionDisplay = actionText;
-		}
+		const actionDisplay = ( simple && <Dashicon icon="arrow-right-alt2" /> ) || actionText;
 		return (
-			<Card className={ classes }>
+			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ image && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
@@ -81,7 +76,12 @@ class ActionCard extends Component {
 					{ actionDisplay && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
 							{ actionDisplay && ( !! onClick || !! href ) && (
-								<Button isLink href={ href } onClick={ onClick } className="newspack-action-card__primary_button">
+								<Button
+									isLink
+									href={ href }
+									onClick={ onClick }
+									className="newspack-action-card__primary_button"
+								>
 									{ actionDisplay }
 								</Button>
 							) }

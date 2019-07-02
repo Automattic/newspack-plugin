@@ -81,7 +81,7 @@ class ChecklistScreen extends Component {
 						<ActionCard
 							title={ step.name }
 							description={ step.description }
-							actionIcon="arrow-right-alt2"
+							simple
 							onClick={ () => ( window.location = step.url ) }
 						/>
 					) )

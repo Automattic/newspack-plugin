@@ -13,6 +13,10 @@
 	max-width: calc( 682px - 62px );
 	padding: 31px;
 
+	&.is_clickable {
+		cursor: pointer;
+	}
+
 	&.muriel-card__no-background {
 		background: none;
 		box-shadow: none;
