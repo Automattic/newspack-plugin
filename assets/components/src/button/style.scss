@@ -46,6 +46,13 @@
 		}
 	}
 
+	&.is-tertiary {
+		&:focus:enabled {
+			background-color: inherit;
+			box-shadow: none;
+		}
+	}
+
 	&.is-link {
 		background: none;
 		border: none;
