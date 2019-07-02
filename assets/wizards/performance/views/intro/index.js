@@ -25,36 +25,42 @@ class Intro extends Component {
 		return (
 			<Fragment>
 				<Card>
+					<h3>{ __( 'Increase user engagement' ) }</h3>
 					<p>
 						{ __(
-							'Newspack utilizes PWA to automatically optomizing and configuring your news site to perform better. It improves:'
+							'Engage with your audience more by implementing the following advanced features (optional): '
 						) }
-					</p>
-					<h2>{ __( 'Speed' ) }</h2>
-					<p>{ __( 'Will work reliably, no matter the network conditions.' ) }</p>
-					<h2>{ __( 'Security' ) }</h2>
-					<p>
-						{ __(
-							'Served from a secure origin through HTTPS, which will protect the integrity of your news site.'
-						) }
-					</p>
-					<h2>{ __( 'User Experience' ) }</h2>
-					<p>
-						{ __( 'Feels like a natural app on the device, with an immersive user experience.' ) }
+						<strong>{ __( 'Add to home screen' ) }</strong>
+						{ __( ', ' ) }
+						<strong>{ __( 'Offline usage' ) }</strong>
+						{ __( ', and ' ) }
+						<strong>{ __( 'Push notifications' ) }</strong>.
+
 					</p>
 				</Card>
 				<Card>
-					<h2>{ __( 'Advanced Options' ) }</h2>
-					<p>
-						{ __(
-							'Increase engagement with your audience by implementing the following advanced options:'
-						) }
-					</p>
-					<ul>
-						<li>{ __( 'Add to homescreen' ) }</li>
-						<li>{ __( 'Offline usage' ) }</li>
-						<li>{ __( 'Push notifications' ) }</li>
-					</ul>
+					<h3>{ __( 'Automatic performance enhancements' ) }</h3>
+					<div className="newspack-performance-wizard__info-block dashicons-before dashicons-info">
+						<p>
+							{ __(
+								'Newspack utilizes Progressive Web App (PWA) to automatically optimize and configure your news site to perform better. It automatically improves:'
+							) }
+						</p>
+						<p>
+							<strong>{ __( 'Speed: ' ) }</strong>
+							{ __(
+								'Will work reliably, no matter the network conditions.'
+							) }<br />
+							<strong>{ __( 'Security: ' ) }</strong>
+							{ __(
+								'Served through HTTPS to protect the integrity of your news site.'
+							) }<br />
+							<strong>{ __( 'User experience:  ' ) }</strong>
+							{ __(
+								'Feels like a native app on the device.'
+							) }
+						</p>
+					</div>
 				</Card>
 			</Fragment>
 		);

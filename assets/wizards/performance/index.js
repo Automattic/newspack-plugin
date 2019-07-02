@@ -90,8 +90,8 @@ class PerformanceWizard extends Component {
 						render={ routeProps => (
 							<Intro
 								noCard
-								headerText={ __( 'Progressive Web App (PWA)' ) }
-								subHeaderText={ __( 'Optimizing your news site for better performance.' ) }
+								headerText={ __( 'Performance options' ) }
+								subHeaderText={ __( 'Optimizing your news site for better performance and increased user engagement.' ) }
 								buttonText={ __( 'Configure advanced options' ) }
 								buttonAction="#/add-to-homescreen"
 							/>
