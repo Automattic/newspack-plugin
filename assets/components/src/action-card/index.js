@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { Dashicon, Spinner } from '@wordpress/components';
 import { Button, Card } from '../';
 
 /**
@@ -41,11 +41,12 @@ class ActionCard extends Component {
 			secondaryActionText,
 			image,
 			imageLink,
+			simple,
 			onClick,
 			onSecondaryActionClick,
 			isWaiting,
 		} = this.props;
-		const classes = murielClassnames( 'newspack-action-card', className );
+		const classes = murielClassnames( 'newspack-action-card', simple && 'is_clickable', className );
 		const notificationClasses = classnames(
 			'newspack-action-card__notification',
 			'notice',
@@ -54,8 +55,9 @@ class ActionCard extends Component {
 			'update-message'
 		);
 		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
+		const actionDisplay = ( simple && <Dashicon icon="arrow-right-alt2" /> ) || actionText;
 		return (
-			<Card className={ classes }>
+			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ image && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
@@ -71,18 +73,23 @@ class ActionCard extends Component {
 						<h1>{ title }</h1>
 						<h2>{ description }</h2>
 					</div>
-					{ actionText && (
+					{ actionDisplay && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ actionText && ( !! onClick || !! href ) && (
-								<Button isLink href={ href } onClick={ onClick } className="newspack-action-card__primary_button">
-									{ actionText }
+							{ actionDisplay && ( !! onClick || !! href ) && (
+								<Button
+									isLink
+									href={ href }
+									onClick={ onClick }
+									className="newspack-action-card__primary_button"
+								>
+									{ actionDisplay }
 								</Button>
 							) }
 
-							{ actionText && ( ! onClick && ! href ) && (
+							{ actionDisplay && ( ! onClick && ! href ) && (
 								<div className="newspack-action-card__container">
 									{ isWaiting && <Spinner /> }
-									{ actionText }
+									{ actionDisplay }
 								</div>
 							) }
 

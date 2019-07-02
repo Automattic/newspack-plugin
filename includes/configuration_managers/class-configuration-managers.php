@@ -29,8 +29,8 @@ class Configuration_Managers {
 			'class_name' => 'AMP_Configuration_Manager',
 		],
 		'google-site-kit' => [
-			'filename'   => 'class-sitekit-configuration-manager.php',
-			'class_name' => 'SiteKit_Configuration_Manager',
+			'filename'   => 'class-site-kit-configuration-manager.php',
+			'class_name' => 'Site_Kit_Configuration_Manager',
 		],
 		'progressive-wp'  => [
 			'filename'   => 'class-progressive-wp-configuration-manager.php',

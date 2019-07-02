@@ -11,7 +11,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, FormattedHeader, Checklist, NewspackLogo, Task } from '../../components/src';
+import {
+	ActionCard,
+	Button,
+	Card,
+	FormattedHeader,
+	Checklist,
+	NewspackLogo,
+	Task,
+} from '../../components/src';
 import './style.scss';
 
 /**
@@ -37,7 +45,7 @@ class ChecklistScreen extends Component {
 		const { steps } = this.props;
 		let numComplete = 0;
 		for ( let i = 0; i < steps.length; ++i ) {
-			if ( steps[i].completed ) {
+			if ( steps[ i ].completed ) {
 				++numComplete;
 			} else {
 				break;
@@ -62,28 +70,39 @@ class ChecklistScreen extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, steps, dashboardURL } = this.props;
+		const { name, description, listStyle, steps, dashboardURL } = this.props;
 		const { checklistProgress } = this.state;
-
 		return (
 			<Fragment>
 				<NewspackLogo compact width="50" className="newspack-logo" />
 				<FormattedHeader headerText={ name } subHeaderText={ description } />
-				<Checklist progressBarText={ __( 'Your setup list' ) }>
-					{ steps.map( ( step, index ) => (
-						<Task
-							key={ index }
+				{ 'actionCards' === listStyle && (
+					steps.map( ( step, index ) => (
+						<ActionCard
 							title={ step.name }
 							description={ step.description }
-							buttonText={ __( 'Do it' ) }
-							completedTitle={ step.name }
-							completed={ step.completed || checklistProgress > index }
-							onDismiss={ () => this.dismissCheckListItem( index ) }
-							active={ checklistProgress === index }
+							simple
 							onClick={ () => ( window.location = step.url ) }
 						/>
-					) ) }
-				</Checklist>
+					) )
+				) }
+				{ 'actionCards' !== listStyle && (
+					<Checklist progressBarText={ __( 'Your setup list' ) }>
+						{ steps.map( ( step, index ) => (
+							<Task
+								key={ index }
+								title={ step.name }
+								description={ step.description }
+								buttonText={ __( 'Do it' ) }
+								completedTitle={ step.name }
+								completed={ step.completed || checklistProgress > index }
+								onDismiss={ () => this.dismissCheckListItem( index ) }
+								active={ checklistProgress === index }
+								onClick={ () => ( window.location = step.url ) }
+							/>
+						) ) }
+					</Checklist>
+				) }
 				<Button
 					className="is-centered"
 					isTertiary

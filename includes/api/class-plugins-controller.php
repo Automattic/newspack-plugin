@@ -233,6 +233,7 @@ class Plugins_Controller extends WP_REST_Controller {
 		}
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
 		$result = Plugin_Manager::activate( $slug );
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -329,12 +330,15 @@ class Plugins_Controller extends WP_REST_Controller {
 		Handoff_Banner::register_handoff_for_plugin( $slug );
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
-		$response = $managed_plugins[ $slug ];
-		if ( ! empty( $request['editLink'] ) ) {
-			$response['HandoffLink'] = $request['editLink'];
+		$response           = $managed_plugins[ $slug ];
+		$edit_link          = $request->get_param( 'editLink' );
+		$handoff_return_url = $request->get_param( 'handoffReturnUrl' );
+
+		if ( ! empty( $edit_link ) ) {
+			$response['HandoffLink'] = $edit_link;
 		}
-		if ( ! empty( $request['handoffReturnUrl'] ) ) {
-			update_option( NEWSPACK_HANDOFF_RETURN_URL, esc_url( $request['handoffReturnUrl'] ) );
+		if ( ! empty( $handoff_return_url ) ) {
+			update_option( NEWSPACK_HANDOFF_RETURN_URL, esc_url( $handoff_return_url ) );
 		}
 
 		return rest_ensure_response( $response );
