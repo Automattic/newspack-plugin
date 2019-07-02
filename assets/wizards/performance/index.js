@@ -56,17 +56,19 @@ class PerformanceWizard extends Component {
 	updateSettings() {
 		const { setError } = this.props;
 		const { settings } = this.state;
-		return apiFetch( {
-			path: '/newspack/v1/wizard/performance',
-			method: 'POST',
-			data: { settings },
-		} )
-			.then( settings => {
-				this.setState( { settings } );
+		return new Promise( ( resolve, reject ) => {
+			apiFetch( {
+				path: '/newspack/v1/wizard/performance',
+				method: 'POST',
+				data: { settings },
 			} )
-			.catch( error => {
-				setError( error );
-			} );
+				.then( settings => {
+					this.setState( { settings } ).then( () => resolve() );
+				} )
+				.catch( error => {
+					setError( error ).then( () => reject() );
+				} );
+		} );
 	}
 
 	updateSetting = ( key, value ) => {
