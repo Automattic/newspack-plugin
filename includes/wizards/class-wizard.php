@@ -9,6 +9,8 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+define( 'NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX', 'newspack_wizard_completed_' );
+
 /**
  * Common functionality for admin wizards. Override this class.
  */
@@ -146,11 +148,19 @@ abstract class Wizard {
 	/**
 	 * Whether this wizard has been completed.
 	 *
-	 * @todo This needs to actually handle completion.
 	 * @return bool
 	 */
 	public function is_completed() {
-		return false;
+		return (bool) get_option( NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX . $this->slug, false );
+	}
+
+	/**
+	 * Mark whether this wizard has been completed.
+	 *
+	 * @param bool $completed Whether the wizard has been completed (default: true).
+	 */
+	public function set_completed( $completed = true ) {
+		update_option( NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX . $this->slug, (bool) $completed );
 	}
 
 	/**
