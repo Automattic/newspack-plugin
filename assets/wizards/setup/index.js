@@ -14,7 +14,7 @@ import { Spinner } from '@wordpress/components';
  * Internal dependencies
  */
 import { About, ConfigurePlugins, Newsroom, Welcome } from './views/';
-import { Card, NewspackLogo, PluginInstaller, withWizard } from '../../components/src';
+import { Card, PluginInstaller, withWizard } from '../../components/src';
 import './style.scss';
 
 /**
@@ -148,7 +148,6 @@ class SetupWizard extends Component {
 		const installTotal = REQUIRED_PLUGINS.length;
 		return (
 			<Fragment>
-				<NewspackLogo width="240" className="newspack-logo" />
 				<HashRouter hashType="slash">
 					<Switch>
 						<Route
@@ -276,6 +275,6 @@ class SetupWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SetupWizard ) ),
+	createElement( withWizard( SetupWizard ), { fullLogo: true } ),
 	document.getElementById( 'newspack-setup-wizard' )
 );
