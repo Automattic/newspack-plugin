@@ -46,7 +46,7 @@ class GoogleAdManagerWizard extends Component {
 	/**
 	 * Get the latest adUnits info.
 	 */
-	refreshAdUnits( callback ) {
+	refreshAdUnits() {
 		const { setError } = this.props;
 		return apiFetch( { path: '/newspack/v1/wizard/adunits' } )
 			.then( adUnits => {
