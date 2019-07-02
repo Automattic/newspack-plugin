@@ -2,6 +2,9 @@
 	text-align: center;
 }
 .newspack-setup-wizard_image_container {
+	background-repeat: no-repeat;
+	background-image: url( './setup.svg' );
+	background-size: contain;
+	margin: 3em auto;
 	min-height: 130px;
-	background: $muriel-gray-100;
 }
