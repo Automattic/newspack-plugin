@@ -53,14 +53,21 @@ class PerformanceWizard extends Component {
 			} );
 	}
 
-	updateSettings() {
+	updateSettings( ...fields ) {
 		const { setError } = this.props;
 		const { settings } = this.state;
+		const submitSettings = Object.keys( settings ).reduce(
+			( submitSettings, key ) =>
+				fields.indexOf( key ) > -1
+					? { ...submitSettings, [ key ]: settings[ key ] }
+					: submitSettings,
+			{}
+		);
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
 				path: '/newspack/v1/wizard/performance',
 				method: 'POST',
-				data: { settings },
+				data: { settings: submitSettings },
 			} )
 				.then( settings => {
 					this.setState( { settings }, () => resolve() );
@@ -111,7 +118,9 @@ class PerformanceWizard extends Component {
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ () =>
-									this.updateSettings().then( () => routeProps.history.push( '/offline-usage' ) )
+									this.updateSettings( 'add_to_homescreen', 'site_icon' ).then( () =>
+										routeProps.history.push( '/offline-usage' )
+									)
 								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
@@ -128,7 +137,7 @@ class PerformanceWizard extends Component {
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ () =>
-									this.updateSettings().then( () =>
+									this.updateSettings( 'offline_usage' ).then( () =>
 										routeProps.history.push( '/push-notifications' )
 									)
 								}
@@ -145,9 +154,11 @@ class PerformanceWizard extends Component {
 								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ () =>
-									this.updateSettings().then(
-										() => ( window.location = newspack_urls[ 'dashboard' ] )
-									)
+									this.updateSettings(
+										'push_notifications',
+										'push_notification_server_key',
+										'push_notification_sender_id'
+									).then( () => ( window.location = newspack_urls[ 'dashboard' ] ) )
 								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
