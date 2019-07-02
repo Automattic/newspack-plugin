@@ -37,6 +37,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		\add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		\add_action( 'amp_post_template_head', [ $this, 'amp_post_template_head' ] );
 	}
 
 	/**
@@ -135,6 +136,17 @@ class Google_Ad_Manager_Wizard extends Wizard {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Insert the AMP Ad component JS if there are ads configured.
+	 */
+	public function amp_post_template_head() {
+		if ( empty( $this->_get_ad_units() ) ) {
+			return;
+		}
+
+		echo '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>';
 	}
 
 	/**
