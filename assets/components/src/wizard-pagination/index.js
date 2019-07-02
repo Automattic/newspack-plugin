@@ -31,12 +31,12 @@ class WizardPagination extends Component {
 		return (
 			<Fragment>
 				<a className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
-					<span class="dashicons dashicons-arrow-left-alt" /> { __( 'Back' ) }
+					<span className="dashicons dashicons-arrow-left-alt" /> { __( 'Back' ) }
 				</a>
 				{ currentIndex > 0 && (
 					<div className="newspack-wizard-pagination__pagination">
 						{ __( 'Page' ) } { currentIndex } { __( 'of' ) } { routes.length }{' '}
-						<span class="dashicons dashicons-arrow-right-alt" />
+						<span className="dashicons dashicons-arrow-right-alt" />
 					</div>
 				) }
 			</Fragment>
