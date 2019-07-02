@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 import { TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -45,7 +45,7 @@ class EditAdUnitScreen extends Component {
 
 		const editing_existing_ad_unit = !! id;
 		return (
-			<div className="newspack-edit-ad-unit-screen">
+			<Fragment>
 				<TextControl
 					label={ __( 'What is this ad unit called?' ) }
 					value={ name }
@@ -65,7 +65,7 @@ class EditAdUnitScreen extends Component {
 				>
 					{ __( 'Cancel' ) }
 				</Button>
-			</div>
+			</Fragment>
 		);
 	}
 }
