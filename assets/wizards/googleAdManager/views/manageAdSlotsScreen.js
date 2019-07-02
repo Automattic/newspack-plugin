@@ -17,7 +17,7 @@ import {
 } from '../../../components/src';
 
 /**
- * Subscriptions management screen.
+ * Advertising management screen.
  */
 class ManageAdUnitsScreen extends Component {
 	/**
