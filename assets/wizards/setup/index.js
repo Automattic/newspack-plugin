@@ -246,13 +246,13 @@ class SetupWizard extends Component {
 						<Redirect to="/" />
 					</Switch>
 					<Route
-						path={ [ '/about', '/newsroom', '/configure-plugins' ] }
+						path={ [ '/about', '/newsroom' ] }
 						render={ routeProps => (
 							<div className="newspack-setup-wizard_plugin-installer">
 								<PluginInstaller
 									asProgressBar
 									plugins={ REQUIRED_PLUGINS }
-									onStatus={ installationComplete => this.setState( { installationComplete } ) }
+									onStatus={ status => this.setState( { installationComplete: status.complete } ) }
 								/>
 								{ ! installationComplete && (
 									<p className="newspack-setup-wizard_progress_bar_explainer">
