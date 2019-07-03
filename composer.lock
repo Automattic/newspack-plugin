@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7daa9ed0f13ea12935ac0e5a3084ed5b",
+    "content-hash": "c6d1f3782e96ca84fe97c23123c2c2fb",
     "packages": [
         {
             "name": "brainmaestro/composer-git-hooks",
@@ -391,6 +391,44 @@
                 "shim"
             ],
             "time": "2018-09-21T13:07:52+00:00"
+        },
+        {
+            "name": "xwp/wp-dev-lib",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xwp/wp-dev-lib.git",
+                "reference": "95d9ba72a90b3d3dbc02b1e48f4d8212467f7edc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xwp/wp-dev-lib/zipball/95d9ba72a90b3d3dbc02b1e48f4d8212467f7edc",
+                "reference": "95d9ba72a90b3d3dbc02b1e48f4d8212467f7edc",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Weston Ruter",
+                    "email": "weston@xwp.co",
+                    "homepage": "https://weston.ruter.net"
+                },
+                {
+                    "name": "XWP",
+                    "email": "engage@xwp.co",
+                    "homepage": "https://xwp.co"
+                }
+            ],
+            "description": "Common code used during development of WordPress plugins and themes",
+            "homepage": "https://github.com/xwp/wp-dev-lib",
+            "keywords": [
+                "wordpress"
+            ],
+            "time": "2019-01-19T06:21:38+00:00"
         }
     ],
     "packages-dev": [
@@ -756,44 +794,6 @@
                 "wordpress"
             ],
             "time": "2018-12-18T09:43:51+00:00"
-        },
-        {
-            "name": "xwp/wp-dev-lib",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/xwp/wp-dev-lib.git",
-                "reference": "95d9ba72a90b3d3dbc02b1e48f4d8212467f7edc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/xwp/wp-dev-lib/zipball/95d9ba72a90b3d3dbc02b1e48f4d8212467f7edc",
-                "reference": "95d9ba72a90b3d3dbc02b1e48f4d8212467f7edc",
-                "shasum": ""
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Weston Ruter",
-                    "email": "weston@xwp.co",
-                    "homepage": "https://weston.ruter.net"
-                },
-                {
-                    "name": "XWP",
-                    "email": "engage@xwp.co",
-                    "homepage": "https://xwp.co"
-                }
-            ],
-            "description": "Common code used during development of WordPress plugins and themes",
-            "homepage": "https://github.com/xwp/wp-dev-lib",
-            "keywords": [
-                "wordpress"
-            ],
-            "time": "2019-01-19T06:21:38+00:00"
         }
     ],
     "aliases": [],
