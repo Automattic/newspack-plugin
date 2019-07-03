@@ -6,7 +6,6 @@
  * WordPress dependencies
  */
 import { Component, render } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -49,7 +48,7 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest subscriptions info.
 	 */
 	refreshSubscriptions( callback ) {
-		const { setError } = this.props;
+		const { setError, apiFetch } = this.props;
 		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
 			.then( subscriptions => {
 				const result = subscriptions.reduce( ( result, value ) => {
@@ -77,7 +76,7 @@ class SubscriptionsWizard extends Component {
 	 * Save the fields to a susbcription.
 	 */
 	saveSubscription( subscription ) {
-		const { setError } = this.props;
+		const { setError, apiFetch } = this.props;
 		const { id, name, image, price, frequency } = subscription;
 		const image_id = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
@@ -107,7 +106,7 @@ class SubscriptionsWizard extends Component {
 	 * @param int id Subscription ID.
 	 */
 	deleteSubscription( id ) {
-		const { setError } = this.props;
+		const { setError, apiFetch } = this.props;
 		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
 			apiFetch( {
 				path: '/newspack/v1/wizard/subscriptions/' + id,
@@ -126,6 +125,8 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest info about the choosePrice setting.
 	 */
 	refreshChoosePrice() {
+		const { apiFetch } = this.props;
+
 		apiFetch( { path: '/newspack/v1/wizard/subscriptions/choose-price' } ).then( choosePrice => {
 			this.setState( {
 				choosePrice: !! choosePrice,
@@ -137,6 +138,8 @@ class SubscriptionsWizard extends Component {
 	 * Enable/Disable Name-Your-Price for Newspack subscriptions.
 	 */
 	toggleChoosePrice() {
+		const { apiFetch } = this.props;
+
 		this.setState(
 			{
 				choosePrice: ! this.state.choosePrice,
@@ -159,7 +162,7 @@ class SubscriptionsWizard extends Component {
 	 * Mark this wizard as complete.
 	 */
 	markWizardComplete() {
-		const { setError } = this.props;
+		const { setError, apiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
 				path: '/newspack/v1/wizards/subscriptions/complete',
