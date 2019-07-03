@@ -80,7 +80,7 @@ class PluginInstaller extends Component {
 	installPlugin = slug => {
 		this.setInstallationStatus( slug, PLUGIN_STATE_INSTALLING );
 		const params = {
-			path: `/newspack/v1/plugins/${ slug }/activate/`,
+			path: `/newspack/v1/plugins/${ slug }/configure/`,
 			method: 'post',
 		};
 		return apiFetch( params )
