@@ -76,7 +76,7 @@
     "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial",
     "test": "jest",
     "release:clean": "rm -rf assets/release",
-    "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore",
+    "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* vendor/\\* .git/\\* .github/\\* .gitignore .DS_Store",
     "release": "run-p \"release:clean\" && run-p \"release:archive\""
   }
 }
