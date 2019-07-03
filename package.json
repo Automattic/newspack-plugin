@@ -75,8 +75,8 @@
     "clean": "rm -rf assets/dist/",
     "watch": "chokidar \"**/*.scss\" -c \"npm run build\" --initial",
     "test": "jest",
-    "release:clean": "rm -rf assets/release",
+    "release:build-all": "composer install --no-dev && run-p \"build\"",
     "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store",
-    "release": "run-p \"release:clean\" && run-p \"release:archive\""
+    "release": "run-p \"release:build-all\" && run-p \"release:archive\""
   }
 }
