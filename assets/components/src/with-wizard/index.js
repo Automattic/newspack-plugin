@@ -149,7 +149,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		startLoading = () => {
 			this.setState( state => ( {
 				loading: state.loading + 1
-			} ), () => { console.log( this.state.loading + ' items loading' ); } );
+			} ) );
 		}
 
 		/**
@@ -158,7 +158,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		doneLoading = () => {
 			this.setState( state => ( {
 				loading: state.loading - 1
-			} ), () => { console.log( this.state.loading + ' items loading' ); } );
+			} ) );
 			
 		}
 
