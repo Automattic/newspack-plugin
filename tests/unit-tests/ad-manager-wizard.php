@@ -34,6 +34,12 @@ class Newspack_Test_Ad_Manager_Wizard extends WP_UnitTestCase {
 
 		$this->delete_ad_unit = $reflection->getMethod( '_delete_ad_unit' );
 		$this->delete_ad_unit->setAccessible( true );
+
+		$this->extract_ad_width = $reflection->getMethod( '_extract_ad_width' );
+		$this->extract_ad_width->setAccessible( true );
+
+		$this->extract_ad_height = $reflection->getMethod( '_extract_ad_height' );
+		$this->extract_ad_height->setAccessible( true );
 	}
 
 	/**
@@ -117,5 +123,41 @@ class Newspack_Test_Ad_Manager_Wizard extends WP_UnitTestCase {
 			$this->assertTrue( $unit['name'] === $unit1['name'] || $unit['name'] === $unit2['name'] );
 			$this->assertTrue( $unit['code'] === $unit1['code'] || $unit['code'] === $unit2['code'] );
 		}
+	}
+
+	public function test_extract_ad_width() {
+		$unit1_code = '<amp-ad width=300 height=250
+    type="doubleclick"
+    data-slot="/000000000000/test_ad">
+</amp-ad>';
+		$unit2_code = '<amp-ad width=468 height=60
+    type="doubleclick"
+    data-slot="/00000000000/test_ad"
+    data-multi-size="320x50">
+</amp-ad>';
+
+		$unit1_width = $this->extract_ad_width->invokeArgs( $this->wizard, [ $unit1_code ] );
+		$unit2_width = $this->extract_ad_width->invokeArgs( $this->wizard, [ $unit2_code ] );
+
+		$this->assertEquals( 300, $unit1_width );
+		$this->assertEquals( 468, $unit2_width );
+	}
+
+	public function test_extract_ad_height() {
+		$unit1_code = '<amp-ad width=300 height=250
+    type="doubleclick"
+    data-slot="/000000000000/test_ad">
+</amp-ad>';
+		$unit2_code = '<amp-ad width=468 height=60
+    type="doubleclick"
+    data-slot="/00000000000/test_ad"
+    data-multi-size="320x50">
+</amp-ad>';
+
+		$unit1_height = $this->extract_ad_height->invokeArgs( $this->wizard, [ $unit1_code ] );
+		$unit2_height = $this->extract_ad_height->invokeArgs( $this->wizard, [ $unit2_code ] );
+
+		$this->assertEquals( 250, $unit1_height );
+		$this->assertEquals( 60, $unit2_height );
 	}
 }
