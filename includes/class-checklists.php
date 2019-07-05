@@ -39,6 +39,7 @@ class Checklists {
 				'wizards'     => [
 					'subscriptions-onboarding',
 					'subscriptions',
+					'memberships-page'
 				],
 			],
 			'advertising'    => [

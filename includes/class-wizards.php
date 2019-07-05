@@ -31,6 +31,7 @@ class Wizards {
 			'dashboard'                => new Dashboard(),
 			'subscriptions-onboarding' => new Subscriptions_Onboarding_Wizard(),
 			'subscriptions'            => new Subscriptions_Wizard(),
+			'memberships-page'         => new Memberships_Page_Wizard(),
 			'google-adsense'           => new Google_AdSense_Wizard(),
 			'google-ad-manager'        => new Google_Ad_Manager_Wizard(),
 			'google-analytics'         => new Google_Analytics_Wizard(),
