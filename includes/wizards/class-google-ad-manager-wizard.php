@@ -243,10 +243,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
 				$query->the_post();
+				$ad_code = \get_post_meta( get_the_ID(), 'newspack_ad_code', true );
 				$ad_units[] = [
-					'id'   => \get_the_ID(),
-					'name' => \get_the_title(),
-					'code' => \get_post_meta( get_the_ID(), 'newspack_ad_code', true ),
+					'id'     => \get_the_ID(),
+					'name'   => \get_the_title(),
+					'code'   => $ad_code,
+					'width'  => $this->_extract_ad_width( $ad_code ),
+					'height' => $this->_extract_ad_height( $ad_code ),
 				];
 			}
 		}
@@ -259,11 +262,15 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 */
 	private function _get_ad_unit( $id ) {
 		$ad_unit = \get_post( $id );
+
 		if ( is_a( $ad_unit, 'WP_Post' ) ) {
+			$ad_code = \get_post_meta( $ad_unit->ID, 'newspack_ad_code', true );
 			return [
-				'id' => $ad_unit->ID,
-				'name' => $ad_unit->post_title,
-				'code' => \get_post_meta( $ad_unit->ID, 'newspack_ad_code', true ),
+				'id'     => $ad_unit->ID,
+				'name'   => $ad_unit->post_title,
+				'code'   => $ad_code,
+				'width'  => $this->_extract_ad_width( $ad_code ),
+				'height' => $this->_extract_ad_height( $ad_code ),
 			];
 		} else {
 			return new WP_Error(
@@ -316,9 +323,11 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		\add_post_meta( $ad_unit_post, 'newspack_ad_code', $ad_unit['code'] );
 
 		return [
-			'id' => $ad_unit_post,
-			'name' => $ad_unit['name'],
-			'code' => $ad_unit['code'],
+			'id'     => $ad_unit_post,
+			'name'   => $ad_unit['name'],
+			'code'   => $ad_unit['code'],
+			'width'  => $ad_unit['width'],
+			'height' => $ad_unit['height'],
 		];
 
 	}
@@ -349,9 +358,11 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		\update_post_meta( $ad_unit['id'], 'newspack_ad_code', $ad_unit['code'] );
 
 		return [
-			'id' => $ad_unit['id'],
-			'name' => $ad_unit['name'],
-			'code' => $ad_unit['code'],
+			'id'     => $ad_unit['id'],
+			'name'   => $ad_unit['name'],
+			'code'   => $ad_unit['code'],
+			'width'  => $ad_unit['width'],
+			'height' => $ad_unit['height'],
 		];
 
 	}
@@ -389,10 +400,14 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			);
 		}
 
-		$sanitised_ad_unit = [
-			'name' => \esc_html( $ad_unit['name'] ),
-			'code' => $ad_unit['code'], // esc_js( $ad_unit['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
+		// Extract the width and height out of the ad code.
 
+
+		$sanitised_ad_unit = [
+			'name'   => \esc_html( $ad_unit['name'] ),
+			'code'   => $ad_unit['code'], // esc_js( $ad_unit['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
+			'width'  => $this->_extract_ad_width( $ad_unit['code'] ),
+			'height' => $this->_extract_ad_height( $ad_unit['code'] ),
 		];
 
 		if ( isset( $ad_unit['id'] ) ) {
