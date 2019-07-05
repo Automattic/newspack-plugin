@@ -13,7 +13,7 @@ import { Dashicon } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { withWizard, FormattedHeader, Handoff } from '../../components/src';
+import { withWizard, FormattedHeader, Handoff, Button } from '../../components/src';
 import './style.scss';
 
 /**
@@ -103,6 +103,17 @@ class MembershipsPageWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { complete } = this.state;
+
+		/*
+								<Handoff
+									plugin='google-site-kit'
+									editLink='admin.php?page=googlesitekit-module-adsense'
+									className='is-centered'
+									isPrimary={ ! complete }
+									isDefault={ !! complete }
+								>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
+		*/
+
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -116,19 +127,22 @@ class MembershipsPageWizard extends Component {
 									headerText={ __( 'Memberships Page' ) }
 									subHeaderText={ __( 'Create a landing page to feature and promote your membership options.' ) }
 								/>
-								{ complete && (
-									<div className='newspack-memberships-page-wizard-wizard__success'>
-										<Dashicon icon="yes-alt" />
-										<h4>{ __( 'Your memberships landing page is set up' ) }</h4>
-									</div>
+								{ ! complete && (
+									<Button isPrimary className="is-centered">
+										{ __( 'Create Memberships Page' ) }
+									</Button>
 								) }
-								<Handoff
-									plugin='google-site-kit'
-									editLink='admin.php?page=googlesitekit-module-adsense'
-									className='is-centered'
-									isPrimary={ ! complete }
-									isDefault={ !! complete }
-								>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
+								{ complete && (
+									<Fragment>
+										<div className='newspack-memberships-page-wizard-wizard__success'>
+											<Dashicon icon="yes-alt" />
+											<h4>{ __( 'Your memberships landing page is set up' ) }</h4>
+										</div>
+										<Button isDefault className="is-centered">
+											{ __( 'Edit Memberships Page' ) }
+										</Button>
+									</Fragment>
+								) }
 							</Fragment>
 						) }
 					/>

@@ -11,6 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
+const NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION = 'newspack_memberships_page_id';
+
 /**
  * Guided setup of a memberships landing page.
  */
@@ -99,6 +101,52 @@ class Memberships_Page_Wizard extends Wizard {
 		}
 
 		return rest_ensure_response( $configuration->is_module_configured( 'adsense' ) );
+	}
+
+	public function api_get_memberships_page() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		return rest_ensure_response( $this->get_memberships_page() );
+	}
+
+	public function api_create_memberships_page() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		return rest_ensure_response( $this->create_memberships_page() );
+	}
+
+	protected function create_memberships_page() {
+		$subscriptions = wc_get_products(
+			[
+				'limit'                           => -1,
+				'only_get_newspack_subscriptions' => true,
+			]
+		);
+
+		$page_args = [
+			'post_type' => 'page',
+			'post_title' => '', // todo
+			'post_content' => '', // todo
+			'post_excerpt' => '', // todo
+			'post_status' => 'draft',
+			'comment_status' => 'closed',
+			'ping_status' => 'closed',
+		];
+	}
+
+	protected function get_memberships_page() {
+		$page_id = get_option( NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION, 0 );
+		if ( ! $page_id || 'page' !== get_post_type( $page_id ) ) {
+			return 0;
+		}
+
+		return $page_id;
 	}
 
 	/**
