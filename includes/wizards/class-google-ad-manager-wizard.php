@@ -404,6 +404,48 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	}
 
 	/**
+	 * Extract the value of the width parameter from given ad code.
+	 * @param  string   $ad_code The full ad code
+	 * @return int|null          The value, or null on failure.
+	 */
+	private function _extract_ad_width( $ad_code ) {
+		$width = null;
+
+		$search = preg_match(
+			'/width=([0-9]+)\s/',
+			$ad_code,
+			$matches
+		);
+
+		if ( isset( $matches[1] ) ) {
+			$width = $matches[1];
+		}
+
+		return $width;
+	}
+
+	/**
+	 * Extract the value of the height parameter from given ad code.
+	 * @param  string   $ad_code The full ad code
+	 * @return int|null          The value, or null on failure.
+	 */
+	private function _extract_ad_height( $ad_code ) {
+		$height = null;
+
+		$search = preg_match(
+			'/height=([0-9]+)\s/',
+			$ad_code,
+			$matches
+		);
+
+		if ( isset( $matches[1] ) ) {
+			$height = $matches[1];
+		}
+
+		return $height;
+	}
+
+	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
