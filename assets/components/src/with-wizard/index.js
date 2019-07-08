@@ -165,7 +165,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Replacement for core apiFetch that automatically manages wizard loading UI.
 		 */
-		apiFetch = args => {
+		wizardApiFetch = args => {
 			this.startLoading();
 			return new Promise( ( resolve, reject ) => {
 				apiFetch( args )
@@ -234,7 +234,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							setError={ this.setError }
 							startLoading={ this.startLoading }
 							doneLoading={ this.doneLoading }
-							apiFetch={ this.apiFetch }
+							wizardApiFetch={ this.wizardApiFetch }
 							ref={ this.wrappedComponentRef }
 							{ ...this.props }
 						/>

@@ -48,8 +48,8 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest subscriptions info.
 	 */
 	refreshSubscriptions( callback ) {
-		const { setError, apiFetch } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/subscriptions' } )
 			.then( subscriptions => {
 				const result = subscriptions.reduce( ( result, value ) => {
 					result[ value.id ] = value;
@@ -76,11 +76,11 @@ class SubscriptionsWizard extends Component {
 	 * Save the fields to a susbcription.
 	 */
 	saveSubscription( subscription ) {
-		const { setError, apiFetch } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		const { id, name, image, price, frequency } = subscription;
 		const image_id = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/subscriptions',
 				method: 'post',
 				data: {
@@ -106,9 +106,9 @@ class SubscriptionsWizard extends Component {
 	 * @param int id Subscription ID.
 	 */
 	deleteSubscription( id ) {
-		const { setError, apiFetch } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		if ( confirm( __( 'Are you sure you want to delete this subscription?' ) ) ) {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/subscriptions/' + id,
 				method: 'delete',
 			} )
@@ -125,9 +125,9 @@ class SubscriptionsWizard extends Component {
 	 * Get the latest info about the choosePrice setting.
 	 */
 	refreshChoosePrice() {
-		const { apiFetch } = this.props;
+		const { wizardApiFetch } = this.props;
 
-		apiFetch( { path: '/newspack/v1/wizard/subscriptions/choose-price' } ).then( choosePrice => {
+		wizardApiFetch( { path: '/newspack/v1/wizard/subscriptions/choose-price' } ).then( choosePrice => {
 			this.setState( {
 				choosePrice: !! choosePrice,
 			} );
@@ -138,14 +138,14 @@ class SubscriptionsWizard extends Component {
 	 * Enable/Disable Name-Your-Price for Newspack subscriptions.
 	 */
 	toggleChoosePrice() {
-		const { apiFetch } = this.props;
+		const { wizardApiFetch } = this.props;
 
 		this.setState(
 			{
 				choosePrice: ! this.state.choosePrice,
 			},
 			() => {
-				apiFetch( {
+				wizardApiFetch( {
 					path: '/newspack/v1/wizard/subscriptions/choose-price',
 					method: 'post',
 					data: {
@@ -162,9 +162,9 @@ class SubscriptionsWizard extends Component {
 	 * Mark this wizard as complete.
 	 */
 	markWizardComplete() {
-		const { setError, apiFetch } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizards/subscriptions/complete',
 				method: 'post',
 				data: {},
