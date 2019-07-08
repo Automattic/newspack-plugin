@@ -82,25 +82,25 @@ class Memberships_Page_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);*/
-	}
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/memberships-page',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_memberships_page' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 
-	/**
-	 * Get whether AdSense setup is complete.
-	 *
-	 * @return WP_REST_Response containing info (bool).
-	 */
-	public function api_get_adsense_setup_complete() {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
-
-		$configuration = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-		if ( is_wp_error( $configuration ) ) {
-			return rest_ensure_response( $configuration );
-		}
-
-		return rest_ensure_response( $configuration->is_module_configured( 'adsense' ) );
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/create-memberships-page',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_create_memberships_page' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	public function api_get_memberships_page() {
@@ -109,7 +109,7 @@ class Memberships_Page_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		return rest_ensure_response( $this->get_memberships_page() );
+		return rest_ensure_response( $this->get_memberships_page_info() );
 	}
 
 	public function api_create_memberships_page() {
@@ -118,7 +118,13 @@ class Memberships_Page_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		return rest_ensure_response( $this->create_memberships_page() );
+		$page_id = $this->create_memberships_page();
+		if ( is_wp_error( $page_id ) ) {
+			return rest_ensure_response( $page_id );
+		}
+
+		$this->set_memberships_page( $page_id );
+		return rest_ensure_response( $this->get_memberships_page_info( $page_id ) );
 	}
 
 	protected function create_memberships_page() {
@@ -129,24 +135,55 @@ class Memberships_Page_Wizard extends Wizard {
 			]
 		);
 
+		$intro_content = __( 'Quality journalism is not possible without you. Join now to help keep our mission going!');
+		$button_text = __( 'Join' );
+		$intro_block = '
+			<!-- wp:paragraph -->
+				<p>%s</p>
+			<!-- /wp:paragraph -->';
+
+		$featured_product_block = '
+			<!-- wp:woocommerce/featured-product {"editMode":false,"productId":%d,"align":"full"} -->
+				<!-- wp:button {"align":"center"} -->
+					<div class="wp-block-button aligncenter"><a class="wp-block-button__link" href="%s">%s</a></div>
+				<!-- /wp:button -->
+			<!-- /wp:woocommerce/featured-product -->';
+
+		$content = sprintf( $intro_block, $intro_content );
+		foreach ( $subscriptions as $subscription ) {
+			$content .= sprintf( $featured_product_block, $subscription->get_id(), $subscription->get_permalink(), $button_text );
+		}
+
 		$page_args = [
 			'post_type' => 'page',
-			'post_title' => '', // todo
-			'post_content' => '', // todo
-			'post_excerpt' => '', // todo
+			'post_title' => __( 'Memberships', 'newspack' ),
+			'post_content' => $content,
+			'post_excerpt' => __( 'Support quality journalism by becoming a member today!', 'newspack' ),
 			'post_status' => 'draft',
 			'comment_status' => 'closed',
 			'ping_status' => 'closed',
 		];
+		return wp_insert_post( $page_args );
 	}
 
-	protected function get_memberships_page() {
-		$page_id = get_option( NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION, 0 );
+	protected function set_memberships_page( $page_id ) {
+		update_option( NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION, $page_id );
+	}
+
+	protected function get_memberships_page_info( $page_id = 0 ) {
+		if ( ! $page_id ) {
+			$page_id = get_option( NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION, 0 );
+		}
 		if ( ! $page_id || 'page' !== get_post_type( $page_id ) ) {
-			return 0;
+			return false;
 		}
 
-		return $page_id;
+		return [
+			'id' => $page_id,
+			'url' => get_permalink( $page_id ),
+			'editUrl' => html_entity_decode( get_edit_post_link( $page_id ) ),
+			'status' => get_post_status( $page_id ),
+		];
 	}
 
 	/**

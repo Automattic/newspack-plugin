@@ -31,7 +31,7 @@ class MembershipsPageWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			complete: false,
+			page: false,
 		};
 	}
 
@@ -39,31 +39,31 @@ class MembershipsPageWizard extends Component {
 	 * Check completion status when wizard is ready.
 	 */
 	onWizardReady = () => {
-		// this.refreshComplete();
+		this.refreshMembershipsPage();
 	};
 
 	/**
 	 * When the wizard is marked complete, mark the checklist item complete.
 	 */
 	componentDidUpdate( prevProps, prevState ) {
-	/*	const { complete: alreadyComplete } = prevState;
-		const { complete } = this.state;
-		if ( ! alreadyComplete && complete ) {
+		const { page: pageSet } = prevState;
+		const { page } = this.state;
+		if ( ! pageSet && page && 'publish' === page.status ) {
 			this.markWizardComplete();
-		}*/
+		}
 	}
 
 	/**
-	 * Get whether AdSense setup is complete.
+	 * Get memberships page info.
 	 */
-	refreshComplete() {
+	refreshMembershipsPage() {
 		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/newspack-google-adsense-wizard/adsense-setup-complete' } )
-			.then( complete => {
+		return apiFetch( { path: '/newspack/v1/wizard/newspack-memberships-page-wizard/memberships-page' } )
+			.then( page => {
 				return new Promise( resolve => {
 					this.setState(
 						{
-							complete,
+							page,
 						},
 						() => {
 							setError();
@@ -73,7 +73,32 @@ class MembershipsPageWizard extends Component {
 				} );
 			} )
 			.catch( error => {
-				this.setError( error );
+				setError( error );
+			} );
+	}
+
+	createMembershipsPage() {
+		const { setError } = this.props;
+		return apiFetch( {
+			 path: '/newspack/v1/wizard/newspack-memberships-page-wizard/create-memberships-page',
+			 method: 'post',
+			 data: {}, 
+		} )
+			.then( page => {
+				return new Promise( resolve => {
+					this.setState(
+						{
+							page,
+						},
+						() => {
+							setError();
+							resolve( this.state );
+						}
+					);
+				} );
+			} )
+			.catch( error => {
+				setError( error );
 			} );
 	}
 
@@ -102,17 +127,7 @@ class MembershipsPageWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { complete } = this.state;
-
-		/*
-								<Handoff
-									plugin='google-site-kit'
-									editLink='admin.php?page=googlesitekit-module-adsense'
-									className='is-centered'
-									isPrimary={ ! complete }
-									isDefault={ !! complete }
-								>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
-		*/
+		const { page } = this.state;
 
 		return (
 			<HashRouter hashType="slash">
@@ -127,20 +142,32 @@ class MembershipsPageWizard extends Component {
 									headerText={ __( 'Memberships Page' ) }
 									subHeaderText={ __( 'Create a landing page to feature and promote your membership options.' ) }
 								/>
-								{ ! complete && (
-									<Button isPrimary className="is-centered">
+								{ ! page && (
+									<Button isPrimary className="is-centered" onClick={ () => this.createMembershipsPage() } >
 										{ __( 'Create Memberships Page' ) }
 									</Button>
 								) }
-								{ complete && (
+								{ page && (
 									<Fragment>
-										<div className='newspack-memberships-page-wizard-wizard__success'>
-											<Dashicon icon="yes-alt" />
-											<h4>{ __( 'Your memberships landing page is set up' ) }</h4>
-										</div>
-										<Button isDefault className="is-centered">
-											{ __( 'Edit Memberships Page' ) }
-										</Button>
+										{ 'publish' !== page.status && (
+											<div className='newspack-memberships-page-wizard-wizard__notice setup-error'>
+												<Dashicon icon="no-alt" />
+												<h4>{ __( 'Your memberships landing page is not published yet. You should edit and publish it.' ) }</h4>
+											</div>
+										) }
+										{ 'publish' === page.status && (
+											<div className='newspack-memberships-page-wizard-wizard__notice setup-success'>
+												<Dashicon icon="yes-alt" />
+												<h4>{ __( 'Your memberships landing page is set up and live.' ) }</h4>
+											</div>
+										) }
+										<Handoff
+											plugin='woocommerce'
+											editLink={ page.editUrl }
+											className='is-centered'
+											isDefault
+										>{ __( 'Edit Memberships Page' ) }
+										</Handoff>
 									</Fragment>
 								) }
 							</Fragment>
