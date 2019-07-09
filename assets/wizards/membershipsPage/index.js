@@ -8,12 +8,12 @@
 import { Component, render, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { Dashicon } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { withWizard, FormattedHeader, Handoff, Button } from '../../components/src';
+import { withWizard } from '../../components/src';
+import ManageMembershipsPage from './views/manageMembershipsPage';
 import './style.scss';
 
 /**
@@ -57,8 +57,8 @@ class MembershipsPageWizard extends Component {
 	 * Get memberships page info.
 	 */
 	refreshMembershipsPage() {
-		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/newspack-memberships-page-wizard/memberships-page' } )
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-memberships-page-wizard/memberships-page' } )
 			.then( page => {
 				return new Promise( resolve => {
 					this.setState(
@@ -78,8 +78,8 @@ class MembershipsPageWizard extends Component {
 	}
 
 	createMembershipsPage() {
-		const { setError } = this.props;
-		return apiFetch( {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
 			 path: '/newspack/v1/wizard/newspack-memberships-page-wizard/create-memberships-page',
 			 method: 'post',
 			 data: {}, 
@@ -137,40 +137,13 @@ class MembershipsPageWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<Fragment>
-								<FormattedHeader
-									headerText={ __( 'Memberships Page' ) }
-									subHeaderText={ __( 'Create a landing page to feature and promote your membership options.' ) }
-								/>
-								{ ! page && (
-									<Button isPrimary className="is-centered" onClick={ () => this.createMembershipsPage() } >
-										{ __( 'Create Memberships Page' ) }
-									</Button>
-								) }
-								{ page && (
-									<Fragment>
-										{ 'publish' !== page.status && (
-											<div className='newspack-memberships-page-wizard-wizard__notice setup-error'>
-												<Dashicon icon="no-alt" />
-												<h4>{ __( 'Your memberships landing page is not published yet. You should edit and publish it.' ) }</h4>
-											</div>
-										) }
-										{ 'publish' === page.status && (
-											<div className='newspack-memberships-page-wizard-wizard__notice setup-success'>
-												<Dashicon icon="yes-alt" />
-												<h4>{ __( 'Your memberships landing page is set up and live.' ) }</h4>
-											</div>
-										) }
-										<Handoff
-											plugin='woocommerce'
-											editLink={ page.editUrl }
-											className='is-centered'
-											isDefault
-										>{ __( 'Edit Memberships Page' ) }
-										</Handoff>
-									</Fragment>
-								) }
-							</Fragment>
+							<ManageMembershipsPage
+								headerText={ __( 'Memberships Page' ) }
+								subHeaderText={ __( 'Create a landing page to feature and promote your membership options.' ) }
+								onClickCreate={ () => this.createMembershipsPage() }
+								page={ page } 
+								noBackground 
+							/>
 						) }
 					/>
 				</Switch>
