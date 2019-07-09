@@ -71,17 +71,6 @@ class Memberships_Page_Wizard extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
-		/*
-		// Get whether adsense is configured or not.
-		register_rest_route(
-			'newspack/v1/wizard/' . $this->slug,
-			'/adsense-setup-complete',
-			[
-				'methods'             => 'GET',
-				'callback'            => [ $this, 'api_get_adsense_setup_complete' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);*/
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
 			'/memberships-page',
@@ -103,6 +92,11 @@ class Memberships_Page_Wizard extends Wizard {
 		);
 	}
 
+	/**
+	 * Get information about the memberships page, if set up.
+	 *
+	 * @return WP_REST_Response with memberships page info.
+	 */
 	public function api_get_memberships_page() {
 		$required_plugins_installed = $this->check_required_plugins_installed();
 		if ( is_wp_error( $required_plugins_installed ) ) {
@@ -112,6 +106,11 @@ class Memberships_Page_Wizard extends Wizard {
 		return rest_ensure_response( $this->get_memberships_page_info() );
 	}
 
+	/**
+	 * Create the memberships page.
+	 *
+	 * @return WP_REST_Response with memberships page info.
+	 */
 	public function api_create_memberships_page() {
 		$required_plugins_installed = $this->check_required_plugins_installed();
 		if ( is_wp_error( $required_plugins_installed ) ) {
@@ -127,6 +126,11 @@ class Memberships_Page_Wizard extends Wizard {
 		return rest_ensure_response( $this->get_memberships_page_info( $page_id ) );
 	}
 
+	/**
+	 * Create the memberships page prepopulated with CTAs for the subscriptions.
+	 *
+	 * @return int Post ID of page.
+	 */
 	protected function create_memberships_page() {
 		$subscriptions = wc_get_products(
 			[
@@ -166,10 +170,21 @@ class Memberships_Page_Wizard extends Wizard {
 		return wp_insert_post( $page_args );
 	}
 
+	/**
+	 * Set the memberships page.
+	 *
+	 * @param int $page_id The post ID of the memberships page.
+	 */
 	protected function set_memberships_page( $page_id ) {
 		update_option( NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION, $page_id );
 	}
 
+	/**
+	 * Get info about the memberships page.
+	 *
+	 * @param int $page_id Optional ID of page to get info for. Default: saved memberships page.
+	 * @return array|bool Array of info, or false if page is not created.
+	 */
 	protected function get_memberships_page_info( $page_id = 0 ) {
 		if ( ! $page_id ) {
 			$page_id = get_option( NEWSPACK_MEMBERSHIPS_PAGE_ID_OPTION, 0 );
@@ -206,7 +221,7 @@ class Memberships_Page_Wizard extends Wizard {
 	}
 
 	/**
-	 * Enqueue Subscriptions Wizard scripts and styles.
+	 * Enqueue scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();

@@ -77,6 +77,9 @@ class MembershipsPageWizard extends Component {
 			} );
 	}
 
+	/**
+	 * Create the memberships page.
+	 */
 	createMembershipsPage() {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {

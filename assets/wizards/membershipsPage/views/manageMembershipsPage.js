@@ -10,9 +10,14 @@ import { Dashicon } from '@wordpress/components';
  */
 import { withWizardScreen, Handoff, Button } from '../../../components/src';
 
-
+/**
+ * Screen for creating/managing a memberships page.
+ */
 class ManageMembershipsPage extends Component {
 
+	/**
+	 * Render.
+	 */
 	render() {
 		const { page, onClickCreate } = this.props;
 
