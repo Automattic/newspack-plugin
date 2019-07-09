@@ -6,7 +6,9 @@
  * WordPress dependencies
  */
 import { Component, createRef, Fragment } from '@wordpress/element';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies.
@@ -28,6 +30,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			this.state = {
 				complete: null,
 				error: null,
+				loading: requiredPlugins ? 1 : 0,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -134,11 +137,51 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * Called when plugin installation is complete. Updates state and calls onWizardReady on the wrapped component.
 		 */
 		pluginInstallationStatus = ( { complete } ) => {
+			if ( this.state.loading ) {
+				this.doneLoading();
+			}
 			const instance = this.wrappedComponentRef.current;
 			this.setState( { complete }, () => {
 				complete && instance && instance.onWizardReady && instance.onWizardReady();
 			} );
 		};
+
+		/**
+		 * Begin loading.
+		 */
+		startLoading = () => {
+			this.setState( state => ( {
+				loading: state.loading + 1
+			} ) );
+		}
+
+		/**
+		 * End loading.
+		 */
+		doneLoading = () => {
+			this.setState( state => ( {
+				loading: state.loading - 1
+			} ) );
+			
+		}
+
+		/**
+		 * Replacement for core apiFetch that automatically manages wizard loading UI.
+		 */
+		wizardApiFetch = args => {
+			this.startLoading();
+			return new Promise( ( resolve, reject ) => {
+				apiFetch( args )
+					.then( response => {
+						this.doneLoading();
+						resolve( response );
+					} )
+					.catch( error => {
+						this.doneLoading();
+						reject( error );
+					} );
+			} );
+		}
 
 		/**
 		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
@@ -156,7 +199,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					<Route
 						path="/"
 						render={ routeProps => (
-							<Card noBackground>
+							<Card noBackground className='muriel-wizardScreen muriel-wizardScreen__no-background'>
 								{ complete !== null && (
 									<FormattedHeader
 										headerText={ __( 'Required plugin' ) }
@@ -181,27 +224,33 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 */
 		render() {
 			const { buttonText, buttonAction, fullLogo } = this.props;
+			const { loading } = this.state;
 			return (
 				<Fragment>
 					{ this.getError() }
 					<NewspackLogo width={ fullLogo ? 240 : 50 } compact={ ! fullLogo } className="newspack-logo" />
-					<WrappedComponent
-						pluginRequirements={ requiredPlugins && this.pluginRequirements() }
-						clearError={ this.clearError }
-						getError={ this.getError }
-						setError={ this.setError }
-						ref={ this.wrappedComponentRef }
-						{ ...this.props }
-					/>
-					{ buttonText && buttonAction && (
-						<Button
-							isTertiary
-							className="is-centered muriel-wizardScreen__subCompleteButton"
-							{ ...buttonProps( buttonAction ) }
-						>
-							{ buttonText }
-						</Button>
-					) }
+					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' } >
+						<WrappedComponent
+							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
+							clearError={ this.clearError }
+							getError={ this.getError }
+							setError={ this.setError }
+							startLoading={ this.startLoading }
+							doneLoading={ this.doneLoading }
+							wizardApiFetch={ this.wizardApiFetch }
+							ref={ this.wrappedComponentRef }
+							{ ...this.props }
+						/>
+						{ buttonText && buttonAction && (
+							<Button
+								isTertiary
+								className="is-centered muriel-wizardScreen__subCompleteButton"
+								{ ...buttonProps( buttonAction ) }
+							>
+								{ buttonText }
+							</Button>
+						) }
+					</div>
 				</Fragment>
 			);
 		}

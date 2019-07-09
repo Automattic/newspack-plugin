@@ -42,7 +42,7 @@ class LocationSetup extends Component {
 				<SelectControl
 					label={ __( 'Where is your business based?' ) }
 					value={ countrystate }
-					options={ countrystateFields }
+					options={ countrystateFields && countrystateFields.length ? countrystateFields : [ {} ] }
 					onChange={ value => this.handleOnChange( 'countrystate', value ) }
 				/>
 				<TextControl
@@ -68,7 +68,7 @@ class LocationSetup extends Component {
 				<SelectControl
 					label={ 'Which currency does your business use?' }
 					value={ currency }
-					options={ currencyFields }
+					options={ currencyFields && currencyFields.length ? currencyFields : [ {} ] }
 					onChange={ value => this.handleOnChange( 'currency', value ) }
 				/>
 			</div>
