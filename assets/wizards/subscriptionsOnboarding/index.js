@@ -6,7 +6,6 @@
  * WordPress dependencies
  */
 import { Component, Fragment, render } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -69,8 +68,8 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get information used for populating complex dropdown menus.
 	 */
 	refreshFieldOptions() {
-		const { setError } = this.props;
-		apiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } )
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } )
 			.then( fields => {
 				setError();
 				this.setState( {
@@ -86,8 +85,8 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved info about business location.
 	 */
 	refreshLocationInfo() {
-		const { setError } = this.props;
-		apiFetch( {
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
 		} )
 			.then( location => {
@@ -105,9 +104,9 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current location info.
 	 */
 	saveLocation() {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
 				method: 'post',
 				data: {
@@ -127,8 +126,8 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Get the latest saved Stripe settings.
 	 */
 	refreshStripeInfo() {
-		const { setError } = this.props;
-		apiFetch( {
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
 		} )
 			.then( stripeSettings => {
@@ -146,9 +145,9 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Save the current Stripe settings.
 	 */
 	saveStripeSettings() {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
 				method: 'post',
 				data: {
@@ -168,9 +167,9 @@ class SubscriptionsOnboardingWizard extends Component {
 	 * Mark this wizard as complete.
 	 */
 	markWizardComplete() {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizards/subscriptions-onboarding/complete',
 				method: 'post',
 				data: {},
