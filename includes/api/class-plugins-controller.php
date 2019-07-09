@@ -327,7 +327,8 @@ class Plugins_Controller extends WP_REST_Controller {
 			return $is_valid_plugin;
 		}
 
-		Handoff_Banner::register_handoff_for_plugin( $slug );
+		$show_on_block_editor = $request->get_param( 'showOnBlockEditor' );
+		Handoff_Banner::register_handoff_for_plugin( $slug, (bool) $show_on_block_editor );
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
 		$response           = $managed_plugins[ $slug ];

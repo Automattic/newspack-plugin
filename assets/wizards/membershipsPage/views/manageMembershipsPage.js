@@ -41,7 +41,9 @@ class ManageMembershipsPage extends Component {
 							plugin='woocommerce'
 							editLink={ page.editUrl }
 							className='is-centered'
-							isDefault
+							isDefault={ 'publish' === page.status }
+							isPrimary={ 'publish' !== page.status }
+							showOnBlockEditor
 						>{ __( 'Edit Memberships Page' ) }
 						</Handoff>
 					</Fragment>
