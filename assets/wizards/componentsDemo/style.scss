@@ -1,3 +1,5 @@
+@import '../../shared/scss/muriel-component';
+
 /**
  * Temporary styles for example purposes.
  */
@@ -7,4 +9,14 @@
 .newspack-components-demo_logo {
 	display: block;
 	margin: 1em auto;
+	grid-column: 1 / -1;
+}
+
+.newspack-components-demo {
+	@include muriel-grid;
+}
+
+/* TODO: Determine a better solution for centering the container */
+#wpcontent {
+	padding-left: 0 !important;
 }

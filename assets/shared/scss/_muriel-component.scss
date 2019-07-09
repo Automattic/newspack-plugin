@@ -15,3 +15,24 @@ $primary_color_darker: #3166ae;
 	color: $muriel-gray-400;
 	font-style: italic;
 }
+
+@mixin muriel-grid {
+	display: -ms-grid;
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	grid-column-gap: 24px;
+	max-width: 1040px;
+	margin: 0 auto;
+	/* Account for the wp-admin sidenav */
+	@media screen and ( max-width: 1262px ) {
+		margin: 0 24px;
+	}
+	@media screen and ( max-width: 1024px ) {
+		grid-template-columns: repeat(8, minmax(0, 1fr));
+	}
+	@media screen and ( max-width: 660px ) {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-column-gap: 16px;
+		margin: 0 16px;
+	}
+}

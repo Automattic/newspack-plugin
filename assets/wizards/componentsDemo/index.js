@@ -87,7 +87,7 @@ class ComponentsDemo extends Component {
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader
 						headerText={ __( 'Handoff Buttons' ) }
 					/>
@@ -109,7 +109,7 @@ class ComponentsDemo extends Component {
 						{ __( 'Specific Yoast Page' ) }
 					</Handoff>
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Notice/Modal' ) } />
 					<Button
 						className="is-centered"
@@ -137,7 +137,7 @@ class ComponentsDemo extends Component {
 						</Modal>
 					) }
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
 					<Button
 						onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
@@ -153,7 +153,7 @@ class ComponentsDemo extends Component {
 						/>
 					) }
 				</Card>
-				<Card noBackground>
+				<Card noBackground className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Plugin installer' ) } />
 					<PluginInstaller
 						plugins={ [
@@ -170,7 +170,7 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 				</Card>
-				<Card noBackground>
+				<Card noBackground className='muriel-grid-item'>
 					<PluginInstaller
 						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 						onStatus={ ( { complete, pluginInfo } ) => {
@@ -186,6 +186,7 @@ class ComponentsDemo extends Component {
 					onClick={ () => {
 						console.log( 'Install clicked' );
 					} }
+					className="muriel-grid-item"
 				/>
 				<ActionCard
 					title="Example Two"
@@ -198,12 +199,14 @@ class ComponentsDemo extends Component {
 					onSecondaryActionClick={ () => {
 						console.log( 'Delete clicked' );
 					} }
+					className="muriel-grid-item"
 				/>
 				<ActionCard
 					title="Example Three"
 					description="Waiting/in-progress state, no action button."
 					actionText="Installing..."
 					isWaiting
+					className="muriel-grid-item"
 				/>
 				<ActionCard
 					title="Example Four"
@@ -218,6 +221,7 @@ class ComponentsDemo extends Component {
 						</Fragment>
 					}
 					notificationLevel="error"
+					className="muriel-grid-item"
 				/>
 				<ActionCard
 					title="Example Five"
@@ -229,8 +233,9 @@ class ComponentsDemo extends Component {
 						</Fragment>
 					}
 					notificationLevel="warning"
+					className="muriel-grid-item"
 				/>
-				<ActionCard title="Example Six" description="Static text, no button" actionText="Active" />
+				<ActionCard title="Example Six" description="Static text, no button" actionText="Active" className="muriel-grid-item" />
 				<ActionCard
 					title="Example Seven"
 					description="Static text, secondary action button."
@@ -239,6 +244,7 @@ class ComponentsDemo extends Component {
 					onSecondaryActionClick={ () => {
 						console.log( 'Delete clicked' );
 					} }
+					className="muriel-grid-item"
 				/>
 				<ActionCard
 					title="Example Eight"
@@ -249,9 +255,10 @@ class ComponentsDemo extends Component {
 					} }
 					image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 					imageLink="https://wordpress.com"
+					className="muriel-grid-item"
 				/>
 				<FormattedHeader headerText={ __( 'Checklist' ) } />
-				<Checklist progressBarText={ __( 'Your setup list' ) }>
+				<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
 					<Task
 						title={ __( 'Set up membership' ) }
 						description={ __(
@@ -301,7 +308,7 @@ class ComponentsDemo extends Component {
 						onDismiss={ () => this.dismissCheckListItem( 3 ) }
 					/>
 				</Checklist>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Checkboxes' ) } />
 					<CheckboxControl
 						label={ __( 'Checkbox is tested?' ) }
@@ -324,7 +331,7 @@ class ComponentsDemo extends Component {
 						help="This is help text"
 					/>
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Image Uploader' ) } />
 					<ImageUpload
 						image={ this.state.image }
@@ -335,7 +342,7 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Text Inputs' ) } />
 					<TextControl
 						label={ __( 'Text Input with value' ) }
@@ -355,14 +362,14 @@ class ComponentsDemo extends Component {
 					/>
 					<TextControl label={ __( 'Text Input disabled' ) } disabled />
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText={ __( 'Progress bar' ) } />
 					<ProgressBar completed="2" total="3" />
 					<ProgressBar completed="2" total="5" label={ __( 'Progress made' ) } />
 					<ProgressBar completed="0" total="5" displayFraction />
 					<ProgressBar completed="3" total="8" label={ __( 'Progress made' ) } displayFraction />
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText="Select dropdowns" />
 					<SelectControl
 						label="Select with value"
@@ -395,7 +402,7 @@ class ComponentsDemo extends Component {
 						] }
 					/>
 				</Card>
-				<Card>
+				<Card className='muriel-grid-item'>
 					<FormattedHeader headerText="Buttons" />
 					<Button isPrimary className="is-centered">
 						Continue

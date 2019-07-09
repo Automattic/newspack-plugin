@@ -49,4 +49,25 @@
 			width: 100%;
 		}
 	}
+	&.muriel-grid-item {
+		max-width: none;
+		grid-column: 3 / span 8;
+		margin: 0;
+		margin-bottom: 10px;
+		@media screen and ( max-width: 1024px ) {
+			max-width: none;
+			grid-column: 2 / span 6;
+			&.muriel-card__no-background {
+				width: auto;
+			}
+		}
+		@media screen and ( max-width: 660px ) {
+			max-width: none;
+			grid-column: 1 / span 4;
+			&.muriel-card__no-background {
+				width: auto;
+
+			}
+		}
+	}
 }
