@@ -9,9 +9,4 @@
 .newspack-components-demo_logo {
 	display: block;
 	margin: 1em auto;
-	grid-column: 1 / -1;
-}
-
-.newspack-components-demo {
-	@include muriel-grid;
 }

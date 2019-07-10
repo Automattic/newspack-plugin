@@ -1,5 +1,5 @@
 /**
- * Muriel-styled Card.
+ * Muriel Grid Container
  */
 
 /**
@@ -17,20 +17,18 @@ import murielClassnames from '../../../shared/js/muriel-classnames';
  */
 import './style.scss';
 
-class Card extends Component {
+class Grid extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
-		const { className, noBackground, ...otherProps } = this.props;
+		const { className, ...otherProps } = this.props;
 		const classes = murielClassnames(
-			'muriel-card',
-			'muriel-grid-item',
+			'muriel-grid-container',
 			className,
-			noBackground && 'muriel-card__no-background'
 		);
 		return <div className={ classes } { ...otherProps } />;
 	}
 }
 
-export default Card;
+export default Grid;
