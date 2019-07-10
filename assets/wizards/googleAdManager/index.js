@@ -47,8 +47,8 @@ class GoogleAdManagerWizard extends Component {
 	 * Get the latest adUnits info.
 	 */
 	refreshAdUnits() {
-		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/adunits' } )
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/adunits' } )
 			.then( adUnits => {
 				const result = adUnits.reduce( ( result, value ) => {
 					result[ value.id ] = value;
@@ -75,10 +75,10 @@ class GoogleAdManagerWizard extends Component {
 	 * Save the fields to an ad unit.
 	 */
 	saveAdUnit( adUnit ) {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		const { id, name, code } = adUnit;
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/adunits',
 				method: 'post',
 				data: {
@@ -102,9 +102,9 @@ class GoogleAdManagerWizard extends Component {
 	 * @param int id Ad Unit ID.
 	 */
 	deleteAdUnit( id ) {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		if ( confirm( __( 'Are you sure you want to delete this ad unit?' ) ) ) {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/adunits/' + id,
 				method: 'delete',
 			} )
