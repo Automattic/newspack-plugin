@@ -5,14 +5,14 @@
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, render, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, Button } from '../../components/src';
 import ManageAdUnitsScreen from './views/manageAdUnitsScreen';
 import EditAdUnitScreen from './views/editAdUnitsScreen';
 
@@ -140,27 +140,36 @@ class GoogleAdManagerWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<ManageAdUnitsScreen
-								headerText={
-									Object.values( adUnits ).length
-										? __( 'Any more ad units to add?' )
-										: __( 'Add your first ad unit.' )
-								}
-								subHeaderText={ __(
-									'Paste your ad code from Google Ad Manager and give it a descriptive name.'
-								) }
-								adUnits={ Object.values( adUnits ) }
-								onClickDeleteAdUnit={ adUnit =>
-									this.deleteAdUnit( adUnit.id )
-								}
-								buttonText={
-									adUnits.length
-										? __( 'Add another ad unit' )
-										: __( 'Add an ad unit' )
-								}
-								buttonAction="#/create"
-								noBackground
-							/>
+							<Fragment>
+								<ManageAdUnitsScreen
+									headerText={
+										Object.values( adUnits ).length
+											? __( 'Any more ad units to add?' )
+											: __( 'Add your first ad unit.' )
+									}
+									subHeaderText={ __(
+										'Paste your ad code from Google Ad Manager and give it a descriptive name.'
+									) }
+									adUnits={ Object.values( adUnits ) }
+									onClickDeleteAdUnit={ adUnit =>
+										this.deleteAdUnit( adUnit.id )
+									}
+									buttonText={
+										adUnits.length
+											? __( 'Add another ad unit' )
+											: __( 'Add an ad unit' )
+									}
+									buttonAction="#/create"
+									noBackground
+								/>
+								<Button
+									isTertiary
+									className='is-centered'
+									href={ newspack_urls[ 'checklists' ][ 'advertising' ] }
+								>
+									{ __( 'Back to checklist' ) }
+								</Button>
+							</Fragment>
 						) }
 					/>
 					<Route
@@ -179,6 +188,7 @@ class GoogleAdManagerWizard extends Component {
 											);
 										} )
 									}
+									noBackground
 								/>
 							);
 						} }
@@ -205,6 +215,7 @@ class GoogleAdManagerWizard extends Component {
 											);
 										} )
 									}
+									noBackground
 								/>
 							);
 						} }
@@ -219,11 +230,7 @@ class GoogleAdManagerWizard extends Component {
 
 render(
 	createElement(
-		withWizard( GoogleAdManagerWizard ),
-		{
-			buttonText: __( 'Back to checklist' ),
-			buttonAction: newspack_urls[ 'checklists' ][ 'advertising' ],
-		}
+		withWizard( GoogleAdManagerWizard )
 	),
 	document.getElementById( 'newspack-google-ad-manager-wizard' )
 );
