@@ -46,16 +46,18 @@ class EditAdUnitScreen extends Component {
 		const editing_existing_ad_unit = !! id;
 		return (
 			<Fragment>
-				<TextControl
-					label={ __( 'What is this ad unit called?' ) }
-					value={ name }
-					onChange={ value => this.handleOnChange( 'name', value ) }
-				/>
-				<TextareaControl
-					label={ __( 'Paste the ad code from Google Ad Manager here' ) }
-					value={ code }
-					onChange={ value => this.handleOnChange( 'code', value ) }
-				/>
+				<Card>
+					<TextControl
+						label={ __( 'What is this ad unit called?' ) }
+						value={ name }
+						onChange={ value => this.handleOnChange( 'name', value ) }
+					/>
+					<TextareaControl
+						label={ __( 'Paste the ad code from Google Ad Manager here' ) }
+						value={ code }
+						onChange={ value => this.handleOnChange( 'code', value ) }
+					/>
+				</Card>
 				<Button isPrimary className="is-centered" onClick={ () => onClickSave( adUnit ) }>
 					{ __( 'Save' ) }
 				</Button>
