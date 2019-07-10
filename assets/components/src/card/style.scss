@@ -26,7 +26,7 @@
 		padding: 0;
 		max-width: 682px;
 	}
-	@media screen and ( max-width: 1024px ) {
+	@media screen and ( max-width: 1040px ) {
 		max-width: calc( 642px - 58px );
 		padding-left: 29px;
 		padding-right: 29px;
@@ -54,7 +54,7 @@
 		grid-column: 3 / span 8;
 		margin: 0;
 		margin-bottom: 10px;
-		@media screen and ( max-width: 1024px ) {
+		@media screen and ( max-width: 1040px ) {
 			max-width: none;
 			grid-column: 2 / span 6;
 			&.muriel-card__no-background {
