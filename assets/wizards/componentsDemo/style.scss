@@ -15,8 +15,3 @@
 .newspack-components-demo {
 	@include muriel-grid;
 }
-
-/* TODO: Determine a better solution for centering the container */
-#wpcontent {
-	padding-left: 0 !important;
-}
