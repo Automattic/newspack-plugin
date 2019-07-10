@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component, render, Fragment } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Dashicon } from '@wordpress/components';
 
@@ -81,9 +82,9 @@ class GoogleAdSenseWizard extends Component {
 	 * Mark this wizard as complete.
 	 */
 	markWizardComplete() {
-		const { setError, wizardApiFetch } = this.props;
+		const { setError } = this.props;
 		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
+			apiFetch( {
 				path: '/newspack/v1/wizards/google-adsense/complete',
 				method: 'post',
 				data: {},

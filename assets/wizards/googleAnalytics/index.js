@@ -14,6 +14,7 @@ import { Dashicon } from '@wordpress/components';
  * Internal dependencies
  */
 import { withWizard, FormattedHeader, Handoff } from '../../components/src';
+import GoogleAnalyticsSetup from './views/googleAnalyticsSetup';
 import './style.scss';
 
 /**
@@ -57,8 +58,8 @@ class GoogleAnalyticsWizard extends Component {
 	 * Get whether Analytics setup is complete.
 	 */
 	refreshComplete() {
-		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/newspack-google-analytics-wizard/analytics-setup-complete' } )
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-google-analytics-wizard/analytics-setup-complete' } )
 			.then( complete => {
 				return new Promise( resolve => {
 					this.setState(
@@ -111,25 +112,12 @@ class GoogleAnalyticsWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<Fragment>
-								<FormattedHeader
-									headerText={ __( 'Google Analytics' ) }
-									subHeaderText={ __( 'Connect to your Google Analytics account using the Site Kit plugin.' ) }
-								/>
-								{ complete && (
-									<div className='newspack-google-analytics-wizard__success'>
-										<Dashicon icon="yes-alt" />
-										<h4>{ __( 'Google Analytics is set up' ) }</h4>
-									</div>
-								) }
-								<Handoff
-									plugin='google-site-kit'
-									editLink='admin.php?page=googlesitekit-module-analytics'
-									className='is-centered'
-									isPrimary={ ! complete }
-									isDefault={ !! complete }
-								>{ complete ? __( 'Google Analytics Settings' ) : __( 'Set up Google Analytics' ) }</Handoff>
-							</Fragment>
+							<GoogleAnalyticsSetup
+								headerText={ __( 'Google Analytics' ) }
+								subHeaderText={ __( 'Connect to your Google Analytics account using the Site Kit plugin.' ) }
+								complete={ complete }
+								noBackground
+							/>
 						) }
 					/>
 				</Switch>
