@@ -245,7 +245,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 				$query->the_post();
 				$ad_units[] = [
 					'id'   => \get_the_ID(),
-					'name' => \get_the_title(),
+					'name' => html_entity_decode( \get_the_title() ),
 					'code' => \get_post_meta( get_the_ID(), 'newspack_ad_code', true ),
 				];
 			}
