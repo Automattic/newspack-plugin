@@ -10,7 +10,7 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Handoff } from '../';
+import { Button, Card, FormattedHeader, Handoff, Grid } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -40,16 +40,20 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
-					<Card noBackground>
-						{ headerText && (
-							<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
-						) }
-					</Card>
+					<Grid>
+						<Card noBackground>
+							{ headerText && (
+								<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+							) }
+						</Card>
+					</Grid>
 					{ !! noCard && content }
 					{ ! noCard && (
-						<Card className={ classes } noBackground={ noBackground }>
-							{ content }
-						</Card>
+						<Grid>
+							<Card className={ classes } noBackground={ noBackground }>
+								{ content }
+							</Card>
+						</Grid>
 					) }
 					{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
 						<Handoff
