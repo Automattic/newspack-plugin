@@ -188,7 +188,6 @@ class ComponentsDemo extends Component {
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
-						className="muriel-grid-item"
 					/>
 					<ActionCard
 						title="Example Two"
@@ -201,14 +200,12 @@ class ComponentsDemo extends Component {
 						onSecondaryActionClick={ () => {
 							console.log( 'Delete clicked' );
 						} }
-						className="muriel-grid-item"
 					/>
 					<ActionCard
 						title="Example Three"
 						description="Waiting/in-progress state, no action button."
 						actionText="Installing..."
 						isWaiting
-						className="muriel-grid-item"
 					/>
 					<ActionCard
 						title="Example Four"
@@ -223,7 +220,6 @@ class ComponentsDemo extends Component {
 							</Fragment>
 						}
 						notificationLevel="error"
-						className="muriel-grid-item"
 					/>
 					<ActionCard
 						title="Example Five"
@@ -235,9 +231,8 @@ class ComponentsDemo extends Component {
 							</Fragment>
 						}
 						notificationLevel="warning"
-						className="muriel-grid-item"
 					/>
-					<ActionCard title="Example Six" description="Static text, no button" actionText="Active" className="muriel-grid-item" />
+					<ActionCard title="Example Six" description="Static text, no button" actionText="Active" />
 					<ActionCard
 						title="Example Seven"
 						description="Static text, secondary action button."
@@ -246,7 +241,6 @@ class ComponentsDemo extends Component {
 						onSecondaryActionClick={ () => {
 							console.log( 'Delete clicked' );
 						} }
-						className="muriel-grid-item"
 					/>
 					<ActionCard
 						title="Example Eight"
@@ -257,7 +251,6 @@ class ComponentsDemo extends Component {
 						} }
 						image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 						imageLink="https://wordpress.com"
-						className="muriel-grid-item"
 					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
 					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
