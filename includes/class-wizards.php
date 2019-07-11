@@ -36,6 +36,7 @@ class Wizards {
 			'google-analytics'         => new Google_Analytics_Wizard(),
 			'components-demo'          => new Components_Demo(),
 			'performance'              => new Performance_Wizard(),
+			'mailchimp'                => new Mailchimp_Wizard(),
 		];
 	}
 

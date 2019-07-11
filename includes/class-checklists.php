@@ -50,6 +50,13 @@ class Checklists {
 					'google-ad-manager',
 				],
 			],
+			'engagement'     => [
+				'name'        => esc_html__( 'Engagement', 'newspack' ),
+				'description' => esc_html__( 'How do you want your audience to engage with your publication?', 'newspack' ),
+				'wizards'     => [
+					'mailchimp',
+				]
+			]
 		];
 
 		add_action( 'admin_menu', 'Newspack\Checklists::add_page' );
