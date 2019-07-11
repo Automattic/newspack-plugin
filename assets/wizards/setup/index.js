@@ -51,11 +51,11 @@ class SetupWizard extends Component {
 	};
 
 	updateProfile = () => {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		const { profile } = this.state;
 		const params = { path: '/newspack/v1/profile/', method: 'POST', data: { profile } };
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( params )
+			wizardApiFetch( params )
 				.then( response => {
 					const { profile } = response;
 					this.setState( { profile }, () => resolve( response ) );
@@ -69,10 +69,10 @@ class SetupWizard extends Component {
 	};
 
 	retrieveProfile = () => {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		const params = { path: '/newspack/v1/profile/', method: 'GET' };
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( params )
+			wizardApiFetch( params )
 				.then( response => {
 					const { profile, currencies, countries } = response;
 					this.setState( { profile, currencies, countries }, () => resolve( response ) );

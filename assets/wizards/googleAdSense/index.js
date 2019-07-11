@@ -14,6 +14,7 @@ import { Dashicon } from '@wordpress/components';
  * Internal dependencies
  */
 import { withWizard, FormattedHeader, Handoff } from '../../components/src';
+import AdSenseSetup from './views/adSenseSetup';
 import './style.scss';
 
 /**
@@ -57,8 +58,8 @@ class GoogleAdSenseWizard extends Component {
 	 * Get whether AdSense setup is complete.
 	 */
 	refreshComplete() {
-		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/newspack-google-adsense-wizard/adsense-setup-complete' } )
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-google-adsense-wizard/adsense-setup-complete' } )
 			.then( complete => {
 				return new Promise( resolve => {
 					this.setState(
@@ -111,25 +112,12 @@ class GoogleAdSenseWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<Fragment>
-								<FormattedHeader
-									headerText={ __( 'Google AdSense' ) }
-									subHeaderText={ __( 'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.' ) }
-								/>
-								{ complete && (
-									<div className='newspack-google-adsense-wizard__success'>
-										<Dashicon icon="yes-alt" />
-										<h4>{ __( 'AdSense is set up' ) }</h4>
-									</div>
-								) }
-								<Handoff
-									plugin='google-site-kit'
-									editLink='admin.php?page=googlesitekit-module-adsense'
-									className='is-centered'
-									isPrimary={ ! complete }
-									isDefault={ !! complete }
-								>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
-							</Fragment>
+							<AdSenseSetup
+								headerText={ __( 'Google AdSense' ) }
+								subHeaderText={ __( 'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.' ) }
+								complete={ complete }
+								noBackground
+							/>
 						) }
 					/>
 				</Switch>
