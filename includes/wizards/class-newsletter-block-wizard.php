@@ -1,6 +1,6 @@
 <?php
 /**
- * Mailchimp Wizard
+ * Mailchimp Block Wizard
  *
  * @package Newspack
  */
@@ -14,15 +14,15 @@ defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
- * Easy interface for setting up Mailchimp.
+ * Easy interface for setting up a newsletter subscriptions block.
  */
-class Mailchimp_Wizard extends Wizard {
+class Newsletter_Block_Wizard extends Wizard {
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-mailchimp-wizard';
+	protected $slug = 'newspack-newsletter-block-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -44,7 +44,7 @@ class Mailchimp_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Set up Mailchimp', 'newspack' );
+		return esc_html__( 'Set up newsletter subscriptions block', 'newspack' );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Mailchimp_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Connect your newsroom to Mailchimp.', 'newspack' );
+		return esc_html__( 'Create an effective lead capture to place throughout your site.', 'newspack' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Mailchimp_Wizard extends Wizard {
 	 * @return string The wizard length.
 	 */
 	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
+		return esc_html__( '2 minutes', 'newspack' );
 	}
 
 	/**
@@ -71,10 +71,10 @@ class Mailchimp_Wizard extends Wizard {
 	public function register_api_endpoints() {
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
-			'jetpack',
+			'connection-status',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_jetpack_mailchimp_settings' ],
+				'callback'            => [ $this, 'api_get_connection_status_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -86,7 +86,7 @@ class Mailchimp_Wizard extends Wizard {
 	 * @see jetpack/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-mailchimp.php
 	 * @return WP_REST_Response with the info.
 	 */
-	public function api_get_jetpack_mailchimp_settings() {
+	public function api_get_connection_status_settings() {
 		if ( ! class_exists( 'Jetpack_Options' ) ) {
 			return new WP_Error(
 				'newspack_missing_required_plugin',
@@ -138,20 +138,20 @@ class Mailchimp_Wizard extends Wizard {
 		}
 
 		wp_enqueue_script(
-			'newspack-mailchimp-wizard',
-			Newspack::plugin_url() . '/assets/dist/mailchimp.js',
+			'newspack-newsletter-block-wizard',
+			Newspack::plugin_url() . '/assets/dist/newsletterBlock.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/mailchimp.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.js' ),
 			true
 		);
 
 		wp_register_style(
-			'newspack-mailchimp-wizard',
-			Newspack::plugin_url() . '/assets/dist/mailchimp.css',
+			'newspack-newsletter-block-wizard',
+			Newspack::plugin_url() . '/assets/dist/newsletterBlock.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/mailchimp.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.css' )
 		);
-		wp_style_add_data( 'newspack-mailchimp-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-mailchimp-wizard' );
+		wp_style_add_data( 'newspack-newsletter-block-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-newsletter-block-wizard' );
 	}
 }

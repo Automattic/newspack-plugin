@@ -54,7 +54,7 @@ class Checklists {
 				'name'        => esc_html__( 'Engagement', 'newspack' ),
 				'description' => esc_html__( 'How do you want your audience to engage with your publication?', 'newspack' ),
 				'wizards'     => [
-					'mailchimp',
+					'newsletter-block',
 				]
 			]
 		];
