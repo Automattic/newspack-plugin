@@ -46,7 +46,7 @@ class Mailchimp_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Connect your newsroom and members to Mailchimp.', 'newspack' );
+		return esc_html__( 'Connect your newsroom and sync members to Mailchimp.', 'newspack' );
 	}
 
 	/**
