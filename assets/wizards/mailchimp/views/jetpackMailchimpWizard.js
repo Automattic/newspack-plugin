@@ -29,14 +29,16 @@ class JetpackMailchimpWizard extends Component {
 	render() {
 		const { connected, connectURL } = this.props;
 
+		const unconnectedContent = __( 'This feature connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter. The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com.' );
+		const connectedContent = __( 'You can insert newsletter sign up forms in your content using the Mailchimp block.' );
 		return (
 			<Fragment>
 				<Card className='newspack-mailchimp-wizard__jetpack-info'>
 					<p>
-						{ __( 'The Mailchimp connection to your site is managed through Jetpack and WordPress.com.' ) }
+						{ !! connected ? ( <strong>{ connectedContent }</strong> ) : unconnectedContent }
 					</p>
 					<p>
-						{ __( 'Click the link below to go set up your Mailchimp connection on WordPress.com.' ) }
+						{ __( 'Click the link below to set up and manage your site\'s Mailchimp connection on WordPress.com.' ) }
 					</p>
 				</Card>
 				{ !! connected && (
