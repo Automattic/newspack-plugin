@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import JetpackMailchimpWizard from './views/jetpackMailchimpWizard';
+import MailchimpConnectScreen from './views/mailchimpConnectScreen';
 import './style.scss';
 
 /**
@@ -31,14 +31,7 @@ class MailchimpWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			wizard: 'unknown',
-			jetpackSettings: {
-				connected: false,
-				connectURL: '',
-			},
-			woocommerceSettings: {
-
-			}
+			apiKey: '',
 		};
 	}
 
@@ -46,65 +39,26 @@ class MailchimpWizard extends Component {
 	 * Figure out whether to use the WooCommerce or Jetpack Mailchimp wizards and get appropriate settings.
 	 */
 	onWizardReady = () => {
-		this.determineWizard().then( () => this.getSettings() );
+		this.getSettings();
 	};
-
-	/**
-	 * Figure out whether to use the WooCommerce-based or Jetpack-based Mailchimp setup.
-	 */
-	determineWizard() {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( { path: '/newspack/v1/plugins/woocommerce' } )
-			.then( info => {
-				if ( 'active' === info['Status'] ) {
-					this.setState( {
-						wizard: 'woocommerce',
-					} );
-				} else {
-					this.setState( {
-						wizard: 'jetpack',
-					} );
-				}
-			} )
-			.catch( error => {
-				setError( error );
-			} );
-	}
 
 	/**
 	 * Get settings for the current wizard.
 	 */
 	getSettings() {
-		const { wizard } = this.state;
-		
-		if ( 'jetpack' === wizard ) {
-			this.getJetpackMailchimpSettings();
-		} else if ( 'woocommerce' === wizard ) {
-			this.getWooCommerceMailchimpSettings();
-		}
-	}
-
-	/**
-	 * Get Jetpack-based Mailchimp setup settings.
-	 */
-	getJetpackMailchimpSettings() {
+		/*
+		@todo Implement this endpoint on the backend.
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-mailchimp-wizard/jetpack' } )
-			.then( jetpackSettings => {
+		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-mailchimp-wizard/settings' } )
+			.then( settings => {
 				this.setState( {
-					jetpackSettings,
+					...settings,
 				} );
 			} )
 			.catch( error => {
 				setError( error );
 			} );
-	}
-
-	/**
-	 * Get WooCommerce-based Mailchimp setup settings.
-	 */
-	getWooCommerceMailchimpSettings() {
-		console.log( 'TODO' );
+		*/
 	}
 
 	/**
@@ -112,7 +66,7 @@ class MailchimpWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { wizard, jetpackSettings } = this.state;
+		const { apiKey } = this.state;
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -121,19 +75,16 @@ class MailchimpWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<Fragment>
-								{ 'jetpack' === wizard && (
-									<JetpackMailchimpWizard
-										headerText={ __( 'Set up Mailchimp' ) }
-										subHeaderText={ __( 'Integrate Mailchimp with your newsroom' ) }
-										noBackground
-										{ ...jetpackSettings }
-									/>
-								) }
-								{ 'woocommerce' === wizard && (
-									<h1>TODO: WooCommerce branch of the wizard</h1>
-								) }
-							</Fragment>
+							<MailchimpConnectScreen 
+								headerText={ __( 'Connect to Mailchimp' ) }
+								subHeaderText={ __( 'Provide your API key to connect Mailchimp to your site' ) }
+								onChange={ apiKey => this.setState( { apiKey } ) }
+								buttonText={ __( 'Continue' ) }
+								buttonAction={ () =>
+									console.log( 'Stay tuned for the next exciting episode!' )
+								}
+								apiKey={ apiKey }
+							/>
 						) }
 					/>
 					<Redirect to="/" />
@@ -144,7 +95,7 @@ class MailchimpWizard extends Component {
 }
 
 render(
-	createElement( withWizard( MailchimpWizard ), {
+	createElement( withWizard( MailchimpWizard, ['mailchimp-for-woocommerce'] ), {
 		buttonText: __( 'Back to checklist' ),
 		buttonAction: newspack_urls['checklists']['engagement'],
 	} ),

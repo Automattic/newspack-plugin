@@ -98,6 +98,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-one-page-checkout/',
 				'AuthorURI'   => 'http://prospress.com/',
 			],
+			'mailchimp-for-woocommerce'     => [
+				'Name'        => 'Mailchimp for WooCommerce',
+				'Description' => esc_html__( 'Connects WooCommerce to Mailchimp to sync your store data, send targeted campaigns to your customers, and sell more stuff.', 'newspack' ),
+				'Author'      => 'Mailchimp',
+				'AuthorURI'   => 'https://mailchimp.com',
+				'PluginURI'   => 'https://mailchimp.com/connect-your-store/',
+				'Download'    => 'wporg',
+			],
 			'wordpress-seo'                 => [
 				'Name'        => 'Yoast SEO',
 				'Description' => 'The first true all-in-one SEO solution for WordPress, including on-page content analysis, XML sitemaps and much more.',
@@ -118,13 +126,6 @@ class Plugin_Manager {
 					'filename'   => 'class-site-kit-configuration-manager.php',
 					'class_name' => 'Site_Kit_Configuration_Manager',
 				],
-			],
-			'pwa'                           => [
-				'Name'        => 'PWA',
-				'Description' => 'Feature plugin to bring Progressive Web App (PWA) capabilities to Core',
-				'Author'      => 'PWA Plugin Contributors',
-				'AuthorURI'   => 'https://github.com/xwp/pwa-wp/graphs/contributors',
-				'Download'    => 'wporg',
 			],
 			'gutenberg'                     => [
 				'Name'        => 'Gutenberg',
