@@ -155,6 +155,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_get_adunits() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
 		$ad_units = $this->get_ad_units();
 		return \rest_ensure_response( $ad_units );
 	}
@@ -192,6 +196,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Updated ad unit info.
 	 */
 	public function api_save_adunit( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
 		$params = $request->get_params();
 		$adunit = [
 			'id'   => 0,
@@ -215,7 +223,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean Delete success.
 	 */
 	public function api_delete_adunit( $request ) {
-
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
 		$params = $request->get_params();
 		$id     = $params['id'];
 
@@ -444,5 +455,25 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		);
 		\wp_style_add_data( 'newspack-google-ad-manager-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-google-ad-manager-wizard' );
+	}
+
+	/**
+	 * Check whether Newspack Google Ad Manager is installed and active.
+	 *
+	 * @return bool | WP_Error True on success, WP_Error on failure.
+	 */
+	protected function check_required_plugins_installed() {
+		if ( ! class_exists( 'Newspack_GAM_Model' ) ) {
+			return new WP_Error(
+				'newspack_missing_required_plugin',
+				esc_html__( 'The Newspack Google Ad Manager plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
+		}
+
+		return true;
 	}
 }
