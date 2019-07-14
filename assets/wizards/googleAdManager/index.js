@@ -66,7 +66,7 @@ class GoogleAdManagerWizard extends Component {
 				} );
 			} )
 			.catch( error => {
-				this.setError( error );
+				setError( error );
 			} );
 	}
 
@@ -111,7 +111,7 @@ class GoogleAdManagerWizard extends Component {
 					this.refreshAdUnits();
 				} )
 				.catch( error => {
-					this.setError( error );
+					setError( error );
 				} );
 		}
 	}
