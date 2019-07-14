@@ -219,6 +219,6 @@ class GoogleAdManagerWizard extends Component {
 }
 
 render(
-	createElement( withWizard( GoogleAdManagerWizard ) ),
+	createElement( withWizard( GoogleAdManagerWizard, [ 'newspack-gam' ] ) ),
 	document.getElementById( 'newspack-google-ad-manager-wizard' )
 );
