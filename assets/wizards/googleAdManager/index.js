@@ -25,7 +25,6 @@ import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
  * AdUnits wizard for managing and setting up adUnits.
  */
 class GoogleAdManagerWizard extends Component {
-
 	/**
 	 * Constructor.
 	 */
@@ -151,20 +150,16 @@ class GoogleAdManagerWizard extends Component {
 										'Paste your ad code from Google Ad Manager and give it a descriptive name.'
 									) }
 									adUnits={ Object.values( adUnits ) }
-									onClickDeleteAdUnit={ adUnit =>
-										this.deleteAdUnit( adUnit.id )
-									}
+									onClickDeleteAdUnit={ adUnit => this.deleteAdUnit( adUnit.id ) }
 									buttonText={
-										adUnits.length
-											? __( 'Add another ad unit' )
-											: __( 'Add an ad unit' )
+										adUnits.length ? __( 'Add another ad unit' ) : __( 'Add an ad unit' )
 									}
 									buttonAction="#/create"
 									noBackground
 								/>
 								<Button
 									isTertiary
-									className='is-centered'
+									className="is-centered"
 									href={ newspack_urls[ 'checklists' ][ 'advertising' ] }
 								>
 									{ __( 'Back to checklist' ) }
@@ -183,9 +178,7 @@ class GoogleAdManagerWizard extends Component {
 									onChange={ this.onAdUnitChange }
 									onClickSave={ adUnit =>
 										this.saveAdUnit( adUnit ).then( newAdUnit => {
-											return this.refreshAdUnits().then( () =>
-												routeProps.history.push( '/' )
-											);
+											return this.refreshAdUnits().then( () => routeProps.history.push( '/' ) );
 										} )
 									}
 									noBackground
@@ -210,9 +203,7 @@ class GoogleAdManagerWizard extends Component {
 									onChange={ this.onAdUnitChange }
 									onClickSave={ adUnit =>
 										this.saveAdUnit( adUnit ).then( newAdUnit => {
-											return this.refreshAdUnits().then( () =>
-												routeProps.history.push( '/' )
-											);
+											return this.refreshAdUnits().then( () => routeProps.history.push( '/' ) );
 										} )
 									}
 									noBackground
@@ -225,12 +216,9 @@ class GoogleAdManagerWizard extends Component {
 			</HashRouter>
 		);
 	}
-
 }
 
 render(
-	createElement(
-		withWizard( GoogleAdManagerWizard )
-	),
+	createElement( withWizard( GoogleAdManagerWizard ) ),
 	document.getElementById( 'newspack-google-ad-manager-wizard' )
 );
