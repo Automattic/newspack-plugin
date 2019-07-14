@@ -108,13 +108,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_save_adunit' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id'        => [
+					'id'   => [
 						'sanitize_callback' => 'absint',
 					],
-					'name'      => [
+					'name' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'code'     => [
+					'code' => [
 						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
 					],
 				],
@@ -142,7 +142,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * Insert the AMP Ad component JS if there are ads configured.
 	 */
 	public function amp_post_template_head() {
-		if ( empty( $this->_get_ad_units() ) ) {
+		if ( empty( $this->get_ad_unit() ) ) {
 			return;
 		}
 
@@ -155,7 +155,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_get_adunits() {
-		$ad_units = $this->_get_ad_units();
+		$ad_units = $this->get_ad_units();
 		return \rest_ensure_response( $ad_units );
 	}
 
@@ -167,10 +167,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 */
 	public function api_get_adunit( $request ) {
 
-		$params  = $request->get_params();
-		$id      = $params['id'];
+		$params = $request->get_params();
+		$id     = $params['id'];
 
-		$ad_units = $this->_get_ad_units();
+		$ad_units = $this->get_ad_units();
 		if ( ! empty( $ad_units ) && isset( $ad_units[ $id ] ) ) {
 			return \rest_ensure_response( $ad_units[ $id ] );
 		} else {
@@ -192,18 +192,18 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Updated ad unit info.
 	 */
 	public function api_save_adunit( $request ) {
-		$params   = $request->get_params();
-		$defaults = $adunit = [
+		$params = $request->get_params();
+		$adunit = [
 			'id'   => 0,
 			'name' => '',
 			'code' => '',
 		];
-		$args     = \wp_parse_args( $params, $defaults );
+		$args   = \wp_parse_args( $params, $adunit );
 
 		// Update and existing or add a new ad unit.
 		$adunit = ( 0 === $args['id'] )
-			? $this->_add_ad_unit( $args )
-			: $this->_update_ad_unit( $args );
+			? $this->add_ad_unit( $args )
+			: $this->update_ad_unit( $args );
 
 		return \rest_ensure_response( $adunit );
 	}
@@ -216,14 +216,14 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 */
 	public function api_delete_adunit( $request ) {
 
-		$params  = $request->get_params();
-		$id      = $params['id'];
+		$params = $request->get_params();
+		$id     = $params['id'];
 
-		$ad_unit = $this->_get_ad_unit( $id );
+		$ad_unit = $this->get_ad_unit( $id );
 		if ( \is_wp_error( $ad_unit ) ) {
 			$response = $ad_unit;
 		} else {
-			$response = $this->_delete_ad_unit( $id );
+			$response = $this->delete_ad_unit( $id );
 		}
 
 		return \rest_ensure_response( $response );
@@ -232,12 +232,12 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	/**
 	 * Get the ad units from our saved option.
 	 */
-	private function _get_ad_units(){
-		$ad_units = [];
-		$args = [
-			'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
-			'posts_per_page' => -1,
-		];
+	private function get_ad_units() {
+		$ad_units = array();
+		$args     = array(
+			'post_type'      => 'newspack_ad_codes',
+			'posts_per_page' => 100,
+		);
 
 		$query = new \WP_Query( $args );
 		if ( $query->have_posts() ) {
@@ -256,12 +256,14 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	/**
 	 * Get a single ad unit.
+	 *
+	 * @param number $id The id of the ad unit to retrieve.
 	 */
-	private function _get_ad_unit( $id ) {
+	private function get_ad_unit( $id ) {
 		$ad_unit = \get_post( $id );
 		if ( is_a( $ad_unit, 'WP_Post' ) ) {
 			return [
-				'id' => $ad_unit->ID,
+				'id'   => $ad_unit->ID,
 				'name' => $ad_unit->post_title,
 				'code' => \get_post_meta( $ad_unit->ID, 'newspack_ad_code', true ),
 			];
@@ -278,17 +280,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	/**
 	 * Add a new ad unit.
-	 * @param array $ad_unit {
-	 * 		The new ad unit info to add.
 	 *
-	 * 		@type string $name A descriptive name for the ad unit.
-	 * 		@type string $code The actual pasted ad code.
-	 * }
+	 * @param array $ad_unit The new ad unit info to add.
 	 */
-	private function _add_ad_unit( $ad_unit ) {
+	private function add_ad_unit( $ad_unit ) {
 
 		// Sanitise the values.
-		$ad_unit = $this->_sanitise_ad_unit( $ad_unit );
+		$ad_unit = $this->sanitise_ad_unit( $ad_unit );
 		if ( \is_wp_error( $ad_unit ) ) {
 			return $ad_unit;
 		}
@@ -297,8 +295,8 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		$ad_unit_post = \wp_insert_post(
 			[
 				'post_author' => \get_current_user_id(),
-				'post_title' => $ad_unit['name'],
-				'post_type' => \Newspack\Model\GoogleAdManager\POST_TYPE,
+				'post_title'  => $ad_unit['name'],
+				'post_type'   => 'newspack_ad_codes',
 				'post_status' => 'publish',
 			]
 		);
@@ -316,17 +314,22 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		\add_post_meta( $ad_unit_post, 'newspack_ad_code', $ad_unit['code'] );
 
 		return [
-			'id' => $ad_unit_post,
+			'id'   => $ad_unit_post,
 			'name' => $ad_unit['name'],
 			'code' => $ad_unit['code'],
 		];
 
 	}
 
-	private function _update_ad_unit( $ad_unit ) {
+	/**
+	 * Update an ad unit
+	 *
+	 * @param array $ad_unit The updated ad unit.
+	 */
+	private function update_ad_unit( $ad_unit ) {
 
 		// Sanitise the values.
-		$ad_unit = $this->_sanitise_ad_unit( $ad_unit );
+		$ad_unit = $this->sanitise_ad_unit( $ad_unit );
 		if ( \is_wp_error( $ad_unit ) ) {
 			return $ad_unit;
 		}
@@ -342,21 +345,28 @@ class Google_Ad_Manager_Wizard extends Wizard {
 			);
 		}
 
-		\wp_update_post( [
-			'ID' => $ad_unit['id'],
-			'post_title' => $ad_unit['name'],
-		] );
+		\wp_update_post(
+			array(
+				'ID'         => $ad_unit['id'],
+				'post_title' => $ad_unit['name'],
+			)
+		);
 		\update_post_meta( $ad_unit['id'], 'newspack_ad_code', $ad_unit['code'] );
 
-		return [
-			'id' => $ad_unit['id'],
+		return array(
+			'id'   => $ad_unit['id'],
 			'name' => $ad_unit['name'],
 			'code' => $ad_unit['code'],
-		];
+		);
 
 	}
 
-	private function _delete_ad_unit( $id ) {
+	/**
+	 * Delete an ad unit
+	 *
+	 * @param integer $id The id of the ad unit to delete.
+	 */
+	private function delete_ad_unit( $id ) {
 
 		$ad_unit_post = \get_post( $id );
 		if ( ! is_a( $ad_unit_post, 'WP_Post' ) ) {
@@ -374,7 +384,12 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 	}
 
-	private function _sanitise_ad_unit( $ad_unit ) {
+	/**
+	 * Sanitize an ad unit.
+	 *
+	 * @param array $ad_unit The ad unit to sanitize.
+	 */
+	private function sanitise_ad_unit( $ad_unit ) {
 
 		if (
 			! array_key_exists( 'name', $ad_unit ) ||
