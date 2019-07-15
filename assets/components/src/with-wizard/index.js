@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller } from '../';
+import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller, Grid } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -195,7 +195,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				return <Redirect from="/plugin-requirements" to="/" />;
 			}
 			return (
-				<Fragment>
+				<Grid>
 					<Route
 						path="/"
 						render={ routeProps => (
@@ -213,7 +213,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							</Card>
 						) }
 					/>
-				</Fragment>
+				</Grid>
 			);
 		};
 

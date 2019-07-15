@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -22,8 +23,9 @@ class Tier extends Component {
 	render() {
 		const { items } = this.props;
 
+		const classes = classnames( 'newspack-dashboard-tier', 'muriel-grid-container', 'items-' + items.length );
 		return (
-			<div className="newspack-dashboard-tier">
+			<div className={ classes }>
 				{ items.map( card => (
 					<DashboardCard { ...card } key={ card.slug } />
 				) ) }
