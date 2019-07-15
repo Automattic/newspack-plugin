@@ -37,7 +37,6 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		\add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		\add_action( 'amp_post_template_head', [ $this, 'amp_post_template_head' ] );
 	}
 
 	/**
@@ -139,28 +138,13 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	}
 
 	/**
-	 * Insert the AMP Ad component JS if there are ads configured.
-	 */
-	public function amp_post_template_head() {
-		if ( empty( $this->get_ad_unit() ) ) {
-			return;
-		}
-
-		echo '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>';
-	}
-
-	/**
 	 * Get the Ad Manager ad units.
 	 *
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_get_adunits() {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
-		$ad_units = $this->get_ad_units();
-		return \rest_ensure_response( $ad_units );
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+		return \rest_ensure_response( $configuration_manager->get_ad_units() );
 	}
 
 	/**
@@ -170,23 +154,12 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad unit info.
 	 */
 	public function api_get_adunit( $request ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
 
 		$params = $request->get_params();
 		$id     = $params['id'];
 
-		$ad_units = $this->get_ad_units();
-		if ( ! empty( $ad_units ) && isset( $ad_units[ $id ] ) ) {
-			return \rest_ensure_response( $ad_units[ $id ] );
-		} else {
-			return new WP_Error(
-				'newspack_rest_invalid_adunit',
-				\esc_html__( 'Ad unit does not exist.', 'newspack' ),
-				[
-					'status' => 404,
-				]
-			);
-		}
-
+		return \rest_ensure_response( $configuration_manager->get_ad_unit( $id ) );
 	}
 
 	/**
@@ -196,10 +169,8 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Updated ad unit info.
 	 */
 	public function api_save_adunit( $request ) {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+
 		$params = $request->get_params();
 		$adunit = [
 			'id'   => 0,
@@ -210,8 +181,8 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		// Update and existing or add a new ad unit.
 		$adunit = ( 0 === $args['id'] )
-			? $this->add_ad_unit( $args )
-			: $this->update_ad_unit( $args );
+			? $configuration_manager->add_ad_unit( $args )
+			: $configuration_manager->update_ad_unit( $args );
 
 		return \rest_ensure_response( $adunit );
 	}
@@ -223,210 +194,12 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean Delete success.
 	 */
 	public function api_delete_adunit( $request ) {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+
 		$params = $request->get_params();
 		$id     = $params['id'];
 
-		$ad_unit = $this->get_ad_unit( $id );
-		if ( \is_wp_error( $ad_unit ) ) {
-			$response = $ad_unit;
-		} else {
-			$response = $this->delete_ad_unit( $id );
-		}
-
-		return \rest_ensure_response( $response );
-	}
-
-	/**
-	 * Get the ad units from our saved option.
-	 */
-	private function get_ad_units() {
-		$ad_units = array();
-		$args     = array(
-			'post_type'      => 'newspack_ad_codes',
-			'posts_per_page' => 100,
-		);
-
-		$query = new \WP_Query( $args );
-		if ( $query->have_posts() ) {
-			while ( $query->have_posts() ) {
-				$query->the_post();
-				$ad_units[] = [
-					'id'   => \get_the_ID(),
-					'name' => html_entity_decode( \get_the_title() ),
-					'code' => \get_post_meta( get_the_ID(), 'newspack_ad_code', true ),
-				];
-			}
-		}
-
-		return $ad_units;
-	}
-
-	/**
-	 * Get a single ad unit.
-	 *
-	 * @param number $id The id of the ad unit to retrieve.
-	 */
-	private function get_ad_unit( $id ) {
-		$ad_unit = \get_post( $id );
-		if ( is_a( $ad_unit, 'WP_Post' ) ) {
-			return [
-				'id'   => $ad_unit->ID,
-				'name' => $ad_unit->post_title,
-				'code' => \get_post_meta( $ad_unit->ID, 'newspack_ad_code', true ),
-			];
-		} else {
-			return new WP_Error(
-				'newspack_no_adspot_found',
-				\esc_html__( 'No such ad spot.', 'newspack' ),
-				[
-					'status' => '400',
-				]
-			);
-		}
-	}
-
-	/**
-	 * Add a new ad unit.
-	 *
-	 * @param array $ad_unit The new ad unit info to add.
-	 */
-	private function add_ad_unit( $ad_unit ) {
-
-		// Sanitise the values.
-		$ad_unit = $this->sanitise_ad_unit( $ad_unit );
-		if ( \is_wp_error( $ad_unit ) ) {
-			return $ad_unit;
-		}
-
-		// Save the ad unit.
-		$ad_unit_post = \wp_insert_post(
-			[
-				'post_author' => \get_current_user_id(),
-				'post_title'  => $ad_unit['name'],
-				'post_type'   => 'newspack_ad_codes',
-				'post_status' => 'publish',
-			]
-		);
-		if ( \is_wp_error( $ad_unit_post ) ) {
-			return new WP_Error(
-				'newspack_ad_unit_exists',
-				\esc_html__( 'An ad unit with that name already exists', 'newspack' ),
-				[
-					'status' => '400',
-				]
-			);
-		}
-
-		// Add the code to our new post.
-		\add_post_meta( $ad_unit_post, 'newspack_ad_code', $ad_unit['code'] );
-
-		return [
-			'id'   => $ad_unit_post,
-			'name' => $ad_unit['name'],
-			'code' => $ad_unit['code'],
-		];
-
-	}
-
-	/**
-	 * Update an ad unit
-	 *
-	 * @param array $ad_unit The updated ad unit.
-	 */
-	private function update_ad_unit( $ad_unit ) {
-
-		// Sanitise the values.
-		$ad_unit = $this->sanitise_ad_unit( $ad_unit );
-		if ( \is_wp_error( $ad_unit ) ) {
-			return $ad_unit;
-		}
-
-		$ad_unit_post = \get_post( $ad_unit['id'] );
-		if ( ! is_a( $ad_unit_post, 'WP_Post' ) ) {
-			return new WP_Error(
-				'newspack_ad_unit_not_exists',
-				\esc_html__( "Can't update an ad unit that doesn't already exist", 'newspack' ),
-				[
-					'status' => '400',
-				]
-			);
-		}
-
-		\wp_update_post(
-			array(
-				'ID'         => $ad_unit['id'],
-				'post_title' => $ad_unit['name'],
-			)
-		);
-		\update_post_meta( $ad_unit['id'], 'newspack_ad_code', $ad_unit['code'] );
-
-		return array(
-			'id'   => $ad_unit['id'],
-			'name' => $ad_unit['name'],
-			'code' => $ad_unit['code'],
-		);
-
-	}
-
-	/**
-	 * Delete an ad unit
-	 *
-	 * @param integer $id The id of the ad unit to delete.
-	 */
-	private function delete_ad_unit( $id ) {
-
-		$ad_unit_post = \get_post( $id );
-		if ( ! is_a( $ad_unit_post, 'WP_Post' ) ) {
-			return new WP_Error(
-				'newspack_ad_unit_not_exists',
-				\esc_html__( "Can't update an ad unit that doesn't already exist", 'newspack' ),
-				[
-					'status' => '400',
-				]
-			);
-		} else {
-			\wp_delete_post( $id );
-			return true;
-		}
-
-	}
-
-	/**
-	 * Sanitize an ad unit.
-	 *
-	 * @param array $ad_unit The ad unit to sanitize.
-	 */
-	private function sanitise_ad_unit( $ad_unit ) {
-
-		if (
-			! array_key_exists( 'name', $ad_unit ) ||
-			! array_key_exists( 'code', $ad_unit )
-		) {
-			return new WP_Error(
-				'newspack_invalid_ad_unit_data',
-				\esc_html__( 'Ad spot data is invalid - name or code is missing!' ),
-				[
-					'status' => '400',
-				]
-			);
-		}
-
-		$sanitised_ad_unit = [
-			'name' => \esc_html( $ad_unit['name'] ),
-			'code' => $ad_unit['code'], // esc_js( $ad_unit['code'] ), @todo If a `script` tag goes here, esc_js is the wrong function to use.
-
-		];
-
-		if ( isset( $ad_unit['id'] ) ) {
-			$sanitised_ad_unit['id'] = (int) $ad_unit['id'];
-		}
-
-		return $sanitised_ad_unit;
-
+		return \rest_ensure_response( $configuration_manager->delete_ad_unit( $id ) );
 	}
 
 	/**
@@ -455,25 +228,5 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		);
 		\wp_style_add_data( 'newspack-google-ad-manager-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-google-ad-manager-wizard' );
-	}
-
-	/**
-	 * Check whether Newspack Google Ad Manager is installed and active.
-	 *
-	 * @return bool | WP_Error True on success, WP_Error on failure.
-	 */
-	protected function check_required_plugins_installed() {
-		if ( ! class_exists( 'Newspack_GAM_Model' ) ) {
-			return new WP_Error(
-				'newspack_missing_required_plugin',
-				esc_html__( 'The Newspack Google Ad Manager plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
-				[
-					'status' => 400,
-					'level'  => 'fatal',
-				]
-			);
-		}
-
-		return true;
 	}
 }
