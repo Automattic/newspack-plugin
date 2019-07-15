@@ -18,21 +18,21 @@ class Newspack_Test_Ad_Manager_Wizard extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->wizard = Wizards::get_wizard( 'google-ad-manager' );
-		$reflection = new ReflectionClass( 'Newspack\Google_Ad_Manager_Wizard' );
+		$reflection   = new ReflectionClass( 'Newspack\Google_Ad_Manager_Wizard' );
 
-		$this->get_ad_units = $reflection->getMethod( '_get_ad_units' );
+		$this->get_ad_units = $reflection->getMethod( 'get_ad_units' );
 		$this->get_ad_units->setAccessible( true );
 
-		$this->get_ad_unit = $reflection->getMethod( '_get_ad_unit' );
+		$this->get_ad_unit = $reflection->getMethod( 'get_ad_unit' );
 		$this->get_ad_unit->setAccessible( true );
 
-		$this->add_ad_unit = $reflection->getMethod( '_add_ad_unit' );
+		$this->add_ad_unit = $reflection->getMethod( 'add_ad_unit' );
 		$this->add_ad_unit->setAccessible( true );
 
-		$this->update_ad_unit = $reflection->getMethod( '_update_ad_unit' );
+		$this->update_ad_unit = $reflection->getMethod( 'update_ad_unit' );
 		$this->update_ad_unit->setAccessible( true );
 
-		$this->delete_ad_unit = $reflection->getMethod( '_delete_ad_unit' );
+		$this->delete_ad_unit = $reflection->getMethod( 'delete_ad_unit' );
 		$this->delete_ad_unit->setAccessible( true );
 	}
 
@@ -65,7 +65,7 @@ class Newspack_Test_Ad_Manager_Wizard extends WP_UnitTestCase {
 
 		$result = $this->add_ad_unit->invokeArgs( $this->wizard, [ $unit ] );
 
-		$update = $result;
+		$update         = $result;
 		$update['name'] = 'new test';
 		$update['code'] = '<script>console.log("updated");</script>';
 
