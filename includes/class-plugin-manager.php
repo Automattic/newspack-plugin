@@ -27,7 +27,7 @@ class Plugin_Manager {
 		$managed_plugins = [
 			'newspack-blocks'               => [
 				'Name'        => esc_html__( 'Newspack Blocks', 'newspack' ),
-				'Description' => esc_html__( 'Google Ad Manager integration.' ),
+				'Description' => esc_html__( 'A collection of blocks for news publishers.' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
@@ -35,7 +35,7 @@ class Plugin_Manager {
 			],
 			'newspack-gam'                  => [
 				'Name'        => esc_html__( 'Newspack Google Ad Manager', 'newspack' ),
-				'Description' => esc_html__( 'A collection of blocks for news publishers.' ),
+				'Description' => esc_html__( 'Google Ad Manager integration.' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
