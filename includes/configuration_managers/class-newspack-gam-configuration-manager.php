@@ -26,7 +26,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Get whether the Site Kit plugin is active and set up.
 	 *
-	 * @return bool Whether Site Kit is active and set up.
+	 * @return bool Whether Newspack Google Ad Manager is installed and activated.
 	 */
 	public function is_configured() {
 		return class_exists( 'Newspack_GAM_Model' );
@@ -34,6 +34,8 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 
 	/**
 	 * Get the ad units from our saved option.
+	 *
+	 * @return array | WP_Error Array of ad units or WP_Error if Newspack Google Ad Manager isn't installed and activated.
 	 */
 	public function get_ad_units() {
 		return $this->is_configured() ?
@@ -45,6 +47,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 * Get a single ad unit.
 	 *
 	 * @param number $id The id of the ad unit to retrieve.
+	 * @return array | WP_Error Returns ad unit or error if the plugin is not active or the ad unit doesn't exist.
 	 */
 	public function get_ad_unit( $id ) {
 		return $this->is_configured() ?
@@ -56,6 +59,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 * Add a new ad unit.
 	 *
 	 * @param array $ad_unit The new ad unit info to add.
+	 * @return array | WP_Error Returns new ad unit or error if the plugin is not active or the ad unit exists already.
 	 */
 	public function add_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
@@ -67,6 +71,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 * Update an ad unit
 	 *
 	 * @param array $ad_unit The updated ad unit.
+	 * @return array | WP_Error Returns updated ad unit or error if the plugin is not active or the ad unit doesn't exist.
 	 */
 	public function update_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
@@ -78,6 +83,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 * Delete an ad unit
 	 *
 	 * @param integer $id The id of the ad unit to delete.
+	 * @return bool | WP_Error Returns true if deletion is successful, of error if the plugin is not active or the ad unit doesn't exist.
 	 */
 	public function delete_ad_unit( $id ) {
 		return $this->is_configured() ?
