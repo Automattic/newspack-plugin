@@ -107,13 +107,16 @@ class Google_Ad_Manager_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_save_adunit' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id'   => [
+					'id'          => [
 						'sanitize_callback' => 'absint',
 					],
-					'name' => [
+					'name'        => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'code' => [
+					'ad_code'     => [
+						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
+					],
+					'amp_ad_code' => [
 						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
 					],
 				],
@@ -173,9 +176,10 @@ class Google_Ad_Manager_Wizard extends Wizard {
 
 		$params = $request->get_params();
 		$adunit = [
-			'id'   => 0,
-			'name' => '',
-			'code' => '',
+			'id'          => 0,
+			'name'        => '',
+			'ad_code'     => '',
+			'amp_ad_code' => '',
 		];
 		$args   = \wp_parse_args( $params, $adunit );
 

@@ -41,7 +41,7 @@ class EditAdUnitScreen extends Component {
 	 */
 	render() {
 		const { adUnit, onClickSave } = this.props;
-		const { id, name, code } = adUnit;
+		const { id, name, ad_code, amp_ad_code } = adUnit;
 
 		const editing_existing_ad_unit = !! id;
 		return (
@@ -54,8 +54,13 @@ class EditAdUnitScreen extends Component {
 					/>
 					<TextareaControl
 						label={ __( 'Paste the ad code from Google Ad Manager here' ) }
-						value={ code }
-						onChange={ value => this.handleOnChange( 'code', value ) }
+						value={ ad_code }
+						onChange={ value => this.handleOnChange( 'ad_code', value ) }
+					/>
+					<TextareaControl
+						label={ __( 'AMP Code' ) }
+						value={ amp_ad_code }
+						onChange={ value => this.handleOnChange( 'amp_ad_code', value ) }
 					/>
 				</Card>
 				<Button isPrimary className="is-centered" onClick={ () => onClickSave( adUnit ) }>

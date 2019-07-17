@@ -75,7 +75,7 @@ class GoogleAdManagerWizard extends Component {
 	 */
 	saveAdUnit( adUnit ) {
 		const { setError, wizardApiFetch } = this.props;
-		const { id, name, code } = adUnit;
+		const { id, name, ad_code, amp_ad_code } = adUnit;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/adunits',
@@ -83,7 +83,8 @@ class GoogleAdManagerWizard extends Component {
 				data: {
 					id,
 					name,
-					code,
+					ad_code,
+					amp_ad_code,
 				},
 			} )
 				.then( adUnit => {
@@ -197,7 +198,8 @@ class GoogleAdManagerWizard extends Component {
 										adUnits[ 0 ] || {
 											id: 0,
 											name: '',
-											code: '',
+											ad_code: '',
+											amp_ad_code: '',
 										}
 									}
 									onChange={ this.onAdUnitChange }
