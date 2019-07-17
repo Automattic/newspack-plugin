@@ -1,6 +1,6 @@
 <?php
 /**
- * Site Kit plugin configuration manager.
+ * Newspack Ads Configuration Manager
  *
  * @package Newspack
  */
@@ -12,34 +12,34 @@ defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/configuration_managers/class-configuration-manager.php';
 
 /**
- * Provide an interface for configuring and querying the configuration of Google Site Kit.
+ * Provide an interface for configuring and querying the configuration of Newspack Ads.
  */
-class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
+class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 
 	/**
 	 * The slug of the plugin.
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-gam';
+	public $slug = 'newspack-ads';
 
 	/**
 	 * Get whether the Site Kit plugin is active and set up.
 	 *
-	 * @return bool Whether Newspack Google Ad Manager is installed and activated.
+	 * @return bool Whether Newspack Ads is installed and activated.
 	 */
 	public function is_configured() {
-		return class_exists( 'Newspack_GAM_Model' );
+		return class_exists( 'Newspack_Ads_Model' );
 	}
 
 	/**
 	 * Get the ad units from our saved option.
 	 *
-	 * @return array | WP_Error Array of ad units or WP_Error if Newspack Google Ad Manager isn't installed and activated.
+	 * @return array | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.
 	 */
 	public function get_ad_units() {
 		return $this->is_configured() ?
-			\Newspack_GAM_Model::get_ad_units() :
+			\Newspack_Ads_Model::get_ad_units() :
 			$this->unconfigured_error();
 	}
 
@@ -51,7 +51,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_ad_unit( $id ) {
 		return $this->is_configured() ?
-			\Newspack_GAM_Model::get_ad_unit( $id ) :
+			\Newspack_Ads_Model::get_ad_unit( $id ) :
 			$this->unconfigured_error();
 	}
 
@@ -63,7 +63,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function add_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
-			\Newspack_GAM_Model::add_ad_unit( $ad_unit ) :
+			\Newspack_Ads_Model::add_ad_unit( $ad_unit ) :
 			$this->unconfigured_error();
 	}
 
@@ -75,7 +75,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function update_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
-			\Newspack_GAM_Model::update_ad_unit( $ad_unit ) :
+			\Newspack_Ads_Model::update_ad_unit( $ad_unit ) :
 			$this->unconfigured_error();
 	}
 
@@ -87,7 +87,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function delete_ad_unit( $id ) {
 		return $this->is_configured() ?
-			\Newspack_GAM_Model::delete_ad_unit( $id ) :
+			\Newspack_Ads_Model::delete_ad_unit( $id ) :
 			$this->unconfigured_error();
 	}
 
@@ -99,7 +99,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	private function unconfigured_error() {
 		return new \WP_Error(
 			'newspack_missing_required_plugin',
-			esc_html__( 'The Newspack Google Ad Manager plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+			esc_html__( 'The Newspack Ads plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
 			[
 				'status' => 400,
 				'level'  => 'fatal',
@@ -108,8 +108,7 @@ class Newspack_GAM_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Configure Site Kit for Newspack use.
-	 * This can't actually do anything, since Site Kit is partially set up in Google.
+	 * Configure Newspack Ads for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.
 	 */

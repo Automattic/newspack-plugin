@@ -31,15 +31,15 @@ class Plugin_Manager {
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-gam/releases/latest/download/newspack-gam.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-blocks/releases/latest/download/newspack-blocks.zip',
 			],
-			'newspack-gam'                  => [
-				'Name'        => esc_html__( 'Newspack Google Ad Manager', 'newspack' ),
-				'Description' => esc_html__( 'Google Ad Manager integration.' ),
+			'newspack-ads'                  => [
+				'Name'        => esc_html__( 'Newspack Ads', 'newspack' ),
+				'Description' => esc_html__( 'Ads integration.' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-blocks/releases/latest/download/newspack-blocks.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/latest/download/newspack-ads.zip',
 			],
 			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
