@@ -36,6 +36,10 @@ class Configuration_Managers {
 			'filename'   => 'class-progressive-wp-configuration-manager.php',
 			'class_name' => 'Progressive_WP_Configuration_Manager',
 		],
+		'newspack-gam'    => [
+			'filename'   => 'class-newspack-gam-configuration-manager.php',
+			'class_name' => 'Newspack_GAM_Configuration_Manager',
+		],
 	];
 
 	/**

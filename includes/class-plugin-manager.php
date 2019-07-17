@@ -23,12 +23,19 @@ class Plugin_Manager {
 	 *
 	 * @return array of plugins info.
 	 */
-
 	public static function get_managed_plugins() {
 		$managed_plugins = [
 			'newspack-blocks'               => [
 				'Name'        => esc_html__( 'Newspack Blocks', 'newspack' ),
 				'Description' => esc_html__( 'A collection of blocks for news publishers.' ),
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-gam/releases/latest/download/newspack-gam.zip',
+			],
+			'newspack-gam'                  => [
+				'Name'        => esc_html__( 'Newspack Google Ad Manager', 'newspack' ),
+				'Description' => esc_html__( 'Google Ad Manager integration.' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
