@@ -13,7 +13,7 @@
 			"xwp/wp-dev-lib": "^1.0"
 	},
 	"require-dev": {
-			"automattic/vipwpcs": "^0.4.0",
+			"automattic/vipwpcs": "^2.0.0",
 			"wp-coding-standards/wpcs": "*",
 			"dealerdirect/phpcodesniffer-composer-installer": "*",
 			"phpcompatibility/phpcompatibility-wp": "*"
