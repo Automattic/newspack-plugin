@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
@@ -27,6 +28,10 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				noBackground,
 				noCard,
 				tabbedNavigation,
+				footer,
+				secondaryButtonText,
+				secondaryButtonAction,
+				secondaryButtonStyle,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
@@ -80,6 +85,22 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						>
 							{ buttonText }
 						</Button>
+					) }
+					{ ( footer || secondaryButtonText ) && (
+						<Grid>
+							<Card className="is-centered" noBackground>
+								{ footer }
+								{ secondaryButtonText && (
+									<Button
+										{ ...secondaryButtonStyle }
+										className="is-centered"
+										{ ...buttonProps( secondaryButtonAction ) }
+									>
+										{ secondaryButtonText }
+									</Button>
+								) }
+							</Card>
+						</Grid>
 					) }
 				</Fragment>
 			);
