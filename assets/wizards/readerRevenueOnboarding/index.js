@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import LocationSetup from './views/locationSetup';
 import PaymentSetup from './views/paymentSetup';
+import RevenueModel from './views/revenueModel';
 import { withWizard } from '../../components/src';
 import './style.scss';
 
@@ -52,6 +53,7 @@ class ReaderRevenueOnboardingWizard extends Component {
 				countrystate: [],
 				currency: [],
 			},
+			revenueModel: 'donations',
 		};
 	}
 
@@ -188,7 +190,7 @@ class ReaderRevenueOnboardingWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { location, stripeSettings, fields } = this.state;
+		const { location, stripeSettings, fields, revenueModel } = this.state;
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -208,9 +210,26 @@ class ReaderRevenueOnboardingWizard extends Component {
 									buttonText={ __( 'Save' ) }
 									buttonAction={ () =>
 										this.saveLocation().then(
-											() => routeProps.history.push( '/stripe' ),
+											() => routeProps.history.push( '/revenue-model' ),
 											() => null
 										)
+									}
+								/>
+							</Fragment>
+						) }
+					/>
+					<Route
+						path="/revenue-model"
+						render={ routeProps => (
+							<Fragment>
+								<RevenueModel
+									headerText={ __( 'Select a revenue model' ) }
+									subHeaderText={ __( 'How will you be accepting money from your readers?' ) }
+									revenueModel={ revenueModel }
+									onChange={ revenueModel => this.setState( { revenueModel } ) }
+									buttonText={ __( 'Save' ) }
+									buttonAction={ () =>
+										routeProps.history.push( '/stripe' )
 									}
 								/>
 							</Fragment>
