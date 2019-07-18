@@ -143,7 +143,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_get_adunits() {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 		return \rest_ensure_response( $configuration_manager->get_ad_units() );
 	}
 
@@ -154,7 +154,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad unit info.
 	 */
 	public function api_get_adunit( $request ) {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
 		$params = $request->get_params();
 		$id     = $params['id'];
@@ -169,7 +169,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Updated ad unit info.
 	 */
 	public function api_save_adunit( $request ) {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
 		$params = $request->get_params();
 		$adunit = [
@@ -194,7 +194,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean Delete success.
 	 */
 	public function api_delete_adunit( $request ) {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-gam' );
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
 		$params = $request->get_params();
 		$id     = $params['id'];
