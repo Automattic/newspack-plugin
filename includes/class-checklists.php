@@ -33,7 +33,7 @@ class Checklists {
 		 *     wizards: An array of wizard slugs in desired order, corresponding to slugs registered in Wizards class.
 		 */
 		self::$checklists = [
-			'reader-revenue'    => [
+			'reader-revenue' => [
 				'name'        => esc_html__( 'Reader Revenue', 'newspack' ),
 				'description' => esc_html__( 'Here are a few things to do to easily set up your membership revenue business model.', 'newspack' ),
 				'wizards'     => [
@@ -41,22 +41,13 @@ class Checklists {
 					'subscriptions' === Reader_Revenue_Onboarding_Wizard::get_revenue_model() ? 'subscriptions' : 'donations',
 				],
 			],
-			'advertising'    => [
-				'name'        => esc_html__( 'Advertising', 'newspack' ),
-				'description' => esc_html__( 'Display advertising', 'newspack' ),
-				'style'       => 'actionCards',
-				'wizards'     => [
-					'google-adsense',
-					'google-ad-manager',
-				],
-			],
 			'engagement'     => [
 				'name'        => esc_html__( 'Engagement', 'newspack' ),
 				'description' => esc_html__( 'How do you want your audience to engage with your publication?', 'newspack' ),
 				'wizards'     => [
 					'newsletter-block',
-				]
-			]
+				],
+			],
 		];
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();

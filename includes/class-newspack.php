@@ -68,12 +68,14 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-reader-revenue-onboarding-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-donations-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-subscriptions-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-adsense-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-performance-wizard.php';
+<<<<<<< HEAD
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-ad-manager-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-mailchimp-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletter-block-wizard.php';
+=======
+>>>>>>> Dashboard Advertising button goes directly to Wizard, no more checklist. Removed separate AdSense and Ad Manager Wizards since they are now included in the unifed Advertising one.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
