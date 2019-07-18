@@ -16,13 +16,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 /**
  * Easy interface for setting up general store info.
  */
-class Subscriptions_Onboarding_Wizard extends Wizard {
+class Reader_Revenue_Onboarding_Wizard extends Wizard {
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-subscriptions-onboarding-wizard';
+	protected $slug = 'newspack-reader-revenue-onboarding-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -46,7 +46,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Subscriptions Onboarding', 'newspack' );
+		return esc_html__( 'Reader Revenue Onboarding', 'newspack' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Set up general settings and the Stripe payment gateway', 'newspack' );
+		return esc_html__( 'Set up your revenue model and associated settings', 'newspack' );
 	}
 
 	/**
@@ -432,20 +432,20 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 		}
 
 		wp_enqueue_script(
-			'newspack-subscriptions-onboarding-wizard',
-			Newspack::plugin_url() . '/assets/dist/subscriptionsOnboarding.js',
+			'newspack-reader-revenue-onboarding-wizard',
+			Newspack::plugin_url() . '/assets/dist/readerRevenueOnboarding.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptionsOnboarding.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenueOnboarding.js' ),
 			true
 		);
 
 		wp_register_style(
-			'newspack-subscriptions-onboarding-wizard',
-			Newspack::plugin_url() . '/assets/dist/subscriptionsOnboarding.css',
+			'newspack-reader-revenue-onboarding-wizard',
+			Newspack::plugin_url() . '/assets/dist/readerRevenueOnboarding.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptionsOnboarding.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenueOnboarding.css' )
 		);
-		wp_style_add_data( 'newspack-subscriptions-onboarding-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-subscriptions-onboarding-wizard' );
+		wp_style_add_data( 'newspack-reader-revenue-onboarding-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-reader-revenue-onboarding-wizard' );
 	}
 }

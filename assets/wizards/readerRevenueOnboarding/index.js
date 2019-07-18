@@ -1,5 +1,5 @@
 /**
- * Subscriptions onboarding Wizard.
+ * Reader revenue onboarding Wizard.
  */
 
 /**
@@ -25,7 +25,7 @@ import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
  * Wizard for setting up ability to take payments.
  * May have other settings added to it in the future.
  */
-class SubscriptionsOnboardingWizard extends Component {
+class ReaderRevenueOnboardingWizard extends Component {
 	/**
 	 * Constructor.
 	 */
@@ -69,7 +69,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	 */
 	refreshFieldOptions() {
 		const { setError, wizardApiFetch } = this.props;
-		wizardApiFetch( { path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/fields' } )
+		wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/fields' } )
 			.then( fields => {
 				setError();
 				this.setState( {
@@ -87,7 +87,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	refreshLocationInfo() {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
+			path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/location',
 		} )
 			.then( location => {
 				setError();
@@ -107,7 +107,7 @@ class SubscriptionsOnboardingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
-				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/location',
+				path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/location',
 				method: 'post',
 				data: {
 					...this.state.location,
@@ -128,7 +128,7 @@ class SubscriptionsOnboardingWizard extends Component {
 	refreshStripeInfo() {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
+			path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/stripe-settings',
 		} )
 			.then( stripeSettings => {
 				setError();
@@ -148,7 +148,7 @@ class SubscriptionsOnboardingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
-				path: '/newspack/v1/wizard/newspack-subscriptions-onboarding-wizard/stripe-settings',
+				path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/stripe-settings',
 				method: 'post',
 				data: {
 					...this.state.stripeSettings,
@@ -170,7 +170,7 @@ class SubscriptionsOnboardingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
-				path: '/newspack/v1/wizards/subscriptions-onboarding/complete',
+				path: '/newspack/v1/wizards/reader-revenue-onboarding/complete',
 				method: 'post',
 				data: {},
 			} )
@@ -246,9 +246,9 @@ class SubscriptionsOnboardingWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SubscriptionsOnboardingWizard, [ 'woocommerce' ] ), {
+	createElement( withWizard( ReaderRevenueOnboardingWizard, [ 'woocommerce' ] ), {
 		buttonText: __( 'Back to checklist' ),
 		buttonAction: newspack_urls[ 'checklists' ][ 'reader-revenue' ],
 	} ),
-	document.getElementById( 'newspack-subscriptions-onboarding-wizard' )
+	document.getElementById( 'newspack-reader-revenue-onboarding-wizard' )
 );
