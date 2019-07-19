@@ -38,7 +38,7 @@ class Checklists {
 				'description' => esc_html__( 'Here are a few things to do to easily set up your membership revenue business model.', 'newspack' ),
 				'wizards'     => [
 					'reader-revenue-onboarding',
-					'subscriptions',
+					'subscriptions' === Reader_Revenue_Onboarding_Wizard::get_revenue_model() ? 'subscriptions' : 'donations',
 				],
 			],
 			'advertising'    => [

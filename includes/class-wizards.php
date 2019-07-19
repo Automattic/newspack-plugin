@@ -30,6 +30,7 @@ class Wizards {
 			'setup'                     => new Setup_Wizard(),
 			'dashboard'                 => new Dashboard(),
 			'reader-revenue-onboarding' => new Reader_Revenue_Onboarding_Wizard(),
+			'donations'                 => new Donations_Wizard(),
 			'subscriptions'             => new Subscriptions_Wizard(),
 			'google-adsense'            => new Google_AdSense_Wizard(),
 			'google-ad-manager'         => new Google_Ad_Manager_Wizard(),
