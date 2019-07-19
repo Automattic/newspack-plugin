@@ -21,29 +21,16 @@ import {
  */
 class RevenueModel extends Component {
 	/**
-	 * Handle an update to a setting field.
-	 *
-	 * @param string key Setting field
-	 * @param mixed  value New value for field
-	 *
-	 */
-	handleOnChange( key, value ) {
-	/*	const { stripeSettings, onChange } = this.props;
-		stripeSettings[ key ] = value;
-		onChange( stripeSettings );*/
-	}
-
-	/**
 	 * Render.
 	 */
 	render() {
 		const { revenueModel, onClickFinish, onClickCancel, onChange } = this.props;
-console.log( revenueModel );
+
 		const options = [
 			{
 				label: __( 'Donations (Recommended)' ),
 				value: 'donations',
-				info: __( 'Solicit voluntary payments from your readers for the purpose of funding your reporting. This is the simplest option suitable for most publications.' )
+				info: __( 'Solicit voluntary payments from your readers for the purpose of funding your reporting. This is the simplest option and is suitable for most publications.' )
 			},
 			{
 				label: __( 'Subscriptions' ),
@@ -56,7 +43,7 @@ console.log( revenueModel );
 			<div className='newspack-revenue-model-setup-screen'>
 				<fieldset className="newspack-revenue-model-setup-screen__fieldset">
 					{ options.map( ( { value, label, info } ) => (
-						<div key={ value } className="newspack-revenue-model-setup-screen__choices">
+						<div key={ value } className="newspack-revenue-model-setup-screen__choice_info">
 							<input
 								type="radio"
 								value={ value }
@@ -67,6 +54,7 @@ console.log( revenueModel );
 								className="newspack-revenue-model-setup-screen__choice"
 							/>
 							<label
+								id={ `newspack-revenue-model-setup-screen__choice-${ value }-label` }
 								htmlFor={ `newspack-revenue-model-setup-screen__choice-${ value }` }
 								className="newspack-revenue-model-setup-screen__choice-label"
 							>

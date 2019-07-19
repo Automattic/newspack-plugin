@@ -64,6 +64,7 @@ class ReaderRevenueOnboardingWizard extends Component {
 		this.refreshFieldOptions();
 		this.refreshLocationInfo();
 		this.refreshStripeInfo();
+		this.refreshRevenueModelInfo();
 	};
 
 	/**
@@ -113,6 +114,47 @@ class ReaderRevenueOnboardingWizard extends Component {
 				method: 'post',
 				data: {
 					...this.state.location,
+				},
+			} )
+				.then( response => {
+					setError().then( () => resolve() );
+				} )
+				.catch( error => {
+					setError( error ).then( () => reject() );
+				} );
+		} );
+	}
+
+	/**
+	 * Get the latest info about the revenue model.
+	 */
+	refreshRevenueModelInfo() {
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/revenue-model',
+		} )
+			.then( revenueModel => {
+				setError();
+				this.setState( {
+					revenueModel,
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	}
+
+	/**
+	 * Save the revenue model.
+	 */
+	saveRevenueModel() {
+		const { setError, wizardApiFetch } = this.props;
+		return new Promise( ( resolve, reject ) => {
+			wizardApiFetch( {
+				path: '/newspack/v1/wizard/newspack-reader-revenue-onboarding-wizard/revenue-model',
+				method: 'post',
+				data: {
+					model: this.state.revenueModel,
 				},
 			} )
 				.then( response => {
@@ -229,7 +271,9 @@ class ReaderRevenueOnboardingWizard extends Component {
 									onChange={ revenueModel => this.setState( { revenueModel } ) }
 									buttonText={ __( 'Save' ) }
 									buttonAction={ () =>
-										routeProps.history.push( '/stripe' )
+										this.saveRevenueModel().then(
+											() => routeProps.history.push( '/stripe' )
+										)
 									}
 								/>
 							</Fragment>

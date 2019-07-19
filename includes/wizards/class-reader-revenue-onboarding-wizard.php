@@ -11,6 +11,8 @@ use \WP_Error, \WC_Install, \WC_Payment_Gateways;
 
 defined( 'ABSPATH' ) || exit;
 
+define( 'NEWSPACK_REVENUE_MODEL', 'newspack_revenue_model' );
+
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
@@ -124,6 +126,33 @@ class Reader_Revenue_Onboarding_Wizard extends Wizard {
 					'currency'     => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+				],
+			]
+		);
+
+		// Get revenue model info.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/revenue-model/',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_revenue_model' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Save revenue model info.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/revenue-model/',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_save_revenue_model' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'model'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
 			]
@@ -298,6 +327,62 @@ class Reader_Revenue_Onboarding_Wizard extends Wizard {
 		$this->set_smart_defaults();
 
 		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Get revenue model info.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_get_revenue_model() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		return rest_ensure_response( self::get_revenue_model() );
+	}
+
+	/**
+	 * Save revenue model info.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
+	public function api_save_revenue_model( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		$params   = $request->get_params();
+		$defaults = [
+			'model' => 'donations',
+		];
+		$args     = wp_parse_args( $params, $defaults );
+
+		return rest_ensure_response( self::update_revenue_model( $args['model'] ) );
+	}
+
+	/**
+	 * Get the site's revenue model.
+	 *
+	 * @return string 'donations' or 'subscriptions'.
+	 */
+	public static function get_revenue_model() {
+		return 'donations' === get_option( NEWSPACK_REVENUE_MODEL, 'donations' ) ? 'donations' : 'subscriptions';
+	}
+
+	/**
+	 * Update the site's revenue model.
+	 *
+	 * @param string $model 'donations' or 'subscriptions'.
+	 * @return string The updated model.
+	 */
+	public static function update_revenue_model( $model ) {
+		$model = 'donations' === $model ? 'donations' : 'subscriptions';
+		update_option( NEWSPACK_REVENUE_MODEL, $model );
+		return $model;
 	}
 
 	/**
