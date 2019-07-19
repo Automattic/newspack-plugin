@@ -367,7 +367,7 @@ class ComponentsDemo extends Component {
 					<Card>
 						<FormattedHeader headerText="Select dropdowns" />
 						<SelectControl
-							label="Select with value"
+							label="Label for Select with selection"
 							value={ selectValue1 }
 							options={ [
 								{ value: '1st', label: 'First' },
@@ -375,20 +375,20 @@ class ComponentsDemo extends Component {
 								{ value: '3rd', label: 'Third' },
 							] }
 							value={ selectValue1 }
-							onChange={ value => this.setState( { selectValue1: value } ) }
+							onChange={ event => this.setState( { selectValue1: event.target.value } ) }
 						/>
 						<SelectControl
-							label="Select empty"
+							label="Label for Select with no selection"
 							value={ selectValue2 }
 							options={ [
 								{ value: '1st', label: 'First' },
 								{ value: '2nd', label: 'Second' },
 								{ value: '3rd', label: 'Third' },
 							] }
-							onChange={ value => this.setState( { selectValue2: value } ) }
+							onChange={ event => this.setState( { selectValue2: event.target.value } ) }
 						/>
 						<SelectControl
-							label="Select disabled"
+							label="Label for Select disabled"
 							disabled
 							options={ [
 								{ value: '1st', label: 'First' },

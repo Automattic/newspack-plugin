@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies
  */
-import { SelectControl as BaseComponent, withFocusOutside } from '@wordpress/components';
+import { withFocusOutside } from '@wordpress/components';
 import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -76,20 +77,49 @@ const SelectControl = withFocusOutside(
 		 */
 		render() {
 			const { isFocused } = this.state;
-			const { value, disabled, className, onClick, onChange, ...otherProps } = this.props;
+			const { value, disabled, className, onClick, onChange, label, options = [], ...otherProps } = this.props;
 			const isEmpty = ! value;
 			const isActive = isFocused && ! disabled;
 			const classes = murielClassnames( "muriel-select", this.getClassName( disabled, isEmpty, isActive ), className );
+			const displayLabel = ! isActive || disabled;
+			const optionsFull = [
+				{
+					value: '',
+					disabled: true,
+					selected: isEmpty ? true : false,
+					label: __( '- Select -' )
+				},
+				...options
+			];
 
 			return (
-				<BaseComponent
-					value={ value }
-					disabled={ !! disabled }
+				<div
 					className={ classes }
 					onClick={ () => this.handleOnClick( onClick ) }
-					onChange={ value => this.handleOnChange( onChange, value ) }
-					{ ...otherProps }
-				/>
+				>
+					<select
+						value={ value }
+						disabled={ !! disabled }
+						onChange={ value => this.handleOnChange( onChange, value ) }
+						{ ...otherProps }
+					>
+						{ optionsFull.map( ( option, index ) =>
+							<option
+								key={ `${ option.label }-${ option.value }-${ index }` }
+								value={ option.value }
+								selected={ option.selected }
+								disabled={ option.disabled }
+							>
+								{ option.label }
+							</option>
+						) }
+					</select>
+					<label
+						hidden={ ! displayLabel }
+					>
+						{ label }
+					</label>
+				</div>
 			);
 		}
 	}
