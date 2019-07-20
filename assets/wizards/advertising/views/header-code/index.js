@@ -1,5 +1,5 @@
 /**
- * New/Edit Ad Unit Screen.
+ * Edit header codes for ad services.
  */
 
 /**
