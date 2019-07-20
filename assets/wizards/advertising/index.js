@@ -224,17 +224,19 @@ class AdvertisingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { adUnits } = this.state.advertisingData;
 		const adUnit = adUnits[ id ];
-		const { name, ad_code, amp_ad_code } = adUnit;
+		const { name, ad_code, amp_ad_code, ad_service } = adUnit;
+		const data = {
+			id,
+			name,
+			ad_code,
+			amp_ad_code,
+			ad_service,
+		};
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + ( id || 0 ),
 				method: 'post',
-				data: {
-					id,
-					name,
-					ad_code,
-					amp_ad_code,
-				},
+				data,
 			} )
 				.then( advertisingData => {
 					this.setState(

@@ -244,6 +244,7 @@ class Advertising_Wizard extends Wizard {
 					'amp_ad_code' => [
 						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
 					],
+					'ad_service'  => [],
 				],
 			]
 		);
@@ -350,9 +351,9 @@ class Advertising_Wizard extends Wizard {
 			'name'        => '',
 			'ad_code'     => '',
 			'amp_ad_code' => '',
+			'ad_service'  => '',
 		];
 		$args   = \wp_parse_args( $params, $adunit );
-
 		// Update and existing or add a new ad unit.
 		$adunit = ( 0 === $args['id'] )
 			? $configuration_manager->add_ad_unit( $args )

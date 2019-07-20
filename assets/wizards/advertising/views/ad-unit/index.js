@@ -12,12 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	Card,
-	Button,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { Card, Button, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -31,9 +26,8 @@ class AdUnit extends Component {
 	 *
 	 */
 	handleOnChange( key, value ) {
-		const { adUnit, onChange } = this.props;
-		adUnit[ key ] = value;
-		onChange( adUnit );
+		const { adUnit, onChange, service } = this.props;
+		onChange( { ...adUnit, ad_service: service, [ key ]: value } );
 	}
 
 	/**
@@ -58,7 +52,7 @@ class AdUnit extends Component {
 					/>
 					<TextareaControl
 						label={ __( 'Paste the HTML ad code from Ad Manager here. Learn more' ) }
-						placeholder={ __( 'HTML Ad code')}
+						placeholder={ __( 'HTML Ad code' ) }
 						value={ ad_code || '' }
 						onChange={ value => this.handleOnChange( 'ad_code', value ) }
 					/>
