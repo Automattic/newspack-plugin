@@ -1,4 +1,8 @@
 /**
+ * Ad Sense "management" screen.
+ */
+
+/**
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
