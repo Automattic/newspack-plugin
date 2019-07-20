@@ -410,29 +410,6 @@ class AdvertisingWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/google_ad_manager/:id"
-							render={ routeProps => {
-								return (
-									<AdUnit
-										headerText={ __( 'Edit ad unit' ) }
-										subHeaderText={ __(
-											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
-										) }
-										adUnit={ adUnits[ routeProps.match.params.id ] || {} }
-										tabs={ gam_tabs }
-										service={ 'google_ad_manager' }
-										onChange={ this.onAdUnitChange }
-										onSave={ adUnit =>
-											this.saveAdUnit( adUnit ).then( newAdUnit => {
-												routeProps.history.push( '/google_ad_manager' );
-											} )
-										}
-										noBackground
-									/>
-								);
-							} }
-						/>
-						<Route
 							path="/google_ad_manager/create"
 							render={ routeProps => {
 								return (
@@ -454,6 +431,29 @@ class AdvertisingWizard extends Component {
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
 											this.saveAdUnit( id ).then( newAdUnit => {
+												routeProps.history.push( '/google_ad_manager' );
+											} )
+										}
+										noBackground
+									/>
+								);
+							} }
+						/>
+						<Route
+							path="/google_ad_manager/:id"
+							render={ routeProps => {
+								return (
+									<AdUnit
+										headerText={ __( 'Edit ad unit' ) }
+										subHeaderText={ __(
+											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
+										) }
+										adUnit={ adUnits[ routeProps.match.params.id ] || {} }
+										tabs={ gam_tabs }
+										service={ 'google_ad_manager' }
+										onChange={ this.onAdUnitChange }
+										onSave={ adUnit =>
+											this.saveAdUnit( adUnit ).then( newAdUnit => {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
