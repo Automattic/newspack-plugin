@@ -452,8 +452,8 @@ class AdvertisingWizard extends Component {
 										tabs={ gam_tabs }
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
-										onSave={ adUnit =>
-											this.saveAdUnit( adUnit ).then( newAdUnit => {
+										onSave={ id =>
+											this.saveAdUnit( id ).then( newAdUnit => {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
