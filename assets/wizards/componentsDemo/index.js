@@ -79,20 +79,19 @@ class ComponentsDemo extends Component {
 			selectValue2,
 			modalShown,
 			showPluginInstallerWithProgressBar,
+			actionCardToggleChecked,
 		} = this.state;
 
 		return (
 			<Fragment>
-				<NewspackLogo width='250' className='newspack-components-demo_logo' />
+				<NewspackLogo width="250" className="newspack-components-demo_logo" />
 				<FormattedHeader
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Grid>
 					<Card>
-						<FormattedHeader
-							headerText={ __( 'Handoff Buttons' ) }
-						/>
+						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
 						<Handoff
 							className="is-centered"
 							modalTitle="Manage AMP"
@@ -168,7 +167,12 @@ class ComponentsDemo extends Component {
 							] }
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
+								console.log(
+									complete
+										? 'All plugins installed successfully'
+										: 'Plugin installation incomplete',
+									pluginInfo
+								);
 							} }
 						/>
 					</Card>
@@ -176,7 +180,12 @@ class ComponentsDemo extends Component {
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
+								console.log(
+									complete
+										? 'All plugins installed successfully'
+										: 'Plugin installation incomplete',
+									pluginInfo
+								);
 							} }
 						/>
 					</Card>
@@ -232,7 +241,11 @@ class ComponentsDemo extends Component {
 						}
 						notificationLevel="warning"
 					/>
-					<ActionCard title="Example Six" description="Static text, no button" actionText="Active" />
+					<ActionCard
+						title="Example Six"
+						description="Static text, no button"
+						actionText="Active"
+					/>
 					<ActionCard
 						title="Example Seven"
 						description="Static text, secondary action button."
@@ -251,6 +264,16 @@ class ComponentsDemo extends Component {
 						} }
 						image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 						imageLink="https://wordpress.com"
+					/>
+					<ActionCard
+						title="Example Nine"
+						description="Action Card with Toggle Control."
+						actionText={ actionCardToggleChecked && "Set Up" }
+						onClick={ () => {
+							console.log( 'Set Up' );
+						} }
+						toggleOnChange={ checked => this.setState( { actionCardToggleChecked: checked } ) }
+						toggleChecked={ actionCardToggleChecked }
 					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
 					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
