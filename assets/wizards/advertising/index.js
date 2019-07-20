@@ -337,7 +337,7 @@ class AdvertisingWizard extends Component {
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									services={ services }
 									toggleService={ ( service, value ) => this.toggleService( service, value ) }
-									tabs={ tabs }
+									tabbedNavigation={ tabs }
 									footer={
 										<p>
 											{ __( 'Not sure which ad service is right for you?' ) }
@@ -362,7 +362,7 @@ class AdvertisingWizard extends Component {
 									togglePlacement={ ( placement, value ) =>
 										this.togglePlacement( placement, value )
 									}
-									tabs={ tabs }
+									tabbedNavigation={ tabs }
 									secondaryButtonText={ __( 'Back to all ad units' ) }
 									secondaryButtonAction="#/"
 									secondaryButtonStyle={ { isDefault: true } }
@@ -377,7 +377,7 @@ class AdvertisingWizard extends Component {
 									noBackground
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									adUnits={ adUnits }
-									tabs={ gam_tabs }
+									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
 									onDelete={ id => this.deleteAdUnit( id ) }
 									buttonText={ __( 'Add an individual ad unit' ) }
@@ -396,7 +396,7 @@ class AdvertisingWizard extends Component {
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									adUnits={ adUnits }
 									code={ advertisingData.services.google_ad_manager.header_code }
-									tabs={ gam_tabs }
+									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
 									onChange={ value => this.updateHeaderCode( value, 'google_ad_manager' ) }
 									buttonText={ __( 'Save' ) }
@@ -429,7 +429,7 @@ class AdvertisingWizard extends Component {
 											}
 										}
 										service={ 'google_ad_manager' }
-										tabs={ gam_tabs }
+										tabbedNavigation={ gam_tabs }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
 											this.saveAdUnit( id ).then( newAdUnit => {
@@ -451,7 +451,7 @@ class AdvertisingWizard extends Component {
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
 										) }
 										adUnit={ adUnits[ routeProps.match.params.id ] || {} }
-										tabs={ gam_tabs }
+										tabbedNavigation={ gam_tabs }
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
