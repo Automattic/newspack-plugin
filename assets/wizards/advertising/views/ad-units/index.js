@@ -1,5 +1,5 @@
 /**
- * Ad Manager Ad Unit Management Screens.
+ * Ad Unit Management Screens.
  */
 
 /**
