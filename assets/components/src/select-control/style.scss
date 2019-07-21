@@ -111,23 +111,16 @@
 
 	&.disabled {
 		label {
-			display: none;
+			background: $muriel-white;
+			top: 17px;
+			font-size: 16px;
+			line-height: 24px;
+			height: 26px;
+			z-index: 100;
+			color: $muriel-gray-200;
 		}
 		select {
-			top: 17px;
-			color: $muriel-gray-200;
-
-			/* Placeholder styling: */
-			&::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-				color: $muriel-gray-200;
-				opacity: 1; /* Firefox */
-			}
-			&:-ms-input-placeholder { /* Internet Explorer 10-11 */
-				color: $muriel-gray-200;
-			}
-			&::-ms-input-placeholder { /* Microsoft Edge */
-				color: $muriel-gray-200;
-			}
+			display: none;
 		}
 	}
 }

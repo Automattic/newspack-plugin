@@ -5,8 +5,15 @@
 /**
  * WordPress dependencies
  */
-import { SelectControl as BaseComponent, withFocusOutside } from '@wordpress/components';
+import { withFocusOutside } from '@wordpress/components';
 import { Component } from '@wordpress/element';
+
+/**
+ * WordPress transitional dependency: using a locally modified copy, until `@wordpress/components` updates the the SelectControl
+ * and implements the `disabled` attribute of its options.
+ *      PR 15976: https://github.com/WordPress/gutenberg/pull/15976
+ */
+import { SelectControl as BaseComponent } from './../select-control-gutenberg-modified';
 
 /**
  * Internal dependencies
