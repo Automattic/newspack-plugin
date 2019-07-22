@@ -1,0 +1,32 @@
+/**
+ * Progress bar styles.
+ */
+
+@import '../../../shared/scss/muriel-component';
+
+.muriel-tabbed-navigation {
+	margin-bottomn: 0;
+	box-shadow: none;
+	background: transparent;
+	padding: 0;
+	ul {
+		margin: 0;
+		border-bottom: 1px solid $muriel-gray-100;
+	}
+	a {
+		color: black;
+		display: inline-block;
+		font-size: 12px;
+		margin: 0;
+		padding: 0 2em 1em 2em;
+		text-decoration: none;
+		&.selected {
+			border-bottom: 2px solid $primary_color;
+		}
+	}
+	li {
+		margin: 0;
+		padding: 0;
+		display: inline-block;
+	}
+}
