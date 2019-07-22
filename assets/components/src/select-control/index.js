@@ -13,7 +13,7 @@ import { Component } from '@wordpress/element';
  * and implements the `disabled` attribute of its options.
  *      PR 15976: https://github.com/WordPress/gutenberg/pull/15976
  */
-import { SelectControl as BaseComponent } from './../select-control-wordpress-components-modified';
+import BaseComponent from './wordpress-components-select-control-modified.js';
 
 /**
  * Internal dependencies
