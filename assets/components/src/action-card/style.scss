@@ -5,13 +5,13 @@
 @import '../../../shared/scss/muriel-component';
 
 .newspack-action-card {
-
 	/* General styles */
 
 	color: $muriel-gray-300;
 	font-size: 14px;
 
-	h1, h2 {
+	h1,
+	h2 {
 		font-weight: normal;
 		margin: 0;
 		padding: 0;
@@ -86,9 +86,19 @@
 		background-repeat: no-repeat;
 		background-size: cover;
 		border: 1px solid $muriel-gray-400;
- 		border-radius: 50%;
- 		height: 32px;
- 		width: 32px;
+		border-radius: 50%;
+		height: 32px;
+		width: 32px;
+	}
+
+	/* ToggleControl */
+
+	.components-toggle-control {
+		align-self: center;
+		margin-right: 1em;
+		.components-base-control__field {
+			margin-bottom: 0;
+		}
 	}
 
 	/* Buttons */
@@ -110,5 +120,4 @@
 	&:hover button.newspack-action-card__secondary_button {
 		visibility: visible;
 	}
-
 }
