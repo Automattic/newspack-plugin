@@ -127,6 +127,11 @@ class Donations_Wizard extends Wizard {
 		return true;
 	}
 
+	/**
+	 * API endpoint for getting donation settings.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
 	public function api_get_donation_settings() {
 		$required_plugins_installed = $this->check_required_plugins_installed();
 		if ( is_wp_error( $required_plugins_installed ) ) {
@@ -136,6 +141,11 @@ class Donations_Wizard extends Wizard {
 		return rest_ensure_response( self::get_donation_settings() );
 	}
 
+	/**
+	 * Get the donation settings.
+	 *
+	 * @return Array of dontion settings (See $settings at the top of the method for format).
+	 */
 	public static function get_donation_settings() {
 		$settings = [
 			'name' => '',
@@ -167,6 +177,12 @@ class Donations_Wizard extends Wizard {
 		return $settings;
 	}
 
+	/**
+	 * API endpoint for setting the donation settings.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
 	public function api_set_donation_settings( $request ) {
 		$required_plugins_installed = $this->check_required_plugins_installed();
 		if ( is_wp_error( $required_plugins_installed ) ) {
@@ -175,6 +191,12 @@ class Donations_Wizard extends Wizard {
 		return rest_ensure_response( self::set_donation_settings( $request->get_params() ) );
 	}
 
+	/**
+	 * Set the donation settings.
+	 *
+	 * @param array $args Array of settings info. See $defaults at top of this method for format.
+	 * @return array Updated settings.
+	 */
 	public static function set_donation_settings( $args ) {
 		$defaults = [
 			'name' => '',
@@ -202,6 +224,11 @@ class Donations_Wizard extends Wizard {
 		return self::get_donation_settings();
 	}
 
+	/**
+	 * Create new donations products.
+	 *
+	 * @param array $args Info that will be used to create the products. See $defaults at top of this method for format.
+	 */
 	protected static function create_donation_product( $args ) {
 		$defaults = [
 			'name' => '',
@@ -275,6 +302,11 @@ class Donations_Wizard extends Wizard {
 		update_option( NEWSPACK_DONATION_PRODUCT_ID, $parent_product->get_id() );
 	}
 
+	/**
+	 * Update the donations products.
+	 *
+	 * @param string $args Donations settings. See $defaults at top of this method for more info.
+	 */
 	protected static function update_donation_product( $args ) {
 		$defaults = [
 			'name' => '',
@@ -321,7 +353,7 @@ class Donations_Wizard extends Wizard {
 	}
 
 	/**
-	 * Enqueue Subscriptions Wizard scripts and styles.
+	 * Enqueue Donations Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();

@@ -43,6 +43,9 @@ class DonationsWizard extends Component {
 		this.refreshDonationSettings();
 	};
 
+	/**
+	 * Get the latest donation settings.
+	 */
 	refreshDonationSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-donations-wizard/donation' } )
@@ -64,6 +67,9 @@ class DonationsWizard extends Component {
 			} );
 	}
 
+	/**
+	 * Save the current donation settings.
+	 */
 	saveDonationSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		const { name, image, suggestedAmount } = this.state;
@@ -107,6 +113,12 @@ class DonationsWizard extends Component {
 		} );
 	}
 
+	/**
+	 * Update the state when a setting changes.
+	 *
+	 * @param string key The setting.
+	 * @param mixed value The setting value.
+	 */
 	onSettingsChange = ( key, value ) => {
 		this.setState( {
 			[key]: value
