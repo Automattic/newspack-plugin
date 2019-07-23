@@ -320,6 +320,7 @@ class Donations_Wizard extends Wizard {
 		$parent_product->set_name( $args['name'] );
 		$parent_product->set_image_id( $args['image_id'] );
 		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
+		$parent_product->set_status( 'publish' );
 		$parent_product->save();
 
 		foreach ( $parent_product->get_children() as $child_id ) {
@@ -328,6 +329,7 @@ class Donations_Wizard extends Wizard {
 				continue;
 			}
 
+			$child_product->set_status( 'publish' );
 			$child_product->set_image_id( $args['image_id'] );
 			$child_product->set_regular_price( $args['suggestedAmount'] );
 			$child_product->update_meta_data( '_suggested_price', $args['suggestedAmount'] );
