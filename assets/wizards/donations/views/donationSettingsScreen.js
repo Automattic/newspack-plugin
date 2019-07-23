@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { TextControl, ImageUpload, InfoButton, withWizardScreen } from '../../../components/src';
+import { TextControl, ImageUpload, ToggleGroup, withWizardScreen } from '../../../components/src';
 
 /**
  * Settings for donation collection.
@@ -21,7 +21,7 @@ class DonationSettingsScreen extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, suggestedAmount, onChange } = this.props;
+		const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, onChange } = this.props;
 		let { image } = this.props;
 		if ( ! image || '0' === image.id ) {
 			image = null;
@@ -38,16 +38,56 @@ class DonationSettingsScreen extends Component {
 					image={ image }
 					onChange={ value => onChange( 'image', value ) }
 				/>
-				<div className='newspack-donations-wizard__suggested-price'>
-					<TextControl
-						type="number"
-						step="0.01"
-						label={ __( 'Suggested donation amount per month' ) }
-						value={ suggestedAmount }
-						onChange={ value => onChange( 'suggestedAmount', value ) }
-					/>
-					<InfoButton text={ __( 'For example, "15" will have a suggested monthly donation of $15 and a suggested yearly donation of $180' ) } />
-				</div>
+
+				<h3>{ __( 'Suggested donation amount per month' ) }</h3>
+				<p className='newspack-donations-wizard__help'>
+					{ __( 'Set a suggested monthly donation amount. This will provide hints to readers about how much to donate, which will increase the average donation amount.' ) }
+				</p>
+
+				<ToggleGroup
+					title={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
+					checked={ tiered }
+					onChange={ tiered => onChange( 'tiered', tiered ) }
+				>
+					<div className='newspack-donations-wizard__tier-suggested-prices'>
+						<TextControl
+							type="number"
+							step="0.01"
+							label={ __( 'Low-tier' ) }
+							value={ suggestedAmount / 2 }
+							onChange={ value => onChange( 'suggestedAmountLow', value ) }
+						/>
+						<TextControl
+							type="number"
+							step="0.01"
+							label={ __( 'Mid-tier' ) }
+							value={ suggestedAmount }
+							onChange={ value => onChange( 'suggestedAmount', value ) }
+						/>
+						<TextControl
+							type="number"
+							step="0.01"
+							label={ __( 'High-tier' ) }
+							value={ suggestedAmount * 2 }
+							onChange={ value => onChange( 'suggestedAmountHigh', value ) }
+						/>
+					</div>
+				</ToggleGroup>
+				{ ! tiered && (
+					<div className='newspack-donations-wizard__suggested-price'>
+						<TextControl
+							type="number"
+							step="0.01"
+							label={ __( 'Suggested donation amount per month' ) }
+							value={ suggestedAmount }
+							onChange={ value => { 
+								onChange( 'suggestedAmount', value ); 
+								onChange( 'suggestedAmountHigh', 2 * value ); 
+								onChange( 'suggestedAmountLow', value / 2 ); 
+							} }
+						/>
+					</div>
+				) }
 			</Fragment>
 		);
 	}
