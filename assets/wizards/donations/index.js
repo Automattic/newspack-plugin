@@ -53,13 +53,16 @@ class DonationsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-donations-wizard/donation' } )
 			.then( settings => {
-				const { name, suggestedAmount, image } = settings;
+				const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, image } = settings;
 				return new Promise( resolve => {
 					this.setState(
 						{
 							name,
 							suggestedAmount,
-							image
+							suggestedAmountLow,
+							suggestedAmountHigh,
+							tiered,
+							image,
 						},
 						() => {
 							setError();
@@ -78,7 +81,7 @@ class DonationsWizard extends Component {
 	 */
 	saveDonationSettings() {
 		const { setError, wizardApiFetch } = this.props;
-		const { name, image, suggestedAmount } = this.state;
+		const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, image } = this.state;
 		const imageID = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
@@ -88,6 +91,9 @@ class DonationsWizard extends Component {
 					name,
 					imageID,
 					suggestedAmount,
+					suggestedAmountLow,
+					suggestedAmountHigh,
+					tiered,
 				},
 			} )
 				.then( settings => {

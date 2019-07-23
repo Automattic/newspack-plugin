@@ -54,7 +54,7 @@ class DonationSettingsScreen extends Component {
 							type="number"
 							step="0.01"
 							label={ __( 'Low-tier' ) }
-							value={ suggestedAmount / 2 }
+							value={ suggestedAmountLow }
 							onChange={ value => onChange( 'suggestedAmountLow', value ) }
 						/>
 						<TextControl
@@ -68,7 +68,7 @@ class DonationSettingsScreen extends Component {
 							type="number"
 							step="0.01"
 							label={ __( 'High-tier' ) }
-							value={ suggestedAmount * 2 }
+							value={ suggestedAmountHigh }
 							onChange={ value => onChange( 'suggestedAmountHigh', value ) }
 						/>
 					</div>
