@@ -5,22 +5,21 @@
 	}
 }
 
+.newspack-donations-wizard__help {
+	margin-top: 2em;
+	margin-bottom: 2em;
+	font-style: italic;
+}
+
 .newspack-donations-wizard__suggested-price {
-	position: relative;
+	margin-left: 60px;
+}
 
-	.muriel-input-text {
-		width: 62%;
+.newspack-donations-wizard__tier-suggested-prices {
+	display: flex;
+	justify-content: space-between;
 
-		@media screen and ( max-width: 1040px ) {
-			width: 67%;
-		}
-
-		@media screen and ( max-width: 660px ) {
-			width: 75%;
-		}	
-	}
-
-	.muriel-info-button {
-		top: 16px;
+	> div {
+		width: calc(33% - 1em);
 	}
 }

@@ -31,8 +31,11 @@ class DonationsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			name: '',
+			suggestedAmountLow: 7.50,
 			suggestedAmount: 15.00,
+			suggestedAmountHigh: 30.00,
 			image: false,
+			tiered: false,
 		};
 	}
 
@@ -133,7 +136,7 @@ class DonationsWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { name, suggestedAmount, image } = this.state;
+		const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, image } = this.state;
 
 		return (
 			<HashRouter hashType="slash">
@@ -147,8 +150,11 @@ class DonationsWizard extends Component {
 								headerText={ __( 'Donation Settings' ) }
 								subHeaderText={ __( 'Donations can provide a stable, recurring source of revenue' ) }
 								name={ name }
+								suggestedAmountLow={ suggestedAmountLow }
 								suggestedAmount={ suggestedAmount }
+								suggestedAmountHigh={ suggestedAmountHigh }
 								image={ image }
+								tiered={ tiered }
 								onChange={ this.onSettingsChange }
 								buttonText={ __( 'Finish' ) }
 								buttonAction={ () =>

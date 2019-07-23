@@ -35,7 +35,7 @@ class RevenueModel extends Component {
 			{
 				label: __( 'Subscriptions' ),
 				value: 'subscriptions',
-				info: __( 'Create and manage individual subscription plans. This option is suitable for publications that want to provide custom, tiered benefits for members.' )
+				info: __( 'Create and manage individual subscription plans. This option is suitable for publications that want to provide highly-custom benefits for paying members.' )
 			},
 		];
 
