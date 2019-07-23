@@ -50,10 +50,13 @@ class DonationsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-donations-wizard/donation' } )
 			.then( settings => {
+				const { name, suggestedAmount, image } = settings;
 				return new Promise( resolve => {
 					this.setState(
 						{
-							...settings
+							name,
+							suggestedAmount,
+							image
 						},
 						() => {
 							setError();
@@ -73,14 +76,14 @@ class DonationsWizard extends Component {
 	saveDonationSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		const { name, image, suggestedAmount } = this.state;
-		const image_id = image ? image.id : 0;
+		const imageID = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/newspack-donations-wizard/donation',
 				method: 'post',
 				data: {
 					name,
-					image_id,
+					imageID,
 					suggestedAmount,
 				},
 			} )

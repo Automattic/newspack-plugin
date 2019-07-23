@@ -201,7 +201,7 @@ class Donations_Wizard extends Wizard {
 		$defaults = [
 			'name' => '',
 			'suggestedAmount' => 0,
-			'image_id' => 0,
+			'imageID' => 0,
 		];
 		$args = wp_parse_args( $args, $defaults );
 
@@ -233,15 +233,15 @@ class Donations_Wizard extends Wizard {
 		$defaults = [
 			'name' => '',
 			'suggestedAmount' => 0,
-			'image_id' => 0,
+			'imageID' => 0,
 		];
 		$args = wp_parse_args( $args, $defaults );
 
 		// Parent product.
 		$parent_product = new \WC_Product_Grouped();
 		$parent_product->set_name( $args['name'] );
-		if ( $args['image_id'] ) {
-			$parent_product->set_image_id( $args['image_id'] );
+		if ( $args['imageID'] ) {
+			$parent_product->set_image_id( $args['imageID'] );
 		}
 		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
 
@@ -249,8 +249,8 @@ class Donations_Wizard extends Wizard {
 		$monthly_product = new \WC_Product_Subscription();
 		/* translators: %s: Product name */
 		$monthly_product->set_name( sprintf( __( '%s: Monthly', 'newspack' ), $args['name'] ) );
-		if ( $args['image_id'] ) {
-			$monthly_product->set_image_id( $args['image_id'] );
+		if ( $args['imageID'] ) {
+			$monthly_product->set_image_id( $args['imageID'] );
 		}
 		$monthly_product->set_regular_price( $args['suggestedAmount'] );
 		$monthly_product->update_meta_data( '_suggested_price', $args['suggestedAmount'] );
@@ -266,8 +266,8 @@ class Donations_Wizard extends Wizard {
 		$yearly_product = new \WC_Product_Subscription();
 		/* translators: %s: Product name */
 		$yearly_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
-		if ( $args['image_id'] ) {
-			$yearly_product->set_image_id( $args['image_id'] );
+		if ( $args['imageID'] ) {
+			$yearly_product->set_image_id( $args['imageID'] );
 		}
 		$yearly_product->set_regular_price( 12 * $args['suggestedAmount'] );
 		$yearly_product->update_meta_data( '_suggested_price', 12 * $args['suggestedAmount'] );
@@ -283,8 +283,8 @@ class Donations_Wizard extends Wizard {
 		$once_product = new \WC_Product_Simple();
 		/* translators: %s: Product name */
 		$once_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
-		if ( $args['image_id'] ) {
-			$once_product->set_image_id( $args['image_id'] );
+		if ( $args['imageID'] ) {
+			$once_product->set_image_id( $args['imageID'] );
 		}
 		$once_product->set_regular_price( $args['suggestedAmount'] );
 		$once_product->update_meta_data( '_suggested_price', $args['suggestedAmount'] );
@@ -311,14 +311,14 @@ class Donations_Wizard extends Wizard {
 		$defaults = [
 			'name' => '',
 			'suggestedAmount' => 0,
-			'image_id' => 0,
+			'imageID' => 0,
 		];
 		$args = wp_parse_args( $args, $defaults );
 		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		$parent_product = \wc_get_product( $product_id );
 
 		$parent_product->set_name( $args['name'] );
-		$parent_product->set_image_id( $args['image_id'] );
+		$parent_product->set_image_id( $args['imageID'] );
 		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
 		$parent_product->set_status( 'publish' );
 		$parent_product->save();
@@ -330,7 +330,7 @@ class Donations_Wizard extends Wizard {
 			}
 
 			$child_product->set_status( 'publish' );
-			$child_product->set_image_id( $args['image_id'] );
+			$child_product->set_image_id( $args['imageID'] );
 			$child_product->set_regular_price( $args['suggestedAmount'] );
 			$child_product->update_meta_data( '_suggested_price', $args['suggestedAmount'] );
 			if ( 'subscription' === $child_product->get_type() ) {
