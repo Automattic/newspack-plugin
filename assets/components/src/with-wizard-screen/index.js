@@ -32,7 +32,6 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				secondaryButtonText,
 				secondaryButtonAction,
 				secondaryButtonStyle,
-				tabbedNavigation,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
