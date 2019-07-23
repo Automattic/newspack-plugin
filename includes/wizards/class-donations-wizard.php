@@ -11,15 +11,15 @@ use \WP_Error, \WC_Subscriptions_Product, \WC_Product_Simple, \WC_Product_Subscr
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSPACK_DONATION_PRODUCT_ID', 'newspack_donation_product_id' );
-define( 'NEWSPACK_DONATION_SUGGESTED_AMOUNT_META', 'newspack_donation_suggested_amount' );
-
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
  * Easy interface for managing donations.
  */
 class Donations_Wizard extends Wizard {
+
+	const DONATION_PRODUCT_ID_OPTION = 'newspack_donation_product_id';
+	const DONATION_SUGGESTED_AMOUNT_META = 'newspack_donation_suggested_amount';
 
 	/**
 	 * The slug of this wizard.
@@ -109,7 +109,7 @@ class Donations_Wizard extends Wizard {
 	}
 
 	/**
-	 * Check whether required lugins are installed and active.
+	 * Check whether required plugins are installed and active.
 	 *
 	 * @return bool | WP_Error True on success, WP_Error on failure.
 	 */
@@ -153,7 +153,7 @@ class Donations_Wizard extends Wizard {
 			'image' => false,
 		];
 
-		$product_id = get_option( NEWSPACK_DONATION_PRODUCT_ID, 0 );
+		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		if ( ! $product_id ) {
 			return $settings;
 		}
@@ -169,7 +169,7 @@ class Donations_Wizard extends Wizard {
 			'url' => $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' ) ) : wc_placeholder_img_src( 'woocommerce_thumbnail' ),
 		];
 
-		$suggested_donation = $product->get_meta( NEWSPACK_DONATION_SUGGESTED_AMOUNT_META, true );
+		$suggested_donation = $product->get_meta( self::DONATION_SUGGESTED_AMOUNT_META, true );
 		if ( $suggested_donation ) {
 			$settings['suggestedAmount'] = floatval( $suggested_donation );	
 		}
@@ -206,7 +206,7 @@ class Donations_Wizard extends Wizard {
 		$args = wp_parse_args( $args, $defaults );
 
 		// Create the product if it hasn't been created yet.
-		$product_id = get_option( NEWSPACK_DONATION_PRODUCT_ID, 0 );
+		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		if ( ! $product_id ) {
 			self::create_donation_product( $args );
 			return self::get_donation_settings();
@@ -243,7 +243,7 @@ class Donations_Wizard extends Wizard {
 		if ( $args['image_id'] ) {
 			$parent_product->set_image_id( $args['image_id'] );
 		}
-		$parent_product->update_meta_data( NEWSPACK_DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
+		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
 
 		// Monthly donation.
 		$monthly_product = new \WC_Product_Subscription();
@@ -299,7 +299,7 @@ class Donations_Wizard extends Wizard {
 			$once_product->get_id(),
 		] );
 		$parent_product->save();
-		update_option( NEWSPACK_DONATION_PRODUCT_ID, $parent_product->get_id() );
+		update_option( self::DONATION_PRODUCT_ID_OPTION, $parent_product->get_id() );
 	}
 
 	/**
@@ -314,12 +314,12 @@ class Donations_Wizard extends Wizard {
 			'image_id' => 0,
 		];
 		$args = wp_parse_args( $args, $defaults );
-		$product_id = get_option( NEWSPACK_DONATION_PRODUCT_ID, 0 );
+		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		$parent_product = \wc_get_product( $product_id );
 
 		$parent_product->set_name( $args['name'] );
 		$parent_product->set_image_id( $args['image_id'] );
-		$parent_product->update_meta_data( NEWSPACK_DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
+		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
 		$parent_product->save();
 
 		foreach ( $parent_product->get_children() as $child_id ) {
