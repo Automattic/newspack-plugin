@@ -18,10 +18,9 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  */
 class Advertising_Wizard extends Wizard {
 
-	const NEWSPACK_ADVERTISING_SERVICE_PREFIX     = '_newspack_advertising_service_';
-	const NEWSPACK_ADVERTISING_PLACEMENT_PREFIX   = '_newspack_advertising_placement_';
-	const NEWSPACK_ADVERTISING_AD_UNIT_SUFFIX     = '_ad_unit';
-	const NEWSPACK_ADVERTISING_HEADER_CODE_SUFFIX = '_header_code';
+	const NEWSPACK_ADVERTISING_SERVICE_PREFIX   = '_newspack_advertising_service_';
+	const NEWSPACK_ADVERTISING_PLACEMENT_PREFIX = '_newspack_advertising_placement_';
+	const NEWSPACK_ADVERTISING_AD_UNIT_SUFFIX   = '_ad_unit';
 
 	/**
 	 * The slug of this wizard.
@@ -386,9 +385,12 @@ class Advertising_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean Delete success.
 	 */
 	public function api_update_header_code( $request ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+
 		$service     = $request['service'];
 		$header_code = $request['header_code'];
-		update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service . self::NEWSPACK_ADVERTISING_HEADER_CODE_SUFFIX, $header_code );
+		$configuration_manager->set_header_code( $service, $header_code );
+
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -413,11 +415,13 @@ class Advertising_Wizard extends Wizard {
 	 * @return array Information about services.
 	 */
 	private function get_services() {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+
 		$services = array();
 		foreach ( $this->services as $service ) {
 			$services[ $service ] = array(
 				'enabled'     => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, '' ),
-				'header_code' => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service . self::NEWSPACK_ADVERTISING_HEADER_CODE_SUFFIX, '' ),
+				'header_code' => $configuration_manager->get_header_code( $service ),
 			);
 		}
 		return $services;
