@@ -149,7 +149,7 @@ class DonationsWizard extends Component {
 								name={ name }
 								suggestedAmount={ suggestedAmount }
 								image={ image }
-								onChange={ ( key, value ) => this.onSettingsChange( key, value ) }
+								onChange={ this.onSettingsChange }
 								buttonText={ __( 'Finish' ) }
 								buttonAction={ () =>
 									this.saveDonationSettings()
