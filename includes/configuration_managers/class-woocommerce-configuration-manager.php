@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use  \WC_Product_Simple, \WC_Product_Subscription;
+use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -93,6 +93,28 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	public function set_donation_settings( $args ) {
 		$defaults = $this->get_donation_default_settings();
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( $args['tiered'] && (
+				$args['suggestedAmountLow'] >= $args['suggestedAmount'] 
+				|| $args['suggestedAmountLow'] >= $args['suggestedAmountHigh'] 
+				|| $args['suggestedAmount'] >= $args['suggestedAmountHigh']
+			)
+		) {
+			return new WP_Error(
+				'newspack_invalid_field',
+				esc_html__( 'Low tier should be less than middle tier. Middle tier should be less than high tier.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+
+		}
+
+		if ( $args['suggestedAmount'] > $args['suggestedAmountHigh'] ) {
+
+		}
+
 
 		// Create the product if it hasn't been created yet.
 		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
