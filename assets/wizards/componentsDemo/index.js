@@ -83,16 +83,14 @@ class ComponentsDemo extends Component {
 
 		return (
 			<Fragment>
-				<NewspackLogo width='250' className='newspack-components-demo_logo' />
+				<NewspackLogo width="250" className="newspack-components-demo_logo" />
 				<FormattedHeader
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Grid>
 					<Card>
-						<FormattedHeader
-							headerText={ __( 'Handoff Buttons' ) }
-						/>
+						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
 						<Handoff
 							className="is-centered"
 							modalTitle="Manage AMP"
@@ -168,7 +166,12 @@ class ComponentsDemo extends Component {
 							] }
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
+								console.log(
+									complete
+										? 'All plugins installed successfully'
+										: 'Plugin installation incomplete',
+									pluginInfo
+								);
 							} }
 						/>
 					</Card>
@@ -176,7 +179,12 @@ class ComponentsDemo extends Component {
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
+								console.log(
+									complete
+										? 'All plugins installed successfully'
+										: 'Plugin installation incomplete',
+									pluginInfo
+								);
 							} }
 						/>
 					</Card>
@@ -232,7 +240,11 @@ class ComponentsDemo extends Component {
 						}
 						notificationLevel="warning"
 					/>
-					<ActionCard title="Example Six" description="Static text, no button" actionText="Active" />
+					<ActionCard
+						title="Example Six"
+						description="Static text, no button"
+						actionText="Active"
+					/>
 					<ActionCard
 						title="Example Seven"
 						description="Static text, secondary action button."
@@ -367,36 +379,36 @@ class ComponentsDemo extends Component {
 					<Card>
 						<FormattedHeader headerText="Select dropdowns" />
 						<SelectControl
-							label={ __('Label for Select with a preselection') }
+							label={ __( 'Label for Select with a preselection' ) }
 							value={ selectValue1 }
 							options={ [
-								{ value: '', label: __('- Select -'), disabled: true },
-								{ value: '1st', label: __('First') },
-								{ value: '2nd', label: __('Second') },
-								{ value: '3rd', label: __('Third') },
+								{ value: '', label: __( '- Select -' ), disabled: true },
+								{ value: '1st', label: __( 'First' ) },
+								{ value: '2nd', label: __( 'Second' ) },
+								{ value: '3rd', label: __( 'Third' ) },
 							] }
 							value={ selectValue1 }
 							onChange={ value => this.setState( { selectValue1: value } ) }
 						/>
 						<SelectControl
-							label={ __('Label for Select with no preselection') }
+							label={ __( 'Label for Select with no preselection' ) }
 							value={ selectValue2 }
 							options={ [
-								{ value: '', label: __('- Select -'), disabled: true },
-								{ value: '1st', label: __('First') },
-								{ value: '2nd', label: __('Second') },
-								{ value: '3rd', label: __('Third') },
+								{ value: '', label: __( '- Select -' ), disabled: true },
+								{ value: '1st', label: __( 'First' ) },
+								{ value: '2nd', label: __( 'Second' ) },
+								{ value: '3rd', label: __( 'Third' ) },
 							] }
 							onChange={ value => this.setState( { selectValue2: value } ) }
 						/>
 						<SelectControl
-							label={ __('Label for disabled Select') }
+							label={ __( 'Label for disabled Select' ) }
 							disabled
 							options={ [
-								{ value: '', label: __('- Select -'), disabled: true },
-								{ value: '1st', label: __('First') },
-								{ value: '2nd', label: __('Second') },
-								{ value: '3rd', label: __('Third') },
+								{ value: '', label: __( '- Select -' ), disabled: true },
+								{ value: '1st', label: __( 'First' ) },
+								{ value: '2nd', label: __( 'Second' ) },
+								{ value: '3rd', label: __( 'Third' ) },
 							] }
 						/>
 					</Card>
