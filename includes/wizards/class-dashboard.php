@@ -95,14 +95,6 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'engagement',
-				'name'        => esc_html__( 'Engagement', 'newspack' ),
-				'url'         => '#',
-				'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/engagement-icon.svg',
-				'status'      => 'disabled',
-			],
-			[
-				'slug'        => 'engagement',
 				'name'        => Checklists::get_name( 'engagement' ),
 				'url'         => Checklists::get_url( 'engagement' ),
 				'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
