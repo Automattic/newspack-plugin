@@ -29,6 +29,7 @@ import {
 	SelectControl,
 	Modal,
 	Grid,
+	ToggleGroup,
 } from '../../components/src';
 import './style.scss';
 
@@ -51,6 +52,7 @@ class ComponentsDemo extends Component {
 			selectValue2: '',
 			modalShown: false,
 			showPluginInstallerWithProgressBar: false,
+			toggleGroupChecked: false,
 		};
 	}
 
@@ -79,6 +81,8 @@ class ComponentsDemo extends Component {
 			selectValue2,
 			modalShown,
 			showPluginInstallerWithProgressBar,
+			actionCardToggleChecked,
+			toggleGroupChecked
 		} = this.state;
 
 		return (
@@ -89,6 +93,16 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
 				/>
 				<Grid>
+					<Card>
+						<ToggleGroup
+							title={ __( 'Example Toggle Group' ) }
+							description={ __( 'This is the description of a toggle group.' ) }
+							checked={ toggleGroupChecked }
+							onChange={ checked => this.setState( { toggleGroupChecked: checked } ) }
+						>
+							<p>{ __( 'This is the content of the toggle group' ) }</p>
+						</ToggleGroup>
+					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
 						<Handoff
@@ -263,6 +277,16 @@ class ComponentsDemo extends Component {
 						} }
 						image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
 						imageLink="https://wordpress.com"
+					/>
+					<ActionCard
+						title="Example Nine"
+						description="Action Card with Toggle Control."
+						actionText={ actionCardToggleChecked && "Set Up" }
+						onClick={ () => {
+							console.log( 'Set Up' );
+						} }
+						toggleOnChange={ checked => this.setState( { actionCardToggleChecked: checked } ) }
+						toggleChecked={ actionCardToggleChecked }
 					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
 					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">

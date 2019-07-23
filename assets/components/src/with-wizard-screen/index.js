@@ -10,7 +10,7 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Handoff, Grid } from '../';
+import { Button, Card, FormattedHeader, Handoff, Grid, TabbedNavigation } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -26,6 +26,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				subHeaderText,
 				noBackground,
 				noCard,
+				tabbedNavigation,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
@@ -46,6 +47,11 @@ export default function withWizardScreen( WrappedComponent, config ) {
 								<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
 							) }
 						</Card>
+						{ tabbedNavigation && (
+							<Card noBackground>
+								<TabbedNavigation items={ tabbedNavigation } />
+							</Card>
+						) }
 					</Grid>
 					{ !! noCard && content }
 					{ ! noCard && (
