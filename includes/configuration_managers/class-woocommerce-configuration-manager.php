@@ -20,18 +20,39 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 
 	const DONATION_PRODUCT_ID_OPTION = 'newspack_donation_product_id';
 	const DONATION_SUGGESTED_AMOUNT_META = 'newspack_donation_suggested_amount';
+	const DONATION_TIERED_META = 'newspack_donation_is_tiered';
+
+	/**
+	 * The slug of the plugin.
+	 *
+	 * @var string
+	 */
+	public $slug = 'woocommerce';
+
+	/**
+	 * Get the default donation settings.
+	 *
+	 * @param bool $suggest_donations Whether to include suggested default donation amounts (Default: false).
+	 * @return array Array of settings info.
+	 */
+	protected function get_donation_default_settings( $suggest_donations = false ) {
+		return [
+			'name' => '',
+			'suggestedAmount' => $suggest_donations ? 15.00 : 0,
+			'suggestedAmountLow' => $suggest_donations ? 7.50 : 0,
+			'suggestedAmountHigh' => $suggest_donations ? 30.00 : 0,
+			'tiered' => false,
+			'image' => false,
+		];
+	}
 
 	/**
 	 * Get the donation settings.
 	 *
-	 * @return Array of dontion settings (See $settings at the top of the method for format).
+	 * @return Array of donation settings.
 	 */
 	public function get_donation_settings() {
-		$settings = [
-			'name' => '',
-			'suggestedAmount' => 15.00,
-			'image' => false,
-		];
+		$settings = $this->get_donation_default_settings( true );
 
 		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		if ( ! $product_id ) {
@@ -49,25 +70,28 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			'url' => $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' ) ) : wc_placeholder_img_src( 'woocommerce_thumbnail' ),
 		];
 
-		$suggested_donation = $product->get_meta( self::DONATION_SUGGESTED_AMOUNT_META, true );
-		if ( $suggested_donation ) {
-			$settings['suggestedAmount'] = floatval( $suggested_donation );	
+		$suggested_amounts = $product->get_meta( self::DONATION_SUGGESTED_AMOUNT_META, true );
+		if ( is_array( $suggested_amounts ) ) {
+			if ( isset( $suggested_amounts['suggestedAmount'] ) ) {
+				$settings['suggestedAmount'] = floatval( $suggested_amounts['suggestedAmount'] );	
+			}
+			$settings['suggestedAmountLow'] = isset( $suggested_amounts['suggestedAmountLow'] ) ? floatval( $suggested_amounts['suggestedAmountLow'] ) : $settings['suggestedAmount'] / 2;
+			$settings['suggestedAmountHigh'] = isset( $suggested_amounts['suggestedAmountHigh'] ) ? floatval( $suggested_amounts['suggestedAmountHigh'] ) : $settings['suggestedAmount'] * 2;
 		}
+
+		$settings['tiered'] = (bool) $product->get_meta( self::DONATION_TIERED_META, true );
 
 		return $settings;
 	}
+
 	/**
 	 * Set the donation settings.
 	 *
-	 * @param array $args Array of settings info. See $defaults at top of this method for format.
+	 * @param array $args Array of settings info.
 	 * @return array Updated settings.
 	 */
 	public function set_donation_settings( $args ) {
-		$defaults = [
-			'name' => '',
-			'suggestedAmount' => 0,
-			'imageID' => 0,
-		];
+		$defaults = $this->get_donation_default_settings();
 		$args = wp_parse_args( $args, $defaults );
 
 		// Create the product if it hasn't been created yet.
@@ -92,14 +116,10 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Create new donations products.
 	 *
-	 * @param array $args Info that will be used to create the products. See $defaults at top of this method for format.
+	 * @param array $args Info that will be used to create the products.
 	 */
 	protected function create_donation_product( $args ) {
-		$defaults = [
-			'name' => '',
-			'suggestedAmount' => 0,
-			'imageID' => 0,
-		];
+		$defaults = $this->get_donation_default_settings();
 		$args = wp_parse_args( $args, $defaults );
 
 		// Parent product.
@@ -108,7 +128,13 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		if ( $args['imageID'] ) {
 			$parent_product->set_image_id( $args['imageID'] );
 		}
-		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
+		$suggested_amounts = [
+			'suggestedAmount' => floatval( $args['suggestedAmount'] ),
+			'suggestedAmountLow' => floatval( $args['suggestedAmountLow'] ),
+			'suggestedAmountHigh' => floatval( $args['suggestedAmountHigh'] ),
+		];
+		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
+		$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
 
 		// Monthly donation.
 		$monthly_product = new \WC_Product_Subscription();
@@ -170,21 +196,23 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Update the donations products.
 	 *
-	 * @param string $args Donations settings. See $defaults at top of this method for more info.
+	 * @param string $args Donations settings.
 	 */
 	protected function update_donation_product( $args ) {
-		$defaults = [
-			'name' => '',
-			'suggestedAmount' => 0,
-			'imageID' => 0,
-		];
+		$defaults = $this->get_donation_default_settings();
 		$args = wp_parse_args( $args, $defaults );
 		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		$parent_product = \wc_get_product( $product_id );
 
 		$parent_product->set_name( $args['name'] );
 		$parent_product->set_image_id( $args['imageID'] );
-		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, floatval( $args['suggestedAmount'] ) );
+		$suggested_amounts = [
+			'suggestedAmount' => floatval( $args['suggestedAmount'] ),
+			'suggestedAmountLow' => floatval( $args['suggestedAmountLow'] ),
+			'suggestedAmountHigh' => floatval( $args['suggestedAmountHigh'] ),
+		];
+		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
+		$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
 		$parent_product->set_status( 'publish' );
 		$parent_product->save();
 
@@ -218,13 +246,6 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			$child_product->save();
 		}
 	}
-
-	/**
-	 * The slug of the plugin.
-	 *
-	 * @var string
-	 */
-	public $slug = 'woocommerce';
 
 	/**
 	 * Get whether the WooCommerce plugin is active and set up.

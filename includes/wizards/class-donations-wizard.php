@@ -106,7 +106,16 @@ class Donations_Wizard extends Wizard {
 					],
 					'suggestedAmount'     => [
 						'sanitize_callback' => 'wc_format_decimal',
-					]
+					],
+					'suggestedAmountLow'     => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'suggestedAmountHigh'     => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'tiered'     => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
 				],
 			]
 		);
