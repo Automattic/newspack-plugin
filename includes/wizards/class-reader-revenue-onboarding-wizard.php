@@ -11,18 +11,20 @@ use \WP_Error, \WC_Install, \WC_Payment_Gateways;
 
 defined( 'ABSPATH' ) || exit;
 
+define( 'NEWSPACK_REVENUE_MODEL', 'newspack_revenue_model' );
+
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
  * Easy interface for setting up general store info.
  */
-class Subscriptions_Onboarding_Wizard extends Wizard {
+class Reader_Revenue_Onboarding_Wizard extends Wizard {
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-subscriptions-onboarding-wizard';
+	protected $slug = 'newspack-reader-revenue-onboarding-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -46,7 +48,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Subscriptions Onboarding', 'newspack' );
+		return esc_html__( 'Reader Revenue Onboarding', 'newspack' );
 	}
 
 	/**
@@ -55,7 +57,7 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Set up general settings and the Stripe payment gateway', 'newspack' );
+		return esc_html__( 'Set up your revenue model and associated settings', 'newspack' );
 	}
 
 	/**
@@ -124,6 +126,33 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 					'currency'     => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+				],
+			]
+		);
+
+		// Get revenue model info.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/revenue-model/',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_revenue_model' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Save revenue model info.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/revenue-model/',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_save_revenue_model' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'model'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
 			]
@@ -301,6 +330,62 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get revenue model info.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_get_revenue_model() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		return rest_ensure_response( self::get_revenue_model() );
+	}
+
+	/**
+	 * Save revenue model info.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
+	public function api_save_revenue_model( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		$params   = $request->get_params();
+		$defaults = [
+			'model' => 'donations',
+		];
+		$args     = wp_parse_args( $params, $defaults );
+
+		return rest_ensure_response( self::update_revenue_model( $args['model'] ) );
+	}
+
+	/**
+	 * Get the site's revenue model.
+	 *
+	 * @return string 'donations' or 'subscriptions'.
+	 */
+	public static function get_revenue_model() {
+		return 'donations' === get_option( NEWSPACK_REVENUE_MODEL, 'donations' ) ? 'donations' : 'subscriptions';
+	}
+
+	/**
+	 * Update the site's revenue model.
+	 *
+	 * @param string $model 'donations' or 'subscriptions'.
+	 * @return string The updated model.
+	 */
+	public static function update_revenue_model( $model ) {
+		$model = 'donations' === $model ? 'donations' : 'subscriptions';
+		update_option( NEWSPACK_REVENUE_MODEL, $model );
+		return $model;
+	}
+
+	/**
 	 * Get Stripe settings.
 	 *
 	 * @return WP_REST_Response containing info.
@@ -432,20 +517,20 @@ class Subscriptions_Onboarding_Wizard extends Wizard {
 		}
 
 		wp_enqueue_script(
-			'newspack-subscriptions-onboarding-wizard',
-			Newspack::plugin_url() . '/assets/dist/subscriptionsOnboarding.js',
+			'newspack-reader-revenue-onboarding-wizard',
+			Newspack::plugin_url() . '/assets/dist/readerRevenueOnboarding.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptionsOnboarding.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenueOnboarding.js' ),
 			true
 		);
 
 		wp_register_style(
-			'newspack-subscriptions-onboarding-wizard',
-			Newspack::plugin_url() . '/assets/dist/subscriptionsOnboarding.css',
+			'newspack-reader-revenue-onboarding-wizard',
+			Newspack::plugin_url() . '/assets/dist/readerRevenueOnboarding.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptionsOnboarding.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenueOnboarding.css' )
 		);
-		wp_style_add_data( 'newspack-subscriptions-onboarding-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-subscriptions-onboarding-wizard' );
+		wp_style_add_data( 'newspack-reader-revenue-onboarding-wizard', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-reader-revenue-onboarding-wizard' );
 	}
 }
