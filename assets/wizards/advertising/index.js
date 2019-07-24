@@ -179,16 +179,15 @@ class AdvertisingWizard extends Component {
 	/**
 	 * Save placement.
 	 */
-	savePlacement = ( placement, adUnit ) => {
+	savePlacement = ( placement, data ) => {
 		const { setError, wizardApiFetch } = this.props;
-		const { advertisingData } = this.state;
-		advertisingData.placements[ placement ] = adUnit;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/placement/' + placement + '/ad_unit',
+				path: '/newspack/v1/wizard/advertising/placement/' + placement,
 				method: 'post',
 				data: {
-					ad_unit: adUnit,
+					ad_unit: data.adUnit,
+					service: data.service,
 				},
 			} )
 				.then( advertisingData => {
@@ -358,7 +357,8 @@ class AdvertisingWizard extends Component {
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									placements={ placements }
 									adUnits={ adUnits }
-									onChange={ ( placement, adUnit ) => this.savePlacement( placement, adUnit ) }
+									services={ services }
+									onChange={ ( placement, data ) => this.savePlacement( placement, data ) }
 									togglePlacement={ ( placement, value ) =>
 										this.togglePlacement( placement, value )
 									}

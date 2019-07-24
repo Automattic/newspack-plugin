@@ -11,13 +11,19 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, TabbedNavigation, SelectControl, ToggleGroup, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	TabbedNavigation,
+	SelectControl,
+	ToggleGroup,
+	withWizardScreen,
+} from '../../../../components/src';
+import AdPicker from './ad-picker';
 
 /**
  * Advertising management screen.
  */
 class Placements extends Component {
-
 	adUnitsForSelect = adUnits => {
 		return [
 			{
@@ -33,11 +39,26 @@ class Placements extends Component {
 		];
 	};
 
+	adServicesForSelect = services => {
+		return [
+			{
+				label: __( 'Select an ad provider' ),
+				value: null,
+			},
+			...Object.keys( services ).map( key => {
+				return {
+					label: services[ key ].label,
+					value: key,
+				};
+			} ),
+		];
+	};
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { togglePlacement, placements, adUnits, onChange } = this.props;
+		const { togglePlacement, placements, adUnits, services, onChange } = this.props;
 		const {
 			global_above_header,
 			global_below_header,
@@ -58,11 +79,11 @@ class Placements extends Component {
 					checked={ global_above_header && global_above_header.enabled }
 					onChange={ value => togglePlacement( 'global_above_header', value ) }
 				>
-					<SelectControl
-						label={ __( 'Ad Unit' ) }
-						value={ global_above_header.ad_unit || '' }
-						options={ this.adUnitsForSelect( adUnits ) }
-						onChange={ adUnit => onChange( 'global_above_header', adUnit ) }
+					<AdPicker
+						adUnits={ adUnits }
+						services={ services }
+						value={ global_above_header }
+						onChange={ value => onChange( 'global_above_header', value ) }
 					/>
 				</ToggleGroup>
 				<ToggleGroup
@@ -71,11 +92,11 @@ class Placements extends Component {
 					checked={ global_below_header && global_below_header.enabled }
 					onChange={ value => togglePlacement( 'global_below_header', value ) }
 				>
-					<SelectControl
-						label={ __( 'Ad Unit' ) }
-						value={ global_below_header.ad_unit || '' }
-						options={ this.adUnitsForSelect( adUnits ) }
-						onChange={ adUnit => onChange( 'global_below_header', adUnit ) }
+					<AdPicker
+						adUnits={ adUnits }
+						services={ services }
+						value={ global_below_header }
+						onChange={ value => onChange( 'global_below_header', value ) }
 					/>
 				</ToggleGroup>
 				<ToggleGroup
@@ -84,11 +105,11 @@ class Placements extends Component {
 					checked={ global_above_footer && global_above_footer.enabled }
 					onChange={ value => togglePlacement( 'global_above_footer', value ) }
 				>
-					<SelectControl
-						label={ __( 'Ad Unit' ) }
-						value={ global_above_footer.ad_unit || '' }
-						options={ this.adUnitsForSelect( adUnits ) }
-						onChange={ adUnit => onChange( 'global_above_footer', adUnit ) }
+					<AdPicker
+						adUnits={ adUnits }
+						services={ services }
+						value={ global_above_footer }
+						onChange={ value => onChange( 'global_above_footer', value ) }
 					/>
 				</ToggleGroup>
 				<ToggleGroup
@@ -97,11 +118,11 @@ class Placements extends Component {
 					checked={ archives && archives.enabled }
 					onChange={ value => togglePlacement( 'archives', value ) }
 				>
-					<SelectControl
-						label={ __( 'Ad Unit' ) }
-						value={ archives.ad_unit || '' }
-						options={ this.adUnitsForSelect( adUnits ) }
-						onChange={ adUnit => onChange( 'archives', adUnit ) }
+					<AdPicker
+						adUnits={ adUnits }
+						services={ services }
+						value={ archives }
+						onChange={ value => onChange( 'archives', value ) }
 					/>
 				</ToggleGroup>
 				<ToggleGroup
@@ -110,11 +131,11 @@ class Placements extends Component {
 					checked={ search_results && search_results.enabled }
 					onChange={ value => togglePlacement( 'search_results', value ) }
 				>
-					<SelectControl
-						label={ __( 'Ad Unit' ) }
-						value={ search_results.ad_unit || '' }
-						options={ this.adUnitsForSelect( adUnits ) }
-						onChange={ adUnit => onChange( 'search_results', adUnit ) }
+					<AdPicker
+						adUnits={ adUnits }
+						services={ services }
+						value={ search_results }
+						onChange={ value => onChange( 'search_results', value ) }
 					/>
 				</ToggleGroup>
 			</Fragment>
