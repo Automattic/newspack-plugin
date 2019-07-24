@@ -31,6 +31,7 @@ class Services extends Component {
 				</p>
 				<ActionCard
 					title={ __( 'WordAds from WordPress.com' ) }
+					badge={ __( 'Jetpack Premium' ) }
 					description={ __(
 						'A managed ad optimization platform where the top 50 ad networks (DSPs and exchanges) compete for your traffic, with flexible placement options, and support from WordPress.com.'
 					) }
@@ -42,7 +43,9 @@ class Services extends Component {
 					notification={
 						wordads.upgrade_required && [
 							__( 'Upgrade Jetpack to enable WordAds. ' ),
-							<ExternalLink href="/wp-admin/admin.php?page=jetpack#/plans">Click to upgrade</ExternalLink>,
+							<ExternalLink href="/wp-admin/admin.php?page=jetpack#/plans">
+								Click to upgrade
+							</ExternalLink>,
 						]
 					}
 					notificationLevel={ 'info' }
