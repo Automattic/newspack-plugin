@@ -38,6 +38,7 @@ class Newsletter_Block_Wizard extends Wizard {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 	}
+
 	/**
 	 * Get the name for this wizard.
 	 *
@@ -87,44 +88,8 @@ class Newsletter_Block_Wizard extends Wizard {
 	 * @return WP_REST_Response with the info.
 	 */
 	public function api_get_connection_status_settings() {
-		if ( ! class_exists( 'Jetpack_Options' ) ) {
-			return new WP_Error(
-				'newspack_missing_required_plugin',
-				esc_html__( 'The Jetpack plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
-				[
-					'status' => 400,
-					'level'  => 'fatal',
-				]
-			);
-		}
-
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'newspack' ),
-				[
-					'status' => 403,
-					'level'  => 'fatal',
-				]			
-			);
-		}
-
-		$connect_url = sprintf( 'https://wordpress.com/marketing/connections/%s', rawurlencode( $site_id ) );
-		
-		$option = get_option( 'jetpack_mailchimp', false );
-		if ( $option ) {
-			$data = json_decode( $option, true );
-			$mailchimp_connected = $data ? isset( $data['follower_list_id'], $data['keyring_id'] ) : false;
-		} else {
-			$mailchimp_connected = false;
-		}
-
-		return array(
-			'connected'  => $mailchimp_connected,
-			'connectURL' => $connect_url,
-		);
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		return rest_ensure_response( $configuration_manager->get_mailchimp_connection_status() );
 	}
 
 	/**
