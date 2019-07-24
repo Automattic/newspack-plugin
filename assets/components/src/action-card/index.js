@@ -31,6 +31,7 @@ class ActionCard extends Component {
 	 */
 	render( props ) {
 		const {
+			badge,
 			className,
 			title,
 			description,
@@ -78,7 +79,7 @@ class ActionCard extends Component {
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h1>{ title }</h1>
+						<h1>{ [ title, badge && <span className='newspack-action-card-badge'>{ badge }</span> ] }</h1>
 						<h2>{ description }</h2>
 					</div>
 					{ actionDisplay && (

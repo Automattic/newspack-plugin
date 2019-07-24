@@ -288,6 +288,15 @@ class ComponentsDemo extends Component {
 						toggleOnChange={ checked => this.setState( { actionCardToggleChecked: checked } ) }
 						toggleChecked={ actionCardToggleChecked }
 					/>
+					<ActionCard
+						badge="Premium"
+						title="Example Ten"
+						description="An example of an action card with a badge."
+						actionText="Install"
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
 					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
 						<Task
