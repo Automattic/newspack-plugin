@@ -39,18 +39,26 @@ class AdPicker extends Component {
 				label: __( 'Select an ad provider' ),
 				value: null,
 			},
-			...Object.keys( services ).map( key => {
-				return {
-					label: services[ key ].label,
-					value: key,
-				};
-			} ),
+			...Object.keys( services )
+				.map(
+					key =>
+						services[ key ].enabled && {
+							label: services[ key ].label,
+							value: key,
+						}
+				)
+				.filter( option => option ),
 		];
 	};
 
 	needsAdUnit = value => {
+		const { services } = this.props;
 		const { service } = value;
-		return 'google_ad_manager' === service;
+		return (
+			'google_ad_manager' === service &&
+			services.google_ad_manager &&
+			services.google_ad_manager.enabled
+		);
 	};
 
 	/**
