@@ -31,7 +31,7 @@ class ToggleGroup extends Component {
 		const classes = murielClassnames( 'muriel-toggle-group', className );
 		return (
 			<div className={ classes }>
-				<ToggleControl checked={ checked } onChange={ onChange } />
+				<ToggleControl checked={ checked || false } onChange={ onChange } />
 				<div className="container">
 					<h1>{ title }</h1>
 					<h2>{ description }</h2>
