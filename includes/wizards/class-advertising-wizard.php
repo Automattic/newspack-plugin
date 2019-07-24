@@ -282,7 +282,12 @@ class Advertising_Wizard extends Wizard {
 	 */
 	public function api_enable_service( $request ) {
 		$service = $request['service'];
-		update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
+		if ( 'wordads' === $service ) {
+			$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+			$jetpack_manager->activate_wordads();
+		} else {
+			update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
+		}
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -294,7 +299,12 @@ class Advertising_Wizard extends Wizard {
 	 */
 	public function api_disable_service( $request ) {
 		$service = $request['service'];
-		update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, false );
+		if ( 'wordads' === $service ) {
+			$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+			$jetpack_manager->deactivate_wordads();
+		} else {
+			update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, false );
+		}
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -423,6 +433,13 @@ class Advertising_Wizard extends Wizard {
 				'enabled'     => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, '' ),
 				'header_code' => $configuration_manager->get_header_code( $service ),
 			);
+		}
+		/* Check availability of WordAds based on current Jetpack plan */
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+
+		$services['wordads']['enabled'] = $configuration_manager->is_wordads_enabled();
+		if ( ! $configuration_manager->is_wordads_available_at_plan_level() ) {
+			$services['wordads']['upgrade_required'] = true;
 		}
 		return $services;
 	}

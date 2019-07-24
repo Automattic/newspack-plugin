@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -38,6 +39,13 @@ class Services extends Component {
 					toggleChecked={ wordads && wordads.enabled }
 					toggleOnChange={ value => toggleService( 'wordads', value ) }
 					href={ wordads && '#/wordads' }
+					notification={
+						wordads.upgrade_required && [
+							__( 'Upgrade Jetpack to enable WordAds. ' ),
+							<ExternalLink href="/wp-admin/admin.php?page=jetpack#/plans">Click to upgrade</ExternalLink>,
+						]
+					}
+					notificationLevel={ 'info' }
 				/>
 				<ActionCard
 					title={ __( 'Google AdSense' ) }
