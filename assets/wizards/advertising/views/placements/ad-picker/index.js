@@ -23,6 +23,7 @@ class AdPicker extends Component {
 			{
 				label: __( 'Select an ad unit' ),
 				value: null,
+				disabled: true,
 			},
 			...Object.values( adUnits ).map( adUnit => {
 				return {
@@ -38,6 +39,7 @@ class AdPicker extends Component {
 			{
 				label: __( 'Select an ad provider' ),
 				value: null,
+				disabled: true,
 			},
 			...Object.keys( services )
 				.map(
