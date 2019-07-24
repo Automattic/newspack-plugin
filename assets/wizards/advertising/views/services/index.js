@@ -39,7 +39,7 @@ class Services extends Component {
 					toggle
 					toggleChecked={ wordads && wordads.enabled }
 					toggleOnChange={ value => toggleService( 'wordads', value ) }
-					href={ wordads && '#/wordads' }
+					href={ wordads && '#/ad-placements' }
 					notification={
 						wordads.upgrade_required && [
 							__( 'Upgrade Jetpack to enable WordAds. ' ),
