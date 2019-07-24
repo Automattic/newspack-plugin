@@ -20,7 +20,6 @@ class Advertising_Wizard extends Wizard {
 
 	const NEWSPACK_ADVERTISING_SERVICE_PREFIX   = '_newspack_advertising_service_';
 	const NEWSPACK_ADVERTISING_PLACEMENT_PREFIX = '_newspack_advertising_placement_';
-	const NEWSPACK_ADVERTISING_AD_UNIT_SUFFIX   = '_ad_unit';
 
 	/**
 	 * The slug of this wizard.
@@ -41,7 +40,17 @@ class Advertising_Wizard extends Wizard {
 	 *
 	 * @var array
 	 */
-	protected $services = array( 'wordads', 'google_ad_manager', 'google_adsense' );
+	protected $services = array(
+		'wordads'           => array(
+			'label' => 'WordAds',
+		),
+		'google_ad_manager' => array(
+			'label' => 'Google Ad Manager',
+		),
+		'google_adsense'    => array(
+			'label' => 'Ad Sense',
+		),
+	);
 
 	/**
 	 * Placements.
@@ -171,32 +180,13 @@ class Advertising_Wizard extends Wizard {
 			]
 		);
 
-		// Set ad unit for placement.
-		register_rest_route(
-			'newspack/v1/wizard/',
-			'/advertising/placement/(?P<placement>[\a-z]+)/ad_unit',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_set_ad_unit_for_placement' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'placement' => [
-						'sanitize_callback' => [ $this, 'sanitize_placement' ],
-					],
-					'ad_unit'   => [
-						'sanitize_callback' => 'absint',
-					],
-				],
-			]
-		);
-
-		// Enable placement.
+		// Update placement.
 		register_rest_route(
 			'newspack/v1/wizard/',
 			'/advertising/placement/(?P<placement>[\a-z]+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_enable_placement' ],
+				'callback'            => [ $this, 'api_update_placement' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'placement' => [
@@ -309,14 +299,22 @@ class Advertising_Wizard extends Wizard {
 	}
 
 	/**
-	 * Enable one placement
+	 * Create/update a placement
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response containing ad units info.
 	 */
-	public function api_enable_placement( $request ) {
-		$placement = $request['placement'];
-		update_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, true );
+	public function api_update_placement( $request ) {
+		$placement      = $request['placement'];
+		$ad_unit        = $request['ad_unit'];
+		$service        = $request['service'];
+		$placement_data = self::get_placement_data( $placement );
+
+		$placement_data['enabled'] = true;
+		$placement_data['ad_unit'] = $ad_unit;
+		$placement_data['service'] = $service;
+
+		update_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, wp_json_encode( $placement_data ) );
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -328,20 +326,7 @@ class Advertising_Wizard extends Wizard {
 	 */
 	public function api_disable_placement( $request ) {
 		$placement = $request['placement'];
-		update_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, false );
-		return \rest_ensure_response( $this->retrieve_data() );
-	}
-
-	/**
-	 * Set the Ad Unit for a placement
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response containing ad units info.
-	 */
-	public function api_set_ad_unit_for_placement( $request ) {
-		$placement = $request['placement'];
-		$ad_unit   = $request['ad_unit'];
-		update_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement . self::NEWSPACK_ADVERTISING_AD_UNIT_SUFFIX, $ad_unit );
+		update_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, null );
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -428,17 +413,18 @@ class Advertising_Wizard extends Wizard {
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
 		$services = array();
-		foreach ( $this->services as $service ) {
+		foreach ( $this->services as $service => $data ) {
 			$services[ $service ] = array(
+				'label'       => $data['label'],
 				'enabled'     => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, '' ),
 				'header_code' => $configuration_manager->get_header_code( $service ),
 			);
 		}
 		/* Check availability of WordAds based on current Jetpack plan */
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 
-		$services['wordads']['enabled'] = $configuration_manager->is_wordads_enabled();
-		if ( ! $configuration_manager->is_wordads_available_at_plan_level() ) {
+		$services['wordads']['enabled'] = $jetpack_manager->is_wordads_enabled();
+		if ( ! $jetpack_manager->is_wordads_available_at_plan_level() ) {
 			$services['wordads']['upgrade_required'] = true;
 		}
 		return $services;
@@ -452,12 +438,27 @@ class Advertising_Wizard extends Wizard {
 	private function get_placements() {
 		$placements = array();
 		foreach ( $this->placements as $placement ) {
-			$placements[ $placement ] = array(
-				'enabled' => get_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, false ),
-				'ad_unit' => get_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement . self::NEWSPACK_ADVERTISING_AD_UNIT_SUFFIX, null ),
-			);
+			$placements[ $placement ] = self::get_placement_data( $placement );
 		}
 		return $placements;
+	}
+
+	/**
+	 * Retrieve and decode data for one placement.
+	 *
+	 * @param string $placement Placement id.
+	 * @return array adUnit, service, and enabled for the placement.
+	 */
+	private function get_placement_data( $placement ) {
+		$option_value = json_decode( get_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, '' ) );
+
+		$defaults = array(
+			'adUnit'  => '',
+			'enabled' => false,
+			'service' => '',
+		);
+
+		return wp_parse_args( $option_value, $defaults );
 	}
 
 	/**
