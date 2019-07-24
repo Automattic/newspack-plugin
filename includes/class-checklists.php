@@ -50,7 +50,21 @@ class Checklists {
 					'google-ad-manager',
 				],
 			],
+			'engagement'     => [
+				'name'        => esc_html__( 'Engagement', 'newspack' ),
+				'description' => esc_html__( 'How do you want your audience to engage with your publication?', 'newspack' ),
+				'wizards'     => [
+					'newsletter-block',
+				]
+			]
 		];
+
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
+		// Only add the Mailchimp wizard if WooCommerce is active.
+		if ( 'active' === $managed_plugins['woocommerce']['Status'] ) {
+			array_unshift( self::$checklists['engagement']['wizards'], 'mailchimp' );
+		}
 
 		add_action( 'admin_menu', 'Newspack\Checklists::add_page' );
 		add_action( 'admin_enqueue_scripts', 'Newspack\Checklists::enqueue_scripts_and_styles' );
