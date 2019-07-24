@@ -33,3 +33,25 @@
 .newspack-payment-setup-screen__api-keys-instruction {
 	margin-bottom: 1.5em;
 }
+
+input[type="radio"].newspack-revenue-model-setup-screen__choice {
+	margin-top: 1px;
+}
+
+.newspack-revenue-model-setup-screen__choice-label {
+	font-size: 16px;
+	margin-left: .5em;
+}
+
+#newspack-revenue-model-setup-screen__choice-donations-label {
+	font-weight: 500;
+}
+
+.newspack-revenue-model-setup-screen__choice-description {
+	font-style: italic;
+	margin-left: 2em;
+}
+
+#newspack-revenue-model-setup-screen__choice-donations-description {
+	margin-bottom: 2em;
+}

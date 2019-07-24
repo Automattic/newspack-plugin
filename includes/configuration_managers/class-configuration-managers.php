@@ -40,6 +40,10 @@ class Configuration_Managers {
 			'filename'   => 'class-newspack-ads-configuration-manager.php',
 			'class_name' => 'Newspack_Ads_Configuration_Manager',
 		],
+		'woocommerce'     => [
+			'filename'   => 'class-woocommerce-configuration-manager.php',
+			'class_name' => 'WooCommerce_Configuration_Manager',
+		]
 	];
 
 	/**

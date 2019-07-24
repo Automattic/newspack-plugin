@@ -1,0 +1,26 @@
+#newspack-donations-wizard {
+	.muriel-image-upload {
+		margin-top: 3em;
+		margin-bottom: 3em;
+	}
+}
+
+.newspack-donations-wizard__suggested-price {
+	position: relative;
+
+	.muriel-input-text {
+		width: 62%;
+
+		@media screen and ( max-width: 1040px ) {
+			width: 67%;
+		}
+
+		@media screen and ( max-width: 660px ) {
+			width: 75%;
+		}	
+	}
+
+	.muriel-info-button {
+		top: 16px;
+	}
+}
