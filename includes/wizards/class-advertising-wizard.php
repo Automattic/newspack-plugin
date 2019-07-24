@@ -108,7 +108,7 @@ class Advertising_Wizard extends Wizard {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_header_code' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'permission_callback' => [ $this, 'api_permissions_check_unfiltered_html' ],
 				'args'                => [
 					'service'     => [
 						'sanitize_callback' => [ $this, 'sanitize_service' ],
