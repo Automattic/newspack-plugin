@@ -167,7 +167,7 @@ class Donations_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-donations-wizard',
 			Newspack::plugin_url() . '/assets/dist/donations.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/donations.js' ),
 			true
 		);

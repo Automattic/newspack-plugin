@@ -136,7 +136,7 @@ class Google_AdSense_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-google-adsense-wizard',
 			Newspack::plugin_url() . '/assets/dist/googleAdSense.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdSense.js' ),
 			true
 		);

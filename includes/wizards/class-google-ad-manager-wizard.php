@@ -215,7 +215,7 @@ class Google_Ad_Manager_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-google-ad-manager-wizard',
 			Newspack::plugin_url() . '/assets/dist/googleAdManager.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAdManager.js' ),
 			true
 		);

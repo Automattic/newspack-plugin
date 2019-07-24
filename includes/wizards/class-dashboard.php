@@ -178,7 +178,7 @@ class Dashboard extends Wizard {
 		wp_register_script(
 			'newspack-dashboard',
 			Newspack::plugin_url() . '/assets/dist/dashboard.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/dashboard.js' ),
 			true
 		);
