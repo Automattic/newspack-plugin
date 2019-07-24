@@ -7,7 +7,7 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Dashicon } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -54,8 +54,9 @@ class MailchimpBlockSetup extends Component {
 					isPrimary={ ! connected }
 					isDefault={ !! connected }
 				>
-					{ ! connected ? __( 'Set up Mailchimp on WordPress.com' ) : __( 'Manage your Mailchimp connection' ) }
-					<Dashicon icon='external' />
+					<ExternalLink href={ connectURL }>
+						{ ! connected ? __( 'Set up Mailchimp on WordPress.com' ) : __( 'Manage your Mailchimp connection' ) }
+					</ExternalLink>
 				</Button>
 			</Fragment>
 		);

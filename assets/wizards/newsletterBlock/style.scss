@@ -27,7 +27,13 @@
 	align-items: center;
 	justify-content: center;
 
-	.dashicon {
-		margin-left: .5em;
+	a {
+		text-decoration: none;
+	}
+
+	&.is-primary {
+		a {
+			color: $muriel-white;
+		}
 	}
 }
