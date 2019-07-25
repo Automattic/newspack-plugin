@@ -90,7 +90,7 @@ class Components_Demo extends Wizard {
 		wp_enqueue_script(
 			'newspack-components-demo',
 			Newspack::plugin_url() . '/assets/dist/componentsDemo.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/componentsDemo.js' ),
 			true
 		);

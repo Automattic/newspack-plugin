@@ -395,7 +395,7 @@ class Subscriptions_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-subscriptions-wizard',
 			Newspack::plugin_url() . '/assets/dist/subscriptions.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/subscriptions.js' ),
 			true
 		);
