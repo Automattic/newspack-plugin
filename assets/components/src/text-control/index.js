@@ -68,7 +68,7 @@ const TextControl = withFocusOutside(
 			const { isFocused } = this.state;
 			const { className, onClick, ...otherProps } = this.props;
 			const { label, value, disabled } = otherProps;
-			const isEmpty = ! value;
+			const isEmpty = '' === value;
 			const isActive = isFocused && ! disabled;
 
 			return (

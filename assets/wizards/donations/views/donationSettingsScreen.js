@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { TextControl, ImageUpload, ToggleGroup, withWizardScreen } from '../../../components/src';
+import MoneyInput from './moneyInput';
 
 /**
  * Settings for donation collection.
@@ -20,7 +21,7 @@ class DonationSettingsScreen extends Component {
 
 	onSuggestedAmountChange( index, value ) {
 		const { suggestedAmounts, onChange } = this.props;
-		suggestedAmounts[index] = value;
+		suggestedAmounts[index] = '' !== value ? value : 0;
 		onChange( 'suggestedAmounts', suggestedAmounts );
 	}
 
@@ -57,23 +58,20 @@ class DonationSettingsScreen extends Component {
 					onChange={ tiered => onChange( 'tiered', tiered ) }
 				>
 					<div className='newspack-donations-wizard__tier-suggested-prices'>
-						<TextControl
-							type="number"
-							step="0.01"
+						<MoneyInput
+							currencySymbol={ currencySymbol }
 							label={ __( 'Low-tier' ) }
 							value={ suggestedAmounts[0] }
 							onChange={ value => this.onSuggestedAmountChange( 0, value ) }
 						/>
-						<TextControl
-							type="number"
-							step="0.01"
+						<MoneyInput
+							currencySymbol={ currencySymbol }
 							label={ __( 'Mid-tier' ) }
 							value={ suggestedAmounts[1] }
 							onChange={ value => this.onSuggestedAmountChange( 1, value ) }
 						/>
-						<TextControl
-							type="number"
-							step="0.01"
+						<MoneyInput
+							currencySymbol={ currencySymbol }
 							label={ __( 'High-tier' ) }
 							value={ suggestedAmounts[2] }
 							onChange={ value => this.onSuggestedAmountChange( 2, value ) }
@@ -82,9 +80,8 @@ class DonationSettingsScreen extends Component {
 				</ToggleGroup>
 				{ ! tiered && (
 					<div className='newspack-donations-wizard__suggested-price'>
-						<TextControl
-							type="number"
-							step="0.01"
+						<MoneyInput
+							currencySymbol={ currencySymbol }
 							label={ __( 'Suggested donation amount per month' ) }
 							value={ suggestedAmountUntiered }
 							onChange={ value => onChange( 'suggestedAmountUntiered', value ) }
