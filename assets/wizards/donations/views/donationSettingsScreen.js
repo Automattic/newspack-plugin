@@ -7,11 +7,12 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { TextControl, ImageUpload, ToggleGroup, withWizardScreen } from '../../../components/src';
+import { TextControl, ImageUpload, withWizardScreen } from '../../../components/src';
 import MoneyInput from './moneyInput';
 
 /**
@@ -52,11 +53,7 @@ class DonationSettingsScreen extends Component {
 					{ __( 'Set a suggested monthly donation amount. This will provide hints to readers about how much to donate, which will increase the average donation amount.' ) }
 				</p>
 
-				<ToggleGroup
-					title={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
-					checked={ tiered }
-					onChange={ tiered => onChange( 'tiered', tiered ) }
-				>
+				{ tiered && (
 					<div className='newspack-donations-wizard__tier-suggested-prices'>
 						<MoneyInput
 							currencySymbol={ currencySymbol }
@@ -77,7 +74,8 @@ class DonationSettingsScreen extends Component {
 							onChange={ value => this.onSuggestedAmountChange( 2, value ) }
 						/>
 					</div>
-				</ToggleGroup>
+				) }
+
 				{ ! tiered && (
 					<div className='newspack-donations-wizard__suggested-price'>
 						<MoneyInput
@@ -88,6 +86,11 @@ class DonationSettingsScreen extends Component {
 						/>
 					</div>
 				) }
+
+				<div className='newspack-donations-wizard__use-tiered'>
+					<ToggleControl checked={ tiered } onChange={ tiered => onChange( 'tiered', tiered ) } />
+					<h4>{ __( 'Suggest low, middle, and high tiers for monthly donations' ) }</h4>
+				</div>
 			</Fragment>
 		);
 	}
