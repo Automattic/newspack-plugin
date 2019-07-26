@@ -11,17 +11,16 @@
 	font-style: italic;
 }
 
-.newspack-donations-wizard__suggested-price {
-	margin-left: 60px;
-	margin-bottom: 28px;
-}
-
 .newspack-donations-wizard__tier-suggested-prices {
 	display: flex;
 	justify-content: space-between;
 
 	> div {
 		width: calc(33% - 1em);
+	}
+
+	.muriel-input-text {
+		margin-top: 0;
 	}
 }
 
@@ -31,10 +30,12 @@
 	.currency {
 		position: absolute;
 		line-height: 24px;
-		top: 41px;
+		top: 27px;
 		left: 1em;
 		font-size: 16px;
 		z-index: 1;
+		color: $muriel-gray-500;
+		cursor: default;
 	}
 
 	.components-text-control__input {
@@ -49,5 +50,18 @@
 		label {
 			display: block;
 		}
+	}
+}
+
+.newspack-donations-wizard__use-tiered {
+	display: flex;
+	align-items: center;
+	padding-top: .5em;
+
+	h4 {
+		font-weight: normal;
+		font-size: 16px;
+		margin-top: 0;
+		margin-bottom: 12px;
 	}
 }
