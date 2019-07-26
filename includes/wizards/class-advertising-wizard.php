@@ -219,7 +219,7 @@ class Advertising_Wizard extends Wizard {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_adunit' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'permission_callback' => [ $this, 'api_permissions_check_unfiltered_html' ],
 				'args'                => [
 					'id'          => [
 						'sanitize_callback' => 'absint',
@@ -245,7 +245,7 @@ class Advertising_Wizard extends Wizard {
 			[
 				'methods'             => 'DELETE',
 				'callback'            => [ $this, 'api_delete_adunit' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'permission_callback' => [ $this, 'api_permissions_check_unfiltered_html' ],
 				'args'                => [
 					'id' => [
 						'sanitize_callback' => 'absint',
