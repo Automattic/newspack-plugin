@@ -226,6 +226,7 @@ class Advertising_Wizard extends Wizard {
 					],
 					'name'        => [
 						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'ad_code'     => [
 						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
