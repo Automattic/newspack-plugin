@@ -79,8 +79,8 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'advertising',
-				'name'        => Checklists::get_name( 'advertising' ),
-				'url'         => Checklists::get_url( 'advertising' ),
+				'name'        => Wizards::get_name( 'advertising' ),
+				'url'         => Wizards::get_url( 'advertising' ),
 				'description' => esc_html__( 'Content monetization', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/advertising-icon.svg',
 				'status'      => Checklists::get_status( 'advertising' ),
