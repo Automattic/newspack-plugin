@@ -17,11 +17,18 @@ import { TextControl, ImageUpload, ToggleGroup, withWizardScreen } from '../../.
  * Settings for donation collection.
  */
 class DonationSettingsScreen extends Component {
+
+	onSuggestedAmountChange( index, value ) {
+		const { suggestedAmounts, onChange } = this.props;
+		suggestedAmounts[index] = value;
+		onChange( 'suggestedAmounts', suggestedAmounts );
+	}
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, onChange } = this.props;
+		const { name, suggestedAmounts, suggestedAmountUntiered, currencySymbol, tiered, onChange } = this.props;
 		let { image } = this.props;
 		if ( ! image || '0' === image.id ) {
 			image = null;
@@ -54,22 +61,22 @@ class DonationSettingsScreen extends Component {
 							type="number"
 							step="0.01"
 							label={ __( 'Low-tier' ) }
-							value={ suggestedAmountLow }
-							onChange={ value => onChange( 'suggestedAmountLow', value ) }
+							value={ suggestedAmounts[0] }
+							onChange={ value => this.onSuggestedAmountChange( 0, value ) }
 						/>
 						<TextControl
 							type="number"
 							step="0.01"
 							label={ __( 'Mid-tier' ) }
-							value={ suggestedAmount }
-							onChange={ value => onChange( 'suggestedAmount', value ) }
+							value={ suggestedAmounts[1] }
+							onChange={ value => this.onSuggestedAmountChange( 1, value ) }
 						/>
 						<TextControl
 							type="number"
 							step="0.01"
 							label={ __( 'High-tier' ) }
-							value={ suggestedAmountHigh }
-							onChange={ value => onChange( 'suggestedAmountHigh', value ) }
+							value={ suggestedAmounts[2] }
+							onChange={ value => this.onSuggestedAmountChange( 2, value ) }
 						/>
 					</div>
 				</ToggleGroup>
@@ -79,12 +86,8 @@ class DonationSettingsScreen extends Component {
 							type="number"
 							step="0.01"
 							label={ __( 'Suggested donation amount per month' ) }
-							value={ suggestedAmount }
-							onChange={ value => { 
-								onChange( 'suggestedAmount', value ); 
-								onChange( 'suggestedAmountHigh', 2 * value ); 
-								onChange( 'suggestedAmountLow', value / 2 ); 
-							} }
+							value={ suggestedAmountUntiered }
+							onChange={ value => onChange( 'suggestedAmountUntiered', value ) }
 						/>
 					</div>
 				) }

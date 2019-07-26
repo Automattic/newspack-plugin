@@ -127,17 +127,8 @@ class Donations_Wizard extends Wizard {
 	 * @return bool | WP_Error True on success, WP_Error on failure.
 	 */
 	protected function check_required_plugins_installed() {
-		if ( ! function_exists( 'WC' ) || ! class_exists( 'WC_Subscriptions_Product' ) || ! class_exists( 'WC_Name_Your_Price_Helpers' ) ) {
-			return new WP_Error(
-				'newspack_missing_required_plugin',
-				esc_html__( 'The required plugins are not installed and activated. Install and/or activate them to access this feature.', 'newspack' ),
-				[
-					'status' => 400,
-					'level'  => 'fatal',
-				]
-			);
-		}
-		return true;
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		return $configuration_manager->is_woocommerce_suite_active();
 	}
 
 	/**
