@@ -429,7 +429,6 @@ class AdvertisingWizard extends Component {
 											}
 										}
 										service={ 'google_ad_manager' }
-										tabbedNavigation={ gam_tabs }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
 											this.saveAdUnit( id ).then( newAdUnit => {
@@ -451,7 +450,6 @@ class AdvertisingWizard extends Component {
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
 										) }
 										adUnit={ adUnits[ routeProps.match.params.id ] || {} }
-										tabbedNavigation={ gam_tabs }
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
