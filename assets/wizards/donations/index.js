@@ -31,9 +31,9 @@ class DonationsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			name: '',
-			suggestedAmountLow: 7.50,
-			suggestedAmount: 15.00,
-			suggestedAmountHigh: 30.00,
+			suggestedAmounts: [ 7.50, 15.00, 30.00 ],
+			suggestedAmountUntiered: 15.00,
+			currencySymbol: '$',
 			image: false,
 			tiered: false,
 		};
@@ -53,14 +53,14 @@ class DonationsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-donations-wizard/donation' } )
 			.then( settings => {
-				const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, image } = settings;
+				const { name, suggestedAmounts, suggestedAmountUntiered, tiered, currencySymbol, image } = settings;
 				return new Promise( resolve => {
 					this.setState(
 						{
 							name,
-							suggestedAmount,
-							suggestedAmountLow,
-							suggestedAmountHigh,
+							suggestedAmounts,
+							suggestedAmountUntiered,
+							currencySymbol,
 							tiered,
 							image,
 						},
@@ -81,7 +81,7 @@ class DonationsWizard extends Component {
 	 */
 	saveDonationSettings() {
 		const { setError, wizardApiFetch } = this.props;
-		const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, image } = this.state;
+		const { name, suggestedAmounts, suggestedAmountUntiered, tiered, image } = this.state;
 		const imageID = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
@@ -90,9 +90,8 @@ class DonationsWizard extends Component {
 				data: {
 					name,
 					imageID,
-					suggestedAmount,
-					suggestedAmountLow,
-					suggestedAmountHigh,
+					suggestedAmounts,
+					suggestedAmountUntiered,
 					tiered,
 				},
 			} )
@@ -142,7 +141,7 @@ class DonationsWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { name, suggestedAmount, suggestedAmountLow, suggestedAmountHigh, tiered, image } = this.state;
+		const { name, suggestedAmounts, suggestedAmountUntiered, tiered, currencySymbol, image } = this.state;
 
 		return (
 			<HashRouter hashType="slash">
@@ -156,9 +155,9 @@ class DonationsWizard extends Component {
 								headerText={ __( 'Donation Settings' ) }
 								subHeaderText={ __( 'Donations can provide a stable, recurring source of revenue' ) }
 								name={ name }
-								suggestedAmountLow={ suggestedAmountLow }
-								suggestedAmount={ suggestedAmount }
-								suggestedAmountHigh={ suggestedAmountHigh }
+								suggestedAmounts={ suggestedAmounts }
+								suggestedAmountUntiered={ suggestedAmountUntiered }
+								currencySymbol={ currencySymbol }
 								image={ image }
 								tiered={ tiered }
 								onChange={ this.onSettingsChange }
