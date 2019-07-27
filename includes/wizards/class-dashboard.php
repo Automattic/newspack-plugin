@@ -31,13 +31,6 @@ class Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Display a link to this wizard in the Newspack submenu.
-	 *
-	 * @var bool
-	 */
-	protected $hidden = false;
-
-	/**
 	 * Priority setting for ordering admin submenu items. Dashboard must come first.
 	 *
 	 * @var int.
@@ -162,8 +155,8 @@ class Dashboard extends Wizard {
 	public function add_page() {
 		$icon = 'data:image/svg+xml;base64,PHN2ZyBpZD0iZjU0YWJkZjgtZTI5Ny00YTRmLWJjZTYtOTFiZmY5NjZkNTdlIiBkYXRhLW5hbWU9IkxheWVyIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDIyMiAyMjIiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuYjMxM2MzYWQtYzkyNC00ZjI3LTg1MzktOThiYTBiNjhmNGJjIHsKICAgICAgICBmaWxsOiAjMmE3ZGUxOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8dGl0bGU+bmV3c3BhY2stbWFyazwvdGl0bGU+CiAgPHBhdGggY2xhc3M9ImIzMTNjM2FkLWM5MjQtNGYyNy04NTM5LTk4YmEwYjY4ZjRiYyIgZD0iTTI2MS41LDEzMUExMTEsMTExLDAsMSwwLDM3Mi42LDI0MiwxMTEsMTExLDAsMCwwLDI2MS41LDEzMVpNMjE2LjEsMjg3LjRWMjU3LjJsMzAuMywzMC4yWm02MC42LDAtNjAuNi02MC41VjE5Ni42TDMwNywyODcuNFpNMzA3LDI0NkgyOTUuOGwtNy4yLTcuMkgzMDdabTAtMjEuMkgyNzQuN2wtNy4yLTcuMUgzMDdabTAtMjEuMUgyNTMuNmwtNy4yLTcuMUgzMDdaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTUwLjUgLTEzMSkiLz4KPC9zdmc+Cg==';
 		add_menu_page(
-			__( 'Newspack', 'newspack' ),
-			__( 'Newspack', 'newspack' ),
+			$this->get_name(),
+			$this->get_name(),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ],
