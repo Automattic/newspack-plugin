@@ -17,7 +17,7 @@
 		border-color: #CCCCCC;
 		border-radius: 3px;
 		height: auto;
-		padding: 7px 25px;
+		padding: 16px 32px;
 		margin: 14px 7px;
 		text-decoration: none;
 
@@ -66,8 +66,7 @@
 
 	&.is-centered {
 		display: block;
-		width: 100%;
-		max-width: 310px;
+		width: fit-content;
 	}
 
 }
