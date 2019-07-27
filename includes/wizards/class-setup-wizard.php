@@ -31,13 +31,6 @@ class Setup_Wizard extends Wizard {
 	protected $capability = 'install_plugins';
 
 	/**
-	 * Display a link to this wizard in the Newspack submenu.
-	 *
-	 * @var bool
-	 */
-	protected $hidden = false;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {

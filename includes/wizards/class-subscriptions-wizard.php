@@ -26,6 +26,14 @@ class Subscriptions_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'edit_products';
+
+	/**
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
+	 */
+	protected $hidden = true;
+
 	/**
 	 * Constructor.
 	 */

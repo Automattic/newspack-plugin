@@ -31,13 +31,6 @@ class Components_Demo extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Display a link to this wizard in the Newspack submenu.
-	 *
-	 * @var bool
-	 */
-	protected $hidden = false;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {

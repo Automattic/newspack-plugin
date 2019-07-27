@@ -35,7 +35,7 @@ abstract class Wizard {
 	 *
 	 * @var bool.
 	 */
-	protected $hidden = true;
+	protected $hidden = false;
 
 	/**
 	 * Initialize.
