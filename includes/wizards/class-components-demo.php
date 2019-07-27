@@ -31,6 +31,13 @@ class Components_Demo extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Priority setting for ordering admin submenu items.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 100;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {

@@ -38,10 +38,17 @@ abstract class Wizard {
 	protected $hidden = false;
 
 	/**
+	 * Priority setting for ordering admin submenu items.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 1;
+
+	/**
 	 * Initialize.
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_page' ] );
+		add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 	}
 
