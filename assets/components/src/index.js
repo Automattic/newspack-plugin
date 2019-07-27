@@ -12,6 +12,7 @@ export { default as Modal } from './modal';
 export { default as NewspackLogo } from './newspack-logo';
 export { default as PluginInstaller } from './plugin-installer';
 export { default as ProgressBar } from './progress-bar';
+export { default as SecondaryNavigation } from './secondary-navigation';
 export { default as SelectControl } from './select-control';
 export { default as TabbedNavigation } from './tabbed-navigation';
 export { default as Task } from './task';
