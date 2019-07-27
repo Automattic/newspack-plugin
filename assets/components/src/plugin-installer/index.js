@@ -215,7 +215,7 @@ class PluginInstaller extends Component {
 							className="is-centered"
 							onClick={ this.installAllPlugins }
 						>
-							{ __( 'Use All' ) }
+							{ __( 'Install' ) }
 						</Button>
 					) }
 			</div>
