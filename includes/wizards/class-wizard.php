@@ -42,7 +42,7 @@ abstract class Wizard {
 	 *
 	 * @var int.
 	 */
-	protected $menu_priority = 1;
+	protected $menu_priority = 2;
 
 	/**
 	 * Initialize.

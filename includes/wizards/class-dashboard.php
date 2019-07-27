@@ -38,6 +38,13 @@ class Dashboard extends Wizard {
 	protected $hidden = false;
 
 	/**
+	 * Priority setting for ordering admin submenu items. Dashboard must come first.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 1;
+
+	/**
 	 * Initialize.
 	 */
 	public function __construct() {
