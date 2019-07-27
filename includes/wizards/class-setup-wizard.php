@@ -35,8 +35,11 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function __construct() {
 		parent::__construct();
-		add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		if ( ! get_option( NEWSPACK_SETUP_COMPLETE ) ) {
+			add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
+			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
+		}
 	}
 
 	/**
@@ -116,12 +119,21 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
+	 * Hide all menu items besides setup if setup is incomplete.
+	 */
+	public function hide_non_setup_menu_items() {
+		global $submenu;
+		foreach ( $submenu['newspack'] as $key => $value ) {
+			if ( 'newspack-setup-wizard' !== $value[2] ) {
+				unset( $submenu['newspack'][ $key ] );
+			}
+		}
+	}
+
+	/**
 	 * If initial setup is incomplete, redirect to Setup Wizard.
 	 */
 	public function redirect_to_setup() {
-		if ( get_option( NEWSPACK_SETUP_COMPLETE ) ) {
-			return;
-		}
 		$screen = get_current_screen();
 		if ( $screen && 'toplevel_page_newspack' === $screen->id ) {
 			$setup_url = Wizards::get_url( 'setup' );
