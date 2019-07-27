@@ -163,6 +163,14 @@ class Dashboard extends Wizard {
 			$icon,
 			3
 		);
+		add_submenu_page(
+			$this->slug,
+			__( 'Dashboard' ),
+			__( 'Dashboard' ),
+			$this->capability,
+			$this->slug,
+			[ $this, 'render_wizard' ]
+		);
 	}
 
 	/**
