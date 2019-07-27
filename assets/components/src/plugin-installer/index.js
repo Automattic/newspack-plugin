@@ -187,8 +187,6 @@ class PluginInstaller extends Component {
 							actionText = __( 'Deactivating' );
 						} else if ( Status === 'active' ) {
 							actionText = __( 'In Use' );
-						} else {
-							actionText = __( 'Use' );
 						}
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
