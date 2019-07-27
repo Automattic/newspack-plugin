@@ -9,6 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Dashicon } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -161,7 +162,7 @@ class PluginInstaller extends Component {
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
 							actionText = __( 'Setting up...' );
 						} else if ( Status === 'active' ) {
-							actionText = __( 'In Use' );
+							actionText = <Dashicon icon="yes" className="newspack_plugin-installer__icon" />;
 						}
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
