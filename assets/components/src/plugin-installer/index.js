@@ -36,8 +36,8 @@ class PluginInstaller extends Component {
 	componentDidMount = () => {
 		const { plugins } = this.props;
 		this.retrievePluginInfo( plugins ).then( () => {
-			const { asProgressBar } = this.props;
-			if ( asProgressBar ) this.installAllPlugins();
+			const { asProgressBar, autoInstall } = this.props;
+			if ( asProgressBar || autoInstall ) this.installAllPlugins();
 		} );
 	};
 
@@ -128,7 +128,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { asProgressBar } = this.props;
+		const { asProgressBar, autoInstall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 		const needsInstall = slugs.some( slug => {
@@ -178,7 +178,7 @@ class PluginInstaller extends Component {
 							/>
 						);
 					} ) }
-					{ pluginInfo && slugs.length > 0 && (
+					{ ! autoInstall && pluginInfo && slugs.length > 0 && (
 						<Button
 							disabled={ ! needsInstall }
 							isPrimary
