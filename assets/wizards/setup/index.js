@@ -168,6 +168,11 @@ class SetupWizard extends Component {
 								secondaryButtonText={ __( 'Not right now' ) }
 								secondaryButtonAction="/wp-admin"
 								profile={ profile }
+								notice=<p>
+									{ __(
+										'Clicking “Get Started” will install core Newspack plugins in the background.'
+									) }
+								</p>
 							/>
 						) }
 					/>

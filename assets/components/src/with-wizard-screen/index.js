@@ -30,6 +30,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				tabbedNavigation,
 				secondaryNavigation,
 				footer,
+				notice,
 				secondaryButtonText,
 				secondaryButtonAction,
 				secondaryButtonStyle,
@@ -76,42 +77,41 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							</Card>
 						</Grid>
 					) }
-					{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
-						<Handoff
-							isPrimary
-							className="is-centered muriel-wizardScreen__completeButton"
-							{ ...retrievedButtonProps }
-						>
-							{ buttonText }
-						</Handoff>
-					) }
-					{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
-						<Button
-							isPrimary={ ! buttonDisabled }
-							isDefault={ !! buttonDisabled }
-							className="is-centered muriel-wizardScreen__completeButton"
-							disabled={ buttonDisabled }
-							{ ...retrievedButtonProps }
-						>
-							{ buttonText }
-						</Button>
-					) }
-					{ ( footer || secondaryButtonText ) && (
-						<Grid>
-							<Card className="is-centered" noBackground>
-								{ footer }
-								{ secondaryButtonText && (
-									<Button
-										{ ...secondaryButtonStyle }
-										className="is-centered"
-										{ ...buttonProps( secondaryButtonAction ) }
-									>
-										{ secondaryButtonText }
-									</Button>
-								) }
-							</Card>
-						</Grid>
-					) }
+					<Grid>
+						<Card className="is-centered" noBackground>
+							{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
+								<Handoff
+									isPrimary
+									className="is-centered muriel-wizardScreen__completeButton"
+									{ ...retrievedButtonProps }
+								>
+									{ buttonText }
+								</Handoff>
+							) }
+							{ notice }
+							{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
+								<Button
+									isPrimary={ ! buttonDisabled }
+									isDefault={ !! buttonDisabled }
+									className="is-centered muriel-wizardScreen__completeButton"
+									disabled={ buttonDisabled }
+									{ ...retrievedButtonProps }
+								>
+									{ buttonText }
+								</Button>
+							) }
+							{ footer }
+							{ secondaryButtonText && (
+								<Button
+									{ ...secondaryButtonStyle }
+									className="is-centered"
+									{ ...buttonProps( secondaryButtonAction ) }
+								>
+									{ secondaryButtonText }
+								</Button>
+							) }
+						</Card>
+					</Grid>
 				</Fragment>
 			);
 		}
