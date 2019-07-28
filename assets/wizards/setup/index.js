@@ -162,7 +162,7 @@ class SetupWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Welcome
-								buttonText={ __( 'Get started' ) }
+								buttonText={ __( 'Install core plugins' ) }
 								buttonAction={ {
 									href: '#/about',
 									onClick: () => this.updateProfile(),
