@@ -25,6 +25,7 @@ class PushNotifications extends Component {
 		const { settings, updateSetting } = this.props;
 		return (
 			<Fragment>
+				<h4>{ __( 'Keep your users engaged by sending push notifications.' ) }</h4>
 				<p>
 					{ __(
 						'You just published new content and you want to let everyone know? Why not send a push notification? We have an integrated connection to Firebase that lets you manage registered devices and send push notifications to all or selected devices!'
@@ -42,7 +43,9 @@ class PushNotifications extends Component {
 							<ul>
 								<li>
 									{ __( 'Go to ' ) }
-									<ExternalLink href="https://console.firebase.google.com/">{ __( 'Firebase Console' ) }</ExternalLink>
+									<ExternalLink href="https://console.firebase.google.com/">
+										{ __( 'Firebase Console' ) }
+									</ExternalLink>
 								</li>
 								<li>{ __( 'Click "create new project"' ) }</li>
 								<li>{ __( 'Follow the instructions to create your project' ) }</li>
