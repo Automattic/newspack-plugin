@@ -154,9 +154,7 @@ class SetupWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
-					<WizardPagination
-						routes={ routes }
-					/>
+					<WizardPagination routes={ routes } />
 					<Route
 						path="/"
 						exact
@@ -167,6 +165,8 @@ class SetupWizard extends Component {
 									href: '#/about',
 									onClick: () => this.updateProfile(),
 								} }
+								secondaryButtonText={ __( 'Not right now' ) }
+								secondaryButtonAction="/wp-admin"
 								profile={ profile }
 							/>
 						) }
