@@ -63,6 +63,7 @@ class PerformanceWizard extends Component {
 					: submitSettings,
 			{}
 		);
+		console.log( submitSettings );
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/performance',
@@ -144,7 +145,7 @@ class PerformanceWizard extends Component {
 							<AddToHomeScreen
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
-								buttonText={ settings.add_to_homescreen && __( 'Save' ) }
+								buttonText={ __( 'Save' ) }
 								buttonAction={ () => this.updateSettings( 'add_to_homescreen', 'site_icon' ) }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
@@ -172,7 +173,7 @@ class PerformanceWizard extends Component {
 							<PushNotifications
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
-								buttonText={ settings.push_notifications && __( 'Save' ) }
+								buttonText={ __( 'Save' ) }
 								buttonAction={ () =>
 									this.updateSettings(
 										'push_notifications',

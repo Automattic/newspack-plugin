@@ -32,8 +32,8 @@ class AddToHomeScreen extends Component {
 				</p>
 				<ToggleControl
 					label={ __( 'Enable “Add to Homescreen” button' ) }
-					onChange={ checked => updateSetting( 'add_to_homescreen', checked, true ) }
-					checked={ settings.add_to_homescreen }
+					onChange={ checked => updateSetting( 'add_to_homescreen', checked ) }
+					checked={ settings.add_to_homescreen || false }
 					tooltip={ __(
 						'The mobile browser will show a mini-infobar which opens the install prompt'
 					) }

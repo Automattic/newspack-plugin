@@ -32,8 +32,8 @@ class PushNotifications extends Component {
 				</p>
 				<ToggleControl
 					label={ __( 'Enable Push Notifications' ) }
-					onChange={ checked => updateSetting( 'push_notifications', checked, true ) }
-					checked={ settings.push_notifications }
+					onChange={ checked => updateSetting( 'push_notifications', checked ) }
+					checked={ settings.push_notifications || false }
 				/>
 				{ settings.push_notifications && (
 					<Fragment>
