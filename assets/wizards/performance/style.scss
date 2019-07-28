@@ -6,6 +6,13 @@
 		list-style-type: disc;
 		margin-left: 2em;
 	}
+	h4 {
+		display: flex;
+		svg {
+			margin-right: 6px;
+			color: $muriel-gray-200;
+		}
+	}
 }
 .newspack-performance-wizard__info-block {
 	color:  $muriel-gray-300;

@@ -131,7 +131,6 @@ class PerformanceWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Intro
-								noCard
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
 								tabbedNavigation={ tabbedNavigation }
