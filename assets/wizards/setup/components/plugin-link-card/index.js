@@ -33,9 +33,6 @@ class PluginLinkCard extends Component {
 		return (
 			<Handoff plugin={ plugin } className={ classNames } onReady={ onReady }>
 				{ children }
-				<div className="newspack-service-link_status-container unconfigured">
-					{ __( 'Configure plugin' ) }
-				</div>
 				<div className="newspack-service-link_status-container configured">
 					<Dashicon icon="yes" className="checklist__task-icon" />
 					{ __( 'Plugin configuration complete' ) }

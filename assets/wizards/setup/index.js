@@ -117,18 +117,15 @@ class SetupWizard extends Component {
 		);
 	};
 
-	getFirstPluginToConfigure = () => {
+	pluginInfoReady = plugin => {
 		const { pluginInfo } = this.state;
-		if ( ! pluginInfo[ 'jetpack' ] || ! pluginInfo[ 'google-site-kit' ] ) {
-			return null;
-		}
-		if ( ! pluginInfo[ 'jetpack' ].Configured ) {
-			return { handoff: 'jetpack' };
-		}
-		if ( ! pluginInfo[ 'google-site-kit' ].Configured ) {
-			return { handoff: 'google-site-kit' };
-		}
-		return null;
+		this.setState( { pluginInfo: { ...pluginInfo, [ plugin.Slug ]: plugin } } );
+	};
+
+	finish = () => {
+		this.updateProfile().then( response =>
+			this.completeSetup().then( () => ( window.location = newspack_urls.dashboard ) )
+		);
 	};
 
 	/**
@@ -146,11 +143,20 @@ class SetupWizard extends Component {
 		} = this.state;
 		const installProgress = Object.keys( installedPlugins ).length;
 		const installTotal = REQUIRED_PLUGINS.length;
-		const allPaths = [ '/', '/about', '/newsroom', '/configure-plugins', '/installation-progress' ];
+		const routes = [
+			'/',
+			'/about',
+			'/newsroom',
+			'/installation-progress',
+			'/configure-jetpack',
+			'/configure-google-site-kit',
+		];
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
-					<WizardPagination routes={ [ '/', '/about', '/newsroom', '/configure-plugins' ] } />
+					<WizardPagination
+						routes={ routes }
+					/>
 					<Route
 						path="/"
 						exact
@@ -197,7 +203,7 @@ class SetupWizard extends Component {
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ {
-									href: installationComplete ? '#/configure-plugins' : '#/installation-progress',
+									href: installationComplete ? '#/configure-jetpack' : '#/installation-progress',
 									onClick: () => this.updateProfile(),
 								} }
 								profile={ profile }
@@ -210,42 +216,55 @@ class SetupWizard extends Component {
 						) }
 					/>
 					<Route
-						path="/configure-plugins"
-						render={ routeProps =>
-							! installationComplete ? (
-								<Redirect to="/installation-progress" />
-							) : (
+						path="/configure-jetpack"
+						render={ routeProps => {
+							const plugin = 'jetpack';
+							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
+							return (
 								<ConfigurePlugins
 									noBackground
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
 										'You’re almost done. Please configure the following core plugins to start using Newspack.'
 									) }
-									buttonText={
-										this.isConfigurationComplete() ? __( 'Finish' ) : __( 'Start Configuration' )
-									}
+									plugin={ plugin }
+									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Jetpack' ) }
 									buttonAction={
-										this.isConfigurationComplete()
-											? {
-													onClick: () =>
-														this.updateProfile().then( response =>
-															this.completeSetup().then(
-																() => ( window.location = newspack_urls.dashboard )
-															)
-														),
-											  }
-											: this.getFirstPluginToConfigure()
+										pluginConfigured ? '#/configure-google-site-kit' : { handoff: plugin }
 									}
-									pluginInfoReady={ plugin => {
-										const { pluginInfo } = this.state;
-										this.setState( { pluginInfo: { ...pluginInfo, [ plugin.Slug ]: plugin } } );
-									} }
+									pluginInfoReady={ this.pluginInfoReady }
 								/>
-							)
-						}
+							);
+						} }
 					/>
 					<Route
-						path={ [ '/about', '/newsroom', '/configure-plugins', '/installation-progress' ] }
+						path="/configure-google-site-kit"
+						render={ routeProps => {
+							const plugin = 'google-site-kit';
+							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
+							return (
+								<ConfigurePlugins
+									noBackground
+									headerText={ __( 'Configure Core Plugins' ) }
+									subHeaderText={ __(
+										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+									) }
+									plugin={ plugin }
+									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Site Kit' ) }
+									buttonAction={ pluginConfigured ? this.finish : { handoff: plugin } }
+									pluginInfoReady={ this.pluginInfoReady }
+								/>
+							);
+						} }
+					/>
+					<Route
+						path={ [
+							'/about',
+							'/newsroom',
+							'/configure-jetpack',
+							'/configure-google-site-kit',
+							'/installation-progress',
+						] }
 						render={ routeProps => (
 							<InstallationProgress
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
@@ -255,7 +274,7 @@ class SetupWizard extends Component {
 									'You’re almost done. Please configure the following core plugins to start using Newspack.'
 								) }
 								buttonText={ __( 'Continue' ) }
-								buttonAction={ '#/configure-plugins' }
+								buttonAction={ '#/configure-jetpack' }
 								buttonDisabled={ ! installationComplete }
 								plugins={ REQUIRED_PLUGINS }
 								onStatus={ status => this.setState( { installationComplete: status.complete } ) }
@@ -264,7 +283,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						render={ routeProps => {
-							return allPaths.indexOf( routeProps.location.pathname ) === -1 ? (
+							return routes.indexOf( routeProps.location.pathname ) === -1 ? (
 								<Redirect to="/" />
 							) : null;
 						} }
