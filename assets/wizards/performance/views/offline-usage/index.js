@@ -32,7 +32,7 @@ class OfflineUsage extends Component {
 				</p>
 				<ToggleControl
 					label={ __( 'Enable Offline Usage' ) }
-					onChange={ checked => updateSetting( 'offline_usage', checked ) }
+					onChange={ checked => updateSetting( 'offline_usage', checked, true ) }
 					checked={ settings.offline_usage }
 				/>
 			</Fragment>

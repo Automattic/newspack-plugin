@@ -78,9 +78,11 @@ class PerformanceWizard extends Component {
 		} );
 	}
 
-	updateSetting = ( key, value ) => {
+	updateSetting = ( key, value, commit ) => {
 		const { settings } = this.state;
-		this.setState( { settings: { ...settings, [ key ]: value } } );
+		this.setState( { settings: { ...settings, [ key ]: value } }, () => {
+			commit && this.updateSettings( key );
+		} );
 	};
 
 	/**
