@@ -33,7 +33,15 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				secondaryButtonText,
 				secondaryButtonAction,
 				secondaryButtonStyle,
+				hidden,
 			} = this.props;
+			if ( hidden ) {
+				return (
+					<div className="muriel-wizardScreen__hidden">
+						<WrappedComponent { ...this.props } />
+					</div>
+				);
+			}
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
 				className,
