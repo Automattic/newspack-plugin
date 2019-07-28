@@ -76,7 +76,7 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { className, image } = this.props;
+		const { className, image, uploadPrompt } = this.props;
 		return (
 			<Fragment>
 				{ !! image && (
@@ -92,12 +92,15 @@ class ImageUpload extends Component {
 				{ ! image && (
 					<div className={ murielClassnames( 'muriel-image-upload', 'no-image', className ) }>
 						<Button className="add-image" onClick={ this.openModal }>
-							{ __( 'Add an image' ) }
+							{ uploadPrompt }
 						</Button>
 					</div>
 				) }
 			</Fragment>
 		);
 	}
+}
+ImageUpload.defaultProps = {
+	uploadPrompt: __( 'Add an image' ),
 }
 export default ImageUpload;
