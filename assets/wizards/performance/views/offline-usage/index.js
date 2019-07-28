@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -23,11 +23,14 @@ class OfflineUsage extends Component {
 	render() {
 		const { settings, updateSetting } = this.props;
 		return (
-			<p>
-				{ __(
-					"No connection? No problem. We pre-cache all critical assets of your website, as well as all visited resources. So if there's no internet connection it will serve the resources from the local storage."
-				) }
-			</p>
+			<Fragment>
+				<h4>{ __( 'Make your website reliable. Even on flaky internet connections.' ) }</h4>
+				<p>
+					{ __(
+						"No connection? No problem. We pre-cache all critical assets of your website, as well as all visited resources. So if there's no internet connection it will serve the resources from the local storage."
+					) }
+				</p>
+			</Fragment>
 		);
 	}
 }
