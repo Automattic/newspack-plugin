@@ -89,6 +89,32 @@ class PerformanceWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { settings } = this.state;
+		const tabbedNavigation = [
+			{
+				label: __( 'AMP' ),
+				path: '/',
+				exact: true,
+			},
+			{
+				label: __( 'Advanced PWA Features' ),
+				path: '/pwa/',
+			},
+		];
+		const secondaryNavigation = [
+			{
+				label: __( 'Add to home screen' ),
+				path: '/pwa/',
+				exact: true
+			},
+			{
+				label: __( 'Offline usage' ),
+				path: '/pwa/offline-usage',
+			},
+			{
+				label: __( 'Push notifications' ),
+				path: '/pwa/push-notifications',
+			},
+		]
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -105,11 +131,13 @@ class PerformanceWizard extends Component {
 								) }
 								buttonText={ __( 'Configure advanced options' ) }
 								buttonAction="#/add-to-homescreen"
+								tabbedNavigation={ tabbedNavigation }
 							/>
 						) }
 					/>
 					<Route
-						path="/add-to-homescreen"
+						path="/pwa"
+						exact
 						render={ routeProps => (
 							<AddToHomeScreen
 								headerText={ __( 'Enable Add to Homescreen' ) }
@@ -124,11 +152,13 @@ class PerformanceWizard extends Component {
 								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
+								tabbedNavigation={ tabbedNavigation }
+								secondaryNavigation={ secondaryNavigation }
 							/>
 						) }
 					/>
 					<Route
-						path="/offline-usage"
+						path="/pwa/offline-usage"
 						render={ routeProps => (
 							<OfflineUsage
 								headerText={ __( 'Enable Offline Usage' ) }
@@ -143,11 +173,13 @@ class PerformanceWizard extends Component {
 								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
+								tabbedNavigation={ tabbedNavigation }
+								secondaryNavigation={ secondaryNavigation }
 							/>
 						) }
 					/>
 					<Route
-						path="/push-notifications"
+						path="/pwa/push-notifications"
 						render={ routeProps => (
 							<PushNotifications
 								headerText={ __( 'Enable Push Notifications' ) }
@@ -162,6 +194,8 @@ class PerformanceWizard extends Component {
 								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
+								tabbedNavigation={ tabbedNavigation }
+								secondaryNavigation={ secondaryNavigation }
 							/>
 						) }
 					/>
