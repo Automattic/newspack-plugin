@@ -12,7 +12,6 @@
 	color: $muriel-gray-700;
 
 	&.is-button {
-		display: inline-block;
 		background-color: $muriel-white;
 		border-color: #CCCCCC;
 		border-radius: 3px;
@@ -63,9 +62,7 @@
 			text-decoration: none;
 		}
 	}
-
-	&.is-centered {
-		display: block;
-	}
-
+}
+.muriel-button-is-centered-wrapper {
+	text-align: center;
 }
