@@ -133,8 +133,6 @@ class PerformanceWizard extends Component {
 								noCard
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
-								buttonText={ __( 'Configure advanced options' ) }
-								buttonAction="#/add-to-homescreen"
 								tabbedNavigation={ tabbedNavigation }
 							/>
 						) }
@@ -146,12 +144,8 @@ class PerformanceWizard extends Component {
 							<AddToHomeScreen
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ () =>
-									this.updateSettings( 'add_to_homescreen', 'site_icon' ).then( () =>
-										routeProps.history.push( '/offline-usage' )
-									)
-								}
+								buttonText={ settings.add_to_homescreen && __( 'Save' ) }
+								buttonAction={ () => this.updateSettings( 'add_to_homescreen', 'site_icon' ) }
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 								tabbedNavigation={ tabbedNavigation }
@@ -165,12 +159,6 @@ class PerformanceWizard extends Component {
 							<OfflineUsage
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ () =>
-									this.updateSettings( 'offline_usage' ).then( () =>
-										routeProps.history.push( '/push-notifications' )
-									)
-								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
 								tabbedNavigation={ tabbedNavigation }
@@ -184,13 +172,13 @@ class PerformanceWizard extends Component {
 							<PushNotifications
 								headerText={ headerText }
 								subHeaderText={ subHeaderText }
-								buttonText={ __( 'Continue' ) }
+								buttonText={ settings.push_notifications && __( 'Save' ) }
 								buttonAction={ () =>
 									this.updateSettings(
 										'push_notifications',
 										'push_notification_server_key',
 										'push_notification_sender_id'
-									).then( () => ( window.location = newspack_urls[ 'dashboard' ] ) )
+									)
 								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
