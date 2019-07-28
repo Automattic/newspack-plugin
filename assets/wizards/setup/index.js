@@ -211,34 +211,38 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/configure-plugins"
-						render={ routeProps => (
-							<ConfigurePlugins
-								noBackground
-								headerText={ __( 'Configure Core Plugins' ) }
-								subHeaderText={ __(
-									'You’re almost done. Please configure the following core plugins to start using Newspack.'
-								) }
-								buttonText={
-									this.isConfigurationComplete() ? __( 'Finish' ) : __( 'Start Configuration' )
-								}
-								buttonAction={
-									this.isConfigurationComplete()
-										? {
-												onClick: () =>
-													this.updateProfile().then( response =>
-														this.completeSetup().then(
-															() => ( window.location = newspack_urls.dashboard )
-														)
-													),
-										  }
-										: this.getFirstPluginToConfigure()
-								}
-								pluginInfoReady={ plugin => {
-									const { pluginInfo } = this.state;
-									this.setState( { pluginInfo: { ...pluginInfo, [ plugin.Slug ]: plugin } } );
-								} }
-							/>
-						) }
+						render={ routeProps =>
+							! installationComplete ? (
+								<Redirect to="/installation-progress" />
+							) : (
+								<ConfigurePlugins
+									noBackground
+									headerText={ __( 'Configure Core Plugins' ) }
+									subHeaderText={ __(
+										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+									) }
+									buttonText={
+										this.isConfigurationComplete() ? __( 'Finish' ) : __( 'Start Configuration' )
+									}
+									buttonAction={
+										this.isConfigurationComplete()
+											? {
+													onClick: () =>
+														this.updateProfile().then( response =>
+															this.completeSetup().then(
+																() => ( window.location = newspack_urls.dashboard )
+															)
+														),
+											  }
+											: this.getFirstPluginToConfigure()
+									}
+									pluginInfoReady={ plugin => {
+										const { pluginInfo } = this.state;
+										this.setState( { pluginInfo: { ...pluginInfo, [ plugin.Slug ]: plugin } } );
+									} }
+								/>
+							)
+						}
 					/>
 					<Route
 						path={ [ '/about', '/newsroom', '/configure-plugins', '/installation-progress' ] }
@@ -260,7 +264,9 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						render={ routeProps => {
-							return ( allPaths.indexOf( routeProps.location.pathname ) === -1 ) ? <Redirect to="/" /> : null;
+							return allPaths.indexOf( routeProps.location.pathname ) === -1 ? (
+								<Redirect to="/" />
+							) : null;
 						} }
 					/>
 				</HashRouter>
