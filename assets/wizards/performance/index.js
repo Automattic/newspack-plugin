@@ -104,7 +104,7 @@ class PerformanceWizard extends Component {
 			{
 				label: __( 'Add to home screen' ),
 				path: '/pwa/',
-				exact: true
+				exact: true,
 			},
 			{
 				label: __( 'Offline usage' ),
@@ -114,7 +114,11 @@ class PerformanceWizard extends Component {
 				label: __( 'Push notifications' ),
 				path: '/pwa/push-notifications',
 			},
-		]
+		];
+		const headerText = __( 'Performance' );
+		const subHeaderText = __(
+			'Users engage more with an optimized website. Increase user engagement even further by setting up advanced PWA features.'
+		);
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -125,10 +129,8 @@ class PerformanceWizard extends Component {
 						render={ routeProps => (
 							<Intro
 								noCard
-								headerText={ __( 'Performance options' ) }
-								subHeaderText={ __(
-									'Optimizing your news site for better performance and increased user engagement.'
-								) }
+								headerText={ headerText }
+								subHeaderText={ subHeaderText }
 								buttonText={ __( 'Configure advanced options' ) }
 								buttonAction="#/add-to-homescreen"
 								tabbedNavigation={ tabbedNavigation }
@@ -140,10 +142,8 @@ class PerformanceWizard extends Component {
 						exact
 						render={ routeProps => (
 							<AddToHomeScreen
-								headerText={ __( 'Enable Add to Homescreen' ) }
-								subHeaderText={ __(
-									'Encourage your users to add your news site to their homescreen.'
-								) }
+								headerText={ headerText }
+								subHeaderText={ subHeaderText }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ () =>
 									this.updateSettings( 'add_to_homescreen', 'site_icon' ).then( () =>
@@ -161,10 +161,8 @@ class PerformanceWizard extends Component {
 						path="/pwa/offline-usage"
 						render={ routeProps => (
 							<OfflineUsage
-								headerText={ __( 'Enable Offline Usage' ) }
-								subHeaderText={ __(
-									'Make your website reliable. Even on flaky internet connections.'
-								) }
+								headerText={ headerText }
+								subHeaderText={ subHeaderText }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ () =>
 									this.updateSettings( 'offline_usage' ).then( () =>
@@ -182,8 +180,8 @@ class PerformanceWizard extends Component {
 						path="/pwa/push-notifications"
 						render={ routeProps => (
 							<PushNotifications
-								headerText={ __( 'Enable Push Notifications' ) }
-								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
+								headerText={ headerText }
+								subHeaderText={ subHeaderText }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ () =>
 									this.updateSettings(
