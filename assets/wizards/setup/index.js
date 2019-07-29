@@ -85,6 +85,25 @@ class SetupWizard extends Component {
 		} );
 	};
 
+	retrievePluginData = plugin => {
+		const { setError, wizardApiFetch } = this.props;
+		const params = { path: '/newspack/v1/plugins/' + plugin, method: 'GET' };
+		return new Promise( ( resolve, reject ) => {
+			wizardApiFetch( params )
+				.then( response => {
+					const { pluginInfo } = this.state;
+					this.setState( { pluginInfo: { ...pluginInfo, [ plugin ]: response } }, () =>
+						resolve( response )
+					);
+				} )
+				.catch( error => {
+					console.log( '[Profile Fetch Error]', error );
+					setError( { error } );
+					reject( error );
+				} );
+		} );
+	};
+
 	/**
 	 * API call to set option indicating setup is complete.
 	 */
@@ -115,11 +134,6 @@ class SetupWizard extends Component {
 			pluginInfo[ 'google-site-kit' ] &&
 			pluginInfo[ 'google-site-kit' ].Configured
 		);
-	};
-
-	pluginInfoReady = plugin => {
-		const { pluginInfo } = this.state;
-		this.setState( { pluginInfo: { ...pluginInfo, [ plugin.Slug ]: plugin } } );
 	};
 
 	finish = () => {
@@ -237,7 +251,8 @@ class SetupWizard extends Component {
 									buttonAction={
 										pluginConfigured ? '#/configure-google-site-kit' : { handoff: plugin }
 									}
-									pluginInfoReady={ this.pluginInfoReady }
+									pluginConfigured={ pluginConfigured }
+									onMount={ this.retrievePluginData }
 								/>
 							);
 						} }
@@ -257,7 +272,8 @@ class SetupWizard extends Component {
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Site Kit' ) }
 									buttonAction={ pluginConfigured ? this.finish : { handoff: plugin } }
-									pluginInfoReady={ this.pluginInfoReady }
+									pluginConfigured={ pluginConfigured }
+									onMount={ this.retrievePluginData }
 								/>
 							);
 						} }
