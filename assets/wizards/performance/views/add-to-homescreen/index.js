@@ -28,11 +28,11 @@ class AddToHomeScreen extends Component {
 				<h4>{ __( 'Encourage your users to add your news site to their homescreen. ' ) }</h4>
 				<p>
 					{ __(
-						'With this feature you are able to display an "add to homescreen" prompt. This way your news site gets a prominent place on the users home screen right next to the native apps.'
+						'With this feature you are able to display an "add to homescreen" prompt. This way your news site gets a prominent place on the users homescreen right next to the native apps.'
 					) }
 				</p>
 				<ToggleControl
-					label={ __( 'Enable “Add to Homescreen” button' ) }
+					label={ __( 'Enable “Add to homescreen” button' ) }
 					onChange={ checked => updateSetting( 'add_to_homescreen', checked ) }
 					checked={ settings.add_to_homescreen || false }
 					tooltip={ __(

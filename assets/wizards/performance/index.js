@@ -105,7 +105,7 @@ class PerformanceWizard extends Component {
 		];
 		const secondaryNavigation = [
 			{
-				label: __( 'Add to home screen' ),
+				label: __( 'Add to homescreen' ),
 				path: '/pwa/',
 				exact: true,
 			},
