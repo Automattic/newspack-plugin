@@ -32,6 +32,13 @@ class Mailchimp_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
+	 */
+	protected $hidden = true;
+
+	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.

@@ -59,7 +59,6 @@ class Checklists {
 
 		add_action( 'admin_menu', 'Newspack\Checklists::add_page' );
 		add_action( 'admin_enqueue_scripts', 'Newspack\Checklists::enqueue_scripts_and_styles' );
-		add_action( 'admin_head', 'Newspack\Checklists::hide_from_menus' );
 	}
 
 	/**
@@ -166,7 +165,7 @@ class Checklists {
 	 * Register and add the page that the checklists will live on.
 	 */
 	public static function add_page() {
-		add_submenu_page( 'newspack', 'Checklist', 'Checklist', 'manage_options', 'newspack-checklist', 'Newspack\Checklists::render_checklist' );
+		add_submenu_page( null, 'Checklist', 'Checklist', 'manage_options', 'newspack-checklist', 'Newspack\Checklists::render_checklist' );
 	}
 
 	/**
@@ -177,20 +176,6 @@ class Checklists {
 		<div id="newspack-checklist" class="newspack-checklist">
 		</div>
 		<?php
-	}
-
-	/**
-	 * Hide a link to the submenu page from the Newspack menu.
-	 */
-	public static function hide_from_menus() {
-		global $submenu;
-
-		$newspack_menu = $submenu['newspack'];
-		foreach ( $newspack_menu as $key => $menu_item ) {
-			if ( 'newspack-checklist' === $menu_item[2] ) {
-				unset( $submenu['newspack'][ $key ] );
-			}
-		}
 	}
 
 	/**

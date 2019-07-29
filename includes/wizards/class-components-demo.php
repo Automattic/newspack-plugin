@@ -31,11 +31,11 @@ class Components_Demo extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Display a link to this wizard in the Newspack submenu.
+	 * Priority setting for ordering admin submenu items.
 	 *
-	 * @var bool
+	 * @var int.
 	 */
-	protected $hidden = false;
+	protected $menu_priority = 100;
 
 	/**
 	 * Constructor.
@@ -44,9 +44,7 @@ class Components_Demo extends Wizard {
 		parent::__construct();
 
 		// Only show a link to the Components Demo if WP_DEBUG is enabled.
-		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
-			add_action( 'admin_head', array( $this, 'hide_from_menus' ) );
-		}
+		$this->hidden = ! defined( 'WP_DEBUG' ) || ! WP_DEBUG;
 	}
 
 	/**

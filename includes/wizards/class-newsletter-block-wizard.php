@@ -32,6 +32,13 @@ class Newsletter_Block_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
+	 */
+	protected $hidden = true;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -83,7 +90,7 @@ class Newsletter_Block_Wizard extends Wizard {
 
 	/**
 	 * Get the Jetpack-Mailchimp connection settings.
-	 * 
+	 *
 	 * @see jetpack/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-mailchimp.php
 	 * @return WP_REST_Response with the info.
 	 */

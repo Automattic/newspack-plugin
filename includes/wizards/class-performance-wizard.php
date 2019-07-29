@@ -30,6 +30,7 @@ class Performance_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'install_plugins';
+
 	/**
 	 * Constructor.
 	 */
