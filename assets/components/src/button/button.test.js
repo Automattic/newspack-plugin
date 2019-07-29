@@ -30,8 +30,7 @@ describe( 'Button', () => {
 	describe( 'rendering centered primary', () => {
 		it( 'should render a Button element with a class of is-primary and class of is-centered', () => {
 			const button = shallow( <Button isPrimary className="is-centered">Continue</Button> );
-			expect( button.render().hasClass( 'is-primary' ) ).toBe( true );
-			expect( button.render().hasClass( 'is-centered' ) ).toBe( true );
+			expect( button.render().hasClass( 'muriel-button-is-centered-wrapper' ) ).toBe( true );
 		} );
 	} );
 } );
