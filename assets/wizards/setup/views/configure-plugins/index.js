@@ -37,14 +37,16 @@ class ConfigurePlugins extends Component {
 		return (
 			<div className="newspack-setup__configure-plugin">
 				<div className={ classNames }>
-					{ 'jetpack' === plugin &&
-						__(
-							'The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.'
-						) }
-					{ 'google-site-kit' === plugin &&
-						__(
-							'The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.'
-						) }
+					<p>
+						{ 'jetpack' === plugin &&
+							__(
+								'The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.'
+							) }
+						{ 'google-site-kit' === plugin &&
+							__(
+								'The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.'
+							) }
+					</p>
 					{ pluginConfigured && (
 						<div className="newspack-service-link_status-container">
 							<Dashicon icon="yes" className="checklist__task-icon" />
