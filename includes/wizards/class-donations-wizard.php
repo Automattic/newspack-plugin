@@ -127,8 +127,7 @@ class Donations_Wizard extends Wizard {
 	 * @return bool | WP_Error True on success, WP_Error on failure.
 	 */
 	protected function check_required_plugins_installed() {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		return $configuration_manager->is_woocommerce_suite_active();
+		return Donations::is_woocommerce_suite_active();
 	}
 
 	/**
@@ -142,8 +141,7 @@ class Donations_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		return rest_ensure_response( $configuration_manager->get_donation_settings() );
+		return rest_ensure_response( Donations::get_donation_settings() );
 	}
 
 	/**
@@ -158,8 +156,7 @@ class Donations_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		return rest_ensure_response( $configuration_manager->set_donation_settings( $request->get_params() ) );
+		return rest_ensure_response( Donations::set_donation_settings( $request->get_params() ) );
 	}
 
 	/**
