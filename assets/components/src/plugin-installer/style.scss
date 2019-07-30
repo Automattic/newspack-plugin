@@ -1,3 +1,5 @@
+@import '../../../shared/scss/muriel-component';
+
 .newspack-plugin-installer__checkbox-row {
 	position: relative;
 	.components-spinner,
@@ -6,6 +8,15 @@
 		top: 0;
 		right: 0;
 	}
+}
+.newspack_plugin-installer__icon {
+	background-color: $primary_color;
+	border: 1px solid $primary_color;
+	border-radius: 16px;
+	width: 16px;
+	height: 16px;
+	color: $muriel-white;
+	margin-right: 12px;
 }
 .newspack-plugin-installer_waiting {
 	text-align: center;
