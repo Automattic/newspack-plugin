@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Handoff, Grid, TabbedNavigation } from '../';
+import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -28,6 +28,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				noBackground,
 				noCard,
 				tabbedNavigation,
+				secondaryNavigation,
 				footer,
 				secondaryButtonText,
 				secondaryButtonAction,
@@ -55,6 +56,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						{ tabbedNavigation && (
 							<Card noBackground>
 								<TabbedNavigation items={ tabbedNavigation } />
+								{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
 							</Card>
 						) }
 					</Grid>
