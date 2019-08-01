@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import DonationSettingsScreen from './views/DonationSettingsScreen';
+import DonationSettingsScreen from './views/donationSettingsScreen';
 import { withWizard } from '../../components/src';
 import './style.scss';
 
