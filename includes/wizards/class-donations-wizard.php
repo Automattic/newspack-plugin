@@ -106,7 +106,16 @@ class Donations_Wizard extends Wizard {
 					],
 					'suggestedAmount'     => [
 						'sanitize_callback' => 'wc_format_decimal',
-					]
+					],
+					'suggestedAmountLow'     => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'suggestedAmountHigh'     => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'tiered'     => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
 				],
 			]
 		);
@@ -118,17 +127,7 @@ class Donations_Wizard extends Wizard {
 	 * @return bool | WP_Error True on success, WP_Error on failure.
 	 */
 	protected function check_required_plugins_installed() {
-		if ( ! function_exists( 'WC' ) || ! class_exists( 'WC_Subscriptions_Product' ) || ! class_exists( 'WC_Name_Your_Price_Helpers' ) ) {
-			return new WP_Error(
-				'newspack_missing_required_plugin',
-				esc_html__( 'The required plugins are not installed and activated. Install and/or activate them to access this feature.', 'newspack' ),
-				[
-					'status' => 400,
-					'level'  => 'fatal',
-				]
-			);
-		}
-		return true;
+		return Donations::is_woocommerce_suite_active();
 	}
 
 	/**
@@ -142,8 +141,7 @@ class Donations_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		return rest_ensure_response( $configuration_manager->get_donation_settings() );
+		return rest_ensure_response( Donations::get_donation_settings() );
 	}
 
 	/**
@@ -158,8 +156,7 @@ class Donations_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		return rest_ensure_response( $configuration_manager->set_donation_settings( $request->get_params() ) );
+		return rest_ensure_response( Donations::set_donation_settings( $request->get_params() ) );
 	}
 
 	/**

@@ -31,8 +31,11 @@ class DonationsWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			name: '',
-			suggestedAmount: 15.00,
+			suggestedAmounts: [ 7.50, 15.00, 30.00 ],
+			suggestedAmountUntiered: 15.00,
+			currencySymbol: '$',
 			image: false,
+			tiered: false,
 		};
 	}
 
@@ -50,13 +53,16 @@ class DonationsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-donations-wizard/donation' } )
 			.then( settings => {
-				const { name, suggestedAmount, image } = settings;
+				const { name, suggestedAmounts, suggestedAmountUntiered, tiered, currencySymbol, image } = settings;
 				return new Promise( resolve => {
 					this.setState(
 						{
 							name,
-							suggestedAmount,
-							image
+							suggestedAmounts,
+							suggestedAmountUntiered,
+							currencySymbol,
+							tiered,
+							image,
 						},
 						() => {
 							setError();
@@ -75,7 +81,7 @@ class DonationsWizard extends Component {
 	 */
 	saveDonationSettings() {
 		const { setError, wizardApiFetch } = this.props;
-		const { name, image, suggestedAmount } = this.state;
+		const { name, suggestedAmounts, suggestedAmountUntiered, tiered, image } = this.state;
 		const imageID = image ? image.id : 0;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
@@ -84,7 +90,9 @@ class DonationsWizard extends Component {
 				data: {
 					name,
 					imageID,
-					suggestedAmount,
+					suggestedAmounts,
+					suggestedAmountUntiered,
+					tiered,
 				},
 			} )
 				.then( settings => {
@@ -133,7 +141,7 @@ class DonationsWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { name, suggestedAmount, image } = this.state;
+		const { name, suggestedAmounts, suggestedAmountUntiered, tiered, currencySymbol, image } = this.state;
 
 		return (
 			<HashRouter hashType="slash">
@@ -147,8 +155,11 @@ class DonationsWizard extends Component {
 								headerText={ __( 'Donation Settings' ) }
 								subHeaderText={ __( 'Donations can provide a stable, recurring source of revenue' ) }
 								name={ name }
-								suggestedAmount={ suggestedAmount }
+								suggestedAmounts={ suggestedAmounts }
+								suggestedAmountUntiered={ suggestedAmountUntiered }
+								currencySymbol={ currencySymbol }
 								image={ image }
+								tiered={ tiered }
 								onChange={ this.onSettingsChange }
 								buttonText={ __( 'Finish' ) }
 								buttonAction={ () =>
