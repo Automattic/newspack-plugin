@@ -6,11 +6,12 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Handoff, Grid, TabbedNavigation } from '../';
+import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -27,6 +28,11 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				noBackground,
 				noCard,
 				tabbedNavigation,
+				secondaryNavigation,
+				footer,
+				secondaryButtonText,
+				secondaryButtonAction,
+				secondaryButtonStyle,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
@@ -50,6 +56,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						{ tabbedNavigation && (
 							<Card noBackground>
 								<TabbedNavigation items={ tabbedNavigation } />
+								{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
 							</Card>
 						) }
 					</Grid>
@@ -80,6 +87,22 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						>
 							{ buttonText }
 						</Button>
+					) }
+					{ ( footer || secondaryButtonText ) && (
+						<Grid>
+							<Card className="is-centered" noBackground>
+								{ footer }
+								{ secondaryButtonText && (
+									<Button
+										{ ...secondaryButtonStyle }
+										className="is-centered"
+										{ ...buttonProps( secondaryButtonAction ) }
+									>
+										{ secondaryButtonText }
+									</Button>
+								) }
+							</Card>
+						</Grid>
 					) }
 				</Fragment>
 			);

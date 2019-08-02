@@ -360,4 +360,3 @@ class Donations {
 	}
 }
 Donations::init();
-

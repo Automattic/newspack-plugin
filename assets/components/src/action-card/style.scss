@@ -101,6 +101,13 @@
 		}
 	}
 
+	/* ToggleControl */
+
+	.components-toggle-control {
+		align-self: center;
+		margin-right: 1em;
+	}
+
 	/* Buttons */
 
 	button.is-link {
@@ -119,5 +126,19 @@
 
 	&:hover button.newspack-action-card__secondary_button {
 		visibility: visible;
+	}
+
+	/* Badge */
+
+	.newspack-action-card-badge {
+		border: 1px solid $muriel-gray-500;
+		border-radius: 3px;
+		color: $muriel-gray-500;
+		font-size: 9px;
+		font-weight: bold;
+		margin: 0 0 0 2em;
+		padding: 1px 8px;
+		text-transform: uppercase;
+		vertical-align: middle;
 	}
 }

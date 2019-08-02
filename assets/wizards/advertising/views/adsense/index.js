@@ -1,4 +1,8 @@
 /**
+ * Ad Sense "management" screen.
+ */
+
+/**
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
@@ -8,12 +12,12 @@ import { Dashicon } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Handoff } from '../../../components/src';
+import { withWizardScreen, Handoff } from '../../../../components/src';
 
 /**
  * Screen for handing off to Site Kit AdSense setup.
  */
-class AdSenseSetup extends Component {
+class AdSense extends Component {
 
 	/**
 	 * Render.
@@ -41,4 +45,4 @@ class AdSenseSetup extends Component {
 	}
 }
 
-export default withWizardScreen( AdSenseSetup );
+export default withWizardScreen( AdSense );

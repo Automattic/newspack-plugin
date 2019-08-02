@@ -288,6 +288,15 @@ class ComponentsDemo extends Component {
 						toggleOnChange={ checked => this.setState( { actionCardToggleChecked: checked } ) }
 						toggleChecked={ actionCardToggleChecked }
 					/>
+					<ActionCard
+						badge="Premium"
+						title="Example Ten"
+						description="An example of an action card with a badge."
+						actionText="Install"
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
 					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
 						<Task
@@ -403,33 +412,36 @@ class ComponentsDemo extends Component {
 					<Card>
 						<FormattedHeader headerText="Select dropdowns" />
 						<SelectControl
-							label="Select with value"
+							label={ __( 'Label for Select with a preselection' ) }
 							value={ selectValue1 }
 							options={ [
-								{ value: '1st', label: 'First' },
-								{ value: '2nd', label: 'Second' },
-								{ value: '3rd', label: 'Third' },
+								{ value: '', label: __( '- Select -' ), disabled: true },
+								{ value: '1st', label: __( 'First' ) },
+								{ value: '2nd', label: __( 'Second' ) },
+								{ value: '3rd', label: __( 'Third' ) },
 							] }
 							value={ selectValue1 }
 							onChange={ value => this.setState( { selectValue1: value } ) }
 						/>
 						<SelectControl
-							label="Select empty"
+							label={ __( 'Label for Select with no preselection' ) }
 							value={ selectValue2 }
 							options={ [
-								{ value: '1st', label: 'First' },
-								{ value: '2nd', label: 'Second' },
-								{ value: '3rd', label: 'Third' },
+								{ value: '', label: __( '- Select -' ), disabled: true },
+								{ value: '1st', label: __( 'First' ) },
+								{ value: '2nd', label: __( 'Second' ) },
+								{ value: '3rd', label: __( 'Third' ) },
 							] }
 							onChange={ value => this.setState( { selectValue2: value } ) }
 						/>
 						<SelectControl
-							label="Select disabled"
+							label={ __( 'Label for disabled Select' ) }
 							disabled
 							options={ [
-								{ value: '1st', label: 'First' },
-								{ value: '2nd', label: 'Second' },
-								{ value: '3rd', label: 'Third' },
+								{ value: '', label: __( '- Select -' ), disabled: true },
+								{ value: '1st', label: __( 'First' ) },
+								{ value: '2nd', label: __( 'Second' ) },
+								{ value: '3rd', label: __( 'Third' ) },
 							] }
 						/>
 					</Card>

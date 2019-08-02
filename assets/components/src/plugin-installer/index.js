@@ -9,6 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Dashicon } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -19,8 +20,7 @@ import './style.scss';
 const PLUGIN_STATE_NONE = 0;
 const PLUGIN_STATE_ACTIVE = 1;
 const PLUGIN_STATE_INSTALLING = 2;
-const PLUGIN_STATE_UNINSTALLING = 3;
-const PLUGIN_STATE_ERROR = 4;
+const PLUGIN_STATE_ERROR = 3;
 
 /**
  * Plugin installer.
@@ -97,26 +97,6 @@ class PluginInstaller extends Component {
 			} );
 	};
 
-	unInstallPlugin = slug => {
-		this.setInstallationStatus( slug, PLUGIN_STATE_UNINSTALLING );
-		const params = {
-			path: `/newspack/v1/plugins/${ slug }/deactivate/`,
-			method: 'post',
-		};
-		return apiFetch( params )
-			.then( response => {
-				const { pluginInfo } = this.state;
-				this.updatePluginInfo( {
-					...pluginInfo,
-					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_NONE },
-				} );
-			} )
-			.catch( error => {
-				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
-				return;
-			} );
-	};
-
 	setChecked = ( slug, checked ) => {
 		const { pluginInfo } = this.state;
 		this.updatePluginInfo( { ...pluginInfo, [ slug ]: { ...pluginInfo[ slug ], checked } } );
@@ -148,7 +128,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { asProgressBar, canUninstall } = this.props;
+		const { asProgressBar } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 		const needsInstall = slugs.some( slug => {
@@ -176,19 +156,13 @@ class PluginInstaller extends Component {
 					slugs.map( slug => {
 						const plugin = pluginInfo[ slug ];
 						const { Name, Description, Status, installationStatus, notification } = plugin;
-						const isWaiting =
-							installationStatus === PLUGIN_STATE_INSTALLING ||
-							installationStatus === PLUGIN_STATE_UNINSTALLING;
+						const isWaiting = installationStatus === PLUGIN_STATE_INSTALLING;
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
 							actionText = __( 'Setting up...' );
-						} else if ( installationStatus === PLUGIN_STATE_UNINSTALLING ) {
-							actionText = __( 'Deactivating' );
 						} else if ( Status === 'active' ) {
-							actionText = __( 'In Use' );
-						} else {
-							actionText = __( 'Use' );
+							actionText = <Dashicon icon="yes" className="newspack_plugin-installer__icon" />;
 						}
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
@@ -197,12 +171,8 @@ class PluginInstaller extends Component {
 								title={ Name }
 								description={ Description }
 								actionText={ actionText }
-								secondaryActionText={
-									canUninstall && installationStatus === PLUGIN_STATE_ACTIVE && __( 'Deactivate' )
-								}
 								isWaiting={ isWaiting }
 								onClick={ onClick }
-								onSecondaryActionClick={ () => this.unInstallPlugin( slug ) }
 								notification={ notification }
 								notificationLevel="error"
 							/>
@@ -215,7 +185,7 @@ class PluginInstaller extends Component {
 							className="is-centered"
 							onClick={ this.installAllPlugins }
 						>
-							{ __( 'Use All' ) }
+							{ __( 'Install' ) }
 						</Button>
 					) }
 			</div>

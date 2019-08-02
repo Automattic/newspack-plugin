@@ -33,6 +33,13 @@ class Donations_Wizard extends Wizard {
 	protected $capability = 'edit_products';
 
 	/**
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
+	 */
+	protected $hidden = true;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -164,7 +171,7 @@ class Donations_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-donations-wizard',
 			Newspack::plugin_url() . '/assets/dist/donations.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/donations.js' ),
 			true
 		);

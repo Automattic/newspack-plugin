@@ -31,11 +31,11 @@ class Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Display a link to this wizard in the Newspack submenu.
+	 * Priority setting for ordering admin submenu items. Dashboard must come first.
 	 *
-	 * @var bool
+	 * @var int.
 	 */
-	protected $hidden = false;
+	protected $menu_priority = 1;
 
 	/**
 	 * Initialize.
@@ -79,8 +79,8 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'advertising',
-				'name'        => Checklists::get_name( 'advertising' ),
-				'url'         => Checklists::get_url( 'advertising' ),
+				'name'        => Wizards::get_name( 'advertising' ),
+				'url'         => Wizards::get_url( 'advertising' ),
 				'description' => esc_html__( 'Content monetization', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/advertising-icon.svg',
 				'status'      => Checklists::get_status( 'advertising' ),
@@ -95,11 +95,11 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'engagement',
-				'name'        => esc_html__( 'Engagement', 'newspack' ),
-				'url'         => '#',
+				'name'        => Checklists::get_name( 'engagement' ),
+				'url'         => Checklists::get_url( 'engagement' ),
 				'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/engagement-icon.svg',
-				'status'      => 'disabled',
+				'status'      => Checklists::get_status( 'engagement' ),
 			],
 			[
 				'slug'        => 'analytics',
@@ -155,13 +155,22 @@ class Dashboard extends Wizard {
 	public function add_page() {
 		$icon = 'data:image/svg+xml;base64,PHN2ZyBpZD0iZjU0YWJkZjgtZTI5Ny00YTRmLWJjZTYtOTFiZmY5NjZkNTdlIiBkYXRhLW5hbWU9IkxheWVyIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDIyMiAyMjIiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuYjMxM2MzYWQtYzkyNC00ZjI3LTg1MzktOThiYTBiNjhmNGJjIHsKICAgICAgICBmaWxsOiAjMmE3ZGUxOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8dGl0bGU+bmV3c3BhY2stbWFyazwvdGl0bGU+CiAgPHBhdGggY2xhc3M9ImIzMTNjM2FkLWM5MjQtNGYyNy04NTM5LTk4YmEwYjY4ZjRiYyIgZD0iTTI2MS41LDEzMUExMTEsMTExLDAsMSwwLDM3Mi42LDI0MiwxMTEsMTExLDAsMCwwLDI2MS41LDEzMVpNMjE2LjEsMjg3LjRWMjU3LjJsMzAuMywzMC4yWm02MC42LDAtNjAuNi02MC41VjE5Ni42TDMwNywyODcuNFpNMzA3LDI0NkgyOTUuOGwtNy4yLTcuMkgzMDdabTAtMjEuMkgyNzQuN2wtNy4yLTcuMUgzMDdabTAtMjEuMUgyNTMuNmwtNy4yLTcuMUgzMDdaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTUwLjUgLTEzMSkiLz4KPC9zdmc+Cg==';
 		add_menu_page(
-			__( 'Newspack', 'newspack' ),
-			__( 'Newspack', 'newspack' ),
+			$this->get_name(),
+			$this->get_name(),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ],
 			$icon,
 			3
+		);
+		$first_subnav_title = get_option( NEWSPACK_SETUP_COMPLETE ) ? __( 'Dashboard' ) : __( 'Setup' );
+		add_submenu_page(
+			$this->slug,
+			$first_subnav_title,
+			$first_subnav_title,
+			$this->capability,
+			$this->slug,
+			[ $this, 'render_wizard' ]
 		);
 	}
 
@@ -178,7 +187,7 @@ class Dashboard extends Wizard {
 		wp_register_script(
 			'newspack-dashboard',
 			Newspack::plugin_url() . '/assets/dist/dashboard.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/dashboard.js' ),
 			true
 		);

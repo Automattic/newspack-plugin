@@ -33,7 +33,7 @@ class Checklists {
 		 *     wizards: An array of wizard slugs in desired order, corresponding to slugs registered in Wizards class.
 		 */
 		self::$checklists = [
-			'reader-revenue'    => [
+			'reader-revenue' => [
 				'name'        => esc_html__( 'Reader Revenue', 'newspack' ),
 				'description' => esc_html__( 'Here are a few things to do to easily set up your membership revenue business model.', 'newspack' ),
 				'wizards'     => [
@@ -41,20 +41,24 @@ class Checklists {
 					'subscriptions' === Reader_Revenue_Onboarding_Wizard::get_revenue_model() ? 'subscriptions' : 'donations',
 				],
 			],
-			'advertising'    => [
-				'name'        => esc_html__( 'Advertising', 'newspack' ),
-				'description' => esc_html__( 'Display advertising', 'newspack' ),
-				'style'       => 'actionCards',
+			'engagement'     => [
+				'name'        => esc_html__( 'Engagement', 'newspack' ),
+				'description' => esc_html__( 'How do you want your audience to engage with your publication?', 'newspack' ),
 				'wizards'     => [
-					'google-adsense',
-					'google-ad-manager',
+					'newsletter-block',
 				],
 			],
 		];
 
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+
+		// Only add the Mailchimp wizard if WooCommerce is active.
+		if ( 'active' === $managed_plugins['woocommerce']['Status'] ) {
+			array_unshift( self::$checklists['engagement']['wizards'], 'mailchimp' );
+		}
+
 		add_action( 'admin_menu', 'Newspack\Checklists::add_page' );
 		add_action( 'admin_enqueue_scripts', 'Newspack\Checklists::enqueue_scripts_and_styles' );
-		add_action( 'admin_head', 'Newspack\Checklists::hide_from_menus' );
 	}
 
 	/**
@@ -161,7 +165,7 @@ class Checklists {
 	 * Register and add the page that the checklists will live on.
 	 */
 	public static function add_page() {
-		add_submenu_page( 'newspack', 'Checklist', 'Checklist', 'manage_options', 'newspack-checklist', 'Newspack\Checklists::render_checklist' );
+		add_submenu_page( null, 'Checklist', 'Checklist', 'manage_options', 'newspack-checklist', 'Newspack\Checklists::render_checklist' );
 	}
 
 	/**
@@ -172,20 +176,6 @@ class Checklists {
 		<div id="newspack-checklist" class="newspack-checklist">
 		</div>
 		<?php
-	}
-
-	/**
-	 * Hide a link to the submenu page from the Newspack menu.
-	 */
-	public static function hide_from_menus() {
-		global $submenu;
-
-		$newspack_menu = $submenu['newspack'];
-		foreach ( $newspack_menu as $key => $menu_item ) {
-			if ( 'newspack-checklist' === $menu_item[2] ) {
-				unset( $submenu['newspack'][ $key ] );
-			}
-		}
 	}
 
 	/**
