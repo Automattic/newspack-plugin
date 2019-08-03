@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { Donation, LocationSetup, PaymentSetup, RevenueMain } from './views';
+import { Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 /**
  * External dependencies
@@ -32,7 +32,7 @@ class ReaderRevenuWizard extends Component {
 		this.state = {
 			data: {
 				locationData: {},
-				paymentData: {},
+				stripeData: {},
 				donationData: {},
 			},
 		};
@@ -68,15 +68,43 @@ class ReaderRevenuWizard extends Component {
 	};
 
 	/**
+	 * Update data model
+	 */
+	update = ( screen, data ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-reader-revenue-wizard/' + screen,
+			method: 'POST',
+			data: this.prepareData( screen, data ),
+		} )
+			.then( data => {
+				setError();
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
 	 * Parse API data
 	 */
 	parseData = data => ( {
 		locationData: data.location_data,
-		paymentData: data.payment_data,
+		stripeData: data.stripe_data,
 		donationData: data.donation_data,
 		countryStateFields: data.country_state_fields,
 		currencyFields: data.currency_fields,
 	} );
+
+	/**
+	 * Prepare data for API update.
+	 */
+	prepareData = ( screen, data ) => {
+		if ( 'donations' === screen ) {
+			data.imageID = data.image ? data.image.id : 0;
+		}
+		return data;
+	};
 
 	/**
 	 * Render
@@ -84,7 +112,7 @@ class ReaderRevenuWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { data } = this.state;
-		const { countryStateFields, currencyFields, locationData, paymentData, donationData } = data;
+		const { countryStateFields, currencyFields, locationData, stripeData, donationData } = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -96,8 +124,8 @@ class ReaderRevenuWizard extends Component {
 				path: '/location-setup',
 			},
 			{
-				label: __( 'Payment Setup' ),
-				path: '/payment-setup',
+				label: __( 'Stripe Setup' ),
+				path: '/stripe-setup',
 			},
 			{
 				label: __( 'Donations' ),
@@ -134,6 +162,8 @@ class ReaderRevenuWizard extends Component {
 									currencyFields={ currencyFields }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
+									buttonText={ __( 'Save' ) }
+									buttonAction={ () => this.update( 'location', locationData ) }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }
@@ -143,17 +173,19 @@ class ReaderRevenuWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/payment-setup"
+							path="/stripe-setup"
 							render={ routeProps => (
-								<PaymentSetup
-									data={ paymentData }
+								<StripeSetup
+									data={ stripeData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
+									buttonText={ __( 'Save' ) }
+									buttonAction={ () => this.update( 'stripe', stripeData ) }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }
 									tabbedNavigation={ tabbedNavigation }
-									onChange={ paymentData => this.setState( { data: { ...data, paymentData } } ) }
+									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
 								/>
 							) }
 						/>
@@ -164,6 +196,8 @@ class ReaderRevenuWizard extends Component {
 									data={ donationData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
+									buttonText={ __( 'Save' ) }
+									buttonAction={ () => this.update( 'donations', donationData ) }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }

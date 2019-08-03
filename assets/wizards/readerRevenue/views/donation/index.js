@@ -40,7 +40,7 @@ class Donation extends Component {
 					value={ name }
 					onChange={ name => onChange( { ...data, name } ) }
 				/>
-				<ImageUpload image={ image } onChange={ value => onChange( 'image', value ) } />
+				<ImageUpload image={ image } onChange={ image => onChange( { ...data, image } ) } />
 
 				<h3>{ __( 'Suggested donation amount per month' ) }</h3>
 				<p className="newspack-donations-wizard__help">

@@ -1,5 +1,5 @@
 /**
- * Payment Setup Screen
+ * Stripe Setup Screen
  */
 
 /**
@@ -15,9 +15,9 @@ import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { CheckboxControl, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
- * Payment Setup Screen Component
+ * Stripe Setup Screen Component
  */
-class PaymentSetup extends Component {
+class StripeSetup extends Component {
 	/**
 	 * Render.
 	 */
@@ -106,9 +106,9 @@ class PaymentSetup extends Component {
 	}
 }
 
-PaymentSetup.defaultProps = {
+StripeSetup.defaultProps = {
 	data: {},
 	onChange: () => null,
 };
 
-export default withWizardScreen( PaymentSetup );
+export default withWizardScreen( StripeSetup );

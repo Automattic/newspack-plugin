@@ -83,6 +83,104 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
+		// Save location info.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/location/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_location' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'countrystate' => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+					'address1'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+					'address2'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'city'         => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+					'postcode'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+					'currency'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+				],
+			]
+		);
+
+		// Save Stripe info.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/stripe/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_stripe_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'enabled'            => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'testMode'           => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'publishableKey'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'secretKey'          => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'testPublishableKey' => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'testSecretKey'      => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+				],
+			]
+		);
+
+		// Save a subscription.
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/donations/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_donation_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'image'               => [
+						'sanitize_callback' => 'absint',
+					],
+					'name'                => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'suggestedAmount'     => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'suggestedAmountLow'  => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'suggestedAmountHigh' => [
+						'sanitize_callback' => 'wc_format_decimal',
+					],
+					'tiered'              => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+				],
+			]
+		);
+
 	}
 
 	/**
@@ -101,10 +199,113 @@ class Reader_Revenue_Wizard extends Wizard {
 			'country_state_fields' => $wc_configuration_manager->country_state_fields(),
 			'currency_fields'      => $wc_configuration_manager->currency_fields(),
 			'location_data'        => $wc_configuration_manager->location_data(),
-			'payment_data'         => $wc_configuration_manager->payment_data(),
+			'stripe_data'          => $wc_configuration_manager->stripe_data(),
 			'donation_data'        => Donations::get_donation_settings(),
 		];
 		return \rest_ensure_response( $data );
+	}
+
+	/**
+	 * Save location info.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
+	public function api_update_location( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+
+		$params = $request->get_params();
+
+		$defaults = [
+			'countrystate' => '',
+			'address1'     => '',
+			'address2'     => '',
+			'city'         => '',
+			'postcode'     => '',
+			'currency'     => '',
+		];
+
+		$args = wp_parse_args( $params, $defaults );
+		$wc_configuration_manager->update_location( $args );
+
+		// @todo when is the best time to do this?
+		$wc_configuration_manager->set_smart_defaults();
+
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Save Stripe settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
+	public function api_update_stripe_settings( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+
+		$params = $request->get_params();
+
+		$defaults = [
+			'enabled'            => false,
+			'testMode'           => false,
+			'publishableKey'     => '',
+			'secretKey'          => '',
+			'testPublishableKey' => '',
+			'testSecretKey'      => '',
+		];
+		$args     = wp_parse_args( $params, $defaults );
+
+		// If Stripe is enabled, make sure the API key fields are non-empty.
+		if ( $args['enabled'] ) {
+			if ( $args['testMode'] && ( ! $this->api_validate_not_empty( $args['testPublishableKey'] ) || ! $this->api_validate_not_empty( $args['testSecretKey'] ) ) ) {
+				return new WP_Error(
+					'newspack_missing_required_field',
+					esc_html__( 'Test Publishable Key and Test Secret Key are required to use Stripe in test mode.', 'newspack' ),
+					[
+						'status' => 400,
+						'level'  => 'notice',
+					]
+				);
+			} elseif ( ! $args['testMode'] && ( ! $this->api_validate_not_empty( $args['publishableKey'] ) || ! $this->api_validate_not_empty( $args['secretKey'] ) ) ) {
+				return new WP_Error(
+					'newspack_missing_required_field',
+					esc_html__( 'Publishable Key and Secret Key are required to use Stripe.', 'newspack' ),
+					[
+						'status' => 400,
+						'level'  => 'notice',
+					]
+				);
+			}
+		}
+		$wc_configuration_manager->update_stripe_settings( $args );
+
+		// @todo when is the best time to do this?
+		$wc_configuration_manager->set_smart_defaults();
+
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * API endpoint for setting the donation settings.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function api_update_donation_settings( $request ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		return rest_ensure_response( Donations::set_donation_settings( $request->get_params() ) );
 	}
 
 	/**
