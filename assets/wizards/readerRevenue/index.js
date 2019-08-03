@@ -78,7 +78,17 @@ class ReaderRevenuWizard extends Component {
 			data: this.prepareData( screen, data ),
 		} )
 			.then( data => {
-				setError();
+				return new Promise( resolve => {
+					this.setState(
+						{
+							data: this.parseData( data ),
+						},
+						() => {
+							setError();
+							resolve( this.state );
+						}
+					);
+				} );
 			} )
 			.catch( error => {
 				setError( error );
@@ -134,6 +144,7 @@ class ReaderRevenuWizard extends Component {
 		];
 		const headerText = __( 'Reader Revenue', 'newspack' );
 		const subHeaderText = __( 'Generate revenue from your customers.' );
+		const isConfigured = !! donationData.created;
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -146,10 +157,9 @@ class ReaderRevenuWizard extends Component {
 								<RevenueMain
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
-									tabbedNavigation={ tabbedNavigation }
+									tabbedNavigation={ isConfigured && tabbedNavigation }
+									buttonText={ ! isConfigured && __( 'Get Started' ) }
+									buttonAction="#location-setup"
 								/>
 							) }
 						/>
@@ -162,12 +172,13 @@ class ReaderRevenuWizard extends Component {
 									currencyFields={ currencyFields }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
-									buttonText={ __( 'Save' ) }
-									buttonAction={ () => this.update( 'location', locationData ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
-									tabbedNavigation={ tabbedNavigation }
+									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
+									buttonAction={ () =>
+										this.update( 'location', locationData ).then(
+											data => ! isConfigured && routeProps.history.push( 'stripe-setup' )
+										)
+									}
+									tabbedNavigation={ isConfigured && tabbedNavigation }
 									onChange={ locationData => this.setState( { data: { ...data, locationData } } ) }
 								/>
 							) }
@@ -179,12 +190,13 @@ class ReaderRevenuWizard extends Component {
 									data={ stripeData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
-									buttonText={ __( 'Save' ) }
-									buttonAction={ () => this.update( 'stripe', stripeData ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
-									tabbedNavigation={ tabbedNavigation }
+									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
+									buttonAction={ () =>
+										this.update( 'stripe', stripeData ).then(
+											data => ! isConfigured && routeProps.history.push( 'donations' )
+										)
+									}
+									tabbedNavigation={ isConfigured && tabbedNavigation }
 									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
 								/>
 							) }
@@ -196,12 +208,9 @@ class ReaderRevenuWizard extends Component {
 									data={ donationData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
-									buttonText={ __( 'Save' ) }
+									buttonText={ __( 'Save Settings' ) }
 									buttonAction={ () => this.update( 'donations', donationData ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
-									tabbedNavigation={ tabbedNavigation }
+									tabbedNavigation={ isConfigured && tabbedNavigation }
 									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
 								/>
 							) }
