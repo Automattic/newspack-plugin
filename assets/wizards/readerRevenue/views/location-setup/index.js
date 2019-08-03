@@ -21,41 +21,48 @@ class LocationSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { countryStateFields, currencyFields, location, onChange } = this.props;
-		const { address1, address2, city, countrystate, currency, postcode } = location;
+		const { countryStateFields, currencyFields, data, onChange } = this.props;
+		const {
+			address1 = '',
+			address2 = '',
+			city = '',
+			countrystate = '',
+			currency = '',
+			postcode = '',
+		} = data;
 		return (
 			<Fragment>
 				<SelectControl
 					label={ __( 'Where is your business based?' ) }
 					value={ countrystate }
 					options={ countryStateFields }
-					onChange={ countrystate => onChange( { ...location, countrystate: value } ) }
+					onChange={ countrystate => onChange( { ...data, countrystate: value } ) }
 				/>
 				<TextControl
 					label={ __( 'Address' ) }
 					value={ address1 }
-					onChange={ address1 => onChange( { ...location, address1 } ) }
+					onChange={ address1 => onChange( { ...data, address1 } ) }
 				/>
 				<TextControl
 					label={ __( 'Address line 2' ) }
 					value={ address2 }
-					onChange={ address2 => onChange( { ...location, address2 } ) }
+					onChange={ address2 => onChange( { ...data, address2 } ) }
 				/>
 				<TextControl
 					label={ __( 'City' ) }
 					value={ city }
-					onChange={ city => onChange( { ...location, city } ) }
+					onChange={ city => onChange( { ...data, city } ) }
 				/>
 				<TextControl
 					label={ __( 'Postcode / Zip' ) }
 					value={ postcode }
-					onChange={ postcode => onChange( { ...location, postcode } ) }
+					onChange={ postcode => onChange( { ...data, postcode } ) }
 				/>
 				<SelectControl
 					label={ 'Which currency does your business use?' }
 					value={ currency }
 					options={ currencyFields }
-					onChange={ currency => onChange( { ...location, currency } ) }
+					onChange={ currency => onChange( { ...data, currency } ) }
 				/>
 			</Fragment>
 		);
@@ -65,7 +72,7 @@ class LocationSetup extends Component {
 LocationSetup.defaultProps = {
 	countryStateFields: [ {} ],
 	currencyFields: [ {} ],
-	location: {},
+	data: {},
 	onChange: () => null,
 };
 

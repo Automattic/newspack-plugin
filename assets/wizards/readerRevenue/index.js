@@ -29,7 +29,9 @@ class ReaderRevenuWizard extends Component {
 	 */
 	constructor() {
 		super( ...arguments );
-		this.state = {};
+		this.state = {
+			data: {},
+		};
 	}
 
 	/**
@@ -42,6 +44,8 @@ class ReaderRevenuWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
+		const { data } = this.state;
+		const { locationData = {} } = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -86,12 +90,14 @@ class ReaderRevenuWizard extends Component {
 							path="/location-setup"
 							render={ routeProps => (
 								<LocationSetup
+									data={ locationData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }
 									tabbedNavigation={ tabbedNavigation }
+									onChange={ locationData => this.setState( { data: { ...data, locationData } } ) }
 								/>
 							) }
 						/>
