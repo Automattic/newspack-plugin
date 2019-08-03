@@ -36,7 +36,7 @@ class LocationSetup extends Component {
 					label={ __( 'Where is your business based?' ) }
 					value={ countrystate }
 					options={ countryStateFields }
-					onChange={ countrystate => onChange( { ...data, countrystate: value } ) }
+					onChange={ countrystate => onChange( { ...data, countrystate } ) }
 				/>
 				<TextControl
 					label={ __( 'Address' ) }
