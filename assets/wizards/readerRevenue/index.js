@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
+import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 /**
  * External dependencies
@@ -22,7 +22,7 @@ import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 /**
  * AdUnits wizard for managing and setting up adUnits.
  */
-class ReaderRevenuWizard extends Component {
+class ReaderRevenueWizard extends Component {
 	/**
 	/**
 	 * Constructor.
@@ -141,6 +141,10 @@ class ReaderRevenuWizard extends Component {
 				label: __( 'Donations' ),
 				path: '/donations',
 			},
+			{
+				label: __( 'Landing Page' ),
+				path: '/configure-landing-page',
+			},
 		];
 		const headerText = __( 'Reader Revenue', 'newspack' );
 		const subHeaderText = __( 'Generate revenue from your customers.' );
@@ -215,6 +219,16 @@ class ReaderRevenuWizard extends Component {
 								/>
 							) }
 						/>
+						<Route
+							path="/configure-landing-page"
+							render={ routeProps => (
+								<ConfigureLandingPage
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
+									tabbedNavigation={ isConfigured && tabbedNavigation }
+								/>
+							) }
+						/>
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
@@ -224,6 +238,6 @@ class ReaderRevenuWizard extends Component {
 }
 
 render(
-	createElement( withWizard( ReaderRevenuWizard, [] ) ),
+	createElement( withWizard( ReaderRevenueWizard, [] ) ),
 	document.getElementById( 'newspack-reader-revenue-wizard' )
 );
