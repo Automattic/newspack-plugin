@@ -45,7 +45,7 @@ class ReaderRevenuWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { data } = this.state;
-		const { locationData = {} } = data;
+		const { locationData = {}, paymentData = {} } = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -105,12 +105,14 @@ class ReaderRevenuWizard extends Component {
 							path="/payment-setup"
 							render={ routeProps => (
 								<PaymentSetup
+									data={ paymentData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }
 									tabbedNavigation={ tabbedNavigation }
+									onChange={ paymentData => this.setState( { data: { ...data, paymentData } } ) }
 								/>
 							) }
 						/>
