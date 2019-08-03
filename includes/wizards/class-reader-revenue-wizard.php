@@ -193,16 +193,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		if ( is_wp_error( $required_plugins_installed ) ) {
 			return rest_ensure_response( $required_plugins_installed );
 		}
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-
-		$data = [
-			'country_state_fields' => $wc_configuration_manager->country_state_fields(),
-			'currency_fields'      => $wc_configuration_manager->currency_fields(),
-			'location_data'        => $wc_configuration_manager->location_data(),
-			'stripe_data'          => $wc_configuration_manager->stripe_data(),
-			'donation_data'        => Donations::get_donation_settings(),
-		];
-		return \rest_ensure_response( $data );
+		return \rest_ensure_response( $this->fetch_all_data() );
 	}
 
 	/**
@@ -235,7 +226,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// @todo when is the best time to do this?
 		$wc_configuration_manager->set_smart_defaults();
 
-		return rest_ensure_response( true );
+		return \rest_ensure_response( $this->fetch_all_data() );
 	}
 
 	/**
@@ -290,7 +281,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// @todo when is the best time to do this?
 		$wc_configuration_manager->set_smart_defaults();
 
-		return rest_ensure_response( true );
+		return \rest_ensure_response( $this->fetch_all_data() );
 	}
 
 	/**
@@ -305,7 +296,27 @@ class Reader_Revenue_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
-		return rest_ensure_response( Donations::set_donation_settings( $request->get_params() ) );
+		$donations_response = Donations::set_donation_settings( $request->get_params() );
+		if ( is_wp_error( $donations_response ) ) {
+			return rest_ensure_response( $donations_response );
+		}
+		return \rest_ensure_response( $this->fetch_all_data() );
+	}
+
+	/**
+	 * Fetch all data needed to render the Wizard
+	 *
+	 * @return Array
+	 */
+	protected function fetch_all_data() {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		return [
+			'country_state_fields' => $wc_configuration_manager->country_state_fields(),
+			'currency_fields'      => $wc_configuration_manager->currency_fields(),
+			'location_data'        => $wc_configuration_manager->location_data(),
+			'stripe_data'          => $wc_configuration_manager->stripe_data(),
+			'donation_data'        => Donations::get_donation_settings(),
+		];
 	}
 
 	/**
@@ -333,6 +344,9 @@ class Reader_Revenue_Wizard extends Wizard {
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
+		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
+			return;
+		}
 		\wp_enqueue_media();
 		\wp_enqueue_script(
 			'newspack-reader-revenue-wizard',
