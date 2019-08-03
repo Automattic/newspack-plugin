@@ -64,8 +64,8 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'reader-revenue',
-				'name'        => Checklists::get_name( 'reader-revenue' ),
-				'url'         => Checklists::get_url( 'reader-revenue' ),
+				'name'        => Wizards::get_name( 'reader-revenue' ),
+				'url'         => Wizards::get_url( 'reader-revenue' ),
 				'description' => esc_html__( 'Membership, paywall, subscriptions', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/reader-revenue-icon.svg',
 				'status'      => Checklists::get_status( 'reader-revenue' ),
