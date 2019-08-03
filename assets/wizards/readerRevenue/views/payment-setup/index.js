@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { ToggleControl } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -54,9 +54,9 @@ class PaymentSetup extends Component {
 								{ __( 'Get your API keys from your Stripe account' ) }
 							</h4>
 							<p className="newspack-payment-setup-screen__api-tip">
-								<a href="https://stripe.com/docs/keys#api-keys" target="_blank">
+								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
 									{ __( 'Learn how' ) }
-								</a>
+								</ExternalLink>
 							</p>
 
 							{ testMode && (
