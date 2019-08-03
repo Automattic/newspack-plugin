@@ -30,7 +30,11 @@ class ReaderRevenuWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			data: {},
+			data: {
+				locationData: {},
+				paymentData: {},
+				donationData: {},
+			},
 		};
 	}
 
@@ -45,7 +49,7 @@ class ReaderRevenuWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { data } = this.state;
-		const { locationData = {}, paymentData = {} } = data;
+		const { locationData, paymentData, donationData } = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -120,12 +124,14 @@ class ReaderRevenuWizard extends Component {
 							path="/donations"
 							render={ routeProps => (
 								<Donation
+									data={ donationData }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }
 									tabbedNavigation={ tabbedNavigation }
+									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
 								/>
 							) }
 						/>

@@ -1,0 +1,36 @@
+.newspack-donations-wizard__help {
+	margin-top: 2em;
+	margin-bottom: 2em;
+	font-style: italic;
+}
+
+.newspack-donations-wizard__tier-suggested-prices {
+	display: flex;
+	justify-content: space-between;
+
+	> div {
+		width: calc( 33% - 1em );
+	}
+
+	.muriel-input-text {
+		margin-top: 0;
+	}
+}
+.newspack-donations-wizard__use-tiered {
+	display: flex;
+	align-items: center;
+	padding-top: 0.5em;
+
+	h4 {
+		font-weight: normal;
+		font-size: 16px;
+		margin-top: 0;
+		margin-bottom: 12px;
+	}
+}
+.newspack-donations-wizard {
+	.muriel-image-upload {
+		margin-top: 3em;
+		margin-bottom: 3em;
+	}
+}
