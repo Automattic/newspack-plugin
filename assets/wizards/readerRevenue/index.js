@@ -41,7 +41,42 @@ class ReaderRevenuWizard extends Component {
 	/**
 	 * wizardReady will be called when all plugin requirements are met.
 	 */
-	onWizardReady = () => {};
+	onWizardReady = () => this.fetch();
+
+	/**
+	 * Retrieve data model
+	 */
+	fetch = () => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-wizard' } )
+			.then( data => {
+				return new Promise( resolve => {
+					this.setState(
+						{
+							data: this.parseData( data ),
+						},
+						() => {
+							setError();
+							resolve( this.state );
+						}
+					);
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
+	 * Parse API data
+	 */
+	parseData = data => ( {
+		locationData: data.location_data,
+		paymentData: data.payment_data,
+		donationData: data.donation_data,
+		countryStateFields: data.country_state_fields,
+		currencyFields: data.currency_fields,
+	} );
 
 	/**
 	 * Render
@@ -49,7 +84,7 @@ class ReaderRevenuWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { data } = this.state;
-		const { locationData, paymentData, donationData } = data;
+		const { countryStateFields, currencyFields, locationData, paymentData, donationData } = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -95,6 +130,8 @@ class ReaderRevenuWizard extends Component {
 							render={ routeProps => (
 								<LocationSetup
 									data={ locationData }
+									countryStateFields={ countryStateFields }
+									currencyFields={ currencyFields }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									secondaryButtonText={ __( 'Back to dashboard' ) }

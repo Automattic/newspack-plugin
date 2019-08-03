@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WP_Query;
+use \WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -60,15 +60,79 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+
+		// Get all data required to render the Wizard.
+		\register_rest_route(
+			'newspack/v1/wizard/',
+			$this->slug,
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_fetch' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+	}
+
+	/**
+	 * Get all Wizard Data
+	 *
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_fetch() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+
+		$data = [
+			'country_state_fields' => $wc_configuration_manager->country_state_fields(),
+			'currency_fields'      => $wc_configuration_manager->currency_fields(),
+			'location_data'        => $wc_configuration_manager->location_data(),
+			'payment_data'         => $wc_configuration_manager->payment_data(),
+			'donation_data'        => Donations::get_donation_settings(),
+		];
+		return \rest_ensure_response( $data );
+	}
+
+	/**
+	 * Check whether WooCommerce is installed and active.
+	 *
+	 * @return bool | WP_Error True on success, WP_Error on failure.
+	 */
+	protected function check_required_plugins_installed() {
+		if ( ! function_exists( 'WC' ) ) {
+			return new WP_Error(
+				'newspack_missing_required_plugin',
+				esc_html__( 'The WooCommerce plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
-
-		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
-			return;
-		}
-
+		\wp_enqueue_media();
 		\wp_enqueue_script(
 			'newspack-reader-revenue-wizard',
 			Newspack::plugin_url() . '/assets/dist/readerRevenue.js',
