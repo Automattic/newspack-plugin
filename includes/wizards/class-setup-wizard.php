@@ -38,7 +38,9 @@ class Setup_Wizard extends Wizard {
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		if ( ! get_option( NEWSPACK_SETUP_COMPLETE ) ) {
 			add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
+		if ( current_user_can( 'install_plugins' ) ) {
 			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
+		}
 		}
 	}
 
