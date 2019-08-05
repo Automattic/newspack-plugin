@@ -25,7 +25,7 @@ class Donations {
 	 */
 	public static function init() {
 		if ( ! is_admin() ) {
-			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ] );
+			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
 		}
 	}
 
@@ -308,6 +308,22 @@ class Donations {
 	}
 
 	/**
+	 * Remove all donation products from the cart.
+	 */
+	protected static function remove_donations_from_cart() {
+		$donation_settings = self::get_donation_settings();
+		if ( ! $donation_settings['created'] ) {
+			return;
+		}
+
+		foreach ( \WC()->cart->get_cart() as $cart_key => $cart_item ) {
+			if ( ! empty( $cart_item['product_id'] ) && in_array( $cart_item['product_id'], $donation_settings['products'] ) ) {
+				\WC()->cart->remove_cart_item( $cart_key );
+			}
+		}
+	}
+
+	/**
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
@@ -346,6 +362,9 @@ class Donations {
 		if ( ! $product_id ) {
 			return;
 		}
+
+		self::remove_donations_from_cart();
+
 		\WC()->cart->add_to_cart( 
 			$product_id, 
 			1, 
