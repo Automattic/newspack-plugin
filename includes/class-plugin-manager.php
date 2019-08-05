@@ -83,6 +83,7 @@ class Plugin_Manager {
 				'Author'      => 'Prospress Inc.',
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
 				'AuthorURI'   => 'https://prospress.com',
+				'Is_Premium'  => 'YES',
 			],
 			'woocommerce-name-your-price'   => [
 				'Name'        => __( 'WooCommerce Name Your Price', 'newspack' ),
@@ -168,6 +169,7 @@ class Plugin_Manager {
 			'DomainPath'  => '',
 			'Download'    => '',
 			'Status'      => '',
+			'Is_Premium'  => 'NO',
 		];
 
 		// Add plugin status info and fill in defaults.
