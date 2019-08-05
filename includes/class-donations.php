@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription;
+use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -119,17 +119,17 @@ class Donations {
 		// Add the product IDs for each frequency.
 		foreach ( $product->get_children() as $child_id ) {
 			$child_product = wc_get_product( $child_id );
-			if ( ! $child_product ) {
+			if ( ! $child_product || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
 				continue;
 			}
 
 			if ( 'subscription' === $child_product->get_type() ) {
 				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
 					$settings['products']['year'] = $child_id;
-				} else {
+				} elseif ( 'month' == $child_product->get_meta( '_subscription_period', true ) ) {
 					$settings['products']['month'] = $child_id;
 				}
-			} else {
+			} elseif ( 'simple' === $child_product->get_type() ) {
 				$settings['products']['once'] = $child_id;
 			}
 		}
