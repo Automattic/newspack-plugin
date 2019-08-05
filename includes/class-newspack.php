@@ -61,23 +61,26 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
-		include_once NEWSPACK_ABSPATH . 'includes/models/class-ad-manager-model.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-subscriptions-onboarding-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-onboarding-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-donations-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-subscriptions-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-memberships-page-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-adsense-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-performance-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-google-ad-manager-wizard.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-mailchimp-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletter-block-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-donations.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-configuration-managers.php';
 	}

@@ -1,0 +1,57 @@
+.newspack-payment-setup-screen {
+
+	/**
+	 * @todo use a Muriel toggle here.
+	 */
+	.components-toggle-control {
+		font-size: 16px;
+		margin-bottom: 2em;
+		margin-top: 1em;
+	}
+}
+
+.newspack-payment-setup-screen__info {
+	margin-bottom: 3em;
+	font-style: italic;
+}
+
+.newspack-payment-setup-screen__settings-heading {
+	margin-bottom: 2em;
+}
+
+.newspack-payment-setup-screen__api-keys-heading {
+	margin-top: 3em;
+}
+
+.newspack-payment-setup-screen__api-tip {
+	margin-top: -3em;
+	margin-bottom: 2em;
+	font-style: italic;
+	text-align: right;
+}
+
+.newspack-payment-setup-screen__api-keys-instruction {
+	margin-bottom: 1.5em;
+}
+
+input[type="radio"].newspack-revenue-model-setup-screen__choice {
+	margin-top: 1px;
+}
+
+.newspack-revenue-model-setup-screen__choice-label {
+	font-size: 16px;
+	margin-left: .5em;
+}
+
+#newspack-revenue-model-setup-screen__choice-donations-label {
+	font-weight: 500;
+}
+
+.newspack-revenue-model-setup-screen__choice-description {
+	font-style: italic;
+	margin-left: 2em;
+}
+
+#newspack-revenue-model-setup-screen__choice-donations-description {
+	margin-bottom: 2em;
+}

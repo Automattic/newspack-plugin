@@ -12,7 +12,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { Card, withWizardScreen } from '../../../../components/src';
+import { Card, withWizardScreen, Grid } from '../../../../components/src';
 
 /**
  * Intro screen for Performnance Wizard
@@ -24,7 +24,7 @@ class Intro extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		return (
-			<Fragment>
+			<Grid>
 				<Card>
 					<h3>{ __( 'Increase user engagement' ) }</h3>
 					<p>
@@ -66,7 +66,7 @@ class Intro extends Component {
 						</ExternalLink>
 					</p>
 				</Card>
-			</Fragment>
+			</Grid>
 		);
 	}
 }

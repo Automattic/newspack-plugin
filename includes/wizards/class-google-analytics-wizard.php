@@ -32,6 +32,13 @@ class Google_Analytics_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
+	 */
+	protected $hidden = true;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -136,7 +143,7 @@ class Google_Analytics_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-google-analytics-wizard',
 			Newspack::plugin_url() . '/assets/dist/googleAnalytics.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/googleAnalytics.js' ),
 			true
 		);

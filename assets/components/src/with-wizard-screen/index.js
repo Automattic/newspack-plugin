@@ -6,11 +6,12 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Handoff } from '../';
+import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
 import { murielClassnames, buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -26,6 +27,12 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				subHeaderText,
 				noBackground,
 				noCard,
+				tabbedNavigation,
+				secondaryNavigation,
+				footer,
+				secondaryButtonText,
+				secondaryButtonAction,
+				secondaryButtonStyle,
 			} = this.props;
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
@@ -40,16 +47,26 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
-					<Card noBackground>
-						{ headerText && (
-							<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+					<Grid>
+						<Card noBackground>
+							{ headerText && (
+								<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+							) }
+						</Card>
+						{ tabbedNavigation && (
+							<Card noBackground>
+								<TabbedNavigation items={ tabbedNavigation } />
+								{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
+							</Card>
 						) }
-					</Card>
+					</Grid>
 					{ !! noCard && content }
 					{ ! noCard && (
-						<Card className={ classes } noBackground={ noBackground }>
-							{ content }
-						</Card>
+						<Grid>
+							<Card className={ classes } noBackground={ noBackground }>
+								{ content }
+							</Card>
+						</Grid>
 					) }
 					{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
 						<Handoff
@@ -70,6 +87,22 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						>
 							{ buttonText }
 						</Button>
+					) }
+					{ ( footer || secondaryButtonText ) && (
+						<Grid>
+							<Card className="is-centered" noBackground>
+								{ footer }
+								{ secondaryButtonText && (
+									<Button
+										{ ...secondaryButtonStyle }
+										className="is-centered"
+										{ ...buttonProps( secondaryButtonAction ) }
+									>
+										{ secondaryButtonText }
+									</Button>
+								) }
+							</Card>
+						</Grid>
 					) }
 				</Fragment>
 			);

@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, render } from '@wordpress/element';
+import { Component, render, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ManageSubscriptionsScreen from './views/manageSubscriptionsScreen';
 import EditSubscriptionScreen from './views/editSubscriptionScreen';
-import { withWizard } from '../../components/src';
+import { withWizard, Button } from '../../components/src';
 import './style.scss';
 
 /**
@@ -201,29 +201,38 @@ class SubscriptionsWizard extends Component {
 						path="/"
 						exact
 						render={ routeProps => (
-							<ManageSubscriptionsScreen
-								headerText={
-									Object.values( subscriptions ).length
-										? __( 'Any more subscriptions to add?' )
-										: __( 'Add your first subscription' )
-								}
-								subHeaderText={ __(
-									'Subscriptions can provide a stable, recurring source of revenue'
-								) }
-								subscriptions={ Object.values( subscriptions ) }
-								choosePrice={ choosePrice }
-								onClickDeleteSubscription={ subscription =>
-									this.deleteSubscription( subscription.id )
-								}
-								onClickChoosePrice={ () => this.toggleChoosePrice() }
-								buttonText={
-									subscriptions.length
-										? __( 'Add another subscription' )
-										: __( 'Add a subscription' )
-								}
-								buttonAction="#/create"
-								noBackground
-							/>
+							<Fragment>
+								<ManageSubscriptionsScreen
+									headerText={
+										Object.values( subscriptions ).length
+											? __( 'Any more subscriptions to add?' )
+											: __( 'Add your first subscription' )
+									}
+									subHeaderText={ __(
+										'Subscriptions can provide a stable, recurring source of revenue'
+									) }
+									subscriptions={ Object.values( subscriptions ) }
+									choosePrice={ choosePrice }
+									onClickDeleteSubscription={ subscription =>
+										this.deleteSubscription( subscription.id )
+									}
+									onClickChoosePrice={ () => this.toggleChoosePrice() }
+									buttonText={
+										subscriptions.length
+											? __( 'Add another subscription' )
+											: __( 'Add a subscription' )
+									}
+									buttonAction="#/create"
+									noBackground
+								/>
+								<Button 
+									isTertiary 
+									className='is-centered' 
+									href={ newspack_urls[ 'checklists' ][ 'reader-revenue' ] }
+								>
+									{ __( 'Back to checklist' ) }
+								</Button>
+							</Fragment>
 						) }
 					/>
 					<Route
@@ -242,6 +251,7 @@ class SubscriptionsWizard extends Component {
 											).then( () => this.markWizardComplete() );
 										} )
 									}
+									noBackground
 								/>
 							);
 						} }
@@ -270,6 +280,7 @@ class SubscriptionsWizard extends Component {
 											).then( () => this.markWizardComplete() );
 										} )
 									}
+									noBackground
 								/>
 							);
 						} }
@@ -288,11 +299,7 @@ render(
 			'woocommerce-subscriptions',
 			'woocommerce-name-your-price',
 			'woocommerce-one-page-checkout',
-		] ),
-		{
-			buttonText: __( 'Back to checklist' ),
-			buttonAction: newspack_urls[ 'checklists' ][ 'reader-revenue' ],
-		}
+		] )
 	),
 	document.getElementById( 'newspack-subscriptions-wizard' )
 );

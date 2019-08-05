@@ -1,0 +1,5 @@
+@import '../../../shared/scss/muriel-component';
+
+.muriel-grid-container {
+	@include muriel-grid;
+}

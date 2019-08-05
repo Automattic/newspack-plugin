@@ -1,0 +1,33 @@
+@import '../../shared/scss/muriel-component';
+
+.newspack-mailchimp-wizard__jetpack-info {
+	p:first-of-type {
+		margin-top: 0;
+	}
+
+	p:last-of-type {
+		margin-bottom: 0;
+	}
+}
+
+.newspack-mailchimp-wizard__jetpack-success {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: $muriel-gray-500;
+
+	.dashicon {
+		color: $primary-color;
+		margin-right: .5em;
+	}
+}
+
+.muriel-button.is-centered.newspack-mailchimp-wizard__jetpack-handoff {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	.dashicon {
+		margin-left: .5em;
+	}
+}

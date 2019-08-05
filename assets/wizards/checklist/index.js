@@ -19,6 +19,7 @@ import {
 	Checklist,
 	NewspackLogo,
 	Task,
+	Grid,
 } from '../../components/src';
 import './style.scss';
 
@@ -76,33 +77,35 @@ class ChecklistScreen extends Component {
 			<Fragment>
 				<NewspackLogo compact width="50" className="newspack-logo" />
 				<FormattedHeader headerText={ name } subHeaderText={ description } />
-				{ 'actionCards' === listStyle && (
-					steps.map( ( step, index ) => (
-						<ActionCard
-							title={ step.name }
-							description={ step.description }
-							simple
-							onClick={ () => ( window.location = step.url ) }
-						/>
-					) )
-				) }
-				{ 'actionCards' !== listStyle && (
-					<Checklist progressBarText={ __( 'Your setup list' ) }>
-						{ steps.map( ( step, index ) => (
-							<Task
-								key={ index }
+				<Grid>
+					{ 'actionCards' === listStyle && (
+						steps.map( ( step, index ) => (
+							<ActionCard
 								title={ step.name }
 								description={ step.description }
-								buttonText={ __( 'Do it' ) }
-								completedTitle={ step.name }
-								completed={ step.completed || checklistProgress > index }
-								onDismiss={ () => this.dismissCheckListItem( index ) }
-								active={ checklistProgress === index }
+								simple
 								onClick={ () => ( window.location = step.url ) }
 							/>
-						) ) }
-					</Checklist>
-				) }
+						) )
+					) }
+					{ 'actionCards' !== listStyle && (
+						<Checklist progressBarText={ __( 'Your setup list' ) }>
+							{ steps.map( ( step, index ) => (
+								<Task
+									key={ index }
+									title={ step.name }
+									description={ step.description }
+									buttonText={ __( 'Do it' ) }
+									completedTitle={ step.name }
+									completed={ step.completed || checklistProgress > index }
+									onDismiss={ () => this.dismissCheckListItem( index ) }
+									active={ checklistProgress === index }
+									onClick={ () => ( window.location = step.url ) }
+								/>
+							) ) }
+						</Checklist>
+					) }
+				</Grid>
 				<Button
 					className="is-centered"
 					isTertiary

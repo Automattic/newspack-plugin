@@ -16,15 +16,18 @@ import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 class Button extends Component {
-
 	/**
 	 * Render.
 	 */
 	render( props ) {
 		const { className, ...otherProps } = this.props;
 		const classes = murielClassnames( 'muriel-button', className );
-		return (
-			<BaseComponent className={ classes } { ...otherProps } />
+		const isCentered = classes.indexOf( 'is-centered' ) > -1; // TODO: Replace with a prop
+		const renderedButton = <BaseComponent className={ classes } { ...otherProps } />;
+		return isCentered ? (
+			<div className="muriel-button-is-centered-wrapper">{ renderedButton }</div>
+		) : (
+			renderedButton
 		);
 	}
 }

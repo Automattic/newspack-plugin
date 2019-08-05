@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { Dashicon, Spinner } from '@wordpress/components';
+import { Dashicon, Spinner, ToggleControl } from '@wordpress/components';
 import { Button, Card } from '../';
 
 /**
@@ -31,6 +31,7 @@ class ActionCard extends Component {
 	 */
 	render( props ) {
 		const {
+			badge,
 			className,
 			title,
 			description,
@@ -45,6 +46,8 @@ class ActionCard extends Component {
 			onClick,
 			onSecondaryActionClick,
 			isWaiting,
+			toggleChecked,
+			toggleOnChange,
 		} = this.props;
 		const classes = murielClassnames( 'newspack-action-card', simple && 'is_clickable', className );
 		const notificationClasses = classnames(
@@ -59,7 +62,13 @@ class ActionCard extends Component {
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
-					{ image && (
+					{ toggleOnChange && (
+						<ToggleControl
+							checked={ toggleChecked }
+							onChange={ toggleOnChange }
+						/>
+					) }
+					{ image && ! toggleOnChange && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
 							<a href={ imageLink }>
 								<div
@@ -70,7 +79,7 @@ class ActionCard extends Component {
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h1>{ title }</h1>
+						<h1>{ [ title, badge && <span className='newspack-action-card-badge'>{ badge }</span> ] }</h1>
 						<h2>{ description }</h2>
 					</div>
 					{ actionDisplay && (
@@ -113,6 +122,10 @@ class ActionCard extends Component {
 			</Card>
 		);
 	}
+}
+
+ActionCard.defaultProps = {
+	toggleChecked: false,
 }
 
 export default ActionCard;

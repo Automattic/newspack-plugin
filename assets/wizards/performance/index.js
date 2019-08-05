@@ -43,8 +43,8 @@ class PerformanceWizard extends Component {
 	};
 
 	getSettings() {
-		const { setError } = this.props;
-		return apiFetch( { path: '/newspack/v1/wizard/performance' } )
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( { path: '/newspack/v1/wizard/performance' } )
 			.then( settings => {
 				this.setState( { settings } );
 			} )
@@ -54,7 +54,7 @@ class PerformanceWizard extends Component {
 	}
 
 	updateSettings( ...fields ) {
-		const { setError } = this.props;
+		const { setError, wizardApiFetch } = this.props;
 		const { settings } = this.state;
 		const submitSettings = Object.keys( settings ).reduce(
 			( submitSettings, key ) =>
@@ -64,7 +64,7 @@ class PerformanceWizard extends Component {
 			{}
 		);
 		return new Promise( ( resolve, reject ) => {
-			apiFetch( {
+			wizardApiFetch( {
 				path: '/newspack/v1/wizard/performance',
 				method: 'POST',
 				data: { settings: submitSettings },

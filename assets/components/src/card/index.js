@@ -25,6 +25,7 @@ class Card extends Component {
 		const { className, noBackground, ...otherProps } = this.props;
 		const classes = murielClassnames(
 			'muriel-card',
+			'muriel-grid-item',
 			className,
 			noBackground && 'muriel-card__no-background'
 		);

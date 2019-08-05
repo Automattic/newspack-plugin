@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller } from '../';
+import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller, Grid } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -41,7 +41,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				const instance = this.wrappedComponentRef.current;
 				instance && instance.onWizardReady && instance.onWizardReady();
 			}
-		}
+		};
 
 		/**
 		 * Set the error. Called by Wizards when an error occurs.
@@ -151,19 +151,18 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 */
 		startLoading = () => {
 			this.setState( state => ( {
-				loading: state.loading + 1
+				loading: state.loading + 1,
 			} ) );
-		}
+		};
 
 		/**
 		 * End loading.
 		 */
 		doneLoading = () => {
 			this.setState( state => ( {
-				loading: state.loading - 1
+				loading: state.loading - 1,
 			} ) );
-			
-		}
+		};
 
 		/**
 		 * Replacement for core apiFetch that automatically manages wizard loading UI.
@@ -181,7 +180,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 						reject( error );
 					} );
 			} );
-		}
+		};
 
 		/**
 		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
@@ -195,11 +194,11 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				return <Redirect from="/plugin-requirements" to="/" />;
 			}
 			return (
-				<Fragment>
-					<Route
-						path="/"
-						render={ routeProps => (
-							<Card noBackground className='muriel-wizardScreen muriel-wizardScreen__no-background'>
+				<Route
+					path="/"
+					render={ routeProps => (
+						<Grid>
+							<Card noBackground className="muriel-wizardScreen muriel-wizardScreen__no-background">
 								{ complete !== null && (
 									<FormattedHeader
 										headerText={ __( 'Required plugin' ) }
@@ -211,9 +210,9 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 									onStatus={ status => this.pluginInstallationStatus( status ) }
 								/>
 							</Card>
-						) }
-					/>
-				</Fragment>
+						</Grid>
+					) }
+				/>
 			);
 		};
 
@@ -228,8 +227,12 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<Fragment>
 					{ this.getError() }
-					<NewspackLogo width={ fullLogo ? 240 : 50 } compact={ ! fullLogo } className="newspack-logo" />
-					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' } >
+					<NewspackLogo
+						width={ fullLogo ? 240 : 50 }
+						compact={ ! fullLogo }
+						className="newspack-logo"
+					/>
+					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
 						<WrappedComponent
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
