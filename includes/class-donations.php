@@ -24,7 +24,9 @@ class Donations {
 	 * Initialize hooks/filters/etc.
 	 */
 	public static function init() {
-		add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ] );
+		if ( ! is_admin() ) {
+			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ] );
+		}
 	}
 
 	/**
