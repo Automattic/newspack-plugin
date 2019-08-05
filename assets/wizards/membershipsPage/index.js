@@ -161,7 +161,6 @@ render(
 			'woocommerce',
 			'woocommerce-subscriptions',
 			'woocommerce-name-your-price',
-			'woocommerce-one-page-checkout',
 		] ),
 		{
 			buttonText: __( 'Back to checklist' ),
