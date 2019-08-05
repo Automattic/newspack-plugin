@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,7 +21,12 @@ class RevenueMain extends Component {
 	 * Render.
 	 */
 	render() {
-		return <p>Revenue Main TK</p>;
+		return (
+			<div>
+				<h3>{ __( 'Accept donations on your site' ) }</h3>
+				<p>{ __( 'Newspack can help you set up a donations page and accept one-time or recurring payments from your readers.' ) }</p>
+			</div>
+		);
 	}
 }
 

@@ -174,8 +174,8 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
+									headerText={ __( 'Set up donations' ) }
+									subHeaderText={ __( 'First, please provide your publication\'s address.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
@@ -192,8 +192,8 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<StripeSetup
 									data={ stripeData }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
+									headerText={ __( 'Set up donations' ) }
+									subHeaderText={ __( 'Next, we will help you set up a payment gateway in order to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'stripe', stripeData ).then(
@@ -210,8 +210,8 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
+									headerText={ __( 'Set up donations' ) }
+									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
 									buttonText={ __( 'Save Settings' ) }
 									buttonAction={ () => this.update( 'donations', donationData ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
