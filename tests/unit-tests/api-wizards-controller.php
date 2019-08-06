@@ -17,7 +17,7 @@ class Newspack_Test_Wizards_Controller extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	protected $api_route = '/newspack/v1/wizards/subscriptions-onboarding';
+	protected $api_route = '/newspack/v1/wizards/reader-revenue';
 
 	/**
 	 * Set up stuff for testing API requests.
@@ -61,7 +61,7 @@ class Newspack_Test_Wizards_Controller extends WP_UnitTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$data = $response->get_data();
-		$this->assertEquals( 'Subscriptions Onboarding', $data['name'] );
+		$this->assertEquals( 'Reader Revenue', $data['name'] );
 	}
 
 	/**

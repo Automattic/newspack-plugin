@@ -1,0 +1,28 @@
+.newspack-donations-wizard__money-input {
+	position: relative;
+
+	.currency {
+		position: absolute;
+		line-height: 24px;
+		top: 27px;
+		left: 1em;
+		font-size: 16px;
+		z-index: 1;
+		color: $muriel-gray-500;
+		cursor: default;
+	}
+
+	.components-text-control__input {
+		margin-left: 1em;
+	}
+
+	.muriel-input-text.active {
+		.components-text-control__input {
+			top: 25px;
+		}
+
+		label {
+			display: block;
+		}
+	}
+}

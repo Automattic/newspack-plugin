@@ -27,18 +27,15 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'setup'                     => new Setup_Wizard(),
-			'dashboard'                 => new Dashboard(),
-			'reader-revenue-onboarding' => new Reader_Revenue_Onboarding_Wizard(),
-			'donations'                 => new Donations_Wizard(),
-			'subscriptions'             => new Subscriptions_Wizard(),
-			'memberships-page'          => new Memberships_Page_Wizard(),
-			'advertising'               => new Advertising_Wizard(),
-			'google-analytics'          => new Google_Analytics_Wizard(),
-			'components-demo'           => new Components_Demo(),
-			'performance'               => new Performance_Wizard(),
-			'mailchimp'                 => new Mailchimp_Wizard(),
-			'newsletter-block'          => new Newsletter_Block_Wizard(),
+			'setup'            => new Setup_Wizard(),
+			'dashboard'        => new Dashboard(),
+			'reader-revenue'   => new Reader_Revenue_Wizard(),
+			'advertising'      => new Advertising_Wizard(),
+			'google-analytics' => new Google_Analytics_Wizard(),
+			'components-demo'  => new Components_Demo(),
+			'performance'      => new Performance_Wizard(),
+			'mailchimp'        => new Mailchimp_Wizard(),
+			'newsletter-block' => new Newsletter_Block_Wizard(),
 		];
 	}
 

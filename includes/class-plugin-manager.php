@@ -39,7 +39,7 @@ class Plugin_Manager {
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/latest/download/newspack-ads.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/download/1.0.0-alpha.1/newspack-ads.zip',
 			],
 			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
@@ -471,6 +471,15 @@ class Plugin_Manager {
 		$download = $upgrader->download_package( $plugin_url );
 		if ( is_wp_error( $download ) ) {
 			return new WP_Error( 'newspack_plugin_failed_install', $download->get_error_message() );
+		}
+
+		// GitHub appends random strings to the end of its downloads.
+		// If we asked for foo.zip, make sure the downloaded file is called foo.tmp.
+		if ( stripos( $plugin_url, 'github' ) ) {
+			$desired_file_name = str_replace( '.zip', '', end( explode( '/', $plugin_url ) ) );
+			$new_file_name     = preg_replace( '#(' . $desired_file_name . '.*).tmp#', $desired_file_name . '.tmp', $download );
+			rename( $download, $new_file_name ); // phpcs:ignore
+			$download = $new_file_name;
 		}
 
 		$working_dir = $upgrader->unpack_package( $download );

@@ -32,8 +32,8 @@ class ManageMembershipsPage extends Component {
 					<Fragment>
 						{ 'publish' !== page.status && (
 							<div className='newspack-memberships-page-wizard-wizard__notice setup-error'>
-								<Dashicon icon="no-alt" />
-								<h4>{ __( 'Your memberships landing page is not published yet. You should edit and publish it.' ) }</h4>
+								<Dashicon icon="warning" />
+								<h4>{ __( 'Your donations landing page has been created, but is not yet published. You can now edit it and publish when you\'re ready.' ) }</h4>
 							</div>
 						) }
 						{ 'publish' === page.status && (

@@ -19,6 +19,7 @@ class Donations {
 	const DONATION_SUGGESTED_AMOUNT_META          = 'newspack_donation_suggested_amount';
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
+	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
 
 	/**
 	 * Initialize hooks/filters/etc.
@@ -57,7 +58,7 @@ class Donations {
 	 */
 	protected static function get_donation_default_settings( $suggest_donations = false ) {
 		return [
-			'name'                    => '',
+			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
 			'currencySymbol'          => html_entity_decode( \get_woocommerce_currency_symbol() ),
@@ -247,7 +248,7 @@ class Donations {
 				$monthly_product->get_id(),
 				$yearly_product->get_id(),
 				$once_product->get_id(),
-			] 
+			]
 		);
 		$parent_product->save();
 		update_option( self::DONATION_PRODUCT_ID_OPTION, $parent_product->get_id() );
@@ -365,12 +366,12 @@ class Donations {
 
 		self::remove_donations_from_cart();
 
-		\WC()->cart->add_to_cart( 
-			$product_id, 
-			1, 
-			0, 
-			[], 
-			[ 
+		\WC()->cart->add_to_cart(
+			$product_id,
+			1,
+			0,
+			[],
+			[
 				'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
 			]
 		);
@@ -378,6 +379,128 @@ class Donations {
 		// Redirect to checkout.
 		\wp_safe_redirect( \wc_get_page_permalink( 'checkout' ) );
 		exit;
+	}
+
+	/**
+	 * Create the donation page prepopulated with CTAs for the subscriptions.
+	 *
+	 * @return int Post ID of page.
+	 */
+	public static function create_donation_page() {
+		$revenue_model = 'donations';
+
+		$intro           = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
+		$content_heading = esc_html__( 'Donation', 'newspack' );
+		$content         = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
+
+		$intro_block           = '
+			<!-- wp:paragraph -->
+				<p>%s</p>
+			<!-- /wp:paragraph -->';
+		$content_heading_block = '
+			<!-- wp:heading -->
+				<h2>%s</h2>
+			<!-- /wp:heading -->';
+		$content_block         = '
+			<!-- wp:paragraph -->
+				<p>%s</p>
+			<!-- /wp:paragraph -->';
+
+		$page_content = sprintf( $intro_block, $intro );
+		if ( 'donations' === $revenue_model ) {
+			$page_content .= self::get_donations_block();
+		} elseif ( 'subscriptions' === $revenue_model ) {
+			$page_content .= self::get_subscriptions_block();
+		}
+		$page_content .= sprintf( $content_heading_block, $content_heading );
+		$page_content .= sprintf( $content_block, $content );
+
+		$page_args = [
+			'post_type'      => 'page',
+			'post_title'     => __( 'Support our publication', 'newspack' ),
+			'post_content'   => $page_content,
+			'post_excerpt'   => __( 'Support quality journalism by joining us today!', 'newspack' ),
+			'post_status'    => 'draft',
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
+		];
+
+		$page_id = wp_insert_post( $page_args );
+		if ( is_numeric( $page_id ) ) {
+			self::set_donation_page( $page_id );
+		}
+		return $page_id;
+	}
+
+	/**
+	 * Get raw content for a pre-populated WC featured product block featuring subscriptions.
+	 *
+	 * @return string Raw block content.
+	 */
+	protected static function get_subscriptions_block() {
+		$button_text   = __( 'Join', 'newspack' );
+		$subscriptions = wc_get_products(
+			[
+				'limit'                           => -1,
+				'only_get_newspack_subscriptions' => true,
+				'return'                          => 'ids',
+			]
+		);
+		$num_products  = count( $subscriptions );
+		if ( ! $num_products ) {
+			return '';
+		}
+
+		$id_list = esc_attr( implode( ',', $subscriptions ) );
+
+		$block_format = '
+		<!-- wp:woocommerce/handpicked-products {"columns":%d,"editMode":false,"contentVisibility":{"title":true,"price":true,"rating":false,"button":true},"orderby":"price_asc","products":[%s]} -->
+			<div class="wp-block-woocommerce-handpicked-products is-hidden-rating">[products limit="%d" columns="%d" orderby="price" order="ASC" ids="%s"]</div>
+		<!-- /wp:woocommerce/handpicked-products -->';
+
+		$block = sprintf( $block_format, $num_products, $id_list, $num_products, $num_products, $id_list );
+		return $block;
+	}
+
+	/**
+	 * Get raw content for a pre-populated Newspack Donations block.
+	 *
+	 * @return string Raw block content.
+	 */
+	protected static function get_donations_block() {
+		$block = '<!-- wp:newspack-blocks/donate /-->';
+		return $block;
+	}
+
+	/**
+	 * Set the donation page.
+	 *
+	 * @param int $page_id The post ID of the donation page.
+	 */
+	protected static function set_donation_page( $page_id ) {
+		update_option( self::DONATION_PAGE_ID_OPTION, $page_id );
+	}
+
+	/**
+	 * Get info about the donation page.
+	 *
+	 * @param int $page_id Optional ID of page to get info for. Default: saved donation page.
+	 * @return array|bool Array of info, or false if page is not created.
+	 */
+	public static function get_donation_page_info( $page_id = 0 ) {
+		if ( ! $page_id ) {
+			$page_id = get_option( self::DONATION_PAGE_ID_OPTION, 0 );
+		}
+		if ( ! $page_id || 'page' !== get_post_type( $page_id ) ) {
+			$page_id = self::create_donation_page();
+		}
+
+		return [
+			'id'      => $page_id,
+			'url'     => get_permalink( $page_id ),
+			'editUrl' => html_entity_decode( get_edit_post_link( $page_id ) ),
+			'status'  => get_post_status( $page_id ),
+		];
 	}
 }
 Donations::init();
