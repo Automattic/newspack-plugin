@@ -30,11 +30,11 @@ class ConfigureLandingPage extends Component {
 				{ donationPage && (
 					<Fragment>
 						{ 'publish' !== donationPage.status && (
-							<div className="newspack-memberships-page-wizard-wizard__notice setup-error">
-								<Dashicon icon="no-alt" />
+							<div className="newspack-memberships-page-wizard-wizard__notice">
+								<Dashicon icon="warning" />
 								<h4>
 									{ __(
-										'Your memberships landing page is not published yet. You should edit and publish it.'
+										'Your donations landing page has been created, but is not yet published. You can now edit it and publish when you\'re ready.'
 									) }
 								</h4>
 							</div>
@@ -42,7 +42,7 @@ class ConfigureLandingPage extends Component {
 						{ 'publish' === donationPage.status && (
 							<div className="newspack-memberships-page-wizard-wizard__notice setup-success">
 								<Dashicon icon="yes-alt" />
-								<h4>{ __( 'Your memberships landing page is set up and live.' ) }</h4>
+								<h4>{ __( 'Your memberships landing page is set up and published.' ) }</h4>
 							</div>
 						) }
 						<Handoff
