@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription;
+use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,6 +19,15 @@ class Donations {
 	const DONATION_SUGGESTED_AMOUNT_META          = 'newspack_donation_suggested_amount';
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
+
+	/**
+	 * Initialize hooks/filters/etc.
+	 */
+	public static function init() {
+		if ( ! is_admin() ) {
+			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
+		}
+	}
 
 	/**
 	 * Check whether WooCommerce and associated extensions required for donations are active.
@@ -40,7 +49,6 @@ class Donations {
 		return true;
 	}
 
-
 	/**
 	 * Get the default donation settings.
 	 *
@@ -56,6 +64,11 @@ class Donations {
 			'tiered'                  => false,
 			'image'                   => false,
 			'created'                 => false,
+			'products'                => [
+				'once'  => false,
+				'month' => false,
+				'year'  => false,
+			],
 		];
 	}
 
@@ -102,6 +115,24 @@ class Donations {
 		}
 
 		$settings['tiered'] = (bool) $product->get_meta( self::DONATION_TIERED_META, true );
+
+		// Add the product IDs for each frequency.
+		foreach ( $product->get_children() as $child_id ) {
+			$child_product = wc_get_product( $child_id );
+			if ( ! $child_product || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
+				continue;
+			}
+
+			if ( 'subscription' === $child_product->get_type() ) {
+				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
+					$settings['products']['year'] = $child_id;
+				} elseif ( 'month' == $child_product->get_meta( '_subscription_period', true ) ) {
+					$settings['products']['month'] = $child_id;
+				}
+			} elseif ( 'simple' === $child_product->get_type() ) {
+				$settings['products']['once'] = $child_id;
+			}
+		}
 
 		return $settings;
 	}
@@ -275,4 +306,78 @@ class Donations {
 			$child_product->save();
 		}
 	}
+
+	/**
+	 * Remove all donation products from the cart.
+	 */
+	protected static function remove_donations_from_cart() {
+		$donation_settings = self::get_donation_settings();
+		if ( ! $donation_settings['created'] ) {
+			return;
+		}
+
+		foreach ( \WC()->cart->get_cart() as $cart_key => $cart_item ) {
+			if ( ! empty( $cart_item['product_id'] ) && in_array( $cart_item['product_id'], $donation_settings['products'] ) ) {
+				\WC()->cart->remove_cart_item( $cart_key );
+			}
+		}
+	}
+
+	/**
+	 * Handle submission of the donation form.
+	 */
+	public static function process_donation_form() {
+		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
+		if ( ! $donation_form_submitted || is_wp_error( self::is_woocommerce_suite_active() ) ) {
+			return;
+		}
+
+		$donation_settings = self::get_donation_settings();
+		if ( ! $donation_settings['created'] ) {
+			return;
+		}
+
+		// Parse values from the form.
+		$donation_frequency = filter_input( INPUT_GET, 'donation_frequency', FILTER_SANITIZE_STRING );
+		if ( ! $donation_frequency ) {
+			return;
+		}
+		$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency, FILTER_SANITIZE_STRING );
+		if ( ! $donation_value ) {
+			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_untiered', FILTER_SANITIZE_STRING );
+
+			if ( ! $donation_value ) {
+				return;
+			}
+		}
+		if ( 'other' === $donation_value ) {
+			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_other', FILTER_SANITIZE_STRING );
+			if ( ! $donation_value ) {
+				return;
+			}
+		}
+
+		// Add product to cart.
+		$product_id = $donation_settings['products'][ $donation_frequency ];
+		if ( ! $product_id ) {
+			return;
+		}
+
+		self::remove_donations_from_cart();
+
+		\WC()->cart->add_to_cart( 
+			$product_id, 
+			1, 
+			0, 
+			[], 
+			[ 
+				'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
+			]
+		);
+
+		// Redirect to checkout.
+		\wp_safe_redirect( \wc_get_page_permalink( 'checkout' ) );
+		exit;
+	}
 }
+Donations::init();
