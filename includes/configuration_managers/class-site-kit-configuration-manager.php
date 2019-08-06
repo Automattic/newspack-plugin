@@ -6,6 +6,8 @@
  */
 
 namespace Newspack;
+use Google\Site_Kit\Modules\AdSense;
+use Google\Site_Kit\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -77,6 +79,37 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 		}
 
 		return ! empty( get_user_meta( $user_id, $wpdb->prefix . 'googlesitekit_site_verified_meta', true ) );
+	}
+
+	/**
+	 * Activate a module if it isn't already active.
+	 *
+	 * @param string $module The module slug. See `get_module_info` for valid slugs.
+	 */
+	public function activate_module( $module ) {
+		$sitekit_active_modules = get_option( 'googlesitekit-active-modules', [] );
+		if ( ! in_array( $module, $sitekit_adsense_active ) ) {
+			$sitekit_active_modules[] = $module;
+			update_option( 'googlesitekit-active-modules', $sitekit_active_modules );
+		}
+	}
+
+	/**
+	 * Deactivate a module if it possible.
+	 *
+	 * @param string $module The module slug. See `get_module_info` for valid slugs.
+	 */
+	public function deactivate_module( $module ) {
+		$sitekit_active_modules = get_option( 'googlesitekit-active-modules', [] );
+		$updated_modules        = [];
+
+		foreach ( $sitekit_active_modules as $active_module ) {
+			if ( $module !== $active_module ) {
+				$updated_modules[] = $active_module;
+			}
+		}
+
+		update_option( 'googlesitekit-active-modules', $updated_modules );
 	}
 
 	/**

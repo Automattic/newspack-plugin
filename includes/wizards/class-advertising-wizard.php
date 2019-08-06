@@ -279,6 +279,12 @@ class Advertising_Wizard extends Wizard {
 		} else {
 			update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
 		}
+
+		if ( 'google_adsense' === $service ) {
+			$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+			$sitekit_manager->activate_module( 'adsense' );
+		}
+
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -296,6 +302,12 @@ class Advertising_Wizard extends Wizard {
 		} else {
 			update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, false );
 		}
+
+		if ( 'google_adsense' === $service ) {
+			$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+			$sitekit_manager->deactivate_module( 'adsense' );
+		}
+
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
