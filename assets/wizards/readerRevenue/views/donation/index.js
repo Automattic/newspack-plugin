@@ -35,14 +35,7 @@ class Donation extends Component {
 		} = data;
 		return (
 			<div className="newspack-donations-wizard">
-				<TextControl
-					label={ __( 'What is the plan called? e.g. Valued Donor' ) }
-					value={ name }
-					onChange={ name => onChange( { ...data, name } ) }
-				/>
-				<ImageUpload image={ image } onChange={ image => onChange( { ...data, image } ) } />
-
-				<h3>{ __( 'Suggested donation amount per month' ) }</h3>
+				<h3>{ __( 'Suggested donations' ) }</h3>
 				<p className="newspack-donations-wizard__help">
 					{ __(
 						'Set a suggested monthly donation amount. This will provide hints to readers about how much to donate, which will increase the average donation amount.'

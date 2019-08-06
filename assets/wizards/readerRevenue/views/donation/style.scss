@@ -1,7 +1,6 @@
 .newspack-donations-wizard__help {
 	margin-top: 2em;
 	margin-bottom: 2em;
-	font-style: italic;
 }
 
 .newspack-donations-wizard__tier-suggested-prices {
@@ -27,6 +26,9 @@
 		margin-top: 0;
 		margin-bottom: 12px;
 	}
+}
+.newspack-donations-wizard__suggested-price {
+	max-width:300px;
 }
 .newspack-donations-wizard {
 	.muriel-image-upload {
