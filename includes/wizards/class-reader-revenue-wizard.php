@@ -181,6 +181,16 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
+		register_rest_route(
+			'newspack/v1/wizard/newspack-donations-wizard/',
+			'/donation/',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_donation_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 	}
 
 	/**
@@ -318,6 +328,20 @@ class Reader_Revenue_Wizard extends Wizard {
 			'donation_data'        => Donations::get_donation_settings(),
 			'donation_page'        => Donations::get_donation_page_info(),
 		];
+	}
+
+	/**
+	 * API endpoint for getting donation settings.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_get_donation_settings() {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		return rest_ensure_response( Donations::get_donation_settings() );
 	}
 
 	/**
