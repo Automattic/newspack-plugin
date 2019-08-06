@@ -13,6 +13,7 @@ import { ExternalLink, ToggleControl } from '@wordpress/components';
  * Internal dependencies
  */
 import { CheckboxControl, TextControl, withWizardScreen } from '../../../../components/src';
+import './style.scss';
 
 /**
  * Stripe Setup Screen Component
