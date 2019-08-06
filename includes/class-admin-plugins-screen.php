@@ -99,14 +99,18 @@ class Admin_Plugins_Screen {
 			unset( $actions['activate'] );
 			unset( $actions['delete'] );
 			if ( current_user_can( 'install_plugins' ) ) {
-				$actions['install'] = '<a href="' .
-					wp_nonce_url( 'plugins.php?action=newspack_install_plugin&plugin=' . urlencode( $plugin_slug ), 'newspack-install-plugin_' . $plugin_slug, 'install_nonce' ) .
-					'" class="edit" aria-label="' .
-					/* translators: %s - plugin name */
-					esc_attr( sprintf( __( 'Install %s', 'newspack' ), $plugin_data['Name'] ) ) .
-					'">' .
-					__( 'Install', 'newspack' ) .
-					'</a>';
+				if ( empty( $plugin_data['Download'] ) ) {
+					$actions['install'] = __( 'Premium', 'newspack' );
+				} else {
+					$actions['install'] = '<a href="' .
+						wp_nonce_url( 'plugins.php?action=newspack_install_plugin&plugin=' . urlencode( $plugin_slug ), 'newspack-install-plugin_' . $plugin_slug, 'install_nonce' ) .
+						'" class="edit" aria-label="' .
+						/* translators: %s - plugin name */
+						esc_attr( sprintf( __( 'Install %s', 'newspack' ), $plugin_data['Name'] ) ) .
+						'">' .
+						__( 'Install', 'newspack' ) .
+						'</a>';
+				}
 			}
 		}
 

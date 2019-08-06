@@ -83,6 +83,7 @@ class Plugin_Manager {
 				'Author'      => 'Prospress Inc.',
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
 				'AuthorURI'   => 'https://prospress.com',
+
 			],
 			'woocommerce-name-your-price'   => [
 				'Name'        => __( 'WooCommerce Name Your Price', 'newspack' ),
