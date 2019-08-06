@@ -32,6 +32,7 @@ class Wizards {
 			'reader-revenue-onboarding' => new Reader_Revenue_Onboarding_Wizard(),
 			'donations'                 => new Donations_Wizard(),
 			'subscriptions'             => new Subscriptions_Wizard(),
+			'memberships-page'          => new Memberships_Page_Wizard(),
 			'advertising'               => new Advertising_Wizard(),
 			'google-analytics'          => new Google_Analytics_Wizard(),
 			'components-demo'           => new Components_Demo(),

@@ -1,0 +1,19 @@
+@import '../../shared/scss/muriel-component';
+
+.newspack-memberships-page-wizard-wizard__notice {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: $muriel-gray-500;
+
+	.dashicon {
+		color: $primary-color;
+		margin-right: .5em;
+	}
+
+	&.setup-error {
+		.dashicon {
+			color: $muriel-red-500;
+		}
+	}
+}

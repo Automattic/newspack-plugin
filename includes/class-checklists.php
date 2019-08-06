@@ -39,6 +39,7 @@ class Checklists {
 				'wizards'     => [
 					'reader-revenue-onboarding',
 					'subscriptions' === Reader_Revenue_Onboarding_Wizard::get_revenue_model() ? 'subscriptions' : 'donations',
+					'memberships-page'
 				],
 			],
 			'engagement'     => [

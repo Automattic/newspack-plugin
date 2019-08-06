@@ -55,11 +55,15 @@ class Handoff extends Component {
 	};
 
 	goToPlugin = plugin => {
-		const { editLink } = this.props;
+		const { editLink, showOnBlockEditor } = this.props;
 		apiFetch( {
 			path: '/newspack/v1/plugins/' + plugin + '/handoff',
 			method: 'POST',
-			data: { editLink, handoffReturnUrl: window && window.location.href },
+			data: { 
+				editLink, 
+				handoffReturnUrl: window && window.location.href,
+				showOnBlockEditor: showOnBlockEditor ? true : false 
+			},
 		} ).then( response => {
 			window.location.href = response.HandoffLink;
 		} );
