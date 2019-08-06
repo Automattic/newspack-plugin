@@ -123,7 +123,14 @@ class ReaderRevenueWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { data } = this.state;
-		const { countryStateFields, currencyFields, locationData, stripeData, donationData, donationPage } = data;
+		const {
+			countryStateFields,
+			currencyFields,
+			locationData,
+			stripeData,
+			donationData,
+			donationPage,
+		} = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -176,7 +183,7 @@ class ReaderRevenueWizard extends Component {
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
 									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( 'First, please provide your publication\'s address.' ) }
+									subHeaderText={ __( "First, please provide your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
@@ -194,7 +201,9 @@ class ReaderRevenueWizard extends Component {
 								<StripeSetup
 									data={ stripeData }
 									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( 'Next, we will help you set up a payment gateway in order to process transactions.' ) }
+									subHeaderText={ __(
+										'Next, we will help you set up a payment gateway in order to process transactions.'
+									) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'stripe', stripeData ).then(
@@ -244,6 +253,13 @@ class ReaderRevenueWizard extends Component {
 }
 
 render(
-	createElement( withWizard( ReaderRevenueWizard, [] ) ),
+	createElement(
+		withWizard( ReaderRevenueWizard, [
+			'newspack-blocks',
+			'woocommerce',
+			'woocommerce-subscriptions',
+			'woocommerce-name-your-price',
+		] )
+	),
 	document.getElementById( 'newspack-reader-revenue-wizard' )
 );
