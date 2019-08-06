@@ -6,6 +6,7 @@
 .newspack-donations-wizard__tier-suggested-prices {
 	display: flex;
 	justify-content: space-between;
+	margin-top: 14px;
 
 	> div {
 		width: calc( 33% - 1em );
@@ -14,6 +15,9 @@
 	.muriel-input-text {
 		margin-top: 0;
 	}
+}
+.newspack-donations-wizard__suggested-price {
+	max-width: 300px;
 }
 .newspack-donations-wizard__use-tiered {
 	display: flex;
@@ -27,12 +31,4 @@
 		margin-bottom: 12px;
 	}
 }
-.newspack-donations-wizard__suggested-price {
-	max-width:300px;
-}
-.newspack-donations-wizard {
-	.muriel-image-upload {
-		margin-top: 3em;
-		margin-bottom: 3em;
-	}
-}
+

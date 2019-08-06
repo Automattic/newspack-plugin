@@ -41,7 +41,13 @@ class Donation extends Component {
 						'Set a suggested monthly donation amount. This will provide hints to readers about how much to donate, which will increase the average donation amount.'
 					) }
 				</p>
-
+				<div className="newspack-donations-wizard__use-tiered">
+					<ToggleControl
+						checked={ tiered }
+						onChange={ tiered => onChange( { ...data, tiered } ) }
+					/>
+					<h4>{ __( 'Suggest low, middle, and high tiers for monthly donations' ) }</h4>
+				</div>
 				{ tiered && (
 					<div className="newspack-donations-wizard__tier-suggested-prices">
 						<MoneyInput
@@ -83,14 +89,6 @@ class Donation extends Component {
 						/>
 					</div>
 				) }
-
-				<div className="newspack-donations-wizard__use-tiered">
-					<ToggleControl
-						checked={ tiered }
-						onChange={ tiered => onChange( { ...data, tiered } ) }
-					/>
-					<h4>{ __( 'Suggest low, middle, and high tiers for monthly donations' ) }</h4>
-				</div>
 			</div>
 		);
 	}
