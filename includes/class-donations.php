@@ -58,7 +58,7 @@ class Donations {
 	 */
 	protected static function get_donation_default_settings( $suggest_donations = false ) {
 		return [
-			'name'                    => '',
+			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
 			'currencySymbol'          => html_entity_decode( \get_woocommerce_currency_symbol() ),
