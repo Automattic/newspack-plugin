@@ -104,6 +104,7 @@ class ReaderRevenueWizard extends Component {
 		donationData: data.donation_data,
 		countryStateFields: data.country_state_fields,
 		currencyFields: data.currency_fields,
+		donationPage: data.donation_page,
 	} );
 
 	/**
@@ -122,7 +123,7 @@ class ReaderRevenueWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { data } = this.state;
-		const { countryStateFields, currencyFields, locationData, stripeData, donationData } = data;
+		const { countryStateFields, currencyFields, locationData, stripeData, donationData, donationPage } = data;
 		const tabbedNavigation = [
 			{
 				label: __( 'Main' ),
@@ -226,6 +227,7 @@ class ReaderRevenueWizard extends Component {
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
+									donationPage={ donationPage }
 								/>
 							) }
 						/>
