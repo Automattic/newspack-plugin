@@ -86,7 +86,7 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function activate_module( $module ) {
 		$sitekit_active_modules = get_option( 'googlesitekit-active-modules', [] );
-		if ( ! in_array( $module, $sitekit_adsense_active ) ) {
+		if ( ! in_array( $module, $sitekit_active_modules ) ) {
 			$sitekit_active_modules[] = $module;
 			update_option( 'googlesitekit-active-modules', $sitekit_active_modules );
 		}
