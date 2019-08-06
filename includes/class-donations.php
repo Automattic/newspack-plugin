@@ -191,6 +191,9 @@ class Donations {
 		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
 		$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
 		$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
+		$parent_product->set_catalog_visibility( 'hidden' );
+		$parent_product->set_virtual( true );
+		$parent_product->set_sold_individually( true );
 
 		$default_price = $args['tiered'] ? wc_format_decimal( $args['suggestedAmounts'][ floor( count( $args['suggestedAmounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
 
@@ -209,6 +212,9 @@ class Donations {
 		$monthly_product->update_meta_data( '_subscription_price', wc_format_decimal( $default_price ) );
 		$monthly_product->update_meta_data( '_subscription_period', 'month' );
 		$monthly_product->update_meta_data( '_subscription_period_interval', 1 );
+		$monthly_product->set_virtual( true );
+		$monthly_product->set_catalog_visibility( 'hidden' );
+		$monthly_product->set_sold_individually( true );
 		$monthly_product->save();
 
 		// Yearly donation.
@@ -226,6 +232,9 @@ class Donations {
 		$yearly_product->update_meta_data( '_subscription_price', wc_format_decimal( 12 * $default_price ) );
 		$yearly_product->update_meta_data( '_subscription_period', 'year' );
 		$yearly_product->update_meta_data( '_subscription_period_interval', 1 );
+		$yearly_product->set_virtual( true );
+		$yearly_product->set_catalog_visibility( 'hidden' );
+		$yearly_product->set_sold_individually( true );
 		$yearly_product->save();
 
 		// One-time donation.
@@ -240,6 +249,9 @@ class Donations {
 		$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
 		$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
 		$once_product->update_meta_data( '_nyp', 'yes' );
+		$once_product->set_virtual( true );
+		$once_product->set_catalog_visibility( 'hidden' );
+		$once_product->set_sold_individually( true );
 		$once_product->save();
 
 		$parent_product->set_children(

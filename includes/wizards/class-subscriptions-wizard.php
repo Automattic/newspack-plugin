@@ -279,6 +279,7 @@ class Subscriptions_Wizard extends Wizard {
 		}
 		$product->set_name( $args['name'] );
 		$product->set_virtual( true );
+		$product->set_sold_individually( true );
 		$product->set_image_id( $args['image_id'] );
 		$product->set_regular_price( $args['price'] );
 		// Set one-page checkout 'on' for this product.
