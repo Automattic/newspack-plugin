@@ -214,7 +214,11 @@ class ReaderRevenueWizard extends Component {
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
 									buttonText={ __( 'Save Settings' ) }
-									buttonAction={ () => this.update( 'donations', donationData ) }
+									buttonAction={ () =>
+										this.update( 'donations', donationData ).then(
+											data => ! isConfigured && routeProps.history.push( '/configure-landing-page' )
+										)
+									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
 								/>
