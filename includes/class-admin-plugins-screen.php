@@ -99,7 +99,7 @@ class Admin_Plugins_Screen {
 			unset( $actions['activate'] );
 			unset( $actions['delete'] );
 			if ( current_user_can( 'install_plugins' ) ) {
-				if ( $plugin_data['Is_Premium'] == 'YES' ) {
+				if ( empty( $plugin_data['Download'] ) ) {
 					$actions['install'] = 'Premium';
 				} else {
 					$actions['install'] = '<a href="' .
