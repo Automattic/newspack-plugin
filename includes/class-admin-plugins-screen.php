@@ -100,7 +100,7 @@ class Admin_Plugins_Screen {
 			unset( $actions['delete'] );
 			if ( current_user_can( 'install_plugins' ) ) {
 				if ( empty( $plugin_data['Download'] ) ) {
-					$actions['install'] = 'Premium';
+					$actions['install'] = __( 'Premium', 'newspack' );
 				} else {
 					$actions['install'] = '<a href="' .
 						wp_nonce_url( 'plugins.php?action=newspack_install_plugin&plugin=' . urlencode( $plugin_slug ), 'newspack-install-plugin_' . $plugin_slug, 'install_nonce' ) .
