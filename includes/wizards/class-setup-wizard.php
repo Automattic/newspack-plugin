@@ -39,6 +39,7 @@ class Setup_Wizard extends Wizard {
 		if ( ! get_option( NEWSPACK_SETUP_COMPLETE ) ) {
 			add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
 			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
+
 		}
 	}
 
@@ -123,6 +124,9 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function hide_non_setup_menu_items() {
 		global $submenu;
+		if ( ! current_user_can( $this->capability ) ) {
+			return;
+		}
 		foreach ( $submenu['newspack'] as $key => $value ) {
 			if ( 'newspack-setup-wizard' !== $value[2] ) {
 				unset( $submenu['newspack'][ $key ] );
