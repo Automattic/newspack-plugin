@@ -424,7 +424,12 @@ class Donations {
 			'comment_status' => 'closed',
 			'ping_status'    => 'closed',
 		];
-		return wp_insert_post( $page_args );
+
+		$page_id = wp_insert_post( $page_args );
+		if ( is_numeric( $page_id ) ) {
+			self::set_donation_page( $page_id );
+		}
+		return $page_id;
 	}
 
 	/**
