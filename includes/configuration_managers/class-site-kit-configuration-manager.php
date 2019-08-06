@@ -6,8 +6,6 @@
  */
 
 namespace Newspack;
-use Google\Site_Kit\Modules\AdSense;
-use Google\Site_Kit\Context;
 
 defined( 'ABSPATH' ) || exit;
 
