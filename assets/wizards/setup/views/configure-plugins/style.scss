@@ -1,0 +1,32 @@
+@import '../../../../shared/scss/muriel-component';
+
+.newspack-setup__configure-plugin-card {
+	background: $muriel-white;
+	border-radius: 3px;
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+	padding: 120px 42px 40px 42px;
+	text-align: center;
+	max-width: 100%;
+	&.jetpack {
+		background: white url( './jetpack.svg' ) center 33px no-repeat;
+	}
+	&.google-site-kit,
+	&:active.google-site-kit,
+	&:focus.google-site-kit,
+	&:hover.google-site-kit {
+		background: white url( './sitekit.svg' ) center 33px no-repeat;
+	}
+	.checklist__task-icon {
+		background-color: $primary_color;
+		border: 1px solid $primary_color;
+		border-radius: 16px;
+		width: 16px;
+		height: 16px;
+		color: $muriel-white;
+		margin-right: 12px;
+	}
+}
+.newspack-service-link_status-container {
+	display: flex;
+	justify-content: center;
+}
