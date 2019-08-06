@@ -387,7 +387,7 @@ class Donations {
 	 * @return int Post ID of page.
 	 */
 	public static function create_donation_page() {
-		$revenue_model = Reader_Revenue_Onboarding_Wizard::get_revenue_model();
+		$revenue_model = 'donations';
 
 		$intro           = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
 		$content_heading = esc_html__( 'Donation', 'newspack' );
@@ -487,7 +487,7 @@ class Donations {
 			$page_id = get_option( self::DONATION_PAGE_ID_OPTION, 0 );
 		}
 		if ( ! $page_id || 'page' !== get_post_type( $page_id ) ) {
-			return false;
+			$page_id = self::create_donation_page();
 		}
 
 		return [
