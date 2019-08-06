@@ -22,7 +22,7 @@ import './style.scss';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 /**
- * Subscriptions wizard for managing and setting up subscriptions.
+ * Wizard for creating and managing a donations/subscriptions landing page.
  */
 class MembershipsPageWizard extends Component {
 	/**
