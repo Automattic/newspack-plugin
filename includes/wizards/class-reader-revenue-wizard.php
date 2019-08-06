@@ -316,7 +316,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'location_data'        => $wc_configuration_manager->location_data(),
 			'stripe_data'          => $wc_configuration_manager->stripe_data(),
 			'donation_data'        => Donations::get_donation_settings(),
-			'donation_page'        => Donations::get_memberships_page_info(),
+			'donation_page'        => Donations::get_donation_page_info(),
 		];
 	}
 

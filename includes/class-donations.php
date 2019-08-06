@@ -19,7 +19,7 @@ class Donations {
 	const DONATION_SUGGESTED_AMOUNT_META          = 'newspack_donation_suggested_amount';
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
-	const MEMBERSHIPS_PAGE_ID_OPTION              = 'newspack_memberships_page_id';
+	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
 
 	/**
 	 * Initialize hooks/filters/etc.
@@ -382,15 +382,15 @@ class Donations {
 	}
 
 	/**
-	 * Create the memberships page prepopulated with CTAs for the subscriptions.
+	 * Create the donation page prepopulated with CTAs for the subscriptions.
 	 *
 	 * @return int Post ID of page.
 	 */
-	public static function create_memberships_page() {
+	public static function create_donation_page() {
 		$revenue_model = Reader_Revenue_Onboarding_Wizard::get_revenue_model();
 
 		$intro           = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
-		$content_heading = esc_html__( 'Membership', 'newspack' );
+		$content_heading = esc_html__( 'Donation', 'newspack' );
 		$content         = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
 
 		$intro_block           = '
@@ -468,23 +468,23 @@ class Donations {
 	}
 
 	/**
-	 * Set the memberships page.
+	 * Set the donation page.
 	 *
-	 * @param int $page_id The post ID of the memberships page.
+	 * @param int $page_id The post ID of the donation page.
 	 */
-	protected static function set_memberships_page( $page_id ) {
-		update_option( self::MEMBERSHIPS_PAGE_ID_OPTION, $page_id );
+	protected static function set_donation_page( $page_id ) {
+		update_option( self::DONATION_PAGE_ID_OPTION, $page_id );
 	}
 
 	/**
-	 * Get info about the memberships page.
+	 * Get info about the donation page.
 	 *
-	 * @param int $page_id Optional ID of page to get info for. Default: saved memberships page.
+	 * @param int $page_id Optional ID of page to get info for. Default: saved donation page.
 	 * @return array|bool Array of info, or false if page is not created.
 	 */
-	public static function get_memberships_page_info( $page_id = 0 ) {
+	public static function get_donation_page_info( $page_id = 0 ) {
 		if ( ! $page_id ) {
-			$page_id = get_option( self::MEMBERSHIPS_PAGE_ID_OPTION, 0 );
+			$page_id = get_option( self::DONATION_PAGE_ID_OPTION, 0 );
 		}
 		if ( ! $page_id || 'page' !== get_post_type( $page_id ) ) {
 			return false;
