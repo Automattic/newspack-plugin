@@ -377,7 +377,7 @@ class Donations {
 		);
 
 		// Redirect to checkout.
-		\wp_safe_redirect( \wc_get_page_permalink( 'checkout' ) );
+		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', \wc_get_page_permalink( 'checkout' ), $donation_value, $donation_frequency ) );
 		exit;
 	}
 
