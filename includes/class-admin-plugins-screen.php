@@ -23,6 +23,7 @@ class Admin_Plugins_Screen {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		add_action( 'admin_action_newspack_install_plugin', [ $this, 'handle_plugin_install' ] );
 		add_action( 'all_admin_notices', [ $this, 'plugin_install_notices' ] );
+		add_action( 'all_admin_notices', [ $this, 'unsupported_plugin_notifications' ] );
 	}
 
 	/**
@@ -221,6 +222,39 @@ class Admin_Plugins_Screen {
 		);
 		wp_style_add_data( 'newspack_plugins_screen', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack_plugins_screen' );
+	}
+
+	/**
+	 * Display notification about installed plugins that Newspack does not support.
+	 */
+	public function unsupported_plugin_notifications() {
+		$screen = get_current_screen();
+		if ( ! $screen || 'newspack' !== $screen->parent_base ) {
+			return;
+		}
+		$unsupported_plugins = Plugin_Manager::get_unmanaged_plugins();
+		if ( ! count( $unsupported_plugins ) ) {
+			return;
+		}
+		$unsupported_plugin_names = array_map(
+			function( $info ) {
+				if ( ! empty( $info['PluginURI'] ) ) {
+					return '<a href="' . esc_url( $info['PluginURI'] ) . '" target="_blank">' . esc_html( $info['Name'] ) . '</a>';
+				}
+				return esc_html( $info['Name'] );
+			},
+			$unsupported_plugins
+		);
+
+		$message = __( 'Newspack found unsupported plugins: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>';
+		?>
+		<div class="notice notice-warning is-dismissible">
+			<p><?php echo wp_kses_post( $message ); ?></p>
+			<button type="button" class="notice-dismiss">
+				<span class="screen-reader-text"><?php echo esc_html__( 'Dismiss.', 'newspack' ); ?></span>
+			</button>
+		</div>
+		<?php
 	}
 }
 new Admin_Plugins_Screen();

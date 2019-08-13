@@ -191,6 +191,25 @@ class Plugin_Manager {
 	}
 
 	/**
+	 * Get info about all the unmanaged plugins that are installed.
+	 *
+	 * @return array of plugin info.
+	 */
+	public static function get_unmanaged_plugins() {
+		$plugins_info      = self::get_installed_plugins_info();
+		$managed_plugins   = self::get_managed_plugins();
+		$ignore            = [ 'newspack-plugin' ];
+		$unmanaged_plugins = [];
+		foreach ( $plugins_info as $slug => $info ) {
+			if ( ! isset( $managed_plugins[ $slug ] ) && ! in_array( $slug, $ignore ) && is_plugin_active( $info['Path'] ) ) {
+				$unmanaged_plugins[ $slug ] = $info;
+			}
+		}
+		return $unmanaged_plugins;
+	}
+
+
+	/**
 	 * Determine whether plugin installation is allowed in the current environment.
 	 *
 	 * @return bool
@@ -288,6 +307,22 @@ class Plugin_Manager {
 		}
 
 		return array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
+	}
+
+	/**
+	 * Get a list of all installed plugins, with complete info for each.
+	 *
+	 * @return array of 'plugin_slug => []' entries for all installed plugins.
+	 */
+	public static function get_installed_plugins_info() {
+		$plugins = get_plugins();
+
+		$installed_plugins_info = [];
+		foreach ( self::get_installed_plugins() as $key => $path ) {
+			$installed_plugins_info[ $key ]         = $plugins[ $path ];
+			$installed_plugins_info[ $key ]['Path'] = $path;
+		}
+		return $installed_plugins_info;
 	}
 
 	/**
