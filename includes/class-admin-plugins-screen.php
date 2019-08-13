@@ -248,11 +248,8 @@ class Admin_Plugins_Screen {
 
 		$message = __( 'Newspack found unsupported plugins: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>';
 		?>
-		<div class="notice notice-warning is-dismissible">
+		<div class="notice notice-warning">
 			<p><?php echo wp_kses_post( $message ); ?></p>
-			<button type="button" class="notice-dismiss">
-				<span class="screen-reader-text"><?php echo esc_html__( 'Dismiss.', 'newspack' ); ?></span>
-			</button>
 		</div>
 		<?php
 	}
