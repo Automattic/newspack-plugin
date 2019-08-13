@@ -410,10 +410,28 @@ class Advertising_Wizard extends Wizard {
 	private function retrieve_data() {
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
+		$services   = $this->get_services();
+		$placements = $this->get_placements();
+		$ad_units   = $configuration_manager->get_ad_units();
+
+		/* If there is only one enabled service, select it for all placements */
+		$enabled_services = array_filter(
+			$services,
+			function ( $service ) {
+				return ! empty( $service['enabled'] ) && $service['enabled'];
+			}
+		);
+
+		if ( 1 === count( $enabled_services ) ) {
+			$only_service = array_keys( $enabled_services )[0];
+			foreach ( $placements as &$placement ) {
+				$placement['service'] = $only_service;
+			}
+		}
 		return array(
-			'services'   => $this->get_services(),
-			'placements' => $this->get_placements(),
-			'ad_units'   => $configuration_manager->get_ad_units(),
+			'services'   => $services,
+			'placements' => $placements,
+			'ad_units'   => $ad_units,
 		);
 	}
 
