@@ -65,6 +65,9 @@ class Advertising_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_action( 'before_header', [ $this, 'inject_above_header_ad' ] );
+		add_action( 'after_header', [ $this, 'inject_below_header_ad' ] );
+		add_action( 'before_footer', [ $this, 'inject_above_footer_ad' ] );
 	}
 
 	/**
@@ -466,9 +469,9 @@ class Advertising_Wizard extends Wizard {
 		$option_value = json_decode( get_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, '' ) );
 
 		$defaults = array(
-			'adUnit'  => '',
-			'enabled' => false,
-			'service' => '',
+			'ad_unit'  => '',
+			'enabled'  => false,
+			'service'  => '',
 		);
 
 		return wp_parse_args( $option_value, $defaults );
@@ -492,6 +495,76 @@ class Advertising_Wizard extends Wizard {
 	 */
 	public function sanitize_placement( $placement ) {
 		return sanitize_title( $placement );
+	}
+
+	/**
+	 * Inject a global ad above the header.
+	 */
+	public function inject_above_header_ad() {
+		$placement = $this->get_placement_data( 'global_above_header' );
+		if ( ! $placement['enabled'] ) {
+			return;
+		}
+
+		if ( 'google_ad_manager' === $placement['service'] && ! empty( $placement['ad_unit'] ) ) {
+			$this->inject_ad_manager_global_ad( 'global_above_header' );
+		}
+	}
+
+	/**
+	 * Inject a global ad below the header.
+	 */
+	public function inject_below_header_ad() {
+		$placement = $this->get_placement_data( 'global_below_header' );
+		if ( ! $placement['enabled'] ) {
+			return;
+		}
+
+		if ( 'google_ad_manager' === $placement['service'] && ! empty( $placement['ad_unit'] ) ) {
+			$this->inject_ad_manager_global_ad( 'global_below_header' );
+		}
+	}
+
+	/**
+	 * Inject a global ad above the footer.
+	 */
+	public function inject_above_footer_ad() {
+		$placement = $this->get_placement_data( 'global_above_footer' );
+		if ( ! $placement['enabled'] ) {
+			return;
+		}
+
+		if ( 'google_ad_manager' === $placement['service'] && ! empty( $placement['ad_unit'] ) ) {
+			$this->inject_ad_manager_global_ad( 'global_above_footer' );
+		}
+	}
+
+	/**
+	 * Inject a global ad in an arbitrary placement.
+	 */
+	protected function inject_ad_manager_global_ad( $placement_slug ) {
+		$placement = $this->get_placement_data( $placement_slug );
+		if ( ! $placement['enabled'] || empty( $placement['ad_unit'] ) ) {
+			return;
+		}
+
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$ad_unit               = $configuration_manager->get_ad_unit( $placement['ad_unit'] );
+		if ( is_wp_error( $ad_unit ) ) {
+			return;
+		}
+
+		$is_amp = function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
+		$code   = $is_amp ? $ad_unit['amp_ad_code'] : $ad_unit['ad_code'];
+		if ( empty( $code ) ) {
+			return;
+		}
+
+		?>
+		<div class='newspack_global_ad <?php echo esc_attr( $placement_slug); ?>'>
+			<?php echo $code; ?>
+		</div>
+		<?php
 	}
 
 	/**
