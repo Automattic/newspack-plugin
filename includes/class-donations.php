@@ -311,7 +311,7 @@ class Donations {
 	/**
 	 * Remove all donation products from the cart.
 	 */
-	protected static function remove_donations_from_cart() {
+	public static function remove_donations_from_cart() {
 		$donation_settings = self::get_donation_settings();
 		if ( ! $donation_settings['created'] ) {
 			return;
@@ -377,7 +377,7 @@ class Donations {
 		);
 
 		// Redirect to checkout.
-		\wp_safe_redirect( \wc_get_page_permalink( 'checkout' ) );
+		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', \wc_get_page_permalink( 'checkout' ), $donation_value, $donation_frequency ) );
 		exit;
 	}
 
