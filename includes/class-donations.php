@@ -236,8 +236,8 @@ class Donations {
 		if ( $args['imageID'] ) {
 			$once_product->set_image_id( $args['imageID'] );
 		}
-		$once_product->set_regular_price( $default_price );
-		$once_product->update_meta_data( '_suggested_price', $default_price );
+		$once_product->set_regular_price( 12 * $default_price );
+		$once_product->update_meta_data( '_suggested_price', 12 * $default_price );
 		$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
 		$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
 		$once_product->update_meta_data( '_nyp', 'yes' );
@@ -283,6 +283,7 @@ class Donations {
 				continue;
 			}
 
+			$yearly_price = 12 * $default_price;
 			$child_product->set_status( 'publish' );
 			$child_product->set_image_id( $args['imageID'] );
 			$child_product->set_regular_price( $default_price );
@@ -291,7 +292,6 @@ class Donations {
 				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
 					/* translators: %s: Product name */
 					$child_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
-					$yearly_price = 12 * $default_price;
 					$child_product->update_meta_data( '_subscription_price', \wc_format_decimal( $yearly_price ) );
 					$child_product->update_meta_data( '_suggested_price', \wc_format_decimal( $yearly_price ) );
 					$child_product->set_regular_price( $yearly_price );
@@ -303,6 +303,8 @@ class Donations {
 			} else {
 				/* translators: %s: Product name */
 				$child_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
+				$child_product->set_regular_price( $yearly_price );
+				$child_product->update_meta_data( '_suggested_price', $yearly_price );
 			}
 			$child_product->save();
 		}
