@@ -156,6 +156,11 @@ class Plugin_Manager {
 				'Author'      => 'Newspack',
 				'Download'    => 'wporg',
 			],
+			'newspack-theme'                => [
+				'Name'        => 'Newspack Theme',
+				'Description' => 'The Newspack theme.',
+				'Author'      => 'Newspack',
+			],
 		];
 
 		$default_info = [
@@ -180,6 +185,14 @@ class Plugin_Manager {
 					$status = 'active';
 				} else {
 					$status = 'inactive';
+				}
+			}
+			if ( 'newspack-theme' === $plugin_slug ) {
+				$theme      = wp_get_theme();
+				$plugin_uri = $theme->get( 'ThemeURI' );
+				$theme_slug = explode( '/', $plugin_uri );
+				if ( end( $theme_slug ) === $plugin_slug ) {
+					$status = 'active';
 				}
 			}
 			$managed_plugins[ $plugin_slug ]['Status']      = $status;
@@ -230,6 +243,9 @@ class Plugin_Manager {
 	 * @return bool True on success. False on failure or if plugin was already activated.
 	 */
 	public static function activate( $plugin ) {
+		if ( 'newspack-theme' === $plugin ) {
+			return newspack_install_activate_theme();
+		}
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -306,7 +322,9 @@ class Plugin_Manager {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		return array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
+		$plugins = array_reduce( array_keys( get_plugins() ), array( __CLASS__, 'reduce_plugin_info' ) );
+		$themes  = array_reduce( array_keys( wp_get_themes() ), array( __CLASS__, 'reduce_plugin_info' ) );
+		return array_merge( $plugins, $themes );
 	}
 
 	/**
@@ -315,7 +333,7 @@ class Plugin_Manager {
 	 * @return array of 'plugin_slug => []' entries for all installed plugins.
 	 */
 	public static function get_installed_plugins_info() {
-		$plugins = get_plugins();
+		$plugins = array_merge( get_plugins(), wp_get_themes() );
 
 		$installed_plugins_info = [];
 		foreach ( self::get_installed_plugins() as $key => $path ) {

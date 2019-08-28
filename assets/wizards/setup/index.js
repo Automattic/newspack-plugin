@@ -23,7 +23,7 @@ import './style.scss';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { pickBy, includes, forEach } from 'lodash';
 
-const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo', 'google-site-kit' ];
+const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo', 'google-site-kit', 'newspack-theme' ];
 
 /**
  * Wizard for setting up ability to take payments.
@@ -174,7 +174,7 @@ class SetupWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Welcome
-								buttonText={ __( 'Install core plugins' ) }
+								buttonText={ __( 'Install core plugins and Newspack theme' ) }
 								buttonAction={ {
 									href: '#/about',
 									onClick: () => this.updateProfile(),
@@ -184,7 +184,7 @@ class SetupWizard extends Component {
 								profile={ profile }
 								notice=<p>
 									{ __(
-										'Clicking “Get Started” will install core Newspack plugins in the background.'
+										'Clicking “Get Started” will install core Newspack plugins and the theme in the background.'
 									) }
 								</p>
 							/>
