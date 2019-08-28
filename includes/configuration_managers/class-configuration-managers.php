@@ -43,7 +43,11 @@ class Configuration_Managers {
 		'woocommerce'     => [
 			'filename'   => 'class-woocommerce-configuration-manager.php',
 			'class_name' => 'WooCommerce_Configuration_Manager',
-		]
+		],
+		'newspack-theme'  => [
+			'filename'   => 'class-newspack-theme-configuration-manager.php',
+			'class_name' => 'Newspack_Theme_Configuration_Manager',
+		],
 	];
 
 	/**
