@@ -30,7 +30,7 @@ class Intro extends Component {
 						'The first true all-in-one SEO solution for WordPress, including on-page content analysis, XML sitemaps and much more.'
 					) }
 					actionText={ __( 'Configure' ) }
-					href={ '#' }
+					handoff="wordpress-seo"
 				/>
 				<ActionCard
 					title={ __( 'Jetpack SEO' ) }
@@ -38,7 +38,8 @@ class Intro extends Component {
 						'Optimize your site\'s SEO with Jetpack'
 					) }
 					actionText={ __( 'Configure' ) }
-					href={ '#' }
+					handoff="jetpack"
+					editLink='admin.php?page=jetpack#/traffic'
 				/>
 			</Fragment>
 		);
