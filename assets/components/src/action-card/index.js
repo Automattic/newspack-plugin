@@ -7,7 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import { Dashicon, Spinner, ToggleControl } from '@wordpress/components';
-import { Button, Card } from '../';
+import { Button, Card, Handoff } from '../';
 
 /**
  * Internal dependencies
@@ -35,6 +35,8 @@ class ActionCard extends Component {
 			className,
 			title,
 			description,
+			handoff,
+			editLink,
 			href,
 			notification,
 			notificationLevel,
@@ -63,10 +65,7 @@ class ActionCard extends Component {
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
-						<ToggleControl
-							checked={ toggleChecked }
-							onChange={ toggleOnChange }
-						/>
+						<ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } />
 					) }
 					{ image && ! toggleOnChange && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
@@ -79,12 +78,19 @@ class ActionCard extends Component {
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h1>{ [ title, badge && <span className='newspack-action-card-badge'>{ badge }</span> ] }</h1>
+						<h1>
+							{ [ title, badge && <span className="newspack-action-card-badge">{ badge }</span> ] }
+						</h1>
 						<h2>{ description }</h2>
 					</div>
 					{ actionDisplay && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ actionDisplay && ( !! onClick || !! href ) && (
+							{ handoff && (
+								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
+									{ actionDisplay }
+								</Handoff>
+							) }
+							{ ( !! onClick || !! href ) && ! handoff && (
 								<Button
 									isLink
 									href={ href }
@@ -95,7 +101,7 @@ class ActionCard extends Component {
 								</Button>
 							) }
 
-							{ actionDisplay && ( ! onClick && ! href ) && (
+							{ ! handoff && ( ! onClick && ! href ) && (
 								<div className="newspack-action-card__container">
 									{ isWaiting && <Spinner /> }
 									{ actionDisplay }
@@ -126,6 +132,6 @@ class ActionCard extends Component {
 
 ActionCard.defaultProps = {
 	toggleChecked: false,
-}
+};
 
 export default ActionCard;
