@@ -168,6 +168,7 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://www.alleyinteractive.com',
 				'PluginURI'   => 'http://github.com/alleyinteractive/apple-news',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=apple_news_index',
 			],
 			'fb-instant-articles'           => [
 				'Name'        => 'Instant Articles for WP',
@@ -176,6 +177,7 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://vip.wordpress.com/plugins/instant-articles/',
 				'PluginURI'   => 'https://vip.wordpress.com/plugins/instant-articles/',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
 		];
 

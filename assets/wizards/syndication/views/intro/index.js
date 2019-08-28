@@ -29,6 +29,7 @@ class Intro extends Component {
 						'Description TK'
 					) }
 					actionText={ __( 'Configure' ) }
+					handoff="publish-to-apple-news"
 				/>
 				<ActionCard
 					title={ __( 'Facebook Instant Articles' ) }
@@ -36,6 +37,7 @@ class Intro extends Component {
 						'Description TK'
 					) }
 					actionText={ __( 'Configure' ) }
+					handoff="fb-instant-articles"
 				/>
 			</Fragment>
 		);
