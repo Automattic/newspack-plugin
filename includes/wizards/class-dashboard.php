@@ -87,11 +87,10 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'seo',
-				'name'        => esc_html__( 'SEO', 'newspack' ),
-				'url'         => '#',
+				'name'        => Wizards::get_name( 'seo' ),
+				'url'         => Wizards::get_url( 'seo' ),
 				'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/seo-icon.svg',
-				'status'      => 'disabled',
 			],
 			[
 				'slug'        => 'engagement',
