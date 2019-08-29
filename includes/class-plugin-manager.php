@@ -188,10 +188,7 @@ class Plugin_Manager {
 				}
 			}
 			if ( 'newspack-theme' === $plugin_slug ) {
-				$theme      = wp_get_theme();
-				$plugin_uri = $theme->get( 'ThemeURI' );
-				$theme_slug = explode( '/', $plugin_uri );
-				if ( end( $theme_slug ) === $plugin_slug ) {
+				if ( 'newspack-theme' === get_stylesheet() ) {
 					$status = 'active';
 				}
 			}
