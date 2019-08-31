@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { AddToHomeScreen, Intro, OfflineUsage, PushNotifications } from './views';
+import { AddToHomeScreen, Intro, OfflineUsage } from './views';
 import './style.scss';
 
 /**
@@ -103,65 +103,12 @@ class PerformanceWizard extends Component {
 								subHeaderText={ __(
 									'Optimizing your news site for better performance and increased user engagement.'
 								) }
-								buttonText={ __( 'Configure advanced options' ) }
-								buttonAction="#/add-to-homescreen"
-							/>
-						) }
-					/>
-					<Route
-						path="/add-to-homescreen"
-						render={ routeProps => (
-							<AddToHomeScreen
-								headerText={ __( 'Enable Add to Homescreen' ) }
-								subHeaderText={ __(
-									'Encourage your users to add your news site to their homescreen.'
-								) }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ () =>
-									this.updateSettings( 'add_to_homescreen', 'site_icon' ).then( () =>
-										routeProps.history.push( '/offline-usage' )
-									)
-								}
 								settings={ settings }
 								updateSetting={ this.updateSetting }
-							/>
-						) }
-					/>
-					<Route
-						path="/offline-usage"
-						render={ routeProps => (
-							<OfflineUsage
-								headerText={ __( 'Enable Offline Usage' ) }
-								subHeaderText={ __(
-									'Make your website reliable. Even on flaky internet connections.'
-								) }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ () =>
-									this.updateSettings( 'offline_usage' ).then( () =>
-										routeProps.history.push( '/push-notifications' )
-									)
-								}
-								settings={ settings }
-								updateSetting={ this.updateSetting }
-							/>
-						) }
-					/>
-					<Route
-						path="/push-notifications"
-						render={ routeProps => (
-							<PushNotifications
-								headerText={ __( 'Enable Push Notifications' ) }
-								subHeaderText={ __( 'Keep your users engaged by sending push notifications.' ) }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ () =>
-									this.updateSettings(
-										'push_notifications',
-										'push_notification_server_key',
-										'push_notification_sender_id'
-									).then( () => ( window.location = newspack_urls[ 'dashboard' ] ) )
-								}
-								settings={ settings }
-								updateSetting={ this.updateSetting }
+								buttonText={ __( 'Save' ) }
+								buttonAction={ () => {
+									this.updateSettings( 'add_to_homescreen', 'site_icon' ).then( () => ( window.location = newspack_urls[ 'dashboard' ] ) )
+								} }
 							/>
 						) }
 					/>

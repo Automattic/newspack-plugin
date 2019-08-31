@@ -142,14 +142,6 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://github.com/xwp/pwa-wp',
 				'Download'    => 'wporg',
 			],
-			'progressive-wp'                => [
-				'Name'        => 'Progressive WordPress (PWA)',
-				'Description' => 'Turn your website into a Progressive Web App and make it installable, offline ready and send push notifications.',
-				'Author'      => 'Nico Martin',
-				'AuthorURI'   => 'https://nicomartin.ch',
-				'PluginURI'   => 'https://github.com/SayHelloGmbH/progressive-wordpress',
-				'Download'    => 'wporg',
-			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
 				'Description' => 'This is a made-up plugin, meant to error out.',
