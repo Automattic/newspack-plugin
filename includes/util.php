@@ -41,7 +41,7 @@ function newspack_string_to_bool( $string ) {
  */
 function newspack_install_activate_theme() {
 	$theme_slug = 'newspack-theme';
-	$theme_url  = 'https://github.com/Automattic/newspack-theme/archive/master.zip';
+	$theme_url  = 'https://github.com/Automattic/newspack-theme/releases/latest/download/newspack-theme.zip';
 
 	$theme_object = wp_get_theme( $theme_slug );
 	if ( ! $theme_object->exists() ) {
