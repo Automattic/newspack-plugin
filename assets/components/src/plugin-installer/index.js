@@ -30,6 +30,7 @@ class PluginInstaller extends Component {
 		super( ...arguments );
 		this.state = {
 			pluginInfo: {},
+			installationInitialized: false,
 		};
 	}
 
@@ -42,9 +43,13 @@ class PluginInstaller extends Component {
 	};
 
 	componentDidUpdate = prevProps => {
-		const { plugins } = this.props;
+		const { autoInstall, plugins } = this.props;
+		const { installationInitialized } = this.state;
 		if ( plugins !== prevProps.plugins ) {
 			this.retrievePluginInfo( plugins );
+		}
+		if ( autoInstall && ! installationInitialized ) {
+			this.installAllPlugins();
 		}
 	};
 
@@ -67,6 +72,7 @@ class PluginInstaller extends Component {
 
 	installAllPlugins = () => {
 		const { pluginInfo } = this.state;
+		this.setState( { installationInitialized: true } );
 		const promises = Object.keys( pluginInfo )
 			.filter( slug => 'active' !== pluginInfo[ slug ].Status )
 			.map( slug => () => this.installPlugin( slug ) );
@@ -145,9 +151,9 @@ class PluginInstaller extends Component {
 		}
 		return (
 			<div>
-				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length )  && (
+				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
 					<div className="newspack-plugin-installer_waiting">
-						<p>{ __( 'Retrieving plugin information...') }</p>
+						<p>{ __( 'Retrieving plugin information...' ) }</p>
 						<Spinner />
 					</div>
 				) }
@@ -178,16 +184,16 @@ class PluginInstaller extends Component {
 							/>
 						);
 					} ) }
-					{ ! autoInstall && pluginInfo && slugs.length > 0 && (
-						<Button
-							disabled={ ! needsInstall }
-							isPrimary
-							className="is-centered"
-							onClick={ this.installAllPlugins }
-						>
-							{ __( 'Install' ) }
-						</Button>
-					) }
+				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
+					<Button
+						disabled={ ! needsInstall }
+						isPrimary
+						className="is-centered"
+						onClick={ this.installAllPlugins }
+					>
+						{ __( 'Install' ) }
+					</Button>
+				) }
 			</div>
 		);
 	}
@@ -195,6 +201,6 @@ class PluginInstaller extends Component {
 
 PluginInstaller.defaultProps = {
 	onStatus: () => {},
-}
+};
 
 export default PluginInstaller;
