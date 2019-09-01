@@ -20,13 +20,9 @@ class InstallationProgress extends Component {
 	 * Render.
 	 */
 	render() {
-		const { plugins, onStatus } = this.props;
+		const { autoInstall, plugins, onStatus } = this.props;
 		return (
-			<PluginInstaller
-				autoInstall
-				plugins={ plugins }
-				onStatus={ onStatus }
-			/>
+			<PluginInstaller autoInstall={ autoInstall } plugins={ plugins } onStatus={ onStatus } />
 		);
 	}
 }
