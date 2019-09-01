@@ -31,15 +31,22 @@ class Handoff extends Component {
 	}
 
 	componentDidMount = () => {
+		this._isMounted = true;
 		const { plugin } = this.props;
 		this.retrievePluginInfo( plugin );
+	};
+
+	componentWillUnmount = () => {
+		this._isMounted = false;
 	};
 
 	retrievePluginInfo = plugin => {
 		const { onReady } = this.props;
 		apiFetch( { path: '/newspack/v1/plugins/' + plugin } ).then( pluginInfo => {
-			onReady( pluginInfo );
-			this.setState( { pluginInfo } );
+			if ( this._isMounted ) {
+				onReady( pluginInfo );
+				this.setState( { pluginInfo } );
+			}
 		} );
 	};
 
