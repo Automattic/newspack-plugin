@@ -36,17 +36,11 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				secondaryButtonStyle,
 				hidden,
 			} = this.props;
-			if ( hidden ) {
-				return (
-					<div className="muriel-wizardScreen__hidden">
-						<WrappedComponent { ...this.props } />
-					</div>
-				);
-			}
 			const classes = murielClassnames(
 				'muriel-wizardScreen',
 				className,
-				noBackground ? 'muriel-wizardScreen__no-background' : ''
+				noBackground ? 'muriel-wizardScreen__no-background' : '',
+				hidden ? 'muriel-wizardScreen__hidden' : '',
 			);
 			const content = (
 				<div className="muriel-wizardScreen__content">
@@ -56,19 +50,21 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
-					<Grid>
-						<Card noBackground>
-							{ headerText && (
-								<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
-							) }
-						</Card>
-						{ tabbedNavigation && (
+					{ ! hidden && (
+						<Grid>
 							<Card noBackground>
-								<TabbedNavigation items={ tabbedNavigation } />
-								{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
+								{ headerText && (
+									<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+								) }
 							</Card>
-						) }
-					</Grid>
+							{ tabbedNavigation && (
+								<Card noBackground>
+									<TabbedNavigation items={ tabbedNavigation } />
+									{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
+								</Card>
+							) }
+						</Grid>
+					) }
 					{ !! noCard && content }
 					{ ! noCard && (
 						<Grid>
@@ -77,41 +73,43 @@ export default function withWizardScreen( WrappedComponent, config ) {
 							</Card>
 						</Grid>
 					) }
-					<Grid>
-						<Card className="is-centered" noBackground>
-							{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
-								<Handoff
-									isPrimary
-									className="is-centered muriel-wizardScreen__completeButton"
-									{ ...retrievedButtonProps }
-								>
-									{ buttonText }
-								</Handoff>
-							) }
-							{ notice }
-							{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
-								<Button
-									isPrimary={ ! buttonDisabled }
-									isDefault={ !! buttonDisabled }
-									className="is-centered muriel-wizardScreen__completeButton"
-									disabled={ buttonDisabled }
-									{ ...retrievedButtonProps }
-								>
-									{ buttonText }
-								</Button>
-							) }
-							{ footer }
-							{ secondaryButtonText && (
-								<Button
-									{ ...secondaryButtonStyle }
-									className="is-centered"
-									{ ...buttonProps( secondaryButtonAction ) }
-								>
-									{ secondaryButtonText }
-								</Button>
-							) }
-						</Card>
-					</Grid>
+					{ ! hidden && (
+						<Grid>
+							<Card className="is-centered" noBackground>
+								{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
+									<Handoff
+										isPrimary
+										className="is-centered muriel-wizardScreen__completeButton"
+										{ ...retrievedButtonProps }
+									>
+										{ buttonText }
+									</Handoff>
+								) }
+								{ notice }
+								{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
+									<Button
+										isPrimary={ ! buttonDisabled }
+										isDefault={ !! buttonDisabled }
+										className="is-centered muriel-wizardScreen__completeButton"
+										disabled={ buttonDisabled }
+										{ ...retrievedButtonProps }
+									>
+										{ buttonText }
+									</Button>
+								) }
+								{ footer }
+								{ secondaryButtonText && (
+									<Button
+										{ ...secondaryButtonStyle }
+										className="is-centered"
+										{ ...buttonProps( secondaryButtonAction ) }
+									>
+										{ secondaryButtonText }
+									</Button>
+								) }
+							</Card>
+						</Grid>
+					) }
 				</Fragment>
 			);
 		}
