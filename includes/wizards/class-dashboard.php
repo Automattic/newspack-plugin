@@ -111,11 +111,11 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'syndication',
-				'name'        => esc_html__( 'Syndication', 'newspack' ),
-				'url'         => '#',
+				'name'        => Wizards::get_name( 'syndication' ),
+				'url'         => Wizards::get_url( 'syndication' ),
 				'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/syndication-icon.svg',
-				'status'      => 'disabled',
+				'status'      => Checklists::get_status( 'syndication' ),
 			],
 		];
 

@@ -161,6 +161,24 @@ class Plugin_Manager {
 				'Description' => 'The Newspack theme.',
 				'Author'      => 'Newspack',
 			],
+			'publish-to-apple-news'         => [
+				'Name'        => 'Publish to Apple News',
+				'Description' => 'Export and sync posts to Apple format.',
+				'Author'      => 'Alley Interactive',
+				'AuthorURI'   => 'https://www.alleyinteractive.com',
+				'PluginURI'   => 'http://github.com/alleyinteractive/apple-news',
+				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=apple_news_index',
+			],
+			'fb-instant-articles'           => [
+				'Name'        => 'Instant Articles for WP',
+				'Description' => 'Add support for Instant Articles for Facebook to your WordPress site.',
+				'Author'      => 'Automattic, Dekode, Facebook',
+				'AuthorURI'   => 'https://vip.wordpress.com/plugins/instant-articles/',
+				'PluginURI'   => 'https://vip.wordpress.com/plugins/instant-articles/',
+				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=instant-articles-wizard',
+			],
 		];
 
 		$default_info = [

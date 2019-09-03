@@ -31,6 +31,7 @@ class Wizards {
 			'dashboard'        => new Dashboard(),
 			'reader-revenue'   => new Reader_Revenue_Wizard(),
 			'advertising'      => new Advertising_Wizard(),
+			'syndication'      => new Syndication_Wizard(),
 			'google-analytics' => new Google_Analytics_Wizard(),
 			'components-demo'  => new Components_Demo(),
 			'performance'      => new Performance_Wizard(),
