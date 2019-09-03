@@ -57,10 +57,10 @@ class Dashboard extends Wizard {
 			[
 				'slug'        => 'site-design',
 				'name'        => esc_html__( 'Site Design', 'newspack' ),
-				'url'         => '#',
+				'url'         => admin_url( 'customize.php' ),
 				'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/site-design-icon.svg',
-				'status'      => 'disabled',
+				'status'      => 'enabled',
 			],
 			[
 				'slug'        => 'reader-revenue',
