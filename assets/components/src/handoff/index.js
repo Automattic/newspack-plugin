@@ -59,10 +59,10 @@ class Handoff extends Component {
 		apiFetch( {
 			path: '/newspack/v1/plugins/' + plugin + '/handoff',
 			method: 'POST',
-			data: { 
-				editLink, 
+			data: {
+				editLink,
 				handoffReturnUrl: window && window.location.href,
-				showOnBlockEditor: showOnBlockEditor ? true : false 
+				showOnBlockEditor: showOnBlockEditor ? true : false,
 			},
 		} ).then( response => {
 			window.location.href = response.HandoffLink;
@@ -73,7 +73,7 @@ class Handoff extends Component {
 	 * Render.
 	 */
 	render( props ) {
-		const { className, children, useModal, onReady, ...otherProps } = this.props;
+		const { className, children, compact, useModal, onReady, ...otherProps } = this.props;
 		const { pluginInfo, showModal } = this.state;
 		const {
 			modalBody,
@@ -89,7 +89,7 @@ class Handoff extends Component {
 				{ Name && 'active' === Status && (
 					<Button
 						className={ classes }
-						isDefault
+						isDefault={ ! otherProps.isLink }
 						{ ...otherProps }
 						onClick={ () =>
 							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
@@ -104,10 +104,10 @@ class Handoff extends Component {
 					</Button>
 				) }
 				{ ! Name && (
-					<Button className={ classes } isDefault { ...otherProps }>
+					<Button className={ classes } isDefault={ ! otherProps.isLink } { ...otherProps }>
 						<Fragment>
 							{ __( 'Retrieving Plugin Info' ) }
-							<Spinner />
+							{ ! compact && <Spinner /> }
 						</Fragment>
 					</Button>
 				) }
@@ -132,6 +132,6 @@ class Handoff extends Component {
 
 Handoff.defaultProps = {
 	onReady: () => {},
-}
+};
 
 export default Handoff;

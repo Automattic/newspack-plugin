@@ -297,6 +297,19 @@ class ComponentsDemo extends Component {
 							console.log( 'Install clicked' );
 						} }
 					/>
+					<ActionCard
+						title="Handoff"
+						description="An example of an action card with Handoff."
+						actionText="Configure"
+						handoff="jetpack"
+					/>
+					<ActionCard
+						title="Handoff"
+						description="An example of an action card with Handoff and EditLink."
+						actionText="Configure"
+						handoff="jetpack"
+						editLink="admin.php?page=jetpack#/settings"
+					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
 					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
 						<Task
