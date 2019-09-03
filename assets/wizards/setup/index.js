@@ -279,15 +279,10 @@ class SetupWizard extends Component {
 						} }
 					/>
 					<Route
-						path={ [
-							'/about',
-							'/newsroom',
-							'/configure-jetpack',
-							'/configure-google-site-kit',
-							'/installation-progress',
-						] }
+						path={ [ '/' ] }
 						render={ routeProps => (
 							<InstallationProgress
+								autoInstall={ '/' !== routeProps.location.pathname }
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
 								noBackground
 								headerText={ __( 'Installation...' ) }
