@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { AddToHomeScreen, Intro, OfflineUsage } from './views';
+import { Intro } from './views';
 import './style.scss';
 
 /**
