@@ -37,6 +37,7 @@ class Wizards {
 			'performance'      => new Performance_Wizard(),
 			'mailchimp'        => new Mailchimp_Wizard(),
 			'newsletter-block' => new Newsletter_Block_Wizard(),
+			'seo'              => new SEO_Wizard(),
 		];
 	}
 

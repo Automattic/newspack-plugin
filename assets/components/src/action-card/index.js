@@ -100,8 +100,7 @@ class ActionCard extends Component {
 									{ actionDisplay }
 								</Button>
 							) }
-
-							{ ! handoff && ( ! onClick && ! href ) && (
+							{ ! handoff && ! onClick && ! href && (
 								<div className="newspack-action-card__container">
 									{ isWaiting && <Spinner /> }
 									{ actionDisplay }
