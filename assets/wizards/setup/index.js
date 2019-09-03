@@ -23,7 +23,7 @@ import './style.scss';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { pickBy, includes, forEach } from 'lodash';
 
-const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo', 'google-site-kit', 'newspack-theme' ];
+const REQUIRED_PLUGINS = [ 'jetpack', 'amp', 'pwa', 'wordpress-seo', 'google-site-kit', 'newspack-blocks', 'newspack-theme' ];
 
 /**
  * Wizard for setting up ability to take payments.
