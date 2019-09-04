@@ -17,6 +17,21 @@ defined( 'ABSPATH' ) || exit;
 class Plugin_Manager {
 
 	/**
+	 * Array of Newspack required plugins.
+	 *
+	 * @var array
+	 */
+	public static $required_plugins = [
+		'jetpack',
+		'amp',
+		'pwa',
+		'gutenberg',
+		'wordpress-seo',
+		'google-site-kit',
+		'newspack-blocks',
+	];
+
+	/**
 	 * Get info about all the managed plugins and their status.
 	 *
 	 * @todo Define what the structure of this looks like better and load it up from a config or something.
@@ -236,6 +251,21 @@ class Plugin_Manager {
 		return $unmanaged_plugins;
 	}
 
+	/**
+	 * Get info about all the required plugins that aren't installed and active.
+	 *
+	 * @return array of plugin info.
+	 */
+	public static function get_missing_plugins() {
+		$plugins_info    = self::get_installed_plugins_info();
+		$missing_plugins = array();
+		foreach ( self::$required_plugins as $slug ) {
+			if ( ! isset( $plugins_info[ $slug ] ) || ! is_plugin_active( $plugins_info[ $slug ]['Path'] ) ) {
+				$missing_plugins[ $slug ] = $plugins_info[ $slug ];
+			}
+		}
+		return $missing_plugins;
+	}
 
 	/**
 	 * Determine whether plugin installation is allowed in the current environment.
