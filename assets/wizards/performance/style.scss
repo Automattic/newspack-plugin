@@ -21,19 +21,3 @@
 		color: $muriel-gray-500;
 	}
 }
-
-.newspack-performance-wizard__status {
-	.notice {
-		margin-left: 0;
-		padding-top: .5em;
-		padding-bottom: .5em;
-
-		&.notice-error {
-			background-color: $muriel-red-50;
-		}
-
-		&.notice-success {
-			background-color: $muriel-hot-green-50;
-		}
-	}
-}

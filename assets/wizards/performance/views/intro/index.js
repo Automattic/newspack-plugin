@@ -54,7 +54,6 @@ class Intro extends Component {
 						</p>
 					</div>
 					<div className='newspack-performance-wizard__status'>
-						<h3>{ __( 'Status' ) }</h3>
 						{ settings.configured && (
 							<div className='notice notice-success'>{ __( 'PWA is configured and working.' ) }</div>
 						) }
