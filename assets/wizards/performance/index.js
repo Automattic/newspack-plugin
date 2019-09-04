@@ -53,35 +53,31 @@ class PerformanceWizard extends Component {
 			} );
 	}
 
-	updateSettings( ...fields ) {
+	updateSiteIcon( value ) {
 		const { setError, wizardApiFetch } = this.props;
 		const { settings } = this.state;
-		const submitSettings = Object.keys( settings ).reduce(
-			( submitSettings, key ) =>
-				fields.indexOf( key ) > -1
-					? { ...submitSettings, [ key ]: settings[ key ] }
-					: submitSettings,
-			{}
-		);
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/performance',
-				method: 'POST',
-				data: { settings: submitSettings },
-			} )
-				.then( settings => {
-					setError().then( () => this.setState( { settings }, () => resolve() ) );
+		settings.site_icon = value;
+		if ( ! settings.site_icon ) {
+			settings.site_icon = false;
+		}
+
+		this.setState( { settings }, () => {
+			console.log( settings );
+			return new Promise( ( resolve, reject ) => {
+				wizardApiFetch( {
+					path: '/newspack/v1/wizard/performance',
+					method: 'POST',
+					data: { settings },
 				} )
-				.catch( error => {
-					setError( error ).then( () => reject() );
-				} );
+					.then( settings => {
+						setError().then( () => this.setState( { settings }, () => resolve() ) );
+					} )
+					.catch( error => {
+						setError( error ).then( () => reject() );
+					} );
+			} );		
 		} );
 	}
-
-	updateSetting = ( key, value ) => {
-		const { settings } = this.state;
-		this.setState( { settings: { ...settings, [ key ]: value } } );
-	};
 
 	/**
 	 * Render.
@@ -104,11 +100,7 @@ class PerformanceWizard extends Component {
 									'Optimizing your news site for better performance and increased user engagement.'
 								) }
 								settings={ settings }
-								updateSetting={ this.updateSetting }
-								buttonText={ __( 'Save' ) }
-								buttonAction={ () => {
-									this.updateSettings( 'add_to_homescreen', 'site_icon' ).then( () => ( window.location = newspack_urls[ 'dashboard' ] ) )
-								} }
+								updateSiteIcon={ icon => this.updateSiteIcon( icon ) }
 							/>
 						) }
 					/>

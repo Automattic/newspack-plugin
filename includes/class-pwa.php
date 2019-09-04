@@ -67,6 +67,8 @@ class PWA {
 	public function update_site_icon( $site_icon ) {
 		if ( ! empty( $site_icon['id'] ) ) {
 			update_option( 'site_icon', intval( $site_icon['id'] ) );
+		} else {
+			delete_option( 'site_icon' );
 		}
 	}
 
