@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use \WP_Error, \WP_Service_Worker_Caching_Routes;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -76,18 +76,39 @@ class PWA {
 	 * @param object $scripts PWA scripts object.
 	 */
 	public static function register_caching_routes( $scripts ) {
+		// Cache images.
 		$scripts->caching_routes()->register(
 			'.*\.(?:png|gif|jpg|jpeg|svg|webp)(\?.*)?$', // @todo make sure this isn't caching Photon pixel.
-			array(
+			[
 				'strategy'  => WP_Service_Worker_Caching_Routes::STRATEGY_NETWORK_FIRST,
 				'cacheName' => 'images',
-				'plugins'   => array(
-					'expiration' => array(
+				'plugins'   => [
+					'expiration' => [
 						'maxEntries'    => 60,
 						'maxAgeSeconds' => 60 * 60 * 24,
-					),
-				),
-			)
+					],
+				],
+			]
+		);
+
+		// Cache theme assets.
+		$theme_directory_uri_patterns = [
+			preg_quote( trailingslashit( get_template_directory_uri() ), '/' ),
+		];
+		if ( get_template() !== get_stylesheet() ) {
+			$theme_directory_uri_patterns[] = preg_quote( trailingslashit( get_stylesheet_directory_uri() ), '/' );
+		}
+		$scripts->caching_routes()->register(
+			'^(' . implode( '|', $theme_directory_uri_patterns ) . ').*',
+			[
+				'strategy'  => WP_Service_Worker_Caching_Routes::STRATEGY_NETWORK_FIRST,
+				'cacheName' => 'theme-assets',
+				'plugins'   => [
+					'expiration' => [
+						'maxEntries' => 25,
+					],
+				],
+			]
 		);
 	}
 
