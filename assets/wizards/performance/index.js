@@ -62,7 +62,6 @@ class PerformanceWizard extends Component {
 		}
 
 		this.setState( { settings }, () => {
-			console.log( settings );
 			return new Promise( ( resolve, reject ) => {
 				wizardApiFetch( {
 					path: '/newspack/v1/wizard/performance',
