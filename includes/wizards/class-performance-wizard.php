@@ -105,37 +105,8 @@ class Performance_Wizard extends Wizard {
 		if ( empty( $request['settings'] ) ) {
 			return new WP_Error( 'newspack_invalid_update', __( 'Invalid update' ) );
 		}
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'progressive-wp' );
-		if ( is_wp_error( $configuration_manager ) ) {
-			return $configuration_manager;
-		}
+
 		$settings = $request['settings'];
-
-		if ( isset( $settings['push_notifications'] ) ) {
-			if ( $settings['push_notifications'] ) {
-				$push_notification_server_key = isset( $settings['push_notification_server_key'] ) ? trim( $settings['push_notification_server_key'] ) : null;
-				$push_notification_sender_id  = isset( $settings['push_notification_sender_id'] ) ? trim( $settings['push_notification_sender_id'] ) : null;
-				if ( ! $push_notification_server_key || ! $push_notification_sender_id ) {
-					return new WP_Error(
-						'newspack_incomplete_firebase_fields',
-						__( 'Firebase Server Key and Sender ID must be set in order to use Push Notifications.' ),
-						[
-							'status' => 400,
-							'level'  => 'notice',
-						]
-					);
-				} else {
-					$configuration_manager->firebase_credentials_set( true );
-				}
-			} else {
-				$configuration_manager->firebase_credentials_set( false );
-			}
-		}
-
-		if( isset( $settings['add_to_homescreen'] ) ) {
-			$configuration_manager->update( 'installable-mode', $settings['add_to_homescreen'] ? 'normal' : 'none' );
-		}
-
 		if ( isset( $settings['site_icon'] ) ) {
 			$height = isset( $settings['site_icon']['height'] ) ? $settings['site_icon']['height'] : 0;
 			$width  = isset( $settings['site_icon']['width'] ) ? $settings['site_icon']['width'] : 0;
@@ -149,34 +120,31 @@ class Performance_Wizard extends Wizard {
 					]
 				);
 			}
-			$configuration_manager->update( 'site_icon', $settings['site_icon'] );
+			PWA::update_site_icon( $settings['site_icon'] );
 		}
 
-		if ( isset( $settings['push_notification_server_key'] ) ) {
-			$configuration_manager->update( 'firebase-serverkey', $settings['push_notification_server_key'] );
-		}
-		if ( isset( $settings['push_notification_sender_id'] ) ) {
-			$configuration_manager->update( 'firebase-senderid', $settings['push_notification_sender_id'] );
-		}
 		return rest_ensure_response( $this->get_settings() );
 	}
 
 	/**
 	 * Get all settings
+	 *
+	 * @return array of settings info.
 	 */
 	public function get_settings() {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'progressive-wp' );
-		if ( is_wp_error( $configuration_manager ) ) {
-			return $configuration_manager;
-		}
-		return [
-			'add_to_homescreen'            => $configuration_manager->is_module_enabled( 'add_to_homescreen' ),
-			'site_icon'                    => $configuration_manager->get( 'site_icon' ),
-			'offline_usage'                => true,
-			'push_notifications'           => $configuration_manager->is_module_enabled( 'push_notifications' ),
-			'push_notification_server_key' => $configuration_manager->get( 'firebase-serverkey' ),
-			'push_notification_sender_id'  => $configuration_manager->get( 'firebase-senderid' ),
+		$configured = PWA::check_configured();
+		$return     = [
+			'site_icon' => PWA::get_site_icon(),
 		];
+
+		if ( is_wp_error( $configured ) ) {
+			$return['configured'] = false;
+			$return['error']      = $configured->get_error_message();
+		} else {
+			$return['configured'] = true;
+		}
+
+		return $return;
 	}
 
 	/**
