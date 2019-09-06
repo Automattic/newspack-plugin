@@ -229,29 +229,55 @@ class Admin_Plugins_Screen {
 	 */
 	public function unsupported_plugin_notifications() {
 		$screen = get_current_screen();
+		/* Display notification  only on Newspack dashboard screens */
 		if ( ! $screen || 'newspack' !== $screen->parent_base ) {
 			return;
 		}
-		$unsupported_plugins = Plugin_Manager::get_unmanaged_plugins();
-		if ( ! count( $unsupported_plugins ) ) {
+		$unsupported_plugins   = Plugin_Manager::get_unmanaged_plugins();
+		$missing_plugins       = Plugin_Manager::get_missing_plugins();
+		$newspack_theme_active = 'newspack-theme' === get_stylesheet();
+
+		/* If there is nothing to warn about, show nothing */
+		if ( ! count( $unsupported_plugins ) && ! count( $missing_plugins ) && $newspack_theme_active ) {
 			return;
 		}
-		$unsupported_plugin_names = array_map(
-			function( $info ) {
-				if ( ! empty( $info['PluginURI'] ) ) {
-					return '<a href="' . esc_url( $info['PluginURI'] ) . '" target="_blank">' . esc_html( $info['Name'] ) . '</a>';
-				}
-				return esc_html( $info['Name'] );
-			},
-			$unsupported_plugins
-		);
 
-		$message = __( 'Newspack found unsupported plugins: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>';
+		$unsupported_plugin_names = array_map( [ __CLASS__, 'prepare_plugin_list' ], $unsupported_plugins );
+		$missing_plugins_names    = array_map( [ __CLASS__, 'prepare_plugin_list' ], $missing_plugins );
+
+		/* Assemble messages for all three scenarios. */
+		$messages = [];
+		if ( count( $missing_plugins ) ) {
+			$messages[] = __( 'The following plugins are required by Newspack but are not active: ' ) . '<strong>' . implode( $missing_plugins_names, ', ' ) . '.</strong>';
+		}
+		if ( count( $unsupported_plugins ) ) {
+			$messages[] = __( 'The following plugins are not supported by Newspack: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>';
+		}
+		if ( ! $newspack_theme_active ) {
+			$messages[] = __( 'The Newspack Theme is not currently active.' );
+		}
+
+		/* Error notification only if required plugins are missing. */
+		$warning_level = count( $missing_plugins ) ? 'error' : 'warning';
+
 		?>
-		<div class="notice notice-warning">
-			<p><?php echo wp_kses_post( $message ); ?></p>
+		<div class="notice notice-<?php echo esc_attr( $warning_level ); ?>">
+			<p><?php echo wp_kses_post( implode( ' ', $messages ) ); ?></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Prepare a list of plugins for display in a notification.
+	 *
+	 * @param string $info Info about one plugin.
+	 * @return string Markup displaying the plugin name, as a link if PluginURI is available.
+	 */
+	public static function prepare_plugin_list( $info ) {
+		if ( ! empty( $info['PluginURI'] ) ) {
+			return '<a href="' . esc_url( $info['PluginURI'] ) . '" target="_blank">' . esc_html( $info['Name'] ) . '</a>';
+		}
+		return esc_html( $info['Name'] );
 	}
 }
 new Admin_Plugins_Screen();
