@@ -249,11 +249,12 @@ class Plugin_Manager {
 	 * @return array of plugin info.
 	 */
 	public static function get_missing_plugins() {
+		$managed_plugins = self::get_managed_plugins();
 		$plugins_info    = self::get_installed_plugins_info();
 		$missing_plugins = array();
 		foreach ( self::$required_plugins as $slug ) {
 			if ( ! isset( $plugins_info[ $slug ] ) || ! is_plugin_active( $plugins_info[ $slug ]['Path'] ) ) {
-				$missing_plugins[ $slug ] = $plugins_info[ $slug ];
+				$missing_plugins[ $slug ] = $managed_plugins[ $slug ];
 			}
 		}
 		return $missing_plugins;
