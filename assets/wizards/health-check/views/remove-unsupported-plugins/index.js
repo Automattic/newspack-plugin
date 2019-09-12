@@ -21,7 +21,7 @@ class RemoveUnsupportedPlugins extends Component {
 	 * Render.
 	 */
 	render() {
-		const { unsupportedPlugins, removeAllPlugins } = this.props;
+		const { unsupportedPlugins, deactivateAllPlugins } = this.props;
 		return (
 			<Fragment>
 				{ unsupportedPlugins && unsupportedPlugins.length > 0 && (
@@ -34,8 +34,8 @@ class RemoveUnsupportedPlugins extends Component {
 								description={ unsupportedPlugin.Description }
 							/>
 						) ) }
-						<Button isPrimary onClick={ removeAllPlugins }>
-							{ __( 'Remove All' ) }
+						<Button isPrimary onClick={ deactivateAllPlugins }>
+							{ __( 'Deactivate All' ) }
 						</Button>
 					</Fragment>
 				) }

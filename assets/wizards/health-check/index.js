@@ -45,7 +45,7 @@ class HealthCheckWizard extends Component {
 			} );
 	};
 
-	removeAllPlugins = () => {
+	deactivateAllPlugins = () => {
 		const { wizardApiFetch, setError } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-health-check-wizard/unsupported_plugins',
@@ -73,7 +73,7 @@ class HealthCheckWizard extends Component {
 								<RemoveUnsupportedPlugins
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
-									removeAllPlugins={ this.removeAllPlugins }
+									deactivateAllPlugins={ this.deactivateAllPlugins }
 									unsupportedPlugins={
 										unsupportedPlugins &&
 										Object.keys( unsupportedPlugins ).map( value => ( {
