@@ -32,7 +32,7 @@ class Wizards {
 			'reader-revenue'   => new Reader_Revenue_Wizard(),
 			'advertising'      => new Advertising_Wizard(),
 			'syndication'      => new Syndication_Wizard(),
-			'google-analytics' => new Google_Analytics_Wizard(),
+			'analytics'        => new Analytics_Wizard(),
 			'components-demo'  => new Components_Demo(),
 			'performance'      => new Performance_Wizard(),
 			'mailchimp'        => new Mailchimp_Wizard(),
