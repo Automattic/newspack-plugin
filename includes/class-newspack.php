@@ -72,6 +72,7 @@ final class Newspack {
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-performance-wizard.php';
 		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-reader-revenue-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';

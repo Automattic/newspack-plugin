@@ -1,0 +1,64 @@
+/**
+ * Hands off to WPCOM for Mailchimp connection setup.
+ */
+
+/**
+ * WordPress dependencies
+ */
+import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
+
+/**
+ * Internal dependencies
+ */
+import { Card, Button, withWizardScreen } from '../../../../components/src';
+import './style.scss';
+
+/**
+ * Jetpack-based Mailchimp block setup.
+ */
+class SubscriptionBlock extends Component {
+	/**
+	 * Render.
+	 */
+	render() {
+		const { connected, connectURL } = this.props;
+
+		return (
+			<div className="newspack-engagement-wizard__mailchimp-connect-screen">
+				<Card className="newspack-newsletter-block-wizard__jetpack-info">
+					{ ! connected && (
+						<p>
+							{ __(
+								'This feature connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter. The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com.'
+							) }
+						</p>
+					) }
+					{ !! connected && (
+						<p className="newspack-newsletter-block-wizard__jetpack-success">
+							<Dashicon icon="yes-alt" />
+							{ __(
+								'You can insert newsletter sign up forms in your content using the Mailchimp block.'
+							) }
+						</p>
+					) }
+					<p>
+						{ __(
+							"Click the link below to set up and manage your site's Mailchimp connection on WordPress.com."
+						) }
+					</p>
+				</Card>
+				<p className="wpcom-link">
+					<ExternalLink href={ connectURL }>
+						{ ! connected
+							? __( 'Set up Mailchimp on WordPress.com' )
+							: __( 'Manage your Mailchimp connection' ) }
+					</ExternalLink>
+				</p>
+			</div>
+		);
+	}
+}
+
+export default withWizardScreen( SubscriptionBlock );

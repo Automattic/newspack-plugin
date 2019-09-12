@@ -42,7 +42,7 @@ class SEOWizard extends Component {
 							render={ routeProps => (
 								<Intro
 									noBackground
-									headerText={ __( 'Search Engine Optimization', 'newspack' ) }
+									headerText={ __( 'Engagement', 'newspack' ) }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }

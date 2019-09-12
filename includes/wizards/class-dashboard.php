@@ -94,11 +94,11 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'engagement',
-				'name'        => Checklists::get_name( 'engagement' ),
-				'url'         => Checklists::get_url( 'engagement' ),
-				'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
+				'name'        => Wizards::get_name( 'engagement' ),
+				'url'         => Wizards::get_url( 'engagement' ),
+				'description' => Wizards::get_description( 'engagement' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/engagement-icon.svg',
-				'status'      => Checklists::get_status( 'engagement' ),
+				'status'      => 'enabled',
 			],
 			[
 				'slug'        => 'analytics',
