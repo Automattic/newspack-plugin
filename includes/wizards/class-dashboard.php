@@ -102,11 +102,11 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'analytics',
-				'name'        => esc_html__( 'Analytics', 'newspack' ),
-				'url'         => Wizards::get_url( 'google-analytics' ),
+				'name'        => Wizards::get_name( 'analytics' ),
+				'url'         => Wizards::get_url( 'analytics' ),
 				'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
 				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/analytics-icon.svg',
-				'status'      => Wizards::is_completed( 'google-analytics' ) ? 'completed' : 'enabled',
+				'status'      => 'enabled',
 			],
 			[
 				'slug'        => 'syndication',
