@@ -186,6 +186,14 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
+			'constant-contact-forms'        => [
+				'Name'        => 'Constant Contact Forms',
+				'Description' => 'Be a better marketer. All it takes is Constant Contact email marketing.',
+				'Author'      => 'Constant Contact',
+				'AuthorURI'   => 'https://www.constantcontact.com/index?pn=miwordpress',
+				'PluginURI'   => 'https://www.constantcontact.com',
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
