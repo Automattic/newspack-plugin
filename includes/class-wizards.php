@@ -38,6 +38,7 @@ class Wizards {
 			'mailchimp'        => new Mailchimp_Wizard(),
 			'newsletter-block' => new Newsletter_Block_Wizard(),
 			'seo'              => new SEO_Wizard(),
+			'health-check'     => new Health_Check_Wizard(),
 		];
 	}
 
