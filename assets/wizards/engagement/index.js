@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { Intro, MailchimpConnect, SubscriptionBlock } from './views';
+import { Commenting, CommentingDisqus, CommentingNative, CommentingCoral, Newsletters, Social, UGC } from './views';
 
 /**
  * External dependencies
@@ -67,78 +67,135 @@ class EngagementWizard extends Component {
 		const { apiKey, connected, connectURL } = this.state;
 		const tabbed_navigation = [
 			{
-				label: __( 'Welcome' ),
-				path: '/',
+				label: __( 'Newsletters' ),
+				path: '/newsletters',
 				exact: true,
 			},
 			{
-				label: __( 'Mailchimp' ),
-				path: '/mailchimp-connect',
+				label: __( 'Social' ),
+				path: '/social',
 				exact: true,
 			},
 			{
-				label: __( 'Mailchimp block Block' ),
-				path: '/subscription-block',
+				label: __( 'Commenting' ),
+				path: '/commenting/disqus',
+			},
+			{
+				label: __( 'UGC' ),
+				path: '/user-generated-content',
 			},
 		];
+		const commentingSecondaryNavigation = [
+			{
+				label: __( 'Disqus' ),
+				path: '/commenting/disqus',
+				exact: true,
+			},
+			{
+				label: __( 'Native' ),
+				path: '/commenting/native',
+				exact: true,
+			},
+			{
+				label: __( 'Coral' ),
+				path: '/commenting/coral',
+				exact: true,
+			},
+		];
+		const subheader = __( 'Newsletters, social, commenting, UGC' );
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
 						<Route
-							path="/"
-							exact
+							path="/newsletters"
 							render={ routeProps => (
-								<Intro
+								<Newsletters
 									noBackground
 									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ __( 'Newsletters, social, commenting, UGC' ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
+									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
-								/>
-							) }
-						/>
-						<Route
-							path="/mailchimp-connect"
-							exact
-							render={ routeProps => {
-								const { apiKey } = this.state;
-								return (
-									<MailchimpConnect
-										noBackground
-										headerText={ __( 'Engagement', 'newspack' ) }
-										subHeaderText={ __( 'Newsletters, social, commenting, UGC' ) }
-										secondaryButtonText={ __( 'Back to dashboard' ) }
-										secondaryButtonAction={ window && window.newspack_urls.dashboard }
-										secondaryButtonStyle={ { isDefault: true } }
-										tabbedNavigation={ tabbed_navigation }
-										onChange={ apiKey => this.setState( { apiKey } ) }
-										apiKey={ apiKey }
-									/>
-								);
-							} }
-						/>
-						<Route
-							path="/subscription-block"
-							exact
-							render={ routeProps => (
-								<SubscriptionBlock
-									noBackground
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ __( 'Newsletters, social, commenting, UGC' ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
-									tabbedNavigation={ tabbed_navigation }
+									apiKey={ apiKey }
 									connected={ connected }
 									connectURL={ connectURL }
 								/>
 							) }
 						/>
-						<Redirect to="/" />
+						<Route
+							path="/social"
+							exact
+							render={ routeProps => {
+								const { apiKey } = this.state;
+								return (
+									<Social
+										noBackground
+										headerText={ __( 'Engagement', 'newspack' ) }
+										subHeaderText={ subheader }
+										tabbedNavigation={ tabbed_navigation }
+										onChange={ apiKey => this.setState( { apiKey } ) }
+									/>
+								);
+							} }
+						/>
+						<Route
+							path="/commenting/disqus"
+							exact
+							render={ routeProps => (
+								<CommentingDisqus
+									noBackground
+									headerText={ __( 'Engagement', 'newspack' ) }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+									connected={ connected }
+									connectURL={ connectURL }
+									secondaryNavigation={ commentingSecondaryNavigation }
+								/>
+							) }
+						/>
+						<Route
+							path="/commenting/native"
+							exact
+							render={ routeProps => (
+								<CommentingNative
+									noBackground
+									headerText={ __( 'Engagement', 'newspack' ) }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+									connected={ connected }
+									connectURL={ connectURL }
+									secondaryNavigation={ commentingSecondaryNavigation }
+								/>
+							) }
+						/>
+						<Route
+							path="/commenting/coral"
+							exact
+							render={ routeProps => (
+								<CommentingCoral
+									noBackground
+									headerText={ __( 'Engagement', 'newspack' ) }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+									connected={ connected }
+									connectURL={ connectURL }
+									secondaryNavigation={ commentingSecondaryNavigation }
+								/>
+							) }
+						/>
+						<Route
+							path="/user-generated-content"
+							exact
+							render={ routeProps => (
+								<UGC
+									noBackground
+									headerText={ __( 'Engagement', 'newspack' ) }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+								/>
+							) }
+						/>
+						<Redirect to="/newsletters" />
 					</Switch>
 				</HashRouter>
 			</Fragment>

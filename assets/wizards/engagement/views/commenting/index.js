@@ -1,5 +1,5 @@
 /**
- * Hands off to WPCOM for Mailchimp connection setup.
+ * Commenting screen.
  */
 
 /**
@@ -13,12 +13,11 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import { Card, Button, withWizardScreen } from '../../../../components/src';
-import './style.scss';
 
 /**
- * Jetpack-based Mailchimp block setup.
+ * Commenting Screen
  */
-class SubscriptionBlock extends Component {
+class Commenting extends Component {
 	/**
 	 * Render.
 	 */
@@ -49,16 +48,14 @@ class SubscriptionBlock extends Component {
 						) }
 					</p>
 				</Card>
-				<p className="wpcom-link">
-					<ExternalLink href={ connectURL }>
-						{ ! connected
-							? __( 'Set up Mailchimp on WordPress.com' )
-							: __( 'Manage your Mailchimp connection' ) }
-					</ExternalLink>
-				</p>
+				<ExternalLink href={ connectURL }>
+					{ ! connected
+						? __( 'Set up Mailchimp on WordPress.com' )
+						: __( 'Manage your Mailchimp connection' ) }
+				</ExternalLink>
 			</div>
 		);
 	}
 }
 
-export default withWizardScreen( SubscriptionBlock );
+export default withWizardScreen( Commenting );
