@@ -161,7 +161,7 @@ class Performance_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-performance-wizard',
 			Newspack::plugin_url() . '/assets/dist/performance.js',
-			[ 'wp-components', 'wp-api-fetch' ],
+			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/performance.js' ),
 			true
 		);
@@ -169,7 +169,7 @@ class Performance_Wizard extends Wizard {
 		wp_register_style(
 			'newspack-performance-wizard',
 			Newspack::plugin_url() . '/assets/dist/performance.css',
-			[ 'wp-components' ],
+			$this->get_style_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/performance.css' )
 		);
 		wp_style_add_data( 'newspack-performance-wizard', 'rtl', 'replace' );

@@ -85,7 +85,7 @@ class Syndication_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-syndication-wizard',
 			Newspack::plugin_url() . '/assets/dist/syndication.js',
-			[ 'wp-components', 'wp-api-fetch' ],
+			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/syndication.js' ),
 			true
 		);
@@ -93,7 +93,7 @@ class Syndication_Wizard extends Wizard {
 		\wp_register_style(
 			'newspack-syndication-wizard',
 			Newspack::plugin_url() . '/assets/dist/syndication.css',
-			[ 'wp-components' ],
+			$this->get_style_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/syndication.css' )
 		);
 		\wp_style_add_data( 'newspack-syndication-wizard', 'rtl', 'replace' );
