@@ -598,7 +598,7 @@ class Advertising_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-advertising-wizard',
 			Newspack::plugin_url() . '/assets/dist/advertising.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.js' ),
 			true
 		);

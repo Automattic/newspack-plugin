@@ -112,7 +112,7 @@ class Newsletter_Block_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-newsletter-block-wizard',
 			Newspack::plugin_url() . '/assets/dist/newsletterBlock.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.js' ),
 			true
 		);

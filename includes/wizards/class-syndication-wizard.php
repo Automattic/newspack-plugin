@@ -85,7 +85,7 @@ class Syndication_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-syndication-wizard',
 			Newspack::plugin_url() . '/assets/dist/syndication.js',
-			[ 'wp-components' ],
+			[ 'wp-components', 'wp-api-fetch' ],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/syndication.js' ),
 			true
 		);
