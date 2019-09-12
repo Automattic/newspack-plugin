@@ -31,7 +31,7 @@ class Health_Check_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $capability = 'manage_options';
+	protected $capability = 'activate_plugins';
 
 	/**
 	 * Constructor.
