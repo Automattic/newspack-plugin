@@ -194,6 +194,23 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://www.constantcontact.com',
 				'Download'    => 'wporg',
 			],
+			'disqus-comment-system'         => [
+				'Name'        => 'Disqus for WordPress',
+				'Description' => 'Disqus helps publishers increase engagement and build loyal audiences.',
+				'Author'      => 'Disqus',
+				'AuthorURI'   => 'https://disqus.com/',
+				'PluginURI'   => 'https://wordpress.org/plugins/disqus-comment-system/',
+				'Download'    => 'wporg',
+			],
+			'newspack-disqus-amp'           => [
+				'Name'        => 'Newspack Disqus AMP',
+				'Description' => 'Adds AMP-compatibility to the Disqus plugin.',
+				'Author'      => 'Automattic',
+				'AuthorURI'   => 'https://disqus.com/',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-disqus-amp/releases/latest/download/newspack-disqus-amp.zip',
+			],
 		];
 
 		$default_info = [
