@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Disqus dependencies
  */
-import { Card, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
  * Native Commenting Screen
@@ -22,9 +22,12 @@ class CommentingNative extends Component {
 	 */
 	render() {
 		return (
-			<Card>
-				<p>WordPress Native Commenting screen TK</p>
-			</Card>
+			<ActionCard
+				title={ __( 'WordPress Commenting' ) }
+				description={ __( 'Description TK.' ) }
+				actionText={ __( 'Configure' ) }
+				href="/wp-admin/options-discussion.php"
+			/>
 		);
 	}
 }
