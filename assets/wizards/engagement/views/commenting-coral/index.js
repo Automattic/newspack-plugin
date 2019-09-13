@@ -11,20 +11,37 @@ import { __ } from '@wordpress/i18n';
 /**
  * The Coral Project dependencies
  */
-import { Card, withWizardScreen } from '../../../../components/src';
+import { ActionCard, PluginInstaller, withWizardScreen } from '../../../../components/src';
 
 /**
  * Commenting Screen
  */
 class CommentingCoral extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = {
+			pluginRequirementsMet: false,
+		};
+	}
 	/**
 	 * Render.
 	 */
 	render() {
-		return (
-			<Card>
-				<p>The Coral Project screen TK</p>
-			</Card>
+		const { pluginRequirementsMet } = this.state;
+		return ! pluginRequirementsMet ? (
+			<PluginInstaller
+				plugins={ [ 'talk-wp-plugin' ] }
+				onStatus={ ( { complete } ) => this.setState( { pluginRequirementsMet: complete } ) }
+			/>
+		) : (
+			<ActionCard
+				title={ __( 'The Coral Project' ) }
+				description={ __(
+					'Description TK.'
+				) }
+				actionText={ __( 'Configure' ) }
+				handoff="talk-wp-plugin"
+			/>
 		);
 	}
 }

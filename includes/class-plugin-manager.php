@@ -207,10 +207,18 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Disqus AMP',
 				'Description' => 'Adds AMP-compatibility to the Disqus plugin.',
 				'Author'      => 'Automattic',
-				'AuthorURI'   => 'https://disqus.com/',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-disqus-amp/releases/latest/download/newspack-disqus-amp.zip',
+			],
+			'talk-wp-plugin'                => [
+				'Name'        => 'Coral Project',
+				'Description' => 'A plugin to replace stock WP commenting with Coral Project comments.',
+				'Author'      => 'Alley Interactive, The Coral Project',
+				'AuthorURI'   => 'https://www.alleyinteractive.com',
+				'PluginURI'   => 'hhttps://coralproject.net',
+				'Download'    => 'https://github.com/coralproject/talk-wp-plugin/archive/v0.2.0.zip',
+				'EditPath'    => 'options-general.php?page=talk-settings',
 			],
 		];
 
