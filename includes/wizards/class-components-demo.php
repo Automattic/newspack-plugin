@@ -88,7 +88,7 @@ class Components_Demo extends Wizard {
 		wp_enqueue_script(
 			'newspack-components-demo',
 			Newspack::plugin_url() . '/assets/dist/componentsDemo.js',
-			[ 'wp-components', 'wp-api-fetch' ],
+			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/componentsDemo.js' ),
 			true
 		);
@@ -96,7 +96,7 @@ class Components_Demo extends Wizard {
 		wp_register_style(
 			'newspack-components-demo',
 			Newspack::plugin_url() . '/assets/dist/componentsDemo.css',
-			[ 'wp-components' ],
+			$this->get_style_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/componentsDemo.css' )
 		);
 		wp_style_add_data( 'newspack-components-demo', 'rtl', 'replace' );

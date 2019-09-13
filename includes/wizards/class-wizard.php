@@ -179,6 +179,28 @@ abstract class Wizard {
 	}
 
 	/**
+	 * Get an array of Script dependencies
+	 *
+	 * @param array $dependencies Additional depedencies to add to the baseline ones.
+	 * @return array An array of script dependencies.
+	 */
+	public function get_script_dependencies( $dependencies = [] ) {
+		$base_dependencies = [ 'wp-components', 'wp-api-fetch' ];
+		return array_merge( $base_dependencies, $dependencies );
+	}
+
+	/**
+	 * Get an array of Stylesheet dependencies.
+	 *
+	 * @param array $dependencies Additional depedencies to add to the baseline ones.
+	 * @return array An array of script dependencies.
+	 */
+	public function get_style_dependencies( $dependencies = [] ) {
+		$base_dependencies = [ 'wp-components' ];
+		return array_merge( $base_dependencies, $dependencies );
+	}
+
+	/**
 	 * Get this wizard's name.
 	 *
 	 * @return string The wizard name.

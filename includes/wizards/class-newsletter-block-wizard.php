@@ -112,7 +112,7 @@ class Newsletter_Block_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-newsletter-block-wizard',
 			Newspack::plugin_url() . '/assets/dist/newsletterBlock.js',
-			[ 'wp-components' ],
+			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.js' ),
 			true
 		);
@@ -120,7 +120,7 @@ class Newsletter_Block_Wizard extends Wizard {
 		wp_register_style(
 			'newspack-newsletter-block-wizard',
 			Newspack::plugin_url() . '/assets/dist/newsletterBlock.css',
-			[ 'wp-components' ],
+			$this->get_style_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.css' )
 		);
 		wp_style_add_data( 'newspack-newsletter-block-wizard', 'rtl', 'replace' );

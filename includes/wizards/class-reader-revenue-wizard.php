@@ -376,7 +376,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-reader-revenue-wizard',
 			Newspack::plugin_url() . '/assets/dist/readerRevenue.js',
-			[ 'wp-components' ],
+			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenue.js' ),
 			true
 		);
@@ -384,7 +384,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		\wp_register_style(
 			'newspack-reader-revenue-wizard',
 			Newspack::plugin_url() . '/assets/dist/readerRevenue.css',
-			[ 'wp-components' ],
+			$this->get_style_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenue.css' )
 		);
 		\wp_style_add_data( 'newspack-reader-revenue-wizard', 'rtl', 'replace' );

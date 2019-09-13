@@ -105,14 +105,14 @@ class Setup_Wizard extends Wizard {
 		wp_enqueue_script(
 			'newspack-setup-wizard',
 			Newspack::plugin_url() . '/assets/dist/setup.js',
-			[ 'wp-components', 'wp-api-fetch' ],
+			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/setup.js' ),
 			true
 		);
 		wp_register_style(
 			'newspack-setup-wizard',
 			Newspack::plugin_url() . '/assets/dist/setup.css',
-			[ 'wp-components' ],
+			$this->get_style_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/setup.css' )
 		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
