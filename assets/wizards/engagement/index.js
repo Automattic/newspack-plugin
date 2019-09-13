@@ -121,6 +121,7 @@ class EngagementWizard extends Component {
 									connected={ connected }
 									connectURL={ connectURL }
 									wcConnected={ wcConnected }
+									onChange={ apiKey => this.setState( { apiKey } ) }
 								/>
 							) }
 						/>
@@ -135,7 +136,6 @@ class EngagementWizard extends Component {
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
-										onChange={ apiKey => this.setState( { apiKey } ) }
 									/>
 								);
 							} }
