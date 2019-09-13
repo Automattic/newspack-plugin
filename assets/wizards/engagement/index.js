@@ -31,6 +31,7 @@ class EngagementWizard extends Component {
 			apiKey: '',
 			connected: false,
 			connectURL: '',
+			wcConnected: false,
 		};
 	}
 
@@ -64,7 +65,7 @@ class EngagementWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { apiKey, connected, connectURL } = this.state;
+		const { apiKey, connected, connectURL, wcConnected } = this.state;
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters' ),
@@ -119,6 +120,7 @@ class EngagementWizard extends Component {
 									apiKey={ apiKey }
 									connected={ connected }
 									connectURL={ connectURL }
+									wcConnected={ wcConnected }
 								/>
 							) }
 						/>

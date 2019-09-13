@@ -28,51 +28,55 @@ class Newsletters extends Component {
 	 * Render.
 	 */
 	render() {
-		const { apiKey, connected, connectURL, onChange } = this.props;
+		const { apiKey, connected, connectURL, wcConnected, onChange } = this.props;
 		const { pluginRequirementsMet } = this.state;
-		return ! pluginRequirementsMet ? (
-			<PluginInstaller
-				plugins={ [ 'mailchimp-for-woocommerce' ] }
-				onStatus={ ( { complete } ) => this.setState( { pluginRequirementsMet: complete } ) }
-			/>
-		) : (
-			<div className="newspack-engagement-wizard__mailchimp-connect-screen">
-				<Card className="newspack-newsletter-block-wizard__jetpack-info">
-					{ ! connected && (
-						<p>
-							{ __(
-								'This feature connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter. The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com.'
-							) }
-						</p>
-					) }
-					{ !! connected && (
-						<p className="newspack-newsletter-block-wizard__jetpack-success">
-							<Dashicon icon="yes-alt" />
-							{ __(
-								'You can insert newsletter sign up forms in your content using the Mailchimp block.'
-							) }
-						</p>
-					) }
-					<p className="wpcom-link">
-						<ExternalLink href={ connectURL }>
-							{ ! connected
-								? __( 'Set up Mailchimp on WordPress.com' )
-								: __( 'Manage your Mailchimp connection' ) }
-						</ExternalLink>
+		return [
+			<Card key="mailchimp-block">
+				{ ! connected && (
+					<p>
+						{ __(
+							'This feature connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter. The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com.'
+						) }
+					</p>
+				) }
+				{ !! connected && (
+					<p className="newspack-newsletter-block-wizard__jetpack-success">
+						<Dashicon icon="yes-alt" />
+						{ __(
+							'You can insert newsletter sign up forms in your content using the Mailchimp block.'
+						) }
+					</p>
+				) }
+				<p className="wpcom-link">
+					<ExternalLink href={ connectURL }>
+						{ ! connected
+							? __( 'Set up Mailchimp on WordPress.com' )
+							: __( 'Manage your Mailchimp connection' ) }
+					</ExternalLink>
+				</p>
+			</Card>,
+			wcConnected && pluginRequirementsMet && (
+				<Card key="wc-mailchimp-plugin">
+					<p>
+						{ __(
+							'Integrate the Donation feature with Mailchimp by pasting in your API key below. To find your Mailchimp API key, log into your Mailchimp account and go to Account settings > Extras > API keys. From there, either grab an existing key or generate a new one.'
+						) }
 					</p>
 					<TextControl
 						label={ __( 'Enter your Mailchimp API key' ) }
 						value={ apiKey }
 						onChange={ value => onChange( value ) }
 					/>
-					<p><em>
-						{ __(
-							'To find your Mailchimp API key, log into your Mailchimp account and go to Account settings > Extras > API keys. From there, either grab an existing key or generate a new one.'
-						) }
-					</em></p>
 				</Card>
-			</div>
-		);
+			),
+			wcConnected && ! pluginRequirementsMet && (
+				<PluginInstaller
+					key="wc-mailchimp-plugin-installer"
+					plugins={ [ 'mailchimp-for-woocommerce' ] }
+					onStatus={ ( { complete } ) => this.setState( { pluginRequirementsMet: complete } ) }
+				/>
+			),
+		];
 	}
 }
 
