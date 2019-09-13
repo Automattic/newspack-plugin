@@ -14,7 +14,15 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizard } from '../../components/src';
-import { Commenting, CommentingDisqus, CommentingNative, CommentingCoral, Newsletters, Social, UGC } from './views';
+import {
+	Commenting,
+	CommentingDisqus,
+	CommentingNative,
+	CommentingCoral,
+	Newsletters,
+	Social,
+	UGC,
+} from './views';
 
 /**
  * External dependencies
@@ -79,7 +87,7 @@ class EngagementWizard extends Component {
 			},
 			{
 				label: __( 'Commenting' ),
-				path: '/commenting/disqus',
+				path: '/commenting/',
 			},
 			{
 				label: __( 'UGC' ),
@@ -139,6 +147,11 @@ class EngagementWizard extends Component {
 									/>
 								);
 							} }
+						/>
+						<Route
+							path="/commenting"
+							exact
+							render={ routeProps => <Redirect to="/commenting/disqus" /> }
 						/>
 						<Route
 							path="/commenting/disqus"
