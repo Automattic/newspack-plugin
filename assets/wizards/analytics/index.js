@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import { Intro } from './views';
 
 /**
@@ -25,7 +25,6 @@ import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
  * Analytics wizard.
  */
 class AnalyticsWizard extends Component {
-
 	/**
 	 * Render
 	 */
@@ -34,6 +33,7 @@ class AnalyticsWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination />
 					<Switch>
 						{ pluginRequirements }
 						<Route
@@ -43,7 +43,7 @@ class AnalyticsWizard extends Component {
 								<Intro
 									noBackground
 									headerText={ __( 'Analytics', 'newspack' ) }
-									subHeaderText={ __( 'Track traffic and activity') }
+									subHeaderText={ __( 'Track traffic and activity' ) }
 									secondaryButtonText={ __( 'Back to dashboard' ) }
 									secondaryButtonAction={ window && window.newspack_urls.dashboard }
 									secondaryButtonStyle={ { isDefault: true } }

@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 /**
@@ -160,6 +160,7 @@ class ReaderRevenueWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination />
 					<Switch>
 						{ pluginRequirements }
 						<Route

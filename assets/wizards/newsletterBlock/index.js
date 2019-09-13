@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import MailchimpBlockSetup from './views/mailchimpBlockSetup';
 import './style.scss';
 
@@ -48,7 +48,9 @@ class NewsletterBlockWizard extends Component {
 	 */
 	getSettings() {
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-newsletter-block-wizard/connection-status' } )
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-newsletter-block-wizard/connection-status',
+		} )
 			.then( info => {
 				this.setState( {
 					...info,
@@ -67,6 +69,7 @@ class NewsletterBlockWizard extends Component {
 		const { connected, connectURL } = this.state;
 		return (
 			<HashRouter hashType="slash">
+				<WizardPagination />
 				<Switch>
 					{ pluginRequirements }
 					<Route
@@ -75,7 +78,9 @@ class NewsletterBlockWizard extends Component {
 						render={ routeProps => (
 							<MailchimpBlockSetup
 								headerText={ __( 'Set up newsletter subscription block' ) }
-								subHeaderText={ __( 'Capture Mailchimp newsletter signups from within your content' ) }
+								subHeaderText={ __(
+									'Capture Mailchimp newsletter signups from within your content'
+								) }
 								noBackground
 								connected={ connected }
 								connectURL={ connectURL }
@@ -92,7 +97,7 @@ class NewsletterBlockWizard extends Component {
 render(
 	createElement( withWizard( NewsletterBlockWizard, [ 'jetpack' ] ), {
 		buttonText: __( 'Back to checklist' ),
-		buttonAction: newspack_urls['checklists']['engagement'],
+		buttonAction: newspack_urls[ 'checklists' ][ 'engagement' ],
 	} ),
 	document.getElementById( 'newspack-newsletter-block-wizard' )
 );

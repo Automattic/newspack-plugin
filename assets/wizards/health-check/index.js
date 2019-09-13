@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import { RemoveUnsupportedPlugins } from './views';
 
 /**
@@ -65,6 +65,7 @@ class HealthCheckWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination />
 					<Switch>
 						<Route
 							path="/"

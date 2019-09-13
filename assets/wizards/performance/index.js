@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import { Intro } from './views';
 import './style.scss';
 
@@ -74,7 +74,7 @@ class PerformanceWizard extends Component {
 					.catch( error => {
 						setError( error ).then( () => reject() );
 					} );
-			} );		
+			} );
 		} );
 	}
 
@@ -86,6 +86,7 @@ class PerformanceWizard extends Component {
 		const { settings } = this.state;
 		return (
 			<HashRouter hashType="slash">
+				<WizardPagination />
 				<Switch>
 					{ pluginRequirements }
 					<Route

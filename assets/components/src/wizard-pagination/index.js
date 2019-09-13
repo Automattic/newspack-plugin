@@ -7,6 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
+import { Dashicon } from '@wordpress/components';
 
 /**
  * External dependencies
@@ -24,11 +25,11 @@ class WizardPagination extends Component {
 	 */
 	render() {
 		const { history, location, routes } = this.props;
-		const currentIndex = parseInt( routes.indexOf( location.pathname ) ) + 1;
-		if ( ! routes || ! history || ! location ) {
+		const currentIndex = routes && parseInt( routes.indexOf( location.pathname ) ) + 1;
+		if ( routes && ( ! history || ! location ) ) {
 			return;
 		}
-		return (
+		return routes ? (
 			<Fragment>
 				<a className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
 					<span className="dashicons dashicons-arrow-left-alt" /> { __( 'Back' ) }
@@ -40,6 +41,13 @@ class WizardPagination extends Component {
 					</div>
 				) }
 			</Fragment>
+		) : (
+			<a
+				className="newspack-wizard-pagination__navigation"
+				href={ window && window.newspack_urls ? window.newspack_urls.dashboard : '#' }
+			>
+				<Dashicon icon="screenoptions" />
+			</a>
 		);
 	}
 }

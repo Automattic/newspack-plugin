@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
+import { Card, Grid, TabbedNavigation, withWizard, WizardPagination, Button } from '../../components/src';
 import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
 
 /**
@@ -324,6 +324,7 @@ class AdvertisingWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination />
 					<Switch>
 						{ pluginRequirements }
 						<Route

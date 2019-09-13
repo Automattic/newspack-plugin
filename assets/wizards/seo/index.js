@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import { Intro } from './views';
 
 /**
@@ -25,7 +25,6 @@ import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
  * SEO wizard.
  */
 class SEOWizard extends Component {
-
 	/**
 	 * Render
 	 */
@@ -34,6 +33,7 @@ class SEOWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination />
 					<Switch>
 						{ pluginRequirements }
 						<Route

@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizard } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import { Intro } from './views';
 
 /**
@@ -31,6 +31,7 @@ class SyndicationWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination />
 					<Switch>
 						{ pluginRequirements }
 						<Route
@@ -55,6 +56,8 @@ class SyndicationWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] ) ),
+	createElement(
+		withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] )
+	),
 	document.getElementById( 'newspack-syndication-wizard' )
 );
