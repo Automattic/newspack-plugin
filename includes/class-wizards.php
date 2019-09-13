@@ -27,19 +27,17 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'setup'            => new Setup_Wizard(),
-			'dashboard'        => new Dashboard(),
-			'reader-revenue'   => new Reader_Revenue_Wizard(),
-			'advertising'      => new Advertising_Wizard(),
-			'syndication'      => new Syndication_Wizard(),
-			'analytics'        => new Analytics_Wizard(),
-			'components-demo'  => new Components_Demo(),
-			'performance'      => new Performance_Wizard(),
-			'mailchimp'        => new Mailchimp_Wizard(),
-			'newsletter-block' => new Newsletter_Block_Wizard(),
-			'seo'              => new SEO_Wizard(),
-			'health-check'     => new Health_Check_Wizard(),
-			'engagement'       => new Engagement_Wizard(),
+			'setup'           => new Setup_Wizard(),
+			'dashboard'       => new Dashboard(),
+			'reader-revenue'  => new Reader_Revenue_Wizard(),
+			'advertising'     => new Advertising_Wizard(),
+			'syndication'     => new Syndication_Wizard(),
+			'analytics'       => new Analytics_Wizard(),
+			'components-demo' => new Components_Demo(),
+			'performance'     => new Performance_Wizard(),
+			'seo'             => new SEO_Wizard(),
+			'health-check'    => new Health_Check_Wizard(),
+			'engagement'      => new Engagement_Wizard(),
 		];
 	}
 

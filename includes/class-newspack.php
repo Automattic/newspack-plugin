@@ -66,9 +66,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-mailchimp-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletter-block-wizard.php';
-
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
