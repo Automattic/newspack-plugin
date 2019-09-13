@@ -11,20 +11,37 @@ import { __ } from '@wordpress/i18n';
 /**
  * Disqus dependencies
  */
-import { Card, withWizardScreen } from '../../../../components/src';
+import { ActionCard, PluginInstaller, withWizardScreen } from '../../../../components/src';
 
 /**
  * Commenting Screen
  */
 class CommentingDisqus extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = {
+			pluginRequirementsMet: false,
+		};
+	}
 	/**
 	 * Render.
 	 */
 	render() {
-		return (
-			<Card>
-				<p>Disqus screen TK</p>
-			</Card>
+		const { pluginRequirementsMet } = this.state;
+		return ! pluginRequirementsMet ? (
+			<PluginInstaller
+				plugins={ [ 'disqus-comment-system', 'newspack-disqus-amp' ] }
+				onStatus={ ( { complete } ) => this.setState( { pluginRequirementsMet: complete } ) }
+			/>
+		) : (
+			<ActionCard
+				title={ __( 'Disqus' ) }
+				description={ __(
+					'Description TK.'
+				) }
+				actionText={ __( 'Configure' ) }
+				handoff="disqus-comment-system"
+			/>
 		);
 	}
 }

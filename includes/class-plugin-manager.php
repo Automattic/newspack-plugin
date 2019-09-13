@@ -201,6 +201,7 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://disqus.com/',
 				'PluginURI'   => 'https://wordpress.org/plugins/disqus-comment-system/',
 				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=disqus#install',
 			],
 			'newspack-disqus-amp'           => [
 				'Name'        => 'Newspack Disqus AMP',
