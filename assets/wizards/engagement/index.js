@@ -101,12 +101,12 @@ class EngagementWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Native' ),
+				label: __( 'WordPress Discussion' ),
 				path: '/commenting/native',
 				exact: true,
 			},
 			{
-				label: __( 'Coral' ),
+				label: __( 'The Coral Project' ),
 				path: '/commenting/coral',
 				exact: true,
 			},
