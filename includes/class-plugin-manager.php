@@ -194,6 +194,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://www.constantcontact.com',
 				'Download'    => 'wporg',
 			],
+			'pym-shortcode'                 => [
+				'Name'        => 'Pym.js Embeds',
+				'Description' => 'A WordPress solution to embed iframes that are responsive horizontally and vertically using the NPR Visuals Team\'s Pym.js.',
+				'Author'      => 'INN Labs',
+				'AuthorURI'   => 'http://labs.inn.org/',
+				'PluginURI'   => 'https://github.com/INN/pym-shortcode',
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
