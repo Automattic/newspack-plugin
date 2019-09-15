@@ -100,7 +100,29 @@ class AMP_Enhancements {
 	 * @return string AMP-iframe HTML.
 	 */
 	protected static function get_pym_ampiframe( $src ) {
-		return "<amp-iframe src='" . esc_url( $src ) . "' layout='responsive' width='1200' height='1200' sandbox='allow-scripts allow-same-origin' frameborder='0'></amp-iframe>";
+		ob_start();
+		?>
+		<amp-iframe 
+			src='<?php echo esc_url( $src ); ?>'
+			layout='responsive'
+			width='1'
+			height='1'
+			sandbox='allow-scripts allow-same-origin'
+			frameborder='0'
+			resizable
+		>
+			<div 
+				overflow 
+				tabindex=0 
+				aria-label='<?php esc_attr_e( 'Interactive graphic', 'newspack' ); ?>'
+				placeholder
+			>
+				<?php esc_html_e( 'Interactive graphic', 'newspack' ); ?>
+			</div>
+		</amp-iframe>
+		<?php
+
+		return ob_get_clean();
 	}
 }
 AMP_Enhancements::init();
