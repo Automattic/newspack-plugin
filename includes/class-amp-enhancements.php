@@ -114,10 +114,11 @@ class AMP_Enhancements {
 			<div 
 				overflow 
 				tabindex=0 
-				aria-label='<?php esc_attr_e( 'Interactive graphic', 'newspack' ); ?>'
+				aria-label='<?php esc_attr_e( 'Load interactive graphic', 'newspack' ); ?>'
 				placeholder
+				style='width:100%; text-align:center; padding-top:50%; background:rgba(0,0,0,.7); color:#FFF; font-weight:bold'
 			>
-				<?php esc_html_e( 'Interactive graphic', 'newspack' ); ?>
+				<?php esc_html_e( 'Load interactive graphic', 'newspack' ); ?>
 			</div>
 		</amp-iframe>
 		<?php
