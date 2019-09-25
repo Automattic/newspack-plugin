@@ -38,7 +38,7 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Plugin ready state.
 	 */
 	public function is_configured() {
-		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			return true;
 		}
 		if ( $this->is_active() && class_exists( 'Jetpack' ) && \Jetpack::is_active() ) {
