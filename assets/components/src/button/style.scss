@@ -34,7 +34,7 @@
 
 		&:hover,
 		&:focus:enabled {
-			background-color: $primary_color_lighter;
+			background-color: $primary_color_darker;
 			color: $muriel-gray-0;
 			box-shadow: inherit;
 		}
@@ -46,9 +46,13 @@
 	}
 
 	&.is-tertiary {
+		color: $primary_color;
+
+		&:hover,
 		&:focus:enabled {
 			background-color: inherit;
 			box-shadow: none;
+			color: $primary_color_darker;
 		}
 	}
 

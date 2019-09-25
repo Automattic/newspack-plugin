@@ -111,7 +111,11 @@
 	/* Buttons */
 
 	button.is-link {
-		color: $muriel-blue-500;
+		color: $primary_color;
+
+		&:hover {
+			color: $primary_color_darker;
+		}
 	}
 
 	button.newspack-action-card__secondary_button {
