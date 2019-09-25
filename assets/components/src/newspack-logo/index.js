@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Path, SVG, G, Polygon } from '@wordpress/components';
+import { Path, SVG, G, Polygon, Circle } from '@wordpress/components';
 
 class NewspackLogo extends Component {
 	/**
@@ -19,10 +19,7 @@ class NewspackLogo extends Component {
 			<SVG viewBox={ viewBox } className={ className } width={ width } height={ height }>
 				<G stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
 					<G fillRule="nonzero">
-						<Path
-							d="M111,0 C172.303789,0 222,49.6964935 222,111.000632 C222,172.30477 172.303789,222 111,222 C49.6962106,222 0,172.30477 0,111.000632 C0,49.6964935 49.6962106,0 111,0 Z M62.5048544,61.4271845 L62.5048544,94.3576716 L62.972,94.834 L62.5048544,94.8349515 L62.5048544,160.213592 L86.5728155,160.213592 L86.572,118.871 L127.16252,160.213592 L159.495146,160.213592 L62.5048544,61.4271845 Z M159.495146,107.407767 L139.737864,107.407767 L147.453122,115.31068 L159.495146,115.31068 L159.495146,107.407767 Z M159.495146,84.4174757 L117.466019,84.4174757 L125.098049,92.3203883 L159.495146,92.3203883 L159.495146,84.4174757 Z M159.495146,61.4271845 L94.8349515,61.4271845 L102.482999,69.3300971 L159.495146,69.3300971 L159.495146,61.4271845 Z"
-							fill="#1f74db"
-						/>
+						<Circle cx="111" cy="111" r="111" fill="#1f74db" />
 						<Path
 							d="M62.505 61.427v32.93l.467.477-.467.001v65.379h24.068l-.001-41.343 40.59 41.343h32.333zM159.495 107.408h-19.757l7.715 7.903h12.042zM159.495 84.417h-42.029l7.632 7.903h34.397zM159.495 61.427h-64.66l7.648 7.903h57.012z"
 							fill="#ffffff"
