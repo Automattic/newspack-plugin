@@ -62,7 +62,9 @@
 		color: $muriel-gray-300;
 		cursor: pointer;
 		text-decoration: underline;
+
 		&:hover {
+			color: $primary_color_darker;
 			text-decoration: none;
 		}
 	}
