@@ -82,6 +82,33 @@ class Setup_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/categories',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_categories' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/post',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_post' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/homepage',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_homepage' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -92,6 +119,36 @@ class Setup_Wizard extends Wizard {
 	public function api_complete() {
 		update_option( NEWSPACK_SETUP_COMPLETE, true );
 		return rest_ensure_response( [ 'complete' => true ] );
+	}
+
+	/**
+	 * Install starter content categories
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_categories() {
+		$status = Starter_Content::create_categories();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Install one starter content post
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_post() {
+		$status = Starter_Content::create_post();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Install one starter content post
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_homepage() {
+		$status = Starter_Content::create_homepage();
+		return rest_ensure_response( [ 'status' => $status ] );
 	}
 
 	/**
