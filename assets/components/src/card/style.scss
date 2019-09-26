@@ -9,12 +9,12 @@
 	border-radius: 3px;
 	box-shadow: 0px 1px 1px rgba( 0, 0, 0, 0.25 );
 	margin: 0 auto 10px auto;
-
-	max-width: calc( 682px - 62px );
-	padding: 31px;
+	max-width: calc( 682px - 48px );
+	padding: 24px;
 
 	&.is_clickable {
 		cursor: pointer;
+
 		&:hover {
 			box-shadow: 0px 5px 5px rgba( 0, 0, 0, 0.2 ), 0px 3px 14px rgba( 0, 0, 0, 0.12 ), 0px 8px 10px rgba( 0, 0, 0, 0.14 );
 		}
@@ -26,22 +26,25 @@
 		padding: 0;
 		max-width: 682px;
 	}
+
 	@media screen and ( max-width: 1040px ) {
-		max-width: calc( 642px - 58px );
-		padding-left: 29px;
-		padding-right: 29px;
+		max-width: calc( 642px - 48px );
+
 		&.muriel-card__no-background {
 			width: 642px;
 		}
 	}
+
 	@media screen and ( max-width: 660px ) {
 		max-width: calc( 100% - 68px );
 		padding: 10px;
 		margin-left: 24px;
 		margin-right: 24px;
+
 		&.muriel-card__no-background {
 			width: calc( 100% - 48px );
 		}
+
 		.muriel-card {
 			margin-left: 0;
 			margin-right: 0;
@@ -49,6 +52,7 @@
 			width: 100%;
 		}
 	}
+	
 	&.muriel-grid-item {
 		max-width: none;
 		width: auto;

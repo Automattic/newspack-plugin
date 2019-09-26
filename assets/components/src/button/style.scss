@@ -7,16 +7,17 @@
 .muriel-button {
 	text-align: center;
 	font-size: 14px;
-	line-height: 18px;
+	line-height: 21px;
 	font-weight: 500;
 	color: $muriel-gray-700;
 
 	&.is-button {
 		background-color: $muriel-white;
 		border-color: #cccccc;
-		border-radius: 3px;
+		border-radius: 4px;
 		height: auto;
-		padding: 16px 32px;
+		line-height: 21px;
+		padding: 7px 14px 9px;
 		margin: 14px 7px;
 		text-decoration: none;
 
