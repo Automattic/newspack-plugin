@@ -1,6 +1,4 @@
-$primary_color: #1f74db;
-
-/* TODO: Update $primary_color_lighter and $primary_color_darker */
+$primary_color: #2d68c4;
 $primary_color_lighter: lighten($primary_color, 10%);
 $primary_color_darker: darken($primary_color, 10%);
 
