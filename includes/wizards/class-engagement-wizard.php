@@ -92,7 +92,9 @@ class Engagement_Wizard extends Wizard {
 		$jetpack_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 		$wc_configuration_manager      = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$response                      = $jetpack_configuration_manager->get_mailchimp_connection_status();
-		$response['wcConnected']       = $wc_configuration_manager->is_active();
+		if ( ! is_wp_error( $response ) ) {
+			$response['wcConnected'] = $wc_configuration_manager->is_active();
+		}
 		return rest_ensure_response( $response );
 	}
 
