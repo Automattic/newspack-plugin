@@ -83,6 +83,7 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 		$option = get_option( 'jetpack_mailchimp', false );
 		if ( $option ) {
 			$data = json_decode( $option, true );
+
 			$mailchimp_connected = $data ? isset( $data['follower_list_id'], $data['keyring_id'] ) : false;
 		} else {
 			$mailchimp_connected = false;

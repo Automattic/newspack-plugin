@@ -237,8 +237,12 @@ class Admin_Plugins_Screen {
 		$missing_plugins       = Plugin_Manager::get_missing_plugins();
 		$newspack_theme_active = 'newspack-theme' === get_stylesheet();
 
+		$plugins = Plugin_Manager::get_managed_plugins();
+
+		$disqus_notification = ( 'active' === $plugins['disqus-comment-system']['Status'] && 'active' !== $plugins['newspack-disqus-amp']['Status'] );
+
 		/* If there is nothing to warn about, show nothing */
-		if ( ! count( $unsupported_plugins ) && ! count( $missing_plugins ) && $newspack_theme_active ) {
+		if ( ! count( $unsupported_plugins ) && ! count( $missing_plugins ) && $newspack_theme_active && ! $disqus_notification ) {
 			return;
 		}
 
@@ -255,6 +259,10 @@ class Admin_Plugins_Screen {
 		}
 		if ( ! $newspack_theme_active ) {
 			$messages[] = __( 'The Newspack Theme is not currently active.' );
+		}
+
+		if ( $disqus_notification ) {
+			$messages[] = __( 'You are using the Disqus comment system without the Newspack Disqus AMP plugin. The comments form will not display on AMP pages. Correct this ' ) . '<a href="/wp-admin/admin.php?page=newspack-engagement-wizard#/commenting/disqus">' . __( 'here' ) . '.</a>';
 		}
 
 		/* Error notification only if required plugins are missing. */

@@ -1,28 +1,29 @@
 <?php
 /**
- * Mailchimp Block Wizard
+ * Newspack's Engagement Wizard
  *
  * @package Newspack
  */
 
 namespace Newspack;
 
-use \WP_Error;
+use \WP_Error, \WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
- * Easy interface for setting up a newsletter subscriptions block.
+ * Easy interface for setting up general store info.
  */
-class Newsletter_Block_Wizard extends Wizard {
+class Engagement_Wizard extends Wizard {
+
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-newsletter-block-wizard';
+	protected $slug = 'newspack-engagement-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -30,13 +31,6 @@ class Newsletter_Block_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
-
-	/**
-	 * Whether the wizard should be displayed in the Newspack submenu.
-	 *
-	 * @var bool.
-	 */
-	protected $hidden = true;
 
 	/**
 	 * Constructor.
@@ -52,7 +46,7 @@ class Newsletter_Block_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Set up newsletter subscriptions block', 'newspack' );
+		return \esc_html__( 'Engagement', 'newspack' );
 	}
 
 	/**
@@ -61,16 +55,16 @@ class Newsletter_Block_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return esc_html__( 'Create an effective lead capture to place throughout your site.', 'newspack' );
+		return \esc_html__( 'Newsletters, social, commenting, UGC', 'newspack' );
 	}
 
 	/**
-	 * Get the expected duration of this wizard.
+	 * Get the duration of this wizard.
 	 *
-	 * @return string The wizard length.
+	 * @return string A description of the expected duration (e.g. '10 minutes').
 	 */
 	public function get_length() {
-		return esc_html__( '2 minutes', 'newspack' );
+		return esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**
@@ -95,12 +89,17 @@ class Newsletter_Block_Wizard extends Wizard {
 	 * @return WP_REST_Response with the info.
 	 */
 	public function api_get_connection_status_settings() {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
-		return rest_ensure_response( $configuration_manager->get_mailchimp_connection_status() );
+		$jetpack_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		$wc_configuration_manager      = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$response                      = $jetpack_configuration_manager->get_mailchimp_connection_status();
+		if ( ! is_wp_error( $response ) ) {
+			$response['wcConnected'] = $wc_configuration_manager->is_active();
+		}
+		return rest_ensure_response( $response );
 	}
 
 	/**
-	 * Enqueue scripts and styles.
+	 * Enqueue Subscriptions Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
@@ -109,21 +108,21 @@ class Newsletter_Block_Wizard extends Wizard {
 			return;
 		}
 
-		wp_enqueue_script(
-			'newspack-newsletter-block-wizard',
-			Newspack::plugin_url() . '/assets/dist/newsletterBlock.js',
+		\wp_enqueue_script(
+			'newspack-engagement-wizard',
+			Newspack::plugin_url() . '/assets/dist/engagement.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/engagement.js' ),
 			true
 		);
 
-		wp_register_style(
-			'newspack-newsletter-block-wizard',
-			Newspack::plugin_url() . '/assets/dist/newsletterBlock.css',
+		\wp_register_style(
+			'newspack-engagement-wizard',
+			Newspack::plugin_url() . '/assets/dist/engagement.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/newsletterBlock.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/engagement.css' )
 		);
-		wp_style_add_data( 'newspack-newsletter-block-wizard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-newsletter-block-wizard' );
+		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-engagement-wizard' );
 	}
 }

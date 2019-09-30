@@ -194,6 +194,37 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://www.constantcontact.com',
 				'Download'    => 'wporg',
 			],
+			'disqus-comment-system'         => [
+				'Name'        => 'Disqus for WordPress',
+				'Description' => 'Disqus helps publishers increase engagement and build loyal audiences.',
+				'Author'      => 'Disqus',
+				'AuthorURI'   => 'https://disqus.com/',
+				'PluginURI'   => 'https://wordpress.org/plugins/disqus-comment-system/',
+				'Download'    => 'wporg',
+				'EditPath'    => 'admin.php?page=disqus#install',
+			],
+			'newspack-disqus-amp'           => [
+				'Name'        => 'Newspack Disqus AMP',
+				'Description' => 'Adds AMP-compatibility to the Disqus plugin.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-disqus-amp/releases/latest/download/newspack-disqus-amp.zip',
+			],
+			'talk-wp-plugin'                => [
+				'Name'        => 'Coral Project',
+				'Description' => 'A plugin to replace stock WP commenting with Coral Project comments.',
+				'Author'      => 'Alley Interactive, The Coral Project',
+				'AuthorURI'   => 'https://www.alleyinteractive.com',
+				'PluginURI'   => 'hhttps://coralproject.net',
+				'Download'    => 'https://github.com/coralproject/talk-wp-plugin/archive/v0.2.0.zip',
+				'EditPath'    => 'options-general.php?page=talk-settings',
+			],
+			'wordpress-settings-discussion' => [
+				'Name'     => 'Wordpress Commenting',
+				'WPCore'   => true,
+				'EditPath' => 'options-discussion.php',
+			],
 		];
 
 		$default_info = [
@@ -224,6 +255,9 @@ class Plugin_Manager {
 				if ( 'newspack-theme' === get_stylesheet() ) {
 					$status = 'active';
 				}
+			}
+			if ( isset( $managed_plugin['WPCore'] ) ) {
+				$status = 'active';
 			}
 			$managed_plugins[ $plugin_slug ]['Status']      = $status;
 			$managed_plugins[ $plugin_slug ]['Slug']        = $plugin_slug;
