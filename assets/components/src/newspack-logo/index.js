@@ -19,7 +19,7 @@ class NewspackLogo extends Component {
 			<SVG viewBox={ viewBox } className={ className } width={ width } height={ height }>
 				<G stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
 					<G fillRule="nonzero">
-						<Circle cx="111" cy="111" r="111" fill="#2d68c4" />
+						<Circle cx="111" cy="111" r="111" fill="#2a7de1" />
 						<Path
 							d="M62.505 61.427v32.93l.467.477-.467.001v65.379h24.068l-.001-41.343 40.59 41.343h32.333zM159.495 107.408h-19.757l7.715 7.903h12.042zM159.495 84.417h-42.029l7.632 7.903h34.397zM159.495 61.427h-64.66l7.648 7.903h57.012z"
 							fill="#ffffff"
