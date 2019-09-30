@@ -1,8 +1,7 @@
-$primary_color: #2A7DE1;
+$primary_color: #2a7de1;
+$primary_color_lighter: lighten($primary_color, 10%);
+$primary_color_darker: darken($primary_color, 10%);
 
-/* TODO: Update $primary_color_lighter and $primary_color_darker */
-$primary_color_lighter: #4f8cdd;
-$primary_color_darker: #3166ae;
 .muriel-component {
 	margin-top: 14px;
 	margin-bottom: 14px;
