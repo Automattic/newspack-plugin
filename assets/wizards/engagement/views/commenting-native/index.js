@@ -26,7 +26,7 @@ class CommentingNative extends Component {
 				title={ __( 'WordPress Commenting' ) }
 				description={ __( 'Description TK.' ) }
 				actionText={ __( 'Configure' ) }
-				href="/wp-admin/options-discussion.php"
+				handoff="wordpress-settings-discussion"
 			/>
 		);
 	}

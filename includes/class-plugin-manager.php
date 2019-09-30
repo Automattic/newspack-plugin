@@ -220,6 +220,11 @@ class Plugin_Manager {
 				'Download'    => 'https://github.com/coralproject/talk-wp-plugin/archive/v0.2.0.zip',
 				'EditPath'    => 'options-general.php?page=talk-settings',
 			],
+			'wordpress-settings-discussion' => [
+				'Name'     => 'Wordpress Commenting',
+				'WPCore'   => true,
+				'EditPath' => 'options-discussion.php',
+			],
 		];
 
 		$default_info = [
@@ -250,6 +255,9 @@ class Plugin_Manager {
 				if ( 'newspack-theme' === get_stylesheet() ) {
 					$status = 'active';
 				}
+			}
+			if ( isset( $managed_plugin['WPCore'] ) ) {
+				$status = 'active';
 			}
 			$managed_plugins[ $plugin_slug ]['Status']      = $status;
 			$managed_plugins[ $plugin_slug ]['Slug']        = $plugin_slug;
