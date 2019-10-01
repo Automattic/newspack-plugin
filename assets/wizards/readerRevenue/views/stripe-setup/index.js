@@ -98,8 +98,11 @@ class StripeSetup extends Component {
 				{ ! enabled && (
 					<p className="newspack-payment-setup-screen__info">
 						{ __(
-							'Other gateways can be enabled and set up in the WooCommerce payment gateway settings.'
+							'Other gateways can be enabled and set up in the '
 						) }
+						<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+							{ __( 'WooCommerce payment gateway settings' ) }
+						</ExternalLink>
 					</p>
 				) }
 			</div>
