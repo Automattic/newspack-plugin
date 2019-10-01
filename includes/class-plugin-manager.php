@@ -157,6 +157,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://github.com/xwp/pwa-wp',
 				'Download'    => 'wporg',
 			],
+			'wp-user-avatar'                => [
+				'Name'        => 'WP User Avatar',
+				'Description' => 'Use any image from your WordPress Media Library as a custom user avatar. Add your own Default Avatar.',
+				'Author'      => 'flippercode',
+				'AuthorURI'   => 'http://www.flippercode.com/',
+				'PluginURI'   => 'https://wordpress.org/plugins/wp-user-avatar/',
+				'Download'    => 'wporg',
+			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
 				'Description' => 'This is a made-up plugin, meant to error out.',
