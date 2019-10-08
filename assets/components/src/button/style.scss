@@ -38,8 +38,9 @@
 
 		&:hover,
 		&:focus:enabled {
-			background-color: $primary_color_lighter;
-			color: $muriel-gray-0;
+			background-color: $primary_color_darker;
+			color: $muriel-white;
+			box-shadow: inherit;
 		}
 
 		&:active:enabled {
