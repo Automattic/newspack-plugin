@@ -34,8 +34,8 @@
 
 		&:hover,
 		&:focus:enabled {
-			background-color: $primary_color_lighter;
-			color: $muriel-gray-0;
+			background-color: $primary_color_darker;
+			color: $muriel-white;
 			box-shadow: inherit;
 		}
 
@@ -43,12 +43,25 @@
 			background-color: $primary_color_darker;
 			color: $muriel-white;
 		}
+
+		&:disabled,
+		&:disabled:active:enabled,
+		&[aria-disabled=true],
+		&[aria-disabled=true]:active:enabled {
+			background: $primary_color;
+			border-color: $primary_color_darker;
+			color: $primary_color_lighter;
+		}
 	}
 
 	&.is-tertiary {
+		color: $primary_color;
+
+		&:hover,
 		&:focus:enabled {
 			background-color: inherit;
 			box-shadow: none;
+			color: $primary_color_darker;
 		}
 	}
 
@@ -58,7 +71,9 @@
 		color: $muriel-gray-300;
 		cursor: pointer;
 		text-decoration: underline;
+
 		&:hover {
+			color: $primary_color_darker;
 			text-decoration: none;
 		}
 	}
