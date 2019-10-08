@@ -7,11 +7,13 @@
 .muriel-checkbox {
 	display: block;
 	position: relative;
+
 	input[type="checkbox"] {
-		width: 22px;
-		height: 22px;
 		border: 2px solid $muriel-gray-500;
 		border-radius: 3px;
+		height: 22px;
+		margin: 0;
+		width: 22px;
 
 		&:checked {
 			background-color: $primary_color;
@@ -27,14 +29,28 @@
 	}
 
 	label.components-checkbox-control__label {
-		margin-left: 28px;
+		display: inline-block;
 		font-size: 16px;
+		line-height: 21px;
+		margin-left: 24px;
 	}
 
 	.components-base-control__help {
-		margin-left: 54px;
-		font-style: normal;
-		margin-top: 0;
 		color: $muriel-gray-600;
+		font-size: 14px;
+		font-style: normal;
+		line-height: 21px;
+		margin-left: 46px;
+		margin-top: 0;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-checkbox-control__input-container {
+		height: 22px;
+		margin: 0;
+		width: 22px;
 	}
 }
