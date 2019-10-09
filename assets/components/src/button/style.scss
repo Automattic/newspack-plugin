@@ -30,6 +30,17 @@
 		}
 	}
 
+	&.is-default {
+		color: $primary_color;
+
+		&:hover,
+		&:focus:enabled,
+		&:active:enabled {
+			border-color: $primary_color_darker;
+			color: $primary_color_darker;
+		}
+	}
+
 	&.is-primary {
 		border-color: $primary_color_darker;
 		background-color: $primary_color;
@@ -62,7 +73,8 @@
 		color: $primary_color;
 
 		&:hover,
-		&:focus:enabled {
+		&:focus:enabled,
+		&:not(:disabled):not([aria-disabled=true]):not(.is-default):hover {
 			background-color: inherit;
 			box-shadow: none;
 			color: $primary_color_darker;
