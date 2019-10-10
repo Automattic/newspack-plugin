@@ -164,14 +164,14 @@ class SetupWizard extends Component {
 
 	installStarterContent = () => {
 		const { setError } = this.props;
-		this.setState( { starterContentProgress: 0, starterContentTotal: 7 } );
+		this.setState( { starterContentProgress: 0, starterContentTotal: 12 } );
 		const promises = [
 			apiFetch( {
 				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
 				method: 'post',
 			} ).then( result => this.incrementStarterContentProgress() ),
 		];
-		for ( let x = 0; x < 5; x++ ) {
+		for ( let x = 0; x < 10; x++ ) {
 			promises.push(
 				apiFetch( {
 					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
