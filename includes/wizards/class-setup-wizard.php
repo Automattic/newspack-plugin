@@ -102,6 +102,15 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/theme',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_theme' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'/starter-content/homepage',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -142,7 +151,17 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
-	 * Install one starter content post
+	 * Set up initial theme mods
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_theme() {
+		$status = Starter_Content::initialize_theme();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Set up Homepage
 	 *
 	 * @return WP_REST_Response containing info.
 	 */

@@ -146,6 +146,16 @@ class Starter_Content {
 	}
 
 	/**
+	 * Set up theme.
+	 */
+	public static function initialize_theme() {
+		set_theme_mod( 'active_style_pack', 'style-3' );
+		set_theme_mod( 'header_solid_background', true );
+		set_theme_mod( 'header_simplified', true );
+		return true;
+	}
+
+	/**
 	 * Retrieve Lorem Ipsum from www.lipsum.com
 	 *
 	 * @param string $type The type of Lorem Ipsum to retrieve: paras|words.
