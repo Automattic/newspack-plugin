@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use \WP_Error, \WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -151,10 +151,57 @@ class Starter_Content {
 	 * Set up theme.
 	 */
 	public static function initialize_theme() {
+		$logo_id = self::upload_logo();
+		set_theme_mod( 'custom_logo', $logo_id );
+		set_theme_mod( 'logo_size', 0 );
 		set_theme_mod( 'active_style_pack', 'style-3' );
 		set_theme_mod( 'header_solid_background', true );
 		set_theme_mod( 'header_simplified', true );
 		return true;
+	}
+
+	/**
+	 * Upload Newspack logo as placeholder.
+	 */
+	public static function upload_logo() {
+
+		$attachment_title = esc_attr__( 'Newspack Placeholder Logo', 'newspack' );
+
+		$args = [
+			'posts_per_page' => 1,
+			'post_type'      => 'attachment',
+			'name'           => $attachment_title,
+		];
+
+		$logo_query = new WP_Query( $args );
+		if ( $logo_query && isset( $logo_query->posts, $logo_query->posts[0] ) ) {
+			return false;
+		}
+
+		if ( ! function_exists( 'wp_upload_bits' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$file = wp_upload_bits(
+			'newspack-logo.png',
+			null,
+			file_get_contents( NEWSPACK_ABSPATH . 'assets/shared/images/newspack-logo.png' )
+		);
+
+		$wp_filetype = wp_check_filetype( $file['file'], null );
+
+		$attachment = [
+			'post_mime_type' => $wp_filetype['type'],
+			'post_title'     => $attachment_title,
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		];
+
+		$attachment_id   = wp_insert_attachment( $attachment, $file['file'] );
+		$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file['file'] );
+
+		wp_update_attachment_metadata( $attachment_id, $attachment_data );
+		return $attachment_id;
 	}
 
 	/**
@@ -165,15 +212,14 @@ class Starter_Content {
 	 * @return string Lorem Ipsum.
 	 */
 	public static function get_lipsum( $type, $amount ) {
-		$url =
-			'https://www.lipsum.com/feed/json?' .
-			build_query(
-				[
-					'what'   => $type,
-					'amount' => $amount,
-					'start'  => 'no',
-				]
-			);
+		$url = 'https://www.lipsum.com/feed/json?' .
+		build_query(
+			[
+				'what'   => $type,
+				'amount' => $amount,
+				'start'  => 'no',
+			]
+		);
 
 		$data = wp_safe_remote_get( $url );
 		$json = json_decode( $data['body'], true );
