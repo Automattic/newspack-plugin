@@ -119,7 +119,7 @@ class Starter_Content {
 				'newspack-blocks/homepage-articles',
 				[
 					'sectionHeader' => $category->name,
-					'categories'    => $category->term_id,
+					'categories'    => [ $category->term_id ],
 				]
 			);
 
