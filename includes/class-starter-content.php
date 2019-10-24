@@ -37,9 +37,11 @@ class Starter_Content {
 		}
 
 		$paragraphs = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
-
-		$post_data = [
-			'post_title'   => self::get_lipsum( 'words', wp_rand( 4, 7 ) ),
+		$title      = self::get_lipsum( 'words', wp_rand( 4, 7 ) );
+		$post_data  = [
+			'post_title'   => $title,
+			'post_name'    => sanitize_title_with_dashes( $title, '', 'save' ),
+			'post_status'  => 'publish',
 			'post_content' => html_entity_decode(
 				implode(
 					'',
