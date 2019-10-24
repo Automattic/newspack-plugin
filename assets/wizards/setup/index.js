@@ -166,26 +166,27 @@ class SetupWizard extends Component {
 		const { setError } = this.props;
 		this.setState( { starterContentProgress: 0, starterContentTotal: 13 } );
 		const promises = [
-			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
-				method: 'post',
-			} ).then( result => this.incrementStarterContentProgress() ),
+			() =>
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
+					method: 'post',
+				} ).then( result => this.incrementStarterContentProgress() ),
 		];
 		for ( let x = 0; x < 10; x++ ) {
-			promises.push(
+			promises.push( () =>
 				apiFetch( {
 					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
 					method: 'post',
 				} ).then( result => this.incrementStarterContentProgress() )
 			);
 		}
-		promises.push(
+		promises.push( () =>
 			apiFetch( {
 				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/homepage`,
 				method: 'post',
 			} ).then( result => this.incrementStarterContentProgress() )
 		);
-		promises.push(
+		promises.push( () =>
 			apiFetch( {
 				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/theme`,
 				method: 'post',
