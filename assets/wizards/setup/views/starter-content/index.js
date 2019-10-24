@@ -24,7 +24,7 @@ class StarterContent extends Component {
 		const { starterContentProgress, starterContentTotal } = this.props;
 		return (
 			<div className="newspack-setup-wizard__welcome">
-				<p>{ __( 'Click Install to prepopulate the site with categories, posts, and a homepage.' ) }</p>
+				<p>{ __( 'Optionally pre-populate the site with categories, 20 placeholder stories, Newspack branding, and some homepage blocks. This feature will pre-configure the site for experimentation and testing and all placeholder content can be deleted and replaced later.' ) }</p>
 				{ starterContentProgress > 0 && starterContentTotal > 0 && (
 					<ProgressBar
 						completed={ starterContentProgress }

@@ -158,13 +158,13 @@ class SetupWizard extends Component {
 		const { starterContentProgress } = this.state;
 		this.setState(
 			{ starterContentProgress: starterContentProgress + 1 },
-			() => this.state.starterContentProgress >= 13 && this.finish()
+			() => this.state.starterContentProgress >= 23 && this.finish()
 		);
 	};
 
 	installStarterContent = () => {
 		const { setError } = this.props;
-		this.setState( { starterContentProgress: 0, starterContentTotal: 13 } );
+		this.setState( { starterContentProgress: 0, starterContentTotal: 23 } );
 		const promises = [
 			() =>
 				apiFetch( {
@@ -172,7 +172,7 @@ class SetupWizard extends Component {
 					method: 'post',
 				} ).then( result => this.incrementStarterContentProgress() ),
 		];
-		for ( let x = 0; x < 10; x++ ) {
+		for ( let x = 0; x < 20; x++ ) {
 			promises.push( () =>
 				apiFetch( {
 					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
@@ -352,8 +352,8 @@ class SetupWizard extends Component {
 							return (
 								<StarterContent
 									headerText={ __( 'Starter Content' ) }
-									subHeaderText={ __( 'Install starter content' ) }
-									buttonText={ __( 'Install' ) }
+									subHeaderText={ __( 'Pre-configure the  site for testing and experimentation' ) }
+									buttonText={ __( 'Install Starter Content' ) }
 									buttonAction={ () => this.installStarterContent().then( this.finish ) }
 									secondaryButtonText={ __( 'Not right now' ) }
 									secondaryButtonAction={ this.finish }
