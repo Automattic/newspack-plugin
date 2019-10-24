@@ -152,8 +152,10 @@ class Starter_Content {
 	 */
 	public static function initialize_theme() {
 		$logo_id = self::upload_logo();
-		set_theme_mod( 'custom_logo', $logo_id );
-		set_theme_mod( 'logo_size', 0 );
+		if ( $logo_id ) {
+			set_theme_mod( 'custom_logo', $logo_id );
+			set_theme_mod( 'logo_size', 0 );
+		}
 		set_theme_mod( 'active_style_pack', 'style-3' );
 		set_theme_mod( 'header_solid_background', true );
 		set_theme_mod( 'header_simplified', true );
@@ -175,11 +177,17 @@ class Starter_Content {
 
 		$logo_query = new WP_Query( $args );
 		if ( $logo_query && isset( $logo_query->posts, $logo_query->posts[0] ) ) {
-			return false;
+			return null;
 		}
 
 		if ( ! function_exists( 'wp_upload_bits' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		if ( ! function_exists( 'wp_crop_image' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+		if ( ! $file || empty( $file['file'] ) ) {
+			return null;
 		}
 
 		$file = wp_upload_bits(
@@ -284,8 +292,8 @@ class Starter_Content {
 		);
 
 		$file_attributes = wp_handle_sideload( $file, $overrides );
-		if ( is_wp_error( $file_attributes ) ) {
-			return false;
+		if ( is_wp_error( $file_attributes ) || ! empty( $file_attributes['error'] ) ) {
+			return null;
 		}
 		$filename      = $file_attributes['file'];
 		$filetype      = wp_check_filetype( basename( $filename ), null );
