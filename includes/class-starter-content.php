@@ -186,15 +186,16 @@ class Starter_Content {
 		if ( ! function_exists( 'wp_crop_image' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 		}
-		if ( ! $file || empty( $file['file'] ) ) {
-			return null;
-		}
 
 		$file = wp_upload_bits(
 			'newspack-logo.png',
 			null,
 			file_get_contents( NEWSPACK_ABSPATH . 'assets/shared/images/newspack-logo.png' )
 		);
+
+		if ( ! $file || empty( $file['file'] ) ) {
+			return null;
+		}
 
 		$wp_filetype = wp_check_filetype( $file['file'], null );
 
