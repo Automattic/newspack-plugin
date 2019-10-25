@@ -116,7 +116,7 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Whether Site Kit is active and set up.
 	 */
 	public function is_configured() {
-		if ( defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG ) {
+		if ( ( defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG ) || get_option( 'newspack_debug', false ) ) {
 			return true;
 		}
 		return $this->is_active() && ! empty( $this->get_modules_info() );
