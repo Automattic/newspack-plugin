@@ -27,7 +27,7 @@ class Intro extends Component {
 					title={ __( 'Google Analytics' ) }
 					description={ __( 'Configure and view site analytics' ) }
 					actionText={ __( 'View' ) }
-					handoff="publish-to-apple-news"
+					handoff="google-site-kit"
 					editLink="admin.php?page=googlesitekit-module-analytics"
 				/>
 			</Fragment>
