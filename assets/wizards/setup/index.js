@@ -177,7 +177,9 @@ class SetupWizard extends Component {
 				apiFetch( {
 					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
 					method: 'post',
-				} ).then( result => this.incrementStarterContentProgress() )
+				} )
+					.then( result => this.incrementStarterContentProgress() )
+					.catch( e => this.incrementStarterContentProgress() )
 			);
 		}
 		promises.push( () =>
