@@ -35,14 +35,15 @@ class Starter_Content {
 		if ( ! function_exists( 'wp_insert_post' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
-
+		$page_templates = [ '', 'single-feature.php', 'single-wide.php' ];
 		$paragraphs = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
 		$title      = self::get_lipsum( 'words', wp_rand( 4, 7 ) );
 		$post_data  = [
-			'post_title'   => $title,
-			'post_name'    => sanitize_title_with_dashes( $title, '', 'save' ),
-			'post_status'  => 'publish',
-			'post_content' => html_entity_decode(
+			'post_title'    => $title,
+			'post_name'     => sanitize_title_with_dashes( $title, '', 'save' ),
+			'post_status'   => 'publish',
+			'page_template' => $page_templates[ wp_rand( 0, 2 ) ],
+			'post_content'  => html_entity_decode(
 				implode(
 					'',
 					array_map(
@@ -56,6 +57,14 @@ class Starter_Content {
 		];
 
 		$post_id = wp_insert_post( $post_data );
+
+		$newspack_featured_image_positions = [ null, 'behind', 'beside' ];
+
+		$newspack_featured_image_position = $newspack_featured_image_positions[ wp_rand( 0, 2 ) ];
+
+		if ( $newspack_featured_image_position ) {
+			add_post_meta( $post_id, 'newspack_featured_image_position', $newspack_featured_image_position );
+		}
 
 		$attachment_id = self::add_featured_image( $post_id );
 
