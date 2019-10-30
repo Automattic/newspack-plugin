@@ -24,7 +24,7 @@ class Starter_Content {
 	 *
 	 * @var array A set of starter categories.
 	 */
-	protected static $starter_categories = [ 'Sports', 'Entertainment', 'Opinion', 'News', 'Events' ];
+	protected static $starter_categories = [ 'Featured', 'Sports', 'Entertainment', 'Opinion', 'News', 'Events', 'Longform', 'Arts', 'Politics', 'Science', 'Tech', 'Health' ];
 
 	/**
 	 * Create a single post.
@@ -64,14 +64,30 @@ class Starter_Content {
 				'hide_empty' => false,
 			]
 		);
-		$index      = wp_rand( 1, count( $categories ) - 1 );
-		$category   = array_slice(
-			$categories,
-			$index,
-			1
-		)[0];
 
-		wp_set_post_categories( $post_id, $category->term_id );
+		$category_index    = 1;
+		$selected_category = null;
+		while ( ! $selected_category ) {
+			$category = $categories[ $category_index ];
+
+			$args = [
+				'posts_per_page' => 10,
+				'post_type'      => 'post',
+				'category__in'   => [ $category->term_id ],
+			];
+
+			$post_query = new WP_Query( $args );
+			if ( $post_query->post_count < 3 ) {
+				$selected_category = $category->term_id;
+			} else {
+				$category_index++;
+				if ( $category_index >= count( $categories ) ) {
+					$selected_category = $categories[ count( $categories ) - 1 ]->term_id;
+				}
+			}
+		}
+
+		wp_set_post_categories( $post_id, $selected_category );
 		wp_publish_post( $post_id );
 
 		return $post_id;
@@ -101,39 +117,64 @@ class Starter_Content {
 		if ( ! function_exists( 'wp_insert_post' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
-		$columns    = [];
 		$categories = get_categories(
 			[
 				'hide_empty' => false,
 			]
 		);
-		for ( $x = 0; $x < 2; $x++ ) {
-			$index    = wp_rand( 1, count( $categories ) - 1 );
-			$category = array_slice(
-				$categories,
-				$index, /* Start random at 1 to avoid getting "Uncategorized" */
-				1
-			)[0];
+		ob_start();
+		?>
+		<!-- wp:columns {"className":"is-style-borders"} --><div class="wp-block-columns is-style-borders">
 
-			$articles_block = self::create_block(
-				'newspack-blocks/homepage-articles',
-				[
-					'sectionHeader' => $category->name,
-					'categories'    => [ $category->term_id ],
-				]
-			);
+			<!-- wp:column {"width":66.66} --><div class="wp-block-column" style="flex-basis:calc(66.66% - 16px)">
 
-			$columns[] = self::create_block(
-				'column',
-				null,
-				'<div class="wp-block-column">' . $articles_block . '</div>'
-			);
-		}
-		$content   = self::create_block(
-			'columns',
-			null,
-			'<div class="wp-block-columns">' . implode( '', $columns ) . '</div>'
-		);
+				<!-- wp:newspack-blocks/homepage-articles {"postsToShow":1,"categories":[<?php echo esc_attr( $categories[1]->term_id ); ?>],"sectionHeader":"<?php echo esc_html( $categories[1]->name ); ?>"} /-->
+
+			</div><!-- /wp:column -->
+			<!-- wp:column {"width":33.33} --><div class="wp-block-column" style="flex-basis:calc(33.33% - 16px)">
+
+				<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"imageShape":"square","showAvatar":false,"postsToShow":3,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[2]->term_id ); ?>],"typeScale":2,"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[2]->name ); ?>"} /-->
+
+				<!-- wp:separator {"className":"is-style-wide"} --><hr class="wp-block-separator is-style-wide"/><!-- /wp:separator -->
+
+				<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"imageShape":"square","postsToShow":3, "mediaPosition":"left","categories":[<?php echo esc_attr( $categories[3]->term_id ); ?>],"typeScale":2,"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[3]->name ); ?>"} /-->
+
+			</div><!-- /wp:column -->
+
+		</div><!-- /wp:columns -->
+
+		<!-- wp:separator {"className":"is-style-wide"} --><hr class="wp-block-separator is-style-wide"/><!-- /wp:separator -->
+
+		<!-- wp:columns {"className":"is-style-borders"} --><div class="wp-block-columns is-style-borders">
+
+			<!-- wp:column --><div class="wp-block-column">
+
+				<!-- wp:newspack-blocks/homepage-articles {"className":"is-style-borders","showExcerpt":false,"showAuthor":false,"postsToShow":1,"categories":[<?php echo esc_attr( $categories[4]->term_id ); ?>],"typeScale":3,"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[4]->name ); ?>"} /-->
+
+				<!-- wp:newspack-blocks/homepage-articles {"className":"is-style-borders","showExcerpt":false,"showAuthor":false,"showAvatar":false,"postsToShow":2,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[5]->term_id ); ?>],"typeScale":2,"imageScale":1} /-->
+
+			</div><!-- /wp:column -->
+
+			<!-- wp:column --><div class="wp-block-column">
+
+				<!-- wp:newspack-blocks/homepage-articles {"className":"is-style-borders","showExcerpt":false,"showAuthor":false,"postsToShow":1,"categories":[<?php echo esc_attr( $categories[6]->term_id ); ?>],"typeScale":3,"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[6]->name ); ?>"} /-->
+
+				<!-- wp:newspack-blocks/homepage-articles {"className":"is-style-borders","showExcerpt":false,"showAuthor":false,"showAvatar":false,"postsToShow":2,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[7]->term_id ); ?>],"typeScale":2,"imageScale":1} /-->
+
+			</div><!-- /wp:column -->
+
+			<!-- wp:column --><div class="wp-block-column">
+
+				<!-- wp:newspack-blocks/homepage-articles {"className":"is-style-borders","showExcerpt":false,"showImage":false,"showAuthor":false,"showAvatar":false,"postsToShow":1,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[8]->term_id ); ?>],"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[8]->name ); ?>"} /-->
+
+				<!-- wp:newspack-blocks/homepage-articles {"className":"is-style-borders","showExcerpt":false,"showImage":false,"showAuthor":false,"showAvatar":false,"postsToShow":4,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[9]->term_id ); ?>],"typeScale":3,"imageScale":1} /-->
+
+			</div><!-- /wp:column -->
+
+		</div><!-- /wp:columns -->
+		<?php
+		$content = ob_get_clean();
+
 		$post_data = [
 			'post_title'   => 'Homepage',
 			'post_type'    => 'page',
