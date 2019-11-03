@@ -26,6 +26,19 @@
 				color: $muriel-white;
 			}
 		}
+
+		&:focus {
+			border-color: $primary_color;
+			box-shadow: none;
+			outline: none;
+		}
+	}
+
+	svg.dashicon.components-checkbox-control__checked {
+		height: 22px;
+		left: 0;
+		top: 0;
+		width: 22px;
 	}
 
 	label.components-checkbox-control__label {
