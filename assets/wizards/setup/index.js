@@ -13,7 +13,14 @@ import { Spinner } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { About, ConfigurePlugins, Newsroom, Welcome, InstallationProgress } from './views/';
+import {
+	About,
+	ConfigurePlugins,
+	Newsroom,
+	Welcome,
+	InstallationProgress,
+	StarterContent,
+} from './views/';
 import { Card, withWizard, WizardPagination } from '../../components/src';
 import './style.scss';
 
@@ -52,6 +59,8 @@ class SetupWizard extends Component {
 			profile: {},
 			currencies: {},
 			countries: {},
+			starterContentProgress: null,
+			starterContentTotal: null,
 		};
 	}
 
@@ -145,6 +154,55 @@ class SetupWizard extends Component {
 		);
 	};
 
+	incrementStarterContentProgress = () => {
+		const { starterContentProgress } = this.state;
+		this.setState(
+			{ starterContentProgress: starterContentProgress + 1 },
+			() => this.state.starterContentProgress >= 43 && this.finish()
+		);
+	};
+
+	installStarterContent = () => {
+		const { setError } = this.props;
+		this.setState( { starterContentProgress: 0, starterContentTotal: 43 } );
+		const promises = [
+			() =>
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
+					method: 'post',
+				} ).then( result => this.incrementStarterContentProgress() ),
+		];
+		for ( let x = 0; x < 40; x++ ) {
+			promises.push( () =>
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
+					method: 'post',
+				} )
+					.then( result => this.incrementStarterContentProgress() )
+					.catch( e => this.incrementStarterContentProgress() )
+			);
+		}
+		promises.push( () =>
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/homepage`,
+				method: 'post',
+			} ).then( result => this.incrementStarterContentProgress() )
+		);
+		promises.push( () =>
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/theme`,
+				method: 'post',
+			} ).then( result => this.incrementStarterContentProgress() )
+		);
+		return new Promise( ( resolve, reject ) => {
+			promises.reduce(
+				( promise, action ) =>
+					promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
+				Promise.resolve( [] )
+			);
+		} );
+	};
+
 	finish = () => {
 		this.updateProfile().then( response =>
 			this.completeSetup().then( () => ( window.location = newspack_urls.dashboard ) )
@@ -163,6 +221,8 @@ class SetupWizard extends Component {
 			countries,
 			currencies,
 			setupComplete,
+			starterContentTotal,
+			starterContentProgress,
 		} = this.state;
 		const installProgress = Object.keys( installedPlugins ).length;
 		const installTotal = REQUIRED_PLUGINS.length;
@@ -173,6 +233,7 @@ class SetupWizard extends Component {
 			'/installation-progress',
 			'/configure-jetpack',
 			'/configure-google-site-kit',
+			'/starter-content',
 		];
 		return (
 			<Fragment>
@@ -280,9 +341,27 @@ class SetupWizard extends Component {
 									) }
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Site Kit' ) }
-									buttonAction={ pluginConfigured ? this.finish : { handoff: plugin } }
+									buttonAction={ pluginConfigured ? '#/starter-content' : { handoff: plugin } }
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
+								/>
+							);
+						} }
+					/>
+					<Route
+						path="/starter-content"
+						render={ routeProps => {
+							return (
+								<StarterContent
+									headerText={ __( 'Starter Content' ) }
+									subHeaderText={ __( 'Pre-configure the  site for testing and experimentation' ) }
+									buttonText={ __( 'Install Starter Content' ) }
+									buttonAction={ () => this.installStarterContent().then( this.finish ) }
+									buttonDisabled={ starterContentProgress }
+									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
+									secondaryButtonAction={ this.finish }
+									starterContentProgress={ starterContentProgress }
+									starterContentTotal={ starterContentTotal }
 								/>
 							);
 						} }
