@@ -357,7 +357,8 @@ class SetupWizard extends Component {
 									subHeaderText={ __( 'Pre-configure the  site for testing and experimentation' ) }
 									buttonText={ __( 'Install Starter Content' ) }
 									buttonAction={ () => this.installStarterContent().then( this.finish ) }
-									secondaryButtonText={ __( 'Not right now' ) }
+									buttonDisabled={ starterContentProgress }
+									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
 									secondaryButtonAction={ this.finish }
 									starterContentProgress={ starterContentProgress }
 									starterContentTotal={ starterContentTotal }
