@@ -48,7 +48,7 @@ class Starter_Content {
 					'',
 					array_map(
 						function( $paragraph ) {
-							return self::create_block( 'paragraph', null, $paragraph );
+							return self::create_block( 'paragraph', null, '<p>' . $paragraph . '</p>' );
 						},
 						$paragraphs
 					)
