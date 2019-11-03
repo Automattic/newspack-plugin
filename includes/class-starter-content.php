@@ -70,33 +70,15 @@ class Starter_Content {
 
 		$categories = get_categories(
 			[
+				'orderby'    => 'count',
+				'order'      => 'ASC',
 				'hide_empty' => false,
+				'exclude'    => '1', // Exclude 'Uncategorized' which has ID of 1.
+				'number'     => 1,
 			]
 		);
 
-		$category_index    = 1;
-		$selected_category = null;
-		while ( ! $selected_category ) {
-			$category = $categories[ $category_index ];
-
-			$args = [
-				'posts_per_page' => 10,
-				'post_type'      => 'post',
-				'category__in'   => [ $category->term_id ],
-			];
-
-			$post_query = new WP_Query( $args );
-			if ( $post_query->post_count < 3 ) {
-				$selected_category = $category->term_id;
-			} else {
-				$category_index++;
-				if ( $category_index >= count( $categories ) ) {
-					$selected_category = $categories[ count( $categories ) - 1 ]->term_id;
-				}
-			}
-		}
-
-		wp_set_post_categories( $post_id, $selected_category );
+		wp_set_post_categories( $post_id, $categories[0] );
 		wp_publish_post( $post_id );
 
 		return $post_id;
