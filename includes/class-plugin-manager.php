@@ -233,6 +233,14 @@ class Plugin_Manager {
 				'WPCore'   => true,
 				'EditPath' => 'options-discussion.php',
 			],
+			'co-authors-plus'               => [
+				'Name'        => 'Co-Authors Plus',
+				'Description' => 'Allows multiple authors and guest authors to be assigned to a post.',
+				'Author'      => 'Mohammad Jangda, Daniel Bachhuber, Automattic, Weston Ruter',
+				'AuthorURI'   => 'http://wordpress.org/extend/plugins/co-authors-plus/',
+				'PluginURI'   => 'http://wordpress.org/extend/plugins/co-authors-plus/',
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
