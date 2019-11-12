@@ -10,11 +10,23 @@
 	grid-column: 1 / -1;
 
 	.muriel-formatted-header__title {
+		align-items: center;
+		display: flex;
 		font-size: 24px;
-		line-height: 32px;
-		letter-spacing: -0.5px;
 		font-weight: normal;
+		justify-content: center;
+		letter-spacing: -0.5px;
+		line-height: 32px;
 		margin: .5em 0;
+	}
+
+	.muriel-formatted-header__icon {
+		margin-right: 8px;
+
+		svg {
+			display: block;
+			fill: $primary_color;
+		}
 	}
 
 	.muriel-formatted-header__subtitle {

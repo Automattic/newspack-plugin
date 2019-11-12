@@ -22,11 +22,16 @@ class FormattedHeader extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, headerText, subHeaderText } = this.props;
+		const { className, headerIcon, headerText, subHeaderText } = this.props;
 		const classes = murielClassnames( 'muriel-formatted-header', className, !! subHeaderText ? 'has-subheader' : null );
 		return (
 			<header className={ classes }>
-				<h1 className="muriel-formatted-header__title">{ headerText }</h1>
+				<h1 className="muriel-formatted-header__title">
+					{ headerIcon && (
+						<span className="muriel-formatted-header__icon">{ headerIcon }</span>
+					) }
+					{ headerText }
+				</h1>
 				{ subHeaderText && (
 					<h2 className="muriel-formatted-header__subtitle">{ subHeaderText }</h2>
 				) }
