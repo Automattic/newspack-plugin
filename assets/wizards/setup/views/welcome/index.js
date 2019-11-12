@@ -25,7 +25,7 @@ class Welcome extends Component {
 		return (
 			<div className="newspack-setup-wizard__welcome">
 				<p>{ __( 'The following wizard will help you with the set up.' ) }</p>
-				<p>{ __( 'Clicking “Get Started” will install core Newspack plugins and the theme in the background.') }</p>
+				<p>{ __( 'Clicking “Get started” will install core Newspack plugins and the theme in the background.') }</p>
 			</div>
 		);
 	}
