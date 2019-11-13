@@ -244,7 +244,7 @@ class SetupWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Welcome
-								buttonText={ __( 'Install core plugins and Newspack theme' ) }
+								buttonText={ __( 'Get started' ) }
 								buttonAction={ {
 									href: '#/about',
 									onClick: () => this.updateProfile(),
@@ -252,11 +252,6 @@ class SetupWizard extends Component {
 								secondaryButtonText={ __( 'Not right now' ) }
 								secondaryButtonAction="/wp-admin"
 								profile={ profile }
-								notice=<p>
-									{ __(
-										'Clicking “Get Started” will install core Newspack plugins and the theme in the background.'
-									) }
-								</p>
 							/>
 						) }
 					/>
@@ -314,7 +309,7 @@ class SetupWizard extends Component {
 									noBackground
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Jetpack' ) }
@@ -337,10 +332,10 @@ class SetupWizard extends Component {
 									noBackground
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
-									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Site Kit' ) }
+									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Google Site Kit' ) }
 									buttonAction={ pluginConfigured ? '#/starter-content' : { handoff: plugin } }
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
@@ -354,7 +349,7 @@ class SetupWizard extends Component {
 							return (
 								<StarterContent
 									headerText={ __( 'Starter Content' ) }
-									subHeaderText={ __( 'Pre-configure the  site for testing and experimentation' ) }
+									subHeaderText={ __( 'Pre-configure the site for testing and experimentation' ) }
 									buttonText={ __( 'Install Starter Content' ) }
 									buttonAction={ () => this.installStarterContent().then( this.finish ) }
 									buttonDisabled={ starterContentProgress }
