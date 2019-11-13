@@ -23,6 +23,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				buttonText,
 				buttonAction,
 				buttonDisabled,
+				headerIcon,
 				headerText,
 				subHeaderText,
 				noBackground,
@@ -54,7 +55,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						<Grid>
 							<Card noBackground>
 								{ headerText && (
-									<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+									<FormattedHeader headerIcon={ headerIcon } headerText={ headerText } subHeaderText={ subHeaderText } />
 								) }
 							</Card>
 							{ tabbedNavigation && (
