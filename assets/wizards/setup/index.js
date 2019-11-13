@@ -238,7 +238,6 @@ class SetupWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
-					<WizardPagination routes={ routes } />
 					<Route
 						path="/"
 						exact
@@ -387,6 +386,7 @@ class SetupWizard extends Component {
 							) : null;
 						} }
 					/>
+					<WizardPagination routes={ routes } />
 				</HashRouter>
 			</Fragment>
 		);

@@ -17,6 +17,7 @@ import { withRouter } from 'react-router-dom';
  * Internal dependencies
  */
 import './style.scss';
+import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
 
 class WizardPagination extends Component {
 	/**
@@ -30,15 +31,16 @@ class WizardPagination extends Component {
 		}
 		return (
 			<Fragment>
-				<a className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
-					<span className="dashicons dashicons-arrow-left-alt" /> { __( 'Back' ) }
-				</a>
-				{ currentIndex > 0 && (
-					<div className="newspack-wizard-pagination__pagination">
-						{ __( 'Page' ) } { currentIndex } { __( 'of' ) } { routes.length }{' '}
-						<span className="dashicons dashicons-arrow-right-alt" />
-					</div>
-				) }
+				<div className="newspack-wizard-pagination">
+					{ currentIndex > 0 && (
+						<div className="newspack-wizard-pagination__pagination">
+							{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length }{' '}
+						</div>
+					) }
+					<Button isLink className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
+						{ __( 'Back' ) }
+					</Button>
+				</div>
 			</Fragment>
 		);
 	}

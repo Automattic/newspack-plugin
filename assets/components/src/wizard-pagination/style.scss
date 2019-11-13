@@ -1,14 +1,6 @@
-.newspack-wizard {
-	position: relative;
-}
-.newspack-wizard-pagination__navigation {
-	position: absolute;
-	top: 1em;
-	left: 0;
-	cursor: pointer;
-}
-.newspack-wizard-pagination__pagination {
-	position: absolute;
-	top: 1em;
-	right: 1em;
+.newspack-wizard-pagination {
+	margin: 0 auto;
+	max-width: 1040px;
+	text-align: center;
+	transform: translateX(-10px);
 }
