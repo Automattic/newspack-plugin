@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component, render, Fragment } from '@wordpress/element';
+import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -154,6 +155,11 @@ class ReaderRevenueWizard extends Component {
 				path: '/configure-landing-page',
 			},
 		];
+		const headerIcon = (
+			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<Path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+			</SVG>
+		);
 		const headerText = __( 'Reader Revenue', 'newspack' );
 		const subHeaderText = __( 'Generate revenue from your customers.' );
 		const isConfigured = !! donationData.created;
@@ -167,6 +173,7 @@ class ReaderRevenueWizard extends Component {
 							exact
 							render={ routeProps => (
 								<RevenueMain
+									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
@@ -182,6 +189,7 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
+									headerIcon={ headerIcon }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( "First, please provide your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -200,6 +208,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<StripeSetup
 									data={ stripeData }
+									headerIcon={ headerIcon }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __(
 										'Next, we will help you set up a payment gateway in order to process transactions.'
@@ -220,6 +229,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
+									headerIcon={ headerIcon }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
 									buttonText={ __( 'Save Settings' ) }
@@ -237,6 +247,7 @@ class ReaderRevenueWizard extends Component {
 							path="/configure-landing-page"
 							render={ routeProps => (
 								<ConfigureLandingPage
+									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
