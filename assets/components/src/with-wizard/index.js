@@ -227,13 +227,15 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<Fragment>
 					{ this.getError() }
-					<a href={ newspack_urls && newspack_urls.dashboard }>
-						<NewspackLogo
-							width={ fullLogo ? 240 : 50 }
-							compact={ ! fullLogo }
-							className="newspack-logo"
-						/>
-					</a>
+					<div className="newspack-logo-wrapper">
+						<a href={ newspack_urls && newspack_urls.dashboard }>
+							<NewspackLogo
+								width={ fullLogo ? 240 : 50 }
+								compact={ ! fullLogo }
+								className="newspack-logo"
+							/>
+						</a>
+					</div>
 					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
 						<WrappedComponent
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
