@@ -23,11 +23,15 @@
 	}
 
 	input {
+		background: transparent;
 		border: 0;
+		border-radius: 0;
 		box-shadow: none;
+		color: inherit;
 		font-size: 16px;
 		line-height: 21px;
 		margin: 0;
+		min-height: 21px;
 		padding: 0;
 
 		&:focus {
