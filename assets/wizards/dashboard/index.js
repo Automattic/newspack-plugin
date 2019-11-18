@@ -20,17 +20,12 @@ class Dashboard extends Component {
 	 */
 	render() {
 		const { items } = this.props;
-		const logo = <NewspackLogo width="280" height="64" />;
 
 		return (
 			<Fragment>
-				<FormattedHeader
-					className="newspack_dashboard__header"
-					headerText={ logo }
-					subHeaderText={ __(
-						"Here we'll guide you through the steps necessary to get your news site ready for launch"
-					) }
-				/>
+				<div className="newspack-logo-wrapper">
+					<NewspackLogo width="240" />
+				</div>
 				<div className="newspack-dashboard-grid muriel-grid-container">
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />

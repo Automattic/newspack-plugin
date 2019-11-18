@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { Dashicon } from '@wordpress/components';
+import { Dashicon, SVG, Path } from '@wordpress/components';
 import classnames from 'classnames';
 
 /**
@@ -22,14 +22,16 @@ class DashboardCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, image, status } = this.props;
+		const { name, description, slug, url, svg, status } = this.props;
 		const classes = classnames( 'newspack-dashboard-card', slug, status );
 
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
-				{ !! image && <img src={ image } /> }
-				<h3>{ name }</h3>
-				<h4>{ description }</h4>
+				{ !! svg && <SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><Path d={ svg } /></SVG> }
+				<div className="newspack-dashboard-card__header">
+					<h3>{ name }</h3>
+					<h4>{ description }</h4>
+				</div>
 			</div>
 		);
 

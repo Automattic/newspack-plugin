@@ -1,8 +1,8 @@
-.newspack_dashboard__header {
-	h1.muriel-formatted-header__title {
-		font-size: 3em;
-		margin-bottom: 1em;
-		margin-top: 2em;
+@import '../../shared/scss/muriel-component';
+
+.newspack-wizard {
+	.newspack-logo-wrapper {
+		margin-bottom: 2em;
 	}
 }
 
@@ -78,5 +78,28 @@
 
 	.newspack_dashboard__header {
 		margin-right: 14px;
+	}
+}
+
+.newspack-dashboard-card__contents {
+	padding-bottom: 24px;
+	padding-top: 24px;
+
+	& > * {
+		&:first-child {
+			margin-top: 0;
+		}
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	svg {
+		display: block;
+		fill: $primary_color;
+		height: 48px;
+		margin: 0 auto;
+		width: 48px;
 	}
 }
