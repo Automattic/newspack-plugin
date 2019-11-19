@@ -48,7 +48,7 @@ class Dashboard extends Wizard {
 	/**
 	 * Get the information required to build the dashboard.
 	 * Each tier of the dashboard is an array.
-	 * Each card within the tier is an array of [slug, name, url, description, image, status].
+	 * Each card within the tier is an array of [slug, name, url, description, svg, status].
 	 *
 	 * @return array
 	 */
@@ -59,7 +59,7 @@ class Dashboard extends Wizard {
 				'name'        => esc_html__( 'Site Design', 'newspack' ),
 				'url'         => admin_url( 'customize.php' ),
 				'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/site-design-icon.svg',
+				'svg'         => 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z',
 				'status'      => 'enabled',
 			],
 			[
@@ -67,7 +67,7 @@ class Dashboard extends Wizard {
 				'name'        => Wizards::get_name( 'reader-revenue' ),
 				'url'         => Wizards::get_url( 'reader-revenue' ),
 				'description' => esc_html__( 'Membership, paywall, subscriptions', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/reader-revenue-icon.svg',
+				'svg'         => 'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z',
 				'status'      => Checklists::get_status( 'reader-revenue' ),
 			],
 			[
@@ -75,14 +75,14 @@ class Dashboard extends Wizard {
 				'name'        => esc_html__( 'Performance', 'newspack' ),
 				'url'         => admin_url( 'admin.php?page=newspack-performance-wizard' ),
 				'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/performance-icon.svg',
+				'svg'         => 'M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z',
 			],
 			[
 				'slug'        => 'advertising',
 				'name'        => Wizards::get_name( 'advertising' ),
 				'url'         => Wizards::get_url( 'advertising' ),
 				'description' => esc_html__( 'Content monetization', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/advertising-icon.svg',
+				'svg'         => 'M12 8H4a2 2 0 00-2 2v4a2 2 0 002 2h1v4a1 1 0 001 1h2a1 1 0 001-1v-4h3l5 4V4l-5 4m9.5 4c0 1.71-.96 3.26-2.5 4V8c1.53.75 2.5 2.3 2.5 4z',
 				'status'      => Checklists::get_status( 'advertising' ),
 			],
 			[
@@ -90,14 +90,14 @@ class Dashboard extends Wizard {
 				'name'        => Wizards::get_name( 'seo' ),
 				'url'         => Wizards::get_url( 'seo' ),
 				'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/seo-icon.svg',
+				'svg'         => 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
 			],
 			[
 				'slug'        => 'engagement',
 				'name'        => Wizards::get_name( 'engagement' ),
 				'url'         => Wizards::get_url( 'engagement' ),
 				'description' => Wizards::get_description( 'engagement' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/engagement-icon.svg',
+				'svg'         => 'M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z',
 				'status'      => 'enabled',
 			],
 			[
@@ -105,7 +105,7 @@ class Dashboard extends Wizard {
 				'name'        => Wizards::get_name( 'analytics' ),
 				'url'         => Wizards::get_url( 'analytics' ),
 				'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/analytics-icon.svg',
+				'svg'         => 'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z',
 				'status'      => 'enabled',
 			],
 			[
@@ -113,7 +113,7 @@ class Dashboard extends Wizard {
 				'name'        => Wizards::get_name( 'syndication' ),
 				'url'         => Wizards::get_url( 'syndication' ),
 				'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/syndication-icon.svg',
+				'svg'         => 'M22 8l-4-4v3H3v2h15v3l4-4zM2 16l4 4v-3h15v-2H6v-3l-4 4z',
 				'status'      => Checklists::get_status( 'syndication' ),
 			],
 		];
