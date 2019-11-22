@@ -48,6 +48,10 @@ class Configuration_Managers {
 			'filename'   => 'class-newspack-theme-configuration-manager.php',
 			'class_name' => 'Newspack_Theme_Configuration_Manager',
 		],
+		'publish-to-apple-news'  => [
+			'filename'   => 'class-publish-to-apple-news-configuration-manager.php',
+			'class_name' => 'Publish_To_Apple_News_Configuration_Manager',
+		],
 	];
 
 	/**
