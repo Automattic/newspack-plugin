@@ -75,7 +75,9 @@ class ChecklistScreen extends Component {
 		const { checklistProgress } = this.state;
 		return (
 			<Fragment>
-				<NewspackLogo compact width="50" className="newspack-logo" />
+				<div className="newspack-logo-wrapper">
+					<NewspackLogo />
+				</div>
 				<FormattedHeader headerText={ name } subHeaderText={ description } />
 				<Grid>
 					{ 'actionCards' === listStyle && (

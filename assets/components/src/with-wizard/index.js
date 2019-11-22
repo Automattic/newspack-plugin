@@ -222,19 +222,13 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @return JSX
 		 */
 		render() {
-			const { buttonText, buttonAction, fullLogo } = this.props;
+			const { buttonText, buttonAction } = this.props;
 			const { loading } = this.state;
 			return (
 				<Fragment>
 					{ this.getError() }
 					<div className="newspack-logo-wrapper">
-						<a href={ newspack_urls && newspack_urls.dashboard }>
-							<NewspackLogo
-								width={ fullLogo ? 240 : 50 }
-								compact={ ! fullLogo }
-								className="newspack-logo"
-							/>
-						</a>
+						<NewspackLogo />
 					</div>
 					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
 						<WrappedComponent
