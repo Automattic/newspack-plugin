@@ -1,7 +1,8 @@
-@import '../../../shared/scss/muriel-component';
+@import "~@wordpress/base-styles/colors";
 
 .newspack-plugin-installer__checkbox-row {
 	position: relative;
+
 	.components-spinner,
 	.newspack-plugin-installer__status {
 		position: absolute;
@@ -9,17 +10,27 @@
 		right: 0;
 	}
 }
-.newspack_plugin-installer__icon {
-	background-color: $primary_color;
-	border: 1px solid $primary_color;
-	border-radius: 16px;
-	width: 16px;
-	height: 16px;
-	color: $muriel-white;
-	margin-right: 12px;
+
+.newspack_plugin-installer__content {
+	display: flex;
+	align-items: center;
+
+	svg {
+		display: block;
+		fill: $light-gray-900;
+		margin-left: 4px;
+	}
+
+	&.is-active {
+		svg {
+			fill: $alert-green;
+		}
+	}
 }
+
 .newspack-plugin-installer_waiting {
 	text-align: center;
+
 	.components-spinner {
 		float: none;
 	}
