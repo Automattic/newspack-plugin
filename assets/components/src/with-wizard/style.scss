@@ -8,23 +8,6 @@ body[class*="newspack_page_newspack-"] {
 	}
 
 	// Temp fix on buttons/links
-	.buttons-card {
-		align-items: center;
-		display: flex;
-		justify-content: center;
-		width: 100%;
-
-		> *:first-child {
-			margin-left: 8px;
-			order: 2;
-		}
-
-		> *:last-child {
-			margin-right: 8px;
-			order: 1;
-		}
-	}
-
 	.muriel-button-is-centered-wrapper a,
 	.muriel-button.is-link {
 		color: white;
@@ -59,6 +42,35 @@ body[class*="newspack_page_newspack-"] {
 	svg {
 		display: block;
 		fill: currentColor;
+	}
+}
+
+.muriel-card.buttons-card {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	width: 100%;
+
+	> *:first-child {
+		margin-left: 8px;
+		order: 2;
+	}
+
+	> *:last-child {
+		margin-right: 8px;
+		order: 1;
+	}
+}
+
+.newspack-wizard {
+	.newspack-logo-wrapper {
+		display: flex;
+		justify-content: center;
+		margin: 2em 0 0;
+
+		.newspack-logo {
+			display: block;
+		}
 	}
 }
 
