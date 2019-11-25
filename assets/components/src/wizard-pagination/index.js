@@ -25,7 +25,7 @@ class WizardPagination extends Component {
 	 */
 	render() {
 		const { history, location, routes } = this.props;
-		const currentIndex = parseInt( routes.indexOf( location.pathname ) ) + 1;
+		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
 		if ( ! routes || ! history || ! location ) {
 			return;
 		}
@@ -34,7 +34,7 @@ class WizardPagination extends Component {
 				<div className="newspack-wizard-pagination">
 					{ currentIndex > 0 && (
 						<div className="newspack-wizard-pagination__pagination">
-							{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length }{' '}
+							{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
 						</div>
 					) }
 					<Button isLink className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
