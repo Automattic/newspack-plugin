@@ -29,14 +29,15 @@ class WizardPagination extends Component {
 		if ( ! routes || ! history || ! location ) {
 			return;
 		}
+		if ( 0 === currentIndex ) {
+			return <Fragment />;
+		}
 		return (
 			<Fragment>
 				<div className="newspack-wizard-pagination">
-					{ currentIndex > 0 && (
-						<div className="newspack-wizard-pagination__pagination">
-							{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
-						</div>
-					) }
+					<div className="newspack-wizard-pagination__pagination">
+						{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
+					</div>
 					<Button isLink className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
 						{ __( 'Back' ) }
 					</Button>
