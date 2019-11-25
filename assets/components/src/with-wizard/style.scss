@@ -1,5 +1,25 @@
 @import '../../../shared/scss/muriel-component';
 
+.newspack_page_newspack-setup-wizard__welcome {
+	#wpbody {
+		background: $primary-color;
+	}
+
+	#wpfooter {
+		color: #fff;
+
+		a {
+			color: inherit;
+
+			&:active,
+			&:focus,
+			&:hover {
+				opacity: 0.75;
+			}
+		}
+	}
+}
+
 .newspack-wizard {
 	.newspack-logo-wrapper {
 		display: flex;
