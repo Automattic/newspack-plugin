@@ -184,6 +184,10 @@ class Plugin_Manager {
 				'PluginURI'   => 'http://github.com/alleyinteractive/apple-news',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=apple_news_index',
+				'Configurer'  => [
+					'filename'   => 'class-publish-to-apple-news-configuration-manager.php',
+					'class_name' => 'Publish_To_Apple_News_Configuration_Manager',
+				],
 			],
 			'fb-instant-articles'           => [
 				'Name'        => 'Instant Articles for WP',
