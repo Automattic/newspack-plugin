@@ -245,6 +245,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'http://wordpress.org/extend/plugins/co-authors-plus/',
 				'Download'    => 'wporg',
 			],
+			's3-uploads'                    => [
+				'Name'        => 'S3 Uploads',
+				'Description' => 'Lightweight "drop-in" for storing WordPress uploads on Amazon S3 instead of the local filesystem.',
+				'Author'      => 'Human Made Limited',
+				'PluginURI'   => 'https://github.com/humanmade/S3-Uploads',
+				'AuthorURI'   => 'http://hmn.md',
+				'Download'    => 'https://github.com/humanmade/S3-Uploads/archive/2.2.1.zip',
+			],
 		];
 
 		$default_info = [
