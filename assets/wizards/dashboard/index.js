@@ -24,7 +24,7 @@ class Dashboard extends Component {
 		return (
 			<Fragment>
 				<div className="newspack-logo-wrapper">
-					<NewspackLogo width="240" />
+					<NewspackLogo />
 				</div>
 				<div className="newspack-dashboard-grid muriel-grid-container">
 					{ items.map( card => (

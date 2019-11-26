@@ -1,14 +1,26 @@
 @import '../../../shared/scss/muriel-component';
 
-.newspack-wizard {
-	.newspack-logo-wrapper {
-		display: flex;
-		justify-content: center;
-		margin: 2em 0 0;
+// Reset Padding of the Admin Page
+.toplevel_page_newspack,
+body[class*="newspack_page_newspack-"] {
+	#wpcontent {
+		padding-left: 0;
+	}
+}
 
-		.newspack-logo {
-			display: block;
-		}
+// Newspack Logo
+.newspack-logo-wrapper {
+	background: $primary-color;
+	color: white;
+	display: flex;
+	justify-content: center;
+	margin: 0 0 64px;
+	padding: 32px;
+	position: relative;
+
+	svg {
+		display: block;
+		fill: currentColor;
 	}
 }
 

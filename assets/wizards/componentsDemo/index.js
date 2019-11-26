@@ -91,7 +91,9 @@ class ComponentsDemo extends Component {
 		);
 		return (
 			<Fragment>
-				<NewspackLogo width="250" className="newspack-components-demo_logo" />
+				<div className="newspack-logo-wrapper">
+					<NewspackLogo />
+				</div>
 				<FormattedHeader
 					headerIcon={ headerIcon }
 					headerText={ __( 'Newspack Components' ) }
