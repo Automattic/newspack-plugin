@@ -1,70 +1,31 @@
 /**
- * Card styles.
+ * Card
  */
 
-@import '../../../shared/scss/muriel-component';
+.newspack-card {
+	background: white;
+	border-radius: 4px;
+	box-shadow: 0 8px 16px rgba( black, 0.08 );
+	margin: 32px 0;
+	padding: 32px;
 
-.muriel-card {
-	background: $muriel-white;
-	border-radius: 3px;
-	box-shadow: 0px 1px 1px rgba( 0, 0, 0, 0.25 );
-	margin: 0 auto 10px auto;
-	padding: 24px;
-
-	&.is_clickable {
-		cursor: pointer;
-
-		&:hover {
-			box-shadow: 0px 5px 5px rgba( 0, 0, 0, 0.2 ), 0px 3px 14px rgba( 0, 0, 0, 0.12 ), 0px 8px 10px rgba( 0, 0, 0, 0.14 );
-		}
-	}
-
-	&.muriel-card__no-background {
+	&.newspack-card__no-background {
 		background: none;
 		box-shadow: none;
 		padding: 0;
-		max-width: 682px;
 	}
 
-	@media screen and ( max-width: 1040px ) {
-		max-width: calc( 642px - 48px );
+	&.newspack-card__is-clickable {
+		cursor: pointer;
+		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
 
-		&.muriel-card__no-background {
-			width: 642px;
-		}
-	}
-
-	@media screen and ( max-width: 660px ) {
-		max-width: calc( 100% - 68px );
-		padding: 10px;
-		margin-left: 24px;
-		margin-right: 24px;
-
-		&.muriel-card__no-background {
-			width: calc( 100% - 48px );
-		}
-
-		.muriel-card {
-			margin-left: 0;
-			margin-right: 0;
-			max-width: calc( 100% - 20px );
-			width: 100%;
+		&:hover {
+			box-shadow: 0 8px 16px rgba( black, 0.16 );
+			transform: translateY( -4px );
 		}
 	}
 
-	&.muriel-grid-item {
-		max-width: none;
-		width: auto;
-		grid-column: 3 / span 8;
-		margin: 0;
-		margin-bottom: 10px;
-		@media screen and ( max-width: 1040px ) {
-			max-width: none;
-			grid-column: 2 / span 6;
-		}
-		@media screen and ( max-width: 660px ) {
-			max-width: none;
-			grid-column: 1 / span 4;
-		}
+	@media screen and ( min-width: 744px ) {
+		padding: 64px;
 	}
 }
