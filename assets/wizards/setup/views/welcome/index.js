@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizardScreen } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Location Setup Screen.
