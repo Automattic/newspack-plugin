@@ -328,7 +328,6 @@ class SetupWizard extends Component {
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									noBackground
 									headerIcon={ configurePluginsIcon }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
@@ -352,7 +351,6 @@ class SetupWizard extends Component {
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									noBackground
 									headerIcon={ configurePluginsIcon }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
