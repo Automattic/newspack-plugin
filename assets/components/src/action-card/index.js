@@ -81,7 +81,7 @@ class ActionCard extends Component {
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
 						<h2>
-							{ [ title, badge && <span className="newspack-action-card-badge">{ badge }</span> ] }
+							{ [ title, badge && <span className="newspack-action-card__badge">{ badge }</span> ] }
 						</h2>
 						<p>{ description }</p>
 					</div>
