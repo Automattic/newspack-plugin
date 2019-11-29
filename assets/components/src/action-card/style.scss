@@ -12,6 +12,8 @@
 	line-height: 24px;
 	padding: 16px;
 
+	// Clickable
+
 	&.newspack-card__is-clickable {
 		&:hover {
 			box-shadow: 0 4px 8px rgba( black, 0.16 );
@@ -153,7 +155,7 @@
 
 	// Badge
 
-	.newspack-action-card-badge {
+	.newspack-action-card__badge {
 		border: 1px solid $light-gray-500;
 		border-radius: 12px;
 		display: inline-block;
