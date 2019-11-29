@@ -9,11 +9,16 @@ import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies.
+ * Internal dependencies
  */
 import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
-import { murielClassnames, buttonProps } from '../../../shared/js/';
+import { buttonProps } from '../../../shared/js/';
 import './style.scss';
+
+/**
+ * External dependencies
+ */
+import classNames from 'classnames';
 
 export default function withWizardScreen( WrappedComponent, config ) {
 	return class extends Component {
@@ -37,7 +42,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				secondaryButtonStyle,
 				hidden,
 			} = this.props;
-			const classes = murielClassnames(
+			const classes = classNames(
 				'muriel-wizardScreen',
 				className,
 				noBackground ? 'muriel-wizardScreen__no-background' : '',
