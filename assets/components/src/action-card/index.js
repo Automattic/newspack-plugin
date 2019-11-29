@@ -1,9 +1,9 @@
 /**
- * Action cards.
+ * Action Card
  */
 
 /**
- * WordPress dependencies.
+ * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
 import { Dashicon, Spinner, ToggleControl } from '@wordpress/components';
@@ -12,14 +12,12 @@ import { Button, Card, Handoff } from '../';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**
  * External dependencies
  */
-
-import classnames from 'classnames';
+import classNames from 'classnames';
 
 class ActionCard extends Component {
 	backgroundImageStyles = url => {
@@ -27,7 +25,7 @@ class ActionCard extends Component {
 	};
 
 	/**
-	 * Render.
+	 * Render
 	 */
 	render( props ) {
 		const {
@@ -51,8 +49,12 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 		} = this.props;
-		const classes = murielClassnames( 'newspack-action-card', simple && 'is_clickable', className );
-		const notificationClasses = classnames(
+		const classes = classNames(
+			'newspack-action-card',
+			simple && 'newspack-card__is-clickable',
+			className
+		);
+		const notificationClasses = classNames(
 			'newspack-action-card__notification',
 			'notice',
 			`notice-${ notificationLevel }`,

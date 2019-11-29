@@ -1,5 +1,18 @@
-@import '../../../shared/scss/muriel-component';
+/**
+ * Grid
+ */
 
-.muriel-grid-container {
-	@include muriel-grid;
+.newspack-grid {
+	margin: 0 auto;
+	max-width: 90%;
+	max-width: calc(100% - 32px);
+
+	@media screen and ( min-width: 600px ) {
+		max-width: 80%;
+		max-width: calc(100% - 64px);
+	}
+
+	@media screen and ( min-width: 744px ) {
+		max-width: 680px;
+	}
 }
