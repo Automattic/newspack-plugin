@@ -2,12 +2,21 @@
  * Card
  */
 
+@import '~@wordpress/base-styles/colors';
+
 .newspack-card {
 	background: white;
 	border-radius: 4px;
 	box-shadow: 0 8px 16px rgba( black, 0.08 );
+	color: $dark-gray-300;
+	font-size: 14px;
+	line-height: 24px;
 	margin: 32px 0;
 	padding: 32px;
+
+	@media screen and ( min-width: 744px ) {
+		padding: 64px;
+	}
 
 	&.newspack-card__no-background {
 		background: none;
@@ -25,7 +34,24 @@
 		}
 	}
 
-	@media screen and ( min-width: 744px ) {
-		padding: 64px;
+	// Typography
+
+	h2,
+	p {
+		margin: 0;
+		padding: 0;
+	}
+
+	h2 {
+		color: $dark-gray-900;
+		font-size: 17px;
+		font-weight: bold;
+		line-height: 24px;
+		margin-bottom: 32px;
+	}
+
+	p {
+		font-size: 14px;
+		line-height: 24px;
 	}
 }

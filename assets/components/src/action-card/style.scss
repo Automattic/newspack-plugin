@@ -7,9 +7,6 @@
 
 .newspack-card.newspack-action-card {
 	box-shadow: 0 4px 8px rgba( black, 0.08 );
-	color: $dark-gray-300;
-	font-size: 14px;
-	line-height: 24px;
 	padding: 16px;
 
 	// Clickable
@@ -20,24 +17,10 @@
 		}
 	}
 
-	// General styles
-
-	h2,
-	p {
-		margin: 0;
-		padding: 0;
-	}
+	// Typography
 
 	h2 {
-		color: $dark-gray-900;
-		font-size: 17px;
-		font-weight: bold;
-		line-height: 24px;
-	}
-
-	p {
-		font-size: 14px;
-		line-height: 24px;
+		margin-bottom: 0;
 	}
 
 	// Regions
