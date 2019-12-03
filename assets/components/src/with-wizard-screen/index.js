@@ -76,11 +76,11 @@ export default function withWizardScreen( WrappedComponent, config ) {
 					) }
 					{ ! hidden && (
 						<Grid>
-							<Card className="is-centered" noBackground>
+							<Card className="is-centered buttons-card" noBackground>
 								{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
 									<Handoff
 										isPrimary
-										className="is-centered muriel-wizardScreen__completeButton"
+										className="muriel-wizardScreen__completeButton"
 										{ ...retrievedButtonProps }
 									>
 										{ buttonText }
@@ -91,7 +91,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 									<Button
 										isPrimary={ ! buttonDisabled }
 										isDefault={ !! buttonDisabled }
-										className="is-centered muriel-wizardScreen__completeButton"
+										className="muriel-wizardScreen__completeButton"
 										disabled={ buttonDisabled }
 										{ ...retrievedButtonProps }
 									>
@@ -102,7 +102,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 								{ secondaryButtonText && (
 									<Button
 										{ ...secondaryButtonStyle }
-										className="is-centered"
+										className="is-link"
 										{ ...buttonProps( secondaryButtonAction ) }
 									>
 										{ secondaryButtonText }

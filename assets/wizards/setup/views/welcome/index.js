@@ -18,14 +18,22 @@ import './style.scss';
  * Location Setup Screen.
  */
 class Welcome extends Component {
+	componentDidMount() {
+		document.body.classList.add( "newspack_page_newspack-setup-wizard__welcome" );
+	}
+
+	componentWillUnmount() {
+    document.body.classList.remove( "newspack_page_newspack-setup-wizard__welcome" );
+  }
+
 	/**
 	 * Render.
 	 */
 	render() {
 		return (
 			<div className="newspack-setup-wizard__welcome">
-				<p>{ __( 'The following wizard will help you with the set up.' ) }</p>
-				<p>{ __( 'Clicking “Get started” will install core Newspack plugins and the theme in the background.') }</p>
+				<h2>{ __( 'Welcome to WordPress for your Newsroom' ) }</h2>
+				<p>{ __( 'We will help you get set up by installing the most relevant theme and plugins in the background.') }</p>
 			</div>
 		);
 	}
