@@ -83,18 +83,6 @@ body[class*="newspack_page_newspack-"] {
 	}
 }
 
-.newspack-wizard {
-	.newspack-logo-wrapper {
-		display: flex;
-		justify-content: center;
-		margin: 0;
-
-		.newspack-logo {
-			display: block;
-		}
-	}
-}
-
 .muriel-wizardScreen__loading {
 	.muriel-wizardScreen {
 		position: relative;
@@ -107,7 +95,7 @@ body[class*="newspack_page_newspack-"] {
 			left: 0;
 			right: 0;
 			bottom: 0;
-			background: $muriel-white;
+			background: white;
 			opacity: 0.8;
 			z-index: 102; /* Toggle arrows from Select components are at z-index: 101 */
 		}
