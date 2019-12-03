@@ -23,7 +23,7 @@ $primary_color_darker: #2240d5;
 	max-width: 1040px;
 	margin: 0 auto;
 	@media screen and ( max-width: 1262px ) {
-		margin: 0 24px 0 4px; // margin-left is 20px less to account for the padding enforced by #wpcontent container
+		margin: 0 24px;
 		transform: none;
 	}
 	@media screen and ( max-width: 1040px ) {
