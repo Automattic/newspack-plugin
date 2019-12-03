@@ -6,6 +6,27 @@ body[class*="newspack_page_newspack-"] {
 	#wpcontent {
 		padding-left: 0;
 	}
+}
+
+// Welcome Screen
+.newspack_page_newspack-setup-wizard__welcome {
+	#wpbody {
+		background: $primary-color;
+	}
+
+	#wpfooter {
+		color: #fff;
+
+		a {
+			color: inherit;
+
+			&:active,
+			&:focus,
+			&:hover {
+				opacity: 0.75;
+			}
+		}
+	}
 
 	// Temp fix on buttons/links
 	.muriel-button-is-centered-wrapper a,
@@ -66,7 +87,7 @@ body[class*="newspack_page_newspack-"] {
 	.newspack-logo-wrapper {
 		display: flex;
 		justify-content: center;
-		margin: 2em 0 0;
+		margin: 0;
 
 		.newspack-logo {
 			display: block;
