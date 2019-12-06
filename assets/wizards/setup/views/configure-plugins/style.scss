@@ -6,10 +6,6 @@
 @import '../../../../shared/scss/colors';
 
 .newspack-setup__configure-plugin-card {
-	h2 {
-		margin-bottom: 0;
-	}
-
 	.checklist__task-icon {
 		background-color: $primary-500;
 		border: 1px solid $primary-500;
@@ -23,7 +19,7 @@
 .newspack-service-link_status-container {
 	align-items: center;
 	display: flex;
-	margin-top: 32px;
+	margin: 32px 0;
 
 	svg {
 		display: block;

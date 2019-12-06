@@ -12,10 +12,10 @@
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
-	padding: 32px;
+	padding: 0 32px;
 
 	@media screen and ( min-width: 744px ) {
-		padding: 64px;
+		padding: 32px 64px;
 	}
 
 	&.newspack-card__no-background {
@@ -38,20 +38,18 @@
 
 	h2,
 	p {
-		margin: 0;
+		margin: 32px 0;
 		padding: 0;
+		line-height: 24px;
 	}
 
 	h2 {
 		color: $dark-gray-900;
 		font-size: 17px;
 		font-weight: bold;
-		line-height: 24px;
-		margin-bottom: 32px;
 	}
 
 	p {
 		font-size: 14px;
-		line-height: 24px;
 	}
 }
