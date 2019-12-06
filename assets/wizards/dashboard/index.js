@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { FormattedHeader, NewspackLogo } from '../../components/src';
+import { Grid, NewspackLogo } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
@@ -26,11 +26,11 @@ class Dashboard extends Component {
 				<div className="newspack-logo-wrapper">
 					<NewspackLogo />
 				</div>
-				<div className="newspack-dashboard-grid muriel-grid-container">
+				<Grid>
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
 					) ) }
-				</div>
+				</Grid>
 			</Fragment>
 		);
 	}
