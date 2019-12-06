@@ -76,42 +76,40 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						<Grid>
 							<Card className={ classes } noBackground={ noBackground }>
 								{ content }
-							</Card>
-						</Grid>
-					) }
-					{ ! hidden && (
-						<Grid>
-							<Card className="is-centered buttons-card" noBackground>
-								{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
-									<Handoff
-										isPrimary
-										className="muriel-wizardScreen__completeButton"
-										{ ...retrievedButtonProps }
-									>
-										{ buttonText }
-									</Handoff>
-								) }
-								{ notice }
-								{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
-									<Button
-										isPrimary={ ! buttonDisabled }
-										isDefault={ !! buttonDisabled }
-										className="muriel-wizardScreen__completeButton"
-										disabled={ buttonDisabled }
-										{ ...retrievedButtonProps }
-									>
-										{ buttonText }
-									</Button>
-								) }
-								{ footer }
-								{ secondaryButtonText && (
-									<Button
-										{ ...secondaryButtonStyle }
-										className="is-link"
-										{ ...buttonProps( secondaryButtonAction ) }
-									>
-										{ secondaryButtonText }
-									</Button>
+								{ ! hidden && (
+									<div className="newspack-buttons-card">
+										{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
+											<Handoff
+												isPrimary
+												className="muriel-wizardScreen__completeButton"
+												{ ...retrievedButtonProps }
+											>
+												{ buttonText }
+											</Handoff>
+										) }
+										{ notice }
+										{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
+											<Button
+												isPrimary={ ! buttonDisabled }
+												isDefault={ !! buttonDisabled }
+												className="muriel-wizardScreen__completeButton"
+												disabled={ buttonDisabled }
+												{ ...retrievedButtonProps }
+											>
+												{ buttonText }
+											</Button>
+										) }
+										{ footer }
+										{ secondaryButtonText && (
+											<Button
+												{ ...secondaryButtonStyle }
+												className="is-link"
+												{ ...buttonProps( secondaryButtonAction ) }
+											>
+												{ secondaryButtonText }
+											</Button>
+										) }
+									</div>
 								) }
 							</Card>
 						</Grid>
