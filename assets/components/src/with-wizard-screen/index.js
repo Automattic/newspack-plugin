@@ -103,7 +103,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 										{ secondaryButtonText && (
 											<Button
 												{ ...secondaryButtonStyle }
-												className="is-link"
+												isDefault
 												{ ...buttonProps( secondaryButtonAction ) }
 											>
 												{ secondaryButtonText }

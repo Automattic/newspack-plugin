@@ -24,6 +24,8 @@
 	}
 }
 
+// Buttons Card
+
 .newspack-buttons-card {
 	align-items: center;
 	border-top: 1px solid $light-gray-500;
@@ -39,5 +41,9 @@
 
 	&:empty {
 		display: none;
+	}
+
+	.is-button {
+		margin: 0;
 	}
 }
