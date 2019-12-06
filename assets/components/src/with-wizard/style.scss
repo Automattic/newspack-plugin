@@ -1,6 +1,11 @@
+/**
+ * With Wizard
+ */
+
 @import '../../../shared/scss/muriel-component';
 
 // Reset Padding of the Admin Page
+
 .toplevel_page_newspack,
 body[class*="newspack_page_newspack-"] {
 	#wpcontent {
@@ -9,6 +14,7 @@ body[class*="newspack_page_newspack-"] {
 }
 
 // Welcome Screen
+
 .newspack_page_newspack-setup-wizard__welcome {
 	#wpbody {
 		background: $primary-color;
@@ -30,6 +36,7 @@ body[class*="newspack_page_newspack-"] {
 }
 
 // Newspack Logo
+
 .newspack-logo-wrapper {
 	background: $primary-color;
 	color: white;
