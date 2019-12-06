@@ -245,6 +245,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'http://wordpress.org/extend/plugins/co-authors-plus/',
 				'Download'    => 'wporg',
 			],
+			'newspack-image-credits'        => [
+				'Name'        => 'Newspack Image Credits',
+				'Description' => 'Add photo credit info to images.',
+				'Author'      => 'Automattic, INN Labs, Project Argo',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-image-credits/releases/latest/download/newspack-image-credits.zip',
+			],
 		];
 
 		$default_info = [
