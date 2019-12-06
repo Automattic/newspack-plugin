@@ -27,27 +27,6 @@ body[class*="newspack_page_newspack-"] {
 			}
 		}
 	}
-
-	// Temp fix on buttons/links
-	.muriel-button-is-centered-wrapper a,
-	.muriel-button.is-link {
-		color: white;
-
-		&:focus {
-			background: transparent;
-		}
-	}
-
-	.muriel-button.is-primary {
-		background: white;
-		color: $primary-color;
-
-		&:active,
-		&:focus,
-		&:hover {
-			background: rgba(white, 0.75);
-		}
-	}
 }
 
 // Newspack Logo
