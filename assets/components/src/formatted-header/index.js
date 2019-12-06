@@ -3,19 +3,19 @@
  */
 
 /**
- * WordPress dependencies.
+ * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import './style.scss';
 
 /**
- * Internal dependencies.
+ * External dependencies
  */
-import './style.scss';
+import classNames from 'classnames';
 
 class FormattedHeader extends Component {
 	/**
@@ -23,17 +23,17 @@ class FormattedHeader extends Component {
 	 */
 	render() {
 		const { className, headerIcon, headerText, subHeaderText } = this.props;
-		const classes = murielClassnames( 'muriel-formatted-header', className, !! subHeaderText ? 'has-subheader' : null );
+		const classes = classNames( 'newspack-formatted-header', className );
 		return (
 			<header className={ classes }>
-				<h1 className="muriel-formatted-header__title">
+				<h1 className="newspack-formatted-header__title">
 					{ headerIcon && (
-						<span className="muriel-formatted-header__icon">{ headerIcon }</span>
+						<span className="newspack-formatted-header__icon">{ headerIcon }</span>
 					) }
 					{ headerText }
 				</h1>
 				{ subHeaderText && (
-					<h2 className="muriel-formatted-header__subtitle">{ subHeaderText }</h2>
+					<p className="newspack-formatted-header__subtitle">{ subHeaderText }</p>
 				) }
 			</header>
 		);
