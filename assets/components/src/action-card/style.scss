@@ -12,8 +12,10 @@
 	// Clickable
 
 	&.newspack-card__is-clickable {
+		transition: box-shadow 125ms ease-in-out;
+
 		&:hover {
-			box-shadow: 0 4px 8px rgba( black, 0.16 );
+			box-shadow: 0 4px 8px rgba( black, 0.24 );
 		}
 	}
 
