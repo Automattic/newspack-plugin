@@ -19,6 +19,12 @@
 		}
 	}
 
+	// Unsupported
+
+	&.newspack-card__is-unsupported {
+		border-left: 4px solid $alert-red;
+	}
+
 	// Typography
 
 	h2,
@@ -156,7 +162,7 @@
 	}
 
 	// Multiple Cards
-	
+
 	& + & {
 		margin-top: -16px;
 	}
