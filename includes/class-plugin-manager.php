@@ -165,6 +165,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://wordpress.org/plugins/wp-user-avatar/',
 				'Download'    => 'wporg',
 			],
+			'super-cool-ad-inserter'        => [
+				'Name'        => __( 'Super Cool Ad Inserter Plugin', 'newspack' ),
+				'Description' => __( 'This WordPress plugin gives site administrators a way to insert widgets such as ads, newsletter signups, or calls to action into posts at set intervals.', 'newspack' ),
+				'Author'      => 'INN Labs',
+				'AuthorURI'   => 'https://labs.inn.org/',
+				'PluginURI'   => 'https://wordpress.org/plugins/super-cool-ad-inserter/',
+				'Download'    => 'wporg',
+			],
 			'fake-plugin'                   => [
 				'Name'        => 'Fake Plugin',
 				'Description' => 'This is a made-up plugin, meant to error out.',
