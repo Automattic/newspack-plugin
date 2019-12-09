@@ -32,6 +32,7 @@ class RemoveUnsupportedPlugins extends Component {
 								title={ unsupportedPlugin.Name }
 								key={ unsupportedPlugin.Slug }
 								description={ unsupportedPlugin.Description }
+								className= "newspack-card__is-unsupported"
 							/>
 						) ) }
 						<Button isPrimary onClick={ deactivateAllPlugins }>
