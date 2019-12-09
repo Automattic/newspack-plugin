@@ -154,4 +154,10 @@
 		text-transform: uppercase;
 		vertical-align: middle;
 	}
+
+	// Multiple Cards
+	
+	& + & {
+		margin-top: -16px;
+	}
 }
