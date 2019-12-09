@@ -79,6 +79,7 @@ class HealthCheckWizard extends Component {
 									headerIcon={ headerIcon }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
+									noBackground
 									deactivateAllPlugins={ this.deactivateAllPlugins }
 									unsupportedPlugins={
 										unsupportedPlugins &&
