@@ -66,4 +66,10 @@
 			margin-left: 8px;
 		}
 	}
+
+	// Multiple Cards
+
+	& + & {
+		margin-top: -16px;
+	}
 }
