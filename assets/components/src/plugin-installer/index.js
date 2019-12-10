@@ -202,6 +202,7 @@ class PluginInstaller extends Component {
 								onClick={ onClick }
 								notification={ notification }
 								notificationLevel="error"
+								className="newspack-action-card__plugin-installer"
 							/>
 						);
 					} ) }
