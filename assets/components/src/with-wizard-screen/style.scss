@@ -31,9 +31,10 @@
 	border-top: 1px solid $light-gray-500;
 	display: flex;
 	flex-direction: row-reverse;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	margin: 48px -48px -16px;
-	padding: 16px;
+	padding: 8px;
 
 	@media screen and ( min-width: 744px ) {
 		margin: 64px -64px -32px;
@@ -44,6 +45,6 @@
 	}
 
 	.is-button {
-		margin: 0;
+		margin: 8px;
 	}
 }
