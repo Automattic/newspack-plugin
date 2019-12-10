@@ -11,6 +11,7 @@ import { Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { PluginInstaller, withWizardScreen } from '../../../../components/src';
+import './style.scss';
 
 /**
  * Plugin Installation Screen.
