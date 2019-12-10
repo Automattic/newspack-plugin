@@ -13,7 +13,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ActionCard, withWizardScreen } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Advertising management screen.
@@ -27,10 +26,9 @@ class Services extends Component {
 		const { wordads, google_adsense, google_ad_manager } = services;
 		return (
 			<Fragment>
-				<ActionCard
-					description={ __( 'Please enable and configure the ad providers you’d like to use to get started.' ) }
-					className="newspack-description-card"
-				/>
+				<p>
+					{ __( 'Please enable and configure the ad providers you’d like to use to get started.' ) }
+				</p>
 				<ActionCard
 					title={ __( 'WordAds from WordPress.com' ) }
 					badge={ __( 'Jetpack Premium' ) }
