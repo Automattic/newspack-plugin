@@ -46,13 +46,11 @@ class AnalyticsWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Intro
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Analytics', 'newspack' ) }
 									subHeaderText={ __( 'Track traffic and activity') }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
+									buttonText={ __( 'Back to dashboard' ) }
+									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
 							) }
 						/>
