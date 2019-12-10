@@ -336,7 +336,6 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Services
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
@@ -349,9 +348,8 @@ class AdvertisingWizard extends Component {
 											<ExternalLink url="#">{ __( 'Learn more' ) }</ExternalLink>
 										</p>
 									}
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
+									buttonText={ __( 'Back to dashboard' ) }
+									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
 							) }
 						/>
@@ -370,9 +368,8 @@ class AdvertisingWizard extends Component {
 										this.togglePlacement( placement, value )
 									}
 									tabbedNavigation={ tabs }
-									secondaryButtonText={ __( 'Back to all ad units' ) }
-									secondaryButtonAction="#/"
-									secondaryButtonStyle={ { isDefault: true } }
+									buttonText={ __( 'Back to all ad units' ) }
+									buttonAction="#/"
 								/>
 							) }
 						/>
@@ -381,7 +378,6 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<AdUnits
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									adUnits={ adUnits }
@@ -445,7 +441,6 @@ class AdvertisingWizard extends Component {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
-										noBackground
 									/>
 								);
 							} }
@@ -468,7 +463,6 @@ class AdvertisingWizard extends Component {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
-										noBackground
 									/>
 								);
 							} }
@@ -483,10 +477,8 @@ class AdvertisingWizard extends Component {
 										subHeaderText={ __(
 											'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.'
 										) }
-										noBackground
-										secondaryButtonText={ __( 'Back to advertising options' ) }
-										secondaryButtonAction="#/"
-										secondaryButtonStyle={ { isTertiary: true } }
+										buttonText={ __( 'Back to advertising options' ) }
+										buttonAction="#/"
 									/>
 								</Fragment>
 							) }
