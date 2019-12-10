@@ -4,9 +4,10 @@
 
 .newspack-card:not(.newspack-card__no-background) {
 	.newspack-card.newspack-action-card {
-    // Margin against Buttons Card
+    // Against Buttons Card
 
 		&:last-of-type {
+			border-radius: 0;
 			margin-bottom: -48px;
 
 			@media screen and ( min-width: 744px ) {
