@@ -30,15 +30,14 @@ class AdSense extends Component {
 				{ complete && (
 					<div className='newspack-google-adsense-wizard__success'>
 						<Dashicon icon="yes-alt" />
-						<h4>{ __( 'AdSense is set up' ) }</h4>
+						<p>{ __( 'AdSense is set up' ) }</p>
 					</div>
 				) }
 				<Handoff
 					plugin='google-site-kit'
 					editLink='admin.php?page=googlesitekit-module-adsense'
 					className='is-centered'
-					isPrimary={ ! complete }
-					isDefault={ !! complete }
+					isDefault
 				>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
 			</Fragment>
 		);
