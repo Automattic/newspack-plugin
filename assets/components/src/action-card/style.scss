@@ -167,3 +167,40 @@
 		margin-top: -16px;
 	}
 }
+
+.newspack-card:not(.newspack-card__no-background) {
+	.newspack-card.newspack-action-card {
+		border-bottom: 1px solid $light-gray-500;
+		border-radius: 0;
+		box-shadow: none;
+		margin: 0 -48px;
+		padding: 16px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-left: -64px;
+			margin-right: -64px;
+			padding: 32px;
+		}
+
+		& + & {
+			margin-top: 0;
+		}
+
+		&:first-of-type {
+			margin-top: -16px;
+
+			@media screen and ( min-width: 744px ) {
+				margin-top: -32px;
+			}
+		}
+
+		&:last-of-type {
+			border-bottom: 0;
+			margin-bottom: -16px;
+
+			@media screen and ( min-width: 744px ) {
+				margin-bottom: -32px;
+			}
+		}
+	}
+}
