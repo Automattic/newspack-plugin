@@ -22,6 +22,11 @@ const PLUGIN_STATE_INSTALLING = 2;
 const PLUGIN_STATE_ERROR = 3;
 
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * Plugin installer.
  */
 class PluginInstaller extends Component {
@@ -191,6 +196,10 @@ class PluginInstaller extends Component {
 								</span>
 							);
 						}
+						const classes = classNames(
+							'newspack-action-card__plugin-installer',
+							Status
+						);
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
 							<ActionCard
@@ -202,7 +211,7 @@ class PluginInstaller extends Component {
 								onClick={ onClick }
 								notification={ notification }
 								notificationLevel="error"
-								className="newspack-action-card__plugin-installer"
+								className={ classes }
 							/>
 						);
 					} ) }
