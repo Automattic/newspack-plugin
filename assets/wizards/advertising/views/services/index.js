@@ -27,9 +27,10 @@ class Services extends Component {
 		const { wordads, google_adsense, google_ad_manager } = services;
 		return (
 			<Fragment>
-				<p>
-					{ __( 'Please enable and configure the ad providers you’d like to use to get started.' ) }
-				</p>
+				<ActionCard
+					description={ __( 'Please enable and configure the ad providers you’d like to use to get started.' ) }
+					className="newspack-description-card"
+				/>
 				<ActionCard
 					title={ __( 'WordAds from WordPress.com' ) }
 					badge={ __( 'Jetpack Premium' ) }

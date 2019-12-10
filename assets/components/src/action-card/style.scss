@@ -161,6 +161,11 @@
 		vertical-align: middle;
 	}
 
+	// Description Card
+	&.newspack-description-card {
+		font-style: italic;
+	}
+
 	// Multiple Cards
 
 	& + & {
