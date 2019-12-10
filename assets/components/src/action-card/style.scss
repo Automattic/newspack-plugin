@@ -170,6 +170,7 @@
 
 .newspack-card:not(.newspack-card__no-background) {
 	.newspack-card.newspack-action-card {
+		background: transparent;
 		border-bottom: 1px solid $light-gray-500;
 		border-radius: 0;
 		box-shadow: none;
@@ -187,6 +188,7 @@
 		}
 
 		&:first-of-type {
+			border-radius: 4px 4px 0 0;
 			margin-top: -16px;
 
 			@media screen and ( min-width: 744px ) {
@@ -197,6 +199,7 @@
 		&:last-of-type {
 			border-bottom: 0;
 			margin-bottom: -16px;
+			border-radius: 0 0 4px 4px;
 
 			@media screen and ( min-width: 744px ) {
 				margin-bottom: -32px;
