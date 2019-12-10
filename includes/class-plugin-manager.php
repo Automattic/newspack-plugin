@@ -261,6 +261,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-image-credits/releases/latest/download/newspack-image-credits.zip',
 			],
+			'newspack-popups'               => [
+				'Name'        => 'Newspack Popups',
+				'Description' => 'AMP-compatible popup notifications.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-popups/releases/latest/download/newspack-popups.zip',
+			],
 		];
 
 		$default_info = [
