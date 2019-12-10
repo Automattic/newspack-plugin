@@ -27,11 +27,9 @@ class Dashboard extends Component {
 					<NewspackLogo />
 				</div>
 				<Grid>
-					<Card>
-						{ items.map( card => (
-							<DashboardCard { ...card } key={ card.slug } />
-						) ) }
-					</Card>
+					{ items.map( card => (
+						<DashboardCard { ...card } key={ card.slug } />
+					) ) }
 				</Grid>
 			</Fragment>
 		);
