@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ActionCard, withWizardScreen } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Syndication Intro screen.
