@@ -6,35 +6,8 @@
 @import '../../shared/scss/colors';
 
 .newspack-dashboard-card {
-	border-bottom: 1px solid $light-gray-500;
-	border-radius: 0;
-	box-shadow: none;
+	box-shadow: 0 4px 8px rgba( black, 0.08 );
 	padding: 0;
-	margin: 0 -48px;
-
-	@media screen and ( min-width: 744px ) {
-		margin-left: -64px;
-		margin-right: -64px;
-	}
-
-	&:first-of-type {
-		border-radius: 4px 4px 0 0;
-		margin-top: -16px;
-
-		@media screen and ( min-width: 744px ) {
-			margin-top: -32px;
-		}
-	}
-
-	&:last-of-type {
-		border-radius: 0 0 4px 4px;
-		border-bottom: 0;
-		margin-bottom: -16px;
-
-		@media screen and ( min-width: 744px ) {
-			margin-bottom: -32px;
-		}
-	}
 
 	&.disabled {
 		> * {
@@ -49,12 +22,13 @@
 		display: flex;
 		justify-content: space-between;
 		text-decoration: none;
-		transition: background-color 125ms ease-in-out;
+		transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
 
 		&:active,
 		&:focus,
 		&:hover {
 			background-color: $light-gray-100;
+			box-shadow: 0 4px 8px rgba( black, 0.16 );
 
 			@media screen and ( min-width: 744px ) {
 				> svg {
@@ -64,17 +38,12 @@
 		}
 
 		&:focus {
-			box-shadow: inset 0 0 0 2px $primary-500;
 			outline: none;
 		}
 
 		> svg {
 			margin: 16px;
 			transition: transform 125ms ease-in-out;
-
-			@media screen and ( min-width: 744px ) {
-				margin: 32px;
-			}
 		}
 	}
 
@@ -101,10 +70,6 @@
 		justify-content: flex-start;
 		padding: 16px;
 
-		@media screen and ( min-width: 744px ) {
-			padding: 32px;
-		}
-
 		svg {
 			height: 48px;
 			margin-right: 8px;
@@ -114,5 +79,11 @@
 		.newspack-dashboard-card__header {
 			margin-left: 8px;
 		}
+	}
+
+	// Multiple Cards
+
+	& + & {
+		margin-top: -16px;
 	}
 }
