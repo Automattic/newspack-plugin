@@ -1,0 +1,27 @@
+/**
+ * Services
+ */
+
+@import '~@wordpress/base-styles/colors';
+
+.newspack-card:not(.newspack-card__no-background) {
+	.newspack-card.newspack-action-card {
+    // Margin against Paragraph
+
+    &:first-of-type {
+      border-radius: 0;
+      border-top: 1px solid $light-gray-500;
+      margin-top: 64px;
+    }
+
+    // Margin against Buttons Card
+
+		&:last-of-type {
+			margin-bottom: -48px;
+
+			@media screen and ( min-width: 744px ) {
+				margin-bottom: -64px;
+			}
+		}
+	}
+}
