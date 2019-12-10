@@ -1,37 +1,50 @@
 /**
- * Tabbed Navigation Styles.
+ * Tabbed Navigation
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/colors';
 
-.muriel-tabbed-navigation {
-	margin-bottomn: 0;
-	box-shadow: none;
-	background: transparent;
-	padding: 0;
+.newspack-tabbed-navigation {
+	margin-bottom: -32px;
+
 	ul {
 		display: flex;
-		margin: 0;
-		border-bottom: 1px solid $muriel-gray-100;
+		margin: 0 8px;
 	}
-	a {
-		color: black;
-		display: flex;
-		height: calc( 100% - 1em );
-		justify-content: center;
-		font-size: 12px;
-		margin: 0;
-		padding: 0 2em 1em 2em;
-		text-decoration: none;
-		&.selected {
-			border-bottom: 2px solid $primary_color;
-		}
-	}
+
 	li {
-		margin: 0;
+		margin: 0 8px;
 		padding: 0;
 		display: inline-block;
 		flex: 1;
 		text-align: center;
+	}
+
+	a {
+		background: $light-gray-500;
+		border-radius: 4px 4px 0 0;
+		color: $dark-gray-900;
+		display: flex;
+		justify-content: center;
+		margin: 0;
+		padding: 8px;
+		text-decoration: none;
+
+		&:active,
+		&:focus,
+		&:hover {
+			background: white;
+		}
+
+		&:focus {
+			outline: none;
+			box-shadow: inset 0 0 0 2px $primary-500;
+		}
+
+		&.selected {
+			background: white;
+			color: $primary-500;
+		}
 	}
 }
