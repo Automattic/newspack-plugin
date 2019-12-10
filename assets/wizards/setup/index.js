@@ -390,7 +390,6 @@ class SetupWizard extends Component {
 							<InstallationProgress
 								autoInstall={ '/' !== routeProps.location.pathname }
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
-								noBackground
 								headerText={ __( 'Installation...' ) }
 								subHeaderText={ __(
 									'You’re almost done. Please configure the following core plugins to start using Newspack.'
