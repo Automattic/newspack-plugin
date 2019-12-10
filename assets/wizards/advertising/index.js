@@ -345,6 +345,7 @@ class AdvertisingWizard extends Component {
 									footer={
 										<p>
 											{ __( 'Not sure which ad service is right for you?' ) }
+											{ '\u00A0' }
 											<ExternalLink url="#">{ __( 'Learn more' ) }</ExternalLink>
 										</p>
 									}
