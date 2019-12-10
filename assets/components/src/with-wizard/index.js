@@ -244,8 +244,8 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 						/>
 						{ buttonText && buttonAction && (
 							<Button
-								isTertiary
-								className="is-centered muriel-wizardScreen__subCompleteButton"
+								isPrimary
+								className="is-centered"
 								{ ...buttonProps( buttonAction ) }
 							>
 								{ buttonText }
