@@ -23,7 +23,7 @@ class RevenueMain extends Component {
 	render() {
 		return (
 			<div>
-				<h3>{ __( 'Accept donations on your site' ) }</h3>
+				<h2>{ __( 'Accept donations on your site' ) }</h2>
 				<p>{ __( 'Newspack can help you set up a donations page and accept one-time or recurring payments from your readers.' ) }</p>
 			</div>
 		);
