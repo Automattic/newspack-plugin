@@ -21,6 +21,7 @@ import {
 	FormattedHeader,
 	Handoff,
 	NewspackLogo,
+	Notice,
 	TextControl,
 	PluginInstaller,
 	ProgressBar,
@@ -131,7 +132,7 @@ class ComponentsDemo extends Component {
 						</Handoff>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Notice/Modal' ) } />
+						<FormattedHeader headerText={ __( 'Modal' ) } />
 						<Button
 							className="is-centered"
 							isTertiary
@@ -157,6 +158,34 @@ class ComponentsDemo extends Component {
 								</Button>
 							</Modal>
 						) }
+					</Card>
+					<Card>
+						<FormattedHeader headerText={ __( 'Notice' ) } />
+						<Notice
+							noticeText={ __( 'This is a Primary info notice.' ) }
+							isPrimary
+						/>
+						<Notice
+							noticeText={ __( 'This is an info notice.' ) }
+						/>
+						<Notice
+							noticeText={ __( 'This is a Primary error notice.' ) }
+							isError
+							isPrimary
+						/>
+						<Notice
+							noticeText={ __( 'This is an error notice.' ) }
+							isError
+						/>
+						<Notice
+							noticeText={ __( 'This is a Primary success notice.' ) }
+							isSuccess
+							isPrimary
+						/>
+						<Notice
+							noticeText={ __( 'This is a success notice.' ) }
+							isSuccess
+						/>
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
