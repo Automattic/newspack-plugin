@@ -4,19 +4,10 @@
 
 @import "~@wordpress/base-styles/colors";
 
-.newspack-card {
-	.newspack-card.newspack-action-card__plugin-installer {
-		border-left: 4px solid $light-gray-200;
-
-		&.active {
-			border-left-color: $alert-green;
-		}
-	}
-}
-
+.newspack-card,
 .newspack-card:not(.newspack-card__no-background) {
 	.newspack-card.newspack-action-card__plugin-installer {
-		border-left: 4px solid $light-gray-500;
+		border-left: 4px solid $light-gray-200;
 
 		&.active {
 			border-left-color: $alert-green;
