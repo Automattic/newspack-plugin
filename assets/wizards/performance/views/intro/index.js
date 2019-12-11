@@ -27,11 +27,12 @@ class Intro extends Component {
 			<div className='muriel-wizardScreen muriel-wizardScreen__no-background'>
 				<Grid>
 					<Card>
-						<h3>{ __( 'Increase user engagement' ) }</h3>
+						<h2>{ __( 'Increase user engagement' ) }</h2>
 						<p>
 							{ __( 'Engage with your audience more by letting them add the site to their home screen and use it offline.' ) }
 						</p>
-						<h3>{ __( 'Automatic performance enhancements' ) }</h3>
+						<hr />
+						<h2>{ __( 'Automatic performance enhancements' ) }</h2>
 						<div className="newspack-performance-wizard__info-block dashicons-before dashicons-info">
 							<p>
 								{ __(
@@ -64,17 +65,14 @@ class Intro extends Component {
 								</div>
 							) }
 						</div>
-					</Card>
-					<Card>
-						<h3>{ __( 'Site icon' ) }</h3>
-						<div className="newspack-performance-wizard__info-block dashicons-before dashicons-info">
-							<p>{ __( 'Your site icon is the icon your site has when installed as an app.' ) }</p>
-							<p><em>{ __( 'Site icons should be square and at least 144 × 144 pixels.' ) }</em></p>
-							<ImageUpload
-								image={ settings.site_icon }
-								onChange={ image => updateSiteIcon( image ) }
-							/>
-						</div>
+						<hr />
+						<h2>{ __( 'Site icon' ) }</h2>
+						<p>{ __( 'Your site icon is the icon your site has when installed as an app.' ) }</p>
+						<p><em>{ __( 'Site icons should be square and at least 144 × 144 pixels.' ) }</em></p>
+						<ImageUpload
+							image={ settings.site_icon }
+							onChange={ image => updateSiteIcon( image ) }
+						/>
 					</Card>
 				</Grid>
 			</div>
