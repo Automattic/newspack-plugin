@@ -177,5 +177,11 @@
 	.newspack-card.newspack-action-card {
 		border: 1px solid $light-gray-200;
 		box-shadow: none;
+
+		// Unsupported
+
+		&.newspack-card__is-unsupported {
+			border-left: 4px solid $alert-red;
+		}
 	}
 }
