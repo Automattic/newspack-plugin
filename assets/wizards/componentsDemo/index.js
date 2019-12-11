@@ -203,7 +203,7 @@ class ComponentsDemo extends Component {
 							/>
 						) }
 					</Card>
-					<Card noBackground>
+					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
 						<PluginInstaller
 							plugins={ [
