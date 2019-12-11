@@ -38,7 +38,7 @@ class RemoveUnsupportedPlugins extends Component {
 			<Fragment>
 				{ unsupportedPlugins && unsupportedPlugins.length > 0 && (
 					<Fragment>
-						<p class="newspack-text-intro is-unhealthy">
+						<p className="newspack-text-intro is-unhealthy">
 							{ unhealthyIcon }
 							{ __( 'Newspack does not support these plugins:' ) }
 						</p>
@@ -59,7 +59,7 @@ class RemoveUnsupportedPlugins extends Component {
 				) }
 				{ unsupportedPlugins && unsupportedPlugins.length === 0 && (
 					<Fragment>
-						<p class="newspack-text-intro is-healthy">
+						<p className="newspack-text-intro is-healthy">
 							{ healthyIcon }
 							{ __( 'No unsupported plugins found.' ) }
 						</p>
