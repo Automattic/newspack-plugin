@@ -52,4 +52,17 @@
 	p {
 		font-size: 14px;
 	}
+
+	// Thematic Break
+
+	hr {
+		background: $light-gray-500;
+		border: 0;
+		height: 1px;
+		margin: 48px -48px;
+
+		@media screen and ( min-width: 744px ) {
+			margin: 64px -64px;
+		}
+	}
 }
