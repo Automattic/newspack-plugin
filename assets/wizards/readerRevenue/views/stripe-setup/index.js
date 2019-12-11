@@ -41,9 +41,9 @@ class StripeSetup extends Component {
 				/>
 				{ enabled && (
 					<Fragment>
-						<h3 className="newspack-payment-setup-screen__settings-heading">
+						<h2 className="newspack-payment-setup-screen__settings-heading">
 							{ __( 'Stripe settings' ) }
-						</h3>
+						</h2>
 						<CheckboxControl
 							label={ __( 'Use Stripe in test mode' ) }
 							checked={ testMode }
