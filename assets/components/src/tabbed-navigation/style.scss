@@ -16,7 +16,7 @@
 	li {
 		margin: 0 8px;
 		padding: 0;
-		display: inline-block;
+		display: block;
 		flex: 1;
 		text-align: center;
 	}
@@ -24,9 +24,10 @@
 	a {
 		background: $light-gray-500;
 		border-radius: 4px 4px 0 0;
+		box-sizing: border-box;
 		color: $dark-gray-900;
-		display: flex;
-		justify-content: center;
+		display: block;
+		height: 100%;
 		margin: 0;
 		padding: 8px;
 		text-decoration: none;
