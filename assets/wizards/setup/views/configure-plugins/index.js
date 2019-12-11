@@ -58,8 +58,8 @@ class ConfigurePlugins extends Component {
 					</p>
 					{ pluginConfigured && (
 						<div className="newspack-service-link_status-container">
-							{ __( 'Plugin configuration complete' ) }
 							{ activeIcon }
+							{ __( 'Plugin configuration complete' ) }
 						</div>
 					) }
 				</div>
