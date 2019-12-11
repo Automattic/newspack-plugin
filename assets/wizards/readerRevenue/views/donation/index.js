@@ -35,7 +35,7 @@ class Donation extends Component {
 		} = data;
 		return (
 			<div className="newspack-donations-wizard">
-				<h3>{ __( 'Suggested donations' ) }</h3>
+				<h2>{ __( 'Suggested donations' ) }</h2>
 				<p className="newspack-donations-wizard__help">
 					{ __(
 						'Set a suggested monthly donation amount. This will provide hints to readers about how much to donate, which will increase the average donation amount.'
@@ -46,7 +46,7 @@ class Donation extends Component {
 						checked={ tiered }
 						onChange={ tiered => onChange( { ...data, tiered } ) }
 					/>
-					<h4>{ __( 'Suggest low, middle, and high tiers for monthly donations' ) }</h4>
+					<span>{ __( 'Suggest low, middle, and high tiers for monthly donations' ) }</span>
 				</div>
 				{ tiered && (
 					<div className="newspack-donations-wizard__tier-suggested-prices">
