@@ -5,14 +5,21 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-memberships-page-wizard-wizard__notice {
-	align-items: center;
+	align-items: flex-start;
 	display: flex;
 	justify-content: flex-start;
 	margin: 32px 0;
 
 	svg {
 		display: block;
-		fill: $alert-green;
-		margin-left: 4px;
+		fill: $alert-red;
+		flex: 0 0 24px;
+		margin-right: 4px;
+	}
+
+	&.setup-success {
+		svg {
+			fill: $alert-green;
+		}
 	}
 }
