@@ -23,14 +23,14 @@ import './style.scss';
 import { Redirect, Route } from 'react-router-dom';
 import { isFunction } from 'lodash';
 
-export default function withWizard( WrappedComponent, requiredPlugins ) {
+export default function withWizard( WrappedComponent, requiredPlugins, options ) {
 	return class extends Component {
 		constructor( props ) {
 			super( props );
 			this.state = {
 				complete: null,
 				error: null,
-				loading: requiredPlugins ? 1 : 0,
+				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -230,9 +230,13 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				<Fragment>
 					{ this.getError() }
 					<div className="newspack-logo-wrapper">
-						<a href={ newspack_urls && newspack_urls.dashboard }>
+						{ options && options.suppressLogoLink ? (
 							<NewspackLogo />
-						</a>
+						) : (
+							<a href={ newspack_urls && newspack_urls.dashboard }>
+								<NewspackLogo />
+							</a>
+						) }
 					</div>
 					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
 						<WrappedComponent
@@ -250,10 +254,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							<Grid>
 								<Card noBackground>
 									<div className="newspack-buttons-card">
-										<Button
-											isPrimary
-											{ ...buttonProps( buttonAction ) }
-										>
+										<Button isPrimary { ...buttonProps( buttonAction ) }>
 											{ buttonText }
 										</Button>
 									</div>
