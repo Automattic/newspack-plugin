@@ -7,7 +7,7 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { Dashicon, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
