@@ -99,7 +99,6 @@ class PerformanceWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Intro
-								noCard
 								headerIcon={ headerIcon }
 								headerText={ __( 'Performance options' ) }
 								subHeaderText={ __(
@@ -107,6 +106,8 @@ class PerformanceWizard extends Component {
 								) }
 								settings={ settings }
 								updateSiteIcon={ icon => this.updateSiteIcon( icon ) }
+								buttonText={ __( 'Back to dashboard' ) }
+								buttonAction={ window && window.newspack_urls.dashboard }
 							/>
 						) }
 					/>
@@ -118,9 +119,6 @@ class PerformanceWizard extends Component {
 }
 
 render(
-	createElement( withWizard( PerformanceWizard, [ 'pwa', 'progressive-wp' ] ), {
-		buttonText: __( 'Back to dashboard' ),
-		buttonAction: newspack_urls[ 'dashboard' ],
-	} ),
+	createElement( withWizard( PerformanceWizard, [ 'pwa', 'progressive-wp' ] ) ),
 	document.getElementById( 'newspack-performance-wizard' )
 );
