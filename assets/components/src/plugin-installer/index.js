@@ -241,7 +241,7 @@ class PluginInstaller extends Component {
 						);
 					} ) }
 				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
-					<div class="newspack-buttons-card">
+					<div className="newspack-buttons-card">
 						<Button
 							disabled={ ! needsInstall }
 							isPrimary
