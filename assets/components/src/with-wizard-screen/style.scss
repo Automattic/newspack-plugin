@@ -49,3 +49,11 @@
 		margin: 8px;
 	}
 }
+
+.newspack-card.newspack-card__no-background {
+	.newspack-buttons-card {
+		border-top: 0;
+		margin: -8px;
+		padding: 0;
+	}
+}
