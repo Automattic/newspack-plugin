@@ -9,8 +9,27 @@
 	.newspack-card.newspack-action-card__plugin-installer {
 		border-left: 4px solid $light-gray-200;
 
-		&.active {
+		.newspack-plugin-installer__status {
+			display: flex;
+			align-items: center;
+
+			svg {
+				display: block;
+				fill: $light-gray-900;
+				margin-left: 4px;
+			}
+		}
+
+		&.newspack-plugin-installer__status-active {
 			border-left-color: $alert-green;
+
+			svg {
+				fill: $alert-green;
+			}
+		}
+
+		&.newspack-plugin-installer__status-error {
+			border-left-color: $alert-red;
 		}
 	}
 }
@@ -23,23 +42,6 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-	}
-}
-
-.newspack_plugin-installer__content {
-	display: flex;
-	align-items: center;
-
-	svg {
-		display: block;
-		fill: $light-gray-900;
-		margin-left: 4px;
-	}
-
-	&.is-active {
-		svg {
-			fill: $alert-green;
-		}
 	}
 }
 
