@@ -26,7 +26,7 @@ class Intro extends Component {
 				<ActionCard
 					title={ __( 'Apple News' ) }
 					description={ __(
-						'Description TK'
+						'Export and sync posts to Apple format.'
 					) }
 					actionText={ __( 'Configure' ) }
 					handoff="publish-to-apple-news"
@@ -34,7 +34,7 @@ class Intro extends Component {
 				<ActionCard
 					title={ __( 'Facebook Instant Articles' ) }
 					description={ __(
-						'Description TK'
+						'Add support for Instant Articles for Facebook to your WordPress site.'
 					) }
 					actionText={ __( 'Configure' ) }
 					handoff="fb-instant-articles"
