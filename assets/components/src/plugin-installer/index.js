@@ -134,6 +134,23 @@ class PluginInstaller extends Component {
 		} );
 	};
 
+	classForInstallationStatus = status =>  {
+		switch ( status ) {
+			case PLUGIN_STATE_ACTIVE:
+				return 'newspack_plugin-installer__status_active';
+				break;
+			case PLUGIN_STATE_INSTALLING:
+				return 'newspack_plugin-installer__status_installing';
+				break;
+			case PLUGIN_STATE_ERROR:
+				return 'newspack_plugin-installer__status_error';
+				break;
+			default:
+				return 'newspack_plugin-installer__status_none';
+				break;
+		}
+	}
+
 	/**
 	 * Render.
 	 */
@@ -203,9 +220,11 @@ class PluginInstaller extends Component {
 								</span>
 							);
 						}
+
 						const classes = classNames(
 							'newspack-action-card__plugin-installer',
-							Status
+							Status,
+							this.classForInstallationStatus( installationStatus ),
 						);
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
