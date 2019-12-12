@@ -245,13 +245,18 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 						{ buttonText && buttonAction && (
-							<Button
-								isPrimary
-								className="is-centered"
-								{ ...buttonProps( buttonAction ) }
-							>
-								{ buttonText }
-							</Button>
+							<Grid>
+								<Card noBackground>
+									<div className="newspack-buttons-card">
+										<Button
+											isPrimary
+											{ ...buttonProps( buttonAction ) }
+										>
+											{ buttonText }
+										</Button>
+									</div>
+								</Card>
+							</Grid>
 						) }
 					</div>
 				</Fragment>
