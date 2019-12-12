@@ -223,14 +223,15 @@ class PluginInstaller extends Component {
 						);
 					} ) }
 				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
-					<Button
-						disabled={ ! needsInstall }
-						isPrimary
-						className="is-centered"
-						onClick={ this.installAllPlugins }
-					>
-						{ __( 'Install' ) }
-					</Button>
+					<div class="newspack-buttons-card">
+						<Button
+							disabled={ ! needsInstall }
+							isPrimary
+							onClick={ this.installAllPlugins }
+						>
+							{ __( 'Install' ) }
+						</Button>
+					</div>
 				) }
 			</div>
 		);
