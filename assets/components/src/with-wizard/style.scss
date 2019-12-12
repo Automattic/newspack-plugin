@@ -2,7 +2,7 @@
  * With Wizard
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
 
 // Reset Padding of the Admin Page
 
@@ -33,7 +33,7 @@ body[class*="newspack_page_newspack-"] {
 
 .newspack_page_newspack-setup-wizard__welcome {
 	#wpwrap {
-		background: $primary-color;
+		background: $primary-500;
 	}
 
 	#wpfooter {
@@ -58,7 +58,7 @@ body[class*="newspack_page_newspack-"] {
 // Newspack Logo
 
 .newspack-logo-wrapper {
-	background: $primary-color;
+	background: $primary-500;
 	color: white;
 	display: flex;
 	justify-content: center;
@@ -66,9 +66,26 @@ body[class*="newspack_page_newspack-"] {
 	padding: 32px;
 	position: relative;
 
+	a {
+		color: inherit;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $primary-100;
+		}
+
+		&:focus {
+			box-shadow: none;
+			outline: 2px solid white;
+			outline-offset: 4px;
+		}
+	}
+
 	svg {
 		display: block;
 		fill: currentColor;
+		transition: color 125ms ease-in-out;
 	}
 }
 
@@ -115,7 +132,7 @@ body[class*="newspack_page_newspack-"] {
 			top: 0;
 			width: 10%;
 			height: 4px;
-			background-color: $primary-color;
+			background-color: $primary-500;
 			animation: loading 2s linear infinite;
 		}
 
