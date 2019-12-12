@@ -230,7 +230,9 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				<Fragment>
 					{ this.getError() }
 					<div className="newspack-logo-wrapper">
-						<NewspackLogo />
+						<a href={ newspack_urls && newspack_urls.dashboard }>
+							<NewspackLogo />
+						</a>
 					</div>
 					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
 						<WrappedComponent

@@ -93,7 +93,9 @@ class ComponentsDemo extends Component {
 		return (
 			<Fragment>
 				<div className="newspack-logo-wrapper">
-					<NewspackLogo />
+					<a href={ newspack_urls && newspack_urls.dashboard }>
+						<NewspackLogo />
+					</a>
 				</div>
 				<FormattedHeader
 					headerIcon={ headerIcon }
