@@ -181,10 +181,17 @@ class PluginInstaller extends Component {
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
 							actionText = __( 'Installing' );
-						} else if ( Status === 'inactive' || Status === 'uninstalled' ) {
+						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack_plugin-installer__content is-inactive">
 									{ __( 'Install' ) }
+									{ inactiveIcon }
+								</span>
+							);
+						} else if ( Status === 'inactive' ) {
+							actionText = (
+								<span className="newspack_plugin-installer__content is-inactive">
+									{ __( 'Activate' ) }
 									{ inactiveIcon }
 								</span>
 							);
