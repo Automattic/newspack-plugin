@@ -137,16 +137,16 @@ class PluginInstaller extends Component {
 	classForInstallationStatus = status =>  {
 		switch ( status ) {
 			case PLUGIN_STATE_ACTIVE:
-				return 'newspack_plugin-installer__status_active';
+				return 'newspack-plugin-installer__status-active';
 				break;
 			case PLUGIN_STATE_INSTALLING:
-				return 'newspack_plugin-installer__status_installing';
+				return 'newspack-plugin-installer__status-installing';
 				break;
 			case PLUGIN_STATE_ERROR:
-				return 'newspack_plugin-installer__status_error';
+				return 'newspack-plugin-installer__status-error';
 				break;
 			default:
-				return 'newspack_plugin-installer__status_none';
+				return 'newspack-plugin-installer__status-none';
 				break;
 		}
 	}
@@ -200,21 +200,21 @@ class PluginInstaller extends Component {
 							actionText = __( 'Installing' );
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
-								<span className="newspack_plugin-installer__content is-inactive">
+								<span className="newspack-plugin-installer__status">
 									{ __( 'Install' ) }
 									{ inactiveIcon }
 								</span>
 							);
 						} else if ( Status === 'inactive' ) {
 							actionText = (
-								<span className="newspack_plugin-installer__content is-inactive">
+								<span className="newspack-plugin-installer__status">
 									{ __( 'Activate' ) }
 									{ inactiveIcon }
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
-								<span className="newspack_plugin-installer__content is-active">
+								<span className="newspack-plugin-installer__status">
 									{ __( 'Installed' ) }
 									{ activeIcon }
 								</span>
@@ -223,7 +223,6 @@ class PluginInstaller extends Component {
 
 						const classes = classNames(
 							'newspack-action-card__plugin-installer',
-							Status,
 							this.classForInstallationStatus( installationStatus ),
 						);
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
