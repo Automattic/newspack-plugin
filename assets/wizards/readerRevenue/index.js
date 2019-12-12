@@ -134,16 +134,16 @@ class ReaderRevenueWizard extends Component {
 		} = data;
 		const tabbedNavigation = [
 			{
-				label: __( 'Main' ),
+				label: __( 'Welcome' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Location Setup' ),
+				label: __( 'Address' ),
 				path: '/location-setup',
 			},
 			{
-				label: __( 'Stripe Setup' ),
+				label: __( 'Stripe' ),
 				path: '/stripe-setup',
 			},
 			{
@@ -151,7 +151,7 @@ class ReaderRevenueWizard extends Component {
 				path: '/donations',
 			},
 			{
-				label: __( 'Landing Page' ),
+				label: __( 'Memberships' ),
 				path: '/configure-landing-page',
 			},
 		];
@@ -160,8 +160,6 @@ class ReaderRevenueWizard extends Component {
 				<Path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
 			</SVG>
 		);
-		const headerText = __( 'Reader Revenue', 'newspack' );
-		const subHeaderText = __( 'Generate revenue from your customers.' );
 		const isConfigured = !! donationData.created;
 		return (
 			<Fragment>
@@ -174,8 +172,8 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<RevenueMain
 									headerIcon={ headerIcon }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
+									headerText={ __( 'Accept donations on your site' ) }
+									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									buttonText={ ! isConfigured && __( 'Get Started' ) }
 									buttonAction="#location-setup"
@@ -190,8 +188,8 @@ class ReaderRevenueWizard extends Component {
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
 									headerIcon={ headerIcon }
-									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( "First, please provide your publication's address." ) }
+									headerText={ __( 'Set up address' ) }
+									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
@@ -209,10 +207,8 @@ class ReaderRevenueWizard extends Component {
 								<StripeSetup
 									data={ stripeData }
 									headerIcon={ headerIcon }
-									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __(
-										'Next, we will help you set up a payment gateway in order to process transactions.'
-									) }
+									headerText={ __( 'Set up Stripe' ) }
+									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'stripe', stripeData ).then(
@@ -248,8 +244,8 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<ConfigureLandingPage
 									headerIcon={ headerIcon }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
+									headerText={ __( 'Set up memberships' ) }
+									subHeaderText={ __( 'Configure your memberships landing page.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									donationPage={ donationPage }
 								/>
