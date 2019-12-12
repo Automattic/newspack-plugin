@@ -198,13 +198,15 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					path="/"
 					render={ routeProps => (
 						<Grid>
-							<Card noBackground className="muriel-wizardScreen muriel-wizardScreen__no-background">
+							<Card noBackground>
 								{ complete !== null && (
 									<FormattedHeader
 										headerText={ __( 'Required plugin' ) }
 										subHeaderText={ __( 'This feature requires the following plugin.' ) }
 									/>
 								) }
+							</Card>
+							<Card>
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
