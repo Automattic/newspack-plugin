@@ -7,7 +7,7 @@
 
 .newspack-card.newspack-action-card {
 	box-shadow: 0 4px 8px rgba( black, 0.08 );
-	padding: 16px;
+	padding: 24px;
 
 	// Clickable
 
@@ -48,7 +48,7 @@
 	}
 
 	.newspack-action-card__region-left {
-		margin-right: 16px;
+		margin-right: 24px;
 	}
 
 	.newspack-action-card__region-center {
@@ -58,7 +58,7 @@
 	.newspack-action-card__region-right {
 		align-items: flex-end;
 		align-self: center;
-		margin-left: 16px;
+		margin-left: 24px;
 	}
 
 	// Spinner
@@ -111,7 +111,7 @@
 
 	.components-toggle-control {
 		align-self: center;
-		margin-right: 16px;
+		margin-right: 24px;
 
 		.components-base-control__field {
 			margin-bottom: 0;
