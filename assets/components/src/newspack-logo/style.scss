@@ -1,0 +1,11 @@
+/**
+ * Newspack Logo
+ */
+
+@import '../../../shared/scss/muriel-component';
+
+.newspack-notice-wrapper {
+  background: $primary-color;
+  display: flex;
+  flex-direction: column;
+}

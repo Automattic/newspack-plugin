@@ -8,7 +8,29 @@
 import { Component } from '@wordpress/element';
 import { Path, SVG } from '@wordpress/components';
 
+/**
+ * Internal dependencies
+ */
+import './style.scss';
+
 class NewspackLogo extends Component {
+	componentDidMount() {
+		// If there are notices, wrap them in a container.
+		var container = document.createElement( 'div' );
+		container.className = 'newspack-notice-wrapper';
+		var containerAdded = false;
+		var notices = document.querySelectorAll( '#wpbody-content > div[class*="notice"]' );
+		for ( var i = 0; i < notices.length; i++ ) {
+			var notice = notices[i];
+			if ( ! containerAdded ) {
+				notice.parentNode.insertBefore( container, notice );
+				containerAdded = true;
+			}
+			notice.parentNode.removeChild( notice );
+			container.appendChild( notice );
+		}
+	}
+
 	/**
 	 * Render.
 	 */
