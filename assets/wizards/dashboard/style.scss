@@ -42,7 +42,7 @@
 		}
 
 		> svg {
-			margin: 16px;
+			margin: 24px;
 			transition: transform 125ms ease-in-out;
 		}
 	}
@@ -68,16 +68,16 @@
 		align-items: center;
 		display: flex;
 		justify-content: flex-start;
-		padding: 16px;
+		padding: 24px;
 
 		svg {
-			height: 48px;
-			margin-right: 8px;
-			width: 48px;
+			height: 32px;
+			margin-right: 12px;
+			width: 32px;
 		}
 
 		.newspack-dashboard-card__header {
-			margin-left: 8px;
+			margin-left: 12px;
 		}
 	}
 
