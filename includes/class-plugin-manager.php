@@ -269,6 +269,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-popups/releases/latest/download/newspack-popups.zip',
 			],
+			'newspack-media-partners'       => [
+				'Name'        => 'Newspack Media Partners',
+				'Description' => 'Add media partners and their logos to posts. Intended for posts published in conjunction with other outlets.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-media-partners/releases/latest/download/newspack-media-partners.zip',
+			],
 		];
 
 		$default_info = [
