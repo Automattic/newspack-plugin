@@ -12,7 +12,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { Card, withWizardScreen, Grid, ImageUpload } from '../../../../components/src';
+import { Card, withWizardScreen, Grid, ImageUpload, Notice } from '../../../../components/src';
 
 /**
  * Intro screen for Performnance Wizard
@@ -53,12 +53,10 @@ class Intro extends Component {
 				</p>
 				<div className='newspack-performance-wizard__status'>
 					{ settings.configured && (
-						<div className='notice notice-success'>{ __( 'PWA is configured and working.' ) }</div>
+						<Notice noticeText={ __( 'PWA is configured and working.' ) } isSuccess />
 					) }
 					{ ! settings.configured && settings.error && (
-						<div className='notice notice-error'>
-							{ settings.error }
-						</div>
+						<Notice noticeText={ settings.error } isError />
 					) }
 				</div>
 				<hr />
