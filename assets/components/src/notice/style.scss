@@ -1,0 +1,43 @@
+/**
+ * Notice
+ */
+
+@import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/muriel-component';
+
+.newspack-notice {
+	align-items: flex-start;
+	background: white;
+	border-radius: 4px;
+	color: $dark-gray-300;
+	display: flex;
+	font-size: 14px;
+	justify-content: flex-start;
+	line-height: 24px;
+	margin: 32px 0;
+
+	svg {
+		display: block;
+		fill: $dark-gray-900;
+		flex: 0 0 24px;
+		margin-right: 4px;
+	}
+
+	&.newspack-notice__is-success {
+		svg {
+			fill: $alert-green;
+		}
+	}
+
+	&.newspack-notice__is-error {
+		svg {
+			fill: $alert-red;
+		}
+	}
+
+	&.newspack-notice__is-primary {
+		svg {
+			fill: $primary_color;
+		}
+	}
+}

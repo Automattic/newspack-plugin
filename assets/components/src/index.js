@@ -10,6 +10,7 @@ export { default as ImageUpload } from './image-upload';
 export { default as Grid } from './grid';
 export { default as Modal } from './modal';
 export { default as NewspackLogo } from './newspack-logo';
+export { default as Notice } from './notice';
 export { default as PluginInstaller } from './plugin-installer';
 export { default as ProgressBar } from './progress-bar';
 export { default as SecondaryNavigation } from './secondary-navigation';
