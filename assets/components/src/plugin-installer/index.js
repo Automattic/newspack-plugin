@@ -197,7 +197,7 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing' );
+							actionText = __( 'Installing...' );
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
