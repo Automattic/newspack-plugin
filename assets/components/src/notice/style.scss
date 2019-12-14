@@ -3,7 +3,7 @@
  */
 
 @import '~@wordpress/base-styles/colors';
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
 
 .newspack-notice {
 	align-items: flex-start;
@@ -37,7 +37,7 @@
 
 	&.newspack-notice__is-primary {
 		svg {
-			fill: $primary_color;
+			fill: $primary-500;
 		}
 	}
 }
