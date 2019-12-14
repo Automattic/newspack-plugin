@@ -6,8 +6,8 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Dashicon, Spinner, ToggleControl } from '@wordpress/components';
-import { Button, Card, Handoff } from '../';
+import { Dashicon, ToggleControl } from '@wordpress/components';
+import { Button, Card, Handoff, Waiting } from '../';
 
 /**
  * Internal dependencies
@@ -104,8 +104,8 @@ class ActionCard extends Component {
 							) }
 							{ ! handoff && ! onClick && ! href && (
 								<div className="newspack-action-card__container">
-									{ isWaiting && <Spinner /> }
 									{ actionDisplay }
+									{ isWaiting && <Waiting isRight /> }
 								</div>
 							) }
 
