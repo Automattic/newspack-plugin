@@ -41,6 +41,9 @@ final class Newspack {
 		$this->define_constants();
 		$this->includes();
 		add_action( 'admin_menu', [ $this, 'remove_all_newspack_options' ], 1 );
+		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
+		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
+		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 	}
 
 	/**
@@ -111,6 +114,17 @@ final class Newspack {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Remove notifications.
+	 */
+	public function remove_notifications() {
+		$screen = get_current_screen();
+		if ( ! $screen || 'newspack' !== $screen->parent_base ) {
+			return;
+		}
+		remove_all_actions( current_action() );
 	}
 }
 Newspack::instance();
