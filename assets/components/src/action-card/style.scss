@@ -76,17 +76,8 @@
 	// Notifications
 
 	.newspack-action-card__notification {
-		margin: 16px 0 0 0;
-
-		p {
-			font-size: 13px;
-			line-height: 1.5;
-			margin: .5em 0;
-			padding: 2px;
-
-			&:before {
-				margin-right: 0.25em;
-			}
+		.newspack-notice {
+			margin: 24px 0 0;
 		}
 	}
 

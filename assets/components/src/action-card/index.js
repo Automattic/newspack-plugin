@@ -7,7 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import { Dashicon, ToggleControl } from '@wordpress/components';
-import { Button, Card, Handoff, Waiting } from '../';
+import { Button, Card, Handoff, Notice, Waiting } from '../';
 
 /**
  * Internal dependencies
@@ -17,7 +17,7 @@ import './style.scss';
 /**
  * External dependencies
  */
-import classNames from 'classnames';
+import classnames from 'classnames';
 
 class ActionCard extends Component {
 	backgroundImageStyles = url => {
@@ -49,17 +49,10 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 		} = this.props;
-		const classes = classNames(
+		const classes = classnames(
 			'newspack-action-card',
 			simple && 'newspack-card__is-clickable',
 			className
-		);
-		const notificationClasses = classNames(
-			'newspack-action-card__notification',
-			'notice',
-			`notice-${ notificationLevel }`,
-			'notice-alt',
-			'update-message'
 		);
 		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		const actionDisplay = ( simple && <Dashicon icon="arrow-right-alt2" /> ) || actionText;
@@ -122,8 +115,11 @@ class ActionCard extends Component {
 					) }
 				</div>
 				{ notification && (
-					<div className={ notificationClasses }>
-						<p>{ notification }</p>
+					<div className="newspack-action-card__notification">
+						{ 'error'   === notificationLevel && ( <Notice noticeText={ notification } isError /> ) }
+						{ 'info'    === notificationLevel && ( <Notice noticeText={ notification } isPrimary /> ) }
+						{ 'success' === notificationLevel && ( <Notice noticeText={ notification } isSuccess /> ) }
+						{ 'warning' === notificationLevel && ( <Notice noticeText={ notification } isWarning /> ) }
 					</div>
 				) }
 			</Card>
