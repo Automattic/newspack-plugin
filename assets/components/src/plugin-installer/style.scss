@@ -10,13 +10,20 @@
 		border-left: 4px solid $light-gray-200;
 
 		.newspack-plugin-installer__status {
-			display: flex;
 			align-items: center;
+			display: flex;
 
 			svg {
 				display: block;
 				fill: $light-gray-900;
-				margin-left: 4px;
+				margin-right: 4px;
+				order: -1;
+
+				@media screen and ( min-width: 744px ) {
+					margin-left: 4px;
+					margin-right: 0;
+					order: 0;
+				}
 			}
 		}
 
@@ -31,24 +38,5 @@
 		&.newspack-plugin-installer__status-error {
 			border-left-color: $alert-red;
 		}
-	}
-}
-
-.newspack-plugin-installer__checkbox-row {
-	position: relative;
-
-	.components-spinner,
-	.newspack-plugin-installer__status {
-		position: absolute;
-		top: 0;
-		right: 0;
-	}
-}
-
-.newspack-plugin-installer_waiting {
-	text-align: center;
-
-	.components-spinner {
-		float: none;
 	}
 }
