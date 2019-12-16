@@ -30,6 +30,7 @@
 	h2,
 	p {
 		margin: 0;
+		max-width: 100%;
 	}
 
 	h2 {
@@ -72,7 +73,7 @@
 	.newspack-action-card__region-center {
 		align-items: flex-start;
 		flex: 1 1 auto;
-		flex-direction: column;
+		flex-wrap: wrap;
 	}
 
 	.newspack-action-card__region-right {
