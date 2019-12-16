@@ -32,33 +32,53 @@
 		margin: 0;
 	}
 
+	h2 {
+		display: flex;
+	}
+
 	// Regions
 
 	.newspack-action-card__region {
-		align-items: flex-start;
+		align-items: center;
 		display: flex;
-		flex-direction: column;
-		flex-grow: 0;
+		justify-content: space-between;
 		margin: 0;
 	}
 
 	.newspack-action-card__region-top {
-		display: flex;
-		flex-direction: row;
+		display: block;
+
+		@media screen and ( min-width: 744px ) {
+			display: flex;
+		}
 	}
 
 	.newspack-action-card__region-left {
-		margin-right: 24px;
+		margin-bottom: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-bottom: 0;
+			margin-right: 24px;
+		}
 	}
 
 	.newspack-action-card__region-center {
-		flex-grow: 1;
+		align-items: flex-start;
+		flex: 1 1 auto;
+		flex-direction: column;
 	}
 
 	.newspack-action-card__region-right {
-		align-items: flex-end;
-		align-self: center;
-		margin-left: 24px;
+		align-items: flex-start;
+		flex-direction: column;
+		margin-top: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			align-items: flex-end;
+			flex-direction: column;
+			margin-left: 24px;
+			margin-top: 0;
+		}
 	}
 
 	// Spinner
@@ -98,11 +118,15 @@
 		margin: 0;
 	}
 
-	// ToggleControl
+	// Toggle Control
 
 	.components-toggle-control {
-		align-self: center;
-		margin-right: 24px;
+		margin-bottom: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-bottom: 0;
+			margin-right: 24px;
+		}
 
 		.components-base-control__field {
 			margin-bottom: 0;
@@ -139,17 +163,17 @@
 	// Badge
 
 	.newspack-action-card__badge {
+		align-self: center;
 		border: 1px solid $light-gray-500;
 		border-radius: 12px;
-		display: inline-block;
+		display: block;
+		flex: 0 0 auto;
 		font-size: 12px;
 		font-weight: bold;
 		line-height: 16px;
 		margin: 0 0 0 8px;
 		padding: 0 8px;
-		text-align: center;
 		text-transform: uppercase;
-		vertical-align: middle;
 	}
 
 	// Description Card
