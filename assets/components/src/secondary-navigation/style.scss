@@ -6,59 +6,74 @@
 @import '../../../shared/scss/colors';
 
 .newspack-secondary-navigation {
-	margin: 32px 0;
+	margin: 32px 0 -36px;
+	padding-bottom: 4px;
+
+	@media screen and ( min-width: 744px ) {
+		margin-bottom: -32px;
+		padding-bottom: 0;
+	}
 
 	ul {
+		align-items: center;
 		background: white;
-		border-radius: 0 0 4px 4px;
-		box-shadow: 0 4px 8px rgba( black, 0.08 );
-		display: block;
+		border-radius: 4px 4px 0 0;
+		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		margin: 0;
 		position: relative;
-		text-align: center;
 
 		@media screen and ( min-width: 744px ) {
+			border-radius: 0;
 			margin-left: 32px;
 			margin-right: 32px;
 		}
 	}
 
 	li {
-		display: inline-block;
+		align-items: center;
+		display: flex;
+		justify-content: center;
 		margin: 0;
 		padding: 0;
 
-		& + li::before {
-			color: inherit;
-			content: '|';
-			margin: 0 8px;
+		@media screen and ( min-width: 744px ) {
+			& + li:before {
+				background: $light-gray-500;
+				content: '';
+				display: block;
+				height: 12px;
+				margin: 0 8px;
+				width: 1px;
+			}
 		}
 	}
 
 	a {
-		//background: $light-gray-500;
+		border-bottom: 2px solid transparent;
 		box-sizing: border-box;
 		color: $dark-gray-900;
 		display: inline-block;
 		height: 100%;
 		margin: 0;
-		padding: 8px;
+		padding: 8px 8px 6px;
 		text-decoration: none;
 
 		&:active,
 		&:focus,
-		&:hover {
-			background: white;
+		&:hover,
+		&.selected {
+			border-bottom-color: currentColor;
 		}
 
 		&:focus {
-			outline: none;
+			border-bottom-color: transparent;
 			box-shadow: inset 0 0 0 2px $primary-500;
+			outline: none;
 		}
 
 		&.selected {
-			background: white;
 			color: $primary-500;
 		}
 	}
