@@ -7,13 +7,13 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
-import { Spinner, SVG, Path } from '@wordpress/components';
+import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, ProgressBar } from '../';
+import { ActionCard, Button, ProgressBar, Waiting } from '../';
 import './style.scss';
 
 const PLUGIN_STATE_NONE = 0;
@@ -183,9 +183,9 @@ class PluginInstaller extends Component {
 		return (
 			<div>
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
-					<div className="newspack-plugin-installer_waiting">
-						<p>{ __( 'Retrieving plugin information...' ) }</p>
-						<Spinner />
+					<div className="newspack-plugin-installer_is-waiting">
+						<Waiting isLeft />
+						{ __( 'Retrieving plugin information...' ) }
 					</div>
 				) }
 				{ pluginInfo &&
