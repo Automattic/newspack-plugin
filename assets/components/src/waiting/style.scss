@@ -15,7 +15,14 @@
   }
 
   &.newspack-is-waiting__is-right {
-    margin-left: 4px;
+    margin-right: 4px;
+    order: -1;
+
+    @media screen and ( min-width: 744px ) {
+      margin-left: 4px;
+      margin-right: 0;
+      order: 1;
+    }
   }
 }
 
