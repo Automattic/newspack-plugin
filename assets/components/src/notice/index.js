@@ -65,7 +65,7 @@ class Notice extends Component {
 		return (
 			<div className={ classes }>
 				{ noticeIcon }
-				{ noticeText }
+				<span className="newspack-notice__content">{ noticeText }</span>
 			</div>
 		);
 	}
