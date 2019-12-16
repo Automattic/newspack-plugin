@@ -33,7 +33,14 @@
 	}
 
 	h2 {
+		align-items: center;
 		display: flex;
+		flex-wrap: wrap;
+		margin-right: -8px;
+
+		.newspack-action-card__title {
+			margin-right: 8px;
+		}
 	}
 
 	// Regions
@@ -163,7 +170,6 @@
 	// Badge
 
 	.newspack-action-card__badge {
-		align-self: center;
 		border: 1px solid $light-gray-500;
 		border-radius: 12px;
 		display: block;
@@ -171,7 +177,7 @@
 		font-size: 12px;
 		font-weight: bold;
 		line-height: 16px;
-		margin: 0 0 0 8px;
+		margin: 3px 8px 3px 0;
 		padding: 0 8px;
 		text-transform: uppercase;
 	}
