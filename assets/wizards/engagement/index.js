@@ -146,7 +146,6 @@ class EngagementWizard extends Component {
 								const { apiKey } = this.state;
 								return (
 									<Social
-										noBackground
 										headerIcon={ headerIcon }
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
@@ -165,7 +164,6 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingDisqus
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
@@ -181,7 +179,6 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingNative
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
@@ -197,7 +194,6 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingCoral
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
@@ -213,7 +209,6 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<UGC
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }

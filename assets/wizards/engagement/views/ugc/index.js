@@ -24,7 +24,7 @@ class UGC extends Component {
 		const { connected, connectURL } = this.props;
 
 		return (
-			<Card>
+			<Card noBackground>
 				<h2>{ __('Coming Soon') }</h2>
 				<p>{ __( 'User Generated Content features TK.' ) }</p>
 			</Card>
