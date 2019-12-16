@@ -15,8 +15,9 @@
 	justify-content: flex-start;
 	line-height: 24px;
 	margin: 32px 0;
+	white-space: pre-wrap;
 
-	svg {
+	> svg {
 		display: block;
 		fill: $dark-gray-900;
 		flex: 0 0 24px;
@@ -24,19 +25,25 @@
 	}
 
 	&.newspack-notice__is-success {
-		svg {
+		> svg {
 			fill: $alert-green;
 		}
 	}
 
 	&.newspack-notice__is-error {
-		svg {
+		> svg {
 			fill: $alert-red;
 		}
 	}
 
+	&.newspack-notice__is-warning {
+		> svg {
+			fill: $alert-yellow;
+		}
+	}
+
 	&.newspack-notice__is-primary {
-		svg {
+		> svg {
 			fill: $primary-500;
 		}
 	}
