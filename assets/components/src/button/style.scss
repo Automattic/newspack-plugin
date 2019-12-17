@@ -98,6 +98,10 @@
 				color: $primary-200;
 			}
 		}
+
+		.newspack-is-waiting {
+			fill: white;
+		}
 	}
 
 	&.is-tertiary {
@@ -139,6 +143,10 @@
 				border-color: $dark-gray-700;
 				color: $light-gray-700;
 			}
+		}
+
+		.newspack-is-waiting {
+			fill: white;
 		}
 	}
 
