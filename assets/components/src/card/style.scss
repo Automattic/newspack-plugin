@@ -51,6 +51,10 @@
 
 	p {
 		font-size: 14px;
+
+		&.is-dark {
+			color: $dark-gray-900;
+		}
 	}
 
 	// Thematic Break
