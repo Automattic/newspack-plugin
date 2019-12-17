@@ -1,5 +1,5 @@
 /**
- * Complete UI for Newspack handoff to an external plugin.
+ * Handoff
  */
 
 /**
@@ -7,9 +7,12 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component, Fragment } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
-import { Button, Modal } from '../';
 import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies.
+ */
+import { Button, Modal, Waiting } from '../';
 
 /**
  * External dependencies.
@@ -109,8 +112,8 @@ class Handoff extends Component {
 				{ ! Name && (
 					<Button className={ classes } isDefault={ ! otherProps.isLink } { ...otherProps }>
 						<Fragment>
+							{ ! compact && <Waiting isLeft /> }
 							{ __( 'Retrieving Plugin Info' ) }
-							{ ! compact && <Spinner /> }
 						</Fragment>
 					</Button>
 				) }
