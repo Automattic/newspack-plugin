@@ -1,5 +1,5 @@
 /**
- * Muriel-styled Text/Number Input.
+ * Text Control
  */
 
 /**
