@@ -1,5 +1,5 @@
 /**
- * Muriel-styled Checkbox.
+ * Checkbox Control
  */
 
 /**
@@ -11,10 +11,13 @@ import { CheckboxControl as BaseComponent } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
 import { InfoButton } from '../';
-
 import './style.scss';
+
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
 
 class CheckboxControl extends Component {
 
@@ -23,7 +26,7 @@ class CheckboxControl extends Component {
 	 */
 	render() {
 		const { className, tooltip, ...otherProps } = this.props;
-		const classes = murielClassnames( 'muriel-checkbox', className );
+		const classes = classnames( 'newspack-checkbox-control', className );
 		return (
 			<div className={ classes }>
 				<BaseComponent { ...otherProps } />
