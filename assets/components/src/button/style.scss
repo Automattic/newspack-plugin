@@ -1,99 +1,172 @@
 /**
- * Button styles,
+ * Button
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
 
-.muriel-button {
-	text-align: center;
+.newspack-button {
 	font-size: 14px;
-	line-height: 21px;
-	font-weight: 500;
-	color: $muriel-gray-700;
+	font-weight: bold;
+	line-height: 24px;
+
+	&.is-large {
+		font-size: 17px;
+		height: auto;
+		line-height: 24px;
+	}
 
 	&.is-button {
-		background-color: $muriel-white;
-		border-color: #cccccc;
-		border-radius: 4px;
+		background: white;
+		border: 1px solid $light-gray-500;
+		border-radius: 3px;
+		color: $primary-500;
 		height: auto;
-		line-height: 21px;
-		padding: 9px 14px 10px;
-		margin: 14px 7px;
-		text-decoration: none;
+		line-height: 24px;
+		padding: 11px 24px;
 
-		&:active:enabled {
-			border-width: 2px 1px 1px;
-		}
-
-		&.is-large {
-			padding: 19px 28px 21px;
-		}
-	}
-
-	&.is-default {
-		color: $primary_color;
-
-		&:hover,
+		&:active,
+		&:active:enabled,
+		&:focus,
 		&:focus:enabled,
-		&:active:enabled {
-			border-color: $primary_color_darker;
-			color: $primary_color_darker;
+		&:hover {
+			background: $light-gray-100;
+			border-color: $primary-500;
+			color: $primary-500;
 		}
-	}
 
-	&.is-primary {
-		border-color: $primary_color_darker;
-		background-color: $primary_color;
-		color: $muriel-white;
-		text-shadow: none;
-
-		&:hover,
+		&:focus,
 		&:focus:enabled {
-			background-color: $primary_color_darker;
-			color: $muriel-white;
-			box-shadow: inherit;
-		}
-
-		&:active:enabled {
-			background-color: $primary_color_darker;
-			color: $muriel-white;
+			border-color: $primary-600;
+			box-shadow: 0 0 0 2px $primary-500;
 		}
 
 		&:disabled,
 		&:disabled:active:enabled,
 		&[aria-disabled=true],
 		&[aria-disabled=true]:active:enabled {
-			background: $primary_color;
-			border-color: $primary_color_darker;
-			color: $primary_color_lighter;
+			background: $light-gray-100;
+			border-color: $light-gray-500;
+			color: $light-gray-900;
+			cursor: not-allowed;
+			text-shadow: none;
+
+			&:hover {
+				background: $light-gray-100;
+				border-color: $light-gray-500;
+				color: $light-gray-900;
+			}
+		}
+
+		&.is-large {
+			padding: 15px 32px;
+		}
+	}
+
+	&.is-primary {
+		background: $primary-500;
+		border: 1px solid $primary-600;
+		color: white;
+
+		&:active,
+		&:active:enabled,
+		&:focus,
+		&:focus:enabled,
+		&:hover {
+			background: $primary-600;
+			border-color: $primary-700;
+			color: white;
+		}
+
+		&:focus,
+		&:focus:enabled {
+			border-color: $primary-800;
+			box-shadow: 0 0 0 2px $primary-700;
+		}
+
+		&:disabled,
+		&:disabled:active:enabled,
+		&[aria-disabled=true],
+		&[aria-disabled=true]:active:enabled {
+			background: $primary-400;
+			border-color: $primary-500;
+			color: $primary-200;
+
+			&:hover {
+				background: $primary-400;
+				border-color: $primary-500;
+				color: $primary-200;
+			}
 		}
 	}
 
 	&.is-tertiary {
-		color: $primary_color;
+		background: $dark-gray-700;
+		border: 1px solid $dark-gray-800;
+		border-radius: 3px;
+		color: white;
+		height: auto;
+		line-height: 24px;
+		padding: 11px 24px;
 
-		&:hover,
+		&:active,
+		&:active:enabled,
+		&:focus,
 		&:focus:enabled,
-		&:not(:disabled):not([aria-disabled=true]):not(.is-default):hover {
-			background-color: inherit;
-			box-shadow: none;
-			color: $primary_color_darker;
+		&:hover,
+		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+			background: $dark-gray-800;
+			border-color: $dark-gray-900;
+			color: white;
+		}
+
+		&:focus,
+		&:focus:enabled {
+			border-color: black;
+			box-shadow: 0 0 0 2px $dark-gray-900;
+		}
+
+		&:disabled,
+		&:disabled:active:enabled,
+		&[aria-disabled=true],
+		&[aria-disabled=true]:active:enabled {
+			background: $dark-gray-600;
+			border-color: $dark-gray-700;
+			color: $light-gray-700;
+
+			&:hover {
+				background: $dark-gray-600;
+				border-color: $dark-gray-700;
+				color: $light-gray-700;
+			}
 		}
 	}
 
 	&.is-link {
-		background: none;
-		border: none;
-		color: $muriel-gray-300;
-		cursor: pointer;
-		text-decoration: underline;
+		border: 0;
+		border-radius: 0;
+		color: $primary-500;
+		font-weight: normal;
 
+		&:active,
+		&:active:enabled,
+		&:focus,
+		&:focus:enabled,
 		&:hover {
-			color: $primary_color_darker;
+			background: transparent;
+			color: $primary-600;
 			text-decoration: none;
 		}
+
+		&:focus,
+		&:focus:enabled {
+			box-shadow: none;
+			outline: 2px solid $primary-500;
+			outline-offset: 4px;
+		}
+
+		&.is-large {
+			padding: 0;
+		}
 	}
-}
-.muriel-button-is-centered-wrapper {
-	text-align: center;
 }
