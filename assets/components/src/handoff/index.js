@@ -15,11 +15,7 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { assign } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import classnames from 'classnames';
 
 class Handoff extends Component {
 	constructor() {
@@ -90,7 +86,7 @@ class Handoff extends Component {
 			dismissModalButton,
 		} = this.textForPlugin( pluginInfo );
 		const { Configured, Name, Slug, Status } = pluginInfo;
-		const classes = murielClassnames( 'muriel-button', Configured && 'is-configured', className );
+		const classes = classnames( Configured && 'is-configured', className );
 		return (
 			<Fragment>
 				{ Name && 'active' === Status && (
