@@ -115,33 +115,35 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<Handoff
-							className="is-centered"
-							modalTitle="Manage AMP"
-							modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
-							plugin="amp"
-						/>
-						<Handoff className="is-centered" plugin="jetpack" />
-						<Handoff className="is-centered" plugin="google-site-kit" />
-						<Handoff className="is-centered" plugin="woocommerce" />
-						<Handoff
-							className="is-centered"
-							plugin="wordpress-seo"
-							isPrimary
-							editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features"
-						>
-							{ __( 'Specific Yoast Page' ) }
-						</Handoff>
+						<Card noBackground className="newspack-components-demo__buttons">
+							<Handoff
+								modalTitle="Manage AMP"
+								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
+								plugin="amp"
+								isTertiary
+							/>
+							<Handoff plugin="jetpack" />
+							<Handoff plugin="google-site-kit" />
+							<Handoff plugin="woocommerce" />
+							<Handoff
+								plugin="wordpress-seo"
+								isPrimary
+								editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features"
+							>
+								{ __( 'Specific Yoast Page' ) }
+							</Handoff>
+						</Card>
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<Button
-							className="is-centered"
-							isTertiary
-							onClick={ () => this.setState( { modalShown: true } ) }
-						>
-							{ __( 'Open modal' ) }
-						</Button>
+						<Card noBackground className="newspack-components-demo__buttons">
+							<Button
+								isPrimary
+								onClick={ () => this.setState( { modalShown: true } ) }
+							>
+								{ __( 'Open modal' ) }
+							</Button>
+						</Card>
 						{ modalShown && (
 							<Modal
 								title="This is the modal title"
@@ -152,12 +154,14 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
-									{ __( 'Dismiss' ) }
-								</Button>
-								<Button isDefault onClick={ () => this.setState( { modalShown: false } ) }>
-									{ __( 'Also dismiss' ) }
-								</Button>
+								<Card noBackground className="newspack-components-demo__buttons">
+									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
+										{ __( 'Dismiss' ) }
+									</Button>
+									<Button isDefault onClick={ () => this.setState( { modalShown: false } ) }>
+										{ __( 'Also dismiss' ) }
+									</Button>
+								</Card>
 							</Modal>
 						) }
 					</Card>
@@ -174,13 +178,15 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
-						<Button
-							onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
-							className="is-centered"
-							isPrimary
-						>
-							{ __( 'Show Plugin Installer w/Progress Bar' ) }
-						</Button>
+						<Card noBackground className="newspack-components-demo__buttons">
+							<Button
+								onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
+								className="is-centered"
+								isPrimary
+							>
+								{ __( 'Show Plugin Installer w/Progress Bar' ) }
+							</Button>
+						</Card>
 						{ showPluginInstallerWithProgressBar && (
 							<PluginInstaller
 								plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit' ] }
@@ -479,20 +485,15 @@ class ComponentsDemo extends Component {
 							] }
 						/>
 					</Card>
-					<Card>
+					<Card className="newspack-components-demo__buttons">
 						<FormattedHeader headerText="Buttons" />
-						<Button isPrimary className="is-centered">
-							Continue
-						</Button>
-						<Button isDefault className="is-centered">
-							Continue
-						</Button>
-						<Button isTertiary className="is-centered">
-							Continue
-						</Button>
-						<Button isPrimary>Continue</Button>
-						<Button isDefault>Continue</Button>
-						<Button isTertiary>Continue</Button>
+						<Card noBackground className="newspack-components-demo__buttons">
+							<Button isPrimary>{ __( 'isPrimary' ) }</Button>
+							<Button isDefault>{ __( 'isDefault' ) }</Button>
+							<Button isTertiary>{ __( 'isTertiary' ) }</Button>
+							<Button isLink>{ __( 'isLink' ) }</Button>
+							<Button isLarge>{ __( 'isLarge' ) }</Button>
+						</Card>
 					</Card>
 				</Grid>
 			</Fragment>

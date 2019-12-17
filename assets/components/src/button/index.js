@@ -1,5 +1,5 @@
 /**
- * Muriel-styled buttons.
+ * Button
  */
 
 /**
@@ -11,9 +11,12 @@ import { Button as BaseComponent } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
-
 import './style.scss';
+
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
 
 class Button extends Component {
 	/**
@@ -21,14 +24,8 @@ class Button extends Component {
 	 */
 	render( props ) {
 		const { className, ...otherProps } = this.props;
-		const classes = murielClassnames( 'muriel-button', className );
-		const isCentered = classes.indexOf( 'is-centered' ) > -1; // TODO: Replace with a prop
-		const renderedButton = <BaseComponent className={ classes } { ...otherProps } />;
-		return isCentered ? (
-			<div className="muriel-button-is-centered-wrapper">{ renderedButton }</div>
-		) : (
-			renderedButton
-		);
+		const classes = classnames( 'newspack-button', className );
+		return <BaseComponent className={ classes } { ...otherProps } />;
 	}
 }
 
