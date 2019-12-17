@@ -1,103 +1,78 @@
 /**
- * Select dropdown component styles.
+ * Select Control
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
 
-.muriel-select {
-	background: $muriel-white;
-	border: 1px solid $muriel-gray-200;
-	border-radius: 0;
-	box-shadow: none;
-	padding: 12px 12px 4px;
-	position: relative;
-
-	/* Down arrow icon: */
-	&::after {
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='%23636d75'/%3E%3C/svg%3E");
-		content: "";
-		display: block;
-		height: 24px;
-		margin-top: -12px;
-		pointer-events: none; /* click-through to the underlying element */
-		position: absolute;
-		right: 12px;
-		top: 50%;
-		width: 24px;
-		z-index: 101;
-	}
+.newspack-select-control {
+	color: $dark-gray-300;
+	font-size: 14px;
+	line-height: 24px;
+	margin: 32px 0;
 
 	label {
-		color: $muriel-gray-500;
-		font-size: 14px;
-		line-height: 21px;
-
-		&.components-base-control__label {
-			margin: 0;
-		}
+		color: $dark-gray-900;
+		font-size: inherit;
+		font-weight: bold;
+		line-height: inherit;
+		margin: 0;
 	}
 
 	select {
-		background: transparent;
-		border: 0;
-		border-radius: 0;
+		background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath xmlns='http://www.w3.org/2000/svg' d='M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z' fill='%23191e23'/%3E%3C/svg%3E") no-repeat right 8px top 50%;
+		background-size: 24px 24px;
+		border: 1px solid $light-gray-500;
+		border-radius: 3px;
 		box-shadow: none;
+		color: inherit;
 		font-size: 16px;
-		height: 21px;
-		line-height: 21px;
+		line-height: inherit;
 		margin: 0;
 		max-width: 100%;
-		min-height: 21px;
-		padding: 0;
+		min-height: 48px;
+		padding: 11px 8px;
+		transition: border-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
+		width: 100%;
 
-		/* Hide the default down-arrow: */
-		-moz-appearance: none; /* for Firefox */
-		-webkit-appearance: none; /* for Chrome */
-		appearance: none;
-		&::-ms-expand {
-			display: none; /* For IE10 */
-		}
-
-		&:hover {
-			color: $primary_color;
+		@media screen and ( min-width: 768px ) {
+			font-size: inherit;
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 12px $muriel-white, 0 0 0 13px $primary_color_darker, 0 0 0 15px $primary_color_lighter;
+			border-color: $primary-600;
+			box-shadow: 0 0 0 2px $primary-500;
+			color: $primary-500;
+		}
+
+		&:disabled,
+		&.disabled {
+			background: $light-gray-100 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath xmlns='http://www.w3.org/2000/svg' d='M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z' fill='%23a2aab2'/%3E%3C/svg%3E") no-repeat right 8px top 50%;
+			color: $light-gray-900;
+			cursor: not-allowed;
+			text-shadow: none;
 		}
 	}
 
-	&.active {
-		label {
-			display: none;
-		}
-		select {
-			color: $muriel-gray-800;
-		}
+	// Multiple Select Controls
+
+	& + & {
+		margin-bottom: 32px;
+		margin-top: -16px;
 	}
 
-	&.with-value {
-		select {
-			color: $muriel-gray-800;
+	// Multiple Controls
 
-			&:focus {
-				box-shadow: none;
-			}
-		}
+	& + .newspack-text-control {
+		margin-bottom: 32px;
+		margin-top: -16px;
 	}
 
-	&.empty {
-		input {
-			color: $muriel-gray-500;
-		}
-	}
+	// Reset
 
-	&.disabled {
-		label {
-			color: $muriel-gray-200;
-		}
-		select {
-			display: none;
-		}
+	.components-base-control__field,
+	.components-base-control__label {
+		display: block;
+		margin: 0;
 	}
 }
