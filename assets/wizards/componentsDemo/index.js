@@ -93,7 +93,9 @@ class ComponentsDemo extends Component {
 		return (
 			<Fragment>
 				<div className="newspack-logo-wrapper">
-					<NewspackLogo />
+					<a href={ newspack_urls && newspack_urls.dashboard }>
+						<NewspackLogo />
+					</a>
 				</div>
 				<FormattedHeader
 					headerIcon={ headerIcon }
@@ -161,31 +163,14 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Notice' ) } />
-						<Notice
-							noticeText={ __( 'This is a Primary info notice.' ) }
-							isPrimary
-						/>
-						<Notice
-							noticeText={ __( 'This is an info notice.' ) }
-						/>
-						<Notice
-							noticeText={ __( 'This is a Primary error notice.' ) }
-							isError
-							isPrimary
-						/>
-						<Notice
-							noticeText={ __( 'This is an error notice.' ) }
-							isError
-						/>
-						<Notice
-							noticeText={ __( 'This is a Primary success notice.' ) }
-							isSuccess
-							isPrimary
-						/>
-						<Notice
-							noticeText={ __( 'This is a success notice.' ) }
-							isSuccess
-						/>
+						<Notice noticeText={ __( 'This is a Primary info notice.' ) } isPrimary />
+						<Notice noticeText={ __( 'This is an info notice.' ) } />
+						<Notice noticeText={ __( 'This is a Primary error notice.' ) } isError isPrimary />
+						<Notice noticeText={ __( 'This is an error notice.' ) } isError />
+						<Notice noticeText={ __( 'This is a Primary success notice.' ) } isSuccess isPrimary />
+						<Notice	noticeText={ __( 'This is a success notice.' ) } isSuccess />
+						<Notice	noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
+						<Notice	noticeText={ __( 'This is a warning notice.' ) } isWarning />
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
@@ -203,7 +188,7 @@ class ComponentsDemo extends Component {
 							/>
 						) }
 					</Card>
-					<Card noBackground>
+					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
 						<PluginInstaller
 							plugins={ [

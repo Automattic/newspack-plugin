@@ -42,9 +42,9 @@ class Services extends Component {
 					href={ wordads && '#/ad-placements' }
 					notification={
 						wordads.upgrade_required && [
-							__( 'Upgrade Jetpack to enable WordAds. ' ),
+							__( 'Upgrade Jetpack to enable WordAds.' ) + '\u00A0',
 							<ExternalLink href="/wp-admin/admin.php?page=jetpack#/plans">
-								Click to upgrade
+							{ __( 'Click to upgrade' ) }
 							</ExternalLink>,
 						]
 					}

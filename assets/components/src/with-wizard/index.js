@@ -23,14 +23,14 @@ import './style.scss';
 import { Redirect, Route } from 'react-router-dom';
 import { isFunction } from 'lodash';
 
-export default function withWizard( WrappedComponent, requiredPlugins ) {
+export default function withWizard( WrappedComponent, requiredPlugins, options ) {
 	return class extends Component {
 		constructor( props ) {
 			super( props );
 			this.state = {
 				complete: null,
 				error: null,
-				loading: requiredPlugins ? 1 : 0,
+				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -198,13 +198,15 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					path="/"
 					render={ routeProps => (
 						<Grid>
-							<Card noBackground className="muriel-wizardScreen muriel-wizardScreen__no-background">
+							<Card noBackground>
 								{ complete !== null && (
 									<FormattedHeader
 										headerText={ __( 'Required plugin' ) }
 										subHeaderText={ __( 'This feature requires the following plugin.' ) }
 									/>
 								) }
+							</Card>
+							<Card>
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
@@ -228,7 +230,13 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				<Fragment>
 					{ this.getError() }
 					<div className="newspack-logo-wrapper">
-						<NewspackLogo />
+						{ options && options.suppressLogoLink ? (
+							<NewspackLogo />
+						) : (
+							<a href={ newspack_urls && newspack_urls.dashboard }>
+								<NewspackLogo />
+							</a>
+						) }
 					</div>
 					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
 						<WrappedComponent
@@ -243,13 +251,15 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 						{ buttonText && buttonAction && (
-							<Button
-								isTertiary
-								className="is-centered muriel-wizardScreen__subCompleteButton"
-								{ ...buttonProps( buttonAction ) }
-							>
-								{ buttonText }
-							</Button>
+							<Grid>
+								<Card noBackground>
+									<div className="newspack-buttons-card">
+										<Button isPrimary { ...buttonProps( buttonAction ) }>
+											{ buttonText }
+										</Button>
+									</div>
+								</Card>
+							</Grid>
 						) }
 					</div>
 				</Fragment>

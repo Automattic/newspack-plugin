@@ -23,12 +23,13 @@ class Notice extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, isError, isSuccess, isPrimary, noticeText } = this.props;
+		const { className, isError, isSuccess, isWarning, isPrimary, noticeText } = this.props;
 		const classes = classNames(
 			'newspack-notice',
 			className,
 			isError && 'newspack-notice__is-error',
 			isSuccess && 'newspack-notice__is-success',
+			isWarning && 'newspack-notice__is-warning',
 			isPrimary && 'newspack-notice__is-primary'
 		);
 		const errorIcon = (
@@ -46,18 +47,25 @@ class Notice extends Component {
 				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
 			</SVG>
 		);
+		const warningIcon = (
+			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<Path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+			</SVG>
+		);
 		let noticeIcon;
 		if ( isError ) {
   		noticeIcon = errorIcon;
 		} else if ( isSuccess ) {
 			noticeIcon = successIcon;
+		} else if ( isWarning ) {
+			noticeIcon = warningIcon;
 		} else {
 		  noticeIcon = infoIcon;
 		}
 		return (
 			<div className={ classes }>
 				{ noticeIcon }
-				{ noticeText }
+				<span className="newspack-notice__content">{ noticeText }</span>
 			</div>
 		);
 	}

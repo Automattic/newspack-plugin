@@ -1,16 +1,11 @@
 /**
- * Tabbed Navigation
+ * Secondary Navigation
  */
 
 /**
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-
-/**
- * Internal dependencies.
- */
-import murielClassnames from '../../../shared/js/muriel-classnames';
 
 /**
  * External dependencies.
@@ -24,7 +19,7 @@ import { NavLink } from 'react-router-dom';
 import './style.scss';
 
 /**
- * Progress bar.
+ * Secondary navigation.
  */
 class SecondaryNavigation extends Component {
 	/**
@@ -32,7 +27,7 @@ class SecondaryNavigation extends Component {
 	 */
 	render() {
 		const { items, className } = this.props;
-		const classes = murielClassnames( 'muriel-secondary-navigation', 'muriel-grid-item', className );
+		const classes = classnames( 'newspack-secondary-navigation', className );
 		return (
 			<div className={ classes }>
 				<ul>

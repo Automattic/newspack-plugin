@@ -1,37 +1,46 @@
+/**
+ * Plugin Installer
+ */
+
 @import "~@wordpress/base-styles/colors";
 
-.newspack-plugin-installer__checkbox-row {
-	position: relative;
+.newspack-card,
+.newspack-card:not(.newspack-card__no-background) {
+	.newspack-card.newspack-action-card__plugin-installer {
+		border-left: 4px solid $light-gray-200;
 
-	.components-spinner,
-	.newspack-plugin-installer__status {
-		position: absolute;
-		top: 0;
-		right: 0;
-	}
-}
+		.newspack-plugin-installer__status {
+			align-items: center;
+			display: flex;
 
-.newspack_plugin-installer__content {
-	display: flex;
-	align-items: center;
+			svg {
+				display: block;
+				fill: $light-gray-900;
+				margin-right: 4px;
+				order: -1;
 
-	svg {
-		display: block;
-		fill: $light-gray-900;
-		margin-left: 4px;
-	}
+				@media screen and ( min-width: 744px ) {
+					margin-left: 4px;
+					margin-right: 0;
+					order: 0;
+				}
+			}
+		}
 
-	&.is-active {
-		svg {
-			fill: $alert-green;
+		&.newspack-plugin-installer__status-active {
+			border-left-color: $alert-green;
+
+			svg {
+				fill: $alert-green;
+			}
+		}
+
+		&.newspack-plugin-installer__status-error {
+			border-left-color: $alert-red;
 		}
 	}
 }
 
-.newspack-plugin-installer_waiting {
-	text-align: center;
-
-	.components-spinner {
-		float: none;
-	}
+.newspack-plugin-installer_is-waiting {
+	display: flex;
 }

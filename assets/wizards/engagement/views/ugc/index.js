@@ -6,7 +6,6 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -24,7 +23,12 @@ class UGC extends Component {
 	render() {
 		const { connected, connectURL } = this.props;
 
-		return <Placeholder>User Generated Content features TK.</Placeholder>;
+		return (
+			<Card noBackground>
+				<h2>{ __('Coming Soon') }</h2>
+				<p>{ __( 'User Generated Content features TK.' ) }</p>
+			</Card>
+		);
 	}
 }
 

@@ -1,5 +1,5 @@
 /**
- * Muriel Grid Container
+ * Grid
  */
 
 /**
@@ -10,21 +10,21 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import './style.scss';
 
 /**
- * Internal dependencies
+ * External dependencies
  */
-import './style.scss';
+import classNames from 'classnames';
 
 class Grid extends Component {
 	/**
-	 * Render.
+	 * Render
 	 */
 	render() {
 		const { className, ...otherProps } = this.props;
-		const classes = murielClassnames(
-			'muriel-grid-container',
+		const classes = classNames(
+			'newspack-grid',
 			className,
 		);
 		return <div className={ classes } { ...otherProps } />;

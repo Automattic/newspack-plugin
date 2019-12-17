@@ -328,7 +328,6 @@ class SetupWizard extends Component {
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									noBackground
 									headerIcon={ configurePluginsIcon }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
@@ -352,14 +351,15 @@ class SetupWizard extends Component {
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									noBackground
 									headerIcon={ configurePluginsIcon }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
 										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
-									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Google Site Kit' ) }
+									buttonText={
+										pluginConfigured ? __( 'Continue' ) : __( 'Configure Google Site Kit' )
+									}
 									buttonAction={ pluginConfigured ? '#/starter-content' : { handoff: plugin } }
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
@@ -392,7 +392,6 @@ class SetupWizard extends Component {
 							<InstallationProgress
 								autoInstall={ '/' !== routeProps.location.pathname }
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
-								noBackground
 								headerText={ __( 'Installation...' ) }
 								subHeaderText={ __(
 									'You’re almost done. Please configure the following core plugins to start using Newspack.'
@@ -420,6 +419,6 @@ class SetupWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SetupWizard ), { fullLogo: true } ),
+	createElement( withWizard( SetupWizard, [], { suppressLogoLink: true } ) ),
 	document.getElementById( 'newspack-setup-wizard' )
 );

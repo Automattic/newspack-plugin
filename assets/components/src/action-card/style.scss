@@ -1,64 +1,96 @@
 /**
- * Button styles,
+ * Action Card
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/colors';
 
-.newspack-action-card {
-	/* General styles */
+.newspack-card.newspack-action-card {
+	box-shadow: 0 4px 8px rgba( black, 0.08 );
+	padding: 24px;
 
-	color: $muriel-gray-300;
-	font-size: 14px;
+	// Clickable
 
-	h1,
-	h2 {
-		font-weight: normal;
+	&.newspack-card__is-clickable {
+		transition: box-shadow 125ms ease-in-out;
+
+		&:hover {
+			box-shadow: 0 4px 8px rgba( black, 0.24 );
+		}
+	}
+
+	// Unsupported
+
+	&.newspack-card__is-unsupported {
+		border-left: 4px solid $alert-red;
+	}
+
+	// Typography
+
+	h2,
+	p {
 		margin: 0;
-		padding: 0;
-	}
-
-	h1 {
-		color: $muriel-gray-900;
-		font-size: 16px;
-		line-height: 21px;
+		max-width: 100%;
+		width: 100%;
 	}
 
 	h2 {
-		color: $muriel-gray-600;
-		font-size: 14px;
-		line-height: 21px;
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		margin-right: -8px;
+
+		.newspack-action-card__title {
+			margin-right: 8px;
+		}
 	}
 
-	/* Regions */
+	// Regions
 
 	.newspack-action-card__region {
-		align-items: flex-start;
+		align-items: center;
 		display: flex;
-		flex-direction: column;
-		flex-grow: 0;
+		justify-content: space-between;
 		margin: 0;
 	}
 
 	.newspack-action-card__region-top {
-		display: flex;
-		flex-direction: row;
+		display: block;
+
+		@media screen and ( min-width: 744px ) {
+			display: flex;
+		}
 	}
 
 	.newspack-action-card__region-left {
-		margin-right: 24px;
+		margin-bottom: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-bottom: 0;
+			margin-right: 24px;
+		}
 	}
 
 	.newspack-action-card__region-center {
-		flex-grow: 1;
+		align-items: flex-start;
+		flex: 1 1 auto;
+		flex-wrap: wrap;
 	}
 
 	.newspack-action-card__region-right {
-		align-items: flex-end;
-		align-self: center;
-		margin-left: 24px;
+		align-items: flex-start;
+		flex-direction: column;
+		margin-top: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			align-items: flex-end;
+			flex-direction: column;
+			margin-left: 24px;
+			margin-top: 0;
+		}
 	}
 
-	/* Spinner */
+	// Spinner
 
 	.newspack-action-card__container {
 		display: flex;
@@ -70,67 +102,66 @@
 		min-width: 18px;
 	}
 
-	/* Notifications */
+	// Notifications
 
 	.newspack-action-card__notification {
-		margin: 14px 0 0 0;
-		p:before {
-			margin-right: 6px;
+		.newspack-notice {
+			margin: 24px 0 0;
 		}
 	}
 
-	/* Image */
+	// Image
 
 	.newspack-action-card__image {
 		background-position: center;
 		background-repeat: no-repeat;
 		background-size: cover;
-		border: 1px solid $muriel-gray-400;
 		border-radius: 50%;
-		height: 32px;
-		width: 32px;
+		height: 48px;
+		width: 48px;
 	}
 
-	/* Icon */
+	// Icon
 
 	.newspack_plugin-installer__icon {
 		margin: 0;
 	}
 
-	/* ToggleControl */
+	// Toggle Control
 
 	.components-toggle-control {
-		align-self: center;
-		margin-right: 1em;
+		margin-bottom: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-bottom: 0;
+			margin-right: 24px;
+		}
+
 		.components-base-control__field {
 			margin-bottom: 0;
 		}
+
+		.components-form-toggle {
+			display: flex;
+			margin: 0;
+		}
 	}
 
-	/* ToggleControl */
-
-	.components-toggle-control {
-		align-self: center;
-		margin-right: 1em;
-	}
-
-	/* Buttons */
+	// Buttons
 
 	button.is-link {
-		color: $primary_color;
+		color: $primary-500;
 
 		&:hover {
-			color: $primary_color_darker;
+			color: $primary-600;
 		}
 	}
 
 	button.newspack-action-card__secondary_button {
 		visibility: hidden;
+
 		&.is-link {
-			color: $muriel-hot-red-600;
-			&:hover {
-				color: $muriel-hot-red-500;
-			}
+			color: $alert-red;
 		}
 	}
 
@@ -138,18 +169,42 @@
 		visibility: visible;
 	}
 
-	/* Badge */
+	// Badge
 
-	.newspack-action-card-badge {
-		border: 1px solid $muriel-gray-300;
+	.newspack-action-card__badge {
+		border: 1px solid $light-gray-500;
 		border-radius: 12px;
-		font-size: 11px;
+		display: block;
+		flex: 0 0 auto;
+		font-size: 12px;
 		font-weight: bold;
-		line-height: 14px;
-		margin: 0 0 0 8px;
-		padding: 1px 6px;
-		text-align: center;
+		line-height: 16px;
+		margin: 3px 8px 3px 0;
+		padding: 0 8px;
 		text-transform: uppercase;
-		vertical-align: middle;
+	}
+
+	// Description Card
+	&.newspack-description-card {
+		font-style: italic;
+	}
+
+	// Multiple Cards
+
+	& + & {
+		margin-top: -16px;
+	}
+}
+
+.newspack-card:not(.newspack-card__no-background) {
+	.newspack-card.newspack-action-card {
+		border: 1px solid $light-gray-200;
+		box-shadow: none;
+
+		// Unsupported
+
+		&.newspack-card__is-unsupported {
+			border-left: 4px solid $alert-red;
+		}
 	}
 }

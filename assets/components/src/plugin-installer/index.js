@@ -7,19 +7,24 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
-import { Spinner, SVG, Path } from '@wordpress/components';
+import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, ProgressBar } from '../';
+import { ActionCard, Button, ProgressBar, Waiting } from '../';
 import './style.scss';
 
 const PLUGIN_STATE_NONE = 0;
 const PLUGIN_STATE_ACTIVE = 1;
 const PLUGIN_STATE_INSTALLING = 2;
 const PLUGIN_STATE_ERROR = 3;
+
+/**
+ * External dependencies
+ */
+import classNames from 'classnames';
 
 /**
  * Plugin installer.
@@ -129,6 +134,23 @@ class PluginInstaller extends Component {
 		} );
 	};
 
+	classForInstallationStatus = status =>  {
+		switch ( status ) {
+			case PLUGIN_STATE_ACTIVE:
+				return 'newspack-plugin-installer__status-active';
+				break;
+			case PLUGIN_STATE_INSTALLING:
+				return 'newspack-plugin-installer__status-installing';
+				break;
+			case PLUGIN_STATE_ERROR:
+				return 'newspack-plugin-installer__status-error';
+				break;
+			default:
+				return 'newspack-plugin-installer__status-none';
+				break;
+		}
+	}
+
 	/**
 	 * Render.
 	 */
@@ -161,9 +183,9 @@ class PluginInstaller extends Component {
 		return (
 			<div>
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
-					<div className="newspack-plugin-installer_waiting">
-						<p>{ __( 'Retrieving plugin information...' ) }</p>
-						<Spinner />
+					<div className="newspack-plugin-installer_is-waiting">
+						<Waiting isLeft />
+						{ __( 'Retrieving plugin information...' ) }
 					</div>
 				) }
 				{ pluginInfo &&
@@ -175,22 +197,34 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing' );
+							actionText = __( 'Installing...' );
+						} else if ( Status === 'uninstalled' ) {
+							actionText = (
+								<span className="newspack-plugin-installer__status">
+									{ __( 'Install' ) }
+									{ inactiveIcon }
+								</span>
+							);
 						} else if ( Status === 'inactive' ) {
 							actionText = (
-								<span className="newspack_plugin-installer__content is-inactive">
-									{ __( 'Not installed' ) }
+								<span className="newspack-plugin-installer__status">
+									{ __( 'Activate' ) }
 									{ inactiveIcon }
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
-								<span className="newspack_plugin-installer__content is-active">
+								<span className="newspack-plugin-installer__status">
 									{ __( 'Installed' ) }
 									{ activeIcon }
 								</span>
 							);
 						}
+
+						const classes = classNames(
+							'newspack-action-card__plugin-installer',
+							this.classForInstallationStatus( installationStatus ),
+						);
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
 							<ActionCard
@@ -202,18 +236,20 @@ class PluginInstaller extends Component {
 								onClick={ onClick }
 								notification={ notification }
 								notificationLevel="error"
+								className={ classes }
 							/>
 						);
 					} ) }
 				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
-					<Button
-						disabled={ ! needsInstall }
-						isPrimary
-						className="is-centered"
-						onClick={ this.installAllPlugins }
-					>
-						{ __( 'Install' ) }
-					</Button>
+					<div className="newspack-buttons-card">
+						<Button
+							disabled={ ! needsInstall }
+							isPrimary
+							onClick={ this.installAllPlugins }
+						>
+							{ __( 'Install' ) }
+						</Button>
+					</div>
 				) }
 			</div>
 		);

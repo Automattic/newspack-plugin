@@ -44,12 +44,10 @@ class SyndicationWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Intro
-									noBackground
 									headerIcon={ headerIcon }
 									headerText={ __( 'Syndication', 'newspack' ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
+									buttonText={ __( 'Back to dashboard' ) }
+									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
 							) }
 						/>

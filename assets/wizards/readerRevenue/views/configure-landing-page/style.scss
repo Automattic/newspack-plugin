@@ -1,19 +1,25 @@
-@import '../../../../shared/scss/muriel-component';
+/**
+ * Configure Landing Page
+ */
+
+@import '~@wordpress/base-styles/colors';
 
 .newspack-memberships-page-wizard-wizard__notice {
+	align-items: flex-start;
 	display: flex;
-	justify-content: center;
-	align-items: center;
-	color: $muriel-gray-500;
+	justify-content: flex-start;
+	margin: 32px 0;
 
-	.dashicon {
-		color: $primary-color;
-		margin-right: .5em;
+	svg {
+		display: block;
+		fill: $alert-red;
+		flex: 0 0 24px;
+		margin-right: 4px;
 	}
 
-	&.setup-error {
-		.dashicon {
-			color: $muriel-red-500;
+	&.setup-success {
+		svg {
+			fill: $alert-green;
 		}
 	}
 }

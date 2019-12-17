@@ -3,7 +3,7 @@
  */
 
 @import '~@wordpress/base-styles/colors';
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
 
 .newspack-notice {
 	align-items: flex-start;
@@ -16,7 +16,7 @@
 	line-height: 24px;
 	margin: 32px 0;
 
-	svg {
+	> svg {
 		display: block;
 		fill: $dark-gray-900;
 		flex: 0 0 24px;
@@ -24,20 +24,26 @@
 	}
 
 	&.newspack-notice__is-success {
-		svg {
+		> svg {
 			fill: $alert-green;
 		}
 	}
 
 	&.newspack-notice__is-error {
-		svg {
+		> svg {
 			fill: $alert-red;
 		}
 	}
 
+	&.newspack-notice__is-warning {
+		> svg {
+			fill: $alert-yellow;
+		}
+	}
+
 	&.newspack-notice__is-primary {
-		svg {
-			fill: $primary_color;
+		> svg {
+			fill: $primary-500;
 		}
 	}
 }

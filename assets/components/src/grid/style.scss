@@ -1,5 +1,28 @@
-@import '../../../shared/scss/muriel-component';
+/**
+ * Grid
+ */
 
-.muriel-grid-container {
-	@include muriel-grid;
+.newspack-grid {
+	margin: 0 auto;
+	max-width: 90%;
+	max-width: calc(100% - 32px);
+
+	@media screen and ( min-width: 600px ) {
+		max-width: 80%;
+		max-width: calc(100% - 64px);
+	}
+
+	@media screen and ( min-width: 744px ) {
+		max-width: 680px;
+	}
+}
+
+// Welcome Screen
+
+.newspack_page_newspack-setup-wizard__welcome {
+	.newspack-grid {
+		@media screen and ( min-width: 584px ) {
+			max-width: 520px;
+		}
+	}
 }

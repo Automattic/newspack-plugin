@@ -1,24 +1,22 @@
 /**
- * Action cards.
+ * Action Card
  */
 
 /**
- * WordPress dependencies.
+ * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Dashicon, Spinner, ToggleControl } from '@wordpress/components';
-import { Button, Card, Handoff } from '../';
+import { Dashicon, ToggleControl } from '@wordpress/components';
+import { Button, Card, Handoff, Notice, Waiting } from '../';
 
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**
  * External dependencies
  */
-
 import classnames from 'classnames';
 
 class ActionCard extends Component {
@@ -27,7 +25,7 @@ class ActionCard extends Component {
 	};
 
 	/**
-	 * Render.
+	 * Render
 	 */
 	render( props ) {
 		const {
@@ -51,13 +49,10 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 		} = this.props;
-		const classes = murielClassnames( 'newspack-action-card', simple && 'is_clickable', className );
-		const notificationClasses = classnames(
-			'newspack-action-card__notification',
-			'notice',
-			`notice-${ notificationLevel }`,
-			'notice-alt',
-			'update-message'
+		const classes = classnames(
+			'newspack-action-card',
+			simple && 'newspack-card__is-clickable',
+			className
 		);
 		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		const actionDisplay = ( simple && <Dashicon icon="arrow-right-alt2" /> ) || actionText;
@@ -78,10 +73,11 @@ class ActionCard extends Component {
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h1>
-							{ [ title, badge && <span className="newspack-action-card-badge">{ badge }</span> ] }
-						</h1>
-						<h2>{ description }</h2>
+						<h2>
+							<span className="newspack-action-card__title">{ title }</span>
+							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
+						</h2>
+						<p>{ description }</p>
 					</div>
 					{ actionDisplay && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
@@ -102,8 +98,8 @@ class ActionCard extends Component {
 							) }
 							{ ! handoff && ! onClick && ! href && (
 								<div className="newspack-action-card__container">
-									{ isWaiting && <Spinner /> }
 									{ actionDisplay }
+									{ isWaiting && <Waiting isRight /> }
 								</div>
 							) }
 
@@ -120,8 +116,11 @@ class ActionCard extends Component {
 					) }
 				</div>
 				{ notification && (
-					<div className={ notificationClasses }>
-						<p>{ notification }</p>
+					<div className="newspack-action-card__notification">
+						{ 'error'   === notificationLevel && ( <Notice noticeText={ notification } isError /> ) }
+						{ 'info'    === notificationLevel && ( <Notice noticeText={ notification } isPrimary /> ) }
+						{ 'success' === notificationLevel && ( <Notice noticeText={ notification } isSuccess /> ) }
+						{ 'warning' === notificationLevel && ( <Notice noticeText={ notification } isWarning /> ) }
 					</div>
 				) }
 			</Card>

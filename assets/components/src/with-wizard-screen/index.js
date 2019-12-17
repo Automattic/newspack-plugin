@@ -9,11 +9,16 @@ import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies.
+ * Internal dependencies
  */
 import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
-import { murielClassnames, buttonProps } from '../../../shared/js/';
+import { buttonProps } from '../../../shared/js/';
 import './style.scss';
+
+/**
+ * External dependencies
+ */
+import classNames from 'classnames';
 
 export default function withWizardScreen( WrappedComponent, config ) {
 	return class extends Component {
@@ -37,7 +42,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				secondaryButtonStyle,
 				hidden,
 			} = this.props;
-			const classes = murielClassnames(
+			const classes = classNames(
 				'muriel-wizardScreen',
 				className,
 				noBackground ? 'muriel-wizardScreen__no-background' : '',
@@ -71,42 +76,40 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						<Grid>
 							<Card className={ classes } noBackground={ noBackground }>
 								{ content }
-							</Card>
-						</Grid>
-					) }
-					{ ! hidden && (
-						<Grid>
-							<Card className="is-centered buttons-card" noBackground>
-								{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
-									<Handoff
-										isPrimary
-										className="muriel-wizardScreen__completeButton"
-										{ ...retrievedButtonProps }
-									>
-										{ buttonText }
-									</Handoff>
-								) }
-								{ notice }
-								{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
-									<Button
-										isPrimary={ ! buttonDisabled }
-										isDefault={ !! buttonDisabled }
-										className="muriel-wizardScreen__completeButton"
-										disabled={ buttonDisabled }
-										{ ...retrievedButtonProps }
-									>
-										{ buttonText }
-									</Button>
-								) }
-								{ footer }
-								{ secondaryButtonText && (
-									<Button
-										{ ...secondaryButtonStyle }
-										className="is-link"
-										{ ...buttonProps( secondaryButtonAction ) }
-									>
-										{ secondaryButtonText }
-									</Button>
+								{ ! hidden && (
+									<div className="newspack-buttons-card">
+										{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
+											<Handoff
+												isPrimary
+												className="muriel-wizardScreen__completeButton"
+												{ ...retrievedButtonProps }
+											>
+												{ buttonText }
+											</Handoff>
+										) }
+										{ notice }
+										{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
+											<Button
+												isPrimary={ ! buttonDisabled }
+												isDefault={ !! buttonDisabled }
+												className="muriel-wizardScreen__completeButton"
+												disabled={ buttonDisabled }
+												{ ...retrievedButtonProps }
+											>
+												{ buttonText }
+											</Button>
+										) }
+										{ footer }
+										{ secondaryButtonText && (
+											<Button
+												{ ...secondaryButtonStyle }
+												isDefault
+												{ ...buttonProps( secondaryButtonAction ) }
+											>
+												{ secondaryButtonText }
+											</Button>
+										) }
+									</div>
 								) }
 							</Card>
 						</Grid>
