@@ -7,12 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { CheckboxControl, TextControl, withWizardScreen } from '../../../../components/src';
+import { CheckboxControl, TextControl, ToggleControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -51,10 +51,9 @@ class StripeSetup extends Component {
 							tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
 						/>
 						<div className="newspack-payment-setup-screen__api-keys-heading">
-							<h4 className="newspack-payment-setup-screen__api-keys-instruction">
-								{ __( 'Get your API keys from your Stripe account' ) }
-							</h4>
-							<p className="newspack-payment-setup-screen__api-tip">
+							<p className="newspack-payment-setup-screen__api-keys-instruction">
+								{ __( 'Get your API keys from your Stripe account.' ) }
+								{ ' ' }
 								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
 									{ __( 'Learn how' ) }
 								</ExternalLink>
