@@ -91,5 +91,16 @@
 				position: relative;
 			}
 		}
+
+		.newspack-task__task-description {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+
+			p {
+				margin-right: 8px;
+			}
+		}
 	}
 }

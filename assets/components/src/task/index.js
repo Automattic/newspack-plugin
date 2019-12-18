@@ -50,6 +50,11 @@ class Task extends Component {
 				<div className="newspack-task__task-description">
 					<p className="is-dark"><strong>{ title }</strong></p>
 					{ ! completed && ( <p>{ description }</p> ) }
+					{ completed && (
+						<Button isLink onClick={ onClick }>
+							{ __( 'Edit' ) }
+						</Button>
+					) }
 				</div>
 				<div className="newspack-task__task-buttons">
 					{ active && (
@@ -65,11 +70,6 @@ class Task extends Component {
 								</Button>
 							) }
 						</Fragment>
-					) }
-					{ completed && (
-						<Button isLink onClick={ onClick }>
-							{ __( 'Edit' ) }
-						</Button>
 					) }
 				</div>
 			</Card>
