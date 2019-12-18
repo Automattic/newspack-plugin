@@ -338,14 +338,13 @@ class ComponentsDemo extends Component {
 						editLink="admin.php?page=jetpack#/settings"
 					/>
 					<FormattedHeader headerText={ __( 'Checklist' ) } />
-					<Checklist progressBarText={ __( 'Your setup list' ) } className="muriel-grid-item">
+					<Checklist progressBarText={ __( 'Your setup list' ) }>
 						<Task
 							title={ __( 'Set up membership' ) }
 							description={ __(
 								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
 							) }
 							buttonText={ __( 'Do it' ) }
-							completedTitle={ __( 'All set!' ) }
 							active={ checklistProgress === 0 }
 							completed={ checklistProgress > 0 }
 							onClick={ () => this.performCheckListItem( 0 ) }
@@ -357,7 +356,6 @@ class ComponentsDemo extends Component {
 								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
 							) }
 							buttonText={ __( 'Do it' ) }
-							completedTitle={ __( 'All set!' ) }
 							active={ checklistProgress === 1 }
 							completed={ checklistProgress > 1 }
 							onClick={ () => this.performCheckListItem( 1 ) }
@@ -369,19 +367,17 @@ class ComponentsDemo extends Component {
 								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
 							) }
 							buttonText={ __( 'Do it' ) }
-							completedTitle={ __( 'All set!' ) }
 							active={ checklistProgress === 2 }
 							completed={ checklistProgress > 2 }
 							onClick={ () => this.performCheckListItem( 2 ) }
 							onDismiss={ () => this.dismissCheckListItem( 2 ) }
 						/>
 						<Task
-							title={ __( 'Setup Call to Action block' ) }
+							title={ __( 'Set up call to action block' ) }
 							description={ __(
 								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
 							) }
 							buttonText={ __( 'Do it' ) }
-							completedTitle={ __( 'All set!' ) }
 							active={ checklistProgress === 3 }
 							completed={ checklistProgress > 3 }
 							onClick={ () => this.performCheckListItem( 3 ) }
