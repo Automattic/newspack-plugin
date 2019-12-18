@@ -2,7 +2,7 @@
  * Checkbox styles.
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
 .newspack-checkbox-control {
@@ -21,21 +21,32 @@
 	}
 
 	input[type="checkbox"] {
-		background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpath xmlns='http://www.w3.org/2000/svg' d='M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z' fill='%23a2aab2'/%3E%3C/svg%3E");
-		border: 0;
+		background: white;
+		border: 1px solid $light-gray-500;
 		border-radius: 3px;
 		box-shadow: none;
 		height: 24px;
-		transition: box-shadow 125ms ease-in-out;
+		transition: background 125ms ease-in-out, border-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
 		width: 24px;
 
 		&:checked,
+		&.checked,
+		&:hover {
+			background-color: $primary-500;
+			border-color: $primary-600;
+		}
+
+		&:checked,
 		&.checked {
-			background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath xmlns='http://www.w3.org/2000/svg' d='M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' fill='%233366ff'/%3E%3C/svg%3E");
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath xmlns='http://www.w3.org/2000/svg' d='M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z' fill='white'/%3E%3C/svg%3E");
+			background-position: 50%;
+			background-repeat: no-repeat;
+			transition: 0s;
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 2px $primary_color;
+			border-color: $primary-600;
+			box-shadow: 0 0 0 2px $primary-500;
 		}
 	}
 
@@ -43,7 +54,7 @@
 		display: block;
 		height: 24px;
 		margin: 0;
-		margin-right: 4px;
+		margin-right: 8px;
 		width: 24px;
 
 		svg {
@@ -56,7 +67,7 @@
 		font-size: inherit;
 		line-height: inherit;
 		margin: 0;
-		margin-left: 28px;
+		margin-left: 32px;
 	}
 
 	// Multiple Checkbox Controls
