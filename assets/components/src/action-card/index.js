@@ -6,8 +6,8 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Dashicon, ToggleControl } from '@wordpress/components';
-import { Button, Card, Handoff, Notice, Waiting } from '../';
+import { Dashicon } from '@wordpress/components';
+import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
  * Internal dependencies

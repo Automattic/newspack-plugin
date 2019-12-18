@@ -7,13 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { MoneyInput } from '../../components/';
-import { ImageUpload, TextControl, withWizardScreen } from '../../../../components/src';
+import { ImageUpload, TextControl, ToggleControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -43,10 +42,10 @@ class Donation extends Component {
 				</p>
 				<div className="newspack-donations-wizard__use-tiered">
 					<ToggleControl
+						label={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
 						checked={ tiered }
 						onChange={ tiered => onChange( { ...data, tiered } ) }
 					/>
-					<span>{ __( 'Suggest low, middle, and high tiers for monthly donations' ) }</span>
 				</div>
 				{ tiered && (
 					<div className="newspack-donations-wizard__tier-suggested-prices">
