@@ -1,5 +1,5 @@
 /**
- * Progress bar for displaying visual feedback about steps-completed.
+ * Progress Bar
  */
 
 /**
@@ -12,9 +12,6 @@ import { Component } from '@wordpress/element';
  */
 import './style.scss';
 
-/**
- * Progress bar.
- */
 class ProgressBar extends Component {
 
 	/**
@@ -45,23 +42,19 @@ class ProgressBar extends Component {
 		}
 
 		return (
-			<div className="muriel-progress-bar">
+			<div className="newspack-progress-bar">
 				{ ( label || displayFraction ) && (
-					<div className="muriel-progress-bar__headings">
+					<div className="newspack-progress-bar__headings">
 						{ label && (
-							<div className="muriel-progress-bar__label">
-								{ label }
-							</div>
+							<h2>{ label }</h2>
 						) }
 						{ displayFraction && (
-							<div className="muriel-progress-bar__fraction">
-								{ cleanCompleted }/{ cleanTotal}
-							</div>
+							<p className="is-dark"><strong>{ cleanCompleted }/{ cleanTotal }</strong></p>
 						) }
 					</div>
 				) }
 
-				<div className="muriel-progress-bar__bar" style={ barStyle } ></div>
+				<div className="newspack-progress-bar__bar" style={ barStyle } ></div>
 			</div>
 		);
 	}

@@ -1,5 +1,5 @@
 /**
- * A single checklist task row.
+ * Task
  */
 
 /**
@@ -7,12 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { Dashicon } from '@wordpress/components';
+import { SVG, Path } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { Button } from '../';
+import { Card, Button } from '../';
 import './style.scss';
 
 /**
@@ -29,28 +29,34 @@ class Task extends Component {
 			active,
 			buttonText,
 			completed,
-			completedTitle,
 			description,
 			onClick,
 			onDismiss,
 			title,
 		} = this.props;
-		const classes = classnames( 'muriel-task', active && 'is-active', completed && 'is-completed' );
+		const classes = classnames(
+			'newspack-task',
+			active && 'is-active',
+			completed && 'is-completed'
+		);
+		const iconDone = (
+			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+			</SVG>
+		);
 		return (
-			<div className={ classes }>
-				<div className="checklist__task-icon">{ completed && <Dashicon icon="yes" /> }</div>
-				{ completed && (
-					<div className="checklist__task-primary">
-						<h1>{ completedTitle }</h1>
-					</div>
-				) }
-				{ ! completed && (
-					<div className="checklist__task-primary">
-						<h1>{ title }</h1>
-						<h2>{ description }</h2>
-					</div>
-				) }
-				<div className="checklist__task-secondary">
+			<Card className={ classes }>
+				<div className="newspack-task__task-icon">{ completed && iconDone }</div>
+				<div className="newspack-task__task-description">
+					<p className="is-dark"><strong>{ title }</strong></p>
+					{ ! completed && ( <p>{ description }</p> ) }
+					{ completed && (
+						<Button isLink onClick={ onClick }>
+							{ __( 'Edit' ) }
+						</Button>
+					) }
+				</div>
+				<div className="newspack-task__task-buttons">
 					{ active && (
 						<Fragment>
 							{ onClick && (
@@ -59,19 +65,14 @@ class Task extends Component {
 								</Button>
 							) }
 							{ onDismiss && (
-								<Button isLink onClick={ onDismiss }>
+								<Button isDefault onClick={ onDismiss }>
 									{ __( 'Skip' ) }
 								</Button>
 							) }
 						</Fragment>
 					) }
-					{ completed && (
-						<Button isLink onClick={ onClick }>
-							{ __( 'Edit' ) }
-						</Button>
-					) }
 				</div>
-			</div>
+			</Card>
 		);
 	}
 }

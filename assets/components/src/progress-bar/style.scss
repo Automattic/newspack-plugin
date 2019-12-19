@@ -1,40 +1,39 @@
 /**
- * Progress bar styles.
+ * Progress Bar
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
 
-.muriel-progress-bar {
-	margin: 16px 0;
+.newspack-progress-bar {
+	margin: 32px 0;
 	position: relative;
 	z-index: 1;
 
-	.muriel-progress-bar__headings {
-		font-size: 16px;
-		margin-bottom: 1em;
-		color: $muriel-gray-600;
+	.newspack-progress-bar__headings {
+		align-items: center;
 		display: flex;
 		justify-content: space-between;
-		font-weight: 500;
+		margin-bottom: 8px;
+
+		h2,
+		p {
+			margin: 0;
+		}
 	}
 
-	.muriel-progress-bar__fraction {
-		margin-left: auto;
-	}
-
-	.muriel-progress-bar__bar {
+	.newspack-progress-bar__bar {
+		background-color: $primary-500;
 		height: 4px;
-		background-color: $primary_color;
-		-webkit-transition: width 0.25s; /* Safari */
-  		transition: width 0.25s;
+		transition: width 125ms ease-in-out;
 
-		&::before {
+		&:before {
+			background-color: $light-gray-200;
 			content: "";
-			left: 0;
-			width: 100%;
 			height: 4px;
-			background-color: $muriel-gray-100;
+			left: 0;
 			position: absolute;
+			width: 100%;
 			z-index: -1;
 		}
 	}
