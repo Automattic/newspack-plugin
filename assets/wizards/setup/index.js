@@ -1,9 +1,9 @@
 /**
- * Setup Wizard. Introduces Newspack, installs required plugins, and requests some general information about the newsroom.
+ * Setup
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component, Fragment, render } from '@wordpress/element';
@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { Spinner, SVG, Path } from '@wordpress/components';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
 import {
 	About,
@@ -25,7 +25,7 @@ import { Card, withWizard, WizardPagination } from '../../components/src';
 import './style.scss';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { pickBy, includes, forEach } from 'lodash';
@@ -259,6 +259,7 @@ class SetupWizard extends Component {
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
+					<WizardPagination routes={ routes } />
 					<Route
 						path="/"
 						exact
@@ -411,7 +412,6 @@ class SetupWizard extends Component {
 							) : null;
 						} }
 					/>
-					<WizardPagination routes={ routes } />
 				</HashRouter>
 			</Fragment>
 		);

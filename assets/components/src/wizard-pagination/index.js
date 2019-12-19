@@ -1,5 +1,5 @@
 /**
- * Wizard pagination
+ * Wizard Pagination
  */
 
 /**
@@ -7,17 +7,18 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
+import { SVG, Path } from '@wordpress/components';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { withRouter } from 'react-router-dom';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
+import { Button } from '../';
 import './style.scss';
-import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
 
 class WizardPagination extends Component {
 	/**
@@ -26,6 +27,11 @@ class WizardPagination extends Component {
 	render() {
 		const { history, location, routes } = this.props;
 		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
+		const iconArrowBack = (
+			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<Path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+			</SVG>
+		);
 		if ( ! routes || ! history || ! location ) {
 			return;
 		}
@@ -39,6 +45,7 @@ class WizardPagination extends Component {
 						{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
 					</div>
 					<Button isLink className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
+						{ iconArrowBack }
 						{ __( 'Back' ) }
 					</Button>
 				</div>
