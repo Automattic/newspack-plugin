@@ -64,7 +64,6 @@
 
 		label {
 			color: $dark-gray-900;
-			flex: 1 1 100%;
 			font-weight: bold;
 			padding: 4px 12px;
 		}
@@ -72,7 +71,7 @@
 		.newspack-button {
 			border-left: 1px solid $light-gray-200;
 			border-radius: 0 4px 4px 0;
-			flex: 0 0 35px;
+			flex: 0 0 auto;
 			padding: 5px;
 			margin: 0;
 
