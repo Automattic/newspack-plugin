@@ -1,49 +1,67 @@
-.muriel-modal-overlay {
-	margin: 0 !important;
-	background: rgba(#000, 0.7);
-}
+/**
+ * Modal
+ */
 
-.muriel-modal {
-	border-radius: 4px;
-	overflow: hidden;
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
 
-	&.components-modal__frame {
-		margin: 0;
+.newspack-modal {
+	background: white;
+	border: 0;
+	box-shadow: 0 8px 16px rgba( black, 0.08 );
+	color: $dark-gray-300;
+	font-size: 14px;
+	line-height: 24px;
+	margin: 0;
+	padding: 0 48px;
+	width: 100%;
+
+	@media screen and ( min-width: 600px ) {
+		border-radius: 4px;
+		max-width: 80%;
+		max-width: calc(100% - 64px);
 	}
 
-	.components-modal__content {
-		padding: 0 24px 10px;
-		font-size: 14px;
-		line-height: 21px;
-
-		p,
-		ul,
-		ol {
-			font-size: inherit;
-			line-height: inherit;
-		}
+	@media screen and ( min-width: 744px ) {
+		max-width: 680px;
+		padding: 0 64px;
 	}
+
+	// Header
 
 	.components-modal__header {
+		background: white;
 		border: none;
-		display: block;
-		font-size: 16px;
 		height: auto;
-		line-height: 21px;
-		margin: 24px 0 14px;
-		padding: 0;
-		position: relative;
+		margin: 0;
+		padding: 48px 0 32px;
 
-		button.components-icon-button {
+		@media screen and ( min-width: 744px ) {
+			padding-top: 64px;
+		}
+
+		.components-modal__header-heading-container {
+			display: block;
+		}
+
+		.components-icon-button {
 			left: auto;
-			padding: 0;
+			padding: 12px;
 			position: absolute;
-			right: 0;
-			top: -4px;
+			right: -48px;
+			top: 0;
+
+			@media screen and ( min-width: 744px ) {
+				right: -64px;
+			}
 
 			svg {
-				width: 30px;
-				height: 30px;
+				width: 24px;
+				height: 24px;
+
+				& + span {
+					display: none;
+				}
 			}
 
 			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover,
@@ -52,39 +70,78 @@
 				box-shadow: none;
 			}
 		}
+
+		.components-modal__header-heading {
+			color: $dark-gray-900;
+			font-size: 20px;
+			font-weight: bold;
+			line-height: 24px;
+			text-align: center;
+		}
 	}
 
-	.components-modal__header-heading {
-		font-size: inherit;
-		font-weight: 500;
-		line-height: inherit;
-		max-width: 90%;
-		max-width: calc(100% - 30px);
+	// Content
+
+	.components-modal__content {
+		margin: -32px 0 0;
+		padding: 0 0 16px;
+
+		@media screen and ( min-width: 744px ) {
+			padding-bottom: 32px;
+		}
 	}
 
-	.muriel-button {
-		&:first-of-type {
-			margin-left: 0;
+	// Typography
+
+	h2,
+	p {
+		line-height: 24px;
+		margin: 32px 0;
+		padding: 0;
+	}
+
+	h2 {
+		color: $dark-gray-900;
+		font-size: 17px;
+		font-weight: bold;
+	}
+
+	p {
+		font-size: 14px;
+
+		&.is-dark {
+			color: $dark-gray-900;
+		}
+	}
+
+	// Thematic Break
+
+	hr {
+		background: $light-gray-500;
+		border: 0;
+		height: 1px;
+		margin: 48px -48px;
+
+		@media screen and ( min-width: 744px ) {
+			margin: 64px -64px;
 		}
 	}
 }
 
-@media (max-width: 600px) {
-	.muriel-modal {
+// Overlay
+
+.newspack-modal__overlay {
+	background: rgba( $primary-500, 0.8 );
+}
+
+// Small Screens
+
+@media (max-width: 599px) {
+	.newspack-modal {
 		top: auto;
 
 		.components-modal__content {
 			height: auto;
-		}
-	}
-}
-
-// Reset unneccessary IE-specific style tweak from core styles.
-@supports(-ms-ime-align: auto) {
-	.muriel-modal {
-		.components-modal__header {
-			position: relative;
-			width: auto;
 		}
 	}
 }

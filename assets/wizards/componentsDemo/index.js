@@ -32,7 +32,6 @@ import {
 	Grid,
 	ToggleGroup,
 } from '../../components/src';
-import './style.scss';
 
 /**
  * Components demo for example purposes.
@@ -115,7 +114,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<Card noBackground className="newspack-components-demo__buttons">
+						<Card noBackground className="newspack-card__buttons-card">
 							<Handoff
 								modalTitle="Manage AMP"
 								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
@@ -136,7 +135,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<Card noBackground className="newspack-components-demo__buttons">
+						<Card noBackground className="newspack-card__buttons-card">
 							<Button
 								isPrimary
 								onClick={ () => this.setState( { modalShown: true } ) }
@@ -154,7 +153,7 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<Card noBackground className="newspack-components-demo__buttons">
+								<Card noBackground className="newspack-card__buttons-card">
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>
@@ -178,7 +177,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
-						<Card noBackground className="newspack-components-demo__buttons">
+						<Card noBackground className="newspack-card__buttons-card">
 							<Button
 								onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
 								className="is-centered"
@@ -483,7 +482,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card className="newspack-components-demo__buttons">
 						<FormattedHeader headerText="Buttons" />
-						<Card noBackground className="newspack-components-demo__buttons">
+						<Card noBackground className="newspack-card__buttons-card">
 							<Button isPrimary>{ __( 'isPrimary' ) }</Button>
 							<Button isDefault>{ __( 'isDefault' ) }</Button>
 							<Button isTertiary>{ __( 'isTertiary' ) }</Button>
