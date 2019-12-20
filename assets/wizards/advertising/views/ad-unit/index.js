@@ -44,13 +44,13 @@ class AdUnit extends Component {
 					onChange={ value => this.handleOnChange( 'name', value ) }
 				/>
 				<TextareaControl
-					label={ __( 'Paste the AMP ad code from Ad Manager here. Learn more' ) }
+					label={ __( 'Paste the AMP ad code from Ad Manager here.' ) }
 					value={ amp_ad_code || '' }
 					placeholder={ __( 'AMP Ad code' ) }
 					onChange={ value => this.handleOnChange( 'amp_ad_code', value ) }
 				/>
 				<TextareaControl
-					label={ __( 'Paste the HTML ad code from Ad Manager here. Learn more' ) }
+					label={ __( 'Paste the HTML ad code from Ad Manager here.' ) }
 					placeholder={ __( 'HTML Ad code' ) }
 					value={ ad_code || '' }
 					onChange={ value => this.handleOnChange( 'ad_code', value ) }

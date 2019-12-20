@@ -46,10 +46,6 @@ class HeaderCode extends Component {
 					value={ code }
 					onChange={ onChange }
 				/>
-				<p>
-					{ __( 'More context how to do this and maybe an example of what it looks like.' ) }
-					<ExternalLink url="#">{ __( 'Learn more' ) }</ExternalLink>
-				</p>
 			</Fragment>
 		);
 	}
