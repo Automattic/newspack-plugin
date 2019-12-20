@@ -47,7 +47,8 @@ class SEOWizard extends Component {
 							render={ routeProps => (
 								<Intro
 									headerIcon={ headerIcon }
-									headerText={ __( 'SEO', 'newspack' ) }
+									headerText={ __( 'SEO' ) }
+									subHeaderText={ __( 'Search engine and social optimization' ) }
 									buttonText={ __( 'Back to dashboard' ) }
 									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
