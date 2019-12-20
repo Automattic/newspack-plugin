@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
+import { Spinner, SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -189,6 +189,11 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		 */
 		pluginRequirements = () => {
 			const { complete } = this.state;
+			const iconRequired = (
+				<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+					<Path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+				</SVG>
+			);
 			/* After all plugins are loaded, redirect to / (this could be configurable) */
 			if ( complete ) {
 				return <Redirect from="/plugin-requirements" to="/" />;
@@ -201,6 +206,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 							<Card noBackground>
 								{ complete !== null && (
 									<FormattedHeader
+										headerIcon={ iconRequired }
 										headerText={ __( 'Required plugin' ) }
 										subHeaderText={ __( 'This feature requires the following plugin.' ) }
 									/>
