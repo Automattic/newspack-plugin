@@ -63,7 +63,8 @@
 
 	// Multiple Controls
 
-	& + .newspack-text-control {
+	& + .newspack-text-control,
+	& + .newspack-textarea-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}

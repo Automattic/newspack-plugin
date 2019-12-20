@@ -71,7 +71,8 @@
 
 	// Multiple Controls
 
-	& + .newspack-select-control {
+	& + .newspack-select-control,
+	& + .newspack-textarea-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}
