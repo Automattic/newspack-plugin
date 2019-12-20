@@ -6,6 +6,7 @@
 @import '../../../shared/scss/colors';
 
 .newspack-formatted-header {
+	margin: 32px 0;
 	text-align: center;
 
 	// Title
@@ -36,6 +37,8 @@
 
 	.newspack-formatted-header__subtitle {
 		color: $dark-gray-900;
+		font-size: 14px;
+		line-height: 24px;
 		margin: 8px 0 0;
 	}
 }
