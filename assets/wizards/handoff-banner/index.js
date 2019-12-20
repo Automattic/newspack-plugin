@@ -6,12 +6,12 @@
  * WordPress dependencies.
  */
 import { Component, createElement, render } from '@wordpress/element';
+import { Button } from '../../components/src';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { Button } from '../../components/src';
 import './style.scss';
 
 class HandoffBanner extends Component {
@@ -30,17 +30,13 @@ class HandoffBanner extends Component {
 		return (
 			visibility && (
 				<div className="newspack-handoff-banner">
-					<div className="newspack-handoff-banner__text">
-						{ bodyText }
-					</div>
-					<div className="newspack-handoff-banner__buttons">
-						<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
-							{ dismissButtonText }
-						</Button>
-						<Button isPrimary href={ primaryButtonURL }>
-							{ primaryButtonText }
-						</Button>
-					</div>
+					<p>{ bodyText }</p>
+					<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
+						{ dismissButtonText }
+					</Button>
+					<Button isPrimary href={ primaryButtonURL }>
+						{ primaryButtonText }
+					</Button>
 				</div>
 			)
 		);
