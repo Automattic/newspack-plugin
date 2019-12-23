@@ -46,6 +46,7 @@ class SyndicationWizard extends Component {
 								<Intro
 									headerIcon={ headerIcon }
 									headerText={ __( 'Syndication', 'newspack' ) }
+									subHeaderText={ 'Apple News, Facebook Instant Articles' }
 									buttonText={ __( 'Back to dashboard' ) }
 									buttonAction={ window && window.newspack_urls.dashboard }
 								/>

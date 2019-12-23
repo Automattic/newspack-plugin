@@ -99,7 +99,7 @@ class ComponentsDemo extends Component {
 				<FormattedHeader
 					headerIcon={ headerIcon }
 					headerText={ __( 'Newspack Components' ) }
-					subHeaderText={ __( 'Temporary demo of Newspack components' ) }
+					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>
 				<Grid>
 					<Card>
