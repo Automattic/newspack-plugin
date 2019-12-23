@@ -2,6 +2,7 @@
  * Card
  */
 
+@import '../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
 .newspack-card {
@@ -81,6 +82,25 @@
 
 		@media screen and ( min-width: 744px ) {
 			margin: 64px -64px;
+		}
+	}
+
+	// Links
+
+	a {
+		color: $primary-500;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $primary-600;
+			text-decoration: none;
+		}
+
+		&:focus {
+			box-shadow: none;
+			outline: 2px solid $primary-500;
+			outline-offset: 2px;
 		}
 	}
 }
