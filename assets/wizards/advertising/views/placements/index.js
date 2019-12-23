@@ -68,11 +68,8 @@ class Placements extends Component {
 		} = placements;
 		return (
 			<Fragment>
-				<h4>Pre-defined ad placements</h4>
-				<p>
-					Define global advertising placements to serve ad units on your site. Enable the individual
-					pre-defined ad placements to select which ads to serve.
-				</p>
+				<h2>{ __( 'Pre-defined ad placements' ) }</h2>
+				<p>{ __( 'Define global advertising placements to serve ad units on your site. Enable the individual pre-defined ad placements to select which ads to serve.' ) }</p>
 				<ToggleGroup
 					title={ __( 'Global: Above Header' ) }
 					description={ __( 'Choose an ad unit to display above the header' ) }

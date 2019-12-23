@@ -342,13 +342,6 @@ class AdvertisingWizard extends Component {
 									services={ services }
 									toggleService={ ( service, value ) => this.toggleService( service, value ) }
 									tabbedNavigation={ tabs }
-									footer={
-										<p>
-											{ __( 'Not sure which ad service is right for you?' ) }
-											{ '\u00A0' }
-											<ExternalLink url="#">{ __( 'Learn more' ) }</ExternalLink>
-										</p>
-									}
 									buttonText={ __( 'Back to dashboard' ) }
 									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
@@ -369,7 +362,7 @@ class AdvertisingWizard extends Component {
 										this.togglePlacement( placement, value )
 									}
 									tabbedNavigation={ tabs }
-									buttonText={ __( 'Back to all ad units' ) }
+									buttonText={ __( 'Back to ad providers' ) }
 									buttonAction="#/"
 								/>
 							) }
@@ -381,15 +374,15 @@ class AdvertisingWizard extends Component {
 								<AdUnits
 									headerIcon={ headerIcon }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
+									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
 									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
 									onDelete={ id => this.deleteAdUnit( id ) }
 									buttonText={ __( 'Add an individual ad unit' ) }
 									buttonAction="#/google_ad_manager/create"
-									secondaryButtonText={ __( "I'm done configuring ads" ) }
+									secondaryButtonText={ __( "Back to advertising options" ) }
 									secondaryButtonAction="#/"
-									secondaryButtonStyle={ { isTertiary: true } }
 								/>
 							) }
 						/>
@@ -400,6 +393,7 @@ class AdvertisingWizard extends Component {
 								<HeaderCode
 									headerIcon={ headerIcon }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
+									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
 									code={ advertisingData.services.google_ad_manager.header_code }
 									tabbedNavigation={ gam_tabs }
@@ -411,9 +405,8 @@ class AdvertisingWizard extends Component {
 											routeProps.history.push( '/google_ad_manager' )
 										)
 									}
-									secondaryButtonText={ __( "I'm done" ) }
+									secondaryButtonText={ __( "I'm done configuring ads" ) }
 									secondaryButtonAction="#/google_ad_manager"
-									secondaryButtonStyle={ { isTertiary: true } }
 								/>
 							) }
 						/>

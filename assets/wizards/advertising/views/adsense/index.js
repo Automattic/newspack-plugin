@@ -12,7 +12,7 @@ import { Dashicon } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Handoff } from '../../../../components/src';
+import { withWizardScreen, Card, Handoff, Notice } from '../../../../components/src';
 
 /**
  * Screen for handing off to Site Kit AdSense setup.
@@ -28,17 +28,16 @@ class AdSense extends Component {
 		return(
 			<Fragment>
 				{ complete && (
-					<div className='newspack-google-adsense-wizard__success'>
-						<Dashicon icon="yes-alt" />
-						<p>{ __( 'AdSense is set up' ) }</p>
-					</div>
+					<Notice isSuccess noticeText={ __( 'AdSense is set up.' ) } />
 				) }
-				<Handoff
-					plugin='google-site-kit'
-					editLink='admin.php?page=googlesitekit-module-adsense'
-					className='is-centered'
-					isDefault
-				>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
+				<Card noBackground className="newspack-card__buttons-card">
+					<Handoff
+						plugin='google-site-kit'
+						editLink='admin.php?page=googlesitekit-module-adsense'
+						className='is-centered'
+						isDefault
+					>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
+				</Card>
 			</Fragment>
 		);
 	}
