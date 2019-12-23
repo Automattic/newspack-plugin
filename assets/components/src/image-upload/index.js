@@ -1,24 +1,26 @@
 /**
- * Image uploader component.
+ * Image Upload
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
-import { Button } from '@wordpress/components';
 import { data } from '@wordpress/data';
+import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import { Button } from '../';
 import './style.scss';
 
 /**
- * Image select/upload button and modal.
+ * External dependencies.
  */
+import classnames from 'classnames';
+
 class ImageUpload extends Component {
 
 	/**
@@ -77,21 +79,33 @@ class ImageUpload extends Component {
 	 */
 	render = () => {
 		const { className, image } = this.props;
+		const iconAddImage = (
+			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<Path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/>
+			</SVG>
+		);
+		const iconRemoveImage = (
+			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+				<Path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+			</SVG>
+		);
 		return (
 			<Fragment>
 				{ !! image && (
-				<div className={ murielClassnames( 'muriel-image-upload', 'has-image', className ) }>
-					<div className="image-preview">
+				<div className={ classnames( 'newspack-image-upload', 'newspack-image-upload__has-image', className ) }>
+					<div className="newspack-image-upload__image-preview">
 						<img src={ image.url } />
 					</div>
-					<Button className="remove-image" onClick={ this.removeImage }>
+					<Button onClick={ this.removeImage } isDefault>
+						{ iconRemoveImage }
 						{ __( 'Remove image' ) }
 					</Button>
 				</div>
 				) }
 				{ ! image && (
-					<div className={ murielClassnames( 'muriel-image-upload', 'no-image', className ) }>
-						<Button className="add-image" onClick={ this.openModal }>
+					<div className={ classnames( 'newspack-image-upload', className ) }>
+						<Button onClick={ this.openModal } isDefault>
+							{ iconAddImage }
 							{ __( 'Add an image' ) }
 						</Button>
 					</div>
