@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller, Grid } from '../';
+import { Button, Card, FormattedHeader, Modal, NewspackLogo, Notice, PluginInstaller, Grid } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -102,12 +102,12 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 					title={ __( 'Unrecoverable error' ) }
 					onRequestClose={ () => ( window.location = newspack_urls[ 'dashboard' ] ) }
 				>
-					<p>
-						<strong>{ message }</strong>
-					</p>
-					<Button isPrimary href={ newspack_urls[ 'dashboard' ] }>
-						{ __( 'Return to dashboard' ) }
-					</Button>
+					<Notice noticeText={ message } isError />
+					<div className="newspack-buttons-card">
+						<Button isPrimary href={ newspack_urls[ 'dashboard' ] }>
+							{ __( 'Return to dashboard' ) }
+						</Button>
+					</div>
 				</Modal>
 			);
 		};
