@@ -96,7 +96,7 @@ class ImageUpload extends Component {
 					<div className="newspack-image-upload__image-preview">
 						<img src={ image.url } />
 					</div>
-					<Button onClick={ this.removeImage } isDefault>
+					<Button onClick={ this.removeImage } isTertiary>
 						{ iconRemoveImage }
 						{ __( 'Remove image' ) }
 					</Button>
@@ -104,7 +104,7 @@ class ImageUpload extends Component {
 				) }
 				{ ! image && (
 					<div className={ classnames( 'newspack-image-upload', className ) }>
-						<Button onClick={ this.openModal } isDefault>
+						<Button onClick={ this.openModal } isTertiary>
 							{ iconAddImage }
 							{ __( 'Add an image' ) }
 						</Button>
