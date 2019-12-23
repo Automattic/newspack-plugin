@@ -6,13 +6,13 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { ExternalLink, TextareaControl } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { Card, Button, TextControl, withWizardScreen } from '../../../../components/src';
+import { Button, Card, TextareaControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * New/Edit Ad Unit Screen.

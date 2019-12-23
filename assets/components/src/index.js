@@ -18,6 +18,7 @@ export { default as SelectControl } from './select-control';
 export { default as TabbedNavigation } from './tabbed-navigation';
 export { default as Task } from './task';
 export { default as TextControl } from './text-control';
+export { default as TextareaControl } from './textarea-control';
 export { default as ToggleControl } from './toggle-control';
 export { default as ToggleGroup } from './toggle-group';
 export { default as Waiting } from './waiting';
