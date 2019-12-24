@@ -16,6 +16,13 @@
 		line-height: 24px;
 	}
 
+	&.is-small {
+		font-size: 14px;
+		height: auto;
+		line-height: 24px;
+		padding: 3px 12px;
+	}
+
 	&.is-button {
 		background: white;
 		border: 1px solid $light-gray-500;
@@ -59,6 +66,10 @@
 			}
 		}
 
+		&.is-small {
+			padding: 3px 12px;
+		}
+
 		&.is-large {
 			padding: 15px 32px;
 		}
@@ -97,6 +108,10 @@
 				border-color: $primary-500;
 				color: $primary-200;
 			}
+		}
+
+		&.is-small {
+			padding: 3px 12px;
 		}
 
 		.newspack-is-waiting {
@@ -146,6 +161,10 @@
 			}
 		}
 
+		&.is-small {
+			padding: 3px 12px;
+		}
+
 		.newspack-is-waiting {
 			fill: $dark-gray-600;
 		}
@@ -175,6 +194,7 @@
 			outline-offset: 2px;
 		}
 
+		&.is-small,
 		&.is-large {
 			padding: 0;
 		}
