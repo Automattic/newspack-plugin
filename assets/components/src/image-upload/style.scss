@@ -7,18 +7,22 @@
 .newspack-image-upload {
 	margin: 32px 0;
 
-	.newspack-image-upload__add-image {
-		align-items: center;
-		border-radius: 0;
-		border-style: dashed;
-		height: 144px;
+	.newspack-button {
 		justify-content: center;
 		min-width: 144px;
 
 		svg {
 			display: block;
 			fill: currentcolor;
+			margin-right: 4px;
 		}
+	}
+
+	.newspack-image-upload__add-image {
+		align-items: center;
+		border-radius: 0;
+		border-style: dashed;
+		height: 144px;
 	}
 
 	.newspack-image-upload__image-preview {
