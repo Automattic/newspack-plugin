@@ -65,6 +65,8 @@ class Intro extends Component {
 				<ImageUpload
 					image={ settings.site_icon }
 					onChange={ image => updateSiteIcon( image ) }
+					addText={ __( 'Add icon' ) }
+					removeText={ __( 'Remove icon' ) }
 				/>
 				<Notice noticeText={ __( 'Site icons should be square and at least 144 × 144 pixels.' ) } isPrimary />
 			</Card>
