@@ -2,39 +2,34 @@
  * Image Upload
  */
 
+@import '~@wordpress/base-styles/colors';
+
 .newspack-image-upload {
 	margin: 32px 0;
 
-	@media screen and ( min-width: 744px ) {
-		&.newspack-image-upload__has-image {
-			align-items: flex-end;
-			display: flex;
+	.newspack-image-upload__add-image {
+		align-items: center;
+		border-radius: 0;
+		border-style: dashed;
+		height: 144px;
+		justify-content: center;
+		min-width: 144px;
 
-			.newspack-button {
-				margin-left: 8px;
-			}
+		svg {
+			display: block;
+			fill: currentcolor;
 		}
 	}
 
 	.newspack-image-upload__image-preview {
 		margin-bottom: 8px;
 		max-width: 144px;
-
-		@media screen and ( min-width: 744px ) {
-			margin-bottom: 0;
-		}
+		padding: 0;
 
 		img {
 			display: block;
 			max-width: 100%;
 			height: auto;
-		}
-	}
-
-	.newspack-button {
-		svg {
-			fill: currentcolor;
-			margin-right: 4px;
 		}
 	}
 }
