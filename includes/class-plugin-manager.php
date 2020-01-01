@@ -285,6 +285,10 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://www.laterpay.net/',
 				'Download'    => 'wporg',
 				'Editpath'    => 'admin.php?page=laterpay-pricing-tab',
+				'Configurer'  => [
+					'filename'   => 'class-laterpay-configuration-manager.php',
+					'class_name' => 'LaterPay_Configuration_Manager',
+				],
 			],
 		];
 
