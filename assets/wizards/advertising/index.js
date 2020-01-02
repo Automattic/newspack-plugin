@@ -6,18 +6,23 @@
  * WordPress dependencies
  */
 import { Component, render, Fragment } from '@wordpress/element';
-import { ExternalLink, SVG, Path } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * WordPress dependencies.
+ */
+import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
+
+/**
+ * Internal dependencies.
  */
 import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
 import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
@@ -321,11 +326,6 @@ class AdvertisingWizard extends Component {
 				path: '/google_ad_manager-global-codes',
 			},
 		];
-		const headerIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 8H4a2 2 0 00-2 2v4a2 2 0 002 2h1v4a1 1 0 001 1h2a1 1 0 001-1v-4h3l5 4V4l-5 4m9.5 4c0 1.71-.96 3.26-2.5 4V8c1.53.75 2.5 2.3 2.5 4z" />
-			</SVG>
-		);
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -336,7 +336,7 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Services
-									headerIcon={ headerIcon }
+									headerIcon={ <FeaturedVideoIcon /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									services={ services }
@@ -351,7 +351,7 @@ class AdvertisingWizard extends Component {
 							path="/ad-placements"
 							render={ routeProps => (
 								<Placements
-									headerIcon={ headerIcon }
+									headerIcon={ <FeaturedVideoIcon /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									placements={ placements }
@@ -372,7 +372,7 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<AdUnits
-									headerIcon={ headerIcon }
+									headerIcon={ <FeaturedVideoIcon /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
@@ -391,7 +391,7 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<HeaderCode
-									headerIcon={ headerIcon }
+									headerIcon={ <FeaturedVideoIcon /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
@@ -415,7 +415,7 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
-										headerIcon={ headerIcon }
+										headerIcon={ <FeaturedVideoIcon /> }
 										headerText={ __( 'Add an ad unit' ) }
 										subHeaderText={ __(
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
@@ -444,7 +444,7 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
-										headerIcon={ headerIcon }
+										headerIcon={ <FeaturedVideoIcon /> }
 										headerText={ __( 'Edit ad unit' ) }
 										subHeaderText={ __(
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
@@ -466,7 +466,7 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => (
 								<Fragment>
 									<AdSense
-										headerIcon={ headerIcon }
+										headerIcon={ <FeaturedVideoIcon /> }
 										headerText={ __( 'Google AdSense' ) }
 										subHeaderText={ __(
 											'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.'

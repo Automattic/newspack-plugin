@@ -1,5 +1,5 @@
 /**
- * Progress bar for displaying visual feedback about steps-completed.
+ * Plugin Installer
  */
 
 /**
@@ -7,8 +7,13 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+
+/**
+ * Material UI dependencies.
+ */
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 
 /**
  * Internal dependencies.
@@ -22,9 +27,9 @@ const PLUGIN_STATE_INSTALLING = 2;
 const PLUGIN_STATE_ERROR = 3;
 
 /**
- * External dependencies
+ * External dependencies.
  */
-import classNames from 'classnames';
+import classnames from 'classnames';
 
 /**
  * Plugin installer.
@@ -162,16 +167,6 @@ class PluginInstaller extends Component {
 			const plugin = pluginInfo[ slug ];
 			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
 		} );
-		const inactiveIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-			</SVG>
-		);
-		const activeIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-			</SVG>
-		);
 		if ( asProgressBar ) {
 			const completed = slugs.reduce(
 				( completed, slug ) =>
@@ -202,26 +197,26 @@ class PluginInstaller extends Component {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ __( 'Install' ) }
-									{ inactiveIcon }
+									<RadioButtonUncheckedIcon />
 								</span>
 							);
 						} else if ( Status === 'inactive' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ __( 'Activate' ) }
-									{ inactiveIcon }
+									<RadioButtonUncheckedIcon />
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ __( 'Installed' ) }
-									{ activeIcon }
+									<CheckCircleIcon />
 								</span>
 							);
 						}
 
-						const classes = classNames(
+						const classes = classnames(
 							'newspack-action-card__plugin-installer',
 							this.classForInstallationStatus( installationStatus ),
 						);

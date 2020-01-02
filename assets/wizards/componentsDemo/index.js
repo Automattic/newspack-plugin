@@ -1,16 +1,20 @@
 /**
- * "Components Demo" Wizard.
+ * Components Demo
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Spinner, SVG, Path } from '@wordpress/components';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import DashbordIcon from '@material-ui/icons/Dashboard';
+
+/**
+ * Internal dependencies.
  */
 import {
 	ActionCard,
@@ -33,9 +37,6 @@ import {
 	ToggleGroup,
 } from '../../components/src';
 
-/**
- * Components demo for example purposes.
- */
 class ComponentsDemo extends Component {
 	/**
 	 * constructor. Demo of how the parent interacts with the components, and controls their values.
@@ -84,11 +85,6 @@ class ComponentsDemo extends Component {
 			actionCardToggleChecked,
 			toggleGroupChecked
 		} = this.state;
-		const headerIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zM7.632 7.548v8.904H9.79v-3.737l3.666 3.737h2.913L7.632 7.548zm8.736 4.138h-1.765l.69.703h1.075v-.703zm0-2.069h-3.795l.689.703h3.106v-.703zm0-2.069h-5.825l.689.703h5.136v-.703z" />
-			</SVG>
-		);
 		return (
 			<Fragment>
 				<div className="newspack-logo-wrapper">
@@ -97,7 +93,7 @@ class ComponentsDemo extends Component {
 					</a>
 				</div>
 				<FormattedHeader
-					headerIcon={ headerIcon }
+					headerIcon={ <DashbordIcon /> }
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>

@@ -35,6 +35,14 @@
 					transform: translateX( 8px );
 				}
 			}
+
+			h2 {
+				color: inherit;
+			}
+
+			svg {
+				fill: currentcolor;
+			}
 		}
 
 		&:focus {
@@ -43,13 +51,13 @@
 
 		> svg {
 			margin: 24px;
-			transition: transform 125ms ease-in-out;
 		}
 	}
 
 	h2,
 	p {
 		margin: 0;
+		transition: color 125ms ease-in-out;
 	}
 
 	svg {
@@ -57,6 +65,7 @@
 		fill: $primary-500;
 		height: 24px;
 		margin: 0;
+		transition: fill 125ms ease-in-out, transform 125ms ease-in-out;
 		width: 24px;
 
 		&.icon-completed {

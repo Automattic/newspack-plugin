@@ -1,39 +1,35 @@
 /**
- * Syndication Wizard.
+ * Syndication
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, render, Fragment } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import SyncAltIcon from '@material-ui/icons/SyncAlt';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import { Intro } from './views';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-/**
- * Syndication wizard.
- */
 class SyndicationWizard extends Component {
 	/**
 	 * Render
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const headerIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M22 8l-4-4v3H3v2h15v3l4-4zM2 16l4 4v-3h15v-2H6v-3l-4 4z" />
-			</SVG>
-		);
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -44,7 +40,7 @@ class SyndicationWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Intro
-									headerIcon={ headerIcon }
+									headerIcon={ <SyncAltIcon /> }
 									headerText={ __( 'Syndication', 'newspack' ) }
 									subHeaderText={ 'Apple News, Facebook Instant Articles' }
 									buttonText={ __( 'Back to dashboard' ) }
