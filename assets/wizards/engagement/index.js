@@ -25,6 +25,7 @@ import {
 	CommentingNative,
 	CommentingCoral,
 	Newsletters,
+	Popups,
 	Social,
 	UGC,
 } from './views';
@@ -85,6 +86,11 @@ class EngagementWizard extends Component {
 				exact: true,
 			},
 			{
+				label: __( 'Pop-ups' ),
+				path: '/popups',
+				exact: true,
+			},
+			{
 				label: __( 'Commenting' ),
 				path: '/commenting/',
 			},
@@ -140,6 +146,21 @@ class EngagementWizard extends Component {
 								const { apiKey } = this.state;
 								return (
 									<Social
+										headerIcon={ <HeaderIcon /> }
+										headerText={ __( 'Engagement', 'newspack' ) }
+										subHeaderText={ subheader }
+										tabbedNavigation={ tabbed_navigation }
+									/>
+								);
+							} }
+						/>
+						<Route
+							path="/popups"
+							exact
+							render={ routeProps => {
+								const { apiKey } = this.state;
+								return (
+									<Popups
 										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
