@@ -48,17 +48,13 @@ class Intro extends Component {
 					<strong>{ __( 'User experience:  ' ) }</strong>
 					{ __( 'Feels like a native app on the device.' ) }
 				</p>
-				<p className="newspack-plugin-description">
-					<em>{ __( 'PWA options have been automatically set up for you.' ) }</em>
-				</p>
-				<div className='newspack-performance-wizard__status'>
-					{ settings.configured && (
-						<Notice noticeText={ __( 'PWA is configured and working.' ) } isSuccess />
-					) }
-					{ ! settings.configured && settings.error && (
-						<Notice noticeText={ settings.error } isError />
-					) }
-				</div>
+				<p><em>{ __( 'PWA options have been automatically set up for you.' ) }</em></p>
+				{ settings.configured && (
+					<Notice noticeText={ __( 'PWA is configured and working.' ) } isSuccess />
+				) }
+				{ ! settings.configured && settings.error && (
+					<Notice noticeText={ settings.error } isError />
+				) }
 				<hr />
 				<h2>{ __( 'Site icon' ) }</h2>
 				<p>{ __( 'Your site icon is the icon your site has when installed as an app.' ) }</p>
