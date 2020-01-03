@@ -479,11 +479,20 @@ class ComponentsDemo extends Component {
 					<Card className="newspack-components-demo__buttons">
 						<FormattedHeader headerText="Buttons" />
 						<Card noBackground className="newspack-card__buttons-card">
-							<Button isPrimary>{ __( 'isPrimary' ) }</Button>
-							<Button isDefault>{ __( 'isDefault' ) }</Button>
-							<Button isTertiary>{ __( 'isTertiary' ) }</Button>
-							<Button isLink>{ __( 'isLink' ) }</Button>
-							<Button isLarge>{ __( 'isLarge' ) }</Button>
+							<Button isPrimary>isPrimary</Button>
+							<Button isDefault>isDefault</Button>
+							<Button isTertiary>isTertiary</Button>
+							<Button isLink>isLink</Button>
+							<hr />
+							<h2>isLarge</h2>
+							<Button isPrimary isLarge>isPrimary</Button>
+							<Button isDefault isLarge>isDefault</Button>
+							<Button isTertiary isLarge>isTertiary</Button>
+							<hr />
+							<h2>isSmall</h2>
+							<Button isPrimary isSmall>isPrimary</Button>
+							<Button isDefault isSmall>isDefault</Button>
+							<Button isTertiary isSmall>isTertiary</Button>
 						</Card>
 					</Card>
 				</Grid>

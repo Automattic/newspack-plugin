@@ -1,24 +1,31 @@
 /**
- * Image uploader component.
+ * Image Upload
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
-import { Button } from '@wordpress/components';
 import { data } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+/**
+ * Internal dependencies.
+ */
+import { Button } from '../';
 import './style.scss';
 
 /**
- * Image select/upload button and modal.
+ * External dependencies.
  */
+import classnames from 'classnames';
+
 class ImageUpload extends Component {
 
 	/**
@@ -76,27 +83,30 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { className, image } = this.props;
+		const { className, image, removeText, addText } = this.props;
+		const classes = classnames( 'newspack-image-upload', className );
 		return (
-			<Fragment>
+			<div className={ classes }>
 				{ !! image && (
-				<div className={ murielClassnames( 'muriel-image-upload', 'has-image', className ) }>
-					<div className="image-preview">
+				<Fragment>
+					<div className="newspack-image-upload__image-preview">
 						<img src={ image.url } />
 					</div>
-					<Button className="remove-image" onClick={ this.removeImage }>
-						{ __( 'Remove image' ) }
+					<Button onClick={ this.removeImage } className="newspack-image-upload__remove-image" isTertiary isSmall>
+						<DeleteIcon />
+						{ ! removeText && ( __( 'Remove image' ) ) }
+						{ removeText && removeText }
 					</Button>
-				</div>
+				</Fragment>
 				) }
 				{ ! image && (
-					<div className={ murielClassnames( 'muriel-image-upload', 'no-image', className ) }>
-						<Button className="add-image" onClick={ this.openModal }>
-							{ __( 'Add an image' ) }
-						</Button>
-					</div>
+				<Button onClick={ this.openModal } className="newspack-image-upload__add-image" isTertiary isSmall>
+					<AddPhotoAlternateIcon />
+					{ ! addText && ( __( 'Add image' ) ) }
+					{ addText && addText }
+				</Button>
 				) }
-			</Fragment>
+			</div>
 		);
 	}
 }
