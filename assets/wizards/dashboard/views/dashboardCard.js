@@ -43,31 +43,20 @@ class DashboardCard extends Component {
 	render() {
 		const { name, description, slug, url, status } = this.props;
 		const classes = classNames( 'newspack-dashboard-card', slug, status );
-		let icon;
-		if ( slug === 'site-design' ) {
-  		icon = <WebIcon />;
-		} else if ( slug === 'reader-revenue' ) {
-			icon = <AccountBalanceWalletIcon />;
-		} else if ( slug === 'advertising' ) {
-			icon = <FeaturedVideoIcon />;
-		} else if ( slug === 'syndication' ) {
-			icon = <SyncAltIcon />;
-		} else if ( slug === 'analytics' ) {
-			icon = <TrendingUpIcon />;
-		} else if ( slug === 'performance' ) {
-			icon = <SpeedIcon />;
-		} else if ( slug === 'seo' ) {
-			icon = <SearchIcon />;
-		} else if ( slug === 'health-check' ) {
-			icon = <HealingIcon />;
-		} else if ( slug === 'engagement' ) {
-			icon = <ForumIcon />;		
-		} else {
-		  icon = <WidgetsIcon />;
-		}
+		const iconMap = {
+			'site-design': <WebIcon />,
+			'reader-revenue': <AccountBalanceWalletIcon />,
+			'advertising': <FeaturedVideoIcon />,
+			'syndication': <SyncAltIcon />,
+			'analytics': <TrendingUpIcon />,
+			'performance': <SpeedIcon />,
+			'seo': <SearchIcon />,
+			'health-check': <HealingIcon />,
+			'engagement': <ForumIcon />,
+		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
-				{ icon }
+				{ iconMap[ slug ] || <WidgetsIcon /> }
 				<div className="newspack-dashboard-card__header">
 					<h2>{ name }</h2>
 					<p>{ description }</p>
