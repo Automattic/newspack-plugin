@@ -21,7 +21,7 @@ class AdPicker extends Component {
 	adUnitsForSelect = adUnits => {
 		return [
 			{
-				label: __( '- Select an ad unit -' ),
+				label: '---',
 				value: null,
 			},
 			...Object.values( adUnits ).map( adUnit => {
@@ -36,7 +36,7 @@ class AdPicker extends Component {
 	adServicesForSelect = services => {
 		return [
 			{
-				label: __( '- Select an ad provider -' ),
+				label: '---',
 				value: null,
 			},
 			...Object.keys( services )
