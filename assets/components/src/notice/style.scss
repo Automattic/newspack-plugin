@@ -25,7 +25,7 @@
 	}
 
 	&.newspack-notice__is-success {
-		background: rgba( $alert-green, 0.07 );
+		background: lighten( $alert-green, 47% );
 
 		> svg {
 			fill: $alert-green;
@@ -33,7 +33,7 @@
 	}
 
 	&.newspack-notice__is-error {
-		background: rgba( $alert-red, 0.04 );
+		background: lighten( $alert-red, 40.5% );
 
 		> svg {
 			fill: $alert-red;
@@ -41,7 +41,7 @@
 	}
 
 	&.newspack-notice__is-warning {
-		background: rgba( $alert-yellow, 0.09 );
+		background: lighten( $alert-yellow, 36% );
 
 		> svg {
 			fill: $alert-yellow;
