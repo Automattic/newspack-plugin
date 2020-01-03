@@ -1,46 +1,59 @@
 /**
- * Subscription Management Screens.
+ * Dashboard Card
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
+import ForumIcon from '@material-ui/icons/Forum';
+import HealingIcon from '@material-ui/icons/Healing';
+import SearchIcon from '@material-ui/icons/Search';
+import SpeedIcon from '@material-ui/icons/Speed';
+import SyncAltIcon from '@material-ui/icons/SyncAlt';
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import WebIcon from '@material-ui/icons/Web';
+import WidgetsIcon from '@material-ui/icons/Widgets';
+
+/**
+ * Internal dependencies.
  */
 import { Card } from '../../../components/src';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import classNames from 'classnames';
 
-/**
- * One card in the dashboard
- */
 class DashboardCard extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, svg, status } = this.props;
+		const { name, description, slug, url, status } = this.props;
 		const classes = classNames( 'newspack-dashboard-card', slug, status );
-		const iconLink = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z" />
-			</SVG>
-		);
-		const iconDone = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className="icon-completed">
-				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-			</SVG>
-		);
+		const iconMap = {
+			'site-design': <WebIcon />,
+			'reader-revenue': <AccountBalanceWalletIcon />,
+			'advertising': <FeaturedVideoIcon />,
+			'syndication': <SyncAltIcon />,
+			'analytics': <TrendingUpIcon />,
+			'performance': <SpeedIcon />,
+			'seo': <SearchIcon />,
+			'health-check': <HealingIcon />,
+			'engagement': <ForumIcon />,
+		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
-				{ !! svg && <SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><Path d={ svg } /></SVG> }
+				{ iconMap[ slug ] || <WidgetsIcon /> }
 				<div className="newspack-dashboard-card__header">
 					<h2>{ name }</h2>
 					<p>{ description }</p>
@@ -59,7 +72,7 @@ class DashboardCard extends Component {
 				<Card className={ classes }>
 					<a href={ url }>
 						{ contents }
-						{ 'completed' === status ? iconDone : iconLink }
+						{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
 					</a>
 				</Card>
 			);

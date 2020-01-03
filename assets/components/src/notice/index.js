@@ -3,18 +3,25 @@
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/Info';
+import WarningIcon from '@material-ui/icons/Warning';
+
+/**
+ * Internal dependencies.
  */
 import './style.scss';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import classNames from 'classnames';
 
@@ -32,35 +39,15 @@ class Notice extends Component {
 			isWarning && 'newspack-notice__is-warning',
 			isPrimary && 'newspack-notice__is-primary'
 		);
-		const errorIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-			</SVG>
-		);
-		const infoIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-			</SVG>
-		);
-		const successIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-			</SVG>
-		);
-		const warningIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-			</SVG>
-		);
 		let noticeIcon;
 		if ( isError ) {
-  		noticeIcon = errorIcon;
+  		noticeIcon = <ErrorIcon />;
 		} else if ( isSuccess ) {
-			noticeIcon = successIcon;
+			noticeIcon = <CheckCircleIcon />;
 		} else if ( isWarning ) {
-			noticeIcon = warningIcon;
+			noticeIcon = <WarningIcon />;
 		} else {
-		  noticeIcon = infoIcon;
+		  noticeIcon = <InfoIcon />;
 		}
 		return (
 			<div className={ classes }>

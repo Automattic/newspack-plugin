@@ -7,7 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component, Children, cloneElement } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
+
+/**
+ * Material UI dependencies.
+ */
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 /**
  * Internal dependencies.
@@ -34,18 +39,8 @@ class Checklist extends Component {
 	render() {
 		const { className, children, progressBarText, ...otherProps } = this.props;
 		const { hideCompleted } = this.state;
-		const iconExpandLess = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/>
-			</SVG>
-		);
-		const iconExpandMore = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
-			</SVG>
-		);
 		const completedLabel = hideCompleted ? __( 'Show completed' ) : __( 'Hide completed' );
-		const completedIcon = hideCompleted ? iconExpandMore : iconExpandLess;
+		const completedIcon = hideCompleted ? <ExpandMoreIcon /> : <ExpandLessIcon />;
 		const classes = classnames(
 			'newspack-checklist',
 			className,

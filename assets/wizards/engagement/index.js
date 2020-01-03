@@ -1,17 +1,21 @@
 /**
- * Engagement Wizard
+ * Engagement
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, render, Fragment } from '@wordpress/element';
-import { ExternalLink, SVG, Path } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Forum';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import {
@@ -25,13 +29,10 @@ import {
 } from './views';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-/**
- * Engagement wizard.
- */
 class EngagementWizard extends Component {
 	constructor( props ) {
 		super( props );
@@ -111,11 +112,6 @@ class EngagementWizard extends Component {
 				exact: true,
 			},
 		];
-		const headerIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z" />
-			</SVG>
-		);
 		const subheader = __( 'Newsletters, social, commenting, UGC' );
 		return (
 			<Fragment>
@@ -127,7 +123,7 @@ class EngagementWizard extends Component {
 							render={ routeProps => (
 								<Newsletters
 									noBackground
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -146,7 +142,7 @@ class EngagementWizard extends Component {
 								const { apiKey } = this.state;
 								return (
 									<Social
-										headerIcon={ headerIcon }
+										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
@@ -164,7 +160,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingDisqus
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -179,7 +175,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingNative
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -194,7 +190,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingCoral
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -209,7 +205,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<UGC
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }

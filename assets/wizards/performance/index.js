@@ -1,30 +1,31 @@
 /**
- * Performance Wizard.
+ * Performance
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment, render } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Speed';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import { Intro } from './views';
 import './style.scss';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-/**
- * Wizard for configuring PWA features.
- */
 class PerformanceWizard extends Component {
 	/**
 	 * Constructor.
@@ -85,11 +86,6 @@ class PerformanceWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const { settings } = this.state;
-		const headerIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z" />
-			</SVG>
-		);
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
@@ -99,7 +95,7 @@ class PerformanceWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Intro
-								headerIcon={ headerIcon }
+								headerIcon={ <HeaderIcon /> }
 								headerText={ __( 'Performance options' ) }
 								subHeaderText={ __(
 									'Optimizing your news site for better performance and increased user engagement.'

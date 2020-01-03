@@ -1,30 +1,30 @@
 /**
- * Google Ad Manager Wizard.
+ * Reader Revenue
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, render, Fragment } from '@wordpress/element';
-import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-/**
- * AdUnits wizard for managing and setting up adUnits.
- */
 class ReaderRevenueWizard extends Component {
-	/**
 	/**
 	 * Constructor.
 	 */
@@ -155,11 +155,6 @@ class ReaderRevenueWizard extends Component {
 				path: '/configure-landing-page',
 			},
 		];
-		const headerIcon = (
-			<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-				<Path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-			</SVG>
-		);
 		const isConfigured = !! donationData.created;
 		return (
 			<Fragment>
@@ -171,7 +166,7 @@ class ReaderRevenueWizard extends Component {
 							exact
 							render={ routeProps => (
 								<RevenueMain
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Accept donations on your site' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
@@ -187,7 +182,7 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up address' ) }
 									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -206,7 +201,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<StripeSetup
 									data={ stripeData }
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up Stripe' ) }
 									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -225,7 +220,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
 									buttonText={ __( 'Save Settings' ) }
@@ -243,7 +238,7 @@ class ReaderRevenueWizard extends Component {
 							path="/configure-landing-page"
 							render={ routeProps => (
 								<ConfigureLandingPage
-									headerIcon={ headerIcon }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up memberships' ) }
 									subHeaderText={ __( 'Configure your memberships landing page.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
