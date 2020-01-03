@@ -277,6 +277,19 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-media-partners/releases/latest/download/newspack-media-partners.zip',
 			],
+			'laterpay'                      => [
+				'Name'        => 'LaterPay',
+				'Description' => 'A frictionless monetization solution to convert your readers into paying customers.',
+				'Author'      => 'LaterPay',
+				'PluginURI'   => 'https://wordpress.org/plugins/laterpay/',
+				'AuthorURI'   => 'https://www.laterpay.net/',
+				'Download'    => 'wporg',
+				'Editpath'    => 'admin.php?page=laterpay-pricing-tab',
+				'Configurer'  => [
+					'filename'   => 'class-laterpay-configuration-manager.php',
+					'class_name' => 'LaterPay_Configuration_Manager',
+				],
+			],
 		];
 
 		$default_info = [
