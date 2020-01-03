@@ -6,8 +6,8 @@ describe( 'ImageUpload', () => {
 	describe( 'basic rendering', () => {
 		it( 'should render an image uploader ready for upload', () => {
 			const uploader = shallow( <ImageUpload /> );
-			expect( uploader.children().hasClass( 'muriel-image-upload' ) ).toBe( true );
-			expect( uploader.children().hasClass( 'no-image' ) ).toBe( true );
+			expect( uploader.hasClass( 'newspack-image-upload' ) ).toBe( true );
+			expect( uploader.find( '.newspack-image-upload__add-image' ) ).toHaveLength( 1 );
 		} );
 
 		it( 'should render an image uploader prepopulated with an upload', () => {
@@ -16,8 +16,8 @@ describe( 'ImageUpload', () => {
 				url: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
 			};
 			const uploader = shallow( <ImageUpload image={ image } /> );
-			expect( uploader.children().hasClass( 'muriel-image-upload' ) ).toBe( true );
-			expect( uploader.children().hasClass( 'has-image' ) ).toBe( true );
+			expect( uploader.hasClass( 'newspack-image-upload' ) ).toBe( true );
+			expect( uploader.find( '.newspack-image-upload__remove-image' ) ).toHaveLength( 1 );
 		} );
 	} );
 } );
