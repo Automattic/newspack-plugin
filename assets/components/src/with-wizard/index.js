@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Material UI dependencies.
  */
-import WarningIcon from '@material-ui/icons/Warning';
+import HeaderIcon from '@material-ui/icons/Warning';
 
 /**
  * Internal dependencies.
@@ -206,7 +206,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 							<Card noBackground>
 								{ complete !== null && (
 									<FormattedHeader
-										headerIcon={ <WarningIcon /> }
+										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Required plugin' ) }
 										subHeaderText={ __( 'This feature requires the following plugin.' ) }
 									/>

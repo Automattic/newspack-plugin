@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import SpeedIcon from '@material-ui/icons/Speed';
+import HeaderIcon from '@material-ui/icons/Speed';
 
 /**
  * Internal dependencies.
@@ -95,7 +95,7 @@ class PerformanceWizard extends Component {
 						exact
 						render={ routeProps => (
 							<Intro
-								headerIcon={ <SpeedIcon /> }
+								headerIcon={ <HeaderIcon /> }
 								headerText={ __( 'Performance options' ) }
 								subHeaderText={ __(
 									'Optimizing your news site for better performance and increased user engagement.'

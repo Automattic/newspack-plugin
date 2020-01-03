@@ -1,19 +1,18 @@
 /**
- * Analytics Wizard
+ * Analytics
  */
 
 /**
  * WordPress dependencies.
  */
 import { Component, render, Fragment } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Material UI dependencies.
  */
-import SearchIcon from '@material-ui/icons/Search';
+import HeaderIcon from '@material-ui/icons/TrendingUp';
 
 /**
  * Internal dependencies.
@@ -26,9 +25,6 @@ import { Intro } from './views';
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-/**
- * Analytics wizard.
- */
 class AnalyticsWizard extends Component {
 
 	/**
@@ -46,7 +42,7 @@ class AnalyticsWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Intro
-									headerIcon={ <SearchIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Analytics', 'newspack' ) }
 									subHeaderText={ __( 'Track traffic and activity') }
 									buttonText={ __( 'Back to dashboard' ) }

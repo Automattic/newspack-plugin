@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
- import HealingIcon from '@material-ui/icons/Healing';
+ import HeaderIcon from '@material-ui/icons/Healing';
 
 /**
  * Internal dependencies.
@@ -72,7 +72,7 @@ class HealthCheckWizard extends Component {
 							exact
 							render={ routeProps => (
 								<RemoveUnsupportedPlugins
-									headerIcon={ <HealingIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }

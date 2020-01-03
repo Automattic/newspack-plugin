@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import SyncAltIcon from '@material-ui/icons/SyncAlt';
+import HeaderIcon from '@material-ui/icons/SyncAlt';
 
 /**
  * Internal dependencies.
@@ -40,7 +40,7 @@ class SyndicationWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Intro
-									headerIcon={ <SyncAltIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Syndication', 'newspack' ) }
 									subHeaderText={ 'Apple News, Facebook Instant Articles' }
 									buttonText={ __( 'Back to dashboard' ) }

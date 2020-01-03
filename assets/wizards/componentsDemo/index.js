@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import DashbordIcon from '@material-ui/icons/Dashboard';
+import HeaderIcon from '@material-ui/icons/Dashboard';
 
 /**
  * Internal dependencies.
@@ -93,7 +93,7 @@ class ComponentsDemo extends Component {
 					</a>
 				</div>
 				<FormattedHeader
-					headerIcon={ <DashbordIcon /> }
+					headerIcon={ <HeaderIcon /> }
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>

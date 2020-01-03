@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import SearchIcon from '@material-ui/icons/Search';
+import HeaderIcon from '@material-ui/icons/Search';
 
 /**
  * Internal dependencies.
@@ -41,7 +41,7 @@ class SEOWizard extends Component {
 							exact
 							render={ routeProps => (
 								<Intro
-									headerIcon={ <SearchIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'SEO' ) }
 									subHeaderText={ __( 'Search engine and social optimization' ) }
 									buttonText={ __( 'Back to dashboard' ) }

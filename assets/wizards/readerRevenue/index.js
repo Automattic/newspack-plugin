@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
 
 /**
  * Internal dependencies.
@@ -25,7 +25,6 @@ import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
 class ReaderRevenueWizard extends Component {
-	/**
 	/**
 	 * Constructor.
 	 */
@@ -167,7 +166,7 @@ class ReaderRevenueWizard extends Component {
 							exact
 							render={ routeProps => (
 								<RevenueMain
-									headerIcon={ <AccountBalanceWalletIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Accept donations on your site' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
@@ -183,7 +182,7 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerIcon={ <AccountBalanceWalletIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up address' ) }
 									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -202,7 +201,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<StripeSetup
 									data={ stripeData }
-									headerIcon={ <AccountBalanceWalletIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up Stripe' ) }
 									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -221,7 +220,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <AccountBalanceWalletIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
 									buttonText={ __( 'Save Settings' ) }
@@ -239,7 +238,7 @@ class ReaderRevenueWizard extends Component {
 							path="/configure-landing-page"
 							render={ routeProps => (
 								<ConfigureLandingPage
-									headerIcon={ <AccountBalanceWalletIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Set up memberships' ) }
 									subHeaderText={ __( 'Configure your memberships landing page.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }

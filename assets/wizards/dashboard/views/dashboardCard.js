@@ -33,9 +33,6 @@ import { Card } from '../../../components/src';
  */
 import classNames from 'classnames';
 
-/**
- * One card in the dashboard
- */
 class DashboardCard extends Component {
 	/**
 	 * Render.

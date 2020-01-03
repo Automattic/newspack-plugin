@@ -1,5 +1,5 @@
 /**
- * Engagement Wizard
+ * Engagement
  */
 
 /**
@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import ForumIcon from '@material-ui/icons/Forum';
+import HeaderIcon from '@material-ui/icons/Forum';
 
 /**
  * Internal dependencies.
@@ -33,9 +33,6 @@ import {
  */
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 
-/**
- * Engagement wizard.
- */
 class EngagementWizard extends Component {
 	constructor( props ) {
 		super( props );
@@ -126,7 +123,7 @@ class EngagementWizard extends Component {
 							render={ routeProps => (
 								<Newsletters
 									noBackground
-									headerIcon={ <ForumIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -145,7 +142,7 @@ class EngagementWizard extends Component {
 								const { apiKey } = this.state;
 								return (
 									<Social
-										headerIcon={ <ForumIcon /> }
+										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
@@ -163,7 +160,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingDisqus
-									headerIcon={ <ForumIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -178,7 +175,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingNative
-									headerIcon={ <ForumIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -193,7 +190,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<CommentingCoral
-									headerIcon={ <ForumIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -208,7 +205,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ routeProps => (
 								<UGC
-									headerIcon={ <ForumIcon /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
