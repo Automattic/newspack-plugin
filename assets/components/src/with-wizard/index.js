@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
