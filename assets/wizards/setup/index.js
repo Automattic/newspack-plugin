@@ -26,6 +26,7 @@ import {
 	Newsroom,
 	Welcome,
 	InstallationProgress,
+	ThemeStyleSelection,
 	StarterContent,
 } from './views/';
 import { Card, withWizard, WizardPagination } from '../../components/src';
@@ -70,11 +71,13 @@ class SetupWizard extends Component {
 			countries: {},
 			starterContentProgress: null,
 			starterContentTotal: null,
+			themeStyle: null,
 		};
 	}
 
 	componentDidMount = () => {
 		this.retrieveProfile();
+		this.retrieveThemeStyle();
 	};
 
 	updateProfile = () => {
@@ -163,6 +166,40 @@ class SetupWizard extends Component {
 		);
 	};
 
+	retrieveThemeStyle = () => {
+		const { setError, wizardApiFetch } = this.props;
+		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme-style-selection', method: 'GET' };
+		return new Promise( ( resolve, reject ) => {
+			wizardApiFetch( params )
+				.then( response => {
+					const { theme_style: themeStyle } = response;
+					this.setState( { themeStyle }, () => resolve( response ) );
+				} )
+				.catch( error => {
+					console.log( '[Theme Style Fetch Error]', error );
+					setError( { error } );
+					reject( error );
+				} );
+		} );
+	};
+
+	updateThemeStyle = themeStyle => {
+		const { setError, wizardApiFetch } = this.props;
+		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme-style-selection/' + themeStyle, method: 'POST' };
+		return new Promise( ( resolve, reject ) => {
+			wizardApiFetch( params )
+				.then( response => {
+					const { theme_style: themeStyle } = response;
+					this.setState( { themeStyle }, () => resolve( response ) );
+				} )
+				.catch( error => {
+					console.log( '[Theme Style Update Error]', error );
+					setError( { error } );
+					reject( error );
+				} );
+		} );
+	};
+
 	incrementStarterContentProgress = () => {
 		const { starterContentProgress } = this.state;
 		this.setState(
@@ -242,6 +279,7 @@ class SetupWizard extends Component {
 			'/installation-progress',
 			'/configure-jetpack',
 			'/configure-google-site-kit',
+			'/theme-style-selection',
 			'/starter-content',
 		];
 		return (
@@ -349,9 +387,30 @@ class SetupWizard extends Component {
 									buttonText={
 										pluginConfigured ? __( 'Continue' ) : __( 'Configure Google Site Kit' )
 									}
-									buttonAction={ pluginConfigured ? '#/starter-content' : { handoff: plugin } }
+									buttonAction={
+										pluginConfigured ? '#/theme-style-selection' : { handoff: plugin }
+									}
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
+								/>
+							);
+						} }
+					/>
+					<Route
+						path="/theme-style-selection"
+						render={ routeProps => {
+							const { themeStyle } = this.state;
+							return (
+								<ThemeStyleSelection
+									headerIcon={ <SubjectIcon /> }
+									headerText={ __( 'Theme Style' ) }
+									subHeaderText={ __( 'Choose a style for the Newspack theme' ) }
+									buttonText={ __( 'Continue' ) }
+									buttonAction='#/starter-content'
+									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
+									secondaryButtonAction={ this.finish }
+									updateThemeStyle={ this.updateThemeStyle }
+									themeStyle={ themeStyle }
 								/>
 							);
 						} }

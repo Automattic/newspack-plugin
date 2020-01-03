@@ -188,10 +188,28 @@ class Starter_Content {
 			set_theme_mod( 'custom_logo', $logo_id );
 			set_theme_mod( 'logo_size', 0 );
 		}
-		set_theme_mod( 'active_style_pack', 'style-3' );
 		set_theme_mod( 'header_solid_background', true );
 		set_theme_mod( 'header_simplified', true );
 		return true;
+	}
+
+	/**
+	 * Set theme style.
+	 *
+	 * @param string $style Style id.
+	 */
+	public static function set_theme_style( $style ) {
+		set_theme_mod( 'active_style_pack', $style );
+		return self::get_theme_style();
+	}
+
+	/**
+	 * Get theme style.
+	 *
+	 * @return string Style id.
+	 */
+	public static function get_theme_style() {
+		return get_theme_mod( 'active_style_pack' );
 	}
 
 	/**
