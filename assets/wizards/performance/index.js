@@ -19,7 +19,6 @@ import HeaderIcon from '@material-ui/icons/Speed';
  */
 import { withWizard } from '../../components/src';
 import { Intro } from './views';
-import './style.scss';
 
 /**
  * External dependencies.
