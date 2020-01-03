@@ -18,7 +18,7 @@ import './style.scss';
 /**
  * External dependencies
  */
-import classNames from 'classnames';
+import classnames from 'classnames';
 
 export default function withWizardScreen( WrappedComponent, config ) {
 	return class extends Component {
@@ -42,17 +42,12 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				secondaryButtonStyle,
 				hidden,
 			} = this.props;
-			const classes = classNames(
-				'muriel-wizardScreen',
+			const classes = classnames(
+				'newspack-wizard',
 				className,
-				noBackground ? 'muriel-wizardScreen__no-background' : '',
-				hidden ? 'muriel-wizardScreen__hidden' : '',
+				hidden ? 'newspack-wizard__is-hidden' : '',
 			);
-			const content = (
-				<div className="muriel-wizardScreen__content">
-					<WrappedComponent { ...this.props } />
-				</div>
-			);
+			const content = <WrappedComponent { ...this.props } />;
 			const retrievedButtonProps = buttonProps( buttonAction );
 			return (
 				<Fragment>
@@ -81,7 +76,6 @@ export default function withWizardScreen( WrappedComponent, config ) {
 										{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
 											<Handoff
 												isPrimary
-												className="muriel-wizardScreen__completeButton"
 												{ ...retrievedButtonProps }
 											>
 												{ buttonText }
@@ -92,7 +86,6 @@ export default function withWizardScreen( WrappedComponent, config ) {
 											<Button
 												isPrimary={ ! buttonDisabled }
 												isDefault={ !! buttonDisabled }
-												className="muriel-wizardScreen__completeButton"
 												disabled={ buttonDisabled }
 												{ ...retrievedButtonProps }
 											>

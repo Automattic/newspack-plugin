@@ -243,30 +243,28 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 							</a>
 						) }
 					</div>
-					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
-						<WrappedComponent
-							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
-							clearError={ this.clearError }
-							getError={ this.getError }
-							setError={ this.setError }
-							startLoading={ this.startLoading }
-							doneLoading={ this.doneLoading }
-							wizardApiFetch={ this.wizardApiFetch }
-							ref={ this.wrappedComponentRef }
-							{ ...this.props }
-						/>
-						{ buttonText && buttonAction && (
-							<Grid>
-								<Card noBackground>
-									<div className="newspack-buttons-card">
-										<Button isPrimary { ...buttonProps( buttonAction ) }>
-											{ buttonText }
-										</Button>
-									</div>
-								</Card>
-							</Grid>
-						) }
-					</div>
+					<WrappedComponent
+						pluginRequirements={ requiredPlugins && this.pluginRequirements() }
+						clearError={ this.clearError }
+						getError={ this.getError }
+						setError={ this.setError }
+						startLoading={ this.startLoading }
+						doneLoading={ this.doneLoading }
+						wizardApiFetch={ this.wizardApiFetch }
+						ref={ this.wrappedComponentRef }
+						{ ...this.props }
+					/>
+					{ buttonText && buttonAction && (
+						<Grid>
+							<Card noBackground>
+								<div className="newspack-buttons-card">
+									<Button isPrimary { ...buttonProps( buttonAction ) }>
+										{ buttonText }
+									</Button>
+								</div>
+							</Card>
+						</Grid>
+					) }
 				</Fragment>
 			);
 		}
