@@ -90,16 +90,10 @@
 		}
 	}
 
-	// Spinner
+	// Waiting
 
 	.newspack-action-card__container {
 		display: flex;
-	}
-
-	.components-spinner {
-		margin-top: 0;
-		margin-bottom: 0;
-		min-width: 18px;
 	}
 
 	// Notifications
@@ -149,24 +143,18 @@
 
 	// Buttons
 
-	button.is-link {
-		color: $primary-500;
+	.newspack-button {
+		&.newspack-action-card__secondary_button {
+			&.is-link {
+				color: $alert-red;
 
-		&:hover {
-			color: $primary-600;
+				&:active,
+				&:focus,
+				&:hover {
+					color: darken( $alert-red, 20% );
+				}
+			}
 		}
-	}
-
-	button.newspack-action-card__secondary_button {
-		visibility: hidden;
-
-		&.is-link {
-			color: $alert-red;
-		}
-	}
-
-	&:hover button.newspack-action-card__secondary_button {
-		visibility: visible;
 	}
 
 	// Badge
@@ -185,6 +173,7 @@
 	}
 
 	// Description Card
+
 	&.newspack-description-card {
 		font-style: italic;
 	}
