@@ -1,13 +1,12 @@
 {
   "name": "newspack-components",
   "version": "0.1.5",
-  "description": "Muriel design system components",
+  "description": "Newspack design system components",
   "author": "Automattic",
   "license": "GPL-2.0-or-later",
   "keywords": [
     "wordpress",
     "newspack",
-    "muriel",
     "components"
   ],
   "bugs": {

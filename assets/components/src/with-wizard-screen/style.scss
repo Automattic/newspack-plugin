@@ -1,27 +1,13 @@
+/**
+ * With Wizard Screen
+ */
+
 @import '~@wordpress/base-styles/colors';
 
-.muriel-component.muriel-wizardScreen__completeButton {
-	margin: 0;
-}
+// Hidden
 
-.muriel-wizardScreen__hidden {
+.newspack-wizard__is-hidden {
 	display: none;
-}
-
-.muriel-wizardScreen__content {
-	.notice {
-		margin-left: 0;
-		padding-top: .5em;
-		padding-bottom: .5em;
-
-		&.notice-error {
-			background-color: $muriel-red-50;
-		}
-
-		&.notice-success {
-			background-color: $muriel-hot-green-50;
-		}
-	}
 }
 
 // Buttons Card
