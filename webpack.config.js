@@ -19,7 +19,7 @@ const wizardsScripts = fs
 const wizardsScriptFiles = {}
 wizardsScripts.forEach( function( wizard ) {
 	wizardsScriptFiles[ wizard ] = [
-		path.join( __dirname, 'assets', 'shared', 'js', 'public-path.js' )
+		path.join( __dirname, 'assets', 'shared', 'js', 'public-path.js' ),
 		path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' )
 	];
 } );
