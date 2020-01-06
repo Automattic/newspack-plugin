@@ -56,6 +56,15 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/download/1.0.0-alpha.1/newspack-ads.zip',
 			],
+			'newspack-content-converter'    => [
+				'Name'        => esc_html__( 'Newspack Content Converter', 'newspack' ),
+				'Description' => esc_html__( 'Batch conversion of Classic->Gutenberg post conversion.' ),
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-content-converter/releases/latest/download/newspack-content-con verter.zip',
+				'Quiet'       => true,
+			],
 			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
 				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
