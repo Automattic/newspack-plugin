@@ -42,6 +42,10 @@ class Admin_Plugins_Screen {
 				continue;
 			}
 
+			if ( isset( $plugin_info['Quiet'] ) && $plugin_info['Quiet'] ) {
+				continue;
+			}
+
 			$plugins[ $slug ] = $plugin_info;
 		}
 
