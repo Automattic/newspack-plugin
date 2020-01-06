@@ -13,7 +13,12 @@ import { __ } from '@wordpress/i18n';
  */
 import { Button, ButtonGroup, withWizardScreen } from '../../../../components/src';
 import './style.scss';
+import ScreenshotStyle0 from './images/screenshot-style-0.png';
+import ScreenshotStyle1 from './images/screenshot-style-1.png';
 import ScreenshotStyle2 from './images/screenshot-style-2.png';
+import ScreenshotStyle3 from './images/screenshot-style-3.png';
+import ScreenshotStyle4 from './images/screenshot-style-4.png';
+import ScreenshotStyle5 from './images/screenshot-style-5.png';
 
 /**
  * Theme Style Selection Screen.
@@ -32,7 +37,7 @@ class ThemeStyleSelection extends Component {
 				>
 					<img
 						alt={ __( 'Default', 'newspack-plugin' ) }
-						src="https://i0.wp.com/themes.svn.wordpress.org/twentytwenty/1.1/screenshot.png"
+						src={ ScreenshotStyle0 }
 					/>
 				</Button>
 				<Button
@@ -41,7 +46,7 @@ class ThemeStyleSelection extends Component {
 				>
 					<img
 						alt={ __( 'Style 1', 'newspack-plugin' ) }
-						src="https://i0.wp.com/themes.svn.wordpress.org/twentynineteen/1.4/screenshot.png"
+						src={ ScreenshotStyle1 }
 					/>
 				</Button>
 				<Button
@@ -59,7 +64,7 @@ class ThemeStyleSelection extends Component {
 				>
 					<img
 						alt={ __( 'Style 3', 'newspack-plugin' ) }
-						src="https://i0.wp.com/themes.svn.wordpress.org/twentyseventeen/2.2/screenshot.png"
+						src={ ScreenshotStyle3 }
 					/>
 				</Button>
 				<Button
@@ -68,7 +73,7 @@ class ThemeStyleSelection extends Component {
 				>
 					<img
 						alt={ __( 'Style 4', 'newspack-plugin' ) }
-						src="https://i0.wp.com/themes.svn.wordpress.org/twentysixteen/2.0/screenshot.png"
+						src={ ScreenshotStyle4 }
 					/>
 				</Button>
 				<Button
@@ -77,7 +82,7 @@ class ThemeStyleSelection extends Component {
 				>
 					<img
 						alt={ __( 'Style 5', 'newspack-plugin' ) }
-						src="https://i0.wp.com/themes.svn.wordpress.org/twentyfifteen/2.5/screenshot.png"
+						src={ ScreenshotStyle5 }
 					/>
 				</Button>
 			</ButtonGroup>
