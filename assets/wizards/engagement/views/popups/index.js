@@ -3,15 +3,15 @@
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Disqus dependencies
+ * Internal dependencies.
  */
-import { ActionCard, PluginInstaller, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, PluginInstaller, SelectControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * Popups Screen
@@ -38,13 +38,27 @@ class Popups extends Component {
 		}
 		return (
 			<Fragment>
-				<p>{ __( 'Explanatory text TK' ) }</p>
 				<ActionCard
 					title={ __( 'Newspack Pop-ups' ) }
 					description={ __( 'AMP-compatible popup notifications.' ) }
-					actionText={ __( 'Configure' ) }
+					actionText={ __( 'Manage' ) }
 					href="edit.php?post_type=newspack_popups_cpt"
 				/>
+				<hr />
+				<h2>{ __( 'Configure active Pop-up' ) }</h2>
+				<SelectControl
+					label={ __( 'Sitewide default' ) }
+					value={ '' }
+					options={ [
+						{ value: '', label: __( '- Select -' ), disabled: true }
+					] }
+					value={ '' }
+				/>
+				<div className="newspack-buttons-card">
+					<Button onClick="/post-new.php?post_type=newspack_popups_cpt" isPrimary>
+						{ __( 'Add new Pop-up' ) }
+					</Button>
+				</div>
 			</Fragment>
 		);
 	}
