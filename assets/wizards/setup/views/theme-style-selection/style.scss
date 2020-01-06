@@ -1,1 +1,48 @@
-// Placeholder for custom styles, if needed
+/**
+ * Theme Style Selection
+ */
+
+@import '../../../../shared/scss/colors';
+
+.newspack-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 24px -8px -8px;
+
+  .newspack-button {
+    align-items: center;
+    border: 0;
+    display: flex;
+    filter: grayscale( 100% );
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 8px;
+    transition: filter 125ms ease-in-out;
+    width: 50%;
+
+    &:active,
+    &:focus,
+    &:hover,
+    &.is-primary {
+      filter: grayscale( 0 );
+    }
+
+    &.is-button:first-child,
+    &.is-button:last-child {
+      border-radius: 0;
+    }
+
+    &.is-primary {
+      background: transparent;
+      color: $primary-500;
+      outline: 2px solid;
+      outline-offset: -7px;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+}
