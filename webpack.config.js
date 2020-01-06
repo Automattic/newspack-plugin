@@ -10,6 +10,7 @@ const fs = require( 'fs' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+
 const wizardsDir = path.join( __dirname, 'assets', 'wizards' );
 
 // Get files for wizards scripts.
