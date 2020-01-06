@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import SettingsIcon from '@material-ui/icons/Settings';
+import StyleIcon from '@material-ui/icons/Style';
 import SubjectIcon from '@material-ui/icons/Subject';
 
 /**
@@ -402,7 +403,7 @@ class SetupWizard extends Component {
 							const { themeStyle } = this.state;
 							return (
 								<ThemeStyleSelection
-									headerIcon={ <SubjectIcon /> }
+									headerIcon={ <StyleIcon /> }
 									headerText={ __( 'Theme Style' ) }
 									subHeaderText={ __( 'Choose a style for the Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
