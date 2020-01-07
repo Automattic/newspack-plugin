@@ -38,14 +38,11 @@ class Components_Demo extends Wizard {
 	protected $menu_priority = 100;
 
 	/**
-	 * Constructor.
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
 	 */
-	public function __construct() {
-		parent::__construct();
-
-		// Only show a link to the Components Demo if WP_DEBUG is enabled.
-		$this->hidden = ! defined( 'WP_DEBUG' ) || ! WP_DEBUG;
-	}
+	protected $hidden = true;
 
 	/**
 	 * Get the name for this wizard.

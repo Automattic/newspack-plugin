@@ -109,13 +109,15 @@ final class Newspack {
 	 * Reset Newspack by removing all newspack prefixed options. Triggered by the query param reset_newspack_settings=1
 	 */
 	public function remove_all_newspack_options() {
-		if ( filter_input( INPUT_GET, 'reset_newspack_settings', FILTER_SANITIZE_STRING ) === '1' ) {
+		if ( filter_input( INPUT_POST, 'newspack_reset', FILTER_SANITIZE_STRING ) === 'on' ) {
 			$all_options = wp_load_alloptions();
 			foreach ( $all_options as $key => $value ) {
 				if ( strpos( $key, 'newspack' ) === 0 || strpos( $key, '_newspack' ) === 0 ) {
 					delete_option( $key );
 				}
 			}
+			wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
+			exit;
 		}
 	}
 
@@ -124,7 +126,9 @@ final class Newspack {
 	 */
 	public function remove_notifications() {
 		$screen = get_current_screen();
-		if ( ! $screen || 'newspack' !== $screen->parent_base ) {
+
+		$is_newspack_screen = ( 'newspack' === $screen->parent_base ) || ( 'admin_page_newspack-' === substr( $screen->base, 0, 20 ) );
+		if ( ! $screen || ! $is_newspack_screen ) {
 			return;
 		}
 		remove_all_actions( current_action() );

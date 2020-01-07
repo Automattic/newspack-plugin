@@ -7,7 +7,8 @@
 // Reset Padding of the Admin Page
 
 .toplevel_page_newspack,
-body[class*="newspack_page_newspack-"] {
+body[class*="newspack_page_newspack-"],
+body[class*="admin_page_newspack-"] {
 	#wpcontent {
 		padding-left: 0;
 	}
