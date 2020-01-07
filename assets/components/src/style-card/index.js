@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button } from '../';
+import { Button, WebPreview } from '../';
 import './style.scss';
 
 /**
@@ -25,7 +25,7 @@ class StyleCard extends Component {
 	 * Render.
 	 */
 	render( props ) {
-		const { className, cardTitle, demo, image, isActive, onClick, ...otherProps } = this.props;
+		const { className, cardTitle, url, image, isActive, onClick, ...otherProps } = this.props;
 		const classes = classnames(
 			'newspack-style-card',
 			isActive && 'newspack-style-card__is-active',
@@ -37,7 +37,7 @@ class StyleCard extends Component {
 				{ image && <img src={ image } /> }
 					<div className="newspack-style-card__actions">
 						{ ! isActive && <Button isPrimary isSmall onClick={ onClick }>{ __( 'Activate' ) }</Button> }
-						{ demo && <Button isDefault isSmall href={ demo } target="_blank">{ __( 'View Demo' ) }</Button>	}
+						{ url && <WebPreview url={ url } label={ __( 'View Demo' ) } isSmall isSecondary /> }
 					</div>
 				</div>
 				<div className="newspack-style-card__content">
