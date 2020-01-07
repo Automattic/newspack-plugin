@@ -40,10 +40,12 @@ final class Newspack {
 	public function __construct() {
 		$this->define_constants();
 		$this->includes();
+		add_action( 'admin_init', [ $this, 'admin_redirects' ] );
 		add_action( 'admin_menu', [ $this, 'remove_all_newspack_options' ], 1 );
 		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
+		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
 	}
 
 	/**
@@ -52,6 +54,7 @@ final class Newspack {
 	private function define_constants() {
 		define( 'NEWSPACK_VERSION', '0.0.1' );
 		define( 'NEWSPACK_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/' );
+		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 	}
 
 	/**
@@ -125,6 +128,25 @@ final class Newspack {
 			return;
 		}
 		remove_all_actions( current_action() );
+	}
+
+	/**
+	 * Activation Hook
+	 */
+	public function activation_hook() {
+		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+	}
+
+	/**
+	 * Handle initial redirect after activation
+	 */
+	public function admin_redirects() {
+		if ( ! get_transient( NEWSPACK_ACTIVATION_TRANSIENT ) || wp_doing_ajax() || is_network_admin() || ! current_user_can( 'install_plugins' ) ) {
+			return;
+		}
+		delete_transient( NEWSPACK_ACTIVATION_TRANSIENT );
+		wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
+		exit;
 	}
 }
 Newspack::instance();
