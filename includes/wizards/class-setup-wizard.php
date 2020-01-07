@@ -41,6 +41,7 @@ class Setup_Wizard extends Wizard {
 			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
 
 		}
+		$this->hidden = get_option( NEWSPACK_SETUP_COMPLETE, false );
 	}
 
 	/**
