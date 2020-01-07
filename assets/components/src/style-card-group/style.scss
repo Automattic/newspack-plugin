@@ -1,0 +1,17 @@
+/**
+ * Style Card Group
+ */
+
+.newspack-style-card-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 24px 0 -8px;
+
+  .newspack-style-card {
+    flex: 0 0 auto;
+    margin: 8px 0;
+    width: 48%;
+    width: calc(50% - 8px);
+  }
+}
