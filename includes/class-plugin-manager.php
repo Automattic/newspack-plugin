@@ -62,7 +62,7 @@ class Plugin_Manager {
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-content-converter/releases/latest/download/newspack-content-con verter.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-content-converter/releases/latest/download/newspack-content-converter.zip',
 				'Quiet'       => true,
 			],
 			'jetpack'                       => [
