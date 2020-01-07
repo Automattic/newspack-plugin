@@ -167,6 +167,19 @@ class PluginInstaller extends Component {
 			const plugin = pluginInfo[ slug ];
 			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
 		} );
+
+		// Store all plugin status info for installer button text value based on current status.
+		let currentPluginStatuses = [];
+		slugs.forEach( slug => {
+			const plugin = pluginInfo[ slug ];
+			currentPluginStatuses.push( plugin.Status );
+		} );
+
+		// Make sure plugin status falls in either one of these, to handle button text.
+		const pluginInstalled = ( currentStatus) => currentStatus === 'active' || currentStatus === 'inactive';
+
+		let buttonText = currentPluginStatuses.every( pluginInstalled ) ? __( 'Activate' ) : __( 'Install' );
+
 		if ( asProgressBar ) {
 			const completed = slugs.reduce(
 				( completed, slug ) =>
@@ -242,7 +255,7 @@ class PluginInstaller extends Component {
 							isPrimary
 							onClick={ this.installAllPlugins }
 						>
-							{ __( 'Install' ) }
+							{  buttonText }
 						</Button>
 					</div>
 				) }
