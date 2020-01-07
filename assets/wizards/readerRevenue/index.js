@@ -261,7 +261,6 @@ render(
 			'woocommerce',
 			'woocommerce-subscriptions',
 			'woocommerce-name-your-price',
-			'laterpay',
 		] )
 	),
 	document.getElementById( 'newspack-reader-revenue-wizard' )
