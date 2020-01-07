@@ -49,6 +49,22 @@ class Settings {
 				settings_fields( 'newspack_options_group' );
 				do_settings_sections( 'newspack-settings-admin' );
 				submit_button();
+				printf(
+					wp_kses(
+						/* translators: %2$s: Set Up Wizard, %4$s: Components Demo */
+						__( '<p><a href="%1$s">%2$s</a> | <a href="%3$s">%4$s</a></p>', 'newspack' ),
+						array(
+							'p' => array(),
+							'a' => array(
+								'href' => array(),
+							),
+						)
+					),
+					esc_url( admin_url( 'admin.php?page=newspack-setup-wizard' ) ),
+					esc_attr( __( 'Setup Wizard', 'newspack' ) ),
+					esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) ),
+					esc_attr( __( 'Components Demo', 'newspack' ) )
+				);
 			?>
 			</form>
 		</div>
@@ -64,7 +80,7 @@ class Settings {
 			'newspack_debug'
 		);
 		add_settings_section(
-			'setting_section_id',
+			'newspack_settings',
 			'Newspack Custom Settings',
 			null,
 			'newspack-settings-admin'
@@ -74,14 +90,14 @@ class Settings {
 			__( 'Debug Mode', 'newspack' ),
 			[ __CLASS__, 'newspack_debug_callback' ],
 			'newspack-settings-admin',
-			'setting_section_id'
+			'newspack_settings'
 		);
 		add_settings_field(
 			'newspack_reset',
 			__( 'Reset Newspack', 'newspack' ),
 			[ __CLASS__, 'newspack_reset_callback' ],
 			'newspack-settings-admin',
-			'setting_section_id'
+			'newspack_settings'
 		);
 	}
 
