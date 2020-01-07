@@ -71,15 +71,22 @@ class Settings {
 		);
 		add_settings_field(
 			'newspack_debug',
-			'Debug Mode',
+			__( 'Debug Mode', 'newspack' ),
 			[ __CLASS__, 'newspack_debug_callback' ],
+			'newspack-settings-admin',
+			'setting_section_id'
+		);
+		add_settings_field(
+			'newspack_reset',
+			__( 'Reset Newspack', 'newspack' ),
+			[ __CLASS__, 'newspack_reset_callback' ],
 			'newspack-settings-admin',
 			'setting_section_id'
 		);
 	}
 
 	/**
-	 * Get the settings option array and print one of its values
+	 * Render Debug checkbox.
 	 */
 	public static function newspack_debug_callback() {
 		$newspack_debug = get_option( 'newspack_debug', false );
@@ -87,6 +94,15 @@ class Settings {
 		printf(
 			'<input type="checkbox" id="newspack_debug" name="newspack_debug" %s />',
 			esc_attr( $newspack_value )
+		);
+	}
+
+	/**
+	 * Render Reset button.
+	 */
+	public static function newspack_reset_callback() {
+		printf(
+			'<input type="checkbox" id="newspack_reset" name="newspack_reset" />'
 		);
 	}
 }
