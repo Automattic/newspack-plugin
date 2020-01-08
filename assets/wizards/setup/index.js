@@ -412,6 +412,7 @@ class SetupWizard extends Component {
 									secondaryButtonAction={ this.finish }
 									updateThemeStyle={ this.updateThemeStyle }
 									themeStyle={ themeStyle }
+									isWide
 								/>
 							);
 						} }
