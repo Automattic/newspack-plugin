@@ -299,6 +299,14 @@ class Plugin_Manager {
 					'class_name' => 'LaterPay_Configuration_Manager',
 				],
 			],
+			'newspack-supporters'           => [
+				'Name'        => 'Newspack Supporters',
+				'Description' => 'Manage and display your site\'s supporters.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-supporters/releases/latest/download/newspack-supporters.zip',
+			],
 		];
 
 		$default_info = [
