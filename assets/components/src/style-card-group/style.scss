@@ -11,7 +11,23 @@
   .newspack-style-card {
     flex: 0 0 auto;
     margin: 8px 0;
-    width: 48%;
-    width: calc(50% - 8px);
+
+    @media screen and ( min-width: 600px ) {
+      width: 48%;
+      width: calc(100% / 2 - 16px / 2);
+    }
+  }
+}
+
+// Wide Grid
+
+.newspack-grid__wide {
+  .newspack-style-card-group {
+    .newspack-style-card {
+      @media screen and ( min-width: 1224px ) {
+        width: 32%;
+        width: calc(100% / 3 - 32px / 3);
+      }
+    }
   }
 }
