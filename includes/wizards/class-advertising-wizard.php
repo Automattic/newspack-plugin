@@ -210,6 +210,9 @@ class Advertising_Wizard extends Wizard {
 					],
 					'name'       => [
 						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'code'       => [
+						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'sizes'      => [
@@ -338,6 +341,7 @@ class Advertising_Wizard extends Wizard {
 		$params = $request->get_params();
 		$adunit = [
 			'id'         => 0,
+			'code'       => '',
 			'name'       => '',
 			'sizes'      => [],
 			'ad_service' => '',

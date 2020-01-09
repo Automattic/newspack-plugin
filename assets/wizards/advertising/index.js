@@ -223,9 +223,10 @@ class AdvertisingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { adUnits } = this.state.advertisingData;
 		const adUnit = adUnits[ id ];
-		const { name, sizes, ad_service } = adUnit;
+		const { name, code, sizes, ad_service } = adUnit;
 		const data = {
 			id,
+			code,
 			name,
 			sizes,
 			ad_service,
@@ -418,6 +419,7 @@ class AdvertisingWizard extends Component {
 											adUnits[ 0 ] || {
 												id: 0,
 												name: '',
+												code: '',
 												sizes: [],
 											}
 										}

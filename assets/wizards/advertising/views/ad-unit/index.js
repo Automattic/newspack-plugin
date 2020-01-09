@@ -36,7 +36,7 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, onSave, service } = this.props;
-		const { id, name } = adUnit;
+		const { id, code, name } = adUnit;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		return (
 			<Fragment>
@@ -44,6 +44,11 @@ class AdUnit extends Component {
 					label={ __( 'Ad unit name' ) }
 					value={ name || '' }
 					onChange={ value => this.handleOnChange( 'name', value ) }
+				/>
+				<TextControl
+					label={ __( 'Ad unit code' ) }
+					value={ code || '' }
+					onChange={ value => this.handleOnChange( 'code', value ) }
 				/>
 				{ sizes.map( ( size, index ) => (
 					<div className="newspack_ad_unit__sizes">
