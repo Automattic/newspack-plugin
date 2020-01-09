@@ -212,11 +212,8 @@ class Advertising_Wizard extends Wizard {
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
-					'width'      => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'height'     => [
-						'sanitize_callback' => 'sanitize_text_field',
+					'sizes'      => [
+						// 'sanitize_callback' => 'sanitize_text_field', TODO: Correct sanitization for this field.
 					],
 					'ad_service' => [
 						'sanitize_callback' => 'sanitize_text_field',
@@ -342,8 +339,7 @@ class Advertising_Wizard extends Wizard {
 		$adunit = [
 			'id'         => 0,
 			'name'       => '',
-			'width'      => 0,
-			'height'     => 0,
+			'sizes'      => [],
 			'ad_service' => '',
 		];
 		$args   = \wp_parse_args( $params, $adunit );

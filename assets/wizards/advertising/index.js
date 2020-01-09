@@ -223,12 +223,11 @@ class AdvertisingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { adUnits } = this.state.advertisingData;
 		const adUnit = adUnits[ id ];
-		const { name, width, height, ad_service } = adUnit;
+		const { name, sizes, ad_service } = adUnit;
 		const data = {
 			id,
 			name,
-			width,
-			height,
+			sizes,
 			ad_service,
 		};
 		return new Promise( ( resolve, reject ) => {
