@@ -419,8 +419,7 @@ class AdvertisingWizard extends Component {
 											adUnits[ 0 ] || {
 												id: 0,
 												name: '',
-												ad_code: '',
-												amp_ad_code: '',
+												sizes: [],
 											}
 										}
 										service={ 'google_ad_manager' }

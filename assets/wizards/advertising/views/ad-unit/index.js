@@ -7,11 +7,13 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 /**
  * Internal dependencies
  */
-import { Button, Card, TextControl, TextareaControl, withWizardScreen } from '../../../../components/src';
+import { Button, Card, TextControl, withWizardScreen } from '../../../../components/src';
+import './style.scss';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -34,7 +36,8 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, onSave, service } = this.props;
-		const { id, name, width, height } = adUnit;
+		const { id, name } = adUnit;
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		return (
 			<Fragment>
 				<TextControl
@@ -42,18 +45,41 @@ class AdUnit extends Component {
 					value={ name || '' }
 					onChange={ value => this.handleOnChange( 'name', value ) }
 				/>
-				<TextControl
-					label={ __( 'Width' ) }
-					value={ width }
-					placeholder={ __( '120' ) }
-					onChange={ value => this.handleOnChange( 'width', value ) }
-				/>
-				<TextControl
-					label={ __( 'Height' ) }
-					placeholder={ __( '120' ) }
-					value={ height }
-					onChange={ value => this.handleOnChange( 'height', value ) }
-				/>
+				{ sizes.map( ( size, index ) => (
+					<div className="newspack_ad_unit__sizes">
+						<TextControl
+							label={ __( 'Width' ) }
+							value={ size[ 0 ] }
+							onChange={ value => {
+								sizes[ index ][ 0 ] = value;
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						/>
+						<TextControl
+							label={ __( 'Height' ) }
+							value={ size[ 1 ] }
+							onChange={ value => {
+								sizes[ index ][ 1 ] = value;
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						/>
+						<Button
+							isSmall
+							onClick={ () => {
+								sizes.splice( index, 1 );
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						>
+							<DeleteIcon />
+						</Button>
+					</div>
+				) ) }
+				<Button
+					isPrimary
+					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }
+				>
+					{ __( 'Add Size', 'newspack' ) }
+				</Button>
 				<div className="newspack-buttons-card">
 					<Button isPrimary onClick={ () => onSave( id ) }>
 						{ __( 'Save' ) }
