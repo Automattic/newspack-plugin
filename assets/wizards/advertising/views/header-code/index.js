@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Card, TextareaControl, withWizardScreen } from '../../../../components/src';
+import { Button, Card, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -38,11 +38,9 @@ class HeaderCode extends Component {
 		const { onChange, code, service } = this.props;
 		return (
 			<Fragment>
-				<TextareaControl
-					label={ __(
-						'If the ad service requires to render a global ad code on every page, paste it here.'
-					) }
-					placeholder={ __( 'Header Ad Code' ) }
+				<TextControl
+					label={ __( 'Google Ad Manager Network Code', 'newspack' ) }
+					placeholder={ __( '123456789' ) }
 					value={ code }
 					onChange={ onChange }
 				/>

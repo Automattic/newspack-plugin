@@ -113,25 +113,6 @@ class Advertising_Wizard extends Wizard {
 			]
 		);
 
-		// Update header code.
-		register_rest_route(
-			'newspack/v1/wizard/',
-			'/advertising/service/(?P<service>[\a-z]+)/header_code',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_header_code' ],
-				'permission_callback' => [ $this, 'api_permissions_check_unfiltered_html' ],
-				'args'                => [
-					'service'     => [
-						'sanitize_callback' => [ $this, 'sanitize_service' ],
-					],
-					'header_code' => [
-						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
-					],
-				],
-			]
-		);
-
 		// Enable one service.
 		register_rest_route(
 			'newspack/v1/wizard/',
@@ -167,17 +148,17 @@ class Advertising_Wizard extends Wizard {
 		// Update header code.
 		register_rest_route(
 			'newspack/v1/wizard/',
-			'/advertising/service/(?P<service>[\a-z]+)/header_code',
+			'/advertising/service/(?P<service>[\a-z]+)/network_code',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_header_code' ],
+				'callback'            => [ $this, 'api_update_network_code' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'service'     => [
+					'service'      => [
 						'sanitize_callback' => [ $this, 'sanitize_service' ],
 					],
-					'header_code' => [
-						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
+					'network_code' => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -222,22 +203,24 @@ class Advertising_Wizard extends Wizard {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_adunit' ],
-				'permission_callback' => [ $this, 'api_permissions_check_unfiltered_html' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id'          => [
+					'id'         => [
 						'sanitize_callback' => 'absint',
 					],
-					'name'        => [
+					'name'       => [
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
-					'ad_code'     => [
-						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
+					'width'      => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'amp_ad_code' => [
-						// 'sanitize_callback' => 'esc_js', @todo If a `script` tag goes here, esc_js is the wrong function to use.
+					'height'     => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'ad_service'  => [],
+					'ad_service' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
 				],
 			]
 		);
@@ -249,7 +232,7 @@ class Advertising_Wizard extends Wizard {
 			[
 				'methods'             => 'DELETE',
 				'callback'            => [ $this, 'api_delete_adunit' ],
-				'permission_callback' => [ $this, 'api_permissions_check_unfiltered_html' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
 						'sanitize_callback' => 'absint',
@@ -357,11 +340,11 @@ class Advertising_Wizard extends Wizard {
 
 		$params = $request->get_params();
 		$adunit = [
-			'id'          => 0,
-			'name'        => '',
-			'ad_code'     => '',
-			'amp_ad_code' => '',
-			'ad_service'  => '',
+			'id'         => 0,
+			'name'       => '',
+			'width'      => 0,
+			'height'     => 0,
+			'ad_service' => '',
 		];
 		$args   = \wp_parse_args( $params, $adunit );
 		// Update and existing or add a new ad unit.
@@ -395,12 +378,12 @@ class Advertising_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Request with ID of ad unit to delete.
 	 * @return WP_REST_Response Boolean Delete success.
 	 */
-	public function api_update_header_code( $request ) {
+	public function api_update_network_code( $request ) {
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
-		$service     = $request['service'];
-		$header_code = $request['header_code'];
-		$configuration_manager->set_header_code( $service, $header_code );
+		$service      = $request['service'];
+		$network_code = $request['network_code'];
+		$configuration_manager->set_network_code( $service, $network_code );
 
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
@@ -449,9 +432,9 @@ class Advertising_Wizard extends Wizard {
 		$services = array();
 		foreach ( $this->services as $service => $data ) {
 			$services[ $service ] = array(
-				'label'       => $data['label'],
-				'enabled'     => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, '' ),
-				'header_code' => $configuration_manager->get_header_code( $service ),
+				'label'        => $data['label'],
+				'enabled'      => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, '' ),
+				'network_code' => $configuration_manager->get_network_code( $service ),
 			);
 		}
 		/* Check availability of WordAds based on current Jetpack plan */

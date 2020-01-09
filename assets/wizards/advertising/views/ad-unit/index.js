@@ -34,7 +34,7 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, onSave, service } = this.props;
-		const { id, name, ad_code, amp_ad_code } = adUnit;
+		const { id, name, width, height } = adUnit;
 		return (
 			<Fragment>
 				<TextControl
@@ -42,17 +42,17 @@ class AdUnit extends Component {
 					value={ name || '' }
 					onChange={ value => this.handleOnChange( 'name', value ) }
 				/>
-				<TextareaControl
-					label={ __( 'Paste the AMP ad code from Ad Manager here.' ) }
-					value={ amp_ad_code || '' }
-					placeholder={ __( 'AMP Ad code' ) }
-					onChange={ value => this.handleOnChange( 'amp_ad_code', value ) }
+				<TextControl
+					label={ __( 'Width' ) }
+					value={ width }
+					placeholder={ __( '120' ) }
+					onChange={ value => this.handleOnChange( 'width', value ) }
 				/>
-				<TextareaControl
-					label={ __( 'Paste the HTML ad code from Ad Manager here.' ) }
-					placeholder={ __( 'HTML Ad code' ) }
-					value={ ad_code || '' }
-					onChange={ value => this.handleOnChange( 'ad_code', value ) }
+				<TextControl
+					label={ __( 'Height' ) }
+					placeholder={ __( '120' ) }
+					value={ height }
+					onChange={ value => this.handleOnChange( 'height', value ) }
 				/>
 				<div className="newspack-buttons-card">
 					<Button isPrimary onClick={ () => onSave( id ) }>
