@@ -26,15 +26,18 @@
 	}
 
 	.newspack-wizard-pagination__pagination,
-	.newspack-button {
+	.newspack-button.is-link {
 		color: inherit;
 		padding: 16px;
 	}
 
-	.newspack-button {
+	.newspack-button.is-link {
 		&:active,
+		&:active:enabled,
 		&:focus,
-		&:hover {
+		&:focus:enabled,
+		&:hover,
+		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
 			color: $primary-200;
 		}
 

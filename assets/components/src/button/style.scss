@@ -6,9 +6,13 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-button {
+	border-radius: 3px;
 	font-size: 14px;
 	font-weight: bold;
+	height: auto;
 	line-height: 24px;
+	padding: 11px 24px;
+	transition: background 125ms ease-in-out, border-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
 
 	&.is-large {
 		font-size: 17px;
@@ -23,56 +27,12 @@
 		padding: 3px 12px;
 	}
 
-	&.is-button {
-		background: white;
-		border: 1px solid $light-gray-500;
-		border-radius: 3px;
-		color: $primary-500;
-		height: auto;
-		line-height: 24px;
-		padding: 11px 24px;
-		transition: background 125ms ease-in-out, border-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
-
-		&:active,
-		&:active:enabled,
-		&:focus,
-		&:focus:enabled,
-		&:hover {
-			background: $light-gray-100;
-			border-color: $primary-500;
-			color: $primary-500;
-		}
-
-		&:focus,
-		&:focus:enabled {
-			border-color: $primary-600;
-			box-shadow: 0 0 0 2px $primary-500;
-		}
-
-		&:disabled,
-		&:disabled:active:enabled,
-		&[aria-disabled=true],
-		&[aria-disabled=true]:active:enabled {
-			background: $light-gray-100;
-			border-color: $light-gray-500;
-			color: $light-gray-900;
-			cursor: not-allowed;
-			text-shadow: none;
-
-			&:hover {
-				background: $light-gray-100;
-				border-color: $light-gray-500;
-				color: $light-gray-900;
-			}
-		}
-
-		&.is-small {
-			padding: 3px 12px;
-		}
-
-		&.is-large {
-			padding: 15px 32px;
-		}
+	&:disabled,
+	&:disabled:active:enabled,
+	&[aria-disabled=true],
+	&[aria-disabled=true]:active:enabled {
+		cursor: not-allowed;
+		text-shadow: none;
 	}
 
 	&.is-primary {
@@ -84,7 +44,8 @@
 		&:active:enabled,
 		&:focus,
 		&:focus:enabled,
-		&:hover {
+		&:hover,
+		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
 			background: $primary-600;
 			border-color: $primary-700;
 			color: white;
@@ -110,24 +71,53 @@
 			}
 		}
 
-		&.is-small {
-			padding: 3px 12px;
-		}
-
 		.newspack-is-waiting {
 			fill: white;
+		}
+	}
+
+	&.is-secondary {
+		background: white;
+		border: 1px solid $light-gray-500;
+		color: $primary-500;
+
+		&:active,
+		&:active:enabled,
+		&:focus,
+		&:focus:enabled,
+		&:hover,
+		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+			background: $light-gray-100;
+			border-color: $primary-500;
+			color: $primary-500;
+		}
+
+		&:focus,
+		&:focus:enabled {
+			border-color: $primary-600;
+			box-shadow: 0 0 0 2px $primary-500;
+		}
+
+		&:disabled,
+		&:disabled:active:enabled,
+		&[aria-disabled=true],
+		&[aria-disabled=true]:active:enabled {
+			background: $light-gray-100;
+			border-color: $light-gray-500;
+			color: $light-gray-900;
+
+			&:hover {
+				background: $light-gray-100;
+				border-color: $light-gray-500;
+				color: $light-gray-900;
+			}
 		}
 	}
 
 	&.is-tertiary {
 		background: $light-gray-300;
 		border: 1px solid $light-gray-500;
-		border-radius: 3px;
 		color: $dark-gray-600;
-		height: auto;
-		line-height: 24px;
-		padding: 11px 24px;
-		transition: background 125ms ease-in-out, border-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
 
 		&:active,
 		&:active:enabled,
@@ -161,27 +151,26 @@
 			}
 		}
 
-		&.is-small {
-			padding: 3px 12px;
-		}
-
 		.newspack-is-waiting {
 			fill: $dark-gray-600;
 		}
 	}
 
 	&.is-link {
+		background: none;
 		border: 0;
 		border-radius: 0;
 		color: $primary-500;
 		font-weight: normal;
+		padding: 0;
 		transition: color 125ms ease-in-out, outline 125ms ease-in-out;
 
 		&:active,
 		&:active:enabled,
 		&:focus,
 		&:focus:enabled,
-		&:hover {
+		&:hover,
+		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
 			background: transparent;
 			color: $primary-600;
 			text-decoration: none;
