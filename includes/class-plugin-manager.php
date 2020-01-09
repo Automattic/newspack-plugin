@@ -307,6 +307,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-supporters/releases/latest/download/newspack-supporters.zip',
 			],
+			'organic-profile-block'         => [
+				'Name'        => 'Organic Profile Block',
+				'Description' => "The Profile Block is created for the Gutenberg content editor. It displays a profile section with an image, name, subtitle, bio and personal social media links. It's perfect for author biographies, personal profiles, or staff pages.",
+				'Author'      => 'Organic Themes',
+				'PluginURI'   => 'https://organicthemes.com/',
+				'AuthorURI'   => 'https://organicthemes.com/',
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
