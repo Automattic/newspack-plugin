@@ -113,6 +113,25 @@ class Advertising_Wizard extends Wizard {
 			]
 		);
 
+		// Update header code.
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/advertising/service/(?P<service>[\a-z]+)/network_code',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_network_code' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'service'      => [
+						'sanitize_callback' => [ $this, 'sanitize_service' ],
+					],
+					'network_code' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
 		// Enable one service.
 		register_rest_route(
 			'newspack/v1/wizard/',
@@ -140,25 +159,6 @@ class Advertising_Wizard extends Wizard {
 				'args'                => [
 					'service' => [
 						'sanitize_callback' => [ $this, 'sanitize_service' ],
-					],
-				],
-			]
-		);
-
-		// Update header code.
-		register_rest_route(
-			'newspack/v1/wizard/',
-			'/advertising/service/(?P<service>[\a-z]+)/network_code',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_network_code' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'service'      => [
-						'sanitize_callback' => [ $this, 'sanitize_service' ],
-					],
-					'network_code' => [
-						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
