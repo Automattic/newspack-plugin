@@ -55,4 +55,10 @@
 			fill: $primary-500;
 		}
 	}
+
+	.newspack-notice__content {
+		> * {
+			margin: 0;
+		}
+	}
 }
