@@ -136,27 +136,27 @@ class AdvertisingWizard extends Component {
 	}
 
 	/**
-	 * Update header code.
+	 * Update GAM Network Code.
 	 */
-	updateHeaderCode = ( code, service ) => {
+	updateNetworkCode = ( code, service ) => {
 		const { advertisingData } = this.state;
-		advertisingData.services[ service ].header_code = code;
+		advertisingData.services[ service ].network_code = code;
 		this.setState( { advertisingData } );
 	};
 
 	/**
-	 * Save header code.
+	 * Save Network Code.
 	 */
-	saveHeaderCode = service => {
+	saveNetworkCode = service => {
 		const { setError, wizardApiFetch } = this.props;
 		const { advertisingData } = this.state;
-		const header_code = advertisingData.services[ service ].header_code;
+		const network_code = advertisingData.services[ service ].network_code;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/service/' + service + '/header_code',
+				path: '/newspack/v1/wizard/advertising/service/' + service + '/network_code',
 				method: 'post',
 				data: {
-					header_code,
+					network_code,
 				},
 			} )
 				.then( advertisingData => {
@@ -223,12 +223,12 @@ class AdvertisingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { adUnits } = this.state.advertisingData;
 		const adUnit = adUnits[ id ];
-		const { name, ad_code, amp_ad_code, ad_service } = adUnit;
+		const { name, code, sizes, ad_service } = adUnit;
 		const data = {
 			id,
+			code,
 			name,
-			ad_code,
-			amp_ad_code,
+			sizes,
 			ad_service,
 		};
 		return new Promise( ( resolve, reject ) => {
@@ -390,13 +390,13 @@ class AdvertisingWizard extends Component {
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
-									code={ advertisingData.services.google_ad_manager.header_code }
+									code={ advertisingData.services.google_ad_manager.network_code }
 									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
-									onChange={ value => this.updateHeaderCode( value, 'google_ad_manager' ) }
+									onChange={ value => this.updateNetworkCode( value, 'google_ad_manager' ) }
 									buttonText={ __( 'Save' ) }
 									buttonAction={ () =>
-										this.saveHeaderCode( 'google_ad_manager' ).then( response =>
+										this.saveNetworkCode( 'google_ad_manager' ).then( response =>
 											routeProps.history.push( '/google_ad_manager' )
 										)
 									}
@@ -419,8 +419,8 @@ class AdvertisingWizard extends Component {
 											adUnits[ 0 ] || {
 												id: 0,
 												name: '',
-												ad_code: '',
-												amp_ad_code: '',
+												code: '',
+												sizes: [],
 											}
 										}
 										service={ 'google_ad_manager' }

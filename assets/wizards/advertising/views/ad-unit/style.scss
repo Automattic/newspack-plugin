@@ -1,0 +1,18 @@
+.newspack_ad_unit__sizes {
+	@media screen and ( min-width: 744px ) {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	.newspack-text-control {
+		margin: 16px 16px 16px 0;
+		&:last-of-type {
+			margin-right: 0;
+		}
+		@media screen and ( min-width: 744px ) {
+			width: 48%;
+			width: calc( 50% - 8px );
+		}
+	}
+}

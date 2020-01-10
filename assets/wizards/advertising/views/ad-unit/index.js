@@ -7,11 +7,13 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 /**
  * Internal dependencies
  */
-import { Button, Card, TextControl, TextareaControl, withWizardScreen } from '../../../../components/src';
+import { Button, Card, TextControl, withWizardScreen } from '../../../../components/src';
+import './style.scss';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -34,7 +36,8 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, onSave, service } = this.props;
-		const { id, name, ad_code, amp_ad_code } = adUnit;
+		const { id, code, name } = adUnit;
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		return (
 			<Fragment>
 				<TextControl
@@ -42,18 +45,46 @@ class AdUnit extends Component {
 					value={ name || '' }
 					onChange={ value => this.handleOnChange( 'name', value ) }
 				/>
-				<TextareaControl
-					label={ __( 'Paste the AMP ad code from Ad Manager here.' ) }
-					value={ amp_ad_code || '' }
-					placeholder={ __( 'AMP Ad code' ) }
-					onChange={ value => this.handleOnChange( 'amp_ad_code', value ) }
+				<TextControl
+					label={ __( 'Ad unit code' ) }
+					value={ code || '' }
+					onChange={ value => this.handleOnChange( 'code', value ) }
 				/>
-				<TextareaControl
-					label={ __( 'Paste the HTML ad code from Ad Manager here.' ) }
-					placeholder={ __( 'HTML Ad code' ) }
-					value={ ad_code || '' }
-					onChange={ value => this.handleOnChange( 'ad_code', value ) }
-				/>
+				{ sizes.map( ( size, index ) => (
+					<div className="newspack_ad_unit__sizes">
+						<TextControl
+							label={ __( 'Width' ) }
+							value={ size[ 0 ] }
+							onChange={ value => {
+								sizes[ index ][ 0 ] = value;
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						/>
+						<TextControl
+							label={ __( 'Height' ) }
+							value={ size[ 1 ] }
+							onChange={ value => {
+								sizes[ index ][ 1 ] = value;
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						/>
+						<Button
+							isSmall
+							onClick={ () => {
+								sizes.splice( index, 1 );
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						>
+							<DeleteIcon />
+						</Button>
+					</div>
+				) ) }
+				<Button
+					isPrimary
+					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }
+				>
+					{ __( 'Add Size', 'newspack' ) }
+				</Button>
 				<div className="newspack-buttons-card">
 					<Button isPrimary onClick={ () => onSave( id ) }>
 						{ __( 'Save' ) }
