@@ -42,7 +42,7 @@ class AdUnit extends Component {
 	render() {
 		const { adUnit, onSave, service } = this.props;
 		const { id, code, name } = adUnit;
-		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
 		return (
 			<Fragment>
 				<TextControl

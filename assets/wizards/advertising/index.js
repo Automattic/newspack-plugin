@@ -420,7 +420,7 @@ class AdvertisingWizard extends Component {
 												id: 0,
 												name: '',
 												code: '',
-												sizes: [],
+												sizes: [ [ 120, 120 ] ],
 											}
 										}
 										service={ 'google_ad_manager' }
