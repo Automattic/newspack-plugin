@@ -60,6 +60,7 @@ class AdUnit extends Component {
 						<TextControl
 							label={ __( 'Width' ) }
 							value={ size[ 0 ] }
+							type="number"
 							onChange={ value => {
 								sizes[ index ][ 0 ] = value;
 								this.handleOnChange( 'sizes', sizes );
@@ -68,6 +69,7 @@ class AdUnit extends Component {
 						<TextControl
 							label={ __( 'Height' ) }
 							value={ size[ 1 ] }
+							type="number"
 							onChange={ value => {
 								sizes[ index ][ 1 ] = value;
 								this.handleOnChange( 'sizes', sizes );
@@ -92,7 +94,7 @@ class AdUnit extends Component {
 					<LibraryAddIcon />
 					{ __( 'Add Size', 'newspack' ) }
 				</Button>
-				<div className="clear"></div>
+				<div className="clear" />
 				<div className="newspack-buttons-card">
 					<Button isPrimary onClick={ () => onSave( id ) }>
 						{ __( 'Save' ) }
