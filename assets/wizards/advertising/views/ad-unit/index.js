@@ -1,16 +1,21 @@
 /**
- * New/Edit Ad Unit Screen.
+ * New/Edit Ad Unit Screen
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import DeleteIcon from '@material-ui/icons/Delete';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import DeleteIcon from '@material-ui/icons/Delete';
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+
+/**
+ * Internal dependencies.
  */
 import { Button, Card, TextControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
@@ -69,7 +74,7 @@ class AdUnit extends Component {
 							} }
 						/>
 						<Button
-							isSmall
+							isTertiary
 							onClick={ () => {
 								sizes.splice( index, 1 );
 								this.handleOnChange( 'sizes', sizes );
@@ -80,11 +85,14 @@ class AdUnit extends Component {
 					</div>
 				) ) }
 				<Button
-					isPrimary
+					isTertiary
+					className="newspack-button__add-size"
 					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }
 				>
+					<LibraryAddIcon />
 					{ __( 'Add Size', 'newspack' ) }
 				</Button>
+				<div className="clear"></div>
 				<div className="newspack-buttons-card">
 					<Button isPrimary onClick={ () => onSave( id ) }>
 						{ __( 'Save' ) }
