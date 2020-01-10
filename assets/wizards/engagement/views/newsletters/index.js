@@ -7,12 +7,12 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Dashicon, ExternalLink } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Card, TextControl, PluginInstaller, withWizardScreen } from '../../../../components/src';
+import { Card, Notice, TextControl, PluginInstaller, withWizardScreen } from '../../../../components/src';
 
 /**
  * Initial connection to Mailchimp.
@@ -40,12 +40,7 @@ class Newsletters extends Component {
 					</p>
 				) }
 				{ !! connected && (
-					<p className="newspack-newsletter-block-wizard__jetpack-success">
-						<Dashicon icon="yes-alt" />
-						{ __(
-							'You can insert newsletter sign up forms in your content using the Mailchimp block.'
-						) }
-					</p>
+					<Notice noticeText={ __( 'You can insert newsletter sign up forms in your content using the Mailchimp block.' ) } isSuccess />
 				) }
 				<p className="wpcom-link">
 					<ExternalLink href={ connectURL }>

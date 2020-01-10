@@ -6,7 +6,6 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Dashicon } from '@wordpress/components';
 import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
@@ -55,7 +54,6 @@ class ActionCard extends Component {
 			className
 		);
 		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
-		const actionDisplay = ( simple && <Dashicon icon="arrow-right-alt2" /> ) || actionText;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -79,11 +77,11 @@ class ActionCard extends Component {
 						</h2>
 						<p>{ description }</p>
 					</div>
-					{ actionDisplay && (
+					{ actionText && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
 							{ handoff && (
 								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
-									{ actionDisplay }
+									{ actionText }
 								</Handoff>
 							) }
 							{ ( !! onClick || !! href ) && ! handoff && (
@@ -93,12 +91,12 @@ class ActionCard extends Component {
 									onClick={ onClick }
 									className="newspack-action-card__primary_button"
 								>
-									{ actionDisplay }
+									{ actionText }
 								</Button>
 							) }
 							{ ! handoff && ! onClick && ! href && (
 								<div className="newspack-action-card__container">
-									{ actionDisplay }
+									{ actionText }
 									{ isWaiting && <Waiting isRight /> }
 								</div>
 							) }

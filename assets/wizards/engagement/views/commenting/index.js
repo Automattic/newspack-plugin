@@ -12,7 +12,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { Card, Button, withWizardScreen } from '../../../../components/src';
+import { Card, Button, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Commenting Screen
@@ -35,12 +35,7 @@ class Commenting extends Component {
 						</p>
 					) }
 					{ !! connected && (
-						<p className="newspack-newsletter-block-wizard__jetpack-success">
-							<Dashicon icon="yes-alt" />
-							{ __(
-								'You can insert newsletter sign up forms in your content using the Mailchimp block.'
-							) }
-						</p>
+						<Notice noticeText={ __( 'You can insert newsletter sign up forms in your content using the Mailchimp block.' ) } isSuccess />
 					) }
 					<p>
 						{ __(
