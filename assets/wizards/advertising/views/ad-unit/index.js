@@ -75,15 +75,17 @@ class AdUnit extends Component {
 								this.handleOnChange( 'sizes', sizes );
 							} }
 						/>
-						<Button
-							isTertiary
-							onClick={ () => {
-								sizes.splice( index, 1 );
-								this.handleOnChange( 'sizes', sizes );
-							} }
-						>
-							<DeleteIcon />
-						</Button>
+						{ sizes.length > 1 && (
+							<Button
+								isTertiary
+								onClick={ () => {
+									sizes.splice( index, 1 );
+									this.handleOnChange( 'sizes', sizes );
+								} }
+							>
+								<DeleteIcon />
+							</Button>
+						) }
 					</div>
 				) ) }
 				<Button
