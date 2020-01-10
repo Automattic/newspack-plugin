@@ -216,7 +216,7 @@ class Advertising_Wizard extends Wizard {
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 					'sizes'      => [
-						// 'sanitize_callback' => 'sanitize_text_field', TODO: Correct sanitization for this field.
+						'sanitize_callback' => [ $this, 'sanitize_sizes' ],
 					],
 					'ad_service' => [
 						'sanitize_callback' => 'sanitize_text_field',
@@ -594,5 +594,24 @@ class Advertising_Wizard extends Wizard {
 		);
 		\wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-advertising-wizard' );
+	}
+
+	/**
+	 * Sanitize array of ad unit sizes.
+	 *
+	 * @param array $sizes Array of sizes to sanitize.
+	 * @return array Sanitized array.
+	 */
+	public static function sanitize_sizes( $sizes ) {
+		$sizes     = is_array( $sizes ) ? $sizes : [];
+		$sanitized = [];
+		foreach ( $sizes as $size ) {
+			$size    = is_array( $size ) && 2 === count( $size ) ? $size : [ 0, 0 ];
+			$size[0] = absint( $size[0] );
+			$size[1] = absint( $size[1] );
+
+			$sanitized[] = $size;
+		}
+		return $sanitized;
 	}
 }
