@@ -33,14 +33,14 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Get header code for ad service.
+	 * Get Network Code for ad service.
 	 *
 	 * @param string $service The service to retrieve.
 	 * @return string | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.
 	 */
-	public function get_header_code( $service ) {
+	public function get_network_code( $service ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::get_header_code( $service ) :
+			\Newspack_Ads_Model::get_network_code( $service ) :
 			$this->unconfigured_error();
 	}
 
@@ -48,12 +48,12 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * Create/update header code for ad service.
 	 *
 	 * @param string $service The service to retrieve.
-	 * @param string $header_code The code.
+	 * @param string $network_code The code.
 	 * @return bool | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.
 	 */
-	public function set_header_code( $service, $header_code ) {
+	public function set_network_code( $service, $network_code ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::set_header_code( $service, $header_code ) :
+			\Newspack_Ads_Model::set_network_code( $service, $network_code ) :
 			$this->unconfigured_error();
 	}
 
