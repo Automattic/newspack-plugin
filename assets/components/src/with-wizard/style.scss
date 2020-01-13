@@ -89,3 +89,44 @@ body[class*="admin_page_newspack-"] {
 		transition: color 125ms ease-in-out;
 	}
 }
+
+// Loading
+
+.newspack-wizard__is-loading {
+	cursor: wait;
+
+	.newspack-wizard {
+		position: relative;
+
+		&:before,
+		&:after {
+			background: white;
+			content: "";
+			display: block;
+			left: 0;
+			position: absolute;
+			right: 0;
+			top: 0;
+			z-index: 102;
+		}
+
+		&:after {
+			border-radius: 4px;
+			bottom: 0;
+			opacity: 0.8;
+		}
+
+		&:before {
+			animation: newspack-wizard__is-loading-animation 1s ease-in-out 1;
+			background: $primary-500;
+			height: 4px;
+			right: 100%;
+			z-index: 103;
+		}
+	}
+}
+
+@keyframes newspack-wizard__is-loading-animation {
+	from { right: 100%; }
+	to { right: 0; }
+}
