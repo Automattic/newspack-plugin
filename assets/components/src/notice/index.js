@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component } from '@wordpress/element';
+import { Component, RawHTML } from '@wordpress/element';
 
 /**
  * Material UI dependencies.
@@ -52,7 +52,7 @@ class Notice extends Component {
 		return (
 			<div className={ classes }>
 				{ noticeIcon }
-				<span className="newspack-notice__content">{ noticeText }</span>
+				<RawHTML className="newspack-notice__content">{ noticeText }</RawHTML>
 			</div>
 		);
 	}
