@@ -244,6 +244,7 @@ class PluginInstaller extends Component {
 								onClick={ onClick }
 								notification={ notification }
 								notificationLevel="error"
+								notificationHTML
 								className={ classes }
 							/>
 						);
