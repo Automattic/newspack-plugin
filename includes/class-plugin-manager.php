@@ -626,7 +626,7 @@ class Plugin_Manager {
 			$error_message = __( 'Newspack cannot install this plugin. You will need to get it from the plugin\'s site and install it manually.', 'newspack' );
 			if ( ! empty( $managed_plugins[ $plugin_slug ]['PluginURI'] ) ) {
 				/* translators: %s: plugin URL */
-				$error_message = sprintf( __( 'Newspack cannot install this plugin. You will need to get it from <a href="%s" target="_blank">the plugin\'s site</a> and install it manually.', 'newspack' ), esc_url( $managed_plugins[ $plugin_slug ]['PluginURI'] ) );
+				$error_message = sprintf( __( 'Newspack cannot install this plugin. You will need to get it from <a href="%s">the plugin\'s site</a> and install it manually.', 'newspack' ), esc_url( $managed_plugins[ $plugin_slug ]['PluginURI'] ) );
 			}
 
 			return new WP_Error(
