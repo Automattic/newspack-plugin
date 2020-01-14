@@ -101,7 +101,13 @@ class ComponentsDemo extends Component {
 				<Grid>
 					<Card>
 						<FormattedHeader headerText={ __( 'Web Previews' ) } />
-						<WebPreview url="//newspack.blog" label={ __( 'Preview Newspack Blog', 'newspack' ) } />
+						<Card noBackground className="newspack-card__buttons-card">
+							<WebPreview
+								url="//newspack.blog"
+								label={ __( 'Preview Newspack Blog', 'newspack' ) }
+								isPrimary
+							/>
+						</Card>
 					</Card>
 					<Card>
 						<ToggleGroup
