@@ -35,7 +35,12 @@ class Commenting extends Component {
 						</p>
 					) }
 					{ !! connected && (
-						<Notice noticeText={ __( 'You can insert newsletter sign up forms in your content using the Mailchimp block.' ) } isSuccess />
+						<Notice
+							noticeText={ __(
+								'You can insert newsletter sign up forms in your content using the Mailchimp block.'
+							) }
+							isSuccess
+						/>
 					) }
 					<p>
 						{ __(

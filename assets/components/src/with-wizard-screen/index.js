@@ -11,7 +11,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Card, FormattedHeader, Handoff, Grid, SecondaryNavigation, TabbedNavigation } from '../';
+import {
+	Button,
+	Card,
+	FormattedHeader,
+	Handoff,
+	Grid,
+	SecondaryNavigation,
+	TabbedNavigation,
+} from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -45,7 +53,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 			const classes = classnames(
 				'newspack-wizard',
 				className,
-				hidden ? 'newspack-wizard__is-hidden' : '',
+				hidden ? 'newspack-wizard__is-hidden' : ''
 			);
 			const content = <WrappedComponent { ...this.props } />;
 			const retrievedButtonProps = buttonProps( buttonAction );
@@ -55,7 +63,11 @@ export default function withWizardScreen( WrappedComponent, config ) {
 						<Grid>
 							<Card noBackground>
 								{ headerText && (
-									<FormattedHeader headerIcon={ headerIcon } headerText={ headerText } subHeaderText={ subHeaderText } />
+									<FormattedHeader
+										headerIcon={ headerIcon }
+										headerText={ headerText }
+										subHeaderText={ subHeaderText }
+									/>
 								) }
 							</Card>
 							{ tabbedNavigation && (
@@ -74,10 +86,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 								{ ! hidden && (
 									<div className="newspack-buttons-card">
 										{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
-											<Handoff
-												isPrimary
-												{ ...retrievedButtonProps }
-											>
+											<Handoff isPrimary { ...retrievedButtonProps }>
 												{ buttonText }
 											</Handoff>
 										) }

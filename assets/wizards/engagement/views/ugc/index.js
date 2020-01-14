@@ -25,7 +25,7 @@ class UGC extends Component {
 
 		return (
 			<Card noBackground>
-				<h2>{ __('Coming Soon') }</h2>
+				<h2>{ __( 'Coming Soon' ) }</h2>
 				<p>{ __( 'User Generated Content features TK.' ) }</p>
 			</Card>
 		);

@@ -57,6 +57,8 @@ class SyndicationWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] ) ),
+	createElement(
+		withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] )
+	),
 	document.getElementById( 'newspack-syndication-wizard' )
 );

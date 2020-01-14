@@ -32,7 +32,7 @@ class RemoveUnsupportedPlugins extends Component {
 								title={ unsupportedPlugin.Name }
 								key={ unsupportedPlugin.Slug }
 								description={ unsupportedPlugin.Description }
-								className= "newspack-card__is-unsupported"
+								className="newspack-card__is-unsupported"
 							/>
 						) ) }
 						<div className="newspack-buttons-card">

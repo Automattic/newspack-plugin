@@ -36,9 +36,7 @@ class CommentingDisqus extends Component {
 		) : (
 			<ActionCard
 				title={ __( 'Disqus' ) }
-				description={ __(
-					'Description TK.'
-				) }
+				description={ __( 'Description TK.' ) }
 				actionText={ __( 'Configure' ) }
 				handoff="disqus-comment-system"
 			/>

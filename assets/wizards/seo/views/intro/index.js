@@ -34,12 +34,10 @@ class Intro extends Component {
 				/>
 				<ActionCard
 					title={ __( 'Jetpack SEO' ) }
-					description={ __(
-						'Optimize your site\'s SEO with Jetpack'
-					) }
+					description={ __( "Optimize your site's SEO with Jetpack" ) }
 					actionText={ __( 'Configure' ) }
 					handoff="jetpack"
-					editLink='admin.php?page=jetpack#/traffic'
+					editLink="admin.php?page=jetpack#/traffic"
 				/>
 			</Fragment>
 		);

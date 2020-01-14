@@ -47,7 +47,9 @@ class PluginInstaller extends Component {
 		const { plugins } = this.props;
 		this.retrievePluginInfo( plugins ).then( () => {
 			const { asProgressBar, autoInstall } = this.props;
-			if ( asProgressBar || autoInstall ) this.installAllPlugins();
+			if ( asProgressBar || autoInstall ) {
+				this.installAllPlugins();
+			}
 		} );
 	};
 
@@ -66,7 +68,9 @@ class PluginInstaller extends Component {
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
 				const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
-					if ( plugins.indexOf( slug ) === -1 ) return result;
+					if ( plugins.indexOf( slug ) === -1 ) {
+						return result;
+					}
 					result[ slug ] = {
 						...response[ slug ],
 						installationStatus:
@@ -108,7 +112,6 @@ class PluginInstaller extends Component {
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
-				return;
 			} );
 	};
 
@@ -139,7 +142,7 @@ class PluginInstaller extends Component {
 		} );
 	};
 
-	classForInstallationStatus = status =>  {
+	classForInstallationStatus = status => {
 		switch ( status ) {
 			case PLUGIN_STATE_ACTIVE:
 				return 'newspack-plugin-installer__status-active';
@@ -154,7 +157,7 @@ class PluginInstaller extends Component {
 				return 'newspack-plugin-installer__status-none';
 				break;
 		}
-	}
+	};
 
 	/**
 	 * Render.
@@ -169,16 +172,19 @@ class PluginInstaller extends Component {
 		} );
 
 		// Store all plugin status info for installer button text value based on current status.
-		let currentPluginStatuses = [];
+		const currentPluginStatuses = [];
 		slugs.forEach( slug => {
 			const plugin = pluginInfo[ slug ];
 			currentPluginStatuses.push( plugin.Status );
 		} );
 
 		// Make sure plugin status falls in either one of these, to handle button text.
-		const pluginInstalled = ( currentStatus) => currentStatus === 'active' || currentStatus === 'inactive';
+		const pluginInstalled = currentStatus =>
+			currentStatus === 'active' || currentStatus === 'inactive';
 
-		let buttonText = currentPluginStatuses.every( pluginInstalled ) ? __( 'Activate' ) : __( 'Install' );
+		const buttonText = currentPluginStatuses.every( pluginInstalled )
+			? __( 'Activate' )
+			: __( 'Install' );
 
 		if ( asProgressBar ) {
 			const completed = slugs.reduce(
@@ -231,7 +237,7 @@ class PluginInstaller extends Component {
 
 						const classes = classnames(
 							'newspack-action-card__plugin-installer',
-							this.classForInstallationStatus( installationStatus ),
+							this.classForInstallationStatus( installationStatus )
 						);
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
@@ -250,12 +256,8 @@ class PluginInstaller extends Component {
 					} ) }
 				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
 					<div className="newspack-buttons-card">
-						<Button
-							disabled={ ! needsInstall }
-							isPrimary
-							onClick={ this.installAllPlugins }
-						>
-							{  buttonText }
+						<Button disabled={ ! needsInstall } isPrimary onClick={ this.installAllPlugins }>
+							{ buttonText }
 						</Button>
 					</div>
 				) }

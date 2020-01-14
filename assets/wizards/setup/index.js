@@ -154,8 +154,8 @@ class SetupWizard extends Component {
 	isConfigurationComplete = () => {
 		const { pluginInfo } = this.state;
 		return (
-			pluginInfo[ 'jetpack' ] &&
-			pluginInfo[ 'jetpack' ].Configured &&
+			pluginInfo.jetpack &&
+			pluginInfo.jetpack.Configured &&
 			pluginInfo[ 'google-site-kit' ] &&
 			pluginInfo[ 'google-site-kit' ].Configured
 		);

@@ -112,9 +112,7 @@ class Newsroom extends Component {
 					] }
 				/>
 				<p className="is-dark newspack-setup-wizard_newsroom_audience_title">
-					<strong>
-						{ __( 'How do you engage with your audience? (select all that apply)' ) }
-					</strong>
+					<strong>{ __( 'How do you engage with your audience? (select all that apply)' ) }</strong>
 				</p>
 				<div className="newspack-setup-wizard_newsroom_audience_checkboxes">
 					<CheckboxControl

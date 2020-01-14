@@ -36,9 +36,7 @@ class CommentingCoral extends Component {
 		) : (
 			<ActionCard
 				title={ __( 'The Coral Project' ) }
-				description={ __(
-					'Description TK.'
-				) }
+				description={ __( 'Description TK.' ) }
 				actionText={ __( 'Configure' ) }
 				handoff="talk-wp-plugin"
 			/>

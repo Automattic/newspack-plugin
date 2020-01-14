@@ -83,7 +83,7 @@ class ComponentsDemo extends Component {
 			modalShown,
 			showPluginInstallerWithProgressBar,
 			actionCardToggleChecked,
-			toggleGroupChecked
+			toggleGroupChecked,
 		} = this.state;
 		return (
 			<Fragment>
@@ -132,10 +132,7 @@ class ComponentsDemo extends Component {
 					<Card>
 						<FormattedHeader headerText={ __( 'Modal' ) } />
 						<Card noBackground className="newspack-card__buttons-card">
-							<Button
-								isPrimary
-								onClick={ () => this.setState( { modalShown: true } ) }
-							>
+							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
 								{ __( 'Open modal' ) }
 							</Button>
 						</Card>
@@ -167,9 +164,9 @@ class ComponentsDemo extends Component {
 						<Notice noticeText={ __( 'This is a Primary error notice.' ) } isError isPrimary />
 						<Notice noticeText={ __( 'This is an error notice.' ) } isError />
 						<Notice noticeText={ __( 'This is a Primary success notice.' ) } isSuccess isPrimary />
-						<Notice	noticeText={ __( 'This is a success notice.' ) } isSuccess />
-						<Notice	noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
-						<Notice	noticeText={ __( 'This is a warning notice.' ) } isWarning />
+						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
+						<Notice noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
+						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
@@ -303,7 +300,7 @@ class ComponentsDemo extends Component {
 					<ActionCard
 						title="Example Nine"
 						description="Action Card with Toggle Control."
-						actionText={ actionCardToggleChecked && "Set Up" }
+						actionText={ actionCardToggleChecked && 'Set Up' }
 						onClick={ () => {
 							console.log( 'Set Up' );
 						} }
@@ -485,14 +482,26 @@ class ComponentsDemo extends Component {
 							<Button isLink>isLink</Button>
 							<hr />
 							<h2>isLarge</h2>
-							<Button isPrimary isLarge>isPrimary</Button>
-							<Button isDefault isLarge>isDefault</Button>
-							<Button isTertiary isLarge>isTertiary</Button>
+							<Button isPrimary isLarge>
+								isPrimary
+							</Button>
+							<Button isDefault isLarge>
+								isDefault
+							</Button>
+							<Button isTertiary isLarge>
+								isTertiary
+							</Button>
 							<hr />
 							<h2>isSmall</h2>
-							<Button isPrimary isSmall>isPrimary</Button>
-							<Button isDefault isSmall>isDefault</Button>
-							<Button isTertiary isSmall>isTertiary</Button>
+							<Button isPrimary isSmall>
+								isPrimary
+							</Button>
+							<Button isDefault isSmall>
+								isDefault
+							</Button>
+							<Button isTertiary isSmall>
+								isTertiary
+							</Button>
 						</Card>
 					</Card>
 				</Grid>

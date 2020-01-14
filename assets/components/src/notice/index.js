@@ -41,13 +41,13 @@ class Notice extends Component {
 		);
 		let noticeIcon;
 		if ( isError ) {
-  		noticeIcon = <ErrorIcon />;
+			noticeIcon = <ErrorIcon />;
 		} else if ( isSuccess ) {
 			noticeIcon = <CheckCircleIcon />;
 		} else if ( isWarning ) {
 			noticeIcon = <WarningIcon />;
 		} else {
-		  noticeIcon = <InfoIcon />;
+			noticeIcon = <InfoIcon />;
 		}
 		return (
 			<div className={ classes }>

@@ -43,13 +43,13 @@ class DashboardCard extends Component {
 		const iconMap = {
 			'site-design': <WebIcon />,
 			'reader-revenue': <AccountBalanceWalletIcon />,
-			'advertising': <FeaturedVideoIcon />,
-			'syndication': <SyncAltIcon />,
-			'analytics': <TrendingUpIcon />,
-			'performance': <SpeedIcon />,
-			'seo': <SearchIcon />,
+			advertising: <FeaturedVideoIcon />,
+			syndication: <SyncAltIcon />,
+			analytics: <TrendingUpIcon />,
+			performance: <SpeedIcon />,
+			seo: <SearchIcon />,
 			'health-check': <HealingIcon />,
-			'engagement': <ForumIcon />,
+			engagement: <ForumIcon />,
 		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
@@ -67,16 +67,15 @@ class DashboardCard extends Component {
 					<div className="newspack-dashboard-card__disabled-link">{ contents }</div>
 				</Card>
 			);
-		} else {
-			return (
-				<Card className={ classes }>
-					<a href={ url }>
-						{ contents }
-						{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
-					</a>
-				</Card>
-			);
 		}
+		return (
+			<Card className={ classes }>
+				<a href={ url }>
+					{ contents }
+					{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
+				</a>
+			</Card>
+		);
 	}
 }
 export default DashboardCard;

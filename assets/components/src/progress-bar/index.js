@@ -13,7 +13,6 @@ import { Component } from '@wordpress/element';
 import './style.scss';
 
 class ProgressBar extends Component {
-
 	/**
 	 * Get completion as a percentage.
 	 *
@@ -35,26 +34,31 @@ class ProgressBar extends Component {
 	render() {
 		const { label, completed, total, displayFraction } = this.props;
 		const cleanTotal = Math.max( 0, parseInt( total ) || 0 );
-		const cleanCompleted = Math.max( 0, Math.min( ( parseInt( completed ) || 0 ), parseInt( cleanTotal ) ) );
+		const cleanCompleted = Math.max(
+			0,
+			Math.min( parseInt( completed ) || 0, parseInt( cleanTotal ) )
+		);
 
 		const barStyle = {
 			width: this.getCompletionPercentage( cleanCompleted, cleanTotal ) + '%',
-		}
+		};
 
 		return (
 			<div className="newspack-progress-bar">
 				{ ( label || displayFraction ) && (
 					<div className="newspack-progress-bar__headings">
-						{ label && (
-							<h2>{ label }</h2>
-						) }
+						{ label && <h2>{ label }</h2> }
 						{ displayFraction && (
-							<p className="is-dark"><strong>{ cleanCompleted }/{ cleanTotal }</strong></p>
+							<p className="is-dark">
+								<strong>
+									{ cleanCompleted }/{ cleanTotal }
+								</strong>
+							</p>
 						) }
 					</div>
 				) }
 
-				<div className="newspack-progress-bar__bar" style={ barStyle } ></div>
+				<div className="newspack-progress-bar__bar" style={ barStyle }></div>
 			</div>
 		);
 	}

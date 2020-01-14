@@ -27,9 +27,7 @@ class FormattedHeader extends Component {
 		return (
 			<header className={ classes }>
 				<h1 className="newspack-formatted-header__title">
-					{ headerIcon && (
-						<span className="newspack-formatted-header__icon">{ headerIcon }</span>
-					) }
+					{ headerIcon && <span className="newspack-formatted-header__icon">{ headerIcon }</span> }
 					{ headerText }
 				</h1>
 				{ subHeaderText && (

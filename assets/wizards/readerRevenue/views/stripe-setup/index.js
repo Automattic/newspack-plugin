@@ -12,7 +12,12 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { CheckboxControl, TextControl, ToggleControl, withWizardScreen } from '../../../../components/src';
+import {
+	CheckboxControl,
+	TextControl,
+	ToggleControl,
+	withWizardScreen,
+} from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -52,8 +57,7 @@ class StripeSetup extends Component {
 						/>
 						<div className="newspack-payment-setup-screen__api-keys-heading">
 							<p className="newspack-payment-setup-screen__api-keys-instruction">
-								{ __( 'Get your API keys from your Stripe account.' ) }
-								{ ' ' }
+								{ __( 'Get your API keys from your Stripe account.' ) }{' '}
 								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
 									{ __( 'Learn how' ) }
 								</ExternalLink>
@@ -96,9 +100,7 @@ class StripeSetup extends Component {
 				) }
 				{ ! enabled && (
 					<p className="newspack-payment-setup-screen__info">
-						{ __(
-							'Other gateways can be enabled and set up in the '
-						) }
+						{ __( 'Other gateways can be enabled and set up in the ' ) }
 						<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
 							{ __( 'WooCommerce payment gateway settings' ) }
 						</ExternalLink>

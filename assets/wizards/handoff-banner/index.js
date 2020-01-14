@@ -30,9 +30,7 @@ class HandoffBanner extends Component {
 		return (
 			visibility && (
 				<div className="newspack-handoff-banner">
-					<div className="newspack-handoff-banner__text">
-						{ bodyText }
-					</div>
+					<div className="newspack-handoff-banner__text">{ bodyText }</div>
 					<div className="newspack-handoff-banner__buttons">
 						<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
 							{ dismissButtonText }

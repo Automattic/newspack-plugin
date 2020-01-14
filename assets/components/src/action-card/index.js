@@ -115,10 +115,10 @@ class ActionCard extends Component {
 				</div>
 				{ notification && (
 					<div className="newspack-action-card__notification">
-						{ 'error'   === notificationLevel && ( <Notice noticeText={ notification } isError /> ) }
-						{ 'info'    === notificationLevel && ( <Notice noticeText={ notification } isPrimary /> ) }
-						{ 'success' === notificationLevel && ( <Notice noticeText={ notification } isSuccess /> ) }
-						{ 'warning' === notificationLevel && ( <Notice noticeText={ notification } isWarning /> ) }
+						{ 'error' === notificationLevel && <Notice noticeText={ notification } isError /> }
+						{ 'info' === notificationLevel && <Notice noticeText={ notification } isPrimary /> }
+						{ 'success' === notificationLevel && <Notice noticeText={ notification } isSuccess /> }
+						{ 'warning' === notificationLevel && <Notice noticeText={ notification } isWarning /> }
 					</div>
 				) }
 			</Card>

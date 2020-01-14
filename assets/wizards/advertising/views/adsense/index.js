@@ -17,25 +17,24 @@ import { withWizardScreen, Card, Handoff, Notice } from '../../../../components/
  * Screen for handing off to Site Kit AdSense setup.
  */
 class AdSense extends Component {
-
 	/**
 	 * Render.
 	 */
 	render() {
 		const { complete } = this.props;
 
-		return(
+		return (
 			<Fragment>
-				{ complete && (
-					<Notice isSuccess noticeText={ __( 'AdSense is set up.' ) } />
-				) }
+				{ complete && <Notice isSuccess noticeText={ __( 'AdSense is set up.' ) } /> }
 				<Card noBackground className="newspack-card__buttons-card">
 					<Handoff
-						plugin='google-site-kit'
-						editLink='admin.php?page=googlesitekit-module-adsense'
-						className='is-centered'
+						plugin="google-site-kit"
+						editLink="admin.php?page=googlesitekit-module-adsense"
+						className="is-centered"
 						isDefault
-					>{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }</Handoff>
+					>
+						{ complete ? __( 'AdSense Settings' ) : __( 'Set up Google AdSense' ) }
+					</Handoff>
 				</Card>
 			</Fragment>
 		);

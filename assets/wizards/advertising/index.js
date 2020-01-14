@@ -376,7 +376,7 @@ class AdvertisingWizard extends Component {
 									onDelete={ id => this.deleteAdUnit( id ) }
 									buttonText={ __( 'Add an individual ad unit' ) }
 									buttonAction="#/google_ad_manager/create"
-									secondaryButtonText={ __( "Back to advertising options" ) }
+									secondaryButtonText={ __( 'Back to advertising options' ) }
 									secondaryButtonAction="#/"
 								/>
 							) }

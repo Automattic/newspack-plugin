@@ -12,7 +12,12 @@ import { Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { MoneyInput } from '../../components/';
-import { ImageUpload, TextControl, ToggleControl, withWizardScreen } from '../../../../components/src';
+import {
+	ImageUpload,
+	TextControl,
+	ToggleControl,
+	withWizardScreen,
+} from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -54,7 +59,7 @@ class Donation extends Component {
 							label={ __( 'Low-tier' ) }
 							value={ suggestedAmounts[ 0 ] }
 							onChange={ value =>
-								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, [ 0 ]: value } } )
+								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 0: value } } )
 							}
 						/>
 						<MoneyInput
@@ -62,7 +67,7 @@ class Donation extends Component {
 							label={ __( 'Mid-tier' ) }
 							value={ suggestedAmounts[ 1 ] }
 							onChange={ value =>
-								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, [ 1 ]: value } } )
+								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 1: value } } )
 							}
 						/>
 						<MoneyInput
@@ -70,7 +75,7 @@ class Donation extends Component {
 							label={ __( 'High-tier' ) }
 							value={ suggestedAmounts[ 2 ] }
 							onChange={ value =>
-								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, [ 2 ]: value } } )
+								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 2: value } } )
 							}
 						/>
 					</div>
