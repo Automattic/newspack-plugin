@@ -1,8 +1,4 @@
 /**
- * Web Preview
- */
-
-/**
  * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
@@ -27,6 +23,9 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
+/**
+ * Web Preview. A component to preview a website in an iframe, with device sizing options.
+ */
 class WebPreview extends Component {
 	state = {
 		device: 'desktop',
