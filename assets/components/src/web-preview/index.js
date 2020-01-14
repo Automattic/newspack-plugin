@@ -33,6 +33,15 @@ class WebPreview extends Component {
 		loaded: false,
 		previewVisibility: false,
 	};
+
+	componentDidUpdate() {
+		if ( this.state.previewVisibility === true ) {
+			document.body.classList.add( 'newspack-web-preview__open' );
+		} else {
+			document.body.classList.remove( 'newspack-web-preview__open' );
+		}
+	}
+
 	/**
 	 * Render.
 	 */
