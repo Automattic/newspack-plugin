@@ -11,18 +11,19 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import TabletMac from '@material-ui/icons/TabletMac';
-import PhoneIphone from '@material-ui/icons/PhoneIphone';
-import DesktopMac from '@material-ui/icons/DesktopMac';
+import CloseIcon from '@material-ui/icons/Close';
+import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
+import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
+import TabletAndroidIcon from '@material-ui/icons/TabletAndroid';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
 import { Button, Waiting } from '../';
 import './style.scss';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import classnames from 'classnames';
 
@@ -36,52 +37,75 @@ class WebPreview extends Component {
 	 * Render.
 	 */
 	render() {
-		const { label, url } = this.props;
+		const { label, url, isPrimary, isSecondary, isTertiary, isLink, isLarge, isSmall } = this.props;
 		const { device, loaded, previewVisibility } = this.state;
-		const className = classnames( 'newspack-web-preview__container', device );
+		const classes = classnames(
+			'newspack-web-preview__container',
+			device,
+			loaded && 'newspack-web-preview__is-loaded'
+		);
 		return (
 			<Fragment>
 				<Button
-					isPrimary
+					isPrimary={ isPrimary }
+					isSecondary={ isSecondary }
+					isTertiary={ isTertiary }
+					isLink={ isLink }
+					isLarge={ isLarge }
+					isSmall={ isSmall }
 					onClick={ () => this.setState( { previewVisibility: true } ) }
 				>
 					{ label }
 				</Button>
 				{ !! previewVisibility && (
-					<div className={ className }>
+					<div className={ classes }>
 						<div className="newspack-web-preview__interior">
 							<div className="newspack-web-preview__toolbar">
-								<Button
-									isSmall
-									onClick={ () => this.setState( { device: 'desktop' } ) }
-									isPrimary={ 'desktop' === device }
-								>
-									<DesktopMac />
-								</Button>
-								<Button
-									isSmall
-									onClick={ () => this.setState( { device: 'tablet' } ) }
-									isPrimary={ 'tablet' === device }
-								>
-									<TabletMac />
-								</Button>
-								<Button
-									isSmall
-									onClick={ () => this.setState( { device: 'phone' } ) }
-									isPrimary={ 'phone' === device }
-								>
-									<PhoneIphone />
-								</Button>
-								<div className="newspack-web-preview__toolbar_right">
+								<div className="newspack-web-preview__toolbar-left">
+									<Button
+										onClick={ () => this.setState( { device: 'desktop' } ) }
+										isPrimary={ 'desktop' === device }
+										isSecondary={ 'desktop' !== device }
+										className="is-desktop"
+									>
+										<DesktopWindowsIcon />
+										<span className="screen-reader-text">{ __( 'Preview desktop size' ) }</span>
+									</Button>
+									<Button
+										onClick={ () => this.setState( { device: 'tablet' } ) }
+										isPrimary={ 'tablet' === device }
+										isSecondary={ 'tablet' !== device }
+										className="is-tablet"
+									>
+										<TabletAndroidIcon />
+										<span className="screen-reader-text">{ __( 'Preview tablet size' ) }</span>
+									</Button>
+									<Button
+										onClick={ () => this.setState( { device: 'phone' } ) }
+										isPrimary={ 'phone' === device }
+										isSecondary={ 'phone' !== device }
+										className="is-phone"
+									>
+										<PhoneAndroidIcon />
+										<span className="screen-reader-text">{ __( 'Preview phone size' ) }</span>
+									</Button>
+								</div>
+								<div className="newspack-web-preview__toolbar-right">
 									<Button
 										onClick={ () => this.setState( { previewVisibility: false, loaded: false } ) }
 									>
-										{ __( 'Close', 'newspack' ) }
+										<CloseIcon />
+										<span className="screen-reader-text">{ __( 'Close preview' ) }</span>
 									</Button>
 								</div>
 							</div>
 							<div className="newspack-web-preview__content">
-								{ ! loaded && <Waiting /> }
+								{ ! loaded &&
+									<div className="newspack-web-preview_is-waiting">
+										<Waiting isLeft />
+										{ __( 'Loading...' ) }
+									</div>
+								}
 								<iframe src={ url } onLoad={ () => this.setState( { loaded: true } ) } />
 							</div>
 						</div>
