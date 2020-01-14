@@ -22,6 +22,7 @@ export { default as TextareaControl } from './textarea-control';
 export { default as ToggleControl } from './toggle-control';
 export { default as ToggleGroup } from './toggle-group';
 export { default as Waiting } from './waiting';
+export { default as WebPreview } from './web-preview';
 export { default as withWizard } from './with-wizard';
 export { default as withWizardScreen } from './with-wizard-screen';
 export { default as WizardPagination } from './wizard-pagination';

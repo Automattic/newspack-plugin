@@ -1,0 +1,60 @@
+/**
+ * Web Preview
+ */
+
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.newspack-web-preview__container {
+	background: rgba( 255, 255, 255, 0.7 );
+	height: 100%;
+	left: 0;
+	margin: 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 99999;
+	&.tablet iframe {
+		max-width: 783px;
+	}
+	&.phone iframe {
+		max-width: 460px;
+	}
+}
+.newspack-web-preview__interior {
+	background: white;
+	border: 1px solid lightgray;
+	height: calc( 100% - 50px );
+	margin: 25px;
+	width: calc( 100% - 50px );
+}
+.newspack-web-preview__content {
+	height: 100%;
+	iframe {
+		display: block;
+		height: 100%;
+		margin: 0 auto;
+		padding: 0;
+		pointer-events: all;
+		transition: max-width 0.2s ease-out;
+		width: 100%;
+	}
+	.newspack-is-waiting {
+		left: 50%;
+		margin: -12px 0 0 -12px;
+		position: absolute;
+		top: 50%;
+	}
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
+}
+.newspack-web-preview__toolbar {
+	border-bottom: 1px solid lightgray;
+	display: flex;
+	padding: 1em;
+}
+.newspack-web-preview__toolbar_right {
+	display: flex;
+	flex: 1;
+	justify-content: flex-end;
+}
