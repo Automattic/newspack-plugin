@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Handoff, Notice, withWizardScreen } from '../../../../components/src';
+import { Handoff, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Revenue Main Screen Component

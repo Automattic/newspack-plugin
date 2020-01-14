@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -70,7 +70,7 @@ class HealthCheckWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<RemoveUnsupportedPlugins
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }

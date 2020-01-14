@@ -11,13 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	TabbedNavigation,
-	SelectControl,
-	ToggleGroup,
-	withWizardScreen,
-} from '../../../../components/src';
+import { ToggleGroup, withWizardScreen } from '../../../../components/src';
 import AdPicker from './ad-picker';
 
 /**

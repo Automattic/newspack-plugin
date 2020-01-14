@@ -12,12 +12,7 @@ import { Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { MoneyInput } from '../../components/';
-import {
-	ImageUpload,
-	TextControl,
-	ToggleControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { ToggleControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -30,12 +25,10 @@ class Donation extends Component {
 	render() {
 		const { data, onChange } = this.props;
 		const {
-			name = '',
 			suggestedAmounts = [ 0, 0, 0 ],
 			suggestedAmountUntiered = 0,
 			currencySymbol = '$',
 			tiered = false,
-			image = '',
 		} = data;
 		return (
 			<div className="newspack-donations-wizard">
@@ -49,7 +42,7 @@ class Donation extends Component {
 					<ToggleControl
 						label={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
 						checked={ tiered }
-						onChange={ tiered => onChange( { ...data, tiered } ) }
+						onChange={ _tiered => onChange( { ...data, tiered: _tiered } ) }
 					/>
 				</div>
 				{ tiered && (
@@ -87,8 +80,8 @@ class Donation extends Component {
 							currencySymbol={ currencySymbol }
 							label={ __( 'Suggested donation amount per month' ) }
 							value={ suggestedAmountUntiered }
-							onChange={ suggestedAmountUntiered =>
-								onChange( { ...data, suggestedAmountUntiered } )
+							onChange={ _suggestedAmountUntiered =>
+								onChange( { ...data, suggestedAmountUntiered: _suggestedAmountUntiered } )
 							}
 						/>
 					</div>

@@ -11,12 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	CheckboxControl,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { CheckboxControl, SelectControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**

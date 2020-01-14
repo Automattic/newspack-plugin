@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -21,8 +21,6 @@ class UGC extends Component {
 	 * Render.
 	 */
 	render() {
-		const { connected, connectURL } = this.props;
-
 		return (
 			<Card noBackground>
 				<h2>{ __( 'Coming Soon' ) }</h2>

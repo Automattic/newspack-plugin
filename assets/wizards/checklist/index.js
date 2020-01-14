@@ -1,3 +1,5 @@
+/* global newspack_checklist */
+
 /**
  * Checklist.
  */
@@ -14,7 +16,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	ActionCard,
 	Button,
-	Card,
 	FormattedHeader,
 	Checklist,
 	NewspackLogo,
@@ -86,6 +87,7 @@ class ChecklistScreen extends Component {
 					{ 'actionCards' === listStyle &&
 						steps.map( ( step, index ) => (
 							<ActionCard
+								key={ index }
 								title={ step.name }
 								description={ step.description }
 								simple

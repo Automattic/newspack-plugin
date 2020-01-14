@@ -5,14 +5,13 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Card, withWizardScreen, Grid, ImageUpload, Notice } from '../../../../components/src';
+import { Card, withWizardScreen, ImageUpload, Notice } from '../../../../components/src';
 
 /**
  * Intro screen for Performnance Wizard

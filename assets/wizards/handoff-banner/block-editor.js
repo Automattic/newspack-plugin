@@ -1,3 +1,5 @@
+/* global newspack_handoff */
+
 /**
  * Add handoff notice to block editor.
  */

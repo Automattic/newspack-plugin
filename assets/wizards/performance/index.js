@@ -5,8 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, render } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -69,8 +68,8 @@ class PerformanceWizard extends Component {
 					method: 'POST',
 					data: { settings },
 				} )
-					.then( settings => {
-						setError().then( () => this.setState( { settings }, () => resolve() ) );
+					.then( _settings => {
+						setError().then( () => this.setState( { settings: _settings }, () => resolve() ) );
 					} )
 					.catch( error => {
 						setError( error ).then( () => reject() );
@@ -92,7 +91,7 @@ class PerformanceWizard extends Component {
 					<Route
 						path="/"
 						exact
-						render={ routeProps => (
+						render={ () => (
 							<Intro
 								headerIcon={ <HeaderIcon /> }
 								headerText={ __( 'Performance options' ) }

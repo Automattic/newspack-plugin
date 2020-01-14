@@ -1,3 +1,5 @@
+/* global newspack_plugin_info, jQuery */
+
 /**
  * Extra zazz for the WP Admin Plugins page.
  *

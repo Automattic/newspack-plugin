@@ -1,8 +1,4 @@
 /**
- * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
- */
-
-/**
  * WordPress dependencies.
  */
 import { Component, createRef, Fragment } from '@wordpress/element';
@@ -34,10 +30,12 @@ import './style.scss';
  * External dependencies
  */
 import { Redirect, Route } from 'react-router-dom';
-import { isFunction } from 'lodash';
 
+/**
+ * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
+ */
 export default function withWizard( WrappedComponent, requiredPlugins, options ) {
-	return class extends Component {
+	return class WrappedWithWizard extends Component {
 		constructor( props ) {
 			super( props );
 			this.state = {
@@ -52,6 +50,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 			// If there are no requiredPlugins, fire onWizardReady as soon as component mounts.
 			if ( ! requiredPlugins ) {
 				const instance = this.wrappedComponentRef.current;
+				// eslint-disable-next-line no-unused-expressions
 				instance && instance.onWizardReady && instance.onWizardReady();
 			}
 		};
@@ -59,7 +58,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		/**
 		 * Set the error. Called by Wizards when an error occurs.
 		 *
-		 * @return Promise
+		 * @return {Promise} Resolved after state update
 		 */
 		setError = error => {
 			return new Promise( resolve => {
@@ -70,7 +69,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		/**
 		 * Render any errors that need rendering.
 		 *
-		 * @return error UI
+		 * @return {Component} Error UI
 		 */
 		getError = () => {
 			const { error } = this.state;
@@ -90,8 +89,8 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		/**
 		 * Get a notice-level error.
 		 *
-		 * @param Error object already parsed by parseError
-		 * @return Component
+		 * @param {Error} error object already parsed by parseError
+		 * @return {Component} Error notice
 		 */
 		getErrorNotice = error => {
 			const { message } = error;
@@ -105,8 +104,8 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		/**
 		 * Get a fatal-level error.
 		 *
-		 * @param Error object already parsed by parseError
-		 * @return React object
+		 * @param {Error} error object already parsed by parseError
+		 * @return {Component} React object
 		 */
 		getFatalError = error => {
 			const { message } = error;
@@ -128,8 +127,8 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		/**
 		 * Get all the relevant info out of a raw API error response.
 		 *
-		 * @param Raw error object
-		 * @return Error object with relevant fields and defaults
+		 * @param {Object} error error object
+		 * @return {Object} Error object with relevant fields and defaults
 		 */
 		parseError = error => {
 			const { data, message, code } = error;
@@ -155,6 +154,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 			}
 			const instance = this.wrappedComponentRef.current;
 			this.setState( { complete }, () => {
+				// eslint-disable-next-line no-unused-expressions
 				complete && instance && instance.onWizardReady && instance.onWizardReady();
 			} );
 		};
@@ -198,7 +198,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		/**
 		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
 		 *
-		 * @return void
+		 * @return {void}
 		 */
 		pluginRequirements = () => {
 			const { complete } = this.state;
@@ -209,7 +209,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 			return (
 				<Route
 					path="/"
-					render={ ( routeProps ) => (
+					render={ () => (
 						<Grid>
 							<Card noBackground>
 								{ complete !== null && (
@@ -234,8 +234,6 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 
 		/**
 		 * Render.
-		 *
-		 * @return JSX
 		 */
 		render() {
 			const { buttonText, buttonAction } = this.props;

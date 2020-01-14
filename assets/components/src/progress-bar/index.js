@@ -16,9 +16,9 @@ class ProgressBar extends Component {
 	/**
 	 * Get completion as a percentage.
 	 *
-	 * @param  int completed The number of steps completed.
-	 * @param  int total     The total number of steps.
-	 * @return int
+	 * @param {number} completed The number of steps completed.
+	 * @param {number} total     The total number of steps.
+	 * @return {number} completion percentage
 	 */
 	getCompletionPercentage( completed, total ) {
 		if ( ! total ) {

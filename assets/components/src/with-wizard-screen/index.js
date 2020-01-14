@@ -1,12 +1,7 @@
 /**
- * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
- */
-
-/**
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,8 +23,11 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
-export default function withWizardScreen( WrappedComponent, config ) {
-	return class extends Component {
+/**
+ * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
+ */
+export default function withWizardScreen( WrappedComponent ) {
+	return class WrappedWithWizardScreen extends Component {
 		render() {
 			const {
 				className,

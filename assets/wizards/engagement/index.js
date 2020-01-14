@@ -5,8 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -19,7 +18,6 @@ import HeaderIcon from '@material-ui/icons/Forum';
  */
 import { withWizard } from '../../components/src';
 import {
-	Commenting,
 	CommentingDisqus,
 	CommentingNative,
 	CommentingCoral,
@@ -120,7 +118,7 @@ class EngagementWizard extends Component {
 						{ pluginRequirements }
 						<Route
 							path="/newsletters"
-							render={ routeProps => (
+							render={ () => (
 								<Newsletters
 									noBackground
 									headerIcon={ <HeaderIcon /> }
@@ -131,15 +129,14 @@ class EngagementWizard extends Component {
 									connected={ connected }
 									connectURL={ connectURL }
 									wcConnected={ wcConnected }
-									onChange={ apiKey => this.setState( { apiKey } ) }
+									onChange={ _apiKey => this.setState( { apiKey: _apiKey } ) }
 								/>
 							) }
 						/>
 						<Route
 							path="/social"
 							exact
-							render={ routeProps => {
-								const { apiKey } = this.state;
+							render={ () => {
 								return (
 									<Social
 										headerIcon={ <HeaderIcon /> }
@@ -150,15 +147,11 @@ class EngagementWizard extends Component {
 								);
 							} }
 						/>
-						<Route
-							path="/commenting"
-							exact
-							render={ routeProps => <Redirect to="/commenting/disqus" /> }
-						/>
+						<Route path="/commenting" exact render={ () => <Redirect to="/commenting/disqus" /> } />
 						<Route
 							path="/commenting/disqus"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<CommentingDisqus
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
@@ -173,7 +166,7 @@ class EngagementWizard extends Component {
 						<Route
 							path="/commenting/native"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<CommentingNative
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
@@ -188,7 +181,7 @@ class EngagementWizard extends Component {
 						<Route
 							path="/commenting/coral"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<CommentingCoral
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
@@ -203,7 +196,7 @@ class EngagementWizard extends Component {
 						<Route
 							path="/user-generated-content"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<UGC
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }

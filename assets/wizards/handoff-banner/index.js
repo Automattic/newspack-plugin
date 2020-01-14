@@ -24,7 +24,7 @@ class HandoffBanner extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { bodyText, primaryButtonText, dismissButtonText, primaryButtonURL } = this.props;
 		const { visibility } = this.state;
 		return (

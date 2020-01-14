@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Children, cloneElement } from '@wordpress/element';
+import { Component, Children } from '@wordpress/element';
 
 /**
  * Material UI dependencies.
@@ -46,8 +46,8 @@ class Checklist extends Component {
 			className,
 			hideCompleted && 'is-hide-completed'
 		);
-		const completedCount = Children.toArray( children ).reduce( ( completedCount, child ) => {
-			return completedCount + ( child.props.completed ? 1 : 0 );
+		const completedCount = Children.toArray( children ).reduce( ( _completedCount, child ) => {
+			return _completedCount + ( child.props.completed ? 1 : 0 );
 		}, 0 );
 		return (
 			<Card className={ classes } { ...otherProps }>

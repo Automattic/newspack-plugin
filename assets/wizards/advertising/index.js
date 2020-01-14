@@ -5,8 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -17,7 +16,7 @@ import HeaderIcon from '@material-ui/icons/FeaturedVideo';
 /**
  * Internal dependencies.
  */
-import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
+import { withWizard } from '../../components/src';
 import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
 
 /**
@@ -159,10 +158,10 @@ class AdvertisingWizard extends Component {
 					network_code,
 				},
 			} )
-				.then( advertisingData => {
+				.then( data => {
 					this.setState(
 						{
-							advertisingData: this.prepareData( advertisingData ),
+							advertisingData: this.prepareData( data ),
 						},
 						() => {
 							setError();
@@ -257,10 +256,11 @@ class AdvertisingWizard extends Component {
 	/**
 	 * Delete an ad unit.
 	 *
-	 * @param int id Ad Unit ID.
+	 * @param {number} id Ad Unit ID.
 	 */
 	deleteAdUnit( id ) {
 		const { setError, wizardApiFetch } = this.props;
+		// eslint-disable-next-line no-alert
 		if ( confirm( __( 'Are you sure you want to delete this ad unit?' ) ) ) {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
@@ -329,7 +329,7 @@ class AdvertisingWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<Services
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
@@ -344,7 +344,7 @@ class AdvertisingWizard extends Component {
 						/>
 						<Route
 							path="/ad-placements"
-							render={ routeProps => (
+							render={ () => (
 								<Placements
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
@@ -365,7 +365,7 @@ class AdvertisingWizard extends Component {
 						<Route
 							path="/google_ad_manager"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<AdUnits
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
@@ -396,7 +396,7 @@ class AdvertisingWizard extends Component {
 									onChange={ value => this.updateNetworkCode( value, 'google_ad_manager' ) }
 									buttonText={ __( 'Save' ) }
 									buttonAction={ () =>
-										this.saveNetworkCode( 'google_ad_manager' ).then( response =>
+										this.saveNetworkCode( 'google_ad_manager' ).then( () =>
 											routeProps.history.push( '/google_ad_manager' )
 										)
 									}
@@ -426,7 +426,7 @@ class AdvertisingWizard extends Component {
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
-											this.saveAdUnit( id ).then( newAdUnit => {
+											this.saveAdUnit( id ).then( () => {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
@@ -448,7 +448,7 @@ class AdvertisingWizard extends Component {
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
-											this.saveAdUnit( id ).then( newAdUnit => {
+											this.saveAdUnit( id ).then( () => {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
@@ -458,7 +458,7 @@ class AdvertisingWizard extends Component {
 						/>
 						<Route
 							path="/google_adsense"
-							render={ routeProps => (
+							render={ () => (
 								<Fragment>
 									<AdSense
 										headerIcon={ <HeaderIcon /> }

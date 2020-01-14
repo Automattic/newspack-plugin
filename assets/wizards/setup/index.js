@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Component, Fragment, render } from '@wordpress/element';
+import { Component, Fragment, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -28,14 +28,13 @@ import {
 	InstallationProgress,
 	StarterContent,
 } from './views/';
-import { Card, withWizard, WizardPagination } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import './style.scss';
 
 /**
  * External dependencies.
  */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
-import { pickBy, includes, forEach } from 'lodash';
+import { HashRouter, Redirect, Route } from 'react-router-dom';
 
 const REQUIRED_PLUGINS = [
 	'jetpack',
@@ -82,8 +81,7 @@ class SetupWizard extends Component {
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( params )
 				.then( response => {
-					const { profile } = response;
-					this.setState( { profile }, () => resolve( response ) );
+					this.setState( { profile: response.profile }, () => resolve( response ) );
 				} )
 				.catch( error => {
 					console.log( '[Profile Update Error]', error );
@@ -170,14 +168,13 @@ class SetupWizard extends Component {
 	};
 
 	installStarterContent = () => {
-		const { setError } = this.props;
 		this.setState( { starterContentProgress: 0, starterContentTotal: 43 } );
 		const promises = [
 			() =>
 				apiFetch( {
 					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
 					method: 'post',
-				} ).then( result => this.incrementStarterContentProgress() ),
+				} ).then( () => this.incrementStarterContentProgress() ),
 		];
 		for ( let x = 0; x < 40; x++ ) {
 			promises.push( () =>
@@ -185,23 +182,23 @@ class SetupWizard extends Component {
 					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
 					method: 'post',
 				} )
-					.then( result => this.incrementStarterContentProgress() )
-					.catch( e => this.incrementStarterContentProgress() )
+					.then( () => this.incrementStarterContentProgress() )
+					.catch( () => this.incrementStarterContentProgress() )
 			);
 		}
 		promises.push( () =>
 			apiFetch( {
 				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/homepage`,
 				method: 'post',
-			} ).then( result => this.incrementStarterContentProgress() )
+			} ).then( () => this.incrementStarterContentProgress() )
 		);
 		promises.push( () =>
 			apiFetch( {
 				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/theme`,
 				method: 'post',
-			} ).then( result => this.incrementStarterContentProgress() )
+			} ).then( () => this.incrementStarterContentProgress() )
 		);
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( () => {
 			promises.reduce(
 				( promise, action ) =>
 					promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
@@ -211,7 +208,7 @@ class SetupWizard extends Component {
 	};
 
 	finish = () => {
-		this.updateProfile().then( response =>
+		this.updateProfile().then( () =>
 			this.completeSetup().then( () => ( window.location = newspack_urls.dashboard ) )
 		);
 	};
@@ -221,18 +218,14 @@ class SetupWizard extends Component {
 	 */
 	render() {
 		const {
-			installedPlugins,
 			installationComplete,
 			pluginInfo,
 			profile,
 			countries,
 			currencies,
-			setupComplete,
 			starterContentTotal,
 			starterContentProgress,
 		} = this.state;
-		const installProgress = Object.keys( installedPlugins ).length;
-		const installTotal = REQUIRED_PLUGINS.length;
 		const routes = [
 			'/',
 			'/about',
@@ -249,7 +242,7 @@ class SetupWizard extends Component {
 					<Route
 						path="/"
 						exact
-						render={ routeProps => (
+						render={ () => (
 							<Welcome
 								buttonText={ __( 'Get started' ) }
 								buttonAction={ {
@@ -264,7 +257,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/about"
-						render={ routeProps => (
+						render={ () => (
 							<About
 								headerIcon={ <MenuBookIcon /> }
 								headerText={ __( 'About your publication' ) }
@@ -287,7 +280,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/newsroom"
-						render={ routeProps => (
+						render={ () => (
 							<Newsroom
 								headerIcon={ <BusinessCenterIcon /> }
 								headerText={ __( 'Tell us about your Newsroom' ) }
@@ -310,7 +303,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/configure-jetpack"
-						render={ routeProps => {
+						render={ () => {
 							const plugin = 'jetpack';
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
@@ -333,7 +326,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/configure-google-site-kit"
-						render={ routeProps => {
+						render={ () => {
 							const plugin = 'google-site-kit';
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
@@ -356,7 +349,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/starter-content"
-						render={ routeProps => {
+						render={ () => {
 							return (
 								<StarterContent
 									headerIcon={ <SubjectIcon /> }

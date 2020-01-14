@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 
 /**
  * Material UI dependencies.

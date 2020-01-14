@@ -30,7 +30,7 @@ class AdUnits extends Component {
 						'Set up multiple ad units to use on your homepage, articles and other places throughout your site. You can place ads through our Newspack Ad Block in the Editor.'
 					) }
 				</p>
-				{ Object.values( adUnits ).map( ( { id, name, code } ) => {
+				{ Object.values( adUnits ).map( ( { id, name } ) => {
 					return (
 						<ActionCard
 							key={ id }

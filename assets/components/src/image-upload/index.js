@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
-import { data } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -46,19 +45,24 @@ class ImageUpload extends Component {
 			return;
 		}
 
-		this.state.frame = wp.media( {
-			title: __( 'Select or upload image' ),
-			button: {
-				text: __( 'Select' ),
+		this.setState(
+			{
+				frame: wp.media( {
+					title: __( 'Select or upload image' ),
+					button: {
+						text: __( 'Select' ),
+					},
+					library: {
+						type: 'image',
+					},
+					multiple: false,
+				} ),
 			},
-			library: {
-				type: 'image',
-			},
-			multiple: false,
-		} );
-
-		this.state.frame.on( 'select', this.handleImageSelect );
-		this.state.frame.open();
+			() => {
+				this.state.frame.on( 'select', this.handleImageSelect );
+				this.state.frame.open();
+			}
+		);
 	};
 
 	/**
@@ -93,7 +97,7 @@ class ImageUpload extends Component {
 				{ !! image && (
 					<Fragment>
 						<div className="newspack-image-upload__image-preview">
-							<img src={ image.url } />
+							<img src={ image.url } alt="" />
 						</div>
 						<Button
 							onClick={ this.removeImage }

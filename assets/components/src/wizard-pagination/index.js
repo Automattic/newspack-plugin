@@ -30,10 +30,10 @@ class WizardPagination extends Component {
 	 */
 	render() {
 		const { history, location, routes } = this.props;
-		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
 		if ( ! routes || ! history || ! location ) {
 			return;
 		}
+		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
 		if ( 0 === currentIndex ) {
 			return <Fragment />;
 		}

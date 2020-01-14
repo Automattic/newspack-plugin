@@ -65,7 +65,7 @@ class PluginInstaller extends Component {
 	};
 
 	retrievePluginInfo = plugins => {
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( resolve => {
 			apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
 				const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
 					if ( plugins.indexOf( slug ) === -1 ) {
@@ -129,10 +129,9 @@ class PluginInstaller extends Component {
 	};
 
 	updatePluginInfo = pluginInfo => {
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( resolve => {
 			const { onStatus } = this.props;
 			this.setState( { pluginInfo }, () => {
-				const { pluginInfo } = this.state;
 				const complete = Object.values( pluginInfo ).every( plugin => {
 					return 'active' === plugin.Status;
 				} );
@@ -146,16 +145,12 @@ class PluginInstaller extends Component {
 		switch ( status ) {
 			case PLUGIN_STATE_ACTIVE:
 				return 'newspack-plugin-installer__status-active';
-				break;
 			case PLUGIN_STATE_INSTALLING:
 				return 'newspack-plugin-installer__status-installing';
-				break;
 			case PLUGIN_STATE_ERROR:
 				return 'newspack-plugin-installer__status-error';
-				break;
 			default:
 				return 'newspack-plugin-installer__status-none';
-				break;
 		}
 	};
 
@@ -166,10 +161,6 @@ class PluginInstaller extends Component {
 		const { asProgressBar, autoInstall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
-		const needsInstall = slugs.some( slug => {
-			const plugin = pluginInfo[ slug ];
-			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
-		} );
 
 		// Store all plugin status info for installer button text value based on current status.
 		const currentPluginStatuses = [];
@@ -188,12 +179,18 @@ class PluginInstaller extends Component {
 
 		if ( asProgressBar ) {
 			const completed = slugs.reduce(
-				( completed, slug ) =>
-					'active' === pluginInfo[ slug ].Status ? completed + 1 : completed,
+				( _completed, slug ) =>
+					'active' === pluginInfo[ slug ].Status ? _completed + 1 : _completed,
 				0
 			);
 			return slugs.length > 0 && <ProgressBar completed={ completed } total={ slugs.length } />;
 		}
+
+		const needsInstall = slugs.some( slug => {
+			const plugin = pluginInfo[ slug ];
+			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
+		} );
+
 		return (
 			<div>
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (

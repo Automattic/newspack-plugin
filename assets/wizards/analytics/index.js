@@ -5,8 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -39,7 +38,7 @@ class AnalyticsWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<Intro
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Analytics', 'newspack' ) }
