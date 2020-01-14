@@ -9,12 +9,15 @@
   "devDependencies": {
     "@automattic/calypso-build": "^5.1.0",
     "@babel/core": "^7.4.0",
+    "@wordpress/api-fetch": "^3.9.0",
     "@wordpress/base-styles": "^1.0.0",
     "@wordpress/blocks": "^6.2.0",
     "@wordpress/browserslist-config": "^2.2.2",
     "@wordpress/components": "^7.3.1",
+    "@wordpress/data": "^4.12.0",
     "@wordpress/element": "^2.3.0",
     "@wordpress/eslint-plugin": "^3.3.0",
+    "@wordpress/i18n": "^3.8.0",
     "autoprefixer": "^9.1.5",
     "chokidar-cli": "^1.2.1",
     "classnames": "^2.2.6",
@@ -29,6 +32,7 @@
     "grunt-wp-readme-to-markdown": "^1.0.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.7.1",
+    "lodash": "^4.17.15",
     "mini-css-extract-plugin": "0.6.0",
     "node-sass": "^4.13.0",
     "npm-run-all": "^4.1.5",
@@ -36,6 +40,7 @@
     "postcss-focus-within": "^3.0.0",
     "prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.16.4/wp-prettier-1.16.4.tgz",
     "react-router-dom": "^5.0.1",
+    "recursive-copy": "^2.0.10",
     "rtlcss": "^2.4.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
@@ -92,6 +97,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.8.2",
-    "@material-ui/icons": "^4.5.1"
+    "@material-ui/icons": "^4.5.1",
+    "react": "^16.12.0"
   }
 }
