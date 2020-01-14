@@ -22,12 +22,12 @@ body.newspack-web-preview__open {
 	width: 100%;
 	z-index: 99999;
 
-	&.tablet iframe {
-		max-width: 768px;
-	}
-
 	&.phone iframe {
 		max-width: 480px;
+	}
+
+	&.tablet iframe {
+		max-width: 768px;
 	}
 
 	&.newspack-web-preview__is-loaded iframe {
@@ -36,14 +36,13 @@ body.newspack-web-preview__open {
 }
 
 .newspack-web-preview__interior {
+	animation: newspack-web-preview__appear-animation 0.1s ease-out;
+	animation-fill-mode: forwards;
 	background: white;
 	border-radius: 4px 4px 0 0;
 	box-shadow: 0 8px 16px rgba( black, 0.08 );
 	height: 100%;
 	width: 100%;
-
-	animation: newspack-web-preview__appear-animation 0.1s ease-out;
-	animation-fill-mode: forwards;
 }
 
 .newspack-web-preview__content {
@@ -71,9 +70,10 @@ body.newspack-web-preview__open {
 .newspack-web-preview_is-waiting {
 	display: flex;
 	left: 50%;
-	margin: -12px 0 0 -12px;
+	margin: -12px 0 0 0;
 	position: absolute;
 	top: 50%;
+	transform: translateX(-50%);
 }
 
 .newspack-web-preview__toolbar {

@@ -127,7 +127,7 @@ class WebPreview extends Component {
 
 WebPreview.defaultProps = {
 	url: '//newspack.blog',
-	label: __( 'Preview Site', 'newspack' ),
+	label: __( 'Preview', 'newspack' ),
 };
 
 export default WebPreview;
