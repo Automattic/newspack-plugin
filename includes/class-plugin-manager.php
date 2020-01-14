@@ -54,7 +54,7 @@ class Plugin_Manager {
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/download/1.0.0-alpha.1/newspack-ads.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/latest/download/newspack-ads.zip',
 			],
 			'newspack-content-converter'    => [
 				'Name'        => esc_html__( 'Newspack Content Converter', 'newspack' ),
