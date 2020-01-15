@@ -59,7 +59,7 @@ class EngagementWizard extends Component {
 	getSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/connection-status',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/engagement',
 		} )
 			.then( info => {
 				this.setState( {

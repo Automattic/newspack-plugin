@@ -73,10 +73,10 @@ class Engagement_Wizard extends Wizard {
 	public function register_api_endpoints() {
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
-			'connection-status',
+			'engagement',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_connection_status_settings' ],
+				'callback'            => [ $this, 'api_get_engagement_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -119,7 +119,7 @@ class Engagement_Wizard extends Wizard {
 	 * @see jetpack/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-mailchimp.php
 	 * @return WP_REST_Response with the info.
 	 */
-	public function api_get_connection_status_settings() {
+	public function api_get_engagement_settings() {
 		$jetpack_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
@@ -150,7 +150,7 @@ class Engagement_Wizard extends Wizard {
 			return $response;
 		}
 
-		return $this->api_get_connection_status_settings();
+		return $this->api_get_engagement_settings();
 	}
 
 	/**
@@ -170,7 +170,7 @@ class Engagement_Wizard extends Wizard {
 			return $response;
 		}
 
-		return $this->api_get_connection_status_settings();
+		return $this->api_get_engagement_settings();
 	}
 
 	/**
