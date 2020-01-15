@@ -40,6 +40,7 @@ class EngagementWizard extends Component {
 			connected: false,
 			connectURL: '',
 			wcConnected: false,
+			popups: [],
 		};
 	}
 
@@ -69,11 +70,57 @@ class EngagementWizard extends Component {
 	}
 
 	/**
+	 * Designate which popup should be the sitewide default.
+	 *
+	 * @param int popupId ID of the Popup to become sitewide default.
+	 */
+	setSiteWideDefaultPopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/sitewide-popup/' + popupId,
+			method: 'POST',
+		} )
+			.then( info => {
+				this.setState( {
+					...info,
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
+	 * Set categories for a Popup.
+	 *
+	 * @param int popupId ID of the Popup to alter.
+	 * @param array categories Array of categories to assign to the Popup.
+	 */
+	setCategoriesForPopup = ( popupId, categories ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/popup-categories/' + popupId,
+			method: 'POST',
+			data: {
+				categories,
+			},
+		} )
+			.then( info => {
+				this.setState( {
+					...info,
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { apiKey, connected, connectURL, wcConnected } = this.state;
+		const { apiKey, connected, connectURL, popups, wcConnected } = this.state;
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters' ),
@@ -165,6 +212,9 @@ class EngagementWizard extends Component {
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
+										popups={ popups }
+										setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
+										setCategoriesForPopup={ this.setCategoriesForPopup }
 									/>
 								);
 							} }
