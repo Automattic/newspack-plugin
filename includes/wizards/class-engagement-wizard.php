@@ -80,6 +80,37 @@ class Engagement_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'sitewide-popup/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_sitewide_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'popup-categories/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_popup_categories' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'         => [
+						'sanitize_callback' => 'absint',
+					],
+					'categories' => [
+						'sanitize_callback' => [ $this, 'sanitize_categories' ],
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -89,13 +120,57 @@ class Engagement_Wizard extends Wizard {
 	 * @return WP_REST_Response with the info.
 	 */
 	public function api_get_connection_status_settings() {
-		$jetpack_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
-		$wc_configuration_manager      = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$response                      = $jetpack_configuration_manager->get_mailchimp_connection_status();
+		$jetpack_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $jetpack_configuration_manager->get_mailchimp_connection_status();
 		if ( ! is_wp_error( $response ) ) {
 			$response['wcConnected'] = $wc_configuration_manager->is_active();
 		}
+		if ( $newspack_popups_configuration_manager->is_configured() ) {
+			$response['popups'] = $newspack_popups_configuration_manager->get_popups();
+		}
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Set the sitewide default Popup
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_set_sitewide_popup( $request ) {
+		$sitewide_default = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->set_sitewide_popup( $sitewide_default );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_connection_status_settings();
+	}
+
+	/**
+	 * Set categories for one Popup.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_set_popup_categories( $request ) {
+		$id         = $request['id'];
+		$categories = $request['categories'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->set_popup_categories( $id, $categories );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_connection_status_settings();
 	}
 
 	/**
@@ -124,5 +199,22 @@ class Engagement_Wizard extends Wizard {
 		);
 		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-engagement-wizard' );
+	}
+
+	/**
+	 * Sanitize array of categories.
+	 *
+	 * @param array $categories Array of categories to sanitize.
+	 * @return array Sanitized array.
+	 */
+	public static function sanitize_categories( $categories ) {
+		$categories = is_array( $categories ) ? $categories : [];
+		$sanitized  = [];
+		foreach ( $categories as $category ) {
+			$category['id']   = isset( $category['id'] ) ? absint( $category['id'] ) : null;
+			$category['name'] = isset( $category['name'] ) ? sanitize_title( $category['name'] ) : null;
+			$sanitized[]      = $category;
+		}
+		return $sanitized;
 	}
 }
