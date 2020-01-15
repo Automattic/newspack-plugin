@@ -11,7 +11,14 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, PluginInstaller, SelectControl, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	CategoryAutocomplete,
+	PluginInstaller,
+	SelectControl,
+	withWizardScreen,
+} from '../../../../components/src';
 
 /**
  * Popups Screen
@@ -23,11 +30,13 @@ class Popups extends Component {
 			pluginRequirementsMet: false,
 		};
 	}
+
 	/**
 	 * Render.
 	 */
 	render() {
 		const { pluginRequirementsMet } = this.state;
+		const { popups, setSiteWideDefaultPopup, setCategoriesForPopup } = this.props;
 		if ( ! pluginRequirementsMet ) {
 			return (
 				<PluginInstaller
@@ -36,6 +45,7 @@ class Popups extends Component {
 				/>
 			);
 		}
+
 		return (
 			<Fragment>
 				<ActionCard
@@ -48,14 +58,38 @@ class Popups extends Component {
 				<h2>{ __( 'Configure active Pop-up' ) }</h2>
 				<SelectControl
 					label={ __( 'Sitewide default' ) }
-					value={ '' }
+					value={ popups.find( popup => popup.sitewide_default ) }
 					options={ [
-						{ value: '', label: __( '- Select -' ), disabled: true }
+						{ value: '', label: __( '- Select -' ), disabled: true },
+						...popups
+							// Popups with categories cannot be sitewide default, so they are excluded from this Select.
+							.filter( popup => ! popup.categories || ! popup.categories.length )
+							.map( popup => ( {
+								value: popup.id,
+								label: popup.title,
+							} ) ),
 					] }
-					value={ '' }
+					onChange={ setSiteWideDefaultPopup }
 				/>
+				<h2>{ __( 'Category Filtering' ) }</h2>
+				{ popups
+					// The sitewide default should not be shown in this area.
+					.filter( popup => ! popup.sitewide_default )
+					.map( popup => {
+						const { categories } = popup;
+						return (
+							<div className="newspack-engagement__popups_row" key={ popup.id }>
+								<CategoryAutocomplete
+									value={ categories || [] }
+									suggestions={ this.fetchSuggestions }
+									onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
+									label={ popup.title }
+								/>
+							</div>
+						);
+					} ) }
 				<div className="newspack-buttons-card">
-					<Button onClick="/post-new.php?post_type=newspack_popups_cpt" isPrimary>
+					<Button href="/wp-admin/post-new.php?post_type=newspack_popups_cpt" isPrimary>
 						{ __( 'Add new Pop-up' ) }
 					</Button>
 				</div>
