@@ -34,26 +34,24 @@
 		border: none;
 		height: auto;
 		margin: 0;
-		padding: 48px 0 32px;
-
-		@media screen and ( min-width: 744px ) {
-			padding-top: 64px;
-		}
+		padding: 64px 0 32px;
 
 		.components-modal__header-heading-container {
 			display: block;
 		}
 
 		.components-button.has-icon {
-			height: auto;
+			height: 48px;
+			justify-content: center;
 			left: auto;
-			padding: 12px;
+			padding: 0;
 			position: absolute;
-			right: -48px;
-			top: 0;
+			right: -40px;
+			top: 8px;
+			width: 48px;
 
 			@media screen and ( min-width: 744px ) {
-				right: -64px;
+				right: -56px;
 			}
 
 			svg {
@@ -63,12 +61,6 @@
 				& + span {
 					display: none;
 				}
-			}
-
-			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover,
-			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):active {
-				border: none;
-				box-shadow: none;
 			}
 		}
 
