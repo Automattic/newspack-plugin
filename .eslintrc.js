@@ -13,15 +13,13 @@ module.exports = {
 	globals: {
 		newspack_urls: 'readonly',
 	},
-  ignorePatterns: [
-    'assets/dist/'
-  ],
+	ignorePatterns: [ 'assets/dist/', 'node_modules/' ],
 	rules: {
 		'no-console': 'off',
-		'camelcase': 'off',
+		camelcase: 'off',
 		// Disallow importing or requiring packages that are not listed in package.json
 		// This prevents us from depending on transitive dependencies, which could break in unexpected ways.
-		'import/no-extraneous-dependencies': ['error', {'packageDir': '.'}],
+		'import/no-extraneous-dependencies': [ 'error', { packageDir: '.' } ],
 		// There's a conflict with prettier here:
 		'react/jsx-curly-spacing': 'off',
 		// Skip prop types validation for now
