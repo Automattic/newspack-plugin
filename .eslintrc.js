@@ -13,7 +13,7 @@ module.exports = {
 	globals: {
 		newspack_urls: 'readonly',
 	},
-	ignorePatterns: [ 'assets/dist/', 'node_modules/' ],
+	ignorePatterns: [ 'assets/dist/', 'node_modules/', 'assets/components/node_modules' ],
 	rules: {
 		'no-console': 'off',
 		camelcase: 'off',
