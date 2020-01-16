@@ -124,8 +124,17 @@ class Engagement_Wizard extends Wizard {
 		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
-		$response = $jetpack_configuration_manager->get_mailchimp_connection_status();
-		if ( ! is_wp_error( $response ) ) {
+		$response = array(
+			'connected'   => false,
+			'connectURL'  => null,
+			'wcConnected' => false,
+			'popups'      => array(),
+		);
+
+		$jetpack_status = $jetpack_configuration_manager->get_mailchimp_connection_status();
+		if ( ! is_wp_error( $jetpack_status ) ) {
+			$response['connected']   = $jetpack_status['connected'];
+			$response['connectURL']  = $jetpack_status['connectURL'];
 			$response['wcConnected'] = $wc_configuration_manager->is_active();
 		}
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
