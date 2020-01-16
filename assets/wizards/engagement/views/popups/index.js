@@ -17,6 +17,7 @@ import {
 	CategoryAutocomplete,
 	PluginInstaller,
 	SelectControl,
+	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -61,30 +62,36 @@ class Popups extends Component {
 					value={ popups.find( popup => popup.sitewide_default ) }
 					options={ [
 						{ value: '', label: __( '- Select -' ), disabled: true },
-						...popups
-							// Popups with categories cannot be sitewide default, so they are excluded from this Select.
-							.filter( popup => ! popup.categories || ! popup.categories.length )
-							.map( popup => ( {
-								value: popup.id,
-								label: popup.title,
-							} ) ),
+						...popups.map( popup => ( {
+							value: popup.id,
+							label: popup.title,
+							disabled: popup.categories.length,
+						} ) ),
 					] }
 					onChange={ setSiteWideDefaultPopup }
 				/>
 				<h2>{ __( 'Category Filtering' ) }</h2>
 				{ popups
 					// The sitewide default should not be shown in this area.
-					.filter( popup => ! popup.sitewide_default )
 					.map( popup => {
 						const { categories } = popup;
 						return (
 							<div className="newspack-engagement__popups_row" key={ popup.id }>
-								<CategoryAutocomplete
-									value={ categories || [] }
-									suggestions={ this.fetchSuggestions }
-									onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
-									label={ popup.title }
-								/>
+								{ popup.sitewide_default ? (
+									<TextControl
+										disabled
+										label={ popup.title }
+										value={ __( 'Sitewide default', 'newspack' ) }
+									/>
+								) : (
+									<CategoryAutocomplete
+										value={ categories || [] }
+										suggestions={ this.fetchSuggestions }
+										onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
+										label={ popup.title }
+										disabled={ popup.sitewide_default }
+									/>
+								) }
 							</div>
 						);
 					} ) }
