@@ -7,6 +7,7 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies.
@@ -68,7 +69,7 @@ class Popups extends Component {
 								{ value: '', label: __( '- Select -' ), disabled: true },
 								...popups.map( popup => ( {
 									value: popup.id,
-									label: popup.title,
+									label: decodeEntities( popup.title ),
 									disabled: popup.categories.length,
 								} ) ),
 							] }
@@ -86,7 +87,7 @@ class Popups extends Component {
 									{ popup.sitewide_default ? (
 										<TextControl
 											disabled
-											label={ popup.title }
+											label={ decodeEntities( popup.title ) }
 											value={ __( 'Sitewide default', 'newspack' ) }
 										/>
 									) : (
@@ -94,7 +95,7 @@ class Popups extends Component {
 											value={ categories || [] }
 											suggestions={ this.fetchSuggestions }
 											onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
-											label={ popup.title }
+											label={ decodeEntities( popup.title ) }
 											disabled={ popup.sitewide_default }
 										/>
 									) }

@@ -195,7 +195,7 @@ class Engagement_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-engagement-wizard',
 			Newspack::plugin_url() . '/assets/dist/engagement.js',
-			$this->get_script_dependencies(),
+			$this->get_script_dependencies( array( 'wp-html-entities' ) ),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/engagement.js' ),
 			true
 		);
