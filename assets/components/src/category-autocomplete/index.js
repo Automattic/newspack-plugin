@@ -1,15 +1,23 @@
 /**
- * External dependencies
+ * Category Autocomplete
  */
-import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
-import { FormTokenField } from '@wordpress/components';
 import { addQueryArgs } from '@wordpress/url';
+
+/**
+ * Internal dependencies.
+ */
+import { FormTokenField } from '../';
+
+/**
+ * External dependencies
+ */
+import { debounce } from 'lodash';
 
 /**
  * Category autocomplete field component.
