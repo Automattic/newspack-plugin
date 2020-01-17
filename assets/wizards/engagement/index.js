@@ -63,7 +63,7 @@ class EngagementWizard extends Component {
 		} )
 			.then( info => {
 				this.setState( {
-					...info,
+					...this.sanitizeData( info ),
 				} );
 			} )
 			.catch( error => {
@@ -84,7 +84,7 @@ class EngagementWizard extends Component {
 		} )
 			.then( info => {
 				this.setState( {
-					...info,
+					...this.sanitizeData( info ),
 				} );
 			} )
 			.catch( error => {
@@ -109,12 +109,16 @@ class EngagementWizard extends Component {
 		} )
 			.then( info => {
 				this.setState( {
-					...info,
+					...this.sanitizeData( info ),
 				} );
 			} )
 			.catch( error => {
 				setError( error );
 			} );
+	};
+
+	sanitizeData = data => {
+		return { ...data, popups: data.popups || [] };
 	};
 
 	/**
