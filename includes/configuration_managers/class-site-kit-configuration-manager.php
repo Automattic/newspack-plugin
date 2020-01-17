@@ -24,6 +24,13 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	public $slug = 'google-site-kit';
 
 	/**
+	 * The option name for Site Kit active modules.
+	 *
+	 * @var string
+	 */
+	public $active_modules_option = 'googlesitekit_active_modules';
+
+	/**
 	 * If Site Kit is active and set up, this will return info about all of the modules. Otherwise, this will return an empty array. See link below for array format.
 	 *
 	 * @see https://github.com/google/site-kit-wp/blob/9a262cd18c33995ce5ec81bc300ff055dff2a153/includes/Core/Modules/Modules.php#L123-L137
@@ -85,12 +92,10 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	 * @param string $module The module slug. See `get_module_info` for valid slugs.
 	 */
 	public function activate_module( $module ) {
-		$option_name = 'googlesitekit_active_modules';
-
-		$sitekit_active_modules = get_option( $option_name, array() );
+		$sitekit_active_modules = get_option( $this->active_modules_option, array() );
 		if ( ! in_array( $module, $sitekit_active_modules ) ) {
 			$sitekit_active_modules[] = $module;
-			update_option( $option_name, $sitekit_active_modules );
+			update_option( $this->active_modules_option, $sitekit_active_modules );
 		}
 	}
 
@@ -100,7 +105,7 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	 * @param string $module The module slug. See `get_module_info` for valid slugs.
 	 */
 	public function deactivate_module( $module ) {
-		$sitekit_active_modules = get_option( 'googlesitekit-active-modules', [] );
+		$sitekit_active_modules = get_option( $this->active_modules_option, array() );
 		$updated_modules        = [];
 
 		foreach ( $sitekit_active_modules as $active_module ) {
@@ -109,7 +114,7 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 			}
 		}
 
-		update_option( 'googlesitekit-active-modules', $updated_modules );
+		update_option( $this->active_modules_option, $updated_modules );
 	}
 
 	/**
