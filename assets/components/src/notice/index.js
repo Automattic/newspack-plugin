@@ -23,15 +23,15 @@ import './style.scss';
 /**
  * External dependencies.
  */
-import classNames from 'classnames';
+import classnames from 'classnames';
 
 class Notice extends Component {
 	/**
 	 * Render
 	 */
 	render() {
-		const { className, isError, isSuccess, isWarning, isPrimary, noticeText } = this.props;
-		const classes = classNames(
+		const { className, isError, isSuccess, isWarning, isPrimary, noticeText, rawHTML } = this.props;
+		const classes = classnames(
 			'newspack-notice',
 			className,
 			isError && 'newspack-notice__is-error',
@@ -52,7 +52,9 @@ class Notice extends Component {
 		return (
 			<div className={ classes }>
 				{ noticeIcon }
-				<RawHTML className="newspack-notice__content">{ noticeText }</RawHTML>
+				<div className="newspack-notice__content">
+					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
+				</div>
 			</div>
 		);
 	}
