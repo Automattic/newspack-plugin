@@ -17,7 +17,7 @@ import HeaderIcon from '@material-ui/icons/Forum';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, Router } from '../../components/src';
 import {
 	Commenting,
 	CommentingDisqus,
@@ -28,10 +28,7 @@ import {
 	UGC,
 } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 class EngagementWizard extends Component {
 	constructor( props ) {

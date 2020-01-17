@@ -11,11 +11,11 @@ import { Component } from '@wordpress/element';
  * External dependencies.
  */
 import classnames from 'classnames';
-import { NavLink } from 'react-router-dom';
 
 /**
  * Internal dependencies.
  */
+import { Router } from '../'
 import './style.scss';
 
 /**
@@ -33,9 +33,9 @@ class SecondaryNavigation extends Component {
 				<ul>
 					{ items.map( ( item, key ) => (
 						<li key={ key }>
-							<NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
+							<Router.NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
 								{ item.label }
-							</NavLink>
+							</Router.NavLink>
 						</li>
 					) ) }
 				</ul>

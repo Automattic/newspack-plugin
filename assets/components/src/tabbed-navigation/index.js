@@ -11,7 +11,7 @@ import { Component } from '@wordpress/element';
  * External dependencies.
  */
 import classNames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import { Router } from '../'
 
 /**
  * Internal dependencies.
@@ -33,9 +33,9 @@ class TabbedNavigation extends Component {
 				<ul>
 					{ items.map( ( item, key ) => (
 						<li key={ key }>
-							<NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
+							<Router.NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
 								{ item.label }
-							</NavLink>
+							</Router.NavLink>
 						</li>
 					) ) }
 				</ul>

@@ -28,14 +28,15 @@ import {
 	InstallationProgress,
 	StarterContent,
 } from './views/';
-import { Card, withWizard, WizardPagination } from '../../components/src';
+import { Card, withWizard, WizardPagination, Router } from '../../components/src';
 import './style.scss';
 
 /**
  * External dependencies.
  */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { pickBy, includes, forEach } from 'lodash';
+
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 const REQUIRED_PLUGINS = [
 	'jetpack',

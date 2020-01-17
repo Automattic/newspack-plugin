@@ -1,3 +1,7 @@
+// has to be the first export, since the components below are
+// destructuring the Router after importing it
+export { default as Router } from './router';
+
 export { default as ActionCard } from './action-card';
 export { default as Button } from './button';
 export { default as Card } from './card';

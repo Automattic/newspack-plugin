@@ -17,13 +17,10 @@ import HeaderIcon from '@material-ui/icons/Speed';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, Router } from '../../components/src';
 import { Intro } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 class PerformanceWizard extends Component {
 	/**

@@ -16,13 +16,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, Router } from '../../components/src';
 import { RemoveUnsupportedPlugins } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 class HealthCheckWizard extends Component {
 	constructor( props ) {
