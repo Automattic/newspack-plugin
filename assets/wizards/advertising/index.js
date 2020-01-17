@@ -18,8 +18,8 @@ import HeaderIcon from '@material-ui/icons/FeaturedVideo';
  * Internal dependencies.
  */
 import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
-import Router from '../../components/proxied-imports/router'
-import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
+import Router from '../../components/proxied-imports/router';
+import { AdUnit, AdUnits, HeaderCode, Placements, Services } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router
 
@@ -453,22 +453,6 @@ class AdvertisingWizard extends Component {
 									/>
 								);
 							} }
-						/>
-						<Route
-							path="/google_adsense"
-							render={ routeProps => (
-								<Fragment>
-									<AdSense
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Google AdSense' ) }
-										subHeaderText={ __(
-											'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.'
-										) }
-										buttonText={ __( 'Back to advertising options' ) }
-										buttonAction="#/"
-									/>
-								</Fragment>
-							) }
 						/>
 						<Redirect to="/" />
 					</Switch>
