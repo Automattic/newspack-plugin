@@ -85,10 +85,12 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	 * @param string $module The module slug. See `get_module_info` for valid slugs.
 	 */
 	public function activate_module( $module ) {
-		$sitekit_active_modules = get_option( 'googlesitekit-active-modules', [] );
+		$option_name = 'googlesitekit_active_modules';
+
+		$sitekit_active_modules = get_option( $option_name, array() );
 		if ( ! in_array( $module, $sitekit_active_modules ) ) {
 			$sitekit_active_modules[] = $module;
-			update_option( 'googlesitekit-active-modules', $sitekit_active_modules );
+			update_option( $option_name, $sitekit_active_modules );
 		}
 	}
 
