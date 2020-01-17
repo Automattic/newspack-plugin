@@ -53,7 +53,7 @@ class Notice extends Component {
 			<div className={ classes }>
 				{ noticeIcon }
 				<div className="newspack-notice__content">
-					{ !! rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
+					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
 				</div>
 			</div>
 		);
