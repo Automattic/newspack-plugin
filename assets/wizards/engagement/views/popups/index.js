@@ -20,6 +20,7 @@ import {
 	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
+import './style.scss';
 
 /**
  * Popups Screen
@@ -76,7 +77,7 @@ class Popups extends Component {
 					.map( popup => {
 						const { categories } = popup;
 						return (
-							<div className="newspack-engagement__popups_row" key={ popup.id }>
+							<div className="newspack-engagement__popups-row" key={ popup.id }>
 								{ popup.sitewide_default ? (
 									<TextControl
 										disabled
