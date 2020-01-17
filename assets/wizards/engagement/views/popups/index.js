@@ -79,7 +79,6 @@ class Popups extends Component {
 				) }
 				{ hasPopups &&
 					popups
-						// The sitewide default should not be shown in this area.
 						.map( popup => {
 							const { categories } = popup;
 							return (
