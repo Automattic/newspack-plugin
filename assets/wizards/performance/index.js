@@ -17,7 +17,8 @@ import HeaderIcon from '@material-ui/icons/Speed';
 /**
  * Internal dependencies.
  */
-import { withWizard, Router } from '../../components/src';
+import { withWizard } from '../../components/src';
+import Router from '../../components/src/router'
 import { Intro } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;

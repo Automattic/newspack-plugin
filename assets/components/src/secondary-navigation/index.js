@@ -15,8 +15,10 @@ import classnames from 'classnames';
 /**
  * Internal dependencies.
  */
-import { Router } from '../'
+import Router from '../router'
 import './style.scss';
+
+const { NavLink } = Router;
 
 /**
  * Secondary navigation.
@@ -33,9 +35,9 @@ class SecondaryNavigation extends Component {
 				<ul>
 					{ items.map( ( item, key ) => (
 						<li key={ key }>
-							<Router.NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
+							<NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
 								{ item.label }
-							</Router.NavLink>
+							</NavLink>
 						</li>
 					) ) }
 				</ul>

@@ -11,12 +11,14 @@ import { Component } from '@wordpress/element';
  * External dependencies.
  */
 import classNames from 'classnames';
-import { Router } from '../'
+import Router from '../router'
 
 /**
  * Internal dependencies.
  */
 import './style.scss';
+
+const { NavLink } = Router;
 
 /**
  * Progress bar.
@@ -33,9 +35,9 @@ class TabbedNavigation extends Component {
 				<ul>
 					{ items.map( ( item, key ) => (
 						<li key={ key }>
-							<Router.NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
+							<NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
 								{ item.label }
-							</Router.NavLink>
+							</NavLink>
 						</li>
 					) ) }
 				</ul>

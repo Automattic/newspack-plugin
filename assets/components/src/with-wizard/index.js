@@ -17,7 +17,8 @@ import HeaderIcon from '@material-ui/icons/Warning';
 /**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, NewspackLogo, Notice, PluginInstaller, Grid, Router } from '../';
+import { Button, Card, FormattedHeader, Modal, NewspackLogo, Notice, PluginInstaller, Grid } from '../';
+import Router from '../router'
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 

@@ -16,8 +16,11 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 /**
  * Internal dependencies.
  */
-import { Button, Router } from '../';
+import { Button } from '../';
+import Router from '../router'
 import './style.scss';
+
+const { withRouter } = Router;
 
 class WizardPagination extends Component {
 	/**
@@ -48,4 +51,4 @@ class WizardPagination extends Component {
 	}
 }
 
-export default Router.withRouter( WizardPagination );
+export default withRouter( WizardPagination );

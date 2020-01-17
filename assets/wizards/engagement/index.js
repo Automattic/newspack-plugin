@@ -17,7 +17,8 @@ import HeaderIcon from '@material-ui/icons/Forum';
 /**
  * Internal dependencies.
  */
-import { withWizard, Router } from '../../components/src';
+import { withWizard } from '../../components/src';
+import Router from '../../components/src/router'
 import {
 	Commenting,
 	CommentingDisqus,

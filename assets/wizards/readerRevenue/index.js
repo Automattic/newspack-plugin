@@ -16,7 +16,8 @@ import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
 /**
  * Internal dependencies.
  */
-import { withWizard, Router } from '../../components/src';
+import { withWizard } from '../../components/src';
+import Router from '../../components/src/router'
 import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;

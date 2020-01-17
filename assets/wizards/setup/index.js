@@ -28,7 +28,8 @@ import {
 	InstallationProgress,
 	StarterContent,
 } from './views/';
-import { Card, withWizard, WizardPagination, Router } from '../../components/src';
+import { Card, withWizard, WizardPagination } from '../../components/src';
+import Router from '../../components/src/router'
 import './style.scss';
 
 /**
