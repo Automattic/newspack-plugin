@@ -14,15 +14,13 @@ import { Component, Fragment } from '@wordpress/element';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 /**
- * External dependencies.
- */
-import { withRouter } from 'react-router-dom';
-
-/**
  * Internal dependencies.
  */
 import { Button } from '../';
+import Router from '../../proxied-imports/router'
 import './style.scss';
+
+const { withRouter } = Router;
 
 class WizardPagination extends Component {
 	/**

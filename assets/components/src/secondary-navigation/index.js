@@ -11,12 +11,14 @@ import { Component } from '@wordpress/element';
  * External dependencies.
  */
 import classnames from 'classnames';
-import { NavLink } from 'react-router-dom';
 
 /**
  * Internal dependencies.
  */
+import Router from '../../proxied-imports/router'
 import './style.scss';
+
+const { NavLink } = Router;
 
 /**
  * Secondary navigation.

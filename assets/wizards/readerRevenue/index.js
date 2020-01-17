@@ -17,12 +17,10 @@ import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
+import Router from '../../components/proxied-imports/router'
 import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 class ReaderRevenueWizard extends Component {
 	/**

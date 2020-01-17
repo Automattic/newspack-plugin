@@ -18,12 +18,10 @@ import HeaderIcon from '@material-ui/icons/FeaturedVideo';
  * Internal dependencies.
  */
 import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
+import Router from '../../components/proxied-imports/router'
 import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router
 
 class AdvertisingWizard extends Component {
 	/**
