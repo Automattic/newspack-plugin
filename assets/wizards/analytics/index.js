@@ -18,7 +18,7 @@ import HeaderIcon from '@material-ui/icons/TrendingUp';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import Router from '../../components/src/router'
+import Router from '../../components/proxied-imports/router'
 import { Intro } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;

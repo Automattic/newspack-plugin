@@ -15,7 +15,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies.
  */
-import Router from '../router'
+import Router from '../../proxied-imports/router'
 import './style.scss';
 
 const { NavLink } = Router;

@@ -17,7 +17,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
  * Internal dependencies.
  */
 import { Button } from '../';
-import Router from '../router'
+import Router from '../../proxied-imports/router'
 import './style.scss';
 
 const { withRouter } = Router;
