@@ -87,6 +87,17 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Check if module is active.
+	 *
+	 * @param string $module The module slug. See `get_module_info` for valid slugs.
+	 * @return boolean True if module is active, otherwise false.
+	 */
+	public function is_module_active( $module ) {
+		$sitekit_active_modules = get_option( $this->active_modules_option, array() );
+		return in_array( $module, $sitekit_active_modules );
+	}
+
+	/**
 	 * Activate a module if it isn't already active.
 	 *
 	 * @param string $module The module slug. See `get_module_info` for valid slugs.
