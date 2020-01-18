@@ -414,7 +414,7 @@ class Plugin_Manager {
 	 */
 	public static function activate( $plugin ) {
 		if ( 'newspack-theme' === $plugin ) {
-			return newspack_install_activate_theme();
+			return Theme_Manager::install_activate_theme();
 		}
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
