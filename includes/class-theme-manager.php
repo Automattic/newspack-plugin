@@ -36,6 +36,10 @@ class Theme_Manager {
 	 * @param string $slug Slug of the theme to install.
 	 */
 	public static function install_activate_theme( $slug = 'newspack-theme' ) {
+		if ( ! self::can_install_themes() ) {
+			return new WP_Error( 'newspack_theme_failed_install', __( 'Themes cannot be installed.', 'newspack' ) );
+		}
+
 		if ( ! in_array( $slug, self::$theme_slugs ) ) {
 			return new \WP_Error(
 				'newspack_theme_invalid_slug',
@@ -76,6 +80,20 @@ class Theme_Manager {
 		}
 
 		switch_theme( $slug );
+		return true;
+	}
+
+	/**
+	 * Determine whether theme installation is allowed in the current environment.
+	 *
+	 * @return bool
+	 */
+	public static function can_install_themes() {
+		if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) ||
+			( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
+			return false;
+		}
+
 		return true;
 	}
 }
