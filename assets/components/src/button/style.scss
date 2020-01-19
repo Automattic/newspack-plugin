@@ -35,6 +35,15 @@
 		text-shadow: none;
 	}
 
+	&.is-button {
+		border-radius: 3px;
+		font-size: 14px;
+		font-weight: bold;
+		height: auto;
+		line-height: 24px;
+		padding: 11px 24px;
+	}
+
 	&.is-primary {
 		background: $primary-500;
 		border: 1px solid $primary-600;
@@ -76,6 +85,7 @@
 		}
 	}
 
+	&.is-default,
 	&.is-secondary {
 		background: white;
 		border: 1px solid $light-gray-500;
