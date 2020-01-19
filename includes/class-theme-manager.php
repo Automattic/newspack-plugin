@@ -47,7 +47,7 @@ class Theme_Manager {
 			);
 		}
 
-		$theme_url = 'https://github.com/Automattic/newspack-theme/releases/latest/download/{$slug}.zip';
+		$theme_url = "https://github.com/Automattic/newspack-theme/releases/latest/download/{$slug}.zip";
 
 		$theme_object = wp_get_theme( $slug );
 		if ( ! $theme_object->exists() ) {
