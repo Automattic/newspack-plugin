@@ -25,9 +25,9 @@ class Theme_Manager {
 		'newspack-theme', // Default.
 		'newspack-scott', // Style Pack 1.
 		'newspack-nelson', // Style Pack 2.
-		// 'newspack-TK', Style Pack 3.
+		'newspack-katharine', // Style Pack 3.
 		'newspack-sacha', // Style Pack 4.
-		// 'newspack-TK', Style Pack 5.
+		'newspack-joseph', // Style Pack 5.
 	];
 
 	/**
