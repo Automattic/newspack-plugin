@@ -25,6 +25,7 @@ import {
 	CommentingNative,
 	CommentingCoral,
 	Newsletters,
+	Popups,
 	Social,
 	UGC,
 } from './views';
@@ -39,6 +40,7 @@ class EngagementWizard extends Component {
 			connected: false,
 			connectURL: '',
 			wcConnected: false,
+			popups: [],
 		};
 	}
 
@@ -55,11 +57,11 @@ class EngagementWizard extends Component {
 	getSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/connection-status',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/engagement',
 		} )
 			.then( info => {
 				this.setState( {
-					...info,
+					...this.sanitizeData( info ),
 				} );
 			} )
 			.catch( error => {
@@ -68,11 +70,61 @@ class EngagementWizard extends Component {
 	}
 
 	/**
+	 * Designate which popup should be the sitewide default.
+	 *
+	 * @param int popupId ID of the Popup to become sitewide default.
+	 */
+	setSiteWideDefaultPopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/sitewide-popup/' + popupId,
+			method: 'POST',
+		} )
+			.then( info => {
+				this.setState( {
+					...this.sanitizeData( info ),
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
+	 * Set categories for a Popup.
+	 *
+	 * @param int popupId ID of the Popup to alter.
+	 * @param array categories Array of categories to assign to the Popup.
+	 */
+	setCategoriesForPopup = ( popupId, categories ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/popup-categories/' + popupId,
+			method: 'POST',
+			data: {
+				categories,
+			},
+		} )
+			.then( info => {
+				this.setState( {
+					...this.sanitizeData( info ),
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	sanitizeData = data => {
+		return { ...data, popups: data.popups || [] };
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { apiKey, connected, connectURL, wcConnected } = this.state;
+		const { apiKey, connected, connectURL, popups, wcConnected } = this.state;
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters' ),
@@ -82,6 +134,11 @@ class EngagementWizard extends Component {
 			{
 				label: __( 'Social' ),
 				path: '/social',
+				exact: true,
+			},
+			{
+				label: __( 'Pop-ups' ),
+				path: '/popups',
 				exact: true,
 			},
 			{
@@ -144,6 +201,24 @@ class EngagementWizard extends Component {
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
+									/>
+								);
+							} }
+						/>
+						<Route
+							path="/popups"
+							exact
+							render={ routeProps => {
+								const { apiKey } = this.state;
+								return (
+									<Popups
+										headerIcon={ <HeaderIcon /> }
+										headerText={ __( 'Engagement', 'newspack' ) }
+										subHeaderText={ subheader }
+										tabbedNavigation={ tabbed_navigation }
+										popups={ popups }
+										setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
+										setCategoriesForPopup={ this.setCategoriesForPopup }
 									/>
 								);
 							} }

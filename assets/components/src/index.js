@@ -1,8 +1,10 @@
 export { default as ActionCard } from './action-card';
 export { default as Button } from './button';
 export { default as Card } from './card';
+export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as CheckboxControl } from './checkbox-control';
 export { default as Checklist } from './checklist';
+export { default as FormTokenField } from './form-token-field';
 export { default as FormattedHeader } from './formatted-header';
 export { default as Handoff } from './handoff';
 export { default as InfoButton } from './info-button';
