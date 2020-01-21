@@ -145,7 +145,7 @@ class Plugin_Manager {
 				'Author'      => 'Google',
 				'AuthorURI'   => 'https://opensource.google.com',
 				'PluginURI'   => 'https://sitekit.withgoogle.com/',
-				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
+				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=googlesitekit-splash',
 				'Configurer'  => [
 					'filename'   => 'class-site-kit-configuration-manager.php',
