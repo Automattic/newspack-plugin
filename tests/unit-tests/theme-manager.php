@@ -50,5 +50,39 @@ class Newspack_Test_Theme_Controller extends WP_UnitTestCase {
 		$this->assertEquals( 'newspack-sacha', get_stylesheet() );
 	}
 
-	// TODO: Tests for five other themes after releases have been made.
+	/**
+	 * Test installing Newspack Scott child theme.
+	 */
+	public function test_install_activate_scott() {
+		$result = Theme_Manager::install_activate_theme( 'newspack-scott' );
+		$this->assertTrue( $result );
+		$this->assertEquals( 'newspack-scott', get_stylesheet() );
+	}
+
+	/**
+	 * Test installing Newspack Nelson child theme.
+	 */
+	public function test_install_activate_nelson() {
+		$result = Theme_Manager::install_activate_theme( 'newspack-nelson' );
+		$this->assertTrue( $result );
+		$this->assertEquals( 'newspack-nelson', get_stylesheet() );
+	}
+
+	/**
+	 * Test installing Newspack Katharine child theme.
+	 */
+	public function test_install_activate_katharine() {
+		$result = Theme_Manager::install_activate_theme( 'newspack-katharine' );
+		$this->assertTrue( $result );
+		$this->assertEquals( 'newspack-katharine', get_stylesheet() );
+	}
+
+	/**
+	 * Test installing Newspack Joseph child theme.
+	 */
+	public function test_install_activate_joseph() {
+		$result = Theme_Manager::install_activate_theme( 'newspack-joseph' );
+		$this->assertTrue( $result );
+		$this->assertEquals( 'newspack-joseph', get_stylesheet() );
+	}
 }
