@@ -117,12 +117,12 @@ class Starter_Content {
 		?>
 		<!-- wp:columns {"className":"is-style-borders"} --><div class="wp-block-columns is-style-borders">
 
-			<!-- wp:column {"width":66.66} --><div class="wp-block-column" style="flex-basis:calc(66.66% - 16px)">
+			<!-- wp:column {"width":66.66} --><div class="wp-block-column" style="flex-basis:66.66%">
 
 				<!-- wp:newspack-blocks/homepage-articles {"postsToShow":1,"categories":[<?php echo esc_attr( $categories[1]->term_id ); ?>],"sectionHeader":"<?php echo esc_html( $categories[1]->name ); ?>"} /-->
 
 			</div><!-- /wp:column -->
-			<!-- wp:column {"width":33.33} --><div class="wp-block-column" style="flex-basis:calc(33.33% - 16px)">
+			<!-- wp:column {"width":33.33} --><div class="wp-block-column" style="flex-basis:33.33%">
 
 				<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"imageShape":"square","showAvatar":false,"postsToShow":3,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[2]->term_id ); ?>],"typeScale":2,"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[2]->name ); ?>"} /-->
 
