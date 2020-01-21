@@ -444,6 +444,9 @@ class Advertising_Wizard extends Wizard {
 		if ( ! $jetpack_manager->is_wordads_available_at_plan_level() ) {
 			$services['wordads']['upgrade_required'] = true;
 		}
+		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+
+		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
 		return $services;
 	}
 
