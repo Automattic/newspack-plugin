@@ -315,14 +315,6 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://organicthemes.com/',
 				'Download'    => 'wporg',
 			],
-			'fix-missing-media'             => [
-				'Name'        => 'Fix Missing Media',
-				'Description' => 'Seeks to fix the missing media on a Newspack staging site.',
-				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
-				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/fix-missing-media/releases/latest/download/fix-missing-media.zip',
-			],
 		];
 
 		$default_info = [
