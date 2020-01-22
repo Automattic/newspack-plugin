@@ -315,6 +315,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://organicthemes.com/',
 				'Download'    => 'wporg',
 			],
+			'password-protected'            => [
+				'Name'        => 'Password Protected',
+				'Description' => 'A very simple way to quickly password protect your WordPress site with a single password. Please note: This plugin does not restrict access to uploaded files and images and does not work with some caching setups.',
+				'Author'      => 'Ben Huson',
+				'PluginURI'   => 'http://github.com/benhuson/password-protected/',
+				'AuthorURI'   => 'http://github.com/benhuson/password-protected/',
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
