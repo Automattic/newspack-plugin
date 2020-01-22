@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import Router from '../../components/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router'
 import { RemoveUnsupportedPlugins } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;

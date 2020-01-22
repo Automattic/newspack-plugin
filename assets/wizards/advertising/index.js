@@ -18,7 +18,7 @@ import HeaderIcon from '@material-ui/icons/FeaturedVideo';
  * Internal dependencies.
  */
 import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
-import Router from '../../components/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, HeaderCode, Placements, Services } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router

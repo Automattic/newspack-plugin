@@ -29,7 +29,7 @@ import {
 	StarterContent,
 } from './views/';
 import { Card, withWizard, WizardPagination } from '../../components/src';
-import Router from '../../components/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router'
 import './style.scss';
 
 /**
