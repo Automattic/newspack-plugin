@@ -23,6 +23,8 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
+const PORTAL_PARENT_ID = 'newspack-components-web-preview-wrapper';
+
 /**
  * Web Preview. A component to preview a website in an iframe, with device sizing options.
  */
@@ -31,24 +33,27 @@ class WebPreview extends Component {
 		device: 'desktop',
 		loaded: false,
 		isPreviewVisible: false,
-		modalDOMElement: null,
 	};
 
 	/**
-	 * Create a div and append it to the body, so that the modal is on the top layer
+	 * If a div with id PORTAL_PARENT_ID exists, assign it to class field.
+	 * If not, create it and append to the body.
 	 */
 	componentDidMount() {
-		const modalDOMElement = document.createElement( 'div' );
-		document.body.appendChild( modalDOMElement );
-		this.setState( { modalDOMElement } );
+		const existingDOMElement = document.getElementById( PORTAL_PARENT_ID );
+		this.modalDOMElement = existingDOMElement || document.createElement( 'div' );
+		if ( ! existingDOMElement ) {
+			this.modalDOMElement.id = PORTAL_PARENT_ID;
+			document.body.appendChild( this.modalDOMElement );
+		}
 	}
 
 	/**
 	 * Cleanup
 	 */
 	componentWillUnmount() {
-		if ( this.state.modalDOMElement ) {
-			document.body.removeChild( this.state.modalDOMElement );
+		if ( this.modalDOMElement ) {
+			document.body.removeChild( this.modalDOMElement );
 		}
 	}
 
@@ -68,9 +73,9 @@ class WebPreview extends Component {
 	 */
 	getWebPreviewModal = () => {
 		const { url } = this.props;
-		const { device, loaded, modalDOMElement, isPreviewVisible } = this.state;
+		const { device, loaded, isPreviewVisible } = this.state;
 
-		if ( ! modalDOMElement || ! isPreviewVisible ) {
+		if ( ! this.modalDOMElement || ! isPreviewVisible ) {
 			return null;
 		}
 
@@ -131,7 +136,7 @@ class WebPreview extends Component {
 					</div>
 				</div>
 			</div>,
-			modalDOMElement
+			this.modalDOMElement
 		);
 	};
 
