@@ -74,9 +74,9 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * @param number $id The id of the ad unit to retrieve.
 	 * @return array | WP_Error Returns ad unit or error if the plugin is not active or the ad unit doesn't exist.
 	 */
-	public function get_ad_unit( $id ) {
+	public function get_ad_unit( $id, $placement = null ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::get_ad_unit( $id ) :
+			\Newspack_Ads_Model::get_ad_unit( $id, $placement ) :
 			$this->unconfigured_error();
 	}
 
