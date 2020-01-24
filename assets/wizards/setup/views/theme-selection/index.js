@@ -1,5 +1,5 @@
 /**
- * Theme Style Selection Screen.
+ * Theme Selection Screen.
  */
 
 /**
@@ -20,59 +20,59 @@ import SachaImg from './images/sacha.png';
 import JosephImg from './images/joseph.png';
 
 /**
- * Theme Style Selection Screen.
+ * Theme Selection Screen.
  */
-class ThemeStyleSelection extends Component {
+class ThemeSelection extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
-		const { updateThemeStyle, themeStyle } = this.props;
+		const { updateTheme, theme } = this.props;
 		return (
 			<StyleCardGroup>
 				<StyleCard
 					cardTitle={ __( 'Default', 'newspack-plugin' ) }
 					image={ DefaultImg }
 					url="//newspack.blog"
-					isActive={ themeStyle === 'newspack-theme' }
-					onClick={ () => updateThemeStyle( 'newspack-theme' ) }
+					isActive={ theme === 'newspack-theme' }
+					onClick={ () => updateTheme( 'newspack-theme' ) }
 				/>
 				<StyleCard
 					cardTitle="Scott"
 					image={ ScottImg }
-					isActive={ themeStyle === 'newspack-scott' }
-					onClick={ () => updateThemeStyle( 'newspack-scott' ) }
+					isActive={ theme === 'newspack-scott' }
+					onClick={ () => updateTheme( 'newspack-scott' ) }
 				/>
 				<StyleCard
 					cardTitle="Nelson"
 					image={ NelsonImg }
 					url="//elsoberano.org"
-					isActive={ themeStyle === 'newspack-nelson' }
-					onClick={ () => updateThemeStyle( 'newspack-nelson' ) }
+					isActive={ theme === 'newspack-nelson' }
+					onClick={ () => updateTheme( 'newspack-nelson' ) }
 				/>
 				<StyleCard
 					cardTitle="Katharine"
 					image={ KatharineImg }
 					url="//thelensnola.org"
-					isActive={ themeStyle === 'newspack-katharine' }
-					onClick={ () => updateThemeStyle( 'newspack-katharine' ) }
+					isActive={ theme === 'newspack-katharine' }
+					onClick={ () => updateTheme( 'newspack-katharine' ) }
 				/>
 				<StyleCard
 					cardTitle="Sacha"
 					image={ SachaImg }
-					isActive={ themeStyle === 'newspack-sacha' }
-					onClick={ () => updateThemeStyle( 'newspack-sacha' ) }
+					isActive={ theme === 'newspack-sacha' }
+					onClick={ () => updateTheme( 'newspack-sacha' ) }
 				/>
 				<StyleCard
 					cardTitle="Joseph"
 					image={ JosephImg }
 					url="//oklahomawatch.org"
-					isActive={ themeStyle === 'newspack-joseph' }
-					onClick={ () => updateThemeStyle( 'newspack-joseph' ) }
+					isActive={ theme === 'newspack-joseph' }
+					onClick={ () => updateTheme( 'newspack-joseph' ) }
 				/>
 			</StyleCardGroup>
 		);
 	}
 }
 
-export default withWizardScreen( ThemeStyleSelection );
+export default withWizardScreen( ThemeSelection );

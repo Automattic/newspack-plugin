@@ -27,7 +27,7 @@ import {
 	Newsroom,
 	Welcome,
 	InstallationProgress,
-	ThemeStyleSelection,
+	ThemeSelection,
 	StarterContent,
 } from './views/';
 import { Card, withWizard, WizardPagination } from '../../components/src';
@@ -72,13 +72,13 @@ class SetupWizard extends Component {
 			countries: {},
 			starterContentProgress: null,
 			starterContentTotal: null,
-			themeStyle: null,
+			theme: null,
 		};
 	}
 
 	componentDidMount = () => {
 		this.retrieveProfile();
-		this.retrieveThemeStyle();
+		this.retrieveTheme();
 	};
 
 	updateProfile = () => {
@@ -167,34 +167,34 @@ class SetupWizard extends Component {
 		);
 	};
 
-	retrieveThemeStyle = () => {
+	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme-style-selection', method: 'GET' };
+		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme', method: 'GET' };
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( params )
 				.then( response => {
-					const { theme_style: themeStyle } = response;
-					this.setState( { themeStyle }, () => resolve( response ) );
+					const { theme } = response;
+					this.setState( { theme }, () => resolve( response ) );
 				} )
 				.catch( error => {
-					console.log( '[Theme Style Fetch Error]', error );
+					console.log( '[Theme Fetch Error]', error );
 					setError( { error } );
 					reject( error );
 				} );
 		} );
 	};
 
-	updateThemeStyle = themeStyle => {
+	updateTheme = theme => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme-style-selection/' + themeStyle, method: 'POST' };
+		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme, method: 'POST' };
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( params )
 				.then( response => {
-					const { theme_style: themeStyle } = response;
-					this.setState( { themeStyle }, () => resolve( response ) );
+					const { theme } = response;
+					this.setState( { theme }, () => resolve( response ) );
 				} )
 				.catch( error => {
-					console.log( '[Theme Style Update Error]', error );
+					console.log( '[Theme Update Error]', error );
 					setError( { error } );
 					reject( error );
 				} );
@@ -400,18 +400,18 @@ class SetupWizard extends Component {
 					<Route
 						path="/theme-style-selection"
 						render={ routeProps => {
-							const { themeStyle } = this.state;
+							const { theme } = this.state;
 							return (
-								<ThemeStyleSelection
+								<ThemeSelection
 									headerIcon={ <StyleIcon /> }
-									headerText={ __( 'Theme Style' ) }
-									subHeaderText={ __( 'Choose a style for the Newspack theme' ) }
+									headerText={ __( 'Theme' ) }
+									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
 									buttonAction='#/starter-content'
 									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
 									secondaryButtonAction={ this.finish }
-									updateThemeStyle={ this.updateThemeStyle }
-									themeStyle={ themeStyle }
+									updateTheme={ this.updateTheme }
+									theme={ theme }
 									isWide
 								/>
 							);

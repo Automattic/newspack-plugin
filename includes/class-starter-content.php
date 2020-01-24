@@ -198,9 +198,9 @@ class Starter_Content {
 	 *
 	 * @param string $style Style id.
 	 */
-	public static function set_theme_style( $style ) {
+	public static function set_theme( $style ) {
 		Theme_Manager::install_activate_theme( $style );
-		return self::get_theme_style();
+		return self::get_theme();
 	}
 
 	/**
@@ -208,7 +208,7 @@ class Starter_Content {
 	 *
 	 * @return string Style id.
 	 */
-	public static function get_theme_style() {
+	public static function get_theme() {
 		$theme_object = wp_get_theme();
 		return $theme_object->get_stylesheet();
 	}
