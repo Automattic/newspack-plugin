@@ -66,7 +66,7 @@ class Theme_Manager {
 				// Make sure `-master` or `-1.0.1` etc. are not in the theme folder name.
 				// We just want the folder name to be the theme slug.
 				$theme_object    = $upgrader->theme_info();
-				$theme_folder    = $theme_object->get_template_directory();
+				$theme_folder    = $theme_object->get_stylesheet_directory();
 				$expected_folder = $theme_object->get_theme_root() . '/' . $slug;
 				if ( $theme_folder !== $expected_folder ) {
 					rename( $theme_folder, $expected_folder ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_rename
