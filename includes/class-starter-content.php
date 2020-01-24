@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WP_Query;
+use \WP_Error, \WP_Query, Newspack\Theme_Manager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -199,7 +199,7 @@ class Starter_Content {
 	 * @param string $style Style id.
 	 */
 	public static function set_theme_style( $style ) {
-		set_theme_mod( 'active_style_pack', $style );
+		Theme_Manager::install_activate_theme( $style );
 		return self::get_theme_style();
 	}
 
@@ -209,7 +209,8 @@ class Starter_Content {
 	 * @return string Style id.
 	 */
 	public static function get_theme_style() {
-		return get_theme_mod( 'active_style_pack' );
+		$theme_object = wp_get_theme();
+		return $theme_object->get_stylesheet();
 	}
 
 	/**

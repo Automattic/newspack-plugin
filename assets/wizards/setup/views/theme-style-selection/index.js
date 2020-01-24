@@ -34,41 +34,41 @@ class ThemeStyleSelection extends Component {
 					cardTitle={ __( 'Default', 'newspack-plugin' ) }
 					image={ DefaultImg }
 					url="//newspack.blog"
-					isActive={ themeStyle === 'default' }
-					onClick={ () => updateThemeStyle( 'default' ) }
+					isActive={ themeStyle === 'newspack-theme' }
+					onClick={ () => updateThemeStyle( 'newspack-theme' ) }
 				/>
 				<StyleCard
 					cardTitle="Scott"
 					image={ ScottImg }
-					isActive={ themeStyle === 'style-1' }
-					onClick={ () => updateThemeStyle( 'style-1' ) }
+					isActive={ themeStyle === 'newspack-scott' }
+					onClick={ () => updateThemeStyle( 'newspack-scott' ) }
 				/>
 				<StyleCard
 					cardTitle="Nelson"
 					image={ NelsonImg }
 					url="//elsoberano.org"
-					isActive={ themeStyle === 'style-2' }
-					onClick={ () => updateThemeStyle( 'style-2' ) }
+					isActive={ themeStyle === 'newspack-nelson' }
+					onClick={ () => updateThemeStyle( 'newspack-nelson' ) }
 				/>
 				<StyleCard
 					cardTitle="Katharine"
 					image={ KatharineImg }
 					url="//thelensnola.org"
-					isActive={ themeStyle === 'style-3' }
-					onClick={ () => updateThemeStyle( 'style-3' ) }
+					isActive={ themeStyle === 'newspack-katharine' }
+					onClick={ () => updateThemeStyle( 'newspack-katharine' ) }
 				/>
 				<StyleCard
 					cardTitle="Sacha"
 					image={ SachaImg }
-					isActive={ themeStyle === 'style-4' }
-					onClick={ () => updateThemeStyle( 'style-4' ) }
+					isActive={ themeStyle === 'newspack-sacha' }
+					onClick={ () => updateThemeStyle( 'newspack-sacha' ) }
 				/>
 				<StyleCard
 					cardTitle="Joseph"
 					image={ JosephImg }
 					url="//oklahomawatch.org"
-					isActive={ themeStyle === 'style-5' }
-					onClick={ () => updateThemeStyle( 'style-5' ) }
+					isActive={ themeStyle === 'newspack-joseph' }
+					onClick={ () => updateThemeStyle( 'newspack-joseph' ) }
 				/>
 			</StyleCardGroup>
 		);
