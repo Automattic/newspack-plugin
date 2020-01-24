@@ -107,6 +107,14 @@ class ComponentsDemo extends Component {
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
 								isPrimary
 							/>
+							<WebPreview
+								url="//newspack.blog"
+								renderButton={ ( { showPreview } ) => (
+									<a href="#" onClick={ showPreview }>
+										{ __( 'Preview Newspack Blog', 'newspack' ) }
+									</a>
+								) }
+							/>
 						</Card>
 					</Card>
 					<Card>
