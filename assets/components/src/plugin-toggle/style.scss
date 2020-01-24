@@ -1,0 +1,12 @@
+/**
+ * Plugin Installer
+ */
+
+@import '~@wordpress/base-styles/colors';
+
+.newspack-action-card.in-flight {
+	opacity: 0.5;
+}
+.newspack-action-card.loading {
+	opacity: 0.2;
+}
