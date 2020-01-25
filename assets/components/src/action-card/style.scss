@@ -25,6 +25,25 @@
 		border-left: 4px solid $alert-red;
 	}
 
+	// Supported
+
+	&.newspack-card__is-supported {
+		border-left: 4px solid $alert-green;
+	}
+
+	// Primary
+
+	&.newspack-card__is-primary {
+		border-left: 4px solid $blue-dark-900;
+	}
+
+	// Disabled
+
+	&.newspack-card__is-disabled {
+		border-left: 4px solid $light-gray-700;
+		opacity: 0.5;
+	}
+
 	// Typography
 
 	h2,
@@ -194,6 +213,24 @@
 
 		&.newspack-card__is-unsupported {
 			border-left: 4px solid $alert-red;
+		}
+
+		// Supported
+
+		&.newspack-card__is-supported {
+			border-left: 4px solid $alert-green;
+		}
+
+		// Primary
+
+		&.newspack-card__is-primary {
+			border-left: 4px solid $blue-medium-600;
+		}
+
+		// Disabled
+
+		&.newspack-card__is-disabled {
+			border-left: 4px solid $light-gray-700;
 		}
 	}
 }
