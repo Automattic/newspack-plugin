@@ -1,0 +1,25 @@
+/**
+ * Popup Action Card styles
+ */
+
+.newspack-engagement__popups-action-card .newspack-action-card__region-right {
+	align-self: start;
+}
+
+.newspack-action-card__popover {
+	padding: 0;
+
+}
+
+.newspack-engagement__popups-action-card__panel-row {
+	display: block;
+	svg {
+		margin-right: 10px;
+	}
+	.newspack-toggle-control .components-base-control__field label {
+		margin-left: 10px;
+	}
+	&.first {
+		margin-bottom: 1px solid gray;
+	}
+}

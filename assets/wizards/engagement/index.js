@@ -115,6 +115,27 @@ class EngagementWizard extends Component {
 			} );
 	};
 
+	/**
+	 * Delete a popup.
+	 *
+	 * @param int popupId ID of the Popup to alter.
+	 */
+	deletePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/popup/' + popupId,
+			method: 'DELETE',
+		} )
+			.then( info => {
+				this.setState( {
+					...this.sanitizeData( info ),
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
 	sanitizeData = data => {
 		return { ...data, popups: data.popups || [] };
 	};
@@ -219,6 +240,7 @@ class EngagementWizard extends Component {
 										popups={ popups }
 										setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
 										setCategoriesForPopup={ this.setCategoriesForPopup }
+										deletePopup={ this.deletePopup }
 									/>
 								);
 							} }
