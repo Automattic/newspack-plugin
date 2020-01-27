@@ -11,10 +11,8 @@
 	}
 }
 
-.newspack-action-card__container {
+.newspack-action-card {
 	.newspack-popover {
-		margin-left: 18px;
-
 		.components-menu-group + .components-menu-group {
 			border-top: 1px solid $light-gray-500;
 		}
@@ -29,5 +27,9 @@
 			border-radius: 0;
 			font-weight: normal;
 		}
+	}
+
+	&:not(.newspack-card__is-primary) .newspack-popover {
+		margin-left: 18px;
 	}
 }
