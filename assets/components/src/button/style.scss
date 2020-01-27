@@ -27,6 +27,14 @@
 		padding: 3px 12px;
 	}
 
+	&.icon-only {
+		align-items: center;
+		height: 36px;
+		justify-content: center;
+		padding: 0;
+		width: 36px;
+	}
+
 	&:disabled,
 	&:disabled:active:enabled,
 	&[aria-disabled=true],
@@ -197,5 +205,9 @@
 		&.is-large {
 			padding: 0;
 		}
+	}
+
+	.components-tooltip {
+		font-weight: normal;
 	}
 }
