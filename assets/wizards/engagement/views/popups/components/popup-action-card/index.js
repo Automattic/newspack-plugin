@@ -119,7 +119,7 @@ class PopupActionCard extends Component {
 						{ popoverVisibility && (
 							<Popover
 								position="bottom left"
-								className="components-autocomplete__popover"
+								className="newspack-popover"
 								onFocusOutside={ event => this.setState( { popoverVisibility: false } ) }
 							>
 								<MenuGroup className="newspack-menu-group__sitewide">
