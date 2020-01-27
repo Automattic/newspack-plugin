@@ -8,7 +8,7 @@
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { Popover, Panel, PanelRow, PanelBody, Tooltip } from '@wordpress/components';
+import { Popover, MenuItem, MenuGroup, Tooltip } from '@wordpress/components';
 
 /**
  * Material UI dependencies.
@@ -100,7 +100,7 @@ class PopupActionCard extends Component {
 					<Fragment>
 						<Tooltip text={ __( 'Category filtering', 'newspack' ) }>
 							<Button
-								isSmall
+								className="icon-only"
 								onClick={ () => this.setState( { categoriesVisibility: ! categoriesVisibility } ) }
 							>
 								<FilterListIcon />
@@ -108,7 +108,7 @@ class PopupActionCard extends Component {
 						</Tooltip>
 						<Tooltip text={ __( 'More options', 'newspack' ) }>
 							<Button
-								isSmall
+								className="icon-only"
 								onClick={ () => this.setState( { popoverVisibility: ! popoverVisibility } ) }
 							>
 								<MoreVertIcon />
@@ -116,37 +116,37 @@ class PopupActionCard extends Component {
 						</Tooltip>
 						{ popoverVisibility && (
 							<Popover
-								position="bottom right"
+								position="bottom left"
 								className="components-autocomplete__popover"
 								onFocusOutside={ event => this.setState( { popoverVisibility: false } ) }
 							>
-								<Panel>
-									<PanelBody>
-										<PanelRow className="newspack-engagement__popups-action-card__panel-row first">
-											<ToggleControl
-												label={ __( 'Sitewide Defaults' ) }
-												checked={ sitewideDefault }
-												onChange={ value =>
-													this.setState( { popoverVisibility: false }, () =>
-														setSiteWideDefaultPopup( id )
-													)
-												}
-											/>
-										</PanelRow>
-										<PanelRow className="newspack-engagement__popups-action-card__panel-row">
-											<Button isSmall href={ decodeEntities( editLink ) }>
-												<EditIcon />
-												{ __( 'Edit', 'newspack' ) }
-											</Button>
-										</PanelRow>
-										<PanelRow className="newspack-engagement__popups-action-card__panel-row">
-											<Button isSmall onClick={ () => deletePopup( id ) }>
-												<DeleteIcon />
-												{ __( 'Delete', 'newspack' ) }
-											</Button>
-										</PanelRow>
-									</PanelBody>
-								</Panel>
+								<MenuGroup className="newspack-menu-group__sitewide">
+									<ToggleControl
+										label={ __( 'Sitewide default' ) }
+										checked={ sitewideDefault }
+										onChange={ value =>
+											this.setState( { popoverVisibility: false }, () =>
+												setSiteWideDefaultPopup( id )
+											)
+										}
+									/>
+								</MenuGroup>
+								<MenuGroup>
+									<MenuItem
+										href={ decodeEntities( editLink ) }
+										icon={ <EditIcon /> }
+										className="newspack-button"
+									>
+										{ __( 'Edit', 'newspack' ) }
+									</MenuItem>
+									<MenuItem
+										onClick={ () => deletePopup( id ) }
+										icon={ <DeleteIcon /> }
+										className="newspack-button"
+									>
+										{ __( 'Delete', 'newspack' ) }
+									</MenuItem>
+								</MenuGroup>
 							</Popover>
 						) }
 					</Fragment>
@@ -156,7 +156,7 @@ class PopupActionCard extends Component {
 					<CategoryAutocomplete
 						value={ categories || [] }
 						onChange={ tokens => setCategoriesForPopup( id, tokens ) }
-						label={ __( 'Category Filtering', 'newspack ' ) }
+						label={ __( 'Category filtering', 'newspack ' ) }
 						disabled={ sitewideDefault }
 					/>
 				) }
