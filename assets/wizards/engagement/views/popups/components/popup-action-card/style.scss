@@ -2,24 +2,32 @@
  * Popup Action Card styles
  */
 
-.newspack-engagement__popups-action-card .newspack-action-card__region-right {
-	align-self: start;
+@import '~@wordpress/base-styles/colors';
+
+.newspack-menu-group__sitewide {
+	> div {
+		padding-left: 15px;
+		padding-right: 15px;
+	}
 }
 
-.newspack-action-card__popover {
-	padding: 0;
+.newspack-action-card__container {
+	.components-popover {
+		margin-left: 18px;
 
-}
+		.components-menu-group + .components-menu-group {
+			border-top: 1px solid $light-gray-500;
+		}
 
-.newspack-engagement__popups-action-card__panel-row {
-	display: block;
-	svg {
-		margin-right: 10px;
-	}
-	.newspack-toggle-control .components-base-control__field label {
-		margin-left: 10px;
-	}
-	&.first {
-		margin-bottom: 1px solid gray;
+		.newspack-toggle-control {
+			.components-base-control__field .components-form-toggle {
+				margin-right: 8px;
+			}
+		}
+
+		.newspack-button {
+			border-radius: 0;
+			font-weight: normal;
+		}
 	}
 }
