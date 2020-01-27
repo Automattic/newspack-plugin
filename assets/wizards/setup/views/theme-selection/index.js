@@ -33,40 +33,42 @@ class ThemeSelection extends Component {
 				<StyleCard
 					cardTitle={ __( 'Default', 'newspack-plugin' ) }
 					image={ DefaultImg }
-					url="//newspack.blog"
+					url="//newspack.newspackstaging.com"
 					isActive={ theme === 'newspack-theme' }
 					onClick={ () => updateTheme( 'newspack-theme' ) }
 				/>
 				<StyleCard
 					cardTitle="Scott"
 					image={ ScottImg }
+					url="//scott.newspackstaging.com"
 					isActive={ theme === 'newspack-scott' }
 					onClick={ () => updateTheme( 'newspack-scott' ) }
 				/>
 				<StyleCard
 					cardTitle="Nelson"
 					image={ NelsonImg }
-					url="//elsoberano.org"
+					url="//nelson.newspackstaging.com"
 					isActive={ theme === 'newspack-nelson' }
 					onClick={ () => updateTheme( 'newspack-nelson' ) }
 				/>
 				<StyleCard
 					cardTitle="Katharine"
 					image={ KatharineImg }
-					url="//thelensnola.org"
+					url="//katharine.newspackstaging.com"
 					isActive={ theme === 'newspack-katharine' }
 					onClick={ () => updateTheme( 'newspack-katharine' ) }
 				/>
 				<StyleCard
 					cardTitle="Sacha"
 					image={ SachaImg }
+					url="//sacha.newspackstaging.com"
 					isActive={ theme === 'newspack-sacha' }
 					onClick={ () => updateTheme( 'newspack-sacha' ) }
 				/>
 				<StyleCard
 					cardTitle="Joseph"
 					image={ JosephImg }
-					url="//oklahomawatch.org"
+					url="//joseph.newspackstaging.com"
 					isActive={ theme === 'newspack-joseph' }
 					onClick={ () => updateTheme( 'newspack-joseph' ) }
 				/>
