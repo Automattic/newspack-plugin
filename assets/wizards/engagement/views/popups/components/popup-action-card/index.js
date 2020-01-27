@@ -98,14 +98,16 @@ class PopupActionCard extends Component {
 				description={ this.descriptionForPopup( popup ) }
 				actionText={
 					<Fragment>
-						<Tooltip text={ __( 'Category filtering', 'newspack' ) }>
-							<Button
-								className="icon-only"
-								onClick={ () => this.setState( { categoriesVisibility: ! categoriesVisibility } ) }
-							>
-								<FilterListIcon />
-							</Button>
-						</Tooltip>
+						{ ! sitewideDefault && (
+							<Tooltip text={ __( 'Category filtering', 'newspack' ) }>
+								<Button
+									className="icon-only"
+									onClick={ () => this.setState( { categoriesVisibility: ! categoriesVisibility } ) }
+								>
+									<FilterListIcon />
+								</Button>
+							</Tooltip>
+						) }
 						<Tooltip text={ __( 'More options', 'newspack' ) }>
 							<Button
 								className="icon-only"
