@@ -323,6 +323,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'http://github.com/benhuson/password-protected/',
 				'Download'    => 'wporg',
 			],
+			'mailchimp-for-wp'              => [
+				'Name'        => 'MC4WP: Mailchimp for WordPress',
+				'Description' => 'Mailchimp for WordPress by ibericode. Adds various highly effective sign-up methods to your site.',
+				'Author'      => 'ibericode',
+				'PluginURI'   => 'https://mc4wp.com',
+				'AuthorURI'   => 'https://ibericode.com',
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
