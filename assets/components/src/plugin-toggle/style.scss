@@ -1,12 +1,18 @@
 /**
- * Plugin Installer
+ * Plugin Toggle
  */
 
 @import '~@wordpress/base-styles/colors';
 
-.newspack-action-card.in-flight {
-	opacity: 0.5;
-}
-.newspack-action-card.loading {
-	opacity: 0.2;
+.newspack-action-card {
+	&.in-flight,
+	&.loading {
+		.newspack-action-card__region-right {
+			.newspack-button {
+				color: $dark-gray-300;
+				pointer-events: none;
+				text-decoration: none;
+			}
+		}
+	}
 }
