@@ -52,7 +52,7 @@ class PluginToggle extends Component {
 
 		this.setState(
 			{
-				pluginInfo: { ...pluginInfo, [ plugin ]: { ...pluginInfo[ plugin ], inFlight: true } },
+				pluginInfo: { ...pluginInfo, [ plugin ]: { ...pluginInfo[ plugin ], inFlight: action } },
 			},
 			() => {
 				apiFetch( params ).then( response => {
@@ -127,7 +127,21 @@ class PluginToggle extends Component {
 	actionTextForPlugin = plugin => {
 		const { actionText, editPath, href, inFlight, name } = plugin;
 		// Show spinner when plugin data is unavailable, or when an API call is in flight.
-		if ( inFlight || ! name ) {
+		if ( 'configure' === inFlight ) {
+			return (
+				<Fragment>
+					{ __( 'Installing...', 'newspack' ) } <Waiting isRight />
+				</Fragment>
+			);
+		}
+		if ( 'uninstall' === inFlight ) {
+			return (
+				<Fragment>
+					{ __( 'Uninstalling...', 'newspack' ) } <Waiting isRight />
+				</Fragment>
+			);
+		}
+		if ( ! name ) {
 			return (
 				<Fragment>
 					{ __( 'Loading...', 'newspack' ) } <Waiting isRight />
