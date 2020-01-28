@@ -104,12 +104,12 @@ class ComponentsDemo extends Component {
 						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
 						<PluginToggle
 							plugins={ {
-								laterpay: true,
-								'organic-profile-block': {
-									href: 'wp-admin/admin.php?page=newspack',
-									actionText: __( 'Dashboard' ),
+								'laterpay': true,
+								'organic-profile-block': true,
+								'password-protected': {
+									href: '/wp-admin/options-general.php?page=password-protected',
+									actionText: __( 'Settings' ),
 								},
-								'password-protected': true,
 							} }
 						/>
 					</Card>
