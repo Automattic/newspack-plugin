@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -129,7 +129,11 @@ class PluginToggle extends Component {
 		const { actionText, editpath, href, inFlight, name } = plugin;
 		// Show spinner when plugin data is unavailable, or when an API call is in flight.
 		if ( inFlight || ! name ) {
-			return <Waiting />;
+			return (
+				<Fragment>
+					{ __( 'Loading', 'newspack' ) } <Waiting isRight />
+				</Fragment>
+			);
 		}
 		// No action button at all if the plugin isn't installed and active.
 		if ( ! this.statusForPlugin( plugin ) ) {
