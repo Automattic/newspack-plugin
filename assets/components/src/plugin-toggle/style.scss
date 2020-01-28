@@ -7,6 +7,8 @@
 .newspack-action-card {
 	&.in-flight,
 	&.loading {
+		opacity: 0.5;
+
 		.newspack-action-card__region-right {
 			.newspack-button {
 				color: $dark-gray-300;

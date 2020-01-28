@@ -131,7 +131,7 @@ class PluginToggle extends Component {
 		if ( inFlight || ! name ) {
 			return (
 				<Fragment>
-					{ __( 'Loading', 'newspack' ) } <Waiting isRight />
+					{ __( 'Loading...', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
