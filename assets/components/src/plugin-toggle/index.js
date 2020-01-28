@@ -72,7 +72,7 @@ class PluginToggle extends Component {
 		return this.prepareDataForRender( plugins, pluginInfo ).map( plugin => {
 			const { name, description, href, slug, status, editPath, inFlight } = plugin;
 			const pluginStatus = this.statusForPlugin( plugin );
-			const handoff = pluginStatus && editPath ? slug : null;
+			const handoff = ! href && pluginStatus && editPath ? slug : null;
 			return (
 				<ActionCard
 					className={ this.classNameForPlugin( plugin ) }
