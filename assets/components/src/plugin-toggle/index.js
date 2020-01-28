@@ -70,9 +70,9 @@ class PluginToggle extends Component {
 		const { pluginInfo } = this.state;
 		console.log( pluginInfo );
 		return this.prepareDataForRender( plugins, pluginInfo ).map( plugin => {
-			const { name, description, href, slug, status, editpath, inFlight } = plugin;
+			const { name, description, href, slug, status, editPath, inFlight } = plugin;
 			const pluginStatus = this.statusForPlugin( plugin );
-			const handoff = pluginStatus && editpath ? slug : null;
+			const handoff = pluginStatus && editPath ? slug : null;
 			return (
 				<ActionCard
 					className={ this.classNameForPlugin( plugin ) }
@@ -126,7 +126,7 @@ class PluginToggle extends Component {
 	 * Generate the ActionCard action text for a plugin.
 	 */
 	actionTextForPlugin = plugin => {
-		const { actionText, editpath, href, inFlight, name } = plugin;
+		const { actionText, editPath, href, inFlight, name } = plugin;
 		// Show spinner when plugin data is unavailable, or when an API call is in flight.
 		if ( inFlight || ! name ) {
 			return (
@@ -139,7 +139,7 @@ class PluginToggle extends Component {
 		if ( ! this.statusForPlugin( plugin ) ) {
 			return null;
 		}
-		if ( href || editpath ) {
+		if ( href || editPath ) {
 			return actionText ? actionText : __( 'Configure', 'newspack' );
 		}
 	};
