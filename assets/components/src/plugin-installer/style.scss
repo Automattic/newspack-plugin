@@ -38,6 +38,10 @@
 		&.newspack-plugin-installer__status-error {
 			border-left-color: $alert-red;
 		}
+
+		&.newspack-plugin-installer__status-installing {
+			opacity: 0.5;
+		}
 	}
 }
 
