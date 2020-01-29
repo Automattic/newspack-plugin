@@ -322,6 +322,7 @@ class Plugin_Manager {
 				'PluginURI'   => 'http://github.com/benhuson/password-protected/',
 				'AuthorURI'   => 'http://github.com/benhuson/password-protected/',
 				'Download'    => 'wporg',
+				'EditPath'    => 'options-general.php?page=password-protected',
 			],
 			'mailchimp-for-wp'              => [
 				'Name'        => 'MC4WP: Mailchimp for WordPress',
