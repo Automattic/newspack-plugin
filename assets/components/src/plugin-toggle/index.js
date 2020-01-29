@@ -43,7 +43,7 @@ class PluginToggle extends Component {
 	 * Install/activate or remove a plugin.
 	 */
 	managePlugin = ( plugin, value ) => {
-		const { shouldRefreshAfterUpdate } = this.props;
+		const { plugins } = this.props;
 		const { pluginInfo } = this.state;
 		const action = value ? 'configure' : 'uninstall';
 		const params = {
@@ -57,6 +57,7 @@ class PluginToggle extends Component {
 			},
 			() => {
 				apiFetch( params ).then( response => {
+					const { shouldRefreshAfterUpdate } = plugins[ plugin ];
 					this.setState( { pluginInfo: { ...pluginInfo, [ plugin ]: response } }, () => shouldRefreshAfterUpdate && location.reload() );
 				} );
 			}

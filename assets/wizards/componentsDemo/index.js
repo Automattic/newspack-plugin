@@ -104,10 +104,12 @@ class ComponentsDemo extends Component {
 						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
 						<PluginToggle
 							plugins={ {
-								'laterpay': true,
-								'organic-profile-block': true,
-								'password-protected': {
-									actionText: __( 'Settings' ),
+								woocommerce: {
+									shouldRefreshAfterUpdate: true,
+								},
+								'fb-instant-articles': {
+									actionText: __( 'Configure Instant Articles' ),
+									href: '/wp-admin/admin.php?page=newspack',
 								},
 							} }
 						/>
