@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { StyleCard, StyleCardGroup, withWizardScreen } from '../../../../components/src';
-import DefaultImg from './images/default.png';
+import NewspackImg from './images/newspack.png';
 import ScottImg from './images/scott.png';
 import NelsonImg from './images/nelson.png';
 import KatharineImg from './images/katharine.png';
@@ -31,8 +31,8 @@ class ThemeSelection extends Component {
 		return (
 			<StyleCardGroup>
 				<StyleCard
-					cardTitle={ __( 'Default', 'newspack-plugin' ) }
-					image={ DefaultImg }
+					cardTitle="Newspack"
+					image={ NewspackImg }
 					url="//newspack.newspackstaging.com"
 					isActive={ theme === 'newspack-theme' }
 					onClick={ () => updateTheme( 'newspack-theme' ) }
