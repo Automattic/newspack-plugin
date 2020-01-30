@@ -30,14 +30,6 @@
     }
   }
 
-  // Web Preview
-  body.newspack-web-preview__open & {
-    .newspack-style-card__actions {
-      background: transparent;
-      opacity: 1;
-    }
-  }
-
   // Active
   &.newspack-style-card__is-active {
     border-color: $primary-600;
