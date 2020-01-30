@@ -35,7 +35,7 @@ class Starter_Content {
 		if ( ! function_exists( 'wp_insert_post' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
-		$page_templates = [ '', 'single-feature.php', 'single-wide.php' ];
+		$page_templates = [ '', 'single-feature.php' ];
 		$paragraphs     = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
 		$title          = self::generate_title();
 		$post_data      = [
