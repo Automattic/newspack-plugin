@@ -32,7 +32,7 @@ class StyleCard extends Component {
 			className
 		);
 		return (
-			<div className={ classes } tabindex="0">
+			<div className={ classes } tabIndex="0">
 				<div className="newspack-style-card__image">
 				{ image && <img src={ image } /> }
 					<div className="newspack-style-card__actions">
