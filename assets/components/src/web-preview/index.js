@@ -49,15 +49,6 @@ class WebPreview extends Component {
 	}
 
 	/**
-	 * Cleanup
-	 */
-	componentWillUnmount() {
-		if ( this.modalDOMElement ) {
-			document.body.removeChild( this.modalDOMElement );
-		}
-	}
-
-	/**
 	 * Add or remove applicable body classes
 	 */
 	componentDidUpdate() {

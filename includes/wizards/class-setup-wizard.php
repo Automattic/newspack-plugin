@@ -85,6 +85,24 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'/theme',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_retrieve_theme' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/theme/(?P<theme>[\a-z]+)',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_theme' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'/starter-content/categories',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -169,6 +187,26 @@ class Setup_Wizard extends Wizard {
 	public function api_starter_content_homepage() {
 		$status = Starter_Content::create_homepage();
 		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Get current theme
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_retrieve_theme() {
+		return rest_ensure_response( [ 'theme' => Starter_Content::get_theme() ] );
+	}
+
+	/**
+	 * Update theme
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_update_theme( $request ) {
+		$theme = $request['theme'];
+		return rest_ensure_response( [ 'theme' => Starter_Content::set_theme( $theme ) ] );
 	}
 
 	/**

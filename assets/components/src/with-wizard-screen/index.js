@@ -33,6 +33,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 				subHeaderText,
 				noBackground,
 				noCard,
+				isWide,
 				tabbedNavigation,
 				secondaryNavigation,
 				footer,
@@ -68,7 +69,7 @@ export default function withWizardScreen( WrappedComponent, config ) {
 					) }
 					{ !! noCard && content }
 					{ ! noCard && (
-						<Grid>
+						<Grid isWide={ isWide }>
 							<Card className={ classes } noBackground={ noBackground }>
 								{ content }
 								{ ! hidden && (
