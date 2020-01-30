@@ -66,12 +66,13 @@ class PluginToggle extends Component {
 	render() {
 		const { plugins } = this.props;
 		const { pluginInfo } = this.state;
-		return this.prepareDataForRender( plugins, pluginInfo ).map( plugin => {
+		return this.prepareDataForRender( plugins, pluginInfo ).map( ( plugin, index ) => {
 			const { name, description, href, slug, status, editPath, inFlight } = plugin;
 			const pluginStatus = this.isPluginInstalledAndActive( plugin );
 			const handoff = ! href && pluginStatus && editPath ? slug : null;
 			return (
 				<ActionCard
+					key={ index }
 					className={ this.classNameForPlugin( plugin ) }
 					title={ name }
 					description={ description }
