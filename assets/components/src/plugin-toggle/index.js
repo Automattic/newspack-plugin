@@ -41,7 +41,7 @@ class PluginToggle extends Component {
 	managePlugin = ( plugin, value ) => {
 		const { plugins } = this.props;
 		const { pluginInfo } = this.state;
-		const action = value ? 'configure' : 'uninstall';
+		const action = value ? 'configure' : 'deactivate';
 		const params = {
 			path: `/newspack/v1/plugins/${ plugin }/${ action }/`,
 			method: 'post',
@@ -133,10 +133,10 @@ class PluginToggle extends Component {
 				</Fragment>
 			);
 		}
-		if ( 'uninstall' === inFlight ) {
+		if ( 'deactivate' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Uninstalling...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Deactivating...', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
