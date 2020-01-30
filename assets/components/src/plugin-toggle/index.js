@@ -68,7 +68,7 @@ class PluginToggle extends Component {
 		const { pluginInfo } = this.state;
 		return this.prepareDataForRender( plugins, pluginInfo ).map( plugin => {
 			const { name, description, href, slug, status, editPath, inFlight } = plugin;
-			const pluginStatus = this.statusForPlugin( plugin );
+			const pluginStatus = this.isPluginInstalledAndActive( plugin );
 			const handoff = ! href && pluginStatus && editPath ? slug : null;
 			return (
 				<ActionCard
@@ -79,7 +79,7 @@ class PluginToggle extends Component {
 					handoff={ handoff }
 					href={ href }
 					toggle
-					toggleChecked={ this.statusForPlugin( plugin ) }
+					toggleChecked={ this.isPluginInstalledAndActive( plugin ) }
 					toggleOnChange={ value => this.managePlugin( slug, value ) }
 				/>
 			);
@@ -147,7 +147,7 @@ class PluginToggle extends Component {
 			);
 		}
 		// No action button at all if the plugin isn't installed and active.
-		if ( ! this.statusForPlugin( plugin ) ) {
+		if ( ! this.isPluginInstalledAndActive( plugin ) ) {
 			return null;
 		}
 		if ( href || editPath ) {
@@ -156,9 +156,9 @@ class PluginToggle extends Component {
 	};
 
 	/**
-	 * Get installation/activation state for a plugin.
+	 * Get installation/activation status for a plugin.
 	 */
-	statusForPlugin = plugin => {
+	isPluginInstalledAndActive = plugin => {
 		const { status } = plugin;
 		return status === 'active';
 	};
