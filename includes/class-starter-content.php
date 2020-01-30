@@ -36,9 +36,9 @@ class Starter_Content {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
 		$page_templates = [ '', 'single-feature.php', 'single-wide.php' ];
-		$paragraphs = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
-		$title      = self::get_lipsum( 'words', wp_rand( 4, 7 ) );
-		$post_data  = [
+		$paragraphs     = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
+		$title          = self::get_lipsum( 'words', wp_rand( 4, 7 ) );
+		$post_data      = [
 			'post_title'    => $title,
 			'post_name'     => sanitize_title_with_dashes( $title, '', 'save' ),
 			'post_status'   => 'publish',
