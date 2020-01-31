@@ -28,6 +28,7 @@ import {
 	Notice,
 	TextControl,
 	PluginInstaller,
+	PluginToggle,
 	ProgressBar,
 	Checklist,
 	Task,
@@ -99,6 +100,20 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>
 				<Grid>
+					<Card>
+						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
+						<PluginToggle
+							plugins={ {
+								woocommerce: {
+									shouldRefreshAfterUpdate: true,
+								},
+								'fb-instant-articles': {
+									actionText: __( 'Configure Instant Articles' ),
+									href: '/wp-admin/admin.php?page=newspack',
+								},
+							} }
+						/>
+					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Web Previews' ) } />
 						<Card noBackground className="newspack-card__buttons-card">
