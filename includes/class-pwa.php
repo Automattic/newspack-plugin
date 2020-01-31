@@ -155,14 +155,17 @@ class PWA {
 			$raw_uri = '';
 		}
 		$path = null;
-		switch ( $raw_uri ) {
-			case '/helper-iframe.html':
-				$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-helper-frame.html';
-				break;
-			case '/permission-dialog.html':
-				$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-permission-dialog.html';
-				break;
+
+		if (substr($raw_uri, 0, strlen('/helper-iframe.html')) === '/helper-iframe.html') {
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-helper-frame.html';
 		}
+		if (substr($raw_uri, 0, strlen('/permission-dialog.html')) === '/permission-dialog.html') {
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-permission-dialog.html';
+		}
+		if (substr($raw_uri, 0, strlen('/service-worker.js')) === '/service-worker.js') {
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-service-worker.js';
+		}
+
 		if ( $path ) {
 			echo file_get_contents( $path ); // phpcs:ignore
 			exit;
