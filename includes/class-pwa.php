@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class PWA {
 
+	const NEWSPACK_PUSH_NOTIFICATIONS = 'newspack_push_notifications';
+
 	/**
 	 * Add hooks.
 	 */
