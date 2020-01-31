@@ -1,0 +1,161 @@
+
+<!doctype html>
+<html>
+<!-- AMP Web Push Permission Dialog -->
+
+<head>
+	<meta charset="utf-8">
+
+	<!-- Do not edit styles in this section -->
+	<style builtin>
+		/* Do not edit styles in this section. Add custom styles in the next
+			 style section */
+		html, body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		/* Default loading spinner */
+		.spinner,
+		.spinner:after {
+			border-radius: 50%;
+			width: 10em;
+			height: 10em;
+		}
+		.spinner {
+			margin: 60px auto;
+			font-size: 10px;
+			position: relative;
+			text-indent: -9999em;
+			border-top: 1.1em solid rgba(140, 140, 140, 0.2);
+			border-right: 1.1em solid rgba(140, 140, 140, 0.2);
+			border-bottom: 1.1em solid rgba(140, 140, 140, 0.2);
+			border-left: 1.1em solid rgb(140, 140, 140);
+			-webkit-transform: translateZ(0);
+			-ms-transform: translateZ(0);
+			transform: translateZ(0);
+			-webkit-animation: spinner 1.1s infinite linear;
+			animation: spinner 1.1s infinite linear;
+		}
+		@-webkit-keyframes spinner {
+			0% {
+				-webkit-transform: rotate(0deg);
+				transform: rotate(0deg);
+			}
+			100% {
+				-webkit-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+		}
+		@keyframes spinner {
+			0% {
+				-webkit-transform: rotate(0deg);
+				transform: rotate(0deg);
+			}
+			100% {
+				-webkit-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+		}
+
+		/* Horizontally and vertically center items */
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 15px;
+		}
+
+		/* Page message text styles */
+		.message {
+			font-size: 22px;
+			font-family: sans-serif;
+			text-align: center;
+		}
+
+		/* Close icon styles */
+		#close {
+			position: fixed;
+			right: 32px;
+			top: 32px;
+			width: 32px;
+			height: 32px;
+			opacity: 0.5;
+			cursor: pointer;
+		}
+		#close:before, #close:after {
+			position: fixed;
+			right: 48px;
+			content: ' ';
+			height: 33px;
+			width: 3px;
+			background-color: #333;
+		}
+		#close:before {
+			transform: rotate(45deg);
+		}
+		#close:after {
+			transform: rotate(-45deg);
+		}
+
+		/* Used to hide the preload and postload sections */
+		.invisible {
+			display: none;
+		}
+	</style>
+
+	<!-- Optional: Add custom styles here -->
+	<style custom>
+		/* Add custom styles here */
+	</style>
+</head>
+<body>
+	<div id="preload">
+		<!-- Anything in this section will be shown before the main script
+					runs, and will be hidden after -->
+		<div class="spinner"></div>
+	</div>
+	<div id="postload" class="invisible">
+		<span id="close"></span>
+		<div permission="default">
+			<p class="message">
+				<!--
+				Customize the subscribing message here
+						(e.g. "Click Allow to receive notifications")
+				-->
+				Click Allow to receive notifications.
+			</p>
+		</div>
+		<div permission="denied">
+			<!--
+				Customize the unblocking message here
+						(e.g. "Please unblock notifications in your browser settings
+										to receive notifications from this website.")
+				-->
+			<p class="message">
+				Please unblock notifications in your browser settings to receive notifications from this website.
+			</p>
+		</div>
+	</div>
+	<script>(function(){var f;function h(a){for(var b=["object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global,a],d=0;d<b.length;++d){var c=b[d];if(c&&c.Math==Math)return c}return globalThis}var k=h(this);function l(a,b){b=void 0===b?"":b;try{return decodeURIComponent(a)}catch(d){return b}};var m=/(?:^[#?]?|&)([^=&]+)(?:=([^&]*))?/g;self.__AMP_LOG=self.__AMP_LOG||{user:null,dev:null,userForEmbed:null};var n=self.__AMP_LOG;/*
+ https://mths.be/cssescape v1.5.1 by @mathias | MIT license */
+var p=/(\0)|^(-)$|([\x01-\x1f\x7f]|^-?[0-9])|([\x80-\uffff0-9a-zA-Z_-]+)|[^]/g;function t(a,b,d,c,e){return e?e:b?"\ufffd":c?a.slice(0,-1)+"\\"+a.slice(-1).charCodeAt(0).toString(16)+" ":"\\"+a};function u(){var a=100;this.L=a;this.B=this.G=0;this.o=Object.create(null)}u.prototype.has=function(a){return!!this.o[a]};u.prototype.get=function(a){var b=this.o[a];if(b)return b.access=++this.B,b.payload};
+u.prototype.put=function(a,b){this.has(a)||this.G++;this.o[a]={payload:b,access:this.B};if(!(this.G<=this.L)){if(n.dev)a=n.dev;else throw Error("failed to call initLogConstructor");a.warn("lru-cache","Trimming LRU cache");a=this.o;var d=this.B+1,c;for(c in a){var e=a[c].access;if(e<d){d=e;var g=c}}void 0!==g&&(delete a[g],this.G--)}};(function(a){return a||{}})({c:!0,v:!0,a:!0,ad:!0,action:!0});var v,w;
+function x(a){var b;v||(v=self.document.createElement("a"),w=self.__AMP_URL_CACHE||(self.__AMP_URL_CACHE=new u));var d=b?null:w,c=v;if(d&&d.has(a))a=d.get(a);else{c.href=a;c.protocol||(c.href=c.href);var e={href:c.href,protocol:c.protocol,host:c.host,hostname:c.hostname,port:"0"==c.port?"":c.port,pathname:c.pathname,search:c.search,hash:c.hash,origin:null};"/"!==e.pathname[0]&&(e.pathname="/"+e.pathname);if("http:"==e.protocol&&80==e.port||"https:"==e.protocol&&443==e.port)e.port="",e.host=e.hostname;
+e.origin=c.origin&&"null"!=c.origin?c.origin:"data:"!=e.protocol&&e.host?e.protocol+"//"+e.host:e.href;d&&d.put(a,e);a=e}return a};function y(a){a||(a={debug:!1,windowContext:window});this.m={};this.l={};this.I=a.debug;this.w=this.M=this.N=!1;this.A=this.D=this.F=this.j=this.C=null;this.h=a.windowContext||window}f=y.prototype;
+f.listen=function(a){var b=this;return(new Promise(function(d,c){b.w?c(Error("Already connected.")):b.N?c(Error("Already listening for connections.")):Array.isArray(a)?(b.F=b.P.bind(b,a,d,c),b.h.addEventListener("message",b.F)):c(Error("allowedOrigins should be a string array of allowed origins to accept messages from. Got:",a))})).then(function(){b.send(y.Topics.CONNECT_HANDSHAKE,null);b.w=!0})};
+f.P=function(a,b,d,c){var e=c.data,g=c,q=g.ports;a:{g=x(g.origin).origin;for(var r=0;r<a.length;r++)if(x(a[r]).origin===g){a=!0;break a}a=!1}a&&e&&e.topic===y.Topics.CONNECT_HANDSHAKE&&(this.h.removeEventListener("message",this.F),this.j=q[0],this.A=this.J.bind(this),this.j.addEventListener("message",this.A,!1),this.j.start(),b())};
+f.connect=function(a,b){var d=this;return new Promise(function(c,e){a||e(Error("Provide a valid Window context to connect to."));b||e(Error("Provide an expected origin for the remote Window or provide the wildcard *."));d.w?e(Error("Already connected.")):d.M?e(Error("Already connecting.")):(d.C=new MessageChannel,d.j=d.C.port1,d.D=d.O.bind(d,d.j,b,c),d.j.addEventListener("message",d.D),d.j.start(),a.postMessage({topic:y.Topics.CONNECT_HANDSHAKE},"*"===b?"*":x(b).origin,[d.C.port2]))})};
+f.O=function(a,b,d){this.w=!0;a.removeEventListener("message",this.D);this.A=this.J.bind(this);a.addEventListener("message",this.A,!1);d()};f.J=function(a){a=a.data;if(this.m[a.id]&&a.isReply){var b=this.m[a.id];delete this.m[a.id];var d=b.promiseResolver;b.message=a.data;d([a.data,this.K.bind(this,a.id,b.topic)])}else{var c=this.l[a.topic];if(c)for(var e=0;e<c.length;e++)(0,c[e])(a.data,this.K.bind(this,a.id,a.topic))}};f.on=function(a,b){this.l[a]?this.l[a].push(b):this.l[a]=[b]};
+f.off=function(a,b){if(b){var d=this.l[a].indexOf(b);-1!==d&&this.l[a].splice(d,1)}else this.l[a]&&delete this.l[a]};f.K=function(a,b,d){var c=this,e={id:a,topic:b,data:d,isReply:!0};this.j.postMessage(e);return new Promise(function(a){c.m[e.id]={message:d,topic:b,promiseResolver:a}})};f.send=function(a,b){var d=this,c={id:crypto.getRandomValues(new Uint8Array(10)).join(""),topic:a,data:b};this.j.postMessage(c);return new Promise(function(e){d.m[c.id]={message:b,topic:a,promiseResolver:e}})};
+k.Object.defineProperties(y,{Topics:{configurable:!0,enumerable:!0,get:function(){return{CONNECT_HANDSHAKE:"topic-connect-handshake",NOTIFICATION_PERMISSION_STATE:"topic-notification-permission-state",SERVICE_WORKER_STATE:"topic-service-worker-state",SERVICE_WORKER_REGISTRATION:"topic-service-worker-registration",SERVICE_WORKER_QUERY:"topic-service-worker-query",STORAGE_GET:"topic-storage-get"}}}});function z(){var a={debug:!1};this.I=a&&a.debug;this.h=a.windowContext||window;this.H=new y({debug:this.I,windowContext:this.h})}f=z.prototype;f.isCurrentDialogPopup=function(){return!!this.h.opener&&this.h.opener!==this.h};f.requestNotificationPermission=function(){var a=this;return new Promise(function(b,d){try{a.h.Notification.requestPermission(function(a){return b(a)})}catch(c){d(c)}})};
+f.run=function(){A(this);B(this);for(var a=this.h.document.querySelectorAll("[permission]"),b=0;b<a.length;b++)C(a[b],!1);(a=this.h.document.querySelector("[permission="+String(this.h.Notification.permission).replace(p,t)+"]"))&&C(a,!0);a=this.h.document.querySelector("#preload");b=this.h.document.querySelector("#postload");a&&b&&(C(a,!1),C(b,!0));"denied"!==this.h.Notification.permission?D(this):E(this)};
+function A(a){var b=a.h.document.querySelector("#close");b&&b.addEventListener("click",function(){a.closeDialog()})}f.closeDialog=function(){if(this.isCurrentDialogPopup())this.h.close();else{var a=this.h.fakeLocation||this.h.location;var b=a.search,d=Object.create(null);if(b)for(var c;c=m.exec(b);){var e=l(c[1],c[1]);c=c[2]?l(c[2].replace(/\+/g," "),c[2]):"";d[e]=c}var g=d;if(!g["return"])throw Error("Missing required parameter.");var q=l(g["return"],void 0);this.redirectToUrl(q)}};
+function E(a){navigator.permissions.query({name:"notifications"}).then(function(b){b.onchange=function(){B(a);switch(a.h.Notification.permission){case "default":case "granted":D(a)}}})}function B(a){a.h.localStorage.setItem("amp-web-push-notification-permission",a.h.Notification.permission)}function C(a,b){if(a){var d="invisible";b?a.classList.remove(d):a.classList.add(d)}}
+function D(a){a.requestNotificationPermission().then(function(b){B(a);if(a.isCurrentDialogPopup())return a.H.connect(opener,"*"),a.H.send(y.Topics.NOTIFICATION_PERMISSION_STATE,b).then(function(b){(b=b[0])&&b.closeFrame&&a.closeDialog()});a.closeDialog()})}f.redirectToUrl=function(a){var b=x(a);!b||"http:"!==b.protocol&&"https:"!==b.protocol||(this.h.location.href=a)};window._ampWebPushPermissionDialog=new z;window._ampWebPushPermissionDialog.run();})();
+
+//# sourceMappingURL=amp-web-push-permission-dialog.js.map
+</script>
+</body>
+</html>

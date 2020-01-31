@@ -25,6 +25,7 @@ class PWA {
 		add_action( 'wp_front_service_worker', [ __CLASS__, 'register_caching_routes' ] );
 		add_filter( 'wp_service_worker_navigation_caching_strategy', [ __CLASS__, 'caching_strategy' ] );
 		add_filter( 'wp_service_worker_navigation_caching_strategy_args', [ __CLASS__, 'caching_strategy_args' ] );
+		add_action( 'init', [ __CLASS__, 'render_push_notification_urls' ] );
 	}
 
 	/**
@@ -136,6 +137,35 @@ class PWA {
 		$args['cacheName']                           = 'pages';
 		$args['plugins']['expiration']['maxEntries'] = 50;
 		return $args;
+	}
+
+	/**
+	 * Render Push Notification required HTML files.
+	 */
+	public static function render_push_notification_urls() {
+		if ( ! get_option( self::NEWSPACK_PUSH_NOTIFICATIONS, false ) ) {
+			return;
+		}
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: Input var okay.
+			$raw_uri = sanitize_text_field(
+				wp_unslash( $_SERVER['REQUEST_URI'] ) // WPCS: Input var okay.
+			);
+		} else {
+			$raw_uri = '';
+		}
+		$path = null;
+		switch ( $raw_uri ) {
+			case '/helper-iframe.html':
+				$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-helper-frame.html';
+				break;
+			case '/permission-dialog.html':
+				$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-permission-dialog.html';
+				break;
+		}
+		if ( $path ) {
+			echo file_get_contents( $path ); // phpcs:ignore
+			exit;
+		}
 	}
 }
 PWA::init();
