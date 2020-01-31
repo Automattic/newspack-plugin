@@ -26,6 +26,7 @@ class PWA {
 		add_filter( 'wp_service_worker_navigation_caching_strategy', [ __CLASS__, 'caching_strategy' ] );
 		add_filter( 'wp_service_worker_navigation_caching_strategy_args', [ __CLASS__, 'caching_strategy_args' ] );
 		add_action( 'init', [ __CLASS__, 'render_push_notification_urls' ] );
+		add_filter( 'the_content', [ __CLASS__, 'push_notifications' ] );
 	}
 
 	/**
@@ -166,6 +167,45 @@ class PWA {
 			echo file_get_contents( $path ); // phpcs:ignore
 			exit;
 		}
+	}
+
+	/**
+	 * Insert Push Notifications component
+	 *
+	 * @param string $content The content of the post.
+	 * @return string The content with popup inserted.
+	 */
+	public static function push_notifications( $content = '' ) {
+		if ( get_option( self::NEWSPACK_PUSH_NOTIFICATIONS, false ) ) {
+			$base = get_site_url();
+			ob_start();
+			?>
+			<amp-web-push
+				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html"
+				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html"
+				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js"
+				></amp-web-push>
+			<amp-web-push-widget
+				visibility="unsubscribed"
+				layout="fixed"
+				width="250"
+				height="80"
+				>
+				<button on="tap:amp-web-push.subscribe">Subscribe to Notifications</button>
+			</amp-web-push-widget>
+			<!-- An unsubscription widget -->
+			<amp-web-push-widget
+				visibility="subscribed"
+				layout="fixed"
+				width="250"
+				height="80"
+			>
+				<button on="tap:amp-web-push.unsubscribe">Unsubscribe from Notifications</button>
+			</amp-web-push-widget>
+			<?php
+			$content = ob_get_clean() . $content;
+		}
+		return $content;
 	}
 }
 PWA::init();
