@@ -164,6 +164,7 @@ class PWA {
 		}
 		if (substr($raw_uri, 0, strlen('/service-worker.js')) === '/service-worker.js') {
 			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-service-worker.js';
+			header('content-type: application/javascript');
 		}
 
 		if ( $path ) {
@@ -181,14 +182,16 @@ class PWA {
 	public static function push_notifications( $content = '' ) {
 		if ( get_option( self::NEWSPACK_PUSH_NOTIFICATIONS, false ) ) {
 			$base = get_site_url();
+			// https://documentation.onesignal.com/docs/amp-web-push-setup
+			$one_signal_api_key = '0ec74c8d-66a9-4b2d-84e9-bc431147e721';
 			ob_start();
 			?>
 			<amp-web-push
 				id="amp-web-push"
 				layout="nodisplay"
-				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html"
-				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html"
-				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js"
+				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html?appId=<?php echo $one_signal_api_key ?>"
+				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html?appId=<?php echo $one_signal_api_key ?>"
+				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js?appId=<?php echo $one_signal_api_key ?>"
 				></amp-web-push>
 			<amp-web-push-widget
 				visibility="unsubscribed"
