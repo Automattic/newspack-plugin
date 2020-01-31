@@ -18,8 +18,6 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  */
 class Engagement_Wizard extends Wizard {
 
-	const NEWSPACK_PUSH_NOTIFICATIONS = 'newspack_push_notifications';
-
 	/**
 	 * The slug of this wizard.
 	 *
@@ -167,7 +165,7 @@ class Engagement_Wizard extends Wizard {
 		$jetpack_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$push_notification_enabled             = get_option( self::NEWSPACK_PUSH_NOTIFICATIONS, false );
+		$push_notification_enabled             = get_option( PWA::NEWSPACK_PUSH_NOTIFICATIONS, false );
 
 		$response = array(
 			'connected'                 => false,
@@ -278,7 +276,7 @@ class Engagement_Wizard extends Wizard {
 	 */
 	public function api_update_push_notification_enabled( $request ) {
 		$push_notification_enabled = $request['push_notification_enabled'];
-		update_option( self::NEWSPACK_PUSH_NOTIFICATIONS, $push_notification_enabled ? true : false );
+		update_option( PWA::NEWSPACK_PUSH_NOTIFICATIONS, $push_notification_enabled ? true : false );
 		return $this->api_get_engagement_settings();
 	}
 
