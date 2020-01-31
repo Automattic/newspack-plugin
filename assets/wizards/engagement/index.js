@@ -26,6 +26,7 @@ import {
 	CommentingCoral,
 	Newsletters,
 	Popups,
+	PushNotifications,
 	Social,
 	UGC,
 } from './views';
@@ -91,6 +92,30 @@ class EngagementWizard extends Component {
 	};
 
 	/**
+	 * Set push notification settings.
+	 *
+	 * @param boolean pushNotificationEnabled
+	 */
+	setPushNotificationEnabled = pushNotificationEnabled => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/push-notifications/',
+			method: 'POST',
+			data: {
+				push_notification_enabled: pushNotificationEnabled,
+			},
+		} )
+			.then( info => {
+				this.setState( {
+					...this.sanitizeData( info ),
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
 	 * Set categories for a Popup.
 	 *
 	 * @param int popupId ID of the Popup to alter.
@@ -124,7 +149,14 @@ class EngagementWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { apiKey, connected, connectURL, popups, wcConnected } = this.state;
+		const {
+			apiKey,
+			connected,
+			connectURL,
+			popups,
+			push_notification_enabled: pushNotificationsEnabled,
+			wcConnected,
+		} = this.state;
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters' ),
@@ -139,6 +171,11 @@ class EngagementWizard extends Component {
 			{
 				label: __( 'Pop-ups' ),
 				path: '/popups',
+				exact: true,
+			},
+			{
+				label: __( 'Push' ),
+				path: '/push-notifications',
 				exact: true,
 			},
 			{
@@ -223,6 +260,23 @@ class EngagementWizard extends Component {
 								);
 							} }
 						/>
+						<Route
+							path="/push-notifications"
+							exact
+							render={ routeProps => {
+								return (
+									<PushNotifications
+										headerIcon={ <HeaderIcon /> }
+										headerText={ __( 'Engagement', 'newspack' ) }
+										subHeaderText={ subheader }
+										tabbedNavigation={ tabbed_navigation }
+										pushNotificationsEnabled={ pushNotificationsEnabled }
+										setPushNotificationEnabled={ value => this.setPushNotificationEnabled( value ) }
+									/>
+								);
+							} }
+						/>
+
 						<Route
 							path="/commenting"
 							exact
