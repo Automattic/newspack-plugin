@@ -181,6 +181,7 @@ class PWA {
 			ob_start();
 			?>
 			<amp-web-push
+				id="amp-web-push"
 				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html"
 				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html"
 				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js"
