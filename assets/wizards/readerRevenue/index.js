@@ -11,7 +11,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
+import GroupIcon from '@material-ui/icons/Group';
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
+import LoyaltyIcon from '@material-ui/icons/Loyalty';
 
 /**
  * Internal dependencies.
@@ -132,25 +134,17 @@ class ReaderRevenueWizard extends Component {
 		} = data;
 		const tabbedNavigation = [
 			{
-				label: __( 'Welcome' ),
+				label: __( 'Monetization Services' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Address' ),
-				path: '/location-setup',
-			},
-			{
-				label: __( 'Stripe' ),
+				label: __( 'Payment Gateways' ),
 				path: '/stripe-setup',
 			},
 			{
-				label: __( 'Donations' ),
-				path: '/donations',
-			},
-			{
-				label: __( 'Memberships' ),
-				path: '/configure-landing-page',
+				label: __( 'Address' ),
+				path: '/location-setup',
 			},
 		];
 		const isConfigured = !! donationData.created;
@@ -165,11 +159,30 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<RevenueMain
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Accept donations on your site' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									buttonText={ ! isConfigured && __( 'Get Started' ) }
 									buttonAction="#location-setup"
+								/>
+							) }
+						/>
+						<Route
+							path="/stripe-setup"
+							render={ routeProps => (
+								<StripeSetup
+									data={ stripeData }
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Reader revenue' ) }
+									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
+									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
+									buttonAction={ () =>
+										this.update( 'stripe', stripeData ).then(
+											data => ! isConfigured && routeProps.history.push( 'donations' )
+										)
+									}
+									tabbedNavigation={ isConfigured && tabbedNavigation }
+									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
 								/>
 							) }
 						/>
@@ -181,39 +194,16 @@ class ReaderRevenueWizard extends Component {
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up address' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
-											() => ! isConfigured && routeProps.history.push( 'stripe-setup' )
+											data => ! isConfigured && routeProps.history.push( 'stripe-setup' )
 										)
 									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ _locationData =>
-										this.setState( { data: { ...data, locationData: _locationData } } )
-									}
-								/>
-							) }
-						/>
-						<Route
-							path="/stripe-setup"
-							render={ routeProps => (
-								<StripeSetup
-									data={ stripeData }
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up Stripe' ) }
-									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
-									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
-									buttonAction={ () =>
-										this.update( 'stripe', stripeData ).then(
-											() => ! isConfigured && routeProps.history.push( 'donations' )
-										)
-									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ _stripeData =>
-										this.setState( { data: { ...data, stripeData: _stripeData } } )
-									}
+									onChange={ locationData => this.setState( { data: { ...data, locationData } } ) }
 								/>
 							) }
 						/>
@@ -222,7 +212,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <HeaderIcon /> }
+									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
 									buttonText={ __( 'Save Settings' ) }
@@ -242,7 +232,7 @@ class ReaderRevenueWizard extends Component {
 							path="/configure-landing-page"
 							render={ () => (
 								<ConfigureLandingPage
-									headerIcon={ <HeaderIcon /> }
+									headerIcon={ <GroupIcon /> }
 									headerText={ __( 'Set up memberships' ) }
 									subHeaderText={ __( 'Configure your memberships landing page.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
