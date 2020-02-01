@@ -82,6 +82,23 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'engagement',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'push_notification_enabled' => [
+						'sanitize_callback' => 'absint',
+					],
+					'one_signal_api_key'        => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'popup/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
@@ -139,20 +156,6 @@ class Engagement_Wizard extends Wizard {
 				],
 			]
 		);
-		register_rest_route(
-			'newspack/v1/wizard/' . $this->slug,
-			'push-notifications/',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_push_notification_enabled' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'push_notification_enabled' => [
-						'sanitize_callback' => 'absint',
-					],
-				],
-			]
-		);
 	}
 
 	/**
@@ -165,14 +168,14 @@ class Engagement_Wizard extends Wizard {
 		$jetpack_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$push_notification_enabled             = get_option( PWA::NEWSPACK_PUSH_NOTIFICATIONS, false );
 
 		$response = array(
 			'connected'                 => false,
 			'connectURL'                => null,
 			'wcConnected'               => false,
 			'popups'                    => array(),
-			'push_notification_enabled' => $push_notification_enabled,
+			'push_notification_enabled' => get_option( PWA::NEWSPACK_PUSH_NOTIFICATION_ENABLED, false ),
+			'one_signal_api_key'        => get_option( PWA::NEWSPACK_ONESIGNAL_API_KEY, '' ),
 		);
 
 		$jetpack_status = $jetpack_configuration_manager->get_mailchimp_connection_status();
@@ -269,14 +272,20 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
-	 * Update push notification settings.
+	 * Update settings.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with the info.
 	 */
-	public function api_update_push_notification_enabled( $request ) {
-		$push_notification_enabled = $request['push_notification_enabled'];
-		update_option( PWA::NEWSPACK_PUSH_NOTIFICATIONS, $push_notification_enabled ? true : false );
+	public function api_update_settings( $request ) {
+		update_option(
+			PWA::NEWSPACK_PUSH_NOTIFICATION_ENABLED,
+			$request['push_notification_enabled'] ? true : false
+		);
+		update_option(
+			PWA::NEWSPACK_ONESIGNAL_API_KEY,
+			$request['one_signal_api_key']
+		);
 		return $this->api_get_engagement_settings();
 	}
 

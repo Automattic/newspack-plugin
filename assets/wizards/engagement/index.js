@@ -90,18 +90,16 @@ class EngagementWizard extends Component {
 	};
 
 	/**
-	 * Set push notification settings.
+	 * Update settings.
 	 *
-	 * @param boolean pushNotificationEnabled
+	 * @param object Settings
 	 */
-	setPushNotificationEnabled = pushNotificationEnabled => {
+	updateSettings = () => {
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/push-notifications/',
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/engagement/',
 			method: 'POST',
-			data: {
-				push_notification_enabled: pushNotificationEnabled,
-			},
+			data: this.state,
 		} )
 			.then( info => {
 				this.setState( {
@@ -168,14 +166,7 @@ class EngagementWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const {
-			apiKey,
-			connected,
-			connectURL,
-			popups,
-			push_notification_enabled: pushNotificationsEnabled,
-			wcConnected,
-		} = this.state;
+		const { apiKey, connected, connectURL, popups, wcConnected } = this.state;
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters' ),
@@ -280,14 +271,19 @@ class EngagementWizard extends Component {
 							path="/push-notifications"
 							exact
 							render={ routeProps => {
+								const { push_notification_enabled: pushNotificationEnabled } = this.state;
 								return (
 									<PushNotifications
 										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
-										pushNotificationsEnabled={ pushNotificationsEnabled }
-										setPushNotificationEnabled={ value => this.setPushNotificationEnabled( value ) }
+										data={ this.state }
+										buttonText={ pushNotificationEnabled && __( 'Update', 'newspack' ) }
+										buttonAction={ data => this.setState( data, () => this.updateSettings() ) }
+										onChange={ ( data, update ) =>
+											this.setState( data, () => update && this.updateSettings() )
+										}
 									/>
 								);
 							} }
