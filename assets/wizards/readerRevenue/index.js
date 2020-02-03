@@ -221,10 +221,9 @@ class ReaderRevenueWizard extends Component {
 											() => ! isConfigured && routeProps.history.push( '/configure-landing-page' )
 										)
 									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ _donationData =>
-										this.setState( { data: { ...data, donationData: _donationData } } )
-									}
+									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
+									buttonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									buttonAction='#'
 								/>
 							) }
 						/>
@@ -235,8 +234,9 @@ class ReaderRevenueWizard extends Component {
 									headerIcon={ <GroupIcon /> }
 									headerText={ __( 'Set up memberships' ) }
 									subHeaderText={ __( 'Configure your memberships landing page.' ) }
-									tabbedNavigation={ isConfigured && tabbedNavigation }
 									donationPage={ donationPage }
+									buttonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									buttonAction='#'
 								/>
 							) }
 						/>
