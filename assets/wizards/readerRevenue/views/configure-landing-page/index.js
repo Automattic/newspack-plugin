@@ -40,16 +40,14 @@ class ConfigureLandingPage extends Component {
 								noticeText={ __( 'Your memberships landing page is set up and published.' ) }
 							/>
 						) }
-						<div className="newspack-buttons-card">
-							<Handoff
-								plugin="woocommerce"
-								editLink={ donationPage.editUrl }
-								isPrimary
-								showOnBlockEditor
-							>
-								{ __( 'Edit Memberships Page' ) }
-							</Handoff>
-						</div>
+						<Handoff
+							plugin="woocommerce"
+							editLink={ donationPage.editUrl }
+							isPrimary
+							showOnBlockEditor
+						>
+							{ __( 'Edit Memberships Page' ) }
+						</Handoff>
 					</Fragment>
 				) }
 			</Fragment>
