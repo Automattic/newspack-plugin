@@ -222,8 +222,8 @@ class ReaderRevenueWizard extends Component {
 										)
 									}
 									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
-									buttonText={ __( 'Back to Monetization Services', 'newspack' ) }
-									buttonAction='#'
+									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									secondaryButtonAction='#'
 								/>
 							) }
 						/>
@@ -235,8 +235,8 @@ class ReaderRevenueWizard extends Component {
 									headerText={ __( 'Set up memberships' ) }
 									subHeaderText={ __( 'Configure your memberships landing page.' ) }
 									donationPage={ donationPage }
-									buttonText={ __( 'Back to Monetization Services', 'newspack' ) }
-									buttonAction='#'
+									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									secondaryButtonAction='#'
 								/>
 							) }
 						/>
