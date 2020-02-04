@@ -128,7 +128,7 @@ class PopupActionCard extends Component {
 										checked={ sitewideDefault }
 										onChange={ value =>
 											this.setState( { popoverVisibility: false }, () =>
-												setSiteWideDefaultPopup( id )
+												setSiteWideDefaultPopup( id, value )
 											)
 										}
 									/>

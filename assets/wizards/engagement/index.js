@@ -74,11 +74,11 @@ class EngagementWizard extends Component {
 	 *
 	 * @param int popupId ID of the Popup to become sitewide default.
 	 */
-	setSiteWideDefaultPopup = popupId => {
+	setSiteWideDefaultPopup = ( popupId, state ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/sitewide-popup/' + popupId,
-			method: 'POST',
+			method: state ? 'POST' : 'DELETE',
 		} )
 			.then( info => {
 				this.setState( {

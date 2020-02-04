@@ -110,6 +110,20 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'sitewide-popup/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_unset_sitewide_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'popup-categories/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -192,6 +206,25 @@ class Engagement_Wizard extends Wizard {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
 		$response = $newspack_popups_configuration_manager->set_sitewide_popup( $sitewide_default );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_engagement_settings();
+	}
+
+	/**
+	 * Unset the sitewide default Popup
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_unset_sitewide_popup( $request ) {
+		$sitewide_default = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->unset_sitewide_popup( $sitewide_default );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
