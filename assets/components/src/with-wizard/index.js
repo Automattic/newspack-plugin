@@ -27,10 +27,6 @@ import Router from '../proxied-imports/router';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
-/**
- * External dependencies
- */
-import { isFunction } from 'lodash';
 const { Redirect, Route } = Router;
 
 /**

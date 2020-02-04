@@ -21,7 +21,7 @@ class StyleCardGroup extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { className, ...otherProps } = this.props;
 		const classes = classnames( 'newspack-style-card-group', className );
 		return <div className={ classes } role="group" { ...otherProps } />;

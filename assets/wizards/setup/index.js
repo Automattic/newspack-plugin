@@ -30,16 +30,11 @@ import {
 	ThemeSelection,
 	StarterContent,
 } from './views/';
-import { Card, withWizard, WizardPagination } from '../../components/src';
+import { withWizard, WizardPagination } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
 
-/**
- * External dependencies.
- */
-import { pickBy, includes, forEach } from 'lodash';
-
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Redirect, Route } = Router;
 
 const REQUIRED_PLUGINS = [
 	'jetpack',
@@ -192,8 +187,7 @@ class SetupWizard extends Component {
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( params )
 				.then( response => {
-					const { theme } = response;
-					this.setState( { theme }, () => resolve( response ) );
+					this.setState( { theme: response.theme }, () => resolve( response ) );
 				} )
 				.catch( error => {
 					console.log( '[Theme Update Error]', error );
@@ -396,7 +390,7 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/theme-style-selection"
-						render={ routeProps => {
+						render={ () => {
 							const { theme } = this.state;
 							return (
 								<ThemeSelection

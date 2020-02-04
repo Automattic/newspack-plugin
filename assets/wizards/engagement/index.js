@@ -70,7 +70,7 @@ class EngagementWizard extends Component {
 	/**
 	 * Designate which popup should be the sitewide default.
 	 *
-	 * @param int popupId ID of the Popup to become sitewide default.
+	 * @param {number} popupId ID of the Popup to become sitewide default.
 	 */
 	setSiteWideDefaultPopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
@@ -91,8 +91,8 @@ class EngagementWizard extends Component {
 	/**
 	 * Set categories for a Popup.
 	 *
-	 * @param int popupId ID of the Popup to alter.
-	 * @param array categories Array of categories to assign to the Popup.
+	 * @param {number} popupId ID of the Popup to alter.
+	 * @param {Array} categories Array of categories to assign to the Popup.
 	 */
 	setCategoriesForPopup = ( popupId, categories ) => {
 		const { setError, wizardApiFetch } = this.props;
@@ -205,26 +205,19 @@ class EngagementWizard extends Component {
 						<Route
 							path="/popups"
 							exact
-							render={ routeProps => {
-								const { apiKey } = this.state;
-								return (
-									<Popups
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Engagement', 'newspack' ) }
-										subHeaderText={ subheader }
-										tabbedNavigation={ tabbed_navigation }
-										popups={ popups }
-										setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
-										setCategoriesForPopup={ this.setCategoriesForPopup }
-									/>
-								);
-							} }
+							render={ () => (
+								<Popups
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Engagement', 'newspack' ) }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+									popups={ popups }
+									setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
+									setCategoriesForPopup={ this.setCategoriesForPopup }
+								/>
+							) }
 						/>
-						<Route
-							path="/commenting"
-							exact
-							render={ routeProps => <Redirect to="/commenting/disqus" /> }
-						/>
+						<Route path="/commenting" exact render={ () => <Redirect to="/commenting/disqus" /> } />
 						<Route
 							path="/commenting/disqus"
 							exact

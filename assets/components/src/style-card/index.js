@@ -23,8 +23,8 @@ class StyleCard extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
-		const { className, cardTitle, url, image, isActive, onClick, ...otherProps } = this.props;
+	render() {
+		const { className, cardTitle, url, image, isActive, onClick } = this.props;
 		const classes = classnames(
 			'newspack-style-card',
 			isActive && 'newspack-style-card__is-active',
@@ -33,7 +33,7 @@ class StyleCard extends Component {
 		return (
 			<div className={ classes } tabIndex="0">
 				<div className="newspack-style-card__image">
-					{ image && <img src={ image } /> }
+					{ image && <img src={ image } alt="style-card" /> }
 					<div className="newspack-style-card__actions">
 						{ ! isActive && (
 							<Button isPrimary isSmall onClick={ onClick }>

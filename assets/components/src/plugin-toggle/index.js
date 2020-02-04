@@ -27,8 +27,7 @@ class PluginToggle extends Component {
 	 * Retrieve complete data about Newspack plugins.
 	 */
 	retrievePluginInfo = () => {
-		const { plugins } = this.props;
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( () => {
 			apiFetch( { path: '/newspack/v1/plugins/' } ).then( pluginInfo =>
 				this.setState( { pluginInfo } )
 			);
@@ -70,7 +69,7 @@ class PluginToggle extends Component {
 		const { plugins } = this.props;
 		const { pluginInfo } = this.state;
 		return this.prepareDataForRender( plugins, pluginInfo ).map( ( plugin, index ) => {
-			const { name, description, href, slug, status, editPath, inFlight } = plugin;
+			const { name, description, href, slug, editPath } = plugin;
 			const pluginStatus = this.isPluginInstalledAndActive( plugin );
 			const handoff = ! href && pluginStatus && editPath ? slug : null;
 			return (

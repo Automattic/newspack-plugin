@@ -101,6 +101,8 @@
   "dependencies": {
     "@material-ui/core": "^4.8.2",
     "@material-ui/icons": "^4.5.1",
+    "@wordpress/html-entities": "^2.6.0",
+    "@wordpress/url": "^2.10.0",
     "react": "^16.12.0"
   }
 }
