@@ -57,6 +57,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Unset the sitewide Popup.
+	 *
+	 * @param integer $id ID of sitewide popup.
+	 */
+	public function unset_sitewide_popup( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Model::unset_sitewide_popup( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Set categories for a Popup.
 	 *
 	 * @param integer $id ID of sitewide popup.
