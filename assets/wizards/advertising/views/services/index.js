@@ -59,7 +59,8 @@ class Services extends Component {
 					toggle
 					toggleChecked={ google_adsense && google_adsense.enabled }
 					toggleOnChange={ value => toggleService( 'google_adsense', value ) }
-					href={ google_adsense && '#/google_adsense' }
+					handoff="google-site-kit"
+					editLink="admin.php?page=googlesitekit-module-adsense"
 				/>
 				<ActionCard
 					title={ __( 'Google Ad Manager' ) }

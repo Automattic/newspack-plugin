@@ -13,23 +13,16 @@ import HeaderIcon from '@material-ui/icons/Warning';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Card,
-	FormattedHeader,
-	Modal,
-	NewspackLogo,
-	Notice,
-	PluginInstaller,
-	Grid,
-} from '../';
+import { Button, Card, FormattedHeader, Modal, NewspackLogo, Notice, PluginInstaller, Grid } from '../';
+import Router from '../proxied-imports/router'
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
 /**
  * External dependencies
  */
-import { Redirect, Route } from 'react-router-dom';
+import { isFunction } from 'lodash';
+const { Redirect, Route } = Router;
 
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
@@ -95,9 +88,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		getErrorNotice = error => {
 			const { message } = error;
 			return (
-				<div className="notice notice-error notice-alt update-message">
-					<p>{ message }</p>
-				</div>
+				<Notice noticeText={ message } isError rawHTML />
 			);
 		};
 
@@ -114,7 +105,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 					title={ __( 'Unrecoverable error' ) }
 					onRequestClose={ () => ( window.location = newspack_urls.dashboard ) }
 				>
-					<Notice noticeText={ message } isError />
+					<Notice noticeText={ message } isError rawHTML />
 					<div className="newspack-buttons-card">
 						<Button isPrimary href={ newspack_urls.dashboard }>
 							{ __( 'Return to dashboard' ) }

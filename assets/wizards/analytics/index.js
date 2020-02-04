@@ -17,12 +17,10 @@ import HeaderIcon from '@material-ui/icons/TrendingUp';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router'
 import { Intro } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 class AnalyticsWizard extends Component {
 	/**

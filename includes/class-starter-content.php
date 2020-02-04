@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WP_Query;
+use \WP_Error, \WP_Query, Newspack\Theme_Manager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -117,12 +117,12 @@ class Starter_Content {
 		?>
 		<!-- wp:columns {"className":"is-style-borders"} --><div class="wp-block-columns is-style-borders">
 
-			<!-- wp:column {"width":66.66} --><div class="wp-block-column" style="flex-basis:calc(66.66% - 16px)">
+			<!-- wp:column {"width":66.66} --><div class="wp-block-column" style="flex-basis:66.66%">
 
 				<!-- wp:newspack-blocks/homepage-articles {"postsToShow":1,"categories":[<?php echo esc_attr( $categories[1]->term_id ); ?>],"sectionHeader":"<?php echo esc_html( $categories[1]->name ); ?>"} /-->
 
 			</div><!-- /wp:column -->
-			<!-- wp:column {"width":33.33} --><div class="wp-block-column" style="flex-basis:calc(33.33% - 16px)">
+			<!-- wp:column {"width":33.33} --><div class="wp-block-column" style="flex-basis:33.33%">
 
 				<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"imageShape":"square","showAvatar":false,"postsToShow":3,"mediaPosition":"left","categories":[<?php echo esc_attr( $categories[2]->term_id ); ?>],"typeScale":2,"imageScale":1,"sectionHeader":"<?php echo esc_html( $categories[2]->name ); ?>"} /-->
 
@@ -188,10 +188,29 @@ class Starter_Content {
 			set_theme_mod( 'custom_logo', $logo_id );
 			set_theme_mod( 'logo_size', 0 );
 		}
-		set_theme_mod( 'active_style_pack', 'style-3' );
 		set_theme_mod( 'header_solid_background', true );
 		set_theme_mod( 'header_simplified', true );
 		return true;
+	}
+
+	/**
+	 * Set theme style.
+	 *
+	 * @param string $style Style id.
+	 */
+	public static function set_theme( $style ) {
+		Theme_Manager::install_activate_theme( $style );
+		return self::get_theme();
+	}
+
+	/**
+	 * Get theme style.
+	 *
+	 * @return string Style id.
+	 */
+	public static function get_theme() {
+		$theme_object = wp_get_theme();
+		return $theme_object->get_stylesheet();
 	}
 
 	/**

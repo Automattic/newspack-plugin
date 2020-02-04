@@ -444,6 +444,9 @@ class Advertising_Wizard extends Wizard {
 		if ( ! $jetpack_manager->is_wordads_available_at_plan_level() ) {
 			$services['wordads']['upgrade_required'] = true;
 		}
+		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+
+		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
 		return $services;
 	}
 
@@ -550,7 +553,7 @@ class Advertising_Wizard extends Wizard {
 		}
 
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-		$ad_unit               = $configuration_manager->get_ad_unit( $placement['ad_unit'] );
+		$ad_unit               = $configuration_manager->get_ad_unit( $placement['ad_unit'], $placement_slug );
 		if ( is_wp_error( $ad_unit ) ) {
 			return;
 		}

@@ -16,13 +16,11 @@ import HeaderIcon from '@material-ui/icons/FeaturedVideo';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
-import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
+import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
+import { AdUnit, AdUnits, HeaderCode, Placements, Services } from './views';
 
-/**
- * External dependencies.
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router
 
 class AdvertisingWizard extends Component {
 	/**
@@ -455,22 +453,6 @@ class AdvertisingWizard extends Component {
 									/>
 								);
 							} }
-						/>
-						<Route
-							path="/google_adsense"
-							render={ () => (
-								<Fragment>
-									<AdSense
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Google AdSense' ) }
-										subHeaderText={ __(
-											'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.'
-										) }
-										buttonText={ __( 'Back to advertising options' ) }
-										buttonAction="#/"
-									/>
-								</Fragment>
-							) }
 						/>
 						<Redirect to="/" />
 					</Switch>

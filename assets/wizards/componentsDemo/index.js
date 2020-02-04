@@ -30,6 +30,7 @@ import {
 	Notice,
 	TextControl,
 	PluginInstaller,
+	PluginToggle,
 	ProgressBar,
 	Checklist,
 	Task,
@@ -37,6 +38,7 @@ import {
 	Modal,
 	Grid,
 	ToggleGroup,
+	WebPreview,
 } from '../../components/src';
 
 class ComponentsDemo extends Component {
@@ -100,6 +102,38 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>
 				<Grid>
+					<Card>
+						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
+						<PluginToggle
+							plugins={ {
+								woocommerce: {
+									shouldRefreshAfterUpdate: true,
+								},
+								'fb-instant-articles': {
+									actionText: __( 'Configure Instant Articles' ),
+									href: '/wp-admin/admin.php?page=newspack',
+								},
+							} }
+						/>
+					</Card>
+					<Card>
+						<FormattedHeader headerText={ __( 'Web Previews' ) } />
+						<Card noBackground className="newspack-card__buttons-card">
+							<WebPreview
+								url="//newspack.blog"
+								label={ __( 'Preview Newspack Blog', 'newspack' ) }
+								isPrimary
+							/>
+							<WebPreview
+								url="//newspack.blog"
+								renderButton={ ( { showPreview } ) => (
+									<a href="#" onClick={ showPreview }>
+										{ __( 'Preview Newspack Blog', 'newspack' ) }
+									</a>
+								) }
+							/>
+						</Card>
+					</Card>
 					<Card>
 						<ToggleGroup
 							title={ __( 'Example Toggle Group' ) }

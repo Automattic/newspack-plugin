@@ -55,6 +55,12 @@
 	.site-kit_page_googlesitekit-splash & {
 		margin-bottom: -25px;
 	}
+
+	// LaterPay
+
+	body[class*="laterpay_page_laterpay"] & {
+		margin-left: 0;
+	}
 }
 
 .newspack-handoff-banner {

@@ -54,7 +54,7 @@ class Plugin_Manager {
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/download/1.0.0-alpha.1/newspack-ads.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/latest/download/newspack-ads.zip',
 			],
 			'newspack-content-converter'    => [
 				'Name'        => esc_html__( 'Newspack Content Converter', 'newspack' ),
@@ -145,7 +145,7 @@ class Plugin_Manager {
 				'Author'      => 'Google',
 				'AuthorURI'   => 'https://opensource.google.com',
 				'PluginURI'   => 'https://sitekit.withgoogle.com/',
-				'Download'    => 'https://sitekit.withgoogle.com/service/download/google-site-kit.zip',
+				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=googlesitekit-splash',
 				'Configurer'  => [
 					'filename'   => 'class-site-kit-configuration-manager.php',
@@ -293,7 +293,7 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://wordpress.org/plugins/laterpay/',
 				'AuthorURI'   => 'https://www.laterpay.net/',
 				'Download'    => 'wporg',
-				'Editpath'    => 'admin.php?page=laterpay-pricing-tab',
+				'EditPath'    => 'admin.php?page=laterpay-pricing-tab',
 				'Configurer'  => [
 					'filename'   => 'class-laterpay-configuration-manager.php',
 					'class_name' => 'LaterPay_Configuration_Manager',
@@ -313,6 +313,23 @@ class Plugin_Manager {
 				'Author'      => 'Organic Themes',
 				'PluginURI'   => 'https://organicthemes.com/',
 				'AuthorURI'   => 'https://organicthemes.com/',
+				'Download'    => 'wporg',
+			],
+			'password-protected'            => [
+				'Name'        => 'Password Protected',
+				'Description' => 'A very simple way to quickly password protect your WordPress site with a single password. Please note: This plugin does not restrict access to uploaded files and images and does not work with some caching setups.',
+				'Author'      => 'Ben Huson',
+				'PluginURI'   => 'http://github.com/benhuson/password-protected/',
+				'AuthorURI'   => 'http://github.com/benhuson/password-protected/',
+				'Download'    => 'wporg',
+				'EditPath'    => 'options-general.php?page=password-protected',
+			],
+			'mailchimp-for-wp'              => [
+				'Name'        => 'MC4WP: Mailchimp for WordPress',
+				'Description' => 'Mailchimp for WordPress by ibericode. Adds various highly effective sign-up methods to your site.',
+				'Author'      => 'ibericode',
+				'PluginURI'   => 'https://mc4wp.com',
+				'AuthorURI'   => 'https://ibericode.com',
 				'Download'    => 'wporg',
 			],
 		];
@@ -414,7 +431,7 @@ class Plugin_Manager {
 	 */
 	public static function activate( $plugin ) {
 		if ( 'newspack-theme' === $plugin ) {
-			return newspack_install_activate_theme();
+			return Theme_Manager::install_activate_theme();
 		}
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -626,7 +643,7 @@ class Plugin_Manager {
 			$error_message = __( 'Newspack cannot install this plugin. You will need to get it from the plugin\'s site and install it manually.', 'newspack' );
 			if ( ! empty( $managed_plugins[ $plugin_slug ]['PluginURI'] ) ) {
 				/* translators: %s: plugin URL */
-				$error_message = sprintf( __( 'Newspack cannot install this plugin. You will need to get it from <a href="%s" target="_blank">the plugin\'s site</a> and install it manually.', 'newspack' ), esc_url( $managed_plugins[ $plugin_slug ]['PluginURI'] ) );
+				$error_message = sprintf( __( 'Newspack cannot install this plugin. You will need to get it from <a href="%s">the plugin\'s site</a> and install it manually.', 'newspack' ), esc_url( $managed_plugins[ $plugin_slug ]['PluginURI'] ) );
 			}
 
 			return new WP_Error(

@@ -55,7 +55,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		$states        = WC()->countries->get_states();
 		$location_info = [];
 		foreach ( $countries as $country_code => $country ) {
-			if ( isset( $states[ $country_code ] ) ) {
+			if ( ! empty( $states[ $country_code ] ) ) {
 				foreach ( $states[ $country_code ] as $state_code => $state ) {
 					$location_info[] = [
 						'value' => $country_code . ':' . $state_code,

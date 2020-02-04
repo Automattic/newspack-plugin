@@ -11,6 +11,7 @@ use \WP_REST_Controller;
 use \WP_Error;
 use Newspack\Plugin_Manager;
 use Newspack\Handoff_Banner;
+use Newspack\Configuration_Managers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -334,6 +335,11 @@ class Plugins_Controller extends WP_REST_Controller {
 		$response           = $managed_plugins[ $slug ];
 		$edit_link          = $request->get_param( 'editLink' );
 		$handoff_return_url = $request->get_param( 'handoffReturnUrl' );
+
+		if ( 'admin.php?page=googlesitekit-module-analytics' === $edit_link && 'google-site-kit' === $slug ) {
+			$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+			$sitekit_manager->activate_module( 'analytics' );
+		}
 
 		if ( ! empty( $edit_link ) ) {
 			$response['HandoffLink'] = $edit_link;
