@@ -54,7 +54,10 @@ class PluginToggle extends Component {
 			() => {
 				apiFetch( params ).then( response => {
 					const { shouldRefreshAfterUpdate } = plugins[ plugin ];
-					this.setState( { pluginInfo: { ...pluginInfo, [ plugin ]: response } }, () => shouldRefreshAfterUpdate && location.reload() );
+					this.setState(
+						{ pluginInfo: { ...pluginInfo, [ plugin ]: response } },
+						() => shouldRefreshAfterUpdate && location.reload()
+					);
 				} );
 			}
 		);

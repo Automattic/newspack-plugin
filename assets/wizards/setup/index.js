@@ -31,7 +31,7 @@ import {
 	StarterContent,
 } from './views/';
 import { Card, withWizard, WizardPagination } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
 
 /**
@@ -185,7 +185,10 @@ class SetupWizard extends Component {
 
 	updateTheme = theme => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme, method: 'POST' };
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
+			method: 'POST',
+		};
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( params )
 				.then( response => {
@@ -401,7 +404,7 @@ class SetupWizard extends Component {
 									headerText={ __( 'Theme' ) }
 									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
-									buttonAction='#/starter-content'
+									buttonAction="#/starter-content"
 									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
 									secondaryButtonAction={ this.finish }
 									updateTheme={ this.updateTheme }

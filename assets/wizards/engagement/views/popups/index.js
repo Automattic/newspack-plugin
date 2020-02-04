@@ -79,29 +79,28 @@ class Popups extends Component {
 					</Fragment>
 				) }
 				{ hasPopups &&
-					popups
-						.map( popup => {
-							const { categories } = popup;
-							return (
-								<div className="newspack-engagement__popups-row" key={ popup.id }>
-									{ popup.sitewide_default ? (
-										<TextControl
-											disabled
-											label={ decodeEntities( popup.title ) }
-											value={ __( 'Sitewide default', 'newspack' ) }
-										/>
-									) : (
-										<CategoryAutocomplete
-											value={ categories || [] }
-											suggestions={ this.fetchSuggestions }
-											onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
-											label={ decodeEntities( popup.title ) }
-											disabled={ popup.sitewide_default }
-										/>
-									) }
-								</div>
-							);
-						} ) }
+					popups.map( popup => {
+						const { categories } = popup;
+						return (
+							<div className="newspack-engagement__popups-row" key={ popup.id }>
+								{ popup.sitewide_default ? (
+									<TextControl
+										disabled
+										label={ decodeEntities( popup.title ) }
+										value={ __( 'Sitewide default', 'newspack' ) }
+									/>
+								) : (
+									<CategoryAutocomplete
+										value={ categories || [] }
+										suggestions={ this.fetchSuggestions }
+										onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
+										label={ decodeEntities( popup.title ) }
+										disabled={ popup.sitewide_default }
+									/>
+								) }
+							</div>
+						);
+					} ) }
 				<div className="newspack-buttons-card">
 					<Button href="/wp-admin/post-new.php?post_type=newspack_popups_cpt" isPrimary>
 						{ hasPopups

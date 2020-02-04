@@ -11,7 +11,7 @@ import { Component } from '@wordpress/element';
  * External dependencies.
  */
 import classNames from 'classnames';
-import Router from '../proxied-imports/router'
+import Router from '../proxied-imports/router';
 
 /**
  * Internal dependencies.

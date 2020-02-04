@@ -33,9 +33,13 @@ class StyleCard extends Component {
 		return (
 			<div className={ classes } tabIndex="0">
 				<div className="newspack-style-card__image">
-				{ image && <img src={ image } /> }
+					{ image && <img src={ image } /> }
 					<div className="newspack-style-card__actions">
-						{ ! isActive && <Button isPrimary isSmall onClick={ onClick }>{ __( 'Activate' ) }</Button> }
+						{ ! isActive && (
+							<Button isPrimary isSmall onClick={ onClick }>
+								{ __( 'Activate' ) }
+							</Button>
+						) }
 						{ url && <WebPreview url={ url } label={ __( 'View Demo' ) } isSmall isSecondary /> }
 					</div>
 				</div>

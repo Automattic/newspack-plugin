@@ -20,7 +20,7 @@ import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../componen
 import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, HeaderCode, Placements, Services } from './views';
 
-const { HashRouter, Redirect, Route, Switch } = Router
+const { HashRouter, Redirect, Route, Switch } = Router;
 
 class AdvertisingWizard extends Component {
 	/**

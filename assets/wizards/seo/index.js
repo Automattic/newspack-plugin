@@ -17,7 +17,7 @@ import HeaderIcon from '@material-ui/icons/Search';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router';
 import { Intro } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
