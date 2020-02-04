@@ -43,8 +43,6 @@ class AnalyticsWizard extends Component {
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Analytics', 'newspack' ) }
 									subHeaderText={ __( 'Track traffic and activity') }
-									buttonText={ __( 'Back to dashboard' ) }
-									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
 							) }
 						/>

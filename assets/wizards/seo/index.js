@@ -42,8 +42,6 @@ class SEOWizard extends Component {
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'SEO' ) }
 									subHeaderText={ __( 'Search engine and social optimization' ) }
-									buttonText={ __( 'Back to dashboard' ) }
-									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
 							) }
 						/>

@@ -335,8 +335,6 @@ class AdvertisingWizard extends Component {
 									services={ services }
 									toggleService={ ( service, value ) => this.toggleService( service, value ) }
 									tabbedNavigation={ tabs }
-									buttonText={ __( 'Back to dashboard' ) }
-									buttonAction={ window && window.newspack_urls.dashboard }
 								/>
 							) }
 						/>
