@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import HeaderIcon from '@material-ui/icons/Style';
+import HeaderIcon from '@material-ui/icons/Web';
 
 /**
  * Internal dependencies.
@@ -91,7 +91,7 @@ class SiteDesignWizard extends Component {
 								return (
 									<ThemeSelection
 										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Theme' ) }
+										headerText={ __( 'Site Design' ) }
 										subHeaderText={ __( 'Choose a Newspack theme' ) }
 										buttonText={ __( 'Customizer' ) }
 										buttonAction='/wp-admin/customize.php?return=%2Fwp-admin%2Fadmin.php%3Fpage%3Dnewspack-site-design-wizard'
