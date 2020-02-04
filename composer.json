@@ -10,8 +10,14 @@
 	"require"    : {
 			"composer/installers": "~1.6",
 			"brainmaestro/composer-git-hooks": "^2.6",
-			"xwp/wp-dev-lib": "^1.4.0"
+			"xwp/wp-dev-lib": "^1.5.0"
 	},
+	"repositories": [
+			{
+					"url": "git@github.com:adekbadek/wp-dev-lib.git",
+					"type": "git"
+			}
+	],
 	"require-dev": {
 			"automattic/vipwpcs": "^2.0.0",
 			"wp-coding-standards/wpcs": "*",
