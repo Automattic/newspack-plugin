@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -36,9 +36,7 @@ class CommentingDisqus extends Component {
 		) : (
 			<ActionCard
 				title={ __( 'Disqus' ) }
-				description={ __(
-					'Description TK.'
-				) }
+				description={ __( 'Description TK.' ) }
 				actionText={ __( 'Configure' ) }
 				handoff="disqus-comment-system"
 			/>

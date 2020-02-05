@@ -5,8 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -20,7 +19,6 @@ import HeaderIcon from '@material-ui/icons/Forum';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import {
-	Commenting,
 	CommentingDisqus,
 	CommentingNative,
 	CommentingCoral,
@@ -72,7 +70,7 @@ class EngagementWizard extends Component {
 	/**
 	 * Designate which popup should be the sitewide default.
 	 *
-	 * @param int popupId ID of the Popup to become sitewide default.
+	 * @param {number} popupId ID of the Popup to become sitewide default.
 	 */
 	setSiteWideDefaultPopup = ( popupId, state ) => {
 		const { setError, wizardApiFetch } = this.props;
@@ -93,8 +91,8 @@ class EngagementWizard extends Component {
 	/**
 	 * Set categories for a Popup.
 	 *
-	 * @param int popupId ID of the Popup to alter.
-	 * @param array categories Array of categories to assign to the Popup.
+	 * @param {number} popupId ID of the Popup to alter.
+	 * @param {Array} categories Array of categories to assign to the Popup.
 	 */
 	setCategoriesForPopup = ( popupId, categories ) => {
 		const { setError, wizardApiFetch } = this.props;
@@ -118,7 +116,7 @@ class EngagementWizard extends Component {
 	/**
 	 * Delete a popup.
 	 *
-	 * @param int popupId ID of the Popup to alter.
+	 * @param {number} popupId ID of the Popup to alter.
 	 */
 	deletePopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
@@ -196,7 +194,7 @@ class EngagementWizard extends Component {
 						{ pluginRequirements }
 						<Route
 							path="/newsletters"
-							render={ routeProps => (
+							render={ () => (
 								<Newsletters
 									noBackground
 									headerIcon={ <HeaderIcon /> }
@@ -207,15 +205,14 @@ class EngagementWizard extends Component {
 									connected={ connected }
 									connectURL={ connectURL }
 									wcConnected={ wcConnected }
-									onChange={ apiKey => this.setState( { apiKey } ) }
+									onChange={ _apiKey => this.setState( { apiKey: _apiKey } ) }
 								/>
 							) }
 						/>
 						<Route
 							path="/social"
 							exact
-							render={ routeProps => {
-								const { apiKey } = this.state;
+							render={ () => {
 								return (
 									<Social
 										headerIcon={ <HeaderIcon /> }
@@ -229,31 +226,24 @@ class EngagementWizard extends Component {
 						<Route
 							path="/popups"
 							exact
-							render={ routeProps => {
-								const { apiKey } = this.state;
-								return (
-									<Popups
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Engagement', 'newspack' ) }
-										subHeaderText={ subheader }
-										tabbedNavigation={ tabbed_navigation }
-										popups={ popups }
-										setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
-										setCategoriesForPopup={ this.setCategoriesForPopup }
-										deletePopup={ this.deletePopup }
-									/>
-								);
-							} }
+							render={ () => (
+								<Popups
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Engagement', 'newspack' ) }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+									popups={ popups }
+									setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
+									setCategoriesForPopup={ this.setCategoriesForPopup }
+									deletePopup={ this.deletePopup }
+								/>
+							) }
 						/>
-						<Route
-							path="/commenting"
-							exact
-							render={ routeProps => <Redirect to="/commenting/disqus" /> }
-						/>
+						<Route path="/commenting" exact render={ () => <Redirect to="/commenting/disqus" /> } />
 						<Route
 							path="/commenting/disqus"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<CommentingDisqus
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
@@ -268,7 +258,7 @@ class EngagementWizard extends Component {
 						<Route
 							path="/commenting/native"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<CommentingNative
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
@@ -283,7 +273,7 @@ class EngagementWizard extends Component {
 						<Route
 							path="/commenting/coral"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<CommentingCoral
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
@@ -298,7 +288,7 @@ class EngagementWizard extends Component {
 						<Route
 							path="/user-generated-content"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<UGC
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }

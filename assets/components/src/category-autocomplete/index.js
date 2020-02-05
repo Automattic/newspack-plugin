@@ -45,7 +45,7 @@ class CategoryAutocomplete extends Component {
 	/**
 	 * Refresh the autocomplete UI based on text that was typed.
 	 *
-	 * @param string search The typed text to search for.
+	 * @param {string} search The typed text to search for.
 	 */
 	updateSuggestions( search ) {
 		apiFetch( {
@@ -69,7 +69,7 @@ class CategoryAutocomplete extends Component {
 	/**
 	 * Prepare categories data for the API endpoint, call the change handler.
 	 *
-	 * @param array tokens An array of category tokens.
+	 * @param {Array} tokens An array of category tokens.
 	 */
 	handleOnChange = tokens => {
 		const { onChange } = this.props;

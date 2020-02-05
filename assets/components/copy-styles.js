@@ -36,7 +36,7 @@ rcopy( inputDir, outputDirCommon, copyOptions )
 		console.error( err );
 	} );
 rcopy( path.join( dir, '..', 'shared' ), path.join( dir, 'shared' ) )
-	.then( results => {
+	.then( () => {
 		console.log( 'Copied shared lib' );
 	} )
 	.catch( err => {

@@ -24,15 +24,13 @@ class HandoffBanner extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { bodyText, primaryButtonText, dismissButtonText, primaryButtonURL } = this.props;
 		const { visibility } = this.state;
 		return (
 			visibility && (
 				<div className="newspack-handoff-banner">
-					<div className="newspack-handoff-banner__text">
-						{ bodyText }
-					</div>
+					<div className="newspack-handoff-banner__text">{ bodyText }</div>
 					<div className="newspack-handoff-banner__buttons">
 						<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
 							{ dismissButtonText }

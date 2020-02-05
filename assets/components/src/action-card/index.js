@@ -26,7 +26,7 @@ class ActionCard extends Component {
 	/**
 	 * Render
 	 */
-	render( props ) {
+	render() {
 		const {
 			badge,
 			className,
@@ -55,7 +55,6 @@ class ActionCard extends Component {
 			simple && 'newspack-card__is-clickable',
 			className
 		);
-		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">

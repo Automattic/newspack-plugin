@@ -17,7 +17,7 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 /**
  * Internal dependencies.
  */
-import { Button, Card, TextControl, withWizardScreen } from '../../../../components/src';
+import { Button, TextControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -27,8 +27,8 @@ class AdUnit extends Component {
 	/**
 	 * Handle an update to an ad unit field.
 	 *
-	 * @param string key Ad Unit field
-	 * @param mixed  value New value for field
+	 * @param {string} key Ad Unit field
+	 * @param {any}  value New value for field
 	 *
 	 */
 	handleOnChange( key, value ) {
@@ -56,7 +56,7 @@ class AdUnit extends Component {
 					onChange={ value => this.handleOnChange( 'code', value ) }
 				/>
 				{ sizes.map( ( size, index ) => (
-					<div className="newspack_ad_unit__sizes">
+					<div className="newspack_ad_unit__sizes" key={ index }>
 						<TextControl
 							label={ __( 'Width' ) }
 							value={ size[ 0 ] }

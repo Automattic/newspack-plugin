@@ -78,7 +78,8 @@ class Handoff extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
+		// eslint-disable-next-line no-unused-vars
 		const { className, children, compact, useModal, onReady, ...otherProps } = this.props;
 		const { pluginInfo, showModal } = this.state;
 		const {

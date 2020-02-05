@@ -12,7 +12,12 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { CheckboxControl, TextControl, ToggleControl, withWizardScreen } from '../../../../components/src';
+import {
+	CheckboxControl,
+	TextControl,
+	ToggleControl,
+	withWizardScreen,
+} from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -37,7 +42,7 @@ class StripeSetup extends Component {
 				<ToggleControl
 					label={ __( 'Enable Stripe' ) }
 					checked={ enabled }
-					onChange={ enabled => onChange( { ...data, enabled } ) }
+					onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
 				/>
 				{ enabled && (
 					<Fragment>
@@ -47,13 +52,12 @@ class StripeSetup extends Component {
 						<CheckboxControl
 							label={ __( 'Use Stripe in test mode' ) }
 							checked={ testMode }
-							onChange={ testMode => onChange( { ...data, testMode } ) }
+							onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
 							tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
 						/>
 						<div className="newspack-payment-setup-screen__api-keys-heading">
 							<p className="newspack-payment-setup-screen__api-keys-instruction">
-								{ __( 'Get your API keys from your Stripe account.' ) }
-								{ ' ' }
+								{ __( 'Get your API keys from your Stripe account.' ) }{' '}
 								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
 									{ __( 'Learn how' ) }
 								</ExternalLink>
@@ -65,13 +69,17 @@ class StripeSetup extends Component {
 										type="password"
 										value={ testPublishableKey }
 										label={ __( 'Test Publishable Key' ) }
-										onChange={ testPublishableKey => onChange( { ...data, testPublishableKey } ) }
+										onChange={ _testPublishableKey =>
+											onChange( { ...data, testPublishableKey: _testPublishableKey } )
+										}
 									/>
 									<TextControl
 										type="password"
 										value={ testSecretKey }
 										label={ __( 'Test Secret Key' ) }
-										onChange={ testSecretKey => onChange( { ...data, testSecretKey } ) }
+										onChange={ _testSecretKey =>
+											onChange( { ...data, testSecretKey: _testSecretKey } )
+										}
 									/>
 								</Fragment>
 							) }
@@ -81,13 +89,15 @@ class StripeSetup extends Component {
 										type="password"
 										value={ publishableKey }
 										label={ __( 'Publishable Key' ) }
-										onChange={ publishableKey => onChange( { ...data, publishableKey } ) }
+										onChange={ _publishableKey =>
+											onChange( { ...data, publishableKey: _publishableKey } )
+										}
 									/>
 									<TextControl
 										type="password"
 										value={ secretKey }
 										label={ __( 'Secret Key' ) }
-										onChange={ secretKey => onChange( { ...data, secretKey } ) }
+										onChange={ _secretKey => onChange( { ...data, secretKey: _secretKey } ) }
 									/>
 								</Fragment>
 							) }
@@ -96,9 +106,7 @@ class StripeSetup extends Component {
 				) }
 				{ ! enabled && (
 					<p className="newspack-payment-setup-screen__info">
-						{ __(
-							'Other gateways can be enabled and set up in the '
-						) }
+						{ __( 'Other gateways can be enabled and set up in the ' ) }
 						<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
 							{ __( 'WooCommerce payment gateway settings' ) }
 						</ExternalLink>

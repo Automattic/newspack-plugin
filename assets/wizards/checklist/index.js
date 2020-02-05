@@ -1,3 +1,5 @@
+/* global newspack_checklist */
+
 /**
  * Checklist.
  */
@@ -14,7 +16,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	ActionCard,
 	Button,
-	Card,
 	FormattedHeader,
 	Checklist,
 	NewspackLogo,
@@ -60,6 +61,7 @@ class ChecklistScreen extends Component {
 
 	/**
 	 * Mark a checklist item as skipped.
+	 *
 	 * @todo Make this permanent using an API call.
 	 */
 	dismissCheckListItem = index => {
@@ -82,16 +84,16 @@ class ChecklistScreen extends Component {
 				</div>
 				<FormattedHeader headerText={ name } subHeaderText={ description } />
 				<Grid>
-					{ 'actionCards' === listStyle && (
+					{ 'actionCards' === listStyle &&
 						steps.map( ( step, index ) => (
 							<ActionCard
+								key={ index }
 								title={ step.name }
 								description={ step.description }
 								simple
 								onClick={ () => ( window.location = step.url ) }
 							/>
-						) )
-					) }
+						) ) }
 					{ 'actionCards' !== listStyle && (
 						<Checklist progressBarText={ __( 'Your setup list' ) }>
 							{ steps.map( ( step, index ) => (

@@ -23,11 +23,7 @@ class Grid extends Component {
 	 */
 	render() {
 		const { className, isWide, ...otherProps } = this.props;
-		const classes = classNames(
-			'newspack-grid',
-			isWide && 'newspack-grid__wide',
-			className,
-		);
+		const classes = classNames( 'newspack-grid', isWide && 'newspack-grid__wide', className );
 		return <div className={ classes } { ...otherProps } />;
 	}
 }

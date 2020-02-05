@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+
 /**
  * Components Demo
  */
@@ -482,7 +484,6 @@ class ComponentsDemo extends Component {
 								{ value: '2nd', label: __( 'Second' ) },
 								{ value: '3rd', label: __( 'Third' ) },
 							] }
-							value={ selectValue1 }
 							onChange={ value => this.setState( { selectValue1: value } ) }
 						/>
 						<SelectControl

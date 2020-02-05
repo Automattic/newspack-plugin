@@ -24,7 +24,6 @@ import classnames from 'classnames';
 import './style.scss';
 
 class InfoButton extends Component {
-
 	/**
 	 * Render.
 	 */

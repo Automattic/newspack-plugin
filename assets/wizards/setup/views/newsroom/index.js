@@ -11,12 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	CheckboxControl,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { CheckboxControl, SelectControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -112,9 +107,7 @@ class Newsroom extends Component {
 					] }
 				/>
 				<p className="is-dark newspack-setup-wizard_newsroom_audience_title">
-					<strong>
-						{ __( 'How do you engage with your audience? (select all that apply)' ) }
-					</strong>
+					<strong>{ __( 'How do you engage with your audience? (select all that apply)' ) }</strong>
 				</p>
 				<div className="newspack-setup-wizard_newsroom_audience_checkboxes">
 					<CheckboxControl

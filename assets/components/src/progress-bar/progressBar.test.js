@@ -26,7 +26,9 @@ describe( 'ProgressBar', () => {
 		} );
 
 		it( 'should render a ProgressBar element with both label and fraction', () => {
-			const bar = shallow( <ProgressBar completed="1" total="2" label="test label" displayFraction /> );
+			const bar = shallow(
+				<ProgressBar completed="1" total="2" label="test label" displayFraction />
+			);
 			expect( bar.hasClass( 'newspack-progress-bar' ) ).toBe( true );
 			expect( bar.find( 'h2' ) ).toHaveLength( 1 );
 			expect( bar.find( 'p' ) ).toHaveLength( 1 );
@@ -42,13 +44,23 @@ describe( 'ProgressBar', () => {
 		it( 'should handle non-numeric values in ProgressBar element', () => {
 			const bar = shallow( <ProgressBar completed="cats" total="dogs" displayFraction /> );
 			expect( bar.find( 'p' ).text() ).toBe( '0/0' );
-			expect( bar.find( '.newspack-progress-bar__bar' ).render().css( 'width' ) ).toBe( '100%' );
+			expect(
+				bar
+					.find( '.newspack-progress-bar__bar' )
+					.render()
+					.css( 'width' )
+			).toBe( '100%' );
 		} );
 
 		it( 'should handle non-logical values in ProgressBar element', () => {
 			const bar = shallow( <ProgressBar completed="3" total="-1" displayFraction /> );
 			expect( bar.find( 'p' ).text() ).toBe( '0/0' );
-			expect( bar.find( '.newspack-progress-bar__bar' ).render().css( 'width' ) ).toBe( '100%' );
+			expect(
+				bar
+					.find( '.newspack-progress-bar__bar' )
+					.render()
+					.css( 'width' )
+			).toBe( '100%' );
 		} );
 	} );
 } );

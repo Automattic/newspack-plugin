@@ -123,7 +123,11 @@ class WebPreview extends Component {
 								{ __( 'Loading...' ) }
 							</div>
 						) }
-						<iframe src={ url } onLoad={ () => this.setState( { loaded: true } ) } />
+						<iframe
+							title="web-preview"
+							src={ url }
+							onLoad={ () => this.setState( { loaded: true } ) }
+						/>
 					</div>
 				</div>
 			</div>,

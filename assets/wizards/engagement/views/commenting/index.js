@@ -5,14 +5,14 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Card, Button, Notice, withWizardScreen } from '../../../../components/src';
+import { Card, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Commenting Screen
@@ -35,7 +35,12 @@ class Commenting extends Component {
 						</p>
 					) }
 					{ !! connected && (
-						<Notice noticeText={ __( 'You can insert newsletter sign up forms in your content using the Mailchimp block.' ) } isSuccess />
+						<Notice
+							noticeText={ __(
+								'You can insert newsletter sign up forms in your content using the Mailchimp block.'
+							) }
+							isSuccess
+						/>
 					) }
 					<p>
 						{ __(
