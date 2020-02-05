@@ -92,7 +92,7 @@ abstract class Wizard {
 			'checklists'  => Checklists::get_urls(),
 			'wizards'     => Wizards::get_urls(),
 			'dashboard'   => Wizards::get_url( 'dashboard' ),
-			'public_path' => Newspack::plugin_url() . '/assets/dist/',
+			'public_path' => Newspack::plugin_url() . '/dist/',
 		];
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );

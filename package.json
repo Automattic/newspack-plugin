@@ -95,7 +95,7 @@
     "build:scss": "npm run build:style-plugins-screen && npm run build:style-plugins-screen-rtl",
     "build:js": "calypso-build",
     "build": "run-p \"build:*\"",
-    "clean": "rm -rf assets/dist/",
+    "clean": "rm -rf dist/",
     "dev:js": "calypso-build --watch",
     "dev:scss": "chokidar \"./assets/**/*.scss\" -c \"npm run build:scss\" --initial",
     "dev": "run-p \"dev:*\"",
@@ -104,9 +104,8 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .js,.jsx assets",
     "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
-    "release:build-all": "composer install --no-dev && run-p \"build\"",
-    "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store",
-    "release": "run-p \"release:build-all\" && run-p \"release:archive\""
+    "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store tests/\\* assets/\\* vendor/\\*",
+    "release": "run-p \"build\" && run-p \"release:archive\""
   },
   "dependencies": {
     "@material-ui/core": "^4.8.2",

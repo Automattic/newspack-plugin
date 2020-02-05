@@ -84,17 +84,17 @@ class SEO_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-seo-wizard',
-			Newspack::plugin_url() . '/assets/dist/seo.js',
+			Newspack::plugin_url() . '/dist/seo.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/seo.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/seo.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-seo-wizard',
-			Newspack::plugin_url() . '/assets/dist/seo.css',
+			Newspack::plugin_url() . '/dist/seo.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/seo.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/seo.css' )
 		);
 		\wp_style_add_data( 'newspack-seo-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-seo-wizard' );
