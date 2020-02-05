@@ -72,11 +72,11 @@ class EngagementWizard extends Component {
 	 *
 	 * @param {number} popupId ID of the Popup to become sitewide default.
 	 */
-	setSiteWideDefaultPopup = popupId => {
+	setSiteWideDefaultPopup = ( popupId, state ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/sitewide-popup/' + popupId,
-			method: 'POST',
+			method: state ? 'POST' : 'DELETE',
 		} )
 			.then( info => {
 				this.setState( {
@@ -102,6 +102,27 @@ class EngagementWizard extends Component {
 			data: {
 				categories,
 			},
+		} )
+			.then( info => {
+				this.setState( {
+					...this.sanitizeData( info ),
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
+	 * Delete a popup.
+	 *
+	 * @param int popupId ID of the Popup to alter.
+	 */
+	deletePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/popup/' + popupId,
+			method: 'DELETE',
 		} )
 			.then( info => {
 				this.setState( {
@@ -214,6 +235,7 @@ class EngagementWizard extends Component {
 									popups={ popups }
 									setSiteWideDefaultPopup={ this.setSiteWideDefaultPopup }
 									setCategoriesForPopup={ this.setCategoriesForPopup }
+									deletePopup={ this.deletePopup }
 								/>
 							) }
 						/>

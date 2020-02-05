@@ -35,10 +35,10 @@ class Starter_Content {
 		if ( ! function_exists( 'wp_insert_post' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
 		}
-		$page_templates = [ '', 'single-feature.php', 'single-wide.php' ];
-		$paragraphs = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
-		$title      = self::get_lipsum( 'words', wp_rand( 4, 7 ) );
-		$post_data  = [
+		$page_templates = [ '', 'single-feature.php' ];
+		$paragraphs     = explode( PHP_EOL, self::get_lipsum( 'paras', 5 ) );
+		$title          = self::generate_title();
+		$post_data      = [
 			'post_title'    => $title,
 			'post_name'     => sanitize_title_with_dashes( $title, '', 'save' ),
 			'post_status'   => 'publish',
@@ -262,6 +262,17 @@ class Starter_Content {
 
 		wp_update_attachment_metadata( $attachment_id, $attachment_data );
 		return $attachment_id;
+	}
+
+	/**
+	 * Generate a post title
+	 *
+	 * @return string The title.
+	 */
+	public static function generate_title() {
+		$title = self::get_lipsum( 'words', wp_rand( 7, 14 ) );
+		$title = ucfirst( strtolower( str_replace( '.', '', $title ) ) ); // Remove periods, convert to sentence case.
+		return $title;
 	}
 
 	/**

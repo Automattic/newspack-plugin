@@ -30,6 +30,7 @@ class ActionCard extends Component {
 		const {
 			badge,
 			className,
+			children,
 			title,
 			description,
 			handoff,
@@ -129,6 +130,7 @@ class ActionCard extends Component {
 						) }
 					</div>
 				) }
+				{ children && <div>{ children }</div> }
 			</Card>
 		);
 	}
