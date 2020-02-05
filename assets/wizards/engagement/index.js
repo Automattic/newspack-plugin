@@ -116,7 +116,7 @@ class EngagementWizard extends Component {
 	/**
 	 * Delete a popup.
 	 *
-	 * @param int popupId ID of the Popup to alter.
+	 * @param {number} popupId ID of the Popup to alter.
 	 */
 	deletePopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;

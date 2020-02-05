@@ -43,7 +43,7 @@ class PopupActionCard extends Component {
 	/**
 	 * Construct the appropriate description for a single Pop-up based on categories and sitewide default status.
 	 *
-	 * @param {Object} Popup object.
+	 * @param {Object} popup object.
 	 */
 	descriptionForPopup = popup => {
 		const { categories, sitewide_default: sitewideDefault } = popup;
@@ -61,7 +61,7 @@ class PopupActionCard extends Component {
 	/**
 	 * Generate class names for a single popup based on categories, sitewide default status, and if data is available.
 	 *
-	 * @param {Object} Popup object.
+	 * @param {Object} popup object.
 	 */
 	classNameForPopup = popup => {
 		const { sitewide_default: sitewideDefault, categories } = popup;
@@ -82,14 +82,7 @@ class PopupActionCard extends Component {
 	render = () => {
 		const { categoriesVisibility, popoverVisibility } = this.state;
 		const { deletePopup, popup, setCategoriesForPopup, setSiteWideDefaultPopup } = this.props;
-		const {
-			id,
-			categories,
-			title,
-			sitewide_default: sitewideDefault,
-			edit_link: editLink,
-			delete_link: deleteLink,
-		} = popup;
+		const { id, categories, title, sitewide_default: sitewideDefault, edit_link: editLink } = popup;
 		return (
 			<ActionCard
 				className={ this.classNameForPopup( popup ) }
@@ -122,7 +115,7 @@ class PopupActionCard extends Component {
 							<Popover
 								position="bottom left"
 								className="newspack-popover"
-								onFocusOutside={ event => this.setState( { popoverVisibility: false } ) }
+								onFocusOutside={ () => this.setState( { popoverVisibility: false } ) }
 							>
 								<MenuGroup className="newspack-menu-group__sitewide">
 									<ToggleControl

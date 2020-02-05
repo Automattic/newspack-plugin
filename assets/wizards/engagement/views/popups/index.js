@@ -11,13 +11,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import {
-	ActionCard,
-	Button,
-	Notice,
-	PluginInstaller,
-	withWizardScreen,
-} from '../../../../components/src';
+import { Button, Notice, PluginInstaller, withWizardScreen } from '../../../../components/src';
 import PopupActionCard from './components/popup-action-card';
 import './style.scss';
 
@@ -29,8 +23,6 @@ class Popups extends Component {
 		super( props );
 		this.state = {
 			pluginRequirementsMet: false,
-			categoriesVisibility: {},
-			popoverVisibility: {},
 		};
 	}
 
@@ -38,7 +30,7 @@ class Popups extends Component {
 	 * Render.
 	 */
 	render() {
-		const { pluginRequirementsMet, categoriesVisibility, popoverVisibility } = this.state;
+		const { pluginRequirementsMet } = this.state;
 		const { deletePopup, popups, setSiteWideDefaultPopup, setCategoriesForPopup } = this.props;
 		const hasPopups = popups && popups.length > 0;
 		if ( ! pluginRequirementsMet ) {
