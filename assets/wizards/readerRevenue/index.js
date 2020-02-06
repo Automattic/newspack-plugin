@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import GroupIcon from '@material-ui/icons/Group';
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
 import LoyaltyIcon from '@material-ui/icons/Loyalty';
 
@@ -195,7 +194,7 @@ class ReaderRevenueWizard extends Component {
 									currencyFields={ currencyFields }
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Reader revenue' ) }
-									subHeaderText={ __( "Configure your publication's address." ) }
+									subHeaderText={ __( 'Configure your publication\'s address.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
@@ -214,27 +213,11 @@ class ReaderRevenueWizard extends Component {
 									data={ donationData }
 									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
-									buttonText={ __( 'Save Settings' ) }
-									buttonAction={ () =>
-										this.update( 'donations', donationData ).then(
-											() => ! isConfigured && routeProps.history.push( '/configure-landing-page' )
-										)
-									}
-									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
-									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
-									secondaryButtonAction='#'
-								/>
-							) }
-						/>
-						<Route
-							path="/configure-landing-page"
-							render={ () => (
-								<ConfigureLandingPage
-									headerIcon={ <GroupIcon /> }
-									headerText={ __( 'Set up memberships' ) }
-									subHeaderText={ __( 'Configure your memberships landing page.' ) }
+									subHeaderText={ __( 'Configure your landing page and your suggested donation presets.' ) }
 									donationPage={ donationPage }
+									buttonText={ __( 'Save Settings' ) }
+									buttonAction={ () => this.update( 'donations', donationData ) }
+									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
 									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
 									secondaryButtonAction='#'
 								/>
