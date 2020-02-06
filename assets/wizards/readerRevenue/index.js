@@ -138,12 +138,12 @@ class ReaderRevenueWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Payment Gateways' ),
-				path: '/stripe-setup',
-			},
-			{
 				label: __( 'Address' ),
 				path: '/location-setup',
+			},
+			{
+				label: __( 'Payment Gateways' ),
+				path: '/stripe-setup',
 			},
 		];
 		const isConfigured = !! donationData.created;
@@ -167,25 +167,6 @@ class ReaderRevenueWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/stripe-setup"
-							render={ routeProps => (
-								<StripeSetup
-									data={ stripeData }
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Reader revenue' ) }
-									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
-									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
-									buttonAction={ () =>
-										this.update( 'stripe', stripeData ).then(
-											data => ! isConfigured && routeProps.history.push( 'donations' )
-										)
-									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
-								/>
-							) }
-						/>
-						<Route
 							path="/location-setup"
 							render={ routeProps => (
 								<LocationSetup
@@ -203,6 +184,25 @@ class ReaderRevenueWizard extends Component {
 									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									onChange={ locationData => this.setState( { data: { ...data, locationData } } ) }
+								/>
+							) }
+						/>
+						<Route
+							path="/stripe-setup"
+							render={ routeProps => (
+								<StripeSetup
+									data={ stripeData }
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Reader revenue' ) }
+									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
+									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
+									buttonAction={ () =>
+										this.update( 'stripe', stripeData ).then(
+											data => ! isConfigured && routeProps.history.push( 'donations' )
+										)
+									}
+									tabbedNavigation={ isConfigured && tabbedNavigation }
+									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
 								/>
 							) }
 						/>
