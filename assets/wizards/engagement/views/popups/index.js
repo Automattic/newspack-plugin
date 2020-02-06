@@ -6,21 +6,13 @@
  * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { decodeEntities } from '@wordpress/html-entities';
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import {
-	ActionCard,
-	Button,
-	CategoryAutocomplete,
-	PluginInstaller,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { Button, Notice, PluginInstaller, withWizardScreen } from '../../../../components/src';
+import PopupActionCard from './components/popup-action-card';
 import './style.scss';
 
 /**
@@ -39,7 +31,7 @@ class Popups extends Component {
 	 */
 	render() {
 		const { pluginRequirementsMet } = this.state;
-		const { popups, setSiteWideDefaultPopup, setCategoriesForPopup } = this.props;
+		const { deletePopup, popups, setSiteWideDefaultPopup, setCategoriesForPopup } = this.props;
 		const hasPopups = popups && popups.length > 0;
 		if ( ! pluginRequirementsMet ) {
 			return (
@@ -49,59 +41,45 @@ class Popups extends Component {
 				/>
 			);
 		}
+		const popupsWithSiteSitewideFirst = [
+			...popups.filter( popup => popup.sitewide_default ),
+			...popups.filter( popup => ! popup.sitewide_default ),
+		];
+
+		const inactivePopupCount = popups.reduce(
+			( accumulator, popup ) =>
+				accumulator + ( ! popup.categories.length && ! popup.sitewide_default ? 1 : 0 ),
+			0
+		);
 
 		return (
 			<Fragment>
-				<ActionCard
-					title={ __( 'Newspack Pop-ups' ) }
-					description={ __( 'AMP-compatible popup notifications.' ) }
-					actionText={ __( 'Manage' ) }
-					href="edit.php?post_type=newspack_popups_cpt"
-				/>
+				{ inactivePopupCount > 0 && (
+					<Notice
+						noticeText={ sprintf(
+							'You have %d inactive %s.',
+							inactivePopupCount,
+							_n( 'popup', 'popups', inactivePopupCount, 'Popups', 'newspack' ),
+							'newspack'
+						) }
+						isWarning
+					/>
+				) }
 				{ hasPopups && (
 					<Fragment>
-						<hr />
-						<h2>{ __( 'Configure active Pop-up' ) }</h2>
-						<SelectControl
-							label={ __( 'Sitewide default' ) }
-							value={ popups.find( popup => popup.sitewide_default ) }
-							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								...popups.map( popup => ( {
-									value: popup.id,
-									label: decodeEntities( popup.title ),
-									disabled: popup.categories.length,
-								} ) ),
-							] }
-							onChange={ setSiteWideDefaultPopup }
-						/>
-						<h2>{ __( 'Category Filtering' ) }</h2>
+						<h2>{ __( 'Manage Pop-ups' ) }</h2>
+						{ popupsWithSiteSitewideFirst.map( popup => (
+							<PopupActionCard
+								key={ popup.id }
+								popup={ popup }
+								setCategoriesForPopup={ setCategoriesForPopup }
+								setSiteWideDefaultPopup={ setSiteWideDefaultPopup }
+								deletePopup={ deletePopup }
+							/>
+						) ) }
 					</Fragment>
 				) }
-				{ hasPopups &&
-					popups
-						.map( popup => {
-							const { categories } = popup;
-							return (
-								<div className="newspack-engagement__popups-row" key={ popup.id }>
-									{ popup.sitewide_default ? (
-										<TextControl
-											disabled
-											label={ decodeEntities( popup.title ) }
-											value={ __( 'Sitewide default', 'newspack' ) }
-										/>
-									) : (
-										<CategoryAutocomplete
-											value={ categories || [] }
-											suggestions={ this.fetchSuggestions }
-											onChange={ tokens => setCategoriesForPopup( popup.id, tokens ) }
-											label={ decodeEntities( popup.title ) }
-											disabled={ popup.sitewide_default }
-										/>
-									) }
-								</div>
-							);
-						} ) }
+				{ ! hasPopups && <p>{ __( 'No Pop-ups have been created yet.', 'newspack' ) }</p> }
 				<div className="newspack-buttons-card">
 					<Button href="/wp-admin/post-new.php?post_type=newspack_popups_cpt" isPrimary>
 						{ hasPopups

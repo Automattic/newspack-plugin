@@ -26,10 +26,11 @@ class ActionCard extends Component {
 	/**
 	 * Render
 	 */
-	render( props ) {
+	render() {
 		const {
 			badge,
 			className,
+			children,
 			title,
 			description,
 			handoff,
@@ -54,7 +55,6 @@ class ActionCard extends Component {
 			simple && 'newspack-card__is-clickable',
 			className
 		);
-		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -116,12 +116,21 @@ class ActionCard extends Component {
 				</div>
 				{ notification && (
 					<div className="newspack-action-card__notification">
-						{ 'error'   === notificationLevel && ( <Notice noticeText={ notification } isError rawHTML={ notificationHTML } /> ) }
-						{ 'info'    === notificationLevel && ( <Notice noticeText={ notification } isPrimary rawHTML={ notificationHTML } /> ) }
-						{ 'success' === notificationLevel && ( <Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } /> ) }
-						{ 'warning' === notificationLevel && ( <Notice noticeText={ notification } isWarning rawHTML={ notificationHTML } /> ) }
+						{ 'error' === notificationLevel && (
+							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
+						) }
+						{ 'info' === notificationLevel && (
+							<Notice noticeText={ notification } isPrimary rawHTML={ notificationHTML } />
+						) }
+						{ 'success' === notificationLevel && (
+							<Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } />
+						) }
+						{ 'warning' === notificationLevel && (
+							<Notice noticeText={ notification } isWarning rawHTML={ notificationHTML } />
+						) }
 					</div>
 				) }
+				{ children && <div>{ children }</div> }
 			</Card>
 		);
 	}

@@ -22,7 +22,7 @@ class TextareaControl extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { className, ...otherProps } = this.props;
 		const classes = classnames( 'newspack-textarea-control', className );
 		return <BaseComponent className={ classes } { ...otherProps } />;

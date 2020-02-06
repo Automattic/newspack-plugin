@@ -25,9 +25,7 @@ class Intro extends Component {
 			<Fragment>
 				<ActionCard
 					title={ __( 'Apple News' ) }
-					description={ __(
-						'Export and sync posts to Apple format.'
-					) }
+					description={ __( 'Export and sync posts to Apple format.' ) }
 					actionText={ __( 'Configure' ) }
 					handoff="publish-to-apple-news"
 				/>

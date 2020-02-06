@@ -3,6 +3,9 @@
  */
 import { isFunction, isString, isObject } from 'lodash';
 
+/**
+ * Creates button props based on an action
+ */
 export default function buttonProps( action ) {
 	const props = {};
 	if ( isFunction( action ) ) {

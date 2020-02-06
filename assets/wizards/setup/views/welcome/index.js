@@ -18,12 +18,12 @@ import { withWizardScreen } from '../../../../components/src';
  */
 class Welcome extends Component {
 	componentDidMount() {
-		document.body.classList.add( "newspack_page_newspack-setup-wizard__welcome" );
+		document.body.classList.add( 'newspack_page_newspack-setup-wizard__welcome' );
 	}
 
 	componentWillUnmount() {
-    document.body.classList.remove( "newspack_page_newspack-setup-wizard__welcome" );
-  }
+		document.body.classList.remove( 'newspack_page_newspack-setup-wizard__welcome' );
+	}
 
 	/**
 	 * Render.
@@ -32,7 +32,11 @@ class Welcome extends Component {
 		return (
 			<div className="newspack-setup-wizard__welcome">
 				<h2>{ __( 'Welcome to WordPress for your Newsroom' ) }</h2>
-				<p>{ __( 'We will help you get set up by installing the most relevant theme and plugins in the background.') }</p>
+				<p>
+					{ __(
+						'We will help you get set up by installing the most relevant theme and plugins in the background.'
+					) }
+				</p>
 			</div>
 		);
 	}

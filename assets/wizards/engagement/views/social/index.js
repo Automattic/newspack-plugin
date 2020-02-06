@@ -5,14 +5,13 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Card, Button, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
  * Social Screen
@@ -22,8 +21,6 @@ class Social extends Component {
 	 * Render.
 	 */
 	render() {
-		const { connected, connectURL } = this.props;
-
 		return (
 			<ActionCard
 				title={ __( 'Jetpack Publicize' ) }

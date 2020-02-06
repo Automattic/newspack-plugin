@@ -20,7 +20,6 @@ import './style.scss';
 import classnames from 'classnames';
 
 class CheckboxControl extends Component {
-
 	/**
 	 * Render.
 	 */

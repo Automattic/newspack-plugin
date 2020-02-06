@@ -11,13 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	TabbedNavigation,
-	SelectControl,
-	ToggleGroup,
-	withWizardScreen,
-} from '../../../../components/src';
+import { ToggleGroup, withWizardScreen } from '../../../../components/src';
 import AdPicker from './ad-picker';
 
 /**
@@ -69,7 +63,11 @@ class Placements extends Component {
 		return (
 			<Fragment>
 				<h2>{ __( 'Pre-defined ad placements' ) }</h2>
-				<p>{ __( 'Define global advertising placements to serve ad units on your site. Enable the individual pre-defined ad placements to select which ads to serve.' ) }</p>
+				<p>
+					{ __(
+						'Define global advertising placements to serve ad units on your site. Enable the individual pre-defined ad placements to select which ads to serve.'
+					) }
+				</p>
 				<ToggleGroup
 					title={ __( 'Global: Above Header' ) }
 					description={ __( 'Choose an ad unit to display above the header' ) }

@@ -17,7 +17,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
  * Internal dependencies.
  */
 import { Button } from '../';
-import Router from '../proxied-imports/router'
+import Router from '../proxied-imports/router';
 import './style.scss';
 
 const { withRouter } = Router;
@@ -28,10 +28,10 @@ class WizardPagination extends Component {
 	 */
 	render() {
 		const { history, location, routes } = this.props;
-		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
 		if ( ! routes || ! history || ! location ) {
 			return;
 		}
+		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
 		if ( 0 === currentIndex ) {
 			return <Fragment />;
 		}
@@ -41,7 +41,11 @@ class WizardPagination extends Component {
 					<div className="newspack-wizard-pagination__pagination">
 						{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
 					</div>
-					<Button isLink className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
+					<Button
+						isLink
+						className="newspack-wizard-pagination__navigation"
+						onClick={ () => history.goBack() }
+					>
 						<ArrowBackIcon />
 						{ __( 'Back' ) }
 					</Button>

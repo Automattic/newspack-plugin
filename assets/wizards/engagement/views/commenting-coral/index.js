@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -36,9 +36,7 @@ class CommentingCoral extends Component {
 		) : (
 			<ActionCard
 				title={ __( 'The Coral Project' ) }
-				description={ __(
-					'Description TK.'
-				) }
+				description={ __( 'Description TK.' ) }
 				actionText={ __( 'Configure' ) }
 				handoff="talk-wp-plugin"
 			/>

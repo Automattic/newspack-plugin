@@ -25,6 +25,24 @@
 		border-left: 4px solid $alert-red;
 	}
 
+	// Supported
+
+	&.newspack-card__is-supported {
+		border-left: 4px solid $alert-green;
+	}
+
+	// Primary
+
+	&.newspack-card__is-primary {
+		border-left: 4px solid $primary-500;
+	}
+
+	// Disabled
+
+	&.newspack-card__is-disabled {
+		border-left: 4px solid $light-gray-700;
+	}
+
 	// Typography
 
 	h2,
@@ -178,6 +196,12 @@
 		font-style: italic;
 	}
 
+	// Form Token Field
+
+	.newspack-form-token-field {
+		margin: 16px 0 0;
+	}
+
 	// Multiple Cards
 
 	& + & {
@@ -194,6 +218,24 @@
 
 		&.newspack-card__is-unsupported {
 			border-left: 4px solid $alert-red;
+		}
+
+		// Supported
+
+		&.newspack-card__is-supported {
+			border-left: 4px solid $alert-green;
+		}
+
+		// Primary
+
+		&.newspack-card__is-primary {
+			border-left: 4px solid $primary-500;
+		}
+
+		// Disabled
+
+		&.newspack-card__is-disabled {
+			border-left: 4px solid $light-gray-700;
 		}
 	}
 }

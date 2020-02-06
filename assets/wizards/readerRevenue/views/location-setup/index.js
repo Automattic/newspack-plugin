@@ -36,33 +36,33 @@ class LocationSetup extends Component {
 					label={ __( 'Where is your business based?' ) }
 					value={ countrystate }
 					options={ countryStateFields }
-					onChange={ countrystate => onChange( { ...data, countrystate } ) }
+					onChange={ _countrystate => onChange( { ...data, countrystate: _countrystate } ) }
 				/>
 				<TextControl
 					label={ __( 'Address' ) }
 					value={ address1 }
-					onChange={ address1 => onChange( { ...data, address1 } ) }
+					onChange={ _address1 => onChange( { ...data, address1: _address1 } ) }
 				/>
 				<TextControl
 					label={ __( 'Address line 2' ) }
 					value={ address2 }
-					onChange={ address2 => onChange( { ...data, address2 } ) }
+					onChange={ _address2 => onChange( { ...data, address2: _address2 } ) }
 				/>
 				<TextControl
 					label={ __( 'City' ) }
 					value={ city }
-					onChange={ city => onChange( { ...data, city } ) }
+					onChange={ _city => onChange( { ...data, city: _city } ) }
 				/>
 				<TextControl
 					label={ __( 'Postcode / Zip' ) }
 					value={ postcode }
-					onChange={ postcode => onChange( { ...data, postcode } ) }
+					onChange={ _postcode => onChange( { ...data, postcode: _postcode } ) }
 				/>
 				<SelectControl
 					label={ 'Which currency does your business use?' }
 					value={ currency }
 					options={ currencyFields }
-					onChange={ currency => onChange( { ...data, currency } ) }
+					onChange={ _currency => onChange( { ...data, currency: _currency } ) }
 				/>
 			</Fragment>
 		);

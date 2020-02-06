@@ -22,7 +22,7 @@ class TextControl extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { className, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-text-control', className );
 		return <BaseComponent className={ classes } { ...otherProps } />;

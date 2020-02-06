@@ -5,14 +5,13 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Card, withWizardScreen, Grid, ImageUpload, Notice } from '../../../../components/src';
+import { Card, withWizardScreen, ImageUpload, Notice } from '../../../../components/src';
 
 /**
  * Intro screen for Performnance Wizard
@@ -48,7 +47,9 @@ class Intro extends Component {
 					<strong>{ __( 'User experience:  ' ) }</strong>
 					{ __( 'Feels like a native app on the device.' ) }
 				</p>
-				<p><em>{ __( 'PWA options have been automatically set up for you.' ) }</em></p>
+				<p>
+					<em>{ __( 'PWA options have been automatically set up for you.' ) }</em>
+				</p>
 				{ settings.configured && (
 					<Notice noticeText={ __( 'PWA is configured and working.' ) } isSuccess />
 				) }
@@ -64,7 +65,10 @@ class Intro extends Component {
 					addText={ __( 'Add icon' ) }
 					removeText={ __( 'Remove icon' ) }
 				/>
-				<Notice noticeText={ __( 'Site icons should be square and at least 144 × 144 pixels.' ) } isPrimary />
+				<Notice
+					noticeText={ __( 'Site icons should be square and at least 144 × 144 pixels.' ) }
+					isPrimary
+				/>
 			</Card>
 		);
 	}

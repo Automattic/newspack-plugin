@@ -5,19 +5,19 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Material UI dependencies.
  */
- import HeaderIcon from '@material-ui/icons/Healing';
+import HeaderIcon from '@material-ui/icons/Healing';
 
 /**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router';
 import { RemoveUnsupportedPlugins } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -68,7 +68,7 @@ class HealthCheckWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<RemoveUnsupportedPlugins
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }

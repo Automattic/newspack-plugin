@@ -22,7 +22,7 @@ class ToggleControl extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { className, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-toggle-control', className );
 		return <BaseComponent className={ classes } { ...otherProps } />;

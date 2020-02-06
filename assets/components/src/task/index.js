@@ -29,15 +29,7 @@ class Task extends Component {
 	 * Render.
 	 */
 	render() {
-		const {
-			active,
-			buttonText,
-			completed,
-			description,
-			onClick,
-			onDismiss,
-			title,
-		} = this.props;
+		const { active, buttonText, completed, description, onClick, onDismiss, title } = this.props;
 		const classes = classnames(
 			'newspack-task',
 			active && 'is-active',
@@ -47,8 +39,10 @@ class Task extends Component {
 			<Card className={ classes }>
 				<div className="newspack-task__task-icon">{ completed && <CheckCircleIcon /> }</div>
 				<div className="newspack-task__task-description">
-					<p className="is-dark"><strong>{ title }</strong></p>
-					{ ! completed && ( <p>{ description }</p> ) }
+					<p className="is-dark">
+						<strong>{ title }</strong>
+					</p>
+					{ ! completed && <p>{ description }</p> }
 					{ completed && (
 						<Button isLink onClick={ onClick }>
 							{ __( 'Edit' ) }
