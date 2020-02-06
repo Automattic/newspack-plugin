@@ -194,23 +194,6 @@ class PWA {
 				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html?appId=<?php echo esc_attr( $one_signal_api_key ); ?>"
 				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js?appId=<?php echo esc_attr( $one_signal_api_key ); ?>"
 				></amp-web-push>
-			<amp-web-push-widget
-				visibility="unsubscribed"
-				layout="fixed"
-				width="250"
-				height="80"
-				>
-				<button on="tap:amp-web-push.subscribe">Subscribe to Notifications</button>
-			</amp-web-push-widget>
-			<!-- An unsubscription widget -->
-			<amp-web-push-widget
-				visibility="subscribed"
-				layout="fixed"
-				width="250"
-				height="80"
-			>
-				<button on="tap:amp-web-push.unsubscribe">Unsubscribe from Notifications</button>
-			</amp-web-push-widget>
 			<?php
 			$content = ob_get_clean() . $content;
 		}

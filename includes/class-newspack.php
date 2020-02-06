@@ -98,6 +98,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-settings.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-configuration-managers.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/widgets/class-newspack-pwa-push-notifications-widget.php';
 	}
 
 	/**
