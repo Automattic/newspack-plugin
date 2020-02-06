@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Material UI dependencies.
  */
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
+import LoyaltyIcon from '@material-ui/icons/Loyalty';
 
 /**
  * Internal dependencies.
@@ -210,7 +211,7 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <HeaderIcon /> }
+									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __( 'Configure your landing page and your suggested donation presets.' ) }
 									donationPage={ donationPage }
