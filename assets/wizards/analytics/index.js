@@ -40,7 +40,7 @@ class AnalyticsWizard extends Component {
 								<Intro
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Analytics', 'newspack' ) }
-									subHeaderText={ __( 'Track traffic and activity') }
+									subHeaderText={ __( 'Track traffic and activity' ) }
 								/>
 							) }
 						/>
