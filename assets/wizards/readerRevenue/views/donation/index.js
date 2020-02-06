@@ -3,16 +3,21 @@
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import EditIcon from '@material-ui/icons/Edit';
+
+/**
+ * Internal dependencies.
  */
 import { MoneyInput } from '../../components/';
-import { ToggleControl, withWizardScreen } from '../../../../components/src';
+import { Button, Handoff, Notice, ToggleControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -23,7 +28,7 @@ class Donation extends Component {
 	 * Render.
 	 */
 	render() {
-		const { data, onChange } = this.props;
+		const { data, onChange, donationPage } = this.props;
 		const {
 			suggestedAmounts = [ 0, 0, 0 ],
 			suggestedAmountUntiered = 0,
@@ -32,6 +37,30 @@ class Donation extends Component {
 		} = data;
 		return (
 			<div className="newspack-donations-wizard">
+				{ donationPage && (
+					<Fragment>
+						<h2>{ __( 'Donations landing page' ) }</h2>
+						{ 'publish' !== donationPage.status && (
+							<Notice isError noticeText={ __( 'Your donations landing page has been created, but is not yet published. You can now edit it and publish when you\'re ready.' ) } />
+						) }
+						{ 'publish' === donationPage.status && (
+							<Notice isSuccess noticeText={ __( 'Your donations landing page is set up and published.' ) } />
+						) }
+						<div className="newspack-donations-wizard__edit-page">
+						<Handoff
+							plugin="woocommerce"
+							editLink={ donationPage.editUrl }
+							isTertiary
+							isSmall
+							icon={ <EditIcon /> }
+							showOnBlockEditor
+						>
+							{ __( 'Edit Page' ) }
+						</Handoff>
+						</div>
+						<hr />
+					</Fragment>
+				) }
 				<h2>{ __( 'Suggested donations' ) }</h2>
 				<p className="newspack-donations-wizard__help">
 					{ __(
@@ -73,7 +102,6 @@ class Donation extends Component {
 						/>
 					</div>
 				) }
-
 				{ ! tiered && (
 					<div className="newspack-donations-wizard__suggested-price">
 						<MoneyInput
