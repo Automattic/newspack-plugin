@@ -35,8 +35,7 @@ class SiteDesignWizard extends Component {
 		};
 		wizardApiFetch( params )
 			.then( response => {
-				const { theme } = response;
-				this.setState( { theme } );
+				this.setState( { theme: response.theme } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Fetch Error]', error );
@@ -52,8 +51,7 @@ class SiteDesignWizard extends Component {
 		};
 		wizardApiFetch( params )
 			.then( response => {
-				const { theme } = response;
-				this.setState( { theme } );
+				this.setState( { theme: response.theme } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Update Error]', error );
