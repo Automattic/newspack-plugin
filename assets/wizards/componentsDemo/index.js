@@ -137,13 +137,13 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Color picker' ) } />
-						<h2>{ __( 'Color Picker with default colors' ) }</h2>
+						<ColorPicker label={ __( 'Color Picker' ) }	/>
+						<hr />
 						<ColorPicker
 							hasDefaultColors
 							label={ __( 'Color Picker with default colors' ) }
 						/>
 						<hr />
-						<h2>{ __( 'Color Picker with suggested colors' ) }</h2>
 						<ColorPicker
 							suggestedColors={ [
 								{

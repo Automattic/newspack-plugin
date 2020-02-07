@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { ColorPalette as BaseComponent } from '@wordpress/components';
+import { ColorIndicator, ColorPalette } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -14,18 +14,17 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
-/**
- * External dependencies.
- */
-import classnames from 'classnames';
-
 class ColorPicker extends Component {
+	state = {
+		color: '#ffffff',
+	};
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { className, hasDefaultColors, suggestedColors, ...otherProps } = this.props;
-		const classes = classnames( 'newspack-color-picker', className );
+		const { hasDefaultColors, label, suggestedColors, ...otherProps } = this.props;
+		const { color } = this.state;
 		const defaultColors = [
 			{
 				name: __( 'navy' ),
@@ -99,7 +98,20 @@ class ColorPicker extends Component {
 		} else {
 			colors = null;
 		}
-		return <BaseComponent className={ classes } colors={ colors } { ...otherProps } />;
+		return (
+			<div className="newspack-color-picker">
+				<div className="newspack-color-picker__label">
+					{ label }
+					<ColorIndicator colorValue={ color } />
+				</div>
+				<ColorPalette
+					colors={ colors }
+					value={ color }
+					onChange={ ( color ) => this.setState( { color } ) }
+					{ ...otherProps }
+				/>
+			</div>
+		);
 	}
 }
 
