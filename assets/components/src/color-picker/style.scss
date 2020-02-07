@@ -16,12 +16,14 @@
 	}
 
 	.component-color-indicator {
-		border-color: $light-gray-500;
+		border-color: rgba( black, 0.2 );
 	}
 
 	.components-circular-option-picker {
 		margin-top: 8px;
 	}
+
+	// Buttons
 
 	.components-circular-option-picker__custom-clear-wrapper {
 		align-items: center;
@@ -96,5 +98,67 @@
 				}
 			}
 		}
+	}
+
+	// Inputs
+
+	.components-color-picker__inputs-fields {
+		margin-right: 8px;
+	}
+
+	.components-color-picker__inputs-field {
+		color: $dark-gray-300;
+		font-size: 14px;
+		line-height: 24px;
+		margin: 0;
+
+		& + .components-color-picker__inputs-field {
+			margin-left: 4px;
+		}
+
+		label {
+			color: $dark-gray-900;
+			font-size: inherit;
+			font-weight: bold;
+			line-height: inherit;
+			margin: 0;
+		}
+
+		input[type="number"],
+		input[type="text"] {
+			background: white;
+			border: 1px solid $light-gray-500;
+			border-radius: 3px;
+			box-shadow: none;
+			color: inherit;
+			font-size: 16px;
+			line-height: inherit;
+			margin: 0;
+			min-height: 48px;
+			padding: 11px 8px;
+			transition: border-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
+			width: 100%;
+
+			@media screen and ( min-width: 768px ) {
+				font-size: inherit;
+			}
+
+			&:focus {
+				border-color: $primary-500;
+				box-shadow: 0 0 0 2px $primary-500;
+			}
+		}
+
+		// Reset
+
+		.components-base-control__field,
+		.components-base-control__label {
+			display: block;
+			margin: 0;
+		}
+	}
+
+	.components-color-picker__inputs-toggle {
+		margin-bottom: 9px;
 	}
 }
