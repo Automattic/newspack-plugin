@@ -164,37 +164,29 @@ class SetupWizard extends Component {
 	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme', method: 'GET' };
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( params )
-				.then( response => {
-					const { theme } = response;
-					this.setState( { theme }, () => resolve( response ) );
-				} )
-				.catch( error => {
-					console.log( '[Theme Fetch Error]', error );
-					setError( { error } );
-					reject( error );
-				} );
-		} );
+		wizardApiFetch( params )
+			.then( response => {
+				const { theme } = response;
+				this.setState( { theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Fetch Error]', error );
+				setError( { error } );
+			} );
 	};
 
 	updateTheme = theme => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
-			method: 'POST',
-		};
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( params )
-				.then( response => {
-					this.setState( { theme: response.theme }, () => resolve( response ) );
-				} )
-				.catch( error => {
-					console.log( '[Theme Update Error]', error );
-					setError( { error } );
-					reject( error );
-				} );
-		} );
+		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme, method: 'POST' };
+		wizardApiFetch( params )
+			.then( response => {
+				const { theme } = response;
+				this.setState( { theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Update Error]', error );
+				setError( { error } );
+			} );
 	};
 
 	incrementStarterContentProgress = () => {
@@ -398,9 +390,7 @@ class SetupWizard extends Component {
 									headerText={ __( 'Theme' ) }
 									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
-									buttonAction="#/starter-content"
-									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
-									secondaryButtonAction={ this.finish }
+									buttonAction='#/starter-content'
 									updateTheme={ this.updateTheme }
 									theme={ theme }
 									isWide
