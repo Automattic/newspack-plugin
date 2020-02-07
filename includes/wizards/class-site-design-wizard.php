@@ -56,7 +56,7 @@ class Site_Design_Wizard extends Wizard {
 	 * @return string A description of the expected duration (e.g. '10 minutes').
 	 */
 	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
+		return esc_html__( '5 minutes', 'newspack' );
 	}
 
 	/**
