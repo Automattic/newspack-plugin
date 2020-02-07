@@ -30,35 +30,29 @@ class SiteDesignWizard extends Component {
 	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme', method: 'GET' };
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( params )
-				.then( response => {
-					const { theme } = response;
-					this.setState( { theme }, () => resolve( response ) );
-				} )
-				.catch( error => {
-					console.log( '[Theme Fetch Error]', error );
-					setError( { error } );
-					reject( error );
-				} );
-		} );
+		wizardApiFetch( params )
+			.then( response => {
+				const { theme } = response;
+				this.setState( { theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Fetch Error]', error );
+				setError( { error } );
+			} );
 	};
 
 	updateTheme = theme => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme, method: 'POST' };
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( params )
-				.then( response => {
-					const { theme } = response;
-					this.setState( { theme }, () => resolve( response ) );
-				} )
-				.catch( error => {
-					console.log( '[Theme Update Error]', error );
-					setError( { error } );
-					reject( error );
-				} );
-		} );
+		wizardApiFetch( params )
+			.then( response => {
+				const { theme } = response;
+				this.setState( { theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Update Error]', error );
+				setError( { error } );
+			} );
 	};
 
 	state = {
