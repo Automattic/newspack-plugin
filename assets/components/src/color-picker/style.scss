@@ -8,6 +8,21 @@
 .newspack-color-picker {
 	margin: 32px 0;
 
+	.newspack-color-picker__label {
+		align-items: center;
+		color: $dark-gray-900;
+		display: flex;
+		font-weight: bold;
+	}
+
+	.component-color-indicator {
+		border-color: $light-gray-500;
+	}
+
+	.components-circular-option-picker {
+		margin-top: 8px;
+	}
+
 	.components-circular-option-picker__custom-clear-wrapper {
 		align-items: center;
 		font-size: 14px;
