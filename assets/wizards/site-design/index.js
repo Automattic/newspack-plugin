@@ -29,7 +29,10 @@ class SiteDesignWizard extends Component {
 
 	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme', method: 'GET' };
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
+			method: 'GET',
+		};
 		wizardApiFetch( params )
 			.then( response => {
 				const { theme } = response;
@@ -43,7 +46,10 @@ class SiteDesignWizard extends Component {
 
 	updateTheme = theme => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme, method: 'POST' };
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
+			method: 'POST',
+		};
 		wizardApiFetch( params )
 			.then( response => {
 				const { theme } = response;

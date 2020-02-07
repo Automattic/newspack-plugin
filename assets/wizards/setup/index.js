@@ -163,11 +163,13 @@ class SetupWizard extends Component {
 
 	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme', method: 'GET' };
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
+			method: 'GET',
+		};
 		wizardApiFetch( params )
 			.then( response => {
-				const { theme } = response;
-				this.setState( { theme } );
+				this.setState( { theme: response.theme } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Fetch Error]', error );
@@ -177,11 +179,13 @@ class SetupWizard extends Component {
 
 	updateTheme = theme => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme, method: 'POST' };
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
+			method: 'POST',
+		};
 		wizardApiFetch( params )
 			.then( response => {
-				const { theme } = response;
-				this.setState( { theme } );
+				this.setState( { theme: response.theme } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Update Error]', error );
