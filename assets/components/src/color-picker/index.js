@@ -1,8 +1,4 @@
 /**
- * Color Picker
- */
-
-/**
  * WordPress dependencies.
  */
 import { ColorIndicator, ColorPalette } from '@wordpress/components';
@@ -14,6 +10,9 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
+/**
+ * Color Picker.
+ */
 class ColorPicker extends Component {
 	state = {
 		color: '#ffffff',
