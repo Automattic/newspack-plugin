@@ -33,14 +33,6 @@ class Site_Design_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-	}
-
-	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
@@ -66,11 +58,6 @@ class Site_Design_Wizard extends Wizard {
 	public function get_length() {
 		return esc_html__( '10 minutes', 'newspack' );
 	}
-
-	/**
-	 * Register the endpoints needed for the wizard screens.
-	 */
-	public function register_api_endpoints() {}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
