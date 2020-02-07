@@ -84,7 +84,7 @@ class SiteDesignWizard extends Component {
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
 										buttonText={ __( 'Customize', 'newspack' ) }
-										buttonAction='/wp-admin/customize.php?return=%2Fwp-admin%2Fadmin.php%3Fpage%3Dnewspack-site-design-wizard'
+										buttonAction='/wp-admin/customize.php'
 										updateTheme={ this.updateTheme }
 										theme={ theme }
 										isWide
