@@ -19,19 +19,19 @@
 		margin: 0;
 	}
 
-	input[type="date"],
-	input[type="datetime-local"],
-	input[type="datetime"],
-	input[type="email"],
-	input[type="month"],
-	input[type="number"],
-	input[type="password"],
-	input[type="search"],
-	input[type="tel"],
-	input[type="text"],
-	input[type="time"],
-	input[type="url"],
-	input[type="week"] {
+	input[type='date'],
+	input[type='datetime-local'],
+	input[type='datetime'],
+	input[type='email'],
+	input[type='month'],
+	input[type='number'],
+	input[type='password'],
+	input[type='search'],
+	input[type='tel'],
+	input[type='text'],
+	input[type='time'],
+	input[type='url'],
+	input[type='week'] {
 		background: white;
 		border: 1px solid $light-gray-500;
 		border-radius: 3px;
@@ -71,8 +71,8 @@
 
 	// Multiple Controls
 
-	& + .newspack-select-control,
-	& + .newspack-textarea-control {
+	+ .newspack-select-control,
+	+ .newspack-textarea-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}

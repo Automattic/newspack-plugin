@@ -5,11 +5,11 @@
 .newspack-grid {
 	margin: 0 auto;
 	max-width: 90%;
-	max-width: calc(100% - 32px);
+	max-width: calc( 100% - 32px );
 
 	@media screen and ( min-width: 600px ) {
 		max-width: 80%;
-		max-width: calc(100% - 64px);
+		max-width: calc( 100% - 64px );
 	}
 
 	@media screen and ( min-width: 744px ) {
