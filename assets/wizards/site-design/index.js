@@ -23,16 +23,6 @@ const { HashRouter, Redirect, Route, Switch } = Router;
  */
 class SiteDesignWizard extends Component {
 
-	/**
-	 * Constructor.
-	 */
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			theme: null,
-		};
-	}
-
 	componentDidMount = () => {
 		this.retrieveTheme();
 	};
@@ -69,6 +59,10 @@ class SiteDesignWizard extends Component {
 					reject( error );
 				} );
 		} );
+	};
+
+	state = {
+		theme: null,
 	};
 
 	/**
