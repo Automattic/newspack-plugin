@@ -91,9 +91,9 @@ class SiteDesignWizard extends Component {
 								return (
 									<ThemeSelection
 										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Site Design' ) }
-										subHeaderText={ __( 'Choose a Newspack theme' ) }
-										buttonText={ __( 'Customizer' ) }
+										headerText={ __( 'Site Design', 'newspack' ) }
+										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
+										buttonText={ __( 'Customize', 'newspack' ) }
 										buttonAction='/wp-admin/customize.php?return=%2Fwp-admin%2Fadmin.php%3Fpage%3Dnewspack-site-design-wizard'
 										updateTheme={ this.updateTheme }
 										theme={ theme }
