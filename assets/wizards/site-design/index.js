@@ -1,12 +1,7 @@
 /**
- * Site Design
- */
-
-/**
  * WordPress dependencies.
  */
 import { Component, render, Fragment } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -23,6 +18,9 @@ import { ThemeSelection } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
+/**
+ * Site Design Wizard.
+ */
 class SiteDesignWizard extends Component {
 
 	/**
