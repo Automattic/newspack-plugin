@@ -103,6 +103,20 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'/theme-mods',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_theme_mods' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'theme_mods' => [
+						'sanitize_callback' => [ $this, 'sanitize_theme_mods' ],
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'/starter-content/categories',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -195,7 +209,12 @@ class Setup_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_retrieve_theme() {
-		return rest_ensure_response( [ 'theme' => Starter_Content::get_theme() ] );
+		return rest_ensure_response(
+			[
+				'theme'      => Starter_Content::get_theme(),
+				'theme_mods' => get_theme_mods(),
+			]
+		);
 	}
 
 	/**
@@ -206,7 +225,22 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function api_update_theme( $request ) {
 		$theme = $request['theme'];
-		return rest_ensure_response( [ 'theme' => Starter_Content::set_theme( $theme ) ] );
+		Starter_Content::set_theme( $theme );
+		return self::api_retrieve_theme();
+	}
+
+	/**
+	 * Update theme mods
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_update_theme_mods( $request ) {
+		$theme_mods = $request['theme_mods'];
+		foreach ( $theme_mods as $key => $value ) {
+			set_theme_mod( $key, $value );
+		}
+		return self::api_retrieve_theme();
 	}
 
 	/**
@@ -259,5 +293,14 @@ class Setup_Wizard extends Wizard {
 			wp_safe_redirect( esc_url( $setup_url ) );
 			exit;
 		}
+	}
+
+	/**
+	 * Sanitize theme mods.
+	 *
+	 * @param array $theme_mods An array of theme mods.
+	 */
+	public function sanitize_theme_mods( $theme_mods ) {
+		return $theme_mods;
 	}
 }
