@@ -8,7 +8,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
-	ImageUpload,
 	RadioControl,
 	TextControl,
 	ToggleControl,
@@ -30,9 +29,9 @@ class ThemeMods extends Component {
 			header_solid_background: headerSolidBackground,
 			header_simplified: headerSimplified,
 			header_center_logo: headerCenterLogo,
-			show_author_bio: authorBio,
+			show_author_bio: authorBio = true,
 			show_author_email: authorEmail,
-			author_bio_length: authorBioLength,
+			author_bio_length: authorBioLength = 200,
 			featured_image_default: featuredImageDefault,
 		} = themeMods;
 		return (
@@ -40,7 +39,7 @@ class ThemeMods extends Component {
 				<h2>{ __( 'Header', 'newspack' ) }</h2>
 				<ToggleControl
 					isDark
-					label={ __( 'Solid background', 'newspack') }
+					label={ __( 'Solid background', 'newspack' ) }
 					help={ __( 'Use the primary color as the header background.', 'newspack' ) }
 					checked={ headerSolidBackground }
 					onChange={ value => setThemeMods( { header_solid_background: value } ) }
@@ -62,14 +61,14 @@ class ThemeMods extends Component {
 				<hr />
 				<h2>{ __( 'Author bio', 'newspack' ) }</h2>
 				<ToggleGroup
-					title={ __( 'Author bio', 'newspack') }
+					title={ __( 'Author bio', 'newspack' ) }
 					description={ __( 'Display an author bio under individual posts.', 'newspack' ) }
 					checked={ authorBio }
 					onChange={ value => setThemeMods( { show_author_bio: value } ) }
 				>
 					<ToggleControl
 						isDark
-						label={ __( 'Author email', 'newspack') }
+						label={ __( 'Author email', 'newspack' ) }
 						help={ __( 'Display the author email with bio on individual posts.', 'newspack' ) }
 						checked={ authorEmail }
 						onChange={ value => setThemeMods( { show_author_email: value } ) }
@@ -77,7 +76,10 @@ class ThemeMods extends Component {
 				</ToggleGroup>
 				<TextControl
 					label={ __( 'Length', 'newspack' ) }
-					help={ __( 'Truncates the author bio on single posts to this approximate character length, but without breaking a word. The full bio appears on the author archive page.', 'newspack' ) }
+					help={ __(
+						'Truncates the author bio on single posts to this approximate character length, but without breaking a word. The full bio appears on the author archive page.',
+						'newspack'
+					) }
 					type="number"
 					value={ authorBioLength }
 					onChange={ value => setThemeMods( { author_bio_length: value } ) }
@@ -95,7 +97,7 @@ class ThemeMods extends Component {
 						{ label: __( 'Hidden', 'newspack' ), value: 'hidden' },
 					] }
 					onChange={ value => setThemeMods( { featured_image_default: value } ) }
-		    />
+				/>
 			</Fragment>
 		);
 	}
