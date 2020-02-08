@@ -7,7 +7,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { TextControl, ToggleControl, withWizardScreen } from '../../../../components/src';
+import {
+	ImageUpload,
+	TextControl,
+	ToggleControl,
+	withWizardScreen,
+} from '../../../../components/src';
 import { ColorPicker } from '@wordpress/components';
 
 /**
@@ -25,6 +30,7 @@ class ThemeMods extends Component {
 			header_center_logo: headerCenterLogo,
 			primary_color_hex: primaryColorHex,
 			author_bio_length: authorBioLength,
+			newspack_footer_logo: newspackFooterLogo,
 		} = themeMods;
 		return (
 			<Fragment>
@@ -47,6 +53,10 @@ class ThemeMods extends Component {
 					label={ __( 'Author Bio Length', 'newspack' ) }
 					value={ authorBioLength }
 					onChange={ value => setThemeMods( { author_bio_length: value } ) }
+				/>
+				<ImageUpload
+					image={ newspackFooterLogo }
+					onChange={ value => setThemeMods( { newspack_footer_logo: value } ) }
 				/>
 				{ primaryColorHex && (
 					<ColorPicker

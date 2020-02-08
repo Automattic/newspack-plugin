@@ -31,6 +31,13 @@ class Setup_Wizard extends Wizard {
 	protected $capability = 'install_plugins';
 
 	/**
+	 * An array of theme mods that are media library IDs.
+	 *
+	 * @var array
+	 */
+	protected $media_theme_mods = [ 'newspack_footer_logo' ];
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -209,10 +216,20 @@ class Setup_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_retrieve_theme() {
+		$theme_mods = get_theme_mods();
+
+		foreach ( $theme_mods as $key => &$theme_mod ) {
+			if ( in_array( $key, $this->$media_theme_mods ) ) {
+				$attachment = wp_get_attachment_image_src( $theme_mod )[0];
+				$theme_mod  = [
+					'url' => is_array( $attachment ) ? $attachment[0] : null,
+				];
+			}
+		}
 		return rest_ensure_response(
 			[
 				'theme'      => Starter_Content::get_theme(),
-				'theme_mods' => get_theme_mods(),
+				'theme_mods' => $theme_mods,
 			]
 		);
 	}
@@ -238,6 +255,9 @@ class Setup_Wizard extends Wizard {
 	public function api_update_theme_mods( $request ) {
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
+			if ( in_array( $key, $this->$media_theme_mods ) ) {
+				$value = $value['id'];
+			}
 			set_theme_mod( $key, $value );
 		}
 		return self::api_retrieve_theme();
