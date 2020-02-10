@@ -59,6 +59,9 @@ class ComponentsDemo extends Component {
 			modalShown: false,
 			showPluginInstallerWithProgressBar: false,
 			toggleGroupChecked: false,
+			color1: '#3366ff',
+			color2: '#4ab866',
+			color3: '#d94f4f',
 		};
 	}
 
@@ -89,6 +92,9 @@ class ComponentsDemo extends Component {
 			showPluginInstallerWithProgressBar,
 			actionCardToggleChecked,
 			toggleGroupChecked,
+			color1,
+			color2,
+			color3
 		} = this.state;
 		return (
 			<Fragment>
@@ -137,11 +143,17 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Color picker' ) } />
-						<ColorPicker label={ __( 'Color Picker' ) }	/>
+						<ColorPicker
+							label={ __( 'Color Picker' ) }
+							color={ color1 }
+							onChange={ color => this.setState( { color1: color } ) }
+						/>
 						<hr />
 						<ColorPicker
 							hasDefaultColors
 							label={ __( 'Color Picker with default colors' ) }
+							color={ color2 }
+							onChange={ color => this.setState( { color2: color } ) }
 						/>
 						<hr />
 						<ColorPicker
@@ -195,6 +207,8 @@ class ComponentsDemo extends Component {
 								},
 							] }
 							label={ __( 'Color Picker with suggested colors' ) }
+							color={ color3 }
+							onChange={ color => this.setState( { color3: color } ) }
 						/>
 					</Card>
 					<Card>
