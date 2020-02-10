@@ -70,7 +70,81 @@ class SEO_Wizard extends Wizard {
 	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
-	public function register_api_endpoints() {}
+	public function register_api_endpoints() {
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'settings',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_seo_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'settings',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_seo_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'under_construction' => [
+						'sanitize_callback' => 'absint',
+					],
+					'title_separator'    => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'verification'       => [],
+					'urls'               => [],
+				],
+			]
+		);
+	}
+
+	/**
+	 * API endpoint to retrieve all settings necessary to render the SEO wizard.
+	 *
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_get_seo_settings() {
+		$response = $this->get_seo_settings();
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Update SEO wizard settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_update_seo_settings( $request ) {
+		$response = $this->get_seo_settings();
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Retrieve all settings necessary to render the SEO wizard.
+	 *
+	 * @return Array with the info.
+	 */
+	public function get_seo_settings() {
+		$response = [
+			'under_construction' => false,
+			'title_separator'    => '-',
+			'verification'       => [
+				'bing'   => '123456789',
+				'google' => '123456789',
+			],
+			'urls'               => [
+				'facebook'  => 'https://facebook.com',
+				'twitter'   => 'https://twitter.com',
+				'instagram' => 'https://instagram.com',
+				'linkedin'  => 'https://linkedin.com',
+				'youtube'   => 'https://youtube.com',
+			],
+		];
+		return $response;
+	}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
