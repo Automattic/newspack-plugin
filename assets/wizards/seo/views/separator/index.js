@@ -14,6 +14,7 @@ const SEPARATORS = {
 	'sc-dash': '-',
 	'sc-ndash': '&ndash;',
 	'sc-mdash': '&mdash;',
+	'sc-bull': '&bull;',
 	'sc-star': '*',
 	'sc-pipe': '|',
 };
