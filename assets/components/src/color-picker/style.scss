@@ -100,6 +100,23 @@
 		}
 	}
 
+	// Option Picker
+
+	.components-circular-option-picker__option-wrapper {
+		box-sizing: border-box;
+
+		*,
+		*:after {
+		  box-sizing: inherit;
+		}
+
+		.components-circular-option-picker__option {
+			&:focus:after {
+				box-shadow: none;
+			}
+		}
+	}
+
 	// Inputs
 
 	.components-color-picker__inputs-fields {
