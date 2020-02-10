@@ -38,6 +38,7 @@ class SEOWizard extends Component {
 			instagram: '',
 			youtube: '',
 			linkedin: '',
+			pinterest: '',
 		},
 		verification: {
 			bing: '',

@@ -136,6 +136,9 @@ class SEO_Wizard extends Wizard {
 			if ( isset( $urls['youtube'] ) ) {
 				$cm->set_option( 'youtube_url', $urls['youtube'] );
 			}
+			if ( isset( $urls['pinterest'] ) ) {
+				$cm->set_option( 'pinterest_url', $urls['pinterest'] );
+			}
 		}
 		if ( isset( $request['verification'] ) ) {
 			$verification = $request['verification'];
@@ -178,6 +181,7 @@ class SEO_Wizard extends Wizard {
 				'instagram' => $cm->get_option( 'instagram_url', '' ),
 				'linkedin'  => $cm->get_option( 'linkedin_url', '' ),
 				'youtube'   => $cm->get_option( 'youtube_url', '' ),
+				'pinterest' => $cm->get_option( 'pinterest_url', '' ),
 			],
 		];
 		return $response;
