@@ -31,7 +31,7 @@ class Separator extends Component {
 		const { titleSeparator } = data;
 		return (
 			<Fragment>
-				<h2>Title Separator</h2>
+				<h2>{ __( 'Title separator', 'newspack' ) }</h2>
 				<p>
 					{ __(
 						"Choose the symbol to use as your title separator. This will display, for instance, between your post title and site name. Symbols are shown in the size they'll appear in the search results",

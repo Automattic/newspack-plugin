@@ -23,7 +23,7 @@ class Social extends Component {
 		const { facebook, linkedin, twitter, youtube, instagram, pinterest } = urls;
 		return (
 			<Fragment>
-				<h2>Social</h2>
+				<h2>{ __( 'Social profiles', 'newspack' ) }</h2>
 				<p>
 					{ __(
 						'To let search engines know which social profiles are associated to this site, enter your site social profiles data below.',

@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { withWizardScreen, ToggleControl } from '../../../../components/src';
+import './style.scss';
 
 /**
  * SEO Environment screen.
@@ -21,7 +22,7 @@ class Environment extends Component {
 		const { underConstruction } = data;
 		return (
 			<Fragment>
-				<h2>Environment</h2>
+				<h2>{ __( 'Environment', 'newspack' ) }</h2>
 				<ToggleControl
 					label={ __( 'Site under construction', 'newspack' ) }
 					checked={ underConstruction }
