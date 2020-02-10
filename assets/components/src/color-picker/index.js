@@ -14,16 +14,16 @@ import './style.scss';
  * Color Picker.
  */
 class ColorPicker extends Component {
-	state = {
+	prop = {
 		color: '#ffffff',
+		onChange: '#ffffff',
 	};
 
 	/**
 	 * Render.
 	 */
 	render() {
-		const { hasDefaultColors, label, suggestedColors, ...otherProps } = this.props;
-		const { color } = this.state;
+		const { color, hasDefaultColors, label, onChange, suggestedColors, ...otherProps } = this.props;
 		const defaultColors = [
 			{
 				name: __( 'navy' ),
@@ -106,7 +106,7 @@ class ColorPicker extends Component {
 				<ColorPalette
 					colors={ colors }
 					value={ color }
-					onChange={ ( color ) => this.setState( { color } ) }
+					onChange={ onChange }
 					{ ...otherProps }
 				/>
 			</div>
