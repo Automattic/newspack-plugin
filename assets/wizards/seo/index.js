@@ -110,12 +110,9 @@ class SEOWizard extends Component {
 			},
 		];
 		const screenParams = {
-			buttonAction: () => this.update(),
-			buttonText,
 			data: this.state,
 			headerIcon,
 			headerText,
-			onChange: settings => this.setState( settings ),
 			subHeaderText,
 			tabbedNavigation,
 		};
@@ -124,10 +121,54 @@ class SEOWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route path="/" exact render={ () => <Environment { ...screenParams } /> } />
-						<Route path="/separator" exact render={ () => <Separator { ...screenParams } /> } />
-						<Route path="/social" exact render={ () => <Social { ...screenParams } /> } />
-						<Route path="/tools" exact render={ () => <Tools { ...screenParams } /> } />
+						<Route
+							exact
+							path="/"
+							render={ () => (
+								<Environment
+									{ ...screenParams }
+									onEnvironmentChange={ value =>
+										this.setState( { underConstruction: value }, () => this.update() )
+									}
+								/>
+							) }
+						/>
+						<Route
+							exact
+							path="/separator"
+							render={ () => (
+								<Separator
+									{ ...screenParams }
+									onSeparatorChange={ value =>
+										this.setState( { titleSeparator: value }, () => this.update() )
+									}
+								/>
+							) }
+						/>
+						<Route
+							exact
+							path="/social"
+							render={ () => (
+								<Social
+									{ ...screenParams }
+									buttonAction={ () => this.update() }
+									buttonText={ buttonText }
+									onChange={ settings => this.setState( settings ) }
+								/>
+							) }
+						/>
+						<Route
+							exact
+							path="/tools"
+							render={ () => (
+								<Tools
+									{ ...screenParams }
+									buttonAction={ () => this.update() }
+									buttonText={ buttonText }
+									onChange={ settings => this.setState( settings ) }
+								/>
+							) }
+						/>
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>

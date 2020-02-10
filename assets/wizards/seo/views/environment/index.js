@@ -17,15 +17,15 @@ class Environment extends Component {
 	 * Render.
 	 */
 	render() {
-		const { data, onChange } = this.props;
+		const { data, onEnvironmentChange } = this.props;
 		const { underConstruction } = data;
 		return (
 			<Fragment>
 				<h2>Environment</h2>
 				<ToggleControl
-					label={ __( 'Site under constructions', 'newspack' ) }
+					label={ __( 'Site under construction', 'newspack' ) }
 					checked={ underConstruction }
-					onChange={ value => onChange( { underConstruction: value } ) }
+					onChange={ value => onEnvironmentChange( value ) }
 				/>
 			</Fragment>
 		);
