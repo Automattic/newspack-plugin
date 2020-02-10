@@ -34,6 +34,7 @@
     "grunt-wp-readme-to-markdown": "^1.0.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.7.1",
+    "lint-staged": "^10.0.7",
     "lodash": "^4.17.15",
     "mini-css-extract-plugin": "0.6.0",
     "node-sass": "^4.13.0",
@@ -63,6 +64,9 @@
   "browserslist": [
     "extends @wordpress/browserslist-config"
   ],
+  "lint-staged": {
+    "*.js": "npm run lint:js:staged"
+  },
   "jest": {
     "setupFilesAfterEnv": [
       "<rootDir>/assets/setupTests.js"
@@ -93,6 +97,7 @@
     "test": "jest",
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .js,.jsx assets",
+    "lint:js:staged": "eslint --ext .js,.jsx",
     "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
     "release:build-all": "composer install --no-dev && run-p \"build\"",
     "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store",
