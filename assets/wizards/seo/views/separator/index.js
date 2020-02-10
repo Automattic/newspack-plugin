@@ -2,14 +2,13 @@
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { ButtonGroup } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { Button, withWizardScreen } from '../../../../components/src';
+import { Button, ButtonGroup, withWizardScreen } from '../../../../components/src';
 
 const SEPARATORS = {
 	'sc-dash': '-',
