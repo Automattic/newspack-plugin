@@ -21,7 +21,7 @@ class PushNotifications extends Component {
 	 */
 	render() {
 		const { pushNotificationEnabled } = this.state;
-		const { data, onChange } = this.props;
+		const { data, onChange, setPushNotificationEnabled } = this.props;
 		const { app_id: appId, app_rest_api_key: appRestAPIKey } = data;
 		return (
 			<Fragment>
@@ -29,9 +29,12 @@ class PushNotifications extends Component {
 					onReady={ pluginInfo => {
 						const { 'onesignal-free-web-push-notifications': oneSignal } = pluginInfo;
 						const { Status: status } = oneSignal || {};
-						this.setState( {
-							pushNotificationEnabled: 'active' === status,
-						} );
+						this.setState(
+							{
+								pushNotificationEnabled: 'active' === status,
+							},
+							() => setPushNotificationEnabled( this.state.pushNotificationEnabled )
+						);
 					} }
 					plugins={ {
 						'onesignal-free-web-push-notifications': {

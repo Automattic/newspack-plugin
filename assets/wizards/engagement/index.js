@@ -40,6 +40,7 @@ class EngagementWizard extends Component {
 			connectURL: '',
 			wcConnected: false,
 			popups: [],
+			pushNotificationEnabled: false,
 		};
 	}
 
@@ -271,7 +272,7 @@ class EngagementWizard extends Component {
 							path="/push-notifications"
 							exact
 							render={ routeProps => {
-								const { push_notification_enabled: pushNotificationEnabled } = this.state;
+								const { pushNotificationEnabled } = this.state;
 								return (
 									<PushNotifications
 										headerIcon={ <HeaderIcon /> }
@@ -279,10 +280,13 @@ class EngagementWizard extends Component {
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
 										data={ this.state }
-										buttonText={ __( 'Update', 'newspack' ) }
+										buttonText={ pushNotificationEnabled && __( 'Update', 'newspack' ) }
 										buttonAction={ data => this.setState( data, () => this.updateSettings() ) }
 										onChange={ ( data, update ) =>
 											this.setState( data, () => update && this.updateSettings() )
+										}
+										setPushNotificationEnabled={ value =>
+											this.setState( { pushNotificationEnabled: value } )
 										}
 									/>
 								);
