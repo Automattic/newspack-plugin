@@ -34,23 +34,31 @@ class ThemeMods extends Component {
 		} = themeMods;
 		return (
 			<Fragment>
+				<h2>{ __( 'Header', 'newspack' ) }</h2>
 				<ToggleControl
-					label={ __( 'Header: Solid Background' ) }
+					label={ __( 'Solid background', 'newspack') }
+					help={ __( 'Use the primary color as the header background.', 'newspack' ) }
 					checked={ headerSolidBackground }
 					onChange={ value => setThemeMods( { header_solid_background: value } ) }
 				/>
 				<ToggleControl
-					label={ __( 'Header: Centered' ) }
+					label={ __( 'Center logo', 'newspack' ) }
+					help={ __( 'Center the logo in the header.', 'newspack' ) }
 					checked={ headerCenterLogo }
 					onChange={ value => setThemeMods( { header_center_logo: value } ) }
 				/>
 				<ToggleControl
-					label={ __( 'Header: Short Header' ) }
+					label={ __( 'Short header', 'newspack' ) }
+					help={ __( 'Display the header as a shorter, simpler version', 'newspack' ) }
 					checked={ headerSimplified }
 					onChange={ value => setThemeMods( { header_simplified: value } ) }
 				/>
+				<hr />
+				<h2>{ __( 'Author bio', 'newspack' ) }</h2>
 				<TextControl
-					label={ __( 'Author Bio Length', 'newspack' ) }
+					label={ __( 'Length', 'newspack' ) }
+					help={ __( 'Truncates the author bio on single posts to this approximate character length, but without breaking a word. The full bio appears on the author archive page.', 'newspack' ) }
+					type="number"
 					value={ authorBioLength }
 					onChange={ value => setThemeMods( { author_bio_length: value } ) }
 				/>
