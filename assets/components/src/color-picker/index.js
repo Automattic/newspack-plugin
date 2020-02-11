@@ -14,11 +14,6 @@ import './style.scss';
  * Color Picker.
  */
 class ColorPicker extends Component {
-	prop = {
-		color: '#ffffff',
-		onChange: '#ffffff',
-	};
-
 	/**
 	 * Render.
 	 */
@@ -112,6 +107,11 @@ class ColorPicker extends Component {
 			</div>
 		);
 	}
+}
+
+ColorPicker.defaultProps = {
+	color: '#ffffff',
+	onChange: () => null,
 }
 
 export default ColorPicker;
