@@ -91,6 +91,18 @@ class SiteDesignWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
+		const tabbedNavigation = [
+			{
+				label: __( 'Theme' ),
+				path: '/',
+				exact: true,
+			},
+			{
+				label: __( 'Options' ),
+				path: '/options',
+				exact: true,
+			},
+		];
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -106,6 +118,7 @@ class SiteDesignWizard extends Component {
 										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
+										tabbedNavigation={ tabbedNavigation }
 										buttonText={ __( 'Customize', 'newspack' ) }
 										buttonAction="/wp-admin/customize.php"
 										updateTheme={ this.updateTheme }
@@ -116,7 +129,7 @@ class SiteDesignWizard extends Component {
 							} }
 						/>
 						<Route
-							path="/theme-mods"
+							path="/options"
 							exact
 							render={ routeProps => {
 								const { themeMods, theme } = this.state;
@@ -125,9 +138,10 @@ class SiteDesignWizard extends Component {
 										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
+										tabbedNavigation={ tabbedNavigation }
 										themeMods={ themeMods }
 										setThemeMods={ this.setThemeMods }
-										buttonText={ __( 'Update Theme', 'newspack' ) }
+										buttonText={ __( 'Save', 'newspack' ) }
 										buttonAction={ this.updateThemeMods }
 									/>
 								);
