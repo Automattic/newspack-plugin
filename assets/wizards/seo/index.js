@@ -109,7 +109,7 @@ class SEOWizard extends Component {
 				path: '/social',
 			},
 		];
-		const buttonText = __( 'Save settings, 'newspack' );
+		const buttonText = __( 'Save settings', 'newspack' );
 		const secondaryButtonText = __( 'Advanced settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
