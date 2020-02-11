@@ -24,6 +24,7 @@ class Environment extends Component {
 			<Fragment>
 				<h2>{ __( 'Environment', 'newspack' ) }</h2>
 				<ToggleControl
+					isDark
 					label={ __( 'Site under construction', 'newspack' ) }
 					checked={ underConstruction }
 					onChange={ value => onChange( { underConstruction: value } ) }
