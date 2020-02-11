@@ -6,6 +6,7 @@
  */
 
 use \Newspack\PWA;
+use \Newspack\Configuration_Managers;
 
 /**
  * Newspack PWA Push Notifications Widget
@@ -50,7 +51,8 @@ class Newspack_PWA_Push_Notifications_Widget extends \WP_Widget {
 		if ( ! $is_amp ) {
 			return null;
 		}
-		if ( ! get_option( PWA::NEWSPACK_PUSH_NOTIFICATION_ENABLED, false ) || ! get_option( PWA::NEWSPACK_ONESIGNAL_API_KEY, null ) ) {
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
+		if ( ! $onesignal_cm->is_configured() || ! $onesignal_cm->get( 'app_id' ) ) {
 			return null;
 		}
 		?>

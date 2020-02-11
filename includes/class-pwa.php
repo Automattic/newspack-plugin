@@ -16,9 +16,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class PWA {
 
-	const NEWSPACK_PUSH_NOTIFICATION_ENABLED = 'newspack_push_notification_enabled';
-	const NEWSPACK_ONESIGNAL_API_KEY         = 'newspack_onesignal_api_key';
-
 	/**
 	 * Add hooks.
 	 */
@@ -145,7 +142,8 @@ class PWA {
 	 * Render Push Notification required HTML files.
 	 */
 	public static function render_push_notification_urls() {
-		if ( ! get_option( self::NEWSPACK_PUSH_NOTIFICATION_ENABLED, false ) ) {
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
+		if ( ! $onesignal_cm->is_configured() ) {
 			return;
 		}
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: Input var okay.
@@ -181,9 +179,10 @@ class PWA {
 	 * @return string The content with popup inserted.
 	 */
 	public static function push_notifications( $content = '' ) {
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
 		// https://documentation.onesignal.com/docs/amp-web-push-setup.
-		$one_signal_api_key = get_option( self::NEWSPACK_ONESIGNAL_API_KEY, null );
-		if ( get_option( self::NEWSPACK_PUSH_NOTIFICATION_ENABLED, false ) && $one_signal_api_key ) {
+		$one_signal_api_key = $onesignal_cm->get( 'app_id' );
+		if ( $onesignal_cm->is_configured() && $one_signal_api_key ) {
 			$base = get_site_url();
 			ob_start();
 			?>
