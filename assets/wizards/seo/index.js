@@ -133,7 +133,7 @@ class SEOWizard extends Component {
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
 									secondaryButtonAction={ {
-										handoff: "wordpress-seo",
+										handoff: 'wordpress-seo',
 									} }
 									secondaryButtonText={ secondaryButtonText }
 								/>
@@ -149,7 +149,7 @@ class SEOWizard extends Component {
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
 									secondaryButtonAction={ {
-										handoff: "wordpress-seo",
+										handoff: 'wordpress-seo',
 									} }
 									secondaryButtonText={ secondaryButtonText }
 								/>
@@ -165,7 +165,8 @@ class SEOWizard extends Component {
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
 									secondaryButtonAction={ {
-										handoff: "wordpress-seo",
+										editLink: 'admin.php?page=wpseo_social',
+										handoff: 'wordpress-seo',
 									} }
 									secondaryButtonText={ secondaryButtonText }
 								/>
@@ -181,7 +182,7 @@ class SEOWizard extends Component {
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
 									secondaryButtonAction={ {
-										handoff: "wordpress-seo",
+										handoff: 'wordpress-seo',
 									} }
 									secondaryButtonText={ secondaryButtonText }
 								/>
