@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component, Fragment, RawHTML } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -30,16 +30,30 @@ class Tools extends Component {
 					) }
 				</p>
 				<TextControl
-					helper={ __( 'Get your Google verification code in Google Search Console.', 'newspack' ) }
 					label={ __( 'Google', 'newspack' ) }
 					onChange={ value => onChange( { verification: { ...verification, google: value } } ) }
 					value={ google }
+					help={
+						<RawHTML>
+							{ sprintf(
+								__( 'Get your Google verification code in <a href="%s">Google Search Console</a>.', 'newspack' ),
+								'https://www.google.com/webmasters/verification/verification?tid=alternate',
+							) }
+						</RawHTML>
+					}
 				/>
 				<TextControl
-					helper={ __( 'Get your Bing verification code in Bing Wevnaster Tools.', 'newspack' ) }
 					label={ __( 'Bing', 'newspack' ) }
 					onChange={ value => onChange( { verification: { ...verification, bing: value } } ) }
 					value={ bing }
+					help={
+						<RawHTML>
+							{ sprintf(
+								__( 'Get your Bing verification code in <a href="%s">Bing Webmaster Tool</a>.', 'newspack' ),
+								'https://www.bing.com/toolbox/webmaster/#/Dashboard/',
+							) }
+						</RawHTML>
+					}
 				/>
 			</Fragment>
 		);
