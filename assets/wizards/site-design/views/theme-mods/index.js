@@ -3,6 +3,7 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { RadioControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -11,9 +12,10 @@ import {
 	ImageUpload,
 	TextControl,
 	ToggleControl,
+	ToggleGroup,
 	withWizardScreen,
 } from '../../../../components/src';
-import { ColorPicker } from '@wordpress/components';
+import './style.scss';
 
 /**
  * Theme Selection Screen.
@@ -28,26 +30,30 @@ class ThemeMods extends Component {
 			header_solid_background: headerSolidBackground,
 			header_simplified: headerSimplified,
 			header_center_logo: headerCenterLogo,
-			primary_color_hex: primaryColorHex,
+			show_author_bio: authorBio,
+			show_author_email: authorEmail,
 			author_bio_length: authorBioLength,
-			newspack_footer_logo: newspackFooterLogo,
+			featured_image_default: featuredImageDefault,
 		} = themeMods;
 		return (
 			<Fragment>
 				<h2>{ __( 'Header', 'newspack' ) }</h2>
 				<ToggleControl
+					isDark
 					label={ __( 'Solid background', 'newspack') }
 					help={ __( 'Use the primary color as the header background.', 'newspack' ) }
 					checked={ headerSolidBackground }
 					onChange={ value => setThemeMods( { header_solid_background: value } ) }
 				/>
 				<ToggleControl
+					isDark
 					label={ __( 'Center logo', 'newspack' ) }
 					help={ __( 'Center the logo in the header.', 'newspack' ) }
 					checked={ headerCenterLogo }
 					onChange={ value => setThemeMods( { header_center_logo: value } ) }
 				/>
 				<ToggleControl
+					isDark
 					label={ __( 'Short header', 'newspack' ) }
 					help={ __( 'Display the header as a shorter, simpler version', 'newspack' ) }
 					checked={ headerSimplified }
@@ -55,6 +61,20 @@ class ThemeMods extends Component {
 				/>
 				<hr />
 				<h2>{ __( 'Author bio', 'newspack' ) }</h2>
+				<ToggleGroup
+					title={ __( 'Author bio', 'newspack') }
+					description={ __( 'Display an author bio under individual posts.', 'newspack' ) }
+					checked={ authorBio }
+					onChange={ value => setThemeMods( { show_author_bio: value } ) }
+				>
+					<ToggleControl
+						isDark
+						label={ __( 'Author email', 'newspack') }
+						help={ __( 'Display the author email with bio on individual posts.', 'newspack' ) }
+						checked={ authorEmail }
+						onChange={ value => setThemeMods( { show_author_email: value } ) }
+					/>
+				</ToggleGroup>
 				<TextControl
 					label={ __( 'Length', 'newspack' ) }
 					help={ __( 'Truncates the author bio on single posts to this approximate character length, but without breaking a word. The full bio appears on the author archive page.', 'newspack' ) }
@@ -62,33 +82,20 @@ class ThemeMods extends Component {
 					value={ authorBioLength }
 					onChange={ value => setThemeMods( { author_bio_length: value } ) }
 				/>
-				<ImageUpload
-					image={ newspackFooterLogo }
-					onChange={ value => setThemeMods( { newspack_footer_logo: value } ) }
-				/>
-				{ primaryColorHex && (
-					<ColorPicker
-						color={ primaryColorHex }
-						onChangeComplete={ value => setThemeMods( { primary_color_hex: value.hex } ) }
-						disableAlpha
-					/>
-				) }
-				<ToggleControl
-					label={ __(
-						'Header style with solid background, centered logo, and short layout',
-						'newspack'
-					) }
-					checked={ headerSolidBackground && headerCenterLogo && headerSimplified }
-					onChange={ value =>
-						setThemeMods( {
-							header_solid_background: value,
-							header_center_logo: value,
-							header_simplified: value,
-						} )
-					}
-				>
-					{ __( 'Centered/Solid/Short Logo' ) }
-				</ToggleControl>
+				<hr />
+				<h2>{ __( 'Featured Image', 'newspack' ) }</h2>
+				<RadioControl
+					label={ __( 'Default position', 'newspack' ) }
+					selected={ featuredImageDefault }
+					options={ [
+						{ label: __( 'Large', 'newspack' ), value: 'large' },
+						{ label: __( 'Small', 'newspack' ), value: 'small' },
+						{ label: __( 'Behind article title', 'newspack' ), value: 'behind' },
+						{ label: __( 'Beside article title', 'newspack' ), value: 'beside' },
+						{ label: __( 'Hidden', 'newspack' ), value: 'hidden' },
+					] }
+					onChange={ value => setThemeMods( { featured_image_default: value } ) }
+		    />
 			</Fragment>
 		);
 	}
