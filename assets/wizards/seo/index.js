@@ -149,6 +149,7 @@ class SEOWizard extends Component {
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
 									secondaryButtonAction={ {
+										editLink: 'admin.php?page=wpseo_titles',
 										handoff: 'wordpress-seo',
 									} }
 									secondaryButtonText={ secondaryButtonText }
@@ -182,6 +183,7 @@ class SEOWizard extends Component {
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
 									secondaryButtonAction={ {
+										editLink: 'admin.php?page=wpseo_dashboard#top#webmaster-tools',
 										handoff: 'wordpress-seo',
 									} }
 									secondaryButtonText={ secondaryButtonText }
