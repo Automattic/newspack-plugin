@@ -7,37 +7,38 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, TextControl, withWizardScreen } from '../../../../components/src';
+import { PluginToggle, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * Push Notifications screen.
  */
 class PushNotifications extends Component {
+	state = {
+		pushNotificationEnabled: false,
+	};
 	/**
 	 * Render.
 	 */
 	render() {
+		const { pushNotificationEnabled } = this.state;
 		const { data, onChange } = this.props;
-		const {
-			push_notification_enabled: pushNotificationEnabled,
-			one_signal_api_key: oneSignalAPIKey,
-		} = data;
+		const { one_signal_api_key: oneSignalAPIKey } = data;
 		return (
 			<Fragment>
-				<ActionCard
-					title={ __( 'Enable Push Notifications' ) }
-					description={ __( 'Connect directly with your users via web push notifications.' ) }
-					toggle
-					toggleChecked={ pushNotificationEnabled }
-					toggleOnChange={ value =>
-						onChange(
-							{
-								...data,
-								[ 'push_notification_enabled' ]: value,
-							},
-							true
-						)
-					}
+				<PluginToggle
+					onReady={ pluginInfo => {
+						const { 'onesignal-free-web-push-notifications': oneSignal } = pluginInfo;
+						const { Status: status } = oneSignal || {};
+						this.setState( {
+							pushNotificationEnabled: 'active' === status,
+						} );
+					} }
+					plugins={ {
+						'onesignal-free-web-push-notifications': {
+							title: __( 'Enable Push Notifications' ),
+							description: __( 'Connect directly with your users via web push notifications.' ),
+						},
+					} }
 				/>
 				{ pushNotificationEnabled && (
 					<TextControl
