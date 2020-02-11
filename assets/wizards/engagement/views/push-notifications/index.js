@@ -35,7 +35,7 @@ class PushNotifications extends Component {
 					} }
 					plugins={ {
 						'onesignal-free-web-push-notifications': {
-							title: __( 'Enable Push Notifications' ),
+							name: __( 'Push Notifications' ),
 							description: __( 'Connect directly with your users via web push notifications.' ),
 						},
 					} }
