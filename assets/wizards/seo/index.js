@@ -128,9 +128,9 @@ class SEOWizard extends Component {
 							render={ () => (
 								<Environment
 									{ ...screenParams }
-									onEnvironmentChange={ value =>
-										this.setState( { underConstruction: value }, () => this.update() )
-									}
+									buttonAction={ () => this.update() }
+									buttonText={ buttonText }
+									onChange={ settings => this.setState( settings ) }
 								/>
 							) }
 						/>
@@ -140,9 +140,9 @@ class SEOWizard extends Component {
 							render={ () => (
 								<Separator
 									{ ...screenParams }
-									onSeparatorChange={ value =>
-										this.setState( { titleSeparator: value }, () => this.update() )
-									}
+									buttonAction={ () => this.update() }
+									buttonText={ buttonText }
+									onChange={ settings => this.setState( settings ) }
 								/>
 							) }
 						/>

@@ -27,7 +27,7 @@ class Separator extends Component {
 	 * Render.
 	 */
 	render() {
-		const { data, onSeparatorChange } = this.props;
+		const { data, onChange } = this.props;
 		const { titleSeparator } = data;
 		return (
 			<Fragment>
@@ -44,7 +44,7 @@ class Separator extends Component {
 						return (
 							<Button
 								key={ key }
-								onClick={ () => onSeparatorChange( key ) }
+								onClick={ () => onChange( { titleSeparator: key } ) }
 								isPrimary={ key === titleSeparator }
 								isDefault={ key !== titleSeparator }
 							>
@@ -59,6 +59,7 @@ class Separator extends Component {
 }
 Separator.defaultProps = {
 	data: {},
+	onChange: () => null,
 };
 
 export default withWizardScreen( Separator );
