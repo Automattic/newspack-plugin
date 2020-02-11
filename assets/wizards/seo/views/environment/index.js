@@ -27,6 +27,7 @@ class Environment extends Component {
 					label={ __( 'Site under construction', 'newspack' ) }
 					checked={ underConstruction }
 					onChange={ value => onChange( { underConstruction: value } ) }
+					help={ __( 'Site is under construction and should not be indexed.', 'newspack' ) }
 				/>
 			</Fragment>
 		);
