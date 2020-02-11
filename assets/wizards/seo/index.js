@@ -85,7 +85,6 @@ class SEOWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const buttonText = __( 'Save' );
 		const headerIcon = <HeaderIcon />;
 		const headerText = __( 'SEO', 'newspack' );
 		const subHeaderText = __( 'Search engine and social optimization', 'newspack' );
@@ -110,6 +109,8 @@ class SEOWizard extends Component {
 				path: '/social',
 			},
 		];
+		const buttonText = __( 'Save settings, 'newspack' );
+		const secondaryButtonText = __( 'Advanced settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
 			headerIcon,
@@ -131,6 +132,10 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										handoff: "wordpress-seo",
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
@@ -143,6 +148,10 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										handoff: "wordpress-seo",
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
@@ -155,6 +164,10 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										handoff: "wordpress-seo",
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
@@ -167,6 +180,10 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										handoff: "wordpress-seo",
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
