@@ -64,6 +64,10 @@ class Configuration_Managers {
 			'filename'   => 'class-wordpress-seo-configuration-manager.php',
 			'class_name' => 'WordPress_SEO_Configuration_Manager',
 		],
+		'onesignal'             => [
+			'filename'   => 'class-onesignal-configuration-manager.php',
+			'class_name' => 'OneSignal_Configuration_Manager',
+		],
 	];
 
 	/**

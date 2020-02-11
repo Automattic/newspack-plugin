@@ -279,7 +279,7 @@ class EngagementWizard extends Component {
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
 										data={ this.state }
-										buttonText={ pushNotificationEnabled && __( 'Update', 'newspack' ) }
+										buttonText={ __( 'Update', 'newspack' ) }
 										buttonAction={ data => this.setState( data, () => this.updateSettings() ) }
 										onChange={ ( data, update ) =>
 											this.setState( data, () => update && this.updateSettings() )

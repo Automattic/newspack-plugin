@@ -22,7 +22,7 @@ class PushNotifications extends Component {
 	render() {
 		const { pushNotificationEnabled } = this.state;
 		const { data, onChange } = this.props;
-		const { one_signal_api_key: oneSignalAPIKey } = data;
+		const { app_id: appId, app_rest_api_key: appRestAPIKey } = data;
 		return (
 			<Fragment>
 				<PluginToggle
@@ -41,16 +41,28 @@ class PushNotifications extends Component {
 					} }
 				/>
 				{ pushNotificationEnabled && (
-					<TextControl
-						label={ __( 'One Signal API Key' ) }
-						value={ oneSignalAPIKey }
-						onChange={ value =>
-							onChange( {
-								...data,
-								[ 'one_signal_api_key' ]: value,
-							} )
-						}
-					/>
+					<Fragment>
+						<TextControl
+							label={ __( 'One Signal App ID' ) }
+							value={ appId }
+							onChange={ value =>
+								onChange( {
+									...data,
+									app_id: value,
+								} )
+							}
+						/>
+						<TextControl
+							label={ __( 'One Signal API Key' ) }
+							value={ appRestAPIKey }
+							onChange={ value =>
+								onChange( {
+									...data,
+									app_rest_api_key: value,
+								} )
+							}
+						/>
+					</Fragment>
 				) }
 			</Fragment>
 		);

@@ -88,10 +88,10 @@ class Engagement_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'push_notification_enabled' => [
-						'sanitize_callback' => 'absint',
+					'app_id'           => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'one_signal_api_key'        => [
+					'app_rest_api_key' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
@@ -168,14 +168,15 @@ class Engagement_Wizard extends Wizard {
 		$jetpack_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$onesignal_cm                          = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
 
 		$response = array(
-			'connected'                 => false,
-			'connectURL'                => null,
-			'wcConnected'               => false,
-			'popups'                    => array(),
-			'push_notification_enabled' => get_option( PWA::NEWSPACK_PUSH_NOTIFICATION_ENABLED, false ),
-			'one_signal_api_key'        => get_option( PWA::NEWSPACK_ONESIGNAL_API_KEY, '' ),
+			'connected'        => false,
+			'connectURL'       => null,
+			'wcConnected'      => false,
+			'popups'           => array(),
+			'app_id'           => $onesignal_cm->get( 'app_id', '' ),
+			'app_rest_api_key' => $onesignal_cm->get( 'app_rest_api_key', '' ),
 		);
 
 		$jetpack_status = $jetpack_configuration_manager->get_mailchimp_connection_status();
@@ -278,14 +279,13 @@ class Engagement_Wizard extends Wizard {
 	 * @return WP_REST_Response with the info.
 	 */
 	public function api_update_settings( $request ) {
-		update_option(
-			PWA::NEWSPACK_PUSH_NOTIFICATION_ENABLED,
-			$request['push_notification_enabled'] ? true : false
-		);
-		update_option(
-			PWA::NEWSPACK_ONESIGNAL_API_KEY,
-			$request['one_signal_api_key']
-		);
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
+		if ( $request['app_id'] ) {
+			$onesignal_cm->setAppID( $request['app_id'] );
+		}
+		if ( $request['app_rest_api_key'] ) {
+			$onesignal_cm->setRestAPIKey( $request['app_rest_api_key'] );
+		}
 		return $this->api_get_engagement_settings();
 	}
 
