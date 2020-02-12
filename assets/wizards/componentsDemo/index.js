@@ -94,7 +94,7 @@ class ComponentsDemo extends Component {
 			toggleGroupChecked,
 			color1,
 			color2,
-			color3
+			color3,
 		} = this.state;
 		return (
 			<Fragment>
@@ -162,9 +162,7 @@ class ComponentsDemo extends Component {
 									name: __( 'pale pink' ),
 									color: '#f78da7',
 								},
-								{	name: __( 'vivid red' ),
-									color: '#cf2e2e',
-								},
+								{ name: __( 'vivid red' ), color: '#cf2e2e' },
 								{
 									name: __( 'luminous vivid orange' ),
 									color: '#ff6900',
