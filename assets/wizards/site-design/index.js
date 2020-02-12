@@ -8,6 +8,8 @@ import { __ } from '@wordpress/i18n';
  * Material UI dependencies.
  */
 import HeaderIcon from '@material-ui/icons/Web';
+import SettingsIcon from '@material-ui/icons/Settings';
+import StyleIcon from '@material-ui/icons/Style';
 
 /**
  * Internal dependencies.
@@ -98,8 +100,8 @@ class SiteDesignWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Options' ),
-				path: '/options',
+				label: __( 'Settings' ),
+				path: '/settings',
 				exact: true,
 			},
 		];
@@ -115,12 +117,12 @@ class SiteDesignWizard extends Component {
 								const { theme } = this.state;
 								return (
 									<ThemeSelection
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Site Design', 'newspack' ) }
+										headerIcon={ <StyleIcon /> }
+										headerText={ __( 'Theme', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
-										buttonText={ __( 'Customize', 'newspack' ) }
-										buttonAction="/wp-admin/customize.php"
+										buttonText={ __( 'Configure', 'newspack' ) }
+										buttonAction="#/settings"
 										updateTheme={ this.updateTheme }
 										theme={ theme }
 										isWide
@@ -129,20 +131,22 @@ class SiteDesignWizard extends Component {
 							} }
 						/>
 						<Route
-							path="/options"
+							path="/settings"
 							exact
 							render={ routeProps => {
 								const { themeMods, theme } = this.state;
 								return (
 									<ThemeMods
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Site Design', 'newspack' ) }
-										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
+										headerIcon={ <SettingsIcon /> }
+										headerText={ __( 'Settings', 'newspack' ) }
+										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
 										themeMods={ themeMods }
 										setThemeMods={ this.setThemeMods }
 										buttonText={ __( 'Save', 'newspack' ) }
 										buttonAction={ this.updateThemeMods }
+										secondaryButtonText={ __( 'Advanced settings', 'newspack' ) }
+										secondaryButtonAction="/wp-admin/customize.php"
 									/>
 								);
 							} }
