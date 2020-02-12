@@ -67,7 +67,7 @@ class Admin_Plugins_Screen {
 			return $plugins;
 		}
 
-		$orderby = 'NewspackOrderIndex'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$orderby = 'NewspackOrderIndex'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Override.Prohibited
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
@@ -256,10 +256,10 @@ class Admin_Plugins_Screen {
 		/* Assemble messages for all three scenarios. */
 		$messages = [];
 		if ( count( $missing_plugins ) ) {
-			$messages[] = __( 'The following plugins are required by Newspack but are not active: ' ) . '<strong>' . implode( $missing_plugins_names, ', ' ) . '.</strong>';
+			$messages[] = __( 'The following plugins are required by Newspack but are not active: ' ) . '<strong>' . implode( $missing_plugins_names, ', ' ) . '.</strong>'; // phpcs:ignore PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated
 		}
 		if ( count( $unsupported_plugins ) ) {
-			$messages[] = __( 'The following plugins are not supported by Newspack: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>';
+			$messages[] = __( 'The following plugins are not supported by Newspack: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>'; // phpcs:ignore PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated
 		}
 		if ( ! $newspack_theme_active ) {
 			$messages[] = __( 'The Newspack Theme is not currently active.' );

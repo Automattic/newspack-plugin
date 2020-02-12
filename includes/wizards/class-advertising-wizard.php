@@ -473,9 +473,9 @@ class Advertising_Wizard extends Wizard {
 		$option_value = json_decode( get_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, '' ) );
 
 		$defaults = array(
-			'ad_unit'  => '',
-			'enabled'  => false,
-			'service'  => '',
+			'ad_unit' => '',
+			'enabled' => false,
+			'service' => '',
 		);
 
 		return wp_parse_args( $option_value, $defaults );
@@ -545,6 +545,8 @@ class Advertising_Wizard extends Wizard {
 
 	/**
 	 * Inject a global ad in an arbitrary placement.
+	 *
+	 * @param string $placement_slug Placement slug.
 	 */
 	protected function inject_ad_manager_global_ad( $placement_slug ) {
 		$placement = $this->get_placement_data( $placement_slug );
@@ -565,8 +567,8 @@ class Advertising_Wizard extends Wizard {
 		}
 
 		?>
-		<div class='newspack_global_ad <?php echo esc_attr( $placement_slug); ?>'>
-			<?php echo $code; ?>
+		<div class='newspack_global_ad <?php echo esc_attr( $placement_slug ); ?>'>
+			<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> 
 		</div>
 		<?php
 	}

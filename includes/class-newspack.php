@@ -19,7 +19,7 @@ final class Newspack {
 	 *
 	 * @var Newspack
 	 */
-	protected static $_instance = null;
+	protected static $_instance = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Main Newspack Instance.
