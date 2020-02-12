@@ -30,6 +30,15 @@ jobs:
           name: Run Linter
           command: npm run lint
 
+  test:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout_code
+      - run:
+          name: Run JS Tests
+          command: npm run test
+
   release:
     docker:
       - image: circleci/node:12
@@ -48,6 +57,9 @@ workflows:
     jobs:
       - build
       - lint:
+          requires:
+            - build
+      - test:
           requires:
             - build
       - release:
