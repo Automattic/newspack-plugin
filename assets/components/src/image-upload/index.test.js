@@ -1,23 +1,21 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
+
 import ImageUpload from './';
 
 describe( 'ImageUpload', () => {
-	describe( 'basic rendering', () => {
-		it( 'should render an image uploader ready for upload', () => {
-			const uploader = shallow( <ImageUpload /> );
-			expect( uploader.hasClass( 'newspack-image-upload' ) ).toBe( true );
-			expect( uploader.find( '.newspack-image-upload__add-image' ) ).toHaveLength( 1 );
-		} );
+	it( 'should render an add image button', () => {
+		const { getByText } = render( <ImageUpload /> );
+		expect( getByText( 'Add image' ) ).toBeInTheDocument();
+	} );
 
-		it( 'should render an image uploader prepopulated with an upload', () => {
-			const image = {
-				id: 1234,
-				url: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
-			};
-			const uploader = shallow( <ImageUpload image={ image } /> );
-			expect( uploader.hasClass( 'newspack-image-upload' ) ).toBe( true );
-			expect( uploader.find( '.newspack-image-upload__remove-image' ) ).toHaveLength( 1 );
-		} );
+	it( 'should render an image and remove button', () => {
+		const image = {
+			id: 1234,
+			url: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+		};
+		const { getByAltText, getByText } = render( <ImageUpload image={ image } /> );
+		expect( getByAltText( 'Upload preview' ) ).toBeInTheDocument();
+		expect( getByText( 'Remove image' ) ).toBeInTheDocument();
 	} );
 } );

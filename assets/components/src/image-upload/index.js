@@ -97,7 +97,7 @@ class ImageUpload extends Component {
 				{ !! image && (
 					<Fragment>
 						<div className="newspack-image-upload__image-preview">
-							<img src={ image.url } alt="" />
+							<img src={ image.url } alt="Upload preview" />
 						</div>
 						<Button
 							onClick={ this.removeImage }

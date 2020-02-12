@@ -1,66 +1,73 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
+
 import ProgressBar from './';
 
 describe( 'ProgressBar', () => {
-	describe( 'basic rendering', () => {
-		it( 'should render a ProgressBar element with no labels', () => {
-			const bar = shallow( <ProgressBar completed="1" total="2" /> );
-			expect( bar.hasClass( 'newspack-progress-bar' ) ).toBe( true );
-			expect( bar.find( 'h2' ) ).toHaveLength( 0 );
-			expect( bar.find( 'p' ) ).toHaveLength( 0 );
-		} );
+	it( 'should render a progress indicator', () => {
+		const { getByTestId } = render( <ProgressBar completed="1" total="2" /> );
+		const indicator = getByTestId( 'progress-bar-indicator' );
+		expect( indicator ).toHaveAttribute( 'style', 'width: 50%;' );
+	} );
 
-		it( 'should render a ProgressBar element with a label', () => {
-			const bar = shallow( <ProgressBar completed="1" total="2" label="test label" /> );
-			expect( bar.hasClass( 'newspack-progress-bar' ) ).toBe( true );
-			expect( bar.find( 'h2' ) ).toHaveLength( 1 );
-			expect( bar.find( 'p' ) ).toHaveLength( 0 );
-		} );
+	it( 'should render a label', () => {
+		const label = 'test label';
+		const { getByText } = render( <ProgressBar completed="1" total="2" label={ label } /> );
+		expect( getByText( label ) ).toBeInTheDocument();
+	} );
 
-		it( 'should render a ProgressBar element with a fraction', () => {
-			const bar = shallow( <ProgressBar completed="1" total="2" displayFraction /> );
-			expect( bar.hasClass( 'newspack-progress-bar' ) ).toBe( true );
-			expect( bar.find( 'h2' ) ).toHaveLength( 0 );
-			expect( bar.find( 'p' ) ).toHaveLength( 1 );
-		} );
+	it( 'should render progress as a fraction', () => {
+		const { getByText } = render( <ProgressBar completed="1" total="2" displayFraction /> );
+		expect( getByText( '1/2' ) ).toBeInTheDocument();
+	} );
 
-		it( 'should render a ProgressBar element with both label and fraction', () => {
-			const bar = shallow(
-				<ProgressBar completed="1" total="2" label="test label" displayFraction />
-			);
-			expect( bar.hasClass( 'newspack-progress-bar' ) ).toBe( true );
-			expect( bar.find( 'h2' ) ).toHaveLength( 1 );
-			expect( bar.find( 'p' ) ).toHaveLength( 1 );
-		} );
+	it( 'should render with both label and fraction', () => {
+		const label = 'test label';
+		const { getByText } = render(
+			<ProgressBar completed="1" total="2" label={ label } displayFraction />
+		);
+		expect( getByText( label ) ).toBeInTheDocument();
+		expect( getByText( '1/2' ) ).toBeInTheDocument();
+	} );
 
-		it( 'should calculate progress correctly', () => {
-			const bar = shallow( <ProgressBar completed="1" total="2" /> );
-			expect( bar.instance().getCompletionPercentage( 1, 2 ) ).toBe( 50 );
-			expect( bar.instance().getCompletionPercentage( 2, 3 ) ).toBe( 67 );
-			expect( bar.instance().getCompletionPercentage( 6, 3 ) ).toBe( 100 );
+	describe( 'should calculate progress correctly', () => {
+		[
+			{
+				props: { completed: 1, total: 2 },
+				expectedWidth: 50,
+			},
+			{
+				props: { completed: 2, total: 3 },
+				expectedWidth: 67,
+			},
+			{
+				props: { completed: 6, total: 3 },
+				expectedWidth: 100,
+			},
+		].forEach( ( { props, expectedWidth } ) => {
+			it( `with expected  progress of ${ expectedWidth }`, () => {
+				const { getByTestId } = render( <ProgressBar { ...props } key={ expectedWidth } /> );
+				expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute(
+					'style',
+					`width: ${ expectedWidth }%;`
+				);
+			} );
 		} );
+	} );
 
-		it( 'should handle non-numeric values in ProgressBar element', () => {
-			const bar = shallow( <ProgressBar completed="cats" total="dogs" displayFraction /> );
-			expect( bar.find( 'p' ).text() ).toBe( '0/0' );
-			expect(
-				bar
-					.find( '.newspack-progress-bar__bar' )
-					.render()
-					.css( 'width' )
-			).toBe( '100%' );
-		} );
+	it( 'should handle non-numeric values in ProgressBar element', () => {
+		const { getByText, getByTestId } = render(
+			<ProgressBar completed="cats" total="dogs" displayFraction />
+		);
+		expect( getByText( '0/0' ) ).toBeInTheDocument();
+		expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute( 'style', 'width: 100%;' );
+	} );
 
-		it( 'should handle non-logical values in ProgressBar element', () => {
-			const bar = shallow( <ProgressBar completed="3" total="-1" displayFraction /> );
-			expect( bar.find( 'p' ).text() ).toBe( '0/0' );
-			expect(
-				bar
-					.find( '.newspack-progress-bar__bar' )
-					.render()
-					.css( 'width' )
-			).toBe( '100%' );
-		} );
+	it( 'should handle non-logical values in ProgressBar element', () => {
+		const { getByText, getByTestId } = render(
+			<ProgressBar completed="3" total="-1" displayFraction />
+		);
+		expect( getByText( '0/0' ) ).toBeInTheDocument();
+		expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute( 'style', 'width: 100%;' );
 	} );
 } );

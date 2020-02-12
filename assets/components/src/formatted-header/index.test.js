@@ -1,21 +1,16 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
+
 import FormattedHeader from './';
 
 describe( 'FormattedHeader', () => {
-	describe( 'basic rendering', () => {
-		it( 'should render a FormattedHeader element with a subheader', () => {
-			const header = shallow(
-				<FormattedHeader headerText="header text" subHeaderText="subheader text" />
-			);
-			expect( header.hasClass( 'newspack-formatted-header' ) ).toBe( true );
-			expect( header.find( '.newspack-formatted-header__subtitle' ) ).toHaveLength( 1 );
-		} );
-
-		it( 'should render a FormattedHeader element with no subheader', () => {
-			const header = shallow( <FormattedHeader headerText="header text" /> );
-			expect( header.hasClass( 'newspack-formatted-header' ) ).toBe( true );
-			expect( header.find( '.newspack-formatted-header__subtitle' ) ).toHaveLength( 0 );
-		} );
+	it( 'should render a header and a subheader', () => {
+		const headerText = 'header text';
+		const subHeaderText = 'subheader text';
+		const { getByText } = render(
+			<FormattedHeader headerText={ headerText } subHeaderText={ subHeaderText } />
+		);
+		expect( getByText( headerText ) ).toBeInTheDocument();
+		expect( getByText( subHeaderText ) ).toBeInTheDocument();
 	} );
 } );
