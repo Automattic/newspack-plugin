@@ -65,7 +65,7 @@ jobs:
             - project
 
   # JS & SCSS Jobs
-  lint:
+  lint-js-scss:
     docker:
       - image: circleci/node:12
     steps:
@@ -75,11 +75,11 @@ jobs:
           command: npm run lint
 
   # PHP jobs
-  php72-lint:
+  lint-php:
     <<: *php_lint
     docker:
       - image: circleci/php:7.2
-  php72-test:
+  test-php:
     <<: *php_setup
     docker:
       - image: circleci/php:7.2
@@ -103,7 +103,7 @@ workflows:
   all:
     jobs:
       - build
-      - lint:
+      - lint-js-scss:
           requires:
             - build
       - release:
@@ -114,5 +114,5 @@ workflows:
               only: release
   php:
     jobs:
-      - php72-lint
-      - php72-test
+      - lint-php
+      - test-php
