@@ -47,6 +47,12 @@
 		height: 20px;
 		margin: 2px;
 		width: 20px;
+		transition: box-shadow 125ms ease-in-out;
+
+		&:focus {
+			box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
+			outline: 0;
+		}
 
 		&:checked:before {
 			background: $primary-500;
