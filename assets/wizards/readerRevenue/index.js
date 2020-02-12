@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Material UI dependencies.
  */
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
+import LoyaltyIcon from '@material-ui/icons/Loyalty';
 
 /**
  * Internal dependencies.
@@ -132,7 +133,7 @@ class ReaderRevenueWizard extends Component {
 		} = data;
 		const tabbedNavigation = [
 			{
-				label: __( 'Welcome' ),
+				label: __( 'Monetization Services' ),
 				path: '/',
 				exact: true,
 			},
@@ -141,16 +142,8 @@ class ReaderRevenueWizard extends Component {
 				path: '/location-setup',
 			},
 			{
-				label: __( 'Stripe' ),
+				label: __( 'Payment Gateways' ),
 				path: '/stripe-setup',
-			},
-			{
-				label: __( 'Donations' ),
-				path: '/donations',
-			},
-			{
-				label: __( 'Memberships' ),
-				path: '/configure-landing-page',
 			},
 		];
 		const isConfigured = !! donationData.created;
@@ -165,7 +158,7 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<RevenueMain
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Accept donations on your site' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									buttonText={ ! isConfigured && __( 'Get Started' ) }
@@ -181,18 +174,16 @@ class ReaderRevenueWizard extends Component {
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up address' ) }
-									subHeaderText={ __( "Configure your publication's address." ) }
+									headerText={ __( 'Reader revenue' ) }
+									subHeaderText={ __( 'Configure your publication\'s address.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
-											() => ! isConfigured && routeProps.history.push( 'stripe-setup' )
+											data => ! isConfigured && routeProps.history.push( 'stripe-setup' )
 										)
 									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ _locationData =>
-										this.setState( { data: { ...data, locationData: _locationData } } )
-									}
+									onChange={ locationData => this.setState( { data: { ...data, locationData } } ) }
 								/>
 							) }
 						/>
@@ -202,18 +193,16 @@ class ReaderRevenueWizard extends Component {
 								<StripeSetup
 									data={ stripeData }
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up Stripe' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'stripe', stripeData ).then(
-											() => ! isConfigured && routeProps.history.push( 'donations' )
+											data => ! isConfigured && routeProps.history.push( 'donations' )
 										)
 									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ _stripeData =>
-										this.setState( { data: { ...data, stripeData: _stripeData } } )
-									}
+									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
 								/>
 							) }
 						/>
@@ -222,31 +211,15 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <HeaderIcon /> }
+									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
-									buttonText={ __( 'Save Settings' ) }
-									buttonAction={ () =>
-										this.update( 'donations', donationData ).then(
-											() => ! isConfigured && routeProps.history.push( '/configure-landing-page' )
-										)
-									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ _donationData =>
-										this.setState( { data: { ...data, donationData: _donationData } } )
-									}
-								/>
-							) }
-						/>
-						<Route
-							path="/configure-landing-page"
-							render={ () => (
-								<ConfigureLandingPage
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up memberships' ) }
-									subHeaderText={ __( 'Configure your memberships landing page.' ) }
-									tabbedNavigation={ isConfigured && tabbedNavigation }
+									subHeaderText={ __( 'Configure your landing page and your suggested donation presets.' ) }
 									donationPage={ donationPage }
+									buttonText={ __( 'Save Settings' ) }
+									buttonAction={ () => this.update( 'donations', donationData ) }
+									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
+									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									secondaryButtonAction='#'
 								/>
 							) }
 						/>
