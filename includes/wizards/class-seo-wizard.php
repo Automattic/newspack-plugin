@@ -200,7 +200,7 @@ class SEO_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-seo-wizard',
 			Newspack::plugin_url() . '/assets/dist/seo.js',
-			$this->get_script_dependencies(),
+			$this->get_script_dependencies( [ 'wp-html-entities' ] ),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/seo.js' ),
 			true
 		);
