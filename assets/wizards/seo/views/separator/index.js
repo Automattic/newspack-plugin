@@ -57,8 +57,8 @@ class Separator extends Component {
 							<Button
 								key={ key }
 								onClick={ () => onChange( { titleSeparator: key } ) }
-								isPrimary={ key === titleSeparator }
-								isDefault={ key !== titleSeparator }
+								isPressed={ key === titleSeparator }
+								isSecondary={ key !== titleSeparator }
 							>
 								{ value }
 							</Button>
