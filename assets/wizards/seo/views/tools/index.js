@@ -25,7 +25,7 @@ class Tools extends Component {
 				<h2>{ __( 'Webmaster tools verification', 'newspack' ) }</h2>
 				<p>
 					{ __(
-						'You can use the boxes below to verify with the different Webmaster Tools. Thius feature will add a verification meta tag on your home page. Follow the links to the different Webmaster Tools and look for instructions for the meta tag verification method to get the verification code.',
+						'You can use the boxes below to verify with the different Webmaster Tools. This feature will add a verification meta tag on your home page. Follow the links to the different Webmaster Tools and look for instructions for the meta tag verification method to get the verification code.',
 						'newspack'
 					) }
 				</p>
