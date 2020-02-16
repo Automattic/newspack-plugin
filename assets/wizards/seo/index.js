@@ -30,8 +30,8 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 class SEOWizard extends Component {
 	state = {
-		title_separator: '',
-		under_construction: false,
+		titleSeparator: '',
+		underConstruction: false,
 		urls: {
 			facebook: '',
 			twitter: '',
