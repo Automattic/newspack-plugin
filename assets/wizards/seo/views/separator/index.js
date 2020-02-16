@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, ButtonGroup, withWizardScreen } from '../../../../components/src';
+import { Button, ButtonGroup, TextControl, withWizardScreen } from '../../../../components/src';
 
 const SEPARATORS = {
 	'sc-dash': '-',
@@ -23,6 +23,18 @@ const SEPARATORS = {
  * SEO Separator screen.
  */
 class Separator extends Component {
+	/**
+	 * Generate sample page title using selected separator.
+	 */
+	exampleTitle = titleSeparator => {
+		const separator = SEPARATORS[ titleSeparator ];
+		const blogName =
+			window && window.newspack_urls
+				? window.newspack_urls.bloginfo.name
+				: __( 'Site Name', 'newspack' );
+		return `${ __( 'Homepage', 'newspack' ) } ${ separator } ${ blogName }`;
+	};
+
 	/**
 	 * Render.
 	 */
@@ -53,6 +65,12 @@ class Separator extends Component {
 						);
 					} ) }
 				</ButtonGroup>
+				<TextControl
+					disabled
+					label={ __( 'Example Title', 'newspack' ) }
+					onChange={ () => null }
+					value={ decodeEntities( this.exampleTitle( titleSeparator ) ) }
+				/>
 			</Fragment>
 		);
 	}
