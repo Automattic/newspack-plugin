@@ -52,7 +52,9 @@ class WordPress_SEO_Configuration_Manager extends Configuration_Manager {
 	 * @return string|object Returns value of option.
 	 */
 	public function get_option( $key, $default = '' ) {
-		return \WPSEO_Options::get( $key, $default );
+		return $this->is_configured() ?
+			\WPSEO_Options::get( $key, $default ) :
+			$this->unconfigured_error();
 	}
 
 	/**
@@ -62,7 +64,25 @@ class WordPress_SEO_Configuration_Manager extends Configuration_Manager {
 	 * @param string $value Value of the option.
 	 */
 	public function set_option( $key, $value ) {
-		return \WPSEO_Options::set( $key, $value );
+		return $this->is_configured() ?
+			\WPSEO_Options::set( $key, $value ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Error to return if the plugin is not installed and activated.
+	 *
+	 * @return WP_Error
+	 */
+	private function unconfigured_error() {
+		return new \WP_Error(
+			'newspack_missing_required_plugin',
+			esc_html__( 'Yoast plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+			[
+				'status' => 400,
+				'level'  => 'fatal',
+			]
+		);
 	}
 }
 
