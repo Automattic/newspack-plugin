@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Component, Fragment, RawHTML } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -36,8 +36,11 @@ class Tools extends Component {
 					help={
 						<RawHTML>
 							{ sprintf(
-								__( 'Get your Google verification code in <a href="%s">Google Search Console</a>.', 'newspack' ),
-								'https://www.google.com/webmasters/verification/verification?tid=alternate',
+								__(
+									'Get your Google verification code in <a href="%s">Google Search Console</a>.',
+									'newspack'
+								),
+								'https://www.google.com/webmasters/verification/verification?tid=alternate'
 							) }
 						</RawHTML>
 					}
@@ -49,8 +52,11 @@ class Tools extends Component {
 					help={
 						<RawHTML>
 							{ sprintf(
-								__( 'Get your Bing verification code in <a href="%s">Bing Webmaster Tool</a>.', 'newspack' ),
-								'https://www.bing.com/toolbox/webmaster/#/Dashboard/',
+								__(
+									'Get your Bing verification code in <a href="%s">Bing Webmaster Tool</a>.',
+									'newspack'
+								),
+								'https://www.bing.com/toolbox/webmaster/#/Dashboard/'
 							) }
 						</RawHTML>
 					}
