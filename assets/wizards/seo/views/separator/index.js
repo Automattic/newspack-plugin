@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, ButtonGroup, TextControl, withWizardScreen } from '../../../../components/src';
+import { Button, ButtonGroup, Card, withWizardScreen } from '../../../../components/src';
 
 const SEPARATORS = {
 	'sc-dash': '-',
@@ -65,12 +65,14 @@ class Separator extends Component {
 						);
 					} ) }
 				</ButtonGroup>
-				<TextControl
-					disabled
-					label={ __( 'Example Title', 'newspack' ) }
-					onChange={ () => null }
-					value={ decodeEntities( this.exampleTitle( titleSeparator ) ) }
-				/>
+				<Card noBackground className="newspack-card-preview">
+					<span className="newspack-card-preview__label">
+						{ __( 'Preview', 'newspack' ) }
+					</span>
+					<span className="newspack-card-preview__content">
+						{ decodeEntities( this.exampleTitle( titleSeparator ) ) }
+					</span>
+				</Card>
 			</Fragment>
 		);
 	}
