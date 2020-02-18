@@ -10,7 +10,7 @@
 		margin: 0;
 		height: 24px;
 
-		label {
+		.components-toggle-control__label {
 			color: $dark-gray-300;
 			font-size: 14px;
 			line-height: 24px;
@@ -18,6 +18,7 @@
 		}
 
 		.components-form-toggle {
+			border-top: 3px solid transparent;
 			margin-right: 8px;
 
 			&.is-checked {
