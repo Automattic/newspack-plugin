@@ -102,20 +102,24 @@ export default function withWizardScreen( WrappedComponent ) {
 											</Button>
 										) }
 										{ footer }
-										{ secondaryButtonText && secondaryButtonAction && !! retrievedSecondaryButtonProps.plugin && (
-											<Handoff isDefault { ...retrievedSecondaryButtonProps }>
-												{ secondaryButtonText }
-											</Handoff>
-										) }
-										{ secondaryButtonText && secondaryButtonAction && ! retrievedSecondaryButtonProps.plugin && (
-											<Button
-												{ ...secondaryButtonStyle }
-												isDefault
-												{ ...retrievedSecondaryButtonProps }
-											>
-												{ secondaryButtonText }
-											</Button>
-										) }
+										{ secondaryButtonText &&
+											secondaryButtonAction &&
+											!! retrievedSecondaryButtonProps.plugin && (
+												<Handoff isDefault { ...retrievedSecondaryButtonProps }>
+													{ secondaryButtonText }
+												</Handoff>
+											) }
+										{ secondaryButtonText &&
+											secondaryButtonAction &&
+											! retrievedSecondaryButtonProps.plugin && (
+												<Button
+													{ ...secondaryButtonStyle }
+													isDefault
+													{ ...retrievedSecondaryButtonProps }
+												>
+													{ secondaryButtonText }
+												</Button>
+											) }
 									</div>
 								) }
 							</Card>

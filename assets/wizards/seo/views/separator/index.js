@@ -66,9 +66,7 @@ class Separator extends Component {
 					} ) }
 				</ButtonGroup>
 				<Card noBackground className="newspack-card-preview">
-					<span className="newspack-card-preview__label">
-						{ __( 'Preview', 'newspack' ) }
-					</span>
+					<span className="newspack-card-preview__label">{ __( 'Preview', 'newspack' ) }</span>
 					<span className="newspack-card-preview__content">
 						{ decodeEntities( this.exampleTitle( titleSeparator ) ) }
 					</span>
