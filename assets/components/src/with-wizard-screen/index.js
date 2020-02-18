@@ -56,6 +56,7 @@ export default function withWizardScreen( WrappedComponent ) {
 			);
 			const content = <WrappedComponent { ...this.props } />;
 			const retrievedButtonProps = buttonProps( buttonAction );
+			const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
 			return (
 				<Fragment>
 					{ ! hidden && (
@@ -101,11 +102,16 @@ export default function withWizardScreen( WrappedComponent ) {
 											</Button>
 										) }
 										{ footer }
-										{ secondaryButtonText && (
+										{ secondaryButtonText && secondaryButtonAction && !! retrievedSecondaryButtonProps.plugin && (
+											<Handoff isDefault { ...retrievedSecondaryButtonProps }>
+												{ secondaryButtonText }
+											</Handoff>
+										) }
+										{ secondaryButtonText && secondaryButtonAction && ! retrievedSecondaryButtonProps.plugin && (
 											<Button
 												{ ...secondaryButtonStyle }
 												isDefault
-												{ ...buttonProps( secondaryButtonAction ) }
+												{ ...retrievedSecondaryButtonProps }
 											>
 												{ secondaryButtonText }
 											</Button>
