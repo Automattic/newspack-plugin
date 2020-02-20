@@ -21,6 +21,7 @@ import HeaderIcon from '@material-ui/icons/Dashboard';
 import {
 	ActionCard,
 	ColorPicker,
+	FontPicker,
 	ImageUpload,
 	CheckboxControl,
 	Card,
@@ -109,6 +110,71 @@ class ComponentsDemo extends Component {
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>
 				<Grid>
+					<Card>
+						<FormattedHeader headerText={ __( 'Font picker' ) } />
+						<FontPicker
+							title={ __( 'Headings', 'newspack' ) }
+							options={ [
+								{ label: '-System', value: 'system' },
+								{ label: 'Abril Fatface', value: 'abril-fatface' },
+								{ label: 'Alegreya', value: 'alegreya' },
+								{ label: 'Alegreya Sans', value: 'alegreya-sans' },
+								{ label: 'Anonymous Pro', value: 'anonymous-pro' },
+								{ label: 'Archivo', value: 'archivo' },
+								{ label: 'Archivo Black', value: 'archivo-black' },
+								{ label: 'Archivo Narrow', value: 'archivo-narrow' },
+								{ label: 'Arial', value: 'arial' },
+								{ label: 'Arvo', value: 'arvo' },
+								{ label: 'BioRhyme', value: 'biorhyme' },
+								{ label: 'BioRhyme Expanded', value: 'biorhyme-expanded' },
+								{ label: 'Cabin', value: 'cabin' },
+								{ label: 'Chivo', value: 'chivo' },
+								{ label: 'Cormorant', value: 'cormorant' },
+								{ label: 'Crimson Text', value: 'crimson-text' },
+								{ label: 'EB Garamond', value: 'eb-garamond' },
+								{ label: 'Eczar', value: 'eczar' },
+								{ label: 'Fira Sans', value: 'fira-sans' },
+								{ label: 'Fira Sans Condensed', value: 'fira-sans-condensed' },
+								{ label: 'Frank Ruhl Libre', value: 'frank-ruhl-libre' },
+								{ label: 'Georgia', value: 'georgia' },
+								{ label: 'IBM Plex Sans', value: 'ibm-plex-sans' },
+								{ label: 'IBM Plex Sans Condensed', value: 'ibm-plex-sans-condensed' },
+								{ label: 'IBM Plex Serif', value: 'ibm-plex-serif' },
+								{ label: 'Josefin Sans', value: 'josefin-sans' },
+								{ label: 'Josefin Slab', value: 'josefin-slab' },
+								{ label: 'Inconsolata', value: 'Inconsolata' },
+								{ label: 'Inknut Antiqua', value: 'inknut-antiqua' },
+								{ label: 'Karla', value: 'karla' },
+								{ label: 'Lato', value: 'lato' },
+								{ label: 'Libre Baskerville', value: 'libre-baskerville' },
+								{ label: 'Libre Franklin', value: 'libre-kranklin' },
+								{ label: 'Lora', value: 'lora' },
+								{ label: 'Merriweather', value: 'Mmrriweather' },
+								{ label: 'Montserrat', value: 'montserrat' },
+								{ label: 'Muli', value: 'muli' },
+								{ label: 'Neuton', value: 'neuton' },
+								{ label: 'Nunito Sans', value: 'nunito-sans' },
+								{ label: 'Old Standard TT', value: 'old-standard-tt' },
+								{ label: 'Open Sans', value: 'open-sans' },
+								{ label: 'Oswald', value: 'oswald' },
+								{ label: 'Playfair Display', value: 'playfair-display' },
+								{ label: 'Poppins', value: 'poppins' },
+								{ label: 'PT Sans', value: 'pt-sans' },
+								{ label: 'PT Serif', value: 'pt-serif' },
+								{ label: 'Raleway', value: 'raleway' },
+								{ label: 'Roboto', value: 'roboto' },
+								{ label: 'Roboto Condensed', value: 'roboto-condensed' },
+								{ label: 'Roboto Slab', value: 'roboto-slab' },
+								{ label: 'Rubik', value: 'rubik' },
+								{ label: 'Source Sans Pro', value: 'source-sans-pro' },
+								{ label: 'Source Serif Pro', value: 'Source-serif-pro' },
+								{ label: 'Space Mono', value: 'space-mono' },
+								{ label: 'Spectral', value: 'spectral' },
+								{ label: 'Times New Roman', value: 'times-new-roman' },
+								{ label: 'Work Sans', value: 'work-sans' },
+							] }
+						/>
+					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
 						<PluginToggle
