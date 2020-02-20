@@ -11,11 +11,6 @@ import { SelectControl, TextControl, ToggleGroup } from '../';
 import './style.scss';
 
 /**
- * External dependencies.
- */
-import classnames from 'classnames';
-
-/**
  * Font Picker.
  */
 class FontPicker extends Component {
@@ -23,7 +18,7 @@ class FontPicker extends Component {
 	 * Render
 	 */
 	render() {
-		const { options, toggleGroupChecked, title } = this.props;
+		const { options, title } = this.props;
 		return (
 			<div className="newspack-font-picker">
 				{ title && <h2 className="newspack-font-picker">{ title }</h2> }
@@ -35,12 +30,15 @@ class FontPicker extends Component {
 				/>
 				<ToggleGroup
 					title={ __( 'Use custom font', 'newspack' ) }
-					checked="checked"
+					checked="checked" // Demo purpose
 					onChange=""
 				>
 					<TextControl
 						label={ __( 'Embed URL', 'newspack' ) }
-						help={ __( 'Example: https://fonts.googleapis.com/css?family=Public+Sans:400,400i,700,700i', 'newspack' ) }
+						help={ __(
+							'Example: https://fonts.googleapis.com/css?family=Public+Sans:400,400i,700,700i',
+							'newspack'
+						) }
 						value=""
 					/>
 					<SelectControl
