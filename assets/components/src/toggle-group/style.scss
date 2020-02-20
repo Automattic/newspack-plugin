@@ -10,6 +10,10 @@
 		margin: 0;
 	}
 
+	.newspack-toggle-group__description {
+		flex: 0 0 calc(100% - 44px);
+	}
+
 	// Multiple Toogle Groups
 
 	& + & {

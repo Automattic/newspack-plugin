@@ -33,7 +33,7 @@ class ToggleGroup extends Component {
 						<strong>{ title }</strong>
 					</p>
 					<p>{ description }</p>
-					{ checked && children }
+					{ checked && <div className="newspack-toggle-group__children">{ children }</div> }
 				</div>
 			</div>
 		);
