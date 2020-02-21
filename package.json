@@ -77,6 +77,9 @@
   "browserslist": [
     "extends @wordpress/browserslist-config"
   ],
+  "lint-staged": {
+    "*.scss": "npm run lint:scss:staged"
+  },
   "jest": {
     "setupFilesAfterEnv": [
       "<rootDir>/assets/setupTests.js"
@@ -109,15 +112,13 @@
     "test": "jest",
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .js,.jsx assets",
+    "lint:js:staged": "eslint --ext .js,.jsx",
     "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
     "lint:scss": "stylelint '**/*.scss' --syntax scss",
     "format:scss": "prettier --write '**/*.scss'",
     "lint:scss:staged": "stylelint --syntax scss",
     "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store tests/\\* assets/\\* vendor/\\*",
     "release": "run-p \"build\" && run-p \"release:archive\""
-  },
-  "lint-staged": {
-    "*.scss": "npm run lint:scss:staged"
   },
   "dependencies": {
     "@material-ui/core": "^4.8.2",
