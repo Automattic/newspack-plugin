@@ -28,7 +28,7 @@ Thumbs.db
 /vendor/
 
 # Built files
-/assets/dist
+/dist
 /assets/components/dist
 /assets/components/node_modules
 /assets/release

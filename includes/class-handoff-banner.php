@@ -86,17 +86,17 @@ class Handoff_Banner {
 		$handle = 'newspack-handoff-banner';
 		wp_register_style(
 			$handle,
-			Newspack::plugin_url() . '/assets/dist/handoff-banner.css',
+			Newspack::plugin_url() . '/dist/handoff-banner.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/handoff-banner.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/handoff-banner.css' )
 		);
 		wp_enqueue_style( $handle );
 
 		wp_register_script(
 			$handle,
-			Newspack::plugin_url() . '/assets/dist/handoff-banner.js',
+			Newspack::plugin_url() . '/dist/handoff-banner.js',
 			[ 'wp-element', 'wp-editor', 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/handoff-banner.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/handoff-banner.js' ),
 			true
 		);
 		wp_enqueue_script( $handle );

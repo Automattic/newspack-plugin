@@ -37,7 +37,7 @@ jobs:
       - checkout_code
       - run:
           name: Build release
-          command: npm run release:archive
+          command: npm run release
       - run:
           name: Release new version
           command: npm run semantic-release
