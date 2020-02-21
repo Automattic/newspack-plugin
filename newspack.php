@@ -8,6 +8,8 @@
  * License: GPL2
  * Text Domain: newspack
  * Domain Path: /languages/
+ *
+ * @package         Newspack_Plugin
  */
 
 defined( 'ABSPATH' ) || exit;
