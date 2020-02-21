@@ -29,6 +29,7 @@ class Wizards {
 		self::$wizards = [
 			'setup'           => new Setup_Wizard(),
 			'dashboard'       => new Dashboard(),
+			'site-design'     => new Site_Design_Wizard(),
 			'reader-revenue'  => new Reader_Revenue_Wizard(),
 			'advertising'     => new Advertising_Wizard(),
 			'syndication'     => new Syndication_Wizard(),

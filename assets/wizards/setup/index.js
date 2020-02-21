@@ -163,19 +163,18 @@ class SetupWizard extends Component {
 
 	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
-		const params = { path: '/newspack/v1/wizard/newspack-setup-wizard/theme', method: 'GET' };
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( params )
-				.then( response => {
-					const { theme } = response;
-					this.setState( { theme }, () => resolve( response ) );
-				} )
-				.catch( error => {
-					console.log( '[Theme Fetch Error]', error );
-					setError( { error } );
-					reject( error );
-				} );
-		} );
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
+			method: 'GET',
+		};
+		wizardApiFetch( params )
+			.then( response => {
+				this.setState( { theme: response.theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Fetch Error]', error );
+				setError( { error } );
+			} );
 	};
 
 	updateTheme = theme => {
@@ -184,17 +183,14 @@ class SetupWizard extends Component {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
 			method: 'POST',
 		};
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( params )
-				.then( response => {
-					this.setState( { theme: response.theme }, () => resolve( response ) );
-				} )
-				.catch( error => {
-					console.log( '[Theme Update Error]', error );
-					setError( { error } );
-					reject( error );
-				} );
-		} );
+		wizardApiFetch( params )
+			.then( response => {
+				this.setState( { theme: response.theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Update Error]', error );
+				setError( { error } );
+			} );
 	};
 
 	incrementStarterContentProgress = () => {
@@ -399,8 +395,6 @@ class SetupWizard extends Component {
 									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
 									buttonAction="#/starter-content"
-									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
-									secondaryButtonAction={ this.finish }
 									updateTheme={ this.updateTheme }
 									theme={ theme }
 									isWide

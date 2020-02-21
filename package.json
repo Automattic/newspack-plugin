@@ -9,6 +9,10 @@
   "devDependencies": {
     "@automattic/calypso-build": "^5.1.0",
     "@babel/core": "^7.4.0",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
     "@wordpress/api-fetch": "^3.9.0",
     "@wordpress/base-styles": "^1.0.0",
     "@wordpress/blocks": "^6.2.0",
@@ -21,6 +25,9 @@
     "autoprefixer": "^9.1.5",
     "chokidar-cli": "^1.2.1",
     "classnames": "^2.2.6",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.1.0",
+    "deep-map-keys": "^2.0.1",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.12.1",
     "eslint": "^6.8.0",
@@ -49,6 +56,8 @@
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-wordpress": "^16.0.0",
     "stylelint-prettier": "^1.1.2",
+    "semantic-release": "^17.0.2",
+    "semantic-release-version-bump": "^1.1.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
   },
@@ -85,6 +94,8 @@
     "verbose": false
   },
   "scripts": {
+    "cm": "git-cz",
+    "semantic-release": "semantic-release",
     "build:style-plugins-screen": "node-sass assets/plugins-screen/plugins-screen.scss assets/plugins-screen/plugins-screen.css --output-style expanded && postcss -r assets/plugins-screen/plugins-screen.css",
     "build:style-plugins-screen-rtl": "rtlcss assets/plugins-screen/plugins-screen.css assets/plugins-screen/plugins-screen-rtl.css",
     "build:scss": "npm run build:style-plugins-screen && npm run build:style-plugins-screen-rtl",
@@ -115,5 +126,57 @@
     "@wordpress/html-entities": "^2.6.0",
     "@wordpress/url": "^2.10.0",
     "react": "^16.12.0"
+  },
+  "release": {
+    "branches": [
+      "release"
+    ],
+    "prepare": [
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      [
+        "semantic-release-version-bump",
+        {
+          "files": "newspack.php"
+        }
+      ],
+      {
+        "path": "@semantic-release/git",
+        "assets": [
+          "newspack.php",
+          "package.json",
+          "package-lock.json",
+          "CHANGELOG.md"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ],
+      "semantic-release-version-bump",
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "./assets/release/newspack-plugin.zip",
+              "label": "newspack-plugin.zip"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

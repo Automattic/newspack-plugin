@@ -11,7 +11,14 @@
 		width: calc( 33.333% - 32px );
 	}
 }
+
 .newspack-donations-wizard__suggested-price {
 	margin-bottom: -32px;
 	max-width: 300px;
+}
+
+.newspack-donations-wizard__edit-page {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: -16px;
 }

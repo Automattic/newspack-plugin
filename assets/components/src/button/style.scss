@@ -53,7 +53,8 @@
 		padding: 11px 24px;
 	}
 
-	&.is-primary {
+	&.is-primary,
+	&.is-pressed {
 		background: $primary-500;
 		border: 1px solid $primary-600;
 		color: white;

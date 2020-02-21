@@ -56,8 +56,8 @@ class Dashboard extends Wizard {
 		$dashboard = [
 			[
 				'slug'        => 'site-design',
-				'name'        => esc_html__( 'Site Design', 'newspack' ),
-				'url'         => admin_url( 'customize.php' ),
+				'name'        => Wizards::get_name( 'site-design' ),
+				'url'         => Wizards::get_url( 'site-design' ),
 				'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
 				'status'      => 'enabled',
 			],
@@ -91,8 +91,8 @@ class Dashboard extends Wizard {
 			],
 			[
 				'slug'        => 'performance',
-				'name'        => esc_html__( 'Performance', 'newspack' ),
-				'url'         => admin_url( 'admin.php?page=newspack-performance-wizard' ),
+				'name'        => Wizards::get_name( 'performance' ),
+				'url'         => Wizards::get_url( 'performance' ),
 				'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
 			],
 			[
