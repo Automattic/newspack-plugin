@@ -7,7 +7,7 @@
 	margin-bottom: 32px;
 	margin-top: -16px;
 
-	&  > div {
+	> div {
 		margin: 0 16px 0 0;
 
 		&:last-child {
@@ -19,7 +19,7 @@
 		}
 	}
 
-	& + .newspack-select-control {
+	+ .newspack-select-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}
