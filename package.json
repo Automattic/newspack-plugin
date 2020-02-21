@@ -118,7 +118,7 @@
     "format:scss": "prettier --write '**/*.scss'",
     "lint:scss:staged": "stylelint --syntax scss",
     "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store tests/\\* assets/\\* vendor/\\*",
-    "release": "run-p \"build\" && run-p \"release:archive\""
+    "release": "npm run build && npm run semantic-release"
   },
   "dependencies": {
     "@material-ui/core": "^4.8.2",
@@ -138,7 +138,8 @@
       [
         "semantic-release-version-bump",
         {
-          "files": "newspack.php"
+          "files": "newspack.php",
+          "callback": "npm run release:archive"
         }
       ],
       {
