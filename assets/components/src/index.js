@@ -1,5 +1,6 @@
 export { default as ActionCard } from './action-card';
 export { default as Button } from './button';
+export { default as ButtonGroup } from './button-group';
 export { default as Card } from './card';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as CheckboxControl } from './checkbox-control';

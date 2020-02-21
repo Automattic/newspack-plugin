@@ -19,7 +19,7 @@ import LoyaltyIcon from '@material-ui/icons/Loyalty';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
+import { Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -175,15 +175,17 @@ class ReaderRevenueWizard extends Component {
 									currencyFields={ currencyFields }
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Reader revenue' ) }
-									subHeaderText={ __( 'Configure your publication\'s address.' ) }
+									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'location', locationData ).then(
-											data => ! isConfigured && routeProps.history.push( 'stripe-setup' )
+											() => ! isConfigured && routeProps.history.push( 'stripe-setup' )
 										)
 									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ locationData => this.setState( { data: { ...data, locationData } } ) }
+									onChange={ _locationData =>
+										this.setState( { data: { ...data, locationData: _locationData } } )
+									}
 								/>
 							) }
 						/>
@@ -198,28 +200,34 @@ class ReaderRevenueWizard extends Component {
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
 										this.update( 'stripe', stripeData ).then(
-											data => ! isConfigured && routeProps.history.push( 'donations' )
+											() => ! isConfigured && routeProps.history.push( 'donations' )
 										)
 									}
 									tabbedNavigation={ isConfigured && tabbedNavigation }
-									onChange={ stripeData => this.setState( { data: { ...data, stripeData } } ) }
+									onChange={ _stripeData =>
+										this.setState( { data: { ...data, stripeData: _stripeData } } )
+									}
 								/>
 							) }
 						/>
 						<Route
 							path="/donations"
-							render={ routeProps => (
+							render={ () => (
 								<Donation
 									data={ donationData }
 									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( 'Configure your landing page and your suggested donation presets.' ) }
+									subHeaderText={ __(
+										'Configure your landing page and your suggested donation presets.'
+									) }
 									donationPage={ donationPage }
 									buttonText={ __( 'Save Settings' ) }
 									buttonAction={ () => this.update( 'donations', donationData ) }
-									onChange={ donationData => this.setState( { data: { ...data, donationData } } ) }
+									onChange={ _donationData =>
+										this.setState( { data: { ...data, donationData: _donationData } } )
+									}
 									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
-									secondaryButtonAction='#'
+									secondaryButtonAction="#"
 								/>
 							) }
 						/>

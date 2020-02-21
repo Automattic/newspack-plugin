@@ -93,6 +93,9 @@ abstract class Wizard {
 			'wizards'     => Wizards::get_urls(),
 			'dashboard'   => Wizards::get_url( 'dashboard' ),
 			'public_path' => Newspack::plugin_url() . '/dist/',
+			'bloginfo'    => [
+				'name' => get_bloginfo( 'name' ),
+			],
 		];
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
