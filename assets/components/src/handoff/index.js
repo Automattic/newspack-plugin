@@ -96,7 +96,7 @@ class Handoff extends Component {
 				{ Name && 'active' === Status && (
 					<Button
 						className={ classes }
-						isDefault={ ! otherProps.isLink }
+						isDefault={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
 						onClick={ () =>
 							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
@@ -111,7 +111,11 @@ class Handoff extends Component {
 					</Button>
 				) }
 				{ ! Name && (
-					<Button className={ classes } isDefault={ ! otherProps.isLink } { ...otherProps }>
+					<Button
+						className={ classes }
+						isDefault={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						{ ...otherProps }
+					>
 						<Fragment>
 							{ ! compact && <Waiting isLeft /> }
 							{ __( 'Retrieving Plugin Info' ) }

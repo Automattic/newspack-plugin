@@ -37,7 +37,7 @@
 		&:focus,
 		&:focus:enabled,
 		&:hover,
-		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			color: $primary-200;
 		}
 

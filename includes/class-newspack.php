@@ -78,10 +78,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-performance-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-reader-revenue-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-seo-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-site-design-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-seo-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-health-check-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';

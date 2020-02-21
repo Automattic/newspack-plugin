@@ -43,7 +43,7 @@
 			box-shadow: 0 0 0 2px $primary-500;
 		}
 
-		input[type="text"] {
+		input[type='text'] {
 			border: 0;
 			line-height: inherit;
 			margin: 2px 0;
@@ -93,9 +93,9 @@
 
 	// Multiple Controls
 
-	& + .newspack-select-control,
-	& + .newspack-textarea-control,
-	& + .newspack-text-control {
+	+ .newspack-select-control,
+	+ .newspack-textarea-control,
+	+ .newspack-text-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}

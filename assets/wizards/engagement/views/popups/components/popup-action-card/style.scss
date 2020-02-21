@@ -29,7 +29,7 @@
 		}
 	}
 
-	&:not(.newspack-card__is-primary) .newspack-popover {
+	&:not( .newspack-card__is-primary ) .newspack-popover {
 		margin-left: 18px;
 	}
 }

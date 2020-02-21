@@ -375,17 +375,17 @@ class Reader_Revenue_Wizard extends Wizard {
 		\wp_enqueue_media();
 		\wp_enqueue_script(
 			'newspack-reader-revenue-wizard',
-			Newspack::plugin_url() . '/assets/dist/readerRevenue.js',
+			Newspack::plugin_url() . '/dist/readerRevenue.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenue.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/readerRevenue.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-reader-revenue-wizard',
-			Newspack::plugin_url() . '/assets/dist/readerRevenue.css',
+			Newspack::plugin_url() . '/dist/readerRevenue.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/readerRevenue.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/readerRevenue.css' )
 		);
 		\wp_style_add_data( 'newspack-reader-revenue-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-reader-revenue-wizard' );

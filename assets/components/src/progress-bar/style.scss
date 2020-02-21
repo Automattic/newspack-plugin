@@ -27,9 +27,9 @@
 		height: 4px;
 		transition: width 125ms ease-in-out;
 
-		&:before {
+		&::before {
 			background-color: $light-gray-200;
-			content: "";
+			content: '';
 			height: 4px;
 			left: 0;
 			position: absolute;

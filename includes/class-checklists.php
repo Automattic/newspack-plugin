@@ -229,9 +229,9 @@ class Checklists {
 
 		wp_register_script(
 			'newspack-checklist',
-			Newspack::plugin_url() . '/assets/dist/checklist.js',
+			Newspack::plugin_url() . '/dist/checklist.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/checklist.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/checklist.js' ),
 			true
 		);
 		wp_localize_script( 'newspack-checklist', 'newspack_checklist', $checklist_data );
@@ -239,9 +239,9 @@ class Checklists {
 
 		wp_register_style(
 			'newspack-checklist',
-			Newspack::plugin_url() . '/assets/dist/checklist.css',
+			Newspack::plugin_url() . '/dist/checklist.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/checklist.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/checklist.css' )
 		);
 		wp_style_add_data( 'newspack-checklist', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-checklist' );
