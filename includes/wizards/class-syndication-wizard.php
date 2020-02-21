@@ -84,17 +84,17 @@ class Syndication_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-syndication-wizard',
-			Newspack::plugin_url() . '/assets/dist/syndication.js',
+			Newspack::plugin_url() . '/dist/syndication.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/syndication.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/syndication.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-syndication-wizard',
-			Newspack::plugin_url() . '/assets/dist/syndication.css',
+			Newspack::plugin_url() . '/dist/syndication.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/syndication.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/syndication.css' )
 		);
 		\wp_style_add_data( 'newspack-syndication-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-syndication-wizard' );

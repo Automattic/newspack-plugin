@@ -19,7 +19,7 @@
 	@media screen and ( min-width: 600px ) {
 		border-radius: 4px;
 		max-width: 80%;
-		max-width: calc(100% - 64px);
+		max-width: calc( 100% - 64px );
 	}
 
 	@media screen and ( min-width: 744px ) {
@@ -58,7 +58,7 @@
 				width: 24px;
 				height: 24px;
 
-				& + span {
+				+ span {
 					display: none;
 				}
 			}
@@ -148,7 +148,7 @@
 
 // Small Screens
 
-@media (max-width: 599px) {
+@media ( max-width: 599px ) {
 	.newspack-modal {
 		top: auto;
 

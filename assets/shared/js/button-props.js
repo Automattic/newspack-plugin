@@ -17,6 +17,9 @@ export default function buttonProps( action ) {
 	if ( isObject( action ) ) {
 		if ( action.handoff ) {
 			props.plugin = action.handoff;
+			if ( action.editLink ) {
+				props.editLink = action.editLink;
+			}
 		}
 		if ( action.onClick ) {
 			props.onClick = action.onClick;

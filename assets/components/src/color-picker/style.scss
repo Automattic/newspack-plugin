@@ -41,7 +41,7 @@
 			&:focus,
 			&:focus:enabled,
 			&:hover,
-			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 				color: $primary-600;
 				text-decoration: none;
 			}
@@ -64,14 +64,15 @@
 			height: auto;
 			line-height: inherit;
 			padding: 3px 12px;
-			transition: background 125ms ease-in-out, border-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
+			transition: background 125ms ease-in-out, border-color 125ms ease-in-out,
+				box-shadow 125ms ease-in-out, color 125ms ease-in-out;
 
 			&:active,
 			&:active:enabled,
 			&:focus,
 			&:focus:enabled,
 			&:hover,
-			&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 				background: $light-gray-100;
 				border-color: $primary-500;
 				color: $primary-500;
@@ -85,8 +86,8 @@
 
 			&:disabled,
 			&:disabled:active:enabled,
-			&[aria-disabled=true],
-			&[aria-disabled=true]:active:enabled {
+			&[aria-disabled='true'],
+			&[aria-disabled='true']:active:enabled {
 				background: $light-gray-100;
 				border-color: $light-gray-500;
 				color: $light-gray-900;
@@ -106,12 +107,12 @@
 		box-sizing: border-box;
 
 		*,
-		*:after {
-		  box-sizing: inherit;
+		*::after {
+			box-sizing: inherit;
 		}
 
 		.components-circular-option-picker__option {
-			&:focus:after {
+			&:focus::after {
 				box-shadow: none;
 			}
 		}
@@ -129,7 +130,7 @@
 		line-height: 24px;
 		margin: 0;
 
-		& + .components-color-picker__inputs-field {
+		+ .components-color-picker__inputs-field {
 			margin-left: 4px;
 		}
 
@@ -141,8 +142,8 @@
 			margin: 0;
 		}
 
-		input[type="number"],
-		input[type="text"] {
+		input[type='number'],
+		input[type='text'] {
 			background: white;
 			border: 1px solid $light-gray-500;
 			border-radius: 3px;

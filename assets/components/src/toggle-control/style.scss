@@ -27,4 +27,23 @@
 			}
 		}
 	}
+
+	// Is Dark
+
+	&.newspack-toggle-control__is-dark {
+		.components-base-control__field label {
+			color: $dark-gray-900;
+			font-weight: bold;
+		}
+
+		.components-base-control__help {
+			font-style: normal;
+		}
+	}
+
+	// Reset
+
+	.components-base-control__help {
+		margin: 0 0 0 44px;
+	}
 }

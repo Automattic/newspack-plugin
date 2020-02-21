@@ -264,17 +264,17 @@ class Engagement_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-engagement-wizard',
-			Newspack::plugin_url() . '/assets/dist/engagement.js',
+			Newspack::plugin_url() . '/dist/engagement.js',
 			$this->get_script_dependencies( array( 'wp-html-entities' ) ),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/engagement.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/engagement.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-engagement-wizard',
-			Newspack::plugin_url() . '/assets/dist/engagement.css',
+			Newspack::plugin_url() . '/dist/engagement.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/engagement.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/engagement.css' )
 		);
 		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-engagement-wizard' );

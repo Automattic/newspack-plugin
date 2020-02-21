@@ -184,9 +184,9 @@ class Dashboard extends Wizard {
 
 		wp_register_script(
 			'newspack-dashboard',
-			Newspack::plugin_url() . '/assets/dist/dashboard.js',
+			Newspack::plugin_url() . '/dist/dashboard.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/dashboard.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/dashboard.js' ),
 			true
 		);
 		wp_localize_script( 'newspack-dashboard', 'newspack_dashboard', $this->get_dashboard() );
@@ -194,9 +194,9 @@ class Dashboard extends Wizard {
 
 		wp_register_style(
 			'newspack-dashboard',
-			Newspack::plugin_url() . '/assets/dist/dashboard.css',
+			Newspack::plugin_url() . '/dist/dashboard.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/dashboard.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/dashboard.css' )
 		);
 		wp_style_add_data( 'newspack-dashboard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-dashboard' );

@@ -73,17 +73,17 @@ class Newspack_Test_Wizards_Controller extends WP_UnitTestCase {
 		// Before setting completed.
 		$request  = new WP_REST_Request( 'GET', $this->api_route );
 		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
+		$data     = $response->get_data();
 		$this->assertEquals( false, $data['completed'] );
 
 		// Set completed.
-		$request  = new WP_REST_Request( 'POST', $this->api_route . '/complete' );
+		$request = new WP_REST_Request( 'POST', $this->api_route . '/complete' );
 		$this->server->dispatch( $request );
 
 		// Verify it saved.
 		$request  = new WP_REST_Request( 'GET', $this->api_route );
 		$response = $this->server->dispatch( $request );
-		$data = $response->get_data();
+		$data     = $response->get_data();
 		$this->assertEquals( true, $data['completed'] );
 	}
 }

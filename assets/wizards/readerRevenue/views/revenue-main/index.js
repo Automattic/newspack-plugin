@@ -25,13 +25,15 @@ class RevenueMain extends Component {
 			<Fragment>
 				<ActionCard
 					title={ __( 'Donations' ) }
-					description={ __( 'Set up a donations page and accept one-time or recurring payments from your readers.' ) }
+					description={ __(
+						'Set up a donations page and accept one-time or recurring payments from your readers.'
+					) }
 					actionText={ __( 'Configure' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/donations"
 				/>
 				<PluginToggle
 					plugins={ {
-						laterpay: true
+						laterpay: true,
 					} }
 				/>
 			</Fragment>

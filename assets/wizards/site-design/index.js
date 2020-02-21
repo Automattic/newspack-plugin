@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,7 +13,7 @@ import HeaderIcon from '@material-ui/icons/Web';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router'
+import Router from '../../components/src/proxied-imports/router';
 import { ThemeSelection } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -22,7 +22,6 @@ const { HashRouter, Redirect, Route, Switch } = Router;
  * Site Design Wizard.
  */
 class SiteDesignWizard extends Component {
-
 	componentDidMount = () => {
 		this.retrieveTheme();
 	};
@@ -76,7 +75,7 @@ class SiteDesignWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => {
+							render={ () => {
 								const { theme } = this.state;
 								return (
 									<ThemeSelection
@@ -84,7 +83,7 @@ class SiteDesignWizard extends Component {
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
 										buttonText={ __( 'Customize', 'newspack' ) }
-										buttonAction='/wp-admin/customize.php'
+										buttonAction="/wp-admin/customize.php"
 										updateTheme={ this.updateTheme }
 										theme={ theme }
 										isWide
@@ -102,5 +101,5 @@ class SiteDesignWizard extends Component {
 
 render(
 	createElement( withWizard( SiteDesignWizard ) ),
-		document.getElementById( 'newspack-site-design-wizard' )
-	);
+	document.getElementById( 'newspack-site-design-wizard' )
+);
