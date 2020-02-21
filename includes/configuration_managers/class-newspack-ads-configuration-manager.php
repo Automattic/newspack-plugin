@@ -72,6 +72,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * Get a single ad unit.
 	 *
 	 * @param number $id The id of the ad unit to retrieve.
+	 * @param string $placement The id of the placement region.
 	 * @return array | WP_Error Returns ad unit or error if the plugin is not active or the ad unit doesn't exist.
 	 */
 	public function get_ad_unit( $id, $placement = null ) {

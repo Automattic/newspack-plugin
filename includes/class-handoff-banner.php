@@ -68,9 +68,9 @@ class Handoff_Banner {
 		);
 
 		$script_info = [
-			'text' => __( 'Click to return to Newspack after completing configuration.', 'newspack' ),
+			'text'       => __( 'Click to return to Newspack after completing configuration.', 'newspack' ),
 			'buttonText' => __( 'Back to Newspack', 'newspack' ),
-			'returnURL' => esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL, '' ) ),
+			'returnURL'  => esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL, '' ) ),
 		];
 		wp_localize_script( $handle, 'newspack_handoff', $script_info );
 		wp_enqueue_script( $handle );
@@ -106,7 +106,8 @@ class Handoff_Banner {
 	/**
 	 * Register the slug of plugin that is about to be visited.
 	 *
-	 * @param  array $plugin Slug of plugin to be visited.
+	 * @param  array   $plugin Slug of plugin to be visited.
+	 * @param  boolean $show_on_block_editor Whether to show on block editor.
 	 * @return void
 	 */
 	public static function register_handoff_for_plugin( $plugin, $show_on_block_editor = false ) {
