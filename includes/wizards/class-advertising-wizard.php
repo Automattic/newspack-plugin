@@ -583,17 +583,17 @@ class Advertising_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/assets/dist/advertising.js',
+			Newspack::plugin_url() . '/dist/advertising.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/advertising.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/assets/dist/advertising.css',
+			Newspack::plugin_url() . '/dist/advertising.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/advertising.css' )
 		);
 		\wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-advertising-wizard' );

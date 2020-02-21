@@ -92,7 +92,7 @@ abstract class Wizard {
 			'checklists'  => Checklists::get_urls(),
 			'wizards'     => Wizards::get_urls(),
 			'dashboard'   => Wizards::get_url( 'dashboard' ),
-			'public_path' => Newspack::plugin_url() . '/assets/dist/',
+			'public_path' => Newspack::plugin_url() . '/dist/',
 			'bloginfo'    => [
 				'name' => get_bloginfo( 'name' ),
 			],
