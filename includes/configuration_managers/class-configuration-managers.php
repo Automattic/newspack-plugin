@@ -60,6 +60,10 @@ class Configuration_Managers {
 			'filename'   => 'class-laterpay-configuration-manager.php',
 			'class_name' => 'LaterPay_Configuration_Manager',
 		],
+		'wordpress_seo'         => [
+			'filename'   => 'class-wordpress-seo-configuration-manager.php',
+			'class_name' => 'WordPress_SEO_Configuration_Manager',
+		],
 	];
 
 	/**

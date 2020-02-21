@@ -84,17 +84,17 @@ class Analytics_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-analytics-wizard',
-			Newspack::plugin_url() . '/assets/dist/analytics.js',
+			Newspack::plugin_url() . '/dist/analytics.js',
 			[ 'wp-components', 'wp-api-fetch' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/analytics.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/analytics.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-analytics-wizard',
-			Newspack::plugin_url() . '/assets/dist/analytics.css',
+			Newspack::plugin_url() . '/dist/analytics.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/analytics.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/analytics.css' )
 		);
 		\wp_style_add_data( 'newspack-analytics-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-analytics-wizard' );

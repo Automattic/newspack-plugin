@@ -19,7 +19,7 @@
 
 	.newspack-task {
 		&:last-of-type {
-			&:before {
+			&::before {
 				bottom: 0;
 			}
 		}
@@ -49,7 +49,7 @@
 			margin: 0;
 		}
 
-		& + .newspack-checklist__header-action {
+		+ .newspack-checklist__header-action {
 			margin-top: 8px;
 		}
 	}

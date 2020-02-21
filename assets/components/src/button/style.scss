@@ -12,7 +12,8 @@
 	height: auto;
 	line-height: 24px;
 	padding: 11px 24px;
-	transition: background 125ms ease-in-out, border-color 125ms ease-in-out, box-shadow 125ms ease-in-out, color 125ms ease-in-out;
+	transition: background 125ms ease-in-out, border-color 125ms ease-in-out,
+		box-shadow 125ms ease-in-out, color 125ms ease-in-out;
 
 	&.is-large {
 		font-size: 17px;
@@ -37,8 +38,8 @@
 
 	&:disabled,
 	&:disabled:active:enabled,
-	&[aria-disabled=true],
-	&[aria-disabled=true]:active:enabled {
+	&[aria-disabled='true'],
+	&[aria-disabled='true']:active:enabled {
 		cursor: not-allowed;
 		text-shadow: none;
 	}
@@ -52,7 +53,8 @@
 		padding: 11px 24px;
 	}
 
-	&.is-primary {
+	&.is-primary,
+	&.is-pressed {
 		background: $primary-500;
 		border: 1px solid $primary-600;
 		color: white;
@@ -62,7 +64,7 @@
 		&:focus,
 		&:focus:enabled,
 		&:hover,
-		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: $primary-600;
 			border-color: $primary-700;
 			color: white;
@@ -75,8 +77,8 @@
 
 		&:disabled,
 		&:disabled:active:enabled,
-		&[aria-disabled=true],
-		&[aria-disabled=true]:active:enabled {
+		&[aria-disabled='true'],
+		&[aria-disabled='true']:active:enabled {
 			background: $primary-400;
 			border-color: $primary-500;
 			color: $primary-200;
@@ -104,7 +106,7 @@
 		&:focus,
 		&:focus:enabled,
 		&:hover,
-		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: $light-gray-100;
 			border-color: $primary-500;
 			color: $primary-500;
@@ -118,8 +120,8 @@
 
 		&:disabled,
 		&:disabled:active:enabled,
-		&[aria-disabled=true],
-		&[aria-disabled=true]:active:enabled {
+		&[aria-disabled='true'],
+		&[aria-disabled='true']:active:enabled {
 			background: $light-gray-100;
 			border-color: $light-gray-500;
 			color: $light-gray-900;
@@ -142,7 +144,7 @@
 		&:focus,
 		&:focus:enabled,
 		&:hover,
-		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: $light-gray-400;
 			border-color: $light-gray-900;
 			color: $dark-gray-900;
@@ -156,8 +158,8 @@
 
 		&:disabled,
 		&:disabled:active:enabled,
-		&[aria-disabled=true],
-		&[aria-disabled=true]:active:enabled {
+		&[aria-disabled='true'],
+		&[aria-disabled='true']:active:enabled {
 			background: $light-gray-300;
 			border-color: $light-gray-500;
 			color: $dark-gray-100;
@@ -188,7 +190,7 @@
 		&:focus,
 		&:focus:enabled,
 		&:hover,
-		&:not(:disabled):not([aria-disabled="true"]):not(.is-default):hover {
+		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: transparent;
 			color: $primary-600;
 			text-decoration: none;

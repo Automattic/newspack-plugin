@@ -219,16 +219,16 @@ class Setup_Wizard extends Wizard {
 		}
 		wp_enqueue_script(
 			'newspack-setup-wizard',
-			Newspack::plugin_url() . '/assets/dist/setup.js',
+			Newspack::plugin_url() . '/dist/setup.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/setup.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/setup.js' ),
 			true
 		);
 		wp_register_style(
 			'newspack-setup-wizard',
-			Newspack::plugin_url() . '/assets/dist/setup.css',
+			Newspack::plugin_url() . '/dist/setup.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/setup.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/setup.css' )
 		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-setup-wizard' );

@@ -17,7 +17,7 @@ import EditIcon from '@material-ui/icons/Edit';
  * Internal dependencies.
  */
 import { MoneyInput } from '../../components/';
-import { Button, Handoff, Notice, ToggleControl, withWizardScreen } from '../../../../components/src';
+import { Handoff, Notice, ToggleControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -41,22 +41,30 @@ class Donation extends Component {
 					<Fragment>
 						<h2>{ __( 'Donations landing page' ) }</h2>
 						{ 'publish' !== donationPage.status && (
-							<Notice isError noticeText={ __( 'Your donations landing page has been created, but is not yet published. You can now edit it and publish when you\'re ready.' ) } />
+							<Notice
+								isError
+								noticeText={ __(
+									"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
+								) }
+							/>
 						) }
 						{ 'publish' === donationPage.status && (
-							<Notice isSuccess noticeText={ __( 'Your donations landing page is set up and published.' ) } />
+							<Notice
+								isSuccess
+								noticeText={ __( 'Your donations landing page is set up and published.' ) }
+							/>
 						) }
 						<div className="newspack-donations-wizard__edit-page">
-						<Handoff
-							plugin="woocommerce"
-							editLink={ donationPage.editUrl }
-							isTertiary
-							isSmall
-							icon={ <EditIcon /> }
-							showOnBlockEditor
-						>
-							{ __( 'Edit Page' ) }
-						</Handoff>
+							<Handoff
+								plugin="woocommerce"
+								editLink={ donationPage.editUrl }
+								isTertiary
+								isSmall
+								icon={ <EditIcon /> }
+								showOnBlockEditor
+							>
+								{ __( 'Edit Page' ) }
+							</Handoff>
 						</div>
 						<hr />
 					</Fragment>

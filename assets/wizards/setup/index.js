@@ -394,7 +394,7 @@ class SetupWizard extends Component {
 									headerText={ __( 'Theme' ) }
 									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
-									buttonAction='#/starter-content'
+									buttonAction="#/starter-content"
 									updateTheme={ this.updateTheme }
 									theme={ theme }
 									isWide

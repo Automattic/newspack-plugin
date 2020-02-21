@@ -24,9 +24,7 @@ class ColorPicker extends Component {
 				name: __( 'navy' ),
 				color: '#001f3f',
 			},
-			{	name: __( 'blue' ),
-				color: '#0074d9',
-			},
+			{ name: __( 'blue' ), color: '#0074d9' },
 			{
 				name: __( 'aqua' ),
 				color: '#7fdbff',
@@ -98,12 +96,7 @@ class ColorPicker extends Component {
 					{ label }
 					<ColorIndicator colorValue={ color } />
 				</div>
-				<ColorPalette
-					colors={ colors }
-					value={ color }
-					onChange={ onChange }
-					{ ...otherProps }
-				/>
+				<ColorPalette colors={ colors } value={ color } onChange={ onChange } { ...otherProps } />
 			</div>
 		);
 	}
@@ -112,6 +105,6 @@ class ColorPicker extends Component {
 ColorPicker.defaultProps = {
 	color: '#ffffff',
 	onChange: () => null,
-}
+};
 
 export default ColorPicker;
