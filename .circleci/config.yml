@@ -8,17 +8,16 @@ commands:
           at: ~/
 
 job-references:
-  mysql_image: &mysql_image
-    circleci/mysql:5.6
+  mysql_image: &mysql_image circleci/mysql:5.6
 
   setup_environment: &setup_environment
-    name: "Setup Environment Variables"
+    name: 'Setup Environment Variables'
     command: |
       echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> $BASH_ENV
       source /home/circleci/.bashrc
 
   install_dependencies: &install_dependencies
-    name: "Install Dependencies"
+    name: 'Install Dependencies'
     command: |
       sudo apt-get update && sudo apt-get install subversion
       sudo -E docker-php-ext-install mysqli
@@ -29,21 +28,21 @@ job-references:
     steps:
       - checkout
       - run:
-          name: "Lint Files"
+          name: 'Lint Files'
           command: |
             composer install
             ./vendor/bin/phpcs
 
   php_setup: &php_setup
     environment:
-      - WP_TESTS_DIR: "/tmp/wordpress-tests-lib"
-      - WP_CORE_DIR: "/tmp/wordpress/"
+      - WP_TESTS_DIR: '/tmp/wordpress-tests-lib'
+      - WP_CORE_DIR: '/tmp/wordpress/'
     steps:
       - checkout
       - run: *setup_environment
       - run: *install_dependencies
       - run:
-          name: "Run Tests"
+          name: 'Run Tests'
           command: |
             composer global require "phpunit/phpunit=5.7.*"
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
@@ -73,6 +72,15 @@ jobs:
       - run:
           name: Run Linter
           command: npm run lint
+
+  test-js:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout_code
+      - run:
+          name: Run JS Tests
+          command: npm run test
 
   # PHP jobs
   lint-php:
@@ -104,6 +112,9 @@ workflows:
     jobs:
       - build
       - lint-js-scss:
+          requires:
+            - build
+      - test-js:
           requires:
             - build
       - release:
