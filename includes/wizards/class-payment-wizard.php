@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+require_once NEWSPACK_ABSPATH . 'vendor/autoload.php';
+
 use \WP_Error, \WP_Query;
 
 defined( 'ABSPATH' ) || exit;
@@ -17,6 +19,9 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  * Interface for managing payments for Newspack hosted plan.
  */
 class Payment_Wizard extends Wizard {
+
+	const NEWSPACK_STRIPE_CUSTOMER     = '_newspack_hosted_stripe_customer';
+	const NEWSPACK_STRIPE_SUBSCRIPTION = '_newspack_hosted_stripe_subscription';
 
 	/**
 	 * The slug of this wizard.
@@ -31,6 +36,133 @@ class Payment_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_action( 'init', [ $this, 'retrieve_subscription' ] );
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public function register_api_endpoints() {
+
+		// Get data about Stripe customer/subscription.
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/newspack-payment-wizard/',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_stripe_data' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Create a Stripe checkout session, return information needed to redirect to it.
+		register_rest_route(
+			'newspack/v1/wizard/',
+			'/newspack-payment-wizard/checkout',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_stripe_checkout_id' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Get Stripe data, if available.
+	 */
+	public function api_get_stripe_data() {
+		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
+		$customer_id = get_option( self::NEWSPACK_STRIPE_CUSTOMER, null );
+		if ( ! $customer_id ) {
+			return null;
+		}
+		$customer = \Stripe\Customer::retrieve( $customer_id );
+		return \rest_ensure_response(
+			[
+				'customer' => $customer,
+			]
+		);
+	}
+
+	/**
+	 * Get Stripe Checkout ID.
+	 */
+	public function api_get_stripe_checkout_id() {
+		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
+		$customer_id     = get_option( self::NEWSPACK_STRIPE_CUSTOMER, null );
+		$subscription_id = get_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, null );
+		$base_url        = get_admin_url( null, 'admin.php' ) . '?page=newspack-payment-wizard';
+		$success_url     = $base_url . '&session_id={CHECKOUT_SESSION_ID}';
+		$cancel_url      = $base_url;
+
+		if ( $customer_id && $subscription_id ) {
+			$session = \Stripe\Checkout\Session::create(
+				[
+					'payment_method_types' => [ 'card' ],
+					'mode'                 => 'setup',
+					'setup_intent_data'    => [
+						'metadata' => [
+							'customer_id'     => $customer_id,
+							'subscription_id' => $subscription_id,
+						],
+					],
+					'success_url'          => $success_url,
+					'cancel_url'           => $cancel_url,
+				]
+			);
+		} else {
+			$user    = wp_get_current_user();
+			$session = \Stripe\Checkout\Session::create(
+				[
+					'customer_email'       => $user->user_email,
+					'payment_method_types' => [ 'card' ],
+					'subscription_data'    =>
+						[
+							'items' => [
+								[
+									'plan' => self::stripe_plan(),
+								],
+							],
+						],
+					'success_url'          => $success_url,
+					'cancel_url'           => $cancel_url,
+				]
+			);
+		}
+		return \rest_ensure_response(
+			[
+				'session_id'             => $session['id'],
+				'stripe_publishable_key' => self::stripe_publishable_key(),
+			]
+		);
+	}
+
+	/**
+	 * After Stripe Checkout event, retrieve information about the transation by session ID and store customer and subscription in the options table.
+	 */
+	public function retrieve_subscription() {
+		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) !== $this->slug ) {
+			return;
+		}
+		$session_id = filter_input( INPUT_GET, 'session_id', FILTER_SANITIZE_STRING );
+		if ( ! $session_id ) {
+			return;
+		}
+		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
+		$session_result = \Stripe\Checkout\Session::retrieve( $session_id );
+
+		if ( $session_result ) {
+			update_option( self::NEWSPACK_STRIPE_CUSTOMER, $session_result['customer'] );
+			update_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, $session_result['subscription'] );
+		}
+	}
 
 	/**
 	 * Get the name for this wizard.
@@ -70,6 +202,14 @@ class Payment_Wizard extends Wizard {
 		}
 
 		\wp_enqueue_script(
+			'stripe_js',
+			'https://js.stripe.com/v3/',
+			[],
+			'1.0',
+			true
+		);
+
+		\wp_enqueue_script(
 			'newspack-payment-wizard',
 			Newspack::plugin_url() . '/dist/payment.js',
 			$this->get_script_dependencies(),
@@ -88,9 +228,38 @@ class Payment_Wizard extends Wizard {
 	}
 
 	/**
-	 * Return private Stripe key from environment variable.
+	 * Return Stripe publishable key from environment variable.
+	 *
+	 * @return string Stripe publishable key.
 	 */
-	public static function stripe_key() {
-		return ( defined( 'NEWSPACK_STRIPE_KEY' ) && NEWSPACK_STRIPE_KEY ) ? NEWSPACK_STRIPE_KEY : false;
+	public static function stripe_publishable_key() {
+		return ( defined( 'NEWSPACK_STRIPE_PUBLISHABLE_KEY' ) && NEWSPACK_STRIPE_PUBLISHABLE_KEY ) ? NEWSPACK_STRIPE_PUBLISHABLE_KEY : false;
+	}
+
+	/**
+	 * Return Stripe secret key from environment variable.
+	 *
+	 * @return string Stripe secret key.
+	 */
+	public static function stripe_secret_key() {
+		return ( defined( 'NEWSPACK_STRIPE_SECRET_KEY' ) && NEWSPACK_STRIPE_SECRET_KEY ) ? NEWSPACK_STRIPE_SECRET_KEY : false;
+	}
+
+	/**
+	 * Return Stripe plan.
+	 *
+	 * @return string Stripe plan ID.
+	 */
+	public static function stripe_plan() {
+		return ( defined( 'NEWSPACK_STRIPE_PLAN' ) && NEWSPACK_STRIPE_PLAN ) ? NEWSPACK_STRIPE_PLAN : false;
+	}
+
+	/**
+	 * Return Stripe plan.
+	 *
+	 * @return bool True if all necessary variables are present.
+	 */
+	public static function configured() {
+		return self::stripe_publishable_key() && self::stripe_secret_key() && self::stripe_plan();
 	}
 }

@@ -40,8 +40,8 @@ class Wizards {
 			'health-check'    => new Health_Check_Wizard(),
 			'engagement'      => new Engagement_Wizard(),
 		];
-		if ( Payment_Wizard::stripe_key() ) {
-			self::$wizards[ 'payments' ] = new Payment_Wizard();
+		if ( Payment_Wizard::configured() ) {
+			self::$wizards['payments'] = new Payment_Wizard();
 		}
 	}
 
