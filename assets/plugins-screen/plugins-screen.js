@@ -1,6 +1,11 @@
 /* global newspack_plugin_info, jQuery */
 
 /**
+ * Internal dependencies.
+ */
+import './plugins-screen.scss';
+
+/**
  * Extra zazz for the WP Admin Plugins page.
  *
  * @see Admin_Plugins_Screen::enqueue_scripts_and_styles().
