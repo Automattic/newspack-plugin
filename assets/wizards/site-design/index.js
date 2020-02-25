@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import HeaderIcon from '@material-ui/icons/Web';
 import SettingsIcon from '@material-ui/icons/Settings';
 import StyleIcon from '@material-ui/icons/Style';
 
@@ -45,10 +44,10 @@ class SiteDesignWizard extends Component {
 			} );
 	};
 
-	updateTheme = theme => {
+	updateTheme = newTheme => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + newTheme,
 			method: 'POST',
 		};
 		wizardApiFetch( params )
@@ -75,8 +74,8 @@ class SiteDesignWizard extends Component {
 		};
 		wizardApiFetch( params )
 			.then( response => {
-				const { theme, theme_mods: themeMods } = response;
-				this.setState( { theme, themeMods } );
+				const { theme, theme_mods } = response;
+				this.setState( { theme, themeMods: theme_mods } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Update Error]', error );
@@ -133,8 +132,8 @@ class SiteDesignWizard extends Component {
 						<Route
 							path="/settings"
 							exact
-							render={ routeProps => {
-								const { themeMods, theme } = this.state;
+							render={ () => {
+								const { themeMods } = this.state;
 								return (
 									<ThemeMods
 										headerIcon={ <SettingsIcon /> }

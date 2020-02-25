@@ -11,7 +11,7 @@
 }
 
 .newspack-toggle-group {
-	& + .newspack-text-control {
+	+ .newspack-text-control {
 		margin-top: -16px;
 	}
 

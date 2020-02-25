@@ -41,7 +41,7 @@
 
 	// Radio
 
-	input[type="radio"] {
+	input[type='radio'] {
 		border: 2px solid $light-gray-900;
 		box-shadow: none;
 		height: 20px;
@@ -54,14 +54,14 @@
 			outline: 0;
 		}
 
-		&:checked:before {
+		&:checked::before {
 			background: $primary-500;
 			height: 10px;
 			margin: 3px;
 			width: 10px;
 		}
 
-		& + label {
+		+ label {
 			padding-left: 4px;
 		}
 	}
@@ -75,9 +75,9 @@
 
 	// Multiple Controls
 
-	& + .newspack-select-control,
-	& + .newspack-text-control,
-	& + .newspack-textarea-control  {
+	+ .newspack-select-control,
+	+ .newspack-text-control,
+	+ .newspack-textarea-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}
