@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import HeaderIcon from '@material-ui/icons/Search';
+import HeaderIcon from '@material-ui/icons/Security';
 
 /**
  * Internal dependencies.
@@ -32,7 +32,7 @@ class PaymentWizard extends Component {
 	retrieve = () => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-payment-wizard/' } )
-			.then( ( { customer } ) => this.setState( { customer } ) )
+			.then( ( { customer, subscription } ) => this.setState( { customer, subscription } ) )
 			.catch( error => setError( error ) );
 	};
 	checkout = () => {
@@ -62,7 +62,9 @@ class PaymentWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { customer } = this.state;
+		const { customer, subscription } = this.state;
+		const needsSubscription =
+			! customer || customer.deleted || ( ! subscription || 'canceled' === subscription.status );
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -74,11 +76,12 @@ class PaymentWizard extends Component {
 							render={ () => (
 								<PaymentMethod
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Payment' ) }
+									headerText={ __( 'Managed Newspack' ) }
 									subHeaderText={ __( 'Manage payment methods for hosted Newspack.' ) }
 									customer={ customer }
-									buttonText={ customer ? __( 'Update subscription', 'newspack' ) : __( 'Subscribe', 'newspack' ) }
+									buttonText={ needsSubscription ? __( 'Subscribe', 'newspack' ) : null }
 									buttonAction={ this.checkout }
+									onUpdateSubscription={ this.checkout }
 								/>
 							) }
 						/>
