@@ -20,13 +20,18 @@ import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { PaymentMethod } from './views';
 
+/**
+ * External dependencies.
+ */
+import { loadStripe } from '@stripe/stripe-js';
+
 const { HashRouter, Redirect, Route, Switch } = Router;
 
 class PaymentWizard extends Component {
 	state = {
 		customer: {},
 	};
-	componentDidMount = props => {
+	componentDidMount = () => {
 		this.retrieve();
 	};
 	retrieve = () => {
@@ -38,14 +43,15 @@ class PaymentWizard extends Component {
 	checkout = () => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-payment-wizard/checkout' } )
-			.then( data => {
-				const stripe = Stripe( data.stripe_publishable_key );
+			.then( async data => {
+				const { stripe_publishable_key: stripePublishableKey, session_id: sessionId } = data;
+				const stripe = await loadStripe( stripePublishableKey );
 				stripe
 					.redirectToCheckout( {
 						// Make the id field from the Checkout Session creation API response
 						// available to this file, so you can provide it as parameter here
 						// instead of the {{CHECKOUT_SESSION_ID}} placeholder.
-						sessionId: data.session_id,
+						sessionId: sessionId,
 					} )
 					.then( function( result ) {
 						// If `redirectToCheckout` fails due to a browser or network

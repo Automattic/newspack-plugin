@@ -238,14 +238,6 @@ class Payment_Wizard extends Wizard {
 		}
 
 		\wp_enqueue_script(
-			'stripe_js',
-			'https://js.stripe.com/v3/',
-			[],
-			'1.0',
-			true
-		);
-
-		\wp_enqueue_script(
 			'newspack-payment-wizard',
 			Newspack::plugin_url() . '/dist/payment.js',
 			$this->get_script_dependencies(),
