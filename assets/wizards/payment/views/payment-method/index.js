@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Payment Method screen.
@@ -39,13 +39,13 @@ class PaymentMethod extends Component {
 					<Fragment>
 						<Notice noticeText={ __( 'Newspack subscription active', 'newspack' ) } isSuccess />
 						{ subscriptionData.map( subscription => {
-							const { current_period_start, current_period_end, id, plan } = subscription;
+							const { current_period_end: currentPeriodEnd, id, plan } = subscription;
 							const { amount, interval, nickname } = plan;
 							const currencyFormatter = new Intl.NumberFormat( 'en-US', {
 								style: 'currency',
 								currency: 'USD',
 							} );
-							const nextPayment = new Date( current_period_end * 1000 ).toLocaleDateString();
+							const nextPayment = new Date( currentPeriodEnd * 1000 ).toLocaleDateString();
 							return (
 								<ActionCard
 									className="newspack-card__is-supported"
