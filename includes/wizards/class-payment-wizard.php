@@ -81,8 +81,8 @@ class Payment_Wizard extends Wizard {
 		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
 		$customer_id     = get_option( self::NEWSPACK_STRIPE_CUSTOMER, '' );
 		$subscription_id = get_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, '' );
-		$customer        = \Stripe\Customer::retrieve( $customer_id );
-		$subscription    = \Stripe\Subscription::retrieve( $subscription_id );
+		$customer        = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
+		$subscription    = $subscription_id ? \Stripe\Subscription::retrieve( $subscription_id ) : null;
 		return \rest_ensure_response(
 			[
 				'customer'     => $customer,
@@ -176,7 +176,7 @@ class Payment_Wizard extends Wizard {
 			$customer_id       = isset( $setup_intent['metadata']['customer_id'] ) ? $setup_intent['metadata']['customer_id'] : null;
 			$subscription_id   = isset( $setup_intent['metadata']['subscription_id'] ) ? $setup_intent['metadata']['subscription_id'] : null;
 			$payment_method_id = isset( $setup_intent['payment_method'] ) ? $setup_intent['payment_method'] : null;
-			$customer          = \Stripe\Customer::retrieve( $customer_id );
+			$customer          = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
 			if ( ! $customer || ( isset( $customer['deleted'] ) && $customer['deleted'] ) ) {
 				return;
 			}
