@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Payment Method screen.
@@ -24,17 +24,20 @@ class PaymentMethod extends Component {
 		return (
 			<Fragment>
 				{ ! hasSubscriptions && (
-					<p>
-						{ __(
-							'Click the button below to subscribe to hosted Newspack. If you believe you have already subscribed, please contact Newspack support.',
-							'newspack'
-						) }
-					</p>
+					<Fragment>
+						<Notice noticeText={ __( 'Newspack subscription inactive', 'newspack' ) } isError />
+						<p>
+							{ __(
+								'Click the button below to subscribe to hosted Newspack. If you believe you have already subscribed, please contact Newspack support.',
+								'newspack'
+							) }
+						</p>
+					</Fragment>
 				) }
 
 				{ hasSubscriptions && (
 					<Fragment>
-						<h2>{ __( 'Newspack Subscription', 'newspack' ) }</h2>
+						<Notice noticeText={ __( 'Newspack subscription active', 'newspack' ) } isSuccess />
 						{ subscriptionData.map( subscription => {
 							const { current_period_start, current_period_end, id, plan } = subscription;
 							const { amount, interval, nickname } = plan;
