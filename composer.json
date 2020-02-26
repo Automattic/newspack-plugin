@@ -7,16 +7,15 @@
 	"support": {
 			"issues": "https://github.com/Automattic/newspack-plugin/issues"
 	},
-	"require"    : {
-			"composer/installers": "~1.6",
-			"brainmaestro/composer-git-hooks": "^2.6",
-			"xwp/wp-dev-lib": "^1.5"
-	},
+	"require"    : {},
 	"require-dev": {
-			"automattic/vipwpcs": "^2.0.0",
-			"wp-coding-standards/wpcs": "*",
-			"dealerdirect/phpcodesniffer-composer-installer": "*",
-			"phpcompatibility/phpcompatibility-wp": "*"
+		"composer/installers": "~1.6",
+		"brainmaestro/composer-git-hooks": "^2.6",
+		"xwp/wp-dev-lib": "^1.5",
+		"automattic/vipwpcs": "^2.0.0",
+		"wp-coding-standards/wpcs": "*",
+		"dealerdirect/phpcodesniffer-composer-installer": "*",
+		"phpcompatibility/phpcompatibility-wp": "*"
 	},
 	"scripts": {
 		"post-install-cmd": [
