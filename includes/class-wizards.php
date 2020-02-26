@@ -40,6 +40,9 @@ class Wizards {
 			'health-check'    => new Health_Check_Wizard(),
 			'engagement'      => new Engagement_Wizard(),
 		];
+		if ( Support_Wizard::configured() ) {
+			self::$wizards['support'] = new Support_Wizard();
+		}
 	}
 
 	/**
