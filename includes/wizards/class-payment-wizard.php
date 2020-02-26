@@ -81,14 +81,18 @@ class Payment_Wizard extends Wizard {
 		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
 		$customer_id     = get_option( self::NEWSPACK_STRIPE_CUSTOMER, '' );
 		$subscription_id = get_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, '' );
-		$customer        = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
-		$subscription    = $subscription_id ? \Stripe\Subscription::retrieve( $subscription_id ) : null;
-		return \rest_ensure_response(
-			[
-				'customer'     => $customer,
-				'subscription' => $subscription,
-			]
-		);
+		try {
+			$customer     = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
+			$subscription = $subscription_id ? \Stripe\Subscription::retrieve( $subscription_id ) : null;
+			return \rest_ensure_response(
+				[
+					'customer'     => $customer,
+					'subscription' => $subscription,
+				]
+			);
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'newspack_invalid_payment', __( 'There was an error retrieving your subscription. Please contact support.' ) );
+		}
 	}
 
 	/**
@@ -96,56 +100,60 @@ class Payment_Wizard extends Wizard {
 	 */
 	public function api_get_stripe_checkout_id() {
 		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
-		$customer_id      = get_option( self::NEWSPACK_STRIPE_CUSTOMER, null );
-		$subscription_id  = get_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, null );
-		$customer         = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
-		$subscription     = $subscription_id ? \Stripe\Subscription::retrieve( $subscription_id ) : null;
-		$base_url         = get_admin_url( null, 'admin.php' ) . '?page=newspack-payment-wizard';
-		$success_url      = $base_url . '&session_id={CHECKOUT_SESSION_ID}';
-		$cancel_url       = $base_url;
-		$has_customer     = $customer && ! $customer['deleted'];
-		$has_subscription = $subscription && 'canceled' !== $subscription['status'];
-		$params           = [
-			'payment_method_types' => [ 'card' ],
-			'success_url'          => $success_url,
-			'cancel_url'           => $cancel_url,
-		];
+		$customer_id     = get_option( self::NEWSPACK_STRIPE_CUSTOMER, null );
+		$subscription_id = get_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, null );
+		try {
+			$customer         = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
+			$subscription     = $subscription_id ? \Stripe\Subscription::retrieve( $subscription_id ) : null;
+			$base_url         = get_admin_url( null, 'admin.php' ) . '?page=newspack-payment-wizard';
+			$success_url      = $base_url . '&session_id={CHECKOUT_SESSION_ID}';
+			$cancel_url       = $base_url;
+			$has_customer     = $customer && ! $customer['deleted'];
+			$has_subscription = $subscription && 'canceled' !== $subscription['status'];
+			$params           = [
+				'payment_method_types' => [ 'card' ],
+				'success_url'          => $success_url,
+				'cancel_url'           => $cancel_url,
+			];
 
-		if ( $has_customer && $has_subscription ) {
-			$params['mode']              = 'setup';
-			$params['setup_intent_data'] = [
-				'metadata' => [
-					'customer_id'     => $customer['id'],
-					'subscription_id' => $subscription['id'],
-				],
-			];
-		} elseif ( $has_customer ) {
-			$params['customer']          = $customer['id'];
-			$params['subscription_data'] = [
-				'items' => [
-					[
-						'plan' => self::stripe_plan(),
+			if ( $has_customer && $has_subscription ) {
+				$params['mode']              = 'setup';
+				$params['setup_intent_data'] = [
+					'metadata' => [
+						'customer_id'     => $customer['id'],
+						'subscription_id' => $subscription['id'],
 					],
-				],
-			];
-		} else {
-			$user                        = wp_get_current_user();
-			$params['customer_email']    = $user->user_email;
-			$params['subscription_data'] = [
-				'items' => [
-					[
-						'plan' => self::stripe_plan(),
+				];
+			} elseif ( $has_customer ) {
+				$params['customer']          = $customer['id'];
+				$params['subscription_data'] = [
+					'items' => [
+						[
+							'plan' => self::stripe_plan(),
+						],
 					],
-				],
-			];
+				];
+			} else {
+				$user                        = wp_get_current_user();
+				$params['customer_email']    = $user->user_email;
+				$params['subscription_data'] = [
+					'items' => [
+						[
+							'plan' => self::stripe_plan(),
+						],
+					],
+				];
+			}
+			$session = \Stripe\Checkout\Session::create( $params );
+			return \rest_ensure_response(
+				[
+					'session_id'             => $session['id'],
+					'stripe_publishable_key' => self::stripe_publishable_key(),
+				]
+			);
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'newspack_invalid_payment', __( 'There was an error retrieving your subscription. Please contact support.' ) );
 		}
-		$session = \Stripe\Checkout\Session::create( $params );
-		return \rest_ensure_response(
-			[
-				'session_id'             => $session['id'],
-				'stripe_publishable_key' => self::stripe_publishable_key(),
-			]
-		);
 	}
 
 	/**
@@ -160,42 +168,46 @@ class Payment_Wizard extends Wizard {
 			return;
 		}
 		\Stripe\Stripe::setApiKey( self::stripe_secret_key() );
-		$session_result = \Stripe\Checkout\Session::retrieve( $session_id );
-		if ( ! $session_result ) {
-			return;
-		}
-		/* https://stripe.com/docs/payments/checkout/subscriptions/starting */
-		if ( isset( $session_result['customer'], $session_result['subscription'] ) && $session_result['customer'] && $session_result['subscription'] ) {
-			update_option( self::NEWSPACK_STRIPE_CUSTOMER, sanitize_text_field( $session_result['customer'] ) );
-			update_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, sanitize_text_field( $session_result['subscription'] ) );
-		}
-
-		/* https://stripe.com/docs/payments/checkout/subscriptions/updating */
-		if ( isset( $session_result['setup_intent'] ) && $session_result['setup_intent'] ) {
-			$setup_intent      = \Stripe\SetupIntent::retrieve( $session_result['setup_intent'] );
-			$customer_id       = isset( $setup_intent['metadata']['customer_id'] ) ? $setup_intent['metadata']['customer_id'] : null;
-			$subscription_id   = isset( $setup_intent['metadata']['subscription_id'] ) ? $setup_intent['metadata']['subscription_id'] : null;
-			$payment_method_id = isset( $setup_intent['payment_method'] ) ? $setup_intent['payment_method'] : null;
-			$customer          = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
-			if ( ! $customer || ( isset( $customer['deleted'] ) && $customer['deleted'] ) ) {
+		try {
+			$session_result = \Stripe\Checkout\Session::retrieve( $session_id );
+			if ( ! $session_result ) {
 				return;
 			}
-			$payment_method = \Stripe\PaymentMethod::retrieve( $payment_method_id );
-			$payment_method->attach( [ 'customer' => $customer['id'] ] );
-			\Stripe\Customer::update(
-				$customer['id'],
-				[
-					'invoice_settings' => [ 'default_payment_method' => $payment_method_id ],
-				]
-			);
-			\Stripe\Subscription::update(
-				$subscription_id,
-				[
-					'default_payment_method' => $payment_method_id,
-				]
-			);
-			update_option( self::NEWSPACK_STRIPE_CUSTOMER, sanitize_text_field( $customer['id'] ) );
-			update_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, sanitize_text_field( $subscription_id ) );
+			/* https://stripe.com/docs/payments/checkout/subscriptions/starting */
+			if ( isset( $session_result['customer'], $session_result['subscription'] ) && $session_result['customer'] && $session_result['subscription'] ) {
+				update_option( self::NEWSPACK_STRIPE_CUSTOMER, sanitize_text_field( $session_result['customer'] ) );
+				update_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, sanitize_text_field( $session_result['subscription'] ) );
+			}
+
+			/* https://stripe.com/docs/payments/checkout/subscriptions/updating */
+			if ( isset( $session_result['setup_intent'] ) && $session_result['setup_intent'] ) {
+				$setup_intent      = \Stripe\SetupIntent::retrieve( $session_result['setup_intent'] );
+				$customer_id       = isset( $setup_intent['metadata']['customer_id'] ) ? $setup_intent['metadata']['customer_id'] : null;
+				$subscription_id   = isset( $setup_intent['metadata']['subscription_id'] ) ? $setup_intent['metadata']['subscription_id'] : null;
+				$payment_method_id = isset( $setup_intent['payment_method'] ) ? $setup_intent['payment_method'] : null;
+				$customer          = $customer_id ? \Stripe\Customer::retrieve( $customer_id ) : null;
+				if ( ! $customer || ( isset( $customer['deleted'] ) && $customer['deleted'] ) ) {
+					return;
+				}
+				$payment_method = \Stripe\PaymentMethod::retrieve( $payment_method_id );
+				$payment_method->attach( [ 'customer' => $customer['id'] ] );
+				\Stripe\Customer::update(
+					$customer['id'],
+					[
+						'invoice_settings' => [ 'default_payment_method' => $payment_method_id ],
+					]
+				);
+				\Stripe\Subscription::update(
+					$subscription_id,
+					[
+						'default_payment_method' => $payment_method_id,
+					]
+				);
+				update_option( self::NEWSPACK_STRIPE_CUSTOMER, sanitize_text_field( $customer['id'] ) );
+				update_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, sanitize_text_field( $subscription_id ) );
+			}
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'newspack_invalid_payment', __( 'There was an error retrieving your subscription. Please contact support.' ) );
 		}
 		wp_safe_redirect( get_admin_url( null, 'admin.php' ) . '?page=newspack-payment-wizard' );
 		exit;
