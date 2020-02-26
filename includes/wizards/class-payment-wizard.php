@@ -197,7 +197,8 @@ class Payment_Wizard extends Wizard {
 			update_option( self::NEWSPACK_STRIPE_CUSTOMER, sanitize_text_field( $customer['id'] ) );
 			update_option( self::NEWSPACK_STRIPE_SUBSCRIPTION, sanitize_text_field( $subscription_id ) );
 		}
-		header( 'Location: ' . get_admin_url( null, 'admin.php' ) . '?page=newspack-payment-wizard' );
+		wp_safe_redirect( get_admin_url( null, 'admin.php' ) . '?page=newspack-payment-wizard' );
+		exit;
 	}
 
 	/**
