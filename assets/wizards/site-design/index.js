@@ -7,14 +7,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import HeaderIcon from '@material-ui/icons/Web';
+import SettingsIcon from '@material-ui/icons/Settings';
+import StyleIcon from '@material-ui/icons/Style';
 
 /**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ThemeSelection } from './views';
+import { ThemeMods, ThemeSelection } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -34,7 +35,8 @@ class SiteDesignWizard extends Component {
 		};
 		wizardApiFetch( params )
 			.then( response => {
-				this.setState( { theme: response.theme } );
+				const { theme, theme_mods: themeMods } = response;
+				this.setState( { theme, themeMods } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Fetch Error]', error );
@@ -42,15 +44,38 @@ class SiteDesignWizard extends Component {
 			} );
 	};
 
-	updateTheme = theme => {
+	updateTheme = newTheme => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + newTheme,
 			method: 'POST',
 		};
 		wizardApiFetch( params )
 			.then( response => {
-				this.setState( { theme: response.theme } );
+				const { theme, theme_mods: themeMods } = response;
+				this.setState( { theme, themeMods } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Update Error]', error );
+				setError( { error } );
+			} );
+	};
+
+	setThemeMods = themeModUpdates =>
+		this.setState( { themeMods: { ...this.state.themeMods, ...themeModUpdates } } );
+
+	updateThemeMods = () => {
+		const { setError, wizardApiFetch } = this.props;
+		const { themeMods } = this.state;
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme-mods/',
+			method: 'POST',
+			data: { theme_mods: themeMods },
+		};
+		wizardApiFetch( params )
+			.then( response => {
+				const { theme, theme_mods } = response;
+				this.setState( { theme, themeMods: theme_mods } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Update Error]', error );
@@ -67,6 +92,18 @@ class SiteDesignWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
+		const tabbedNavigation = [
+			{
+				label: __( 'Theme' ),
+				path: '/',
+				exact: true,
+			},
+			{
+				label: __( 'Settings' ),
+				path: '/settings',
+				exact: true,
+			},
+		];
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -79,14 +116,36 @@ class SiteDesignWizard extends Component {
 								const { theme } = this.state;
 								return (
 									<ThemeSelection
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Site Design', 'newspack' ) }
+										headerIcon={ <StyleIcon /> }
+										headerText={ __( 'Theme', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
-										buttonText={ __( 'Customize', 'newspack' ) }
-										buttonAction="/wp-admin/customize.php"
+										tabbedNavigation={ tabbedNavigation }
+										buttonText={ __( 'Configure', 'newspack' ) }
+										buttonAction="#/settings"
 										updateTheme={ this.updateTheme }
 										theme={ theme }
 										isWide
+									/>
+								);
+							} }
+						/>
+						<Route
+							path="/settings"
+							exact
+							render={ () => {
+								const { themeMods } = this.state;
+								return (
+									<ThemeMods
+										headerIcon={ <SettingsIcon /> }
+										headerText={ __( 'Settings', 'newspack' ) }
+										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
+										tabbedNavigation={ tabbedNavigation }
+										themeMods={ themeMods }
+										setThemeMods={ this.setThemeMods }
+										buttonText={ __( 'Save', 'newspack' ) }
+										buttonAction={ this.updateThemeMods }
+										secondaryButtonText={ __( 'Advanced settings', 'newspack' ) }
+										secondaryButtonAction="/wp-admin/customize.php"
 									/>
 								);
 							} }
