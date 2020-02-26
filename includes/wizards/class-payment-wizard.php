@@ -275,9 +275,9 @@ class Payment_Wizard extends Wizard {
 	}
 
 	/**
-	 * Return Stripe plan.
+	 * Check if necessary constants are configured.
 	 *
-	 * @return string Stripe plan ID.
+	 * @return boolean True if all Stripe constants are defined.
 	 */
 	public static function stripe_plan() {
 		return ( defined( 'NEWSPACK_STRIPE_PLAN' ) && NEWSPACK_STRIPE_PLAN ) ? NEWSPACK_STRIPE_PLAN : false;
