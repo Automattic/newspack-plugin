@@ -306,7 +306,6 @@ class ComponentsDemo extends Component {
 								'wordpress-seo',
 								'google-site-kit',
 								'woocommerce-subscriptions',
-								'fake-plugin',
 							] }
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
