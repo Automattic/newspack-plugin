@@ -73,17 +73,17 @@ class ThemeMods extends Component {
 						checked={ authorEmail }
 						onChange={ value => setThemeMods( { show_author_email: value } ) }
 					/>
+					<TextControl
+						label={ __( 'Length', 'newspack' ) }
+						help={ __(
+							'Truncates the author bio on single posts to this approximate character length, but without breaking a word. The full bio appears on the author archive page.',
+							'newspack'
+						) }
+						type="number"
+						value={ authorBioLength }
+						onChange={ value => setThemeMods( { author_bio_length: value } ) }
+					/>
 				</ToggleGroup>
-				<TextControl
-					label={ __( 'Length', 'newspack' ) }
-					help={ __(
-						'Truncates the author bio on single posts to this approximate character length, but without breaking a word. The full bio appears on the author archive page.',
-						'newspack'
-					) }
-					type="number"
-					value={ authorBioLength }
-					onChange={ value => setThemeMods( { author_bio_length: value } ) }
-				/>
 				<hr />
 				<h2>{ __( 'Featured Image', 'newspack' ) }</h2>
 				<RadioControl
