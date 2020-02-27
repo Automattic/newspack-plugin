@@ -90,6 +90,7 @@ class Support_Wizard extends Wizard {
 					'subject'   => '[Newspack] ' . $request['subject'],
 					'comment'   => array(
 						'html_body' => $message,
+						'uploads'   => $request['uploads'],
 					),
 				),
 			)
@@ -156,13 +157,21 @@ class Support_Wizard extends Wizard {
 			return;
 		}
 
-		\wp_enqueue_script(
+		wp_register_script(
 			'newspack-support-wizard',
 			Newspack::plugin_url() . '/dist/support.js',
 			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/support.js' ),
 			true
 		);
+		wp_localize_script(
+			'newspack-support-wizard',
+			'newspack_support_data',
+			array(
+				'API_URL' => self::support_api_url(),
+			)
+		);
+		wp_enqueue_script( 'newspack-support-wizard' );
 
 		\wp_register_style(
 			'newspack-support-wizard',

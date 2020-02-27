@@ -1,0 +1,37 @@
+.newspack-support {
+	&__files {
+		&__item {
+			display: flex;
+			align-items: center;
+			.newspack-button {
+				padding: 0;
+				border: 0;
+				box-shadow: none;
+			}
+			span {
+				padding-left: 4px;
+			}
+			&:last-child {
+				margin-bottom: 8px;
+			}
+		}
+	}
+	&__dropzone {
+		background: #f1f1f1;
+		padding: 10px;
+		transition: all 300ms;
+		&--active {
+			background: #e2e4e7;
+			color: transparent;
+		}
+		&,
+		&__text {
+			border-radius: 3px;
+		}
+		&__text {
+			padding: 20px;
+			border: 2px dashed #cacaca;
+			text-align: center;
+		}
+	}
+}
