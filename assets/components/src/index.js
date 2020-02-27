@@ -18,6 +18,7 @@ export { default as Notice } from './notice';
 export { default as PluginInstaller } from './plugin-installer';
 export { default as PluginToggle } from './plugin-toggle';
 export { default as ProgressBar } from './progress-bar';
+export { default as RadioControl } from './radio-control';
 export { default as SecondaryNavigation } from './secondary-navigation';
 export { default as SelectControl } from './select-control';
 export { default as StyleCard } from './style-card';
