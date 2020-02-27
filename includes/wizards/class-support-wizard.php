@@ -74,7 +74,11 @@ class Support_Wizard extends Wizard {
 			$full_name = $user->data->display_name;
 		}
 
-		$message = '<b>Newspack site:</b> <a href="' . site_url() . '">' . site_url() . '</a><br/><b>Message:</b> ' . $request['message'];
+		$message = '<b>Newspack site:</b> <a href="' . site_url() . '">' . site_url() . '</a><br/>
+		<b>Site name:</b> ' . get_bloginfo( 'name' ) . '<br/>
+		<b>Theme:</b> ' . wp_get_theme()->get( 'Name' ) . '<br/><br/>
+		<b>Message:</b> ' . $request['message'] . '<br/><br/>
+		<i>' . sprintf( 'Sent from %s on %s', home_url(), gmdate( 'c', time() ) ) . ' UTC</i>';
 
 		$request_body = wp_json_encode(
 			array(
