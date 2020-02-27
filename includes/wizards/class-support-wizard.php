@@ -73,7 +73,6 @@ class Support_Wizard extends Wizard {
 		if ( ' ' == $full_name ) {
 			$full_name = $user->data->display_name;
 		}
-		$email_address = $user->data->user_email;
 
 		$message = '<b>Newspack site:</b> <a href="' . site_url() . '">' . site_url() . '</a><br/><b>Message:</b> ' . $request['message'];
 
@@ -82,7 +81,7 @@ class Support_Wizard extends Wizard {
 				'request' => array(
 					'requester' => array(
 						'name'  => $full_name,
-						'email' => $email_address,
+						'email' => $user->data->user_email,
 					),
 					'subject'   => '[Newspack] ' . $request['subject'],
 					'comment'   => array(
@@ -97,8 +96,7 @@ class Support_Wizard extends Wizard {
 			array(
 				'body'    => $request_body,
 				'headers' => array(
-					'Authorization' => 'Basic ' . base64_encode( $email_address . '/token:' . self::support_api_token() ),
-					'Content-Type'  => 'application/json',
+					'Content-Type' => 'application/json',
 				),
 			)
 		);
@@ -186,15 +184,6 @@ class Support_Wizard extends Wizard {
 	 *
 	 * @return string support email address.
 	 */
-	public static function support_api_token() {
-		return ( defined( 'NEWSPACK_SUPPORT_API_TOKEN' ) && NEWSPACK_SUPPORT_API_TOKEN ) ? NEWSPACK_SUPPORT_API_TOKEN : false;
-	}
-
-	/**
-	 * Return support email address from environment variable.
-	 *
-	 * @return string support email address.
-	 */
 	public static function support_email() {
 		return ( defined( 'NEWSPACK_SUPPORT_EMAIL' ) && NEWSPACK_SUPPORT_EMAIL ) ? NEWSPACK_SUPPORT_EMAIL : false;
 	}
@@ -205,6 +194,6 @@ class Support_Wizard extends Wizard {
 	 * @return bool True if necessary variables are present.
 	 */
 	public static function configured() {
-		return self::support_api_url() && self::support_api_token() && self::support_email();
+		return self::support_api_url() && self::support_email();
 	}
 }
