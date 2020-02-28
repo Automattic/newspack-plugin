@@ -15,6 +15,11 @@ import { Fragment, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * Material UI dependencies
+ */
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+
+/**
  * Internal dependencies
  */
 import {
@@ -179,7 +184,8 @@ class CreateTicket extends Component {
 									<div { ...getRootProps() }>
 										<input { ...getInputProps() } />
 										<div className="newspack-support__dropzone__text">
-											{ __( 'Drop some files here, or click to select files', 'newspack' ) }
+											<CloudUploadIcon />
+											{ __( 'Drop files to upload, or click to select files.', 'newspack' ) }
 										</div>
 									</div>
 								</section>
