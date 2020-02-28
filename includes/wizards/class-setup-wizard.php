@@ -219,7 +219,7 @@ class Setup_Wizard extends Wizard {
 		$theme_mods = get_theme_mods();
 
 		foreach ( $theme_mods as $key => &$theme_mod ) {
-			if ( in_array( $key, $this->$media_theme_mods ) ) {
+			if ( in_array( $key, $this->media_theme_mods ) ) {
 				$attachment = wp_get_attachment_image_src( $theme_mod )[0];
 				$theme_mod  = [
 					'url' => is_array( $attachment ) ? $attachment[0] : null,
@@ -255,7 +255,7 @@ class Setup_Wizard extends Wizard {
 	public function api_update_theme_mods( $request ) {
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
-			if ( in_array( $key, $this->$media_theme_mods ) ) {
+			if ( in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
 			set_theme_mod( $key, $value );
