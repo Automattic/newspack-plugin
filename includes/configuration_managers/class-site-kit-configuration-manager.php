@@ -137,7 +137,20 @@ class Site_Kit_Configuration_Manager extends Configuration_Manager {
 		if ( ( defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG ) || get_option( 'newspack_debug', false ) ) {
 			return true;
 		}
-		return $this->is_active() && ! empty( $this->get_modules_info() );
+
+		/**
+		 * Once connected, Site Kit stores encrypted auth tokens in the `googlesitekit_credentials` option.
+		 * Site Kit has not been configured if this option is empty or the default.
+		 * If configured, this option will contain an encrypted string.
+		 *
+		 * @see https://github.com/google/site-kit-wp/blob/2f74fd30d283a8b40dc5756ee7088164fad46ce6/includes/Core/Authentication/Credentials.php
+		 */
+		$creds = get_option( 'googlesitekit_credentials', false );
+		if ( empty( $creds ) || ( is_array( $creds ) && empty( $creds['oauth2_client_id'] ) ) ) {
+			return false;
+		}
+
+		return $this->is_active();
 	}
 
 	/**
