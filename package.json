@@ -112,7 +112,7 @@
     "lint:scss": "stylelint '**/*.scss' --syntax scss",
     "format:scss": "prettier --write '**/*.scss'",
     "lint:scss:staged": "stylelint --syntax scss",
-    "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store tests/\\* assets/\\* vendor/\\*",
+    "release:archive": "mkdir -p assets/release && zip -r assets/release/newspack-plugin.zip . -x node_modules/\\* .git/\\* .github/\\* .gitignore .DS_Store tests/\\* assets/\\*",
     "release": "npm run build && npm run semantic-release"
   },
   "dependencies": {
