@@ -156,13 +156,13 @@ class PWA {
 		$path = null;
 
 		if ( substr( $raw_uri, 0, strlen( '/helper-iframe.html' ) ) === '/helper-iframe.html' ) {
-			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-helper-frame.html';
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-helper-frame.html';
 		}
 		if ( substr( $raw_uri, 0, strlen( '/permission-dialog.html' ) ) === '/permission-dialog.html' ) {
-			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-permission-dialog.html';
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-permission-dialog.html';
 		}
 		if ( substr( $raw_uri, 0, strlen( '/service-worker.js' ) ) === '/service-worker.js' ) {
-			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/raw/amp-web-push-service-worker.js';
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-service-worker.js';
 			header( 'content-type: application/javascript' );
 		}
 
