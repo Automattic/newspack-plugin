@@ -243,7 +243,7 @@ class Starter_Content {
 		$file = wp_upload_bits(
 			'newspack-logo.png',
 			null,
-			file_get_contents( NEWSPACK_ABSPATH . 'assets/shared/images/newspack-logo.png' )
+			file_get_contents( NEWSPACK_ABSPATH . 'includes/raw_assets/images/newspack-logo.png' )
 		);
 
 		if ( ! $file || empty( $file['file'] ) ) {
