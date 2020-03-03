@@ -30,6 +30,7 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 class PaymentWizard extends Component {
 	state = {
 		customer: {},
+		hasData: false,
 	};
 	componentDidMount = () => {
 		this.retrieve();
@@ -37,7 +38,9 @@ class PaymentWizard extends Component {
 	retrieve = () => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-payment-wizard/' } )
-			.then( ( { customer, subscription } ) => this.setState( { customer, subscription } ) )
+			.then( ( { card, customer, subscription } ) =>
+				this.setState( { card, customer, subscription, hasData: true } )
+			)
 			.catch( error => setError( error ) );
 	};
 	checkout = () => {
@@ -57,7 +60,7 @@ class PaymentWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { customer, subscription } = this.state;
+		const { card, customer, hasData, subscription } = this.state;
 		const needsSubscription =
 			! customer || customer.deleted || ( ! subscription || 'canceled' === subscription.status );
 		return (
@@ -70,13 +73,15 @@ class PaymentWizard extends Component {
 							path="/"
 							render={ () => (
 								<PaymentMethod
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Managed Newspack' ) }
-									subHeaderText={ __( 'Manage payment methods for hosted Newspack.' ) }
-									customer={ customer }
 									buttonText={ needsSubscription ? __( 'Subscribe', 'newspack' ) : null }
 									buttonAction={ this.checkout }
+									card={ card }
+									hasData={ hasData }
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Managed Newspack' ) }
 									onUpdateSubscription={ this.checkout }
+									subHeaderText={ __( 'Manage payment methods for hosted Newspack.' ) }
+									subscription={ subscription }
 								/>
 							) }
 						/>

@@ -14,16 +14,43 @@ import { ActionCard, Notice, withWizardScreen } from '../../../../components/src
  */
 class PaymentMethod extends Component {
 	/**
+	 * Generate subscription/card description.
+	 */
+	cardDescription = ( subscription, { card } ) => {
+		if ( ! subscription || ! card ) {
+			return null;
+		}
+		const { current_period_end: currentPeriodEnd, plan } = subscription;
+		const { amount, interval } = plan;
+		const { last4 } = card;
+		const currencyFormatter = new Intl.NumberFormat( 'en-US', {
+			style: 'currency',
+			currency: 'USD',
+		} );
+		return [
+			currencyFormatter.format( amount / 100 ),
+			'/',
+			interval,
+			', ',
+			__( 'Next charge', 'newspack' ),
+			' ',
+			new Date( currentPeriodEnd * 1000 ).toLocaleDateString(),
+			<br key="separator" />,
+			__( ' Card ending in ', 'newspack' ),
+			last4,
+		];
+	};
+
+	/**
 	 * Render.
 	 */
 	render() {
-		const { onUpdateSubscription, customer } = this.props;
-		const { subscriptions } = customer || {};
-		const { data: subscriptionData } = subscriptions || {};
-		const hasSubscriptions = subscriptionData && subscriptionData.length > 0;
+		const { card, hasData, onUpdateSubscription, subscription } = this.props;
+		const { plan } = subscription || {};
+		const { nickname } = plan || {};
 		return (
 			<Fragment>
-				{ ! hasSubscriptions && (
+				{ hasData && ! subscription && (
 					<Fragment>
 						<Notice noticeText={ __( 'Newspack subscription inactive', 'newspack' ) } isError />
 						<p>
@@ -35,36 +62,16 @@ class PaymentMethod extends Component {
 					</Fragment>
 				) }
 
-				{ hasSubscriptions && (
+				{ hasData && subscription && (
 					<Fragment>
 						<Notice noticeText={ __( 'Newspack subscription active', 'newspack' ) } isSuccess />
-						{ subscriptionData.map( subscription => {
-							const { current_period_end: currentPeriodEnd, id, plan } = subscription;
-							const { amount, interval, nickname } = plan;
-							const currencyFormatter = new Intl.NumberFormat( 'en-US', {
-								style: 'currency',
-								currency: 'USD',
-							} );
-							const nextPayment = new Date( currentPeriodEnd * 1000 ).toLocaleDateString();
-							return (
-								<ActionCard
-									className="newspack-card__is-supported"
-									title={ nickname }
-									key={ id }
-									description={
-										currencyFormatter.format( amount / 100 ) +
-										'/' +
-										interval +
-										', ' +
-										__( 'Next charge', 'newspack' ) +
-										' ' +
-										nextPayment
-									}
-									actionText={ __( 'Update', 'newspack' ) }
-									onClick={ onUpdateSubscription }
-								/>
-							);
-						} ) }
+						<ActionCard
+							className="newspack-card__is-supported"
+							title={ nickname }
+							description={ this.cardDescription( subscription, card ) }
+							actionText={ __( 'Update', 'newspack' ) }
+							onClick={ onUpdateSubscription }
+						/>
 					</Fragment>
 				) }
 			</Fragment>
