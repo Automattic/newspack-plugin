@@ -76,8 +76,9 @@ class Support_Wizard extends Wizard {
 	 */
 	public function api_wpcom_access_token( $request ) {
 		if ( isset( $request['access_token'], $request['expires_in'] ) ) {
-			update_option( self::NEWSPACK_WPCOM_ACCESS_TOKEN, sanitize_text_field( $request['access_token'] ) );
-			update_option( self::NEWSPACK_WPCOM_EXPIRES_IN, sanitize_text_field( $request['expires_in'] ) );
+			$user_id = get_current_user_id();
+			update_user_meta( $user_id, self::NEWSPACK_WPCOM_ACCESS_TOKEN, sanitize_text_field( $request['access_token'] ) );
+			update_user_meta( $user_id, self::NEWSPACK_WPCOM_EXPIRES_IN, sanitize_text_field( $request['expires_in'] ) );
 			return \rest_ensure_response(
 				array(
 					'status' => 'saved',
@@ -200,13 +201,15 @@ class Support_Wizard extends Wizard {
 
 		$client_id    = self::wpcom_client_id();
 		$redirect_uri = admin_url() . 'admin.php?page=' . $this->slug;
+		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+		$access_token = $access_token ? $access_token : '';
 		wp_localize_script(
 			'newspack-support-wizard',
 			'newspack_support_data',
 			array(
 				'API_URL'            => self::support_api_url(),
 				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token',
-				'WPCOM_ACCESS_TOKEN' => get_option( self::NEWSPACK_WPCOM_ACCESS_TOKEN, '' ),
+				'WPCOM_ACCESS_TOKEN' => $access_token,
 			)
 		);
 		wp_enqueue_script( 'newspack-support-wizard' );
