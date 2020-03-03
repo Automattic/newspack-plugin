@@ -99,12 +99,17 @@
 		align-items: flex-start;
 		flex-direction: column;
 		margin-top: 24px;
+		text-align: right;
 
 		@media screen and ( min-width: 744px ) {
 			align-items: flex-end;
 			flex-direction: column;
 			margin-left: 24px;
 			margin-top: 0;
+		}
+
+		> * {
+			text-align: inherit;
 		}
 	}
 
@@ -209,7 +214,7 @@
 	}
 }
 
-.newspack-card:not(.newspack-card__no-background) {
+.newspack-card:not( .newspack-card__no-background ) {
 	.newspack-card.newspack-action-card {
 		border: 1px solid $light-gray-200;
 		box-shadow: none;

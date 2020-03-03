@@ -68,12 +68,13 @@ body.newspack-web-preview__open {
 }
 
 .newspack-web-preview__is-waiting {
+	align-items: center;
 	display: flex;
 	left: 50%;
 	margin: -12px 0 0 0;
 	position: absolute;
 	top: 50%;
-	transform: translateX(-50%);
+	transform: translateX( -50% );
 }
 
 .newspack-web-preview__toolbar {

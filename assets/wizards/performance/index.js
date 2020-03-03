@@ -98,8 +98,6 @@ class PerformanceWizard extends Component {
 								) }
 								settings={ settings }
 								updateSiteIcon={ icon => this.updateSiteIcon( icon ) }
-								buttonText={ __( 'Back to dashboard' ) }
-								buttonAction={ window && window.newspack_urls.dashboard }
 							/>
 						) }
 					/>

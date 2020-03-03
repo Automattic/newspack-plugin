@@ -12,13 +12,14 @@ import { __ } from '@wordpress/i18n';
  * Material UI dependencies.
  */
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
+import LoyaltyIcon from '@material-ui/icons/Loyalty';
 
 /**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ConfigureLandingPage, Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
+import { Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -132,7 +133,7 @@ class ReaderRevenueWizard extends Component {
 		} = data;
 		const tabbedNavigation = [
 			{
-				label: __( 'Welcome' ),
+				label: __( 'Monetization Services' ),
 				path: '/',
 				exact: true,
 			},
@@ -141,16 +142,8 @@ class ReaderRevenueWizard extends Component {
 				path: '/location-setup',
 			},
 			{
-				label: __( 'Stripe' ),
+				label: __( 'Payment Gateways' ),
 				path: '/stripe-setup',
-			},
-			{
-				label: __( 'Donations' ),
-				path: '/donations',
-			},
-			{
-				label: __( 'Memberships' ),
-				path: '/configure-landing-page',
 			},
 		];
 		const isConfigured = !! donationData.created;
@@ -165,7 +158,7 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<RevenueMain
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Accept donations on your site' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									buttonText={ ! isConfigured && __( 'Get Started' ) }
@@ -181,7 +174,7 @@ class ReaderRevenueWizard extends Component {
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up address' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
@@ -202,7 +195,7 @@ class ReaderRevenueWizard extends Component {
 								<StripeSetup
 									data={ stripeData }
 									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up Stripe' ) }
+									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
 									buttonAction={ () =>
@@ -219,34 +212,22 @@ class ReaderRevenueWizard extends Component {
 						/>
 						<Route
 							path="/donations"
-							render={ routeProps => (
+							render={ () => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <HeaderIcon /> }
+									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __( 'Configure your suggested donation presets.' ) }
+									subHeaderText={ __(
+										'Configure your landing page and your suggested donation presets.'
+									) }
+									donationPage={ donationPage }
 									buttonText={ __( 'Save Settings' ) }
-									buttonAction={ () =>
-										this.update( 'donations', donationData ).then(
-											() => ! isConfigured && routeProps.history.push( '/configure-landing-page' )
-										)
-									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
+									buttonAction={ () => this.update( 'donations', donationData ) }
 									onChange={ _donationData =>
 										this.setState( { data: { ...data, donationData: _donationData } } )
 									}
-								/>
-							) }
-						/>
-						<Route
-							path="/configure-landing-page"
-							render={ () => (
-								<ConfigureLandingPage
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Set up memberships' ) }
-									subHeaderText={ __( 'Configure your memberships landing page.' ) }
-									tabbedNavigation={ isConfigured && tabbedNavigation }
-									donationPage={ donationPage }
+									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									secondaryButtonAction="#"
 								/>
 							) }
 						/>

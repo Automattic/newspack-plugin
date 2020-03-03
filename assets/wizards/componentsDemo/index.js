@@ -20,6 +20,7 @@ import HeaderIcon from '@material-ui/icons/Dashboard';
  */
 import {
 	ActionCard,
+	ColorPicker,
 	ImageUpload,
 	CheckboxControl,
 	Card,
@@ -58,6 +59,9 @@ class ComponentsDemo extends Component {
 			modalShown: false,
 			showPluginInstallerWithProgressBar: false,
 			toggleGroupChecked: false,
+			color1: '#3366ff',
+			color2: '#4ab866',
+			color3: '#d94f4f',
 		};
 	}
 
@@ -88,6 +92,9 @@ class ComponentsDemo extends Component {
 			showPluginInstallerWithProgressBar,
 			actionCardToggleChecked,
 			toggleGroupChecked,
+			color1,
+			color2,
+			color3,
 		} = this.state;
 		return (
 			<Fragment>
@@ -133,6 +140,74 @@ class ComponentsDemo extends Component {
 								) }
 							/>
 						</Card>
+					</Card>
+					<Card>
+						<FormattedHeader headerText={ __( 'Color picker' ) } />
+						<ColorPicker
+							label={ __( 'Color Picker' ) }
+							color={ color1 }
+							onChange={ color => this.setState( { color1: color } ) }
+						/>
+						<hr />
+						<ColorPicker
+							hasDefaultColors
+							label={ __( 'Color Picker with default colors' ) }
+							color={ color2 }
+							onChange={ color => this.setState( { color2: color } ) }
+						/>
+						<hr />
+						<ColorPicker
+							suggestedColors={ [
+								{
+									name: __( 'pale pink' ),
+									color: '#f78da7',
+								},
+								{ name: __( 'vivid red' ), color: '#cf2e2e' },
+								{
+									name: __( 'luminous vivid orange' ),
+									color: '#ff6900',
+								},
+								{
+									name: __( 'luminous vivid amber' ),
+									color: '#fcb900',
+								},
+								{
+									name: __( 'light green cyan' ),
+									color: '#7bdcb5',
+								},
+								{
+									name: __( 'vivid green cyan' ),
+									color: '#00d084',
+								},
+								{
+									name: __( 'pale cyan blue' ),
+									color: '#8ed1fc',
+								},
+								{
+									name: __( 'vivid cyan blue' ),
+									color: '#0693e3',
+								},
+								{
+									name: __( 'vivid purple' ),
+									color: '#9b51e0',
+								},
+								{
+									name: __( 'very light gray' ),
+									color: '#eeeeee',
+								},
+								{
+									name: __( 'cyan bluish gray' ),
+									color: '#abb8c3',
+								},
+								{
+									name: __( 'very dark gray' ),
+									color: '#313131',
+								},
+							] }
+							label={ __( 'Color Picker with suggested colors' ) }
+							color={ color3 }
+							onChange={ color => this.setState( { color3: color } ) }
+						/>
 					</Card>
 					<Card>
 						<ToggleGroup
@@ -231,7 +306,6 @@ class ComponentsDemo extends Component {
 								'wordpress-seo',
 								'google-site-kit',
 								'woocommerce-subscriptions',
-								'fake-plugin',
 							] }
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {

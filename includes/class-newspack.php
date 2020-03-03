@@ -19,7 +19,7 @@ final class Newspack {
 	 *
 	 * @var Newspack
 	 */
-	protected static $_instance = null;
+	protected static $_instance = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Main Newspack Instance.
@@ -78,10 +78,13 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-performance-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-reader-revenue-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-seo-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-site-design-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-seo-wizard.php';
-		include_once NEWSPACK_ABSPATH . '/includes/wizards/class-health-check-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-support-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-payment-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
@@ -119,6 +122,10 @@ final class Newspack {
 			}
 			wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 			exit;
+		}
+		if ( Payment_Wizard::configured() && filter_input( INPUT_POST, 'newspack_reset_subscription', FILTER_SANITIZE_STRING ) === 'on' ) {
+			update_option( Payment_Wizard::NEWSPACK_STRIPE_CUSTOMER, null );
+			update_option( Payment_Wizard::NEWSPACK_STRIPE_SUBSCRIPTION, null );
 		}
 	}
 

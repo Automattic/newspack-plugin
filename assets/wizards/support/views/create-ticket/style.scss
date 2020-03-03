@@ -1,0 +1,61 @@
+@import '../../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.newspack-support {
+	&__files {
+		margin-bottom: -24px;
+
+		&:empty {
+			display: none;
+		}
+
+		&__item {
+			align-items: center;
+			display: flex;
+			margin-bottom: 8px;
+
+			.newspack-button {
+				border: 0;
+				box-shadow: none;
+				padding: 0;
+			}
+
+			span {
+				padding-left: 4px;
+			}
+		}
+	}
+
+	&__dropzone {
+		background: $light-gray-100;
+		border: 1px dashed $light-gray-500;
+		border-radius: 3px;
+		color: $dark-gray-600;
+		cursor: pointer;
+		margin: 32px 0;
+		transition: all 125ms ease-in-out;
+
+		&:hover {
+			border-color: $light-gray-900;
+		}
+
+		&--active {
+			background: white;
+			border: 1px solid $primary-600;
+			box-shadow: 0 0 0 2px $primary-500;
+		}
+
+		&__text {
+			text-align: center;
+			padding: 24px;
+
+			svg {
+				display: block;
+				fill: $dark-gray-900;
+				height: 48px;
+				margin: 0 auto;
+				width: 48px;
+			}
+		}
+	}
+}

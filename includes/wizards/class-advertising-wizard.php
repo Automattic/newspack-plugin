@@ -473,9 +473,9 @@ class Advertising_Wizard extends Wizard {
 		$option_value = json_decode( get_option( self::NEWSPACK_ADVERTISING_PLACEMENT_PREFIX . $placement, '' ) );
 
 		$defaults = array(
-			'ad_unit'  => '',
-			'enabled'  => false,
-			'service'  => '',
+			'ad_unit' => '',
+			'enabled' => false,
+			'service' => '',
 		);
 
 		return wp_parse_args( $option_value, $defaults );
@@ -545,6 +545,8 @@ class Advertising_Wizard extends Wizard {
 
 	/**
 	 * Inject a global ad in an arbitrary placement.
+	 *
+	 * @param string $placement_slug Placement slug.
 	 */
 	protected function inject_ad_manager_global_ad( $placement_slug ) {
 		$placement = $this->get_placement_data( $placement_slug );
@@ -565,8 +567,8 @@ class Advertising_Wizard extends Wizard {
 		}
 
 		?>
-		<div class='newspack_global_ad <?php echo esc_attr( $placement_slug); ?>'>
-			<?php echo $code; ?>
+		<div class='newspack_global_ad <?php echo esc_attr( $placement_slug ); ?>'>
+			<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> 
 		</div>
 		<?php
 	}
@@ -583,17 +585,17 @@ class Advertising_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/assets/dist/advertising.js',
+			Newspack::plugin_url() . '/dist/advertising.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/advertising.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/assets/dist/advertising.css',
+			Newspack::plugin_url() . '/dist/advertising.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/advertising.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/advertising.css' )
 		);
 		\wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-advertising-wizard' );

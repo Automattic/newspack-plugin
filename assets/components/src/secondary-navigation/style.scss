@@ -39,7 +39,7 @@
 		padding: 0;
 
 		@media screen and ( min-width: 744px ) {
-			& + li:before {
+			+ li::before {
 				background: $light-gray-500;
 				content: '';
 				display: block;

@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+require_once NEWSPACK_ABSPATH . 'vendor/autoload.php';
+
 use \WP_Error, \WP_Query, Newspack\Theme_Manager;
 
 defined( 'ABSPATH' ) || exit;
@@ -42,13 +44,15 @@ class Starter_Content {
 			'post_title'    => $title,
 			'post_name'     => sanitize_title_with_dashes( $title, '', 'save' ),
 			'post_status'   => 'publish',
-			'page_template' => $page_templates[ wp_rand( 0, 2 ) ],
+			'page_template' => $page_templates[ wp_rand( 0, 1 ) ],
 			'post_content'  => html_entity_decode(
 				implode(
 					'',
 					array_map(
 						function( $paragraph ) {
-							return self::create_block( 'paragraph', null, '<p>' . $paragraph . '</p>' );
+							return strlen( trim( $paragraph ) ) ?
+								self::create_block( 'paragraph', null, '<p>' . $paragraph . '</p>' ) :
+								'';
 						},
 						$paragraphs
 					)
@@ -241,7 +245,7 @@ class Starter_Content {
 		$file = wp_upload_bits(
 			'newspack-logo.png',
 			null,
-			file_get_contents( NEWSPACK_ABSPATH . 'assets/shared/images/newspack-logo.png' )
+			file_get_contents( NEWSPACK_ABSPATH . 'includes/raw_assets/images/newspack-logo.png' )
 		);
 
 		if ( ! $file || empty( $file['file'] ) ) {
@@ -283,18 +287,18 @@ class Starter_Content {
 	 * @return string Lorem Ipsum.
 	 */
 	public static function get_lipsum( $type, $amount ) {
-		$url = 'https://www.lipsum.com/feed/json?' .
-		build_query(
-			[
-				'what'   => $type,
-				'amount' => $amount,
-				'start'  => 'no',
-			]
-		);
-
-		$data = wp_safe_remote_get( $url );
-		$json = json_decode( $data['body'], true );
-		return $json['feed']['lipsum'];
+		$lipsum = new \joshtronic\LoremIpsum();
+		switch ( $type ) {
+			case 'paras':
+				$text = $lipsum->paragraphs( $amount + 1 );
+				$text = implode( PHP_EOL, array_slice( explode( PHP_EOL, $text ), 1 ) );
+				break;
+			default:
+				$text = $lipsum->words( $amount + 12 );
+				$text = implode( ' ', array_slice( explode( ' ', $text ), 12 ) );
+				break;
+		}
+		return $text;
 	}
 
 	/**
