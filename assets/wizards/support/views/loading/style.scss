@@ -1,7 +1,6 @@
 .newspack_support_loading {
-	text-align: center;
-	svg {
-		width: 2em;
-		height: 2em;
-	}
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	margin: 32px 0;
 }

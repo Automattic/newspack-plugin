@@ -58,17 +58,19 @@ class Chat extends Component {
 		return (
 			<Fragment>
 				{ this.state.hasToAuthenticate ? (
-					<div className="newspack_support_chat__info">
+					<Fragment>
 						<Notice
 							noticeText={ __(
 								'Click the button below to authenticate using a WordPress.com account.',
 								'newspack'
 							) }
 						/>
-						<Button href={ newspack_support_data.WPCOM_AUTH_URL } isPrimary>
-							{ __( 'Authenticate', 'newspack' ) }
-						</Button>
-					</div>
+						<div className="newspack-buttons-card">
+							<Button href={ newspack_support_data.WPCOM_AUTH_URL } isPrimary>
+								{ __( 'Authenticate', 'newspack' ) }
+							</Button>
+						</div>
+					</Fragment>
 				) : (
 					<div id="newspack-happychat" />
 				) }

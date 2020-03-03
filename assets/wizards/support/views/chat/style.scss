@@ -1,12 +1,8 @@
-.newspack_support_chat {
-	&__info {
-		padding-bottom: 20px;
-		text-align: center;
-	}
-}
-
 #newspack-happychat {
+	margin: 32px 0;
+
 	iframe {
+		display: block;
 		min-height: 330px;
 	}
 }
