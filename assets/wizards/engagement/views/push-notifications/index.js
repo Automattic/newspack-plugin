@@ -46,7 +46,7 @@ class PushNotifications extends Component {
 				{ pushNotificationEnabled && (
 					<Fragment>
 						<TextControl
-							label={ __( 'One Signal App ID' ) }
+							label={ __( 'OneSignal App ID' ) }
 							value={ appId }
 							onChange={ value =>
 								onChange( {
@@ -56,7 +56,7 @@ class PushNotifications extends Component {
 							}
 						/>
 						<TextControl
-							label={ __( 'One Signal API Key' ) }
+							label={ __( 'OneSignal API Key' ) }
 							value={ appRestAPIKey }
 							onChange={ value =>
 								onChange( {
