@@ -181,17 +181,17 @@ class PWA {
 	public static function push_notifications( $content = '' ) {
 		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
 		// https://documentation.onesignal.com/docs/amp-web-push-setup.
-		$one_signal_api_key = $onesignal_cm->get( 'app_id' );
-		if ( $onesignal_cm->is_configured() && $one_signal_api_key ) {
+		$one_signal_app_id = $onesignal_cm->get( 'app_id' );
+		if ( $onesignal_cm->is_configured() && $one_signal_app_id ) {
 			$base = get_site_url();
 			ob_start();
 			?>
 			<amp-web-push
 				id="amp-web-push"
 				layout="nodisplay"
-				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html?appId=<?php echo esc_attr( $one_signal_api_key ); ?>"
-				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html?appId=<?php echo esc_attr( $one_signal_api_key ); ?>"
-				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js?appId=<?php echo esc_attr( $one_signal_api_key ); ?>"
+				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
 				></amp-web-push>
 			<?php
 			$content = ob_get_clean() . $content;
