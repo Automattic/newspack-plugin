@@ -74,6 +74,12 @@ class PaymentMethod extends Component {
 						/>
 					</Fragment>
 				) }
+
+				{ hasData && (
+					<p>
+						<em>{ __( 'Taxes included where applicable.', 'newspack' ) }</em>
+					</p>
+				) }
 			</Fragment>
 		);
 	}
