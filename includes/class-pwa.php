@@ -17,6 +17,13 @@ defined( 'ABSPATH' ) || exit;
 class PWA {
 
 	/**
+	 * Push notifications scope
+	 *
+	 * @var $scope
+	 */
+	protected static $scope = '/push/';
+
+	/**
 	 * Add hooks.
 	 */
 	public static function init() {
@@ -155,13 +162,13 @@ class PWA {
 		}
 		$path = null;
 
-		if ( substr( $raw_uri, 0, strlen( '/helper-iframe.html' ) ) === '/helper-iframe.html' ) {
+		if ( substr( $raw_uri, 0, strlen( self::$scope . 'helper-iframe.html' ) ) === self::$scope . 'helper-iframe.html' ) {
 			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-helper-frame.html';
 		}
-		if ( substr( $raw_uri, 0, strlen( '/permission-dialog.html' ) ) === '/permission-dialog.html' ) {
+		if ( substr( $raw_uri, 0, strlen( self::$scope . 'permission-dialog.html' ) ) === self::$scope . 'permission-dialog.html' ) {
 			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-permission-dialog.html';
 		}
-		if ( substr( $raw_uri, 0, strlen( '/service-worker.js' ) ) === '/service-worker.js' ) {
+		if ( substr( $raw_uri, 0, strlen( self::$scope . 'service-worker.js' ) ) === self::$scope . 'service-worker.js' ) {
 			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-service-worker.js';
 			header( 'content-type: application/javascript' );
 		}
@@ -189,9 +196,10 @@ class PWA {
 			<amp-web-push
 				id="amp-web-push"
 				layout="nodisplay"
-				helper-iframe-url="<?php echo esc_url( $base ); ?>/helper-iframe.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
-				permission-dialog-url="<?php echo esc_url( $base ); ?>/permission-dialog.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
-				service-worker-url="<?php echo esc_url( $base ); ?>/service-worker.js?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				helper-iframe-url="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>helper-iframe.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				permission-dialog-url="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>permission-dialog.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				service-worker-url="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>service-worker.js?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				service-worker-scope="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>"
 				></amp-web-push>
 			<?php
 			$content = ob_get_clean() . $content;
