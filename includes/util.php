@@ -527,12 +527,3 @@ function newspack_select_prepare( $arr ) {
 	}
 	return $result;
 }
-
-/**
- * Check whether the current page is an AMP page.
- *
- * @return bool True if AMP page.
- */
-function newspack_is_amp() {
-	return function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
-}
