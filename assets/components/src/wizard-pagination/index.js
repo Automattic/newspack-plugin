@@ -1,5 +1,5 @@
 /**
- * Wizard pagination
+ * Wizard Pagination
  */
 
 /**
@@ -9,14 +9,18 @@ import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 
 /**
- * External dependencies
+ * Material UI dependencies.
  */
-import { withRouter } from 'react-router-dom';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
+import { Button } from '../';
+import Router from '../proxied-imports/router';
 import './style.scss';
+
+const { withRouter } = Router;
 
 class WizardPagination extends Component {
 	/**
@@ -24,21 +28,28 @@ class WizardPagination extends Component {
 	 */
 	render() {
 		const { history, location, routes } = this.props;
-		const currentIndex = parseInt( routes.indexOf( location.pathname ) ) + 1;
 		if ( ! routes || ! history || ! location ) {
 			return;
 		}
+		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
+		if ( 0 === currentIndex ) {
+			return <Fragment />;
+		}
 		return (
 			<Fragment>
-				<a className="newspack-wizard-pagination__navigation" onClick={ () => history.goBack() }>
-					<span className="dashicons dashicons-arrow-left-alt" /> { __( 'Back' ) }
-				</a>
-				{ currentIndex > 0 && (
+				<div className="newspack-wizard-pagination">
 					<div className="newspack-wizard-pagination__pagination">
-						{ __( 'Page' ) } { currentIndex } { __( 'of' ) } { routes.length }{' '}
-						<span className="dashicons dashicons-arrow-right-alt" />
+						{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
 					</div>
-				) }
+					<Button
+						isLink
+						className="newspack-wizard-pagination__navigation"
+						onClick={ () => history.goBack() }
+					>
+						<ArrowBackIcon />
+						{ __( 'Back' ) }
+					</Button>
+				</div>
 			</Fragment>
 		);
 	}

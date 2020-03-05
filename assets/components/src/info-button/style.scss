@@ -1,14 +1,18 @@
 /**
- * Info Button styles
+ * Info Button
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '~@wordpress/base-styles/colors';
 
-.muriel-info-button {
-	background-image: url( 'info_24px.svg' );
-	position: absolute;
-	width: 24px;
+.newspack-info-button {
+	flex: 0 0 24px;
 	height: 24px;
-	right: 16px;
-	top: 0;
+	margin: 0;
+	margin-left: 4px;
+	width: 24px;
+
+	svg {
+		display: block;
+		fill: $dark-gray-900;
+	}
 }

@@ -1,31 +1,28 @@
 /**
- * Google Ad Manager Wizard.
+ * Advertising
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * WordPress dependencies.
  */
-import { Card, Grid, TabbedNavigation, withWizard, Button } from '../../components/src';
-import { AdUnit, AdUnits, AdSense, HeaderCode, Placements, Services } from './views';
+import HeaderIcon from '@material-ui/icons/FeaturedVideo';
 
 /**
- * External dependencies
+ * Internal dependencies.
  */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { withWizard } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
+import { AdUnit, AdUnits, HeaderCode, Placements, Services } from './views';
 
-/**
- * AdUnits wizard for managing and setting up adUnits.
- */
+const { HashRouter, Redirect, Route, Switch } = Router;
+
 class AdvertisingWizard extends Component {
-	/**
 	/**
 	 * Constructor.
 	 */
@@ -136,33 +133,33 @@ class AdvertisingWizard extends Component {
 	}
 
 	/**
-	 * Update header code.
+	 * Update GAM Network Code.
 	 */
-	updateHeaderCode = ( code, service ) => {
+	updateNetworkCode = ( code, service ) => {
 		const { advertisingData } = this.state;
-		advertisingData.services[ service ].header_code = code;
+		advertisingData.services[ service ].network_code = code;
 		this.setState( { advertisingData } );
 	};
 
 	/**
-	 * Save header code.
+	 * Save Network Code.
 	 */
-	saveHeaderCode = service => {
+	saveNetworkCode = service => {
 		const { setError, wizardApiFetch } = this.props;
 		const { advertisingData } = this.state;
-		const header_code = advertisingData.services[ service ].header_code;
+		const network_code = advertisingData.services[ service ].network_code;
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/service/' + service + '/header_code',
+				path: '/newspack/v1/wizard/advertising/service/' + service + '/network_code',
 				method: 'post',
 				data: {
-					header_code,
+					network_code,
 				},
 			} )
-				.then( advertisingData => {
+				.then( data => {
 					this.setState(
 						{
-							advertisingData: this.prepareData( advertisingData ),
+							advertisingData: this.prepareData( data ),
 						},
 						() => {
 							setError();
@@ -223,12 +220,12 @@ class AdvertisingWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { adUnits } = this.state.advertisingData;
 		const adUnit = adUnits[ id ];
-		const { name, ad_code, amp_ad_code, ad_service } = adUnit;
+		const { name, code, sizes, ad_service } = adUnit;
 		const data = {
 			id,
+			code,
 			name,
-			ad_code,
-			amp_ad_code,
+			sizes,
 			ad_service,
 		};
 		return new Promise( ( resolve, reject ) => {
@@ -257,10 +254,11 @@ class AdvertisingWizard extends Component {
 	/**
 	 * Delete an ad unit.
 	 *
-	 * @param int id Ad Unit ID.
+	 * @param {number} id Ad Unit ID.
 	 */
 	deleteAdUnit( id ) {
 		const { setError, wizardApiFetch } = this.props;
+		// eslint-disable-next-line no-alert
 		if ( confirm( __( 'Are you sure you want to delete this ad unit?' ) ) ) {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
@@ -329,30 +327,22 @@ class AdvertisingWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<Services
-									noBackground
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									services={ services }
 									toggleService={ ( service, value ) => this.toggleService( service, value ) }
 									tabbedNavigation={ tabs }
-									footer={
-										<p>
-											{ __( 'Not sure which ad service is right for you?' ) }
-											<ExternalLink url="#">{ __( 'Learn more' ) }</ExternalLink>
-										</p>
-									}
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
 								/>
 							) }
 						/>
 						<Route
 							path="/ad-placements"
-							render={ routeProps => (
+							render={ () => (
 								<Placements
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									placements={ placements }
@@ -363,28 +353,27 @@ class AdvertisingWizard extends Component {
 										this.togglePlacement( placement, value )
 									}
 									tabbedNavigation={ tabs }
-									secondaryButtonText={ __( 'Back to all ad units' ) }
-									secondaryButtonAction="#/"
-									secondaryButtonStyle={ { isDefault: true } }
+									buttonText={ __( 'Back to ad providers' ) }
+									buttonAction="#/"
 								/>
 							) }
 						/>
 						<Route
 							path="/google_ad_manager"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<AdUnits
-									noBackground
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
+									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
 									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
 									onDelete={ id => this.deleteAdUnit( id ) }
 									buttonText={ __( 'Add an individual ad unit' ) }
 									buttonAction="#/google_ad_manager/create"
-									secondaryButtonText={ __( "I'm done configuring ads" ) }
+									secondaryButtonText={ __( 'Back to advertising options' ) }
 									secondaryButtonAction="#/"
-									secondaryButtonStyle={ { isTertiary: true } }
 								/>
 							) }
 						/>
@@ -393,21 +382,22 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<HeaderCode
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
+									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
-									code={ advertisingData.services.google_ad_manager.header_code }
+									code={ advertisingData.services.google_ad_manager.network_code }
 									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
-									onChange={ value => this.updateHeaderCode( value, 'google_ad_manager' ) }
+									onChange={ value => this.updateNetworkCode( value, 'google_ad_manager' ) }
 									buttonText={ __( 'Save' ) }
 									buttonAction={ () =>
-										this.saveHeaderCode( 'google_ad_manager' ).then( response =>
+										this.saveNetworkCode( 'google_ad_manager' ).then( () =>
 											routeProps.history.push( '/google_ad_manager' )
 										)
 									}
-									secondaryButtonText={ __( "I'm done" ) }
+									secondaryButtonText={ __( "I'm done configuring ads" ) }
 									secondaryButtonAction="#/google_ad_manager"
-									secondaryButtonStyle={ { isTertiary: true } }
 								/>
 							) }
 						/>
@@ -416,6 +406,7 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
+										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Add an ad unit' ) }
 										subHeaderText={ __(
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
@@ -424,18 +415,17 @@ class AdvertisingWizard extends Component {
 											adUnits[ 0 ] || {
 												id: 0,
 												name: '',
-												ad_code: '',
-												amp_ad_code: '',
+												code: '',
+												sizes: [ [ 120, 120 ] ],
 											}
 										}
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
-											this.saveAdUnit( id ).then( newAdUnit => {
+											this.saveAdUnit( id ).then( () => {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
-										noBackground
 									/>
 								);
 							} }
@@ -445,6 +435,7 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
+										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Edit ad unit' ) }
 										subHeaderText={ __(
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
@@ -453,31 +444,13 @@ class AdvertisingWizard extends Component {
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
-											this.saveAdUnit( id ).then( newAdUnit => {
+											this.saveAdUnit( id ).then( () => {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
-										noBackground
 									/>
 								);
 							} }
-						/>
-						<Route
-							path="/google_adsense"
-							render={ routeProps => (
-								<Fragment>
-									<AdSense
-										headerText={ __( 'Google AdSense' ) }
-										subHeaderText={ __(
-											'Connect to your AdSense account using the Site Kit plugin, then enable Auto Ads.'
-										) }
-										noBackground
-										secondaryButtonText={ __( 'Back to advertising options' ) }
-										secondaryButtonAction="#/"
-										secondaryButtonStyle={ { isTertiary: true } }
-									/>
-								</Fragment>
-							) }
 						/>
 						<Redirect to="/" />
 					</Switch>

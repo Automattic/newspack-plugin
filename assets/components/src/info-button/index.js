@@ -1,31 +1,41 @@
 /**
- * Muriel-styled Info Button with Tooltip.
+ * Info Button
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
 import { Tooltip } from '@wordpress/components';
 
 /**
- * External dependencies
+ * Material UI dependencies.
+ */
+import InfoIcon from '@material-ui/icons/Info';
+
+/**
+ * External dependencies.
  */
 import classnames from 'classnames';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
 import './style.scss';
 
 class InfoButton extends Component {
-
 	/**
 	 * Render.
 	 */
 	render() {
 		const { className, ...otherProps } = this.props;
-		return <Tooltip { ...otherProps }><div className={ classnames( 'muriel-info-button', className ) } /></Tooltip>
+		return (
+			<Tooltip { ...otherProps }>
+				<div className={ classnames( 'newspack-info-button', className ) }>
+					<InfoIcon />
+				</div>
+			</Tooltip>
+		);
 	}
 }
 

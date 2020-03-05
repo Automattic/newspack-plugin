@@ -17,7 +17,6 @@ import './style.scss';
  * Settings for donation collection.
  */
 class MoneyInput extends Component {
-
 	/**
 	 * Render.
 	 */
@@ -25,8 +24,8 @@ class MoneyInput extends Component {
 		const { currencySymbol, label, value, onChange } = this.props;
 
 		return (
-			<div className='newspack-donations-wizard__money-input'>
-				<span className='currency'>{ currencySymbol }</span>
+			<div className="newspack-donations-wizard__money-input">
+				<span className="currency">{ currencySymbol }</span>
 				<TextControl
 					type="number"
 					step="0.01"

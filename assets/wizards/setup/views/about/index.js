@@ -22,7 +22,7 @@ class About extends Component {
 	 * Render.
 	 */
 	render() {
-		const { profile, options, updateProfile, currencies, countries } = this.props;
+		const { profile, updateProfile, currencies, countries } = this.props;
 		const { address, address2, city, currency, country, zip } = profile || {};
 		return (
 			<Fragment>

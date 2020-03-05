@@ -1,27 +1,27 @@
 /**
- * Syndication Wizard.
+ * Syndication
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/SyncAlt';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
 import { Intro } from './views';
 
-/**
- * External dependencies
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
-/**
- * Syndication wizard.
- */
 class SyndicationWizard extends Component {
 	/**
 	 * Render
@@ -36,13 +36,11 @@ class SyndicationWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<Intro
-									noBackground
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Syndication', 'newspack' ) }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
+									subHeaderText={ 'Apple News, Facebook Instant Articles' }
 								/>
 							) }
 						/>
@@ -55,6 +53,8 @@ class SyndicationWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] ) ),
+	createElement(
+		withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] )
+	),
 	document.getElementById( 'newspack-syndication-wizard' )
 );

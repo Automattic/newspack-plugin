@@ -31,6 +31,13 @@ class Setup_Wizard extends Wizard {
 	protected $capability = 'install_plugins';
 
 	/**
+	 * An array of theme mods that are media library IDs.
+	 *
+	 * @var array
+	 */
+	protected $media_theme_mods = [ 'newspack_footer_logo' ];
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -41,6 +48,7 @@ class Setup_Wizard extends Wizard {
 			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
 
 		}
+		$this->hidden = get_option( NEWSPACK_SETUP_COMPLETE, false );
 	}
 
 	/**
@@ -82,6 +90,74 @@ class Setup_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/theme',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_retrieve_theme' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/theme/(?P<theme>[\a-z]+)',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_theme' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/theme-mods',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_theme_mods' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'theme_mods' => [
+						'sanitize_callback' => [ $this, 'sanitize_theme_mods' ],
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/categories',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_categories' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/post',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_post' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/theme',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_theme' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
+			'/starter-content/homepage',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_starter_content_homepage' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -95,6 +171,99 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
+	 * Install starter content categories
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_categories() {
+		$status = Starter_Content::create_categories();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Install one starter content post
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_post() {
+		$status = Starter_Content::create_post();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Set up initial theme mods
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_theme() {
+		$status = Starter_Content::initialize_theme();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Set up Homepage
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_starter_content_homepage() {
+		$status = Starter_Content::create_homepage();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	/**
+	 * Get current theme
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_retrieve_theme() {
+		$theme_mods = get_theme_mods();
+
+		foreach ( $theme_mods as $key => &$theme_mod ) {
+			if ( in_array( $key, $this->media_theme_mods ) ) {
+				$attachment = wp_get_attachment_image_src( $theme_mod )[0];
+				$theme_mod  = [
+					'url' => is_array( $attachment ) ? $attachment[0] : null,
+				];
+			}
+		}
+		return rest_ensure_response(
+			[
+				'theme'      => Starter_Content::get_theme(),
+				'theme_mods' => $theme_mods,
+			]
+		);
+	}
+
+	/**
+	 * Update theme
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_update_theme( $request ) {
+		$theme = $request['theme'];
+		Starter_Content::set_theme( $theme );
+		return self::api_retrieve_theme();
+	}
+
+	/**
+	 * Update theme mods
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_update_theme_mods( $request ) {
+		$theme_mods = $request['theme_mods'];
+		foreach ( $theme_mods as $key => $value ) {
+			if ( in_array( $key, $this->media_theme_mods ) ) {
+				$value = $value['id'];
+			}
+			set_theme_mod( $key, $value );
+		}
+		return self::api_retrieve_theme();
+	}
+
+	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
@@ -104,16 +273,16 @@ class Setup_Wizard extends Wizard {
 		}
 		wp_enqueue_script(
 			'newspack-setup-wizard',
-			Newspack::plugin_url() . '/assets/dist/setup.js',
+			Newspack::plugin_url() . '/dist/setup.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/setup.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/setup.js' ),
 			true
 		);
 		wp_register_style(
 			'newspack-setup-wizard',
-			Newspack::plugin_url() . '/assets/dist/setup.css',
+			Newspack::plugin_url() . '/dist/setup.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/setup.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/setup.css' )
 		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-setup-wizard' );
@@ -144,5 +313,14 @@ class Setup_Wizard extends Wizard {
 			wp_safe_redirect( esc_url( $setup_url ) );
 			exit;
 		}
+	}
+
+	/**
+	 * Sanitize theme mods.
+	 *
+	 * @param array $theme_mods An array of theme mods.
+	 */
+	public function sanitize_theme_mods( $theme_mods ) {
+		return $theme_mods;
 	}
 }

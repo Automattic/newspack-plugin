@@ -1,64 +1,143 @@
-@import '../../../shared/scss/muriel-component';
+/**
+ * With Wizard
+ */
 
-.newspack-wizard .newspack-logo {
-	display: block;
-	margin: 2em auto 0 auto;
+@import '../../../shared/scss/colors';
+
+// Reset Padding of the Admin Page
+
+.toplevel_page_newspack,
+body[class*='newspack_page_newspack-'],
+body[class*='admin_page_newspack-'] {
+	#wpcontent {
+		padding-left: 0;
+	}
+
+	#wpfooter {
+		&::before {
+			background-image: url( "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M32 16c0 8.836-7.164 16-16 16-8.837 0-16-7.164-16-16S7.164 0 16 0s16 7.164 16 16zm-10.732.623h1.72v-1.125h-2.823l1.103 1.125zm-3.249-3.31h4.97v-1.125h-6.072l1.102 1.124v.001zm-3.248-3.311h8.217V8.878h-9.32l1.103 1.124zM9.01 8.878l13.977 14.245h-4.66l-5.866-5.98v5.98h-3.45V8.878H9.01z' fill='%23d7dade' fill-rule='evenodd'/%3E%3C/svg%3E%0A" );
+			background-size: 24px 24px;
+			bottom: 10px;
+			content: '';
+			display: block;
+			height: 24px;
+			left: 50%;
+			margin: 0;
+			margin-left: -12px;
+			position: absolute;
+			width: 24px;
+		}
+	}
 }
 
-.muriel-wizardScreen__loading {
-	.muriel-wizardScreen {
-		position: relative;
+// Welcome Screen
 
-		&:after {
-			display: block;
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background: $muriel-white;
-			opacity: 0.8;
-			z-index: 102; /* Toggle arrows from Select components are at z-index: 101 */
+.newspack_page_newspack-setup-wizard__welcome {
+	#wpwrap {
+		background: $primary-500;
+	}
+
+	#wpfooter {
+		color: #fff;
+
+		&::before {
+			background-image: url( "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M32 16c0 8.836-7.164 16-16 16-8.837 0-16-7.164-16-16S7.164 0 16 0s16 7.164 16 16zm-10.732.623h1.72v-1.125h-2.823l1.103 1.125zm-3.249-3.31h4.97v-1.125h-6.072l1.102 1.124v.001zm-3.248-3.311h8.217V8.878h-9.32l1.103 1.124zM9.01 8.878l13.977 14.245h-4.66l-5.866-5.98v5.98h-3.45V8.878H9.01z' fill='%232240d5' fill-rule='evenodd'/%3E%3C/svg%3E%0A" ) !important;
 		}
 
-		&:before {
-			display: block;
-			position: absolute;
-			content: "";
-			z-index: 103;
-			left: 0;
-			top: 0;
-			width: 10%;
-			height: 4px;
-			background-color: $primary-color;
-			animation: loading 2s linear infinite;
-		}
+		a {
+			color: inherit;
 
-		&.muriel-wizardScreen__no-background {
-			&:after {
-				background: #f1f1f1; /* WP admin bg color */
+			&:active,
+			&:focus,
+			&:hover {
+				opacity: 0.75;
 			}
 		}
 	}
+}
 
-	.muriel-button {
-		opacity: 0.3;
+// Newspack Logo
+
+.newspack-logo-wrapper {
+	background: $primary-500;
+	color: white;
+	display: flex;
+	justify-content: center;
+	margin: 0 0 64px;
+	padding: 32px;
+	position: relative;
+
+	a {
+		color: inherit;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $primary-100;
+		}
+
+		&:focus {
+			box-shadow: none;
+			outline: 2px solid white;
+			outline-offset: 4px;
+		}
 	}
 
-	&::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
+	svg {
+		display: block;
+		fill: currentColor;
+		transition: color 125ms ease-in-out;
 	}
 }
 
-@keyframes loading {
-    from { left: 0; width: 10%; }
-    50% { width: 30%; }
-    75% { width: 20%; }
-    to { left: 90%; width: 10% }
+// Loading
+
+.newspack-wizard__is-loading {
+	.newspack-wizard {
+		cursor: wait;
+		position: relative;
+
+		&::before,
+		&::after {
+			background: white;
+			content: '';
+			display: block;
+			left: 0;
+			position: absolute;
+			right: 0;
+			top: 0;
+			z-index: 102;
+		}
+
+		&::after {
+			border-radius: 4px;
+			bottom: 0;
+			opacity: 0.8;
+		}
+
+		&::before {
+			animation: newspack-wizard__is-loading-animation 2s ease-in-out infinite;
+			background: $primary-500;
+			height: 4px;
+			right: 100%;
+			z-index: 103;
+		}
+	}
+}
+
+@keyframes newspack-wizard__is-loading-animation {
+	from {
+		left: 0;
+		right: 100%;
+	}
+
+	50% {
+		left: 0;
+		right: 0;
+	}
+
+	to {
+		left: 100%;
+		right: 0;
+	}
 }

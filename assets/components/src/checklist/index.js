@@ -1,20 +1,29 @@
 /**
- * Checklist for tracking multi-step tasks.
+ * Checklist
  */
 
 /**
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Children, cloneElement } from '@wordpress/element';
-import { Dashicon } from '@wordpress/components';
+import { Component, Children } from '@wordpress/element';
+
+/**
+ * Material UI dependencies.
+ */
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 /**
  * Internal dependencies.
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
 import { Button, Card, ProgressBar } from '../';
 import './style.scss';
+
+/**
+ * External dependencies.
+ */
+import classnames from 'classnames';
 
 class Checklist extends Component {
 	constructor() {
@@ -31,20 +40,20 @@ class Checklist extends Component {
 		const { className, children, progressBarText, ...otherProps } = this.props;
 		const { hideCompleted } = this.state;
 		const completedLabel = hideCompleted ? __( 'Show completed' ) : __( 'Hide completed' );
-		const completedIcon = hideCompleted ? 'arrow-down-alt2' : 'arrow-up-alt2';
-		const classes = murielClassnames(
-			'muriel-checklist',
+		const completedIcon = hideCompleted ? <ExpandMoreIcon /> : <ExpandLessIcon />;
+		const classes = classnames(
+			'newspack-checklist',
 			className,
 			hideCompleted && 'is-hide-completed'
 		);
-		const completedCount = Children.toArray( children ).reduce( ( completedCount, child ) => {
-			return completedCount + ( child.props.completed ? 1 : 0 );
+		const completedCount = Children.toArray( children ).reduce( ( _completedCount, child ) => {
+			return _completedCount + ( child.props.completed ? 1 : 0 );
 		}, 0 );
 		return (
-			<Card noBackground className={ classes } { ...otherProps }>
-				<div className="muriel-checklist__wrapper">
-					<div className="muriel-checklist__header">
-						<div className="muriel-checklist__header-main">
+			<Card className={ classes } { ...otherProps }>
+				<div className="newspack-checklist__wrapper">
+					<div className="newspack-checklist__header">
+						<div className="newspack-checklist__progress-bar">
 							<ProgressBar
 								completed={ completedCount }
 								total={ Children.count( children ) }
@@ -52,17 +61,17 @@ class Checklist extends Component {
 								label={ progressBarText }
 							/>
 						</div>
-						<div className="muriel-checklist__header-secondary">
-							<label htmlFor="muriel-checklist__header-action">{ completedLabel }</label>
+						<div className="newspack-checklist__header-action">
+							<label htmlFor="newspack-checklist__header-action">{ completedLabel }</label>
 							<Button
-								id="muriel-checklist__header-action"
+								id="newspack-checklist__header-action"
 								onClick={ () => this.setState( { hideCompleted: ! hideCompleted } ) }
 							>
-								<Dashicon icon={ completedIcon } />
+								{ completedIcon }
 							</Button>
 						</div>
 					</div>
-					<div className="muriel-checklist__tasks">{ children }</div>
+					<div className="newspack-checklist__tasks">{ children }</div>
 				</div>
 			</Card>
 		);

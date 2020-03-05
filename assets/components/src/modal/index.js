@@ -1,23 +1,22 @@
 /**
- * Muriel-styled Modal notice.
+ * Modal
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
 import { Modal as BaseComponent } from '@wordpress/components';
 
 /**
- * External dependencies
+ * Internal dependencies.
  */
-import classnames from 'classnames';
+import './style.scss';
 
 /**
- * Internal dependencies
+ * External dependencies.
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
-import './style.scss';
+import classnames from 'classnames';
 
 class Modal extends Component {
 	/**
@@ -25,8 +24,8 @@ class Modal extends Component {
 	 */
 	render() {
 		const { className, overlayClassName, ...otherProps } = this.props;
-		const classes = murielClassnames( 'muriel-modal', className );
-		const overlayClasses = murielClassnames( 'muriel-modal-overlay', overlayClassName );
+		const classes = classnames( 'newspack-modal', className );
+		const overlayClasses = classnames( 'newspack-modal__overlay', overlayClassName );
 
 		return (
 			<BaseComponent className={ classes } overlayClassName={ overlayClasses } { ...otherProps } />

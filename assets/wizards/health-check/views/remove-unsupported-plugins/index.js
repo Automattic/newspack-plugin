@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * SEO Intro screen.
@@ -26,20 +26,27 @@ class RemoveUnsupportedPlugins extends Component {
 			<Fragment>
 				{ unsupportedPlugins && unsupportedPlugins.length > 0 && (
 					<Fragment>
-						<h2>{ __( 'Newspack Does Not Support These Plugins' ) }</h2>
+						<Notice noticeText={ __( 'Newspack does not support these plugins:' ) } isError />
 						{ unsupportedPlugins.map( unsupportedPlugin => (
 							<ActionCard
 								title={ unsupportedPlugin.Name }
 								key={ unsupportedPlugin.Slug }
 								description={ unsupportedPlugin.Description }
+								className="newspack-card__is-unsupported"
 							/>
 						) ) }
-						<Button isPrimary onClick={ deactivateAllPlugins }>
-							{ __( 'Deactivate All' ) }
-						</Button>
+						<div className="newspack-buttons-card">
+							<Button isPrimary onClick={ deactivateAllPlugins }>
+								{ __( 'Deactivate All' ) }
+							</Button>
+						</div>
 					</Fragment>
 				) }
-				{ unsupportedPlugins && unsupportedPlugins.length === 0 && <h2>{ __( 'No Unsupported Plugins Found' ) }</h2> }
+				{ unsupportedPlugins && unsupportedPlugins.length === 0 && (
+					<Fragment>
+						<Notice noticeText={ __( 'No unsupported plugins found.' ) } isSuccess />
+					</Fragment>
+				) }
 			</Fragment>
 		);
 	}

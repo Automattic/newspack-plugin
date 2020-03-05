@@ -38,6 +38,9 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Plugin ready state.
 	 */
 	public function is_configured() {
+		if ( ( defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG ) || get_option( 'newspack_debug', false ) ) {
+			return true;
+		}
 		if ( $this->is_active() && class_exists( 'Jetpack' ) && \Jetpack::is_active() ) {
 			return true;
 		}
@@ -80,6 +83,7 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 		$option = get_option( 'jetpack_mailchimp', false );
 		if ( $option ) {
 			$data = json_decode( $option, true );
+
 			$mailchimp_connected = $data ? isset( $data['follower_list_id'], $data['keyring_id'] ) : false;
 		} else {
 			$mailchimp_connected = false;

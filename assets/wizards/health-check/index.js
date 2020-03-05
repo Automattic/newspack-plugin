@@ -1,28 +1,27 @@
 /**
- * Health Check Wizard
+ * Health Check
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Healing';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
 import { RemoveUnsupportedPlugins } from './views';
 
-/**
- * External dependencies
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
-/**
- * SEO wizard.
- */
 class HealthCheckWizard extends Component {
 	constructor( props ) {
 		super( props );
@@ -69,8 +68,9 @@ class HealthCheckWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<RemoveUnsupportedPlugins
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }

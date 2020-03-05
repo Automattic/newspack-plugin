@@ -42,6 +42,10 @@ class Admin_Plugins_Screen {
 				continue;
 			}
 
+			if ( isset( $plugin_info['Quiet'] ) && $plugin_info['Quiet'] ) {
+				continue;
+			}
+
 			$plugins[ $slug ] = $plugin_info;
 		}
 
@@ -63,7 +67,7 @@ class Admin_Plugins_Screen {
 			return $plugins;
 		}
 
-		$orderby = 'NewspackOrderIndex'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+		$orderby = 'NewspackOrderIndex'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Override.Prohibited
 
 		$managed_plugins = Plugin_Manager::get_managed_plugins();
 
@@ -194,9 +198,9 @@ class Admin_Plugins_Screen {
 
 		wp_register_script(
 			'newspack_plugins_screen',
-			Newspack::plugin_url() . '/assets/plugins-screen/plugins-screen.js',
+			Newspack::plugin_url() . '/dist/plugins-screen.js',
 			[ 'jquery' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/plugins-screen/plugins-screen.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/plugins-screen.js' ),
 			true
 		);
 
@@ -216,9 +220,9 @@ class Admin_Plugins_Screen {
 
 		wp_register_style(
 			'newspack_plugins_screen',
-			Newspack::plugin_url() . '/assets/plugins-screen/plugins-screen.css',
+			Newspack::plugin_url() . '/dist/plugins-screen.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/plugins-screen/plugins-screen.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/plugins-screen.css' )
 		);
 		wp_style_add_data( 'newspack_plugins_screen', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack_plugins_screen' );
@@ -237,8 +241,12 @@ class Admin_Plugins_Screen {
 		$missing_plugins       = Plugin_Manager::get_missing_plugins();
 		$newspack_theme_active = 'newspack-theme' === get_stylesheet();
 
+		$plugins = Plugin_Manager::get_managed_plugins();
+
+		$disqus_notification = ( 'active' === $plugins['disqus-comment-system']['Status'] && 'active' !== $plugins['newspack-disqus-amp']['Status'] );
+
 		/* If there is nothing to warn about, show nothing */
-		if ( ! count( $unsupported_plugins ) && ! count( $missing_plugins ) && $newspack_theme_active ) {
+		if ( ! count( $unsupported_plugins ) && ! count( $missing_plugins ) && $newspack_theme_active && ! $disqus_notification ) {
 			return;
 		}
 
@@ -248,13 +256,17 @@ class Admin_Plugins_Screen {
 		/* Assemble messages for all three scenarios. */
 		$messages = [];
 		if ( count( $missing_plugins ) ) {
-			$messages[] = __( 'The following plugins are required by Newspack but are not active: ' ) . '<strong>' . implode( $missing_plugins_names, ', ' ) . '.</strong>';
+			$messages[] = __( 'The following plugins are required by Newspack but are not active: ' ) . '<strong>' . implode( $missing_plugins_names, ', ' ) . '.</strong>'; // phpcs:ignore PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated
 		}
 		if ( count( $unsupported_plugins ) ) {
-			$messages[] = __( 'The following plugins are not supported by Newspack: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>';
+			$messages[] = __( 'The following plugins are not supported by Newspack: ' ) . '<strong>' . implode( $unsupported_plugin_names, ', ' ) . '.</strong>'; // phpcs:ignore PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Deprecated
 		}
 		if ( ! $newspack_theme_active ) {
 			$messages[] = __( 'The Newspack Theme is not currently active.' );
+		}
+
+		if ( $disqus_notification ) {
+			$messages[] = __( 'You are using the Disqus comment system without the Newspack Disqus AMP plugin. The comments form will not display on AMP pages. Correct this ' ) . '<a href="/wp-admin/admin.php?page=newspack-engagement-wizard#/commenting/disqus">' . __( 'here' ) . '.</a>';
 		}
 
 		/* Error notification only if required plugins are missing. */

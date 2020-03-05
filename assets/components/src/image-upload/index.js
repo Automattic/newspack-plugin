@@ -1,34 +1,39 @@
 /**
- * Image uploader component.
+ * Image Upload
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, Fragment } from '@wordpress/element';
-import { Button } from '@wordpress/components';
-import { data } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+/**
+ * Internal dependencies.
+ */
+import { Button } from '../';
 import './style.scss';
 
 /**
- * Image select/upload button and modal.
+ * External dependencies.
  */
-class ImageUpload extends Component {
+import classnames from 'classnames';
 
+class ImageUpload extends Component {
 	/**
 	 * Constructor.
 	 */
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			frame    : false,
-		}
+			frame: false,
+		};
 	}
 
 	/**
@@ -40,29 +45,38 @@ class ImageUpload extends Component {
 			return;
 		}
 
-		this.state.frame = wp.media( {
-			title: __( 'Select or upload image' ),
-			button: {
-				text: __( 'Select' )
+		this.setState(
+			{
+				frame: wp.media( {
+					title: __( 'Select or upload image' ),
+					button: {
+						text: __( 'Select' ),
+					},
+					library: {
+						type: 'image',
+					},
+					multiple: false,
+				} ),
 			},
-			library: {
-				type: 'image'
-			},
-			multiple: false
-		} );
-
-		this.state.frame.on( 'select', this.handleImageSelect );
-		this.state.frame.open();
-	}
+			() => {
+				this.state.frame.on( 'select', this.handleImageSelect );
+				this.state.frame.open();
+			}
+		);
+	};
 
 	/**
 	 * Update the state when an image is selected from the media modal.
 	 */
 	handleImageSelect = () => {
 		const { onChange } = this.props;
-		const attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
+		const attachment = this.state.frame
+			.state()
+			.get( 'selection' )
+			.first()
+			.toJSON();
 		onChange( attachment );
-	}
+	};
 
 	/**
 	 * Clear the selected image.
@@ -70,34 +84,47 @@ class ImageUpload extends Component {
 	removeImage = () => {
 		const { onChange } = this.props;
 		onChange( null );
-	}
+	};
 
 	/**
 	 * Render.
 	 */
 	render = () => {
-		const { className, image } = this.props;
+		const { className, image, removeText, addText } = this.props;
+		const classes = classnames( 'newspack-image-upload', className );
 		return (
-			<Fragment>
+			<div className={ classes }>
 				{ !! image && (
-				<div className={ murielClassnames( 'muriel-image-upload', 'has-image', className ) }>
-					<div className="image-preview">
-						<img src={ image.url } />
-					</div>
-					<Button className="remove-image" onClick={ this.removeImage }>
-						{ __( 'Remove image' ) }
-					</Button>
-				</div>
+					<Fragment>
+						<div className="newspack-image-upload__image-preview">
+							<img src={ image.url } alt="Upload preview" />
+						</div>
+						<Button
+							onClick={ this.removeImage }
+							className="newspack-image-upload__remove-image"
+							isTertiary
+							isSmall
+						>
+							<DeleteIcon />
+							{ ! removeText && __( 'Remove image' ) }
+							{ removeText && removeText }
+						</Button>
+					</Fragment>
 				) }
 				{ ! image && (
-					<div className={ murielClassnames( 'muriel-image-upload', 'no-image', className ) }>
-						<Button className="add-image" onClick={ this.openModal }>
-							{ __( 'Add an image' ) }
-						</Button>
-					</div>
+					<Button
+						onClick={ this.openModal }
+						className="newspack-image-upload__add-image"
+						isTertiary
+						isSmall
+					>
+						<AddPhotoAlternateIcon />
+						{ ! addText && __( 'Add image' ) }
+						{ addText && addText }
+					</Button>
 				) }
-			</Fragment>
+			</div>
 		);
-	}
+	};
 }
 export default ImageUpload;

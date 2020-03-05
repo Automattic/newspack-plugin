@@ -1,31 +1,28 @@
 /**
- * Analytics Wizard
+ * Analytics
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, render, Fragment } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/TrendingUp';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
 import { Intro } from './views';
 
-/**
- * External dependencies
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
-/**
- * Analytics wizard.
- */
 class AnalyticsWizard extends Component {
-
 	/**
 	 * Render
 	 */
@@ -39,14 +36,11 @@ class AnalyticsWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<Intro
-									noBackground
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Analytics', 'newspack' ) }
-									subHeaderText={ __( 'Track traffic and activity') }
-									secondaryButtonText={ __( 'Back to dashboard' ) }
-									secondaryButtonAction={ window && window.newspack_urls.dashboard }
-									secondaryButtonStyle={ { isDefault: true } }
+									subHeaderText={ __( 'Track traffic and activity' ) }
 								/>
 							) }
 						/>

@@ -133,17 +133,17 @@ class Health_Check_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-health-check-wizard',
-			Newspack::plugin_url() . '/assets/dist/health-check.js',
+			Newspack::plugin_url() . '/dist/health-check.js',
 			[ 'wp-components', 'wp-api-fetch' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/health-check.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/health-check.js' ),
 			true
 		);
 
 		\wp_register_style(
 			'newspack-health-check-wizard',
-			Newspack::plugin_url() . '/assets/dist/health-check.css',
+			Newspack::plugin_url() . '/dist/health-check.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/health-check.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/health-check.css' )
 		);
 		\wp_style_add_data( 'newspack-health-check-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-health-check-wizard' );

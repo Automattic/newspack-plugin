@@ -55,7 +55,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		$states        = WC()->countries->get_states();
 		$location_info = [];
 		foreach ( $countries as $country_code => $country ) {
-			if ( isset( $states[ $country_code ] ) ) {
+			if ( ! empty( $states[ $country_code ] ) ) {
 				foreach ( $states[ $country_code ] as $state_code => $state ) {
 					$location_info[] = [
 						'value' => $country_code . ':' . $state_code,
@@ -125,7 +125,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	public function location_data() {
 		$countrystate_raw = wc_get_base_location();
 		return [
-			'countrystate' => '*' === $countrystate_raw['state'] ? $countrystate_raw['country'] : $countrystate_raw['country'] . ':' . $countrystate_raw['state'],
+			'countrystate' => ( empty( $countrystate_raw['state'] ) || '*' === $countrystate_raw['state'] ) ? $countrystate_raw['country'] : $countrystate_raw['country'] . ':' . $countrystate_raw['state'],
 			'address1'     => WC()->countries->get_base_address(),
 			'address2'     => WC()->countries->get_base_address_2(),
 			'city'         => WC()->countries->get_base_city(),

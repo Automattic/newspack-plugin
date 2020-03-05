@@ -1,17 +1,17 @@
 /**
- * Complete UI for Newspack handoff to an external plugin.
+ * Handoff Banner
  */
 
 /**
  * WordPress dependencies.
  */
 import { Component, createElement, render } from '@wordpress/element';
-import { Button } from '../../components/src';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
+import { Button } from '../../components/src';
 import './style.scss';
 
 class HandoffBanner extends Component {
@@ -24,19 +24,21 @@ class HandoffBanner extends Component {
 	/**
 	 * Render.
 	 */
-	render( props ) {
+	render() {
 		const { bodyText, primaryButtonText, dismissButtonText, primaryButtonURL } = this.props;
 		const { visibility } = this.state;
 		return (
 			visibility && (
 				<div className="newspack-handoff-banner">
-					<p>{ bodyText }</p>
-					<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
-						{ dismissButtonText }
-					</Button>
-					<Button isPrimary href={ primaryButtonURL }>
-						{ primaryButtonText }
-					</Button>
+					<div className="newspack-handoff-banner__text">{ bodyText }</div>
+					<div className="newspack-handoff-banner__buttons">
+						<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
+							{ dismissButtonText }
+						</Button>
+						<Button isPrimary href={ primaryButtonURL }>
+							{ primaryButtonText }
+						</Button>
+					</div>
 				</div>
 			)
 		);

@@ -1,29 +1,27 @@
 /**
- * Performance Wizard.
+ * Performance
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, Fragment, render } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Speed';
+
+/**
+ * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
 import { Intro } from './views';
-import './style.scss';
 
-/**
- * External dependencies
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
+const { HashRouter, Redirect, Route, Switch } = Router;
 
-/**
- * Wizard for configuring PWA features.
- */
 class PerformanceWizard extends Component {
 	/**
 	 * Constructor.
@@ -68,13 +66,13 @@ class PerformanceWizard extends Component {
 					method: 'POST',
 					data: { settings },
 				} )
-					.then( settings => {
-						setError().then( () => this.setState( { settings }, () => resolve() ) );
+					.then( _settings => {
+						setError().then( () => this.setState( { settings: _settings }, () => resolve() ) );
 					} )
 					.catch( error => {
 						setError( error ).then( () => reject() );
 					} );
-			} );		
+			} );
 		} );
 	}
 
@@ -91,9 +89,9 @@ class PerformanceWizard extends Component {
 					<Route
 						path="/"
 						exact
-						render={ routeProps => (
+						render={ () => (
 							<Intro
-								noCard
+								headerIcon={ <HeaderIcon /> }
 								headerText={ __( 'Performance options' ) }
 								subHeaderText={ __(
 									'Optimizing your news site for better performance and increased user engagement.'
@@ -111,9 +109,6 @@ class PerformanceWizard extends Component {
 }
 
 render(
-	createElement( withWizard( PerformanceWizard, [ 'pwa', 'progressive-wp' ] ), {
-		buttonText: __( 'Back to dashboard' ),
-		buttonAction: newspack_urls[ 'dashboard' ],
-	} ),
+	createElement( withWizard( PerformanceWizard, [ 'pwa', 'progressive-wp' ] ) ),
 	document.getElementById( 'newspack-performance-wizard' )
 );

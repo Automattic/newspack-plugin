@@ -1,27 +1,40 @@
 /**
- * Setup Wizard. Introduces Newspack, installs required plugins, and requests some general information about the newsroom.
+ * Setup
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Component, Fragment, render } from '@wordpress/element';
+import { Component, Fragment, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Spinner } from '@wordpress/components';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
  */
-import { About, ConfigurePlugins, Newsroom, Welcome, InstallationProgress } from './views/';
-import { Card, withWizard, WizardPagination } from '../../components/src';
+import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
+import SettingsIcon from '@material-ui/icons/Settings';
+import StyleIcon from '@material-ui/icons/Style';
+import SubjectIcon from '@material-ui/icons/Subject';
+
+/**
+ * Internal dependencies.
+ */
+import {
+	About,
+	ConfigurePlugins,
+	Newsroom,
+	Welcome,
+	InstallationProgress,
+	ThemeSelection,
+	StarterContent,
+} from './views/';
+import { withWizard, WizardPagination } from '../../components/src';
+import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
 
-/**
- * External dependencies
- */
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
-import { pickBy, includes, forEach } from 'lodash';
+const { HashRouter, Redirect, Route } = Router;
 
 const REQUIRED_PLUGINS = [
 	'jetpack',
@@ -52,11 +65,15 @@ class SetupWizard extends Component {
 			profile: {},
 			currencies: {},
 			countries: {},
+			starterContentProgress: null,
+			starterContentTotal: null,
+			theme: null,
 		};
 	}
 
 	componentDidMount = () => {
 		this.retrieveProfile();
+		this.retrieveTheme();
 	};
 
 	updateProfile = () => {
@@ -66,8 +83,7 @@ class SetupWizard extends Component {
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( params )
 				.then( response => {
-					const { profile } = response;
-					this.setState( { profile }, () => resolve( response ) );
+					this.setState( { profile: response.profile }, () => resolve( response ) );
 				} )
 				.catch( error => {
 					console.log( '[Profile Update Error]', error );
@@ -138,15 +154,95 @@ class SetupWizard extends Component {
 	isConfigurationComplete = () => {
 		const { pluginInfo } = this.state;
 		return (
-			pluginInfo[ 'jetpack' ] &&
-			pluginInfo[ 'jetpack' ].Configured &&
+			pluginInfo.jetpack &&
+			pluginInfo.jetpack.Configured &&
 			pluginInfo[ 'google-site-kit' ] &&
 			pluginInfo[ 'google-site-kit' ].Configured
 		);
 	};
 
+	retrieveTheme = () => {
+		const { setError, wizardApiFetch } = this.props;
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
+			method: 'GET',
+		};
+		wizardApiFetch( params )
+			.then( response => {
+				this.setState( { theme: response.theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Fetch Error]', error );
+				setError( { error } );
+			} );
+	};
+
+	updateTheme = theme => {
+		const { setError, wizardApiFetch } = this.props;
+		const params = {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + theme,
+			method: 'POST',
+		};
+		wizardApiFetch( params )
+			.then( response => {
+				this.setState( { theme: response.theme } );
+			} )
+			.catch( error => {
+				console.log( '[Theme Update Error]', error );
+				setError( { error } );
+			} );
+	};
+
+	incrementStarterContentProgress = () => {
+		const { starterContentProgress } = this.state;
+		this.setState(
+			{ starterContentProgress: starterContentProgress + 1 },
+			() => this.state.starterContentProgress >= 43 && this.finish()
+		);
+	};
+
+	installStarterContent = () => {
+		this.setState( { starterContentProgress: 0, starterContentTotal: 43 } );
+		const promises = [
+			() =>
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
+					method: 'post',
+				} ).then( () => this.incrementStarterContentProgress() ),
+		];
+		for ( let x = 0; x < 40; x++ ) {
+			promises.push( () =>
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
+					method: 'post',
+				} )
+					.then( () => this.incrementStarterContentProgress() )
+					.catch( () => this.incrementStarterContentProgress() )
+			);
+		}
+		promises.push( () =>
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/homepage`,
+				method: 'post',
+			} ).then( () => this.incrementStarterContentProgress() )
+		);
+		promises.push( () =>
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/theme`,
+				method: 'post',
+			} ).then( () => this.incrementStarterContentProgress() )
+		);
+		return new Promise( () => {
+			promises.reduce(
+				( promise, action ) =>
+					promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
+				Promise.resolve( [] )
+			);
+		} );
+	};
+
 	finish = () => {
-		this.updateProfile().then( response =>
+		this.updateProfile().then( () =>
 			this.completeSetup().then( () => ( window.location = newspack_urls.dashboard ) )
 		);
 	};
@@ -156,16 +252,14 @@ class SetupWizard extends Component {
 	 */
 	render() {
 		const {
-			installedPlugins,
 			installationComplete,
 			pluginInfo,
 			profile,
 			countries,
 			currencies,
-			setupComplete,
+			starterContentTotal,
+			starterContentProgress,
 		} = this.state;
-		const installProgress = Object.keys( installedPlugins ).length;
-		const installTotal = REQUIRED_PLUGINS.length;
 		const routes = [
 			'/',
 			'/about',
@@ -173,6 +267,8 @@ class SetupWizard extends Component {
 			'/installation-progress',
 			'/configure-jetpack',
 			'/configure-google-site-kit',
+			'/theme-style-selection',
+			'/starter-content',
 		];
 		return (
 			<Fragment>
@@ -181,9 +277,9 @@ class SetupWizard extends Component {
 					<Route
 						path="/"
 						exact
-						render={ routeProps => (
+						render={ () => (
 							<Welcome
-								buttonText={ __( 'Install core plugins and Newspack theme' ) }
+								buttonText={ __( 'Get started' ) }
 								buttonAction={ {
 									href: '#/about',
 									onClick: () => this.updateProfile(),
@@ -191,18 +287,14 @@ class SetupWizard extends Component {
 								secondaryButtonText={ __( 'Not right now' ) }
 								secondaryButtonAction="/wp-admin"
 								profile={ profile }
-								notice=<p>
-									{ __(
-										'Clicking “Get Started” will install core Newspack plugins and the theme in the background.'
-									) }
-								</p>
 							/>
 						) }
 					/>
 					<Route
 						path="/about"
-						render={ routeProps => (
+						render={ () => (
 							<About
+								headerIcon={ <MenuBookIcon /> }
 								headerText={ __( 'About your publication' ) }
 								subHeaderText={ __(
 									'Share a few details so we can start setting up your profile'
@@ -223,8 +315,9 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/newsroom"
-						render={ routeProps => (
+						render={ () => (
 							<Newsroom
+								headerIcon={ <BusinessCenterIcon /> }
 								headerText={ __( 'Tell us about your Newsroom' ) }
 								subHeaderText={ __(
 									'The description helps set the stage for the step content below'
@@ -245,15 +338,15 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/configure-jetpack"
-						render={ routeProps => {
+						render={ () => {
 							const plugin = 'jetpack';
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									noBackground
+									headerIcon={ <SettingsIcon /> }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Jetpack' ) }
@@ -268,21 +361,62 @@ class SetupWizard extends Component {
 					/>
 					<Route
 						path="/configure-google-site-kit"
-						render={ routeProps => {
+						render={ () => {
 							const plugin = 'google-site-kit';
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									noBackground
+									headerIcon={ <SettingsIcon /> }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'You’re almost done. Please configure the following core plugins to start using Newspack.'
+										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
-									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Site Kit' ) }
-									buttonAction={ pluginConfigured ? this.finish : { handoff: plugin } }
+									buttonText={
+										pluginConfigured ? __( 'Continue' ) : __( 'Configure Google Site Kit' )
+									}
+									buttonAction={
+										pluginConfigured ? '#/theme-style-selection' : { handoff: plugin }
+									}
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
+								/>
+							);
+						} }
+					/>
+					<Route
+						path="/theme-style-selection"
+						render={ () => {
+							const { theme } = this.state;
+							return (
+								<ThemeSelection
+									headerIcon={ <StyleIcon /> }
+									headerText={ __( 'Theme' ) }
+									subHeaderText={ __( 'Choose a Newspack theme' ) }
+									buttonText={ __( 'Continue' ) }
+									buttonAction="#/starter-content"
+									updateTheme={ this.updateTheme }
+									theme={ theme }
+									isWide
+								/>
+							);
+						} }
+					/>
+					<Route
+						path="/starter-content"
+						render={ () => {
+							return (
+								<StarterContent
+									headerIcon={ <SubjectIcon /> }
+									headerText={ __( 'Starter Content' ) }
+									subHeaderText={ __( 'Pre-configure the site for testing and experimentation' ) }
+									buttonText={ __( 'Install Starter Content' ) }
+									buttonAction={ () => this.installStarterContent().then( this.finish ) }
+									buttonDisabled={ starterContentProgress }
+									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
+									secondaryButtonAction={ this.finish }
+									starterContentProgress={ starterContentProgress }
+									starterContentTotal={ starterContentTotal }
 								/>
 							);
 						} }
@@ -293,10 +427,10 @@ class SetupWizard extends Component {
 							<InstallationProgress
 								autoInstall={ '/' !== routeProps.location.pathname }
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
-								noBackground
+								headerIcon={ <SettingsIcon /> }
 								headerText={ __( 'Installation...' ) }
 								subHeaderText={ __(
-									'You’re almost done. Please configure the following core plugins to start using Newspack.'
+									'Please configure the following core plugin to start using Newspack.'
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ '#/configure-jetpack' }
@@ -320,6 +454,6 @@ class SetupWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SetupWizard ), { fullLogo: true } ),
+	createElement( withWizard( SetupWizard, [], { suppressLogoLink: true } ) ),
 	document.getElementById( 'newspack-setup-wizard' )
 );
