@@ -17,12 +17,21 @@ defined( 'ABSPATH' ) || exit;
 class PWA {
 
 	/**
+	 * Push notifications scope
+	 *
+	 * @var $scope
+	 */
+	protected static $scope = '/push/';
+
+	/**
 	 * Add hooks.
 	 */
 	public static function init() {
 		add_action( 'wp_front_service_worker', [ __CLASS__, 'register_caching_routes' ] );
 		add_filter( 'wp_service_worker_navigation_caching_strategy', [ __CLASS__, 'caching_strategy' ] );
 		add_filter( 'wp_service_worker_navigation_caching_strategy_args', [ __CLASS__, 'caching_strategy_args' ] );
+		add_action( 'init', [ __CLASS__, 'render_push_notification_urls' ] );
+		add_filter( 'the_content', [ __CLASS__, 'push_notifications' ] );
 	}
 
 	/**
@@ -134,6 +143,68 @@ class PWA {
 		$args['cacheName']                           = 'pages';
 		$args['plugins']['expiration']['maxEntries'] = 50;
 		return $args;
+	}
+
+	/**
+	 * Render Push Notification required HTML files.
+	 */
+	public static function render_push_notification_urls() {
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
+		if ( ! $onesignal_cm->is_configured() ) {
+			return;
+		}
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: Input var okay.
+			$raw_uri = sanitize_text_field(
+				wp_unslash( $_SERVER['REQUEST_URI'] ) // WPCS: Input var okay.
+			);
+		} else {
+			$raw_uri = '';
+		}
+		$path = null;
+
+		if ( substr( $raw_uri, 0, strlen( self::$scope . 'helper-iframe.html' ) ) === self::$scope . 'helper-iframe.html' ) {
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-helper-frame.html';
+		}
+		if ( substr( $raw_uri, 0, strlen( self::$scope . 'permission-dialog.html' ) ) === self::$scope . 'permission-dialog.html' ) {
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-permission-dialog.html';
+		}
+		if ( substr( $raw_uri, 0, strlen( self::$scope . 'service-worker.js' ) ) === self::$scope . 'service-worker.js' ) {
+			$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/raw_assets/html/amp-web-push-service-worker.js';
+			header( 'content-type: application/javascript' );
+		}
+
+		if ( $path ) {
+			echo file_get_contents( $path ); // phpcs:ignore
+			exit;
+		}
+	}
+
+	/**
+	 * Insert Push Notifications component
+	 *
+	 * @param string $content The content of the post.
+	 * @return string The content with popup inserted.
+	 */
+	public static function push_notifications( $content = '' ) {
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
+		// https://documentation.onesignal.com/docs/amp-web-push-setup.
+		$one_signal_app_id = $onesignal_cm->get( 'app_id' );
+		if ( $onesignal_cm->is_configured() && $one_signal_app_id ) {
+			$base = get_site_url();
+			ob_start();
+			?>
+			<amp-web-push
+				id="amp-web-push"
+				layout="nodisplay"
+				helper-iframe-url="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>helper-iframe.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				permission-dialog-url="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>permission-dialog.html?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				service-worker-url="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>service-worker.js?appId=<?php echo esc_attr( $one_signal_app_id ); ?>"
+				service-worker-scope="<?php echo esc_url( $base ); ?><?php echo esc_url( self::$scope ); ?>"
+				></amp-web-push>
+			<?php
+			$content = ob_get_clean() . $content;
+		}
+		return $content;
 	}
 }
 PWA::init();

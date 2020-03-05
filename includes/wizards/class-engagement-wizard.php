@@ -82,6 +82,23 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'engagement',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'app_id'           => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'app_rest_api_key' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'popup/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
@@ -151,12 +168,15 @@ class Engagement_Wizard extends Wizard {
 		$jetpack_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
 		$wc_configuration_manager              = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$onesignal_cm                          = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
 
 		$response = array(
-			'connected'   => false,
-			'connectURL'  => null,
-			'wcConnected' => false,
-			'popups'      => array(),
+			'connected'        => false,
+			'connectURL'       => null,
+			'wcConnected'      => false,
+			'popups'           => array(),
+			'app_id'           => $onesignal_cm->get( 'app_id', '' ),
+			'app_rest_api_key' => $onesignal_cm->get( 'app_rest_api_key', '' ),
 		);
 
 		$jetpack_status = $jetpack_configuration_manager->get_mailchimp_connection_status();
@@ -249,6 +269,23 @@ class Engagement_Wizard extends Wizard {
 			return $response;
 		}
 
+		return $this->api_get_engagement_settings();
+	}
+
+	/**
+	 * Update settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_update_settings( $request ) {
+		$onesignal_cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'onesignal' );
+		if ( $request['app_id'] ) {
+			$onesignal_cm->setAppID( $request['app_id'] );
+		}
+		if ( $request['app_rest_api_key'] ) {
+			$onesignal_cm->setRestAPIKey( $request['app_rest_api_key'] );
+		}
 		return $this->api_get_engagement_settings();
 	}
 

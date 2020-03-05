@@ -24,6 +24,7 @@ import {
 	CommentingCoral,
 	Newsletters,
 	Popups,
+	PushNotifications,
 	Social,
 	UGC,
 } from './views';
@@ -39,6 +40,7 @@ class EngagementWizard extends Component {
 			connectURL: '',
 			wcConnected: false,
 			popups: [],
+			pushNotificationEnabled: false,
 		};
 	}
 
@@ -77,6 +79,28 @@ class EngagementWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/sitewide-popup/' + popupId,
 			method: state ? 'POST' : 'DELETE',
+		} )
+			.then( info => {
+				this.setState( {
+					...this.sanitizeData( info ),
+				} );
+			} )
+			.catch( error => {
+				setError( error );
+			} );
+	};
+
+	/**
+	 * Update settings.
+	 *
+	 * @param object Settings
+	 */
+	updateSettings = () => {
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/engagement/',
+			method: 'POST',
+			data: this.state,
 		} )
 			.then( info => {
 				this.setState( {
@@ -161,6 +185,11 @@ class EngagementWizard extends Component {
 				exact: true,
 			},
 			{
+				label: __( 'Push' ),
+				path: '/push-notifications',
+				exact: true,
+			},
+			{
 				label: __( 'Commenting' ),
 				path: '/commenting/',
 			},
@@ -238,6 +267,30 @@ class EngagementWizard extends Component {
 									deletePopup={ this.deletePopup }
 								/>
 							) }
+						/>
+						<Route
+							path="/push-notifications"
+							exact
+							render={ routeProps => {
+								const { pushNotificationEnabled } = this.state;
+								return (
+									<PushNotifications
+										headerIcon={ <HeaderIcon /> }
+										headerText={ __( 'Engagement', 'newspack' ) }
+										subHeaderText={ subheader }
+										tabbedNavigation={ tabbed_navigation }
+										data={ this.state }
+										buttonText={ pushNotificationEnabled && __( 'Update', 'newspack' ) }
+										buttonAction={ data => this.setState( data, () => this.updateSettings() ) }
+										onChange={ ( data, update ) =>
+											this.setState( data, () => update && this.updateSettings() )
+										}
+										setPushNotificationEnabled={ value =>
+											this.setState( { pushNotificationEnabled: value } )
+										}
+									/>
+								);
+							} }
 						/>
 						<Route path="/commenting" exact render={ () => <Redirect to="/commenting/disqus" /> } />
 						<Route

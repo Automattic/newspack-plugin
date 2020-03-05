@@ -27,9 +27,10 @@ class PluginToggle extends Component {
 	 * Retrieve complete data about Newspack plugins.
 	 */
 	retrievePluginInfo = () => {
+		const { onReady } = this.props;
 		return new Promise( () => {
 			apiFetch( { path: '/newspack/v1/plugins/' } ).then( pluginInfo =>
-				this.setState( { pluginInfo } )
+				this.setState( { pluginInfo }, () => onReady( pluginInfo ) )
 			);
 		} );
 	};
@@ -38,7 +39,7 @@ class PluginToggle extends Component {
 	 * Install/activate or remove a plugin.
 	 */
 	managePlugin = ( plugin, value ) => {
-		const { plugins } = this.props;
+		const { onReady, plugins } = this.props;
 		const { pluginInfo } = this.state;
 		const action = value ? 'configure' : 'deactivate';
 		const params = {
@@ -53,10 +54,12 @@ class PluginToggle extends Component {
 			() => {
 				apiFetch( params ).then( response => {
 					const { shouldRefreshAfterUpdate } = plugins[ plugin ];
-					this.setState(
-						{ pluginInfo: { ...pluginInfo, [ plugin ]: response } },
-						() => shouldRefreshAfterUpdate && location.reload()
-					);
+					this.setState( { pluginInfo: { ...pluginInfo, [ plugin ]: response } }, () => {
+						onReady( this.state.pluginInfo );
+						if ( shouldRefreshAfterUpdate ) {
+							location.reload();
+						}
+					} );
 				} );
 			}
 		);
@@ -166,5 +169,9 @@ class PluginToggle extends Component {
 		return status === 'active';
 	};
 }
+
+PluginToggle.defaultProps = {
+	onReady: () => null,
+};
 
 export default PluginToggle;
