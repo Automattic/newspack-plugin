@@ -26,6 +26,7 @@ class HealthCheckWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
+			hasData: false,
 			healthCheckData: {
 				unsupportedPlugins: [],
 			},
@@ -38,7 +39,7 @@ class HealthCheckWizard extends Component {
 	fetchHealthData = () => {
 		const { wizardApiFetch, setError } = this.props;
 		wizardApiFetch( { path: '/newspack/v1/wizard/newspack-health-check-wizard/' } )
-			.then( healthCheckData => this.setState( { healthCheckData } ) )
+			.then( healthCheckData => this.setState( { healthCheckData, hasData: true } ) )
 			.catch( error => {
 				setError( error );
 			} );
@@ -70,7 +71,7 @@ class HealthCheckWizard extends Component {
 	 * Render
 	 */
 	render() {
-		const { healthCheckData } = this.state;
+		const { hasData, healthCheckData } = this.state;
 		const {
 			unsupported_plugins: unsupportedPlugins,
 			configuration_status: configurationStatus,
@@ -115,6 +116,7 @@ class HealthCheckWizard extends Component {
 							exact
 							render={ () => (
 								<Configuration
+									hasData={ hasData }
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
