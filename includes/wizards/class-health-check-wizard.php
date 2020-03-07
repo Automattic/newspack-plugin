@@ -147,12 +147,16 @@ class Health_Check_Wizard extends Wizard {
 	 * @return array Advertising data.
 	 */
 	private function retrieve_data() {
-		$amp_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'amp' );
+		$amp_manager     = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'amp' );
+		$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 
 		return array(
 			'unsupported_plugins'  => Plugin_Manager::get_unmanaged_plugins(),
 			'configuration_status' => [
-				'amp' => $amp_manager->is_standard_mode(),
+				'amp'     => $amp_manager->is_standard_mode(),
+				'jetpack' => $jetpack_manager->is_configured(),
+				'sitekit' => $sitekit_manager->is_configured(),
 			],
 		);
 	}
