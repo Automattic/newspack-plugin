@@ -16,7 +16,7 @@ import { ActionCard, Button, Notice, withWizardScreen } from '../../../../compon
 /**
  * SEO Intro screen.
  */
-class RemoveUnsupportedPlugins extends Component {
+class Plugins extends Component {
 	/**
 	 * Render.
 	 */
@@ -52,4 +52,4 @@ class RemoveUnsupportedPlugins extends Component {
 	}
 }
 
-export default withWizardScreen( RemoveUnsupportedPlugins );
+export default withWizardScreen( Plugins );

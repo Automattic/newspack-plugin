@@ -18,7 +18,7 @@ import HeaderIcon from '@material-ui/icons/Healing';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { RemoveUnsupportedPlugins } from './views';
+import { Plugins } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -69,7 +69,7 @@ class HealthCheckWizard extends Component {
 							path="/"
 							exact
 							render={ () => (
-								<RemoveUnsupportedPlugins
+								<Plugins
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }

@@ -1,1 +1,1 @@
-export { default as RemoveUnsupportedPlugins } from './remove-unsupported-plugins';
+export { default as Plugins } from './plugins';
