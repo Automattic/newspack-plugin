@@ -83,6 +83,20 @@ class Health_Check_Wizard extends Wizard {
 		);
 		register_rest_route(
 			'newspack/v1/wizard/' . $this->slug,
+			'repair/(?P<configuration>[\a-z]+)/',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_repair_configuration' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'configuration' => [
+						'sanitize_callback' => [ $this, 'sanitize_configuration' ],
+					],
+				],
+			]
+		);
+		register_rest_route(
+			'newspack/v1/wizard/' . $this->slug,
 			'unsupported_plugins',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
@@ -90,6 +104,23 @@ class Health_Check_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+	}
+
+	/**
+	 * Repair service API callback.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_repair_configuration( $request ) {
+		$configuration = $request['configuration'];
+		switch ( $configuration ) {
+			case 'amp':
+				$amp_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'amp' );
+				$amp_manager->configure();
+				break;
+		}
+		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
 	/**
@@ -116,8 +147,17 @@ class Health_Check_Wizard extends Wizard {
 	 * @return array Advertising data.
 	 */
 	private function retrieve_data() {
+		$amp_manager     = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'amp' );
+		$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+
 		return array(
-			'unsupported_plugins' => Plugin_Manager::get_unmanaged_plugins(),
+			'unsupported_plugins'  => Plugin_Manager::get_unmanaged_plugins(),
+			'configuration_status' => [
+				'amp'     => $amp_manager->is_standard_mode(),
+				'jetpack' => $jetpack_manager->is_configured(),
+				'sitekit' => $sitekit_manager->is_configured(),
+			],
 		);
 	}
 
@@ -147,5 +187,17 @@ class Health_Check_Wizard extends Wizard {
 		);
 		\wp_style_add_data( 'newspack-health-check-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-health-check-wizard' );
+	}
+
+	/**
+	 * Sanitize the configuration name.
+	 *
+	 * @param string $configuration The configuration name.
+	 * @return string
+	 */
+	public function sanitize_configuration( $configuration ) {
+		$configuration        = sanitize_title( $configuration );
+		$valid_configurations = [ 'amp' ];
+		return in_array( $configuration, $valid_configurations ) ? $configuration : null;
 	}
 }
