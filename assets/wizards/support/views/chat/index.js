@@ -63,7 +63,12 @@ class Chat extends Component {
 						howCanWeHelp: 'newspack',
 					} );
 
-					Happychat.sendEvent( __( '[ Newspack customer ]', 'newspack' ) );
+					Happychat.sendEvent(
+						__(
+							'[ Newspack customer (fieldguide.automattic.com/supporting-newspack-customers) ]',
+							'newspack'
+						)
+					);
 				}
 			} );
 		} else {
