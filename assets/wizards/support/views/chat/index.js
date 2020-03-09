@@ -53,6 +53,7 @@ class Chat extends Component {
 			let didSendInitialInfo;
 			Happychat.on( 'availability', availability => {
 				if ( ! didSendInitialInfo && availability ) {
+					didSendInitialInfo = true;
 					Happychat.sendUserInfo( {
 						site: {
 							ID: '0',
@@ -63,7 +64,6 @@ class Chat extends Component {
 					} );
 
 					Happychat.sendEvent( __( '[ Newspack customer ]', 'newspack' ) );
-					didSendInitialInfo = true;
 				}
 			} );
 		} else {
