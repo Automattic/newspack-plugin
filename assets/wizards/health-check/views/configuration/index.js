@@ -21,7 +21,7 @@ class Configuration extends Component {
 	 * Render.
 	 */
 	render() {
-		const { ampStandardMode, configurationStatus, hasData, repairConfiguration } = this.props;
+		const { configurationStatus, hasData, repairConfiguration } = this.props;
 		const { amp, jetpack, sitekit } = configurationStatus || {};
 		return (
 			hasData && (
