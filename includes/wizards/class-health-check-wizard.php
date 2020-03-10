@@ -73,8 +73,8 @@ class Health_Check_Wizard extends Wizard {
 	 */
 	public function register_api_endpoints() {
 		register_rest_route(
-			'newspack/v1/wizard/',
-			$this->slug,
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug,
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_health_data' ],
@@ -82,8 +82,8 @@ class Health_Check_Wizard extends Wizard {
 			]
 		);
 		register_rest_route(
-			'newspack/v1/wizard/' . $this->slug,
-			'repair/(?P<configuration>[\a-z]+)/',
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/repair/(?P<configuration>[\a-z]+)/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_repair_configuration' ],
@@ -96,8 +96,8 @@ class Health_Check_Wizard extends Wizard {
 			]
 		);
 		register_rest_route(
-			'newspack/v1/wizard/' . $this->slug,
-			'unsupported_plugins',
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/unsupported_plugins',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_delete_unsupported_plugins' ],
