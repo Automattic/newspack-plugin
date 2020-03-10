@@ -27,9 +27,8 @@ class Chat extends Component {
 
 	closeHappychat = null;
 
-	componentDidMount() {
+	renderChat = () => {
 		const { WPCOM_ACCESS_TOKEN } = newspack_support_data;
-
 		if ( WPCOM_ACCESS_TOKEN ) {
 			this.closeHappychat = Happychat.open( {
 				nodeId: 'newspack-happychat',
@@ -42,6 +41,35 @@ class Chat extends Component {
 				entryOptions: {
 					defaultValues: {},
 				},
+			} );
+		}
+	};
+
+	componentDidMount() {
+		const { WPCOM_ACCESS_TOKEN } = newspack_support_data;
+		if ( WPCOM_ACCESS_TOKEN ) {
+			this.renderChat();
+
+			let didSendInitialInfo;
+			Happychat.on( 'availability', availability => {
+				if ( ! didSendInitialInfo && availability ) {
+					didSendInitialInfo = true;
+					Happychat.sendUserInfo( {
+						site: {
+							ID: '0',
+							URL: `${ window.location.protocol }//${ window.location.hostname }`,
+						},
+						// just to bust the default 'gettingStarted'
+						howCanWeHelp: 'newspack',
+					} );
+
+					Happychat.sendEvent(
+						__(
+							'[ Newspack customer (fieldguide.automattic.com/supporting-newspack-customers) ]',
+							'newspack'
+						)
+					);
+				}
 			} );
 		} else {
 			this.setState( { hasToAuthenticate: true } );
