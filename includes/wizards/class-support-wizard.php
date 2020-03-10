@@ -121,7 +121,7 @@ class Support_Wizard extends Wizard {
 						'name'  => $full_name,
 						'email' => $user->data->user_email,
 					),
-					'subject'   => '[Newspack] ' . $request['subject'],
+					'subject'   => '[Newspack Support] ' . $request['subject'],
 					'comment'   => array(
 						'html_body' => $message,
 						'uploads'   => $request['uploads'],
