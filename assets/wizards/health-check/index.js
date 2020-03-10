@@ -18,7 +18,7 @@ import HeaderIcon from '@material-ui/icons/Healing';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { RemoveUnsupportedPlugins } from './views';
+import { Configuration, Plugins } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -26,6 +26,7 @@ class HealthCheckWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
+			hasData: false,
 			healthCheckData: {
 				unsupportedPlugins: [],
 			},
@@ -38,7 +39,7 @@ class HealthCheckWizard extends Component {
 	fetchHealthData = () => {
 		const { wizardApiFetch, setError } = this.props;
 		wizardApiFetch( { path: '/newspack/v1/wizard/newspack-health-check-wizard/' } )
-			.then( healthCheckData => this.setState( { healthCheckData } ) )
+			.then( healthCheckData => this.setState( { healthCheckData, hasData: true } ) )
 			.catch( error => {
 				setError( error );
 			} );
@@ -55,12 +56,37 @@ class HealthCheckWizard extends Component {
 				setError( error );
 			} );
 	};
+
+	repairConfiguration = configuration => {
+		const { wizardApiFetch, setError } = this.props;
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-health-check-wizard/repair/' + configuration,
+		} )
+			.then( healthCheckData => this.setState( { healthCheckData } ) )
+			.catch( error => {
+				setError( error );
+			} );
+	};
 	/**
 	 * Render
 	 */
 	render() {
-		const { healthCheckData } = this.state;
-		const { unsupported_plugins: unsupportedPlugins } = healthCheckData;
+		const { hasData, healthCheckData } = this.state;
+		const {
+			unsupported_plugins: unsupportedPlugins,
+			configuration_status: configurationStatus,
+		} = healthCheckData;
+		const tabs = [
+			{
+				label: __( 'Plugins', 'newspack' ),
+				path: '/',
+				exact: true,
+			},
+			{
+				label: __( 'Configuration' ),
+				path: '/configuration',
+			},
+		];
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -69,11 +95,12 @@ class HealthCheckWizard extends Component {
 							path="/"
 							exact
 							render={ () => (
-								<RemoveUnsupportedPlugins
+								<Plugins
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }
+									tabbedNavigation={ tabs }
 									unsupportedPlugins={
 										unsupportedPlugins &&
 										Object.keys( unsupportedPlugins ).map( value => ( {
@@ -81,6 +108,21 @@ class HealthCheckWizard extends Component {
 											Slug: value,
 										} ) )
 									}
+								/>
+							) }
+						/>
+						<Route
+							path="/configuration"
+							exact
+							render={ () => (
+								<Configuration
+									hasData={ hasData }
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Health Check', 'newspack' ) }
+									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
+									tabbedNavigation={ tabs }
+									configurationStatus={ configurationStatus }
+									repairConfiguration={ this.repairConfiguration }
 								/>
 							) }
 						/>

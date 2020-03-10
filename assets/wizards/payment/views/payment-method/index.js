@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ActionCard, Notice, withWizardScreen } from '../../../../components/src';
+import './style.scss';
 
 /**
  * Payment Method screen.
@@ -73,6 +74,14 @@ class PaymentMethod extends Component {
 							onClick={ onUpdateSubscription }
 						/>
 					</Fragment>
+				) }
+
+				{ hasData && (
+					<p className="newspack-subscription__info-taxes">
+						<small>
+							<em>{ __( 'Taxes included where applicable.', 'newspack' ) }</em>
+						</small>
+					</p>
 				) }
 			</Fragment>
 		);

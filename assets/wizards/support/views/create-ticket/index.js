@@ -154,6 +154,13 @@ class CreateTicket extends Component {
 					</Fragment>
 				) : (
 					<form onSubmit={ this.handleSubmit }>
+						<Notice
+							noticeText={ __(
+								'Please visit our <a href="https://newspack.blog/support/">support docs</a> first.',
+								'newspack'
+							) }
+							rawHTML
+						/>
 						<TextControl
 							label={ __( 'Subject', 'newspack' ) }
 							onChange={ this.handleChange( 'subject' ) }
