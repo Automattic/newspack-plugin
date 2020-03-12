@@ -1,3 +1,5 @@
+import '../../shared/js/public-path';
+
 /**
  * Setup
  */
