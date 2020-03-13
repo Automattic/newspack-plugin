@@ -67,6 +67,7 @@
 		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: $primary-600;
 			border-color: $primary-700;
+			box-shadow: none;
 			color: white;
 		}
 
@@ -112,6 +113,7 @@
 	&.is-secondary {
 		background: white;
 		border: 1px solid $light-gray-500;
+		box-shadow: none;
 		color: $primary-500;
 
 		&:active,
@@ -122,6 +124,7 @@
 		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: $light-gray-100;
 			border-color: $primary-500;
+			box-shadow: none;
 			color: $primary-500;
 		}
 
@@ -176,6 +179,7 @@
 		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 			background: $light-gray-400;
 			border-color: $light-gray-900;
+			box-shadow: none;
 			color: $dark-gray-900;
 		}
 
