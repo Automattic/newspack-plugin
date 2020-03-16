@@ -123,7 +123,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Returns true if ads should be shown.
 	 */
 	public function should_show_ads() {
-		return $this->is_configured() ? newspack_should_show_ads() : false;
+		return $this->is_configured() && function_exists( 'newspack_ads_should_show_ads' ) ? newspack_ads_should_show_ads() : false;
 	}
 
 	/**
