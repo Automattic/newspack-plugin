@@ -347,6 +347,7 @@ class Starter_Content {
 	 * Download and add a featured image to a post.
 	 *
 	 * @param int $post_id The post ID.
+	 * @param int $post_index The index of the post within the set of starter content posts.
 	 *
 	 * @return string Block markup.
 	 */
