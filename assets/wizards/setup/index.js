@@ -1,3 +1,5 @@
+import '../../shared/js/public-path';
+
 /**
  * Setup
  */
@@ -346,7 +348,7 @@ class SetupWizard extends Component {
 									headerIcon={ <SettingsIcon /> }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'Please configure the following core plugin to start using Newspack.'
+										'Please configure the following core plugins to start using Newspack.'
 									) }
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Jetpack' ) }

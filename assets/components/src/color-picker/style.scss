@@ -58,6 +58,7 @@
 			background: white;
 			border: 1px solid $light-gray-500;
 			border-radius: 3px;
+			box-shadow: none;
 			color: $primary-500;
 			font-size: inherit;
 			font-weight: bold;
@@ -75,6 +76,7 @@
 			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
 				background: $light-gray-100;
 				border-color: $primary-500;
+				box-shadow: none;
 				color: $primary-500;
 			}
 
