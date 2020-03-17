@@ -67,6 +67,7 @@ class SetupWizard extends Component {
 			profile: {},
 			currencies: {},
 			countries: {},
+			starterContentInstallStarted: false,
 			starterContentProgress: null,
 			starterContentTotal: null,
 			theme: null,
@@ -196,54 +197,56 @@ class SetupWizard extends Component {
 	};
 
 	incrementStarterContentProgress = () => {
-		const { starterContentProgress } = this.state;
 		this.setState(
-			{ starterContentProgress: starterContentProgress + 1 },
-			() => this.state.starterContentProgress >= 43 && this.finish()
+			( { starterContentProgress } ) => ( { starterContentProgress: starterContentProgress + 1 } ),
+			() =>
+				this.state.starterContentProgress >= this.state.starterContentTotal &&
+				this.finishStarterContentInstall()
 		);
 	};
 
-	installStarterContent = () => {
-		this.setState( { starterContentProgress: 0, starterContentTotal: 43 } );
-		const promises = [
-			() =>
+	installStarterContent = async () => {
+		// there are 12 categories in starter content, this will result in one post in each for e2e
+		const starterPostsCount = newspack_aux_data.is_e2e ? 12 : 40;
+		this.setState( {
+			starterContentInstallStarted: true,
+			starterContentProgress: 0,
+			starterContentTotal: starterPostsCount + 3,
+		} );
+
+		await apiFetch( {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
+			method: 'post',
+		} ).then( this.incrementStarterContentProgress );
+
+		const postsPromises = [];
+		for ( let x = 0; x < starterPostsCount; x++ ) {
+			postsPromises.push(
 				apiFetch( {
-					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/categories`,
-					method: 'post',
-				} ).then( () => this.incrementStarterContentProgress() ),
-		];
-		for ( let x = 0; x < 40; x++ ) {
-			promises.push( () =>
-				apiFetch( {
-					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post`,
+					path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/post/${ x }`,
 					method: 'post',
 				} )
-					.then( () => this.incrementStarterContentProgress() )
-					.catch( () => this.incrementStarterContentProgress() )
+					.then( this.incrementStarterContentProgress )
+					.catch( this.incrementStarterContentProgress )
 			);
 		}
-		promises.push( () =>
-			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/homepage`,
-				method: 'post',
-			} ).then( () => this.incrementStarterContentProgress() )
-		);
-		promises.push( () =>
-			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/theme`,
-				method: 'post',
-			} ).then( () => this.incrementStarterContentProgress() )
-		);
-		return new Promise( () => {
-			promises.reduce(
-				( promise, action ) =>
-					promise.then( result => action().then( Array.prototype.concat.bind( result ) ) ),
-				Promise.resolve( [] )
-			);
-		} );
+
+		await Promise.all( postsPromises );
+
+		await apiFetch( {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/homepage`,
+			method: 'post',
+		} ).then( this.incrementStarterContentProgress );
+
+		await apiFetch( {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/theme`,
+			method: 'post',
+		} ).then( this.incrementStarterContentProgress );
+
+		this.finishStarterContentInstall();
 	};
 
-	finish = () => {
+	finishStarterContentInstall = () => {
 		this.updateProfile().then( () =>
 			this.completeSetup().then( () => ( window.location = newspack_urls.dashboard ) )
 		);
@@ -259,6 +262,7 @@ class SetupWizard extends Component {
 			profile,
 			countries,
 			currencies,
+			starterContentInstallStarted,
 			starterContentTotal,
 			starterContentProgress,
 		} = this.state;
@@ -413,12 +417,13 @@ class SetupWizard extends Component {
 									headerText={ __( 'Starter Content' ) }
 									subHeaderText={ __( 'Pre-configure the site for testing and experimentation' ) }
 									buttonText={ __( 'Install Starter Content' ) }
-									buttonAction={ () => this.installStarterContent().then( this.finish ) }
-									buttonDisabled={ starterContentProgress }
+									buttonAction={ this.installStarterContent }
+									buttonDisabled={ starterContentInstallStarted }
 									secondaryButtonText={ starterContentProgress ? null : __( 'Not right now' ) }
-									secondaryButtonAction={ this.finish }
+									secondaryButtonAction={ this.finishStarterContentInstall }
 									starterContentProgress={ starterContentProgress }
 									starterContentTotal={ starterContentTotal }
+									displayProgressBar={ starterContentInstallStarted }
 								/>
 							);
 						} }
