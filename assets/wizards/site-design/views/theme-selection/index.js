@@ -31,6 +31,7 @@ class ThemeSelection extends Component {
 					url="//newspack.newspackstaging.com"
 					isActive={ theme === 'newspack-theme' }
 					onClick={ () => updateTheme( 'newspack-theme' ) }
+					id={ `card--newspack-theme` }
 				/>
 				<StyleCard
 					cardTitle="Scott"
@@ -38,6 +39,7 @@ class ThemeSelection extends Component {
 					url="//scott.newspackstaging.com"
 					isActive={ theme === 'newspack-scott' }
 					onClick={ () => updateTheme( 'newspack-scott' ) }
+					id={ `card--newspack-scott` }
 				/>
 				<StyleCard
 					cardTitle="Nelson"
@@ -45,6 +47,7 @@ class ThemeSelection extends Component {
 					url="//nelson.newspackstaging.com"
 					isActive={ theme === 'newspack-nelson' }
 					onClick={ () => updateTheme( 'newspack-nelson' ) }
+					id={ `card--newspack-nelson` }
 				/>
 				<StyleCard
 					cardTitle="Katharine"
@@ -52,6 +55,7 @@ class ThemeSelection extends Component {
 					url="//katharine.newspackstaging.com"
 					isActive={ theme === 'newspack-katharine' }
 					onClick={ () => updateTheme( 'newspack-katharine' ) }
+					id={ `card--newspack-katharine` }
 				/>
 				<StyleCard
 					cardTitle="Sacha"
@@ -59,6 +63,7 @@ class ThemeSelection extends Component {
 					url="//sacha.newspackstaging.com"
 					isActive={ theme === 'newspack-sacha' }
 					onClick={ () => updateTheme( 'newspack-sacha' ) }
+					id={ `card--newspack-sacha` }
 				/>
 				<StyleCard
 					cardTitle="Joseph"
@@ -66,6 +71,7 @@ class ThemeSelection extends Component {
 					url="//joseph.newspackstaging.com"
 					isActive={ theme === 'newspack-joseph' }
 					onClick={ () => updateTheme( 'newspack-joseph' ) }
+					id={ `card--newspack-joseph` }
 				/>
 			</StyleCardGroup>
 		);

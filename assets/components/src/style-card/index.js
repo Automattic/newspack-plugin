@@ -24,14 +24,14 @@ class StyleCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, cardTitle, url, image, isActive, onClick } = this.props;
+		const { className, cardTitle, url, image, isActive, onClick, id } = this.props;
 		const classes = classnames(
 			'newspack-style-card',
 			isActive && 'newspack-style-card__is-active',
 			className
 		);
 		return (
-			<div className={ classes } tabIndex="0">
+			<div className={ classes } tabIndex="0" id={ id }>
 				<div className="newspack-style-card__image">
 					{ image && <img src={ image } alt="style-card" /> }
 					<div className="newspack-style-card__actions">
