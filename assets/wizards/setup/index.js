@@ -276,6 +276,15 @@ class SetupWizard extends Component {
 			'/theme-style-selection',
 			'/starter-content',
 		];
+
+		// background auto installation is a nice feature, but in e2e it
+		// cretes an undeterministic environment, since the installation-progress
+		// is not visited (https://github.com/Automattic/newspack-e2e-tests/issues/3)
+		const shouldAutoInstallPlugins = routeProps =>
+			newspack_aux_data.is_e2e
+				? '/installation-progress' === routeProps.location.pathname
+				: '/' !== routeProps.location.pathname;
+
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -432,7 +441,7 @@ class SetupWizard extends Component {
 						path={ [ '/' ] }
 						render={ routeProps => (
 							<InstallationProgress
-								autoInstall={ '/' !== routeProps.location.pathname }
+								autoInstall={ shouldAutoInstallPlugins( routeProps ) }
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
 								headerIcon={ <SettingsIcon /> }
 								headerText={ __( 'Installation...' ) }
