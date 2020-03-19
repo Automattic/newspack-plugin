@@ -100,7 +100,7 @@ class Starter_Content {
 		);
 
 		$category_ids = get_option( NEWSPACK_STARTER_CONTENT_CATEGORIES );
-		$category_id = self::is_e2e() ? $category_ids[$post_index] : $categories[0];
+		$category_id  = self::is_e2e() ? $category_ids[ $post_index ] : $categories[0];
 
 		wp_set_post_categories( $post_id, $category_id );
 		wp_publish_post( $post_id );
