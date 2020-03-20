@@ -93,6 +93,15 @@ class Handoff_Banner {
 		wp_enqueue_style( $handle );
 
 		wp_register_script(
+			'newspack_commons',
+			Newspack::plugin_url() . '/dist/commons.js',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.js' ),
+			true
+		);
+		wp_enqueue_script( 'newspack_commons' );
+
+		wp_register_script(
 			$handle,
 			Newspack::plugin_url() . '/dist/handoff-banner.js',
 			[ 'wp-element', 'wp-editor', 'wp-components' ],
