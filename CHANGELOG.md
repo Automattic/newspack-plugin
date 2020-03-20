@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/Automattic/newspack-plugin/compare/v1.2.0...v1.2.1) (2020-03-20)
+
+
+### Bug Fixes
+
+* **handoff:** enqueue shared JS & CSS in handoff ([#492](https://github.com/Automattic/newspack-plugin/issues/492)) ([a7b8b8f](https://github.com/Automattic/newspack-plugin/commit/a7b8b8f3d5105ea772abe1def0e67d93a7a26ea3))
+* **wizards:** broken REST URL in SEO wizard ([21779bd](https://github.com/Automattic/newspack-plugin/commit/21779bd57d20f85ed0eb6af4c25f7e67a25b19ce))
+
 # [1.2.0](https://github.com/Automattic/newspack-plugin/compare/v1.1.0...v1.2.0) (2020-03-17)
 
 
