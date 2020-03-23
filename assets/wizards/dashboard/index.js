@@ -39,7 +39,7 @@ class Dashboard extends Component {
 				<div className="newspack-logo-wrapper">
 					<NewspackLogo />
 				</div>
-				<Grid className={ "view-" + view } isWide={ view === 'grid' && true }>
+				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
 					<Card noBackground className="newspack-dashboard-card__views">
 						<Button
 							onClick={ () => this.setState( { view: 'list' } ) }
@@ -66,4 +66,4 @@ class Dashboard extends Component {
 		);
 	}
 }
-render( <Dashboard items={ newspack_dashboard } />, document.getElementById( 'newspack' ) );
+render( <Dashboard items={ newspack_dashboard } />, document.getElementById( 'newspack' ) ); // eslint-disable-line
