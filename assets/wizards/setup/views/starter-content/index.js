@@ -21,7 +21,7 @@ class StarterContent extends Component {
 	 * Render.
 	 */
 	render() {
-		const { starterContentProgress, starterContentTotal } = this.props;
+		const { displayProgressBar, starterContentProgress, starterContentTotal } = this.props;
 		return (
 			<div className="newspack-setup-wizard__welcome">
 				<p>
@@ -29,7 +29,7 @@ class StarterContent extends Component {
 						'Optionally pre-populate the site with categories, 40 placeholder stories, Newspack branding, and some homepage blocks. This feature will pre-configure the site for experimentation and testing and all placeholder content can be deleted and replaced later.'
 					) }
 				</p>
-				{ starterContentProgress > 0 && starterContentTotal > 0 && (
+				{ displayProgressBar && (
 					<ProgressBar
 						completed={ starterContentProgress }
 						total={ starterContentTotal }
