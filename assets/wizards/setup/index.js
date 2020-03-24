@@ -278,7 +278,7 @@ class SetupWizard extends Component {
 		];
 
 		// background auto installation is a nice feature, but in e2e it
-		// cretes an undeterministic environment, since the installation-progress
+		// creates an undeterministic environment, since the installation-progress
 		// is not visited (https://github.com/Automattic/newspack-e2e-tests/issues/3)
 		const shouldAutoInstallPlugins = routeProps =>
 			newspack_aux_data.is_e2e
