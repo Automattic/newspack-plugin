@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/Automattic/newspack-plugin/compare/v1.2.1...v1.3.0) (2020-03-24)
+
+
+### Features
+
+* **health-check:** expose Health Check to external PHP code ([62cc8e0](https://github.com/Automattic/newspack-plugin/commit/62cc8e0d77ccb42c9d4a63d8cd082a0f1e2afa67))
+* **starter content:** parallelise post creation; tweaks for handling E2E ([#489](https://github.com/Automattic/newspack-plugin/issues/489)) ([62974b2](https://github.com/Automattic/newspack-plugin/commit/62974b2090d5ef8fdcddc500ae5b1505ddaa8efc))
+
 ## [1.2.1](https://github.com/Automattic/newspack-plugin/compare/v1.2.0...v1.2.1) (2020-03-20)
 
 
