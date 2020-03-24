@@ -41,19 +41,11 @@ class Dashboard extends Component {
 				</div>
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
 					<Card noBackground className="newspack-dashboard-card__views">
-						<Button
-							onClick={ () => this.setState( { view: 'list' } ) }
-							isPrimary={ 'list' === view }
-							isSecondary={ 'list' !== view }
-						>
+						<Button isLink onClick={ () => this.setState( { view: 'list' } ) }>
 							<ViewStreamIcon />
 							<span className="screen-reader-text">{ __( 'List view' ) }</span>
 						</Button>
-						<Button
-							onClick={ () => this.setState( { view: 'grid' } ) }
-							isPrimary={ 'grid' === view }
-							isSecondary={ 'grid' !== view }
-						>
+						<Button isLink onClick={ () => this.setState( { view: 'grid' } ) }>
 							<ViewModuleIcon />
 							<span className="screen-reader-text">{ __( 'Grid view' ) }</span>
 						</Button>
