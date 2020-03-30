@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import ViewStreamIcon from '@material-ui/icons/ViewStream';
+import ViewListIcon from '@material-ui/icons/ViewList';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
 
 /**
@@ -56,7 +56,7 @@ class Dashboard extends Component {
 								)
 							}
 						>
-							<ViewStreamIcon />
+							<ViewListIcon />
 							<span className="screen-reader-text">{ __( 'List view' ) }</span>
 						</Button>
 						<Button
