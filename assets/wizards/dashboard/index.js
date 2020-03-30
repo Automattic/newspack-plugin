@@ -27,6 +27,13 @@ class Dashboard extends Component {
 		view: 'list',
 	};
 
+	componentDidMount = () => {
+		const view = localStorage.getItem( 'newspack-plugin-dashboard-view' );
+		if ( 'list' === view || 'grid' === view ) {
+			this.setState( { view } );
+		}
+	};
+
 	/**
 	 * Render.
 	 */
@@ -41,11 +48,25 @@ class Dashboard extends Component {
 				</div>
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
 					<Card noBackground className="newspack-dashboard-card__views">
-						<Button isLink onClick={ () => this.setState( { view: 'list' } ) }>
+						<Button
+							isLink
+							onClick={ () =>
+								this.setState( { view: 'list' }, () =>
+									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
+								)
+							}
+						>
 							<ViewStreamIcon />
 							<span className="screen-reader-text">{ __( 'List view' ) }</span>
 						</Button>
-						<Button isLink onClick={ () => this.setState( { view: 'grid' } ) }>
+						<Button
+							isLink
+							onClick={ () =>
+								this.setState( { view: 'grid' }, () =>
+									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
+								)
+							}
+						>
 							<ViewModuleIcon />
 							<span className="screen-reader-text">{ __( 'Grid view' ) }</span>
 						</Button>
