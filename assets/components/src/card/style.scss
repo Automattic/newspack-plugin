@@ -21,7 +21,7 @@
 
 	// No Background
 
-	&.newspack-card__no-background {
+	&__no-background {
 		background: none;
 		box-shadow: none;
 		padding: 0;
@@ -29,7 +29,7 @@
 
 	// Buttons Card
 
-	&.newspack-card__buttons-card {
+	&__buttons-card {
 		margin: 24px -8px;
 
 		.newspack-button {
@@ -39,7 +39,7 @@
 
 	// Is Clickable
 
-	&.newspack-card__is-clickable {
+	&__is-clickable {
 		cursor: pointer;
 		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
 

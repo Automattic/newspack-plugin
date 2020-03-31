@@ -127,7 +127,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Web Previews' ) } />
-						<Card noBackground className="newspack-card__buttons-card">
+						<Card noBackground buttonsCard>
 							<WebPreview
 								url="//newspack.blog"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
@@ -223,7 +223,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<Card noBackground className="newspack-card__buttons-card">
+						<Card noBackground buttonsCard>
 							<Handoff
 								modalTitle="Manage AMP"
 								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
@@ -244,7 +244,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<Card noBackground className="newspack-card__buttons-card">
+						<Card noBackground buttonsCard>
 							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
 								{ __( 'Open modal' ) }
 							</Button>
@@ -259,7 +259,7 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<Card noBackground className="newspack-card__buttons-card">
+								<Card noBackground buttonsCard>
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>
@@ -283,7 +283,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
-						<Card noBackground className="newspack-card__buttons-card">
+						<Card noBackground buttonsCard>
 							<Button
 								onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
 								className="is-centered"
@@ -586,13 +586,15 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card className="newspack-components-demo__buttons">
 						<FormattedHeader headerText="Buttons" />
-						<Card noBackground className="newspack-card__buttons-card">
+						<Card noBackground buttonsCard>
 							<Button isPrimary>isPrimary</Button>
 							<Button isDefault>isDefault</Button>
 							<Button isTertiary>isTertiary</Button>
 							<Button isLink>isLink</Button>
-							<hr />
-							<h2>isLarge</h2>
+						</Card>
+						<hr />
+						<h2>isLarge</h2>
+						<Card noBackground buttonsCard>
 							<Button isPrimary isLarge>
 								isPrimary
 							</Button>
@@ -602,8 +604,10 @@ class ComponentsDemo extends Component {
 							<Button isTertiary isLarge>
 								isTertiary
 							</Button>
-							<hr />
-							<h2>isSmall</h2>
+						</Card>
+						<hr />
+						<h2>isSmall</h2>
+						<Card noBackground buttonsCard>
 							<Button isPrimary isSmall>
 								isPrimary
 							</Button>
