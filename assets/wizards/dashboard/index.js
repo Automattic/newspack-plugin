@@ -1,3 +1,5 @@
+/* global newspack_dashboard */
+
 import '../../shared/js/public-path';
 
 /**
@@ -79,4 +81,4 @@ class Dashboard extends Component {
 		);
 	}
 }
-render( <Dashboard items={ newspack_dashboard } />, document.getElementById( 'newspack' ) ); // eslint-disable-line
+render( <Dashboard items={ newspack_dashboard } />, document.getElementById( 'newspack' ) );
