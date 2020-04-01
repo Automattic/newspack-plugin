@@ -54,6 +54,15 @@
 				right: -56px;
 			}
 
+			&:hover,
+			&[aria-expended='true'] {
+				color: $primary-500;
+			}
+
+			&:focus:not( :disabled ) {
+				box-shadow: 0 0 0 2px $primary-500;
+			}
+
 			svg {
 				width: 24px;
 				height: 24px;
