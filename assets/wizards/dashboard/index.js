@@ -61,8 +61,7 @@ class Dashboard extends Component {
 									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
 								)
 							}
-						>
-						</Button>
+						></Button>
 						<Button
 							icon={ <ViewModuleIcon /> }
 							label={ __( 'Grid view' ) }
@@ -74,8 +73,7 @@ class Dashboard extends Component {
 									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
 								)
 							}
-						>
-						</Button>
+						></Button>
 					</Card>
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
