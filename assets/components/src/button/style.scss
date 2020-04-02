@@ -268,5 +268,28 @@ body[class*='admin-color-'] {
 		.components-tooltip {
 			font-weight: normal;
 		}
+
+		// Icon-only
+
+		&.has-icon:not( .has-text ) {
+			align-items: center;
+			height: 40px;
+			justify-content: center;
+			min-width: 40px;
+			padding: 0;
+			width: 40px;
+
+			&.is-small {
+				height: 32px;
+				min-width: 32px;
+				width: 32px;
+			}
+
+			&.is-large {
+				height: 48px;
+				min-width: 48px;
+				width: 48px;
+			}
+		}
 	}
 }
