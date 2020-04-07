@@ -26,25 +26,12 @@
 	}
 
 	.newspack-wizard-pagination__pagination,
-	.newspack-button.is-link {
-		color: inherit;
-		padding: 16px;
+	.newspack-button {
+		margin: 16px;
 	}
 
-	.newspack-button.is-link {
-		&:active,
-		&:active:enabled,
-		&:focus,
-		&:focus:enabled,
-		&:hover,
-		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
-			color: $primary-200;
-		}
-
-		svg {
-			fill: currentColor;
-			margin-right: 4px;
-		}
+	.newspack-wizard-pagination__pagination {
+		font-weight: bold;
 	}
 }
 

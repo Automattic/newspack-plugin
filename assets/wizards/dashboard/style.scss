@@ -8,21 +8,11 @@
 .newspack-grid {
 	margin-bottom: 32px;
 
-	&.view-list {
-		.newspack-button:first-of-type {
-			color: $primary-200;
-		}
-	}
-
 	&.view-grid {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
 		margin-top: -16px;
-
-		.newspack-button:last-of-type {
-			color: $primary-200;
-		}
 
 		.newspack-dashboard-card {
 			width: 100%;
@@ -130,28 +120,32 @@
 	&__views {
 		display: none;
 		margin: 0;
-		padding: 44px 24px;
+		padding: 46px 22px;
 		position: absolute;
 		right: 0;
 		top: 0;
 
 		@media screen and ( min-width: 600px ) {
-			display: block;
+			display: flex;
 		}
+	}
+}
 
-		.newspack-button {
-			height: 40px;
-			justify-content: center;
-			width: 40px;
-			color: white;
+// Views - Buttons
 
-			&:active,
-			&:active:enabled,
-			&:focus,
-			&:focus:enabled,
-			&:hover,
-			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
-				color: $primary-200;
+body[class*='admin-color-'] {
+	.newspack-dashboard-card {
+		&__views {
+			.newspack-button {
+				margin: 2px;
+
+				&.is-primary {
+					pointer-events: none;
+				}
+
+				&.is-link {
+					color: white;
+				}
 			}
 		}
 	}
