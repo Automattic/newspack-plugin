@@ -23,7 +23,7 @@ body.newspack-web-preview__open {
 	z-index: 99999;
 
 	&.phone iframe {
-		max-width: 480px;
+		max-width: 320px;
 	}
 
 	&.tablet iframe {
@@ -53,6 +53,7 @@ body.newspack-web-preview__open {
 	width: 100%;
 
 	iframe {
+		background: #fff;
 		display: block;
 		height: 100%;
 		height: calc( 100% - 65px );

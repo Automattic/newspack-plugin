@@ -23,11 +23,13 @@
     "access": "public"
   },
   "dependencies": {
-    "@wordpress/components": "^7.3.1",
-    "@wordpress/element": "^2.3.0",
     "@material-ui/core": "^4.8.2",
     "@material-ui/icons": "^4.5.1",
     "@wordpress/base-styles": "^1.0.0",
+    "@wordpress/components": "^7.3.1",
+    "@wordpress/element": "^2.3.0",
+    "@wordpress/i18n": "^3.11.0",
+    "classnames": "^2.2.6",
     "react-router-dom": "^5.0.1"
   },
   "devDependencies": {
