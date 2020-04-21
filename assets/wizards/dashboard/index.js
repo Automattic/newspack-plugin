@@ -51,27 +51,29 @@ class Dashboard extends Component {
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
 					<Card noBackground className="newspack-dashboard-card__views">
 						<Button
-							isLink
+							icon={ <ViewListIcon /> }
+							label={ __( 'List view' ) }
+							isPrimary={ 'list' === view }
+							isLink={ 'list' !== view }
+							isSmall
 							onClick={ () =>
 								this.setState( { view: 'list' }, () =>
 									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
 								)
 							}
-						>
-							<ViewListIcon />
-							<span className="screen-reader-text">{ __( 'List view' ) }</span>
-						</Button>
+						></Button>
 						<Button
-							isLink
+							icon={ <ViewModuleIcon /> }
+							label={ __( 'Grid view' ) }
+							isPrimary={ 'grid' === view }
+							isLink={ 'grid' !== view }
+							isSmall
 							onClick={ () =>
 								this.setState( { view: 'grid' }, () =>
 									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
 								)
 							}
-						>
-							<ViewModuleIcon />
-							<span className="screen-reader-text">{ __( 'Grid view' ) }</span>
-						</Button>
+						></Button>
 					</Card>
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
