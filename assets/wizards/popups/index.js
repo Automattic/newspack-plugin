@@ -75,6 +75,52 @@ class PopupsWizard extends Component {
 	};
 
 	/**
+	 * Designate which popup should be the sitewide default.
+	 *
+	 * @param {number} popupId ID of the Popup to become sitewide default.
+	 */
+	setSitewideDefaultPopup = ( popupId, state ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/sitewide-popup/${ popupId }`,
+			method: state ? 'POST' : 'DELETE',
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
+	 * Set categories for a Popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 * @param {Array} categories Array of categories to assign to the Popup.
+	 */
+	setCategoriesForPopup = ( popupId, categories ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-categories/${ popupId }`,
+			method: 'POST',
+			data: {
+				categories,
+			},
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	updatePopup = ( popupId, options ) => {
+		const { setError, wizardApiFetch } = this.props;
+		console.log( options );
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
+			method: 'POST',
+			data: { options },
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
 	 * Sort Pop-ups into categories.
 	 */
 	sortPopups = popups => {
@@ -130,6 +176,9 @@ class PopupsWizard extends Component {
 									items={ overlay }
 									buttonText={ __( 'Add new Overlay Pop-up', 'newspack' ) }
 									buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
+									setSitewideDefaultPopup={ this.setSitewideDefaultPopup }
+									setCategoriesForPopup={ this.setCategoriesForPopup }
+									updatePopup={ this.updatePopup }
 								/>
 							) }
 						/>
@@ -144,6 +193,8 @@ class PopupsWizard extends Component {
 									items={ inline }
 									buttonText={ __( 'Add new Inline Pop-up', 'newspack' ) }
 									buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt?placement=inline"
+									setCategoriesForPopup={ this.setCategoriesForPopup }
+									updatePopup={ this.updatePopup }
 								/>
 							) }
 						/>

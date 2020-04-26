@@ -44,7 +44,7 @@ class PopupGroup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { items = {} } = this.props;
+		const { items = {}, setCategoriesForPopup, setSitewideDefaultPopup, updatePopup } = this.props;
 		const { active = [], test = [], inactive = [] } = items;
 		return (
 			<Fragment>
@@ -59,8 +59,9 @@ class PopupGroup extends Component {
 						}
 						key={ popup.id }
 						popup={ popup }
-						setCategoriesForPopup={ () => null }
-						setSiteWideDefaultPopup={ () => null }
+						setCategoriesForPopup={ setCategoriesForPopup }
+						setSitewideDefaultPopup={ setSitewideDefaultPopup }
+						updatePopup={ updatePopup }
 						description={ this.descriptionForPopup( popup ) }
 						deletePopup={ () => null }
 					/>
@@ -75,8 +76,9 @@ class PopupGroup extends Component {
 						className="newspack-card__is-secondary"
 						key={ popup.id }
 						popup={ popup }
-						setCategoriesForPopup={ () => null }
-						setSiteWideDefaultPopup={ () => null }
+						setCategoriesForPopup={ setCategoriesForPopup }
+						setSitewideDefaultPopup={ setSitewideDefaultPopup }
+						updatePopup={ updatePopup }
 						description={ this.descriptionForPopup( popup ) }
 						deletePopup={ () => null }
 					/>
@@ -92,7 +94,8 @@ class PopupGroup extends Component {
 						key={ popup.id }
 						popup={ popup }
 						setCategoriesForPopup={ () => null }
-						setSiteWideDefaultPopup={ () => null }
+						setSitewideDefaultPopup={ setSitewideDefaultPopup }
+						updatePopup={ updatePopup }
 						description={ this.descriptionForPopup( popup ) }
 						deletePopup={ () => null }
 					/>

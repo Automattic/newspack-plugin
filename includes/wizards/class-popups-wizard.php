@@ -80,6 +80,68 @@ class Popups_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'      => [
+						'sanitize_callback' => 'absint',
+					],
+					'options' => [
+						'validate_callback' => [ $this, 'api_validate_options' ],
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_sitewide_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_unset_sitewide_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/popup-categories/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_popup_categories' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'         => [
+						'sanitize_callback' => 'absint',
+					],
+					'categories' => [
+						'sanitize_callback' => [ $this, 'sanitize_categories' ],
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -136,5 +198,129 @@ class Popups_Wizard extends Wizard {
 			);
 		}
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Set the sitewide default Pop-up
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_set_sitewide_popup( $request ) {
+		$sitewide_default = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->set_sitewide_popup( $sitewide_default );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Unset the sitewide default Pop-up
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_unset_sitewide_popup( $request ) {
+		$sitewide_default = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->unset_sitewide_popup( $sitewide_default );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Set categories for one Popup.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_set_popup_categories( $request ) {
+		$id         = $request['id'];
+		$categories = $request['categories'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->set_popup_categories( $id, $categories );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Set test mode for Pop-up.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_update_popup( $request ) {
+		$id      = $request['id'];
+		$options = $request['options'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->set_popup_options( $id, $options );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * API sanitization and validation functions
+	 */
+
+	/**
+	 * Sanitize array of categories.
+	 *
+	 * @param array $categories Array of categories to sanitize.
+	 * @return array Sanitized array.
+	 */
+	public static function sanitize_categories( $categories ) {
+		$categories = is_array( $categories ) ? $categories : [];
+		$sanitized  = [];
+		foreach ( $categories as $category ) {
+			$category['id']   = isset( $category['id'] ) ? absint( $category['id'] ) : null;
+			$category['name'] = isset( $category['name'] ) ? sanitize_title( $category['name'] ) : null;
+			$sanitized[]      = $category;
+		}
+		return $sanitized;
+	}
+
+	/**
+	 * Validate Pop-up option updates.
+	 *
+	 * @param array $options Array of options to validate.
+	 */
+	public static function api_validate_options( $options ) {
+		foreach ( $options as $key => $value ) {
+			switch ( $key ) {
+				case 'frequency':
+					if ( ! in_array( $value, [ 'test', 'never', 'once', 'daily', 'always' ] ) ) {
+						return false;
+					}
+					break;
+				case 'placement':
+					if ( ! in_array( $value, [ 'center', 'top', 'bottom', 'inline' ] ) ) {
+						return false;
+					}
+					break;
+				default:
+					return false;
+			}
+		}
+		return true;
 	}
 }
