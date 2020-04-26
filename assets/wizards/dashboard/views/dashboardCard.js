@@ -22,6 +22,7 @@ import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WebIcon from '@material-ui/icons/Web';
 import WidgetsIcon from '@material-ui/icons/Widgets';
+import PopupsIcon from '@material-ui/icons/NewReleases';
 
 /**
  * Internal dependencies.
@@ -50,6 +51,7 @@ class DashboardCard extends Component {
 			seo: <SearchIcon />,
 			'health-check': <HealingIcon />,
 			engagement: <ForumIcon />,
+			popups: <PopupsIcon />,
 		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
