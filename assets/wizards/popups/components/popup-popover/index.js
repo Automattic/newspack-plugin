@@ -49,10 +49,7 @@ class PopupPopover extends Component {
 		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options } = popup;
 		const { frequency, placement } = options;
 		return (
-			<Popover
-				position="bottom left"
-				onFocusOutside={ onFocusOutside }
-			>
+			<Popover position="bottom left" onFocusOutside={ onFocusOutside }>
 				{ 'inline' !== placement && (
 					<MenuItem
 						onClick={ () => null }
