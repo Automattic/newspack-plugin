@@ -8,7 +8,7 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { Popover, MenuItem } from '@wordpress/components';
+import { MenuItem } from '@wordpress/components';
 
 /**
  * Material UI dependencies.
@@ -23,7 +23,7 @@ import SitewideDefaultIcon from '@material-ui/icons/Public';
 /**
  * Internal dependencies.
  */
-import { SelectControl, ToggleControl } from '../../../../components/src';
+import { Popover, SelectControl, ToggleControl } from '../../../../components/src';
 import './style.scss';
 
 const frequencyMap = {
@@ -51,7 +51,6 @@ class PopupPopover extends Component {
 		return (
 			<Popover
 				position="bottom left"
-				className="newspack-popover"
 				onFocusOutside={ onFocusOutside }
 			>
 				{ 'inline' !== placement && (
@@ -101,6 +100,7 @@ class PopupPopover extends Component {
 					href={ decodeEntities( editLink ) }
 					icon={ <EditIcon /> }
 					className="newspack-button"
+					isLink
 				>
 					{ __( 'Edit', 'newspack' ) }
 				</MenuItem>
