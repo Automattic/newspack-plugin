@@ -28,7 +28,6 @@ class PopupGroup extends Component {
 	 */
 	descriptionForPopup = ( { categories, sitewide_default: sitewideDefault, options } ) => {
 		const { frequency, placement } = options;
-		console.log( options );
 		if ( sitewideDefault ) {
 			return __( 'Sitewide default', 'newspack' );
 		}

@@ -19,7 +19,6 @@ import PreviewIcon from '@material-ui/icons/Visibility';
 import FrequencyIcon from '@material-ui/icons/Today';
 import TestIcon from '@material-ui/icons/BugReport';
 import SitewideDefaultIcon from '@material-ui/icons/Public';
-import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 
 /**
  * Internal dependencies.
@@ -28,6 +27,7 @@ import {
 	ActionCard,
 	Button,
 	CategoryAutocomplete,
+	SelectControl,
 	ToggleControl,
 } from '../../../../components/src';
 import './style.scss';
@@ -47,14 +47,10 @@ const frequenciesForPopup = ( { options } ) => {
 };
 
 class PopupPopover extends Component {
-	state = {
-		frequencyVisibility: false,
-	};
 	/**
 	 * Render.
 	 */
 	render = () => {
-		const { frequencyVisibility } = this.state;
 		const { deletePopup, popup, setSitewideDefaultPopup, onFocusOutside, updatePopup } = this.props;
 		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options } = popup;
 		const { frequency, placement } = options;
@@ -93,27 +89,17 @@ class PopupPopover extends Component {
 					/>
 				</MenuItem>
 				{ 'test' !== frequency && (
-					<MenuItem
-						icon={ <FrequencyIcon /> }
-						className="newspack-button"
-						onClick={ () => this.setState( { frequencyVisibility: ! frequencyVisibility } ) }
-					>
-						{ frequencyMap[ frequency ] }
-						<KeyboardArrowDown className="newspack-popup-action-card-popover-control" />
-					</MenuItem>
-				) }
-				{ frequencyVisibility &&
-					frequenciesForPopup( popup ).map( ( { label, value } ) => (
-						<MenuItem
-							key={ value }
-							onClick={ () => {
+					<MenuItem icon={ <FrequencyIcon /> } className="newspack-button">
+						<SelectControl
+							onChange={ value => {
 								updatePopup( id, { frequency: value } );
 								onFocusOutside();
 							} }
-						>
-							{ label }
-						</MenuItem>
-					) ) }
+							options={ frequenciesForPopup( popup ) }
+							value={ frequency }
+						/>
+					</MenuItem>
+				) }
 				<MenuItem onClick={ () => null } icon={ <PreviewIcon /> } className="newspack-button">
 					{ __( 'Preview', 'newspack' ) }
 				</MenuItem>
