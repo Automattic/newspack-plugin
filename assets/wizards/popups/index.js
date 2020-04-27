@@ -121,6 +121,21 @@ class PopupsWizard extends Component {
 	};
 
 	/**
+	 * Delete a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	deletePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
+			method: 'DELETE',
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
 	 * Sort Pop-ups into categories.
 	 */
 	sortPopups = popups => {
@@ -158,7 +173,6 @@ class PopupsWizard extends Component {
 
 	render() {
 		const { pluginRequirements } = this.props;
-		console.log( this.state.popups );
 		const { inline, overlay } = this.state.popups;
 		return (
 			<Fragment>
@@ -179,6 +193,7 @@ class PopupsWizard extends Component {
 									setSitewideDefaultPopup={ this.setSitewideDefaultPopup }
 									setCategoriesForPopup={ this.setCategoriesForPopup }
 									updatePopup={ this.updatePopup }
+									deletePopup={ this.deletePopup }
 								/>
 							) }
 						/>
@@ -195,6 +210,7 @@ class PopupsWizard extends Component {
 									buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt?placement=inline"
 									setCategoriesForPopup={ this.setCategoriesForPopup }
 									updatePopup={ this.updatePopup }
+									deletePopup={ this.deletePopup }
 								/>
 							) }
 						/>

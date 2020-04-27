@@ -43,7 +43,7 @@ class PopupGroup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { items = {}, setCategoriesForPopup, setSitewideDefaultPopup, updatePopup } = this.props;
+		const { deletePopup, items = {}, setCategoriesForPopup, setSitewideDefaultPopup, updatePopup } = this.props;
 		const { active = [], test = [], inactive = [] } = items;
 		return (
 			<Fragment>
@@ -56,13 +56,13 @@ class PopupGroup extends Component {
 						className={
 							popup.sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported'
 						}
+						deletePopup={ deletePopup }
+						description={ this.descriptionForPopup( popup ) }
 						key={ popup.id }
 						popup={ popup }
 						setCategoriesForPopup={ setCategoriesForPopup }
 						setSitewideDefaultPopup={ setSitewideDefaultPopup }
 						updatePopup={ updatePopup }
-						description={ this.descriptionForPopup( popup ) }
-						deletePopup={ () => null }
 					/>
 				) ) }
 				<hr />
@@ -73,13 +73,13 @@ class PopupGroup extends Component {
 				{ test.map( popup => (
 					<PopupActionCard
 						className="newspack-card__is-secondary"
+						deletePopup={ deletePopup }
+						description={ this.descriptionForPopup( popup ) }
 						key={ popup.id }
 						popup={ popup }
 						setCategoriesForPopup={ setCategoriesForPopup }
 						setSitewideDefaultPopup={ setSitewideDefaultPopup }
 						updatePopup={ updatePopup }
-						description={ this.descriptionForPopup( popup ) }
-						deletePopup={ () => null }
 					/>
 				) ) }
 				<hr />
@@ -90,13 +90,13 @@ class PopupGroup extends Component {
 				{ inactive.map( popup => (
 					<PopupActionCard
 						className="newspack-card__is-disabled"
+						deletePopup={ deletePopup }
+						description={ this.descriptionForPopup( popup ) }
 						key={ popup.id }
 						popup={ popup }
 						setCategoriesForPopup={ () => null }
 						setSitewideDefaultPopup={ setSitewideDefaultPopup }
 						updatePopup={ updatePopup }
-						description={ this.descriptionForPopup( popup ) }
-						deletePopup={ () => null }
 					/>
 				) ) }
 			</Fragment>

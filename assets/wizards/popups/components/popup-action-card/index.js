@@ -87,6 +87,7 @@ class PopupActionCard extends Component {
 						</Tooltip>
 						{ popoverVisibility && (
 							<PopupPopover
+								deletePopup={ deletePopup }
 								onFocusOutside={ () => this.setState( { popoverVisibility: false } ) }
 								popup={ popup }
 								setSitewideDefaultPopup={ setSitewideDefaultPopup }

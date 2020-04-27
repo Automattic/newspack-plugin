@@ -99,6 +99,20 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_delete_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -273,6 +287,23 @@ class Popups_Wizard extends Wizard {
 		$response = $newspack_popups_configuration_manager->set_popup_options( $id, $options );
 		if ( is_wp_error( $response ) ) {
 			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Delete a Pop-up.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
+	 */
+	public function api_delete_popup( $request ) {
+		$id = $request['id'];
+
+		$popup = get_post( $id );
+		if ( is_a( $popup, 'WP_Post' ) && 'newspack_popups_cpt' === $popup->post_type ) {
+			wp_delete_post( $id );
 		}
 
 		return $this->api_get_settings();
