@@ -19,12 +19,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 /**
  * Internal dependencies.
  */
-import {
-	ActionCard,
-	Button,
-	CategoryAutocomplete,
-	ToggleControl,
-} from '../../../../components/src';
+import { ActionCard, Button, CategoryAutocomplete } from '../../../../components/src';
 import PopupPopover from '../popup-popover';
 import './style.scss';
 
@@ -48,15 +43,7 @@ class PopupActionCard extends Component {
 			setSitewideDefaultPopup,
 			updatePopup,
 		} = this.props;
-		const {
-			id,
-			categories,
-			title,
-			sitewide_default: sitewideDefault,
-			edit_link: editLink,
-			options,
-		} = popup;
-		const { frequency, placement } = options;
+		const { id, categories, title, sitewide_default: sitewideDefault } = popup;
 		return (
 			<ActionCard
 				className={ className }

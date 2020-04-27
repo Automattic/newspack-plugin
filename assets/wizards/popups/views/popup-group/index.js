@@ -20,14 +20,12 @@ import './style.scss';
  */
 
 class PopupGroup extends Component {
-
 	/**
 	 * Construct the appropriate description for a single Pop-up based on categories and sitewide default status.
 	 *
 	 * @param {Object} popup object.
 	 */
-	descriptionForPopup = ( { categories, sitewide_default: sitewideDefault, options } ) => {
-		const { frequency, placement } = options;
+	descriptionForPopup = ( { categories, sitewide_default: sitewideDefault } ) => {
 		if ( sitewideDefault ) {
 			return __( 'Sitewide default', 'newspack' );
 		}
@@ -43,7 +41,13 @@ class PopupGroup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { deletePopup, items = {}, setCategoriesForPopup, setSitewideDefaultPopup, updatePopup } = this.props;
+		const {
+			deletePopup,
+			items = {},
+			setCategoriesForPopup,
+			setSitewideDefaultPopup,
+			updatePopup,
+		} = this.props;
 		const { active = [], test = [], inactive = [] } = items;
 		return (
 			<Fragment>

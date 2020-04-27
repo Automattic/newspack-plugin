@@ -11,6 +11,6 @@ import { withWizardScreen } from '../../../../components/src';
  * Analytics Screen
  */
 
-export default withWizardScreen( ( props ) => {
-	return <p>TK</p>
-});
+export default withWizardScreen( () => {
+	return <p>TK</p>;
+} );

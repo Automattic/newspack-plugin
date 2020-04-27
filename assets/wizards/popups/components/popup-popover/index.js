@@ -23,13 +23,7 @@ import SitewideDefaultIcon from '@material-ui/icons/Public';
 /**
  * Internal dependencies.
  */
-import {
-	ActionCard,
-	Button,
-	CategoryAutocomplete,
-	SelectControl,
-	ToggleControl,
-} from '../../../../components/src';
+import { SelectControl, ToggleControl } from '../../../../components/src';
 import './style.scss';
 
 const frequencyMap = {
