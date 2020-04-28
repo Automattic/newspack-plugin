@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizardScreen } from '../../../../components/src';
+import { SelectControl, withWizardScreen } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import './style.scss';
 
@@ -20,6 +20,12 @@ import './style.scss';
  */
 
 class PopupGroup extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = {
+			filter: 'all',
+		};
+	}
 	/**
 	 * Construct the appropriate description for a single Pop-up based on categories and sitewide default status.
 	 *
@@ -41,6 +47,7 @@ class PopupGroup extends Component {
 	 * Render.
 	 */
 	render() {
+		const { filter } = this.state;
 		const {
 			deletePopup,
 			emptyMessage,
@@ -52,82 +59,104 @@ class PopupGroup extends Component {
 		} = this.props;
 		const { active = [], test = [], inactive = [] } = items;
 		const sections = [];
+		const filterOptions = [];
 		if ( active.length > 0 ) {
-			sections.push(
-				<Fragment>
-					<h3>
-						{ __( 'Active', 'newspack' ) }{' '}
-						<span className="newspack-popups-wizard__group_count">{ active.length }</span>
-					</h3>
-					{ active.map( popup => (
-						<PopupActionCard
-							className={
-								popup.sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported'
-							}
-							deletePopup={ deletePopup }
-							description={ this.descriptionForPopup( popup ) }
-							key={ popup.id }
-							popup={ popup }
-							previewPopup={ previewPopup }
-							setCategoriesForPopup={ setCategoriesForPopup }
-							setSitewideDefaultPopup={ setSitewideDefaultPopup }
-							updatePopup={ updatePopup }
-						/>
-					) ) }
-				</Fragment>
-			);
+			const label = __( 'Active', 'newspack' );
+			( filter === 'all' || filter === 'active' ) &&
+				sections.push(
+					<Fragment>
+						<h3>
+							{ label }{' '}
+							<span className="newspack-popups-wizard__group_count">{ active.length }</span>
+						</h3>
+						{ active.map( popup => (
+							<PopupActionCard
+								className={
+									popup.sitewide_default
+										? 'newspack-card__is-primary'
+										: 'newspack-card__is-supported'
+								}
+								deletePopup={ deletePopup }
+								description={ this.descriptionForPopup( popup ) }
+								key={ popup.id }
+								popup={ popup }
+								previewPopup={ previewPopup }
+								setCategoriesForPopup={ setCategoriesForPopup }
+								setSitewideDefaultPopup={ setSitewideDefaultPopup }
+								updatePopup={ updatePopup }
+							/>
+						) ) }
+					</Fragment>
+				);
+			filterOptions.push( { label, value: 'active' } );
 		}
 		if ( test.length > 0 ) {
-			sections.push(
-				<Fragment>
-					<h3>
-						{ __( 'Test mode', 'newspack' ) }{' '}
-						<span className="newspack-popups-wizard__group_count">{ test.length }</span>
-					</h3>
-					{ test.map( popup => (
-						<PopupActionCard
-							className="newspack-card__is-secondary"
-							deletePopup={ deletePopup }
-							description={ this.descriptionForPopup( popup ) }
-							key={ popup.id }
-							popup={ popup }
-							previewPopup={ previewPopup }
-							setCategoriesForPopup={ setCategoriesForPopup }
-							setSitewideDefaultPopup={ setSitewideDefaultPopup }
-							updatePopup={ updatePopup }
-						/>
-					) ) }
-				</Fragment>
-			);
+			const label = __( 'Test mode', 'newspack' );
+			( filter === 'all' || filter === 'test' ) &&
+				sections.push(
+					<Fragment>
+						<h3>
+							{ label }
+							<span className="newspack-popups-wizard__group_count">{ test.length }</span>
+						</h3>
+						{ test.map( popup => (
+							<PopupActionCard
+								className="newspack-card__is-secondary"
+								deletePopup={ deletePopup }
+								description={ this.descriptionForPopup( popup ) }
+								key={ popup.id }
+								popup={ popup }
+								previewPopup={ previewPopup }
+								setCategoriesForPopup={ setCategoriesForPopup }
+								setSitewideDefaultPopup={ setSitewideDefaultPopup }
+								updatePopup={ updatePopup }
+							/>
+						) ) }
+					</Fragment>
+				);
+			filterOptions.push( { label, value: 'test' } );
 		}
 		if ( inactive.length > 0 ) {
-			sections.push(
-				<Fragment>
-					<h3>
-						{ __( 'Inactive', 'newspack' ) }{' '}
-						<span className="newspack-popups-wizard__group_count">{ inactive.length }</span>
-					</h3>
-					{ inactive.map( popup => (
-						<PopupActionCard
-							className="newspack-card__is-disabled"
-							deletePopup={ deletePopup }
-							description={ this.descriptionForPopup( popup ) }
-							key={ popup.id }
-							popup={ popup }
-							previewPopup={ previewPopup }
-							setCategoriesForPopup={ () => null }
-							setSitewideDefaultPopup={ setSitewideDefaultPopup }
-							updatePopup={ updatePopup }
-						/>
-					) ) }
-				</Fragment>
-			);
+			const label = __( 'Inactive', 'newspack' );
+			( filter === 'all' || filter === 'inactive' ) &&
+				sections.push(
+					<Fragment>
+						<h3>
+							{ __( 'Inactive', 'newspack' ) }{' '}
+							<span className="newspack-popups-wizard__group_count">{ inactive.length }</span>
+						</h3>
+						{ inactive.map( popup => (
+							<PopupActionCard
+								className="newspack-card__is-disabled"
+								deletePopup={ deletePopup }
+								description={ this.descriptionForPopup( popup ) }
+								key={ popup.id }
+								popup={ popup }
+								previewPopup={ previewPopup }
+								setCategoriesForPopup={ () => null }
+								setSitewideDefaultPopup={ setSitewideDefaultPopup }
+								updatePopup={ updatePopup }
+							/>
+						) ) }
+					</Fragment>
+				);
+			filterOptions.push( { label, value: 'inactive' } );
 		}
 		return sections.length > 0 ? (
-			sections.reduce(
-				( acc, item, index ) => [ ...acc, item, index < sections.length - 1 && <hr /> ],
-				[]
-			)
+			<Fragment>
+				{ filterOptions.length > 0 && (
+					<SelectControl
+						options={ [ { label: __( 'All', 'newspack' ), value: 'all' }, ...filterOptions ] }
+						value={ filter }
+						onChange={ value => this.setState( { filter: value } ) }
+					/>
+				) }
+
+				{ sections.reduce(
+					( acc, item, index ) => [ ...acc, item, index < sections.length - 1 && <hr /> ],
+					[]
+				) }
+			</Fragment>
 		) : (
 			<p>{ emptyMessage }</p>
 		);
