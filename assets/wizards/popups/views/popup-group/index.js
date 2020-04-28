@@ -43,67 +43,89 @@ class PopupGroup extends Component {
 	render() {
 		const {
 			deletePopup,
+			emptyMessage,
 			items = {},
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
 			updatePopup,
 		} = this.props;
 		const { active = [], test = [], inactive = [] } = items;
-		return (
-			<Fragment>
-				<h3>
-					{ __( 'Active', 'newspack' ) }{' '}
-					<span className="newspack-popups-wizard__group_count">{ active.length }</span>
-				</h3>
-				{ active.map( popup => (
-					<PopupActionCard
-						className={
-							popup.sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported'
-						}
-						deletePopup={ deletePopup }
-						description={ this.descriptionForPopup( popup ) }
-						key={ popup.id }
-						popup={ popup }
-						setCategoriesForPopup={ setCategoriesForPopup }
-						setSitewideDefaultPopup={ setSitewideDefaultPopup }
-						updatePopup={ updatePopup }
-					/>
-				) ) }
-				<hr />
-				<h3>
-					{ __( 'Test mode', 'newspack' ) }{' '}
-					<span className="newspack-popups-wizard__group_count">{ test.length }</span>
-				</h3>
-				{ test.map( popup => (
-					<PopupActionCard
-						className="newspack-card__is-secondary"
-						deletePopup={ deletePopup }
-						description={ this.descriptionForPopup( popup ) }
-						key={ popup.id }
-						popup={ popup }
-						setCategoriesForPopup={ setCategoriesForPopup }
-						setSitewideDefaultPopup={ setSitewideDefaultPopup }
-						updatePopup={ updatePopup }
-					/>
-				) ) }
-				<hr />
-				<h3>
-					{ __( 'Inactive', 'newspack' ) }{' '}
-					<span className="newspack-popups-wizard__group_count">{ inactive.length }</span>
-				</h3>
-				{ inactive.map( popup => (
-					<PopupActionCard
-						className="newspack-card__is-disabled"
-						deletePopup={ deletePopup }
-						description={ this.descriptionForPopup( popup ) }
-						key={ popup.id }
-						popup={ popup }
-						setCategoriesForPopup={ () => null }
-						setSitewideDefaultPopup={ setSitewideDefaultPopup }
-						updatePopup={ updatePopup }
-					/>
-				) ) }
-			</Fragment>
+		const sections = [];
+		if ( active.length > 0 ) {
+			sections.push(
+				<Fragment>
+					<h3>
+						{ __( 'Active', 'newspack' ) }{' '}
+						<span className="newspack-popups-wizard__group_count">{ active.length }</span>
+					</h3>
+					{ active.map( popup => (
+						<PopupActionCard
+							className={
+								popup.sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported'
+							}
+							deletePopup={ deletePopup }
+							description={ this.descriptionForPopup( popup ) }
+							key={ popup.id }
+							popup={ popup }
+							setCategoriesForPopup={ setCategoriesForPopup }
+							setSitewideDefaultPopup={ setSitewideDefaultPopup }
+							updatePopup={ updatePopup }
+						/>
+					) ) }
+				</Fragment>
+			);
+		}
+		if ( test.length > 0 ) {
+			sections.push(
+				<Fragment>
+					<h3>
+						{ __( 'Test mode', 'newspack' ) }{' '}
+						<span className="newspack-popups-wizard__group_count">{ test.length }</span>
+					</h3>
+					{ test.map( popup => (
+						<PopupActionCard
+							className="newspack-card__is-secondary"
+							deletePopup={ deletePopup }
+							description={ this.descriptionForPopup( popup ) }
+							key={ popup.id }
+							popup={ popup }
+							setCategoriesForPopup={ setCategoriesForPopup }
+							setSitewideDefaultPopup={ setSitewideDefaultPopup }
+							updatePopup={ updatePopup }
+						/>
+					) ) }
+				</Fragment>
+			);
+		}
+		if ( inactive.length > 0 ) {
+			sections.push(
+				<Fragment>
+					<h3>
+						{ __( 'Inactive', 'newspack' ) }{' '}
+						<span className="newspack-popups-wizard__group_count">{ inactive.length }</span>
+					</h3>
+					{ inactive.map( popup => (
+						<PopupActionCard
+							className="newspack-card__is-disabled"
+							deletePopup={ deletePopup }
+							description={ this.descriptionForPopup( popup ) }
+							key={ popup.id }
+							popup={ popup }
+							setCategoriesForPopup={ () => null }
+							setSitewideDefaultPopup={ setSitewideDefaultPopup }
+							updatePopup={ updatePopup }
+						/>
+					) ) }
+				</Fragment>
+			);
+		}
+		return sections.length > 0 ? (
+			sections.reduce(
+				( acc, item, index ) => [ ...acc, item, index < sections.length - 1 && <hr /> ],
+				[]
+			)
+		) : (
+			<p>{ emptyMessage }</p>
 		);
 	}
 }

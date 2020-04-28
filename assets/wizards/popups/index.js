@@ -194,6 +194,7 @@ class PopupsWizard extends Component {
 									setCategoriesForPopup={ this.setCategoriesForPopup }
 									updatePopup={ this.updatePopup }
 									deletePopup={ this.deletePopup }
+									emptyMessage={ __( 'No Overlay Pop-ups have been created yet.', 'newspack' ) }
 								/>
 							) }
 						/>
@@ -211,6 +212,7 @@ class PopupsWizard extends Component {
 									setCategoriesForPopup={ this.setCategoriesForPopup }
 									updatePopup={ this.updatePopup }
 									deletePopup={ this.deletePopup }
+									emptyMessage={ __( 'No Inline Pop-ups have been created yet.', 'newspack' ) }
 								/>
 							) }
 						/>
