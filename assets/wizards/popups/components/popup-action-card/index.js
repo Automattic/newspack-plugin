@@ -39,6 +39,7 @@ class PopupActionCard extends Component {
 			description,
 			deletePopup,
 			popup,
+			previewPopup,
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
 			updatePopup,
@@ -79,6 +80,7 @@ class PopupActionCard extends Component {
 								popup={ popup }
 								setSitewideDefaultPopup={ setSitewideDefaultPopup }
 								updatePopup={ updatePopup }
+								previewPopup={ previewPopup }
 							/>
 						) }
 					</Fragment>

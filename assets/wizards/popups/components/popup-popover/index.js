@@ -45,7 +45,14 @@ class PopupPopover extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { deletePopup, popup, setSitewideDefaultPopup, onFocusOutside, updatePopup } = this.props;
+		const {
+			deletePopup,
+			popup,
+			previewPopup,
+			setSitewideDefaultPopup,
+			onFocusOutside,
+			updatePopup,
+		} = this.props;
 		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options } = popup;
 		const { frequency, placement } = options;
 		return (
@@ -90,7 +97,14 @@ class PopupPopover extends Component {
 						/>
 					</MenuItem>
 				) }
-				<MenuItem onClick={ () => null } icon={ <PreviewIcon /> } className="newspack-button">
+				<MenuItem
+					onClick={ () => {
+						onFocusOutside();
+						previewPopup( popup );
+					} }
+					icon={ <PreviewIcon /> }
+					className="newspack-button"
+				>
 					{ __( 'Preview', 'newspack' ) }
 				</MenuItem>
 				<MenuItem

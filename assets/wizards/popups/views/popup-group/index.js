@@ -45,6 +45,7 @@ class PopupGroup extends Component {
 			deletePopup,
 			emptyMessage,
 			items = {},
+			previewPopup,
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
 			updatePopup,
@@ -67,6 +68,7 @@ class PopupGroup extends Component {
 							description={ this.descriptionForPopup( popup ) }
 							key={ popup.id }
 							popup={ popup }
+							previewPopup={ previewPopup }
 							setCategoriesForPopup={ setCategoriesForPopup }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
@@ -89,6 +91,7 @@ class PopupGroup extends Component {
 							description={ this.descriptionForPopup( popup ) }
 							key={ popup.id }
 							popup={ popup }
+							previewPopup={ previewPopup }
 							setCategoriesForPopup={ setCategoriesForPopup }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
@@ -111,6 +114,7 @@ class PopupGroup extends Component {
 							description={ this.descriptionForPopup( popup ) }
 							key={ popup.id }
 							popup={ popup }
+							previewPopup={ previewPopup }
 							setCategoriesForPopup={ () => null }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
