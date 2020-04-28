@@ -65,10 +65,10 @@ class PopupGroup extends Component {
 			( filter === 'all' || filter === 'active' ) &&
 				sections.push(
 					<Fragment>
-						<h3>
+						<h2 className="newspack-popups-wizard__group-type">
 							{ label }{' '}
-							<span className="newspack-popups-wizard__group_count">{ active.length }</span>
-						</h3>
+							<span className="newspack-popups-wizard__group-count">{ active.length }</span>
+						</h2>
 						{ active.map( popup => (
 							<PopupActionCard
 								className={
@@ -95,10 +95,10 @@ class PopupGroup extends Component {
 			( filter === 'all' || filter === 'test' ) &&
 				sections.push(
 					<Fragment>
-						<h3>
+						<h2 className="newspack-popups-wizard__group-type">
 							{ label }
-							<span className="newspack-popups-wizard__group_count">{ test.length }</span>
-						</h3>
+							<span className="newspack-popups-wizard__group-count">{ test.length }</span>
+						</h2>
 						{ test.map( popup => (
 							<PopupActionCard
 								className="newspack-card__is-secondary"
@@ -121,10 +121,10 @@ class PopupGroup extends Component {
 			( filter === 'all' || filter === 'inactive' ) &&
 				sections.push(
 					<Fragment>
-						<h3>
+						<h2 className="newspack-popups-wizard__group-type">
 							{ __( 'Inactive', 'newspack' ) }{' '}
-							<span className="newspack-popups-wizard__group_count">{ inactive.length }</span>
-						</h3>
+							<span className="newspack-popups-wizard__group-count">{ inactive.length }</span>
+						</h2>
 						{ inactive.map( popup => (
 							<PopupActionCard
 								className="newspack-card__is-disabled"

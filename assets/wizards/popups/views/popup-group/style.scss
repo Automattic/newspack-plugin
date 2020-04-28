@@ -1,15 +1,22 @@
 @import '~@wordpress/base-styles/colors';
 
-.newspack-popups-wizard__group_count {
-	border: 1px solid $light-gray-500;
-	background: $light-gray-300;
-	border-radius: 50%;
-	display: inline-block;
-	flex: 0 0 auto;
-	font-size: 12px;
-	font-weight: bold;
-	line-height: 16px;
-	margin: 0 4px;
-	padding: 0 4px;
-	text-transform: uppercase;
+.newspack-popups-wizard {
+	&__group-type {
+		align-items: center;
+		display: flex;
+	}
+
+	&__group-count {
+		border: 1px solid $light-gray-500;
+		border-radius: 12px;
+		display: block;
+		flex: 0 0 auto;
+		font-size: 12px;
+		font-weight: bold;
+		line-height: 16px;
+		margin: 3px 8px;
+		min-width: 8px;
+		padding: 0 4px;
+		text-align: center;
+	}
 }
