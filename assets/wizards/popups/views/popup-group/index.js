@@ -149,6 +149,8 @@ class PopupGroup extends Component {
 						options={ [ { label: __( 'All', 'newspack' ), value: 'all' }, ...filterOptions ] }
 						value={ filter }
 						onChange={ value => this.setState( { filter: value } ) }
+						label={ __( 'Filter:', 'newspack' ) }
+						className="newspack-popups-wizard__group-select"
 					/>
 				) }
 

@@ -1,22 +1,74 @@
+/**
+ * Popup group
+ */
+
+@import '../../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
-.newspack-popups-wizard {
-	&__group-type {
-		align-items: center;
-		display: flex;
-	}
+.newspack-card {
+	.newspack-popups-wizard {
+		&__group-select {
+			border-bottom: 1px solid $light-gray-500;
+			margin-left: -48px;
+			margin-top: 0;
+			padding: 0 16px 16px;
+			width: calc( 100% + 64px );
 
-	&__group-count {
-		border: 1px solid $light-gray-500;
-		border-radius: 12px;
-		display: block;
-		flex: 0 0 auto;
-		font-size: 12px;
-		font-weight: bold;
-		line-height: 16px;
-		margin: 3px 8px;
-		min-width: 8px;
-		padding: 0 4px;
-		text-align: center;
+			@media screen and ( min-width: 744px ) {
+				border-bottom: 0;
+				float: right;
+				margin: 32px 0 16px;
+				padding: 0;
+				width: auto;
+			}
+
+			.components-base-control__field {
+				align-items: center;
+				display: flex;
+			}
+
+			.components-base-control__label {
+				margin-right: 4px;
+			}
+
+			select {
+				background-position: right;
+				border: 0;
+				border-radius: 1px;
+				display: block;
+				height: 24px;
+				min-height: 24px;
+				padding: 0 24px 0 0;
+
+				&:focus {
+					box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
+				}
+			}
+		}
+
+		&__group-type {
+			align-items: center;
+			display: flex;
+
+			margin-bottom: 16px;
+
+			+ .newspack-action-card {
+				margin-top: 16px;
+			}
+		}
+
+		&__group-count {
+			border: 1px solid $light-gray-500;
+			border-radius: 12px;
+			display: block;
+			flex: 0 0 auto;
+			font-size: 12px;
+			font-weight: bold;
+			line-height: 16px;
+			margin: 3px 8px;
+			min-width: 8px;
+			padding: 0 4px;
+			text-align: center;
+		}
 	}
 }
