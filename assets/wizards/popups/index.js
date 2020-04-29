@@ -227,7 +227,7 @@ class PopupsWizard extends Component {
 											tabbedNavigation={ tabbedNavigation }
 											items={ inline }
 											buttonText={ __( 'Add new Inline Pop-up', 'newspack' ) }
-											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt?placement=inline"
+											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
 											setCategoriesForPopup={ this.setCategoriesForPopup }
 											updatePopup={ this.updatePopup }
 											deletePopup={ this.deletePopup }
