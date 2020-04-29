@@ -59,7 +59,10 @@ class PopupPopover extends Component {
 			<Popover position="bottom left" onFocusOutside={ onFocusOutside }>
 				{ 'inline' !== placement && (
 					<MenuItem
-						onClick={ () => null }
+						onClick={ () => {
+							setSitewideDefaultPopup( id, ! sitewideDefault );
+							onFocusOutside();
+						} }
 						icon={ <SitewideDefaultIcon /> }
 						className="newspack-button"
 					>
@@ -74,7 +77,14 @@ class PopupPopover extends Component {
 						/>
 					</MenuItem>
 				) }
-				<MenuItem onClick={ () => null } icon={ <TestIcon /> } className="newspack-button">
+				<MenuItem
+					onClick={ () => {
+						updatePopup( id, { frequency: 'test' === frequency ? 'daily' : 'test' } );
+						onFocusOutside();
+					} }
+					icon={ <TestIcon /> }
+					className="newspack-button"
+				>
 					{ __( 'Test mode', 'newspack' ) }
 					<ToggleControl
 						className="newspack-popup-action-card-popover-control"
