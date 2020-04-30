@@ -20,7 +20,7 @@ import HeaderIcon from '@material-ui/icons/NewReleases';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { PopupGroup, Analytics } from './views';
+import { PopupGroup } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -36,11 +36,6 @@ const tabbedNavigation = [
 	{
 		label: __( 'Inline', 'newpack' ),
 		path: '/inline',
-		exact: true,
-	},
-	{
-		label: __( 'Analytics', 'newpack' ),
-		path: '/analytics',
 		exact: true,
 	},
 ];
@@ -237,17 +232,6 @@ class PopupsWizard extends Component {
 													showPreview()
 												)
 											}
-										/>
-									) }
-								/>
-								<Route
-									path="/analytics"
-									render={ () => (
-										<Analytics
-											headerIcon={ <HeaderIcon /> }
-											headerText={ headerText }
-											subHeaderText={ subHeaderText }
-											tabbedNavigation={ tabbedNavigation }
 										/>
 									) }
 								/>
