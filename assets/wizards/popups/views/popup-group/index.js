@@ -64,7 +64,7 @@ class PopupGroup extends Component {
 			const label = __( 'Active', 'newspack' );
 			if ( filter === 'all' || filter === 'active' ) {
 				sections.push(
-					<Fragment>
+					<Fragment key="active">
 						<h2 className="newspack-popups-wizard__group-type">
 							{ label }{' '}
 							<span className="newspack-popups-wizard__group-count">{ active.length }</span>
@@ -95,7 +95,7 @@ class PopupGroup extends Component {
 			const label = __( 'Test mode', 'newspack' );
 			if ( filter === 'all' || filter === 'test' ) {
 				sections.push(
-					<Fragment>
+					<Fragment key="test">
 						<h2 className="newspack-popups-wizard__group-type">
 							{ label }
 							<span className="newspack-popups-wizard__group-count">{ test.length }</span>
@@ -122,7 +122,7 @@ class PopupGroup extends Component {
 			const label = __( 'Inactive', 'newspack' );
 			if ( filter === 'all' || filter === 'inactive' ) {
 				sections.push(
-					<Fragment>
+					<Fragment key="inactive">
 						<h2 className="newspack-popups-wizard__group-type">
 							{ __( 'Inactive', 'newspack' ) }{' '}
 							<span className="newspack-popups-wizard__group-count">{ inactive.length }</span>
@@ -158,7 +158,11 @@ class PopupGroup extends Component {
 				) }
 
 				{ sections.reduce(
-					( acc, item, index ) => [ ...acc, item, index < sections.length - 1 && <hr /> ],
+					( acc, item, index ) => [
+						...acc,
+						item,
+						index < sections.length - 1 && <hr key={ index } />,
+					],
 					[]
 				) }
 			</Fragment>
