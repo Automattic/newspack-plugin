@@ -273,7 +273,7 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
-	 * Set test mode for Pop-up.
+	 * Update settings for a Pop-up.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with the info.
