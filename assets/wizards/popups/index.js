@@ -179,61 +179,54 @@ class PopupsWizard extends Component {
 		return (
 			<WebPreview
 				url={ previewUrl }
-				renderButton={ ( { showPreview } ) => (
-					<HashRouter hashType="slash">
-						<Switch>
-							{ pluginRequirements }
-							<Route
-								path="/overlay"
-								render={ () => (
-									<PopupGroup
-										headerIcon={ <HeaderIcon /> }
-										headerText={ headerText }
-										subHeaderText={ subHeaderText }
-										tabbedNavigation={ tabbedNavigation }
-										items={ overlay }
-										buttonText={ __( 'Add new Overlay Pop-up', 'newspack' ) }
-										buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
-										setSitewideDefaultPopup={ this.setSitewideDefaultPopup }
-										setCategoriesForPopup={ this.setCategoriesForPopup }
-										updatePopup={ this.updatePopup }
-										deletePopup={ this.deletePopup }
-										emptyMessage={ __( 'No Overlay Pop-ups have been created yet.', 'newspack' ) }
-										previewPopup={ popup =>
-											this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
-												showPreview()
-											)
-										}
-									/>
-								) }
-							/>
-							<Route
-								path="/inline"
-								render={ () => (
-									<PopupGroup
-										headerIcon={ <HeaderIcon /> }
-										headerText={ headerText }
-										subHeaderText={ subHeaderText }
-										tabbedNavigation={ tabbedNavigation }
-										items={ inline }
-										buttonText={ __( 'Add new Inline Pop-up', 'newspack' ) }
-										buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
-										setCategoriesForPopup={ this.setCategoriesForPopup }
-										updatePopup={ this.updatePopup }
-										deletePopup={ this.deletePopup }
-										emptyMessage={ __( 'No Inline Pop-ups have been created yet.', 'newspack' ) }
-										previewPopup={ popup =>
-											this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
-												showPreview()
-											)
-										}
-									/>
-								) }
-							/>
-							<Redirect to="/overlay" />
-						</Switch>
-					</HashRouter>
-				) }
+				renderButton={ ( { showPreview } ) => {
+					const sharedProps = {
+						headerIcon: <HeaderIcon />,
+						headerText,
+						subHeaderText,
+						tabbedNavigation,
+						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
+						setCategoriesForPopup: this.setCategoriesForPopup,
+						updatePopup: this.updatePopup,
+						deletePopup: this.deletePopup,
+						previewPopup: popup =>
+							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
+								showPreview()
+							),
+					};
+					return (
+						<HashRouter hashType="slash">
+							<Switch>
+								{ pluginRequirements }
+								<Route
+									path="/overlay"
+									render={ () => (
+										<PopupGroup
+											{ ...sharedProps }
+											items={ overlay }
+											buttonText={ __( 'Add new Overlay Pop-up', 'newspack' ) }
+											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
+											emptyMessage={ __( 'No Overlay Pop-ups have been created yet.', 'newspack' ) }
+										/>
+									) }
+								/>
+								<Route
+									path="/inline"
+									render={ () => (
+										<PopupGroup
+											{ ...sharedProps }
+											items={ inline }
+											buttonText={ __( 'Add new Inline Pop-up', 'newspack' ) }
+											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
+											emptyMessage={ __( 'No Inline Pop-ups have been created yet.', 'newspack' ) }
+										/>
+									) }
+								/>
+								<Redirect to="/overlay" />
+							</Switch>
+						</HashRouter>
+					);
+				} }
 			/>
 		);
 	}
