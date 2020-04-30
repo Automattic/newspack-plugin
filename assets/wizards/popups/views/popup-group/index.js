@@ -62,7 +62,7 @@ class PopupGroup extends Component {
 		const filterOptions = [];
 		if ( active.length > 0 ) {
 			const label = __( 'Active', 'newspack' );
-			( filter === 'all' || filter === 'active' ) &&
+			if ( filter === 'all' || filter === 'active' ) {
 				sections.push(
 					<Fragment>
 						<h2 className="newspack-popups-wizard__group-type">
@@ -88,11 +88,12 @@ class PopupGroup extends Component {
 						) ) }
 					</Fragment>
 				);
+			}
 			filterOptions.push( { label, value: 'active' } );
 		}
 		if ( test.length > 0 ) {
 			const label = __( 'Test mode', 'newspack' );
-			( filter === 'all' || filter === 'test' ) &&
+			if ( filter === 'all' || filter === 'test' ) {
 				sections.push(
 					<Fragment>
 						<h2 className="newspack-popups-wizard__group-type">
@@ -114,11 +115,12 @@ class PopupGroup extends Component {
 						) ) }
 					</Fragment>
 				);
+			}
 			filterOptions.push( { label, value: 'test' } );
 		}
 		if ( inactive.length > 0 ) {
 			const label = __( 'Inactive', 'newspack' );
-			( filter === 'all' || filter === 'inactive' ) &&
+			if ( filter === 'all' || filter === 'inactive' ) {
 				sections.push(
 					<Fragment>
 						<h2 className="newspack-popups-wizard__group-type">
@@ -140,6 +142,7 @@ class PopupGroup extends Component {
 						) ) }
 					</Fragment>
 				);
+			}
 			filterOptions.push( { label, value: 'inactive' } );
 		}
 		return sections.length > 0 ? (
