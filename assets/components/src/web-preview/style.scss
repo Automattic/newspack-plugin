@@ -48,7 +48,7 @@ body.newspack-web-preview__open {
 
 .newspack-web-preview__content {
 	background: $light-gray-100;
-	height: calc( 100% - 64px );
+	height: calc( 100% - 57px );
 	-webkit-overflow-scrolling: touch;
 	overflow-x: hidden;
 	width: 100%;
@@ -82,12 +82,12 @@ body.newspack-web-preview__open {
 	border-bottom: 1px solid $light-gray-500;
 	display: flex;
 
-	.newspack-button {
-		height: 48px;
+	.newspack-button.components-button {
+		height: 40px;
 		justify-content: center;
 		margin: 8px;
 		padding: 0;
-		width: 48px;
+		width: 40px;
 	}
 }
 
@@ -104,7 +104,7 @@ body.newspack-web-preview__open {
 			}
 
 			&.is-phone {
-				margin-left: -4px;
+				margin-left: 0;
 			}
 		}
 
@@ -114,7 +114,7 @@ body.newspack-web-preview__open {
 			}
 
 			&.is-tablet {
-				margin-left: -4px;
+				margin-left: 0;
 			}
 		}
 	}
