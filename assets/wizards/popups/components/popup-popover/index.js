@@ -75,10 +75,7 @@ class PopupPopover extends Component {
 						<ToggleControl
 							className="newspack-popup-action-card-popover-control"
 							checked={ sitewideDefault }
-							onChange={ value => {
-								setSitewideDefaultPopup( id, value );
-								onFocusOutside();
-							} }
+							onChange={ () => null }
 						/>
 					</MenuItem>
 				) }
@@ -94,10 +91,7 @@ class PopupPopover extends Component {
 					<ToggleControl
 						className="newspack-popup-action-card-popover-control"
 						checked={ 'test' === frequency }
-						onChange={ value => {
-							updatePopup( id, { frequency: value ? 'test' : 'daily' } );
-							onFocusOutside();
-						} }
+						onChange={ () => null }
 					/>
 				</MenuItem>
 				{ 'test' !== frequency && (
