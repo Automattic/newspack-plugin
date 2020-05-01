@@ -43,6 +43,14 @@
 		}
 	}
 
+	// Focus
+
+	.components-form-toggle__input:focus {
+		+ .components-form-toggle__track {
+			box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
+		}
+	}
+
 	// Reset
 
 	.components-base-control__help {

@@ -80,6 +80,18 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Set Popup options/
+	 *
+	 * @param integer $id ID of sitewide popup.
+	 * @param array   $options Array of categories to be set.
+	 */
+	public function set_popup_options( $id, $options ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Model::set_popup_options( $id, $options ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.
