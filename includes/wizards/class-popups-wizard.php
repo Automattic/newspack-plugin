@@ -38,6 +38,7 @@ class Popups_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_action( 'current_screen', [ $this, 'redirect_popups_screen' ] );
 	}
 
 	/**
@@ -353,5 +354,17 @@ class Popups_Wizard extends Wizard {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Redirect Pop-ups list page to Newspack Plugin UI.
+	 */
+	public static function redirect_popups_screen() {
+		$screen = get_current_screen();
+		if ( $screen && 'edit-newspack_popups_cpt' === $screen->id && 'active' === Plugin_Manager::get_managed_plugins()['newspack-popups']['Status'] ) {
+			$popups_url = admin_url( 'admin.php?page=newspack-popups-wizard' );
+			wp_safe_redirect( esc_url( $popups_url ) );
+			exit;
+		}
 	}
 }
