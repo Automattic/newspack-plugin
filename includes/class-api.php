@@ -9,6 +9,7 @@ namespace Newspack;
 
 use Newspack\Api\Plugins_Controller;
 use Newspack\Api\Wizards_Controller;
+use Newspack\Api\Popups_Analytics_Controller;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,12 +24,16 @@ class API {
 	public function __construct() {
 		include_once 'api/class-plugins-controller.php';
 		include_once 'api/class-wizards-controller.php';
+		include_once 'api/class-popups-analytics-controller.php';
 
 		$plugins_api = new Plugins_Controller();
 		add_action( 'rest_api_init', [ $plugins_api, 'register_routes' ] );
 
 		$wizards_api = new Wizards_Controller();
 		add_action( 'rest_api_init', [ $wizards_api, 'register_routes' ] );
+
+		$popup_analytics_api = new Popups_Analytics_Controller();
+		add_action( 'rest_api_init', [ $popup_analytics_api, 'register_routes' ] );
 	}
 }
 new API();

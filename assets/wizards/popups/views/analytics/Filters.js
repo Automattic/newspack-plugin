@@ -1,0 +1,36 @@
+/**
+ * WordPress dependencies.
+ */
+import { __ } from '@wordpress/i18n';
+import { SelectControl } from '@wordpress/components';
+
+import { OFFSETS } from './consts';
+
+const Info = ( { state, labelFilters, eventActionFilters, onChange, disabled } ) => {
+	return (
+		<div className="pa__filters">
+			<div className="pa__filters__group">
+				<SelectControl
+					options={ [ { label: __( 'All Campaigns' ), value: '' }, ...labelFilters ] }
+					onChange={ onChange( 'SET_EVENT_LABEL_FILTER' ) }
+					value={ state.event_label_id }
+					disabled={ disabled }
+				/>
+				<SelectControl
+					options={ [ { label: __( 'All Events' ), value: '' }, ...eventActionFilters ] }
+					onChange={ onChange( 'SET_EVENT_ACTION_FILTER' ) }
+					value={ state.event_action }
+					disabled={ disabled }
+				/>
+			</div>
+			<SelectControl
+				options={ OFFSETS }
+				onChange={ onChange( 'SET_OFFSET_FILTER' ) }
+				value={ state.offset }
+				disabled={ disabled }
+			/>
+		</div>
+	);
+};
+
+export default Info;
