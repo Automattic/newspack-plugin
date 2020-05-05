@@ -70,10 +70,76 @@ class Analytics_Wizard extends Wizard {
 	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
-	public function register_api_endpoints() {}
+	public function register_api_endpoints() {
+		// Get info.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug,
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_fetch' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Save info.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug,
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'eventsEnabled'         => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'activeEventCategories' => [
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+				],
+			]
+		);
+	}
 
 	/**
-	 * Enqueue Subscriptions Wizard scripts and styles.
+	 * Get wizard info.
+	 */
+	public function api_fetch() {
+		return \rest_ensure_response( 
+			[
+				'eventsEnabled'   => Analytics::events_enabled(),
+				'eventCategories' => array_values( Analytics::get_event_categories() ),
+			] 
+		);
+	}
+
+	/**
+	 * Update wizard info.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 */
+	public function api_update( $request ) {
+		$enabled = $request['eventsEnabled'];
+		if ( $enabled ) {
+			Analytics::enable_events();
+		} else {
+			Analytics::disable_events();
+		}
+
+		foreach ( $request['eventCategories'] as $event_category ) {
+			if ( $event_category['active'] ) {
+				Analytics::enable_event_category( $event_category['name'] );
+			} else {
+				Analytics::disable_event_category( $event_category['name'] );
+			}
+		}
+
+		return $this->api_fetch();
+	}
+
+	/**
+	 * Enqueue Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();
