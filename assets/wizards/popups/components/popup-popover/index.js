@@ -18,6 +18,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PreviewIcon from '@material-ui/icons/Visibility';
 import FrequencyIcon from '@material-ui/icons/Today';
+import PublishIcon from '@material-ui/icons/Publish';
 import TestIcon from '@material-ui/icons/BugReport';
 import SitewideDefaultIcon from '@material-ui/icons/Public';
 
@@ -52,6 +53,7 @@ class PopupPopover extends Component {
 			previewPopup,
 			setSitewideDefaultPopup,
 			onFocusOutside,
+			publishPopup,
 			updatePopup,
 		} = this.props;
 		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options } = popup;
@@ -124,6 +126,15 @@ class PopupPopover extends Component {
 				>
 					{ __( 'Edit', 'newspack' ) }
 				</MenuItem>
+				{ publishPopup && (
+					<MenuItem
+						onClick={ () => publishPopup( id ) }
+						icon={ <PublishIcon /> }
+						className="newspack-button"
+					>
+						{ __( 'Publish', 'newspack' ) }
+					</MenuItem>
+				) }
 				<MenuItem
 					onClick={ () => deletePopup( id ) }
 					icon={ <DeleteIcon /> }

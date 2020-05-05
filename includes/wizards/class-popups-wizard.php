@@ -156,6 +156,23 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)/publish',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_publish_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'      => [
+						'sanitize_callback' => 'absint',
+					],
+					'options' => [
+						'validate_callback' => [ $this, 'api_validate_options' ],
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -208,7 +225,7 @@ class Popups_Wizard extends Wizard {
 					$popup['edit_link'] = get_edit_post_link( $popup['id'] );
 					return $popup;
 				},
-				$newspack_popups_configuration_manager->get_popups()
+				$newspack_popups_configuration_manager->get_popups( true )
 			);
 		}
 		return rest_ensure_response( $response );
@@ -306,6 +323,22 @@ class Popups_Wizard extends Wizard {
 			wp_delete_post( $id );
 		}
 
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Publish a Pop-up.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
+	 */
+	public function api_publish_popup( $request ) {
+		$id = $request['id'];
+
+		$popup = get_post( $id );
+		if ( is_a( $popup, 'WP_Post' ) && 'newspack_popups_cpt' === $popup->post_type ) {
+			wp_publish_post( $id );
+		}
 		return $this->api_get_settings();
 	}
 

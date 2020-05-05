@@ -42,9 +42,10 @@ class PopupActionCard extends Component {
 			previewPopup,
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
+			publishPopup,
 			updatePopup,
 		} = this.props;
-		const { id, categories, title, sitewide_default: sitewideDefault } = popup;
+		const { id, categories, title, sitewide_default: sitewideDefault, status } = popup;
 		return (
 			<ActionCard
 				className={ className }
@@ -81,6 +82,7 @@ class PopupActionCard extends Component {
 								setSitewideDefaultPopup={ setSitewideDefaultPopup }
 								updatePopup={ updatePopup }
 								previewPopup={ previewPopup }
+								publishPopup={ 'publish' !== status ? publishPopup : null }
 							/>
 						) }
 					</Fragment>
