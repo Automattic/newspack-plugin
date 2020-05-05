@@ -221,6 +221,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-media-partners/releases/latest/download/newspack-media-partners.zip',
 			],
+			'newspack-newsletters'          => [
+				'Name'        => 'Newspack Newsletters',
+				'Description' => 'Newsletter authoring using the Gutenberg editor.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-newsletters/releases/latest/download/newspack-newsletters.zip',
+			],
 			'newspack-popups'               => [
 				'Name'        => 'Newspack Popups',
 				'Description' => 'AMP-compatible popup notifications.',
