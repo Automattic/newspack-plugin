@@ -8,6 +8,7 @@ import Happychat from 'happychat-client';
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { Fragment, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -48,29 +49,37 @@ class Chat extends Component {
 	componentDidMount() {
 		const { WPCOM_ACCESS_TOKEN } = newspack_support_data;
 		if ( WPCOM_ACCESS_TOKEN ) {
-			this.renderChat();
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-support-wizard/valdiate-access-token`,
+			} )
+				.then( () => {
+					this.renderChat();
 
-			let didSendInitialInfo;
-			Happychat.on( 'availability', availability => {
-				if ( ! didSendInitialInfo && availability ) {
-					didSendInitialInfo = true;
-					Happychat.sendUserInfo( {
-						site: {
-							ID: '0',
-							URL: `${ window.location.protocol }//${ window.location.hostname }`,
-						},
-						// just to bust the default 'gettingStarted'
-						howCanWeHelp: 'newspack',
+					let didSendInitialInfo;
+					Happychat.on( 'availability', availability => {
+						if ( ! didSendInitialInfo && availability ) {
+							didSendInitialInfo = true;
+							Happychat.sendUserInfo( {
+								site: {
+									ID: '0',
+									URL: `${ window.location.protocol }//${ window.location.hostname }`,
+								},
+								// just to bust the default 'gettingStarted'
+								howCanWeHelp: 'newspack',
+							} );
+
+							Happychat.sendEvent(
+								__(
+									'[ Newspack customer (fieldguide.automattic.com/supporting-newspack-customers) ]',
+									'newspack'
+								)
+							);
+						}
 					} );
-
-					Happychat.sendEvent(
-						__(
-							'[ Newspack customer (fieldguide.automattic.com/supporting-newspack-customers) ]',
-							'newspack'
-						)
-					);
-				}
-			} );
+				} )
+				.catch( () => {
+					this.setState( { hasToAuthenticate: true } );
+				} );
 		} else {
 			this.setState( { hasToAuthenticate: true } );
 		}
