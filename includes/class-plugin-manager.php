@@ -230,8 +230,8 @@ class Plugin_Manager {
 				'Download'    => 'https://github.com/Automattic/newspack-newsletters/releases/latest/download/newspack-newsletters.zip',
 			],
 			'newspack-popups'               => [
-				'Name'        => 'Newspack Popups',
-				'Description' => 'AMP-compatible popup notifications.',
+				'Name'        => 'Newspack Campaigns',
+				'Description' => 'AMP-compatible overlay and inline Campaigns.',
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',

@@ -25,8 +25,8 @@ import { PopupGroup } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-const headerText = __( 'Pop-ups', 'newspack' );
-const subHeaderText = __( 'Reach your readers with configurable calls-to-action.', 'newspack' );
+const headerText = __( 'Campaigns', 'newspack' );
+const subHeaderText = __( 'Reach your readers with configurable campaigns.', 'newspack' );
 
 const tabbedNavigation = [
 	{
@@ -231,9 +231,12 @@ class PopupsWizard extends Component {
 										<PopupGroup
 											{ ...sharedProps }
 											items={ overlay }
-											buttonText={ __( 'Add new Overlay Pop-up', 'newspack' ) }
+											buttonText={ __( 'Add new Overlay Campaign', 'newspack' ) }
 											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
-											emptyMessage={ __( 'No Overlay Pop-ups have been created yet.', 'newspack' ) }
+											emptyMessage={ __(
+												'No Overlay Campaigns have been created yet.',
+												'newspack'
+											) }
 										/>
 									) }
 								/>
@@ -243,9 +246,12 @@ class PopupsWizard extends Component {
 										<PopupGroup
 											{ ...sharedProps }
 											items={ inline }
-											buttonText={ __( 'Add new Inline Pop-up', 'newspack' ) }
+											buttonText={ __( 'Add new Inline Campaign', 'newspack' ) }
 											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
-											emptyMessage={ __( 'No Inline Pop-ups have been created yet.', 'newspack' ) }
+											emptyMessage={ __(
+												'No Inline Campaigns have been created yet.',
+												'newspack'
+											) }
 										/>
 									) }
 								/>

@@ -46,7 +46,7 @@ class Popups_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return \esc_html__( 'Pop-ups', 'newspack' );
+		return \esc_html__( 'Campaigns', 'newspack' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Popups_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return \esc_html__( 'Reach your readers with configurable calls-to-action.', 'newspack' );
+		return \esc_html__( 'Reach your readers with configurable campaigns.', 'newspack' );
 	}
 
 	/**
