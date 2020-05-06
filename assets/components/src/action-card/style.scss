@@ -237,6 +237,12 @@
 			border-left: 4px solid $primary-500;
 		}
 
+		// Primary
+
+		&.newspack-card__is-secondary {
+			border-left: 4px solid orange;
+		}
+
 		// Disabled
 
 		&.newspack-card__is-disabled {

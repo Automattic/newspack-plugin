@@ -17,6 +17,7 @@ export { default as NewspackLogo } from './newspack-logo';
 export { default as Notice } from './notice';
 export { default as PluginInstaller } from './plugin-installer';
 export { default as PluginToggle } from './plugin-toggle';
+export { default as Popover } from './popover';
 export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
 export { default as SecondaryNavigation } from './secondary-navigation';
