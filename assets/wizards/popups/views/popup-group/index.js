@@ -55,9 +55,10 @@ class PopupGroup extends Component {
 			previewPopup,
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
+			publishPopup,
 			updatePopup,
 		} = this.props;
-		const { active = [], test = [], inactive = [] } = items;
+		const { active = [], draft = [], test = [], inactive = [] } = items;
 		const sections = [];
 		const filterOptions = [];
 		if ( active.length > 0 ) {
@@ -144,6 +145,34 @@ class PopupGroup extends Component {
 				);
 			}
 			filterOptions.push( { label, value: 'inactive' } );
+		}
+		if ( draft.length > 0 ) {
+			const label = __( 'Draft', 'newspack' );
+			if ( filter === 'all' || filter === 'draft' ) {
+				sections.push(
+					<Fragment key="inactive">
+						<h2 className="newspack-popups-wizard__group-type">
+							{ __( 'Draft', 'newspack' ) }{' '}
+							<span className="newspack-popups-wizard__group-count">{ draft.length }</span>
+						</h2>
+						{ draft.map( popup => (
+							<PopupActionCard
+								className="newspack-card__is-disabled"
+								deletePopup={ deletePopup }
+								description={ this.descriptionForPopup( popup ) }
+								key={ popup.id }
+								popup={ popup }
+								previewPopup={ previewPopup }
+								publishPopup={ publishPopup }
+								setCategoriesForPopup={ () => null }
+								setSitewideDefaultPopup={ setSitewideDefaultPopup }
+								updatePopup={ updatePopup }
+							/>
+						) ) }
+					</Fragment>
+				);
+			}
+			filterOptions.push( { label, value: 'draft' } );
 		}
 		return sections.length > 0 ? (
 			<Fragment>

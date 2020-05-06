@@ -129,6 +129,21 @@ class PopupsWizard extends Component {
 	};
 
 	/**
+	 * Publish a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	publishPopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
+			method: 'POST',
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
 	 * Sort Pop-ups into categories.
 	 */
 	sortPopups = popups => {
@@ -145,23 +160,31 @@ class PopupsWizard extends Component {
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopupGroup = popups => {
-		const test = popups.filter( ( { options } ) => 'test' === options.frequency );
-		const active = popups.filter( ( { categories, options, sitewide_default: sitewideDefault } ) =>
-			'inline' === options.placement
-				? 'test' !== options.frequency && 'never' !== options.frequency
-				: 'test' !== options.frequency && ( sitewideDefault || categories.length )
+		const test = popups.filter(
+			( { options, status } ) => 'publish' === status && 'test' === options.frequency
+		);
+		const draft = popups.filter( ( { status } ) => 'draft' === status );
+		const active = popups.filter(
+			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
+				'inline' === options.placement
+					? 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
+					: 'test' !== options.frequency &&
+					  ( sitewideDefault || categories.length ) &&
+					  'publish' === status
 		);
 		const activeWithSitewideDefaultFirst = [
 			...active.filter( ( { sitewide_default: sitewideDefault } ) => sitewideDefault ),
 			...active.filter( ( { sitewide_default: sitewideDefault } ) => ! sitewideDefault ),
 		];
 		const inactive = popups.filter(
-			( { categories, options, sitewide_default: sitewideDefault } ) =>
+			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
 				'inline' === options.placement
-					? 'never' === options.frequency
-					: 'test' !== options.frequency && ( ! sitewideDefault && ! categories.length )
+					? 'never' === options.frequency && 'publish' === status
+					: 'test' !== options.frequency &&
+					  ( ! sitewideDefault && ! categories.length ) &&
+					  'publish' === status
 		);
-		return { test, active: activeWithSitewideDefaultFirst, inactive };
+		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
@@ -196,6 +219,7 @@ class PopupsWizard extends Component {
 							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
 								showPreview()
 							),
+						publishPopup: this.publishPopup,
 					};
 					return (
 						<HashRouter hashType="slash">
