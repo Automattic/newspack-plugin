@@ -206,7 +206,10 @@ class PopupsWizard extends Component {
 											items={ overlay }
 											buttonText={ __( 'Add new Overlay Campaign', 'newspack' ) }
 											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
-											emptyMessage={ __( 'No Overlay Campaigns have been created yet.', 'newspack' ) }
+											emptyMessage={ __(
+												'No Overlay Campaigns have been created yet.',
+												'newspack'
+											) }
 										/>
 									) }
 								/>
@@ -218,7 +221,10 @@ class PopupsWizard extends Component {
 											items={ inline }
 											buttonText={ __( 'Add new Inline Campaign', 'newspack' ) }
 											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
-											emptyMessage={ __( 'No Inline Campaigns have been created yet.', 'newspack' ) }
+											emptyMessage={ __(
+												'No Inline Campaigns have been created yet.',
+												'newspack'
+											) }
 										/>
 									) }
 								/>
