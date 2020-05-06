@@ -11,9 +11,10 @@ import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
+ * External dependencies.
  */
 import HeaderIcon from '@material-ui/icons/NewReleases';
+import { stringify } from 'qs';
 
 /**
  * Internal dependencies.
@@ -167,9 +168,11 @@ class PopupsWizard extends Component {
 		const { placement, trigger_type: triggerType } = options;
 		const previewURL =
 			'inline' === placement || 'scroll' === triggerType
-				? window && window.newspack_popups_data && window.newspack_popups_data.preview_post
+				? window &&
+				  window.newspack_popups_wizard_data &&
+				  window.newspack_popups_wizard_data.preview_post
 				: '/';
-		return `${ previewURL }?newspack_popups_preview_id=${ id }`;
+		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
 	render() {

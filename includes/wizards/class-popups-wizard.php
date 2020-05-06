@@ -176,6 +176,24 @@ class Popups_Wizard extends Wizard {
 			true
 		);
 
+		$recent_posts = wp_get_recent_posts(
+			[
+				'numberposts' => 1,
+				'post_status' => 'publish',
+			],
+			OBJECT
+		);
+
+		$preview_post = count( $recent_posts ) > 0 ? get_the_permalink( $recent_posts[0] ) : '';
+
+		\wp_localize_script(
+			'newspack-popups-wizard',
+			'newspack_popups_wizard_data',
+			[
+				'preview_post' => $preview_post,
+			]
+		);
+
 		\wp_register_style(
 			'newspack-popups-wizard',
 			Newspack::plugin_url() . '/dist/popups.css',
