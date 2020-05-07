@@ -243,7 +243,7 @@ class PluginInstaller extends Component {
 								title={ Name }
 								description={ Description }
 								actionText={ actionText }
-								isSmall = { isSmall }
+								isSmall={ isSmall }
 								isWaiting={ isWaiting }
 								onClick={ onClick }
 								notification={ notification }
