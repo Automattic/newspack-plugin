@@ -187,10 +187,9 @@ class PopupGroup extends Component {
 				) }
 
 				{ sections.reduce(
-					( acc, item, index ) => [
+					( acc, item ) => [
 						...acc,
 						item,
-						index < sections.length - 1 && <hr key={ index } />,
 					],
 					[]
 				) }

@@ -48,6 +48,7 @@ class PopupActionCard extends Component {
 		const { id, categories, title, sitewide_default: sitewideDefault, status } = popup;
 		return (
 			<ActionCard
+				isSmall
 				className={ className }
 				title={ decodeEntities( title ) }
 				key={ id }
