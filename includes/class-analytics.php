@@ -186,12 +186,13 @@ class Analytics {
 
 				for ( const element of elements ) {
 					element.addEventListener( 'click', function() {
-						ga( 
-							'send',
+						gtag(
 							'event',
-							'<?php echo esc_attr( $event['event_category'] ); ?>',
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							'<?php echo esc_attr( $event['event_label'] ); ?>'
+							{
+								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>'
+							}
 						);
 					} );
 				}
@@ -225,13 +226,14 @@ class Analytics {
 
 					if ( ( ( scrollPos / documentHeight ) * 100 ) >= scrollPercent ) {
 						eventSent = true;
-						ga( 
-							'send',
+						gtag(
 							'event',
-							'<?php echo esc_attr( $event['event_category'] ); ?>',
-							'<?php echo esc_attr( $event['event_label'] ); ?>',
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							scrollPercent
+							{
+								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								value: scrollPercent
+							}
 						);
 					}
 				} );
