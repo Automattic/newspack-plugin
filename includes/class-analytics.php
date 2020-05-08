@@ -213,15 +213,12 @@ class Analytics {
 				const scrollPercent = <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>;
 
 				var eventSent = false;
-				window.addEventListener( 'scroll', function(){
+				const reportEvent = function(){
 					if ( eventSent ) {
 						return;
 					}
 
-					const scrollPos = window.pageYOffset || window.scrollY;
-
-					// @todo The max height and max scroll position are different values in my testing.
-					// We need to resolve this because it's impossible to get 100% completed scrolling with current implementation.
+					const scrollPos = (window.pageYOffset || window.scrollY) + window.innerHeight;
 					const documentHeight = document.body.clientHeight;
 
 					if ( ( ( scrollPos / documentHeight ) * 100 ) >= scrollPercent ) {
@@ -236,7 +233,10 @@ class Analytics {
 							}
 						);
 					}
-				} );
+				}
+				// Fire initially - page might be loaded with scroll offset.
+				reportEvent()
+				window.addEventListener( 'scroll', reportEvent );
 			} )();
 		</script>
 		<?php
