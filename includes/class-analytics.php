@@ -60,6 +60,7 @@ class Analytics {
 				'id'             => 'articleRead25',
 				'on'             => 'scroll',
 				'event_name'     => '25%',
+				'event_value'    => 25,
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
 				'scrollSpec'     => [
@@ -70,6 +71,7 @@ class Analytics {
 				'id'             => 'articleRead50',
 				'on'             => 'scroll',
 				'event_name'     => '50%',
+				'event_value'    => 50,
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
 				'scrollSpec'     => [
@@ -80,6 +82,7 @@ class Analytics {
 				'id'             => 'articleRead100',
 				'on'             => 'scroll',
 				'event_name'     => '100%',
+				'event_value'    => 100,
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
 				'scrollSpec'     => [
@@ -111,6 +114,9 @@ class Analytics {
 					'event_category' => $event['event_category'],
 				],
 			];
+			if ( isset( $event['event_value'] ) ) {
+				$event_config['vars']['value'] = $event['event_value'];
+			}
 
 			if ( isset( $event['amp_element'] ) || isset( $event['element'] ) ) {
 				$event_config['selector'] = isset( $event['amp_element'] ) ? $event['amp_element'] : $event['element'];
