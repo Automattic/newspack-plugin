@@ -43,6 +43,35 @@
 		border-left: 4px solid $light-gray-700;
 	}
 
+	// Small
+	&.is-small {
+		padding: 8px 16px;
+
+		h2 {
+			font-size: 14px;
+		}
+
+		p,
+		.newspack-action-card__region-right,
+		.newspack-action-card__primary_button {
+			font-size: 12px;
+			line-height: 16px;
+		}
+
+		.newspack-form-token-field {
+			margin: 8px 0 0;
+
+			label {
+				font-size: 12px;
+				line-height: 16px;
+			}
+		}
+
+		& + & {
+			margin-top: -24px;
+		}
+	}
+
 	// Typography
 
 	h2,
