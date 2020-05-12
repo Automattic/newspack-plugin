@@ -50,7 +50,7 @@ class PopupActionCard extends Component {
 			<ActionCard
 				isSmall
 				className={ className }
-				title={ decodeEntities( title ) }
+				title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
 				key={ id }
 				description={ description }
 				actionText={
