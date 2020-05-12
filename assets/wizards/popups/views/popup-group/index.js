@@ -186,14 +186,7 @@ class PopupGroup extends Component {
 					/>
 				) }
 
-				{ sections.reduce(
-					( acc, item, index ) => [
-						...acc,
-						item,
-						index < sections.length - 1 && <hr key={ index } />,
-					],
-					[]
-				) }
+				{ sections.reduce( ( acc, item ) => [ ...acc, item ], [] ) }
 			</Fragment>
 		) : (
 			<p>{ emptyMessage }</p>
