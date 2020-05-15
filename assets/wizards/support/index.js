@@ -20,7 +20,7 @@ import HeaderIcon from '@material-ui/icons/ContactSupport';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import { CreateTicket, Chat, Loading } from './views';
+import { CreateTicket, ListTickets, Chat, Loading } from './views';
 import Router from '../../components/src/proxied-imports/router';
 import { getReturnPath } from './utils';
 
@@ -80,6 +80,11 @@ class SupportWizard extends Component {
 					exact: true,
 				},
 				{
+					label: __( 'Tickets' ),
+					path: '/tickets-list',
+					exact: true,
+				},
+				{
 					label: __( 'Chat' ),
 					path: '/chat',
 					exact: true,
@@ -92,6 +97,7 @@ class SupportWizard extends Component {
 			<HashRouter hashType="slash">
 				<Switch>
 					<Route path="/ticket" exact render={ () => <CreateTicket { ...props } /> } />
+					<Route path="/tickets-list" exact render={ () => <ListTickets { ...props } /> } />
 					<Route path="/chat" exact render={ () => <Chat { ...props } /> } />
 					<Redirect to="/ticket" />
 				</Switch>

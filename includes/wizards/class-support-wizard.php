@@ -57,6 +57,17 @@ class Support_Wizard extends Wizard {
 			]
 		);
 
+		// Get support history - tickets and chats.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/newspack-support-wizard/support-history',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_support_history' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 		// Handle access token from WPCOM.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -155,6 +166,53 @@ class Support_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get WPCOM access token.
+	 */
+	public static function get_access_token() {
+		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+		if ( ! $access_token ) {
+			return new WP_Error(
+				'newspack_support_error',
+				__( 'Missing WPCOM access token.', 'newspack' )
+			);
+		}
+		return $access_token;
+	}
+
+	/**
+	 * Perform WPCOM API Request.
+	 *
+	 * @param string $endpoint endpoint.
+	 */
+	public static function perform_wpcom_api_request( $endpoint ) {
+		$access_token = self::get_access_token();
+		$response     = wp_safe_remote_get(
+			'https://public-api.wordpress.com/' . $endpoint,
+			array(
+				'headers' => [
+					'Authorization' => 'Bearer ' . $access_token,
+				],
+			)
+		);
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		return json_decode( $response['body'] );
+	}
+
+
+	/**
+	 * List support history.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 */
+	public static function api_support_history( $request ) {
+		$user_data    = self::perform_wpcom_api_request( 'rest/v1.1/me' );
+		$support_data = self::perform_wpcom_api_request( 'wpcom/v2/support-history?email=' . $user_data->email );
+		return $support_data->data;
+	}
+
+	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
@@ -201,7 +259,7 @@ class Support_Wizard extends Wizard {
 
 		$client_id    = self::wpcom_client_id();
 		$redirect_uri = admin_url() . 'admin.php?page=' . $this->slug;
-		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+		$access_token = self::get_access_token();
 		$access_token = $access_token ? $access_token : '';
 		wp_localize_script(
 			'newspack-support-wizard',

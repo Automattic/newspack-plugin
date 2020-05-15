@@ -1,0 +1,23 @@
+.newspack-ticket-list {
+	&:not( :last-child ) {
+		margin-bottom: 20px;
+	}
+	h2 {
+		margin-top: 0;
+		margin-bottom: 1em;
+	}
+	summary {
+		cursor: pointer;
+	}
+	&__single {
+		i {
+			opacity: 0.5;
+		}
+	}
+}
+
+details {
+	.newspack-ticket-list__single {
+		margin-top: 10px;
+	}
+}
