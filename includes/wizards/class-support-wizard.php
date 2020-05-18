@@ -71,7 +71,7 @@ class Support_Wizard extends Wizard {
 		// Validate WPCOM access token.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/newspack-support-wizard/valdiate-access-token',
+			'/wizard/newspack-support-wizard/validate-access-token',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_wpcom_validate_access_token' ],

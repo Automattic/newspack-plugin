@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Notice, Button } from '../../../../components/src';
+import { withWizardScreen, Notice, Button, Waiting } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -23,6 +23,7 @@ import './style.scss';
  */
 class Chat extends Component {
 	state = {
+		isInFlight: false,
 		hasToAuthenticate: false,
 	};
 
@@ -49,8 +50,9 @@ class Chat extends Component {
 	componentDidMount() {
 		const { WPCOM_ACCESS_TOKEN } = newspack_support_data;
 		if ( WPCOM_ACCESS_TOKEN ) {
+			this.setState( { isInFlight: true } );
 			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-support-wizard/valdiate-access-token`,
+				path: `/newspack/v1/wizard/newspack-support-wizard/validate-access-token`,
 			} )
 				.then( () => {
 					this.renderChat();
@@ -76,8 +78,10 @@ class Chat extends Component {
 							);
 						}
 					} );
+					this.setState( { isInFlight: false } );
 				} )
 				.catch( () => {
+					this.setState( { isInFlight: false } );
 					this.setState( { hasToAuthenticate: true } );
 				} );
 		} else {
@@ -94,6 +98,12 @@ class Chat extends Component {
 	render() {
 		return (
 			<Fragment>
+				{ this.state.isInFlight && (
+					<div className="newspack_support_loading">
+						<Waiting isLeft />
+						{ __( 'Loading...', 'newspack' ) }
+					</div>
+				) }
 				{ this.state.hasToAuthenticate ? (
 					<Fragment>
 						<Notice
