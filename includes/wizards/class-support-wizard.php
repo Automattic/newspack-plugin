@@ -183,10 +183,14 @@ class Support_Wizard extends Wizard {
 	 * Perform WPCOM API Request.
 	 *
 	 * @param string $endpoint endpoint.
+	 * @throws Exception Error message.
 	 */
 	public static function perform_wpcom_api_request( $endpoint ) {
 		$access_token = self::get_access_token();
-		$response     = wp_safe_remote_get(
+		if ( is_wp_error( $access_token ) ) {
+			return $access_token;
+		}
+		$response      = wp_safe_remote_get(
 			'https://public-api.wordpress.com/' . $endpoint,
 			array(
 				'headers' => [
@@ -194,10 +198,11 @@ class Support_Wizard extends Wizard {
 				],
 			)
 		);
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		$response_body = json_decode( $response['body'] );
+		if ( $response['response']['code'] >= 300 ) {
+			throw new \Exception( $response_body->message );
 		}
-		return json_decode( $response['body'] );
+		return $response_body;
 	}
 
 
@@ -207,9 +212,17 @@ class Support_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Request object.
 	 */
 	public static function api_support_history( $request ) {
-		$user_data    = self::perform_wpcom_api_request( 'rest/v1.1/me' );
-		$support_data = self::perform_wpcom_api_request( 'wpcom/v2/support-history?email=' . $user_data->email );
-		return $support_data->data;
+		try {
+			$user_data    = self::perform_wpcom_api_request( 'rest/v1.1/me' );
+			$support_data = self::perform_wpcom_api_request( 'wpcom/v2/support-history?email=' . $user_data->email );
+			return $support_data->data;
+		} catch ( \Exception $e ) {
+			return new WP_Error(
+				'newspack_support_error',
+				$e->getMessage()
+			);
+		}
+
 	}
 
 	/**
@@ -261,6 +274,9 @@ class Support_Wizard extends Wizard {
 		$redirect_uri = admin_url() . 'admin.php?page=' . $this->slug;
 		$access_token = self::get_access_token();
 		$access_token = $access_token ? $access_token : '';
+		if ( is_wp_error( $access_token ) ) {
+			$access_token = '';
+		}
 		wp_localize_script(
 			'newspack-support-wizard',
 			'newspack_support_data',

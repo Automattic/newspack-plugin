@@ -27,7 +27,8 @@ class ListTickets extends Component {
 				this.setState( {
 					tickets: supportHistory.filter( ( { type } ) => type === 'Zendesk_History' ),
 				} )
-			);
+			)
+			.catch( error => this.setState( { error } ) );
 	}
 	render() {
 		const { tickets = [], error } = this.state;
