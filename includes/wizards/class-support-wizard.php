@@ -190,7 +190,7 @@ class Support_Wizard extends Wizard {
 		if ( is_wp_error( $access_token ) ) {
 			return $access_token;
 		}
-		$response      = wp_safe_remote_get(
+		$response = wp_safe_remote_get(
 			'https://public-api.wordpress.com/' . $endpoint,
 			array(
 				'headers' => [
