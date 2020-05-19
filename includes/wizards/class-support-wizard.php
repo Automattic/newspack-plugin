@@ -198,6 +198,9 @@ class Support_Wizard extends Wizard {
 				],
 			)
 		);
+		if ( is_wp_error( $response ) ) {
+			throw new \Exception( $response->get_error_message() );
+		}
 		$response_body = json_decode( $response['body'] );
 		if ( $response['response']['code'] >= 300 ) {
 			throw new \Exception( $response_body->message );
