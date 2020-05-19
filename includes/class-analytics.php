@@ -181,11 +181,11 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				const elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
-				const elements        = document.querySelectorAll( elementSelector );
+				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
-				for ( const element of elements ) {
-					element.addEventListener( 'click', function() {
+				for ( var i = 0; i < elements.length; ++i ) {
+					elements[i].addEventListener( 'click', function() {
 						gtag(
 							'event',
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
@@ -210,16 +210,16 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				const scrollPercent = <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>;
+				var scrollPercent = <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>;
 
 				var eventSent = false;
-				const reportEvent = function(){
+				var reportEvent = function(){
 					if ( eventSent ) {
 						return;
 					}
 
-					const scrollPos = (window.pageYOffset || window.scrollY) + window.innerHeight;
-					const documentHeight = document.body.clientHeight;
+					var scrollPos = ( window.pageYOffset || window.scrollY ) + window.innerHeight;
+					var documentHeight = document.body.clientHeight;
 
 					if ( ( ( scrollPos / documentHeight ) * 100 ) >= scrollPercent ) {
 						eventSent = true;
