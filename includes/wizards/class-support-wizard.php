@@ -86,7 +86,6 @@ class Support_Wizard extends Wizard {
 	public function api_wpcom_validate_access_token() {
 		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
 		$client_id    = self::wpcom_client_id();
-		error_log( $client_id );
 		$response = wp_safe_remote_get(
 			'https://public-api.wordpress.com/oauth2/token-info?' . http_build_query(
 				array(
