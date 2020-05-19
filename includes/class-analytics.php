@@ -149,7 +149,7 @@ class Analytics {
 		}
 
 		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-		if ( false && ! $sitekit_manager->is_module_active( 'analytics' ) ) {
+		if ( ! $sitekit_manager->is_module_active( 'analytics' ) ) {
 			return;
 		}
 
