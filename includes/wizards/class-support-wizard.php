@@ -78,6 +78,37 @@ class Support_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+
+		// Validate WPCOM access token.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/newspack-support-wizard/validate-access-token',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_wpcom_validate_access_token' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Validate WPCOM credentials.
+	 */
+	public function api_wpcom_validate_access_token() {
+		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+		$client_id    = self::wpcom_client_id();
+		$response     = wp_safe_remote_get(
+			'https://public-api.wordpress.com/oauth2/token-info?' . http_build_query(
+				array(
+					'client_id' => $client_id,
+					'token'     => $access_token,
+				)
+			)
+		);
+		if ( 200 !== $response['response']['code'] ) {
+			return new WP_Error( 'invalid_wpcom_token', __( 'Invalid WPCOM token.', 'newspack' ) );
+		}
+		return $response;
 	}
 
 	/**
