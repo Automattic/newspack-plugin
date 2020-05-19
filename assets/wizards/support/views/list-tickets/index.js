@@ -45,16 +45,16 @@ class ListTickets extends Component {
 			);
 		}
 
-		const openTickets = tickets.filter( ( { status } ) => status === 'Open' );
+		const activeTickets = tickets.filter( ( { status } ) => status !== 'Closed' );
 		const closedTickets = tickets.filter( ( { status } ) => status === 'Closed' );
 
 		return (
 			<div>
 				<div className="newspack-ticket-list">
 					<h2>{ __( 'Open tickets', 'newspack' ) }</h2>
-					{ openTickets.length ? (
+					{ activeTickets.length ? (
 						<div className="newspack-ticket-list__single">
-							{ openTickets.map( ticket => (
+							{ activeTickets.map( ticket => (
 								<div key={ ticket.id }>
 									{ ticket.subject.replace( TICKET_PREFIX, '' ) } <i>({ ticket.when })</i>
 								</div>
@@ -65,7 +65,7 @@ class ListTickets extends Component {
 					) }
 				</div>
 
-				{ closedTickets.length && (
+				{ closedTickets.length > 0 ? (
 					<details className="newspack-ticket-list">
 						<summary>
 							{ __( 'Closed tickets', 'newspack' ) } ({ closedTickets.length })
@@ -79,7 +79,7 @@ class ListTickets extends Component {
 							) ) }
 						</div>
 					</details>
-				) }
+				) : null }
 			</div>
 		);
 	}
