@@ -183,7 +183,7 @@ class Support_Wizard extends Wizard {
 	 * Perform WPCOM API Request.
 	 *
 	 * @param string $endpoint endpoint.
-	 * @throws Exception Error message.
+	 * @throws \Exception Error message.
 	 */
 	public static function perform_wpcom_api_request( $endpoint ) {
 		$access_token = self::get_access_token();
