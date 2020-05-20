@@ -19,27 +19,28 @@ const withWPCOMAuth = WrappedComponent => {
 	return class WithWPCOMAuth extends Component {
 		state = {
 			isInFlight: false,
+			shouldAuthenticate: true,
 		};
 		componentDidMount() {
-			if ( ! WPCOM_ACCESS_TOKEN ) {
-				saveReturnPath();
-			}
-
-			this.setState( { isInFlight: true } );
-			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-support-wizard/validate-access-token`,
-			} )
-				.then( () => {
-					this.setState( { isInFlight: false } );
+			if ( WPCOM_ACCESS_TOKEN ) {
+				this.setState( { isInFlight: true } );
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-support-wizard/validate-access-token`,
 				} )
-				.catch( () => {
-					this.setState( { isInFlight: false } );
-				} );
+					.then( () => {
+						this.setState( { isInFlight: false, shouldAuthenticate: false } );
+					} )
+					.catch( () => {
+						saveReturnPath();
+						this.setState( { isInFlight: false, shouldAuthenticate: true } );
+					} );
+			} else {
+				saveReturnPath();
+				this.setState( { shouldAuthenticate: true } );
+			}
 		}
 		renderContent = () =>
-			WPCOM_ACCESS_TOKEN ? (
-				<WrappedComponent token={ WPCOM_ACCESS_TOKEN } { ...this.props } />
-			) : (
+			this.state.shouldAuthenticate ? (
 				<Fragment>
 					<Notice
 						noticeText={ __(
@@ -53,6 +54,8 @@ const withWPCOMAuth = WrappedComponent => {
 						</Button>
 					</div>
 				</Fragment>
+			) : (
+				<WrappedComponent token={ WPCOM_ACCESS_TOKEN } { ...this.props } />
 			);
 		render() {
 			return (
