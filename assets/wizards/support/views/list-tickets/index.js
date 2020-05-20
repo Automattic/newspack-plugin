@@ -11,10 +11,41 @@ import './style.scss';
 import { withWizardScreen, Waiting, Notice } from '../../../../components/src';
 import withWPCOMAuth from '../../components/withWPCOMAuth';
 
-const TICKET_PREFIX = '[Newspack] ';
+const TICKET_PREFIX = '[Newspack Support] ';
+
+const TicketsSection = ( { isCollapsible, isHiddenIfEmpty, title, tickets } ) => {
+	if ( isHiddenIfEmpty && tickets.length === 0 ) {
+		return null;
+	}
+	const ticketsList = tickets.map( ticket => (
+		<div key={ ticket.id }>
+			{ ticket.subject.replace( TICKET_PREFIX, '' ) } <i>({ ticket.when })</i>
+		</div>
+	) );
+	return isCollapsible ? (
+		<details className="newspack-ticket-list">
+			<summary>
+				{ title } ({ tickets.length })
+			</summary>
+
+			<div className="newspack-ticket-list__single">{ ticketsList }</div>
+		</details>
+	) : (
+		<div className="newspack-ticket-list">
+			<h2>{ title }</h2>
+			{ tickets.length ? (
+				<div className="newspack-ticket-list__single">{ ticketsList }</div>
+			) : (
+				<i>{ __( 'No tickets found.', 'newspack' ) }</i>
+			) }
+		</div>
+	);
+};
 
 /**
  * Tickets List screen.
+ *
+ * Zendesk ticket statuses: "New", "Open", "Pending", "Hold", "Solved", "Closed"
  */
 class ListTickets extends Component {
 	state = { tickets: null, error: null };
@@ -45,41 +76,31 @@ class ListTickets extends Component {
 			);
 		}
 
-		const activeTickets = tickets.filter( ( { status } ) => status !== 'Closed' );
-		const closedTickets = tickets.filter( ( { status } ) => status === 'Closed' );
+		const actionRequiredTickets = tickets.filter( ( { status } ) => status === 'Pending' );
+		const onHoldTickets = tickets.filter( ( { status } ) => status === 'Hold' );
+		const activeTickets = tickets.filter( ( { status } ) => status === 'New' || status === 'Open' );
+		const closedTickets = tickets.filter(
+			( { status } ) => status === 'Closed' || status === 'Solved'
+		);
 
 		return (
 			<div>
-				<div className="newspack-ticket-list">
-					<h2>{ __( 'Open tickets', 'newspack' ) }</h2>
-					{ activeTickets.length ? (
-						<div className="newspack-ticket-list__single">
-							{ activeTickets.map( ticket => (
-								<div key={ ticket.id }>
-									{ ticket.subject.replace( TICKET_PREFIX, '' ) } <i>({ ticket.when })</i>
-								</div>
-							) ) }
-						</div>
-					) : (
-						<i>{ __( 'No open tickets found.', 'newspack' ) }</i>
-					) }
-				</div>
-
-				{ closedTickets.length > 0 ? (
-					<details className="newspack-ticket-list">
-						<summary>
-							{ __( 'Closed tickets', 'newspack' ) } ({ closedTickets.length })
-						</summary>
-
-						<div className="newspack-ticket-list__single">
-							{ closedTickets.map( ticket => (
-								<div key={ ticket.id }>
-									{ ticket.subject.replace( TICKET_PREFIX, '' ) } <i>({ ticket.when })</i>
-								</div>
-							) ) }
-						</div>
-					</details>
-				) : null }
+				<TicketsSection
+					title={ __( 'Action required', 'newspack' ) }
+					tickets={ actionRequiredTickets }
+					isHiddenIfEmpty
+				/>
+				<TicketsSection title={ __( 'Open tickets', 'newspack' ) } tickets={ activeTickets } />
+				<TicketsSection
+					title={ __( 'Tickets on hold', 'newspack' ) }
+					tickets={ onHoldTickets }
+					isHiddenIfEmpty
+				/>
+				<TicketsSection
+					title={ __( 'Closed tickets', 'newspack' ) }
+					tickets={ closedTickets }
+					isCollapsible
+				/>
 			</div>
 		);
 	}
