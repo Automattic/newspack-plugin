@@ -150,7 +150,7 @@ class PopupGroup extends Component {
 			const label = __( 'Draft', 'newspack' );
 			if ( filter === 'all' || filter === 'draft' ) {
 				sections.push(
-					<Fragment key="inactive">
+					<Fragment key="draft">
 						<h2 className="newspack-popups-wizard__group-type">
 							{ __( 'Draft', 'newspack' ) }{' '}
 							<span className="newspack-popups-wizard__group-count">{ draft.length }</span>
