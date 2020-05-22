@@ -14,7 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import { withWizardScreen, Notice } from '../../../../components/src';
+import { withWizardScreen } from '../../../../components/src';
 import Filters from './Filters';
 import Chart from './Chart';
 import Info from './Info';
@@ -24,9 +24,8 @@ import { useFiltersState, useAnalyticsState } from './utils';
 /**
  * Popups Analytics screen.
  */
-const PopupAnalytics = () => {
+const PopupAnalytics = ( { setError } ) => {
 	const [ hasFetchedOnce, setHasFetchedOnce ] = useState( false );
-	const [ error, setError ] = useState();
 	const [ isRefetching, setIsRefetching ] = useState( false );
 	const [ filtersState, dispatchFilter ] = useFiltersState();
 	const [ state, updateState ] = useAnalyticsState();
@@ -53,10 +52,6 @@ const PopupAnalytics = () => {
 				<Spinner />
 			</div>
 		);
-	}
-
-	if ( error ) {
-		return <Notice noticeText={ error.message } isError />;
 	}
 
 	const handleFilterChange = type => payload => dispatchFilter( { type, payload } );
