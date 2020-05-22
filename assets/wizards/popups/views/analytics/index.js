@@ -66,7 +66,7 @@ const PopupAnalytics = ( { setError } ) => {
 				disabled={ isRefetching }
 				labelFilters={ labels }
 				eventActionFilters={ actions }
-				state={ filtersState }
+				filtersState={ filtersState }
 				onChange={ handleFilterChange }
 			/>
 			{ report && <Chart data={ report } isLoading={ isRefetching } /> }
