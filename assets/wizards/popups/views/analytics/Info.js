@@ -26,12 +26,12 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 
 	const hasConversionRate = form_submissions >= 0 && seen > 0;
 	const hasClickThroughRate = link_clicks >= 0 && seen > 0;
-	const notApplicable = __( 'n/a' );
+	const notApplicable = __( 'n/a', 'newspack' );
 
 	return (
-		<div className="pa__info">
+		<div className="newspack-campaigns-wizard-analytics__info">
 			<h2>
-				{ nameFilter ? `${ nameFilter.label }:` : __( 'All:' ) }
+				{ nameFilter ? `${ nameFilter.label }:` : __( 'All:', 'newspack' ) }
 				{ postEditLink && (
 					<Fragment>
 						{' '}
@@ -39,27 +39,34 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 					</Fragment>
 				) }
 			</h2>
-			<div className="pa__info__sections">
+			<div className="newspack-campaigns-wizard-analytics__info__sections">
 				{ [
-					{ label: __( 'Seen' ), value: seen },
+					{ label: __( 'Seen', 'newspack' ), value: seen },
 					{
-						label: __( 'Conversion Rate' ),
+						label: __( 'Conversion Rate', 'newspack' ),
 						value: hasConversionRate ? formatPercentage( form_submissions / seen ) : notApplicable,
 					},
 					{
-						label: __( 'Form Submissions' ),
+						label: __( 'Form Submissions', 'newspack' ),
 						value: hasConversionRate ? form_submissions : notApplicable,
 					},
 					{
-						label: __( 'Click-through Rate' ),
+						label: __( 'Click-through Rate', 'newspack' ),
 						value: hasClickThroughRate ? formatPercentage( link_clicks / seen ) : notApplicable,
 					},
-					{ label: __( 'Link Clicks' ), value: hasClickThroughRate ? link_clicks : notApplicable },
+					{
+						label: __( 'Link Clicks', 'newspack' ),
+						value: hasClickThroughRate ? link_clicks : notApplicable,
+					},
 				].map( ( section, i ) => (
 					<div
-						className={ classnames( 'pa__info__sections__section', {
-							'pa__info__sections__section--dimmed': ! isLoading && section.value === notApplicable,
-						} ) }
+						className={ classnames(
+							'newspack-campaigns-wizard-analytics__info__sections__section',
+							{
+								'newspack-campaigns-wizard-analytics__info__sections__section--dimmed':
+									! isLoading && section.value === notApplicable,
+							}
+						) }
 						key={ i }
 					>
 						<h2>{ isLoading ? '-' : section.value }</h2>
@@ -70,7 +77,8 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 			{ ! nameFilter && labelFilters.length !== 1 && (
 				<Notice
 					noticeText={ __(
-						'These are aggregated metrics for multiple campaigns. Some of them might not have links or forms, which can skew the displayed rates.'
+						'These are aggregated metrics for multiple campaigns. Some of them might not have links or forms, which can skew the displayed rates.',
+						'newspack'
 					) }
 					isWarning
 				/>

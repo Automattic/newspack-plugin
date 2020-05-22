@@ -49,7 +49,7 @@ const PopupAnalytics = () => {
 
 	if ( ! hasFetchedOnce && isRefetching ) {
 		return (
-			<div className="pa__loading">
+			<div className="newspack-campaigns-wizard-analytics__loading">
 				<Spinner />
 			</div>
 		);
@@ -62,7 +62,11 @@ const PopupAnalytics = () => {
 	const handleFilterChange = type => payload => dispatchFilter( { type, payload } );
 
 	return (
-		<div className={ classnames( 'pa__wrapper', { 'pa__wrapper--loading': isRefetching } ) }>
+		<div
+			className={ classnames( 'newspack-campaigns-wizard-analytics__wrapper', {
+				'newspack-campaigns-wizard-analytics__wrapper--loading': isRefetching,
+			} ) }
+		>
 			<Filters
 				disabled={ isRefetching }
 				labelFilters={ labels }

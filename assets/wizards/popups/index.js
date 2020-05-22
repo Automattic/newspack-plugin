@@ -263,7 +263,7 @@ class PopupsWizard extends Component {
 										/>
 									) }
 								/>
-								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
+								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
 								<Redirect to="/overlay" />
 							</Switch>
 						</HashRouter>

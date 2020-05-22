@@ -43,9 +43,20 @@ class Popups_Analytics_Controller extends WP_REST_Controller {
 			'/' . $this->resource_name . '/report',
 			[
 				[
-					'methods'             => 'GET',
+					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => [ $this, 'get_report' ],
 					'permission_callback' => [ $this, 'get_report_permissions_check' ],
+					'args'                => [
+						'offset'         => [
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'event_label_id' => [
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'event_action'   => [
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+					],
 				],
 			]
 		);

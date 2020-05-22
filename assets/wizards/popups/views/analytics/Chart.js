@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 
 const Chart = ( { data } ) => (
-	<div className="pa__chart">
+	<div className="newspack-campaigns-wizard-analytics__chart">
 		<ResponsiveContainer width={ '100%' } height={ 300 }>
 			<AreaChart data={ data } margin={ { top: 5, right: 20, bottom: 5, left: -15 } }>
 				<Area type="monotoneX" dataKey="value" stroke="#36f" fill="#3366ff1c" />
