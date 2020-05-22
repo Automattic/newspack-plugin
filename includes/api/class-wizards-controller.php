@@ -13,6 +13,8 @@ use Newspack\Wizards;
 
 defined( 'ABSPATH' ) || exit;
 
+require_once NEWSPACK_ABSPATH . 'includes/popups-analytics/class-popups-analytics-utils.php';
+
 /**
  * REST API endpoints for managing wizards.
  */
@@ -66,6 +68,30 @@ class Wizards_Controller extends WP_REST_Controller {
 					'args'                => [
 						'slug' => [
 							'sanitize_callback' => [ $this, 'sanitize_wizard_slug' ],
+						],
+					],
+				],
+			]
+		);
+
+		// Register newspack/v1/popups-analytics/report endpoint.
+		register_rest_route(
+			$this->namespace,
+			'/popups-analytics/report',
+			[
+				[
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_popups_analytics_report' ],
+					'permission_callback' => [ $this, 'get_item_permissions_check' ],
+					'args'                => [
+						'offset'         => [
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'event_label_id' => [
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'event_action'   => [
+							'sanitize_callback' => 'sanitize_text_field',
 						],
 					],
 				],
@@ -200,5 +226,20 @@ class Wizards_Controller extends WP_REST_Controller {
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Get Campaigns Analytics report.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_popups_analytics_report( $request ) {
+		$options = array(
+			'offset'         => $request['offset'],
+			'event_label_id' => $request['event_label_id'],
+			'event_action'   => $request['event_action'],
+		);
+		return rest_ensure_response( \Popups_Analytics_Utils::get_report( $options ) );
 	}
 }
