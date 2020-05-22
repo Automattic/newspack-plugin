@@ -204,7 +204,7 @@ class PopupsWizard extends Component {
 	};
 
 	render() {
-		const { pluginRequirements, setError } = this.props;
+		const { pluginRequirements, setError, isLoading, startLoading, doneLoading } = this.props;
 		const { popups, previewUrl } = this.state;
 		const { inline, overlay } = popups;
 		return (
@@ -217,6 +217,9 @@ class PopupsWizard extends Component {
 						subHeaderText,
 						tabbedNavigation,
 						setError,
+						isLoading,
+						startLoading,
+						doneLoading,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,

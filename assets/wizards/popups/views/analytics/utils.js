@@ -37,24 +37,21 @@ export const useFiltersState = () => useReducer( filtersReducer, filtersInitialS
 const analyticsInitialState = {
 	labels: [],
 	actions: [],
-	all_pages: [],
 	hasFetchedOnce: false,
-	isRefetching: false,
 };
 
 const analyticsReducer = ( state, action ) => {
 	switch ( action.type ) {
 		case 'UPDATE_ALL':
 			const { labels, actions, ...rest } = action.payload;
-			return {
+			const newState = {
 				// Persist all fetched labels and actions, so the select options do not disappear
 				labels: uniqBy( [ ...state.labels, ...labels ], 'value' ),
 				actions: uniqBy( [ ...state.actions, ...actions ], 'value' ),
 				...rest,
+				...state,
 			};
-		case 'UPDATE_IS_REFETCHING':
-			const newState = { ...state, isRefetching: action.payload };
-			if ( ! action.payload && ! state.hasFetchedOnce ) {
+			if ( ! state.hasFetchedOnce ) {
 				newState.hasFetchedOnce = true;
 			}
 			return newState;
