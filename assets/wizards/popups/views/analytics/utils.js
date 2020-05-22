@@ -38,6 +38,8 @@ const analyticsInitialState = {
 	labels: [],
 	actions: [],
 	all_pages: [],
+	hasFetchedOnce: false,
+	isRefetching: false,
 };
 
 const analyticsReducer = ( state, action ) => {
@@ -50,6 +52,12 @@ const analyticsReducer = ( state, action ) => {
 				actions: uniqBy( [ ...state.actions, ...actions ], 'value' ),
 				...rest,
 			};
+		case 'UPDATE_IS_REFETCHING':
+			const newState = { ...state, isRefetching: action.payload };
+			if ( ! action.payload && ! state.hasFetchedOnce ) {
+				newState.hasFetchedOnce = true;
+			}
+			return newState;
 		default:
 			return state;
 	}

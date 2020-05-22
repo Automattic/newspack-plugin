@@ -8,7 +8,7 @@ import classnames from 'classnames';
  * WordPress dependencies.
  */
 import { Spinner } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -25,24 +25,28 @@ import { useFiltersState, useAnalyticsState } from './utils';
  * Popups Analytics screen.
  */
 const PopupAnalytics = ( { setError } ) => {
-	const [ hasFetchedOnce, setHasFetchedOnce ] = useState( false );
-	const [ isRefetching, setIsRefetching ] = useState( false );
 	const [ filtersState, dispatchFilter ] = useFiltersState();
 	const [ state, updateState ] = useAnalyticsState();
-	const { report, labels, actions, key_metrics, post_edit_link } = state;
+	const {
+		report,
+		labels,
+		actions,
+		key_metrics,
+		post_edit_link,
+		hasFetchedOnce,
+		isRefetching,
+	} = state;
 
 	useEffect( () => {
-		setIsRefetching( true );
+		updateState( { type: 'UPDATE_IS_REFETCHING', payload: true } );
 		apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( filtersState ) }` } )
 			.then( response => {
 				updateState( { type: 'UPDATE_ALL', payload: response } );
-				setIsRefetching( false );
-				setHasFetchedOnce( true );
+				updateState( { type: 'UPDATE_IS_REFETCHING', payload: false } );
 			} )
 			.catch( errorResponse => {
 				setError( errorResponse );
-				setIsRefetching( false );
-				setHasFetchedOnce( true );
+				updateState( { type: 'UPDATE_IS_REFETCHING', payload: false } );
 			} );
 	}, [ filtersState ] );
 
