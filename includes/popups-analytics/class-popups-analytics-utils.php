@@ -164,6 +164,7 @@ class Popups_Analytics_Utils {
 	 * Get report.
 	 *
 	 * @param Object $options options.
+	 * @return Object report data.
 	 */
 	public static function get_report( $options ) {
 		$offset         = $options['offset'];
