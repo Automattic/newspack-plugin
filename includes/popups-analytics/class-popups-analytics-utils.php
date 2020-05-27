@@ -32,6 +32,7 @@ class Popups_Analytics_Utils {
 	 * @param Date   $start start date.
 	 * @param Date   $end end date.
 	 * @param string $format date format.
+	 * @return array array of dates in the given range.
 	 */
 	private static function get_dates_in_range( $start, $end, $format = 'Y-m-d' ) {
 		return array_map(
@@ -46,6 +47,7 @@ class Popups_Analytics_Utils {
 	 * Date before.
 	 *
 	 * @param string $offset date offset in days.
+	 * @return string formatted date.
 	 */
 	private static function date_before( $offset ) {
 		$today = new \DateTime();
@@ -58,6 +60,7 @@ class Popups_Analytics_Utils {
 	 *
 	 * @param array  $input array of days.
 	 * @param string $offset date offset in days.
+	 * @return array array of dates.
 	 */
 	private static function fill_in_dates( $input, $offset ) {
 		$all_days = self::get_dates_in_range(
@@ -82,6 +85,7 @@ class Popups_Analytics_Utils {
 	 * Get GA report.
 	 *
 	 * @param Object $options options.
+	 * @return array array of rows with GA report data.
 	 */
 	public static function get_ga_report( $options ) {
 		$offset = $options['offset'];
@@ -147,7 +151,11 @@ class Popups_Analytics_Utils {
 				$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
 				$report_results     = $analyticsreporting->reports->batchGet( $body );
 
-				return $report_results->reports[0]->data->rows;
+				if ( isset( $report_results->reports[0] ) ) {
+					return $report_results->reports[0]->data->rows;
+				} else {
+					return []
+				}
 			}
 		}
 	}
