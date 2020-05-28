@@ -30,6 +30,7 @@ import {
 	TextControl,
 } from '../../../../components/src';
 import './style.scss';
+import withWPCOMAuth from '../../components/withWPCOMAuth';
 
 const Footer = props => (
 	<span className="newspack-buttons-card">
@@ -206,4 +207,4 @@ class CreateTicket extends Component {
 	}
 }
 
-export default withWizardScreen( CreateTicket );
+export default withWizardScreen( withWPCOMAuth( CreateTicket ) );

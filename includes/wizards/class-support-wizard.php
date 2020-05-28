@@ -144,6 +144,15 @@ class Support_Wizard extends Wizard {
 			return new WP_Error( 'newspack_invalid_support', __( 'Please provide a message.' ) );
 		}
 
+		try {
+			$wpcom_user_data = self::perform_wpcom_api_request( 'rest/v1.1/me' );
+		} catch ( \Exception $e ) {
+			return new WP_Error(
+				'newspack_support_error',
+				$e->getMessage()
+			);
+		}
+
 		$user      = wp_get_current_user();
 		$full_name = $user->first_name . ' ' . $user->last_name;
 		if ( ' ' == $full_name ) {
@@ -161,7 +170,7 @@ class Support_Wizard extends Wizard {
 				'request' => array(
 					'requester' => array(
 						'name'  => $full_name,
-						'email' => $user->data->user_email,
+						'email' => $wpcom_user_data->email,
 					),
 					'subject'   => '[Newspack Support] ' . $request['subject'],
 					'comment'   => array(
@@ -234,7 +243,7 @@ class Support_Wizard extends Wizard {
 		}
 		$response_body = json_decode( $response['body'] );
 		if ( $response['response']['code'] >= 300 ) {
-			throw new \Exception( $response_body->message );
+			throw new \Exception( $response['response']['message'] );
 		}
 		return $response_body;
 	}
@@ -256,7 +265,6 @@ class Support_Wizard extends Wizard {
 				$e->getMessage()
 			);
 		}
-
 	}
 
 	/**
