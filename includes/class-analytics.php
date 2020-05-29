@@ -46,6 +46,7 @@ class Analytics {
 				'event_name'     => 'social share',
 				'event_label'    => 'facebook',
 				'event_category' => 'NTG social',
+				'interactive'    => true,
 			],
 			[
 				'id'             => 'socialShareClickedTwitter',
@@ -55,6 +56,7 @@ class Analytics {
 				'event_name'     => 'social share',
 				'event_label'    => 'twitter',
 				'event_category' => 'NTG social',
+				'interactive'    => true,
 			],
 			[
 				'id'             => 'articleRead25',
@@ -133,6 +135,17 @@ class Analytics {
 				$config['triggers'] = [];
 			}
 
+			if ( empty( $config['interactive'] ) ) {
+				/** 
+				 * This is how non-interactive events are added to amp-analytics.
+				 *
+				 * @see https://github.com/ampproject/amphtml/issues/5018#issuecomment-247402181
+				 */
+				$event_config['extraUrlParams'] = [ 
+					'ni' => 1, 
+				];
+			}
+
 			// Other integrations can use this filter if they need to modify the AMP-specific event config.
 			$config['triggers'][ $event['id'] ] = apply_filters( 'newspack_analytics_amp_event_config', $event_config, $event );
 		}
@@ -191,7 +204,10 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>'
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( empty( $event['interactive'] ) ) : ?>
+									non_interaction: true
+								<?php endif; ?>
 							}
 						);
 					} );
@@ -229,7 +245,10 @@ class Analytics {
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-								value: scrollPercent
+								value: scrollPercent,
+								<?php if ( empty( $event['interactive'] ) ) : ?>
+									non_interaction: true
+								<?php endif; ?>
 							}
 						);
 					}
