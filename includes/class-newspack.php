@@ -128,6 +128,9 @@ final class Newspack {
 			update_option( Payment_Wizard::NEWSPACK_STRIPE_CUSTOMER, null );
 			update_option( Payment_Wizard::NEWSPACK_STRIPE_SUBSCRIPTION, null );
 		}
+		if ( Support_Wizard::get_wpcom_access_token() && filter_input( INPUT_POST, 'newspack_remove_wpcom_token', FILTER_SANITIZE_STRING ) === 'on' ) {
+			delete_user_meta( get_current_user_id(), Support_Wizard::NEWSPACK_WPCOM_ACCESS_TOKEN );
+		}
 	}
 
 	/**
