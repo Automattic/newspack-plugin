@@ -111,7 +111,7 @@ class Settings {
 		if ( Support_Wizard::get_wpcom_access_token() ) {
 			add_settings_field(
 				'newspack_remove_wpcom_token',
-				__( 'Remove WPCOM Token', 'newspack' ),
+				__( 'Reset WordPress.com authentication', 'newspack' ),
 				[ __CLASS__, 'newspack_remove_wpcom_token_callback' ],
 				'newspack-settings-admin',
 				'newspack_settings'
