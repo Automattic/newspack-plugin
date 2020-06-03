@@ -331,7 +331,7 @@ class Support_Wizard extends Wizard {
 			'newspack_support_data',
 			array(
 				'API_URL'            => self::support_api_url(),
-				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token',
+				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token&scope=global',
 				'WPCOM_ACCESS_TOKEN' => $access_token,
 			)
 		);
