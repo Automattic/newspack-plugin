@@ -52,6 +52,7 @@ class ReaderRevenueWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-wizard' } )
 			.then( data => {
+				console.log( this.parseData( data ) );
 				return new Promise( resolve => {
 					this.setState(
 						{
@@ -161,6 +162,7 @@ class ReaderRevenueWizard extends Component {
 								<RevenueMain
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Reader revenue' ) }
+									noBackground
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									buttonText={ ! isConfigured && __( 'Get Started' ) }
