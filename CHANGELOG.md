@@ -1,3 +1,20 @@
+# [1.7.0](https://github.com/Automattic/newspack-plugin/compare/v1.6.0...v1.7.0) (2020-06-04)
+
+
+### Bug Fixes
+
+* duplicate key ([f18c0ae](https://github.com/Automattic/newspack-plugin/commit/f18c0ae17a93f811102f853cffabbb2dbf291cd2))
+* **support:** validate token before starting chat ([#520](https://github.com/Automattic/newspack-plugin/issues/520)) ([1112600](https://github.com/Automattic/newspack-plugin/commit/1112600549128e01b6314a82866efbe499c6f99e))
+* handle empty title for campaigns ([3d4f6df](https://github.com/Automattic/newspack-plugin/commit/3d4f6df817e615e24beaf319854afa1c0ed333b6))
+* plugin messages in wizard pluralization ([#518](https://github.com/Automattic/newspack-plugin/issues/518)) ([5661b0a](https://github.com/Automattic/newspack-plugin/commit/5661b0aec5d17ea41147fdf804eab940de553be1)), closes [#453](https://github.com/Automattic/newspack-plugin/issues/453)
+
+
+### Features
+
+* **support:** enable removing WPCOM token in settings; change auth scope to global ([#546](https://github.com/Automattic/newspack-plugin/issues/546)) ([1210967](https://github.com/Automattic/newspack-plugin/commit/1210967c1f49f3c91603b95e2c462986f044a550))
+* **support:** list user's support tickets ([#534](https://github.com/Automattic/newspack-plugin/issues/534)) ([dca3497](https://github.com/Automattic/newspack-plugin/commit/dca34970c207d276f72d7b54293f678659b2e176))
+* add small action card and plugin installer ([cb08ab0](https://github.com/Automattic/newspack-plugin/commit/cb08ab0c95570cb2ab793be03267481266bea743))
+
 # [1.6.0](https://github.com/Automattic/newspack-plugin/compare/v1.5.0...v1.6.0) (2020-05-06)
 
 
