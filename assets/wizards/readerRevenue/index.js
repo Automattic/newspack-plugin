@@ -15,13 +15,14 @@ import { __ } from '@wordpress/i18n';
  */
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
 import LoyaltyIcon from '@material-ui/icons/Loyalty';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 
 /**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
+import { Donation, LocationSetup, StripeSetup, RevenueMain, SalesForce } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -36,6 +37,7 @@ class ReaderRevenueWizard extends Component {
 				locationData: {},
 				stripeData: {},
 				donationData: {},
+				salesforceData: {}
 			},
 		};
 	}
@@ -52,7 +54,6 @@ class ReaderRevenueWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-wizard' } )
 			.then( data => {
-				console.log( this.parseData( data ) );
 				return new Promise( resolve => {
 					this.setState(
 						{
@@ -108,6 +109,7 @@ class ReaderRevenueWizard extends Component {
 		countryStateFields: data.country_state_fields,
 		currencyFields: data.currency_fields,
 		donationPage: data.donation_page,
+		salesforceData: data.salesforce_settings
 	} );
 
 	/**
@@ -133,7 +135,9 @@ class ReaderRevenueWizard extends Component {
 			stripeData,
 			donationData,
 			donationPage,
+			salesforceData
 		} = data;
+
 		const tabbedNavigation = [
 			{
 				label: __( 'Monetization Services' ),
@@ -150,6 +154,7 @@ class ReaderRevenueWizard extends Component {
 			},
 		];
 		const isConfigured = !! donationData.created;
+		const salesforceIsConnected = !! salesforceData.refresh_token;
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -162,7 +167,6 @@ class ReaderRevenueWizard extends Component {
 								<RevenueMain
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Reader revenue' ) }
-									noBackground
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
 									buttonText={ ! isConfigured && __( 'Get Started' ) }
@@ -229,6 +233,46 @@ class ReaderRevenueWizard extends Component {
 									buttonAction={ () => this.update( 'donations', donationData ) }
 									onChange={ _donationData =>
 										this.setState( { data: { ...data, donationData: _donationData } } )
+									}
+									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									secondaryButtonAction="#"
+								/>
+							) }
+						/>
+						<Route
+							path="/salesforce"
+							render={ routeProps => (
+								<SalesForce
+									data={ salesforceData }
+									headerIcon={ <GroupAddIcon /> }
+									headerText={ __( 'Configure SalesForce' ) }
+									isConnected={ salesforceIsConnected }
+									subHeaderText={ __(
+										'Connect your site with a SalesForce account to capture leads.'
+									) }
+									buttonText={ salesforceIsConnected ? __( 'Clear Connection' ) : __( 'Connect' ) }
+									buttonAction={ () => {
+										if ( salesforceIsConnected ) {
+											const defaultSettings = {
+												client_id: '',
+												client_secret: '',
+												access_token: '',
+												refresh_token: ''
+											};
+											this.setState( { data: {  ...data, salesforceData: defaultSettings } } );
+											return this.update( 'salesforce', defaultSettings );
+										}
+
+										const { client_id, client_secret } = salesforceData;
+
+										if ( client_id && client_secret ) {
+											this.update( 'salesforce', salesforceData );
+											window.location.assign( `https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${ encodeURIComponent( client_id ) }&client_secret=${ encodeURIComponent( client_secret ) }&redirect_uri=${ encodeURIComponent( window.location.href ) }` );
+										}
+									} }
+									buttonDisabled={ ! salesforceIsConnected && ( ! salesforceData.client_id || ! salesforceData.client_secret ) }
+									onChange={ _salesforceData =>
+										this.setState( { data: { ...data, salesforceData: _salesforceData } } )
 									}
 									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
 									secondaryButtonAction="#"

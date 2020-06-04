@@ -181,6 +181,31 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
+		// Save SalesForce settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/salesforce/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_salesforce_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'client_id'     => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'client_secret' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'access_token'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'refresh_token' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/newspack-donations-wizard/donation/',
@@ -314,6 +339,20 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
+	 * API endpoint for setting SalesForce settings.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function api_update_salesforce_settings( $request ) {
+		$salesforce_response = SalesForce::set_salesforce_settings( $request->get_params() );
+		if ( is_wp_error( $salesforce_response ) ) {
+			return rest_ensure_response( $salesforce_response );
+		}
+		return \rest_ensure_response( $this->fetch_all_data() );
+	}
+
+	/**
 	 * Fetch all data needed to render the Wizard
 	 *
 	 * @return Array
@@ -327,6 +366,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'stripe_data'          => $wc_configuration_manager->stripe_data(),
 			'donation_data'        => Donations::get_donation_settings(),
 			'donation_page'        => Donations::get_donation_page_info(),
+			'salesforce_settings'  => SalesForce::get_salesforce_settings(),
 		];
 	}
 

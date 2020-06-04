@@ -92,6 +92,7 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-donations.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-salesforce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-pwa.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-starter-content.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
