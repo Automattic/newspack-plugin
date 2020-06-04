@@ -92,10 +92,17 @@ class Support_Wizard extends Wizard {
 	}
 
 	/**
+	 * Retrieve WPCOM access token.
+	 */
+	public static function get_wpcom_access_token() {
+		return get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+	}
+
+	/**
 	 * Validate WPCOM credentials.
 	 */
 	public function api_wpcom_validate_access_token() {
-		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+		$access_token = self::get_wpcom_access_token();
 		$client_id    = self::wpcom_client_id();
 		$response     = wp_safe_remote_get(
 			'https://public-api.wordpress.com/oauth2/token-info?' . http_build_query(
@@ -324,7 +331,7 @@ class Support_Wizard extends Wizard {
 			'newspack_support_data',
 			array(
 				'API_URL'            => self::support_api_url(),
-				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token',
+				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token&scope=global',
 				'WPCOM_ACCESS_TOKEN' => $access_token,
 			)
 		);
