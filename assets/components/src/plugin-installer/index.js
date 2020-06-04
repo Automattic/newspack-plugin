@@ -158,7 +158,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { asProgressBar, autoInstall } = this.props;
+		const { asProgressBar, autoInstall, isSmall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 
@@ -243,6 +243,7 @@ class PluginInstaller extends Component {
 								title={ Name }
 								description={ Description }
 								actionText={ actionText }
+								isSmall={ isSmall }
 								isWaiting={ isWaiting }
 								onClick={ onClick }
 								notification={ notification }

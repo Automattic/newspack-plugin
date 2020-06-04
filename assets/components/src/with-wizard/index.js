@@ -209,7 +209,11 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 								{ complete !== null && (
 									<FormattedHeader
 										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Required plugin' ) }
+										headerText={
+											requiredPlugins.length > 1
+												? __( 'Required plugins' )
+												: __( 'Required plugin' )
+										}
 										subHeaderText={ __( 'This feature requires the following plugin.' ) }
 									/>
 								) }

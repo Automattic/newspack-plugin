@@ -43,6 +43,7 @@ class ActionCard extends Component {
 			secondaryActionText,
 			image,
 			imageLink,
+			isSmall,
 			simple,
 			onClick,
 			onSecondaryActionClick,
@@ -53,6 +54,7 @@ class ActionCard extends Component {
 		const classes = classnames(
 			'newspack-action-card',
 			simple && 'newspack-card__is-clickable',
+			isSmall && 'is-small',
 			className
 		);
 		return (

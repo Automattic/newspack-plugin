@@ -302,13 +302,23 @@ class ComponentsDemo extends Component {
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
 						<PluginInstaller
-							plugins={ [
-								'woocommerce',
-								'amp',
-								'wordpress-seo',
-								'google-site-kit',
-								'woocommerce-subscriptions',
-							] }
+							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+							canUninstall
+							onStatus={ ( { complete, pluginInfo } ) => {
+								console.log(
+									complete
+										? 'All plugins installed successfully'
+										: 'Plugin installation incomplete',
+									pluginInfo
+								);
+							} }
+						/>
+					</Card>
+					<Card>
+						<FormattedHeader headerText={ __( 'Plugin installer (small)' ) } />
+						<PluginInstaller
+							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+							isSmall
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
 								console.log(
@@ -323,6 +333,20 @@ class ComponentsDemo extends Component {
 					<Card noBackground>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+							onStatus={ ( { complete, pluginInfo } ) => {
+								console.log(
+									complete
+										? 'All plugins installed successfully'
+										: 'Plugin installation incomplete',
+									pluginInfo
+								);
+							} }
+						/>
+					</Card>
+					<Card noBackground>
+						<PluginInstaller
+							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+							isSmall
 							onStatus={ ( { complete, pluginInfo } ) => {
 								console.log(
 									complete
@@ -423,6 +447,15 @@ class ComponentsDemo extends Component {
 						badge="Premium"
 						title="Example Ten"
 						description="An example of an action card with a badge."
+						actionText="Install"
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
+						isSmall
+						title="Example Eleven (small)"
+						description="An example of a small action card."
 						actionText="Install"
 						onClick={ () => {
 							console.log( 'Install clicked' );

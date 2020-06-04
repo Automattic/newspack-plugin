@@ -20,8 +20,9 @@ import HeaderIcon from '@material-ui/icons/ContactSupport';
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
-import { CreateTicket, Chat, Loading } from './views';
+import { CreateTicket, ListTickets, Chat, Loading } from './views';
 import Router from '../../components/src/proxied-imports/router';
+import { getReturnPath } from './utils';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -50,13 +51,12 @@ class SupportWizard extends Component {
 					data: hashData,
 				} )
 				.then( () => {
-					// redirect so that Router can take over
-					const urlWithoutHash = window.location.href.substring(
-						-1,
-						window.location.href.indexOf( '#' )
-					);
-					window.location = `${ urlWithoutHash }#/chat`;
-					window.location.reload();
+					const returnPath = getReturnPath();
+					if ( returnPath ) {
+						// redirect so that Router can take over
+						window.location = returnPath;
+						window.location.reload();
+					}
 				} )
 				.catch( ( { message: errorMessage } ) => {
 					this.setState( { errorMessage } );
@@ -80,6 +80,11 @@ class SupportWizard extends Component {
 					exact: true,
 				},
 				{
+					label: __( 'Tickets' ),
+					path: '/tickets-list',
+					exact: true,
+				},
+				{
 					label: __( 'Chat' ),
 					path: '/chat',
 					exact: true,
@@ -92,6 +97,7 @@ class SupportWizard extends Component {
 			<HashRouter hashType="slash">
 				<Switch>
 					<Route path="/ticket" exact render={ () => <CreateTicket { ...props } /> } />
+					<Route path="/tickets-list" exact render={ () => <ListTickets { ...props } /> } />
 					<Route path="/chat" exact render={ () => <Chat { ...props } /> } />
 					<Redirect to="/ticket" />
 				</Switch>
