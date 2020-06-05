@@ -46,7 +46,6 @@ class Analytics {
 				'event_name'     => 'social share',
 				'event_label'    => 'facebook',
 				'event_category' => 'NTG social',
-				'interactive'    => true,
 			],
 			[
 				'id'             => 'socialShareClickedTwitter',
@@ -56,7 +55,6 @@ class Analytics {
 				'event_name'     => 'social share',
 				'event_label'    => 'twitter',
 				'event_category' => 'NTG social',
-				'interactive'    => true,
 			],
 			[
 				'id'             => 'socialShareClickedWhatsApp',
@@ -66,7 +64,6 @@ class Analytics {
 				'event_name'     => 'social share',
 				'event_label'    => 'whatsapp',
 				'event_category' => 'NTG social',
-				'interactive'    => true,
 			],
 			[
 				'id'             => 'socialShareClickedLinkedIn',
@@ -76,7 +73,6 @@ class Analytics {
 				'event_name'     => 'social share',
 				'event_label'    => 'linkedin',
 				'event_category' => 'NTG social',
-				'interactive'    => true,
 			],
 			[
 				'id'             => 'articleRead25',
