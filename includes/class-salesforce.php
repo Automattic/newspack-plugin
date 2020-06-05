@@ -62,10 +62,21 @@ class SalesForce {
 		$defaults = self::DEFAULT_SETTINGS;
 		$args     = wp_parse_args( $args, $defaults );
 
-		update_option( self::SALESFORCE_CLIENT_ID, $args['client_id'] );
-		update_option( self::SALESFORCE_CLIENT_SECRET, $args['client_secret'] );
-		update_option( self::SALESFORCE_ACCESS_TOKEN, $args['access_token'] );
-		update_option( self::SALESFORCE_REFRESH_TOKEN, $args['refresh_token'] );
+		if ( array_key_exists( 'client_id', $args ) ) {
+			update_option( self::SALESFORCE_CLIENT_ID, $args['client_id'] );
+		}
+
+		if ( array_key_exists( 'client_secret', $args ) ) {
+			update_option( self::SALESFORCE_CLIENT_SECRET, $args['client_secret'] );
+		}
+
+		if ( array_key_exists( 'access_token', $args ) ) {
+			update_option( self::SALESFORCE_ACCESS_TOKEN, $args['access_token'] );
+		}
+
+		if ( array_key_exists( 'refresh_token', $args ) ) {
+			update_option( self::SALESFORCE_REFRESH_TOKEN, $args['refresh_token'] );
+		}
 
 		return self::get_salesforce_settings();
 	}

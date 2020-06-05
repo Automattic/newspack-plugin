@@ -206,6 +206,28 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
+		// Get access and refresh tokens from SalesForce.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/salesforce/tokens',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_get_salesforce_tokens' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'client_id'     => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'client_secret' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'redirect_uri'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/newspack-donations-wizard/donation/',
@@ -350,6 +372,51 @@ class Reader_Revenue_Wizard extends Wizard {
 			return rest_ensure_response( $salesforce_response );
 		}
 		return \rest_ensure_response( $this->fetch_all_data() );
+	}
+
+	/**
+	 * API endpoint for getting SalesForce API tokens.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @throws \Exception Error message.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function api_get_salesforce_tokens( $request ) {
+		$args                = $request->get_params();
+		$salesforce_settings = SalesForce::get_salesforce_settings();
+
+		// Must have a valid API key and secret.
+		if ( empty( $salesforce_settings['client_id'] ) || empty( $salesforce_settings['client_secret'] ) ) {
+			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+		}
+
+		// Hit SalesForce OAuth endpoint to request API tokens.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
+				array(
+					'client_id'     => $salesforce_settings['client_id'],
+					'client_secret' => $salesforce_settings['client_secret'],
+					'code'          => $args['code'],
+					'redirect_uri'  => $args['redirect_uri'],
+					'grant_type'    => 'authorization_code',
+					'format'        => 'json',
+				)
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		if ( ! empty( $response_body->access_token ) && ! empty( $response_body->refresh_token ) ) {
+			$update_args = wp_parse_args( $response_body, $salesforce_settings );
+
+			// Save tokens.
+			$update_response = SalesForce::set_salesforce_settings( $update_args );
+			if ( is_wp_error( $update_response ) ) {
+				return \rest_ensure_response( $update_response );
+			}
+
+			return \rest_ensure_response( $update_args );
+		}
 	}
 
 	/**

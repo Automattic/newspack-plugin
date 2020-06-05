@@ -126,7 +126,7 @@ class ReaderRevenueWizard extends Component {
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch } = this.props;
 		const { data } = this.state;
 		const {
 			countryStateFields,
@@ -243,10 +243,12 @@ class ReaderRevenueWizard extends Component {
 							path="/salesforce"
 							render={ routeProps => (
 								<SalesForce
+									routeProps={ routeProps }
 									data={ salesforceData }
 									headerIcon={ <GroupAddIcon /> }
 									headerText={ __( 'Configure SalesForce' ) }
 									isConnected={ salesforceIsConnected }
+									redirectURI={ window.location.href }
 									subHeaderText={ __(
 										'Connect your site with a SalesForce account to capture leads.'
 									) }
@@ -276,6 +278,7 @@ class ReaderRevenueWizard extends Component {
 									}
 									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
 									secondaryButtonAction="#"
+									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
 						/>

@@ -3,6 +3,11 @@
  */
 
 /**
+ * External dependencies
+ */
+import { parse } from 'qs';
+
+/**
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
@@ -12,23 +17,83 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Notice, TextControl, withWizardScreen } from '../../../../components/src';
+import './style.scss';
+import { Notice, TextControl, Waiting, withWizardScreen } from '../../../../components/src';
 
 /**
  * SalesForce Settings Screen Component
  */
 class SalesForce extends Component {
 	/**
+	 * Constructor.
+	 */
+	constructor( props ) {
+		super( props );
+
+		this.state = {
+			error: null,
+			fetching: false
+		};
+	}
+
+	/**
+	 * Use auth code to request access and refresh tokens for SalesForce API.
+	 * Saves tokens to options table.
+	 * https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5
+	 * @param {string} authorizationCode Auth code fetched from SalesForce.
+	 * @return {void}
+	 */
+	async getTokens( authorizationCode ) {
+		const { data, onChange, redirectURI, wizardApiFetch } = this.props;
+
+		// Init fetching state.
+		this.setState( { fetching: true } );
+
+		try {
+			// Get the tokens.
+			const response = await wizardApiFetch( {
+				path: '/newspack/v1/wizard/salesforce/tokens',
+				method: 'POST',
+				data: {
+					code: authorizationCode,
+					redirect_uri: redirectURI
+				}
+			} );
+
+			// Update values in parent state.
+			if ( response.access_token && response.refresh_token ) {
+				onChange( response );
+			} else {
+				throw new Error( 'Could not retrieve access tokens. Please try connecting again.' );
+			}
+		} catch( e ) {
+			this.setState( { error: e } );
+		}
+
+		// End fetching state.
+		this.setState( { fetching: false } );
+	}
+
+	/**
 	 * Render.
 	 */
 	render() {
 		const { data, isConnected, onChange } = this.props;
+		const { error, fetching } = this.state;
 		const {
 			client_id,
-			client_secret,
-			access_token,
-			refresh_token
+			client_secret
 		} = data;
+
+		const query = parse( window.location.search );
+		const authorizationCode = query.code;
+
+		if ( authorizationCode ) {
+			// Remove param from URL so we don't get stuck in a re-render loop.
+			window.history.replaceState( {}, '', window.location.origin + window.location.pathname + '?page=' + query['?page'] + window.location.hash );
+
+			this.getTokens( authorizationCode );
+		}
 
 		return (
 			<div className="newspack-salesforce-wizard">
@@ -36,9 +101,16 @@ class SalesForce extends Component {
 					<h2>{ __( 'Connected App settings' ) }</h2>
 
 					{
-						! isConnected && ( client_id || client_secret ) && (
-							<Notice noticeText={ __( 'Your site is not connected to SalesForce. Verify your Consumer Key and Secret, then click “Connect” to complete setup.' ) } isWarning />
+						fetching && (
+							<div className="newspack_salesforce_loading">
+								<Waiting isLeft />
+								{ __( 'Connecting...', 'newspack' ) }
+							</div>
 						)
+					}
+
+					{
+						error && <Notice noticeText={ __( error ) } isWarning />
 					}
 
 					{
