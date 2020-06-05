@@ -155,14 +155,14 @@ class Analytics {
 				$config['triggers'] = [];
 			}
 
-			if ( empty( $config['interactive'] ) ) {
-				/** 
+			if ( 'click' !== $event_config['on'] ) {
+				/**
 				 * This is how non-interactive events are added to amp-analytics.
 				 *
 				 * @see https://github.com/ampproject/amphtml/issues/5018#issuecomment-247402181
 				 */
-				$event_config['extraUrlParams'] = [ 
-					'ni' => 1, 
+				$event_config['extraUrlParams'] = [
+					'ni' => 1,
 				];
 			}
 
@@ -225,9 +225,6 @@ class Analytics {
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-								<?php if ( empty( $event['interactive'] ) ) : ?>
-									non_interaction: true
-								<?php endif; ?>
 							}
 						);
 					} );
@@ -266,9 +263,7 @@ class Analytics {
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
 								value: scrollPercent,
-								<?php if ( empty( $event['interactive'] ) ) : ?>
-									non_interaction: true
-								<?php endif; ?>
+								non_interaction: true,
 							}
 						);
 					}
