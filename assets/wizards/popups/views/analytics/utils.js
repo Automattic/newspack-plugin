@@ -45,11 +45,11 @@ const analyticsReducer = ( state, action ) => {
 		case 'UPDATE_ALL':
 			const { labels, actions, ...rest } = action.payload;
 			const newState = {
+				...rest,
+				...state,
 				// Persist all fetched labels and actions, so the select options do not disappear
 				labels: uniqBy( [ ...state.labels, ...labels ], 'value' ),
 				actions: uniqBy( [ ...state.actions, ...actions ], 'value' ),
-				...rest,
-				...state,
 			};
 			if ( ! state.hasFetchedOnce ) {
 				newState.hasFetchedOnce = true;

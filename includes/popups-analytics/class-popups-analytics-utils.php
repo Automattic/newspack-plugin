@@ -154,7 +154,7 @@ class Popups_Analytics_Utils {
 				if ( isset( $report_results->reports[0] ) ) {
 					return $report_results->reports[0]->data->rows;
 				} else {
-					return []
+					return [];
 				}
 			}
 		}
