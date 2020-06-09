@@ -256,6 +256,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 							clearError={ this.clearError }
 							getError={ this.getError }
 							setError={ this.setError }
+							isLoading={ loading }
 							startLoading={ this.startLoading }
 							doneLoading={ this.doneLoading }
 							wizardApiFetch={ this.wizardApiFetch }
