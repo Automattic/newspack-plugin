@@ -75,20 +75,6 @@ class Salesforce extends Component {
 		this.setState( { fetching: false } );
 	}
 
-	async testWebhookHandler() {
-		const response = await apiFetch( {
-			path: '/newspack/v1/salesforce/sync',
-			method: 'POST',
-			data: {
-				Email: 'newlead@hotmail.com',
-				FirstName: 'Hatchet',
-				LastName: 'Sullivan'
-			}
-		} );
-
-		console.log( response );
-	}
-
 	/**
 	 * Render.
 	 */
@@ -99,10 +85,6 @@ class Salesforce extends Component {
 			client_id,
 			client_secret
 		} = data;
-
-		console.log( data );
-
-		this.testWebhookHandler();
 
 		const query = parse( window.location.search );
 		const authorizationCode = query.code;

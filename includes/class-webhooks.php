@@ -27,20 +27,6 @@ class Webhooks {
 		$this->salesforce_settings = Salesforce::get_salesforce_settings();
 
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		add_action( 'woocommerce_loaded', [ $this, 'create_woo_webhooks' ] );
-	}
-
-	/**
-	 * Webhooks for WooCommerce.
-	 */
-	public function create_woo_webhooks() {
-		if ( ! empty( $this->salesforce_settings['refresh_token'] ) && ! empty( $this->salesforce_settings['instance_url'] ) ) {
-			$webhook = new \WC_Webhook();
-			$webhook->set_topic( 'order.created' ); // Trigger on checkout.
-			$webhook->set_delivery_url( NEWSPACK_API_NAMESPACE . '/salesforce/sync' );
-			$webhook->set_status( 'active' );
-			$webhook->save();
-		}
 	}
 
 	/**

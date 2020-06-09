@@ -18,12 +18,14 @@ class Salesforce {
 	const SALESFORCE_ACCESS_TOKEN  = 'newspack_salesforce_access_token';
 	const SALESFORCE_REFRESH_TOKEN = 'newspack_salesforce_refresh_token';
 	const SALESFORCE_INSTANCE_URL  = 'newspack_salesforce_instance_url';
+	const SALESFORCE_WEBHOOK_ID    = 'newspack_salesforce_webhook_id';
 	const DEFAULT_SETTINGS         = [
 		'client_id'     => '',
 		'client_secret' => '',
 		'access_token'  => '',
 		'refresh_token' => '',
 		'instance_url'  => '',
+		'webhook_id'    => '',
 	];
 
 	/**
@@ -88,7 +90,49 @@ class Salesforce {
 			update_option( self::SALESFORCE_INSTANCE_URL, $update['instance_url'] );
 		}
 
+		// Get webhook id.
+		$webhook_id = get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
+
+		// If we're establishing a new connection and don't have an existing webhook, create a new one.
+		if ( empty( $webhook_id ) && ! empty( $args['refresh_token'] ) ) {
+			self::create_webhook();
+		}
+
+		// If we're resetting, let's delete the existing webhook, if it exists.
+		if ( ! empty( $webhook_id ) && '' === $args['refresh_token'] ) {
+			self::delete_webhook( $webhook_id );
+		}
+
 		return self::get_salesforce_settings();
+	}
+
+	/**
+	 * Create a WooCommerce webhook.
+	 *
+	 * @return void
+	 */
+	public static function create_webhook() {
+		$webhook = new \WC_Webhook();
+		$webhook->set_name( 'Sync Salesforce on order checkout' );
+		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
+		$webhook->set_delivery_url( NEWSPACK_API_URL . '/salesforce/sync' );
+		$webhook->set_status( 'active' );
+		$webhook->save();
+		$webhook_id = $webhook->get_id();
+
+		update_option( self::SALESFORCE_WEBHOOK_ID, $webhook_id );
+	}
+
+	/**
+	 * Delete a WooCommerce webhook.
+	 *
+	 * @param string $webhook_id ID for the webhook to delete.
+	 * @return void
+	 */
+	public static function delete_webhook( $webhook_id ) {
+		update_option( self::SALESFORCE_WEBHOOK_ID, '' );
+		$webhook = wc_get_webhook( $webhook_id );
+		$webhook->delete( true );
 	}
 
 	/**
@@ -98,7 +142,7 @@ class Salesforce {
 	 * @param $array $data Raw data to parse.
 	 * @return @array Parsed data.
 	 */
-	public function parse_update_data( $data ) {
+	public static function parse_update_data( $data ) {
 		$fields_to_update = [];
 
 		if ( ! empty( $data['Email'] ) ) {
@@ -119,7 +163,7 @@ class Salesforce {
 	 * @param string $email Email address of the lead.
 	 * @return array Array of found records with matching email attributes.
 	 */
-	public function get_leads_by_email( $email ) {
+	public static function get_leads_by_email( $email ) {
 		$salesforce_settings = self::get_salesforce_settings();
 		$query               = [
 			'q' => "SELECT Id, FirstName, LastName FROM Lead WHERE Email = '" . $email . "'",
@@ -159,7 +203,7 @@ class Salesforce {
 	 * @param array  $data Attributes and values to update in Salesforce.
 	 * @return int Response code of the update request.
 	 */
-	public function update_lead( $id, $data ) {
+	public static function update_lead( $id, $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
 		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Lead/' . $id;
 
@@ -201,7 +245,7 @@ class Salesforce {
 	 * @param array $data Data to use in creating the new lead. Keys must be valid Salesforce field names.
 	 * @return array Response from Salesforce API.
 	 */
-	public function create_lead( $data ) {
+	public static function create_lead( $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
 		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Lead/';
 
