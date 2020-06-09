@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack SalesForce features management.
+ * Newspack Salesforce features management.
  *
  * @package Newspack
  */
@@ -10,24 +10,26 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Handles SalesForce functionality.
+ * Handles Salesforce functionality.
  */
-class SalesForce {
+class Salesforce {
 	const SALESFORCE_CLIENT_ID     = 'newspack_salesforce_client_id';
 	const SALESFORCE_CLIENT_SECRET = 'newspack_salesforce_client_secret';
 	const SALESFORCE_ACCESS_TOKEN  = 'newspack_salesforce_access_token';
 	const SALESFORCE_REFRESH_TOKEN = 'newspack_salesforce_refresh_token';
+	const SALESFORCE_INSTANCE_URL  = 'newspack_salesforce_instance_url';
 	const DEFAULT_SETTINGS         = [
 		'client_id'     => '',
 		'client_secret' => '',
 		'access_token'  => '',
 		'refresh_token' => '',
+		'instance_url'  => '',
 	];
 
 	/**
-	 * Get the SalesForce settings.
+	 * Get the Salesforce settings.
 	 *
-	 * @return Array of SalesForce settings.
+	 * @return Array of Salesforce settings.
 	 */
 	public static function get_salesforce_settings() {
 		$settings = self::DEFAULT_SETTINGS;
@@ -48,36 +50,240 @@ class SalesForce {
 		if ( ! empty( $refresh_token ) ) {
 			$settings['refresh_token'] = $refresh_token;
 		}
+		$instance_url = get_option( self::SALESFORCE_INSTANCE_URL, 0 );
+		if ( ! empty( $instance_url ) ) {
+			$settings['instance_url'] = $instance_url;
+		}
 
 		return $settings;
 	}
 
 	/**
-	 * Set the SalesForce settings.
+	 * Set the Salesforce settings.
 	 *
 	 * @param array $args Array of settings info.
 	 * @return array Updated settings.
 	 */
 	public static function set_salesforce_settings( $args ) {
 		$defaults = self::DEFAULT_SETTINGS;
-		$args     = wp_parse_args( $args, $defaults );
+		$update   = wp_parse_args( $args, $defaults );
 
 		if ( array_key_exists( 'client_id', $args ) ) {
-			update_option( self::SALESFORCE_CLIENT_ID, $args['client_id'] );
+			update_option( self::SALESFORCE_CLIENT_ID, $update['client_id'] );
 		}
 
 		if ( array_key_exists( 'client_secret', $args ) ) {
-			update_option( self::SALESFORCE_CLIENT_SECRET, $args['client_secret'] );
+			update_option( self::SALESFORCE_CLIENT_SECRET, $update['client_secret'] );
 		}
 
 		if ( array_key_exists( 'access_token', $args ) ) {
-			update_option( self::SALESFORCE_ACCESS_TOKEN, $args['access_token'] );
+			update_option( self::SALESFORCE_ACCESS_TOKEN, $update['access_token'] );
 		}
 
 		if ( array_key_exists( 'refresh_token', $args ) ) {
-			update_option( self::SALESFORCE_REFRESH_TOKEN, $args['refresh_token'] );
+			update_option( self::SALESFORCE_REFRESH_TOKEN, $update['refresh_token'] );
+		}
+
+		if ( array_key_exists( 'instance_url', $args ) ) {
+			update_option( self::SALESFORCE_INSTANCE_URL, $update['instance_url'] );
 		}
 
 		return self::get_salesforce_settings();
+	}
+
+	/**
+	 * Parse data to send in an update or create request to Salesforce.
+	 * Ensures that the data only contains valid Salesforce field names.
+	 *
+	 * @param $array $data Raw data to parse.
+	 * @return @array Parsed data.
+	 */
+	public function parse_update_data( $data ) {
+		$fields_to_update = [];
+
+		if ( ! empty( $data['Email'] ) ) {
+			$fields_to_update['Email'] = $data['Email'];
+		}
+		if ( ! empty( $data['FirstName'] ) ) {
+			$fields_to_update['FirstName'] = $data['FirstName'];
+		}
+		if ( ! empty( $data['LastName'] ) ) {
+			$fields_to_update['LastName'] = $data['LastName'];
+		}
+
+		return $fields_to_update;
+	}
+	/**
+	 * Look up existing Lead records by email address.
+	 *
+	 * @param string $email Email address of the lead.
+	 * @return array Array of found records with matching email attributes.
+	 */
+	public function get_leads_by_email( $email ) {
+		$salesforce_settings = self::get_salesforce_settings();
+		$query               = [
+			'q' => "SELECT Id, FirstName, LastName FROM Lead WHERE Email = '" . $email . "'",
+		];
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/query?' . http_build_query( $query );
+
+		// Look up leads with a matching email address via Salesforce API, using cached access_token.
+		$response = wp_safe_remote_get(
+			$url,
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+				],
+			]
+		);
+
+		// If our access token has expired, refresh it and re-send the request.
+		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+			$access_token = self::refresh_salesforce_token();
+			$response     = wp_safe_remote_get(
+				$url,
+				[
+					'headers' => [
+						'Authorization' => 'Bearer ' . $access_token,
+					],
+				]
+			);
+		}
+
+		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * Update an existing Lead record by Id with the given data.
+	 *
+	 * @param string $id Unique ID of the record to update in Salesforce.
+	 * @param array  $data Attributes and values to update in Salesforce.
+	 * @return int Response code of the update request.
+	 */
+	public function update_lead( $id, $data ) {
+		$salesforce_settings = self::get_salesforce_settings();
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Lead/' . $id;
+
+		// Update lead record via Salesforce API, using cached access_token.
+		$response = wp_safe_remote_request(
+			$url,
+			[
+				'method'  => 'PATCH',
+				'headers' => [
+					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+					'Content-Type'  => 'application/json',
+				],
+				'body'    => wp_json_encode( $data ),
+			]
+		);
+
+		// If our access token has expired, refresh it and re-send the request.
+		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+			$access_token = self::refresh_salesforce_token();
+			$response     = wp_safe_remote_request(
+				$url,
+				[
+					'method'  => 'PATCH',
+					'headers' => [
+						'Authorization' => 'Bearer ' . $access_token,
+						'Content-Type'  => 'application/json',
+					],
+					'body'    => wp_json_encode( $data ),
+				]
+			);
+		}
+
+		return wp_remote_retrieve_response_code( $response );
+	}
+
+	/**
+	 * Create a new lead record in Salesforce.
+	 *
+	 * @param array $data Data to use in creating the new lead. Keys must be valid Salesforce field names.
+	 * @return array Response from Salesforce API.
+	 */
+	public function create_lead( $data ) {
+		$salesforce_settings = self::get_salesforce_settings();
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Lead/';
+
+		// Company is a required field for Salesforce leads, but not for WooCommerce.
+		if ( empty( $data['Company'] ) ) {
+			$data['Company'] = 'Unknown';
+		}
+
+		// Create lead record via Salesforce API, using cached access_token.
+		$response = wp_safe_remote_post(
+			$url,
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+					'Content-Type'  => 'application/json',
+				],
+				'body'    => wp_json_encode( $data ),
+			]
+		);
+
+		// If our access token has expired, refresh it and re-send the request.
+		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+			$access_token = self::refresh_salesforce_token();
+			$response     = wp_safe_remote_post(
+				$url,
+				[
+					'headers' => [
+						'Authorization' => 'Bearer ' . $access_token,
+						'Content-Type'  => 'application/json',
+					],
+					'body'    => wp_json_encode( $data ),
+				]
+			);
+		}
+
+		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * Get a new Salesforce token using a valid refresh token.
+	 *
+	 * @throws \Exception Error message.
+	 * @return string The new access token.
+	 */
+	public function refresh_salesforce_token() {
+		$salesforce_settings = self::get_salesforce_settings();
+
+		// Must have a valid API key and secret.
+		if ( empty( $salesforce_settings['client_id'] ) || empty( $salesforce_settings['client_secret'] ) ) {
+			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+		}
+
+		// Must have a valid refresh token.
+		if ( empty( $salesforce_settings['refresh_token'] ) ) {
+			throw new \Exception( 'Invalid refresh token.' );
+		}
+
+		// Hit Salesforce OAuth endpoint to request API tokens.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
+				[
+					'client_id'     => $salesforce_settings['client_id'],
+					'client_secret' => $salesforce_settings['client_secret'],
+					'refresh_token' => $salesforce_settings['refresh_token'],
+					'grant_type'    => 'refresh_token',
+					'format'        => 'json',
+				]
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		if ( ! empty( $response_body->access_token ) ) {
+
+			// Save tokens.
+			$update_response = self::set_salesforce_settings(
+				[
+					'access_token' => $response_body->access_token,
+				]
+			);
+
+			return $response_body->access_token;
+		}
 	}
 }

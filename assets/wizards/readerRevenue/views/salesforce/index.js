@@ -1,5 +1,5 @@
 /**
- * SalesForce Settings Screen
+ * Salesforce Settings Screen
  */
 
 /**
@@ -10,6 +10,7 @@ import { parse } from 'qs';
 /**
  * WordPress dependencies.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
@@ -21,9 +22,9 @@ import './style.scss';
 import { Notice, TextControl, Waiting, withWizardScreen } from '../../../../components/src';
 
 /**
- * SalesForce Settings Screen Component
+ * Salesforce Settings Screen Component
  */
-class SalesForce extends Component {
+class Salesforce extends Component {
 	/**
 	 * Constructor.
 	 */
@@ -37,10 +38,10 @@ class SalesForce extends Component {
 	}
 
 	/**
-	 * Use auth code to request access and refresh tokens for SalesForce API.
+	 * Use auth code to request access and refresh tokens for Salesforce API.
 	 * Saves tokens to options table.
 	 * https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5
-	 * @param {string} authorizationCode Auth code fetched from SalesForce.
+	 * @param {string} authorizationCode Auth code fetched from Salesforce.
 	 * @return {void}
 	 */
 	async getTokens( authorizationCode ) {
@@ -74,6 +75,20 @@ class SalesForce extends Component {
 		this.setState( { fetching: false } );
 	}
 
+	async testWebhookHandler() {
+		const response = await apiFetch( {
+			path: '/newspack/v1/salesforce/sync',
+			method: 'POST',
+			data: {
+				Email: 'newlead@hotmail.com',
+				FirstName: 'Hatchet',
+				LastName: 'Sullivan'
+			}
+		} );
+
+		console.log( response );
+	}
+
 	/**
 	 * Render.
 	 */
@@ -84,6 +99,10 @@ class SalesForce extends Component {
 			client_id,
 			client_secret
 		} = data;
+
+		console.log( data );
+
+		this.testWebhookHandler();
 
 		const query = parse( window.location.search );
 		const authorizationCode = query.code;
@@ -115,24 +134,28 @@ class SalesForce extends Component {
 
 					{
 						isConnected ?
-						<Notice noticeText={ __( 'Your site is connected to SalesForce.' ) } isSuccess />
+						<Notice noticeText={ __( 'Your site is connected to Salesforce.' ) } isSuccess />
 						:
 						<Fragment>
 							<p>
-								{ __( 'To connect with SalesForce, create or choose a Connected App for this site in your SalesForce dashboard. ' ) }
+								{ __( 'To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to add the the URL for this page as a Redirect URI in the Connected App’s settings. ' ) }
 								<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
 									{ __( 'Learn how to create a Connected App' ) }
 								</ExternalLink>
 							</p>
 
-							<p>{ __( 'Once you’ve created or located a Connected App for this site, you’ll find the Consumer Key and Secret under the “API (Enable OAuth Settings)” section in SalesForce.' ) }</p>
+							<p>{ __( 'Once you’ve created or located a Connected App for this site, you’ll find the Consumer Key and Secret under the “API (Enable OAuth Settings)” section in Salesforce.' ) }</p>
 
-							<p>{ __( 'Enter your Consumer Key and Secret below, then click “Connect” to authorize access to your SalesForce account.' ) }</p>
+							<p>{ __( 'Enter your Consumer Key and Secret below, then click “Connect” to authorize access to your Salesforce account.' ) }</p>
 						</Fragment>
 					}
 
+					{ isConnected && (
+						<p>{ __( 'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset" below. You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.' ) }</p>
+					) }
+
 					<TextControl
-						label={ ( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + __( ' SalesForce Consumer Key' ) }
+						label={ ( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + __( ' Salesforce Consumer Key' ) }
 						value={ client_id }
 						disabled={ isConnected }
 						onChange={ value => {
@@ -140,7 +163,7 @@ class SalesForce extends Component {
 						} }
 					/>
 					<TextControl
-						label={ __( ( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) +' SalesForce Consumer Secret' ) }
+						label={ __( ( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) +' Salesforce Consumer Secret' ) }
 						value={ client_secret }
 						disabled={ isConnected }
 						onChange={ value =>
@@ -153,9 +176,9 @@ class SalesForce extends Component {
 	}
 }
 
-SalesForce.defaultProps = {
+Salesforce.defaultProps = {
 	data: {},
 	onChange: () => null,
 };
 
-export default withWizardScreen( SalesForce );
+export default withWizardScreen( Salesforce );

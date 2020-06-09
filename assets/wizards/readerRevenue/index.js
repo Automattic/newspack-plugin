@@ -22,7 +22,7 @@ import GroupAddIcon from '@material-ui/icons/GroupAdd';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Donation, LocationSetup, StripeSetup, RevenueMain, SalesForce } from './views';
+import { Donation, LocationSetup, StripeSetup, RevenueMain, Salesforce } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -242,24 +242,25 @@ class ReaderRevenueWizard extends Component {
 						<Route
 							path="/salesforce"
 							render={ routeProps => (
-								<SalesForce
+								<Salesforce
 									routeProps={ routeProps }
 									data={ salesforceData }
 									headerIcon={ <GroupAddIcon /> }
-									headerText={ __( 'Configure SalesForce' ) }
+									headerText={ __( 'Configure Salesforce' ) }
 									isConnected={ salesforceIsConnected }
 									redirectURI={ window.location.href }
 									subHeaderText={ __(
-										'Connect your site with a SalesForce account to capture leads.'
+										'Connect your site with a Salesforce account to capture leads.'
 									) }
-									buttonText={ salesforceIsConnected ? __( 'Clear Connection' ) : __( 'Connect' ) }
+									buttonText={ salesforceIsConnected ? __( 'Reset' ) : __( 'Connect' ) }
 									buttonAction={ () => {
 										if ( salesforceIsConnected ) {
 											const defaultSettings = {
 												client_id: '',
 												client_secret: '',
 												access_token: '',
-												refresh_token: ''
+												refresh_token: '',
+												instance_url: ''
 											};
 											this.setState( { data: {  ...data, salesforceData: defaultSettings } } );
 											return this.update( 'salesforce', defaultSettings );

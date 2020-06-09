@@ -32,9 +32,9 @@ class RevenueMain extends Component {
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/donations"
 				/>
 				<ActionCard
-					title={ __( 'SalesForce' ) }
+					title={ __( 'Salesforce' ) }
 					description={ __(
-						'Integrate SalesForce to capture leads when readers donate to your organization.'
+						'Integrate Salesforce to capture leads when readers donate to your organization.'
 					) }
 					actionText={ __( 'Configure' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce"

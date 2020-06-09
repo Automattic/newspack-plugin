@@ -181,7 +181,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
-		// Save SalesForce settings.
+		// Save Salesforce settings.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/salesforce/',
@@ -206,7 +206,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
-		// Get access and refresh tokens from SalesForce.
+		// Get access and refresh tokens from Salesforce.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/salesforce/tokens',
@@ -361,13 +361,13 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
-	 * API endpoint for setting SalesForce settings.
+	 * API endpoint for setting Salesforce settings.
 	 *
 	 * @param WP_REST_Request $request Request containing settings.
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function api_update_salesforce_settings( $request ) {
-		$salesforce_response = SalesForce::set_salesforce_settings( $request->get_params() );
+		$salesforce_response = Salesforce::set_salesforce_settings( $request->get_params() );
 		if ( is_wp_error( $salesforce_response ) ) {
 			return rest_ensure_response( $salesforce_response );
 		}
@@ -375,7 +375,7 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
-	 * API endpoint for getting SalesForce API tokens.
+	 * API endpoint for getting Salesforce API tokens.
 	 *
 	 * @param WP_REST_Request $request Request containing settings.
 	 * @throws \Exception Error message.
@@ -383,14 +383,14 @@ class Reader_Revenue_Wizard extends Wizard {
 	 */
 	public function api_get_salesforce_tokens( $request ) {
 		$args                = $request->get_params();
-		$salesforce_settings = SalesForce::get_salesforce_settings();
+		$salesforce_settings = Salesforce::get_salesforce_settings();
 
 		// Must have a valid API key and secret.
 		if ( empty( $salesforce_settings['client_id'] ) || empty( $salesforce_settings['client_secret'] ) ) {
 			throw new \Exception( 'Invalid Consumer Key or Secret.' );
 		}
 
-		// Hit SalesForce OAuth endpoint to request API tokens.
+		// Hit Salesforce OAuth endpoint to request API tokens.
 		$salesforce_response = wp_safe_remote_post(
 			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
 				array(
@@ -410,7 +410,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			$update_args = wp_parse_args( $response_body, $salesforce_settings );
 
 			// Save tokens.
-			$update_response = SalesForce::set_salesforce_settings( $update_args );
+			$update_response = Salesforce::set_salesforce_settings( $update_args );
 			if ( is_wp_error( $update_response ) ) {
 				return \rest_ensure_response( $update_response );
 			}
@@ -433,7 +433,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'stripe_data'          => $wc_configuration_manager->stripe_data(),
 			'donation_data'        => Donations::get_donation_settings(),
 			'donation_page'        => Donations::get_donation_page_info(),
-			'salesforce_settings'  => SalesForce::get_salesforce_settings(),
+			'salesforce_settings'  => Salesforce::get_salesforce_settings(),
 		];
 	}
 
