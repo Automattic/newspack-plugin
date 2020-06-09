@@ -3,12 +3,6 @@
  */
 
 .newspack-campaigns-wizard-analytics {
-	&__loading {
-		height: 140px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
 	&__wrapper {
 		transition: opacity 200ms;
 		&--loading {
