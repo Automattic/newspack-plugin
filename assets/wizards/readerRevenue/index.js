@@ -37,7 +37,7 @@ class ReaderRevenueWizard extends Component {
 				locationData: {},
 				stripeData: {},
 				donationData: {},
-				salesforceData: {}
+				salesforceData: {},
 			},
 		};
 	}
@@ -109,7 +109,7 @@ class ReaderRevenueWizard extends Component {
 		countryStateFields: data.country_state_fields,
 		currencyFields: data.currency_fields,
 		donationPage: data.donation_page,
-		salesforceData: data.salesforce_settings
+		salesforceData: data.salesforce_settings,
 	} );
 
 	/**
@@ -135,7 +135,7 @@ class ReaderRevenueWizard extends Component {
 			stripeData,
 			donationData,
 			donationPage,
-			salesforceData
+			salesforceData,
 		} = data;
 
 		const tabbedNavigation = [
@@ -260,9 +260,10 @@ class ReaderRevenueWizard extends Component {
 												client_secret: '',
 												access_token: '',
 												refresh_token: '',
-												instance_url: ''
+												instance_url: '',
 											};
-											this.setState( { data: {  ...data, salesforceData: defaultSettings } } );
+
+											this.setState( { data: { ...data, salesforceData: defaultSettings } } );
 											return this.update( 'salesforce', defaultSettings );
 										}
 
@@ -270,10 +271,19 @@ class ReaderRevenueWizard extends Component {
 
 										if ( client_id && client_secret ) {
 											this.update( 'salesforce', salesforceData );
-											window.location.assign( `https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${ encodeURIComponent( client_id ) }&client_secret=${ encodeURIComponent( client_secret ) }&redirect_uri=${ encodeURIComponent( window.location.href ) }` );
+											window.location.assign(
+												`https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${ encodeURIComponent(
+													client_id
+												) }&client_secret=${ encodeURIComponent(
+													client_secret
+												) }&redirect_uri=${ encodeURIComponent( window.location.href ) }`
+											);
 										}
 									} }
-									buttonDisabled={ ! salesforceIsConnected && ( ! salesforceData.client_id || ! salesforceData.client_secret ) }
+									buttonDisabled={
+										! salesforceIsConnected &&
+										( ! salesforceData.client_id || ! salesforceData.client_secret )
+									}
 									onChange={ _salesforceData =>
 										this.setState( { data: { ...data, salesforceData: _salesforceData } } )
 									}
