@@ -25,7 +25,7 @@ const Chart = ( { data } ) => (
 					tickMargin={ 10 }
 				/>
 				<YAxis allowDecimals={ false } tickFormatter={ humanNumber } />
-				<Tooltip />
+				<Tooltip formatter={ value => humanNumber( value ) } />
 			</AreaChart>
 		</ResponsiveContainer>
 	</div>

@@ -3,6 +3,7 @@
  */
 import classnames from 'classnames';
 import { unescape } from 'lodash';
+import humanNumber from 'human-number';
 
 /**
  * WordPress dependencies.
@@ -41,7 +42,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 			</h2>
 			<div className="newspack-campaigns-wizard-analytics__info__sections">
 				{ [
-					{ label: __( 'Seen', 'newspack' ), value: seen },
+					{ label: __( 'Seen', 'newspack' ), value: humanNumber( seen ), withSeparator: true },
 					{
 						label: __( 'Conversion Rate', 'newspack' ),
 						value: hasConversionRate ? formatPercentage( form_submissions / seen ) : notApplicable,
@@ -49,6 +50,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 					{
 						label: __( 'Form Submissions', 'newspack' ),
 						value: hasConversionRate ? form_submissions : notApplicable,
+						withSeparator: true,
 					},
 					{
 						label: __( 'Click-through Rate', 'newspack' ),
@@ -63,6 +65,8 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 						className={ classnames(
 							'newspack-campaigns-wizard-analytics__info__sections__section',
 							{
+								'newspack-campaigns-wizard-analytics__info__sections__section--with-separator':
+									section.withSeparator,
 								'newspack-campaigns-wizard-analytics__info__sections__section--dimmed':
 									! isLoading && section.value === notApplicable,
 							}
