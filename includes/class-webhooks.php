@@ -39,14 +39,8 @@ class Webhooks {
 			NEWSPACK_API_NAMESPACE,
 			'/salesforce/sync',
 			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_sync_salesforce' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'email' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
+				'methods'  => \WP_REST_Server::EDITABLE,
+				'callback' => [ $this, 'api_sync_salesforce' ],
 			]
 		);
 	}
@@ -60,13 +54,13 @@ class Webhooks {
 	 */
 	public function api_sync_salesforce( $request ) {
 		$args             = $request->get_params();
-		$fields_to_update = Salesforce::parse_update_data( $args );
+		$fields_to_update = Salesforce::parse_wc_order_data( $args );
 
-		if ( empty( $args['Email'] ) ) {
-			throw new \Exception( 'Please provide a valid email address to query with.' );
+		if ( empty( $fields_to_update['Email'] ) ) {
+			return \rest_ensure_response( 'No valid email address.' );
 		}
 
-		$leads = Salesforce::get_leads_by_email( $args['Email'] );
+		$leads = Salesforce::get_leads_by_email( $fields_to_update['Email'] );
 
 		if ( $leads->totalSize > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			// Update existing lead.
@@ -77,25 +71,6 @@ class Webhooks {
 		}
 
 		return \rest_ensure_response( $response );
-	}
-
-	/**
-	 * Check capabilities for using API.
-	 *
-	 * @param WP_REST_Request $request API request object.
-	 * @return bool|WP_Error
-	 */
-	public function api_permissions_check( $request ) {
-		if ( ! current_user_can( $this->capability ) ) {
-			return new \WP_Error(
-				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
-				[
-					'status' => 403,
-				]
-			);
-		}
-		return true;
 	}
 }
 

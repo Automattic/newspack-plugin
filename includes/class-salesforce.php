@@ -117,6 +117,7 @@ class Salesforce {
 		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
 		$webhook->set_delivery_url( NEWSPACK_API_URL . '/salesforce/sync' );
 		$webhook->set_status( 'active' );
+		$webhook->set_secret( 'newspack' );
 		$webhook->save();
 		$webhook_id = $webhook->get_id();
 
@@ -136,23 +137,53 @@ class Salesforce {
 	}
 
 	/**
-	 * Parse data to send in an update or create request to Salesforce.
+	 * Parse WooCommerce order data to send in an update or create request to Salesforce.
 	 * Ensures that the data only contains valid Salesforce field names.
 	 *
 	 * @param $array $data Raw data to parse.
 	 * @return @array Parsed data.
 	 */
-	public static function parse_update_data( $data ) {
+	public static function parse_wc_order_data( $data ) {
 		$fields_to_update = [];
 
-		if ( ! empty( $data['Email'] ) ) {
-			$fields_to_update['Email'] = $data['Email'];
+		// We need billing info from the order before we can do anything.
+		if ( empty( $data['billing'] ) ) {
+			return $fields_to_update;
 		}
-		if ( ! empty( $data['FirstName'] ) ) {
-			$fields_to_update['FirstName'] = $data['FirstName'];
+
+		// Parse billing info from WooCommerce.
+		if ( ! empty( $data['billing']['email'] ) ) {
+			$fields_to_update['Email'] = $data['billing']['email'];
 		}
-		if ( ! empty( $data['LastName'] ) ) {
-			$fields_to_update['LastName'] = $data['LastName'];
+		if ( ! empty( $data['billing']['first_name'] ) ) {
+			$fields_to_update['FirstName'] = $data['billing']['first_name'];
+		}
+		if ( ! empty( $data['billing']['last_name'] ) ) {
+			$fields_to_update['LastName'] = $data['billing']['last_name'];
+		}
+		if ( ! empty( $data['billing']['company'] ) ) {
+			$fields_to_update['Company'] = $data['billing']['company'];
+		}
+		if ( ! empty( $data['billing']['phone'] ) ) {
+			$fields_to_update['Phone'] = $data['billing']['phone'];
+		}
+		if ( ! empty( $data['billing']['address_1'] ) ) {
+			$fields_to_update['Street'] = $data['billing']['address_1'];
+		}
+		if ( ! empty( $data['billing']['address_2'] ) ) {
+			$fields_to_update['Street'] .= "\n" . $data['billing']['address_2'];
+		}
+		if ( ! empty( $data['billing']['city'] ) ) {
+			$fields_to_update['City'] = $data['billing']['city'];
+		}
+		if ( ! empty( $data['billing']['state'] ) ) {
+			$fields_to_update['State'] = $data['billing']['state'];
+		}
+		if ( ! empty( $data['billing']['postcode'] ) ) {
+			$fields_to_update['PostalCode'] = $data['billing']['postcode'];
+		}
+		if ( ! empty( $data['line_items'] ) ) {
+			$fields_to_update['Description'] = wp_json_encode( $data['line_items'] );
 		}
 
 		return $fields_to_update;
@@ -236,7 +267,7 @@ class Salesforce {
 			);
 		}
 
-		return wp_remote_retrieve_response_code( $response );
+		return $response;
 	}
 
 	/**
@@ -290,7 +321,7 @@ class Salesforce {
 	 * @throws \Exception Error message.
 	 * @return string The new access token.
 	 */
-	public function refresh_salesforce_token() {
+	public static function refresh_salesforce_token() {
 		$salesforce_settings = self::get_salesforce_settings();
 
 		// Must have a valid API key and secret.
