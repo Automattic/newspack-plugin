@@ -25,15 +25,26 @@ import { Notice, TextControl, Waiting, withWizardScreen } from '../../../../comp
  */
 class Salesforce extends Component {
 	/**
-	 * Constructor.
+	 * On component mount.
 	 */
-	constructor( props ) {
-		super( props );
+	componentDidMount() {
+		const query = parse( window.location.search );
+		const authorizationCode = query.code;
 
-		this.state = {
-			error: null,
-			fetching: false,
-		};
+		if ( authorizationCode ) {
+			// Remove `code` param from URL without adding history.
+			window.history.replaceState(
+				{},
+				'',
+				window.location.origin +
+					window.location.pathname +
+					'?page=' +
+					query[ '?page' ] +
+					window.location.hash
+			);
+
+			this.getTokens( authorizationCode );
+		}
 	}
 
 	/**
@@ -80,40 +91,12 @@ class Salesforce extends Component {
 	 */
 	render() {
 		const { data, isConnected, onChange } = this.props;
-		const { error, fetching } = this.state;
 		const { client_id, client_secret } = data;
-
-		const query = parse( window.location.search );
-		const authorizationCode = query.code;
-
-		if ( authorizationCode ) {
-			// Remove param from URL so we don't get stuck in a re-render loop.
-			window.history.replaceState(
-				{},
-				'',
-				window.location.origin +
-					window.location.pathname +
-					'?page=' +
-					query[ '?page' ] +
-					window.location.hash
-			);
-
-			this.getTokens( authorizationCode );
-		}
 
 		return (
 			<div className="newspack-salesforce-wizard">
 				<Fragment>
 					<h2>{ __( 'Connected App settings' ) }</h2>
-
-					{ fetching && (
-						<div className="newspack_salesforce_loading">
-							<Waiting isLeft />
-							{ __( 'Connecting...', 'newspack' ) }
-						</div>
-					) }
-
-					{ error && <Notice noticeText={ error } isWarning /> }
 
 					{ isConnected ? (
 						<Notice noticeText={ __( 'Your site is connected to Salesforce.' ) } isSuccess />
