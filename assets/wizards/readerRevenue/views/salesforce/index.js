@@ -30,20 +30,18 @@ class Salesforce extends Component {
 	componentDidMount() {
 		const query = parse( window.location.search );
 		const authorizationCode = query.code;
+		const redirectURI =
+			window.location.origin +
+			window.location.pathname +
+			'?page=' +
+			query[ '?page' ] +
+			window.location.hash;
 
 		if ( authorizationCode ) {
 			// Remove `code` param from URL without adding history.
-			window.history.replaceState(
-				{},
-				'',
-				window.location.origin +
-					window.location.pathname +
-					'?page=' +
-					query[ '?page' ] +
-					window.location.hash
-			);
+			window.history.replaceState( {}, '', redirectURI );
 
-			this.getTokens( authorizationCode );
+			this.getTokens( authorizationCode, redirectURI );
 		}
 	}
 
@@ -55,11 +53,8 @@ class Salesforce extends Component {
 	 * @param {string} authorizationCode Auth code fetched from Salesforce.
 	 * @return {void}
 	 */
-	async getTokens( authorizationCode ) {
-		const { onChange, redirectURI, wizardApiFetch } = this.props;
-
-		// Init fetching state.
-		this.setState( { fetching: true } );
+	async getTokens( authorizationCode, redirectURI ) {
+		const { data, onChange, wizardApiFetch } = this.props;
 
 		try {
 			// Get the tokens.
@@ -72,12 +67,21 @@ class Salesforce extends Component {
 				},
 			} );
 
+			const { access_token, client_id, client_secret, instance_url, refresh_token } = response;
+
 			// Update values in parent state.
-			if ( response.access_token && response.refresh_token ) {
-				onChange( response );
-			} else {
-				throw new Error( 'Could not retrieve access tokens. Please try connecting again.' );
+			if ( access_token && refresh_token ) {
+				return onChange( {
+					...data,
+					access_token,
+					client_id,
+					client_secret,
+					instance_url,
+					refresh_token,
+				} );
 			}
+
+			throw new Error( 'Could not retrieve access tokens. Please try connecting again.' );
 		} catch ( e ) {
 			console.error( e );
 		}
@@ -135,8 +139,10 @@ class Salesforce extends Component {
 							( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + __( ' Salesforce Consumer Key' )
 						}
 						value={ client_id }
-						disabled={ isConnected }
 						onChange={ value => {
+							if ( isConnected ) {
+								return;
+							}
 							onChange( { ...data, client_id: value } );
 						} }
 					/>
@@ -145,8 +151,12 @@ class Salesforce extends Component {
 							( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + ' Salesforce Consumer Secret'
 						) }
 						value={ client_secret }
-						disabled={ isConnected }
-						onChange={ value => onChange( { ...data, client_secret: value } ) }
+						onChange={ value => {
+							if ( isConnected ) {
+								return;
+							}
+							onChange( { ...data, client_secret: value } );
+						} }
 					/>
 				</Fragment>
 			</div>

@@ -248,7 +248,6 @@ class ReaderRevenueWizard extends Component {
 									headerIcon={ <GroupAddIcon /> }
 									headerText={ __( 'Configure Salesforce' ) }
 									isConnected={ salesforceIsConnected }
-									redirectURI={ window.location.href }
 									subHeaderText={ __(
 										'Connect your site with a Salesforce account to capture leads.'
 									) }
