@@ -135,6 +135,7 @@ class Salesforce extends Component {
 					) }
 
 					<TextControl
+						disabled={ isConnected }
 						label={
 							( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + __( ' Salesforce Consumer Key' )
 						}
@@ -147,6 +148,7 @@ class Salesforce extends Component {
 						} }
 					/>
 					<TextControl
+						disabled={ isConnected }
 						label={ __(
 							( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + ' Salesforce Consumer Secret'
 						) }
