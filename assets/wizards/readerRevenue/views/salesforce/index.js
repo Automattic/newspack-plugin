@@ -18,7 +18,7 @@ import { Component, Fragment } from '@wordpress/element';
  * Internal dependencies.
  */
 import './style.scss';
-import { Notice, TextControl, Waiting, withWizardScreen } from '../../../../components/src';
+import { Notice, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * Salesforce Settings Screen Component
@@ -79,11 +79,8 @@ class Salesforce extends Component {
 				throw new Error( 'Could not retrieve access tokens. Please try connecting again.' );
 			}
 		} catch ( e ) {
-			this.setState( { error: e } );
+			console.error( e );
 		}
-
-		// End fetching state.
-		this.setState( { fetching: false } );
 	}
 
 	/**
