@@ -121,13 +121,16 @@
     "@wordpress/html-entities": "^2.6.0",
     "@wordpress/keycodes": "^2.12.0",
     "@wordpress/url": "^2.10.0",
-    "date-fns": "^2.11.1",
+    "date-fns": "^2.14.0",
+    "dompurify": "^2.0.11",
     "happychat-client": "^0.1.0",
     "human-number": "^1.0.5",
+    "marked": "^1.1.0",
     "qs": "^6.9.3",
     "react": "^16.12.0",
     "react-dropzone": "^10.2.1",
-    "recharts": "^1.8.5"
+    "recharts": "^1.8.5",
+    "whatwg-fetch": "^3.0.0"
   },
   "release": {
     "branches": [

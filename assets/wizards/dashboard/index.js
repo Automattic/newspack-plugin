@@ -19,6 +19,7 @@ import ViewModuleIcon from '@material-ui/icons/ViewModule';
  */
 import { Button, Card, Grid, NewspackLogo } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
+import DevInfo from './views/DevInfo';
 import './style.scss';
 
 /**
@@ -43,12 +44,17 @@ class Dashboard extends Component {
 		const { items } = this.props;
 		const { view } = this.state;
 
+		const isWide = view === 'grid' && true;
+
 		return (
 			<Fragment>
 				<div className="newspack-logo-wrapper">
 					<NewspackLogo />
 				</div>
-				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
+				<Grid isWide={ isWide }>
+					<DevInfo />
+				</Grid>
+				<Grid className={ 'view-' + view } isWide={ isWide }>
 					<Card noBackground className="newspack-dashboard-card__views">
 						<Button
 							icon={ <ViewListIcon /> }
