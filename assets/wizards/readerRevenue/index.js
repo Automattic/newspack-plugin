@@ -131,11 +131,6 @@ class ReaderRevenueWizard extends Component {
 		const { salesforceData } = data;
 		const salesforceIsConnected = !! salesforceData.refresh_token;
 
-		// Clear any previous error messages.
-		this.setState( {
-			data: { ...data, salesforceData: { ...salesforceData, error: null } },
-		} );
-
 		// If Salesforce is already connected, button should reset settings.
 		if ( salesforceIsConnected ) {
 			const defaultSettings = {
@@ -160,8 +155,10 @@ class ReaderRevenueWizard extends Component {
 				window.location.href
 			) }`;
 
+			console.log( loginUrl );
+
 			// Save credentials to options table.
-			this.update( 'salesforce', salesforceData );
+			await this.update( 'salesforce', salesforceData );
 
 			// Validate credentials before redirecting.
 			const valid = await wizardApiFetch( {

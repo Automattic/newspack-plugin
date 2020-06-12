@@ -90,7 +90,8 @@ class Salesforce extends Component {
 		} catch ( e ) {
 			console.error( e );
 			this.setState( {
-				error: 'Could not establish a connection to Salesforce. Please try connecting again.',
+				error:
+					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.',
 			} );
 		}
 	}
@@ -115,17 +116,11 @@ class Salesforce extends Component {
 						<Fragment>
 							<p>
 								{ __(
-									'To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to add the the URL for this page as a Redirect URI in the Connected App’s settings. '
+									'To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the the full URL for this page into the “Callback URL” field in the Connected App’s settings. '
 								) }
 								<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
 									{ __( 'Learn how to create a Connected App' ) }
 								</ExternalLink>
-							</p>
-
-							<p>
-								{ __(
-									'Once you’ve created or located a Connected App for this site, you’ll find the Consumer Key and Secret under the “API (Enable OAuth Settings)” section in Salesforce.'
-								) }
 							</p>
 
 							<p>
@@ -147,7 +142,7 @@ class Salesforce extends Component {
 					{ error && (
 						<Notice
 							noticeText={ __(
-								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again.'
+								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take at least 10 minutes before we can establish a connection.'
 							) }
 							isWarning
 						/>
