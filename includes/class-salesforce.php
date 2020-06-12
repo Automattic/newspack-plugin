@@ -188,6 +188,7 @@ class Salesforce {
 
 		return $fields_to_update;
 	}
+
 	/**
 	 * Look up existing Lead records by email address.
 	 *

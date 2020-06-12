@@ -24,6 +24,13 @@ import { Notice, TextControl, withWizardScreen } from '../../../../components/sr
  * Salesforce Settings Screen Component
  */
 class Salesforce extends Component {
+	constructor() {
+		super( ...arguments );
+		this.state = {
+			error: null,
+		};
+	}
+
 	/**
 	 * On component mount.
 	 */
@@ -80,10 +87,11 @@ class Salesforce extends Component {
 					refresh_token,
 				} );
 			}
-
-			throw new Error( 'Could not retrieve access tokens. Please try connecting again.' );
 		} catch ( e ) {
 			console.error( e );
+			this.setState( {
+				error: 'Could not establish a connection to Salesforce. Please try connecting again.',
+			} );
 		}
 	}
 
@@ -92,12 +100,14 @@ class Salesforce extends Component {
 	 */
 	render() {
 		const { data, isConnected, onChange } = this.props;
-		const { client_id, client_secret } = data;
+		const { client_id, client_secret, error } = data;
 
 		return (
 			<div className="newspack-salesforce-wizard">
 				<Fragment>
 					<h2>{ __( 'Connected App settings' ) }</h2>
+
+					{ this.state.error && <Notice noticeText={ this.state.error } isWarning /> }
 
 					{ isConnected ? (
 						<Notice noticeText={ __( 'Your site is connected to Salesforce.' ) } isSuccess />
@@ -132,6 +142,15 @@ class Salesforce extends Component {
 								'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset" below. You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.'
 							) }
 						</p>
+					) }
+
+					{ error && (
+						<Notice
+							noticeText={ __(
+								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again.'
+							) }
+							isWarning
+						/>
 					) }
 
 					<TextControl

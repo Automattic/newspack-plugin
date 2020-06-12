@@ -123,6 +123,68 @@ class ReaderRevenueWizard extends Component {
 	};
 
 	/**
+	 * Button handler for Salesforce wizard.
+	 */
+	handleSalesforce = async () => {
+		const { wizardApiFetch } = this.props;
+		const { data } = this.state;
+		const { salesforceData } = data;
+		const salesforceIsConnected = !! salesforceData.refresh_token;
+
+		// Clear any previous error messages.
+		this.setState( {
+			data: { ...data, salesforceData: { ...salesforceData, error: null } },
+		} );
+
+		// If Salesforce is already connected, button should reset settings.
+		if ( salesforceIsConnected ) {
+			const defaultSettings = {
+				client_id: '',
+				client_secret: '',
+				access_token: '',
+				refresh_token: '',
+				instance_url: '',
+			};
+
+			this.setState( { data: { ...data, salesforceData: defaultSettings } } );
+			return this.update( 'salesforce', defaultSettings );
+		}
+
+		// Otherwise, attempt to establish a connection with Salesforce.
+		const { client_id, client_secret } = salesforceData;
+
+		if ( client_id && client_secret ) {
+			const loginUrl = `https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${ encodeURIComponent(
+				client_id
+			) }&client_secret=${ encodeURIComponent( client_secret ) }&redirect_uri=${ encodeURIComponent(
+				window.location.href
+			) }`;
+
+			// Save credentials to options table.
+			this.update( 'salesforce', salesforceData );
+
+			// Validate credentials before redirecting.
+			const valid = await wizardApiFetch( {
+				path: '/newspack/v1/wizard/salesforce/validate',
+				method: 'POST',
+				data: {
+					client_id,
+					client_secret,
+					redirect_uri: window.location.href,
+				},
+			} );
+
+			if ( valid ) {
+				return window.location.assign( loginUrl );
+			}
+
+			this.setState( {
+				data: { ...data, salesforceData: { ...salesforceData, error: 'invalid_credentials' } },
+			} );
+		}
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
@@ -252,33 +314,7 @@ class ReaderRevenueWizard extends Component {
 										'Connect your site with a Salesforce account to capture leads.'
 									) }
 									buttonText={ salesforceIsConnected ? __( 'Reset' ) : __( 'Connect' ) }
-									buttonAction={ () => {
-										if ( salesforceIsConnected ) {
-											const defaultSettings = {
-												client_id: '',
-												client_secret: '',
-												access_token: '',
-												refresh_token: '',
-												instance_url: '',
-											};
-
-											this.setState( { data: { ...data, salesforceData: defaultSettings } } );
-											return this.update( 'salesforce', defaultSettings );
-										}
-
-										const { client_id, client_secret } = salesforceData;
-
-										if ( client_id && client_secret ) {
-											this.update( 'salesforce', salesforceData );
-											window.location.assign(
-												`https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${ encodeURIComponent(
-													client_id
-												) }&client_secret=${ encodeURIComponent(
-													client_secret
-												) }&redirect_uri=${ encodeURIComponent( window.location.href ) }`
-											);
-										}
-									} }
+									buttonAction={ this.handleSalesforce }
 									buttonDisabled={
 										! salesforceIsConnected &&
 										( ! salesforceData.client_id || ! salesforceData.client_secret )

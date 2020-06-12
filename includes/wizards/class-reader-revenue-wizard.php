@@ -206,6 +206,17 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
+		// Validate Salesforce client_id and client_secret credentials.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/salesforce/validate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_validate_salesforce_creds' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 		// Get access and refresh tokens from Salesforce.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -372,6 +383,33 @@ class Reader_Revenue_Wizard extends Wizard {
 			return rest_ensure_response( $salesforce_response );
 		}
 		return \rest_ensure_response( $this->fetch_all_data() );
+	}
+
+	/**
+	 * API endpoint for validating Salesforce client id/secret credentials.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function api_validate_salesforce_creds( $request ) {
+		$args  = $request->get_params();
+		$valid = false;
+
+		// Must have a valid API key and secret.
+		if ( ! empty( $args['client_id'] ) && ! empty( $args['client_secret'] ) ) {
+			$url = 'https://login.salesforce.com/services/oauth2/authorize?response_type=code&' . http_build_query(
+				[
+					'client_id'     => $args['client_id'],
+					'client_secret' => $args['client_secret'],
+					'redirect_uri'  => $args['redirect_uri'],
+				]
+			);
+
+			$response = wp_safe_remote_get( $url );
+			$valid    = wp_remote_retrieve_response_code( $response ) === 200;
+		}
+
+		return \rest_ensure_response( $valid );
 	}
 
 	/**
