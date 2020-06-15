@@ -142,7 +142,7 @@ class Salesforce extends Component {
 					{ error && (
 						<Notice
 							noticeText={ __(
-								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take at least 10 minutes before we can establish a connection.'
+								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take up to an hour before we can establish a connection.'
 							) }
 							isWarning
 						/>

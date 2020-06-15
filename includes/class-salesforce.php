@@ -117,7 +117,7 @@ class Salesforce {
 		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
 		$webhook->set_delivery_url( NEWSPACK_API_URL . '/salesforce/sync' );
 		$webhook->set_status( 'active' );
-		$webhook->set_secret( 'newspack' );
+		$webhook->set_user_id( get_current_user_id() );
 		$webhook->save();
 		$webhook_id = $webhook->get_id();
 
