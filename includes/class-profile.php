@@ -84,7 +84,7 @@ class Profile {
 		// Get profile data.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/profile/',
+			'/profile',
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_profile' ],
@@ -95,7 +95,7 @@ class Profile {
 		// Update profile data.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/profile/',
+			'/profile',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_profile' ],

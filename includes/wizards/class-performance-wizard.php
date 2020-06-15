@@ -71,7 +71,7 @@ class Performance_Wizard extends Wizard {
 	public function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/performance/',
+			'/wizard/performance',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_settings' ],
@@ -80,7 +80,7 @@ class Performance_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/performance/',
+			'/wizard/performance',
 			[
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'api_update_settings' ],

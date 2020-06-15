@@ -83,7 +83,7 @@ class Health_Check_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/repair/(?P<configuration>[\a-z]+)/',
+			'/wizard/' . $this->slug . '/repair/(?P<configuration>[\a-z]+)',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_repair_configuration' ],

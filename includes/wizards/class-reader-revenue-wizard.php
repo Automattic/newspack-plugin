@@ -86,7 +86,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// Save location info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/location/',
+			'/wizard/' . $this->slug . '/location',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_location' ],
@@ -122,7 +122,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// Save Stripe info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/stripe/',
+			'/wizard/' . $this->slug . '/stripe',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
@@ -153,7 +153,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// Save a subscription.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/donations/',
+			'/wizard/' . $this->slug . '/donations',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_donation_settings' ],
@@ -183,7 +183,7 @@ class Reader_Revenue_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/newspack-donations-wizard/donation/',
+			'/wizard/newspack-donations-wizard/donation',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'api_get_donation_settings' ],

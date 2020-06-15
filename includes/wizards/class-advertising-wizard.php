@@ -105,7 +105,7 @@ class Advertising_Wizard extends Wizard {
 		// Get all Newspack advertising data.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/',
+			'/wizard/advertising',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_advertising' ],
@@ -572,7 +572,7 @@ class Advertising_Wizard extends Wizard {
 
 		?>
 		<div class='newspack_global_ad <?php echo esc_attr( $placement_slug ); ?>'>
-			<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> 
+			<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 		<?php
 	}

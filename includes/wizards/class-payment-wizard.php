@@ -54,7 +54,7 @@ class Payment_Wizard extends Wizard {
 		// Get data about Stripe customer/subscription.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/newspack-payment-wizard/',
+			'/wizard/newspack-payment-wizard',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_stripe_data' ],
