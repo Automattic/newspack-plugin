@@ -7,13 +7,13 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies.
  */
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies.
  */
-import { withWizardScreen } from '../../../../components/src';
+import { withWizardScreen, Notice } from '../../../../components/src';
 import Filters from './Filters';
 import Chart from './Chart';
 import Info from './Info';
@@ -25,6 +25,7 @@ import { useFiltersState, useAnalyticsState } from './utils';
  */
 const PopupAnalytics = ( { setError, isLoading, startLoading, doneLoading } ) => {
 	const [ filtersState, dispatchFilter ] = useFiltersState();
+	const [ siteKitWarningText, setSiteKitWarningText ] = useState();
 	const [ state, updateState ] = useAnalyticsState();
 	const { report, labels, actions, key_metrics, post_edit_link, hasFetchedOnce } = state;
 
@@ -35,7 +36,17 @@ const PopupAnalytics = ( { setError, isLoading, startLoading, doneLoading } ) =>
 				updateState( { type: 'UPDATE_ALL', payload: response } );
 				doneLoading();
 			} )
-			.catch( setError );
+			.catch( error => {
+				if (
+					error.code === 'newspack_campaign_analytics_sitekit_disconnected' ||
+					error.code === 'newspack_campaign_analytics_sitekit_auth'
+				) {
+					setSiteKitWarningText( error.message );
+					doneLoading();
+				} else {
+					setError( error );
+				}
+			} );
 	}, [ filtersState ] );
 
 	if ( ! hasFetchedOnce && isLoading ) {
@@ -43,6 +54,16 @@ const PopupAnalytics = ( { setError, isLoading, startLoading, doneLoading } ) =>
 	}
 
 	const handleFilterChange = type => payload => dispatchFilter( { type, payload } );
+
+	if ( siteKitWarningText ) {
+		return (
+			<Notice
+				rawHTML
+				isWarning
+				noticeText={ `<a href="/wp-admin/admin.php?page=googlesitekit-splash">${ siteKitWarningText }</a>` }
+			/>
+		);
+	}
 
 	return (
 		<div
