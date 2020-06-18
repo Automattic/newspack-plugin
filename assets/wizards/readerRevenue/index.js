@@ -9,6 +9,7 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Material UI dependencies.
@@ -149,13 +150,12 @@ class ReaderRevenueWizard extends Component {
 		const { client_id, client_secret } = salesforceData;
 
 		if ( client_id && client_secret ) {
-			const loginUrl = `https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${ encodeURIComponent(
-				client_id
-			) }&client_secret=${ encodeURIComponent( client_secret ) }&redirect_uri=${ encodeURIComponent(
-				window.location.href
-			) }`;
-
-			console.log( loginUrl );
+			const loginUrl = addQueryArgs( 'https://login.salesforce.com/services/oauth2/authorize', {
+				response_type: 'code',
+				client_id: encodeURIComponent( client_id ),
+				client_secret: encodeURIComponent( client_secret ),
+				redirect_uri: encodeURI( window.location.href ),
+			} );
 
 			// Save credentials to options table.
 			await this.update( 'salesforce', salesforceData );

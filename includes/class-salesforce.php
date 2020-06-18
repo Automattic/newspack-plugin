@@ -99,7 +99,7 @@ class Salesforce {
 		}
 
 		// If we're resetting, let's delete the existing webhook, if it exists.
-		if ( ! empty( $webhook_id ) && '' === $args['refresh_token'] ) {
+		if ( ! empty( $webhook_id ) && isset( $args['refresh_token'] ) && '' === $args['refresh_token'] ) {
 			self::delete_webhook( $webhook_id );
 		}
 
