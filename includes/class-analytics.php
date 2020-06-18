@@ -191,6 +191,9 @@ class Analytics {
 				case 'scroll':
 					self::output_js_scroll_event( $event );
 					break;
+				case 'submit':
+					self::output_js_submit_event( $event );
+					break;
 				default:
 					break;
 			}
@@ -267,6 +270,35 @@ class Analytics {
 				// Fire initially - page might be loaded with scroll offset.
 				reportEvent()
 				window.addEventListener( 'scroll', reportEvent );
+			} )();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Output JS for a form submit-based event listener.
+	 *
+	 * @param array $event Event info. See 'get_events'.
+	 */
+	protected static function output_js_submit_event( $event ) {
+		?>
+		<script>
+			( function() {
+				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
+
+				for ( var i = 0; i < elements.length; ++i ) {
+					elements[i].addEventListener( 'submit', function() {
+						gtag(
+							'event',
+							'<?php echo esc_attr( $event['event_name'] ); ?>',
+							{
+								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							}
+						);
+					} );
+				}
 			} )();
 		</script>
 		<?php
