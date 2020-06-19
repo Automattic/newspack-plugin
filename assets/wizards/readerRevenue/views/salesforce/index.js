@@ -53,6 +53,23 @@ class Salesforce extends Component {
 	}
 
 	/**
+	 * On component update.
+	 */
+	componentDidUpdate( prevProps ) {
+		const { isConnected } = this.props;
+
+		// Clear any state errors on reset.
+		if ( prevProps.isConnected && ! isConnected ) {
+			return this.setState( { error: null } );
+		}
+
+		// If we're already connected, check status of refresh token.
+		if ( ! prevProps.isConnected && isConnected ) {
+			return this.checkToken();
+		}
+	}
+
+	/**
 	 * Use auth code to request access and refresh tokens for Salesforce API.
 	 * Saves tokens to options table.
 	 * https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5
@@ -90,9 +107,36 @@ class Salesforce extends Component {
 		} catch ( e ) {
 			console.error( e );
 			this.setState( {
-				error:
-					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.',
+				error: __(
+					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.'
+				),
 			} );
+		}
+	}
+
+	/**
+	 * Check validity of refresh token and show an error message if it's no longer active.
+	 * The refresh token is valid until it's manually revoked in the Salesforce dashboard,
+	 * or the Connected App is deleted there.
+	 */
+	async checkToken() {
+		const { data, wizardApiFetch } = this.props;
+		const error = __(
+			'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.'
+		);
+
+		try {
+			const response = await wizardApiFetch( {
+				path: '/newspack/v1/wizard/salesforce/introspect',
+				method: 'POST',
+			} );
+
+			if ( true !== response.active ) {
+				this.setState( { error } );
+			}
+		} catch ( e ) {
+			console.error( e );
+			this.setState( { error } );
 		}
 	}
 
@@ -110,9 +154,11 @@ class Salesforce extends Component {
 
 					{ this.state.error && <Notice noticeText={ this.state.error } isWarning /> }
 
-					{ isConnected ? (
+					{ isConnected && ! this.state.error && (
 						<Notice noticeText={ __( 'Your site is connected to Salesforce.' ) } isSuccess />
-					) : (
+					) }
+
+					{ ! isConnected && ! this.state.error && (
 						<Fragment>
 							<p>
 								{ __(

@@ -239,6 +239,17 @@ class Reader_Revenue_Wizard extends Wizard {
 			]
 		);
 
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/salesforce/introspect',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_check_salesforce_token' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/newspack-donations-wizard/donation/',
@@ -455,6 +466,40 @@ class Reader_Revenue_Wizard extends Wizard {
 
 			return \rest_ensure_response( $update_args );
 		}
+	}
+
+	/**
+	 * API endpoint for checking validity of a Salesforce refresh token.
+	 *
+	 * @throws \Exception Error message.
+	 * @return WP_REST_Response with the active status.
+	 */
+	public function api_check_salesforce_token() {
+		$salesforce_settings = Salesforce::get_salesforce_settings();
+
+		// Must have a valid API key and secret.
+		if (
+			empty( $salesforce_settings['client_id'] ) ||
+			empty( $salesforce_settings['client_secret'] ) ||
+			empty( $salesforce_settings['refresh_token'] )
+		) {
+			throw new \Exception( 'Invalid Consumer Key, Secret, or Refresh Token.' );
+		}
+
+		// Hit Salesforce OAuth endpoint to introspect refresh token.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/introspect?' . http_build_query(
+				array(
+					'client_id'     => $salesforce_settings['client_id'],
+					'client_secret' => $salesforce_settings['client_secret'],
+					'token'         => $salesforce_settings['refresh_token'],
+				)
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		return \rest_ensure_response( $response_body );
 	}
 
 	/**
