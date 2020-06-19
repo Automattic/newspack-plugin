@@ -113,7 +113,7 @@ class Analytics {
 				'id'             => 'newsletterSignup',
 				'amp_on'         => 'amp-form-submit-success',
 				'on'             => 'submit',
-				'element'        => '#mailchimp_form',
+				'element'        => '#mailchimp_form, .wp-block-jetpack-mailchimp form',
 				'event_name'     => 'newsletter signup',
 				'event_label'    => 'success',
 				'event_category' => 'NTG newsletter',
