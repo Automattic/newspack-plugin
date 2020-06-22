@@ -352,7 +352,7 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				window.viewedElements = window.viewedElements || [];
+				window.newspackViewedElements = window.newspackViewedElements || [];
 				window.newspackCheckVisibility = window.newspackCheckVisibility || function( el ) {
 					var rect = el.getBoundingClientRect();
 
@@ -369,9 +369,8 @@ class Analytics {
 
 				var reportEvent = function() {
 					for ( var i = 0; i < elements.length; ++i ) {
-						if ( window.newspackCheckVisibility( elements[i] ) && -1 === window.viewedElements.indexOf( elements[i] ) ) {
-							console.log( 'viewed', elements );
-							window.viewedElements.push( elements[i] );
+						if ( window.newspackCheckVisibility( elements[i] ) && -1 === window.newspackViewedElements.indexOf( elements[i] ) ) {
+							window.newspackViewedElements.push( elements[i] );
 
 							gtag(
 								'event',
