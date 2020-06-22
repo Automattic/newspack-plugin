@@ -101,7 +101,7 @@ class Analytics {
 				'on'             => 'scroll',
 				'event_name'     => '100%',
 				'event_value'    => 100,
-				'event_label'    => 'success',
+				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
 				'scrollSpec'     => [
 					'verticalBoundaries' => [ 100 ],
@@ -113,10 +113,35 @@ class Analytics {
 				'id'             => 'newsletterSignup',
 				'amp_on'         => 'amp-form-submit-success',
 				'on'             => 'submit',
-				'element'        => '#mailchimp_form, .wp-block-jetpack-mailchimp form',
+				'amp_element'    => '#mailchimp_form',
+				'element'        => '.wp-block-jetpack-mailchimp form',
 				'event_name'     => 'newsletter signup',
 				'event_label'    => 'success',
 				'event_category' => 'NTG newsletter',
+			],
+			[
+				'id'             => 'newsletterImpression',
+				'on'             => 'visible',
+				'amp_element'    => '.newspack-newsletter-prompt-overlay',
+				'element'        => '.wp-block-jetpack-mailchimp form',
+				'event_name'     => 'newsletter modal impression 1', // 1: overlay/lightbox
+				'event_label'    => get_the_title(),
+				'event_category' => 'NTG newsletter',
+				'visibilitySpec' => [
+					'totalTimeMin' => 500,
+				],
+			],
+			[
+				'id'             => 'newsletterImpression',
+				'on'             => 'visible',
+				'amp_element'    => '.newspack-newsletter-prompt-inline',
+				'element'        => '.wp-block-jetpack-mailchimp form',
+				'event_name'     => 'newsletter modal impression 2', // 2: inline prompt
+				'event_label'    => get_the_title(),
+				'event_category' => 'NTG newsletter',
+				'visibilitySpec' => [
+					'totalTimeMin' => 500,
+				],
 			],
 		];
 
@@ -204,6 +229,9 @@ class Analytics {
 					break;
 				case 'submit':
 					self::output_js_submit_event( $event );
+					break;
+				case 'visible':
+					self::output_js_visible_event( $event );
 					break;
 				default:
 					break;
@@ -310,6 +338,56 @@ class Analytics {
 						);
 					} );
 				}
+			} )();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Output JS for a form visibility-based event listener.
+	 *
+	 * @param array $event Event info. See 'get_events'.
+	 */
+	protected static function output_js_visible_event( $event ) {
+		?>
+		<script>
+			( function() {
+				window.viewedElements = window.viewedElements || [];
+				window.newspackCheckVisibility = window.newspackCheckVisibility || function( el ) {
+					var rect = el.getBoundingClientRect();
+
+					return (
+						rect.top    >= 0 &&
+						rect.left   >= 0 &&
+						rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+						rect.right  <= (window.innerWidth || document.documentElement.clientWidth)
+					);
+				};
+
+				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
+
+				var reportEvent = function() {
+					for ( var i = 0; i < elements.length; ++i ) {
+						if ( window.newspackCheckVisibility( elements[i] ) && -1 === window.viewedElements.indexOf( elements[i] ) ) {
+							console.log( 'viewed', elements );
+							window.viewedElements.push( elements[i] );
+
+							gtag(
+								'event',
+								'<?php echo esc_attr( $event['event_name'] ); ?>',
+								{
+									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								}
+							);
+						}
+					}
+				};
+
+				// Fire initially - page might be loaded with scroll offset.
+				reportEvent()
+				window.addEventListener( 'scroll', reportEvent );
 			} )();
 		</script>
 		<?php
