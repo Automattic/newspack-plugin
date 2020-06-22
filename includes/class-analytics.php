@@ -182,7 +182,15 @@ class Analytics {
 			return;
 		}
 
-		foreach ( self::get_events() as $event ) {
+		// Discard events with duplicate ids.
+		$all_events   = self::get_events();
+		$unique_array = [];
+		foreach ( $all_events as $element ) {
+			$hash                  = $element['id'];
+			$unique_array[ $hash ] = $element;
+		}
+
+		foreach ( $unique_array as $event ) {
 			ob_start();
 			switch ( $event['on'] ) {
 				case 'click':
