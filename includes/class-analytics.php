@@ -218,7 +218,15 @@ class Analytics {
 			return;
 		}
 
-		foreach ( self::get_events() as $event ) {
+		// Discard events with duplicate ids.
+		$all_events   = self::get_events();
+		$unique_array = [];
+		foreach ( $all_events as $element ) {
+			$hash                  = $element['id'];
+			$unique_array[ $hash ] = $element;
+		}
+
+		foreach ( $unique_array as $event ) {
 			ob_start();
 			switch ( $event['on'] ) {
 				case 'click':
@@ -232,6 +240,8 @@ class Analytics {
 					break;
 				case 'visible':
 					self::output_js_visible_event( $event );
+				case 'ini-load':
+					self::output_js_ini_load_event( $event );
 					break;
 				default:
 					break;
@@ -387,6 +397,55 @@ class Analytics {
 				// Fire initially - page might be loaded with scroll offset.
 				reportEvent()
 				window.addEventListener( 'scroll', reportEvent );
+			} )();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Output JS for a load event listener.
+	 *
+	 * @param array $event Event info. See 'get_events'.
+	 */
+	protected static function output_js_ini_load_event( $event ) {
+		$element = isset( $event['element'] ) ? $event['element'] : '';
+		?>
+		<script>
+			( function() {
+				var handleEvent = function() {
+					gtag(
+						'event',
+						'<?php echo esc_attr( $event['event_name'] ); ?>',
+						{
+							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							non_interaction: true,
+						}
+					);
+				};
+
+				var elementSelector = '<?php echo esc_attr( $element ); ?>';
+				if (elementSelector) {
+					var elements = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
+					for ( var i = 0; i < elements.length; ++i ) {
+
+						var observer = new MutationObserver(function(mutations) {
+							mutations.forEach(function(mutation) {
+								if (
+									mutation.attributeName === 'amp-access-hide' &&
+									mutation.type == "attributes" &&
+									! mutation.target.hasAttribute('amp-access-hide')
+								) {
+									handleEvent()
+								}
+							});
+						});
+
+						observer.observe(elements[i], { attributes: true });
+					}
+				} else {
+					window.addEventListener('load', handleEvent)
+				}
 			} )();
 		</script>
 		<?php
