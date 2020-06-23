@@ -127,9 +127,6 @@ class Analytics {
 				'event_name'     => 'newsletter modal impression 1', // 1: overlay/lightbox
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG newsletter',
-				'visibilitySpec' => [
-					'totalTimeMin' => 500,
-				],
 			],
 			[
 				'id'             => 'newsletterImpression',
@@ -139,9 +136,6 @@ class Analytics {
 				'event_name'     => 'newsletter modal impression 2', // 2: inline prompt
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG newsletter',
-				'visibilitySpec' => [
-					'totalTimeMin' => 500,
-				],
 			],
 		];
 
