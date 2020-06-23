@@ -120,7 +120,7 @@ class Salesforce extends Component {
 	 * or the Connected App is deleted there.
 	 */
 	async checkToken() {
-		const { data, wizardApiFetch } = this.props;
+		const { wizardApiFetch } = this.props;
 		const error = __(
 			'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.'
 		);
