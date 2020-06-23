@@ -332,6 +332,7 @@ class Analytics {
 						{
 							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							non_interaction: true,
 						}
 					);
 				};
