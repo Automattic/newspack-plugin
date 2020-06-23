@@ -60,14 +60,17 @@ class Webhooks {
 			return \rest_ensure_response( 'No valid email address.' );
 		}
 
-		$leads = Salesforce::get_leads_by_email( $fields_to_update['Email'] );
+		$contacts = Salesforce::get_contacts_by_email( $fields_to_update['Email'] );
 
-		if ( $leads->totalSize > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			// Update existing lead.
-			$response = Salesforce::update_lead( $leads->records[0]->Id, $fields_to_update );
+		if ( $contacts->totalSize > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			// Update existing contact.
+			if ( ! empty( $contacts->records[0]->Description && ! empty( $fields_to_update['Description'] ) ) ) {
+				$fields_to_update['Description'] .= "\n" . $contacts->records[0]->Description; // Update line items.
+			}
+			$response = Salesforce::update_contact( $contacts->records[0]->Id, $fields_to_update );
 		} else {
-			// Create new lead.
-			$response = Salesforce::create_lead( $fields_to_update );
+			// Create new contact.
+			$response = Salesforce::create_contact( $fields_to_update );
 		}
 
 		return \rest_ensure_response( $response );

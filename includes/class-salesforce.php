@@ -161,48 +161,51 @@ class Salesforce {
 		if ( ! empty( $data['billing']['last_name'] ) ) {
 			$fields_to_update['LastName'] = $data['billing']['last_name'];
 		}
-		if ( ! empty( $data['billing']['company'] ) ) {
-			$fields_to_update['Company'] = $data['billing']['company'];
-		}
 		if ( ! empty( $data['billing']['phone'] ) ) {
-			$fields_to_update['Phone'] = $data['billing']['phone'];
+			$fields_to_update['HomePhone'] = $data['billing']['phone'];
 		}
 		if ( ! empty( $data['billing']['address_1'] ) ) {
-			$fields_to_update['Street'] = $data['billing']['address_1'];
+			$fields_to_update['MailingStreet'] = $data['billing']['address_1'];
 		}
 		if ( ! empty( $data['billing']['address_2'] ) ) {
-			$fields_to_update['Street'] .= "\n" . $data['billing']['address_2'];
+			$fields_to_update['MailingStreet'] .= "\n" . $data['billing']['address_2'];
 		}
 		if ( ! empty( $data['billing']['city'] ) ) {
-			$fields_to_update['City'] = $data['billing']['city'];
+			$fields_to_update['MailingCity'] = $data['billing']['city'];
 		}
 		if ( ! empty( $data['billing']['state'] ) ) {
-			$fields_to_update['State'] = $data['billing']['state'];
+			$fields_to_update['MailingState'] = $data['billing']['state'];
 		}
 		if ( ! empty( $data['billing']['postcode'] ) ) {
-			$fields_to_update['PostalCode'] = $data['billing']['postcode'];
+			$fields_to_update['MailingPostalCode'] = $data['billing']['postcode'];
 		}
 		if ( ! empty( $data['line_items'] ) ) {
-			$fields_to_update['Description'] = wp_json_encode( $data['line_items'] );
+			$donation_date = $data['date_created_gmt'];
+			$donation_info = $data['line_items'][0];
+
+			$fields_to_update['Description'] = 'Transaction: ' . $donation_info['name'] . ' on ' . $donation_date . ' with subtotal ' . $donation_info['subtotal'] . ' and total ' . $donation_info['total'];
+		}
+		if ( 0 === $data['meta_data'][0]['mailchimp_woocommerce_is_subscribed'] ) {
+			$fields_to_update['HasOptedOutOfEmail'] = true;
 		}
 
 		return $fields_to_update;
 	}
 
 	/**
-	 * Look up existing Lead records by email address.
+	 * Look up existing Contact records by email address.
 	 *
-	 * @param string $email Email address of the lead.
+	 * @param string $email Email address of the contact.
 	 * @return array Array of found records with matching email attributes.
 	 */
-	public static function get_leads_by_email( $email ) {
+	public static function get_contacts_by_email( $email ) {
 		$salesforce_settings = self::get_salesforce_settings();
 		$query               = [
-			'q' => "SELECT Id, FirstName, LastName FROM Lead WHERE Email = '" . $email . "'",
+			'q' => "SELECT Id, FirstName, LastName, Description FROM Contact WHERE Email = '" . $email . "'",
 		];
 		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/query?' . http_build_query( $query );
 
-		// Look up leads with a matching email address via Salesforce API, using cached access_token.
+		// Look up contacts with a matching email address via Salesforce API, using cached access_token.
 		$response = wp_safe_remote_get(
 			$url,
 			[
@@ -229,17 +232,17 @@ class Salesforce {
 	}
 
 	/**
-	 * Update an existing Lead record by Id with the given data.
+	 * Update an existing Contact record by Id with the given data.
 	 *
-	 * @param string $id Unique ID of the record to update in Salesforce.
-	 * @param array  $data Attributes and values to update in Salesforce.
+	 * @param array $id Unique ID of the record to update in Salesforce.
+	 * @param array $data Attributes and values to update in Salesforce.
 	 * @return int Response code of the update request.
 	 */
-	public static function update_lead( $id, $data ) {
+	public static function update_contact( $id, $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Lead/' . $id;
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Contact/' . $id;
 
-		// Update lead record via Salesforce API, using cached access_token.
+		// Update contact record via Salesforce API, using cached access_token.
 		$response = wp_safe_remote_request(
 			$url,
 			[
@@ -272,21 +275,16 @@ class Salesforce {
 	}
 
 	/**
-	 * Create a new lead record in Salesforce.
+	 * Create a new contact record in Salesforce.
 	 *
-	 * @param array $data Data to use in creating the new lead. Keys must be valid Salesforce field names.
+	 * @param array $data Data to use in creating the new contact. Keys must be valid Salesforce field names.
 	 * @return array Response from Salesforce API.
 	 */
-	public static function create_lead( $data ) {
+	public static function create_contact( $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Lead/';
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Contact/';
 
-		// Company is a required field for Salesforce leads, but not for WooCommerce.
-		if ( empty( $data['Company'] ) ) {
-			$data['Company'] = 'Unknown';
-		}
-
-		// Create lead record via Salesforce API, using cached access_token.
+		// Create contact record via Salesforce API, using cached access_token.
 		$response = wp_safe_remote_post(
 			$url,
 			[
