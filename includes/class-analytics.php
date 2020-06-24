@@ -18,6 +18,7 @@ class Analytics {
 	 * Constructor
 	 */
 	public function __construct() {
+		add_filter( 'render_block', [ __CLASS__, 'add_amp_visibility_pixel' ], 10, 2 );
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
 	}
@@ -120,22 +121,40 @@ class Analytics {
 				'event_category' => 'NTG newsletter',
 			],
 			[
-				'id'             => 'newsletterImpression',
+				'id'             => 'newsletterImpressionOverlay',
 				'on'             => 'visible',
 				'amp_element'    => '.newspack-newsletter-prompt-overlay',
 				'element'        => '.wp-block-jetpack-mailchimp form',
-				'event_name'     => 'newsletter modal impression 1', // 1: overlay/lightbox
+				'event_name'     => 'newsletter modal impression overlay', // 1: overlay/lightbox campaign
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG newsletter',
+				'visibilitySpec' => [
+					'totalTimeMin' => 500,
+				],
 			],
 			[
-				'id'             => 'newsletterImpression',
+				'id'             => 'newsletterImpressionInline',
 				'on'             => 'visible',
 				'amp_element'    => '.newspack-newsletter-prompt-inline',
 				'element'        => '.wp-block-jetpack-mailchimp form',
-				'event_name'     => 'newsletter modal impression 2', // 2: inline prompt
+				'event_name'     => 'newsletter modal impression inline', // 2: inline prompt campaign
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG newsletter',
+				'visibilitySpec' => [
+					'totalTimeMin' => 500,
+				],
+			],
+			[
+				'id'             => 'newsletterImpressionContent',
+				'on'             => 'visible',
+				'amp_element'    => '.entry-content > .newspack-visibility-wrapper',
+				'element'        => '.wp-block-jetpack-mailchimp form',
+				'event_name'     => 'newsletter modal impression content', // 3: in-content prompt (not a campaign)
+				'event_label'    => get_the_title(),
+				'event_category' => 'NTG newsletter',
+				'visibilitySpec' => [
+					'totalTimeMin' => 500,
+				],
 			],
 		];
 
@@ -143,6 +162,27 @@ class Analytics {
 		 * Other integrations can add events to track using this filter.
 		 */
 		return apply_filters( 'newspack_analytics_events', $events );
+	}
+
+	/**
+	 * Filters block HTML content server-side.
+	 * Lets us extend core/Jetpack blocks without breaking the editor experience.
+	 * This filter callback adds an invisible 1x1 <amp-img> pixel to the block HTML
+	 * that can be used to track their visibility using the AMP visibility trigger.
+	 *
+	 * @param string $block_content The HTML for the block to be filtered.
+	 * @param array  $block Block data for the block to be filtered.
+	 * @return string Modified HTML for the block to be rendered.
+	 */
+	public static function add_amp_visibility_pixel( $block_content, $block ) {
+		$blocks_to_filter = [ 'jetpack/mailchimp' ];
+
+		if ( ! in_array( $block['blockName'], $blocks_to_filter ) ) {
+			return $block_content;
+		}
+
+		$filtered_content = '<amp-layout class="newspack-visibility-wrapper">' . $block_content . '</amp-layout>';
+		return $pixel . $filtered_content;
 	}
 
 	/**
