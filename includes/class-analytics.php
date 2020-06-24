@@ -18,7 +18,7 @@ class Analytics {
 	 * Constructor
 	 */
 	public function __construct() {
-		add_filter( 'render_block', [ __CLASS__, 'add_amp_visibility_pixel' ], 10, 2 );
+		add_filter( 'render_block', [ __CLASS__, 'add_amp_visibility_wrapper' ], 10, 2 );
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
 	}
@@ -76,81 +76,62 @@ class Analytics {
 				'event_category' => 'NTG social',
 			],
 			[
-				'id'             => 'articleRead25',
-				'on'             => 'scroll',
-				'event_name'     => '25%',
-				'event_value'    => 25,
-				'event_label'    => get_the_title(),
-				'event_category' => 'NTG article milestone',
-				'scrollSpec'     => [
+				'id'              => 'articleRead25',
+				'on'              => 'scroll',
+				'event_name'      => '25%',
+				'event_value'     => 25,
+				'event_label'     => get_the_title(),
+				'event_category'  => 'NTG article milestone',
+				'non_interaction' => true,
+				'scrollSpec'      => [
 					'verticalBoundaries' => [ 25 ],
 				],
 			],
 			[
-				'id'             => 'articleRead50',
-				'on'             => 'scroll',
-				'event_name'     => '50%',
-				'event_value'    => 50,
-				'event_label'    => get_the_title(),
-				'event_category' => 'NTG article milestone',
-				'scrollSpec'     => [
+				'id'              => 'articleRead50',
+				'on'              => 'scroll',
+				'event_name'      => '50%',
+				'event_value'     => 50,
+				'event_label'     => get_the_title(),
+				'event_category'  => 'NTG article milestone',
+				'non_interaction' => true,
+				'scrollSpec'      => [
 					'verticalBoundaries' => [ 50 ],
 				],
 			],
 			[
-				'id'             => 'articleRead100',
-				'on'             => 'scroll',
-				'event_name'     => '100%',
-				'event_value'    => 100,
-				'event_label'    => get_the_title(),
-				'event_category' => 'NTG article milestone',
-				'scrollSpec'     => [
+				'id'              => 'articleRead100',
+				'on'              => 'scroll',
+				'event_name'      => '100%',
+				'event_value'     => 100,
+				'event_label'     => get_the_title(),
+				'event_category'  => 'NTG article milestone',
+				'non_interaction' => true,
+				'scrollSpec'      => [
 					'verticalBoundaries' => [ 100 ],
 				],
 			],
 
 			// Newsletters.
 			[
+				'id'              => 'newsletterImpressionContent',
+				'on'              => 'visible',
+				'element'         => '.entry-content > .newspack-visibility-wrapper',
+				'event_name'      => 'newsletter modal impression 3', // 3: in-content prompt (not a campaign)
+				'event_label'     => get_the_title(),
+				'event_category'  => 'NTG newsletter',
+				'non_interaction' => true,
+				'visibilitySpec'  => [
+					'totalTimeMin' => 500,
+				],
+			],
+			[
 				'id'             => 'newsletterSignup',
 				'amp_on'         => 'amp-form-submit-success',
 				'on'             => 'submit',
-				'amp_element'    => '#mailchimp_form',
-				'element'        => '.wp-block-jetpack-mailchimp form',
+				'element'        => '.entry-content > .newspack-visibility-wrapper form',
 				'event_name'     => 'newsletter signup',
 				'event_label'    => 'success',
-				'event_category' => 'NTG newsletter',
-			],
-			[
-				'id'             => 'newsletterImpressionOverlay',
-				'on'             => 'visible',
-				'amp_element'    => '.newspack-newsletter-prompt-overlay',
-				'element'        => '.wp-block-jetpack-mailchimp form',
-				'event_name'     => 'newsletter modal impression overlay', // 1: overlay/lightbox campaign
-				'event_label'    => get_the_title(),
-				'event_category' => 'NTG newsletter',
-				'visibilitySpec' => [
-					'totalTimeMin' => 500,
-				],
-			],
-			[
-				'id'             => 'newsletterImpressionInline',
-				'on'             => 'visible',
-				'amp_element'    => '.newspack-newsletter-prompt-inline',
-				'element'        => '.wp-block-jetpack-mailchimp form',
-				'event_name'     => 'newsletter modal impression inline', // 2: inline prompt campaign
-				'event_label'    => get_the_title(),
-				'event_category' => 'NTG newsletter',
-				'visibilitySpec' => [
-					'totalTimeMin' => 500,
-				],
-			],
-			[
-				'id'             => 'newsletterImpressionContent',
-				'on'             => 'visible',
-				'amp_element'    => '.entry-content > .newspack-visibility-wrapper',
-				'element'        => '.wp-block-jetpack-mailchimp form',
-				'event_name'     => 'newsletter modal impression content', // 3: in-content prompt (not a campaign)
-				'event_label'    => get_the_title(),
 				'event_category' => 'NTG newsletter',
 				'visibilitySpec' => [
 					'totalTimeMin' => 500,
@@ -167,22 +148,24 @@ class Analytics {
 	/**
 	 * Filters block HTML content server-side.
 	 * Lets us extend core/Jetpack blocks without breaking the editor experience.
-	 * This filter callback adds an invisible 1x1 <amp-img> pixel to the block HTML
+	 * This filter callback adds an <amp-layout> wrapper element to the block HTML
 	 * that can be used to track their visibility using the AMP visibility trigger.
 	 *
 	 * @param string $block_content The HTML for the block to be filtered.
 	 * @param array  $block Block data for the block to be filtered.
 	 * @return string Modified HTML for the block to be rendered.
 	 */
-	public static function add_amp_visibility_pixel( $block_content, $block ) {
+	public static function add_amp_visibility_wrapper( $block_content, $block ) {
 		$blocks_to_filter = [ 'jetpack/mailchimp' ];
 
 		if ( ! in_array( $block['blockName'], $blocks_to_filter ) ) {
 			return $block_content;
 		}
 
-		$filtered_content = '<amp-layout class="newspack-visibility-wrapper">' . $block_content . '</amp-layout>';
-		return $pixel . $filtered_content;
+		$id = 'newsletter-block-' . get_post_type();
+
+		$filtered_content = '<amp-layout id="' . esc_attr( $id ) . '" class="newspack-visibility-wrapper">' . $block_content . '</amp-layout>';
+		return $filtered_content;
 	}
 
 	/**
@@ -192,14 +175,16 @@ class Analytics {
 	 * @return array Modified $config.
 	 */
 	public static function inject_amp_events( $config ) {
-		foreach ( self::get_events() as $event ) {
+		$events = self::get_events();
+
+		foreach ( $events as $event ) {
 			$event_config = [
-				'request' => 'event',
 				'on'      => isset( $event['amp_on'] ) ? $event['amp_on'] : $event['on'],
 				'vars'    => [
 					'event_name'     => $event['event_name'],
 					'event_label'    => $event['event_label'],
 					'event_category' => $event['event_category'],
+					'non_interaction' => ! empty( $event['non_interaction'] ) ? $event['non_interaction'] : false,
 				],
 			];
 			if ( isset( $event['event_value'] ) ) {
@@ -274,6 +259,7 @@ class Analytics {
 					break;
 				case 'visible':
 					self::output_js_visible_event( $event );
+					break;
 				case 'ini-load':
 					self::output_js_ini_load_event( $event );
 					break;
@@ -345,7 +331,7 @@ class Analytics {
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
 								value: scrollPercent,
-								non_interaction: true,
+								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 							}
 						);
 					}
@@ -367,7 +353,7 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elementSelector = '<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				for ( var i = 0; i < elements.length; ++i ) {
@@ -393,43 +379,59 @@ class Analytics {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_visible_event( $event ) {
+		$delay = ! empty( $event['visibilitySpec'] ) && ! empty( $event['visibilitySpec']['totalTimeMin'] ) ? $event['visibilitySpec']['totalTimeMin'] : 0;
 		?>
 		<script>
 			( function() {
 				window.newspackViewedElements = window.newspackViewedElements || [];
 				window.newspackCheckVisibility = window.newspackCheckVisibility || function( el ) {
+					var elementHeight = el.offsetHeight;
+					var elementWidth = el.offsetWidth;
+
+					if ( elementHeight === 0 || elementWidth === 0 ) {
+						return false;
+					}
+
 					var rect = el.getBoundingClientRect();
 
 					return (
-						rect.top    >= 0 &&
-						rect.left   >= 0 &&
-						rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-						rect.right  <= (window.innerWidth || document.documentElement.clientWidth)
-					);
+						rect.top >= -elementHeight &&
+						rect.left >= -elementWidth &&
+						rect.right <= ( window.innerWidth || document.documentElement.clientWidth ) + elementWidth &&
+						rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) + elementHeight
+					)
 				};
 
-				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elementSelector = '<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				var reportEvent = function() {
 					for ( var i = 0; i < elements.length; ++i ) {
-						if ( window.newspackCheckVisibility( elements[i] ) && -1 === window.newspackViewedElements.indexOf( elements[i] ) ) {
-							window.newspackViewedElements.push( elements[i] );
+						var elementToCheck = elements[i];
 
-							gtag(
-								'event',
-								'<?php echo esc_attr( $event['event_name'] ); ?>',
-								{
-									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+						if ( window.newspackCheckVisibility( elementToCheck ) && -1 === window.newspackViewedElements.indexOf( elementToCheck ) ) {
+							window.newspackViewedElements.push( elementToCheck );
+
+							var totalTimeMin = window.setTimeout( function() {
+								if ( window.newspackCheckVisibility( elementToCheck ) ) {
+									console.log( 'reporting visible', elementToCheck );
+									return gtag(
+										'event',
+										'<?php echo esc_attr( $event['event_name'] ); ?>',
+										{
+											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+											event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+										}
+									);
 								}
-							);
+								window.clearTimeout( totalTimeMin );
+							}, <?php echo esc_attr( $delay ); ?> );
 						}
 					}
 				};
 
 				// Fire initially - page might be loaded with scroll offset.
-				reportEvent()
+				reportEvent();
 				window.addEventListener( 'scroll', reportEvent );
 			} )();
 		</script>
