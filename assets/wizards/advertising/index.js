@@ -11,7 +11,7 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * WordPress dependencies.
+ * External dependencies.
  */
 import HeaderIcon from '@material-ui/icons/FeaturedVideo';
 
