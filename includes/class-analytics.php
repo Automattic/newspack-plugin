@@ -111,32 +111,6 @@ class Analytics {
 					'verticalBoundaries' => [ 100 ],
 				],
 			],
-
-			// Newsletters.
-			[
-				'id'              => 'newsletterImpressionContent',
-				'on'              => 'visible',
-				'element'         => '.entry-content > .newspack-visibility-wrapper',
-				'event_name'      => 'newsletter modal impression 3', // 3: in-content prompt (not a campaign)
-				'event_label'     => get_the_title(),
-				'event_category'  => 'NTG newsletter',
-				'non_interaction' => true,
-				'visibilitySpec'  => [
-					'totalTimeMin' => 500,
-				],
-			],
-			[
-				'id'             => 'newsletterSignup',
-				'amp_on'         => 'amp-form-submit-success',
-				'on'             => 'submit',
-				'element'        => '.entry-content > .newspack-visibility-wrapper form',
-				'event_name'     => 'newsletter signup',
-				'event_label'    => 'success',
-				'event_category' => 'NTG newsletter',
-				'visibilitySpec' => [
-					'totalTimeMin' => 500,
-				],
-			],
 		];
 
 		/**
@@ -162,7 +136,41 @@ class Analytics {
 			return $block_content;
 		}
 
-		$id = 'newsletter-block-' . get_post_type();
+		$id = 'newsletter-block-' . rand();
+
+		$newsletter_events = [
+			[
+				'id'              => 'newsletterImpressionContent-' . $id,
+				'on'              => 'visible',
+				'element'         => '#' . esc_attr( $id ),
+				'event_name'      => 'newsletter modal impression 3', // 3: in-content prompt (not a campaign)
+				'event_label'     => get_the_title(),
+				'event_category'  => 'NTG newsletter',
+				'non_interaction' => true,
+				'visibilitySpec'  => [
+					'totalTimeMin' => 500,
+				],
+			],
+			[
+				'id'             => 'newsletterSignup-' . $id,
+				'amp_on'         => 'amp-form-submit-success',
+				'on'             => 'submit',
+				'element'         => '#' . esc_attr( $id ),
+				'event_name'     => 'newsletter signup',
+				'event_label'    => 'success',
+				'event_category' => 'NTG newsletter',
+				'visibilitySpec' => [
+					'totalTimeMin' => 500,
+				],
+			],
+		];
+
+		add_filter(
+			'newspack_analytics_events',
+			function ( $evts ) use ( $newsletter_events ) {
+				return array_merge( $evts, $newsletter_events );
+			}
+		);
 
 		$filtered_content = '<amp-layout id="' . esc_attr( $id ) . '" class="newspack-visibility-wrapper">' . $block_content . '</amp-layout>';
 		return $filtered_content;
