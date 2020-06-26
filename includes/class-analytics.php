@@ -156,7 +156,7 @@ class Analytics {
 				'amp-on'         => 'amp-form-submit-success',
 				'on'             => 'submit',
 				'element'        => '.woocommerce-form-register',
-				'element_search' => 'woocommerce-form-login',
+				'element_search' => 'woocommerce-form-register',
 				'event_category' => 'NTG account',
 				'event_name'     => 'registration',
 				'event_label'    => 'success',
