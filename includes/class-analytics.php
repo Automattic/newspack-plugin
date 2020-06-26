@@ -20,6 +20,7 @@ class Analytics {
 	public function __construct() {
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
+		add_action( 'the_content', [ __CLASS__, 'get_conditional_events' ], 20 );
 	}
 
 	/**
@@ -116,6 +117,78 @@ class Analytics {
 		 * Other integrations can add events to track using this filter.
 		 */
 		return apply_filters( 'newspack_analytics_events', $events );
+	}
+
+	/**
+	 * These event triggers should only be added if the elements are rendered on the page.
+	 * Parses the content HTML so we can check it for the existence of certain elements.
+	 * This callback is set to a late priority to ensure that all shortcodes and blocks
+	 * are processed and stringified before filtering.
+	 *
+	 * Conditional events can have additional properties that are only used as search terms
+	 * to determine whether their triggers should be outputted for analytics. This exists
+	 * because the 'element' and 'amp_element' properties are CSS selectors that contain
+	 * additional characters beyond what exists in the content's HTML markup.
+	 *
+	 *     'element_search'     => string What to look for in the HTML to determine that
+	 *                                    the element exists.
+	 *     'amp_element_search' => string Only if the term is different for AMP pages.
+	 *
+	 * @param string $content The content to be parsed.
+	 * @return string The content. We're just passing through, so no changes required.
+	 */
+	public static function get_conditional_events( $content ) {
+		$is_amp             = function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
+		$events_to_add      = [];
+		$conditional_events = [
+			[
+				'id'             => 'loginSuccess',
+				'amp-on'         => 'amp-form-submit-success',
+				'on'             => 'submit',
+				'element'        => '.woocommerce-form-login',
+				'element_search' => 'woocommerce-form-login',
+				'event_category' => 'NTG account',
+				'event_name'     => 'login',
+				'event_label'    => 'success',
+			],
+			[
+				'id'             => 'registrationSuccess',
+				'amp-on'         => 'amp-form-submit-success',
+				'on'             => 'submit',
+				'element'        => '.woocommerce-form-register',
+				'element_search' => 'woocommerce-form-login',
+				'event_category' => 'NTG account',
+				'event_name'     => 'registration',
+				'event_label'    => 'success',
+			],
+		];
+
+		// Loop through possible events and check for their elements in content.
+		foreach ( $conditional_events as $event ) {
+			$element = $is_amp && ! empty( $event['amp_element_search'] ) ? $event['amp_element_search'] : $event['element_search'];
+
+			// Fallback to look for CSS selector, in case there's no element_search or amp_element_search property.
+			if ( empty( $element ) ) {
+				$element = $is_amp && ! empty( $event['amp_element'] ) ? $event['amp_element'] : $event['element'];
+			}
+
+			$element_exists = ! empty( $element ) && ! empty( strpos( $content, $element ) );
+
+			// Add the event trigger if the element exists in content.
+			if ( true === $element_exists ) {
+				$events_to_add[] = $event;
+			}
+		}
+
+		// Collect all conditional events with matching elements, and add them to the page output.
+		add_filter(
+			'newspack_analytics_events',
+			function( $events ) use ( $events_to_add ) {
+				return array_merge( $events, $events_to_add );
+			}
+		);
+
+		return $content;
 	}
 
 	/**
