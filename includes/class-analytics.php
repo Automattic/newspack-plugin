@@ -81,6 +81,7 @@ class Analytics {
 				'event_value'    => 25,
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
+				'non_interaction' => true,
 				'scrollSpec'     => [
 					'verticalBoundaries' => [ 25 ],
 				],
@@ -92,6 +93,7 @@ class Analytics {
 				'event_value'    => 50,
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
+				'non_interaction' => true,
 				'scrollSpec'     => [
 					'verticalBoundaries' => [ 50 ],
 				],
@@ -103,6 +105,7 @@ class Analytics {
 				'event_value'    => 100,
 				'event_label'    => get_the_title(),
 				'event_category' => 'NTG article milestone',
+				'non_interaction' => true,
 				'scrollSpec'     => [
 					'verticalBoundaries' => [ 100 ],
 				],
@@ -130,6 +133,7 @@ class Analytics {
 					'event_name'     => $event['event_name'],
 					'event_label'    => $event['event_label'],
 					'event_category' => $event['event_category'],
+					'non_interaction' => ! empty( $event['non_interaction'] ) ? $event['non_interaction'] : false,
 				],
 			];
 			if ( isset( $event['event_value'] ) ) {
@@ -273,7 +277,7 @@ class Analytics {
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
 								value: scrollPercent,
-								non_interaction: true,
+								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 							}
 						);
 					}
