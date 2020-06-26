@@ -136,6 +136,13 @@ class Analytics {
 			return $block_content;
 		}
 
+
+		// Skip the blocks which are rendered by newspack-popups – it'll handle analytics itself.
+		$classes = isset($block['attrs']['className']) ? explode(' ', $block['attrs']['className']) : [];
+		if ( in_array( 'newspack-popups-newsletter-form', $classes ) ) {
+			return $block_content;
+		}
+
 		$id = 'newsletter-block-' . rand();
 
 		$newsletter_events = [
