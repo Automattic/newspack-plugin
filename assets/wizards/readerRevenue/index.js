@@ -305,12 +305,15 @@ class ReaderRevenueWizard extends Component {
 									routeProps={ routeProps }
 									data={ salesforceData }
 									headerIcon={ <GroupAddIcon /> }
-									headerText={ __( 'Configure Salesforce' ) }
+									headerText={ __( 'Configure Salesforce', 'newspack' ) }
 									isConnected={ salesforceIsConnected }
 									subHeaderText={ __(
-										'Connect your site with a Salesforce account to capture leads.'
+										'Connect your site with a Salesforce account to capture leads.',
+										'newspack'
 									) }
-									buttonText={ salesforceIsConnected ? __( 'Reset' ) : __( 'Connect' ) }
+									buttonText={
+										salesforceIsConnected ? __( 'Reset', 'newspack' ) : __( 'Connect', 'newspack' )
+									}
 									buttonAction={ this.handleSalesforce }
 									buttonDisabled={
 										! salesforceIsConnected &&

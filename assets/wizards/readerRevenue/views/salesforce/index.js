@@ -108,7 +108,7 @@ class Salesforce extends Component {
 			console.error( e );
 			this.setState( {
 				error: __(
-					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.'
+					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.', 'newspack'
 				),
 			} );
 		}
@@ -122,7 +122,7 @@ class Salesforce extends Component {
 	async checkToken() {
 		const { wizardApiFetch } = this.props;
 		const error = __(
-			'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.'
+			'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.', 'newspack'
 		);
 
 		try {
@@ -150,28 +150,28 @@ class Salesforce extends Component {
 		return (
 			<div className="newspack-salesforce-wizard">
 				<Fragment>
-					<h2>{ __( 'Connected App settings' ) }</h2>
+					<h2>{ __( 'Connected App settings', 'newspack' ) }</h2>
 
 					{ this.state.error && <Notice noticeText={ this.state.error } isWarning /> }
 
 					{ isConnected && ! this.state.error && (
-						<Notice noticeText={ __( 'Your site is connected to Salesforce.' ) } isSuccess />
+						<Notice noticeText={ __( 'Your site is connected to Salesforce.', 'newspack ) } isSuccess />
 					) }
 
 					{ ! isConnected && ! this.state.error && (
 						<Fragment>
 							<p>
 								{ __(
-									'To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the the full URL for this page into the “Callback URL” field in the Connected App’s settings. '
+									'To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the the full URL for this page into the “Callback URL” field in the Connected App’s settings. ', 'newspack'
 								) }
 								<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
-									{ __( 'Learn how to create a Connected App' ) }
+									{ __( 'Learn how to create a Connected App', 'newspack' ) }
 								</ExternalLink>
 							</p>
 
 							<p>
 								{ __(
-									'Enter your Consumer Key and Secret below, then click “Connect” to authorize access to your Salesforce account.'
+									'Enter your Consumer Key and Secret below, then click “Connect” to authorize access to your Salesforce account.', 'newspack'
 								) }
 							</p>
 						</Fragment>
@@ -180,7 +180,7 @@ class Salesforce extends Component {
 					{ isConnected && (
 						<p>
 							{ __(
-								'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset" below. You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.'
+								'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset" below. You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.', 'newspack'
 							) }
 						</p>
 					) }
@@ -188,7 +188,7 @@ class Salesforce extends Component {
 					{ error && (
 						<Notice
 							noticeText={ __(
-								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take up to an hour before we can establish a connection.'
+								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take up to an hour before we can establish a connection.', 'newspack'
 							) }
 							isWarning
 						/>
@@ -197,7 +197,7 @@ class Salesforce extends Component {
 					<TextControl
 						disabled={ isConnected }
 						label={
-							( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + __( ' Salesforce Consumer Key' )
+							( isConnected ? __( 'Your', 'newspack' ) : __( 'Enter your', 'newspack' ) ) + __( ' Salesforce Consumer Key', 'newspack' )
 						}
 						value={ client_id }
 						onChange={ value => {
@@ -210,7 +210,7 @@ class Salesforce extends Component {
 					<TextControl
 						disabled={ isConnected }
 						label={ __(
-							( isConnected ? __( 'Your' ) : __( 'Enter your' ) ) + ' Salesforce Consumer Secret'
+							( isConnected ? __( 'Your', 'newspack' ) : __( 'Enter your', 'newspack' ) ) + __( ' Salesforce Consumer Secret', 'newspack' )
 						) }
 						value={ client_secret }
 						onChange={ value => {
