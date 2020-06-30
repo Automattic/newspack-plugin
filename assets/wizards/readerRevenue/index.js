@@ -9,19 +9,21 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Material UI dependencies.
  */
 import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
 import LoyaltyIcon from '@material-ui/icons/Loyalty';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 
 /**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Donation, LocationSetup, StripeSetup, RevenueMain } from './views';
+import { Donation, LocationSetup, StripeSetup, RevenueMain, Salesforce } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -36,6 +38,7 @@ class ReaderRevenueWizard extends Component {
 				locationData: {},
 				stripeData: {},
 				donationData: {},
+				salesforceData: {},
 			},
 		};
 	}
@@ -107,6 +110,7 @@ class ReaderRevenueWizard extends Component {
 		countryStateFields: data.country_state_fields,
 		currencyFields: data.currency_fields,
 		donationPage: data.donation_page,
+		salesforceData: data.salesforce_settings,
 	} );
 
 	/**
@@ -120,10 +124,68 @@ class ReaderRevenueWizard extends Component {
 	};
 
 	/**
+	 * Button handler for Salesforce wizard.
+	 */
+	handleSalesforce = async () => {
+		const { wizardApiFetch } = this.props;
+		const { data } = this.state;
+		const { salesforceData } = data;
+		const salesforceIsConnected = !! salesforceData.refresh_token;
+
+		// If Salesforce is already connected, button should reset settings.
+		if ( salesforceIsConnected ) {
+			const defaultSettings = {
+				client_id: '',
+				client_secret: '',
+				access_token: '',
+				refresh_token: '',
+				instance_url: '',
+			};
+
+			this.setState( { data: { ...data, salesforceData: defaultSettings } } );
+			return this.update( 'salesforce', defaultSettings );
+		}
+
+		// Otherwise, attempt to establish a connection with Salesforce.
+		const { client_id, client_secret } = salesforceData;
+
+		if ( client_id && client_secret ) {
+			const loginUrl = addQueryArgs( 'https://login.salesforce.com/services/oauth2/authorize', {
+				response_type: 'code',
+				client_id: encodeURIComponent( client_id ),
+				client_secret: encodeURIComponent( client_secret ),
+				redirect_uri: encodeURI( window.location.href ),
+			} );
+
+			// Save credentials to options table.
+			await this.update( 'salesforce', salesforceData );
+
+			// Validate credentials before redirecting.
+			const valid = await wizardApiFetch( {
+				path: '/newspack/v1/wizard/salesforce/validate',
+				method: 'POST',
+				data: {
+					client_id,
+					client_secret,
+					redirect_uri: window.location.href,
+				},
+			} );
+
+			if ( valid ) {
+				return window.location.assign( loginUrl );
+			}
+
+			this.setState( {
+				data: { ...data, salesforceData: { ...salesforceData, error: 'invalid_credentials' } },
+			} );
+		}
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch } = this.props;
 		const { data } = this.state;
 		const {
 			countryStateFields,
@@ -132,7 +194,9 @@ class ReaderRevenueWizard extends Component {
 			stripeData,
 			donationData,
 			donationPage,
+			salesforceData,
 		} = data;
+
 		const tabbedNavigation = [
 			{
 				label: __( 'Monetization Services' ),
@@ -149,6 +213,7 @@ class ReaderRevenueWizard extends Component {
 			},
 		];
 		const isConfigured = !! donationData.created;
+		const salesforceIsConnected = !! salesforceData.refresh_token;
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -230,6 +295,36 @@ class ReaderRevenueWizard extends Component {
 									}
 									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
 									secondaryButtonAction="#"
+								/>
+							) }
+						/>
+						<Route
+							path="/salesforce"
+							render={ routeProps => (
+								<Salesforce
+									routeProps={ routeProps }
+									data={ salesforceData }
+									headerIcon={ <GroupAddIcon /> }
+									headerText={ __( 'Configure Salesforce', 'newspack' ) }
+									isConnected={ salesforceIsConnected }
+									subHeaderText={ __(
+										'Connect your site with a Salesforce account to capture donor contact information.',
+										'newspack'
+									) }
+									buttonText={
+										salesforceIsConnected ? __( 'Reset', 'newspack' ) : __( 'Connect', 'newspack' )
+									}
+									buttonAction={ this.handleSalesforce }
+									buttonDisabled={
+										! salesforceIsConnected &&
+										( ! salesforceData.client_id || ! salesforceData.client_secret )
+									}
+									onChange={ _salesforceData =>
+										this.setState( { data: { ...data, salesforceData: _salesforceData } } )
+									}
+									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
+									secondaryButtonAction="#"
+									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
 						/>

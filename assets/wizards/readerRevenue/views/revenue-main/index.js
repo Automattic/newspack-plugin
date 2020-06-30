@@ -31,6 +31,15 @@ class RevenueMain extends Component {
 					actionText={ __( 'Configure' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/donations"
 				/>
+				<ActionCard
+					title={ __( 'Salesforce', 'newspack' ) }
+					description={ __(
+						'Integrate Salesforce to capture contact information when readers donate to your organization.',
+						'newspack'
+					) }
+					actionText={ __( 'Configure', 'newspack' ) }
+					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce"
+				/>
 				<PluginToggle
 					plugins={ {
 						laterpay: true,

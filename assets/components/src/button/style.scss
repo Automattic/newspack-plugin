@@ -30,6 +30,7 @@ body[class*='admin-color-'] {
 		}
 
 		&.icon-only {
+			display: inline-flex;
 			align-items: center;
 			height: 36px;
 			justify-content: center;
