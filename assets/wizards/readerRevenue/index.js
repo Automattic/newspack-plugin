@@ -308,7 +308,7 @@ class ReaderRevenueWizard extends Component {
 									headerText={ __( 'Configure Salesforce', 'newspack' ) }
 									isConnected={ salesforceIsConnected }
 									subHeaderText={ __(
-										'Connect your site with a Salesforce account to capture leads.',
+										'Connect your site with a Salesforce account to capture donor contact information.',
 										'newspack'
 									) }
 									buttonText={
