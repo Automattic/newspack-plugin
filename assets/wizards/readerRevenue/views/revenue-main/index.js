@@ -34,7 +34,7 @@ class RevenueMain extends Component {
 				<ActionCard
 					title={ __( 'Salesforce', 'newspack' ) }
 					description={ __(
-						'Integrate Salesforce to capture leads when readers donate to your organization.',
+						'Integrate Salesforce to capture contact information when readers donate to your organization.',
 						'newspack'
 					) }
 					actionText={ __( 'Configure', 'newspack' ) }
