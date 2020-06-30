@@ -219,10 +219,10 @@ class Salesforce extends Component {
 					/>
 					<TextControl
 						disabled={ isConnected }
-						label={ __(
+						label={
 							( isConnected ? __( 'Your', 'newspack' ) : __( 'Enter your', 'newspack' ) ) +
-								__( ' Salesforce Consumer Secret', 'newspack' )
-						) }
+							__( ' Salesforce Consumer Secret', 'newspack' )
+						}
 						value={ client_secret }
 						onChange={ value => {
 							if ( isConnected ) {
