@@ -15,11 +15,19 @@ defined( 'ABSPATH' ) || exit;
 class Analytics {
 
 	/**
+	 * Events accumulated by block render callbacks.
+	 *
+	 * @var array
+	 */
+	public static $block_amp_events = [];
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
+		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_amp_events' ], 10, 2 );
 	}
 
 	/**
@@ -119,13 +127,74 @@ class Analytics {
 	}
 
 	/**
+	 * Alter block markup to support amp-analytics events.
+	 *
+	 * @param string $content The block content about to be appended.
+	 * @param object $block The full block, including name and attributes.
+	 */
+	public static function prepare_blocks_for_amp_events( $content, $block ) {
+		if ( is_admin() ) {
+			return $content;
+		}
+		$is_amp = function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
+		if ( ! $is_amp ) {
+			return $content;
+		}
+		switch ( $block['blockName'] ) {
+			case 'jetpack/mailchimp':
+				$content = self::prepare_jetpack_mailchimp_block( $content );
+				break;
+		}
+		return $content;
+	}
+
+	/**
+	 * Alter Jetpack Mailchimp block to support amp-analytics events.
+	 *
+	 * @param string $content The block content about to be appended.
+	 */
+	public static function prepare_jetpack_mailchimp_block( $content ) {
+		$block_unique_id = sprintf( 'wp-block-jetpack-mailchimp-%s', uniqid() );
+
+		// Wrap the block in amp-layout to enable visibility tracking. Sugggested here: https://github.com/ampproject/amphtml/issues/11678.
+		$content = sprintf( '<amp-layout id="%s">%s</amp-layout>', $block_unique_id, $content );
+
+		self::$block_amp_events[] = [
+			'id'             => 'newsletterSignup',
+			'amp_on'         => 'amp-form-submit-success',
+			'on'             => 'submit',
+			'element'        => '#' . $block_unique_id . ' form',
+			'event_name'     => 'newsletter signup',
+			'event_label'    => get_the_title(),
+			'event_category' => 'NTG newsletter',
+			'visibilitySpec' => [
+				'totalTimeMin' => 500,
+			],
+		];
+		self::$block_amp_events[] = [
+			'id'              => 'newsletterImpressionContent',
+			'on'              => 'visible',
+			'element'         => '#' . $block_unique_id,
+			'event_name'      => 'newsletter modal impression 3', // 3: in-content prompt (not a campaign)
+			'event_label'     => get_the_title(),
+			'event_category'  => 'NTG newsletter',
+			'non_interaction' => true,
+			'visibilitySpec'  => [
+				'totalTimeMin' => 500,
+			],
+		];
+		return $content;
+	}
+
+	/**
 	 * Inject event listeners on AMP pages.
 	 *
 	 * @param array $config AMP Analytics config from Site Kit.
 	 * @return array Modified $config.
 	 */
 	public static function inject_amp_events( $config ) {
-		foreach ( self::get_events() as $event ) {
+		$all_events = array_merge( self::get_events(), self::$block_amp_events );
+		foreach ( $all_events as $event ) {
 			$event_config = [
 				'request' => 'event',
 				'on'      => isset( $event['amp_on'] ) ? $event['amp_on'] : $event['on'],
