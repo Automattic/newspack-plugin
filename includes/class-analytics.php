@@ -22,12 +22,47 @@ class Analytics {
 	public static $block_amp_events = [];
 
 	/**
+	 * An integer to indicate the context a block is rendered in, e.g. content|overlay campaign|inline campaign.
+	 *
+	 * @var integer
+	 */
+	public static $block_render_context = 3;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
 		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_amp_events' ], 10, 2 );
+		add_action( 'newspack_campaigns_before_campaign_render', [ __CLASS__, 'set_campaign_render_context' ], 10, 1 );
+		add_action( 'newspack_campaigns_after_campaign_render', [ __CLASS__, 'reset_render_context' ], 10, 1 );
+	}
+
+	/**
+	 * When a Newspack Campaign is being rendered, set the block rendering context based on whether campaign is inline or overlay.
+	 *
+	 * @param object $campaign The campaign object.
+	 */
+	public static function set_campaign_render_context( $campaign ) {
+		$placement = isset( $campaign['options'], $campaign['options']['placement'] ) ? $campaign['options']['placement'] : null;
+		switch ( $placement ) {
+			case 'inline':
+				self::$block_render_context = 1;
+				break;
+			default: // All other placement options are overlays.
+				self::$block_render_context = 2;
+				break;
+		}
+	}
+
+	/**
+	 * Reset rendering context after campaign rendering is complete.
+	 *
+	 * @param object $campaign The campaign object.
+	 */
+	public static function reset_render_context( $campaign ) {
+		self::$block_render_context = 3;
 	}
 
 	/**
@@ -160,7 +195,7 @@ class Analytics {
 		$content = sprintf( '<amp-layout id="%s">%s</amp-layout>', $block_unique_id, $content );
 
 		self::$block_amp_events[] = [
-			'id'             => 'newsletterSignup',
+			'id'             => 'newsletterSignup' . $block_unique_id,
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#' . $block_unique_id . ' form',
@@ -172,10 +207,10 @@ class Analytics {
 			],
 		];
 		self::$block_amp_events[] = [
-			'id'              => 'newsletterImpressionContent',
+			'id'              => 'newsletterImpressionContent-' . $block_unique_id,
 			'on'              => 'visible',
 			'element'         => '#' . $block_unique_id,
-			'event_name'      => 'newsletter modal impression 3', // 3: in-content prompt (not a campaign)
+			'event_name'      => 'newsletter modal impression ' . self::$block_render_context,
 			'event_label'     => get_the_title(),
 			'event_category'  => 'NTG newsletter',
 			'non_interaction' => true,
