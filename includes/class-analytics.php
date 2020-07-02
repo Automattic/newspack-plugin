@@ -19,7 +19,7 @@ class Analytics {
 	 *
 	 * @var array
 	 */
-	public static $block_amp_events = [];
+	public static $block_events = [];
 
 	/**
 	 * An integer to indicate the context a block is rendered in, e.g. content|overlay campaign|inline campaign.
@@ -34,7 +34,7 @@ class Analytics {
 	public function __construct() {
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
-		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_amp_events' ], 10, 2 );
+		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_events' ], 10, 2 );
 		add_action( 'newspack_campaigns_before_campaign_render', [ __CLASS__, 'set_campaign_render_context' ], 10, 1 );
 		add_action( 'newspack_campaigns_after_campaign_render', [ __CLASS__, 'reset_render_context' ], 10, 1 );
 	}
@@ -167,14 +167,11 @@ class Analytics {
 	 * @param string $content The block content about to be appended.
 	 * @param object $block The full block, including name and attributes.
 	 */
-	public static function prepare_blocks_for_amp_events( $content, $block ) {
+	public static function prepare_blocks_for_events( $content, $block ) {
 		if ( is_admin() ) {
 			return $content;
 		}
-		$is_amp = function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
-		if ( ! $is_amp ) {
-			return $content;
-		}
+
 		switch ( $block['blockName'] ) {
 			case 'jetpack/mailchimp':
 				$content = self::prepare_jetpack_mailchimp_block( $content );
@@ -194,20 +191,20 @@ class Analytics {
 		// Wrap the block in amp-layout to enable visibility tracking. Sugggested here: https://github.com/ampproject/amphtml/issues/11678.
 		$content = sprintf( '<amp-layout id="%s">%s</amp-layout>', $block_unique_id, $content );
 
-		self::$block_amp_events[] = [
-			'id'             => 'newsletterSignup' . $block_unique_id,
+		self::$block_events[] = [
+			'id'             => 'newsletterSignup-' . $block_unique_id,
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#' . $block_unique_id . ' form',
 			'event_name'     => 'newsletter signup',
-			'event_label'    => get_the_title(),
+			'event_label'    => 'success',
 			'event_category' => 'NTG newsletter',
 			'visibilitySpec' => [
 				'totalTimeMin' => 500,
 			],
 		];
-		self::$block_amp_events[] = [
-			'id'              => 'newsletterImpressionContent-' . $block_unique_id,
+		self::$block_events[] = [
+			'id'              => 'newsletterImpression-' . $block_unique_id,
 			'on'              => 'visible',
 			'element'         => '#' . $block_unique_id,
 			'event_name'      => 'newsletter modal impression ' . self::$block_render_context,
@@ -228,7 +225,7 @@ class Analytics {
 	 * @return array Modified $config.
 	 */
 	public static function inject_amp_events( $config ) {
-		$all_events = array_merge( self::get_events(), self::$block_amp_events );
+		$all_events = array_merge( self::get_events(), self::$block_events );
 		foreach ( $all_events as $event ) {
 			$event_config = [
 				'request' => 'event',
@@ -291,7 +288,7 @@ class Analytics {
 		}
 
 		// Discard events with duplicate ids.
-		$all_events   = self::get_events();
+		$all_events   = array_merge( self::get_events(), self::$block_events );
 		$unique_array = [];
 		foreach ( $all_events as $element ) {
 			$hash                  = $element['id'];
@@ -309,6 +306,9 @@ class Analytics {
 					break;
 				case 'submit':
 					self::output_js_submit_event( $event );
+					break;
+				case 'visible':
+					self::output_js_visible_event( $event );
 					break;
 				case 'ini-load':
 					self::output_js_ini_load_event( $event );
@@ -366,6 +366,7 @@ class Analytics {
 				var eventSent = false;
 				var reportEvent = function(){
 					if ( eventSent ) {
+						window.removeEventListener( 'scroll', reportEvent );
 						return;
 					}
 
@@ -387,7 +388,7 @@ class Analytics {
 					}
 				}
 				// Fire initially - page might be loaded with scroll offset.
-				reportEvent()
+				window.addEventListener( 'DOMContentLoaded', reportEvent );
 				window.addEventListener( 'scroll', reportEvent );
 			} )();
 		</script>
@@ -418,6 +419,78 @@ class Analytics {
 						);
 					} );
 				}
+			} )();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Output JS for a form visibility-based event listener.
+	 *
+	 * @param array $event Event info. See 'get_events'.
+	 */
+	protected static function output_js_visible_event( $event ) {
+		$delay = ! empty( $event['visibilitySpec'] ) && ! empty( $event['visibilitySpec']['totalTimeMin'] ) ? $event['visibilitySpec']['totalTimeMin'] : 0;
+		?>
+		<script>
+			( function() {
+				window.newspackViewedElements = window.newspackViewedElements || [];
+				window.newspackCheckVisibility = window.newspackCheckVisibility || function( el ) {
+					var elementHeight = el.offsetHeight;
+					var elementWidth = el.offsetWidth;
+
+					if ( elementHeight === 0 || elementWidth === 0 ) {
+						return false;
+					}
+
+					var rect = el.getBoundingClientRect();
+
+					return (
+						rect.top >= -elementHeight &&
+						rect.left >= -elementWidth &&
+						rect.right <= ( window.innerWidth || document.documentElement.clientWidth ) + elementWidth &&
+						rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) + elementHeight
+					)
+				};
+
+				var elementSelector = '<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
+				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
+
+				var reportEvent = function() {
+					for ( var i = 0; i < elements.length; ++i ) {
+						var elementToCheck = elements[i];
+
+						// Stop tracking scroll after visibility has been reported.
+						if ( -1 !== window.newspackViewedElements.indexOf( elementToCheck ) ) {
+							window.removeEventListener( 'scroll', reportEvent );
+							return;
+						}
+
+						if ( window.newspackCheckVisibility( elementToCheck ) && -1 === window.newspackViewedElements.indexOf( elementToCheck ) ) {
+							window.newspackViewedElements.push( elementToCheck );
+
+							var totalTimeMin = window.setTimeout( function() {
+
+								// If element is still in viewport after <?php echo esc_attr( $delay ); ?>ms
+								if ( window.newspackCheckVisibility( elementToCheck ) ) {
+									return gtag(
+										'event',
+										'<?php echo esc_attr( $event['event_name'] ); ?>',
+										{
+											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+											event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+										}
+									);
+								}
+								window.clearTimeout( totalTimeMin );
+							}, <?php echo esc_attr( $delay ); ?> );
+						}
+					}
+				};
+
+				// Fire initially - page might be loaded with scroll offset.
+				window.addEventListener( 'DOMContentLoaded', reportEvent );
+				window.addEventListener( 'scroll', reportEvent );
 			} )();
 		</script>
 		<?php
