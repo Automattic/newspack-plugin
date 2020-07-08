@@ -479,6 +479,7 @@ class Analytics {
 										{
 											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 											event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 										}
 									);
 								}
@@ -513,7 +514,7 @@ class Analytics {
 						{
 							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
 							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-							non_interaction: true,
+							non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 						}
 					);
 				};
