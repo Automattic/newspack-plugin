@@ -37,6 +37,7 @@ class Analytics {
 		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_events' ], 10, 2 );
 		add_action( 'newspack_campaigns_before_campaign_render', [ __CLASS__, 'set_campaign_render_context' ], 10, 1 );
 		add_action( 'newspack_campaigns_after_campaign_render', [ __CLASS__, 'reset_render_context' ], 10, 1 );
+		add_action( 'comment_form', [ __CLASS__, 'prepare_comment_events' ] );
 	}
 
 	/**
@@ -216,6 +217,21 @@ class Analytics {
 			],
 		];
 		return $content;
+	}
+
+	/**
+	 * Prepare event triggers on user commenting.
+	 */
+	public static function prepare_comment_events() {
+		self::$block_events[] = [
+			'id'             => 'addComment',
+			'amp_on'         => 'amp-form-submit-success',
+			'on'             => 'submit',
+			'element'        => '#commentform',
+			'event_name'     => 'comment added',
+			'event_category' => 'NTG user',
+			'event_label'    => get_the_title(),
+		];
 	}
 
 	/**
