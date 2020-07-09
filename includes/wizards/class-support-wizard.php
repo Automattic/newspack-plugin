@@ -172,19 +172,32 @@ class Support_Wizard extends Wizard {
 		<b>Message:</b> ' . $request['message'] . '<br/><br/>
 		<i>' . sprintf( 'Sent from %s on %s', home_url(), gmdate( 'c', time() ) ) . ' UTC</i>';
 
+		$pre_launch_data = self::pre_launch_data();
+		$subject_sufffix = $pre_launch_data ? 'Pre-launch' : 'Support';
+
+		$support_request = array(
+			'requester' => array(
+				'name'  => $full_name,
+				'email' => $wpcom_user_data->email,
+			),
+			'subject'   => '[Newspack ' . $subject_sufffix . '] ' . $request['subject'],
+			'comment'   => array(
+				'html_body' => $message,
+				'uploads'   => $request['uploads'],
+			),
+		);
+
+		if ( isset( $request['priority'] ) ) {
+			$support_request['priority'] = $request['priority'];
+		}
+
+		if ( $pre_launch_data ) {
+			$support_request['assignee_id'] = $pre_launch_data['tam_id'];
+		}
+
 		$request_body = wp_json_encode(
 			array(
-				'request' => array(
-					'requester' => array(
-						'name'  => $full_name,
-						'email' => $wpcom_user_data->email,
-					),
-					'subject'   => '[Newspack Support] ' . $request['subject'],
-					'comment'   => array(
-						'html_body' => $message,
-						'uploads'   => $request['uploads'],
-					),
-				),
+				'request' => $support_request,
 			)
 		);
 
@@ -333,6 +346,7 @@ class Support_Wizard extends Wizard {
 				'API_URL'            => self::support_api_url(),
 				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token&scope=global',
 				'WPCOM_ACCESS_TOKEN' => $access_token,
+				'IS_PRE_LAUNCH'      => false !== self::pre_launch_data(),
 			)
 		);
 		wp_enqueue_script( 'newspack-support-wizard' );
@@ -381,5 +395,19 @@ class Support_Wizard extends Wizard {
 	 */
 	public static function configured() {
 		return self::support_api_url() && self::support_email() && self::wpcom_client_id();
+	}
+
+	/**
+	 * Return pre-launch tickets feature related data.
+	 *
+	 * @return object data for pre-launch ticket creation.
+	 */
+	public static function pre_launch_data() {
+		if ( defined( 'NEWSPACK_SUPPORT_PRE_LAUNCH_TAM_ID' ) && NEWSPACK_SUPPORT_PRE_LAUNCH_TAM_ID ) {
+			return [
+				'tam_id' => NEWSPACK_SUPPORT_PRE_LAUNCH_TAM_ID,
+			];
+		}
+		return false;
 	}
 }

@@ -28,6 +28,7 @@ import {
 	Button,
 	TextareaControl,
 	TextControl,
+	SelectControl,
 } from '../../../../components/src';
 import './style.scss';
 import withWPCOMAuth from '../../components/withWPCOMAuth';
@@ -38,6 +39,13 @@ const Footer = props => (
 	</span>
 );
 
+const PRIORITY_OPTIONS = [
+	{ value: 'low', label: __( 'Low', 'newspack' ) },
+	{ value: 'normal', label: __( 'Normal', 'newspack' ) },
+	{ value: 'high', label: __( 'High', 'newspack' ) },
+	{ value: 'urgent', label: __( 'Urgent', 'newspack' ) },
+];
+
 /**
  * Create ticket Support screen.
  */
@@ -46,6 +54,7 @@ class CreateTicket extends Component {
 		isSent: false,
 		errorMessage: false,
 		subject: '',
+		priority: PRIORITY_OPTIONS[ 0 ].value,
 		message: '',
 		attachments: [],
 	};
@@ -54,11 +63,11 @@ class CreateTicket extends Component {
 
 	createTicket = ( uploads = [] ) => {
 		const { wizardApiFetch } = this.props;
-		const { subject, message } = this.state;
+		const { subject, message, priority } = this.state;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-support-wizard/ticket',
 			method: 'POST',
-			data: { subject, message, uploads },
+			data: { subject, message, priority, uploads },
 		} )
 			.then( () => {
 				this.setState( { isSent: true } );
@@ -155,17 +164,25 @@ class CreateTicket extends Component {
 					</Fragment>
 				) : (
 					<form onSubmit={ this.handleSubmit }>
-						<Notice
-							noticeText={ __(
-								'Please visit our <a href="https://newspack.blog/support/">support docs</a> first.',
-								'newspack'
-							) }
-							rawHTML
-						/>
+						{ ! newspack_support_data.IS_PRE_LAUNCH && (
+							<Notice
+								noticeText={ __(
+									'Please visit our <a href="https://newspack.blog/support/">support docs</a> first.',
+									'newspack'
+								) }
+								rawHTML
+							/>
+						) }
 						<TextControl
 							label={ __( 'Subject', 'newspack' ) }
 							onChange={ this.handleChange( 'subject' ) }
 							value={ this.state.subject }
+						/>
+						<SelectControl
+							label={ __( 'Priority', 'newspack' ) }
+							options={ PRIORITY_OPTIONS }
+							onChange={ this.handleChange( 'priority' ) }
+							value={ this.state.priority }
 						/>
 						<TextareaControl
 							label={ __( 'Message', 'newspack' ) }
