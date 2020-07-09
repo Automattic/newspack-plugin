@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/Automattic/newspack-plugin/compare/v1.12.0...v1.12.1) (2020-07-09)
+
+
+### Bug Fixes
+
+* **analytics:** non-interaction handling ([9013ad8](https://github.com/Automattic/newspack-plugin/commit/9013ad8c0ae8d40bdda7e2668d5fdb64cbcbc865))
+
 # [1.12.0](https://github.com/Automattic/newspack-plugin/compare/v1.11.0...v1.12.0) (2020-07-07)
 
 
