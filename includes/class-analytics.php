@@ -117,43 +117,51 @@ class Analytics {
 				'event_label'    => 'linkedin',
 				'event_category' => 'NTG social',
 			],
-			[
-				'id'              => 'articleRead25',
-				'on'              => 'scroll',
-				'event_name'      => '25%',
-				'event_value'     => 25,
-				'event_label'     => get_the_title(),
-				'event_category'  => 'NTG article milestone',
-				'non_interaction' => true,
-				'scrollSpec'      => [
-					'verticalBoundaries' => [ 25 ],
-				],
-			],
-			[
-				'id'              => 'articleRead50',
-				'on'              => 'scroll',
-				'event_name'      => '50%',
-				'event_value'     => 50,
-				'event_label'     => get_the_title(),
-				'event_category'  => 'NTG article milestone',
-				'non_interaction' => true,
-				'scrollSpec'      => [
-					'verticalBoundaries' => [ 50 ],
-				],
-			],
-			[
-				'id'              => 'articleRead100',
-				'on'              => 'scroll',
-				'event_name'      => '100%',
-				'event_value'     => 100,
-				'event_label'     => get_the_title(),
-				'event_category'  => 'NTG article milestone',
-				'non_interaction' => true,
-				'scrollSpec'      => [
-					'verticalBoundaries' => [ 100 ],
-				],
-			],
 		];
+
+		if ( ! is_front_page() && ! is_archive() ) {
+			$events = array_merge(
+				$events,
+				[
+					[
+						'id'              => 'articleRead25',
+						'on'              => 'scroll',
+						'event_name'      => '25%',
+						'event_value'     => 25,
+						'event_label'     => get_the_title(),
+						'event_category'  => 'NTG article milestone',
+						'non_interaction' => true,
+						'scrollSpec'      => [
+							'verticalBoundaries' => [ 25 ],
+						],
+					],
+					[
+						'id'              => 'articleRead50',
+						'on'              => 'scroll',
+						'event_name'      => '50%',
+						'event_value'     => 50,
+						'event_label'     => get_the_title(),
+						'event_category'  => 'NTG article milestone',
+						'non_interaction' => true,
+						'scrollSpec'      => [
+							'verticalBoundaries' => [ 50 ],
+						],
+					],
+					[
+						'id'              => 'articleRead100',
+						'on'              => 'scroll',
+						'event_name'      => '100%',
+						'event_value'     => 100,
+						'event_label'     => get_the_title(),
+						'event_category'  => 'NTG article milestone',
+						'non_interaction' => true,
+						'scrollSpec'      => [
+							'verticalBoundaries' => [ 100 ],
+						],
+					],
+				]
+			);
+		}
 
 		/**
 		 * Other integrations can add events to track using this filter.
@@ -254,17 +262,6 @@ class Analytics {
 
 			if ( ! isset( $config['triggers'] ) ) {
 				$config['triggers'] = [];
-			}
-
-			if ( 'click' !== $event_config['on'] ) {
-				/**
-				 * This is how non-interactive events are added to amp-analytics.
-				 *
-				 * @see https://github.com/ampproject/amphtml/issues/5018#issuecomment-247402181
-				 */
-				$event_config['extraUrlParams'] = [
-					'ni' => 1,
-				];
 			}
 
 			// Other integrations can use this filter if they need to modify the AMP-specific event config.
