@@ -119,7 +119,7 @@ class Analytics {
 			],
 		];
 
-		if ( is_single() ) {
+		if ( ! is_front_page() && ! is_archive() ) {
 			$events = array_merge(
 				$events,
 				[
