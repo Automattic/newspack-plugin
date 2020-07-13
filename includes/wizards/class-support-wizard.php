@@ -172,8 +172,7 @@ class Support_Wizard extends Wizard {
 		<b>Message:</b> ' . $request['message'] . '<br/><br/>
 		<i>' . sprintf( 'Sent from %s on %s', home_url(), gmdate( 'c', time() ) ) . ' UTC</i>';
 
-		$pre_launch_data = self::pre_launch_data();
-		$subject_sufffix = $pre_launch_data ? 'Pre-launch' : 'Support';
+		$subject_sufffix = self::is_pre_launch() ? 'Pre-launch' : 'Support';
 
 		$support_request = array(
 			'requester' => array(
@@ -189,10 +188,6 @@ class Support_Wizard extends Wizard {
 
 		if ( isset( $request['priority'] ) ) {
 			$support_request['priority'] = $request['priority'];
-		}
-
-		if ( $pre_launch_data ) {
-			$support_request['assignee_id'] = $pre_launch_data['tam_id'];
 		}
 
 		$request_body = wp_json_encode(
@@ -346,7 +341,7 @@ class Support_Wizard extends Wizard {
 				'API_URL'            => self::support_api_url(),
 				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token&scope=global',
 				'WPCOM_ACCESS_TOKEN' => $access_token,
-				'IS_PRE_LAUNCH'      => false !== self::pre_launch_data(),
+				'IS_PRE_LAUNCH'      => false !== self::is_pre_launch(),
 			)
 		);
 		wp_enqueue_script( 'newspack-support-wizard' );
@@ -398,16 +393,11 @@ class Support_Wizard extends Wizard {
 	}
 
 	/**
-	 * Return pre-launch tickets feature related data.
+	 * Return pre-launch tickets information..
 	 *
-	 * @return object data for pre-launch ticket creation.
+	 * @return boolean if the instance should handle tickets as pre-launch tickets.
 	 */
-	public static function pre_launch_data() {
-		if ( defined( 'NEWSPACK_SUPPORT_PRE_LAUNCH_TAM_ID' ) && NEWSPACK_SUPPORT_PRE_LAUNCH_TAM_ID ) {
-			return [
-				'tam_id' => NEWSPACK_SUPPORT_PRE_LAUNCH_TAM_ID,
-			];
-		}
-		return false;
+	public static function is_pre_launch() {
+		return defined( 'NEWSPACK_SUPPORT_IS_PRE_LAUNCH' ) && NEWSPACK_SUPPORT_IS_PRE_LAUNCH;
 	}
 }
