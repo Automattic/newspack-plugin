@@ -34,6 +34,8 @@ Some features require environment variables to be set (e.g. in `wp-config.php`):
 define('NEWSPACK_SUPPORT_API_URL', 'https://super-tech-support.zendesk.com/api/v2');
 define('NEWSPACK_SUPPORT_EMAIL', 'support@company.com');
 define('NEWSPACK_WPCOM_CLIENT_ID', '12345');
+// optional
+define('NEWSPACK_SUPPORT_IS_PRE_LAUNCH', true);
 
 // payments
 define( 'NEWSPACK_STRIPE_PLAN', 'plan_...' );
