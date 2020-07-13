@@ -7,11 +7,13 @@ import Dropzone from 'react-dropzone';
 import classnames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
 import { uniqueId } from 'lodash';
+import RichTextEditor from 'react-rte';
 
 /**
  * WordPress dependencies
  */
 import { Fragment, Component } from '@wordpress/element';
+import { BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -26,7 +28,6 @@ import {
 	withWizardScreen,
 	Notice,
 	Button,
-	TextareaControl,
 	TextControl,
 	SelectControl,
 } from '../../../../components/src';
@@ -55,7 +56,7 @@ class CreateTicket extends Component {
 		errorMessage: false,
 		subject: '',
 		priority: PRIORITY_OPTIONS[ 0 ].value,
-		message: '',
+		message: RichTextEditor.createEmptyValue(),
 		attachments: [],
 	};
 
@@ -67,7 +68,7 @@ class CreateTicket extends Component {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-support-wizard/ticket',
 			method: 'POST',
-			data: { subject, message, priority, uploads },
+			data: { subject, message: message.toString( 'html' ), priority, uploads },
 		} )
 			.then( () => {
 				this.setState( { isSent: true } );
@@ -184,11 +185,19 @@ class CreateTicket extends Component {
 							onChange={ this.handleChange( 'priority' ) }
 							value={ this.state.priority }
 						/>
-						<TextareaControl
-							label={ __( 'Message', 'newspack' ) }
-							onChange={ this.handleChange( 'message' ) }
-							value={ this.state.message }
-						/>
+						<div className="components-base-control newspack-text-control">
+							<div className="components-base-control__field">
+								{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
+								<label className="components-base-control__label">
+									{ __( 'Message', 'newspack' ) }
+								</label>
+								<RichTextEditor
+									onChange={ this.handleChange( 'message' ) }
+									value={ this.state.message }
+									placeholder={ __( 'Your message…', 'newspack' ) }
+								/>
+							</div>
+						</div>
 						<div className="newspack-support__files">
 							{ attachments.map( ( { file, id } ) => (
 								<div key={ id } className="newspack-support__files__item">
