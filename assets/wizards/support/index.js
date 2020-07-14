@@ -1,3 +1,5 @@
+/* global newspack_support_data */
+
 import '../../shared/js/public-path';
 
 /**
@@ -69,6 +71,8 @@ class SupportWizard extends Component {
 			return <Loading />;
 		}
 
+		const isPreLaunch = newspack_support_data.IS_PRE_LAUNCH;
+
 		const props = {
 			headerIcon: <HeaderIcon />,
 			headerText: __( 'Contact support', 'newspack' ),
@@ -84,11 +88,15 @@ class SupportWizard extends Component {
 					path: '/tickets-list',
 					exact: true,
 				},
-				{
-					label: __( 'Chat' ),
-					path: '/chat',
-					exact: true,
-				},
+				...( isPreLaunch
+					? []
+					: [
+							{
+								label: __( 'Chat' ),
+								path: '/chat',
+								exact: true,
+							},
+					  ] ),
 			],
 			...this.props,
 		};
@@ -98,7 +106,7 @@ class SupportWizard extends Component {
 				<Switch>
 					<Route path="/ticket" exact render={ () => <CreateTicket { ...props } /> } />
 					<Route path="/tickets-list" exact render={ () => <ListTickets { ...props } /> } />
-					<Route path="/chat" exact render={ () => <Chat { ...props } /> } />
+					{ ! isPreLaunch && <Route path="/chat" exact render={ () => <Chat { ...props } /> } /> }
 					<Redirect to="/ticket" />
 				</Switch>
 			</HashRouter>

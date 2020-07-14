@@ -20,6 +20,7 @@ const withWPCOMAuth = WrappedComponent => {
 		state = {
 			isInFlight: false,
 			shouldAuthenticate: true,
+			errorMessage: null,
 		};
 		componentDidMount() {
 			if ( WPCOM_ACCESS_TOKEN ) {
@@ -30,7 +31,10 @@ const withWPCOMAuth = WrappedComponent => {
 					.then( () => {
 						this.setState( { isInFlight: false, shouldAuthenticate: false } );
 					} )
-					.catch( () => {
+					.catch( ( { code, message } ) => {
+						if ( code !== 'invalid_wpcom_token' ) {
+							this.setState( { errorMessage: message } );
+						}
 						saveReturnPath();
 						this.setState( { isInFlight: false, shouldAuthenticate: true } );
 					} );
@@ -43,10 +47,14 @@ const withWPCOMAuth = WrappedComponent => {
 			this.state.shouldAuthenticate ? (
 				<Fragment>
 					<Notice
-						noticeText={ __(
-							'Click the button below to authenticate using a WordPress.com account.',
-							'newspack'
-						) }
+						isError={ !! this.state.errorMessage }
+						noticeText={
+							this.state.errorMessage ||
+							__(
+								'Click the button below to authenticate using a WordPress.com account.',
+								'newspack'
+							)
+						}
 					/>
 					<div className="newspack-buttons-card">
 						<Button href={ newspack_support_data.WPCOM_AUTH_URL } isPrimary>
