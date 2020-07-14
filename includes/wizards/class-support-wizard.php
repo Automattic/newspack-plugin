@@ -112,6 +112,9 @@ class Support_Wizard extends Wizard {
 				)
 			)
 		);
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
 		if ( 200 !== $response['response']['code'] ) {
 			return new WP_Error( 'invalid_wpcom_token', __( 'Invalid WPCOM token.', 'newspack' ) );
 		}
