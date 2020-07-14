@@ -13,7 +13,6 @@ import RichTextEditor from 'react-rte';
  * WordPress dependencies
  */
 import { Fragment, Component } from '@wordpress/element';
-import { BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
