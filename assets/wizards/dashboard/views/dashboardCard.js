@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 
 /**
  * Material UI dependencies.
@@ -27,6 +27,7 @@ import PopupsIcon from '@material-ui/icons/NewReleases';
 /**
  * Internal dependencies.
  */
+import Router from '../../../components/src/proxied-imports/router';
 import { Card } from '../../../components/src';
 
 /**
@@ -54,13 +55,16 @@ class DashboardCard extends Component {
 			popups: <PopupsIcon />,
 		};
 		const contents = (
-			<div className="newspack-dashboard-card__contents">
-				{ iconMap[ slug ] || <WidgetsIcon /> }
-				<div className="newspack-dashboard-card__header">
-					<h2>{ name }</h2>
-					<p>{ description }</p>
+			<Fragment>
+				<div className="newspack-dashboard-card__contents">
+					{ iconMap[ slug ] || <WidgetsIcon /> }
+					<div className="newspack-dashboard-card__header">
+						<h2>{ name }</h2>
+						<p>{ description }</p>
+					</div>
 				</div>
-			</div>
+				{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
+			</Fragment>
 		);
 
 		if ( 'disabled' === status ) {
@@ -72,10 +76,11 @@ class DashboardCard extends Component {
 		}
 		return (
 			<Card className={ classes }>
-				<a href={ url }>
-					{ contents }
-					{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
-				</a>
+				{ url.indexOf( '/' ) === 0 ? (
+					<Router.NavLink to={ url }>{ contents }</Router.NavLink>
+				) : (
+					<a href={ url }>{ contents }</a>
+				) }
 			</Card>
 		);
 	}

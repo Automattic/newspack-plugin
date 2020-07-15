@@ -2,30 +2,57 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-dashboard__news {
-	> h1 {
-		margin-top: 0;
-	}
 	details {
 		margin-bottom: 5px;
+		border: 1px solid $light-gray-200;
+		padding: 20px;
+		border-radius: 3px;
 		> div {
 			border-radius: 2px;
-			padding: 20px;
-			background-color: $light-gray-100;
-			margin: 10px 0;
+			margin: 20px 0 0;
+			padding-left: 40px;
 			h3:first-child {
 				margin-top: 0;
 			}
 		}
-	}
-	summary {
-		font-size: 16px;
-		cursor: pointer;
-		strong:first-child {
-			color: $primary-500;
+		ul {
+			list-style: disc;
+			padding-left: 18px;
+		}
+		li {
+			margin-bottom: 0;
+		}
+		ul:last-child {
+			margin-bottom: 0;
 		}
 		h3 {
-			display: inline;
 			margin: 0;
+		}
+		svg {
+			transition: transform 200ms;
+		}
+		&[open] {
+			svg {
+				transform: rotate( 180deg );
+			}
+		}
+	}
+	summary {
+		display: flex;
+		font-size: 16px;
+		cursor: pointer;
+		&:focus {
+			outline: none;
+		}
+		&::-webkit-details-marker {
+			display: none;
+		}
+		> div:first-child {
+			width: 40px;
+			flex-shrink: 0;
+		}
+		strong:first-child {
+			color: $primary-500;
 		}
 	}
 

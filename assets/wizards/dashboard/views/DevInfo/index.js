@@ -5,6 +5,7 @@ import marked from 'marked';
 import { sanitize } from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
 import 'whatwg-fetch';
+import HeaderIcon from '@material-ui/icons/Stars';
 
 /**
  * WordPress dependencies.
@@ -16,10 +17,11 @@ import { Spinner } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import { Card } from '../../../../components/src';
+import { withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 const HEADING_REGEX = /##? \[([\d\.]*)\].*\(([\d-]*)\)\n\n/;
+const COMMIT_LINK_REGEX = / \(\[[a-f0-9]{7}\]\([^\(]*\)/g;
 
 const parseReleaseHeader = release => {
 	if ( ! release ) {
@@ -28,7 +30,7 @@ const parseReleaseHeader = release => {
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return, no-unused-vars
 	const [ _, version, date ] = release.body.match( HEADING_REGEX );
-	const content = release.body.replace( HEADING_REGEX, '' );
+	const content = release.body.replace( HEADING_REGEX, '' ).replace( COMMIT_LINK_REGEX, '' );
 
 	const tokens = marked.lexer( content );
 	let bugFixes = [];
@@ -52,7 +54,7 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 	useEffect( () => {
 		fetch( `https://api.github.com/repos/Automattic/${ repoSlug }/releases/latest` )
 			.then( res => res.json() )
-			.then( setReleaseData )
+			.then( res => ( res.message ? setError( res.message ) : setReleaseData( res ) ) )
 			.catch( () => {
 				setError(
 					`${ __( 'Something went wrong when fetching', 'newspack' ) } ${ repoName } ${ __(
@@ -86,9 +88,26 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 	return releaseData ? (
 		<details>
 			<summary>
-				<strong>{ repoName }</strong> was released{' '}
-				{ formatDistanceToNow( new Date( date ), { addSuffix: true } ) }{' '}
-				<strong>{ infoStrings.join( __( ' and ', 'newspack' ) ) }</strong>.
+				<div>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<polyline points="6 9 12 15 18 9"></polyline>
+					</svg>
+				</div>
+				<span>
+					<strong>{ repoName }</strong> { __( 'was released', 'newspack' ) }{' '}
+					{ formatDistanceToNow( new Date( date ), { addSuffix: true } ) }{' '}
+					<strong>{ infoStrings.join( __( ' and ', 'newspack' ) ) }</strong>.
+				</span>
 			</summary>
 			<div dangerouslySetInnerHTML={ { __html: sanitize( marked( content ) ) } } />
 		</details>
@@ -99,17 +118,24 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 	);
 };
 
-const DevInfo = () => {
+const DevInfoWizard = withWizardScreen( () => {
 	return (
-		<Card className="newspack-dashboard__news">
-			<h1>{ __( "What's new?", 'newspack' ) }</h1>
+		<div className="newspack-dashboard__news">
 			<ReleaseNotes repoSlug="newspack-plugin" repoName="Newspack Plugin" />
 			<ReleaseNotes repoSlug="newspack-blocks" repoName="Blocks Plugin" />
 			<ReleaseNotes repoSlug="newspack-newsletters" repoName="Newsletters Plugin" />
 			<ReleaseNotes repoSlug="newspack-popups" repoName="Campaigns Plugin" />
 			<ReleaseNotes repoSlug="newspack-theme" repoName="Newspack Theme" />
-		</Card>
+		</div>
 	);
-};
+} );
+
+const DevInfo = () => (
+	<DevInfoWizard
+		headerText={ __( "What's new?", 'newspack' ) }
+		headerIcon={ <HeaderIcon /> }
+		subHeaderText={ __( 'Updates to the Newspack plugins and themes', 'newspack' ) }
+	/>
+);
 
 export default DevInfo;

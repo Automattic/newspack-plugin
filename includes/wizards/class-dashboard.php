@@ -122,6 +122,13 @@ class Dashboard extends Wizard {
 				'description' => Wizards::get_description( 'popups' ),
 				'status'      => 'enabled',
 			],
+			[
+				'slug'        => 'whats-new',
+				'name'        => __( "What's New?", 'newspack' ),
+				'url'         => '/whats-new',
+				'description' => esc_html__( 'Updates to the Newspack plugins and themes', 'newspack' ),
+				'status'      => 'enabled',
+			],
 		];
 
 		return $dashboard;
