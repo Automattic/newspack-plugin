@@ -54,21 +54,29 @@ class Analytics {
 	public static function handle_category_reporting() {
 		$categories = get_the_category();
 		if ( ! empty( $categories ) ) {
-			$category_slug = $categories[0]->slug;
+			$categories_slugs = implode(
+				',',
+				array_map(
+					function( $cat ) {
+						return $cat->slug;
+					},
+					$categories
+				)
+			);
 			// Non-AMP.
 			add_filter(
 				'googlesitekit_gtag_opt',
-				function ( $gtag_opt ) use ( $category_slug ) {
-					$gtag_opt['dimension1'] = $category_slug;
+				function ( $gtag_opt ) use ( $categories_slugs ) {
+					$gtag_opt['dimension1'] = $categories_slugs;
 					return $gtag_opt;
 				}
 			);
 			// AMP.
 			add_filter(
 				'googlesitekit_amp_gtag_opt',
-				function ( $gtag_amp_opt ) use ( $category_slug ) {
+				function ( $gtag_amp_opt ) use ( $categories_slugs ) {
 					$tracking_id = $gtag_amp_opt['vars']['gtag_id'];
-					$gtag_amp_opt['vars']['config'][ $tracking_id ]['dimension1'] = $category_slug;
+					$gtag_amp_opt['vars']['config'][ $tracking_id ]['dimension1'] = $categories_slugs;
 					return $gtag_amp_opt;
 				}
 			);
