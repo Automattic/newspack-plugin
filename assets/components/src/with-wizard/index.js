@@ -29,10 +29,12 @@ import './style.scss';
 
 const { Redirect, Route } = Router;
 
+const NEWSPACK_SITE_URL = 'https://newspack.pub';
+
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizard( WrappedComponent, requiredPlugins, options ) {
+export default function withWizard( WrappedComponent, requiredPlugins, options = {} ) {
 	return class WrappedWithWizard extends Component {
 		constructor( props ) {
 			super( props );
@@ -102,15 +104,19 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 		 * @return {Component} React object
 		 */
 		getFatalError = error => {
+			const fallbackURL = this.getFallbackURL();
+			if ( ! fallbackURL ) {
+				return null;
+			}
 			const { message } = error;
 			return (
 				<Modal
 					title={ __( 'Unrecoverable error' ) }
-					onRequestClose={ () => ( window.location = newspack_urls.dashboard ) }
+					onRequestClose={ () => ( window.location = fallbackURL ) }
 				>
 					<Notice noticeText={ message } isError rawHTML />
 					<div className="newspack-buttons-card">
-						<Button isPrimary href={ newspack_urls.dashboard }>
+						<Button isPrimary href={ fallbackURL }>
 							{ __( 'Return to dashboard' ) }
 						</Button>
 					</div>
@@ -230,22 +236,29 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 			);
 		};
 
+		getFallbackURL = () => {
+			if ( typeof newspack_urls !== 'undefined' ) {
+				return newspack_urls.dashboard;
+			}
+		};
+
 		/**
 		 * Render.
 		 */
 		render() {
-			const { buttonText, buttonAction } = this.props;
-			const { loading } = this.state;
+			const { buttonText, buttonAction, logoLink } = this.props;
+			const { loading, error } = this.state;
+			const logoURL = logoLink || this.getFallbackURL() || NEWSPACK_SITE_URL;
 			return (
 				<Fragment>
 					{ this.getError() }
 					<div className="newspack-logo-wrapper">
-						{ options && options.suppressLogoLink ? (
-							<NewspackLogo />
-						) : (
-							<a href={ newspack_urls && newspack_urls.dashboard }>
+						{ ! options.suppressLogoLink && logoURL ? (
+							<a href={ logoURL } target={ logoURL === NEWSPACK_SITE_URL ? '_blank' : undefined }>
 								<NewspackLogo />
 							</a>
+						) : (
+							<NewspackLogo />
 						) }
 					</div>
 					<div
@@ -255,6 +268,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options )
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
 							getError={ this.getError }
+							errorData={ error }
 							setError={ this.setError }
 							isLoading={ loading }
 							startLoading={ this.startLoading }
