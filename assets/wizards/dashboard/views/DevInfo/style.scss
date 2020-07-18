@@ -3,12 +3,11 @@
 
 .newspack-dashboard__news {
 	details {
-		margin-bottom: 5px;
+		margin: 32px 0;
 		border: 1px solid $light-gray-200;
 		padding: 20px;
 		border-radius: 3px;
 		> div {
-			border-radius: 2px;
 			margin: 20px 0 0;
 			padding-left: 40px;
 			h3:first-child {
@@ -26,6 +25,7 @@
 			margin-bottom: 0;
 		}
 		h3 {
+			font-size: 16px;
 			margin: 0;
 		}
 		svg {
@@ -36,10 +36,12 @@
 				transform: rotate( 180deg );
 			}
 		}
+		+ details {
+			margin-top: -24px;
+		}
 	}
 	summary {
 		display: flex;
-		font-size: 16px;
 		cursor: pointer;
 		&:focus {
 			outline: none;
@@ -48,6 +50,7 @@
 			display: none;
 		}
 		> div:first-child {
+			line-height: 1;
 			width: 40px;
 			flex-shrink: 0;
 		}
