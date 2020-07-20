@@ -7,6 +7,14 @@
 
 namespace Newspack;
 
+use Google\Site_Kit\Modules\Analytics as SiteKitAnalytics;
+use Google\Site_Kit\Context;
+use Google\Site_Kit\Core\Storage\Options;
+use Google\Site_Kit\Core\Storage\User_Options;
+use Google\Site_Kit\Core\Authentication\Authentication;
+use Google\Site_Kit_Dependencies\Google_Service_Analytics;
+use Google\Site_Kit_Dependencies\Google_Service_Analytics_CustomDimension;
+
 use \WP_Error, \WP_Query;
 
 defined( 'ABSPATH' ) || exit;
@@ -17,6 +25,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  * Easy interface for setting up general store info.
  */
 class Analytics_Wizard extends Wizard {
+
+	/**
+	 * Name of the option storing the article category custom dimension id.
+	 *
+	 * @var string
+	 */
+	public static $category_dimension_option_name = 'newspack_analtytics_category_custom_dimension_id';
 
 	/**
 	 * The slug of this wizard.
@@ -70,7 +85,42 @@ class Analytics_Wizard extends Wizard {
 	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
-	public function register_api_endpoints() {}
+	public function register_api_endpoints() {
+		// Create a custom dimension.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/analytics/custom-dimensions',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'create_custom_dimension' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'name'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'scope' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
+		// Set the category custom dimension.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/analytics/category-dimension/(?P<id>[\w:]+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'set_category_dimension' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+	}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
@@ -89,5 +139,130 @@ class Analytics_Wizard extends Wizard {
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/analytics.js' ),
 			true
 		);
+		$custom_dimensions = self::list_custom_dimensions();
+		if ( is_wp_error( $custom_dimensions ) ) {
+			$custom_dimensions = [
+				'error' => $custom_dimensions->get_error_message(),
+			];
+		}
+		\wp_localize_script(
+			'newspack-analytics-wizard',
+			'newspack_analytics_wizard_data',
+			[
+				'customDimensions' => $custom_dimensions,
+			]
+		);
+
+		\wp_register_style(
+			'newspack-analytics-wizard',
+			Newspack::plugin_url() . '/dist/analytics.css',
+			$this->get_style_dependencies(),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/analytics.css' )
+		);
+		\wp_style_add_data( 'newspack-analytics-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-analytics-wizard' );
+
+	}
+
+	/**
+	 * Get GA utils.
+	 *
+	 * @return object authenticated Google_Service_Analytics service and Site Kit settings
+	 */
+	public static function get_ga_utils() {
+		if ( defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
+			$context            = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
+			$site_kit_analytics = new SiteKitAnalytics( $context );
+
+			if ( $site_kit_analytics->is_connected() ) {
+				$ga_options     = new Options( $context );
+				$user_options   = new User_Options( $context );
+				$authentication = new Authentication( $context, $ga_options, $user_options );
+				$client         = $authentication->get_oauth_client()->get_client();
+				return [
+					'analytics_service' => new Google_Service_Analytics( $client ),
+					'settings'          => $site_kit_analytics->get_settings()->get(),
+				];
+			} else {
+				return new WP_Error( 'newspack_analytics_sitekit_disconnected', __( 'Please connect Analytics in Site Kit plugin.', 'newspack' ) );
+			}
+		}
+		return new WP_Error( 'newspack_analytics_sitekit_undefined', __( 'Install Site Kit plugin.', 'newspack' ) );
+	}
+
+	/**
+	 * List Custom Dimensions.
+	 *
+	 * @return return type
+	 */
+	public static function list_custom_dimensions() {
+		$ga_utils = self::get_ga_utils();
+		if ( is_wp_error( $ga_utils ) ) {
+			return $ga_utils;
+		}
+		$custom_dimensions = $ga_utils['analytics_service']->management_customDimensions->listManagementCustomDimensions(
+			$ga_utils['settings']['accountID'],
+			$ga_utils['settings']['propertyID']
+		);
+		if ( isset( $custom_dimensions['items'] ) ) {
+			$option_name = self::$category_dimension_option_name;
+			return array_map(
+				function ( &$dimension ) use ( $option_name ) {
+					if ( get_option( $option_name ) === $dimension['id'] ) {
+						$dimension->is_category_dimension = true;
+					}
+					return $dimension;
+				},
+				$custom_dimensions['items']
+			);
+		}
+		return new WP_Error( 'newspack_analytics', __( 'Error retrieving custom dimensions.', 'newspack' ) );
+	}
+
+	/**
+	 * List Custom Dimensions.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public static function create_custom_dimension( $request ) {
+		$ga_utils = self::get_ga_utils();
+		if ( is_wp_error( $ga_utils ) ) {
+			return $ga_utils;
+		}
+
+		try {
+			$custom_dimension_body = new Google_Service_Analytics_CustomDimension();
+			$custom_dimension_body->setName( $request['name'] );
+			$custom_dimension_body->setScope( $request['scope'] );
+			$custom_dimension_body->setActive( true );
+
+			return $ga_utils['analytics_service']->management_customDimensions->insert(
+				$ga_utils['settings']['accountID'],
+				$ga_utils['settings']['propertyID'],
+				$custom_dimension_body
+			);
+		} catch ( \Throwable $error ) {
+			return new WP_Error( 'newspack_analytics', __( 'Error when creating custom dimension.', 'newspack' ) );
+		}
+	}
+
+	/**
+	 * Set custom dimension as the category-reporting dimension.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public static function set_category_dimension( $request ) {
+		$dimension_id          = $request['id'];
+		$existing_dimension_id = get_option( self::$category_dimension_option_name );
+		if ( $existing_dimension_id === $dimension_id ) {
+			$dimension_id = null;
+		}
+		if ( update_option( self::$category_dimension_option_name, $dimension_id ) ) {
+			return [ 'id' => $dimension_id ];
+		} else {
+			return new WP_Error( 'newspack_analytics', __( 'Error when setting category custom dimension.', 'newspack' ) );
+		}
 	}
 }

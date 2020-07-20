@@ -1,0 +1,34 @@
+@import '~@wordpress/base-styles/colors';
+
+.newspack__analytics-configuration {
+	th {
+		text-align: left;
+		border-bottom: 1px solid $light-gray-500;
+	}
+	table {
+		width: 100%;
+		margin-bottom: 4em;
+		border-spacing: 0;
+	}
+	tbody {
+		td {
+			padding-top: 4px;
+		}
+		.newspack-checkbox-control {
+			margin: 0;
+		}
+	}
+	&__form {
+		display: flex;
+		align-items: flex-end;
+		.newspack-text-control {
+			width: 100%;
+		}
+		> * {
+			margin: 0 !important;
+			&:not( :last-child ) {
+				margin-right: 20px !important;
+			}
+		}
+	}
+}

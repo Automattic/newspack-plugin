@@ -52,6 +52,13 @@ class Analytics {
 	 * https://support.google.com/analytics/answer/2709828.
 	 */
 	public static function handle_category_reporting() {
+		$category_dimension_id = get_option( Analytics_Wizard::$category_dimension_option_name );
+		if ( ! $category_dimension_id ) {
+			return;
+		}
+		// Remove `ga:` prefix.
+		$category_dimension_id = substr( $category_dimension_id, 3 );
+
 		$categories = get_the_category();
 		if ( ! empty( $categories ) ) {
 			$categories_slugs = implode(
@@ -66,17 +73,17 @@ class Analytics {
 			// Non-AMP.
 			add_filter(
 				'googlesitekit_gtag_opt',
-				function ( $gtag_opt ) use ( $categories_slugs ) {
-					$gtag_opt['dimension1'] = $categories_slugs;
+				function ( $gtag_opt ) use ( $categories_slugs, $category_dimension_id ) {
+					$gtag_opt[ $category_dimension_id ] = $categories_slugs;
 					return $gtag_opt;
 				}
 			);
 			// AMP.
 			add_filter(
 				'googlesitekit_amp_gtag_opt',
-				function ( $gtag_amp_opt ) use ( $categories_slugs ) {
+				function ( $gtag_amp_opt ) use ( $categories_slugs, $category_dimension_id ) {
 					$tracking_id = $gtag_amp_opt['vars']['gtag_id'];
-					$gtag_amp_opt['vars']['config'][ $tracking_id ]['dimension1'] = $categories_slugs;
+					$gtag_amp_opt['vars']['config'][ $tracking_id ][ $category_dimension_id ] = $categories_slugs;
 					return $gtag_amp_opt;
 				}
 			);
