@@ -144,52 +144,69 @@ class Salesforce {
 	 * @return @array Parsed data.
 	 */
 	public static function parse_wc_order_data( $data ) {
-		$fields_to_update = [];
+		$order_contact = [];
+		$orders        = [];
 
-		// We need billing info from the order before we can do anything.
-		if ( empty( $data['billing'] ) ) {
-			return $fields_to_update;
+		// We need billing and transaction info from the order before we can do anything.
+		if ( empty( $data['billing'] ) || empty( $data['line_items'] ) ) {
+			return $order_contact;
 		}
 
-		// Parse billing info from WooCommerce.
+		// Parse billing contact info from WooCommerce.
 		if ( ! empty( $data['billing']['email'] ) ) {
-			$fields_to_update['Email'] = $data['billing']['email'];
+			$order_contact['Email'] = $data['billing']['email'];
 		}
 		if ( ! empty( $data['billing']['first_name'] ) ) {
-			$fields_to_update['FirstName'] = $data['billing']['first_name'];
+			$order_contact['FirstName'] = $data['billing']['first_name'];
 		}
 		if ( ! empty( $data['billing']['last_name'] ) ) {
-			$fields_to_update['LastName'] = $data['billing']['last_name'];
+			$order_contact['LastName'] = $data['billing']['last_name'];
 		}
 		if ( ! empty( $data['billing']['phone'] ) ) {
-			$fields_to_update['HomePhone'] = $data['billing']['phone'];
+			$order_contact['HomePhone'] = $data['billing']['phone'];
 		}
 		if ( ! empty( $data['billing']['address_1'] ) ) {
-			$fields_to_update['MailingStreet'] = $data['billing']['address_1'];
+			$order_contact['MailingStreet'] = $data['billing']['address_1'];
 		}
 		if ( ! empty( $data['billing']['address_2'] ) ) {
-			$fields_to_update['MailingStreet'] .= "\n" . $data['billing']['address_2'];
+			$order_contact['MailingStreet'] .= "\n" . $data['billing']['address_2'];
 		}
 		if ( ! empty( $data['billing']['city'] ) ) {
-			$fields_to_update['MailingCity'] = $data['billing']['city'];
+			$order_contact['MailingCity'] = $data['billing']['city'];
 		}
 		if ( ! empty( $data['billing']['state'] ) ) {
-			$fields_to_update['MailingState'] = $data['billing']['state'];
+			$order_contact['MailingState'] = $data['billing']['state'];
 		}
 		if ( ! empty( $data['billing']['postcode'] ) ) {
-			$fields_to_update['MailingPostalCode'] = $data['billing']['postcode'];
-		}
-		if ( ! empty( $data['line_items'] ) ) {
-			$donation_date = $data['date_created_gmt'];
-			$donation_info = $data['line_items'][0];
-
-			$fields_to_update['Description'] = 'Transaction: ' . $donation_info['name'] . ' on ' . $donation_date . ' with subtotal ' . $donation_info['subtotal'] . ' and total ' . $donation_info['total'];
+			$order_contact['MailingPostalCode'] = $data['billing']['postcode'];
 		}
 		if ( 0 === $data['meta_data'][0]['mailchimp_woocommerce_is_subscribed'] ) {
-			$fields_to_update['HasOptedOutOfEmail'] = true;
+			$order_contact['HasOptedOutOfEmail'] = true;
 		}
 
-		return $fields_to_update;
+		$transaction_date = $data['date_created_gmt'];
+		$transactions     = $data['line_items'];
+
+		if ( is_array( $transactions ) ) {
+			foreach ( $transactions as $transaction ) {
+				$orders[] = [
+					'EffectiveDate'        => $transaction_date,
+					'Name'                 => $transaction['name'],
+					'OrderReferenceNumber' => $data['id'],
+					'Status'               => 'Draft',
+					'TotalAmount'          => $transaction['total'],
+					'TotalTaxAmount'       => $transaction['total_tax'],
+					'Type'                 => 'Create',
+				];
+			}
+		}
+
+		$order_contact['Description'] = 'Transaction: ' . $transactions[0]['name'] . ' on ' . $transactions[0] . ' with subtotal ' . $transactions[0]['subtotal'] . ' and total ' . $donation_info['total'];
+
+		return [
+			'contact' => $order_contact,
+			'orders'  => $orders,
+		];
 	}
 
 	/**
@@ -285,6 +302,46 @@ class Salesforce {
 		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Contact/';
 
 		// Create contact record via Salesforce API, using cached access_token.
+		$response = wp_safe_remote_post(
+			$url,
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+					'Content-Type'  => 'application/json',
+				],
+				'body'    => wp_json_encode( $data ),
+			]
+		);
+
+		// If our access token has expired, refresh it and re-send the request.
+		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+			$access_token = self::refresh_salesforce_token();
+			$response     = wp_safe_remote_post(
+				$url,
+				[
+					'headers' => [
+						'Authorization' => 'Bearer ' . $access_token,
+						'Content-Type'  => 'application/json',
+					],
+					'body'    => wp_json_encode( $data ),
+				]
+			);
+		}
+
+		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * Create a new order record in Salesforce.
+	 *
+	 * @param array $data Data to use in creating the new order. Keys must be valid Salesforce field names.
+	 * @return array Response from Salesforce API.
+	 */
+	public static function create_order( $data ) {
+		$salesforce_settings = self::get_salesforce_settings();
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Order/';
+
+		// Create order record via Salesforce API, using cached access_token.
 		$response = wp_safe_remote_post(
 			$url,
 			[

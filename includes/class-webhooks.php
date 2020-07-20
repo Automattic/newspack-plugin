@@ -53,27 +53,50 @@ class Webhooks {
 	 * @return WP_REST_Response with the response from Salesforce.
 	 */
 	public function api_sync_salesforce( $request ) {
-		$args             = $request->get_params();
-		$fields_to_update = Salesforce::parse_wc_order_data( $args );
+		$args            = $request->get_params();
+		$order_details   = Salesforce::parse_wc_order_data( $args );
+		$order_contact   = $order_details['contact'];
+		$orders          = $order_details['orders'];
+		$order_responses = [];
 
-		if ( empty( $fields_to_update['Email'] ) ) {
+		if ( empty( $order_contact ) || empty( empty( $orders ) ) ) {
+			return \rest_ensure_response( 'No valid order details.' );
+		}
+
+		if ( empty( $order_contact['Email'] ) ) {
 			return \rest_ensure_response( 'No valid email address.' );
 		}
 
-		$contacts = Salesforce::get_contacts_by_email( $fields_to_update['Email'] );
+		$contacts   = Salesforce::get_contacts_by_email( $order_contact['Email'] );
+		$contact_id = '';
 
 		if ( $contacts->totalSize > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			// Update existing contact.
-			if ( ! empty( $contacts->records[0]->Description && ! empty( $fields_to_update['Description'] ) ) ) {
-				$fields_to_update['Description'] .= "\n" . $contacts->records[0]->Description; // Update line items.
+			if ( ! empty( $contacts->records[0]->Description && ! empty( $order_contact['Description'] ) ) ) {
+				$order_contact['Description'] .= "\n" . $contacts->records[0]->Description; // Update line items.
 			}
-			$response = Salesforce::update_contact( $contacts->records[0]->Id, $fields_to_update );
+			$contact_id       = $contacts->records[0]->Id;
+			$contact_response = Salesforce::update_contact( $contact_id, $order_contact );
 		} else {
 			// Create new contact.
-			$response = Salesforce::create_contact( $fields_to_update );
+			$contact_response = Salesforce::create_contact( $order_contact );
+			$contact_id       = $contact_response['id'];
 		}
 
-		return \rest_ensure_response( $response );
+		if ( is_array( $orders ) ) {
+
+			foreach ( $orders as $order ) {
+				$order['BillToContactId'] = $contact_id;
+				$order_responses[]        = Salesforce::create_order( $order );
+			}
+		}
+
+		return \rest_ensure_response(
+			[
+				'contact' => $contact_response,
+				'orders'  => $order_responses,
+			]
+		);
 	}
 }
 
