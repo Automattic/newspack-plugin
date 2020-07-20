@@ -53,6 +53,16 @@ class Analytics_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_action( 'admin_init', [ $this, 'insert_custom_dimensions' ] );
+
+		// Ensure Site Kit asks for sufficient scopes to add custom dimensions.
+		add_filter(
+			'googlesitekit_auth_scopes',
+			function( array $scopes ) {
+				return array_merge( $scopes, [ 'https://www.googleapis.com/auth/analytics.edit' ] );
+			},
+			1
+		);
 	}
 
 	/**
@@ -80,6 +90,36 @@ class Analytics_Wizard extends Wizard {
 	 */
 	public function get_length() {
 		return esc_html__( '10 minutes', 'newspack' );
+	}
+
+	/**
+	 * Create the custom dimension to report category, if:
+	 * - the GA property has no custom dimensions set,
+	 * - the category dimension option has not been set.
+	 */
+	public function insert_custom_dimensions() {
+		if (
+			get_option( 'has_set_up_category_dimension' ) != 'completed' &&
+			! get_option( self::$category_dimension_option_name )
+		) {
+			$custom_dimensions = self::list_custom_dimensions();
+			if ( ! is_wp_error( $custom_dimensions ) && count( $custom_dimensions ) === 0 ) {
+				$new_custom_dimension = self::create_custom_dimension(
+					[
+						'name'  => '[Newspack] Article Category 2',
+						'scope' => 'HIT',
+					]
+				);
+				if ( ! is_wp_error( $new_custom_dimension ) ) {
+					$new_custom_dimension = self::set_category_dimension(
+						[
+							'id' => $new_custom_dimension['id'],
+						]
+					);
+					update_option( 'has_set_up_category_dimension_09', 'completed' );
+				}
+			}
+		}
 	}
 
 	/**
