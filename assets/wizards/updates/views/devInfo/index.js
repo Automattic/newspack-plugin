@@ -5,7 +5,6 @@ import marked from 'marked';
 import { sanitize } from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
 import 'whatwg-fetch';
-import HeaderIcon from '@material-ui/icons/Widgets';
 
 /**
  * WordPress dependencies.
