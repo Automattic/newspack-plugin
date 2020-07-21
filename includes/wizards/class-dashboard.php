@@ -123,10 +123,10 @@ class Dashboard extends Wizard {
 				'status'      => 'enabled',
 			],
 			[
-				'slug'        => 'whats-new',
-				'name'        => __( "What's New?", 'newspack' ),
-				'url'         => '/whats-new',
-				'description' => esc_html__( 'Updates to the Newspack plugins and themes', 'newspack' ),
+				'slug'        => 'updates',
+				'name'        => Wizards::get_name( 'updates' ),
+				'url'         => Wizards::get_url( 'updates' ),
+				'description' => Wizards::get_description( 'updates' ),
 				'status'      => 'enabled',
 			],
 		];

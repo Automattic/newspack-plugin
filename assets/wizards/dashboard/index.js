@@ -19,8 +19,6 @@ import ViewModuleIcon from '@material-ui/icons/ViewModule';
  */
 import { Button, Card, Grid, NewspackLogo } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
-import Router from '../../components/src/proxied-imports/router';
-import DevInfo from './views/DevInfo';
 import './style.scss';
 
 /**
@@ -45,62 +43,42 @@ class Dashboard extends Component {
 		const { items } = this.props;
 		const { view } = this.state;
 
-		const isWide = view === 'grid' && true;
-
 		return (
 			<Fragment>
 				<div className="newspack-logo-wrapper">
 					<NewspackLogo />
 				</div>
-
-				<Router.HashRouter hashType="slash">
-					<Router.Switch>
-						<Router.Route
-							path="/whats-new"
-							render={ () => (
-								<Grid isWide={ isWide }>
-									<DevInfo />
-								</Grid>
-							) }
-						/>
-						<Router.Route
-							path="/"
-							render={ () => (
-								<Grid className={ 'view-' + view } isWide={ isWide }>
-									<Card noBackground className="newspack-dashboard-card__views">
-										<Button
-											icon={ <ViewListIcon /> }
-											label={ __( 'List view' ) }
-											isPrimary={ 'list' === view }
-											isLink={ 'list' !== view }
-											isSmall
-											onClick={ () =>
-												this.setState( { view: 'list' }, () =>
-													localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
-												)
-											}
-										></Button>
-										<Button
-											icon={ <ViewModuleIcon /> }
-											label={ __( 'Grid view' ) }
-											isPrimary={ 'grid' === view }
-											isLink={ 'grid' !== view }
-											isSmall
-											onClick={ () =>
-												this.setState( { view: 'grid' }, () =>
-													localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
-												)
-											}
-										></Button>
-									</Card>
-									{ items.map( card => (
-										<DashboardCard { ...card } key={ card.slug } />
-									) ) }
-								</Grid>
-							) }
-						/>
-					</Router.Switch>
-				</Router.HashRouter>
+				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
+					<Card noBackground className="newspack-dashboard-card__views">
+						<Button
+							icon={ <ViewListIcon /> }
+							label={ __( 'List view' ) }
+							isPrimary={ 'list' === view }
+							isLink={ 'list' !== view }
+							isSmall
+							onClick={ () =>
+								this.setState( { view: 'list' }, () =>
+									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
+								)
+							}
+						></Button>
+						<Button
+							icon={ <ViewModuleIcon /> }
+							label={ __( 'Grid view' ) }
+							isPrimary={ 'grid' === view }
+							isLink={ 'grid' !== view }
+							isSmall
+							onClick={ () =>
+								this.setState( { view: 'grid' }, () =>
+									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
+								)
+							}
+						></Button>
+					</Card>
+					{ items.map( card => (
+						<DashboardCard { ...card } key={ card.slug } />
+					) ) }
+				</Grid>
 			</Fragment>
 		);
 	}

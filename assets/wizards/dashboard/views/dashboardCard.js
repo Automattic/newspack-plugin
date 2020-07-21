@@ -53,6 +53,7 @@ class DashboardCard extends Component {
 			'health-check': <HealingIcon />,
 			engagement: <ForumIcon />,
 			popups: <PopupsIcon />,
+			updates: <WidgetsIcon />,
 		};
 		const contents = (
 			<Fragment>

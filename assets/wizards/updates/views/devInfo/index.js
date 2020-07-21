@@ -118,7 +118,7 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 	);
 };
 
-const DevInfoWizard = withWizardScreen( () => {
+export default withWizardScreen( () => {
 	return (
 		<div className="newspack-dashboard__news">
 			<ReleaseNotes repoSlug="newspack-plugin" repoName="Newspack Plugin" />
@@ -129,13 +129,3 @@ const DevInfoWizard = withWizardScreen( () => {
 		</div>
 	);
 } );
-
-const DevInfo = () => (
-	<DevInfoWizard
-		headerText={ __( "What's new?", 'newspack' ) }
-		headerIcon={ <HeaderIcon /> }
-		subHeaderText={ __( 'Updates to the Newspack plugins and themes', 'newspack' ) }
-	/>
-);
-
-export default DevInfo;
