@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 
 /**
  * Material UI dependencies.
@@ -27,7 +27,6 @@ import PopupsIcon from '@material-ui/icons/NewReleases';
 /**
  * Internal dependencies.
  */
-import Router from '../../../components/src/proxied-imports/router';
 import { Card } from '../../../components/src';
 
 /**
@@ -56,16 +55,13 @@ class DashboardCard extends Component {
 			updates: <WidgetsIcon />,
 		};
 		const contents = (
-			<Fragment>
-				<div className="newspack-dashboard-card__contents">
-					{ iconMap[ slug ] || <WidgetsIcon /> }
-					<div className="newspack-dashboard-card__header">
-						<h2>{ name }</h2>
-						<p>{ description }</p>
-					</div>
+			<div className="newspack-dashboard-card__contents">
+				{ iconMap[ slug ] || <WidgetsIcon /> }
+				<div className="newspack-dashboard-card__header">
+					<h2>{ name }</h2>
+					<p>{ description }</p>
 				</div>
-				{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
-			</Fragment>
+			</div>
 		);
 
 		if ( 'disabled' === status ) {
@@ -77,11 +73,10 @@ class DashboardCard extends Component {
 		}
 		return (
 			<Card className={ classes }>
-				{ url.indexOf( '/' ) === 0 ? (
-					<Router.NavLink to={ url }>{ contents }</Router.NavLink>
-				) : (
-					<a href={ url }>{ contents }</a>
-				) }
+				<a href={ url }>
+					{ contents }
+					{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
+				</a>
 			</Card>
 		);
 	}
