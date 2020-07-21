@@ -106,7 +106,7 @@ class Analytics_Wizard extends Wizard {
 			if ( ! is_wp_error( $custom_dimensions ) && count( $custom_dimensions ) === 0 ) {
 				$new_custom_dimension = self::create_custom_dimension(
 					[
-						'name'  => '[Newspack] Article Category 2',
+						'name'  => '[Newspack] Article Category',
 						'scope' => 'HIT',
 					]
 				);
