@@ -22,6 +22,9 @@
 	&__form {
 		display: flex;
 		align-items: flex-end;
+		@media screen and ( max-width: 600px ) {
+			flex-wrap: wrap;
+		}
 		.newspack-text-control {
 			width: 100%;
 		}
@@ -32,7 +35,10 @@
 			}
 		}
 		button {
-			flex-basis: 33%;
+			overflow: visible;
+			@media screen and ( max-width: 600px ) {
+				margin-top: 10px !important;
+			}
 		}
 	}
 }
