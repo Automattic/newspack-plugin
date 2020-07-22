@@ -12,7 +12,7 @@ body[class*='admin_page_newspack-'] {
 	#wpcontent {
 		padding-left: 0;
 
-		@media ( min-width: 783px ) {
+		@media screen and ( min-width: 783px ) {
 			padding-bottom: 50px;
 		}
 	}
