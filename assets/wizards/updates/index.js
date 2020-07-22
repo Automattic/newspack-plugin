@@ -7,7 +7,7 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment, createElement } from '@wordpress/element';
+import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -31,25 +31,23 @@ class UpdatesWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		return (
-			<Fragment>
-				<HashRouter hashType="slash">
-					<Switch>
-						{ pluginRequirements }
-						<Route
-							path="/"
-							exact
-							render={ () => (
-								<DevInfo
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( "What's new?", 'newspack' ) }
-									subHeaderText={ __( 'Updates to the Newspack plugins and themes.' ) }
-								/>
-							) }
-						/>
-						<Redirect to="/" />
-					</Switch>
-				</HashRouter>
-			</Fragment>
+			<HashRouter hashType="slash">
+				<Switch>
+					{ pluginRequirements }
+					<Route
+						path="/"
+						exact
+						render={ () => (
+							<DevInfo
+								headerIcon={ <HeaderIcon /> }
+								headerText={ __( "What's new?", 'newspack' ) }
+								subHeaderText={ __( 'Updates to the Newspack plugins and theme.' ) }
+							/>
+						) }
+					/>
+					<Redirect to="/" />
+				</Switch>
+			</HashRouter>
 		);
 	}
 }
