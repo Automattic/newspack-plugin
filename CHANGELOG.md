@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/Automattic/newspack-plugin/compare/v1.14.0...v1.14.1) (2020-07-22)
+
+
+### Bug Fixes
+
+* allow newspack to install site kit ([#596](https://github.com/Automattic/newspack-plugin/issues/596)) ([728175a](https://github.com/Automattic/newspack-plugin/commit/728175a06c7bdbbea04f6557c0c1a4146bf52075))
+
 # [1.14.0](https://github.com/Automattic/newspack-plugin/compare/v1.13.0...v1.14.0) (2020-07-22)
 
 
