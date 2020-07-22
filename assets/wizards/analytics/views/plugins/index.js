@@ -1,5 +1,5 @@
 /**
- * Syndication Intro View
+ * Analytics Plugins View
  */
 
 /**
@@ -14,9 +14,9 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
- * Syndication Intro screen.
+ * Analytics Plugins screen.
  */
-class Intro extends Component {
+class Plugins extends Component {
 	/**
 	 * Render.
 	 */
@@ -35,4 +35,4 @@ class Intro extends Component {
 	}
 }
 
-export default withWizardScreen( Intro );
+export default withWizardScreen( Plugins );
