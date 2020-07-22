@@ -39,7 +39,6 @@ class Wizards {
 			'seo'             => new SEO_Wizard(),
 			'health-check'    => new Health_Check_Wizard(),
 			'engagement'      => new Engagement_Wizard(),
-			'popups'          => new Popups_Wizard(),
 			'updates'         => new Updates_Wizard(),
 		];
 		if ( Support_Wizard::configured() ) {

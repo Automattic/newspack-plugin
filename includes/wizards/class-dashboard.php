@@ -116,13 +116,6 @@ class Dashboard extends Wizard {
 				'status'      => 'enabled',
 			],
 			[
-				'slug'        => 'popups',
-				'name'        => Wizards::get_name( 'popups' ),
-				'url'         => Wizards::get_url( 'popups' ),
-				'description' => Wizards::get_description( 'popups' ),
-				'status'      => 'enabled',
-			],
-			[
 				'slug'        => 'updates',
 				'name'        => Wizards::get_name( 'updates' ),
 				'url'         => Wizards::get_url( 'updates' ),
