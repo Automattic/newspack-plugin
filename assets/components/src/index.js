@@ -36,3 +36,5 @@ export { default as WebPreview } from './web-preview';
 export { default as withWizard } from './with-wizard';
 export { default as withWizardScreen } from './with-wizard-screen';
 export { default as WizardPagination } from './wizard-pagination';
+
+export { default as Router } from './proxied-imports/router';
