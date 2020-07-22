@@ -131,7 +131,9 @@ class Configuration extends Component {
 							</tbody>
 						</table>
 
-						<p className="is-dark"><strong>{ __( 'Create a new custom dimension:', 'newspack' ) }</strong></p>
+						<p className="is-dark">
+							<strong>{ __( 'Create a new custom dimension:', 'newspack' ) }</strong>
+						</p>
 						<div>
 							<div className="newspack__analytics-configuration__form">
 								<TextControl
