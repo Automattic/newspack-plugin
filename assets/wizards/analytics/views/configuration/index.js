@@ -77,8 +77,8 @@ class Configuration extends Component {
 		const { error, customDimensions, newDimensionName, newDimensionScope } = this.state;
 		const hasCustomDimensions = ! error && customDimensions.length !== 0;
 		return (
-			<div className="newspack__analytics-configuration">
-				<h1>{ __( 'Custom dimensions', 'newspack' ) }</h1>
+			<div className="newspack__analytics-configuration newspack-card newspack-card__no-background">
+				<h2>{ __( 'Custom dimensions', 'newspack' ) }</h2>
 				<p>
 					{ __(
 						"Custom dimensions are used to collect and analyze data that Google Analytics doesn't automatically track.",
@@ -131,7 +131,7 @@ class Configuration extends Component {
 							</tbody>
 						</table>
 
-						<h2>{ __( 'Create a new custom dimension:', 'newspack' ) }</h2>
+						<p className="is-dark"><strong>{ __( 'Create a new custom dimension:', 'newspack' ) }</strong></p>
 						<div>
 							<div className="newspack__analytics-configuration__form">
 								<TextControl
