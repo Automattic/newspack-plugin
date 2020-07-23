@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/Automattic/newspack-plugin/compare/v1.14.1...v1.14.2) (2020-07-23)
+
+
+### Reverts
+
+* Revert "feat(analytics): report category as custom dimension (#588)" ([bb914c6](https://github.com/Automattic/newspack-plugin/commit/bb914c67142f12eb4f3119e1c7f7d548e79a4fe6)), closes [#588](https://github.com/Automattic/newspack-plugin/issues/588)
+
 ## [1.14.1](https://github.com/Automattic/newspack-plugin/compare/v1.14.0...v1.14.1) (2020-07-22)
 
 
