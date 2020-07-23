@@ -239,7 +239,7 @@ class Analytics_Wizard extends Wizard {
 	/**
 	 * List Custom Dimensions.
 	 *
-	 * @return return type
+	 * @return Array|WP_Error Array of custom dimensions on success, or WP_Error object on failure.
 	 */
 	public static function list_custom_dimensions() {
 		$ga_utils = self::get_ga_utils();
@@ -266,10 +266,10 @@ class Analytics_Wizard extends Wizard {
 	}
 
 	/**
-	 * List Custom Dimensions.
+	 * Create a Custom Dimension.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @return Object|WP_Error Object on success, or WP_Error object on failure.
 	 */
 	public static function create_custom_dimension( $request ) {
 		$ga_utils = self::get_ga_utils();
@@ -297,7 +297,7 @@ class Analytics_Wizard extends Wizard {
 	 * Set custom dimension as the category-reporting dimension.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @return Object|WP_Error Object on success, or WP_Error object on failure.
 	 */
 	public static function set_category_dimension( $request ) {
 		$dimension_id          = $request['id'];
