@@ -116,7 +116,7 @@ class Analytics_Wizard extends Wizard {
 							'id' => $new_custom_dimension['id'],
 						]
 					);
-					update_option( 'has_set_up_category_dimension_09', 'completed' );
+					update_option( 'has_set_up_category_dimension', 'completed' );
 				}
 			}
 		}
