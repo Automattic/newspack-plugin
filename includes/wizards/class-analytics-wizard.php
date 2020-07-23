@@ -218,7 +218,13 @@ class Analytics_Wizard extends Wizard {
 				$ga_options     = new Options( $context );
 				$user_options   = new User_Options( $context );
 				$authentication = new Authentication( $context, $ga_options, $user_options );
-				$client         = $authentication->get_oauth_client()->get_client();
+
+				if ( false === $authentication->is_authenticated() ) {
+					return new WP_Error( 'newspack_analytics_sitekit_disconnected', __( 'Please authenticate with Site Kit plugin.', 'newspack' ) );
+				}
+
+				$client = $authentication->get_oauth_client()->get_client();
+
 				return [
 					'analytics_service' => new Google_Service_Analytics( $client ),
 					'settings'          => $site_kit_analytics->get_settings()->get(),
