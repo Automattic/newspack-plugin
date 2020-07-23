@@ -220,7 +220,7 @@ class Analytics_Wizard extends Wizard {
 				$authentication = new Authentication( $context, $ga_options, $user_options );
 
 				if ( false === $authentication->is_authenticated() ) {
-					return new WP_Error( 'newspack_analytics_sitekit_disconnected', __( 'Please authenticate with Site Kit plugin.', 'newspack' ) );
+					return new WP_Error( 'newspack_analytics_sitekit_authentication', __( 'Please authenticate with Site Kit plugin.', 'newspack' ) );
 				}
 
 				$client = $authentication->get_oauth_client()->get_client();
