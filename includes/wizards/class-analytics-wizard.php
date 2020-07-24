@@ -31,7 +31,7 @@ class Analytics_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public static $category_dimension_option_name = 'newspack_analtytics_category_custom_dimension_id';
+	public static $category_dimension_option_name = 'newspack_analytics_category_custom_dimension_id';
 
 	/**
 	 * The slug of this wizard.
@@ -220,7 +220,7 @@ class Analytics_Wizard extends Wizard {
 				$authentication = new Authentication( $context, $ga_options, $user_options );
 
 				if ( false === $authentication->is_authenticated() ) {
-					return new WP_Error( 'newspack_analytics_sitekit_authentication', __( 'Please authenticate with Site Kit plugin.', 'newspack' ) );
+					return new WP_Error( 'newspack_analytics_sitekit_authentication', __( 'Please authenticate with the Site Kit plugin.', 'newspack' ) );
 				}
 
 				$client = $authentication->get_oauth_client()->get_client();
@@ -230,10 +230,10 @@ class Analytics_Wizard extends Wizard {
 					'settings'          => $site_kit_analytics->get_settings()->get(),
 				];
 			} else {
-				return new WP_Error( 'newspack_analytics_sitekit_disconnected', __( 'Please connect Analytics in Site Kit plugin.', 'newspack' ) );
+				return new WP_Error( 'newspack_analytics_sitekit_disconnected', __( 'Please connect Analytics in the Site Kit plugin.', 'newspack' ) );
 			}
 		}
-		return new WP_Error( 'newspack_analytics_sitekit_undefined', __( 'Install Site Kit plugin.', 'newspack' ) );
+		return new WP_Error( 'newspack_analytics_sitekit_undefined', __( 'Please install the Site Kit plugin.', 'newspack' ) );
 	}
 
 	/**
