@@ -1,3 +1,5 @@
+/* global newspack_analytics_wizard_data */
+
 /**
  * Analytics Plugins View
  */
@@ -28,7 +30,11 @@ class Plugins extends Component {
 					description={ __( 'Configure and view site analytics' ) }
 					actionText={ __( 'View' ) }
 					handoff="google-site-kit"
-					editLink="admin.php?page=googlesitekit-module-analytics"
+					editLink={
+						newspack_analytics_wizard_data.analyticsConnectionError
+							? undefined
+							: 'admin.php?page=googlesitekit-module-analytics'
+					}
 				/>
 			</Fragment>
 		);

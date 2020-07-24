@@ -31,7 +31,7 @@ const SCOPES_OPTIONS = [
  */
 class Configuration extends Component {
 	state = {
-		error: newspack_analytics_wizard_data.customDimensions.error,
+		error: newspack_analytics_wizard_data.analyticsConnectionError,
 		customDimensions: newspack_analytics_wizard_data.customDimensions,
 		newDimensionName: '',
 		newDimensionScope: SCOPES_OPTIONS[ 0 ].value,

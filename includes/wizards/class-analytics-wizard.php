@@ -179,17 +179,17 @@ class Analytics_Wizard extends Wizard {
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/analytics.js' ),
 			true
 		);
-		$custom_dimensions = self::list_custom_dimensions();
+		$custom_dimensions          = self::list_custom_dimensions();
+		$analytics_connection_error = null;
 		if ( is_wp_error( $custom_dimensions ) ) {
-			$custom_dimensions = [
-				'error' => $custom_dimensions->get_error_message(),
-			];
+			$analytics_connection_error = $custom_dimensions->get_error_message();
 		}
 		\wp_localize_script(
 			'newspack-analytics-wizard',
 			'newspack_analytics_wizard_data',
 			[
-				'customDimensions' => $custom_dimensions,
+				'customDimensions'         => $custom_dimensions,
+				'analyticsConnectionError' => $analytics_connection_error,
 			]
 		);
 
