@@ -141,7 +141,7 @@ class Salesforce {
 	 * Ensures that the data only contains valid Salesforce field names.
 	 *
 	 * @param $array $data Raw data to parse.
-	 * @return @array Parsed data.
+	 * @return @array|bool Parsed data, or false.
 	 */
 	public static function parse_wc_order_data( $data ) {
 		$order_contact = [];
@@ -149,7 +149,7 @@ class Salesforce {
 
 		// We need billing and transaction info from the order before we can do anything.
 		if ( empty( $data['billing'] ) || empty( $data['line_items'] ) ) {
-			return $order_contact;
+			return false;
 		}
 
 		// Parse billing contact info from WooCommerce.
@@ -190,18 +190,14 @@ class Salesforce {
 		if ( is_array( $transactions ) ) {
 			foreach ( $transactions as $transaction ) {
 				$orders[] = [
-					'EffectiveDate'        => $transaction_date,
-					'Name'                 => $transaction['name'],
-					'OrderReferenceNumber' => $data['id'],
-					'Status'               => 'Draft',
-					'TotalAmount'          => $transaction['total'],
-					'TotalTaxAmount'       => $transaction['total_tax'],
-					'Type'                 => 'Create',
+					'Amount'      => $transaction['total'],
+					'CloseDate'   => $transaction_date,
+					'Description' => 'WooCommerce Order Number: ' . $data['id'],
+					'Name'        => $transaction['name'],
+					'StageName'   => 'New',
 				];
 			}
 		}
-
-		$order_contact['Description'] = 'Transaction: ' . $transactions[0]['name'] . ' on ' . $transactions[0] . ' with subtotal ' . $transactions[0]['subtotal'] . ' and total ' . $donation_info['total'];
 
 		return [
 			'contact' => $order_contact,
@@ -332,16 +328,63 @@ class Salesforce {
 	}
 
 	/**
-	 * Create a new order record in Salesforce.
+	 * Create a new opportunity record in Salesforce.
 	 *
-	 * @param array $data Data to use in creating the new order. Keys must be valid Salesforce field names.
+	 * @param array $data Data to use in creating the new opportunity. Keys must be valid Salesforce field names.
 	 * @return array Response from Salesforce API.
 	 */
-	public static function create_order( $data ) {
+	public static function create_opportunity( $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Order/';
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Opportunity/';
 
-		// Create order record via Salesforce API, using cached access_token.
+		// Create opportunity record via Salesforce API, using cached access_token.
+		$response = wp_safe_remote_post(
+			$url,
+			[
+				'headers' => [
+					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+					'Content-Type'  => 'application/json',
+				],
+				'body'    => wp_json_encode( $data ),
+			]
+		);
+
+		// If our access token has expired, refresh it and re-send the request.
+		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+			$access_token = self::refresh_salesforce_token();
+			$response     = wp_safe_remote_post(
+				$url,
+				[
+					'headers' => [
+						'Authorization' => 'Bearer ' . $access_token,
+						'Content-Type'  => 'application/json',
+					],
+					'body'    => wp_json_encode( $data ),
+				]
+			);
+		}
+
+		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * Create a new opportunity contact role record in Salesforce.
+	 * This intermediate object type creates a relationship between the given contact and opportunity.
+	 *
+	 * @param string $opportunity_id Unique ID for the opportunity to link.
+	 * @param string $contact_id Unique ID for the contact to link.
+	 * @return array Response from Salesforce API.
+	 */
+	public static function create_opportunity_contact_role( $opportunity_id, $contact_id ) {
+		$salesforce_settings = self::get_salesforce_settings();
+		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/OpportunityContactRole/';
+		$data                = [
+			'ContactId'     => $contact_id,
+			'IsPrimary'     => true,
+			'OpportunityId' => $opportunity_id,
+		];
+
+		// Create opportunity contact role record via Salesforce API, using cached access_token.
 		$response = wp_safe_remote_post(
 			$url,
 			[
