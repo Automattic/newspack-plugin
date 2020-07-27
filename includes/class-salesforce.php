@@ -144,8 +144,8 @@ class Salesforce {
 	 * @return @array|bool Parsed data, or false.
 	 */
 	public static function parse_wc_order_data( $data ) {
-		$order_contact = [];
-		$orders        = [];
+		$contact = [];
+		$orders  = [];
 
 		// We need billing and transaction info from the order before we can do anything.
 		if ( empty( $data['billing'] ) || empty( $data['line_items'] ) ) {
@@ -154,34 +154,34 @@ class Salesforce {
 
 		// Parse billing contact info from WooCommerce.
 		if ( ! empty( $data['billing']['email'] ) ) {
-			$order_contact['Email'] = $data['billing']['email'];
+			$contact['Email'] = $data['billing']['email'];
 		}
 		if ( ! empty( $data['billing']['first_name'] ) ) {
-			$order_contact['FirstName'] = $data['billing']['first_name'];
+			$contact['FirstName'] = $data['billing']['first_name'];
 		}
 		if ( ! empty( $data['billing']['last_name'] ) ) {
-			$order_contact['LastName'] = $data['billing']['last_name'];
+			$contact['LastName'] = $data['billing']['last_name'];
 		}
 		if ( ! empty( $data['billing']['phone'] ) ) {
-			$order_contact['HomePhone'] = $data['billing']['phone'];
+			$contact['HomePhone'] = $data['billing']['phone'];
 		}
 		if ( ! empty( $data['billing']['address_1'] ) ) {
-			$order_contact['MailingStreet'] = $data['billing']['address_1'];
+			$contact['MailingStreet'] = $data['billing']['address_1'];
 		}
 		if ( ! empty( $data['billing']['address_2'] ) ) {
-			$order_contact['MailingStreet'] .= "\n" . $data['billing']['address_2'];
+			$contact['MailingStreet'] .= "\n" . $data['billing']['address_2'];
 		}
 		if ( ! empty( $data['billing']['city'] ) ) {
-			$order_contact['MailingCity'] = $data['billing']['city'];
+			$contact['MailingCity'] = $data['billing']['city'];
 		}
 		if ( ! empty( $data['billing']['state'] ) ) {
-			$order_contact['MailingState'] = $data['billing']['state'];
+			$contact['MailingState'] = $data['billing']['state'];
 		}
 		if ( ! empty( $data['billing']['postcode'] ) ) {
-			$order_contact['MailingPostalCode'] = $data['billing']['postcode'];
+			$contact['MailingPostalCode'] = $data['billing']['postcode'];
 		}
 		if ( 0 === $data['meta_data'][0]['mailchimp_woocommerce_is_subscribed'] ) {
-			$order_contact['HasOptedOutOfEmail'] = true;
+			$contact['HasOptedOutOfEmail'] = true;
 		}
 
 		$transaction_date = $data['date_created_gmt'];
@@ -200,7 +200,7 @@ class Salesforce {
 		}
 
 		return [
-			'contact' => $order_contact,
+			'contact' => $contact,
 			'orders'  => $orders,
 		];
 	}
