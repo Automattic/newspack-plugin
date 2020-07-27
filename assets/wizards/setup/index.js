@@ -47,6 +47,7 @@ const REQUIRED_PLUGINS = [
 	'google-site-kit',
 	'newspack-blocks',
 	'newspack-theme',
+	'newspack-popups',
 ];
 
 /**

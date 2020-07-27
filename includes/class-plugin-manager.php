@@ -29,6 +29,7 @@ class Plugin_Manager {
 		'wordpress-seo',
 		'google-site-kit',
 		'newspack-blocks',
+		'newspack-popups',
 	];
 
 	/**
