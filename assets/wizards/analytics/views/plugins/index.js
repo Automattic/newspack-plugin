@@ -1,5 +1,7 @@
+/* global newspack_analytics_wizard_data */
+
 /**
- * Syndication Intro View
+ * Analytics Plugins View
  */
 
 /**
@@ -14,9 +16,9 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
- * Syndication Intro screen.
+ * Analytics Plugins screen.
  */
-class Intro extends Component {
+class Plugins extends Component {
 	/**
 	 * Render.
 	 */
@@ -28,11 +30,15 @@ class Intro extends Component {
 					description={ __( 'Configure and view site analytics' ) }
 					actionText={ __( 'View' ) }
 					handoff="google-site-kit"
-					editLink="admin.php?page=googlesitekit-module-analytics"
+					editLink={
+						newspack_analytics_wizard_data.analyticsConnectionError
+							? undefined
+							: 'admin.php?page=googlesitekit-module-analytics'
+					}
 				/>
 			</Fragment>
 		);
 	}
 }
 
-export default withWizardScreen( Intro );
+export default withWizardScreen( Plugins );

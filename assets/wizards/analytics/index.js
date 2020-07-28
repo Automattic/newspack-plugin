@@ -20,32 +20,42 @@ import HeaderIcon from '@material-ui/icons/TrendingUp';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Intro } from './views';
+import { Plugins, Configuration } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
+
+const TABS = [
+	{
+		label: __( 'Configuration', 'newspack' ),
+		path: '/',
+		exact: true,
+	},
+	{
+		label: __( 'Plugins', 'newspack' ),
+		path: '/plugins',
+	},
+];
 
 class AnalyticsWizard extends Component {
 	/**
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch } = this.props;
+		const sharedProps = {
+			headerIcon: <HeaderIcon />,
+			headerText: __( 'Analytics', 'newspack' ),
+			subHeaderText: __( 'Track traffic and activity', 'newspack' ),
+			tabbedNavigation: TABS,
+			wizardApiFetch,
+		};
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route
-							path="/"
-							exact
-							render={ () => (
-								<Intro
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Analytics', 'newspack' ) }
-									subHeaderText={ __( 'Track traffic and activity' ) }
-								/>
-							) }
-						/>
+						<Route path="/plugins" exact render={ () => <Plugins { ...sharedProps } /> } />
+						<Route path="/" exact render={ () => <Configuration { ...sharedProps } /> } />
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
