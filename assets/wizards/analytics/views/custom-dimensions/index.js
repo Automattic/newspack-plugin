@@ -27,9 +27,9 @@ const SCOPES_OPTIONS = [
 ];
 
 /**
- * Analytics Configuration screen.
+ * Analytics Custom Dimensions screen.
  */
-class Configuration extends Component {
+class CustomDimensions extends Component {
 	state = {
 		error: newspack_analytics_wizard_data.analyticsConnectionError,
 		customDimensions: newspack_analytics_wizard_data.customDimensions,
@@ -78,7 +78,6 @@ class Configuration extends Component {
 		const hasCustomDimensions = ! error && customDimensions.length !== 0;
 		return (
 			<div className="newspack__analytics-configuration newspack-card newspack-card__no-background">
-				<h2>{ __( 'Custom dimensions', 'newspack' ) }</h2>
 				<p>
 					{ __(
 						"Custom dimensions are used to collect and analyze data that Google Analytics doesn't automatically track.",
@@ -163,4 +162,4 @@ class Configuration extends Component {
 	}
 }
 
-export default withWizardScreen( Configuration );
+export default withWizardScreen( CustomDimensions );

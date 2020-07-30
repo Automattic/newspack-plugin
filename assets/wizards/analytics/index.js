@@ -20,13 +20,13 @@ import HeaderIcon from '@material-ui/icons/TrendingUp';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Plugins, Configuration } from './views';
+import { Plugins, CustomDimensions } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
 const TABS = [
 	{
-		label: __( 'Configuration', 'newspack' ),
+		label: __( 'Custom Dimensions', 'newspack' ),
 		path: '/',
 		exact: true,
 	},
@@ -55,7 +55,7 @@ class AnalyticsWizard extends Component {
 					<Switch>
 						{ pluginRequirements }
 						<Route path="/plugins" exact render={ () => <Plugins { ...sharedProps } /> } />
-						<Route path="/" exact render={ () => <Configuration { ...sharedProps } /> } />
+						<Route path="/" exact render={ () => <CustomDimensions { ...sharedProps } /> } />
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>

@@ -1,6 +1,9 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack__analytics-configuration {
+	> p:first-child {
+		margin-top: -25px;
+	}
 	th {
 		text-align: left;
 		border-bottom: 1px solid $light-gray-500;
