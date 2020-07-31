@@ -227,7 +227,14 @@ class Analytics_Wizard extends Wizard {
 				// which updated authorization scopes, was deployed.
 				$unsatisfied_scopes = $authentication->get_oauth_client()->get_unsatisfied_scopes();
 				if ( 0 !== count( $unsatisfied_scopes ) ) {
-					return new WP_Error( 'newspack_analytics_sitekit_unsatisfied_scopes', __( 'Please re-connect Analytics in the Site Kit plugin.', 'newspack' ) );
+					return new WP_Error(
+						'newspack_analytics_sitekit_unsatisfied_scopes',
+						__( 'Please re-authorize', 'newspack' ) .
+						' <a href="' . get_admin_url() . 'admin.php?page=googlesitekit-dashboard">' .
+						__( 'Site Kit plugin', 'newspack' ) .
+						'</a> ' .
+						__( 'to allow updating Google Analytics settings.', 'newspack' ) 
+					);
 				}
 
 				$client = $authentication->get_oauth_client()->get_client();
