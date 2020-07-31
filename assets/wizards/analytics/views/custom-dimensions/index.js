@@ -17,7 +17,6 @@ import {
 	CheckboxControl,
 	withWizardScreen,
 } from '../../../../components/src';
-import './style.scss';
 
 const SCOPES_OPTIONS = [
 	{ value: 'HIT', label: __( 'Hit', 'newspack' ) },
