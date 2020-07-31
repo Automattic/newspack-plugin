@@ -444,15 +444,18 @@ class Analytics {
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'click', function() {
-						gtag(
-							'event',
-							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-							}
-						);
+					elements[i].addEventListener( 'click', function( event ) {
+						<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
+						if (event.currentTarget.matches(elementSelector)) {
+							gtag(
+								'event',
+								'<?php echo esc_attr( $event['event_name'] ); ?>',
+								{
+									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								}
+							);
+						};
 					} );
 				}
 			} )();
