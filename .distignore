@@ -33,11 +33,12 @@ yarn.lock
 *.tar.gz
 *.zip
 
-node_modules/*
-.git/*
-src/*
-.github/*
-.circleci/*
-tests/*
-bin/*
-assets/*
+# directories
+node_modules
+.git
+src
+.github
+.circleci
+tests
+bin
+assets
