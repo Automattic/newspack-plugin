@@ -152,40 +152,44 @@ class Salesforce {
 			return false;
 		}
 
+		$billing          = $data['billing'];
+		$transactions     = $data['line_items'];
+		$transaction_date = $data['date_created_gmt'];
+
 		// Parse billing contact info from WooCommerce.
-		if ( ! empty( $data['billing']['email'] ) ) {
-			$contact['Email'] = $data['billing']['email'];
+		if ( ! empty( $billing['email'] ) ) {
+			$contact['Email'] = $billing['email'];
 		}
-		if ( ! empty( $data['billing']['first_name'] ) ) {
-			$contact['FirstName'] = $data['billing']['first_name'];
+		if ( ! empty( $billing['first_name'] ) ) {
+			$contact['FirstName'] = $billing['first_name'];
 		}
-		if ( ! empty( $data['billing']['last_name'] ) ) {
-			$contact['LastName'] = $data['billing']['last_name'];
+		if ( ! empty( $billing['last_name'] ) ) {
+			$contact['LastName'] = $billing['last_name'];
 		}
-		if ( ! empty( $data['billing']['phone'] ) ) {
-			$contact['HomePhone'] = $data['billing']['phone'];
+		if ( ! empty( $billing['phone'] ) ) {
+			$contact['HomePhone'] = $billing['phone'];
 		}
-		if ( ! empty( $data['billing']['address_1'] ) ) {
-			$contact['MailingStreet'] = $data['billing']['address_1'];
+		if ( ! empty( $billing['address_1'] ) ) {
+			$contact['MailingStreet'] = $billing['address_1'];
 		}
-		if ( ! empty( $data['billing']['address_2'] ) ) {
-			$contact['MailingStreet'] .= "\n" . $data['billing']['address_2'];
+		if ( ! empty( $billing['address_2'] ) ) {
+			$contact['MailingStreet'] .= "\n" . $billing['address_2'];
 		}
-		if ( ! empty( $data['billing']['city'] ) ) {
-			$contact['MailingCity'] = $data['billing']['city'];
+		if ( ! empty( $billing['city'] ) ) {
+			$contact['MailingCity'] = $billing['city'];
 		}
-		if ( ! empty( $data['billing']['state'] ) ) {
-			$contact['MailingState'] = $data['billing']['state'];
+		if ( ! empty( $billing['state'] ) ) {
+			$contact['MailingState'] = $billing['state'];
 		}
-		if ( ! empty( $data['billing']['postcode'] ) ) {
-			$contact['MailingPostalCode'] = $data['billing']['postcode'];
+		if ( ! empty( $billing['postcode'] ) ) {
+			$contact['MailingPostalCode'] = $billing['postcode'];
+		}
+		if ( ! empty( $billing['country'] ) ) {
+			$contact['MailingCountry'] = $billing['country'];
 		}
 		if ( 0 === $data['meta_data'][0]['mailchimp_woocommerce_is_subscribed'] ) {
 			$contact['HasOptedOutOfEmail'] = true;
 		}
-
-		$transaction_date = $data['date_created_gmt'];
-		$transactions     = $data['line_items'];
 
 		if ( is_array( $transactions ) ) {
 			foreach ( $transactions as $transaction ) {
