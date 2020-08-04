@@ -94,7 +94,7 @@ class CustomDimensions extends Component {
 						/>
 					) }
 				{ error ? (
-					<Notice noticeText={ error } isError />
+					<Notice noticeText={ error } isError rawHTML />
 				) : (
 					<Fragment>
 						<table>

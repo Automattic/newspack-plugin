@@ -88,6 +88,9 @@ jobs:
     steps:
       - checkout_with_workspace
       - run:
+          name: Install rsync
+          command: sudo apt install rsync
+      - run:
           name: Install PHP packages
           command: composer install --no-dev --no-scripts
       - run:
