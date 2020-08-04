@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/Automattic/newspack-plugin/compare/v1.16.0...v1.16.1) (2020-08-04)
+
+
+### Bug Fixes
+
+* revert setting version in release zip file name ([d8e421b](https://github.com/Automattic/newspack-plugin/commit/d8e421bfae03cb15cb566e04536c058353fac952))
+
 # [1.16.0](https://github.com/Automattic/newspack-plugin/compare/v1.15.0...v1.16.0) (2020-08-04)
 
 
