@@ -36,9 +36,8 @@ yarn.lock
 # directories
 node_modules
 .git
-src
 .github
 .circleci
-tests
-bin
-assets
+/tests
+/bin
+/assets
