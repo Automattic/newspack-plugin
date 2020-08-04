@@ -290,7 +290,7 @@ class Analytics_Wizard extends Wizard {
 						' <a href="' . get_admin_url() . 'admin.php?page=googlesitekit-dashboard">' .
 						__( 'Site Kit plugin', 'newspack' ) .
 						'</a> ' .
-						__( 'to allow updating Google Analytics settings.', 'newspack' ) 
+						__( 'to allow updating Google Analytics settings.', 'newspack' )
 					);
 				}
 
@@ -407,7 +407,7 @@ class Analytics_Wizard extends Wizard {
 		if ( update_option( self::$custom_events_option_name, wp_json_encode( $custom_events ) ) ) {
 			return [ 'events' => $custom_events ];
 		} else {
-			return new WP_Error( 'newspack_analytics', __( 'Error when setting category custom dimension.', 'newspack' ) );
+			return new WP_Error( 'newspack_analytics', __( 'Error when setting custom events.', 'newspack' ) );
 		}
 	}
 }
