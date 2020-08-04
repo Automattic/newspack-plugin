@@ -14,7 +14,13 @@
 		justify-content: space-between;
 		margin-top: -16px;
 
-		.newspack-dashboard-card {
+		&::after {
+			content: '';
+			display: block;
+		}
+
+		.newspack-dashboard-card,
+		&::after {
 			width: 100%;
 
 			@media screen and ( min-width: 600px ) {
