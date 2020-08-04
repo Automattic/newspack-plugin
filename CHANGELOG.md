@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/Automattic/newspack-plugin/compare/v1.16.1...v1.16.2) (2020-08-04)
+
+
+### Bug Fixes
+
+* prevent vendor contents exclusion in zip ([#619](https://github.com/Automattic/newspack-plugin/issues/619)) ([c8d6e35](https://github.com/Automattic/newspack-plugin/commit/c8d6e355d335388416910f0eca0d222edadad603))
+
 ## [1.16.1](https://github.com/Automattic/newspack-plugin/compare/v1.16.0...v1.16.1) (2020-08-04)
 
 
