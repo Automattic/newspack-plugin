@@ -7,9 +7,6 @@
 
 namespace Newspack;
 
-use Felix_Arntz\WP_GDPR_Cookie_Notice\Shortcodes\WordPress_Shortcode_Parser;
-use Felix_Arntz\WP_GDPR_Cookie_Notice\Settings\Plugin_Option_Reader;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
