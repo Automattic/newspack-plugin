@@ -5,9 +5,9 @@
  * @package Newspack
  */
 
-use Felix_Arntz\WP_GDPR_Cookie_Notice\Cookie_Notice\Cookie_Notice_AMP_Markup;
-
 namespace Newspack;
+
+use Felix_Arntz\WP_GDPR_Cookie_Notice\Cookie_Notice\Cookie_Notice_AMP_Markup;
 
 defined( 'ABSPATH' ) || exit;
 
