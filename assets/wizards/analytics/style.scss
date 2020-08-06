@@ -22,12 +22,6 @@
 			margin: 0;
 		}
 	}
-	&__clickable-row {
-		cursor: pointer;
-		&:hover {
-			background-color: #3366ff0d;
-		}
-	}
 	&__form {
 		display: flex;
 		align-items: flex-end;

@@ -4,6 +4,8 @@
  * External dependencies
  */
 import { find } from 'lodash';
+import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@material-ui/icons/Clear';
 
 /**
  * WordPress dependencies
@@ -23,6 +25,7 @@ import {
 	withWizardScreen,
 	Modal,
 } from '../../../../components/src';
+import { NEWSPACK_SUPPORT_URL } from '../../../../components/src/consts';
 
 /**
  * Not implemented:
@@ -126,6 +129,17 @@ class CustomEvents extends Component {
 						'newspack'
 					) }
 				</p>
+				<Notice
+					rawHTML
+					isInfo
+					noticeText={ `${ __(
+						'This is an advanced feature, read more about on our',
+						'newspack'
+					) } <a href="${ NEWSPACK_SUPPORT_URL }/analytics">${ __(
+						'support page',
+						'newspack'
+					) }</a>.` }
+				/>
 				{ error ? (
 					<Notice noticeText={ error } isError />
 				) : (
@@ -139,6 +153,7 @@ class CustomEvents extends Component {
 										__( 'Category', 'newspack' ),
 										__( 'Label', 'newspack' ),
 										__( 'Trigger', 'newspack' ),
+										__( 'Edit', 'newspack' ),
 									].map( ( colName, i ) => (
 										<th key={ i }>{ colName }</th>
 									) ) }
@@ -146,17 +161,18 @@ class CustomEvents extends Component {
 							</thead>
 							<tbody>
 								{ customEvents.map( event => (
-									<tr
-										className="newspack__analytics-configuration__clickable-row"
-										key={ event.id }
-										onClick={ this.setEditModal( event.id ) }
-									>
-										<td>{ <CheckboxControl checked={ event.is_active } disabled /> }</td>
+									<tr key={ event.id }>
+										<td>{ event.is_active ? <DoneIcon /> : <ClearIcon /> }</td>
 										<td>{ event.event_name }</td>
 										<td>{ event.event_category }</td>
 										<td>{ event.event_label }</td>
 										<td>
 											<code>{ event.on }</code>
+										</td>
+										<td>
+											<Button isSmall isLink onClick={ this.setEditModal( event.id ) }>
+												{ __( 'Edit', 'newspack' ) }
+											</Button>
 										</td>
 									</tr>
 								) ) }
@@ -182,12 +198,14 @@ class CustomEvents extends Component {
 										value={ editedEvent.event_name }
 										onChange={ this.updateEditedEvent( 'event_name' ) }
 										label={ __( 'Action', 'newspack' ) }
+										required
 									/>
 									<TextControl
 										disabled={ isLoading }
 										value={ editedEvent.event_category }
 										onChange={ this.updateEditedEvent( 'event_category' ) }
 										label={ __( 'Category', 'newspack' ) }
+										required
 									/>
 									<TextControl
 										disabled={ isLoading }
@@ -201,6 +219,7 @@ class CustomEvents extends Component {
 										onChange={ this.updateEditedEvent( 'on' ) }
 										label={ __( 'Trigger', 'newspack' ) }
 										options={ TRIGGER_OPTIONS }
+										required
 									/>
 									<TextControl
 										disabled={ isLoading }
@@ -208,6 +227,7 @@ class CustomEvents extends Component {
 										onChange={ this.updateEditedEvent( 'element' ) }
 										label={ __( 'Selector', 'newspack' ) }
 										className="newspack__analytics-configuration__code"
+										required
 									/>
 									<TextControl
 										disabled={ isLoading }
@@ -220,7 +240,7 @@ class CustomEvents extends Component {
 										disabled={ isLoading }
 										checked={ editedEvent.non_interaction }
 										onChange={ this.updateEditedEvent( 'non_interaction' ) }
-										label={ __( 'Non-interaction', 'newspack' ) }
+										label={ __( 'Non-interaction event', 'newspack' ) }
 									/>
 									<CheckboxControl
 										disabled={ isLoading }

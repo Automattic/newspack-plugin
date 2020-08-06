@@ -27,7 +27,7 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 const TABS = [
 	{
-		label: __( 'Custom Events', 'newspack' ),
+		label: __( 'Plugins', 'newspack' ),
 		path: '/',
 		exact: true,
 	},
@@ -36,8 +36,8 @@ const TABS = [
 		path: '/custom-dimensions',
 	},
 	{
-		label: __( 'Plugins', 'newspack' ),
-		path: '/plugins',
+		label: __( 'Custom Events', 'newspack' ),
+		path: '/custom-events',
 	},
 ];
 
@@ -60,13 +60,17 @@ class AnalyticsWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route path="/plugins" exact render={ () => <Plugins { ...sharedProps } /> } />
 						<Route
 							path="/custom-dimensions"
 							exact
 							render={ () => <CustomDimensions { ...sharedProps } /> }
 						/>
-						<Route path="/" exact render={ () => <CustomEvents { ...sharedProps } /> } />
+						<Route
+							path="/custom-events"
+							exact
+							render={ () => <CustomEvents { ...sharedProps } /> }
+						/>
+						<Route path="/" exact render={ () => <Plugins { ...sharedProps } /> } />
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
