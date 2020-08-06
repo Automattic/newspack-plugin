@@ -11,12 +11,22 @@
 	line-height: 24px;
 	margin: 32px 0;
 
+
 	label {
 		color: $dark-gray-900;
 		font-size: inherit;
 		font-weight: bold;
 		line-height: inherit;
 		margin: 0;
+
+		&[data-required-text] {
+			&::after {
+				content: attr( data-required-text );
+				padding-left: 5px;
+				font-weight: normal;
+				opacity: 0.5;
+			}
+		}
 	}
 
 	input[type='date'],
