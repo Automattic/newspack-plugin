@@ -133,7 +133,7 @@ class CustomEvents extends Component {
 					rawHTML
 					isInfo
 					noticeText={ `${ __(
-						'This is an advanced feature, read more about on our',
+						'This is an advanced feature, read more about it on our',
 						'newspack'
 					) } <a href="${ NEWSPACK_SUPPORT_URL }/analytics">${ __(
 						'support page',
