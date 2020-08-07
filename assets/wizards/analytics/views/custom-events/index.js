@@ -135,7 +135,7 @@ class CustomEvents extends Component {
 					noticeText={ `${ __(
 						'This is an advanced feature, read more about it on our',
 						'newspack'
-					) } <a href="${ NEWSPACK_SUPPORT_URL }/analytics">${ __(
+					) } <a target="_blank" href="${ NEWSPACK_SUPPORT_URL }/analytics">${ __(
 						'support page',
 						'newspack'
 					) }</a>.` }

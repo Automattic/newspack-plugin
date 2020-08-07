@@ -39,8 +39,8 @@ class TextControl extends Component {
 		const { className, required, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-text-control', className );
 		return required ? (
-			<div ref={ this.wrapperRef } className={ classes }>
-				<BaseComponent required={ required } { ...otherProps } />
+			<div ref={ this.wrapperRef }>
+				<BaseComponent className={ classes } required={ required } { ...otherProps } />
 			</div>
 		) : (
 			<BaseComponent required={ required } className={ classes } { ...otherProps } />
