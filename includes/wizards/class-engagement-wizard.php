@@ -168,7 +168,7 @@ class Engagement_Wizard extends Wizard {
 	public function restrict_age_of_related_posts( $date_range ) {
 		$related_posts_max_age = get_option( $this->related_posts_option );
 
-		if ( is_numeric( $related_posts_max_age ) ) {
+		if ( is_numeric( $related_posts_max_age ) && 0 < $related_posts_max_age ) {
 			$date_range['from'] = strtotime( '-' . $related_posts_max_age . ' months' );
 			$date_range['to']   = time();
 		}
