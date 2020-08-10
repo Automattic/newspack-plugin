@@ -21,7 +21,6 @@ export { default as PluginToggle } from './plugin-toggle';
 export { default as Popover } from './popover';
 export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
-export { default as RangeControl } from './range-control';
 export { default as SecondaryNavigation } from './secondary-navigation';
 export { default as SelectControl } from './select-control';
 export { default as StyleCard } from './style-card';
