@@ -1,7 +1,11 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack__analytics-configuration {
+	> p:first-child {
+		margin-top: -25px;
+	}
 	th {
+		padding: 6px 0;
 		text-align: left;
 		border-bottom: 1px solid $light-gray-500;
 	}
@@ -39,6 +43,11 @@
 			@media screen and ( max-width: 600px ) {
 				margin-top: 10px !important;
 			}
+		}
+	}
+	&__code {
+		input {
+			font-family: monospace !important;
 		}
 	}
 }

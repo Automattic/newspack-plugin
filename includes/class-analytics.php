@@ -214,6 +214,25 @@ class Analytics {
 			);
 		}
 
+		$custom_events = array_reduce(
+			json_decode( get_option( Analytics_Wizard::$custom_events_option_name, '[]' ) ),
+			function ( $all_custom_events, $event ) {
+				$event = (array) $event;
+				if ( $event['is_active'] ) {
+					if ( 'submit' === $event['on'] ) {
+						$event['amp_on'] = 'amp-form-submit-success';
+					}
+					if ( '' === $event['amp_element'] ) {
+						unset( $event['amp_element'] );
+					}
+					$all_custom_events[] = $event;
+				}
+				return $all_custom_events;
+			},
+			[]
+		);
+		$events        = array_merge( $events, $custom_events );
+
 		/**
 		 * Other integrations can add events to track using this filter.
 		 */
@@ -440,19 +459,22 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elementSelector = '<?php echo str_replace( '&quot;', '"', esc_attr( $event['element'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Allow quotes for CSS selectors validity. ?>';
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'click', function() {
-						gtag(
-							'event',
-							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-							}
-						);
+					elements[i].addEventListener( 'click', function( event ) {
+						<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
+						if (event.currentTarget.matches(elementSelector)) {
+							gtag(
+								'event',
+								'<?php echo esc_attr( $event['event_name'] ); ?>',
+								{
+									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								}
+							);
+						};
 					} );
 				}
 			} )();

@@ -6,7 +6,8 @@
  * WordPress dependencies
  */
 import { TextControl as BaseComponent } from '@wordpress/components';
-import { Component } from '@wordpress/element';
+import { Component, createRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -19,13 +20,31 @@ import './style.scss';
 import classNames from 'classnames';
 
 class TextControl extends Component {
+	constructor( props ) {
+		super( props );
+		this.wrapperRef = createRef();
+	}
+	componentDidMount() {
+		if ( this.wrapperRef.current ) {
+			const labelEl = this.wrapperRef.current.querySelector( 'label' );
+			if ( labelEl ) {
+				labelEl.setAttribute( 'data-required-text', __( '(required)', 'newspack' ) );
+			}
+		}
+	}
 	/**
 	 * Render.
 	 */
 	render() {
-		const { className, ...otherProps } = this.props;
+		const { className, required, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-text-control', className );
-		return <BaseComponent className={ classes } { ...otherProps } />;
+		return required ? (
+			<div ref={ this.wrapperRef }>
+				<BaseComponent className={ classes } required={ required } { ...otherProps } />
+			</div>
+		) : (
+			<BaseComponent required={ required } className={ classes } { ...otherProps } />
+		);
 	}
 }
 

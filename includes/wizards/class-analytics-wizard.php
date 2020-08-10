@@ -34,6 +34,13 @@ class Analytics_Wizard extends Wizard {
 	public static $category_dimension_option_name = 'newspack_analytics_category_custom_dimension_id';
 
 	/**
+	 * Name of the option storing site's custom events (serialised).
+	 *
+	 * @var string
+	 */
+	public static $custom_events_option_name = 'newspack_analytics_custom_events';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -160,6 +167,54 @@ class Analytics_Wizard extends Wizard {
 				],
 			]
 		);
+
+		// Set custom events.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/analytics/custom-events',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'set_custom_events' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'events' => [
+						'type'     => 'array',
+						'required' => true,
+						'items'    => [
+							'type'       => 'object',
+							'properties' => [
+								'event_name'      => [
+									'type' => 'string',
+								],
+								'event_category'  => [
+									'type' => 'string',
+								],
+								'event_label'     => [
+									'type' => 'string',
+								],
+								'on'              => [
+									'type' => 'string',
+									'enum' => [ 'click', 'submit' ],
+								],
+								'element'         => [
+									'type' => 'string',
+								],
+								'amp_element'     => [
+									'type' => 'string',
+								],
+								'non_interaction' => [
+									'type' => 'boolean',
+								],
+								'is_active'       => [
+									'type' => 'boolean',
+								],
+							],
+							'required'   => [ 'event_name', 'event_category', 'on', 'element' ],
+						],
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -184,10 +239,12 @@ class Analytics_Wizard extends Wizard {
 		if ( is_wp_error( $custom_dimensions ) ) {
 			$analytics_connection_error = $custom_dimensions->get_error_message();
 		}
+		$custom_events = get_option( self::$custom_events_option_name, '[]' );
 		\wp_localize_script(
 			'newspack-analytics-wizard',
 			'newspack_analytics_wizard_data',
 			[
+				'customEvents'             => json_decode( $custom_events ),
 				'customDimensions'         => $custom_dimensions,
 				'analyticsConnectionError' => $analytics_connection_error,
 			]
@@ -233,7 +290,7 @@ class Analytics_Wizard extends Wizard {
 						' <a href="' . get_admin_url() . 'admin.php?page=googlesitekit-dashboard">' .
 						__( 'Site Kit plugin', 'newspack' ) .
 						'</a> ' .
-						__( 'to allow updating Google Analytics settings.', 'newspack' ) 
+						__( 'to allow updating Google Analytics settings.', 'newspack' )
 					);
 				}
 
@@ -327,6 +384,30 @@ class Analytics_Wizard extends Wizard {
 			return [ 'id' => $dimension_id ];
 		} else {
 			return new WP_Error( 'newspack_analytics', __( 'Error when setting category custom dimension.', 'newspack' ) );
+		}
+	}
+
+	/**
+	 * Update custom events collection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return Object|WP_Error Object on success, or WP_Error object on failure.
+	 */
+	public static function set_custom_events( $request ) {
+		$custom_events = array_map(
+			function ( $event ) {
+				$event = (array) $event;
+				if ( ! isset( $event['id'] ) ) {
+					$event['id'] = uniqid();
+				}
+				return $event;
+			},
+			$request['events']
+		);
+		if ( update_option( self::$custom_events_option_name, wp_json_encode( $custom_events ) ) ) {
+			return [ 'events' => $custom_events ];
+		} else {
+			return new WP_Error( 'newspack_analytics', __( 'Error when setting custom events.', 'newspack' ) );
 		}
 	}
 }
