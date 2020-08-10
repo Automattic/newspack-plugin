@@ -5,17 +5,17 @@
 	details {
 		margin: 32px 0;
 		border: 1px solid $light-gray-200;
-		padding: 20px;
+		padding: 24px;
 		border-radius: 3px;
 		> div {
-			margin: 20px 0 0;
-			padding-left: 40px;
+			margin: 24px 0 0;
 			h3:first-child {
 				margin-top: 0;
 			}
 		}
 		ul {
 			list-style: disc;
+			margin: 0;
 			padding-left: 18px;
 		}
 		li {
@@ -29,7 +29,9 @@
 			margin: 0;
 		}
 		svg {
-			transition: transform 200ms;
+			color: $dark-gray-900;
+			display: block;
+			margin: 0 0 0 auto;
 		}
 		&[open] {
 			svg {
@@ -41,8 +43,9 @@
 		}
 	}
 	summary {
-		display: flex;
 		cursor: pointer;
+		display: flex;
+		flex-direction: row-reverse;
 		&:focus {
 			outline: none;
 		}
@@ -50,12 +53,13 @@
 			display: none;
 		}
 		> div:first-child {
-			line-height: 1;
-			width: 40px;
-			flex-shrink: 0;
+			flex: 0 0 48px;
 		}
 		strong:first-child {
 			color: $primary-500;
+		}
+		> span {
+			flex: 0 0 calc( 100% - 48px );
 		}
 	}
 
