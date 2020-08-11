@@ -7,9 +7,12 @@
 
 namespace Newspack;
 
+/**
+ * Disable MC4WC's cookie on Newspack sites to avoid perf issues.
+ */
 function newspack_mc4c_remove_cookie() {
 
-	// Don't do anything unless we know the MC4WC plugin is
+	// Don't do anything unless we know the MC4WC plugin is active.
 	if ( ! \class_exists( 'MailChimp_Service' ) ) {
 		return;
 	}
