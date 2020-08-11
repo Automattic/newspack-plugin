@@ -28,7 +28,7 @@ class RelatedContent extends Component {
 		return (
 			<div className="newspack-salesforce-wizard">
 				<Fragment>
-					<h2>{ __( 'Related Content Settings', 'newspack' ) }</h2>
+					<h2>{ __( 'Recirculation Settings', 'newspack' ) }</h2>
 
 					{ relatedPostsError && <Notice noticeText={ relatedPostsError } isError /> }
 

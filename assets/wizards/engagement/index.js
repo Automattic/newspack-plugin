@@ -74,14 +74,17 @@ class EngagementWizard extends Component {
 		const { relatedPostsMaxAge } = this.state;
 
 		try {
-			const response = await wizardApiFetch( {
+			await wizardApiFetch( {
 				path: '/newspack/v1/wizard/newspack-engagement-wizard/related-posts-max-age',
 				method: 'POST',
 				data: { relatedPostsMaxAge },
 			} );
 			this.setState( { relatedPostsError: null, relatedPostsUpdated: false } );
 		} catch ( e ) {
-			e.message && this.setState( { relatedPostsError: e.message } );
+			this.setState( {
+				relatedPostsError:
+					e.message || __( 'There was an error saving settings. Please try again.', 'newspack' ),
+			} );
 		}
 	};
 
@@ -117,8 +120,8 @@ class EngagementWizard extends Component {
 				path: '/commenting/',
 			},
 			{
-				label: __( 'Related' ),
-				path: '/related-content',
+				label: __( 'Recirculation' ),
+				path: '/recirculation',
 			},
 			{
 				label: __( 'UGC' ),
@@ -143,7 +146,7 @@ class EngagementWizard extends Component {
 			},
 		];
 		const subheader = __(
-			'Newsletters, social, commenting, related content, user-generated content'
+			'Newsletters, social, commenting, recirculation, user-generated content'
 		);
 		return (
 			<Fragment>
@@ -228,7 +231,7 @@ class EngagementWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/related-content"
+							path="/recirculation"
 							exact
 							render={ () => (
 								<RelatedContent
