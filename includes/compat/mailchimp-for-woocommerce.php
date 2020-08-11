@@ -8,9 +8,10 @@
 namespace Newspack;
 
 /**
- * Disable MC4WC's cookie on Newspack sites to avoid perf issues.
+ * Disable the cookie added by the Mailchimp for WooCommerce (MC4WC) plugin when on
+ * a Newspack site because the cookie causes performance issues when logged out.
  */
-function newspack_mc4c_remove_cookie() {
+function newspack_mc4wc_remove_cookie() {
 
 	// Don't do anything unless we know the MC4WC plugin is active.
 	if ( ! \class_exists( 'MailChimp_Service' ) ) {
@@ -23,4 +24,4 @@ function newspack_mc4c_remove_cookie() {
 
 }
 // MC4WC fires it's hook at priority 10 so we need to move quicker.
-add_action( 'init', 'newspack_mc4c_remove_cookie', 9 );
+add_action( 'init', [ __CLASS__, 'newspack_mc4wc_remove_cookie' ], 9 );
