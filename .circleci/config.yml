@@ -113,7 +113,9 @@ workflows:
             - build
           filters:
             branches:
-              only: release
+              only:
+                - release
+                - alpha
   php:
     jobs:
       - lint-php

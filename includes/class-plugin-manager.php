@@ -406,6 +406,14 @@ class Plugin_Manager {
 				'WPCore'   => true,
 				'EditPath' => 'options-discussion.php',
 			],
+			'wp-gdpr-cookie-notice'         => [
+				'Name'        => 'WP GDPR Cookie Notice',
+				'Description' => esc_html__( 'Simple performant cookie consent notice that supports AMP, granular cookie control and live preview customization.', 'newspack' ),
+				'Author'      => 'Felix Arntz',
+				'AuthorURI'   => 'https://felix-arntz.me/',
+				'PluginURI'   => 'https://wordpress.org/plugins/wp-gdpr-cookie-notice/',
+				'Download'    => 'wporg',
+			],
 			'wp-user-avatar'                => [
 				'Name'        => 'WP User Avatar',
 				'Description' => 'Use any image from your WordPress Media Library as a custom user avatar. Add your own Default Avatar.',

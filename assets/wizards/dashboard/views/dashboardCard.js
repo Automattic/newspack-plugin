@@ -23,6 +23,7 @@ import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WebIcon from '@material-ui/icons/Web';
 import WidgetsIcon from '@material-ui/icons/Widgets';
 import PopupsIcon from '@material-ui/icons/NewReleases';
+import UpdateIcon from '@material-ui/icons/Update';
 
 /**
  * Internal dependencies.
@@ -52,7 +53,7 @@ class DashboardCard extends Component {
 			'health-check': <HealingIcon />,
 			engagement: <ForumIcon />,
 			popups: <PopupsIcon />,
-			updates: <WidgetsIcon />,
+			updates: <UpdateIcon />,
 		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
