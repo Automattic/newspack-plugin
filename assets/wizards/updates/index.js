@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Material UI dependencies.
  */
-import HeaderIcon from '@material-ui/icons/Widgets';
+import HeaderIcon from '@material-ui/icons/Update';
 
 /**
  * Internal dependencies.
