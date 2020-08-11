@@ -1,3 +1,17 @@
+# [1.17.0](https://github.com/Automattic/newspack-plugin/compare/v1.16.2...v1.17.0) (2020-08-11)
+
+
+### Bug Fixes
+
+* add permission_callback to REST route defn ([8dacf2c](https://github.com/Automattic/newspack-plugin/commit/8dacf2cc2249e603c4ea05d1f580cff5c586cad7))
+* remove un-cacheable ajax call in AMP mode from WP GDPR Cookie Notice ([#622](https://github.com/Automattic/newspack-plugin/issues/622)) ([d3be717](https://github.com/Automattic/newspack-plugin/commit/d3be71702b0c2c549ba30cde58c0c555edd3228d))
+
+
+### Features
+
+* add custom events adding UI ([#611](https://github.com/Automattic/newspack-plugin/issues/611)) ([8f4483a](https://github.com/Automattic/newspack-plugin/commit/8f4483a04bec6d090c661f6026a68fe854afd7bd)), closes [#601](https://github.com/Automattic/newspack-plugin/issues/601)
+* update updates wizard details style ([#625](https://github.com/Automattic/newspack-plugin/issues/625)) ([a22beef](https://github.com/Automattic/newspack-plugin/commit/a22beefd51b2ed8569deffb9ba6e3e0e2bc64ac0))
+
 ## [1.16.2](https://github.com/Automattic/newspack-plugin/compare/v1.16.1...v1.16.2) (2020-08-04)
 
 
