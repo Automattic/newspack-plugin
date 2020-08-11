@@ -26,6 +26,7 @@ import {
 	CommentingCoral,
 	Newsletters,
 	Social,
+	RelatedContent,
 	UGC,
 } from './views';
 
@@ -39,6 +40,10 @@ class EngagementWizard extends Component {
 			connected: false,
 			connectURL: '',
 			wcConnected: false,
+			relatedPostsEnabled: false,
+			relatedPostsMaxAge: 0,
+			relatedPostsUpdated: false,
+			relatedPostsError: null,
 		};
 	}
 
@@ -62,11 +67,43 @@ class EngagementWizard extends Component {
 	}
 
 	/**
+	 * Update Related Content settings.
+	 */
+	updatedRelatedContentSettings = async () => {
+		const { wizardApiFetch } = this.props;
+		const { relatedPostsMaxAge } = this.state;
+
+		try {
+			await wizardApiFetch( {
+				path: '/newspack/v1/wizard/newspack-engagement-wizard/related-posts-max-age',
+				method: 'POST',
+				data: { relatedPostsMaxAge },
+			} );
+			this.setState( { relatedPostsError: null, relatedPostsUpdated: false } );
+		} catch ( e ) {
+			this.setState( {
+				relatedPostsError:
+					e.message || __( 'There was an error saving settings. Please try again.', 'newspack' ),
+			} );
+		}
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { apiKey, connected, connectURL, wcConnected } = this.state;
+		const {
+			apiKey,
+			connected,
+			connectURL,
+			wcConnected,
+			relatedPostsEnabled,
+			relatedPostsError,
+			relatedPostsMaxAge,
+			relatedPostsUpdated,
+		} = this.state;
+
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters' ),
@@ -81,6 +118,10 @@ class EngagementWizard extends Component {
 			{
 				label: __( 'Commenting' ),
 				path: '/commenting/',
+			},
+			{
+				label: __( 'Recirculation' ),
+				path: '/recirculation',
 			},
 			{
 				label: __( 'UGC' ),
@@ -104,7 +145,9 @@ class EngagementWizard extends Component {
 				exact: true,
 			},
 		];
-		const subheader = __( 'Newsletters, social, commenting, UGC' );
+		const subheader = __(
+			'Newsletters, social, commenting, recirculation, user-generated content'
+		);
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -184,6 +227,27 @@ class EngagementWizard extends Component {
 									connected={ connected }
 									connectURL={ connectURL }
 									secondaryNavigation={ commentingSecondaryNavigation }
+								/>
+							) }
+						/>
+						<Route
+							path="/recirculation"
+							exact
+							render={ () => (
+								<RelatedContent
+									headerIcon={ <HeaderIcon /> }
+									headerText={ __( 'Engagement', 'newspack' ) }
+									relatedPostsEnabled={ relatedPostsEnabled }
+									relatedPostsError={ relatedPostsError }
+									subHeaderText={ subheader }
+									tabbedNavigation={ tabbed_navigation }
+									buttonAction={ () => this.updatedRelatedContentSettings() }
+									buttonText={ __( 'Save', 'newspack' ) }
+									buttonDisabled={ ! relatedPostsEnabled || ! relatedPostsUpdated }
+									relatedPostsMaxAge={ relatedPostsMaxAge }
+									onChange={ value => {
+										this.setState( { relatedPostsMaxAge: value, relatedPostsUpdated: true } );
+									} }
 								/>
 							) }
 						/>
