@@ -141,7 +141,7 @@ class CustomEvents extends Component {
 					) }</a>.` }
 				/>
 				{ error ? (
-					<Notice noticeText={ error } isError />
+					<Notice noticeText={ error } isError rawHTML />
 				) : (
 					<Fragment>
 						<table>
