@@ -1,3 +1,10 @@
+## [1.17.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.17.0...v1.17.1-alpha.1) (2020-08-14)
+
+
+### Bug Fixes
+
+* notice in analtyics wizard ([45be0ad](https://github.com/Automattic/newspack-plugin/commit/45be0ad10c58c8572685bf5e81e7332c113ae392))
+
 # [1.17.0](https://github.com/Automattic/newspack-plugin/compare/v1.16.2...v1.17.0) (2020-08-11)
 
 
