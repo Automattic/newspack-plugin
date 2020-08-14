@@ -79,7 +79,7 @@ class Dashboard extends Wizard {
 				'slug'        => 'syndication',
 				'name'        => Wizards::get_name( 'syndication' ),
 				'url'         => Wizards::get_url( 'syndication' ),
-				'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
+				'description' => esc_html__( 'Distribute your content across multiple websites', 'newspack' ),
 				'status'      => Checklists::get_status( 'syndication' ),
 			],
 			[
