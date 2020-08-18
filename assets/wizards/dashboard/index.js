@@ -26,7 +26,7 @@ import './style.scss';
  */
 class Dashboard extends Component {
 	state = {
-		view: 'list',
+		view: 'grid',
 	};
 
 	componentDidMount = () => {
@@ -51,18 +51,6 @@ class Dashboard extends Component {
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
 					<Card noBackground className="newspack-dashboard-card__views">
 						<Button
-							icon={ <ViewListIcon /> }
-							label={ __( 'List view' ) }
-							isPrimary={ 'list' === view }
-							isLink={ 'list' !== view }
-							isSmall
-							onClick={ () =>
-								this.setState( { view: 'list' }, () =>
-									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
-								)
-							}
-						></Button>
-						<Button
 							icon={ <ViewModuleIcon /> }
 							label={ __( 'Grid view' ) }
 							isPrimary={ 'grid' === view }
@@ -71,6 +59,18 @@ class Dashboard extends Component {
 							onClick={ () =>
 								this.setState( { view: 'grid' }, () =>
 									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
+								)
+							}
+						></Button>
+						<Button
+							icon={ <ViewListIcon /> }
+							label={ __( 'List view' ) }
+							isPrimary={ 'list' === view }
+							isLink={ 'list' !== view }
+							isSmall
+							onClick={ () =>
+								this.setState( { view: 'list' }, () =>
+									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
 								)
 							}
 						></Button>
