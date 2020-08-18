@@ -381,17 +381,30 @@ class Plugin_Manager {
 			'woocommerce-one-page-checkout' => [
 				'Name'        => __( 'WooCommerce One Page Checkout', 'newspack' ),
 				'Description' => esc_html__( 'Super fast sales with WooCommerce. Add to cart, checkout & pay all on the one page!', 'newspack' ),
-				'Author'      => 'Prospress Inc.',
+				'Author'      => 'WooCommerce',
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-one-page-checkout/',
-				'AuthorURI'   => 'https://prospress.com/',
+				'AuthorURI'   => 'https://woocommerce.com/',
 			],
 			'woocommerce-subscriptions'     => [
 				'Name'        => __( 'WooCommerce Subscriptions', 'newspack' ),
 				'Description' => esc_html__( 'An eCommerce toolkit that helps you sell anything. Beautifully.', 'newspack' ),
-				'Author'      => 'Prospress Inc.',
+				'Author'      => 'WooCommerce',
 				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
-				'AuthorURI'   => 'https://prospress.com',
-
+				'AuthorURI'   => 'https://woocommerce.com/',
+			],
+			'automatewoo'                   => [
+				'Name'        => 'AutomateWoo',
+				'Description' => esc_html__( 'Convert and retain customers with automated marketing that does the hard work for you.', 'newspack' ),
+				'Author'      => 'WooCommerce',
+				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
+				'AuthorURI'   => 'https://woocommerce.com/',
+			],
+			'automatewoo-refer-a-friend'    => [
+				'Name'        => __( 'AutomateWoo - Refer A Friend', 'newspack' ),
+				'Description' => esc_html__( 'Boost your organic sales by adding a customer referral program to your WooCommerce store.', 'newspack' ),
+				'Author'      => 'WooCommerce',
+				'PluginURI'   => 'https://woocommerce.com/products/automatewoo-refer-a-friend/',
+				'AuthorURI'   => 'https://woocommerce.com/',
 			],
 			'wordpress-seo'                 => [
 				'Name'        => 'Yoast SEO',
