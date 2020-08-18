@@ -1,3 +1,11 @@
+# [1.18.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.17.1-alpha.1...v1.18.0-alpha.1) (2020-08-18)
+
+
+### Features
+
+* add AutomateWoo and AW Refer Friend to the list of vetted plugins ([#637](https://github.com/Automattic/newspack-plugin/issues/637)) ([018b0ff](https://github.com/Automattic/newspack-plugin/commit/018b0ffe2de29b7fb64399eacbc25b26acec2942))
+* update dashboard default view to grid ([#634](https://github.com/Automattic/newspack-plugin/issues/634)) ([77e2e2a](https://github.com/Automattic/newspack-plugin/commit/77e2e2adcb58fa18018e22a85c4cdb4f0a65f07e))
+
 ## [1.17.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.17.0...v1.17.1-alpha.1) (2020-08-14)
 
 
