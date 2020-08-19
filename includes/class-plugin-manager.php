@@ -237,6 +237,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-popups/releases/latest/download/newspack-popups.zip',
 			],
+			'newspack-sponsors'             => [
+				'Name'        => 'Newspack Sponsors',
+				'Description' => 'Sponsored and underwritten content for Newspack sites.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-sponsors/releases/latest/download/newspack-sponsors.zip',
+			],
 			'newspack-rename-comments'      => [
 				'Name'        => 'Newspack Rename Comments',
 				'Description' => 'Provides the Newspack theme with the ability to allow users to rename comments.',
