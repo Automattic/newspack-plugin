@@ -90,12 +90,6 @@ class Dashboard extends Wizard {
 				'status'      => 'enabled',
 			],
 			[
-				'slug'        => 'performance',
-				'name'        => Wizards::get_name( 'performance' ),
-				'url'         => Wizards::get_url( 'performance' ),
-				'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
-			],
-			[
 				'slug'        => 'seo',
 				'name'        => Wizards::get_name( 'seo' ),
 				'url'         => Wizards::get_url( 'seo' ),
