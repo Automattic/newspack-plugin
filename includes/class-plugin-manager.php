@@ -115,6 +115,15 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
+			'distributor'                   => [
+				'Name'        => 'Distributor',
+				'Description' => 'Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.',
+				'Author'      => '10up Inc.',
+				'AuthorURI'   => 'https://distributorplugin.com/',
+				'PluginURI'   => 'https://distributorplugin.com/',
+				'Download'    => 'https://github.com/10up/distributor/releases/latest/download/distributor.zip',
+				'EditPath'    => 'admin.php?page=pull',
+			],
 			'google-site-kit'               => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
