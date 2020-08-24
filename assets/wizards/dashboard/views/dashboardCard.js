@@ -17,12 +17,12 @@ import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
 import ForumIcon from '@material-ui/icons/Forum';
 import HealingIcon from '@material-ui/icons/Healing';
 import SearchIcon from '@material-ui/icons/Search';
-import SpeedIcon from '@material-ui/icons/Speed';
 import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WebIcon from '@material-ui/icons/Web';
 import WidgetsIcon from '@material-ui/icons/Widgets';
 import PopupsIcon from '@material-ui/icons/NewReleases';
+import UpdateIcon from '@material-ui/icons/Update';
 
 /**
  * Internal dependencies.
@@ -47,12 +47,11 @@ class DashboardCard extends Component {
 			advertising: <FeaturedVideoIcon />,
 			syndication: <SyncAltIcon />,
 			analytics: <TrendingUpIcon />,
-			performance: <SpeedIcon />,
 			seo: <SearchIcon />,
 			'health-check': <HealingIcon />,
 			engagement: <ForumIcon />,
 			popups: <PopupsIcon />,
-			updates: <WidgetsIcon />,
+			updates: <UpdateIcon />,
 		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">

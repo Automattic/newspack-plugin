@@ -17,6 +17,15 @@
 		font-weight: bold;
 		line-height: inherit;
 		margin: 0;
+
+		&[data-required-text] {
+			&::after {
+				content: attr( data-required-text );
+				padding-left: 5px;
+				font-weight: normal;
+				color: $dark-gray-300;
+			}
+		}
 	}
 
 	input[type='date'],

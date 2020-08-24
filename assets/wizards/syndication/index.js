@@ -42,7 +42,7 @@ class SyndicationWizard extends Component {
 								<Intro
 									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Syndication', 'newspack' ) }
-									subHeaderText={ 'Apple News, Facebook Instant Articles' }
+									subHeaderText={ 'Distribute your content across multiple websites' }
 								/>
 							) }
 						/>

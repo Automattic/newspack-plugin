@@ -25,11 +25,10 @@ import {
 } from '../';
 import Router from '../proxied-imports/router';
 import { buttonProps } from '../../../shared/js/';
+import { NEWSPACK_SITE_URL } from '../consts';
 import './style.scss';
 
 const { Redirect, Route } = Router;
-
-const NEWSPACK_SITE_URL = 'https://newspack.pub';
 
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
