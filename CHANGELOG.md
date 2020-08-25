@@ -1,3 +1,12 @@
+# [1.18.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.18.0-alpha.1...v1.18.0-alpha.2) (2020-08-25)
+
+
+### Features
+
+* add newspack-sponsors as a managed plugin ([#641](https://github.com/Automattic/newspack-plugin/issues/641)) ([1f0f60b](https://github.com/Automattic/newspack-plugin/commit/1f0f60bc61e5375980e2a75c8d2eda70c1e8ca11))
+* add support to distributor ([#635](https://github.com/Automattic/newspack-plugin/issues/635)) ([b7e602f](https://github.com/Automattic/newspack-plugin/commit/b7e602f288d09f6d4ae3819444b49c786a4df907))
+* remove performance wizard ([#645](https://github.com/Automattic/newspack-plugin/issues/645)) ([b0774e2](https://github.com/Automattic/newspack-plugin/commit/b0774e2bfd6f0e22d51387881439a78d2a555f8b))
+
 # [1.18.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.17.1-alpha.1...v1.18.0-alpha.1) (2020-08-18)
 
 
