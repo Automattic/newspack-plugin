@@ -431,6 +431,14 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
+			'wordpress-seo-premium'         => [
+				'Name'  => 'Yoast SEO Premium',
+				'Quiet' => true,
+			],
+			'wpseo-news'                    => [
+				'Name'  => 'Yoast SEO: News',
+				'Quiet' => true,
+			],
 			'wordpress-settings-discussion' => [
 				'Name'     => 'Wordpress Commenting',
 				'WPCore'   => true,
