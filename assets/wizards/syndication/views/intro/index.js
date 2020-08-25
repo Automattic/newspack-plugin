@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, withWizardScreen } from '../../../../components/src';
+import { ActionCard, PluginToggle, withWizardScreen } from '../../../../components/src';
 
 /**
  * Syndication Intro screen.
@@ -36,6 +36,11 @@ class Intro extends Component {
 					) }
 					actionText={ __( 'Configure' ) }
 					handoff="fb-instant-articles"
+				/>
+				<PluginToggle
+					plugins={ {
+						distributor: true,
+					} }
 				/>
 			</Fragment>
 		);
