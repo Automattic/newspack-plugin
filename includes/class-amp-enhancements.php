@@ -18,10 +18,8 @@ class AMP_Enhancements {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		// WP GDPR Cookie Notice plugin enhancements.
-		if ( is_plugin_active( 'wp-gdpr-cookie-notice/wp-gdpr-cookie-notice.php' ) ) {
-			include_once 'amp-enhancements/class-wp-gdpr-cookie-notice-performance.php';
-		}
+		// Use local storage instead of an ajax endpoint with WP GDPR Cookie Notice.
+		add_filter( 'wp_gdpr_cookie_notice_amp_use_endpoint', '__return_false' );
 	}
 }
 AMP_Enhancements::init();

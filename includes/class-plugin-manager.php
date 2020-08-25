@@ -115,6 +115,15 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
+			'distributor'                   => [
+				'Name'        => 'Distributor',
+				'Description' => 'Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.',
+				'Author'      => '10up Inc.',
+				'AuthorURI'   => 'https://distributorplugin.com/',
+				'PluginURI'   => 'https://distributorplugin.com/',
+				'Download'    => 'https://github.com/10up/distributor/releases/latest/download/distributor.zip',
+				'EditPath'    => 'admin.php?page=pull',
+			],
 			'google-site-kit'               => [
 				'Name'        => 'Google Site Kit',
 				'Description' => 'Site Kit is is a one-stop solution for WordPress users to use everything Google has to offer to make them successful on the web.',
@@ -236,6 +245,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-popups/releases/latest/download/newspack-popups.zip',
+			],
+			'newspack-sponsors'             => [
+				'Name'        => 'Newspack Sponsors',
+				'Description' => 'Sponsored and underwritten content for Newspack sites.',
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.blog',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-sponsors/releases/latest/download/newspack-sponsors.zip',
 			],
 			'newspack-rename-comments'      => [
 				'Name'        => 'Newspack Rename Comments',
@@ -413,6 +430,14 @@ class Plugin_Manager {
 				'AuthorURI'   => 'https://yoa.st/1uk',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
+			],
+			'wordpress-seo-premium'         => [
+				'Name'  => 'Yoast SEO Premium',
+				'Quiet' => true,
+			],
+			'wpseo-news'                    => [
+				'Name'  => 'Yoast SEO: News',
+				'Quiet' => true,
 			],
 			'wordpress-settings-discussion' => [
 				'Name'     => 'Wordpress Commenting',
