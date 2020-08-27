@@ -81,7 +81,7 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Set Popup options/
+	 * Set Popup options.
 	 *
 	 * @param integer $id ID of sitewide popup.
 	 * @param array   $options Array of categories to be set.
@@ -89,6 +89,26 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function set_popup_options( $id, $options ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Model::set_popup_options( $id, $options ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get plugin settings.
+	 */
+	public function get_settings() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Settings::get_settings() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Set plugin settings.
+	 *
+	 * @param object $options options.
+	 */
+	public function set_settings( $options ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Settings::set_settings( $options ) :
 			$this->unconfigured_error();
 	}
 

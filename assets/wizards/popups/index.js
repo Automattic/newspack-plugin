@@ -21,7 +21,7 @@ import { stringify } from 'qs';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { PopupGroup, Analytics } from './views';
+import { PopupGroup, Analytics, Settings } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -42,6 +42,11 @@ const tabbedNavigation = [
 	{
 		label: __( 'Analytics', 'newpack' ),
 		path: '/analytics',
+		exact: true,
+	},
+	{
+		label: __( 'Settings', 'newpack' ),
+		path: '/settings',
 		exact: true,
 	},
 ];
@@ -268,6 +273,7 @@ class PopupsWizard extends Component {
 									) }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
+								<Route path="/settings" render={ () => <Settings { ...sharedProps } isWide /> } />
 								<Redirect to="/overlay" />
 							</Switch>
 						</HashRouter>

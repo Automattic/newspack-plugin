@@ -175,6 +175,35 @@ class Popups_Wizard extends Wizard {
 			]
 		);
 
+		// Plugin settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_plugin_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_plugin_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'option_name'  => [
+						'validate_callback' => [ 'Newspack_Popups_API', 'validate_settings_option_name' ],
+						'sanitize_callback' => 'esc_attr',
+					],
+					'option_value' => [
+						'sanitize_callback' => 'esc_attr',
+					],
+				],
+			]
+		);
+
 		// Register newspack/v1/popups-analytics/report endpoint.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -429,6 +458,24 @@ class Popups_Wizard extends Wizard {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Get the plugin settings.
+	 */
+	public static function api_get_plugin_settings() {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		return $newspack_popups_configuration_manager->get_settings();
+	}
+
+	/**
+	 * Set the plugin settings.
+	 *
+	 * @param array $options options.
+	 */
+	public static function api_set_plugin_settings( $options ) {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		return $newspack_popups_configuration_manager->set_settings( $options );
 	}
 
 	/**
