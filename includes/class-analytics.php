@@ -54,31 +54,39 @@ class Analytics {
 		$custom_dimensions = Analytics_Wizard::list_configured_custom_dimensions();
 		foreach ( $custom_dimensions as $dimension ) {
 			$dimension_role = $dimension['role'];
-			$dimension_id   = substr( $dimension['id'], 3 ); // Remove `ga:` prefix.
+			// Remove `ga:` prefix.
+			$dimension_id = substr( $dimension['id'], 3 );
 
-			if ( 'category' === $dimension_role ) {
-				$categories = get_the_category();
-				if ( ! empty( $categories ) ) {
-					$categories_slugs = implode(
-						',',
-						array_map(
-							function( $cat ) {
-								return $cat->slug;
-							},
-							$categories
-						)
-					);
-					self::add_custom_dimension_to_ga_config( $dimension_id, $categories_slugs );
+			$post = get_post();
+			if ( $post ) {
+				if ( 'category' === $dimension_role ) {
+					$categories = get_the_category();
+					if ( ! empty( $categories ) ) {
+						$categories_slugs = implode(
+							',',
+							array_map(
+								function( $cat ) {
+									return $cat->slug;
+								},
+								$categories
+							)
+						);
+						self::add_custom_dimension_to_ga_config( $dimension_id, $categories_slugs );
+					}
 				}
-			}
 
-			if ( 'author' === $dimension_role ) {
-				$post = get_post();
-				if ( $post ) {
+				if ( 'author' === $dimension_role ) {
 					$author_id = $post->post_author;
 					self::add_custom_dimension_to_ga_config(
 						$dimension_id,
 						get_the_author_meta( 'first_name', $author_id ) . ' ' . get_the_author_meta( 'last_name', $author_id )
+					);
+				}
+
+				if ( 'word_count' === $dimension_role ) {
+					self::add_custom_dimension_to_ga_config(
+						$dimension_id,
+						count( explode( ' ', wp_strip_all_tags( $post->post_content ) ) )
 					);
 				}
 			}

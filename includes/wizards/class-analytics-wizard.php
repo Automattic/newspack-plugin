@@ -29,8 +29,9 @@ class Analytics_Wizard extends Wizard {
 	/**
 	 * Custom dimensions options names.
 	 */ // phpcs:ignore Squiz.Commenting.VariableComment.Missing
-	public static $category_dimension_option_name = 'newspack_analytics_category_custom_dimension_id'; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
-	public static $author_dimension_option_name   = 'newspack_analytics_author_custom_dimension_id'; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	public static $category_dimension_option_name   = 'newspack_analytics_category_custom_dimension_id'; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	public static $author_dimension_option_name     = 'newspack_analytics_author_custom_dimension_id'; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	public static $word_count_dimension_option_name = 'newspack_analytics_word_count_custom_dimension_id'; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
 	 * Name of the option storing site's custom events (serialised).
@@ -306,6 +307,9 @@ class Analytics_Wizard extends Wizard {
 					if ( get_option( self::$author_dimension_option_name ) === $dimension['id'] ) { // phpcs:ignore WordPressVIPMinimum.Variables.VariableAnalysis.SelfInsideClosure
 						$dimension->role = 'author';
 					}
+					if ( get_option( self::$word_count_dimension_option_name ) === $dimension['id'] ) { // phpcs:ignore WordPressVIPMinimum.Variables.VariableAnalysis.SelfInsideClosure
+						$dimension->role = 'word_count';
+					}
 					return $dimension;
 				},
 				$custom_dimensions['items']
@@ -323,12 +327,16 @@ class Analytics_Wizard extends Wizard {
 		return array_filter(
 			[
 				[
+					'role' => 'category',
+					'id'   => get_option( self::$category_dimension_option_name ),
+				],
+				[
 					'role' => 'author',
 					'id'   => get_option( self::$author_dimension_option_name ),
 				],
 				[
-					'role' => 'category',
-					'id'   => get_option( self::$category_dimension_option_name ),
+					'role' => 'word_count',
+					'id'   => get_option( self::$word_count_dimension_option_name ),
 				],
 			],
 			function( $item ) {
@@ -343,7 +351,7 @@ class Analytics_Wizard extends Wizard {
 	 * @param String $name Name.
 	 */
 	public static function validate_custom_dimension_name( $name ) {
-		return in_array( $name, [ 'author', 'category', '' ] );
+		return in_array( $name, [ 'author', 'category', 'word_count', '' ] );
 	}
 
 	/**
@@ -387,6 +395,9 @@ class Analytics_Wizard extends Wizard {
 				break;
 			case 'author':
 				self::set_custom_dimension( $request['id'], self::$author_dimension_option_name );
+				break;
+			case 'word_count':
+				self::set_custom_dimension( $request['id'], self::$word_count_dimension_option_name );
 				break;
 			default:
 				self::set_custom_dimension( $request['id'] );

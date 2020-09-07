@@ -28,6 +28,7 @@ const CUSTOM_DIMENSIONS_OPTIONS = [
 	{ value: '', label: __( 'none', 'newspack' ) },
 	{ value: 'category', label: __( 'Category', 'newspack' ) },
 	{ value: 'author', label: __( 'Author', 'newspack' ) },
+	{ value: 'word_count', label: __( 'Word count', 'newspack' ) },
 ];
 
 /**
