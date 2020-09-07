@@ -89,6 +89,13 @@ class Analytics {
 						count( explode( ' ', wp_strip_all_tags( $post->post_content ) ) )
 					);
 				}
+
+				if ( 'publish_date' === $dimension_role ) {
+					self::add_custom_dimension_to_ga_config(
+						$dimension_id,
+						date_format( date_create( $post->post_date ), 'Y-m-d' )
+					);
+				}
 			}
 		}
 	}
