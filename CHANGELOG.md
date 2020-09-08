@@ -1,3 +1,11 @@
+# [1.20.0](https://github.com/Automattic/newspack-plugin/compare/v1.19.0...v1.20.0) (2020-09-08)
+
+
+### Features
+
+* add support wizard to dashboard ([#650](https://github.com/Automattic/newspack-plugin/issues/650)) ([87ac1dd](https://github.com/Automattic/newspack-plugin/commit/87ac1dd88d05ccb92713edc930a84e7a1f7a8b1b))
+* append categories, tags data to WC order; sync w/ SF ([c357155](https://github.com/Automattic/newspack-plugin/commit/c3571556d5d5baec0980721249f6390470bab8e7))
+
 # [1.19.0](https://github.com/Automattic/newspack-plugin/compare/v1.18.0...v1.19.0) (2020-08-25)
 
 
