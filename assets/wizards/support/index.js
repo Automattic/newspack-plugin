@@ -75,8 +75,8 @@ class SupportWizard extends Component {
 
 		const props = {
 			headerIcon: <HeaderIcon />,
-			headerText: __( 'Contact support', 'newspack' ),
-			subHeaderText: __( 'Use the form below to contact our support.', 'newspack' ),
+			headerText: __( 'Support', 'newspack' ),
+			subHeaderText: __( 'Contact customer support', 'newspack' ),
 			tabbedNavigation: [
 				{
 					label: __( 'Submit ticket' ),
