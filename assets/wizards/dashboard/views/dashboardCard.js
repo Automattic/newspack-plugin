@@ -22,6 +22,7 @@ import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import WebIcon from '@material-ui/icons/Web';
 import WidgetsIcon from '@material-ui/icons/Widgets';
 import PopupsIcon from '@material-ui/icons/NewReleases';
+import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import UpdateIcon from '@material-ui/icons/Update';
 
 /**
@@ -51,6 +52,7 @@ class DashboardCard extends Component {
 			'health-check': <HealingIcon />,
 			engagement: <ForumIcon />,
 			popups: <PopupsIcon />,
+			support: <ContactSupportIcon />,
 			updates: <UpdateIcon />,
 		};
 		const contents = (
