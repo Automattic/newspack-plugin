@@ -363,6 +363,9 @@ class Analytics {
 	 * @return array Modified $config.
 	 */
 	public static function inject_amp_events( $config ) {
+		if ( is_user_logged_in() ) {
+			$config['vars']['user_id'] = get_current_user_id();
+		}
 		$all_events = array_merge( self::get_events(), self::$block_events );
 		foreach ( $all_events as $event ) {
 			$event_config = [
