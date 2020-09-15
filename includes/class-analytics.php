@@ -79,7 +79,7 @@ class Analytics {
 					$author_id = $post->post_author;
 					self::add_custom_dimension_to_ga_config(
 						$dimension_id,
-						get_the_author_meta( 'first_name', $author_id ) . ' ' . get_the_author_meta( 'last_name', $author_id )
+						get_the_author_meta( 'display_name', $author_id )
 					);
 				}
 
