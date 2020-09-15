@@ -14,11 +14,6 @@
 
 		.newspack-select-control {
 			margin: 16px 0;
-
-			@media screen and ( min-width: 744px ) {
-				width: 48%;
-				width: calc( 50% - 8px );
-			}
 		}
 	}
 }
