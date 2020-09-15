@@ -18,17 +18,34 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 
 	const renderedSections = useMemo( () => {
 		const validFilters = [ ALL_FILTER ];
-		const validSections = sections.reduce( ( validSectionsAcc, section ) => {
+		const validSections = sections.reduce( ( validSectionsAcc, section, i ) => {
 			if ( section.items.length > 0 ) {
+				const Heading = () => (
+					<h2 className="newspack-action-card-sections__group-type">
+						{ section.label }{' '}
+						<span className="newspack-action-card-sections__group-count">
+							{ section.items.length }
+						</span>
+					</h2>
+				);
 				if ( filter === ALL_FILTER.value || filter === section.key ) {
 					validSectionsAcc.push(
 						<Fragment key={ section.key }>
-							<h2 className="newspack-action-card-sections__group-type">
-								{ section.label }{' '}
-								<span className="newspack-action-card-sections__group-count">
-									{ section.items.length }
-								</span>
-							</h2>
+							{ allFilters.length > 0 && i === 0 ? (
+								<div className="newspack-action-card-sections__group-wrapper">
+									<Heading />
+									<SelectControl
+										options={ allFilters }
+										value={ filter }
+										onChange={ setFilter }
+										label={ __( 'Filter:', 'newspack' ) }
+										className="newspack-action-card-sections__group-select"
+									/>
+								</div>
+							) : (
+								<Heading />
+							) }
+
 							{ section.items.map( item => renderCard( item, section ) ) }
 						</Fragment>
 					);
@@ -40,22 +57,10 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 		setAllFilters( validFilters );
 
 		return validSections;
-	}, [ sections, filter ] );
+	}, [ sections, filter, allFilters.length ] );
 
 	return renderedSections.length > 0 ? (
-		<Fragment>
-			{ allFilters.length > 0 && (
-				<SelectControl
-					options={ allFilters }
-					value={ filter }
-					onChange={ setFilter }
-					label={ __( 'Filter:', 'newspack' ) }
-					className="newspack-action-card-sections__group-select"
-				/>
-			) }
-
-			{ renderedSections }
-		</Fragment>
+		<Fragment>{ renderedSections }</Fragment>
 	) : (
 		<p>{ emptyMessage }</p>
 	);
