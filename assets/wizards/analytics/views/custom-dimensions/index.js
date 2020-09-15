@@ -14,7 +14,6 @@ import {
 	Notice,
 	TextControl,
 	SelectControl,
-	CheckboxControl,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -23,6 +22,14 @@ const SCOPES_OPTIONS = [
 	{ value: 'SESSION', label: __( 'Session', 'newspack' ) },
 	{ value: 'USER', label: __( 'User', 'newspack' ) },
 	{ value: 'PRODUCT', label: __( 'Product', 'newspack' ) },
+];
+
+const CUSTOM_DIMENSIONS_OPTIONS = [
+	{ value: '', label: __( 'none', 'newspack' ) },
+	{ value: 'category', label: __( 'Category', 'newspack' ) },
+	{ value: 'author', label: __( 'Author', 'newspack' ) },
+	{ value: 'word_count', label: __( 'Word count', 'newspack' ) },
+	{ value: 'publish_date', label: __( 'Publish date', 'newspack' ) },
 ];
 
 /**
@@ -54,27 +61,21 @@ class CustomDimensions extends Component {
 			.catch( this.handleAPIError );
 	};
 
-	handleCategoryDimensionSetting = dimensionId => {
+	handleCustomDimensionSetting = dimensionId => role => {
 		const { wizardApiFetch } = this.props;
-		const { customDimensions } = this.state;
 		wizardApiFetch( {
-			path: `/newspack/v1/wizard/analytics/category-dimension/${ dimensionId }`,
+			path: `/newspack/v1/wizard/analytics/custom-dimensions/${ dimensionId }`,
 			method: 'POST',
+			data: { role },
 		} )
-			.then( ( { id } ) => {
-				this.setState( {
-					customDimensions: customDimensions.map( dimension => ( {
-						...dimension,
-						is_category_dimension: dimension.id === id,
-					} ) ),
-				} );
+			.then( res => {
+				this.setState( { customDimensions: res } );
 			} )
 			.catch( this.handleAPIError );
 	};
 
 	render() {
 		const { error, customDimensions, newDimensionName, newDimensionScope } = this.state;
-		const hasCustomDimensions = ! error && customDimensions.length !== 0;
 		return (
 			<div className="newspack__analytics-configuration newspack-card newspack-card__no-background">
 				<p>
@@ -83,16 +84,6 @@ class CustomDimensions extends Component {
 						'newspack'
 					) }
 				</p>
-				{ hasCustomDimensions &&
-					customDimensions.filter( dimension => dimension.is_category_dimension ).length === 0 && (
-						<Notice
-							noticeText={ __(
-								'Please set a category dimension. Otherwise, the categories will not be reported to GA.',
-								'newspack'
-							) }
-							isWarning
-						/>
-					) }
 				{ error ? (
 					<Notice noticeText={ error } isError rawHTML />
 				) : (
@@ -103,7 +94,7 @@ class CustomDimensions extends Component {
 									{ [
 										__( 'Name', 'newspack' ),
 										__( 'ID', 'newspack' ),
-										__( 'Category dimension', 'newspack' ),
+										__( 'Role', 'newspack' ),
 									].map( ( colName, i ) => (
 										<th key={ i }>{ colName }</th>
 									) ) }
@@ -119,9 +110,11 @@ class CustomDimensions extends Component {
 											<code>{ dimension.id }</code>
 										</td>
 										<td>
-											<CheckboxControl
-												onChange={ () => this.handleCategoryDimensionSetting( dimension.id ) }
-												checked={ dimension.is_category_dimension }
+											<SelectControl
+												options={ CUSTOM_DIMENSIONS_OPTIONS }
+												value={ dimension.role || '' }
+												onChange={ this.handleCustomDimensionSetting( dimension.id ) }
+												className="newspack__analytics-configuration__select"
 											/>
 										</td>
 									</tr>
