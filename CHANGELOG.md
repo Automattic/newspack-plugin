@@ -1,3 +1,10 @@
+# [1.21.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.21.0-alpha.1...v1.21.0-alpha.2) (2020-09-15)
+
+
+### Bug Fixes
+
+* ignore Yoast weight limit to prevent missing og:image tags ([#666](https://github.com/Automattic/newspack-plugin/issues/666)) ([8d8bdaa](https://github.com/Automattic/newspack-plugin/commit/8d8bdaa9259926511079a3a7c11ceacbf50f5058))
+
 # [1.21.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.20.0...v1.21.0-alpha.1) (2020-09-15)
 
 
