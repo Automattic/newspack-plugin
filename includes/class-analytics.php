@@ -93,7 +93,7 @@ class Analytics {
 				if ( 'publish_date' === $dimension_role ) {
 					self::add_custom_dimension_to_ga_config(
 						$dimension_id,
-						date_format( date_create( $post->post_date ), 'Y-m-d' )
+						get_the_time( 'Y-m-d H:i', $post->ID )
 					);
 				}
 			}
