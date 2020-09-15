@@ -30,7 +30,10 @@
 			flex-wrap: wrap;
 		}
 		.newspack-text-control {
-			width: 100%;
+			flex: 1;
+		}
+		.components-select-control {
+			margin: 0;
 		}
 		> * {
 			margin: 0 !important;

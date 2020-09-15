@@ -6,22 +6,22 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-action-card-sections {
-	&__group-select {
-		border-bottom: 1px solid $light-gray-500;
-		margin-left: -48px;
-		margin-top: 0;
-		padding: 0 16px 16px;
-		width: calc( 100% + 64px );
-
-		@media screen and ( min-width: 744px ) {
-			border-bottom: 0;
-			float: right;
-			margin: 32px 0 16px;
-			padding: 0;
-			width: auto;
+	&__group-wrapper {
+		margin-top: 20px;
+		margin-bottom: -31px;
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		h2 {
+			margin: 0 !important;
 		}
+	}
+
+	&__group-select {
+		margin: 0;
 
 		.components-base-control__field {
+			margin-bottom: 0;
 			align-items: center;
 			display: flex;
 		}
