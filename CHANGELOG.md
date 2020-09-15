@@ -1,3 +1,17 @@
+# [1.21.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.20.0...v1.21.0-alpha.1) (2020-09-15)
+
+
+### Bug Fixes
+
+* override site kit _gl query param behavior ([37500f5](https://github.com/Automattic/newspack-plugin/commit/37500f5542372e73913f8c7d91fcf17e884d76aa))
+* select-related layouts ([483de25](https://github.com/Automattic/newspack-plugin/commit/483de25ecf91eb1d0cea2f299b9a6a61e340f1ad))
+
+
+### Features
+
+* add author, word count, publish date custom dimensions ([#655](https://github.com/Automattic/newspack-plugin/issues/655)) ([7f8662d](https://github.com/Automattic/newspack-plugin/commit/7f8662df5e75278295269626f6fe998a66572a96))
+* **analytics:** report User ID ([e1c26d0](https://github.com/Automattic/newspack-plugin/commit/e1c26d07f470e15a9ccd80a55de80fbd05d046ee))
+
 # [1.20.0](https://github.com/Automattic/newspack-plugin/compare/v1.19.0...v1.20.0) (2020-09-08)
 
 
