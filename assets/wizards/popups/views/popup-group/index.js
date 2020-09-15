@@ -75,11 +75,7 @@ class PopupGroup extends Component {
 						key={ popup.id }
 						popup={ popup }
 						previewPopup={ previewPopup }
-						setCategoriesForPopup={
-							section.key === 'active' || section.key === 'test'
-								? setCategoriesForPopup
-								: () => null
-						}
+						setCategoriesForPopup={ setCategoriesForPopup }
 						setSitewideDefaultPopup={ setSitewideDefaultPopup }
 						updatePopup={ updatePopup }
 						publishPopup={ section.key === 'draft' ? publishPopup : undefined }
