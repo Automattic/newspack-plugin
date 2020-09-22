@@ -56,15 +56,17 @@ class PopupPopover extends Component {
 			publishPopup,
 			updatePopup,
 		} = this.props;
-		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options } = popup;
+		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
 		const { frequency, placement } = options;
+		const isDraft = 'draft' === status;
+		const isTestMode = 'test' === frequency;
 		return (
 			<Popover
 				position="bottom left"
 				onFocusOutside={ onFocusOutside }
 				onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside() }
 			>
-				{ 'inline' !== placement && (
+				{ 'inline' !== placement && ! isTestMode && ! isDraft && (
 					<MenuItem
 						onClick={ () => {
 							setSitewideDefaultPopup( id, ! sitewideDefault );
@@ -83,7 +85,7 @@ class PopupPopover extends Component {
 				) }
 				<MenuItem
 					onClick={ () => {
-						updatePopup( id, { frequency: 'test' === frequency ? 'daily' : 'test' } );
+						updatePopup( id, { frequency: isTestMode ? 'daily' : 'test' } );
 						onFocusOutside();
 					} }
 					icon={ <TestIcon /> }
@@ -92,7 +94,7 @@ class PopupPopover extends Component {
 					{ __( 'Test mode', 'newspack' ) }
 					<ToggleControl
 						className="newspack-popup-action-card-popover-control"
-						checked={ 'test' === frequency }
+						checked={ isTestMode }
 						onChange={ () => null }
 					/>
 				</MenuItem>
