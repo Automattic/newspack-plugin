@@ -165,7 +165,7 @@ class AutocompleteTokenField extends Component {
 		const { suggestions, loading } = this.state;
 
 		return (
-			<div className="autocomplete-tokenfield">
+			<div className="newspack-autocomplete-tokenfield">
 				<FormTokenField
 					value={ this.getTokens() }
 					suggestions={ suggestions }
