@@ -208,7 +208,7 @@ class Salesforce {
 					'CloseDate'   => $transaction_date,
 					'Description' => 'WooCommerce Order Number: ' . $data['id'],
 					'Name'        => $transaction['name'],
-					'StageName'   => 'New',
+					'StageName'   => 'Closed Won',
 					'LeadSource'  => 'Post categories: ' . $referer_categories . ', tags: ' . $referer_tags,
 				];
 			}
@@ -397,6 +397,7 @@ class Salesforce {
 			'ContactId'     => $contact_id,
 			'IsPrimary'     => true,
 			'OpportunityId' => $opportunity_id,
+			'Role'          => 'Hard Credit',
 		];
 
 		// Create opportunity contact role record via Salesforce API, using cached access_token.
