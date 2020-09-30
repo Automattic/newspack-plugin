@@ -175,7 +175,7 @@ class AutocompleteTokenField extends Component {
 					maxLength={ maxLength }
 				/>
 				{ loading && <Spinner /> }
-				{ help && <p className="autocomplete-tokenfield__help">{ help }</p> }
+				{ help && <p className="newspack-autocomplete-tokenfield__help">{ help }</p> }
 			</div>
 		);
 	}
