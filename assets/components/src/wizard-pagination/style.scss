@@ -1,14 +1,44 @@
-.newspack-wizard {
-	position: relative;
+/**
+ * Wizard Pagination
+ */
+
+@import '../../../shared/scss/colors';
+
+.newspack-wizard-pagination {
+	align-items: center;
+	background: $primary-500;
+	color: white;
+	display: flex;
+	flex-direction: row-reverse;
+	font-size: 14px;
+	justify-content: space-between;
+	line-height: 24px;
+	margin: -80px 0 64px;
+	padding: 0 0 16px;
+
+	@media screen and ( min-width: 600px ) {
+		left: 0;
+		margin: 0;
+		padding: 0 16px;
+		position: absolute;
+		right: 0;
+		top: 36px;
+	}
+
+	.newspack-wizard-pagination__pagination,
+	.newspack-button {
+		margin: 16px;
+	}
+
+	.newspack-wizard-pagination__pagination {
+		font-weight: bold;
+	}
 }
-.newspack-wizard-pagination__navigation {
-	position: absolute;
-	top: 1em;
-	left: 0;
-	cursor: pointer;
-}
-.newspack-wizard-pagination__pagination {
-	position: absolute;
-	top: 1em;
-	right: 1em;
+
+// Increase z-index on the Logo if we have the pagination
+
+.newspack-logo-wrapper {
+	svg {
+		z-index: 1;
+	}
 }

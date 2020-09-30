@@ -3,6 +3,9 @@
  */
 import { isFunction, isString, isObject } from 'lodash';
 
+/**
+ * Creates button props based on an action
+ */
 export default function buttonProps( action ) {
 	const props = {};
 	if ( isFunction( action ) ) {
@@ -14,6 +17,9 @@ export default function buttonProps( action ) {
 	if ( isObject( action ) ) {
 		if ( action.handoff ) {
 			props.plugin = action.handoff;
+			if ( action.editLink ) {
+				props.editLink = action.editLink;
+			}
 		}
 		if ( action.onClick ) {
 			props.onClick = action.onClick;

@@ -1,24 +1,21 @@
 /**
- * Action cards.
+ * Action Card
  */
 
 /**
- * WordPress dependencies.
+ * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Dashicon, Spinner, ToggleControl } from '@wordpress/components';
-import { Button, Card } from '../';
+import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
 import './style.scss';
 
 /**
  * External dependencies
  */
-
 import classnames from 'classnames';
 
 class ActionCard extends Component {
@@ -27,21 +24,26 @@ class ActionCard extends Component {
 	};
 
 	/**
-	 * Render.
+	 * Render
 	 */
-	render( props ) {
+	render() {
 		const {
 			badge,
 			className,
+			children,
 			title,
 			description,
+			handoff,
+			editLink,
 			href,
 			notification,
 			notificationLevel,
+			notificationHTML,
 			actionText,
 			secondaryActionText,
 			image,
 			imageLink,
+			isSmall,
 			simple,
 			onClick,
 			onSecondaryActionClick,
@@ -49,24 +51,17 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 		} = this.props;
-		const classes = murielClassnames( 'newspack-action-card', simple && 'is_clickable', className );
-		const notificationClasses = classnames(
-			'newspack-action-card__notification',
-			'notice',
-			`notice-${ notificationLevel }`,
-			'notice-alt',
-			'update-message'
+		const classes = classnames(
+			'newspack-action-card',
+			simple && 'newspack-card__is-clickable',
+			isSmall && 'is-small',
+			className
 		);
-		const hasSecondaryAction = secondaryActionText && onSecondaryActionClick;
-		const actionDisplay = ( simple && <Dashicon icon="arrow-right-alt2" /> ) || actionText;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
-						<ToggleControl
-							checked={ toggleChecked }
-							onChange={ toggleOnChange }
-						/>
+						<ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } />
 					) }
 					{ image && ! toggleOnChange && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
@@ -79,26 +74,33 @@ class ActionCard extends Component {
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h1>{ [ title, badge && <span className='newspack-action-card-badge'>{ badge }</span> ] }</h1>
-						<h2>{ description }</h2>
+						<h2>
+							<span className="newspack-action-card__title">{ title }</span>
+							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
+						</h2>
+						<p>{ description }</p>
 					</div>
-					{ actionDisplay && (
+					{ actionText && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ actionDisplay && ( !! onClick || !! href ) && (
+							{ handoff && (
+								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
+									{ actionText }
+								</Handoff>
+							) }
+							{ ( !! onClick || !! href ) && ! handoff && (
 								<Button
 									isLink
 									href={ href }
 									onClick={ onClick }
 									className="newspack-action-card__primary_button"
 								>
-									{ actionDisplay }
+									{ actionText }
 								</Button>
 							) }
-
-							{ actionDisplay && ( ! onClick && ! href ) && (
+							{ ! handoff && ! onClick && ! href && (
 								<div className="newspack-action-card__container">
-									{ isWaiting && <Spinner /> }
-									{ actionDisplay }
+									{ actionText }
+									{ isWaiting && <Waiting isRight /> }
 								</div>
 							) }
 
@@ -115,10 +117,22 @@ class ActionCard extends Component {
 					) }
 				</div>
 				{ notification && (
-					<div className={ notificationClasses }>
-						<p>{ notification }</p>
+					<div className="newspack-action-card__notification">
+						{ 'error' === notificationLevel && (
+							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
+						) }
+						{ 'info' === notificationLevel && (
+							<Notice noticeText={ notification } isPrimary rawHTML={ notificationHTML } />
+						) }
+						{ 'success' === notificationLevel && (
+							<Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } />
+						) }
+						{ 'warning' === notificationLevel && (
+							<Notice noticeText={ notification } isWarning rawHTML={ notificationHTML } />
+						) }
 					</div>
 				) }
+				{ children && <div>{ children }</div> }
 			</Card>
 		);
 	}
@@ -126,6 +140,6 @@ class ActionCard extends Component {
 
 ActionCard.defaultProps = {
 	toggleChecked: false,
-}
+};
 
 export default ActionCard;

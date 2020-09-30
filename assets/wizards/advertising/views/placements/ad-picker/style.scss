@@ -1,8 +1,19 @@
-.newspack-ad-picker {
-	display: flex;
-	& > * {
-		flex: 1;
-		margin-right: 20px;
-		max-width: calc( 50% - 20px );
+/**
+ * Ad Picker
+ */
+
+.newspack-toggle-group__description {
+	flex: 1;
+
+	.newspack-ad-picker {
+		@media screen and ( min-width: 744px ) {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+		}
+
+		.newspack-select-control {
+			margin: 16px 0;
+		}
 	}
 }

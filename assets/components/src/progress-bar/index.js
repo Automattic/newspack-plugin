@@ -1,5 +1,5 @@
 /**
- * Progress bar for displaying visual feedback about steps-completed.
+ * Progress Bar
  */
 
 /**
@@ -12,17 +12,13 @@ import { Component } from '@wordpress/element';
  */
 import './style.scss';
 
-/**
- * Progress bar.
- */
 class ProgressBar extends Component {
-
 	/**
 	 * Get completion as a percentage.
 	 *
-	 * @param  int completed The number of steps completed.
-	 * @param  int total     The total number of steps.
-	 * @return int
+	 * @param {number} completed The number of steps completed.
+	 * @param {number} total     The total number of steps.
+	 * @return {number} completion percentage
 	 */
 	getCompletionPercentage( completed, total ) {
 		if ( ! total ) {
@@ -38,30 +34,35 @@ class ProgressBar extends Component {
 	render() {
 		const { label, completed, total, displayFraction } = this.props;
 		const cleanTotal = Math.max( 0, parseInt( total ) || 0 );
-		const cleanCompleted = Math.max( 0, Math.min( ( parseInt( completed ) || 0 ), parseInt( cleanTotal ) ) );
+		const cleanCompleted = Math.max(
+			0,
+			Math.min( parseInt( completed ) || 0, parseInt( cleanTotal ) )
+		);
 
 		const barStyle = {
 			width: this.getCompletionPercentage( cleanCompleted, cleanTotal ) + '%',
-		}
+		};
 
 		return (
-			<div className="muriel-progress-bar">
+			<div className="newspack-progress-bar">
 				{ ( label || displayFraction ) && (
-					<div className="muriel-progress-bar__headings">
-						{ label && (
-							<div className="muriel-progress-bar__label">
-								{ label }
-							</div>
-						) }
+					<div className="newspack-progress-bar__headings">
+						{ label && <h2>{ label }</h2> }
 						{ displayFraction && (
-							<div className="muriel-progress-bar__fraction">
-								{ cleanCompleted }/{ cleanTotal}
-							</div>
+							<p className="is-dark">
+								<strong>
+									{ cleanCompleted }/{ cleanTotal }
+								</strong>
+							</p>
 						) }
 					</div>
 				) }
 
-				<div className="muriel-progress-bar__bar" style={ barStyle } ></div>
+				<div
+					className="newspack-progress-bar__bar"
+					style={ barStyle }
+					data-testid="progress-bar-indicator"
+				></div>
 			</div>
 		);
 	}

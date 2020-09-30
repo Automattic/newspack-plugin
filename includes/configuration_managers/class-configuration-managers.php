@@ -20,30 +20,50 @@ class Configuration_Managers {
 	 * @var array
 	 */
 	protected static $configuration_managers = [
-		'jetpack'         => [
+		'jetpack'               => [
 			'filename'   => 'class-jetpack-configuration-manager.php',
 			'class_name' => 'Jetpack_Configuration_Manager',
 		],
-		'amp'             => [
+		'amp'                   => [
 			'filename'   => 'class-amp-configuration-manager.php',
 			'class_name' => 'AMP_Configuration_Manager',
 		],
-		'google-site-kit' => [
+		'google-site-kit'       => [
 			'filename'   => 'class-site-kit-configuration-manager.php',
 			'class_name' => 'Site_Kit_Configuration_Manager',
 		],
-		'progressive-wp'  => [
+		'progressive-wp'        => [
 			'filename'   => 'class-progressive-wp-configuration-manager.php',
 			'class_name' => 'Progressive_WP_Configuration_Manager',
 		],
-		'newspack-ads'    => [
+		'newspack-ads'          => [
 			'filename'   => 'class-newspack-ads-configuration-manager.php',
 			'class_name' => 'Newspack_Ads_Configuration_Manager',
 		],
-		'woocommerce'     => [
+		'newspack-popups'       => [
+			'filename'   => 'class-newspack-popups-configuration-manager.php',
+			'class_name' => 'Newspack_Popups_Configuration_Manager',
+		],
+		'woocommerce'           => [
 			'filename'   => 'class-woocommerce-configuration-manager.php',
 			'class_name' => 'WooCommerce_Configuration_Manager',
-		]
+		],
+		'newspack-theme'        => [
+			'filename'   => 'class-newspack-theme-configuration-manager.php',
+			'class_name' => 'Newspack_Theme_Configuration_Manager',
+		],
+		'publish-to-apple-news' => [
+			'filename'   => 'class-publish-to-apple-news-configuration-manager.php',
+			'class_name' => 'Publish_To_Apple_News_Configuration_Manager',
+		],
+		'laterpay'              => [
+			'filename'   => 'class-laterpay-configuration-manager.php',
+			'class_name' => 'LaterPay_Configuration_Manager',
+		],
+		'wordpress_seo'         => [
+			'filename'   => 'class-wordpress-seo-configuration-manager.php',
+			'class_name' => 'WordPress_SEO_Configuration_Manager',
+		],
 	];
 
 	/**

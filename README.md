@@ -1,6 +1,8 @@
 # Newspack
 
-Welcome to the Newspack plugin repository on GitHub. Here you can browse the source, look at open issues and keep track of development. We also recommend everyone [follow the Newspack blog](https://newspack.blog/) to stay up to date about everything happening in the project.
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![newspack-plugin](https://circleci.com/gh/Automattic/newspack-plugin/tree/master.svg?style=shield)](https://circleci.com/gh/Automattic/newspack-plugin)
+
+Welcome to the Newspack plugin repository on GitHub. Here you can browse the source, look at open issues and keep track of development. We also recommend everyone [follow the Newspack blog](https://newspack.pub/) to stay up to date about everything happening in the project.
 
 The Newspack plugin provides tools and guidance for setting up and managing the important features and plugins a modern newsroom needs.
 
@@ -17,6 +19,33 @@ To disclose a security issue to our team, [please submit a report via HackerOne 
 ## Contributing to Newspack
 
 If you have a patch or have stumbled upon an issue with the Newspack plugin/theme, you can contribute this back to the code. [Please read our contributor guidelines for more information on how you can do this.](https://github.com/Automattic/newspack-plugin/blob/master/.github/CONTRIBUTING.md)
+
+### Development
+
+- Run `npm start` to compile the SCSS and JS files, and start file watcher.
+- Run `npm run build` to perform a single compilation run.
+
+#### Environment variables
+
+Some features require environment variables to be set (e.g. in `wp-config.php`):
+
+```php
+// support
+define('NEWSPACK_SUPPORT_API_URL', 'https://super-tech-support.zendesk.com/api/v2');
+define('NEWSPACK_SUPPORT_EMAIL', 'support@company.com');
+define('NEWSPACK_WPCOM_CLIENT_ID', '12345');
+// optional
+define('NEWSPACK_SUPPORT_IS_PRE_LAUNCH', true);
+
+// payments
+define( 'NEWSPACK_STRIPE_PLAN', 'plan_...' );
+```
+
+## News Consumer Insights integration
+
+[News Consumer Insights](https://newsinitiative.withgoogle.com/training/datatools) is a Google Analytics based solution for measuring performance of site audience using benchmarks and getting actionable recommendations to improve business gaps.
+
+This plugin reports NCI events to a Google Analytics account, if one is connected via the Site Kit plugin. We're working on supporting [all applicable NCI events](https://newsinitiative.withgoogle.com/training/states/ntg/assets/ntg-playbook.pdf#page=245). The implementation is in `includes/class-analytics.php` file.
 
 ## Support or Questions
 

@@ -1,67 +1,152 @@
 /**
- * Card styles.
+ * Card
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
 
-.muriel-card {
-	background: $muriel-white;
-	border-radius: 3px;
-	box-shadow: 0px 1px 1px rgba( 0, 0, 0, 0.25 );
-	margin: 0 auto 10px auto;
+.newspack-card {
+	background: white;
+	border-radius: 4px;
+	box-shadow: 0 8px 16px rgba( black, 0.08 );
+	color: $dark-gray-300;
+	font-size: 14px;
+	line-height: 24px;
+	margin: 32px 0;
+	padding: 16px 48px;
 
-	max-width: calc( 682px - 62px );
-	padding: 31px;
-
-	&.is_clickable {
-		cursor: pointer;
-		&:hover {
-			box-shadow: 0px 5px 5px rgba( 0, 0, 0, 0.2 ), 0px 3px 14px rgba( 0, 0, 0, 0.12 ), 0px 8px 10px rgba( 0, 0, 0, 0.14 );
-		}
+	@media screen and ( min-width: 744px ) {
+		padding: 32px 64px;
 	}
 
-	&.muriel-card__no-background {
+	// No Background
+
+	&__no-background {
 		background: none;
 		box-shadow: none;
 		padding: 0;
-		max-width: 682px;
 	}
-	@media screen and ( max-width: 1040px ) {
-		max-width: calc( 642px - 58px );
-		padding-left: 29px;
-		padding-right: 29px;
-		&.muriel-card__no-background {
-			width: 642px;
-		}
-	}
-	@media screen and ( max-width: 660px ) {
-		max-width: calc( 100% - 68px );
-		padding: 10px;
-		margin-left: 24px;
-		margin-right: 24px;
-		&.muriel-card__no-background {
-			width: calc( 100% - 48px );
-		}
-		.muriel-card {
-			margin-left: 0;
-			margin-right: 0;
-			max-width: calc( 100% - 20px );
-			width: 100%;
+
+	// Buttons Card
+
+	&__buttons-card {
+		margin: 24px -8px;
+
+		.newspack-button {
+			margin: 8px;
 		}
 	}
-	&.muriel-grid-item {
-		max-width: none;
-		width: auto;
-		grid-column: 3 / span 8;
-		margin: 0;
-		margin-bottom: 10px;
-		@media screen and ( max-width: 1040px ) {
-			max-width: none;
-			grid-column: 2 / span 6;
+
+	// Is Clickable
+
+	&__is-clickable {
+		cursor: pointer;
+		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
+
+		&:hover {
+			box-shadow: 0 8px 16px rgba( black, 0.16 );
+			transform: translateY( -4px );
 		}
-		@media screen and ( max-width: 660px ) {
-			max-width: none;
-			grid-column: 1 / span 4;
+	}
+
+	// Typography
+
+	h2,
+	p {
+		line-height: 24px;
+		margin: 32px 0;
+		padding: 0;
+	}
+
+	h2 {
+		color: $dark-gray-900;
+		font-size: 17px;
+		font-weight: bold;
+	}
+
+	p {
+		font-size: 14px;
+
+		&.is-dark {
+			color: $dark-gray-900;
+		}
+	}
+
+	strong {
+		font-weight: bold;
+	}
+
+	small {
+		font-size: 12px;
+		line-height: 16px;
+	}
+
+	// Thematic Break
+
+	hr {
+		background: $light-gray-500;
+		border: 0;
+		height: 1px;
+		margin: 48px -48px;
+
+		@media screen and ( min-width: 744px ) {
+			margin: 64px -64px;
+		}
+	}
+
+	// Links
+
+	a {
+		color: $primary-500;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $primary-600;
+			text-decoration: none;
+		}
+
+		&:focus {
+			box-shadow: none;
+			outline: 2px solid $primary-500;
+			outline-offset: 2px;
+		}
+	}
+
+	// Preview
+
+	&.newspack-card-preview {
+		background: $light-gray-100;
+		border: 1px solid $light-gray-500;
+		border-radius: 0 3px 3px;
+		margin-top: 56px;
+		padding: 11px 8px;
+		position: relative;
+
+		.newspack-card-preview__label {
+			background: white;
+			border: 1px solid $light-gray-500;
+			border-radius: 3px 3px 0 0;
+			display: block;
+			font-size: 12px;
+			font-weight: bold;
+			left: -1px;
+			line-height: 22px;
+			padding: 0 8px;
+			position: absolute;
+			top: -24px;
+			text-transform: uppercase;
+		}
+
+		.newspack-card-preview__title,
+		.newspack-card-preview__content {
+			display: block;
+		}
+
+		.newspack-card-preview__title {
+			color: $dark-gray-900;
+			font-size: 17px;
+			font-weight: bold;
 		}
 	}
 }

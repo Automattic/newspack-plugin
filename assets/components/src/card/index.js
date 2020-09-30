@@ -1,5 +1,5 @@
 /**
- * Muriel-styled Card.
+ * Card
  */
 
 /**
@@ -10,24 +10,24 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import murielClassnames from '../../../shared/js/muriel-classnames';
+import './style.scss';
 
 /**
- * Internal dependencies
+ * External dependencies
  */
-import './style.scss';
+import classNames from 'classnames';
 
 class Card extends Component {
 	/**
-	 * Render.
+	 * Render
 	 */
 	render() {
-		const { className, noBackground, ...otherProps } = this.props;
-		const classes = murielClassnames(
-			'muriel-card',
-			'muriel-grid-item',
+		const { className, noBackground, buttonsCard, ...otherProps } = this.props;
+		const classes = classNames(
+			'newspack-card',
 			className,
-			noBackground && 'muriel-card__no-background'
+			noBackground && 'newspack-card__no-background',
+			buttonsCard && 'newspack-card__buttons-card'
 		);
 		return <div className={ classes } { ...otherProps } />;
 	}

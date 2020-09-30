@@ -21,9 +21,8 @@ class AdPicker extends Component {
 	adUnitsForSelect = adUnits => {
 		return [
 			{
-				label: __( 'Select an ad unit' ),
+				label: '---',
 				value: null,
-				disabled: true,
 			},
 			...Object.values( adUnits ).map( adUnit => {
 				return {
@@ -37,9 +36,8 @@ class AdPicker extends Component {
 	adServicesForSelect = services => {
 		return [
 			{
-				label: __( 'Select an ad provider' ),
+				label: '---',
 				value: null,
-				disabled: true,
 			},
 			...Object.keys( services )
 				.map(
@@ -75,14 +73,14 @@ class AdPicker extends Component {
 					label={ __( 'Ad Provider' ) }
 					value={ service || '' }
 					options={ this.adServicesForSelect( services ) }
-					onChange={ service => onChange( { ...value, service } ) }
+					onChange={ _service => onChange( { ...value, service: _service } ) }
 				/>
 				{ this.needsAdUnit( value ) && (
 					<SelectControl
 						label={ __( 'Ad Unit' ) }
 						value={ adUnit || '' }
 						options={ this.adUnitsForSelect( adUnits ) }
-						onChange={ adUnit => onChange( { ...value, adUnit } ) }
+						onChange={ _adUnit => onChange( { ...value, adUnit: _adUnit } ) }
 					/>
 				) }
 			</div>

@@ -1,144 +1,287 @@
 /**
- * Button styles,
+ * Action Card
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/colors';
 
-.newspack-action-card {
-	/* General styles */
+.newspack-card.newspack-action-card {
+	box-shadow: 0 4px 8px rgba( black, 0.08 );
+	padding: 24px;
 
-	color: $muriel-gray-300;
-	font-size: 14px;
+	// Clickable
 
-	h1,
-	h2 {
-		font-weight: normal;
+	&.newspack-card__is-clickable {
+		transition: box-shadow 125ms ease-in-out;
+
+		&:hover {
+			box-shadow: 0 4px 8px rgba( black, 0.24 );
+		}
+	}
+
+	// Unsupported
+
+	&.newspack-card__is-unsupported {
+		border-left: 4px solid $alert-red;
+	}
+
+	// Supported
+
+	&.newspack-card__is-supported {
+		border-left: 4px solid $alert-green;
+	}
+
+	// Primary
+
+	&.newspack-card__is-primary {
+		border-left: 4px solid $primary-500;
+	}
+
+	// Secondary
+
+	&.newspack-card__is-secondary {
+		border-left: 4px solid orange;
+	}
+
+	// Disabled
+
+	&.newspack-card__is-disabled {
+		border-left: 4px solid $light-gray-700;
+	}
+
+	// Small
+	&.is-small {
+		padding: 8px 16px;
+
+		h2 {
+			font-size: 14px;
+		}
+
+		p,
+		.newspack-action-card__region-right,
+		.newspack-action-card__primary_button {
+			font-size: 12px;
+			line-height: 16px;
+		}
+
+		.newspack-form-token-field {
+			margin: 8px 0 0;
+
+			label {
+				font-size: 12px;
+				line-height: 16px;
+			}
+		}
+
+		& + & {
+			margin-top: -24px;
+		}
+	}
+
+	// Typography
+
+	h2,
+	p {
 		margin: 0;
-		padding: 0;
-	}
-
-	h1 {
-		color: $muriel-gray-900;
-		font-size: 16px;
-		line-height: 21px;
+		max-width: 100%;
+		width: 100%;
 	}
 
 	h2 {
-		color: $muriel-gray-600;
-		font-size: 14px;
-		line-height: 16px;
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		margin-right: -8px;
+
+		.newspack-action-card__title {
+			margin-right: 8px;
+		}
 	}
 
-	/* Regions */
+	// Regions
 
 	.newspack-action-card__region {
-		align-items: flex-start;
+		align-items: center;
 		display: flex;
-		flex-direction: column;
-		flex-grow: 0;
+		justify-content: space-between;
 		margin: 0;
 	}
 
 	.newspack-action-card__region-top {
-		display: flex;
-		flex-direction: row;
+		display: block;
+
+		@media screen and ( min-width: 744px ) {
+			display: flex;
+		}
 	}
 
 	.newspack-action-card__region-left {
-		margin-right: 1.5em;
+		margin-bottom: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-bottom: 0;
+			margin-right: 24px;
+		}
 	}
 
 	.newspack-action-card__region-center {
-		flex-grow: 1;
+		align-items: flex-start;
+		flex: 1 1 auto;
+		flex-wrap: wrap;
 	}
 
 	.newspack-action-card__region-right {
-		align-items: flex-end;
-		align-self: center;
-		margin-left: 1.5em;
+		align-items: flex-start;
+		flex-direction: column;
+		margin-top: 24px;
+		text-align: right;
+
+		@media screen and ( min-width: 744px ) {
+			align-items: flex-end;
+			flex-direction: column;
+			margin-left: 24px;
+			margin-top: 0;
+		}
+
+		> * {
+			text-align: inherit;
+		}
 	}
 
-	/* Spinner */
+	// Waiting
 
 	.newspack-action-card__container {
 		display: flex;
 	}
 
-	.components-spinner {
-		margin-top: 0;
-		margin-bottom: 0;
-		min-width: 18px;
-	}
-
-	/* Notifications */
+	// Notifications
 
 	.newspack-action-card__notification {
-		margin: 14px 0 0 0;
-		p:before {
-			margin-right: 6px;
+		.newspack-notice {
+			margin: 24px 0 0;
 		}
 	}
 
-	/* Image */
+	// Image
 
 	.newspack-action-card__image {
 		background-position: center;
 		background-repeat: no-repeat;
 		background-size: cover;
-		border: 1px solid $muriel-gray-400;
 		border-radius: 50%;
-		height: 32px;
-		width: 32px;
+		height: 48px;
+		width: 48px;
 	}
 
-	/* ToggleControl */
+	// Icon
+
+	.newspack_plugin-installer__icon {
+		margin: 0;
+	}
+
+	// Toggle Control
 
 	.components-toggle-control {
-		align-self: center;
-		margin-right: 1em;
+		margin-bottom: 24px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-bottom: 0;
+			margin-right: 24px;
+		}
+
 		.components-base-control__field {
 			margin-bottom: 0;
 		}
+
+		.components-form-toggle {
+			display: flex;
+			margin: 0;
+		}
 	}
 
-	/* ToggleControl */
+	// Buttons
 
-	.components-toggle-control {
-		align-self: center;
-		margin-right: 1em;
-	}
+	.newspack-button {
+		&.newspack-action-card__secondary_button {
+			&.is-link {
+				color: $alert-red;
 
-	/* Buttons */
-
-	button.is-link {
-		color: $muriel-blue-500;
-	}
-
-	button.newspack-action-card__secondary_button {
-		visibility: hidden;
-		&.is-link {
-			color: $muriel-hot-red-600;
-			&:hover {
-				color: $muriel-hot-red-500;
+				&:active,
+				&:focus,
+				&:hover {
+					color: darken( $alert-red, 20% );
+				}
 			}
 		}
 	}
 
-	&:hover button.newspack-action-card__secondary_button {
-		visibility: visible;
+	// Badge
+
+	.newspack-action-card__badge {
+		border: 1px solid $light-gray-500;
+		border-radius: 12px;
+		display: block;
+		flex: 0 0 auto;
+		font-size: 12px;
+		font-weight: bold;
+		line-height: 16px;
+		margin: 3px 8px 3px 0;
+		padding: 0 8px;
+		text-transform: uppercase;
 	}
 
-	/* Badge */
+	// Description Card
 
-	.newspack-action-card-badge {
-		border: 1px solid $muriel-gray-500;
-		border-radius: 3px;
-		color: $muriel-gray-500;
-		font-size: 9px;
-		font-weight: bold;
-		margin: 0 0 0 2em;
-		padding: 1px 8px;
-		text-transform: uppercase;
-		vertical-align: middle;
+	&.newspack-description-card {
+		font-style: italic;
+	}
+
+	// Form Token Field
+
+	.newspack-form-token-field {
+		margin: 16px 0 0;
+	}
+
+	// Multiple Cards
+
+	& + & {
+		margin-top: -16px;
+	}
+}
+
+.newspack-card:not( .newspack-card__no-background ) {
+	.newspack-card.newspack-action-card {
+		border: 1px solid $light-gray-200;
+		box-shadow: none;
+
+		// Unsupported
+
+		&.newspack-card__is-unsupported {
+			border-left: 4px solid $alert-red;
+		}
+
+		// Supported
+
+		&.newspack-card__is-supported {
+			border-left: 4px solid $alert-green;
+		}
+
+		// Primary
+
+		&.newspack-card__is-primary {
+			border-left: 4px solid $primary-500;
+		}
+
+		// Primary
+
+		&.newspack-card__is-secondary {
+			border-left: 4px solid orange;
+		}
+
+		// Disabled
+
+		&.newspack-card__is-disabled {
+			border-left: 4px solid $light-gray-700;
+		}
 	}
 }

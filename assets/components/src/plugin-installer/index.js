@@ -1,5 +1,5 @@
 /**
- * Progress bar for displaying visual feedback about steps-completed.
+ * Plugin Installer
  */
 
 /**
@@ -7,20 +7,29 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Dashicon } from '@wordpress/components';
+
+/**
+ * Material UI dependencies.
+ */
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, ProgressBar } from '../';
+import { ActionCard, Button, ProgressBar, Waiting } from '../';
 import './style.scss';
 
 const PLUGIN_STATE_NONE = 0;
 const PLUGIN_STATE_ACTIVE = 1;
 const PLUGIN_STATE_INSTALLING = 2;
 const PLUGIN_STATE_ERROR = 3;
+
+/**
+ * External dependencies.
+ */
+import classnames from 'classnames';
 
 /**
  * Plugin installer.
@@ -30,6 +39,7 @@ class PluginInstaller extends Component {
 		super( ...arguments );
 		this.state = {
 			pluginInfo: {},
+			installationInitialized: false,
 		};
 	}
 
@@ -37,22 +47,30 @@ class PluginInstaller extends Component {
 		const { plugins } = this.props;
 		this.retrievePluginInfo( plugins ).then( () => {
 			const { asProgressBar, autoInstall } = this.props;
-			if ( asProgressBar || autoInstall ) this.installAllPlugins();
+			if ( asProgressBar || autoInstall ) {
+				this.installAllPlugins();
+			}
 		} );
 	};
 
 	componentDidUpdate = prevProps => {
-		const { plugins } = this.props;
+		const { autoInstall, plugins } = this.props;
+		const { installationInitialized } = this.state;
 		if ( plugins !== prevProps.plugins ) {
 			this.retrievePluginInfo( plugins );
+		}
+		if ( autoInstall && ! installationInitialized ) {
+			this.installAllPlugins();
 		}
 	};
 
 	retrievePluginInfo = plugins => {
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( resolve => {
 			apiFetch( { path: '/newspack/v1/plugins/' } ).then( response => {
 				const pluginInfo = Object.keys( response ).reduce( ( result, slug ) => {
-					if ( plugins.indexOf( slug ) === -1 ) return result;
+					if ( plugins.indexOf( slug ) === -1 ) {
+						return result;
+					}
 					result[ slug ] = {
 						...response[ slug ],
 						installationStatus:
@@ -67,6 +85,7 @@ class PluginInstaller extends Component {
 
 	installAllPlugins = () => {
 		const { pluginInfo } = this.state;
+		this.setState( { installationInitialized: true } );
 		const promises = Object.keys( pluginInfo )
 			.filter( slug => 'active' !== pluginInfo[ slug ].Status )
 			.map( slug => () => this.installPlugin( slug ) );
@@ -93,7 +112,6 @@ class PluginInstaller extends Component {
 			} )
 			.catch( error => {
 				this.setInstallationStatus( slug, PLUGIN_STATE_ERROR, error.message );
-				return;
 			} );
 	};
 
@@ -111,10 +129,9 @@ class PluginInstaller extends Component {
 	};
 
 	updatePluginInfo = pluginInfo => {
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( resolve => {
 			const { onStatus } = this.props;
 			this.setState( { pluginInfo }, () => {
-				const { pluginInfo } = this.state;
 				const complete = Object.values( pluginInfo ).every( plugin => {
 					return 'active' === plugin.Status;
 				} );
@@ -124,31 +141,62 @@ class PluginInstaller extends Component {
 		} );
 	};
 
+	classForInstallationStatus = status => {
+		switch ( status ) {
+			case PLUGIN_STATE_ACTIVE:
+				return 'newspack-plugin-installer__status-active';
+			case PLUGIN_STATE_INSTALLING:
+				return 'newspack-plugin-installer__status-installing';
+			case PLUGIN_STATE_ERROR:
+				return 'newspack-plugin-installer__status-error';
+			default:
+				return 'newspack-plugin-installer__status-none';
+		}
+	};
+
 	/**
 	 * Render.
 	 */
 	render() {
-		const { asProgressBar, autoInstall } = this.props;
+		const { asProgressBar, autoInstall, isSmall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
-		const needsInstall = slugs.some( slug => {
+
+		// Store all plugin status info for installer button text value based on current status.
+		const currentPluginStatuses = [];
+		slugs.forEach( slug => {
 			const plugin = pluginInfo[ slug ];
-			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
+			currentPluginStatuses.push( plugin.Status );
 		} );
+
+		// Make sure plugin status falls in either one of these, to handle button text.
+		const pluginInstalled = currentStatus =>
+			currentStatus === 'active' || currentStatus === 'inactive';
+
+		const buttonText = currentPluginStatuses.every( pluginInstalled )
+			? __( 'Activate' )
+			: __( 'Install' );
+
 		if ( asProgressBar ) {
 			const completed = slugs.reduce(
-				( completed, slug ) =>
-					'active' === pluginInfo[ slug ].Status ? completed + 1 : completed,
+				( _completed, slug ) =>
+					'active' === pluginInfo[ slug ].Status ? _completed + 1 : _completed,
 				0
 			);
 			return slugs.length > 0 && <ProgressBar completed={ completed } total={ slugs.length } />;
 		}
+
+		const needsInstall = slugs.some( slug => {
+			const plugin = pluginInfo[ slug ];
+			return plugin.Status !== 'active' && plugin.installationStatus === PLUGIN_STATE_NONE;
+		} );
+
 		return (
 			<div>
-				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length )  && (
-					<div className="newspack-plugin-installer_waiting">
-						<p>{ __( 'Retrieving plugin information...') }</p>
-						<Spinner />
+				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
+					<div className="newspack-plugin-installer_is-waiting">
+						<Waiting isLeft />
+						{ __( 'Retrieving plugin information...' ) }
 					</div>
 				) }
 				{ pluginInfo &&
@@ -160,10 +208,34 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Setting up...' );
+							actionText = __( 'Installing...' );
+						} else if ( Status === 'uninstalled' ) {
+							actionText = (
+								<span className="newspack-plugin-installer__status">
+									{ __( 'Install' ) }
+									<RadioButtonUncheckedIcon />
+								</span>
+							);
+						} else if ( Status === 'inactive' ) {
+							actionText = (
+								<span className="newspack-plugin-installer__status">
+									{ __( 'Activate' ) }
+									<RadioButtonUncheckedIcon />
+								</span>
+							);
 						} else if ( Status === 'active' ) {
-							actionText = <Dashicon icon="yes" className="newspack_plugin-installer__icon" />;
+							actionText = (
+								<span className="newspack-plugin-installer__status">
+									{ __( 'Installed' ) }
+									<CheckCircleIcon />
+								</span>
+							);
 						}
+
+						const classes = classnames(
+							'newspack-action-card__plugin-installer',
+							this.classForInstallationStatus( installationStatus )
+						);
 						const onClick = isButton ? () => this.installPlugin( slug ) : null;
 						return (
 							<ActionCard
@@ -171,23 +243,23 @@ class PluginInstaller extends Component {
 								title={ Name }
 								description={ Description }
 								actionText={ actionText }
+								isSmall={ isSmall }
 								isWaiting={ isWaiting }
 								onClick={ onClick }
 								notification={ notification }
 								notificationLevel="error"
+								notificationHTML
+								className={ classes }
 							/>
 						);
 					} ) }
-					{ ! autoInstall && pluginInfo && slugs.length > 0 && (
-						<Button
-							disabled={ ! needsInstall }
-							isPrimary
-							className="is-centered"
-							onClick={ this.installAllPlugins }
-						>
-							{ __( 'Install' ) }
+				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
+					<div className="newspack-buttons-card">
+						<Button disabled={ ! needsInstall } isPrimary onClick={ this.installAllPlugins }>
+							{ buttonText }
 						</Button>
-					) }
+					</div>
+				) }
 			</div>
 		);
 	}
@@ -195,6 +267,6 @@ class PluginInstaller extends Component {
 
 PluginInstaller.defaultProps = {
 	onStatus: () => {},
-}
+};
 
 export default PluginInstaller;

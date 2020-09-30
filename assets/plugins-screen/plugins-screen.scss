@@ -7,7 +7,7 @@
  */
 table.plugins {
 	.newspack-plugin {
-		&.uninstalled .check-column input[type="checkbox"] {
+		&.uninstalled .check-column input[type='checkbox'] {
 			display: none;
 		}
 	}

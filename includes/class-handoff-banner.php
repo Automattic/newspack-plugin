@@ -68,9 +68,9 @@ class Handoff_Banner {
 		);
 
 		$script_info = [
-			'text' => __( 'Click to return to Newspack after completing configuration.', 'newspack' ),
+			'text'       => __( 'Click to return to Newspack after completing configuration.', 'newspack' ),
 			'buttonText' => __( 'Back to Newspack', 'newspack' ),
-			'returnURL' => esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL, '' ) ),
+			'returnURL'  => esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL, '' ) ),
 		];
 		wp_localize_script( $handle, 'newspack_handoff', $script_info );
 		wp_enqueue_script( $handle );
@@ -86,17 +86,35 @@ class Handoff_Banner {
 		$handle = 'newspack-handoff-banner';
 		wp_register_style(
 			$handle,
-			Newspack::plugin_url() . '/assets/dist/handoff-banner.css',
+			Newspack::plugin_url() . '/dist/handoff-banner.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/handoff-banner.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/handoff-banner.css' )
 		);
 		wp_enqueue_style( $handle );
 
 		wp_register_script(
+			'newspack_commons',
+			Newspack::plugin_url() . '/dist/commons.js',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.js' ),
+			true
+		);
+		wp_enqueue_script( 'newspack_commons' );
+
+		wp_register_style(
+			'newspack-commons',
+			Newspack::plugin_url() . '/dist/commons.css',
+			[ 'wp-components' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.css' )
+		);
+		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-commons' );
+
+		wp_register_script(
 			$handle,
-			Newspack::plugin_url() . '/assets/dist/handoff-banner.js',
+			Newspack::plugin_url() . '/dist/handoff-banner.js',
 			[ 'wp-element', 'wp-editor', 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/handoff-banner.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/handoff-banner.js' ),
 			true
 		);
 		wp_enqueue_script( $handle );
@@ -106,7 +124,8 @@ class Handoff_Banner {
 	/**
 	 * Register the slug of plugin that is about to be visited.
 	 *
-	 * @param  array $plugin Slug of plugin to be visited.
+	 * @param  array   $plugin Slug of plugin to be visited.
+	 * @param  boolean $show_on_block_editor Whether to show on block editor.
 	 * @return void
 	 */
 	public static function register_handoff_for_plugin( $plugin, $show_on_block_editor = false ) {

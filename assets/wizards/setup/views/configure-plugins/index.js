@@ -6,14 +6,12 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Dashicon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { withWizardScreen } from '../../../../components/src';
-import './style.scss';
+import { withWizardScreen, Notice } from '../../../../components/src';
 
 /**
  * External dependencies
@@ -37,6 +35,10 @@ class ConfigurePlugins extends Component {
 		return (
 			<div className="newspack-setup__configure-plugin">
 				<div className={ classNames }>
+					<h2>
+						{ 'jetpack' === plugin && 'Jetpack' }
+						{ 'google-site-kit' === plugin && 'Google Site Kit' }
+					</h2>
 					<p>
 						{ 'jetpack' === plugin &&
 							__(
@@ -44,14 +46,11 @@ class ConfigurePlugins extends Component {
 							) }
 						{ 'google-site-kit' === plugin &&
 							__(
-								'The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.'
+								'The one-stop solution to deploy, manage, and get insights from critical Google tools to make the site successful on the web.'
 							) }
 					</p>
 					{ pluginConfigured && (
-						<div className="newspack-service-link_status-container">
-							<Dashicon icon="yes" className="checklist__task-icon" />
-							{ __( 'Plugin configuration complete' ) }
-						</div>
+						<Notice isSuccess noticeText={ __( 'Plugin configuration complete' ) } />
 					) }
 				</div>
 			</div>

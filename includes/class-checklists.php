@@ -33,16 +33,7 @@ class Checklists {
 		 *     wizards: An array of wizard slugs in desired order, corresponding to slugs registered in Wizards class.
 		 */
 		self::$checklists = [
-			'reader-revenue' => [
-				'name'        => esc_html__( 'Reader Revenue', 'newspack' ),
-				'description' => esc_html__( 'Here are a few things to do to easily set up your membership revenue business model.', 'newspack' ),
-				'wizards'     => [
-					'reader-revenue-onboarding',
-					'subscriptions' === Reader_Revenue_Onboarding_Wizard::get_revenue_model() ? 'subscriptions' : 'donations',
-					'memberships-page'
-				],
-			],
-			'engagement'     => [
+			'engagement' => [
 				'name'        => esc_html__( 'Engagement', 'newspack' ),
 				'description' => esc_html__( 'How do you want your audience to engage with your publication?', 'newspack' ),
 				'wizards'     => [
@@ -238,9 +229,9 @@ class Checklists {
 
 		wp_register_script(
 			'newspack-checklist',
-			Newspack::plugin_url() . '/assets/dist/checklist.js',
+			Newspack::plugin_url() . '/dist/checklist.js',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/checklist.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/checklist.js' ),
 			true
 		);
 		wp_localize_script( 'newspack-checklist', 'newspack_checklist', $checklist_data );
@@ -248,9 +239,9 @@ class Checklists {
 
 		wp_register_style(
 			'newspack-checklist',
-			Newspack::plugin_url() . '/assets/dist/checklist.css',
+			Newspack::plugin_url() . '/dist/checklist.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/checklist.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/checklist.css' )
 		);
 		wp_style_add_data( 'newspack-checklist', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-checklist' );

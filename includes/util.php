@@ -9,6 +9,9 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+define( 'NEWSPACK_API_NAMESPACE', 'newspack/v1' );
+define( 'NEWSPACK_API_URL', get_site_url() . '/wp-json/' . NEWSPACK_API_NAMESPACE );
+
 /**
  * Clean variables using sanitize_text_field. Arrays are cleaned recursively.
  * Non-scalar values are ignored.
@@ -35,217 +38,174 @@ function newspack_string_to_bool( $string ) {
 }
 
 /**
- * Activate the Newspack theme (installing it if necessary).
- *
- * @return bool | WP_Error True on success. WP_Error on failure.
- */
-function newspack_install_activate_theme() {
-	$theme_slug = 'newspack-theme';
-	$theme_url  = 'https://github.com/Automattic/newspack-theme/archive/master.zip';
-
-	$theme_object = wp_get_theme( $theme_slug );
-	if ( ! $theme_object->exists() ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		include_once ABSPATH . 'wp-admin/includes/theme.php';
-		WP_Filesystem();
-
-		$skin     = new \Automatic_Upgrader_Skin();
-		$upgrader = new \Theme_Upgrader( $skin );
-		$success  = $upgrader->install( $theme_url );
-
-		if ( is_wp_error( $success ) ) {
-			return $success;
-		} else if ( $success ) {
-			// Make sure `-master` or `-1.0.1` etc. are not in the theme folder name.
-			// We just want the folder name to be the theme slug.
-			$theme_object    = $upgrader->theme_info();
-			$theme_folder    = $theme_object->get_template_directory();
-			$expected_folder = $theme_object->get_theme_root() . '/' . $theme_slug;
-			if ( $theme_folder !== $expected_folder ) {
-				rename( $theme_folder, $expected_folder );
-			}
-		} else {
-			return new \WP_Error(
-				'newspack_theme_failed_install',
-				__( 'Newspack theme installation failed.', 'newspack' )
-			);
-		}
-	}
-
-	switch_theme( $theme_slug );
-	return true;
-}
-
-/**
  * Get full list of currency codes. Copied from https://github.com/woocommerce/woocommerce/blob/master/includes/wc-core-functions.php
  *
  * @return array
  */
 function newspack_currencies() {
 	$currencies = array(
-		'AED' => __( 'United Arab Emirates dirham', 'newspack' ),
 		'AFN' => __( 'Afghan afghani', 'newspack' ),
 		'ALL' => __( 'Albanian lek', 'newspack' ),
-		'AMD' => __( 'Armenian dram', 'newspack' ),
-		'ANG' => __( 'Netherlands Antillean guilder', 'newspack' ),
+		'DZD' => __( 'Algerian dinar', 'newspack' ),
 		'AOA' => __( 'Angolan kwanza', 'newspack' ),
 		'ARS' => __( 'Argentine peso', 'newspack' ),
-		'AUD' => __( 'Australian dollar', 'newspack' ),
+		'AMD' => __( 'Armenian dram', 'newspack' ),
 		'AWG' => __( 'Aruban florin', 'newspack' ),
+		'AUD' => __( 'Australian dollar', 'newspack' ),
 		'AZN' => __( 'Azerbaijani manat', 'newspack' ),
-		'BAM' => __( 'Bosnia and Herzegovina convertible mark', 'newspack' ),
-		'BBD' => __( 'Barbadian dollar', 'newspack' ),
-		'BDT' => __( 'Bangladeshi taka', 'newspack' ),
-		'BGN' => __( 'Bulgarian lev', 'newspack' ),
-		'BHD' => __( 'Bahraini dinar', 'newspack' ),
-		'BIF' => __( 'Burundian franc', 'newspack' ),
-		'BMD' => __( 'Bermudian dollar', 'newspack' ),
-		'BND' => __( 'Brunei dollar', 'newspack' ),
-		'BOB' => __( 'Bolivian boliviano', 'newspack' ),
-		'BRL' => __( 'Brazilian real', 'newspack' ),
 		'BSD' => __( 'Bahamian dollar', 'newspack' ),
-		'BTC' => __( 'Bitcoin', 'newspack' ),
-		'BTN' => __( 'Bhutanese ngultrum', 'newspack' ),
-		'BWP' => __( 'Botswana pula', 'newspack' ),
+		'BHD' => __( 'Bahraini dinar', 'newspack' ),
+		'BDT' => __( 'Bangladeshi taka', 'newspack' ),
+		'BBD' => __( 'Barbadian dollar', 'newspack' ),
 		'BYR' => __( 'Belarusian ruble (old)', 'newspack' ),
 		'BYN' => __( 'Belarusian ruble', 'newspack' ),
 		'BZD' => __( 'Belize dollar', 'newspack' ),
+		'BMD' => __( 'Bermudian dollar', 'newspack' ),
+		'BTN' => __( 'Bhutanese ngultrum', 'newspack' ),
+		'BTC' => __( 'Bitcoin', 'newspack' ),
+		'VES' => __( 'Bol&iacute;var soberano', 'newspack' ),
+		'BOB' => __( 'Bolivian boliviano', 'newspack' ),
+		'BAM' => __( 'Bosnia and Herzegovina convertible mark', 'newspack' ),
+		'BWP' => __( 'Botswana pula', 'newspack' ),
+		'BRL' => __( 'Brazilian real', 'newspack' ),
+		'BND' => __( 'Brunei dollar', 'newspack' ),
+		'BGN' => __( 'Bulgarian lev', 'newspack' ),
+		'MMK' => __( 'Burmese kyat', 'newspack' ),
+		'BIF' => __( 'Burundian franc', 'newspack' ),
+		'XPF' => __( 'CFP franc', 'newspack' ),
+		'KHR' => __( 'Cambodian riel', 'newspack' ),
 		'CAD' => __( 'Canadian dollar', 'newspack' ),
-		'CDF' => __( 'Congolese franc', 'newspack' ),
-		'CHF' => __( 'Swiss franc', 'newspack' ),
+		'CVE' => __( 'Cape Verdean escudo', 'newspack' ),
+		'KYD' => __( 'Cayman Islands dollar', 'newspack' ),
+		'XAF' => __( 'Central African CFA franc', 'newspack' ),
 		'CLP' => __( 'Chilean peso', 'newspack' ),
 		'CNY' => __( 'Chinese yuan', 'newspack' ),
 		'COP' => __( 'Colombian peso', 'newspack' ),
+		'KMF' => __( 'Comorian franc', 'newspack' ),
+		'CDF' => __( 'Congolese franc', 'newspack' ),
 		'CRC' => __( 'Costa Rican col&oacute;n', 'newspack' ),
+		'HRK' => __( 'Croatian kuna', 'newspack' ),
 		'CUC' => __( 'Cuban convertible peso', 'newspack' ),
 		'CUP' => __( 'Cuban peso', 'newspack' ),
-		'CVE' => __( 'Cape Verdean escudo', 'newspack' ),
 		'CZK' => __( 'Czech koruna', 'newspack' ),
-		'DJF' => __( 'Djiboutian franc', 'newspack' ),
 		'DKK' => __( 'Danish krone', 'newspack' ),
+		'DJF' => __( 'Djiboutian franc', 'newspack' ),
 		'DOP' => __( 'Dominican peso', 'newspack' ),
-		'DZD' => __( 'Algerian dinar', 'newspack' ),
+		'XCD' => __( 'East Caribbean dollar', 'newspack' ),
 		'EGP' => __( 'Egyptian pound', 'newspack' ),
 		'ERN' => __( 'Eritrean nakfa', 'newspack' ),
 		'ETB' => __( 'Ethiopian birr', 'newspack' ),
 		'EUR' => __( 'Euro', 'newspack' ),
-		'FJD' => __( 'Fijian dollar', 'newspack' ),
 		'FKP' => __( 'Falkland Islands pound', 'newspack' ),
-		'GBP' => __( 'Pound sterling', 'newspack' ),
+		'FJD' => __( 'Fijian dollar', 'newspack' ),
+		'GMD' => __( 'Gambian dalasi', 'newspack' ),
 		'GEL' => __( 'Georgian lari', 'newspack' ),
-		'GGP' => __( 'Guernsey pound', 'newspack' ),
 		'GHS' => __( 'Ghana cedi', 'newspack' ),
 		'GIP' => __( 'Gibraltar pound', 'newspack' ),
-		'GMD' => __( 'Gambian dalasi', 'newspack' ),
-		'GNF' => __( 'Guinean franc', 'newspack' ),
 		'GTQ' => __( 'Guatemalan quetzal', 'newspack' ),
+		'GGP' => __( 'Guernsey pound', 'newspack' ),
+		'GNF' => __( 'Guinean franc', 'newspack' ),
 		'GYD' => __( 'Guyanese dollar', 'newspack' ),
-		'HKD' => __( 'Hong Kong dollar', 'newspack' ),
-		'HNL' => __( 'Honduran lempira', 'newspack' ),
-		'HRK' => __( 'Croatian kuna', 'newspack' ),
 		'HTG' => __( 'Haitian gourde', 'newspack' ),
+		'HNL' => __( 'Honduran lempira', 'newspack' ),
+		'HKD' => __( 'Hong Kong dollar', 'newspack' ),
 		'HUF' => __( 'Hungarian forint', 'newspack' ),
-		'IDR' => __( 'Indonesian rupiah', 'newspack' ),
-		'ILS' => __( 'Israeli new shekel', 'newspack' ),
-		'IMP' => __( 'Manx pound', 'newspack' ),
+		'ISK' => __( 'Icelandic kr&oacute;na', 'newspack' ),
 		'INR' => __( 'Indian rupee', 'newspack' ),
-		'IQD' => __( 'Iraqi dinar', 'newspack' ),
+		'IDR' => __( 'Indonesian rupiah', 'newspack' ),
 		'IRR' => __( 'Iranian rial', 'newspack' ),
 		'IRT' => __( 'Iranian toman', 'newspack' ),
-		'ISK' => __( 'Icelandic kr&oacute;na', 'newspack' ),
-		'JEP' => __( 'Jersey pound', 'newspack' ),
+		'IQD' => __( 'Iraqi dinar', 'newspack' ),
+		'ILS' => __( 'Israeli new shekel', 'newspack' ),
 		'JMD' => __( 'Jamaican dollar', 'newspack' ),
-		'JOD' => __( 'Jordanian dinar', 'newspack' ),
 		'JPY' => __( 'Japanese yen', 'newspack' ),
-		'KES' => __( 'Kenyan shilling', 'newspack' ),
-		'KGS' => __( 'Kyrgyzstani som', 'newspack' ),
-		'KHR' => __( 'Cambodian riel', 'newspack' ),
-		'KMF' => __( 'Comorian franc', 'newspack' ),
-		'KPW' => __( 'North Korean won', 'newspack' ),
-		'KRW' => __( 'South Korean won', 'newspack' ),
-		'KWD' => __( 'Kuwaiti dinar', 'newspack' ),
-		'KYD' => __( 'Cayman Islands dollar', 'newspack' ),
+		'JEP' => __( 'Jersey pound', 'newspack' ),
+		'JOD' => __( 'Jordanian dinar', 'newspack' ),
 		'KZT' => __( 'Kazakhstani tenge', 'newspack' ),
+		'KES' => __( 'Kenyan shilling', 'newspack' ),
+		'KWD' => __( 'Kuwaiti dinar', 'newspack' ),
+		'KGS' => __( 'Kyrgyzstani som', 'newspack' ),
 		'LAK' => __( 'Lao kip', 'newspack' ),
 		'LBP' => __( 'Lebanese pound', 'newspack' ),
-		'LKR' => __( 'Sri Lankan rupee', 'newspack' ),
-		'LRD' => __( 'Liberian dollar', 'newspack' ),
 		'LSL' => __( 'Lesotho loti', 'newspack' ),
+		'LRD' => __( 'Liberian dollar', 'newspack' ),
 		'LYD' => __( 'Libyan dinar', 'newspack' ),
-		'MAD' => __( 'Moroccan dirham', 'newspack' ),
-		'MDL' => __( 'Moldovan leu', 'newspack' ),
-		'MGA' => __( 'Malagasy ariary', 'newspack' ),
-		'MKD' => __( 'Macedonian denar', 'newspack' ),
-		'MMK' => __( 'Burmese kyat', 'newspack' ),
-		'MNT' => __( 'Mongolian t&ouml;gr&ouml;g', 'newspack' ),
 		'MOP' => __( 'Macanese pataca', 'newspack' ),
+		'MKD' => __( 'Macedonian denar', 'newspack' ),
+		'MGA' => __( 'Malagasy ariary', 'newspack' ),
+		'MWK' => __( 'Malawian kwacha', 'newspack' ),
+		'MYR' => __( 'Malaysian ringgit', 'newspack' ),
+		'MVR' => __( 'Maldivian rufiyaa', 'newspack' ),
+		'IMP' => __( 'Manx pound', 'newspack' ),
 		'MRO' => __( 'Mauritanian ouguiya', 'newspack' ),
 		'MUR' => __( 'Mauritian rupee', 'newspack' ),
-		'MVR' => __( 'Maldivian rufiyaa', 'newspack' ),
-		'MWK' => __( 'Malawian kwacha', 'newspack' ),
 		'MXN' => __( 'Mexican peso', 'newspack' ),
-		'MYR' => __( 'Malaysian ringgit', 'newspack' ),
+		'MDL' => __( 'Moldovan leu', 'newspack' ),
+		'MNT' => __( 'Mongolian t&ouml;gr&ouml;g', 'newspack' ),
+		'MAD' => __( 'Moroccan dirham', 'newspack' ),
 		'MZN' => __( 'Mozambican metical', 'newspack' ),
 		'NAD' => __( 'Namibian dollar', 'newspack' ),
-		'NGN' => __( 'Nigerian naira', 'newspack' ),
-		'NIO' => __( 'Nicaraguan c&oacute;rdoba', 'newspack' ),
-		'NOK' => __( 'Norwegian krone', 'newspack' ),
 		'NPR' => __( 'Nepalese rupee', 'newspack' ),
+		'ANG' => __( 'Netherlands Antillean guilder', 'newspack' ),
+		'TWD' => __( 'New Taiwan dollar', 'newspack' ),
 		'NZD' => __( 'New Zealand dollar', 'newspack' ),
+		'NIO' => __( 'Nicaraguan c&oacute;rdoba', 'newspack' ),
+		'NGN' => __( 'Nigerian naira', 'newspack' ),
+		'KPW' => __( 'North Korean won', 'newspack' ),
+		'NOK' => __( 'Norwegian krone', 'newspack' ),
 		'OMR' => __( 'Omani rial', 'newspack' ),
-		'PAB' => __( 'Panamanian balboa', 'newspack' ),
-		'PEN' => __( 'Sol', 'newspack' ),
-		'PGK' => __( 'Papua New Guinean kina', 'newspack' ),
-		'PHP' => __( 'Philippine peso', 'newspack' ),
 		'PKR' => __( 'Pakistani rupee', 'newspack' ),
-		'PLN' => __( 'Polish z&#x142;oty', 'newspack' ),
-		'PRB' => __( 'Transnistrian ruble', 'newspack' ),
+		'PAB' => __( 'Panamanian balboa', 'newspack' ),
+		'PGK' => __( 'Papua New Guinean kina', 'newspack' ),
 		'PYG' => __( 'Paraguayan guaran&iacute;', 'newspack' ),
+		'PHP' => __( 'Philippine peso', 'newspack' ),
+		'PLN' => __( 'Polish z&#x142;oty', 'newspack' ),
+		'GBP' => __( 'Pound sterling', 'newspack' ),
 		'QAR' => __( 'Qatari riyal', 'newspack' ),
 		'RON' => __( 'Romanian leu', 'newspack' ),
-		'RSD' => __( 'Serbian dinar', 'newspack' ),
 		'RUB' => __( 'Russian ruble', 'newspack' ),
 		'RWF' => __( 'Rwandan franc', 'newspack' ),
-		'SAR' => __( 'Saudi riyal', 'newspack' ),
-		'SBD' => __( 'Solomon Islands dollar', 'newspack' ),
-		'SCR' => __( 'Seychellois rupee', 'newspack' ),
-		'SDG' => __( 'Sudanese pound', 'newspack' ),
-		'SEK' => __( 'Swedish krona', 'newspack' ),
-		'SGD' => __( 'Singapore dollar', 'newspack' ),
-		'SHP' => __( 'Saint Helena pound', 'newspack' ),
-		'SLL' => __( 'Sierra Leonean leone', 'newspack' ),
-		'SOS' => __( 'Somali shilling', 'newspack' ),
-		'SRD' => __( 'Surinamese dollar', 'newspack' ),
-		'SSP' => __( 'South Sudanese pound', 'newspack' ),
 		'STD' => __( 'S&atilde;o Tom&eacute; and Pr&iacute;ncipe dobra', 'newspack' ),
-		'SYP' => __( 'Syrian pound', 'newspack' ),
+		'SHP' => __( 'Saint Helena pound', 'newspack' ),
+		'WST' => __( 'Samoan t&#x101;l&#x101;', 'newspack' ),
+		'SAR' => __( 'Saudi riyal', 'newspack' ),
+		'RSD' => __( 'Serbian dinar', 'newspack' ),
+		'SCR' => __( 'Seychellois rupee', 'newspack' ),
+		'SLL' => __( 'Sierra Leonean leone', 'newspack' ),
+		'SGD' => __( 'Singapore dollar', 'newspack' ),
+		'PEN' => __( 'Sol', 'newspack' ),
+		'SBD' => __( 'Solomon Islands dollar', 'newspack' ),
+		'SOS' => __( 'Somali shilling', 'newspack' ),
+		'ZAR' => __( 'South African rand', 'newspack' ),
+		'KRW' => __( 'South Korean won', 'newspack' ),
+		'SSP' => __( 'South Sudanese pound', 'newspack' ),
+		'LKR' => __( 'Sri Lankan rupee', 'newspack' ),
+		'SDG' => __( 'Sudanese pound', 'newspack' ),
+		'SRD' => __( 'Surinamese dollar', 'newspack' ),
 		'SZL' => __( 'Swazi lilangeni', 'newspack' ),
-		'THB' => __( 'Thai baht', 'newspack' ),
+		'SEK' => __( 'Swedish krona', 'newspack' ),
+		'CHF' => __( 'Swiss franc', 'newspack' ),
+		'SYP' => __( 'Syrian pound', 'newspack' ),
 		'TJS' => __( 'Tajikistani somoni', 'newspack' ),
-		'TMT' => __( 'Turkmenistan manat', 'newspack' ),
-		'TND' => __( 'Tunisian dinar', 'newspack' ),
-		'TOP' => __( 'Tongan pa&#x2bb;anga', 'newspack' ),
-		'TRY' => __( 'Turkish lira', 'newspack' ),
-		'TTD' => __( 'Trinidad and Tobago dollar', 'newspack' ),
-		'TWD' => __( 'New Taiwan dollar', 'newspack' ),
 		'TZS' => __( 'Tanzanian shilling', 'newspack' ),
-		'UAH' => __( 'Ukrainian hryvnia', 'newspack' ),
+		'THB' => __( 'Thai baht', 'newspack' ),
+		'TOP' => __( 'Tongan pa&#x2bb;anga', 'newspack' ),
+		'PRB' => __( 'Transnistrian ruble', 'newspack' ),
+		'TTD' => __( 'Trinidad and Tobago dollar', 'newspack' ),
+		'TND' => __( 'Tunisian dinar', 'newspack' ),
+		'TRY' => __( 'Turkish lira', 'newspack' ),
+		'TMT' => __( 'Turkmenistan manat', 'newspack' ),
 		'UGX' => __( 'Ugandan shilling', 'newspack' ),
+		'UAH' => __( 'Ukrainian hryvnia', 'newspack' ),
+		'AED' => __( 'United Arab Emirates dirham', 'newspack' ),
 		'USD' => __( 'United States (US) dollar', 'newspack' ),
 		'UYU' => __( 'Uruguayan peso', 'newspack' ),
 		'UZS' => __( 'Uzbekistani som', 'newspack' ),
-		'VEF' => __( 'Venezuelan bol&iacute;var', 'newspack' ),
-		'VES' => __( 'Bol&iacute;var soberano', 'newspack' ),
-		'VND' => __( 'Vietnamese &#x111;&#x1ed3;ng', 'newspack' ),
 		'VUV' => __( 'Vanuatu vatu', 'newspack' ),
-		'WST' => __( 'Samoan t&#x101;l&#x101;', 'newspack' ),
-		'XAF' => __( 'Central African CFA franc', 'newspack' ),
-		'XCD' => __( 'East Caribbean dollar', 'newspack' ),
+		'VEF' => __( 'Venezuelan bol&iacute;var', 'newspack' ),
+		'VND' => __( 'Vietnamese &#x111;&#x1ed3;ng', 'newspack' ),
 		'XOF' => __( 'West African CFA franc', 'newspack' ),
-		'XPF' => __( 'CFP franc', 'newspack' ),
 		'YER' => __( 'Yemeni rial', 'newspack' ),
-		'ZAR' => __( 'South African rand', 'newspack' ),
 		'ZMW' => __( 'Zambian kwacha', 'newspack' ),
 	);
 	return $currencies;

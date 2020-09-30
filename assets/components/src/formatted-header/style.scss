@@ -1,26 +1,44 @@
 /**
- * Formatted Header styles.
+ * Formatted Header
  */
 
-@import '../../../shared/scss/muriel-component';
+@import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/colors';
 
-.muriel-formatted-header {
+.newspack-formatted-header {
+	margin: 32px 0;
 	text-align: center;
-	margin-bottom: 24px;
-	grid-column: 1 / -1;
 
-	.muriel-formatted-header__title {
-		font-size: 24px;
-		line-height: 32px;
-		letter-spacing: -0.5px;
-		font-weight: normal;
-		margin: .5em 0;
+	// Title
+
+	.newspack-formatted-header__title {
+		align-items: center;
+		color: $dark-gray-900;
+		display: flex;
+		font-size: 20px;
+		font-weight: bold;
+		justify-content: center;
+		line-height: 24px;
+		margin: 0;
 	}
 
-	.muriel-formatted-header__subtitle {
+	// Icon
+
+	.newspack-formatted-header__icon {
+		margin-right: 8px;
+
+		svg {
+			display: block;
+			fill: $primary-500;
+		}
+	}
+
+	// Subtitle
+
+	.newspack-formatted-header__subtitle {
+		color: $dark-gray-900;
 		font-size: 14px;
-		line-height: 16px;
-		font-weight: 500;
-		margin: 0;
+		line-height: 24px;
+		margin: 8px 0 0;
 	}
 }

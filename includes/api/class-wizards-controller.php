@@ -23,7 +23,7 @@ class Wizards_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = '/newspack/v1';
+	protected $namespace = NEWSPACK_API_NAMESPACE;
 
 	/**
 	 * Endpoint resource.
@@ -87,12 +87,12 @@ class Wizards_Controller extends WP_REST_Controller {
 			return $is_valid_wizard;
 		}
 
-		$wizard = Wizards::get_wizard( $slug );
+		$wizard   = Wizards::get_wizard( $slug );
 		$response = [
-			'name' => $wizard->get_name(),
-			'url'  => $wizard->get_url(),
+			'name'        => $wizard->get_name(),
+			'url'         => $wizard->get_url(),
 			'description' => $wizard->get_description(),
-			'completed' => $wizard->is_completed(),
+			'completed'   => $wizard->is_completed(),
 		];
 
 		return rest_ensure_response( $response );

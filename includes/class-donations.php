@@ -19,6 +19,7 @@ class Donations {
 	const DONATION_SUGGESTED_AMOUNT_META          = 'newspack_donation_suggested_amount';
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
+	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
 
 	/**
 	 * Initialize hooks/filters/etc.
@@ -26,6 +27,8 @@ class Donations {
 	public static function init() {
 		if ( ! is_admin() ) {
 			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
+			add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
+			add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
 		}
 	}
 
@@ -57,7 +60,7 @@ class Donations {
 	 */
 	protected static function get_donation_default_settings( $suggest_donations = false ) {
 		return [
-			'name'                    => '',
+			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
 			'currencySymbol'          => html_entity_decode( \get_woocommerce_currency_symbol() ),
@@ -244,8 +247,8 @@ class Donations {
 		if ( $args['imageID'] ) {
 			$once_product->set_image_id( $args['imageID'] );
 		}
-		$once_product->set_regular_price( $default_price );
-		$once_product->update_meta_data( '_suggested_price', $default_price );
+		$once_product->set_regular_price( 12 * $default_price );
+		$once_product->update_meta_data( '_suggested_price', 12 * $default_price );
 		$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
 		$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
 		$once_product->update_meta_data( '_nyp', 'yes' );
@@ -259,7 +262,7 @@ class Donations {
 				$monthly_product->get_id(),
 				$yearly_product->get_id(),
 				$once_product->get_id(),
-			] 
+			]
 		);
 		$parent_product->save();
 		update_option( self::DONATION_PRODUCT_ID_OPTION, $parent_product->get_id() );
@@ -294,6 +297,7 @@ class Donations {
 				continue;
 			}
 
+			$yearly_price = 12 * $default_price;
 			$child_product->set_status( 'publish' );
 			$child_product->set_image_id( $args['imageID'] );
 			$child_product->set_regular_price( $default_price );
@@ -302,7 +306,6 @@ class Donations {
 				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
 					/* translators: %s: Product name */
 					$child_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
-					$yearly_price = 12 * $default_price;
 					$child_product->update_meta_data( '_subscription_price', \wc_format_decimal( $yearly_price ) );
 					$child_product->update_meta_data( '_suggested_price', \wc_format_decimal( $yearly_price ) );
 					$child_product->set_regular_price( $yearly_price );
@@ -314,6 +317,8 @@ class Donations {
 			} else {
 				/* translators: %s: Product name */
 				$child_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
+				$child_product->set_regular_price( $yearly_price );
+				$child_product->update_meta_data( '_suggested_price', $yearly_price );
 			}
 			$child_product->save();
 		}
@@ -322,7 +327,7 @@ class Donations {
 	/**
 	 * Remove all donation products from the cart.
 	 */
-	protected static function remove_donations_from_cart() {
+	public static function remove_donations_from_cart() {
 		$donation_settings = self::get_donation_settings();
 		if ( ! $donation_settings['created'] ) {
 			return;
@@ -369,6 +374,32 @@ class Donations {
 			}
 		}
 
+		if ( function_exists( 'wpcom_vip_url_to_postid' ) ) {
+			$referer_post_id = wpcom_vip_url_to_postid( wp_get_referer() );
+		} else {
+			$referer_post_id = url_to_postid( wp_get_referer() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
+		}
+		$referer_tags       = [];
+		$referer_categories = [];
+		$tags               = get_the_tags( $referer_post_id );
+		if ( $tags && ! empty( $tags ) ) {
+			$referer_tags = array_map(
+				function ( $item ) {
+					return $item->slug;
+				},
+				$tags
+			);
+		}
+		$categories = get_the_category( $referer_post_id );
+		if ( $categories && ! empty( $categories ) ) {
+			$referer_categories = array_map(
+				function ( $item ) {
+					return $item->slug;
+				},
+				$categories
+			);
+		}
+
 		// Add product to cart.
 		$product_id = $donation_settings['products'][ $donation_frequency ];
 		if ( ! $product_id ) {
@@ -377,19 +408,190 @@ class Donations {
 
 		self::remove_donations_from_cart();
 
-		\WC()->cart->add_to_cart( 
-			$product_id, 
-			1, 
-			0, 
-			[], 
-			[ 
+		\WC()->cart->add_to_cart(
+			$product_id,
+			1,
+			0,
+			[],
+			[
 				'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
 			]
 		);
 
+		$checkout_url = add_query_arg(
+			[
+				'referer_tags'       => implode( ',', $referer_tags ),
+				'referer_categories' => implode( ',', $referer_categories ),
+			],
+			\wc_get_page_permalink( 'checkout' )
+		);
+
 		// Redirect to checkout.
-		\wp_safe_redirect( \wc_get_page_permalink( 'checkout' ) );
+		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
 		exit;
+	}
+
+	/**
+	 * Create the donation page prepopulated with CTAs for the subscriptions.
+	 *
+	 * @return int Post ID of page.
+	 */
+	public static function create_donation_page() {
+		$revenue_model = 'donations';
+
+		$intro           = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
+		$content_heading = esc_html__( 'Donation', 'newspack' );
+		$content         = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
+
+		$intro_block           = '
+			<!-- wp:paragraph -->
+				<p>%s</p>
+			<!-- /wp:paragraph -->';
+		$content_heading_block = '
+			<!-- wp:heading -->
+				<h2>%s</h2>
+			<!-- /wp:heading -->';
+		$content_block         = '
+			<!-- wp:paragraph -->
+				<p>%s</p>
+			<!-- /wp:paragraph -->';
+
+		$page_content = sprintf( $intro_block, $intro );
+		if ( 'donations' === $revenue_model ) {
+			$page_content .= self::get_donations_block();
+		} elseif ( 'subscriptions' === $revenue_model ) {
+			$page_content .= self::get_subscriptions_block();
+		}
+		$page_content .= sprintf( $content_heading_block, $content_heading );
+		$page_content .= sprintf( $content_block, $content );
+
+		$page_args = [
+			'post_type'      => 'page',
+			'post_title'     => __( 'Support our publication', 'newspack' ),
+			'post_content'   => $page_content,
+			'post_excerpt'   => __( 'Support quality journalism by joining us today!', 'newspack' ),
+			'post_status'    => 'draft',
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
+		];
+
+		$page_id = wp_insert_post( $page_args );
+		if ( is_numeric( $page_id ) ) {
+			self::set_donation_page( $page_id );
+		}
+		return $page_id;
+	}
+
+	/**
+	 * Get raw content for a pre-populated WC featured product block featuring subscriptions.
+	 *
+	 * @return string Raw block content.
+	 */
+	protected static function get_subscriptions_block() {
+		$button_text   = __( 'Join', 'newspack' );
+		$subscriptions = wc_get_products(
+			[
+				'limit'                           => -1,
+				'only_get_newspack_subscriptions' => true,
+				'return'                          => 'ids',
+			]
+		);
+		$num_products  = count( $subscriptions );
+		if ( ! $num_products ) {
+			return '';
+		}
+
+		$id_list = esc_attr( implode( ',', $subscriptions ) );
+
+		$block_format = '
+		<!-- wp:woocommerce/handpicked-products {"columns":%d,"editMode":false,"contentVisibility":{"title":true,"price":true,"rating":false,"button":true},"orderby":"price_asc","products":[%s]} -->
+			<div class="wp-block-woocommerce-handpicked-products is-hidden-rating">[products limit="%d" columns="%d" orderby="price" order="ASC" ids="%s"]</div>
+		<!-- /wp:woocommerce/handpicked-products -->';
+
+		$block = sprintf( $block_format, $num_products, $id_list, $num_products, $num_products, $id_list );
+		return $block;
+	}
+
+	/**
+	 * Get raw content for a pre-populated Newspack Donations block.
+	 *
+	 * @return string Raw block content.
+	 */
+	protected static function get_donations_block() {
+		$block = '<!-- wp:newspack-blocks/donate /-->';
+		return $block;
+	}
+
+	/**
+	 * Set the donation page.
+	 *
+	 * @param int $page_id The post ID of the donation page.
+	 */
+	protected static function set_donation_page( $page_id ) {
+		update_option( self::DONATION_PAGE_ID_OPTION, $page_id );
+	}
+
+	/**
+	 * Get info about the donation page.
+	 *
+	 * @param int $page_id Optional ID of page to get info for. Default: saved donation page.
+	 * @return array|bool Array of info, or false if page is not created.
+	 */
+	public static function get_donation_page_info( $page_id = 0 ) {
+		if ( ! $page_id ) {
+			$page_id = get_option( self::DONATION_PAGE_ID_OPTION, 0 );
+		}
+		if ( ! $page_id || 'page' !== get_post_type( $page_id ) ) {
+			$page_id = self::create_donation_page();
+		}
+
+		return [
+			'id'      => $page_id,
+			'url'     => get_permalink( $page_id ),
+			'editUrl' => html_entity_decode( get_edit_post_link( $page_id ) ),
+			'status'  => get_post_status( $page_id ),
+		];
+	}
+
+	/**
+	 * Add a hidden billing fields with tags and categories.
+	 *
+	 * @param Array $form_fields WC form fields.
+	 */
+	public static function woocommerce_billing_fields( $form_fields ) {
+		$referer_tags       = filter_input( INPUT_GET, 'referer_tags', FILTER_SANITIZE_STRING );
+		$referer_categories = filter_input( INPUT_GET, 'referer_categories', FILTER_SANITIZE_STRING );
+
+		if ( $referer_tags ) {
+			$form_fields['referer_tags'] = [
+				'type'    => 'text',
+				'default' => $referer_tags,
+				'class'   => [ 'hide' ],
+			];
+		}
+		if ( $referer_categories ) {
+			$form_fields['referer_categories'] = [
+				'type'    => 'text',
+				'default' => $referer_categories,
+				'class'   => [ 'hide' ],
+			];
+		}
+
+		return $form_fields;
+	}
+
+	/**
+	 * Update WC order with the client id from hidden form field.
+	 *
+	 * @param String $order_id WC order id.
+	 */
+	public static function woocommerce_checkout_update_order_meta( $order_id ) {
+		if ( ! empty( $_POST['referer_tags'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			update_post_meta( $order_id, 'referer_tags', sanitize_text_field( $_POST['referer_tags'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+		if ( ! empty( $_POST['referer_categories'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			update_post_meta( $order_id, 'referer_categories', sanitize_text_field( $_POST['referer_categories'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
 	}
 }
 Donations::init();

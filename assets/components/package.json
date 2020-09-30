@@ -1,13 +1,12 @@
 {
   "name": "newspack-components",
-  "version": "0.1.5",
-  "description": "Muriel design system components",
+  "version": "1.3.0",
+  "description": "Newspack design system components",
   "author": "Automattic",
   "license": "GPL-2.0-or-later",
   "keywords": [
     "wordpress",
     "newspack",
-    "muriel",
     "components"
   ],
   "bugs": {
@@ -24,11 +23,17 @@
     "access": "public"
   },
   "dependencies": {
+    "@material-ui/core": "^4.8.2",
+    "@material-ui/icons": "^4.5.1",
+    "@wordpress/base-styles": "^1.0.0",
     "@wordpress/components": "^7.3.1",
-    "@wordpress/element": "^2.3.0"
+    "@wordpress/element": "^2.3.0",
+    "@wordpress/i18n": "^3.11.0",
+    "classnames": "^2.2.6",
+    "react-router-dom": "^5.0.1"
   },
   "devDependencies": {
-    "@automattic/calypso-build": "^2.0.0",
+    "@automattic/calypso-build": "^5.1.0",
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "recursive-copy": "2.0.10"
@@ -40,6 +45,6 @@
   },
   "scripts": {
     "prepublishOnly": "transpile && node copy-styles.js",
-    "postpublish": "rm -r dist"
+    "postpublish": "rm -r dist && rm -r shared"
   }
 }

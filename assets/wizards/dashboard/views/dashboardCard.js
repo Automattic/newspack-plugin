@@ -1,35 +1,67 @@
 /**
- * Subscription Management Screens.
+ * Dashboard Card
  */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
-import { Dashicon } from '@wordpress/components';
-import classnames from 'classnames';
+import { Component } from '@wordpress/element';
 
 /**
- * Internal dependencies
+ * Material UI dependencies.
+ */
+import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
+import ForumIcon from '@material-ui/icons/Forum';
+import HealingIcon from '@material-ui/icons/Healing';
+import SearchIcon from '@material-ui/icons/Search';
+import SyncAltIcon from '@material-ui/icons/SyncAlt';
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import WebIcon from '@material-ui/icons/Web';
+import WidgetsIcon from '@material-ui/icons/Widgets';
+import PopupsIcon from '@material-ui/icons/NewReleases';
+import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import UpdateIcon from '@material-ui/icons/Update';
+
+/**
+ * Internal dependencies.
  */
 import { Card } from '../../../components/src';
 
 /**
- * One card in the dashboard.
+ * External dependencies.
  */
+import classNames from 'classnames';
+
 class DashboardCard extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, image, status } = this.props;
-		const classes = classnames( 'newspack-dashboard-card', slug, status );
-
+		const { name, description, slug, url, status } = this.props;
+		const classes = classNames( 'newspack-dashboard-card', slug, status );
+		const iconMap = {
+			'site-design': <WebIcon />,
+			'reader-revenue': <AccountBalanceWalletIcon />,
+			advertising: <FeaturedVideoIcon />,
+			syndication: <SyncAltIcon />,
+			analytics: <TrendingUpIcon />,
+			seo: <SearchIcon />,
+			'health-check': <HealingIcon />,
+			engagement: <ForumIcon />,
+			popups: <PopupsIcon />,
+			support: <ContactSupportIcon />,
+			updates: <UpdateIcon />,
+		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
-				{ !! image && <img src={ image } /> }
-				<h3>{ name }</h3>
-				<h4>{ description }</h4>
+				{ iconMap[ slug ] || <WidgetsIcon /> }
+				<div className="newspack-dashboard-card__header">
+					<h2>{ name }</h2>
+					<p>{ description }</p>
+				</div>
 			</div>
 		);
 
@@ -39,22 +71,15 @@ class DashboardCard extends Component {
 					<div className="newspack-dashboard-card__disabled-link">{ contents }</div>
 				</Card>
 			);
-		} else {
-			return (
-				<Card className={ classes }>
-					<a href={ url }>
-						{ 'completed' === status && (
-							<Dashicon
-								icon="yes-alt"
-								size="24"
-								className="newspack-dashboard-card__completed-icon"
-							/>
-						) }
-						{ contents }
-					</a>
-				</Card>
-			);
 		}
+		return (
+			<Card className={ classes }>
+				<a href={ url }>
+					{ contents }
+					{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
+				</a>
+			</Card>
+		);
 	}
 }
 export default DashboardCard;

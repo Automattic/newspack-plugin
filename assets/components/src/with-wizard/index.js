@@ -1,36 +1,46 @@
 /**
- * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
- */
-
-/**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Internal dependencies.
+ * Material UI dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, NewspackLogo, PluginInstaller, Grid } from '../';
-import { buttonProps } from '../../../shared/js/';
-import './style.scss';
+import HeaderIcon from '@material-ui/icons/Warning';
 
 /**
- * External dependencies
+ * Internal dependencies.
  */
-import { Redirect, Route } from 'react-router-dom';
-import { isFunction } from 'lodash';
+import {
+	Button,
+	Card,
+	FormattedHeader,
+	Modal,
+	NewspackLogo,
+	Notice,
+	PluginInstaller,
+	Grid,
+} from '../';
+import Router from '../proxied-imports/router';
+import { buttonProps } from '../../../shared/js/';
+import { NEWSPACK_SITE_URL } from '../consts';
+import './style.scss';
 
-export default function withWizard( WrappedComponent, requiredPlugins ) {
-	return class extends Component {
+const { Redirect, Route } = Router;
+
+/**
+ * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
+ */
+export default function withWizard( WrappedComponent, requiredPlugins, options = {} ) {
+	return class WrappedWithWizard extends Component {
 		constructor( props ) {
 			super( props );
 			this.state = {
 				complete: null,
 				error: null,
-				loading: requiredPlugins ? 1 : 0,
+				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -39,6 +49,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			// If there are no requiredPlugins, fire onWizardReady as soon as component mounts.
 			if ( ! requiredPlugins ) {
 				const instance = this.wrappedComponentRef.current;
+				// eslint-disable-next-line no-unused-expressions
 				instance && instance.onWizardReady && instance.onWizardReady();
 			}
 		};
@@ -46,7 +57,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Set the error. Called by Wizards when an error occurs.
 		 *
-		 * @return Promise
+		 * @return {Promise} Resolved after state update
 		 */
 		setError = error => {
 			return new Promise( resolve => {
@@ -57,7 +68,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Render any errors that need rendering.
 		 *
-		 * @return error UI
+		 * @return {Component} Error UI
 		 */
 		getError = () => {
 			const { error } = this.state;
@@ -77,37 +88,37 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Get a notice-level error.
 		 *
-		 * @param Error object already parsed by parseError
-		 * @return Component
+		 * @param {Error} error object already parsed by parseError
+		 * @return {Component} Error notice
 		 */
 		getErrorNotice = error => {
 			const { message } = error;
-			return (
-				<div className="notice notice-error notice-alt update-message">
-					<p>{ message }</p>
-				</div>
-			);
+			return <Notice noticeText={ message } isError rawHTML />;
 		};
 
 		/**
 		 * Get a fatal-level error.
 		 *
-		 * @param Error object already parsed by parseError
-		 * @return React object
+		 * @param {Error} error object already parsed by parseError
+		 * @return {Component} React object
 		 */
 		getFatalError = error => {
+			const fallbackURL = this.getFallbackURL();
+			if ( ! fallbackURL ) {
+				return null;
+			}
 			const { message } = error;
 			return (
 				<Modal
 					title={ __( 'Unrecoverable error' ) }
-					onRequestClose={ () => ( window.location = newspack_urls[ 'dashboard' ] ) }
+					onRequestClose={ () => ( window.location = fallbackURL ) }
 				>
-					<p>
-						<strong>{ message }</strong>
-					</p>
-					<Button isPrimary href={ newspack_urls[ 'dashboard' ] }>
-						{ __( 'Return to dashboard' ) }
-					</Button>
+					<Notice noticeText={ message } isError rawHTML />
+					<div className="newspack-buttons-card">
+						<Button isPrimary href={ fallbackURL }>
+							{ __( 'Return to dashboard' ) }
+						</Button>
+					</div>
 				</Modal>
 			);
 		};
@@ -115,8 +126,8 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Get all the relevant info out of a raw API error response.
 		 *
-		 * @param Raw error object
-		 * @return Error object with relevant fields and defaults
+		 * @param {Object} error error object
+		 * @return {Object} Error object with relevant fields and defaults
 		 */
 		parseError = error => {
 			const { data, message, code } = error;
@@ -142,6 +153,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			}
 			const instance = this.wrappedComponentRef.current;
 			this.setState( { complete }, () => {
+				// eslint-disable-next-line no-unused-expressions
 				complete && instance && instance.onWizardReady && instance.onWizardReady();
 			} );
 		};
@@ -185,7 +197,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Render a Route that checks for plugin installation requirements, and redirects to '/' when all are done.
 		 *
-		 * @return void
+		 * @return {void}
 		 */
 		pluginRequirements = () => {
 			const { complete } = this.state;
@@ -196,15 +208,22 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<Route
 					path="/"
-					render={ routeProps => (
+					render={ () => (
 						<Grid>
-							<Card noBackground className="muriel-wizardScreen muriel-wizardScreen__no-background">
+							<Card noBackground>
 								{ complete !== null && (
 									<FormattedHeader
-										headerText={ __( 'Required plugin' ) }
+										headerIcon={ <HeaderIcon /> }
+										headerText={
+											requiredPlugins.length > 1
+												? __( 'Required plugins' )
+												: __( 'Required plugin' )
+										}
 										subHeaderText={ __( 'This feature requires the following plugin.' ) }
 									/>
 								) }
+							</Card>
+							<Card>
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
@@ -216,28 +235,41 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			);
 		};
 
+		getFallbackURL = () => {
+			if ( typeof newspack_urls !== 'undefined' ) {
+				return newspack_urls.dashboard;
+			}
+		};
+
 		/**
 		 * Render.
-		 *
-		 * @return JSX
 		 */
 		render() {
-			const { buttonText, buttonAction, fullLogo } = this.props;
-			const { loading } = this.state;
+			const { buttonText, buttonAction, logoLink } = this.props;
+			const { loading, error } = this.state;
+			const logoURL = logoLink || this.getFallbackURL() || NEWSPACK_SITE_URL;
 			return (
 				<Fragment>
 					{ this.getError() }
-					<NewspackLogo
-						width={ fullLogo ? 240 : 50 }
-						compact={ ! fullLogo }
-						className="newspack-logo"
-					/>
-					<div className={ !! loading ? 'muriel-wizardScreen__loading' : '' }>
+					<div className="newspack-logo-wrapper">
+						{ ! options.suppressLogoLink && logoURL ? (
+							<a href={ logoURL } target={ logoURL === NEWSPACK_SITE_URL ? '_blank' : undefined }>
+								<NewspackLogo />
+							</a>
+						) : (
+							<NewspackLogo />
+						) }
+					</div>
+					<div
+						className={ !! loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded' }
+					>
 						<WrappedComponent
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
 							getError={ this.getError }
+							errorData={ error }
 							setError={ this.setError }
+							isLoading={ loading }
 							startLoading={ this.startLoading }
 							doneLoading={ this.doneLoading }
 							wizardApiFetch={ this.wizardApiFetch }
@@ -245,13 +277,15 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 						{ buttonText && buttonAction && (
-							<Button
-								isTertiary
-								className="is-centered muriel-wizardScreen__subCompleteButton"
-								{ ...buttonProps( buttonAction ) }
-							>
-								{ buttonText }
-							</Button>
+							<Grid>
+								<Card noBackground>
+									<div className="newspack-buttons-card">
+										<Button isPrimary { ...buttonProps( buttonAction ) }>
+											{ buttonText }
+										</Button>
+									</div>
+								</Card>
+							</Grid>
 						) }
 					</div>
 				</Fragment>

@@ -1,5 +1,5 @@
 /**
- * About your publication setup screen.
+ * Newsroom
  */
 
 /**
@@ -11,12 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import {
-	CheckboxControl,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { CheckboxControl, SelectControl, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -111,8 +106,10 @@ class Newsroom extends Component {
 						{ label: __( 'Over 1,000,000' ), value: '1000000+' },
 					] }
 				/>
-				<p>How do you engage with your audience? (select all that apply)</p>
-				<div className="newspack-setup-wizard_newsroom-screen_plugin_group">
+				<p className="is-dark newspack-setup-wizard_newsroom_audience_title">
+					<strong>{ __( 'How do you engage with your audience? (select all that apply)' ) }</strong>
+				</p>
+				<div className="newspack-setup-wizard_newsroom_audience_checkboxes">
 					<CheckboxControl
 						label={ __( 'Newsletters' ) }
 						checked={ engagement_newsletters }

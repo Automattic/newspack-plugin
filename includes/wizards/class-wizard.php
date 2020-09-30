@@ -7,6 +7,7 @@
 
 namespace Newspack;
 
+use Newspack\Starter_Content;
 defined( 'ABSPATH' ) || exit;
 
 define( 'NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX', 'newspack_wizard_completed_' );
@@ -84,17 +85,44 @@ abstract class Wizard {
 			return;
 		}
 
+		wp_register_script(
+			'newspack_commons',
+			Newspack::plugin_url() . '/dist/commons.js',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.js' ),
+			true
+		);
+		wp_enqueue_script( 'newspack_commons' );
+
+		wp_register_style(
+			'newspack-commons',
+			Newspack::plugin_url() . '/dist/commons.css',
+			[ 'wp-components' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.css' )
+		);
+		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-commons' );
+
 		// This script is just used for making newspack data available in JS vars.
 		// It should not actually load a JS file.
 		wp_register_script( 'newspack_data', '', [], '1.0', false );
 
 		$urls = [
-			'checklists' => Checklists::get_urls(),
-			'wizards'    => Wizards::get_urls(),
-			'dashboard'  => Wizards::get_url( 'dashboard' ),
+			'checklists'  => Checklists::get_urls(),
+			'wizards'     => Wizards::get_urls(),
+			'dashboard'   => Wizards::get_url( 'dashboard' ),
+			'public_path' => Newspack::plugin_url() . '/dist/',
+			'bloginfo'    => [
+				'name' => get_bloginfo( 'name' ),
+			],
+		];
+
+		$aux_data = [
+			'is_e2e' => Starter_Content::is_e2e(),
 		];
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
+		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );
 		wp_enqueue_script( 'newspack_data' );
 	}
 
@@ -176,6 +204,28 @@ abstract class Wizard {
 	 */
 	public function set_completed( $completed = true ) {
 		update_option( NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX . $this->slug, (bool) $completed );
+	}
+
+	/**
+	 * Get an array of Script dependencies
+	 *
+	 * @param array $dependencies Additional depedencies to add to the baseline ones.
+	 * @return array An array of script dependencies.
+	 */
+	public function get_script_dependencies( $dependencies = [] ) {
+		$base_dependencies = [ 'wp-components', 'wp-api-fetch' ];
+		return array_merge( $base_dependencies, $dependencies );
+	}
+
+	/**
+	 * Get an array of Stylesheet dependencies.
+	 *
+	 * @param array $dependencies Additional depedencies to add to the baseline ones.
+	 * @return array An array of script dependencies.
+	 */
+	public function get_style_dependencies( $dependencies = [] ) {
+		$base_dependencies = [ 'wp-components' ];
+		return array_merge( $base_dependencies, $dependencies );
 	}
 
 	/**

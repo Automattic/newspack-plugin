@@ -27,19 +27,26 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'setup'                     => new Setup_Wizard(),
-			'dashboard'                 => new Dashboard(),
-			'reader-revenue-onboarding' => new Reader_Revenue_Onboarding_Wizard(),
-			'donations'                 => new Donations_Wizard(),
-			'subscriptions'             => new Subscriptions_Wizard(),
-			'memberships-page'          => new Memberships_Page_Wizard(),
-			'advertising'               => new Advertising_Wizard(),
-			'google-analytics'          => new Google_Analytics_Wizard(),
-			'components-demo'           => new Components_Demo(),
-			'performance'               => new Performance_Wizard(),
-			'mailchimp'                 => new Mailchimp_Wizard(),
-			'newsletter-block'          => new Newsletter_Block_Wizard(),
+			'setup'           => new Setup_Wizard(),
+			'dashboard'       => new Dashboard(),
+			'site-design'     => new Site_Design_Wizard(),
+			'reader-revenue'  => new Reader_Revenue_Wizard(),
+			'advertising'     => new Advertising_Wizard(),
+			'syndication'     => new Syndication_Wizard(),
+			'analytics'       => new Analytics_Wizard(),
+			'components-demo' => new Components_Demo(),
+			'seo'             => new SEO_Wizard(),
+			'health-check'    => new Health_Check_Wizard(),
+			'engagement'      => new Engagement_Wizard(),
+			'popups'          => new Popups_Wizard(),
+			'updates'         => new Updates_Wizard(),
 		];
+		if ( Support_Wizard::configured() ) {
+			self::$wizards['support'] = new Support_Wizard();
+		}
+		if ( Payment_Wizard::configured() ) {
+			self::$wizards['payments'] = new Payment_Wizard();
+		}
 	}
 
 	/**

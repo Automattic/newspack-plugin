@@ -8,20 +8,17 @@
 import { Component } from '@wordpress/element';
 
 /**
- * Internal dependencies.
- */
-import murielClassnames from '../../../shared/js/muriel-classnames';
-
-/**
  * External dependencies.
  */
-import classnames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import classNames from 'classnames';
+import Router from '../proxied-imports/router';
 
 /**
  * Internal dependencies.
  */
 import './style.scss';
+
+const { NavLink } = Router;
 
 /**
  * Progress bar.
@@ -32,7 +29,7 @@ class TabbedNavigation extends Component {
 	 */
 	render() {
 		const { items, className } = this.props;
-		const classes = murielClassnames( 'muriel-tabbed-navigation', 'muriel-grid-item', className );
+		const classes = classNames( 'newspack-tabbed-navigation', className );
 		return (
 			<div className={ classes }>
 				<ul>

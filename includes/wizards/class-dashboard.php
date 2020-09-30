@@ -48,7 +48,7 @@ class Dashboard extends Wizard {
 	/**
 	 * Get the information required to build the dashboard.
 	 * Each tier of the dashboard is an array.
-	 * Each card within the tier is an array of [slug, name, url, description, image, status].
+	 * Each card within the tier is an array of [slug, name, url, description, status].
 	 *
 	 * @return array
 	 */
@@ -56,68 +56,84 @@ class Dashboard extends Wizard {
 		$dashboard = [
 			[
 				'slug'        => 'site-design',
-				'name'        => esc_html__( 'Site Design', 'newspack' ),
-				'url'         => '#',
+				'name'        => Wizards::get_name( 'site-design' ),
+				'url'         => Wizards::get_url( 'site-design' ),
 				'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/site-design-icon.svg',
-				'status'      => 'disabled',
+				'status'      => 'enabled',
 			],
 			[
 				'slug'        => 'reader-revenue',
-				'name'        => Checklists::get_name( 'reader-revenue' ),
-				'url'         => Checklists::get_url( 'reader-revenue' ),
+				'name'        => Wizards::get_name( 'reader-revenue' ),
+				'url'         => Wizards::get_url( 'reader-revenue' ),
 				'description' => esc_html__( 'Membership, paywall, subscriptions', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/reader-revenue-icon.svg',
 				'status'      => Checklists::get_status( 'reader-revenue' ),
-			],
-			[
-				'slug'        => 'performance',
-				'name'        => esc_html__( 'Performance', 'newspack' ),
-				'url'         => admin_url( 'admin.php?page=newspack-performance-wizard' ),
-				'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/performance-icon.svg',
 			],
 			[
 				'slug'        => 'advertising',
 				'name'        => Wizards::get_name( 'advertising' ),
 				'url'         => Wizards::get_url( 'advertising' ),
 				'description' => esc_html__( 'Content monetization', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/advertising-icon.svg',
 				'status'      => Checklists::get_status( 'advertising' ),
 			],
 			[
-				'slug'        => 'seo',
-				'name'        => esc_html__( 'SEO', 'newspack' ),
-				'url'         => '#',
-				'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/seo-icon.svg',
-				'status'      => 'disabled',
-			],
-			[
-				'slug'        => 'engagement',
-				'name'        => Checklists::get_name( 'engagement' ),
-				'url'         => Checklists::get_url( 'engagement' ),
-				'description' => esc_html__( 'Newsletters, social, commenting, UCG', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/engagement-icon.svg',
-				'status'      => Checklists::get_status( 'engagement' ),
+				'slug'        => 'syndication',
+				'name'        => Wizards::get_name( 'syndication' ),
+				'url'         => Wizards::get_url( 'syndication' ),
+				'description' => esc_html__( 'Distribute your content across multiple websites', 'newspack' ),
+				'status'      => Checklists::get_status( 'syndication' ),
 			],
 			[
 				'slug'        => 'analytics',
-				'name'        => esc_html__( 'Analytics', 'newspack' ),
-				'url'         => Wizards::get_url( 'google-analytics' ),
+				'name'        => Wizards::get_name( 'analytics' ),
+				'url'         => Wizards::get_url( 'analytics' ),
 				'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/analytics-icon.svg',
-				'status'      => Wizards::is_completed( 'google-analytics' ) ? 'completed' : 'enabled',
+				'status'      => 'enabled',
 			],
 			[
-				'slug'        => 'syndication',
-				'name'        => esc_html__( 'Syndication', 'newspack' ),
-				'url'         => '#',
-				'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
-				'image'       => Newspack::plugin_url() . '/assets/wizards/dashboard/syndication-icon.svg',
-				'status'      => 'disabled',
+				'slug'        => 'seo',
+				'name'        => Wizards::get_name( 'seo' ),
+				'url'         => Wizards::get_url( 'seo' ),
+				'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
+			],
+			[
+				'slug'        => 'health-check',
+				'name'        => Wizards::get_name( 'health-check' ),
+				'url'         => Wizards::get_url( 'health-check' ),
+				'description' => esc_html__( 'Verify and correct site health issues', 'newspack' ),
+				'status'      => 'enabled',
+			],
+			[
+				'slug'        => 'engagement',
+				'name'        => Wizards::get_name( 'engagement' ),
+				'url'         => Wizards::get_url( 'engagement' ),
+				'description' => Wizards::get_description( 'engagement' ),
+				'status'      => 'enabled',
+			],
+			[
+				'slug'        => 'popups',
+				'name'        => Wizards::get_name( 'popups' ),
+				'url'         => Wizards::get_url( 'popups' ),
+				'description' => Wizards::get_description( 'popups' ),
+				'status'      => 'enabled',
+			],
+			[
+				'slug'        => 'updates',
+				'name'        => Wizards::get_name( 'updates' ),
+				'url'         => Wizards::get_url( 'updates' ),
+				'description' => Wizards::get_description( 'updates' ),
+				'status'      => 'enabled',
 			],
 		];
+
+		if ( Support_Wizard::configured() ) {
+			$dashboard[] = [
+				'slug'        => 'support',
+				'name'        => Wizards::get_name( 'support' ),
+				'url'         => Wizards::get_url( 'support' ),
+				'description' => Wizards::get_description( 'support' ),
+				'status'      => 'enabled',
+			];
+		}
 
 		return $dashboard;
 	}
@@ -153,7 +169,7 @@ class Dashboard extends Wizard {
 	 * Add an admin page for the wizard to live on.
 	 */
 	public function add_page() {
-		$icon = 'data:image/svg+xml;base64,PHN2ZyBpZD0iZjU0YWJkZjgtZTI5Ny00YTRmLWJjZTYtOTFiZmY5NjZkNTdlIiBkYXRhLW5hbWU9IkxheWVyIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDIyMiAyMjIiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuYjMxM2MzYWQtYzkyNC00ZjI3LTg1MzktOThiYTBiNjhmNGJjIHsKICAgICAgICBmaWxsOiAjMmE3ZGUxOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8dGl0bGU+bmV3c3BhY2stbWFyazwvdGl0bGU+CiAgPHBhdGggY2xhc3M9ImIzMTNjM2FkLWM5MjQtNGYyNy04NTM5LTk4YmEwYjY4ZjRiYyIgZD0iTTI2MS41LDEzMUExMTEsMTExLDAsMSwwLDM3Mi42LDI0MiwxMTEsMTExLDAsMCwwLDI2MS41LDEzMVpNMjE2LjEsMjg3LjRWMjU3LjJsMzAuMywzMC4yWm02MC42LDAtNjAuNi02MC41VjE5Ni42TDMwNywyODcuNFpNMzA3LDI0NkgyOTUuOGwtNy4yLTcuMkgzMDdabTAtMjEuMkgyNzQuN2wtNy4yLTcuMUgzMDdabTAtMjEuMUgyNTMuNmwtNy4yLTcuMUgzMDdaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTUwLjUgLTEzMSkiLz4KPC9zdmc+Cg==';
+		$icon = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjE4cHgiIGhlaWdodD0iNjE4cHgiIHZpZXdCb3g9IjAgMCA2MTggNjE4IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPHBhdGggZD0iTTMwOSwwIEM0NzkuNjU2NDk1LDAgNjE4LDEzOC4zNDQyOTMgNjE4LDMwOS4wMDE3NTkgQzYxOCw0NzkuNjU5MjI2IDQ3OS42NTY0OTUsNjE4IDMwOSw2MTggQzEzOC4zNDM1MDUsNjE4IDAsNDc5LjY1OTIyNiAwLDMwOS4wMDE3NTkgQzAsMTM4LjM0NDI5MyAxMzguMzQzNTA1LDAgMzA5LDAgWiBNMTc0LDE3MSBMMTc0LDI2Mi42NzEzNTYgTDE3NS4zMDUsMjY0IEwxNzQsMjY0IEwxNzQsNDQ2IEwyNDEsNDQ2IEwyNDEsMzMwLjkxMyBMMzUzLjk5Mjk2Miw0NDYgTDQ0NCw0NDYgTDE3NCwxNzEgWiBNNDQ0LDI5OSBMMzg5LDI5OSBMNDEwLjQ3NzYxLDMyMSBMNDQ0LDMyMSBMNDQ0LDI5OSBaIE00NDQsMjM1IEwzMjcsMjM1IEwzNDguMjQ1OTE5LDI1NyBMNDQ0LDI1NyBMNDQ0LDIzNSBaIE00NDQsMTcxIEwyNjQsMTcxIEwyODUuMjkwNTEyLDE5MyBMNDQ0LDE5MyBMNDQ0LDE3MSBaIiBpZD0iQ29tYmluZWQtU2hhcGUiIGZpbGw9IiMyQTdERTEiPjwvcGF0aD4KICAgIDwvZz4KPC9zdmc+';
 		add_menu_page(
 			$this->get_name(),
 			$this->get_name(),
@@ -186,9 +202,9 @@ class Dashboard extends Wizard {
 
 		wp_register_script(
 			'newspack-dashboard',
-			Newspack::plugin_url() . '/assets/dist/dashboard.js',
-			[ 'wp-components', 'wp-api-fetch' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/dashboard.js' ),
+			Newspack::plugin_url() . '/dist/dashboard.js',
+			$this->get_script_dependencies(),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/dashboard.js' ),
 			true
 		);
 		wp_localize_script( 'newspack-dashboard', 'newspack_dashboard', $this->get_dashboard() );
@@ -196,9 +212,9 @@ class Dashboard extends Wizard {
 
 		wp_register_style(
 			'newspack-dashboard',
-			Newspack::plugin_url() . '/assets/dist/dashboard.css',
-			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/dashboard.css' )
+			Newspack::plugin_url() . '/dist/dashboard.css',
+			$this->get_style_dependencies(),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/dashboard.css' )
 		);
 		wp_style_add_data( 'newspack-dashboard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-dashboard' );

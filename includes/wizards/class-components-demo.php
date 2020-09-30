@@ -38,14 +38,11 @@ class Components_Demo extends Wizard {
 	protected $menu_priority = 100;
 
 	/**
-	 * Constructor.
+	 * Whether the wizard should be displayed in the Newspack submenu.
+	 *
+	 * @var bool.
 	 */
-	public function __construct() {
-		parent::__construct();
-
-		// Only show a link to the Components Demo if WP_DEBUG is enabled.
-		$this->hidden = ! defined( 'WP_DEBUG' ) || ! WP_DEBUG;
-	}
+	protected $hidden = true;
 
 	/**
 	 * Get the name for this wizard.
@@ -87,19 +84,10 @@ class Components_Demo extends Wizard {
 
 		wp_enqueue_script(
 			'newspack-components-demo',
-			Newspack::plugin_url() . '/assets/dist/componentsDemo.js',
-			[ 'wp-components', 'wp-api-fetch' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/componentsDemo.js' ),
+			Newspack::plugin_url() . '/dist/componentsDemo.js',
+			$this->get_script_dependencies(),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/componentsDemo.js' ),
 			true
 		);
-
-		wp_register_style(
-			'newspack-components-demo',
-			Newspack::plugin_url() . '/assets/dist/componentsDemo.css',
-			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/dist/componentsDemo.css' )
-		);
-		wp_style_add_data( 'newspack-components-demo', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-components-demo' );
 	}
 }

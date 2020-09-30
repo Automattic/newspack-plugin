@@ -1,88 +1,105 @@
-.muriel-task {
-	border: 1px solid $muriel-gray-50;
-	display: flex;
-	padding: 24px 24px 24px 60px;
+/**
+ * Task
+ */
+
+@import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/colors';
+
+.newspack-task {
+	border: 1px solid $light-gray-200;
+	border-left-width: 4px;
+	box-shadow: none;
+	margin: 16px 0;
+	padding: 24px 24px 24px 49px;
 	position: relative;
 
-	h1,
-	h2 {
-		max-width: 650px;
-		padding: 0;
+	&::before {
+		background: $light-gray-500;
+		bottom: -18px;
+		content: '';
+		display: block;
+		left: 24px;
+		position: absolute;
+		top: 0;
+		width: 1px;
+		z-index: 1;
 	}
 
-	h1 {
-		color: $muriel-gray-800;
-		font-size: 24px;
-		font-weight: normal;
-		margin: 0 0 10px 0;
-	}
-
-	h2 {
-		color: $muriel-gray-600;
-		font-size: 15px;
-		font-weight: 200;
+	p {
 		margin: 0;
 	}
 
-	.checklist__task-icon {
-		background: $muriel-white;
-		border: 2px solid $muriel-gray-200;
-		border-radius: 16px;
+	.newspack-task__task-icon {
+		background: white;
+		border: 2px solid $light-gray-900;
+		border-radius: 50%;
 		display: block;
 		height: 16px;
-		left: 24px;
+		left: 14px;
 		position: absolute;
-		top: 24px;
+		top: 26px;
 		width: 16px;
+		z-index: 2;
 	}
 
-	.checklist__task-primary {
+	.newspack-task__task-buttons {
+		border-top: 1px solid $light-gray-200;
+		align-items: center;
 		display: flex;
-		flex-direction: column;
-		flex: 1;
-	}
+		flex-direction: row-reverse;
+		justify-content: space-between;
+		margin: 24px -24px -24px;
+		padding: 8px;
 
-	.checklist__task-secondary {
-		align-items: flex-end;
-		display: flex;
-		flex: 1;
-		flex-direction: column;
-		justify-content: flex-end;
-		padding-left: 10px;
+		&:empty {
+			display: none;
+		}
 
-		button {
-			margin: 0 0 13px 0;
-
-			&:focus:enabled {
-				box-shadow: none;
-			}
+		.newspack-button {
+			margin: 8px;
 		}
 	}
 
-	&:before {
-		border-left: 1px solid $muriel-gray-100;
-		bottom: 0;
-		content: '';
-		display: block;
-		left: 34px;
-		position: absolute;
-		top: 0;
-	}
+	// Completed
 
 	&.is-completed {
-		background-color: $muriel-gray-0;
+		border-left-color: $alert-green;
 
-		h1 {
-			color: $muriel-gray-500;
+		.newspack-task__task-icon {
+			background: transparent;
+			border: 0;
+			height: 24px;
+			left: 12px;
+			top: 24px;
+			width: 24px;
+
+			&::before {
+				background: white;
+				border-radius: 50%;
+				bottom: 3px;
+				content: '';
+				display: block;
+				left: 3px;
+				position: absolute;
+				right: 3px;
+				top: 3px;
+			}
+
+			svg {
+				display: block;
+				fill: $alert-green;
+				position: relative;
+			}
 		}
 
-		.checklist__task-icon {
-			background-color: $muriel-green-400;
-			border: 2px solid $muriel-green-400;
-			svg {
-				width: 16px;
-				height: 16px;
-				color: $muriel-white;
+		.newspack-task__task-description {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+
+			p {
+				margin-right: 8px;
 			}
 		}
 	}
