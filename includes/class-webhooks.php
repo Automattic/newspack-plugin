@@ -116,7 +116,14 @@ class Webhooks {
 
 		// Sync WooCommerce orders to Salesforce opportunities.
 		if ( is_array( $orders ) ) {
+			$is_npsp = Salesforce::has_field( 'npsp__Primary_Contact__c', 'Opportunity' );
+
 			foreach ( $orders as $order ) {
+				// Add the NPSP "Primary Contact" field if the Salesforce instance supports it.
+				if ( $is_npsp ) {
+					$order['npsp__Primary_Contact__c'] = $contact_id;
+				}
+
 				$opportunity_response = Salesforce::create_opportunity( $order );
 
 				if ( is_wp_error( $opportunity_response ) ) {
