@@ -401,12 +401,11 @@ class Salesforce {
 	}
 
 	/**
-	 * Does the Salesforce account an NPSP instance?
-	 * Checks for the existence of the NPSP field we want to sync to.
+	 * Does the given sObject type have the given field name?
 	 *
 	 * @param string $field_name   Name of the field.
 	 * @param string $sobject_name Name of the Salesforce sObject to check for the field.
-	 * @return boolean Whether or not the NPSP field exists.
+	 * @return boolean Whether or not the field exists.
 	 */
 	public static function has_field( $field_name = null, $sobject_name = null ) {
 		$has_field = false;
