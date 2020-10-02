@@ -104,7 +104,7 @@ class Webhooks {
 				);
 			}
 
-			$contact_id       = $contact_response->id;
+			$contact_id = $contact_response->id;
 		}
 
 		if ( empty( $contact_id ) ) {
@@ -133,7 +133,7 @@ class Webhooks {
 					);
 				}
 
-				$opportunity_id       = $opportunity_response->id;
+				$opportunity_id = $opportunity_response->id;
 
 				if ( ! empty( $opportunity_id ) ) {
 					$opportunities[] = $opportunity_response;
