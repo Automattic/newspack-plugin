@@ -96,6 +96,14 @@ class Webhooks {
 		} else {
 			// Create new contact.
 			$contact_response = Salesforce::create_contact( $contact );
+
+			if ( is_wp_error( $contact_response ) ) {
+				return new \WP_Error(
+					'newspack_salesforce_contact_failure',
+					$contact_response->get_error_message()
+				);
+			}
+
 			$contact_id       = $contact_response->id;
 		}
 
@@ -110,6 +118,14 @@ class Webhooks {
 		if ( is_array( $orders ) ) {
 			foreach ( $orders as $order ) {
 				$opportunity_response = Salesforce::create_opportunity( $order );
+
+				if ( is_wp_error( $opportunity_response ) ) {
+					return new \WP_Error(
+						'newspack_salesforce_opportunity_failure',
+						$response->get_error_message()
+					);
+				}
+
 				$opportunity_id       = $opportunity_response->id;
 
 				if ( ! empty( $opportunity_id ) ) {

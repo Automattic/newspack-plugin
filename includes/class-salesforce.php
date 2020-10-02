@@ -306,7 +306,7 @@ class Salesforce {
 	 * Create a new contact record in Salesforce.
 	 *
 	 * @param array $data Data to use in creating the new contact. Keys must be valid Salesforce field names.
-	 * @return array Response from Salesforce API.
+	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function create_contact( $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
@@ -339,6 +339,13 @@ class Salesforce {
 			);
 		}
 
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_contact_failure',
+				$response->get_error_message()
+			);
+		}
+
 		return json_decode( $response['body'] );
 	}
 
@@ -346,7 +353,7 @@ class Salesforce {
 	 * Create a new opportunity record in Salesforce.
 	 *
 	 * @param array $data Data to use in creating the new opportunity. Keys must be valid Salesforce field names.
-	 * @return array Response from Salesforce API.
+	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function create_opportunity( $data ) {
 		$salesforce_settings = self::get_salesforce_settings();
@@ -379,6 +386,13 @@ class Salesforce {
 			);
 		}
 
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_opportunity_failure',
+				$response->get_error_message()
+			);
+		}
+
 		return json_decode( $response['body'] );
 	}
 
@@ -388,7 +402,7 @@ class Salesforce {
 	 *
 	 * @param string $opportunity_id Unique ID for the opportunity to link.
 	 * @param string $contact_id Unique ID for the contact to link.
-	 * @return array Response from Salesforce API.
+	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function create_opportunity_contact_role( $opportunity_id, $contact_id ) {
 		$salesforce_settings = self::get_salesforce_settings();
@@ -424,6 +438,13 @@ class Salesforce {
 					],
 					'body'    => wp_json_encode( $data ),
 				]
+			);
+		}
+
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_opportunity_contact_role_failure',
+				$response->get_error_message()
 			);
 		}
 
