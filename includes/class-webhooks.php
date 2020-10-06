@@ -129,7 +129,7 @@ class Webhooks {
 				if ( is_wp_error( $opportunity_response ) ) {
 					return new \WP_Error(
 						'newspack_salesforce_opportunity_failure',
-						$response->get_error_message()
+						$opportunity_response->get_error_message()
 					);
 				}
 
