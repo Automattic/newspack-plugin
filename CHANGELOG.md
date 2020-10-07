@@ -1,3 +1,10 @@
+# [1.22.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.22.0-alpha.1...v1.22.0-alpha.2) (2020-10-07)
+
+
+### Bug Fixes
+
+* increase timeout of Salesforce API requests to 30s ([#679](https://github.com/Automattic/newspack-plugin/issues/679)) ([64a4293](https://github.com/Automattic/newspack-plugin/commit/64a4293cc822ca0addcb5a7bcf96f63f4bd6e409))
+
 # [1.22.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.21.1...v1.22.0-alpha.1) (2020-10-07)
 
 
