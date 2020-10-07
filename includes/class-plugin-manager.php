@@ -25,7 +25,6 @@ class Plugin_Manager {
 		'jetpack',
 		'amp',
 		'pwa',
-		'gutenberg',
 		'wordpress-seo',
 		'google-site-kit',
 		'newspack-blocks',
@@ -136,12 +135,6 @@ class Plugin_Manager {
 					'filename'   => 'class-site-kit-configuration-manager.php',
 					'class_name' => 'Site_Kit_Configuration_Manager',
 				],
-			],
-			'gutenberg'                     => [
-				'Name'        => 'Gutenberg',
-				'Description' => 'Printing since 1440. This is the development plugin for the new block editor in core.',
-				'Author'      => 'Gutenberg Team',
-				'Download'    => 'wporg',
 			],
 			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
