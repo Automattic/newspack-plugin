@@ -1,3 +1,18 @@
+# [1.22.0](https://github.com/Automattic/newspack-plugin/compare/v1.21.1...v1.22.0) (2020-10-07)
+
+
+### Bug Fixes
+
+* improve generated product settings ([#233](https://github.com/Automattic/newspack-plugin/issues/233)) ([8e28865](https://github.com/Automattic/newspack-plugin/commit/8e2886507e8862b79b037e002a0d20f26fabcdb8))
+* increase timeout of Salesforce API requests to 30s ([#679](https://github.com/Automattic/newspack-plugin/issues/679)) ([64a4293](https://github.com/Automattic/newspack-plugin/commit/64a4293cc822ca0addcb5a7bcf96f63f4bd6e409))
+* salesforce opportunities should be set to closed/won instead of new ([#675](https://github.com/Automattic/newspack-plugin/issues/675)) ([fdea57f](https://github.com/Automattic/newspack-plugin/commit/fdea57f49a8e71d2a18e065ba00e056e95ab5e20))
+
+
+### Features
+
+* add AutocompleteTokenfield component ([#674](https://github.com/Automattic/newspack-plugin/issues/674)) ([7edb565](https://github.com/Automattic/newspack-plugin/commit/7edb5651132a614ea65c6b001dec2bb1fdb108bd))
+* remove gutenberg from list of managed plugins ([#677](https://github.com/Automattic/newspack-plugin/issues/677)) ([12b5d84](https://github.com/Automattic/newspack-plugin/commit/12b5d84df6784618241d7ce01dd52b1a1b91797f))
+
 ## [1.21.1](https://github.com/Automattic/newspack-plugin/compare/v1.21.0...v1.21.1) (2020-09-22)
 
 
