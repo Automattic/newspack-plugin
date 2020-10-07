@@ -240,6 +240,7 @@ class Salesforce {
 				'headers' => [
 					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
 				],
+				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			]
 		);
 
@@ -252,6 +253,7 @@ class Salesforce {
 					'headers' => [
 						'Authorization' => 'Bearer ' . $access_token,
 					],
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				]
 			);
 		}
@@ -280,6 +282,7 @@ class Salesforce {
 					'Content-Type'  => 'application/json',
 				],
 				'body'    => wp_json_encode( $data ),
+				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			]
 		);
 
@@ -295,6 +298,7 @@ class Salesforce {
 						'Content-Type'  => 'application/json',
 					],
 					'body'    => wp_json_encode( $data ),
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				]
 			);
 		}
@@ -321,6 +325,7 @@ class Salesforce {
 					'Content-Type'  => 'application/json',
 				],
 				'body'    => wp_json_encode( $data ),
+				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			]
 		);
 
@@ -335,6 +340,7 @@ class Salesforce {
 						'Content-Type'  => 'application/json',
 					],
 					'body'    => wp_json_encode( $data ),
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				]
 			);
 		}
@@ -373,6 +379,7 @@ class Salesforce {
 			[
 				'headers' => [
 					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+					'timeout'       => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				],
 			]
 		);
@@ -385,6 +392,7 @@ class Salesforce {
 				[
 					'headers' => [
 						'Authorization' => 'Bearer ' . $access_token,
+						'timeout'       => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 					],
 				]
 			);
@@ -452,6 +460,7 @@ class Salesforce {
 					'Content-Type'  => 'application/json',
 				],
 				'body'    => wp_json_encode( $data ),
+				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			]
 		);
 
@@ -466,6 +475,7 @@ class Salesforce {
 						'Content-Type'  => 'application/json',
 					],
 					'body'    => wp_json_encode( $data ),
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				]
 			);
 		}
@@ -507,6 +517,7 @@ class Salesforce {
 					'Content-Type'  => 'application/json',
 				],
 				'body'    => wp_json_encode( $data ),
+				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			]
 		);
 
@@ -521,6 +532,7 @@ class Salesforce {
 						'Content-Type'  => 'application/json',
 					],
 					'body'    => wp_json_encode( $data ),
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 				]
 			);
 		}
@@ -564,7 +576,10 @@ class Salesforce {
 					'grant_type'    => 'refresh_token',
 					'format'        => 'json',
 				]
-			)
+			),
+			[
+				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+			]
 		);
 
 		$response_body = json_decode( $salesforce_response['body'] );
