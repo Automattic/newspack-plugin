@@ -36,9 +36,6 @@ define('NEWSPACK_SUPPORT_EMAIL', 'support@company.com');
 define('NEWSPACK_WPCOM_CLIENT_ID', '12345');
 // optional
 define('NEWSPACK_SUPPORT_IS_PRE_LAUNCH', true);
-
-// payments
-define( 'NEWSPACK_STRIPE_PLAN', 'plan_...' );
 ```
 
 ## News Consumer Insights integration

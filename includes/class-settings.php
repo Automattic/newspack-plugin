@@ -99,15 +99,6 @@ class Settings {
 			'newspack-settings-admin',
 			'newspack_settings'
 		);
-		if ( Payment_Wizard::configured() ) {
-			add_settings_field(
-				'newspack_reset_subscription',
-				__( 'Reset Managed Newspack Subscription', 'newspack' ),
-				[ __CLASS__, 'newspack_reset_subscription_callback' ],
-				'newspack-settings-admin',
-				'newspack_settings'
-			);
-		}
 		if ( Support_Wizard::get_wpcom_access_token() ) {
 			add_settings_field(
 				'newspack_remove_wpcom_token',
