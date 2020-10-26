@@ -52,7 +52,7 @@ class Settings {
 				printf(
 					wp_kses(
 						/* translators: %2$s: Set Up Wizard, %4$s: Components Demo */
-						__( '<p><a href="%1$s">%2$s</a> | <a href="%3$s">%4$s</a></p>', 'newspack' ),
+						'<p><a href="%1$s">%2$s</a> | <a href="%3$s">%4$s</a></p>',
 						array(
 							'p' => array(),
 							'a' => array(
