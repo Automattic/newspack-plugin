@@ -55,7 +55,7 @@ class Analytics {
 		foreach ( $custom_dimensions as $dimension ) {
 			$dimension_role = $dimension['role'];
 			// Remove `ga:` prefix.
-			$dimension_id = substr( $dimension['id'], 3 );
+			$dimension_id = substr( $dimension['gaID'], 3 );
 
 			$post = get_post();
 			if ( $post ) {
