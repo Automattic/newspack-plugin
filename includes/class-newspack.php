@@ -54,6 +54,9 @@ final class Newspack {
 	private function define_constants() {
 		define( 'NEWSPACK_VERSION', '0.0.1' );
 		define( 'NEWSPACK_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/' );
+		if ( ! defined( 'NEWSPACK_COMPOSER_ABSPATH' ) ) {
+			define( 'NEWSPACK_COMPOSER_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/vendor/' );
+		}
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 	}
 
@@ -84,7 +87,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-support-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-payment-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-popups-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-updates-wizard.php';
 
@@ -126,10 +128,6 @@ final class Newspack {
 			}
 			wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 			exit;
-		}
-		if ( Payment_Wizard::configured() && filter_input( INPUT_POST, 'newspack_reset_subscription', FILTER_SANITIZE_STRING ) === 'on' ) {
-			update_option( Payment_Wizard::NEWSPACK_STRIPE_CUSTOMER, null );
-			update_option( Payment_Wizard::NEWSPACK_STRIPE_SUBSCRIPTION, null );
 		}
 		if ( Support_Wizard::get_wpcom_access_token() && filter_input( INPUT_POST, 'newspack_remove_wpcom_token', FILTER_SANITIZE_STRING ) === 'on' ) {
 			delete_user_meta( get_current_user_id(), Support_Wizard::NEWSPACK_WPCOM_ACCESS_TOKEN );
