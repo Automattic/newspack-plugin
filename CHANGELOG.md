@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/Automattic/newspack-plugin/compare/v1.22.0...v1.23.0) (2020-10-27)
+
+
+### Features
+
+* trigger release ([660f40d](https://github.com/Automattic/newspack-plugin/commit/660f40d2bbc8396056074af4ce538a6bc6183a91)), closes [#684](https://github.com/Automattic/newspack-plugin/issues/684)
+
 # [1.22.0](https://github.com/Automattic/newspack-plugin/compare/v1.21.1...v1.22.0) (2020-10-07)
 
 
