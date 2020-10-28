@@ -40,12 +40,11 @@ class AMP_Enhancements {
 	 * @return bool Should AMP plus be applied.
 	 */
 	public static function amp_plus_mode( $context = null ) {
-		switch ( $context ) {
-			case 'gam':
-				return true;
-			default:
-				return false;
+		if ( ! defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) ) {
+			return false;
 		}
+		$config = (array) NEWSPACK_AMP_PLUS_CONFIG;
+		return in_array( $context, $config );
 	}
 
 	/**
