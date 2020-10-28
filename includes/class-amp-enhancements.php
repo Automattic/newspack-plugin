@@ -40,6 +40,9 @@ class AMP_Enhancements {
 	 * @return bool Should AMP plus be applied.
 	 */
 	public static function amp_plus_mode( $context = null ) {
+		if ( ! isset( $_GET['ampplus'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
 		if ( ! defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) ) {
 			return false;
 		}
