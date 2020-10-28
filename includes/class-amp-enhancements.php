@@ -29,6 +29,36 @@ class AMP_Enhancements {
 				return $gtag_opt;
 			}
 		);
+		add_filter( 'should_use_amp_plus', [ __CLASS__, 'amp_plus_mode' ] );
+		add_filter( 'amp_content_sanitizers', [ __CLASS__, 'amp_content_sanitizers' ] );
+	}
+
+	/**
+	 * AMP plus mode.
+	 *
+	 * @param  string $context The context for which AMP plus should be assessed.
+	 * @return bool Should AMP plus be applied.
+	 */
+	public static function amp_plus_mode( $context = null ) {
+		switch ( $context ) {
+			case 'gam':
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Allow certain scripts to be included in AMP pages.
+	 *
+	 * @param array $sanitizers The array of sanitizers, 'MyClassName' => [] // array of constructor params for class.
+	 */
+	public static function amp_content_sanitizers( $sanitizers ) {
+		if ( self::amp_plus_mode( 'gam' ) ) {
+			require_once NEWSPACK_ABSPATH . 'includes/amp-sanitizers/class-amp-sanitizer-gam.php';
+			$sanitizers['AMP_Sanitizer_GAM'] = [];
+		}
+		return $sanitizers;
 	}
 }
 AMP_Enhancements::init();
