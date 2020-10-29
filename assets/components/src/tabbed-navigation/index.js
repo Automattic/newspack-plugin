@@ -20,7 +20,9 @@ const { NavLink, useHistory } = Router;
  */
 const TabbedNavigation = ( { items, className } ) => {
 	const classes = classNames( 'newspack-tabbed-navigation', className );
-	const history = useHistory();
+	const {
+		location: { pathname },
+	} = useHistory();
 	return (
 		<div className={ classes }>
 			<ul>
@@ -30,7 +32,8 @@ const TabbedNavigation = ( { items, className } ) => {
 							to={ item.path }
 							exact={ item.exact }
 							className={ classNames( {
-								selected: history.location.pathname.indexOf( item.path ) === 0,
+								selected:
+									item.path === '/' ? pathname === item.path : pathname.indexOf( item.path ) === 0,
 							} ) }
 						>
 							{ item.label }
