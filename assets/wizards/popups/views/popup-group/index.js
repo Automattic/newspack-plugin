@@ -24,16 +24,20 @@ class PopupGroup extends Component {
 	 *
 	 * @param {Object} popup object.
 	 */
-	descriptionForPopup = ( { categories, sitewide_default: sitewideDefault } ) => {
+	descriptionForPopup = ( { categories, sitewide_default: sitewideDefault, options } ) => {
+		const description = [];
 		if ( sitewideDefault ) {
-			return __( 'Sitewide default', 'newspack' );
+			description.push( __( 'Sitewide default', 'newspack' ) );
+		}
+		if ( options.placement === 'above_header' ) {
+			description.push( __( 'Above header', 'newspack' ) );
 		}
 		if ( categories.length > 0 ) {
-			return (
+			description.push(
 				__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
 			);
 		}
-		return null;
+		return description.join( ' | ' );
 	};
 
 	/**
