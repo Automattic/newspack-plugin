@@ -258,15 +258,10 @@ class Popups_Wizard extends Wizard {
 			true
 		);
 
-		$recent_posts = wp_get_recent_posts(
-			[
-				'numberposts' => 1,
-				'post_status' => 'publish',
-			],
-			OBJECT
-		);
-
-		$preview_post = count( $recent_posts ) > 0 ? get_the_permalink( $recent_posts[0] ) : '';
+		$preview_post = '';
+		if ( method_exists( 'Newspack_Popups', 'preview_post_permalink' ) ) {
+			$preview_post = \Newspack_Popups::preview_post_permalink();
+		}
 
 		\wp_localize_script(
 			'newspack-popups-wizard',
