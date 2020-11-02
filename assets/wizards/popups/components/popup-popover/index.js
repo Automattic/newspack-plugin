@@ -19,8 +19,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PreviewIcon from '@material-ui/icons/Visibility';
 import FrequencyIcon from '@material-ui/icons/Today';
 import PublishIcon from '@material-ui/icons/Publish';
-import TestIcon from '@material-ui/icons/BugReport';
-import SitewideDefaultIcon from '@material-ui/icons/Public';
 
 /**
  * Internal dependencies.
@@ -41,7 +39,6 @@ const frequenciesForPopup = ( { options } ) => {
 		.filter( key => ! ( 'always' === key && 'inline' !== placement ) )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
-
 class PopupPopover extends Component {
 	/**
 	 * Render.
@@ -60,6 +57,20 @@ class PopupPopover extends Component {
 		const { frequency, placement } = options;
 		const isDraft = 'draft' === status;
 		const isTestMode = 'test' === frequency;
+		const SitewideDefaultIcon = () => (
+			<ToggleControl
+				className="newspack-popup-action-card-popover-control"
+				checked={ sitewideDefault }
+				onChange={ () => null }
+			/>
+		);
+		const TestModeIcon = () => (
+			<ToggleControl
+				className="newspack-popup-action-card-popover-control"
+				checked={ isTestMode }
+				onChange={ () => null }
+			/>
+		);
 		return (
 			<Popover
 				position="bottom left"
@@ -76,11 +87,6 @@ class PopupPopover extends Component {
 						className="newspack-button"
 					>
 						{ __( 'Sitewide default', 'newspack' ) }
-						<ToggleControl
-							className="newspack-popup-action-card-popover-control"
-							checked={ sitewideDefault }
-							onChange={ () => null }
-						/>
 					</MenuItem>
 				) }
 				<MenuItem
@@ -88,15 +94,10 @@ class PopupPopover extends Component {
 						updatePopup( id, { frequency: isTestMode ? 'daily' : 'test' } );
 						onFocusOutside();
 					} }
-					icon={ <TestIcon /> }
+					icon={ <TestModeIcon /> }
 					className="newspack-button"
 				>
 					{ __( 'Test mode', 'newspack' ) }
-					<ToggleControl
-						className="newspack-popup-action-card-popover-control"
-						checked={ isTestMode }
-						onChange={ () => null }
-					/>
 				</MenuItem>
 				{ 'test' !== frequency && (
 					<MenuItem icon={ <FrequencyIcon /> } className="newspack-button">
