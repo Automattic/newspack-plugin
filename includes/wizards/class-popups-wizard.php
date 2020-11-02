@@ -253,7 +253,7 @@ class Popups_Wizard extends Wizard {
 		\wp_enqueue_script(
 			'newspack-popups-wizard',
 			Newspack::plugin_url() . '/dist/popups.js',
-			$this->get_script_dependencies( [ 'wp-html-entities' ] ),
+			$this->get_script_dependencies( [ 'wp-html-entities', 'wp-date' ] ),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/popups.js' ),
 			true
 		);
