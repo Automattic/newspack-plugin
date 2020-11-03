@@ -39,15 +39,17 @@ const Settings = ( { isLoading, startLoading, doneLoading } ) => {
 
 	return (
 		<>
-			{ settings.map( setting => (
-				<CheckboxControl
-					key={ setting.key }
-					label={ setting.label }
-					disabled={ isLoading }
-					checked={ setting.value === '1' }
-					onChange={ handleSettingChange( setting.key ) }
-				/>
-			) ) }
+			{ settings.map( setting =>
+				setting.label ? (
+					<CheckboxControl
+						key={ setting.key }
+						label={ setting.label }
+						disabled={ isLoading }
+						checked={ setting.value === '1' }
+						onChange={ handleSettingChange( setting.key ) }
+					/>
+				) : null
+			) }
 		</>
 	);
 };
