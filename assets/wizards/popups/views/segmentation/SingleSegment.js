@@ -42,6 +42,10 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 					setName( foundSegment.name );
 					setMinPosts( foundSegment.configuration.min_posts );
 					setMaxPosts( foundSegment.configuration.max_posts );
+					setIsSubscribed( foundSegment.configuration.is_subscribed );
+					setIsDonor( foundSegment.configuration.is_donor );
+					setIsNotSubscribed( foundSegment.configuration.is_not_subscribed );
+					setIsNotDonor( foundSegment.configuration.is_not_donor );
 				}
 			} );
 		}
