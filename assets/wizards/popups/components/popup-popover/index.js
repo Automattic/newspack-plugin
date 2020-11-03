@@ -101,6 +101,7 @@ class PopupPopover extends Component {
 								updatePopup( id, { frequency: value } );
 								onFocusOutside();
 							} }
+							className="newspack-popup-action-card-select"
 							options={ frequenciesForPopup( popup ) }
 							value={ frequency }
 						/>
