@@ -1,4 +1,5 @@
 .newspack-popup-action-card-popover-control {
-	display: inline-block;
-	flex: 0 0 auto;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
 }

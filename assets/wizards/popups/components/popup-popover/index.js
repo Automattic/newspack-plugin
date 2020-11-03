@@ -19,6 +19,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PreviewIcon from '@material-ui/icons/Visibility';
 import FrequencyIcon from '@material-ui/icons/Today';
 import PublishIcon from '@material-ui/icons/Publish';
+import TestIcon from '@material-ui/icons/BugReport';
+import SitewideDefaultIcon from '@material-ui/icons/Public';
 
 /**
  * Internal dependencies.
@@ -57,20 +59,7 @@ class PopupPopover extends Component {
 		const { frequency, placement } = options;
 		const isDraft = 'draft' === status;
 		const isTestMode = 'test' === frequency;
-		const SitewideDefaultIcon = () => (
-			<ToggleControl
-				className="newspack-popup-action-card-popover-control"
-				checked={ sitewideDefault }
-				onChange={ () => null }
-			/>
-		);
-		const TestModeIcon = () => (
-			<ToggleControl
-				className="newspack-popup-action-card-popover-control"
-				checked={ isTestMode }
-				onChange={ () => null }
-			/>
-		);
+
 		return (
 			<Popover
 				position="bottom left"
@@ -86,7 +75,10 @@ class PopupPopover extends Component {
 						icon={ <SitewideDefaultIcon /> }
 						className="newspack-button"
 					>
-						{ __( 'Sitewide default', 'newspack' ) }
+						<div className="newspack-popup-action-card-popover-control">
+							{ __( 'Sitewide default', 'newspack' ) }
+							<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
+						</div>
 					</MenuItem>
 				) }
 				<MenuItem
@@ -94,10 +86,13 @@ class PopupPopover extends Component {
 						updatePopup( id, { frequency: isTestMode ? 'daily' : 'test' } );
 						onFocusOutside();
 					} }
-					icon={ <TestModeIcon /> }
+					icon={ <TestIcon /> }
 					className="newspack-button"
 				>
-					{ __( 'Test mode', 'newspack' ) }
+					<div className="newspack-popup-action-card-popover-control">
+						{ __( 'Test mode', 'newspack' ) }
+						<ToggleControl checked={ isTestMode } onChange={ () => null } />
+					</div>
 				</MenuItem>
 				{ 'test' !== frequency && (
 					<MenuItem icon={ <FrequencyIcon /> } className="newspack-button">
