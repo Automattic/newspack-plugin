@@ -13,7 +13,6 @@
     "@commitlint/config-conventional": "^8.3.4",
     "@semantic-release/changelog": "^5.0.0",
     "@semantic-release/git": "^9.0.0",
-    "@stripe/stripe-js": "^1.0.2",
     "@testing-library/jest-dom": "^5.1.1",
     "@wordpress/api-fetch": "^3.9.0",
     "@wordpress/base-styles": "^1.6.0",
@@ -42,7 +41,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.7.1",
     "lint-staged": "^10.0.7",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "node-sass": "^4.13.0",
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^6.0.1",
@@ -118,6 +117,7 @@
     "@material-ui/core": "^4.8.2",
     "@material-ui/icons": "^4.5.1",
     "@testing-library/react": "^9.4.0",
+    "@wordpress/date": "^3.12.0",
     "@wordpress/html-entities": "^2.6.0",
     "@wordpress/keycodes": "^2.12.0",
     "@wordpress/url": "^2.10.0",
@@ -129,9 +129,9 @@
     "qs": "^6.9.3",
     "react": "^16.12.0",
     "react-dropzone": "^10.2.1",
+    "react-rte": "^0.16.1",
     "recharts": "^1.8.5",
-    "whatwg-fetch": "^3.0.0",
-    "react-rte": "^0.16.1"
+    "whatwg-fetch": "^3.0.0"
   },
   "release": {
     "branches": [

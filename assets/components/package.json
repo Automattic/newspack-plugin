@@ -30,6 +30,7 @@
     "@wordpress/element": "^2.3.0",
     "@wordpress/i18n": "^3.11.0",
     "classnames": "^2.2.6",
+    "lodash": "^4.17.20",
     "react-router-dom": "^5.0.1"
   },
   "devDependencies": {

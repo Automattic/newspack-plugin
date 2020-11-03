@@ -27,6 +27,8 @@ class Donations {
 	public static function init() {
 		if ( ! is_admin() ) {
 			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
+			add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
+			add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
 		}
 	}
 
@@ -192,6 +194,9 @@ class Donations {
 		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
 		$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
 		$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
+		$parent_product->set_catalog_visibility( 'hidden' );
+		$parent_product->set_virtual( true );
+		$parent_product->set_sold_individually( true );
 
 		$default_price = $args['tiered'] ? wc_format_decimal( $args['suggestedAmounts'][ floor( count( $args['suggestedAmounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
 
@@ -210,6 +215,9 @@ class Donations {
 		$monthly_product->update_meta_data( '_subscription_price', wc_format_decimal( $default_price ) );
 		$monthly_product->update_meta_data( '_subscription_period', 'month' );
 		$monthly_product->update_meta_data( '_subscription_period_interval', 1 );
+		$monthly_product->set_virtual( true );
+		$monthly_product->set_catalog_visibility( 'hidden' );
+		$monthly_product->set_sold_individually( true );
 		$monthly_product->save();
 
 		// Yearly donation.
@@ -227,6 +235,9 @@ class Donations {
 		$yearly_product->update_meta_data( '_subscription_price', wc_format_decimal( 12 * $default_price ) );
 		$yearly_product->update_meta_data( '_subscription_period', 'year' );
 		$yearly_product->update_meta_data( '_subscription_period_interval', 1 );
+		$yearly_product->set_virtual( true );
+		$yearly_product->set_catalog_visibility( 'hidden' );
+		$yearly_product->set_sold_individually( true );
 		$yearly_product->save();
 
 		// One-time donation.
@@ -241,6 +252,9 @@ class Donations {
 		$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
 		$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
 		$once_product->update_meta_data( '_nyp', 'yes' );
+		$once_product->set_virtual( true );
+		$once_product->set_catalog_visibility( 'hidden' );
+		$once_product->set_sold_individually( true );
 		$once_product->save();
 
 		$parent_product->set_children(
@@ -360,6 +374,32 @@ class Donations {
 			}
 		}
 
+		if ( function_exists( 'wpcom_vip_url_to_postid' ) ) {
+			$referer_post_id = wpcom_vip_url_to_postid( wp_get_referer() );
+		} else {
+			$referer_post_id = url_to_postid( wp_get_referer() ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
+		}
+		$referer_tags       = [];
+		$referer_categories = [];
+		$tags               = get_the_tags( $referer_post_id );
+		if ( $tags && ! empty( $tags ) ) {
+			$referer_tags = array_map(
+				function ( $item ) {
+					return $item->slug;
+				},
+				$tags
+			);
+		}
+		$categories = get_the_category( $referer_post_id );
+		if ( $categories && ! empty( $categories ) ) {
+			$referer_categories = array_map(
+				function ( $item ) {
+					return $item->slug;
+				},
+				$categories
+			);
+		}
+
 		// Add product to cart.
 		$product_id = $donation_settings['products'][ $donation_frequency ];
 		if ( ! $product_id ) {
@@ -378,8 +418,16 @@ class Donations {
 			]
 		);
 
+		$checkout_url = add_query_arg(
+			[
+				'referer_tags'       => implode( ',', $referer_tags ),
+				'referer_categories' => implode( ',', $referer_categories ),
+			],
+			\wc_get_page_permalink( 'checkout' )
+		);
+
 		// Redirect to checkout.
-		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', \wc_get_page_permalink( 'checkout' ), $donation_value, $donation_frequency ) );
+		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
 		exit;
 	}
 
@@ -503,6 +551,47 @@ class Donations {
 			'editUrl' => html_entity_decode( get_edit_post_link( $page_id ) ),
 			'status'  => get_post_status( $page_id ),
 		];
+	}
+
+	/**
+	 * Add a hidden billing fields with tags and categories.
+	 *
+	 * @param Array $form_fields WC form fields.
+	 */
+	public static function woocommerce_billing_fields( $form_fields ) {
+		$referer_tags       = filter_input( INPUT_GET, 'referer_tags', FILTER_SANITIZE_STRING );
+		$referer_categories = filter_input( INPUT_GET, 'referer_categories', FILTER_SANITIZE_STRING );
+
+		if ( $referer_tags ) {
+			$form_fields['referer_tags'] = [
+				'type'    => 'text',
+				'default' => $referer_tags,
+				'class'   => [ 'hide' ],
+			];
+		}
+		if ( $referer_categories ) {
+			$form_fields['referer_categories'] = [
+				'type'    => 'text',
+				'default' => $referer_categories,
+				'class'   => [ 'hide' ],
+			];
+		}
+
+		return $form_fields;
+	}
+
+	/**
+	 * Update WC order with the client id from hidden form field.
+	 *
+	 * @param String $order_id WC order id.
+	 */
+	public static function woocommerce_checkout_update_order_meta( $order_id ) {
+		if ( ! empty( $_POST['referer_tags'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			update_post_meta( $order_id, 'referer_tags', sanitize_text_field( $_POST['referer_tags'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+		if ( ! empty( $_POST['referer_categories'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			update_post_meta( $order_id, 'referer_categories', sanitize_text_field( $_POST['referer_categories'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
 	}
 }
 Donations::init();

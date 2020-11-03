@@ -102,6 +102,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get segments.
+	 */
+	public function get_segments() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::get_segments() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Set plugin settings.
 	 *
 	 * @param object $options options.
@@ -109,6 +118,39 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function set_settings( $options ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Settings::set_settings( $options ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Create a segment.
+	 *
+	 * @param object $segment Segment configuration.
+	 */
+	public function create_segment( $segment ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::create_segment( $segment ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Update a segment.
+	 *
+	 * @param object $segment Segment configuration.
+	 */
+	public function update_segment( $segment ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::update_segment( $segment ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Delete a segment.
+	 *
+	 * @param string $id A segment ID.
+	 */
+	public function delete_segment( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::delete_segment( $id ) :
 			$this->unconfigured_error();
 	}
 
