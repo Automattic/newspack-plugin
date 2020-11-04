@@ -41,7 +41,6 @@ const frequenciesForPopup = ( { options } ) => {
 		.filter( key => ! ( 'always' === key && 'inline' !== placement ) )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
-
 class PopupPopover extends Component {
 	/**
 	 * Render.
@@ -60,6 +59,7 @@ class PopupPopover extends Component {
 		const { frequency, placement } = options;
 		const isDraft = 'draft' === status;
 		const isTestMode = 'test' === frequency;
+
 		return (
 			<Popover
 				position="bottom left"
@@ -75,12 +75,10 @@ class PopupPopover extends Component {
 						icon={ <SitewideDefaultIcon /> }
 						className="newspack-button"
 					>
-						{ __( 'Sitewide default', 'newspack' ) }
-						<ToggleControl
-							className="newspack-popup-action-card-popover-control"
-							checked={ sitewideDefault }
-							onChange={ () => null }
-						/>
+						<div className="newspack-popup-action-card-popover-control">
+							{ __( 'Sitewide default', 'newspack' ) }
+							<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
+						</div>
 					</MenuItem>
 				) }
 				<MenuItem
@@ -91,12 +89,10 @@ class PopupPopover extends Component {
 					icon={ <TestIcon /> }
 					className="newspack-button"
 				>
-					{ __( 'Test mode', 'newspack' ) }
-					<ToggleControl
-						className="newspack-popup-action-card-popover-control"
-						checked={ isTestMode }
-						onChange={ () => null }
-					/>
+					<div className="newspack-popup-action-card-popover-control">
+						{ __( 'Test mode', 'newspack' ) }
+						<ToggleControl checked={ isTestMode } onChange={ () => null } />
+					</div>
 				</MenuItem>
 				{ 'test' !== frequency && (
 					<MenuItem icon={ <FrequencyIcon /> } className="newspack-button">
@@ -105,6 +101,7 @@ class PopupPopover extends Component {
 								updatePopup( id, { frequency: value } );
 								onFocusOutside();
 							} }
+							className="newspack-popup-action-card-select"
 							options={ frequenciesForPopup( popup ) }
 							value={ frequency }
 						/>
