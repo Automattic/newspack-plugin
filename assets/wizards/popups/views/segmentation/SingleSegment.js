@@ -23,6 +23,10 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 	const [ name, setName ] = useState( '' );
 	const [ min_posts, setMinPosts ] = useState( 0 );
 	const [ max_posts, setMaxPosts ] = useState( 0 );
+	const [ is_subscribed, setIsSubscribed ] = useState( false );
+	const [ is_donor, setIsDonor ] = useState( false );
+	const [ is_not_subscribed, setIsNotSubscribed ] = useState( false );
+	const [ is_not_donor, setIsNotDonor ] = useState( false );
 	const history = useHistory();
 
 	const isSegmentValid = name.length > 0;
@@ -38,6 +42,10 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 					setName( foundSegment.name );
 					setMinPosts( foundSegment.configuration.min_posts );
 					setMaxPosts( foundSegment.configuration.max_posts );
+					setIsSubscribed( foundSegment.configuration.is_subscribed );
+					setIsDonor( foundSegment.configuration.is_donor );
+					setIsNotSubscribed( foundSegment.configuration.is_not_subscribed );
+					setIsNotDonor( foundSegment.configuration.is_not_donor );
 				}
 			} );
 		}
@@ -55,6 +63,10 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				configuration: {
 					min_posts,
 					max_posts,
+					is_subscribed,
+					is_donor,
+					is_not_subscribed,
+					is_not_donor,
 				},
 			},
 		} ).then( () => history.push( '/segmentation' ) );
@@ -95,6 +107,30 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 							onChange={ setMaxPosts }
 						/>
 					</div>
+				</SegmentSettingSection>
+				<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
+					<CheckboxControl
+						checked={ is_subscribed }
+						onChange={ setIsSubscribed }
+						label={ __( 'Is subscribed to newsletter', 'newspack' ) }
+					/>
+					<CheckboxControl
+						checked={ is_not_subscribed }
+						onChange={ setIsNotSubscribed }
+						label={ __( 'Is not subscribed to newsletter', 'newspack' ) }
+					/>
+				</SegmentSettingSection>
+				<SegmentSettingSection title={ __( 'Donation', 'newspack' ) }>
+					<CheckboxControl
+						checked={ is_donor }
+						onChange={ setIsDonor }
+						label={ __( 'Has donated', 'newspack' ) }
+					/>
+					<CheckboxControl
+						checked={ is_not_donor }
+						onChange={ setIsNotDonor }
+						label={ __( "Hasn't donated", 'newspack' ) }
+					/>
 				</SegmentSettingSection>
 			</div>
 			<div className="newspack-buttons-card">
