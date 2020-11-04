@@ -47,7 +47,7 @@
     "postcss-cli": "^6.0.1",
     "postcss-focus-within": "^3.0.0",
     "prettier": "git+https://github.com/Automattic/wp-prettier.git#wp-prettier-1.18.2",
-    "react-router-dom": "^5.0.1",
+    "react-router-dom": "^5.2.0",
     "recursive-copy": "^2.0.10",
     "rtlcss": "^2.4.0",
     "semantic-release": "^17.0.2",
