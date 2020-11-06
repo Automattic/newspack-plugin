@@ -9,6 +9,11 @@ import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * External dependencies.
+ */
+import { find } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import { withWizardScreen, ActionCardSections } from '../../../../components/src';
@@ -24,16 +29,24 @@ class PopupGroup extends Component {
 	 *
 	 * @param {Object} popup object.
 	 */
-	descriptionForPopup = ( { categories, sitewide_default: sitewideDefault } ) => {
+	descriptionForPopup = (
+		{ categories, sitewide_default: sitewideDefault, options },
+		segments
+	) => {
+		const segment = find( segments, [ 'id', options.selected_segment_id ] );
+		const descriptionMessages = [];
+		if ( segment ) {
+			descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
+		}
 		if ( sitewideDefault ) {
-			return __( 'Sitewide default', 'newspack' );
+			descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 		}
 		if ( categories.length > 0 ) {
-			return (
+			descriptionMessages.push(
 				__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
 			);
 		}
-		return null;
+		return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 	};
 
 	/**
@@ -49,6 +62,7 @@ class PopupGroup extends Component {
 			setSitewideDefaultPopup,
 			publishPopup,
 			updatePopup,
+			segments,
 		} = this.props;
 
 		const getCardClassName = ( { key }, { sitewide_default } ) =>
@@ -71,7 +85,7 @@ class PopupGroup extends Component {
 					<PopupActionCard
 						className={ getCardClassName( section, popup ) }
 						deletePopup={ deletePopup }
-						description={ this.descriptionForPopup( popup ) }
+						description={ this.descriptionForPopup( popup, segments ) }
 						key={ popup.id }
 						popup={ popup }
 						previewPopup={ previewPopup }
