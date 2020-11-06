@@ -59,6 +59,7 @@ class PopupsWizard extends Component {
 				inline: [],
 				overlay: [],
 			},
+			segments: [],
 			previewUrl: null,
 		};
 	}
@@ -74,7 +75,9 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { popups, segments } ) =>
+				this.setState( { popups: this.sortPopups( popups ), segments } )
+			)
 			.catch( error => setError( error ) );
 	};
 
@@ -217,7 +220,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, previewUrl } = this.state;
+		const { popups, segments, previewUrl } = this.state;
 		const { inline, overlay } = popups;
 		return (
 			<WebPreview
@@ -245,6 +248,7 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						segments,
 					};
 					return (
 						<HashRouter hashType="slash">
