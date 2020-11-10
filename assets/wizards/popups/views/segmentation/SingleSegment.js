@@ -12,9 +12,14 @@ import { Button, TextControl, CheckboxControl, Router } from '../../../../compon
 
 const { NavLink, useHistory } = Router;
 
-const SegmentSettingSection = ( { title, children } ) => (
+const SegmentSettingSection = ( { title, description, children } ) => (
 	<div className="newspack-campaigns-wizard-segments__section">
 		<h3>{ title }</h3>
+		{ description && (
+			<div className="newspack-campaigns-wizard-segments__section__description">
+				{ description }
+			</div>
+		) }
 		<div className="newspack-campaigns-wizard-segments__section__content">{ children }</div>
 	</div>
 );
@@ -120,7 +125,10 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 						label={ __( 'Is not subscribed to newsletter', 'newspack' ) }
 					/>
 				</SegmentSettingSection>
-				<SegmentSettingSection title={ __( 'Donation', 'newspack' ) }>
+				<SegmentSettingSection
+					title={ __( 'Donation', 'newspack' ) }
+					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
+				>
 					<CheckboxControl
 						checked={ is_donor }
 						onChange={ setIsDonor }
