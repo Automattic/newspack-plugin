@@ -28,6 +28,12 @@
 		h3 {
 			margin-top: 0;
 		}
+		&__description {
+			opacity: 0.6;
+			margin-top: -15px;
+			margin-bottom: 15px;
+			font-size: 0.9em;
+		}
 		&__content {
 			div {
 				margin-top: 10px;
