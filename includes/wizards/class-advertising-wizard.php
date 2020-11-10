@@ -565,7 +565,7 @@ class Advertising_Wizard extends Wizard {
 			return;
 		}
 
-		$is_amp = ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) && ! AMP_Enhancements::amp_plus_mode( 'gam' );
+		$is_amp = ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) && ! AMP_Enhancements::should_use_amp_plus( 'gam' );
 		$code   = $is_amp ? $ad_unit['amp_ad_code'] : $ad_unit['ad_code'];
 		if ( empty( $code ) ) {
 			return;

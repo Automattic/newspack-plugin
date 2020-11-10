@@ -29,7 +29,6 @@ class AMP_Enhancements {
 				return $gtag_opt;
 			}
 		);
-		add_filter( 'should_use_amp_plus', [ __CLASS__, 'amp_plus_mode' ] );
 		add_filter( 'amp_content_sanitizers', [ __CLASS__, 'amp_content_sanitizers' ] );
 	}
 
@@ -39,15 +38,12 @@ class AMP_Enhancements {
 	 * @param  string $context The context for which AMP plus should be assessed.
 	 * @return bool Should AMP plus be applied.
 	 */
-	public static function amp_plus_mode( $context = null ) {
-		if ( ! isset( $_GET['ampplus'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return false;
+	public static function should_use_amp_plus( $context = null ) {
+		$should = false;
+		if ( isset( $_GET['ampplus'] ) && defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) && is_array( NEWSPACK_AMP_PLUS_CONFIG ) && in_array( $context, NEWSPACK_AMP_PLUS_CONFIG ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$should = true;
 		}
-		if ( ! defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) ) {
-			return false;
-		}
-		$config = (array) NEWSPACK_AMP_PLUS_CONFIG;
-		return in_array( $context, $config );
+		return apply_filters( 'should_use_amp_plus', $should, $context );
 	}
 
 	/**
@@ -56,7 +52,7 @@ class AMP_Enhancements {
 	 * @param array $sanitizers The array of sanitizers, 'MyClassName' => [] // array of constructor params for class.
 	 */
 	public static function amp_content_sanitizers( $sanitizers ) {
-		if ( self::amp_plus_mode( 'gam' ) ) {
+		if ( self::should_use_amp_plus( 'gam' ) ) {
 			require_once NEWSPACK_ABSPATH . 'includes/amp-sanitizers/class-amp-sanitizer-gam.php';
 			$sanitizers['AMP_Sanitizer_GAM'] = [];
 		}
