@@ -7,6 +7,10 @@
 
 namespace Newspack;
 
+use Google\Site_Kit\Context;
+use Google\Site_Kit\Modules\Optimize;
+
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -30,6 +34,25 @@ class AMP_Enhancements {
 			}
 		);
 		add_filter( 'amp_content_sanitizers', [ __CLASS__, 'amp_content_sanitizers' ] );
+		if ( self::should_use_amp_plus( 'googleoptimize' ) ) {
+			add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_amp_plus_googleoptimize_scripts' ] );
+		}
+	}
+
+	/**
+	 * Enqueue Google Optimize script if needed
+	 *
+	 * @return void
+	 */
+	public static function enqueue_amp_plus_googleoptimize_scripts() {
+		$context = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
+		$go      = new Optimize( $context );
+		if ( $go->is_connected() ) {
+			$info   = $go->prepare_info_for_js();
+			$id     = $info['settings']['optimizeID'];
+			$script = sprintf( 'https://www.googleoptimize.com/optimize.js?id=%s', $id );
+			wp_enqueue_script( 'googleoptimize', $script, false, '1', true );
+		}
 	}
 
 	/**
@@ -55,6 +78,10 @@ class AMP_Enhancements {
 		if ( self::should_use_amp_plus( 'gam' ) ) {
 			require_once NEWSPACK_ABSPATH . 'includes/amp-sanitizers/class-amp-sanitizer-gam.php';
 			$sanitizers['AMP_Sanitizer_GAM'] = [];
+		}
+		if ( self::should_use_amp_plus( 'googleoptimize' ) ) {
+			require_once NEWSPACK_ABSPATH . 'includes/amp-sanitizers/class-amp-sanitizer-google-optimize.php';
+			$sanitizers['AMP_Sanitizer_Google_Optimize'] = [];
 		}
 		return $sanitizers;
 	}
