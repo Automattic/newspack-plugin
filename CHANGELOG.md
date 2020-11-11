@@ -1,3 +1,21 @@
+# [1.24.0](https://github.com/Automattic/newspack-plugin/compare/v1.23.0...v1.24.0) (2020-11-11)
+
+
+### Bug Fixes
+
+* **campaigns-wizard:** layout issues ([#692](https://github.com/Automattic/newspack-plugin/issues/692)) ([9fd3a59](https://github.com/Automattic/newspack-plugin/commit/9fd3a59ab98379cbc3ae2ee3b1779020589bfed2))
+
+
+### Features
+
+* add a note about donation segment and WC ([e04ba0f](https://github.com/Automattic/newspack-plugin/commit/e04ba0f59a8ba877ed334126fb943085f5f1dd56))
+* allow gam scripts in amp pages ([#688](https://github.com/Automattic/newspack-plugin/issues/688)) ([7d3a842](https://github.com/Automattic/newspack-plugin/commit/7d3a842df63ecc57e364413410a51d7b3c64399a))
+* **campaigns-wizard:** add segment options for subscriptions, donations ([#693](https://github.com/Automattic/newspack-plugin/issues/693)) ([519e79a](https://github.com/Automattic/newspack-plugin/commit/519e79a16f7a66982636b08df879f2553cdbc259)), closes [#249](https://github.com/Automattic/newspack-plugin/issues/249) [#250](https://github.com/Automattic/newspack-plugin/issues/250)
+* **campaigns-wizard:** display segment name in campaign card ([ece13d6](https://github.com/Automattic/newspack-plugin/commit/ece13d6c756041ab766eead40fc99758944fa876))
+* set up Campaigns segmentation UI ([#689](https://github.com/Automattic/newspack-plugin/issues/689)) ([cd1ef3f](https://github.com/Automattic/newspack-plugin/commit/cd1ef3f7ab9e85476dfb591dcfbca2c77d227efd))
+* update React Router Dom to its latest version ([#694](https://github.com/Automattic/newspack-plugin/issues/694)) ([45ad7fa](https://github.com/Automattic/newspack-plugin/commit/45ad7fad80fab46245fc5fb7d55cb6c0402edfb0))
+* use newspack-popups' preview post link ([02910dc](https://github.com/Automattic/newspack-plugin/commit/02910dc904412c80c3bc4441d808b0bc8a907d2a))
+
 # [1.23.0](https://github.com/Automattic/newspack-plugin/compare/v1.22.0...v1.23.0) (2020-10-27)
 
 
