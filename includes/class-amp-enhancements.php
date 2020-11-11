@@ -45,6 +45,9 @@ class AMP_Enhancements {
 	 * @return void
 	 */
 	public static function enqueue_amp_plus_googleoptimize_scripts() {
+		if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
+			return;
+		}
 		$context = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
 		$go      = new Optimize( $context );
 		if ( $go->is_connected() ) {
