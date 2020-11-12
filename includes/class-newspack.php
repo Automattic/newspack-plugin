@@ -73,7 +73,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-analytics.php';
 
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
+		if ( self::should_use_setup_v2() ) {
+			include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-v2-wizard.php';
+		} else {
+			include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
+		}
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 
@@ -164,6 +168,15 @@ final class Newspack {
 		delete_transient( NEWSPACK_ACTIVATION_TRANSIENT );
 		wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 		exit;
+	}
+
+	/**
+	 * Should use V2 Setup Wizard
+	 *
+	 * @return bool whether to use v2 wizard
+	 */
+	public function should_use_setup_v2() {
+		return defined( 'NEWSPACK_V2_ONBOARDING' ) && NEWSPACK_V2_ONBOARDING;
 	}
 }
 Newspack::instance();
