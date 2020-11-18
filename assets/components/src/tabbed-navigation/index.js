@@ -23,6 +23,8 @@ const TabbedNavigation = ( { items, className } ) => {
 	const {
 		location: { pathname },
 	} = useHistory();
+	// eslint-disable-next-line no-unused-vars
+	const [ _, firstPathPart ] = pathname.split( '/' );
 	return (
 		<div className={ classes }>
 			<ul>
@@ -33,7 +35,7 @@ const TabbedNavigation = ( { items, className } ) => {
 							exact={ item.exact }
 							className={ classNames( {
 								selected:
-									item.path === '/' ? pathname === item.path : pathname.indexOf( item.path ) === 0,
+									item.path === '/' ? pathname === item.path : `/${ firstPathPart }` === item.path,
 							} ) }
 						>
 							{ item.label }
