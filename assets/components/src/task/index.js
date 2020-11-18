@@ -58,7 +58,7 @@ class Task extends Component {
 								</Button>
 							) }
 							{ onDismiss && (
-								<Button isDefault onClick={ onDismiss }>
+								<Button isSecondary onClick={ onDismiss }>
 									{ __( 'Skip' ) }
 								</Button>
 							) }

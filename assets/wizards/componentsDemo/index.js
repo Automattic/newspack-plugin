@@ -263,7 +263,7 @@ class ComponentsDemo extends Component {
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>
-									<Button isDefault onClick={ () => this.setState( { modalShown: false } ) }>
+									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Also dismiss' ) }
 									</Button>
 								</Card>
@@ -621,22 +621,9 @@ class ComponentsDemo extends Component {
 						<FormattedHeader headerText="Buttons" />
 						<Card noBackground buttonsCard>
 							<Button isPrimary>isPrimary</Button>
-							<Button isDefault>isDefault</Button>
+							<Button isSecondary>isSecondary</Button>
 							<Button isTertiary>isTertiary</Button>
 							<Button isLink>isLink</Button>
-						</Card>
-						<hr />
-						<h2>isLarge</h2>
-						<Card noBackground buttonsCard>
-							<Button isPrimary isLarge>
-								isPrimary
-							</Button>
-							<Button isDefault isLarge>
-								isDefault
-							</Button>
-							<Button isTertiary isLarge>
-								isTertiary
-							</Button>
 						</Card>
 						<hr />
 						<h2>isSmall</h2>
@@ -644,8 +631,8 @@ class ComponentsDemo extends Component {
 							<Button isPrimary isSmall>
 								isPrimary
 							</Button>
-							<Button isDefault isSmall>
-								isDefault
+							<Button isSecondary isSmall>
+								isSecondary
 							</Button>
 							<Button isTertiary isSmall>
 								isTertiary
