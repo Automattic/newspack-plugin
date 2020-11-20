@@ -13,19 +13,9 @@ import HeaderIcon from '@material-ui/icons/Warning';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Card,
-	FormattedHeader,
-	Modal,
-	NewspackLogo,
-	Notice,
-	PluginInstaller,
-	Grid,
-} from '../';
+import { Button, Card, FormattedHeader, Modal, Notice, PluginInstaller, Grid } from '../';
 import Router from '../proxied-imports/router';
 import { buttonProps } from '../../../shared/js/';
-import { NEWSPACK_SITE_URL } from '../consts';
 import './style.scss';
 
 const { Redirect, Route } = Router;
@@ -33,7 +23,7 @@ const { Redirect, Route } = Router;
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizard( WrappedComponent, requiredPlugins, options = {} ) {
+export default function withWizard( WrappedComponent, requiredPlugins ) {
 	return class WrappedWithWizard extends Component {
 		constructor( props ) {
 			super( props );
@@ -245,24 +235,12 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 		 * Render.
 		 */
 		render() {
-			const { buttonText, buttonAction, logoLink } = this.props;
+			const { buttonText, buttonAction } = this.props;
 			const { loading, error } = this.state;
-			const logoURL = logoLink || this.getFallbackURL() || NEWSPACK_SITE_URL;
 			return (
 				<Fragment>
 					{ this.getError() }
-					<div className="newspack-logo-wrapper">
-						{ ! options.suppressLogoLink && logoURL ? (
-							<a href={ logoURL } target={ logoURL === NEWSPACK_SITE_URL ? '_blank' : undefined }>
-								<NewspackLogo />
-							</a>
-						) : (
-							<NewspackLogo />
-						) }
-					</div>
-					<div
-						className={ !! loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded' }
-					>
+					<div className={ loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded' }>
 						<WrappedComponent
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }

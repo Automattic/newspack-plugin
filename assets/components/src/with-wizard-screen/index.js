@@ -1,15 +1,7 @@
 /**
  * Internal dependencies
  */
-import {
-	Button,
-	Card,
-	FormattedHeader,
-	Handoff,
-	Grid,
-	SecondaryNavigation,
-	TabbedNavigation,
-} from '../';
+import { Button, Handoff, SecondaryNavigation, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -31,8 +23,6 @@ export default function withWizardScreen( WrappedComponent ) {
 			headerIcon,
 			headerText,
 			subHeaderText,
-			noBackground,
-			isWide,
 			tabbedNavigation,
 			secondaryNavigation,
 			secondaryButtonText,
@@ -48,55 +38,49 @@ export default function withWizardScreen( WrappedComponent ) {
 		const SecondaryCTAComponent = retrievedSecondaryButtonProps.plugin ? Handoff : Button;
 		return (
 			<>
-				<Grid>
-					<Card noBackground>
+				<div className="newspack-wizard__header">
+					<div className="newspack-wizard__header__inner">
 						{ headerText && (
-							<FormattedHeader
-								headerIcon={ headerIcon }
-								headerText={ headerText }
-								subHeaderText={ subHeaderText }
-							/>
+							<h1>
+								{ headerIcon } { headerText }
+							</h1>
 						) }
-					</Card>
-					{ tabbedNavigation && (
-						<Card noBackground>
-							<TabbedNavigation items={ tabbedNavigation } />
-							{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
-						</Card>
-					) }
-				</Grid>
+						{ subHeaderText && <p>{ subHeaderText }</p> }
+						{ tabbedNavigation && (
+							<>
+								<TabbedNavigation items={ tabbedNavigation } />
+								{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
+							</>
+						) }
+					</div>
+				</div>
 
-				<Grid isWide={ isWide }>
-					<Card
-						className={ classnames( 'newspack-wizard', className ) }
-						noBackground={ noBackground }
-					>
-						{ content }
-						<div className="newspack-buttons-card">
-							{ buttonText &&
-								buttonAction &&
-								( retrievedButtonProps.plugin ? (
-									<Handoff isPrimary { ...retrievedButtonProps }>
-										{ buttonText }
-									</Handoff>
-								) : (
-									<Button
-										isPrimary={ ! buttonDisabled }
-										isSecondary={ !! buttonDisabled }
-										disabled={ buttonDisabled }
-										{ ...retrievedButtonProps }
-									>
-										{ buttonText }
-									</Button>
-								) ) }
-							{ secondaryButtonText && secondaryButtonAction && (
-								<SecondaryCTAComponent isSecondary { ...retrievedSecondaryButtonProps }>
-									{ secondaryButtonText }
-								</SecondaryCTAComponent>
-							) }
-						</div>
-					</Card>
-				</Grid>
+				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
+					{ content }
+					<div className="newspack-buttons-card">
+						{ buttonText &&
+							buttonAction &&
+							( retrievedButtonProps.plugin ? (
+								<Handoff isPrimary { ...retrievedButtonProps }>
+									{ buttonText }
+								</Handoff>
+							) : (
+								<Button
+									isPrimary={ ! buttonDisabled }
+									isSecondary={ !! buttonDisabled }
+									disabled={ buttonDisabled }
+									{ ...retrievedButtonProps }
+								>
+									{ buttonText }
+								</Button>
+							) ) }
+						{ secondaryButtonText && secondaryButtonAction && (
+							<SecondaryCTAComponent isSecondary { ...retrievedSecondaryButtonProps }>
+								{ secondaryButtonText }
+							</SecondaryCTAComponent>
+						) }
+					</div>
+				</div>
 			</>
 		);
 	};
