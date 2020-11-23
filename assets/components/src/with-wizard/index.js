@@ -209,7 +209,11 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 												? __( 'Required plugins' )
 												: __( 'Required plugin' )
 										}
-										subHeaderText={ __( 'This feature requires the following plugin.' ) }
+										subHeaderText={
+											requiredPlugins.length > 1
+												? __( 'This feature requires the following plugins.' )
+												: __( 'This feature requires the following plugin.' )
+										}
 									/>
 								) }
 							</Card>
