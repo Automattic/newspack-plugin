@@ -249,7 +249,7 @@
 	}
 }
 
-.newspack-card:not( .newspack-card__no-background ) {
+.newspack-card {
 	.newspack-card.newspack-action-card {
 		border: 1px solid $light-gray-200;
 		box-shadow: none;

@@ -15,7 +15,6 @@ import HeaderIcon from '@material-ui/icons/Warning';
  */
 import { Button, Card, FormattedHeader, Modal, Notice, PluginInstaller, Grid } from '../';
 import Router from '../proxied-imports/router';
-import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
 const { Redirect, Route } = Router;
@@ -200,23 +199,19 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					path="/"
 					render={ () => (
 						<Grid>
-							<Card noBackground>
-								{ complete !== null && (
-									<FormattedHeader
-										headerIcon={ <HeaderIcon /> }
-										headerText={
-											requiredPlugins.length > 1
-												? __( 'Required plugins' )
-												: __( 'Required plugin' )
-										}
-										subHeaderText={
-											requiredPlugins.length > 1
-												? __( 'This feature requires the following plugins.' )
-												: __( 'This feature requires the following plugin.' )
-										}
-									/>
-								) }
-							</Card>
+							{ complete !== null && (
+								<FormattedHeader
+									headerIcon={ <HeaderIcon /> }
+									headerText={
+										requiredPlugins.length > 1 ? __( 'Required plugins' ) : __( 'Required plugin' )
+									}
+									subHeaderText={
+										requiredPlugins.length > 1
+											? __( 'This feature requires the following plugins.' )
+											: __( 'This feature requires the following plugin.' )
+									}
+								/>
+							) }
 							<Card>
 								<PluginInstaller
 									plugins={ requiredPlugins }
@@ -239,7 +234,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * Render.
 		 */
 		render() {
-			const { buttonText, buttonAction } = this.props;
 			const { loading, error } = this.state;
 			return (
 				<Fragment>
@@ -258,17 +252,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							ref={ this.wrappedComponentRef }
 							{ ...this.props }
 						/>
-						{ buttonText && buttonAction && (
-							<Grid>
-								<Card noBackground>
-									<div className="newspack-buttons-card">
-										<Button isPrimary { ...buttonProps( buttonAction ) }>
-											{ buttonText }
-										</Button>
-									</div>
-								</Card>
-							</Grid>
-						) }
 					</div>
 				</Fragment>
 			);

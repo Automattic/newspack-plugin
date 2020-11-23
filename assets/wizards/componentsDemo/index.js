@@ -109,12 +109,13 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Web Previews' ) } />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<WebPreview
 								url="//newspack.blog"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
 								isPrimary
 							/>
+							<br />
 							<WebPreview
 								url="//newspack.blog"
 								renderButton={ ( { showPreview } ) => (
@@ -123,7 +124,7 @@ class ComponentsDemo extends Component {
 									</a>
 								) }
 							/>
-						</Card>
+						</div>
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Color picker' ) } />
@@ -205,7 +206,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Handoff
 								modalTitle="Manage AMP"
 								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
@@ -222,15 +223,15 @@ class ComponentsDemo extends Component {
 							>
 								{ __( 'Specific Yoast Page' ) }
 							</Handoff>
-						</Card>
+						</div>
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
 								{ __( 'Open modal' ) }
 							</Button>
-						</Card>
+						</div>
 						{ modalShown && (
 							<Modal
 								title="This is the modal title"
@@ -241,14 +242,14 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<Card noBackground buttonsCard>
+								<div buttonsCard>
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>
 									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Also dismiss' ) }
 									</Button>
-								</Card>
+								</div>
 							</Modal>
 						) }
 					</Card>
@@ -294,7 +295,7 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 					</Card>
-					<Card noBackground>
+					<div>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							onStatus={ ( { complete, pluginInfo } ) => {
@@ -306,8 +307,8 @@ class ComponentsDemo extends Component {
 								);
 							} }
 						/>
-					</Card>
-					<Card noBackground>
+					</div>
+					<div>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							isSmall
@@ -320,7 +321,7 @@ class ComponentsDemo extends Component {
 								);
 							} }
 						/>
-					</Card>
+					</div>
 					<FormattedHeader headerText={ __( 'Action cards' ) } />
 					<ActionCard
 						title="Example One"
@@ -536,15 +537,15 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card className="newspack-components-demo__buttons">
 						<FormattedHeader headerText="Buttons" />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Button isPrimary>isPrimary</Button>
 							<Button isSecondary>isSecondary</Button>
 							<Button isTertiary>isTertiary</Button>
 							<Button isLink>isLink</Button>
-						</Card>
+						</div>
 						<hr />
 						<h2>isSmall</h2>
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Button isPrimary isSmall>
 								isPrimary
 							</Button>
@@ -554,7 +555,7 @@ class ComponentsDemo extends Component {
 							<Button isTertiary isSmall>
 								isTertiary
 							</Button>
-						</Card>
+						</div>
 					</Card>
 				</Grid>
 			</Fragment>

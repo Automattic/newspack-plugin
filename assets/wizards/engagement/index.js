@@ -138,7 +138,6 @@ class EngagementWizard extends Component {
 							path="/newsletters"
 							render={ () => (
 								<Newsletters
-									noBackground
 									{ ...props }
 									apiKey={ apiKey }
 									connected={ connected }

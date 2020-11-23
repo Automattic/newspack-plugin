@@ -15,6 +15,7 @@ import {
 	TextControl,
 	SelectControl,
 	withWizardScreen,
+	Card,
 } from '../../../../components/src';
 
 const SCOPES_OPTIONS = [
@@ -77,7 +78,7 @@ class CustomDimensions extends Component {
 	render() {
 		const { error, customDimensions, newDimensionName, newDimensionScope } = this.state;
 		return (
-			<div className="newspack__analytics-configuration newspack-card newspack-card__no-background">
+			<Card className="newspack__analytics-configuration">
 				<p>
 					{ __(
 						"Custom dimensions are used to collect and analyze data that Google Analytics doesn't automatically track.",
@@ -149,7 +150,7 @@ class CustomDimensions extends Component {
 						</div>
 					</Fragment>
 				) }
-			</div>
+			</Card>
 		);
 	}
 }

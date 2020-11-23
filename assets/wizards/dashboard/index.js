@@ -17,7 +17,7 @@ import ViewModuleIcon from '@material-ui/icons/ViewModule';
 /**
  * Internal dependencies.
  */
-import { Button, Card, Grid, NewspackLogo } from '../../components/src';
+import { Button, Grid, NewspackLogo } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
@@ -49,7 +49,7 @@ class Dashboard extends Component {
 					<NewspackLogo />
 				</div>
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
-					<Card noBackground className="newspack-dashboard-card__views">
+					<div className="newspack-dashboard-card__views">
 						<Button
 							icon={ <ViewModuleIcon /> }
 							label={ __( 'Grid view' ) }
@@ -74,7 +74,7 @@ class Dashboard extends Component {
 								)
 							}
 						></Button>
-					</Card>
+					</div>
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
 					) ) }
