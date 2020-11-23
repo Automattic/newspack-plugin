@@ -4,6 +4,7 @@ export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as Button } from './button';
 export { default as ButtonGroup } from './button-group';
 export { default as Card } from './card';
+export { default as PreviewBox } from './preview-box';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as CheckboxControl } from './checkbox-control';
 export { default as ColorPicker } from './color-picker';
