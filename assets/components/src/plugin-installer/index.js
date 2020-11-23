@@ -18,7 +18,7 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, ProgressBar, Waiting } from '../';
+import { ActionCard, Button, Waiting } from '../';
 import './style.scss';
 
 const PLUGIN_STATE_NONE = 0;
@@ -46,8 +46,7 @@ class PluginInstaller extends Component {
 	componentDidMount = () => {
 		const { plugins } = this.props;
 		this.retrievePluginInfo( plugins ).then( () => {
-			const { asProgressBar, autoInstall } = this.props;
-			if ( asProgressBar || autoInstall ) {
+			if ( this.props.autoInstall ) {
 				this.installAllPlugins();
 			}
 		} );
@@ -158,7 +157,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { asProgressBar, autoInstall, isSmall } = this.props;
+		const { autoInstall, isSmall } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 
@@ -176,15 +175,6 @@ class PluginInstaller extends Component {
 		const buttonText = currentPluginStatuses.every( pluginInstalled )
 			? __( 'Activate' )
 			: __( 'Install' );
-
-		if ( asProgressBar ) {
-			const completed = slugs.reduce(
-				( _completed, slug ) =>
-					'active' === pluginInfo[ slug ].Status ? _completed + 1 : _completed,
-				0
-			);
-			return slugs.length > 0 && <ProgressBar completed={ completed } total={ slugs.length } />;
-		}
 
 		const needsInstall = slugs.some( slug => {
 			const plugin = pluginInfo[ slug ];

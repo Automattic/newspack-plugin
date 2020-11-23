@@ -56,7 +56,6 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			modalShown: false,
-			showPluginInstallerWithProgressBar: false,
 			toggleGroupChecked: false,
 			color1: '#3366ff',
 			color2: '#4ab866',
@@ -75,7 +74,6 @@ class ComponentsDemo extends Component {
 			selectValue1,
 			selectValue2,
 			modalShown,
-			showPluginInstallerWithProgressBar,
 			actionCardToggleChecked,
 			toggleGroupChecked,
 			color1,
@@ -264,24 +262,6 @@ class ComponentsDemo extends Component {
 						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
 						<Notice noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
 						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
-					</Card>
-					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
-						<Card noBackground buttonsCard>
-							<Button
-								onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
-								className="is-centered"
-								isPrimary
-							>
-								{ __( 'Show Plugin Installer w/Progress Bar' ) }
-							</Button>
-						</Card>
-						{ showPluginInstallerWithProgressBar && (
-							<PluginInstaller
-								plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit' ] }
-								asProgressBar
-							/>
-						) }
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
