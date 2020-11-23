@@ -35,7 +35,9 @@ const TabbedNavigation = ( { items, className } ) => {
 							exact={ item.exact }
 							className={ classNames( {
 								selected:
-									item.path === '/' ? pathname === item.path : `/${ firstPathPart }` === item.path,
+									item.path === '/'
+										? pathname === item.path
+										: firstPathPart === item.path.replace( /\//g, '' ),
 							} ) }
 						>
 							{ item.label }

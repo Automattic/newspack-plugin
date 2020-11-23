@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { Button, Handoff, SecondaryNavigation, TabbedNavigation } from '../';
+import { Button, Handoff, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -24,7 +24,6 @@ export default function withWizardScreen( WrappedComponent ) {
 			headerText,
 			subHeaderText,
 			tabbedNavigation,
-			secondaryNavigation,
 			secondaryButtonText,
 			secondaryButtonAction,
 			hidden,
@@ -49,7 +48,6 @@ export default function withWizardScreen( WrappedComponent ) {
 						{ tabbedNavigation && (
 							<>
 								<TabbedNavigation items={ tabbedNavigation } />
-								{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
 							</>
 						) }
 					</div>
