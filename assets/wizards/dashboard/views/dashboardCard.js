@@ -11,7 +11,6 @@ import { Component } from '@wordpress/element';
  * Material UI dependencies.
  */
 import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
 import ForumIcon from '@material-ui/icons/Forum';
@@ -40,8 +39,8 @@ class DashboardCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, status } = this.props;
-		const classes = classNames( 'newspack-dashboard-card', slug, status );
+		const { name, description, slug, url } = this.props;
+		const classes = classNames( 'newspack-dashboard-card', slug );
 		const iconMap = {
 			'site-design': <WebIcon />,
 			'reader-revenue': <AccountBalanceWalletIcon />,
@@ -65,18 +64,11 @@ class DashboardCard extends Component {
 			</div>
 		);
 
-		if ( 'disabled' === status ) {
-			return (
-				<Card className={ classes }>
-					<div className="newspack-dashboard-card__disabled-link">{ contents }</div>
-				</Card>
-			);
-		}
 		return (
 			<Card className={ classes }>
 				<a href={ url }>
 					{ contents }
-					{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
+					<ChevronRightIcon />
 				</a>
 			</Card>
 		);

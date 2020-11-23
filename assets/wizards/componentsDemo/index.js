@@ -35,8 +35,6 @@ import {
 	PluginInstaller,
 	PluginToggle,
 	ProgressBar,
-	Checklist,
-	Task,
 	SelectControl,
 	Modal,
 	Grid,
@@ -51,7 +49,6 @@ class ComponentsDemo extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			checklistProgress: 0,
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
 			inputNumValue: 0,
@@ -67,24 +64,11 @@ class ComponentsDemo extends Component {
 		};
 	}
 
-	performCheckListItem = index => {
-		const { checklistProgress } = this.state;
-		console.log( 'Perform checklist item: ' + index );
-		this.setState( { checklistProgress: Math.max( checklistProgress, index + 1 ) } );
-	};
-
-	dismissCheckListItem = index => {
-		const { checklistProgress } = this.state;
-		console.log( 'Skip checklist item: ' + index );
-		this.setState( { checklistProgress: Math.max( checklistProgress, index + 1 ) } );
-	};
-
 	/**
 	 * Render the example stub.
 	 */
 	render() {
 		const {
-			checklistProgress,
 			inputTextValue1,
 			inputTextValue2,
 			inputNumValue,
@@ -474,53 +458,6 @@ class ComponentsDemo extends Component {
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
 					/>
-					<FormattedHeader headerText={ __( 'Checklist' ) } />
-					<Checklist progressBarText={ __( 'Your setup list' ) }>
-						<Task
-							title={ __( 'Set up membership' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 0 }
-							completed={ checklistProgress > 0 }
-							onClick={ () => this.performCheckListItem( 0 ) }
-							onDismiss={ () => this.dismissCheckListItem( 0 ) }
-						/>
-						<Task
-							title={ __( 'Set up your paywall' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 1 }
-							completed={ checklistProgress > 1 }
-							onClick={ () => this.performCheckListItem( 1 ) }
-							onDismiss={ () => this.dismissCheckListItem( 1 ) }
-						/>
-						<Task
-							title={ __( 'Customize your donations page' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 2 }
-							completed={ checklistProgress > 2 }
-							onClick={ () => this.performCheckListItem( 2 ) }
-							onDismiss={ () => this.dismissCheckListItem( 2 ) }
-						/>
-						<Task
-							title={ __( 'Set up call to action block' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 3 }
-							completed={ checklistProgress > 3 }
-							onClick={ () => this.performCheckListItem( 3 ) }
-							onDismiss={ () => this.dismissCheckListItem( 3 ) }
-						/>
-					</Checklist>
 					<Card>
 						<FormattedHeader headerText={ __( 'Checkboxes' ) } />
 						<CheckboxControl
