@@ -24,7 +24,6 @@ import {
 	CheckboxControl,
 	withWizardScreen,
 	Modal,
-	Card,
 } from '../../../../components/src';
 import { NEWSPACK_SUPPORT_URL } from '../../../../components/src/consts';
 
@@ -123,7 +122,7 @@ class CustomEvents extends Component {
 		const isCreatingEvent = editedEventId === 'new';
 
 		return (
-			<Card className="newspack__analytics-configuration">
+			<div className="newspack__analytics-configuration">
 				<p>
 					{ __(
 						'Custom events are used to collect and analyze specific user interactions.',
@@ -273,7 +272,7 @@ class CustomEvents extends Component {
 						) }
 					</Fragment>
 				) }
-			</Card>
+			</div>
 		);
 	}
 }
