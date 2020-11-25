@@ -6,7 +6,7 @@
 	display: flex;
 	margin: 32px 0;
 
-	p {
+	& &__description p {
 		margin: 0;
 	}
 

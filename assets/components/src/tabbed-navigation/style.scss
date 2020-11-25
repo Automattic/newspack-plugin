@@ -28,8 +28,8 @@
 		font-weight: bold;
 
 		@media screen and ( min-width: 500px ) {
-			margin-right: 34px;
-			padding-bottom: 14px;
+			margin-right: 32px;
+			padding-bottom: 12px;
 		}
 
 		&:active,
@@ -37,7 +37,13 @@
 		&:hover {
 			outline: none;
 			color: white;
-			border-color: $primary-300;
+			border-color: $primary-200;
+		}
+
+		&:focus {
+			box-shadow: none;
+			outline: 1px solid;
+			outline-offset: 16px;
 		}
 
 		&.selected {

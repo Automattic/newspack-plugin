@@ -7,6 +7,7 @@
 .newspack-card {
 	.newspack-plugin-installer__status {
 		align-items: center;
+		border-left-width: 4px;
 		display: flex;
 
 		svg {
@@ -24,6 +25,7 @@
 
 	&.newspack-plugin-installer__status-active {
 		border-left-color: $alert-green;
+		border-left-width: 4px;
 
 		svg {
 			fill: $alert-green;
@@ -32,9 +34,11 @@
 
 	&.newspack-plugin-installer__status-error {
 		border-left-color: $alert-red;
+		border-left-width: 4px;
 	}
 
 	&.newspack-plugin-installer__status-installing {
+		border-left-width: 4px;
 		opacity: 0.5;
 	}
 }

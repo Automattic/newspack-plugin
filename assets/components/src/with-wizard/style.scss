@@ -9,6 +9,8 @@
 .toplevel_page_newspack,
 body[class*='newspack_page_newspack-'],
 body[class*='admin_page_newspack-'] {
+	background: white;
+
 	#wpcontent {
 		padding-left: 0;
 	}
@@ -40,6 +42,22 @@ body[class*='admin_page_newspack-'] {
 		background: $primary-500;
 	}
 
+	.newspack-setup-wizard__welcome,
+	.newspack-buttons-card {
+		background: white;
+		border-radius: 4px 4px 0 0;
+		margin: auto;
+		padding: 32px;
+
+		@media screen and ( min-width: 584px ) {
+			max-width: 520px;
+		}
+	}
+
+	.newspack-buttons-card {
+		border-radius: 0 0 4px 4px;
+	}
+
 	#wpfooter {
 		color: #fff;
 
@@ -57,10 +75,6 @@ body[class*='admin_page_newspack-'] {
 			}
 		}
 	}
-}
-
-body[class*='newspack_page_newspack-'] {
-	background: white;
 }
 
 // Newspack Logo

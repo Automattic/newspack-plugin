@@ -6,12 +6,9 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-card {
-	background: white;
 	border-radius: 4px;
-	box-shadow: 0 8px 16px rgba( black, 0.08 );
+	border: 1px solid $light-gray-200;
 	color: $dark-gray-300;
-	font-size: 14px;
-	line-height: 24px;
 	margin: 32px 0;
 	padding: 16px 48px;
 
@@ -36,7 +33,7 @@
 		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
 
 		&:hover {
-			box-shadow: 0 8px 16px rgba( black, 0.16 );
+			box-shadow: 0 8px 16px rgba( black, 0.08 );
 			transform: translateY( -4px );
 		}
 	}
@@ -44,6 +41,7 @@
 	// Typography
 
 	h2,
+	h3,
 	p {
 		line-height: 24px;
 		margin: 32px 0;
@@ -53,6 +51,12 @@
 	h2 {
 		color: $dark-gray-900;
 		font-size: 17px;
+		font-weight: bold;
+	}
+
+	h3 {
+		color: $dark-gray-900;
+		font-size: 14px;
 		font-weight: bold;
 	}
 
@@ -79,10 +83,10 @@
 		background: $light-gray-500;
 		border: 0;
 		height: 1px;
-		margin: 48px -48px;
+		margin: 48px 0;
 
 		@media screen and ( min-width: 744px ) {
-			margin: 64px -64px;
+			margin: 64px 0;
 		}
 	}
 

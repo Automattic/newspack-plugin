@@ -9,13 +9,12 @@
 	&__header {
 		background: $primary-500;
 		h1 {
-			display: flex;
 			align-items: center;
-			margin-top: 0;
-			margin-bottom: 9px;
-			font-size: 20px;
+			display: flex;
+			font-size: 21px;
+			margin: 0 0 8px;
 			svg {
-				margin-right: 10px;
+				margin-right: 8px;
 				fill: white;
 			}
 		}
@@ -24,14 +23,15 @@
 		}
 		&__inner {
 			margin: auto;
-			padding-top: 30px;
+			padding-top: 32px;
 			> * {
 				font-size: 14px;
+				line-height: 24px;
 			}
 			> p {
-				margin-top: 10px;
+				margin-top: 8px;
 				margin-bottom: 0;
-				padding-bottom: 34px;
+				padding-bottom: 32px;
 			}
 		}
 	}
@@ -48,8 +48,82 @@
 	}
 
 	&__content {
-		padding-top: 20px;
+		color: $dark-gray-300;
+		font-size: 14px;
+		line-height: 24px;
 		margin: auto;
+		padding-top: 32px;
+
+		// Typography
+
+		h2,
+		h3,
+		p {
+			line-height: 24px;
+			margin: 32px 0;
+			padding: 0;
+		}
+
+		h2 {
+			color: $dark-gray-900;
+			font-size: 17px;
+			font-weight: bold;
+		}
+
+		h3 {
+			color: $dark-gray-900;
+			font-size: 14px;
+			font-weight: bold;
+		}
+
+		p {
+			font-size: 14px;
+
+			&.is-dark {
+				color: $dark-gray-900;
+			}
+		}
+
+		strong {
+			font-weight: bold;
+		}
+
+		small {
+			font-size: 12px;
+			line-height: 16px;
+		}
+
+		// Thematic Break
+
+		hr {
+			background: $light-gray-500;
+			border: 0;
+			height: 1px;
+			margin: 48px 0;
+
+			@media screen and ( min-width: 744px ) {
+				margin: 64px 0;
+			}
+		}
+
+		// Links
+
+		a {
+			color: $primary-500;
+
+			&:active,
+			&:focus,
+			&:hover {
+				color: $primary-600;
+				text-decoration: none;
+			}
+
+			&:focus {
+				box-shadow: none;
+				outline: 2px solid $primary-500;
+				outline-offset: 2px;
+			}
+		}
 	}
 }
 
@@ -59,13 +133,15 @@
 	display: flex;
 	flex-direction: row-reverse;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: flex-start;
 	align-items: center;
-	margin-top: 16px;
-	padding: 16px 0;
-	border-top: 1px solid $light-gray-500;
+	margin: 32px 0;
 
 	&:empty {
 		display: none;
+	}
+
+	.newspack-button {
+		margin-left: 16px;
 	}
 }
