@@ -141,6 +141,9 @@ class PopupPopover extends Component {
 				>
 					{ __( 'Delete', 'newspack' ) }
 				</MenuItem>
+				<div className="newspack-popup-info">
+					{ __( 'ID:', 'newspack' ) } { popup.id }
+				</div>
 			</Popover>
 		);
 	};
