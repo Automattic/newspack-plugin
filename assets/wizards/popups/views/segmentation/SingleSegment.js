@@ -24,14 +24,21 @@ const SegmentSettingSection = ( { title, description, children } ) => (
 	</div>
 );
 
+const DEFAULT_CONFIG = {
+	min_posts: 0,
+	max_posts: 0,
+	is_subscribed: false,
+	is_donor: false,
+	is_not_subscribed: false,
+	is_not_donor: false,
+	favorite_categories: [],
+};
+
 const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
+	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
+	const updateSegmentConfig = key => value =>
+		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
 	const [ name, setName ] = useState( '' );
-	const [ min_posts, setMinPosts ] = useState( 0 );
-	const [ max_posts, setMaxPosts ] = useState( 0 );
-	const [ is_subscribed, setIsSubscribed ] = useState( false );
-	const [ is_donor, setIsDonor ] = useState( false );
-	const [ is_not_subscribed, setIsNotSubscribed ] = useState( false );
-	const [ is_not_donor, setIsNotDonor ] = useState( false );
 	const history = useHistory();
 
 	const isSegmentValid = name.length > 0;
@@ -44,13 +51,8 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
+					setSegmentConfig( { ...DEFAULT_CONFIG, ...foundSegment.configuration } );
 					setName( foundSegment.name );
-					setMinPosts( foundSegment.configuration.min_posts );
-					setMaxPosts( foundSegment.configuration.max_posts );
-					setIsSubscribed( foundSegment.configuration.is_subscribed );
-					setIsDonor( foundSegment.configuration.is_donor );
-					setIsNotSubscribed( foundSegment.configuration.is_not_subscribed );
-					setIsNotDonor( foundSegment.configuration.is_not_donor );
 				}
 			} );
 		}
@@ -65,14 +67,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			method: 'POST',
 			data: {
 				name,
-				configuration: {
-					min_posts,
-					max_posts,
-					is_subscribed,
-					is_donor,
-					is_not_subscribed,
-					is_not_donor,
-				},
+				configuration: segmentConfig,
 			},
 		} ).then( () => history.push( '/segmentation' ) );
 	};
@@ -88,40 +83,40 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				<SegmentSettingSection title={ __( 'Number of articles read', 'newspack' ) }>
 					<div>
 						<CheckboxControl
-							checked={ min_posts > 0 }
-							onChange={ value => setMinPosts( value ? 1 : 0 ) }
+							checked={ segmentConfig.min_posts > 0 }
+							onChange={ value => updateSegmentConfig( 'min_posts' )( value ? 1 : 0 ) }
 							label={ __( 'Min.', 'newspack' ) }
 						/>
 						<TextControl
 							placeholder={ __( 'Min. posts', 'newspack' ) }
 							type="number"
-							value={ min_posts }
-							onChange={ setMinPosts }
+							value={ segmentConfig.min_posts }
+							onChange={ updateSegmentConfig( 'min_posts' ) }
 						/>
 					</div>
 					<div>
 						<CheckboxControl
-							checked={ max_posts > 0 }
-							onChange={ value => setMaxPosts( value ? 1 : 0 ) }
+							checked={ segmentConfig.max_posts > 0 }
+							onChange={ value => updateSegmentConfig( 'max_posts' )( value ? 1 : 0 ) }
 							label={ __( 'Max.', 'newspack' ) }
 						/>
 						<TextControl
 							placeholder={ __( 'Max. posts', 'newspack' ) }
 							type="number"
-							value={ max_posts }
-							onChange={ setMaxPosts }
+							value={ segmentConfig.max_posts }
+							onChange={ updateSegmentConfig( 'max_posts' ) }
 						/>
 					</div>
 				</SegmentSettingSection>
 				<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
 					<CheckboxControl
-						checked={ is_subscribed }
-						onChange={ setIsSubscribed }
+						checked={ segmentConfig.is_subscribed }
+						onChange={ updateSegmentConfig( 'is_subscribed' ) }
 						label={ __( 'Is subscribed to newsletter', 'newspack' ) }
 					/>
 					<CheckboxControl
-						checked={ is_not_subscribed }
-						onChange={ setIsNotSubscribed }
+						checked={ segmentConfig.is_not_subscribed }
+						onChange={ updateSegmentConfig( 'is_not_subscribed' ) }
 						label={ __( 'Is not subscribed to newsletter', 'newspack' ) }
 					/>
 				</SegmentSettingSection>
@@ -130,13 +125,13 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 				>
 					<CheckboxControl
-						checked={ is_donor }
-						onChange={ setIsDonor }
+						checked={ segmentConfig.is_donor }
+						onChange={ updateSegmentConfig( 'is_donor' ) }
 						label={ __( 'Has donated', 'newspack' ) }
 					/>
 					<CheckboxControl
-						checked={ is_not_donor }
-						onChange={ setIsNotDonor }
+						checked={ segmentConfig.is_not_donor }
+						onChange={ updateSegmentConfig( 'is_not_donor' ) }
 						label={ __( "Hasn't donated", 'newspack' ) }
 					/>
 				</SegmentSettingSection>
