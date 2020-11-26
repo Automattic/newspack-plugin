@@ -223,7 +223,7 @@ class Popups_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_get_segment_reach' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'config'         => [
+					'config' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
