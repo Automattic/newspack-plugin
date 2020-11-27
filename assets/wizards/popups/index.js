@@ -21,7 +21,7 @@ import { stringify } from 'qs';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { PopupGroup, Analytics } from './views';
+import { PopupGroup, Analytics, Segmentation } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -40,6 +40,11 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
+		label: __( 'Segmentation', 'newpack' ),
+		path: '/segmentation',
+		exact: true,
+	},
+	{
 		label: __( 'Analytics', 'newpack' ),
 		path: '/analytics',
 		exact: true,
@@ -54,6 +59,7 @@ class PopupsWizard extends Component {
 				inline: [],
 				overlay: [],
 			},
+			segments: [],
 			previewUrl: null,
 		};
 	}
@@ -69,7 +75,9 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { popups, segments } ) =>
+				this.setState( { popups: this.sortPopups( popups ), segments } )
+			)
 			.catch( error => setError( error ) );
 	};
 
@@ -204,8 +212,15 @@ class PopupsWizard extends Component {
 	};
 
 	render() {
-		const { pluginRequirements, setError, isLoading, startLoading, doneLoading } = this.props;
-		const { popups, previewUrl } = this.state;
+		const {
+			pluginRequirements,
+			setError,
+			isLoading,
+			wizardApiFetch,
+			startLoading,
+			doneLoading,
+		} = this.props;
+		const { popups, segments, previewUrl } = this.state;
 		const { inline, overlay } = popups;
 		return (
 			<WebPreview
@@ -220,6 +235,7 @@ class PopupsWizard extends Component {
 						isLoading,
 						startLoading,
 						doneLoading,
+						wizardApiFetch,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
@@ -232,6 +248,7 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						segments,
 					};
 					return (
 						<HashRouter hashType="slash">
@@ -266,6 +283,10 @@ class PopupsWizard extends Component {
 											) }
 										/>
 									) }
+								/>
+								<Route
+									path="/segmentation/:id?"
+									render={ props => <Segmentation { ...props } { ...sharedProps } /> }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
 								<Redirect to="/overlay" />

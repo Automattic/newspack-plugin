@@ -1,4 +1,8 @@
 .newspack-popup-action-card-popover-control {
-	position: absolute;
-	right: 0;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+.newspack-popup-action-card-select {
+	width: 100%;
 }

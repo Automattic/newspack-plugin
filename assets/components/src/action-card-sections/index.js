@@ -18,7 +18,7 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 
 	const renderedSections = useMemo( () => {
 		const validFilters = [ ALL_FILTER ];
-		const validSections = sections.reduce( ( validSectionsAcc, section, i ) => {
+		const validSections = sections.reduce( ( validSectionsAcc, section ) => {
 			if ( section.items.length > 0 ) {
 				const Heading = () => (
 					<h2 className="newspack-action-card-sections__group-type">
@@ -31,7 +31,7 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 				if ( filter === ALL_FILTER.value || filter === section.key ) {
 					validSectionsAcc.push(
 						<Fragment key={ section.key }>
-							{ allFilters.length > 0 && i === 0 ? (
+							{ allFilters.length > 0 && validSectionsAcc.length === 0 ? (
 								<div className="newspack-action-card-sections__group-wrapper">
 									<Heading />
 									<SelectControl
