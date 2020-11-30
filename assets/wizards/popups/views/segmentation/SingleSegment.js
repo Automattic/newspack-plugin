@@ -3,12 +3,18 @@
  */
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { find, take, without } from 'lodash';
+import { find } from 'lodash';
 
 /**
  * Internal dependencies.
  */
-import { Button, TextControl, CheckboxControl, Router } from '../../../../components/src';
+import {
+	Button,
+	CategoryAutocomplete,
+	TextControl,
+	CheckboxControl,
+	Router,
+} from '../../../../components/src';
 
 const { NavLink, useHistory } = Router;
 
@@ -39,7 +45,6 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 	const updateSegmentConfig = key => value =>
 		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
 	const [ name, setName ] = useState( '' );
-	const [ showAllCategories, setShowAllCategories ] = useState( false );
 	const history = useHistory();
 
 	const isSegmentValid = name.length > 0;
@@ -58,13 +63,6 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			} );
 		}
 	}, [ isNew ] );
-
-	const [ siteCategories, setSiteCategories ] = useState( [] );
-	useEffect( () => {
-		wizardApiFetch( {
-			path: `/wp/v2/categories?per_page=100`,
-		} ).then( setSiteCategories );
-	}, [] );
 
 	const saveSegment = () => {
 		const path = isNew
@@ -147,34 +145,13 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 					title={ __( 'Category Affinity', 'newspack' ) }
 					description={ __( 'Most read categories of reader.', 'newspack' ) }
 				>
-					{ take(
-						siteCategories.map( category => {
-							const selected = segmentConfig.favorite_categories;
-							const id = String( category.id );
-							return (
-								<CheckboxControl
-									key={ id }
-									checked={ selected.indexOf( id ) >= 0 }
-									onChange={ isSelected =>
-										updateSegmentConfig( 'favorite_categories' )(
-											isSelected ? [ ...selected, id ] : without( selected, id )
-										)
-									}
-									label={ category.name }
-								/>
-							);
-						} ),
-						showAllCategories ? Infinity : 5
-					) }
-					{ siteCategories.length > 5 && (
-						<Button
-							isTertiary
-							isSmall
-							onClick={ () => setShowAllCategories( ! showAllCategories ) }
-						>
-							{ showAllCategories ? __( 'Hide', 'newspack' ) : __( 'Show all', 'newspack' ) }
-						</Button>
-					) }
+					<CategoryAutocomplete
+						value={ segmentConfig.favorite_categories }
+						onChange={ selected => {
+							updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
+						} }
+						label={ __( 'Favorite Categories', 'newspack ' ) }
+					/>
 				</SegmentSettingSection>
 			</div>
 			<div className="newspack-buttons-card">
