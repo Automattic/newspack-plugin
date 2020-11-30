@@ -93,6 +93,7 @@
 
 	svg {
 		display: block;
+		flex-shrink: 0;
 		fill: $primary-500;
 		height: 24px;
 		margin: 0;
