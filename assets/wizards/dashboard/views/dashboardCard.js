@@ -20,7 +20,7 @@ import {
 	reusableBlock,
 	rss,
 	search,
-	tag,
+	stretchWide,
 	typography,
 } from '@wordpress/icons';
 
@@ -44,13 +44,13 @@ class DashboardCard extends Component {
 		const iconMap = {
 			'site-design': <Icon icon={ typography } />,
 			'reader-revenue': <Icon icon={ payment } />,
-			advertising: <Icon icon={ megaphone } />,
+			advertising: <Icon icon={ stretchWide } />,
 			syndication: <Icon icon={ rss } />,
 			analytics: <Icon icon={ chartLine } />,
 			seo: <Icon icon={ search } />,
 			'health-check': <Icon icon={ lifesaver } />,
 			engagement: <Icon icon={ postComments } />,
-			popups: <Icon icon={ tag } />,
+			popups: <Icon icon={ megaphone } />,
 			support: <Icon icon={ help } />,
 			updates: <Icon icon={ reusableBlock } />,
 		};
