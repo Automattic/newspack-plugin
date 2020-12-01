@@ -35,6 +35,8 @@ export default function withWizardScreen( WrappedComponent ) {
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
 		const SecondaryCTAComponent = retrievedSecondaryButtonProps.plugin ? Handoff : Button;
+		const shouldRenderPrimaryButton = buttonText && buttonAction;
+		const shouldRenderSecondaryButton = secondaryButtonText && secondaryButtonAction;
 		return (
 			<>
 				<div className="newspack-wizard__header">
@@ -55,29 +57,30 @@ export default function withWizardScreen( WrappedComponent ) {
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
 					{ content }
-					<div className="newspack-buttons-card">
-						{ buttonText &&
-							buttonAction &&
-							( retrievedButtonProps.plugin ? (
-								<Handoff isPrimary { ...retrievedButtonProps }>
-									{ buttonText }
-								</Handoff>
-							) : (
-								<Button
-									isPrimary={ ! buttonDisabled }
-									isSecondary={ !! buttonDisabled }
-									disabled={ buttonDisabled }
-									{ ...retrievedButtonProps }
-								>
-									{ buttonText }
-								</Button>
-							) ) }
-						{ secondaryButtonText && secondaryButtonAction && (
-							<SecondaryCTAComponent isSecondary { ...retrievedSecondaryButtonProps }>
-								{ secondaryButtonText }
-							</SecondaryCTAComponent>
-						) }
-					</div>
+					{ ( shouldRenderPrimaryButton || shouldRenderSecondaryButton ) && (
+						<div className="newspack-buttons-card">
+							{ shouldRenderPrimaryButton &&
+								( retrievedButtonProps.plugin ? (
+									<Handoff isPrimary { ...retrievedButtonProps }>
+										{ buttonText }
+									</Handoff>
+								) : (
+									<Button
+										isPrimary={ ! buttonDisabled }
+										isSecondary={ !! buttonDisabled }
+										disabled={ buttonDisabled }
+										{ ...retrievedButtonProps }
+									>
+										{ buttonText }
+									</Button>
+								) ) }
+							{ shouldRenderSecondaryButton && (
+								<SecondaryCTAComponent isSecondary { ...retrievedSecondaryButtonProps }>
+									{ secondaryButtonText }
+								</SecondaryCTAComponent>
+							) }
+						</div>
+					) }
 				</div>
 			</>
 		);
