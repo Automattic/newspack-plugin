@@ -157,7 +157,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { autoInstall, isSmall } = this.props;
+		const { autoInstall, isSmall, withoutFooterButton } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 
@@ -243,7 +243,7 @@ class PluginInstaller extends Component {
 							/>
 						);
 					} ) }
-				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
+				{ ! withoutFooterButton && ! autoInstall && pluginInfo && slugs.length > 0 && (
 					<div className="newspack-buttons-card">
 						<Button disabled={ ! needsInstall } isPrimary onClick={ this.installAllPlugins }>
 							{ buttonText }

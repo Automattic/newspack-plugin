@@ -32,6 +32,7 @@ const Commenting = () => {
 				/>
 			) : (
 				<PluginInstaller
+					withoutFooterButton
 					plugins={ [ 'disqus-comment-system', 'newspack-disqus-amp' ] }
 					onStatus={ ( { complete } ) => setDisqusActive( complete ) }
 				/>
@@ -47,6 +48,7 @@ const Commenting = () => {
 				/>
 			) : (
 				<PluginInstaller
+					withoutFooterButton
 					plugins={ [ 'talk-wp-plugin' ] }
 					onStatus={ ( { complete } ) => setCoralActive( complete ) }
 				/>
