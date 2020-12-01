@@ -11,11 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Dashboard';
+import { Icon, tool } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -106,7 +102,7 @@ class ComponentsDemo extends Component {
 					</a>
 				</div>
 				<FormattedHeader
-					headerIcon={ <HeaderIcon /> }
+					headerIcon={ <Icon icon={ tool } /> }
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>
