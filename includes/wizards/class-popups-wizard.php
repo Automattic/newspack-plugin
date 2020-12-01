@@ -215,6 +215,21 @@ class Popups_Wizard extends Wizard {
 			]
 		);
 
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/segmentation-reach',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_segment_reach' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'config' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
 		// Register newspack/v1/popups-analytics/report endpoint.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -538,6 +553,18 @@ class Popups_Wizard extends Wizard {
 	public function api_delete_segment( $request ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$response                              = $newspack_popups_configuration_manager->delete_segment( $request['id'] );
+		return $response;
+	}
+
+	/**
+	 * Get a specific segment's potential reach.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_get_segment_reach( $request ) {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$response                              = $newspack_popups_configuration_manager->get_segment_reach( json_decode( $request['config'] ) );
 		return $response;
 	}
 }
