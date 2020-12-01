@@ -61,7 +61,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 		}
 	}, [ isNew ] );
 
-	const updateReact = useMemo( () => {
+	const updateReach = useMemo( () => {
 		return debounce( config => {
 			setIsFetchingReach( true );
 			apiFetch( {
@@ -76,7 +76,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 	}, [] );
 
 	useEffect( () => {
-		updateReact( segmentConfig );
+		updateReach( segmentConfig );
 	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
