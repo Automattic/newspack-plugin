@@ -138,7 +138,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				</SegmentSettingSection>
 				<SegmentSettingSection
 					title={ __( 'Referrer', 'newspack' ) }
-					description={ __( 'Segment based on where the traffic is coming from.', 'newspack' ) }
+					description={ __( 'Segment based on traffic source.', 'newspack' ) }
 				>
 					<TextControl
 						isWide
