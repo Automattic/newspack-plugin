@@ -9,7 +9,11 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, reusableBlock } from '@wordpress/icons';
+
+/**
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Update';
 
 /**
  * Internal dependencies.
@@ -35,9 +39,9 @@ class UpdatesWizard extends Component {
 						exact
 						render={ () => (
 							<DevInfo
-								headerIcon={ <Icon icon={ reusableBlock } /> }
-								headerText={ __( 'Updates', 'newspack' ) }
-								subHeaderText={ __( 'Updates to the Newspack plugins and theme.', 'newspack' ) }
+								headerIcon={ <HeaderIcon /> }
+								headerText={ __( "What's new?", 'newspack' ) }
+								subHeaderText={ __( 'Updates to the Newspack plugins and theme.' ) }
 							/>
 						) }
 					/>

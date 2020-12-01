@@ -11,13 +11,6 @@
 	line-height: 24px;
 	margin: 32px 0;
 
-	&--wide {
-		flex-wrap: wrap;
-		.components-base-control__field {
-			width: 100%;
-		}
-	}
-
 	label {
 		color: $dark-gray-900;
 		font-size: inherit;
@@ -65,9 +58,6 @@
 			font-size: inherit;
 		}
 
-		&::placeholder {
-			opacity: 0.5;
-		}
 		&:focus {
 			border-color: $primary-500;
 			box-shadow: 0 0 0 2px $primary-500;

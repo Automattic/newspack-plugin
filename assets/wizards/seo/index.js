@@ -9,7 +9,11 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, search } from '@wordpress/icons';
+
+/**
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Search';
 
 /**
  * Internal dependencies.
@@ -83,7 +87,7 @@ class SEOWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const headerIcon = <Icon icon={ search } />;
+		const headerIcon = <HeaderIcon />;
 		const headerText = __( 'SEO', 'newspack' );
 		const subHeaderText = __( 'Search engine and social optimization', 'newspack' );
 		const tabbedNavigation = [

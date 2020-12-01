@@ -9,7 +9,11 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, postComments } from '@wordpress/icons';
+
+/**
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/Forum';
 
 /**
  * Internal dependencies.
@@ -154,7 +158,7 @@ class EngagementWizard extends Component {
 							render={ () => (
 								<Newsletters
 									noBackground
-									headerIcon={ <Icon icon={ postComments } /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -172,7 +176,7 @@ class EngagementWizard extends Component {
 							render={ () => {
 								return (
 									<Social
-										headerIcon={ <Icon icon={ postComments } /> }
+										headerIcon={ <HeaderIcon /> }
 										headerText={ __( 'Engagement', 'newspack' ) }
 										subHeaderText={ subheader }
 										tabbedNavigation={ tabbed_navigation }
@@ -186,7 +190,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<CommentingDisqus
-									headerIcon={ <Icon icon={ postComments } /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -201,7 +205,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<CommentingNative
-									headerIcon={ <Icon icon={ postComments } /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -216,7 +220,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<CommentingCoral
-									headerIcon={ <Icon icon={ postComments } /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }
@@ -231,7 +235,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<RelatedContent
-									headerIcon={ <Icon icon={ postComments } /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									relatedPostsEnabled={ relatedPostsEnabled }
 									relatedPostsError={ relatedPostsError }
@@ -252,7 +256,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<UGC
-									headerIcon={ <Icon icon={ postComments } /> }
+									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Engagement', 'newspack' ) }
 									subHeaderText={ subheader }
 									tabbedNavigation={ tabbed_navigation }

@@ -51,31 +51,18 @@ class Analytics {
 	 * More about custom dimensions: https://support.google.com/analytics/answer/2709828.
 	 */
 	public static function handle_custom_dimensions_reporting() {
-		$custom_dimensions_values = self::get_custom_dimensions_values( get_the_ID() );
-		foreach ( $custom_dimensions_values as $key => $value ) {
-			self::add_custom_dimension_to_ga_config( $key, $value );
-		}
-	}
-
-	/**
-	 * Get values for custom dimensions to be sent to GA.
-	 *
-	 * @param string $post_id Post ID.
-	 */
-	public static function get_custom_dimensions_values( $post_id ) {
-		$custom_dimensions        = Analytics_Wizard::list_configured_custom_dimensions();
-		$custom_dimensions_values = [];
+		$custom_dimensions = Analytics_Wizard::list_configured_custom_dimensions();
 		foreach ( $custom_dimensions as $dimension ) {
 			$dimension_role = $dimension['role'];
 			// Remove `ga:` prefix.
-			$dimension_id = substr( $dimension['gaID'], 3 );
+			$dimension_id = substr( $dimension['id'], 3 );
 
-			$post = get_post( $post_id );
+			$post = get_post();
 			if ( $post ) {
 				if ( 'category' === $dimension_role ) {
-					$categories = get_the_category( $post_id );
+					$categories = get_the_category();
 					if ( ! empty( $categories ) ) {
-						$categories_slugs                          = implode(
+						$categories_slugs = implode(
 							',',
 							array_map(
 								function( $cat ) {
@@ -84,25 +71,33 @@ class Analytics {
 								$categories
 							)
 						);
-						$custom_dimensions_values[ $dimension_id ] = $categories_slugs;
+						self::add_custom_dimension_to_ga_config( $dimension_id, $categories_slugs );
 					}
 				}
 
 				if ( 'author' === $dimension_role ) {
-					$author_id                                 = $post->post_author;
-					$custom_dimensions_values[ $dimension_id ] = get_the_author_meta( 'display_name', $author_id );
+					$author_id = $post->post_author;
+					self::add_custom_dimension_to_ga_config(
+						$dimension_id,
+						get_the_author_meta( 'display_name', $author_id )
+					);
 				}
 
 				if ( 'word_count' === $dimension_role ) {
-					$custom_dimensions_values[ $dimension_id ] = count( explode( ' ', wp_strip_all_tags( $post->post_content ) ) );
+					self::add_custom_dimension_to_ga_config(
+						$dimension_id,
+						count( explode( ' ', wp_strip_all_tags( $post->post_content ) ) )
+					);
 				}
 
 				if ( 'publish_date' === $dimension_role ) {
-					$custom_dimensions_values[ $dimension_id ] = get_the_time( 'Y-m-d H:i', $post->ID );
+					self::add_custom_dimension_to_ga_config(
+						$dimension_id,
+						get_the_time( 'Y-m-d H:i', $post->ID )
+					);
 				}
 			}
 		}
-		return $custom_dimensions_values;
 	}
 
 	/**

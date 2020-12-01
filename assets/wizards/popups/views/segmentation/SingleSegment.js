@@ -1,10 +1,9 @@
 /**
  * WordPress dependencies.
  */
-import { useMemo, useEffect, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
-import { find, debounce } from 'lodash';
+import { find } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -25,24 +24,14 @@ const SegmentSettingSection = ( { title, description, children } ) => (
 	</div>
 );
 
-const DEFAULT_CONFIG = {
-	min_posts: 0,
-	max_posts: 0,
-	is_subscribed: false,
-	is_donor: false,
-	is_not_subscribed: false,
-	is_not_donor: false,
-	favorite_categories: [],
-	referrers: '',
-};
-
 const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
-	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
-	const updateSegmentConfig = key => value =>
-		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
 	const [ name, setName ] = useState( '' );
-	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
-	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
+	const [ min_posts, setMinPosts ] = useState( 0 );
+	const [ max_posts, setMaxPosts ] = useState( 0 );
+	const [ is_subscribed, setIsSubscribed ] = useState( false );
+	const [ is_donor, setIsDonor ] = useState( false );
+	const [ is_not_subscribed, setIsNotSubscribed ] = useState( false );
+	const [ is_not_donor, setIsNotDonor ] = useState( false );
 	const history = useHistory();
 
 	const isSegmentValid = name.length > 0;
@@ -55,30 +44,17 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
-					setSegmentConfig( { ...DEFAULT_CONFIG, ...foundSegment.configuration } );
 					setName( foundSegment.name );
+					setMinPosts( foundSegment.configuration.min_posts );
+					setMaxPosts( foundSegment.configuration.max_posts );
+					setIsSubscribed( foundSegment.configuration.is_subscribed );
+					setIsDonor( foundSegment.configuration.is_donor );
+					setIsNotSubscribed( foundSegment.configuration.is_not_subscribed );
+					setIsNotDonor( foundSegment.configuration.is_not_donor );
 				}
 			} );
 		}
 	}, [ isNew ] );
-
-	const updateReach = useMemo( () => {
-		return debounce( config => {
-			setIsFetchingReach( true );
-			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-reach?config=${ JSON.stringify(
-					config
-				) }`,
-			} ).then( res => {
-				setReach( res );
-				setIsFetchingReach( false );
-			} );
-		}, 500 );
-	}, [] );
-
-	useEffect( () => {
-		updateReach( segmentConfig );
-	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
 		const path = isNew
@@ -89,7 +65,14 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			method: 'POST',
 			data: {
 				name,
-				configuration: segmentConfig,
+				configuration: {
+					min_posts,
+					max_posts,
+					is_subscribed,
+					is_donor,
+					is_not_subscribed,
+					is_not_donor,
+				},
 			},
 		} ).then( () => history.push( '/segmentation' ) );
 	};
@@ -105,40 +88,40 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				<SegmentSettingSection title={ __( 'Number of articles read', 'newspack' ) }>
 					<div>
 						<CheckboxControl
-							checked={ segmentConfig.min_posts > 0 }
-							onChange={ value => updateSegmentConfig( 'min_posts' )( value ? 1 : 0 ) }
+							checked={ min_posts > 0 }
+							onChange={ value => setMinPosts( value ? 1 : 0 ) }
 							label={ __( 'Min.', 'newspack' ) }
 						/>
 						<TextControl
 							placeholder={ __( 'Min. posts', 'newspack' ) }
 							type="number"
-							value={ segmentConfig.min_posts }
-							onChange={ updateSegmentConfig( 'min_posts' ) }
+							value={ min_posts }
+							onChange={ setMinPosts }
 						/>
 					</div>
 					<div>
 						<CheckboxControl
-							checked={ segmentConfig.max_posts > 0 }
-							onChange={ value => updateSegmentConfig( 'max_posts' )( value ? 1 : 0 ) }
+							checked={ max_posts > 0 }
+							onChange={ value => setMaxPosts( value ? 1 : 0 ) }
 							label={ __( 'Max.', 'newspack' ) }
 						/>
 						<TextControl
 							placeholder={ __( 'Max. posts', 'newspack' ) }
 							type="number"
-							value={ segmentConfig.max_posts }
-							onChange={ updateSegmentConfig( 'max_posts' ) }
+							value={ max_posts }
+							onChange={ setMaxPosts }
 						/>
 					</div>
 				</SegmentSettingSection>
 				<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
 					<CheckboxControl
-						checked={ segmentConfig.is_subscribed }
-						onChange={ updateSegmentConfig( 'is_subscribed' ) }
+						checked={ is_subscribed }
+						onChange={ setIsSubscribed }
 						label={ __( 'Is subscribed to newsletter', 'newspack' ) }
 					/>
 					<CheckboxControl
-						checked={ segmentConfig.is_not_subscribed }
-						onChange={ updateSegmentConfig( 'is_not_subscribed' ) }
+						checked={ is_not_subscribed }
+						onChange={ setIsNotSubscribed }
 						label={ __( 'Is not subscribed to newsletter', 'newspack' ) }
 					/>
 				</SegmentSettingSection>
@@ -147,41 +130,17 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 				>
 					<CheckboxControl
-						checked={ segmentConfig.is_donor }
-						onChange={ updateSegmentConfig( 'is_donor' ) }
+						checked={ is_donor }
+						onChange={ setIsDonor }
 						label={ __( 'Has donated', 'newspack' ) }
 					/>
 					<CheckboxControl
-						checked={ segmentConfig.is_not_donor }
-						onChange={ updateSegmentConfig( 'is_not_donor' ) }
+						checked={ is_not_donor }
+						onChange={ setIsNotDonor }
 						label={ __( "Hasn't donated", 'newspack' ) }
 					/>
 				</SegmentSettingSection>
-				<SegmentSettingSection
-					title={ __( 'Referrer', 'newspack' ) }
-					description={ __( 'Segment based on traffic source.', 'newspack' ) }
-				>
-					<TextControl
-						isWide
-						placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
-						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
-						value={ segmentConfig.referrers }
-						onChange={ updateSegmentConfig( 'referrers' ) }
-					/>
-				</SegmentSettingSection>
 			</div>
-
-			{ reach.total > 0 && (
-				<div style={ { opacity: isFetchingReach ? 0.5 : 1 } }>
-					{ __( 'This segment would reach', 'newspack' ) }{' '}
-					<b>
-						{ Math.round( ( reach.in_segment * 100 ) / reach.total ) }
-						{ '%' }
-					</b>{' '}
-					{ __( 'of recorded visitors. ', 'newspack' ) }
-				</div>
-			) }
-
 			<div className="newspack-buttons-card">
 				<div>
 					<NavLink to="/segmentation">

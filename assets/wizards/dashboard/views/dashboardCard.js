@@ -6,23 +6,24 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-import {
-	Icon,
-	chartLine,
-	check,
-	chevronRight,
-	help,
-	lifesaver,
-	megaphone,
-	payment,
-	postComments,
-	plugins,
-	reusableBlock,
-	rss,
-	search,
-	stretchWide,
-	typography,
-} from '@wordpress/icons';
+
+/**
+ * Material UI dependencies.
+ */
+import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
+import ForumIcon from '@material-ui/icons/Forum';
+import HealingIcon from '@material-ui/icons/Healing';
+import SearchIcon from '@material-ui/icons/Search';
+import SyncAltIcon from '@material-ui/icons/SyncAlt';
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import WebIcon from '@material-ui/icons/Web';
+import WidgetsIcon from '@material-ui/icons/Widgets';
+import PopupsIcon from '@material-ui/icons/NewReleases';
+import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import UpdateIcon from '@material-ui/icons/Update';
 
 /**
  * Internal dependencies.
@@ -42,21 +43,21 @@ class DashboardCard extends Component {
 		const { name, description, slug, url, status } = this.props;
 		const classes = classNames( 'newspack-dashboard-card', slug, status );
 		const iconMap = {
-			'site-design': <Icon icon={ typography } />,
-			'reader-revenue': <Icon icon={ payment } />,
-			advertising: <Icon icon={ stretchWide } />,
-			syndication: <Icon icon={ rss } />,
-			analytics: <Icon icon={ chartLine } />,
-			seo: <Icon icon={ search } />,
-			'health-check': <Icon icon={ lifesaver } />,
-			engagement: <Icon icon={ postComments } />,
-			popups: <Icon icon={ megaphone } />,
-			support: <Icon icon={ help } />,
-			updates: <Icon icon={ reusableBlock } />,
+			'site-design': <WebIcon />,
+			'reader-revenue': <AccountBalanceWalletIcon />,
+			advertising: <FeaturedVideoIcon />,
+			syndication: <SyncAltIcon />,
+			analytics: <TrendingUpIcon />,
+			seo: <SearchIcon />,
+			'health-check': <HealingIcon />,
+			engagement: <ForumIcon />,
+			popups: <PopupsIcon />,
+			support: <ContactSupportIcon />,
+			updates: <UpdateIcon />,
 		};
 		const contents = (
 			<div className="newspack-dashboard-card__contents">
-				{ iconMap[ slug ] || <Icon icon={ plugins } /> }
+				{ iconMap[ slug ] || <WidgetsIcon /> }
 				<div className="newspack-dashboard-card__header">
 					<h2>{ name }</h2>
 					<p>{ description }</p>
@@ -75,7 +76,7 @@ class DashboardCard extends Component {
 			<Card className={ classes }>
 				<a href={ url }>
 					{ contents }
-					{ 'completed' === status ? <Icon icon={ check } /> : <Icon icon={ chevronRight } /> }
+					{ 'completed' === status ? <CheckCircleIcon /> : <ChevronRightIcon /> }
 				</a>
 			</Card>
 		);

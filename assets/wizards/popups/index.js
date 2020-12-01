@@ -9,11 +9,11 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, megaphone } from '@wordpress/icons';
 
 /**
  * External dependencies.
  */
+import HeaderIcon from '@material-ui/icons/NewReleases';
 import { stringify } from 'qs';
 
 /**
@@ -227,7 +227,7 @@ class PopupsWizard extends Component {
 				url={ previewUrl }
 				renderButton={ ( { showPreview } ) => {
 					const sharedProps = {
-						headerIcon: <Icon icon={ megaphone } />,
+						headerIcon: <HeaderIcon />,
 						headerText,
 						subHeaderText,
 						tabbedNavigation,

@@ -9,7 +9,11 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, chartLine } from '@wordpress/icons';
+
+/**
+ * Material UI dependencies.
+ */
+import HeaderIcon from '@material-ui/icons/TrendingUp';
 
 /**
  * Internal dependencies.
@@ -44,7 +48,7 @@ class AnalyticsWizard extends Component {
 	render() {
 		const { pluginRequirements, wizardApiFetch, isLoading } = this.props;
 		const sharedProps = {
-			headerIcon: <Icon icon={ chartLine } />,
+			headerIcon: <HeaderIcon />,
 			headerText: __( 'Analytics', 'newspack' ),
 			subHeaderText: __( 'Track traffic and activity.', 'newspack' ),
 			tabbedNavigation: TABS,

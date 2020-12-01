@@ -24,6 +24,14 @@ const SCOPES_OPTIONS = [
 	{ value: 'PRODUCT', label: __( 'Product', 'newspack' ) },
 ];
 
+const CUSTOM_DIMENSIONS_OPTIONS = [
+	{ value: '', label: __( 'none', 'newspack' ) },
+	{ value: 'category', label: __( 'Category', 'newspack' ) },
+	{ value: 'author', label: __( 'Author', 'newspack' ) },
+	{ value: 'word_count', label: __( 'Word count', 'newspack' ) },
+	{ value: 'publish_date', label: __( 'Publish date', 'newspack' ) },
+];
+
 /**
  * Analytics Custom Dimensions screen.
  */
@@ -103,7 +111,7 @@ class CustomDimensions extends Component {
 										</td>
 										<td>
 											<SelectControl
-												options={ newspack_analytics_wizard_data.customDimensionsOptions }
+												options={ CUSTOM_DIMENSIONS_OPTIONS }
 												value={ dimension.role || '' }
 												onChange={ this.handleCustomDimensionSetting( dimension.id ) }
 												className="newspack__analytics-configuration__select"
