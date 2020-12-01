@@ -1,9 +1,10 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useMemo, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { find } from 'lodash';
+import apiFetch from '@wordpress/api-fetch';
+import { find, debounce } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -45,6 +46,8 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 	const updateSegmentConfig = key => value =>
 		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
 	const [ name, setName ] = useState( '' );
+	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
+	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
 	const history = useHistory();
 
 	const isSegmentValid = name.length > 0;
@@ -63,6 +66,24 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			} );
 		}
 	}, [ isNew ] );
+
+	const updateReach = useMemo( () => {
+		return debounce( config => {
+			setIsFetchingReach( true );
+			apiFetch( {
+				path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-reach?config=${ JSON.stringify(
+					config
+				) }`,
+			} ).then( res => {
+				setReach( res );
+				setIsFetchingReach( false );
+			} );
+		}, 500 );
+	}, [] );
+
+	useEffect( () => {
+		updateReach( segmentConfig );
+	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
 		const path = isNew
@@ -154,6 +175,18 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 					/>
 				</SegmentSettingSection>
 			</div>
+
+			{ reach.total > 0 && (
+				<div style={ { opacity: isFetchingReach ? 0.5 : 1 } }>
+					{ __( 'This segment would reach', 'newspack' ) }{' '}
+					<b>
+						{ Math.round( ( reach.in_segment * 100 ) / reach.total ) }
+						{ '%' }
+					</b>{' '}
+					{ __( 'of recorded visitors. ', 'newspack' ) }
+				</div>
+			) }
+
 			<div className="newspack-buttons-card">
 				<div>
 					<NavLink to="/segmentation">
