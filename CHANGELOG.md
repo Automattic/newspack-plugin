@@ -13,6 +13,21 @@
 * update Wizards icons to use G2 ([#714](https://github.com/Automattic/newspack-plugin/issues/714)) ([e66c19b](https://github.com/Automattic/newspack-plugin/commit/e66c19bf7a9e769bd43c411259285c49ae7ace24))
 * **campaigns-wizard:** display segment reach ([#709](https://github.com/Automattic/newspack-plugin/issues/709)) ([b700292](https://github.com/Automattic/newspack-plugin/commit/b70029251b081f69fe1215f7607f6df792e88883))
 
+# [1.25.0](https://github.com/Automattic/newspack-plugin/compare/v1.24.0...v1.25.0) (2020-12-02)
+
+
+### Bug Fixes
+
+* typo ([abaa10a](https://github.com/Automattic/newspack-plugin/commit/abaa10a740e97e451455ffba879834eaea8a3f63))
+
+
+### Features
+
+* allow adding external custom dimensions ([#685](https://github.com/Automattic/newspack-plugin/issues/685)) ([b11b7e6](https://github.com/Automattic/newspack-plugin/commit/b11b7e6dc0e767ee3b1a28809eed9066524e58fc))
+* update Dashboard icons to use G2 ([#712](https://github.com/Automattic/newspack-plugin/issues/712)) ([97d8986](https://github.com/Automattic/newspack-plugin/commit/97d89861e2855b876023f3cd18a0cec28be647b2))
+* update Wizards icons to use G2 ([#714](https://github.com/Automattic/newspack-plugin/issues/714)) ([e66c19b](https://github.com/Automattic/newspack-plugin/commit/e66c19bf7a9e769bd43c411259285c49ae7ace24))
+* **campaigns-wizard:** display segment reach ([#709](https://github.com/Automattic/newspack-plugin/issues/709)) ([b700292](https://github.com/Automattic/newspack-plugin/commit/b70029251b081f69fe1215f7607f6df792e88883))
+
 # [1.24.0](https://github.com/Automattic/newspack-plugin/compare/v1.23.0...v1.24.0) (2020-11-11)
 
 
