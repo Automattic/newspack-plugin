@@ -7,12 +7,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import ViewListIcon from '@material-ui/icons/ViewList';
-import ViewModuleIcon from '@material-ui/icons/ViewModule';
+import { Icon, formatListBullets, grid } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -51,7 +46,7 @@ class Dashboard extends Component {
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
 					<Card noBackground className="newspack-dashboard-card__views">
 						<Button
-							icon={ <ViewModuleIcon /> }
+							icon={ <Icon icon={ grid } /> }
 							label={ __( 'Grid view' ) }
 							isPrimary={ 'grid' === view }
 							isLink={ 'grid' !== view }
@@ -63,7 +58,7 @@ class Dashboard extends Component {
 							}
 						></Button>
 						<Button
-							icon={ <ViewListIcon /> }
+							icon={ <Icon icon={ formatListBullets } /> }
 							label={ __( 'List view' ) }
 							isPrimary={ 'list' === view }
 							isLink={ 'list' !== view }

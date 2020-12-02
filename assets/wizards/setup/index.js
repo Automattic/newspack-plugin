@@ -10,15 +10,7 @@ import '../../shared/js/public-path';
 import apiFetch from '@wordpress/api-fetch';
 import { Component, Fragment, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
-import MenuBookIcon from '@material-ui/icons/MenuBook';
-import SettingsIcon from '@material-ui/icons/Settings';
-import StyleIcon from '@material-ui/icons/Style';
-import SubjectIcon from '@material-ui/icons/Subject';
+import { Icon, cog, home, mediaAndText, people, plugins, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -309,7 +301,7 @@ class SetupWizard extends Component {
 						path="/about"
 						render={ () => (
 							<About
-								headerIcon={ <MenuBookIcon /> }
+								headerIcon={ <Icon icon={ people } /> }
 								headerText={ __( 'About your publication' ) }
 								subHeaderText={ __(
 									'Share a few details so we can start setting up your profile'
@@ -332,7 +324,7 @@ class SetupWizard extends Component {
 						path="/newsroom"
 						render={ () => (
 							<Newsroom
-								headerIcon={ <BusinessCenterIcon /> }
+								headerIcon={ <Icon icon={ home } /> }
 								headerText={ __( 'Tell us about your Newsroom' ) }
 								subHeaderText={ __(
 									'The description helps set the stage for the step content below'
@@ -358,7 +350,7 @@ class SetupWizard extends Component {
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									headerIcon={ <SettingsIcon /> }
+									headerIcon={ <Icon icon={ cog } /> }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
 										'Please configure the following core plugins to start using Newspack.'
@@ -381,7 +373,7 @@ class SetupWizard extends Component {
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
 							return (
 								<ConfigurePlugins
-									headerIcon={ <SettingsIcon /> }
+									headerIcon={ <Icon icon={ cog } /> }
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
 										'Please configure the following core plugin to start using Newspack.'
@@ -405,8 +397,8 @@ class SetupWizard extends Component {
 							const { theme } = this.state;
 							return (
 								<ThemeSelection
-									headerIcon={ <StyleIcon /> }
-									headerText={ __( 'Theme' ) }
+									headerIcon={ <Icon icon={ typography } /> }
+									headerText={ __( 'Site Design' ) }
 									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
 									buttonAction="#/starter-content"
@@ -422,7 +414,7 @@ class SetupWizard extends Component {
 						render={ () => {
 							return (
 								<StarterContent
-									headerIcon={ <SubjectIcon /> }
+									headerIcon={ <Icon icon={ mediaAndText } /> }
 									headerText={ __( 'Starter Content' ) }
 									subHeaderText={ __( 'Pre-configure the site for testing and experimentation' ) }
 									buttonText={ __( 'Install Starter Content' ) }
@@ -443,7 +435,7 @@ class SetupWizard extends Component {
 							<InstallationProgress
 								autoInstall={ shouldAutoInstallPlugins( routeProps ) }
 								hidden={ '/installation-progress' !== routeProps.location.pathname }
-								headerIcon={ <SettingsIcon /> }
+								headerIcon={ <Icon icon={ plugins } /> }
 								headerText={ __( 'Installation...' ) }
 								subHeaderText={ __(
 									'Please configure the following core plugin to start using Newspack.'

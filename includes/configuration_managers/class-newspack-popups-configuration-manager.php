@@ -135,6 +135,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get segment's potential reacj.
+	 *
+	 * @param object $config Segment configuration.
+	 */
+	public function get_segment_reach( $config ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::get_segment_reach( $config ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.
