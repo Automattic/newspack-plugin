@@ -40,11 +40,6 @@ class RevenueMain extends Component {
 					actionText={ __( 'Configure', 'newspack' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce"
 				/>
-				<PluginToggle
-					plugins={ {
-						laterpay: true,
-					} }
-				/>
 			</Fragment>
 		);
 	}
