@@ -18,6 +18,7 @@ import { Icon, payment } from '@wordpress/icons';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Donation, LocationSetup, StripeSetup, RevenueMain, Salesforce } from './views';
+import { NEWSPACK, NRH } from './constants';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -33,6 +34,10 @@ class ReaderRevenueWizard extends Component {
 				stripeData: {},
 				donationData: {},
 				salesforceData: {},
+				platformData: {},
+			},
+			status: {
+				newspack: false,
 			},
 		};
 	}
@@ -47,6 +52,7 @@ class ReaderRevenueWizard extends Component {
 	 */
 	fetch = () => {
 		const { setError, wizardApiFetch } = this.props;
+
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-wizard' } )
 			.then( data => {
 				return new Promise( resolve => {
@@ -105,6 +111,7 @@ class ReaderRevenueWizard extends Component {
 		currencyFields: data.currency_fields,
 		donationPage: data.donation_page,
 		salesforceData: data.salesforce_settings,
+		platformData: data.platform_data,
 	} );
 
 	/**
@@ -176,11 +183,35 @@ class ReaderRevenueWizard extends Component {
 	};
 
 	/**
+	 * Get navigation tabs dependant on selected platform.
+	 */
+	navigationForPlatform = platform => {
+		if ( NEWSPACK === platform ) {
+			return [
+				{
+					label: __( 'Monetization Services', 'newspack' ),
+					path: '/',
+					exact: true,
+				},
+				{
+					label: __( 'Address', 'newspack' ),
+					path: '/location-setup',
+				},
+				{
+					label: __( 'Payment Gateways', 'newspack' ),
+					path: '/stripe-setup',
+				},
+			];
+		}
+		return null;
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
 		const { pluginRequirements, wizardApiFetch } = this.props;
-		const { data } = this.state;
+		const { data, status } = this.state;
 		const {
 			countryStateFields,
 			currencyFields,
@@ -189,25 +220,21 @@ class ReaderRevenueWizard extends Component {
 			donationData,
 			donationPage,
 			salesforceData,
+			platformData,
 		} = data;
-
-		const tabbedNavigation = [
-			{
-				label: __( 'Monetization Services' ),
-				path: '/',
-				exact: true,
-			},
-			{
-				label: __( 'Address' ),
-				path: '/location-setup',
-			},
-			{
-				label: __( 'Payment Gateways' ),
-				path: '/stripe-setup',
-			},
-		];
+		const { platform } = platformData;
+		const tabbedNavigation = this.navigationForPlatform( platform );
 		const isConfigured = !! donationData.created;
 		const salesforceIsConnected = !! salesforceData.refresh_token;
+		let mainButtonText;
+		let mainButtonAction;
+		if ( NEWSPACK === platform && status.newspack && ! isConfigured ) {
+			mainButtonText = __( 'Get Started', 'newspack' );
+			mainButtonAction = '#location-setup';
+		} else if ( NRH === platform ) {
+			mainButtonText = __( 'Update', 'newspack' );
+			mainButtonAction = () => this.update( '', platformData );
+		}
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -218,12 +245,24 @@ class ReaderRevenueWizard extends Component {
 							exact
 							render={ () => (
 								<RevenueMain
+									data={ platformData }
+									status={ status }
 									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
-									buttonText={ ! isConfigured && __( 'Get Started' ) }
-									buttonAction="#location-setup"
+									buttonText={ mainButtonText }
+									buttonAction={ mainButtonAction }
+									onChange={ ( _platformData, commit ) => {
+										if ( commit ) {
+											this.update( '', _platformData );
+										} else {
+											this.setState( { data: { ...data, platformData: _platformData } } );
+										}
+									} }
+									onReady={ _platform =>
+										this.setState( { status: { ...status, [ _platform ]: true } } )
+									}
 								/>
 							) }
 						/>
@@ -321,7 +360,7 @@ class ReaderRevenueWizard extends Component {
 									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
-						/>
+						/>{' '}
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
@@ -331,13 +370,6 @@ class ReaderRevenueWizard extends Component {
 }
 
 render(
-	createElement(
-		withWizard( ReaderRevenueWizard, [
-			'newspack-blocks',
-			'woocommerce',
-			'woocommerce-subscriptions',
-			'woocommerce-name-your-price',
-		] )
-	),
+	createElement( withWizard( ReaderRevenueWizard, [ 'newspack-blocks' ] ) ),
 	document.getElementById( 'newspack-reader-revenue-wizard' )
 );
