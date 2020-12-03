@@ -67,6 +67,7 @@ class Donations {
 			'tiered'                  => false,
 			'image'                   => false,
 			'created'                 => false,
+			'platform'                => 'wc',
 			'products'                => [
 				'once'  => false,
 				'month' => false,
@@ -81,6 +82,17 @@ class Donations {
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
+		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+			return [
+				'created'                 => true,
+				'suggestedAmounts'        => [],
+				'tiered'                  => false,
+				'suggestedAmountUntiered' => 0,
+				'currencySymbol'          => '$',
+				'platform'                => 'nrh',
+			];
+		}
+
 		$ready = self::is_woocommerce_suite_active();
 		if ( is_wp_error( $ready ) ) {
 			return $ready;
@@ -329,7 +341,7 @@ class Donations {
 	 */
 	public static function remove_donations_from_cart() {
 		$donation_settings = self::get_donation_settings();
-		if ( ! $donation_settings['created'] ) {
+		if ( ! $donation_settings['created'] || is_wp_error( self::is_woocommerce_suite_active() ) ) {
 			return;
 		}
 
@@ -344,8 +356,11 @@ class Donations {
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
+		$platform = get_option( NEWSPACK_READER_REVENUE_PLATFORM );
+		$is_wc    = 'nrh' !== $platform;
+
 		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
-		if ( ! $donation_form_submitted || is_wp_error( self::is_woocommerce_suite_active() ) ) {
+		if ( ! $donation_form_submitted || ( $is_wc && is_wp_error( self::is_woocommerce_suite_active() ) ) ) {
 			return;
 		}
 
@@ -400,30 +415,32 @@ class Donations {
 			);
 		}
 
-		// Add product to cart.
-		$product_id = $donation_settings['products'][ $donation_frequency ];
-		if ( ! $product_id ) {
-			return;
+		if ( $is_wc ) {
+			// Add product to cart.
+			$product_id = $donation_settings['products'][ $donation_frequency ];
+			if ( ! $product_id ) {
+				return;
+			}
+
+			self::remove_donations_from_cart();
+
+			\WC()->cart->add_to_cart(
+				$product_id,
+				1,
+				0,
+				[],
+				[
+					'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
+				]
+			);
 		}
-
-		self::remove_donations_from_cart();
-
-		\WC()->cart->add_to_cart(
-			$product_id,
-			1,
-			0,
-			[],
-			[
-				'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
-			]
-		);
 
 		$checkout_url = add_query_arg(
 			[
 				'referer_tags'       => implode( ',', $referer_tags ),
 				'referer_categories' => implode( ',', $referer_categories ),
 			],
-			\wc_get_page_permalink( 'checkout' )
+			$is_wc ? \wc_get_page_permalink( 'checkout' ) : ''
 		);
 
 		// Redirect to checkout.
