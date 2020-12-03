@@ -17,17 +17,6 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  * Easy interface for setting up general store info.
  */
 class Reader_Revenue_Wizard extends Wizard {
-
-	/**
-	 * Option name for reader revenue platform.
-	 */
-	const NEWSPACK_READER_REVENUE_PLATFORM = 'newspack_reader_revenue_platform';
-
-	/**
-	 * Option name for News Revenue Hub data.
-	 */
-	const NEWSPACK_NRH_CONFIG = 'newspack_nrh_config';
-
 	/**
 	 * The slug of this wizard.
 	 *
@@ -81,7 +70,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
-
 		// Get all data required to render the Wizard.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -316,15 +304,15 @@ class Reader_Revenue_Wizard extends Wizard {
 		$params   = $request->get_params();
 		$platform = $params['platform'];
 		if ( in_array( $platform, [ 'wc', 'nrh' ] ) ) {
-			delete_option( self::NEWSPACK_READER_REVENUE_PLATFORM );
-			update_option( self::NEWSPACK_READER_REVENUE_PLATFORM, $platform, true );
+			delete_option( NEWSPACK_READER_REVENUE_PLATFORM );
+			update_option( NEWSPACK_READER_REVENUE_PLATFORM, $platform, true );
 		}
 		if ( 'nrh' === $platform && isset( $params['nrh_organization_id'], $params['nrh_salesforce_campaign_id'] ) ) {
 			$nrh_config = [
 				'nrh_organization_id'        => $params['nrh_organization_id'],
 				'nrh_salesforce_campaign_id' => $params['nrh_salesforce_campaign_id'],
 			];
-			update_option( self::NEWSPACK_NRH_CONFIG, $nrh_config );
+			update_option( NEWSPACK_NRH_CONFIG, $nrh_config );
 		}
 		return \rest_ensure_response( $this->fetch_all_data() );
 	}
@@ -562,7 +550,7 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return Array
 	 */
 	protected function fetch_all_data() {
-		$platform                 = get_option( self::NEWSPACK_READER_REVENUE_PLATFORM );
+		$platform                 = get_option( NEWSPACK_READER_REVENUE_PLATFORM );
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$wc_installed             = $wc_configuration_manager->is_active();
 
@@ -592,7 +580,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				$args
 			);
 		} elseif ( 'nrh' === $platform ) {
-			$nrh_config = get_option( self::NEWSPACK_NRH_CONFIG, [] );
+			$nrh_config = get_option( NEWSPACK_NRH_CONFIG, [] );
 
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
 		}
