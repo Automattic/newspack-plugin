@@ -52,7 +52,6 @@ class ReaderRevenueWizard extends Component {
 	 */
 	fetch = () => {
 		const { setError, wizardApiFetch } = this.props;
-
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-wizard' } )
 			.then( data => {
 				return new Promise( resolve => {
@@ -360,7 +359,7 @@ class ReaderRevenueWizard extends Component {
 									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
-						/>{' '}
+						/>
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
