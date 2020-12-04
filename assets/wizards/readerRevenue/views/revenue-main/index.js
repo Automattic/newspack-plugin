@@ -48,7 +48,7 @@ class RevenueMain extends Component {
 						},
 					] }
 					onChange={ _platform =>
-						onChange(
+						_platform.length && onChange(
 							{
 								...data,
 								platform: _platform,
