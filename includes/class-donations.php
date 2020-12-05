@@ -68,7 +68,7 @@ class Donations {
 			'currencySymbol'          => html_entity_decode( $currency_symbol ),
 			'tiered'                  => false,
 			'image'                   => false,
-			'created'                 => false,
+			'created'                 => 'wc' !== $platform,
 			'platform'                => $platform,
 			'products'                => [
 				'once'  => false,
