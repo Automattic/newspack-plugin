@@ -55,19 +55,21 @@ class Donations {
 	/**
 	 * Get the default donation settings.
 	 *
-	 * @param bool $suggest_donations Whether to include suggested default donation amounts (Default: false).
+	 * @param bool   $suggest_donations Whether to include suggested default donation amounts (Default: false).
+	 * @param string $platform Selected reader revenue platform (Default: wc).
 	 * @return array Array of settings info.
 	 */
-	protected static function get_donation_default_settings( $suggest_donations = false ) {
+	protected static function get_donation_default_settings( $suggest_donations = false, $platform = 'wc' ) {
+		$currency_symbol = 'wc' === $platform ? \get_woocommerce_currency_symbol() : '$';
 		return [
 			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
-			'currencySymbol'          => html_entity_decode( \get_woocommerce_currency_symbol() ),
+			'currencySymbol'          => html_entity_decode( $currency_symbol ),
 			'tiered'                  => false,
 			'image'                   => false,
 			'created'                 => false,
-			'platform'                => 'wc',
+			'platform'                => $platform,
 			'products'                => [
 				'once'  => false,
 				'month' => false,
@@ -83,14 +85,7 @@ class Donations {
 	 */
 	public static function get_donation_settings() {
 		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
-			return [
-				'created'                 => true,
-				'suggestedAmounts'        => [],
-				'tiered'                  => false,
-				'suggestedAmountUntiered' => 0,
-				'currencySymbol'          => '$',
-				'platform'                => 'nrh',
-			];
+			return self::get_donation_default_settings( true, 'nrh' );
 		}
 
 		$ready = self::is_woocommerce_suite_active();

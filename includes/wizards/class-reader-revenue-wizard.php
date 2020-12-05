@@ -593,21 +593,16 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_get_donation_settings() {
+		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+			return rest_ensure_response(
+				array_merge(
+					Donations::get_donation_settings(),
+					[ 'force_manual' => true ]
+				)
+			);
+		}
 		$required_plugins_installed = $this->check_required_plugins_installed();
 		if ( is_wp_error( $required_plugins_installed ) ) {
-			if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
-				return rest_ensure_response(
-					[
-						'created'                 => true,
-						'suggestedAmounts'        => [ 0, 0, 0 ],
-						'tiered'                  => true,
-						'suggestedAmountUntiered' => 0,
-						'currencySymbol'          => '$',
-						'platform'                => 'nrh',
-						'force_manual'            => true,
-					]
-				);
-			}
 			return rest_ensure_response( $required_plugins_installed );
 		}
 
