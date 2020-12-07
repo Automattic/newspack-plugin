@@ -3,43 +3,145 @@
  */
 
 @import '~@wordpress/base-styles/colors';
+@import '../../../shared/scss/colors';
 
-// Hidden
+.newspack-wizard {
+	&__header {
+		background: $primary-500;
+		h1 {
+			align-items: center;
+			display: flex;
+			font-size: 21px;
+			margin: 0 0 8px;
+			svg {
+				margin-right: 8px;
+				fill: white;
+			}
+		}
+		* {
+			color: white;
+		}
+		&__inner {
+			margin: auto;
+			padding-top: 32px;
+			> * {
+				font-size: 14px;
+				line-height: 24px;
+			}
+			> p {
+				margin-top: 8px;
+				margin-bottom: 0;
+				padding-bottom: 32px;
+			}
+		}
+	}
 
-.newspack-wizard__is-hidden {
-	display: none;
+	&__header__inner,
+	&__content {
+		max-width: 1040px;
+		padding-left: 20px;
+		padding-right: 20px;
+		@media screen and ( min-width: 744px ) {
+			padding-left: 60px;
+			padding-right: 60px;
+		}
+	}
+
+	&__content {
+		color: $dark-gray-300;
+		font-size: 14px;
+		line-height: 24px;
+		margin: auto;
+		padding-top: 32px;
+
+		// Typography
+
+		h2,
+		h3,
+		p {
+			line-height: 24px;
+			margin: 32px 0;
+			padding: 0;
+		}
+
+		h2 {
+			color: $dark-gray-900;
+			font-size: 17px;
+			font-weight: bold;
+		}
+
+		h3 {
+			color: $dark-gray-900;
+			font-size: 14px;
+			font-weight: bold;
+		}
+
+		p {
+			font-size: 14px;
+
+			&.is-dark {
+				color: $dark-gray-900;
+			}
+		}
+
+		strong {
+			font-weight: bold;
+		}
+
+		small {
+			font-size: 12px;
+			line-height: 16px;
+		}
+
+		// Thematic Break
+
+		hr {
+			background: $light-gray-500;
+			border: 0;
+			height: 1px;
+			margin: 48px 0;
+
+			@media screen and ( min-width: 744px ) {
+				margin: 64px 0;
+			}
+		}
+
+		// Links
+
+		a {
+			color: $primary-500;
+
+			&:active,
+			&:focus,
+			&:hover {
+				color: $primary-600;
+				text-decoration: none;
+			}
+
+			&:focus {
+				box-shadow: none;
+				outline: 2px solid $primary-500;
+				outline-offset: 2px;
+			}
+		}
+	}
 }
 
 // Buttons Card
 
 .newspack-buttons-card {
-	align-items: center;
-	border-top: 1px solid $light-gray-500;
 	display: flex;
 	flex-direction: row-reverse;
 	flex-wrap: wrap;
-	justify-content: space-between;
-	margin: 48px -48px -16px;
-	padding: 8px;
-
-	@media screen and ( min-width: 744px ) {
-		margin: 64px -64px -32px;
-	}
+	justify-content: flex-start;
+	align-items: center;
+	margin: 32px 0;
 
 	&:empty {
 		display: none;
 	}
 
-	.newspack-button,
-	p {
-		margin: 8px;
-	}
-}
-
-.newspack-card.newspack-card__no-background {
-	.newspack-buttons-card {
-		border-top: 0;
-		margin: -8px;
-		padding: 0;
+	.newspack-button {
+		margin-left: 16px;
 	}
 }

@@ -6,7 +6,6 @@
 @import '../../../shared/scss/colors';
 
 .newspack-card.newspack-action-card {
-	box-shadow: 0 4px 8px rgba( black, 0.08 );
 	padding: 24px;
 
 	// Clickable
@@ -15,7 +14,7 @@
 		transition: box-shadow 125ms ease-in-out;
 
 		&:hover {
-			box-shadow: 0 4px 8px rgba( black, 0.24 );
+			box-shadow: 0 4px 8px rgba( black, 0.08 );
 		}
 	}
 
@@ -249,7 +248,7 @@
 	}
 }
 
-.newspack-card:not( .newspack-card__no-background ) {
+.newspack-card {
 	.newspack-card.newspack-action-card {
 		border: 1px solid $light-gray-200;
 		box-shadow: none;

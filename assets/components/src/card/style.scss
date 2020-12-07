@@ -6,25 +6,14 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-card {
-	background: white;
 	border-radius: 4px;
-	box-shadow: 0 8px 16px rgba( black, 0.08 );
+	border: 1px solid $light-gray-200;
 	color: $dark-gray-300;
-	font-size: 14px;
-	line-height: 24px;
 	margin: 32px 0;
 	padding: 16px 48px;
 
 	@media screen and ( min-width: 744px ) {
 		padding: 32px 64px;
-	}
-
-	// No Background
-
-	&__no-background {
-		background: none;
-		box-shadow: none;
-		padding: 0;
 	}
 
 	// Buttons Card
@@ -44,7 +33,7 @@
 		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
 
 		&:hover {
-			box-shadow: 0 8px 16px rgba( black, 0.16 );
+			box-shadow: 0 8px 16px rgba( black, 0.08 );
 			transform: translateY( -4px );
 		}
 	}
@@ -52,6 +41,7 @@
 	// Typography
 
 	h2,
+	h3,
 	p {
 		line-height: 24px;
 		margin: 32px 0;
@@ -61,6 +51,12 @@
 	h2 {
 		color: $dark-gray-900;
 		font-size: 17px;
+		font-weight: bold;
+	}
+
+	h3 {
+		color: $dark-gray-900;
+		font-size: 14px;
 		font-weight: bold;
 	}
 
@@ -87,10 +83,10 @@
 		background: $light-gray-500;
 		border: 0;
 		height: 1px;
-		margin: 48px -48px;
+		margin: 48px 0;
 
 		@media screen and ( min-width: 744px ) {
-			margin: 64px -64px;
+			margin: 64px 0;
 		}
 	}
 
@@ -110,43 +106,6 @@
 			box-shadow: none;
 			outline: 2px solid $primary-500;
 			outline-offset: 2px;
-		}
-	}
-
-	// Preview
-
-	&.newspack-card-preview {
-		background: $light-gray-100;
-		border: 1px solid $light-gray-500;
-		border-radius: 0 3px 3px;
-		margin-top: 56px;
-		padding: 11px 8px;
-		position: relative;
-
-		.newspack-card-preview__label {
-			background: white;
-			border: 1px solid $light-gray-500;
-			border-radius: 3px 3px 0 0;
-			display: block;
-			font-size: 12px;
-			font-weight: bold;
-			left: -1px;
-			line-height: 22px;
-			padding: 0 8px;
-			position: absolute;
-			top: -24px;
-			text-transform: uppercase;
-		}
-
-		.newspack-card-preview__title,
-		.newspack-card-preview__content {
-			display: block;
-		}
-
-		.newspack-card-preview__title {
-			color: $dark-gray-900;
-			font-size: 17px;
-			font-weight: bold;
 		}
 	}
 }
