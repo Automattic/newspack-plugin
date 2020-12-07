@@ -55,6 +55,7 @@ class Platform extends Component {
 							'woocommerce',
 							'woocommerce-subscriptions',
 							'woocommerce-name-your-price',
+							'woocommerce-gateway-stripe',
 						] }
 						onStatus={ ( { complete } ) => complete && onReady( 'newspack' ) }
 					/>
