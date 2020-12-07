@@ -567,6 +567,14 @@ class Reader_Revenue_Wizard extends Wizard {
 			],
 		];
 		if ( 'wc' === $platform && $wc_installed ) {
+			$installed_plugins = Plugin_Manager::get_installed_plugins();
+			$plugin_status     = isset(
+				$installed_plugins['woocommerce'],
+				$installed_plugins['woocommerce-gateway-stripe'],
+				$installed_plugins['woocommerce-name-your-price'],
+				$installed_plugins['woocommerce-subscriptions']
+			);
+
 			$args = wp_parse_args(
 				[
 					'country_state_fields' => $wc_configuration_manager->country_state_fields(),
@@ -576,6 +584,7 @@ class Reader_Revenue_Wizard extends Wizard {
 					'donation_data'        => Donations::get_donation_settings(),
 					'donation_page'        => Donations::get_donation_page_info(),
 					'salesforce_settings'  => Salesforce::get_salesforce_settings(),
+					'plugin_status'        => $plugin_status,
 				],
 				$args
 			);
