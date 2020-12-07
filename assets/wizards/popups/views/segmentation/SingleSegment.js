@@ -33,6 +33,7 @@ const DEFAULT_CONFIG = {
 	is_not_subscribed: false,
 	is_not_donor: false,
 	favorite_categories: [],
+	referrers: '',
 };
 
 const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
@@ -61,7 +62,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 		}
 	}, [ isNew ] );
 
-	const updateReact = useMemo( () => {
+	const updateReach = useMemo( () => {
 		return debounce( config => {
 			setIsFetchingReach( true );
 			apiFetch( {
@@ -76,7 +77,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 	}, [] );
 
 	useEffect( () => {
-		updateReact( segmentConfig );
+		updateReach( segmentConfig );
 	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
@@ -154,6 +155,18 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 						checked={ segmentConfig.is_not_donor }
 						onChange={ updateSegmentConfig( 'is_not_donor' ) }
 						label={ __( "Hasn't donated", 'newspack' ) }
+					/>
+				</SegmentSettingSection>
+				<SegmentSettingSection
+					title={ __( 'Referrer', 'newspack' ) }
+					description={ __( 'Segment based on traffic source.', 'newspack' ) }
+				>
+					<TextControl
+						isWide
+						placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
+						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
+						value={ segmentConfig.referrers }
+						onChange={ updateSegmentConfig( 'referrers' ) }
 					/>
 				</SegmentSettingSection>
 			</div>

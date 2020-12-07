@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, PluginToggle, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
  * Revenue Main Screen Component
@@ -39,11 +39,6 @@ class RevenueMain extends Component {
 					) }
 					actionText={ __( 'Configure', 'newspack' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce"
-				/>
-				<PluginToggle
-					plugins={ {
-						laterpay: true,
-					} }
 				/>
 			</Fragment>
 		);

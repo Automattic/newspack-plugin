@@ -9,11 +9,7 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Forum';
+import { Icon, postComments } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -124,7 +120,7 @@ class EngagementWizard extends Component {
 			'Newsletters, social, commenting, recirculation, user-generated content'
 		);
 		const props = {
-			headerIcon: <HeaderIcon />,
+			headerIcon: <Icon icon={ postComments } />,
 			headerText: __( 'Engagement', 'newspack' ),
 			subHeaderText: subheader,
 			tabbedNavigation: tabbed_navigation,
