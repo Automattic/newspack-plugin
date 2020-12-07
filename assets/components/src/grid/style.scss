@@ -21,22 +21,8 @@
 			max-width: 840px;
 		}
 
-		@media screen and ( min-width: 1224px ) {
-			max-width: 1000px;
-		}
-
-		@media screen and ( min-width: 1384px ) {
-			max-width: 1160px;
-		}
-	}
-}
-
-// Welcome Screen
-
-.newspack_page_newspack-setup-wizard__welcome {
-	.newspack-grid {
-		@media screen and ( min-width: 584px ) {
-			max-width: 520px;
+		@media screen and ( min-width: 1264px ) {
+			max-width: 1040px;
 		}
 	}
 }

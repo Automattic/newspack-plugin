@@ -93,7 +93,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-updates-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
-		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-donations.php';

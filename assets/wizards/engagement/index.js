@@ -16,15 +16,7 @@ import { Icon, postComments } from '@wordpress/icons';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import {
-	CommentingDisqus,
-	CommentingNative,
-	CommentingCoral,
-	Newsletters,
-	Social,
-	RelatedContent,
-	UGC,
-} from './views';
+import { Commenting, Newsletters, Social, RelatedContent, UGC } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -113,7 +105,7 @@ class EngagementWizard extends Component {
 			},
 			{
 				label: __( 'Commenting' ),
-				path: '/commenting/',
+				path: '/commenting',
 			},
 			{
 				label: __( 'Recirculation' ),
@@ -124,26 +116,15 @@ class EngagementWizard extends Component {
 				path: '/user-generated-content',
 			},
 		];
-		const commentingSecondaryNavigation = [
-			{
-				label: __( 'Disqus' ),
-				path: '/commenting/disqus',
-				exact: true,
-			},
-			{
-				label: __( 'WordPress Discussion' ),
-				path: '/commenting/native',
-				exact: true,
-			},
-			{
-				label: __( 'The Coral Project' ),
-				path: '/commenting/coral',
-				exact: true,
-			},
-		];
 		const subheader = __(
 			'Newsletters, social, commenting, recirculation, user-generated content'
 		);
+		const props = {
+			headerIcon: <Icon icon={ postComments } />,
+			headerText: __( 'Engagement', 'newspack' ),
+			subHeaderText: subheader,
+			tabbedNavigation: tabbed_navigation,
+		};
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -153,11 +134,7 @@ class EngagementWizard extends Component {
 							path="/newsletters"
 							render={ () => (
 								<Newsletters
-									noBackground
-									headerIcon={ <Icon icon={ postComments } /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
+									{ ...props }
 									apiKey={ apiKey }
 									connected={ connected }
 									connectURL={ connectURL }
@@ -166,77 +143,16 @@ class EngagementWizard extends Component {
 								/>
 							) }
 						/>
-						<Route
-							path="/social"
-							exact
-							render={ () => {
-								return (
-									<Social
-										headerIcon={ <Icon icon={ postComments } /> }
-										headerText={ __( 'Engagement', 'newspack' ) }
-										subHeaderText={ subheader }
-										tabbedNavigation={ tabbed_navigation }
-									/>
-								);
-							} }
-						/>
-						<Route path="/commenting" exact render={ () => <Redirect to="/commenting/disqus" /> } />
-						<Route
-							path="/commenting/disqus"
-							exact
-							render={ () => (
-								<CommentingDisqus
-									headerIcon={ <Icon icon={ postComments } /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									connected={ connected }
-									connectURL={ connectURL }
-									secondaryNavigation={ commentingSecondaryNavigation }
-								/>
-							) }
-						/>
-						<Route
-							path="/commenting/native"
-							exact
-							render={ () => (
-								<CommentingNative
-									headerIcon={ <Icon icon={ postComments } /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									connected={ connected }
-									connectURL={ connectURL }
-									secondaryNavigation={ commentingSecondaryNavigation }
-								/>
-							) }
-						/>
-						<Route
-							path="/commenting/coral"
-							exact
-							render={ () => (
-								<CommentingCoral
-									headerIcon={ <Icon icon={ postComments } /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									connected={ connected }
-									connectURL={ connectURL }
-									secondaryNavigation={ commentingSecondaryNavigation }
-								/>
-							) }
-						/>
+						<Route path="/social" exact render={ () => <Social { ...props } /> } />
+						<Route path="/commenting" exact render={ () => <Commenting { ...props } /> } />
 						<Route
 							path="/recirculation"
 							exact
 							render={ () => (
 								<RelatedContent
-									headerIcon={ <Icon icon={ postComments } /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
+									{ ...props }
 									relatedPostsEnabled={ relatedPostsEnabled }
 									relatedPostsError={ relatedPostsError }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
 									buttonAction={ () => this.updatedRelatedContentSettings() }
 									buttonText={ __( 'Save', 'newspack' ) }
 									buttonDisabled={ ! relatedPostsEnabled || ! relatedPostsUpdated }
@@ -247,18 +163,7 @@ class EngagementWizard extends Component {
 								/>
 							) }
 						/>
-						<Route
-							path="/user-generated-content"
-							exact
-							render={ () => (
-								<UGC
-									headerIcon={ <Icon icon={ postComments } /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-								/>
-							) }
-						/>
+						<Route path="/user-generated-content" exact render={ () => <UGC { ...props } /> } />
 						<Redirect to="/newsletters" />
 					</Switch>
 				</HashRouter>

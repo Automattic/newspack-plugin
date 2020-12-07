@@ -42,7 +42,7 @@ class WizardPagination extends Component {
 						{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
 					</div>
 					<Button
-						isPrimary
+						isLink
 						isSmall
 						className="newspack-wizard-pagination__navigation"
 						onClick={ () => history.goBack() }

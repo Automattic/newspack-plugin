@@ -39,8 +39,8 @@ class DashboardCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, status } = this.props;
-		const classes = classNames( 'newspack-dashboard-card', slug, status );
+		const { name, description, slug, url } = this.props;
+		const classes = classNames( 'newspack-dashboard-card', slug );
 		const iconMap = {
 			'site-design': <Icon icon={ typography } />,
 			'reader-revenue': <Icon icon={ payment } />,
@@ -64,13 +64,6 @@ class DashboardCard extends Component {
 			</div>
 		);
 
-		if ( 'disabled' === status ) {
-			return (
-				<Card className={ classes }>
-					<div className="newspack-dashboard-card__disabled-link">{ contents }</div>
-				</Card>
-			);
-		}
 		return (
 			<Card className={ classes }>
 				<a href={ url }>
