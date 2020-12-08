@@ -567,14 +567,19 @@ class Reader_Revenue_Wizard extends Wizard {
 			],
 		];
 		if ( 'wc' === $platform && $wc_installed ) {
-			$installed_plugins = Plugin_Manager::get_installed_plugins();
-			$plugin_status     = isset(
-				$installed_plugins['woocommerce'],
-				$installed_plugins['woocommerce-gateway-stripe'],
-				$installed_plugins['woocommerce-name-your-price'],
-				$installed_plugins['woocommerce-subscriptions']
-			);
-
+			$plugin_status    = true;
+			$managed_plugins  = Plugin_Manager::get_managed_plugins();
+			$required_plugins = [
+				'woocommerce',
+				'woocommerce-gateway-stripe',
+				'woocommerce-name-your-price',
+				'woocommerce-subscriptions',
+			];
+			foreach ( $required_plugins as $required_plugin ) {
+				if ( 'active' !== $managed_plugins[ $required_plugin ]['Status'] ) {
+					$plugin_status = false;
+				}
+			}
 			$args = wp_parse_args(
 				[
 					'country_state_fields' => $wc_configuration_manager->country_state_fields(),
