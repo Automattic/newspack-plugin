@@ -55,18 +55,21 @@ class Donations {
 	/**
 	 * Get the default donation settings.
 	 *
-	 * @param bool $suggest_donations Whether to include suggested default donation amounts (Default: false).
+	 * @param bool   $suggest_donations Whether to include suggested default donation amounts (Default: false).
+	 * @param string $platform Selected reader revenue platform (Default: wc).
 	 * @return array Array of settings info.
 	 */
-	protected static function get_donation_default_settings( $suggest_donations = false ) {
+	protected static function get_donation_default_settings( $suggest_donations = false, $platform = 'wc' ) {
+		$currency_symbol = 'wc' === $platform ? \get_woocommerce_currency_symbol() : '$';
 		return [
 			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
-			'currencySymbol'          => html_entity_decode( \get_woocommerce_currency_symbol() ),
+			'currencySymbol'          => html_entity_decode( $currency_symbol ),
 			'tiered'                  => false,
 			'image'                   => false,
-			'created'                 => false,
+			'created'                 => 'wc' !== $platform,
+			'platform'                => $platform,
 			'products'                => [
 				'once'  => false,
 				'month' => false,
@@ -81,6 +84,10 @@ class Donations {
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
+		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+			return self::get_donation_default_settings( true, 'nrh' );
+		}
+
 		$ready = self::is_woocommerce_suite_active();
 		if ( is_wp_error( $ready ) ) {
 			return $ready;
@@ -329,7 +336,7 @@ class Donations {
 	 */
 	public static function remove_donations_from_cart() {
 		$donation_settings = self::get_donation_settings();
-		if ( ! $donation_settings['created'] ) {
+		if ( ! $donation_settings['created'] || is_wp_error( self::is_woocommerce_suite_active() ) ) {
 			return;
 		}
 
@@ -344,8 +351,11 @@ class Donations {
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
+		$platform = get_option( NEWSPACK_READER_REVENUE_PLATFORM );
+		$is_wc    = 'nrh' !== $platform;
+
 		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
-		if ( ! $donation_form_submitted || is_wp_error( self::is_woocommerce_suite_active() ) ) {
+		if ( ! $donation_form_submitted || ( $is_wc && is_wp_error( self::is_woocommerce_suite_active() ) ) ) {
 			return;
 		}
 
@@ -400,30 +410,32 @@ class Donations {
 			);
 		}
 
-		// Add product to cart.
-		$product_id = $donation_settings['products'][ $donation_frequency ];
-		if ( ! $product_id ) {
-			return;
+		if ( $is_wc ) {
+			// Add product to cart.
+			$product_id = $donation_settings['products'][ $donation_frequency ];
+			if ( ! $product_id ) {
+				return;
+			}
+
+			self::remove_donations_from_cart();
+
+			\WC()->cart->add_to_cart(
+				$product_id,
+				1,
+				0,
+				[],
+				[
+					'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
+				]
+			);
 		}
-
-		self::remove_donations_from_cart();
-
-		\WC()->cart->add_to_cart(
-			$product_id,
-			1,
-			0,
-			[],
-			[
-				'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
-			]
-		);
 
 		$checkout_url = add_query_arg(
 			[
 				'referer_tags'       => implode( ',', $referer_tags ),
 				'referer_categories' => implode( ',', $referer_categories ),
 			],
-			\wc_get_page_permalink( 'checkout' )
+			$is_wc ? \wc_get_page_permalink( 'checkout' ) : ''
 		);
 
 		// Redirect to checkout.
