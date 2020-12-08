@@ -11,7 +11,6 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, tool } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -23,9 +22,7 @@ import {
 	CheckboxControl,
 	Card,
 	Button,
-	FormattedHeader,
 	Handoff,
-	NewspackLogo,
 	Notice,
 	TextControl,
 	PluginInstaller,
@@ -78,19 +75,15 @@ class ComponentsDemo extends Component {
 		} = this.state;
 		return (
 			<Fragment>
-				<div className="newspack-logo-wrapper">
-					<a href={ newspack_urls && newspack_urls.dashboard }>
-						<NewspackLogo />
-					</a>
+				<div className="newspack-wizard__header">
+					<div className="newspack-wizard__header__inner">
+						<h1>{ __( 'Components' ) }</h1>
+						<p>{ __( 'Demo of all the Newspack components' ) }</p>
+					</div>
 				</div>
-				<FormattedHeader
-					headerIcon={ <Icon icon={ tool } /> }
-					headerText={ __( 'Newspack Components' ) }
-					subHeaderText={ __( 'Demo of all the Newspack components' ) }
-				/>
 				<Grid>
 					<Card>
-						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
+						<h2>{ __( 'Plugin toggles' ) }</h2>
 						<PluginToggle
 							plugins={ {
 								woocommerce: {
@@ -104,26 +97,25 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Web Previews' ) } />
-						<div buttonsCard>
+						<h2>{ __( 'Web Previews' ) }</h2>
+						<Card buttonsCard noBorder>
 							<WebPreview
-								url="//newspack.blog"
+								url="//newspack.pub/"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
 								isPrimary
 							/>
-							<br />
 							<WebPreview
-								url="//newspack.blog"
+								url="//newspack.pub/"
 								renderButton={ ( { showPreview } ) => (
 									<a href="#" onClick={ showPreview }>
 										{ __( 'Preview Newspack Blog', 'newspack' ) }
 									</a>
 								) }
 							/>
-						</div>
+						</Card>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Color picker' ) } />
+						<h2>{ __( 'Color picker' ) }</h2>
 						<ColorPicker
 							label={ __( 'Color Picker' ) }
 							color={ color1 }
@@ -201,8 +193,8 @@ class ComponentsDemo extends Component {
 						</ToggleGroup>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<div buttonsCard>
+						<h2>{ __( 'Handoff Buttons' ) }</h2>
+						<Card buttonsCard noBorder>
 							<Handoff
 								modalTitle="Manage AMP"
 								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
@@ -219,15 +211,15 @@ class ComponentsDemo extends Component {
 							>
 								{ __( 'Specific Yoast Page' ) }
 							</Handoff>
-						</div>
+						</Card>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<div buttonsCard>
+						<h2>{ __( 'Modal' ) }</h2>
+						<Card buttonsCard noBorder>
 							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
 								{ __( 'Open modal' ) }
 							</Button>
-						</div>
+						</Card>
 						{ modalShown && (
 							<Modal
 								title="This is the modal title"
@@ -238,19 +230,19 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<div buttonsCard>
+								<Card buttonsCard noBorder>
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>
 									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Also dismiss' ) }
 									</Button>
-								</div>
+								</Card>
 							</Modal>
 						) }
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Notice' ) } />
+						<h2>{ __( 'Notice' ) }</h2>
 						<Notice noticeText={ __( 'This is a Primary info notice.' ) } isPrimary />
 						<Notice noticeText={ __( 'This is an info notice.' ) } />
 						<Notice noticeText={ __( 'This is a Primary error notice.' ) } isError isPrimary />
@@ -261,7 +253,7 @@ class ComponentsDemo extends Component {
 						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
+						<h2>{ __( 'Plugin installer' ) }</h2>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							canUninstall
@@ -276,7 +268,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer (small)' ) } />
+						<h2>{ __( 'Plugin installer (small)' ) }</h2>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							isSmall
@@ -291,34 +283,25 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 					</Card>
-					<div>
-						<PluginInstaller
-							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log(
-									complete
-										? 'All plugins installed successfully'
-										: 'Plugin installation incomplete',
-									pluginInfo
-								);
-							} }
-						/>
-					</div>
-					<div>
-						<PluginInstaller
-							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-							isSmall
-							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log(
-									complete
-										? 'All plugins installed successfully'
-										: 'Plugin installation incomplete',
-									pluginInfo
-								);
-							} }
-						/>
-					</div>
-					<FormattedHeader headerText={ __( 'Action cards' ) } />
+					<PluginInstaller
+						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+						onStatus={ ( { complete, pluginInfo } ) => {
+							console.log(
+								complete ? 'All plugins installed successfully' : 'Plugin installation incomplete',
+								pluginInfo
+							);
+						} }
+					/>
+					<PluginInstaller
+						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+						isSmall
+						onStatus={ ( { complete, pluginInfo } ) => {
+							console.log(
+								complete ? 'All plugins installed successfully' : 'Plugin installation incomplete',
+								pluginInfo
+							);
+						} }
+					/>
 					<ActionCard
 						title="Example One"
 						description="Has an action button."
@@ -436,7 +419,7 @@ class ComponentsDemo extends Component {
 						editLink="admin.php?page=jetpack#/settings"
 					/>
 					<Card>
-						<FormattedHeader headerText={ __( 'Checkboxes' ) } />
+						<h2>{ __( 'Checkboxes' ) }</h2>
 						<CheckboxControl
 							label={ __( 'Checkbox is tested?' ) }
 							onChange={ function() {
@@ -459,7 +442,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Image Uploader' ) } />
+						<h2>{ __( 'Image Uploader' ) }</h2>
 						<ImageUpload
 							image={ this.state.image }
 							onChange={ image => {
@@ -470,7 +453,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Text Inputs' ) } />
+						<h2>{ __( 'Text Inputs' ) }</h2>
 						<TextControl
 							label={ __( 'Text Input with value' ) }
 							value={ inputTextValue1 }
@@ -490,14 +473,14 @@ class ComponentsDemo extends Component {
 						<TextControl label={ __( 'Text Input disabled' ) } disabled />
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Progress bar' ) } />
+						<h2>{ __( 'Progress bar' ) }</h2>
 						<ProgressBar completed="2" total="3" />
 						<ProgressBar completed="2" total="5" label={ __( 'Progress made' ) } />
 						<ProgressBar completed="0" total="5" displayFraction />
 						<ProgressBar completed="3" total="8" label={ __( 'Progress made' ) } displayFraction />
 					</Card>
 					<Card>
-						<FormattedHeader headerText="Select dropdowns" />
+						<h2>{ __( 'Select dropdowns' ) }</h2>
 						<SelectControl
 							label={ __( 'Label for Select with a preselection' ) }
 							value={ selectValue1 }
@@ -531,17 +514,17 @@ class ComponentsDemo extends Component {
 							] }
 						/>
 					</Card>
-					<Card className="newspack-components-demo__buttons">
-						<FormattedHeader headerText="Buttons" />
-						<div buttonsCard>
+					<Card>
+						<h2>{ __( 'Buttons' ) }</h2>
+						<h3>{ __( 'Default' ) }</h3>
+						<Card buttonsCard noBorder>
 							<Button isPrimary>isPrimary</Button>
 							<Button isSecondary>isSecondary</Button>
 							<Button isTertiary>isTertiary</Button>
 							<Button isLink>isLink</Button>
-						</div>
-						<hr />
-						<h2>isSmall</h2>
-						<div buttonsCard>
+						</Card>
+						<h3>isSmall</h3>
+						<Card buttonsCard noBorder>
 							<Button isPrimary isSmall>
 								isPrimary
 							</Button>
@@ -551,7 +534,7 @@ class ComponentsDemo extends Component {
 							<Button isTertiary isSmall>
 								isTertiary
 							</Button>
-						</div>
+						</Card>
 					</Card>
 				</Grid>
 			</Fragment>
