@@ -6,14 +6,9 @@ import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Warning';
-
-/**
  * Internal dependencies.
  */
-import { Button, Card, FormattedHeader, Modal, Notice, PluginInstaller, Grid } from '../';
+import { Button, Modal, Notice, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
 import './style.scss';
 
@@ -198,27 +193,33 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				<Route
 					path="/"
 					render={ () => (
-						<Grid>
+						<Fragment>
 							{ complete !== null && (
-								<FormattedHeader
-									headerIcon={ <HeaderIcon /> }
-									headerText={
-										requiredPlugins.length > 1 ? __( 'Required plugins' ) : __( 'Required plugin' )
-									}
-									subHeaderText={
-										requiredPlugins.length > 1
-											? __( 'This feature requires the following plugins.' )
-											: __( 'This feature requires the following plugin.' )
-									}
-								/>
+								<Fragment>
+									<div className="newspack-wizard__header">
+										<div className="newspack-wizard__header__inner">
+											<h1>
+												{ requiredPlugins.length > 1
+													? __( 'Required plugins' )
+													: __( 'Required plugin' ) }
+											</h1>
+											<p>
+												{ requiredPlugins.length > 1
+													? __( 'This feature requires the following plugins.' )
+													: __( 'This feature requires the following plugin.' ) }
+											</p>
+										</div>
+									</div>
+								</Fragment>
 							) }
-							<Card>
+							<div className="newspack-wizard newspack-wizard__content">
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
+									isSmall
 								/>
-							</Card>
-						</Grid>
+							</div>
+						</Fragment>
 					) }
 				/>
 			);

@@ -10,7 +10,6 @@ import '../../shared/js/public-path';
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { Icon, payment } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -31,7 +30,6 @@ import { NEWSPACK, NRH } from './constants';
 const { HashRouter, Redirect, Route, Switch } = Router;
 const headerText = __( 'Reader revenue', 'newspack' );
 const subHeaderText = __( 'Generate revenue from your customers.', 'newspack' );
-const headerIcon = <Icon icon={ payment } />;
 
 class ReaderRevenueWizard extends Component {
 	/**
@@ -274,7 +272,6 @@ class ReaderRevenueWizard extends Component {
 								<Platform
 									data={ platformData }
 									pluginStatus={ pluginStatus }
-									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ tabbedNavigation }
@@ -291,7 +288,6 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Services
 									data={ platformData }
-									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ tabbedNavigation }
@@ -304,7 +300,6 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<NRHSettings
 									data={ platformData }
-									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ tabbedNavigation }
@@ -323,7 +318,6 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									buttonText={ __( 'Save Settings', 'newspack' ) }
@@ -340,7 +334,6 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<StripeSetup
 									data={ stripeData }
-									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									buttonText={ __( 'Save Settings', 'newspack' ) }
@@ -357,7 +350,6 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __(
 										'Configure your landing page and your suggested donation presets.'
@@ -378,7 +370,6 @@ class ReaderRevenueWizard extends Component {
 								<Salesforce
 									routeProps={ routeProps }
 									data={ salesforceData }
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Configure Salesforce', 'newspack' ) }
 									isConnected={ salesforceIsConnected }
 									subHeaderText={ __(

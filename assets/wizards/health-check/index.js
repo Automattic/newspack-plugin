@@ -9,7 +9,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, lifesaver } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -94,7 +93,6 @@ class HealthCheckWizard extends Component {
 							exact
 							render={ () => (
 								<Plugins
-									headerIcon={ <Icon icon={ lifesaver } /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }
@@ -115,7 +113,6 @@ class HealthCheckWizard extends Component {
 							render={ () => (
 								<Configuration
 									hasData={ hasData }
-									headerIcon={ <Icon icon={ lifesaver } /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									tabbedNavigation={ tabs }
