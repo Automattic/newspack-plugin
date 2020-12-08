@@ -9,7 +9,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, postComments } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -120,7 +119,6 @@ class EngagementWizard extends Component {
 			'Newsletters, social, commenting, recirculation, user-generated content'
 		);
 		const props = {
-			headerIcon: <Icon icon={ postComments } />,
 			headerText: __( 'Engagement', 'newspack' ),
 			subHeaderText: subheader,
 			tabbedNavigation: tabbed_navigation,

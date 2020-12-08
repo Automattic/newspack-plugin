@@ -20,7 +20,6 @@ export default function withWizardScreen( WrappedComponent ) {
 			buttonText,
 			buttonAction,
 			buttonDisabled,
-			headerIcon,
 			headerText,
 			subHeaderText,
 			tabbedNavigation,
@@ -41,11 +40,7 @@ export default function withWizardScreen( WrappedComponent ) {
 			<>
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
-						{ headerText && (
-							<h1>
-								{ headerIcon } { headerText }
-							</h1>
-						) }
+						{ headerText && <h1>{ headerText }</h1> }
 						{ subHeaderText && <p>{ subHeaderText }</p> }
 						{ tabbedNavigation && (
 							<>

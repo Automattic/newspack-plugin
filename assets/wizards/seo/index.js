@@ -9,7 +9,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, search } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -83,7 +82,6 @@ class SEOWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const headerIcon = <Icon icon={ search } />;
 		const headerText = __( 'SEO', 'newspack' );
 		const subHeaderText = __( 'Search engine and social optimization', 'newspack' );
 		const tabbedNavigation = [
@@ -111,7 +109,6 @@ class SEOWizard extends Component {
 		const secondaryButtonText = __( 'Advanced settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
-			headerIcon,
 			headerText,
 			subHeaderText,
 			tabbedNavigation,

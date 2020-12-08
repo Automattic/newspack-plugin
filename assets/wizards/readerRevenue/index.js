@@ -10,7 +10,6 @@ import '../../shared/js/public-path';
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { Icon, payment } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -218,7 +217,6 @@ class ReaderRevenueWizard extends Component {
 							exact
 							render={ () => (
 								<RevenueMain
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Generate revenue from your customers.' ) }
 									tabbedNavigation={ isConfigured && tabbedNavigation }
@@ -234,7 +232,6 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( "Configure your publication's address." ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -255,7 +252,6 @@ class ReaderRevenueWizard extends Component {
 							render={ routeProps => (
 								<StripeSetup
 									data={ stripeData }
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Reader revenue' ) }
 									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
 									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
@@ -276,7 +272,6 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __(
 										'Configure your landing page and your suggested donation presets.'
@@ -298,7 +293,6 @@ class ReaderRevenueWizard extends Component {
 								<Salesforce
 									routeProps={ routeProps }
 									data={ salesforceData }
-									headerIcon={ <Icon icon={ payment } /> }
 									headerText={ __( 'Configure Salesforce', 'newspack' ) }
 									isConnected={ salesforceIsConnected }
 									subHeaderText={ __(

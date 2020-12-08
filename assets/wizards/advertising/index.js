@@ -9,7 +9,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, stretchWide } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -327,7 +326,6 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ () => (
 								<Services
-									headerIcon={ <Icon icon={ stretchWide } /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									services={ services }
@@ -340,7 +338,6 @@ class AdvertisingWizard extends Component {
 							path="/ad-placements"
 							render={ () => (
 								<Placements
-									headerIcon={ <Icon icon={ stretchWide } /> }
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									placements={ placements }
@@ -361,7 +358,6 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ () => (
 								<AdUnits
-									headerIcon={ <Icon icon={ stretchWide } /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
@@ -380,7 +376,6 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ routeProps => (
 								<HeaderCode
-									headerIcon={ <Icon icon={ stretchWide } /> }
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
 									adUnits={ adUnits }
@@ -404,7 +399,6 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
-										headerIcon={ <Icon icon={ stretchWide } /> }
 										headerText={ __( 'Add an ad unit' ) }
 										subHeaderText={ __(
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
@@ -433,7 +427,6 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
-										headerIcon={ <Icon icon={ stretchWide } /> }
 										headerText={ __( 'Edit ad unit' ) }
 										subHeaderText={ __(
 											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
