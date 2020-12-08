@@ -22,12 +22,23 @@ const { withRouter } = Router;
  */
 class Platform extends Component {
 	/**
+	 * Constructor.
+	 */
+	constructor() {
+		super( ...arguments );
+		this.state = {
+			manualPlatformChange: false,
+		};
+	}
+
+	/**
 	 * Redirect after platform change.
 	 */
 	componentDidUpdate( prevProps ) {
+		const { manualPlatformChange } = this.state;
 		const { data, history, pluginStatus } = this.props;
 		const { platform } = data;
-		if ( this.props.data.platform !== prevProps.data.platform ) {
+		if ( ! manualPlatformChange && this.props.data.platform !== prevProps.data.platform ) {
 			if ( NRH === platform ) {
 				history.push( '/settings' );
 			} else if ( NEWSPACK === platform && pluginStatus ) {
@@ -58,13 +69,15 @@ class Platform extends Component {
 							value: NRH,
 						},
 					] }
-					onChange={ _platform =>
-						_platform.length &&
-						onChange( {
-							...data,
-							platform: _platform,
-						} )
-					}
+					onChange={ _platform => {
+						if ( _platform.length ) {
+							this.setState( { manualPlatformChange: true } );
+							onChange( {
+								...data,
+								platform: _platform,
+							} );
+						}
+					} }
 				/>
 				{ NEWSPACK === platform && ! pluginStatus && (
 					<PluginInstaller
@@ -77,7 +90,6 @@ class Platform extends Component {
 						onStatus={ ( { complete } ) => {
 							if ( complete ) {
 								onReady();
-								history.push( '/donations' );
 							}
 						} }
 						withoutFooterButton={ true }
