@@ -9,7 +9,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, reusableBlock } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -35,7 +34,6 @@ class UpdatesWizard extends Component {
 						exact
 						render={ () => (
 							<DevInfo
-								headerIcon={ <Icon icon={ reusableBlock } /> }
 								headerText={ __( 'Updates', 'newspack' ) }
 								subHeaderText={ __( 'Updates to the Newspack plugins and theme.', 'newspack' ) }
 							/>

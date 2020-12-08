@@ -5,7 +5,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -113,7 +112,6 @@ class SiteDesignWizard extends Component {
 								const { theme } = this.state;
 								return (
 									<ThemeSelection
-										headerIcon={ <Icon icon={ typography } /> }
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
@@ -133,7 +131,6 @@ class SiteDesignWizard extends Component {
 								const { themeMods } = this.state;
 								return (
 									<ThemeMods
-										headerIcon={ <Icon icon={ typography } /> }
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }

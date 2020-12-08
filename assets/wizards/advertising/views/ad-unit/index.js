@@ -101,7 +101,7 @@ class AdUnit extends Component {
 					<Button isPrimary onClick={ () => onSave( id ) }>
 						{ __( 'Save' ) }
 					</Button>
-					<Button isDefault href={ `#/${ service }` }>
+					<Button isSecondary href={ `#/${ service }` }>
 						{ __( 'Cancel' ) }
 					</Button>
 				</div>
