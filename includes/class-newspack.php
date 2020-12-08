@@ -42,6 +42,7 @@ final class Newspack {
 		$this->includes();
 		add_action( 'admin_init', [ $this, 'admin_redirects' ] );
 		add_action( 'admin_menu', [ $this, 'remove_all_newspack_options' ], 1 );
+		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
 		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
@@ -118,6 +119,20 @@ final class Newspack {
 	 */
 	public static function plugin_url() {
 		return untrailingslashit( plugins_url( '/', NEWSPACK_PLUGIN_FILE ) );
+	}
+
+	/**
+	 * Remove links to Newspack suite's plugins – they have wizards in this plugin.
+	 */
+	public static function remove_newspack_suite_plugin_links() {
+		global $menu;
+		foreach ( $menu as $key => $value ) {
+			if (
+				class_exists( 'Newspack_Popups' ) && 'edit.php?post_type=' . \Newspack_Popups::NEWSPACK_PLUGINS_CPT === $value[2]
+			) {
+				unset( $menu[ $key ] );
+			}
+		}
 	}
 
 	/**
