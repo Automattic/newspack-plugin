@@ -51,7 +51,7 @@ class Platform extends Component {
 	 * Render.
 	 */
 	render() {
-		const { data, history, onChange, onReady, pluginStatus } = this.props;
+		const { data, onChange, onReady, pluginStatus } = this.props;
 		const { platform } = data;
 		return (
 			<Fragment>
