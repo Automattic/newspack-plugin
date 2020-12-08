@@ -2,8 +2,7 @@
 
 .newspack-campaigns-wizard-segments {
 	&__subheader {
-		margin-top: -20px;
-		margin-bottom: 30px;
+		margin: -16px 0 32px;
 	}
 
 	&__list-top {
@@ -23,10 +22,19 @@
 	&__section {
 		flex: 1;
 		padding: 10px;
-		min-width: 200px;
-		max-width: 50%;
+		min-width: 100%;
+		@media screen and ( min-width: 600px ) {
+			min-width: 200px;
+			max-width: 50%;
+		}
 		h3 {
 			margin-top: 0;
+		}
+		&__description {
+			opacity: 0.6;
+			margin-top: -15px;
+			margin-bottom: 15px;
+			font-size: 0.9em;
 		}
 		&__content {
 			div {

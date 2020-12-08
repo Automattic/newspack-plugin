@@ -9,11 +9,11 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, megaphone } from '@wordpress/icons';
 
 /**
  * External dependencies.
  */
-import HeaderIcon from '@material-ui/icons/NewReleases';
 import { stringify } from 'qs';
 
 /**
@@ -64,6 +64,7 @@ class PopupsWizard extends Component {
 				inline: [],
 				overlay: [],
 			},
+			segments: [],
 			previewUrl: null,
 		};
 	}
@@ -79,7 +80,9 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { popups, segments } ) =>
+				this.setState( { popups: this.sortPopups( popups ), segments } )
+			)
 			.catch( error => setError( error ) );
 	};
 
@@ -222,14 +225,14 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, previewUrl } = this.state;
+		const { popups, segments, previewUrl } = this.state;
 		const { inline, overlay } = popups;
 		return (
 			<WebPreview
 				url={ previewUrl }
 				renderButton={ ( { showPreview } ) => {
 					const sharedProps = {
-						headerIcon: <HeaderIcon />,
+						headerIcon: <Icon icon={ megaphone } />,
 						headerText,
 						subHeaderText,
 						tabbedNavigation,
@@ -250,6 +253,7 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						segments,
 					};
 					return (
 						<HashRouter hashType="slash">

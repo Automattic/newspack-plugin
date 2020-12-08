@@ -24,14 +24,6 @@ const SCOPES_OPTIONS = [
 	{ value: 'PRODUCT', label: __( 'Product', 'newspack' ) },
 ];
 
-const CUSTOM_DIMENSIONS_OPTIONS = [
-	{ value: '', label: __( 'none', 'newspack' ) },
-	{ value: 'category', label: __( 'Category', 'newspack' ) },
-	{ value: 'author', label: __( 'Author', 'newspack' ) },
-	{ value: 'word_count', label: __( 'Word count', 'newspack' ) },
-	{ value: 'publish_date', label: __( 'Publish date', 'newspack' ) },
-];
-
 /**
  * Analytics Custom Dimensions screen.
  */
@@ -77,7 +69,7 @@ class CustomDimensions extends Component {
 	render() {
 		const { error, customDimensions, newDimensionName, newDimensionScope } = this.state;
 		return (
-			<div className="newspack__analytics-configuration newspack-card newspack-card__no-background">
+			<div className="newspack__analytics-configuration">
 				<p>
 					{ __(
 						"Custom dimensions are used to collect and analyze data that Google Analytics doesn't automatically track.",
@@ -111,7 +103,7 @@ class CustomDimensions extends Component {
 										</td>
 										<td>
 											<SelectControl
-												options={ CUSTOM_DIMENSIONS_OPTIONS }
+												options={ newspack_analytics_wizard_data.customDimensionsOptions }
 												value={ dimension.role || '' }
 												onChange={ this.handleCustomDimensionSetting( dimension.id ) }
 												className="newspack__analytics-configuration__select"

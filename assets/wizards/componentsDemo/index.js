@@ -11,11 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Dashboard';
+import { Icon, tool } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -35,8 +31,6 @@ import {
 	PluginInstaller,
 	PluginToggle,
 	ProgressBar,
-	Checklist,
-	Task,
 	SelectControl,
 	Modal,
 	Grid,
@@ -51,7 +45,6 @@ class ComponentsDemo extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			checklistProgress: 0,
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
 			inputNumValue: 0,
@@ -59,7 +52,6 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			modalShown: false,
-			showPluginInstallerWithProgressBar: false,
 			toggleGroupChecked: false,
 			color1: '#3366ff',
 			color2: '#4ab866',
@@ -67,31 +59,17 @@ class ComponentsDemo extends Component {
 		};
 	}
 
-	performCheckListItem = index => {
-		const { checklistProgress } = this.state;
-		console.log( 'Perform checklist item: ' + index );
-		this.setState( { checklistProgress: Math.max( checklistProgress, index + 1 ) } );
-	};
-
-	dismissCheckListItem = index => {
-		const { checklistProgress } = this.state;
-		console.log( 'Skip checklist item: ' + index );
-		this.setState( { checklistProgress: Math.max( checklistProgress, index + 1 ) } );
-	};
-
 	/**
 	 * Render the example stub.
 	 */
 	render() {
 		const {
-			checklistProgress,
 			inputTextValue1,
 			inputTextValue2,
 			inputNumValue,
 			selectValue1,
 			selectValue2,
 			modalShown,
-			showPluginInstallerWithProgressBar,
 			actionCardToggleChecked,
 			toggleGroupChecked,
 			color1,
@@ -106,7 +84,7 @@ class ComponentsDemo extends Component {
 					</a>
 				</div>
 				<FormattedHeader
-					headerIcon={ <HeaderIcon /> }
+					headerIcon={ <Icon icon={ tool } /> }
 					headerText={ __( 'Newspack Components' ) }
 					subHeaderText={ __( 'Demo of all the Newspack components' ) }
 				/>
@@ -127,12 +105,13 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Web Previews' ) } />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<WebPreview
 								url="//newspack.blog"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
 								isPrimary
 							/>
+							<br />
 							<WebPreview
 								url="//newspack.blog"
 								renderButton={ ( { showPreview } ) => (
@@ -141,7 +120,7 @@ class ComponentsDemo extends Component {
 									</a>
 								) }
 							/>
-						</Card>
+						</div>
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Color picker' ) } />
@@ -223,7 +202,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Handoff
 								modalTitle="Manage AMP"
 								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
@@ -240,15 +219,15 @@ class ComponentsDemo extends Component {
 							>
 								{ __( 'Specific Yoast Page' ) }
 							</Handoff>
-						</Card>
+						</div>
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
 								{ __( 'Open modal' ) }
 							</Button>
-						</Card>
+						</div>
 						{ modalShown && (
 							<Modal
 								title="This is the modal title"
@@ -259,14 +238,14 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<Card noBackground buttonsCard>
+								<div buttonsCard>
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>
-									<Button isDefault onClick={ () => this.setState( { modalShown: false } ) }>
+									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Also dismiss' ) }
 									</Button>
-								</Card>
+								</div>
 							</Modal>
 						) }
 					</Card>
@@ -280,24 +259,6 @@ class ComponentsDemo extends Component {
 						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
 						<Notice noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
 						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
-					</Card>
-					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
-						<Card noBackground buttonsCard>
-							<Button
-								onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
-								className="is-centered"
-								isPrimary
-							>
-								{ __( 'Show Plugin Installer w/Progress Bar' ) }
-							</Button>
-						</Card>
-						{ showPluginInstallerWithProgressBar && (
-							<PluginInstaller
-								plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit' ] }
-								asProgressBar
-							/>
-						) }
 					</Card>
 					<Card>
 						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
@@ -330,7 +291,7 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 					</Card>
-					<Card noBackground>
+					<div>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							onStatus={ ( { complete, pluginInfo } ) => {
@@ -342,8 +303,8 @@ class ComponentsDemo extends Component {
 								);
 							} }
 						/>
-					</Card>
-					<Card noBackground>
+					</div>
+					<div>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							isSmall
@@ -356,7 +317,7 @@ class ComponentsDemo extends Component {
 								);
 							} }
 						/>
-					</Card>
+					</div>
 					<FormattedHeader headerText={ __( 'Action cards' ) } />
 					<ActionCard
 						title="Example One"
@@ -474,53 +435,6 @@ class ComponentsDemo extends Component {
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
 					/>
-					<FormattedHeader headerText={ __( 'Checklist' ) } />
-					<Checklist progressBarText={ __( 'Your setup list' ) }>
-						<Task
-							title={ __( 'Set up membership' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 0 }
-							completed={ checklistProgress > 0 }
-							onClick={ () => this.performCheckListItem( 0 ) }
-							onDismiss={ () => this.dismissCheckListItem( 0 ) }
-						/>
-						<Task
-							title={ __( 'Set up your paywall' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 1 }
-							completed={ checklistProgress > 1 }
-							onClick={ () => this.performCheckListItem( 1 ) }
-							onDismiss={ () => this.dismissCheckListItem( 1 ) }
-						/>
-						<Task
-							title={ __( 'Customize your donations page' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 2 }
-							completed={ checklistProgress > 2 }
-							onClick={ () => this.performCheckListItem( 2 ) }
-							onDismiss={ () => this.dismissCheckListItem( 2 ) }
-						/>
-						<Task
-							title={ __( 'Set up call to action block' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 3 }
-							completed={ checklistProgress > 3 }
-							onClick={ () => this.performCheckListItem( 3 ) }
-							onDismiss={ () => this.dismissCheckListItem( 3 ) }
-						/>
-					</Checklist>
 					<Card>
 						<FormattedHeader headerText={ __( 'Checkboxes' ) } />
 						<CheckboxControl
@@ -619,38 +533,25 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card className="newspack-components-demo__buttons">
 						<FormattedHeader headerText="Buttons" />
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Button isPrimary>isPrimary</Button>
-							<Button isDefault>isDefault</Button>
+							<Button isSecondary>isSecondary</Button>
 							<Button isTertiary>isTertiary</Button>
 							<Button isLink>isLink</Button>
-						</Card>
-						<hr />
-						<h2>isLarge</h2>
-						<Card noBackground buttonsCard>
-							<Button isPrimary isLarge>
-								isPrimary
-							</Button>
-							<Button isDefault isLarge>
-								isDefault
-							</Button>
-							<Button isTertiary isLarge>
-								isTertiary
-							</Button>
-						</Card>
+						</div>
 						<hr />
 						<h2>isSmall</h2>
-						<Card noBackground buttonsCard>
+						<div buttonsCard>
 							<Button isPrimary isSmall>
 								isPrimary
 							</Button>
-							<Button isDefault isSmall>
-								isDefault
+							<Button isSecondary isSmall>
+								isSecondary
 							</Button>
 							<Button isTertiary isSmall>
 								isTertiary
 							</Button>
-						</Card>
+						</div>
 					</Card>
 				</Grid>
 			</Fragment>

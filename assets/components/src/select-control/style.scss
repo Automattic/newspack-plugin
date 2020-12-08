@@ -10,14 +10,15 @@
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
-	width: 100%;
+	flex-direction: row !important;
+	align-items: center !important;
 
 	label {
 		color: $dark-gray-900;
 		font-size: inherit;
 		font-weight: bold;
 		line-height: inherit;
-		margin: 0;
+		padding-bottom: 0 !important;
 	}
 
 	select {
@@ -78,7 +79,6 @@
 
 	.components-base-control__field,
 	.components-base-control__label {
-		display: block;
 		margin: 0;
 	}
 }
