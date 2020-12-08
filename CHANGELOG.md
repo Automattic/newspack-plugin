@@ -1,3 +1,16 @@
+# [1.26.0](https://github.com/Automattic/newspack-plugin/compare/v1.25.0...v1.26.0) (2020-12-08)
+
+
+### Features
+
+* design adjustments to the wizards ([#728](https://github.com/Automattic/newspack-plugin/issues/728)) ([b5be729](https://github.com/Automattic/newspack-plugin/commit/b5be7298544b8f56276d7b551ee43f9db4ca01dc))
+* **ga:** report single category if primary category is set ([57d3b01](https://github.com/Automattic/newspack-plugin/commit/57d3b011fd2814c5ccf9b6b2d211f29261d0f914))
+* necessary WooComm settings for Checkout to work correctly ([c01e515](https://github.com/Automattic/newspack-plugin/commit/c01e51534476666c8a9c112027316edb8473a156))
+* remove laterpay ([#723](https://github.com/Automattic/newspack-plugin/issues/723)) ([f1ed5c3](https://github.com/Automattic/newspack-plugin/commit/f1ed5c3a6954ddcf8e1168a5c24a326c1ca1cbd0))
+* update checkbox style to match Gutenberg ([#724](https://github.com/Automattic/newspack-plugin/issues/724)) ([e2fadf5](https://github.com/Automattic/newspack-plugin/commit/e2fadf5e8f0d840e1d8a6169d48ad9a121a94ff9))
+* update radio style to match Gutenberg ([#725](https://github.com/Automattic/newspack-plugin/issues/725)) ([2249ad5](https://github.com/Automattic/newspack-plugin/commit/2249ad567ad5f488c07087e2b8e52c5a41462da4))
+* wizards redesign and cleanup ([#705](https://github.com/Automattic/newspack-plugin/issues/705)) ([40e6288](https://github.com/Automattic/newspack-plugin/commit/40e62883b7b125c3fc073ca854dd05f514063789))
+
 # [1.25.0](https://github.com/Automattic/newspack-plugin/compare/v1.24.0...v1.25.0) (2020-12-02)
 
 
