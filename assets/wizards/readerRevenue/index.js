@@ -205,11 +205,6 @@ class ReaderRevenueWizard extends Component {
 			}
 			return [
 				{
-					label: __( 'Platform', 'newspack' ),
-					path: '/',
-					exact: true,
-				},
-				{
 					label: __( 'Donations', 'newspack' ),
 					path: '/donations',
 					exact: true,
@@ -227,17 +222,22 @@ class ReaderRevenueWizard extends Component {
 					label: __( 'Stripe', 'newspack' ),
 					path: '/stripe-setup',
 				},
-			];
-		} else if ( NRH === platform ) {
-			return [
 				{
 					label: __( 'Platform', 'newspack' ),
 					path: '/',
 					exact: true,
 				},
+			];
+		} else if ( NRH === platform ) {
+			return [
 				{
 					label: __( 'Settings', 'newspack' ),
 					path: '/settings',
+					exact: true,
+				},
+				{
+					label: __( 'Platform', 'newspack' ),
+					path: '/',
 					exact: true,
 				},
 			];

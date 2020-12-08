@@ -12,12 +12,30 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { PluginInstaller, SelectControl, withWizardScreen } from '../../../../components/src';
+import Router from '../../../../components/src/proxied-imports/router';
 import { NEWSPACK, NRH } from '../../constants';
+
+const { withRouter } = Router;
 
 /**
  * Platform Selection  Screen Component
  */
 class Platform extends Component {
+	/**
+	 * Redirect after platform change.
+	 */
+	componentDidUpdate( prevProps ) {
+		const { data, history } = this.props;
+		const { platform } = data;
+		if ( this.props.data.platform !== prevProps.data.platform ) {
+			if ( NRH === platform ) {
+				history.push( '/settings' );
+			} else if ( NEWSPACK === platform ) {
+				history.push( '/donations' );
+			}
+		}
+	}
+
 	/**
 	 * Render.
 	 */
@@ -64,4 +82,4 @@ class Platform extends Component {
 		);
 	}
 }
-export default withWizardScreen( Platform );
+export default withWizardScreen( withRouter( Platform ) );
