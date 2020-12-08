@@ -25,12 +25,12 @@ class Platform extends Component {
 	 * Redirect after platform change.
 	 */
 	componentDidUpdate( prevProps ) {
-		const { data, history } = this.props;
+		const { data, history, pluginStatus } = this.props;
 		const { platform } = data;
 		if ( this.props.data.platform !== prevProps.data.platform ) {
 			if ( NRH === platform ) {
 				history.push( '/settings' );
-			} else if ( NEWSPACK === platform ) {
+			} else if ( NEWSPACK === platform && pluginStatus ) {
 				history.push( '/donations' );
 			}
 		}
@@ -40,8 +40,7 @@ class Platform extends Component {
 	 * Render.
 	 */
 	render() {
-		const { data, onChange, onReady, status } = this.props;
-		const { newspack: newspackStatus } = status;
+		const { data, history, onChange, onReady, pluginStatus } = this.props;
 		const { platform } = data;
 		return (
 			<Fragment>
@@ -67,7 +66,7 @@ class Platform extends Component {
 						} )
 					}
 				/>
-				{ NEWSPACK === platform && ! newspackStatus && (
+				{ NEWSPACK === platform && ! pluginStatus && (
 					<PluginInstaller
 						plugins={ [
 							'woocommerce',
@@ -75,7 +74,13 @@ class Platform extends Component {
 							'woocommerce-name-your-price',
 							'woocommerce-gateway-stripe',
 						] }
-						onStatus={ ( { complete } ) => complete && onReady( 'newspack' ) }
+						onStatus={ ( { complete } ) => {
+							if ( complete ) {
+								onReady();
+								history.push( '/donations' );
+							}
+						} }
+						withoutFooterButton={ true }
 					/>
 				) }
 			</Fragment>

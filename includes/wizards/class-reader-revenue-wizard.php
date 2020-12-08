@@ -550,7 +550,7 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return Array
 	 */
 	protected function fetch_all_data() {
-		$platform                 = get_option( NEWSPACK_READER_REVENUE_PLATFORM, 'wc' );
+		$platform                 = get_option( NEWSPACK_READER_REVENUE_PLATFORM, null );
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$wc_installed             = $wc_configuration_manager->is_active();
 

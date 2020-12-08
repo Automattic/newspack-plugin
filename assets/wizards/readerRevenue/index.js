@@ -48,9 +48,6 @@ class ReaderRevenueWizard extends Component {
 				platformData: {},
 				pluginStatus: false,
 			},
-			status: {
-				newspack: false,
-			},
 		};
 	}
 
@@ -250,7 +247,7 @@ class ReaderRevenueWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements, wizardApiFetch } = this.props;
-		const { data, status } = this.state;
+		const { data } = this.state;
 		const {
 			countryStateFields,
 			currencyFields,
@@ -260,6 +257,7 @@ class ReaderRevenueWizard extends Component {
 			donationPage,
 			salesforceData,
 			platformData,
+			pluginStatus,
 		} = data;
 		const { platform } = platformData;
 		const salesforceIsConnected = !! salesforceData.refresh_token;
@@ -275,15 +273,14 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Platform
 									data={ platformData }
-									status={ status }
+									pluginStatus={ pluginStatus }
 									headerIcon={ headerIcon }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ tabbedNavigation }
 									onChange={ _platformData => this.update( '', _platformData ) }
-									onReady={ _platform => {
-										this.setState( { status: { ...status, [ _platform ]: true } } );
-										this.fetch();
+									onReady={ () => {
+										this.setState( { data: { ...data, pluginStatus: true } } );
 									} }
 								/>
 							) }
