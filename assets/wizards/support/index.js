@@ -12,7 +12,6 @@ import { parse } from 'qs';
  */
 import { render, createElement, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -70,7 +69,6 @@ class SupportWizard extends Component {
 		const isPreLaunch = newspack_support_data.IS_PRE_LAUNCH;
 
 		const props = {
-			headerIcon: <Icon icon={ help } />,
 			headerText: __( 'Support', 'newspack' ),
 			subHeaderText: __( 'Contact customer support', 'newspack' ),
 			tabbedNavigation: [

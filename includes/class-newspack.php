@@ -42,6 +42,7 @@ final class Newspack {
 		$this->includes();
 		add_action( 'admin_init', [ $this, 'admin_redirects' ] );
 		add_action( 'admin_menu', [ $this, 'remove_all_newspack_options' ], 1 );
+		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
 		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
@@ -58,6 +59,8 @@ final class Newspack {
 			define( 'NEWSPACK_COMPOSER_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/vendor/' );
 		}
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
+		define( 'NEWSPACK_READER_REVENUE_PLATFORM', 'newspack_reader_revenue_platform' );
+		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
 	}
 
 	/**
@@ -91,7 +94,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-updates-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
-		include_once NEWSPACK_ABSPATH . 'includes/class-checklists.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-donations.php';
@@ -100,6 +102,10 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-starter-content.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-webhooks.php';
+
+		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';
+		}
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-settings.php';
 
@@ -113,6 +119,20 @@ final class Newspack {
 	 */
 	public static function plugin_url() {
 		return untrailingslashit( plugins_url( '/', NEWSPACK_PLUGIN_FILE ) );
+	}
+
+	/**
+	 * Remove links to Newspack suite's plugins – they have wizards in this plugin.
+	 */
+	public static function remove_newspack_suite_plugin_links() {
+		global $menu;
+		foreach ( $menu as $key => $value ) {
+			if (
+				class_exists( 'Newspack_Popups' ) && 'edit.php?post_type=' . \Newspack_Popups::NEWSPACK_PLUGINS_CPT === $value[2]
+			) {
+				unset( $menu[ $key ] );
+			}
+		}
 	}
 
 	/**

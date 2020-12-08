@@ -9,7 +9,6 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, megaphone } from '@wordpress/icons';
 
 /**
  * External dependencies.
@@ -21,7 +20,7 @@ import { stringify } from 'qs';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { PopupGroup, Analytics, Segmentation } from './views';
+import { PopupGroup, Analytics, Settings, Segmentation } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -47,6 +46,11 @@ const tabbedNavigation = [
 	{
 		label: __( 'Analytics', 'newpack' ),
 		path: '/analytics',
+		exact: true,
+	},
+	{
+		label: __( 'Settings', 'newpack' ),
+		path: '/settings',
 		exact: true,
 	},
 ];
@@ -227,7 +231,6 @@ class PopupsWizard extends Component {
 				url={ previewUrl }
 				renderButton={ ( { showPreview } ) => {
 					const sharedProps = {
-						headerIcon: <Icon icon={ megaphone } />,
 						headerText,
 						subHeaderText,
 						tabbedNavigation,
@@ -289,6 +292,7 @@ class PopupsWizard extends Component {
 									render={ props => <Segmentation { ...props } { ...sharedProps } /> }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
+								<Route path="/settings" render={ () => <Settings { ...sharedProps } isWide /> } />
 								<Redirect to="/overlay" />
 							</Switch>
 						</HashRouter>
