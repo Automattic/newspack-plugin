@@ -12,6 +12,7 @@ project.properties
 .sublimelinterrc
 
 # Grunt
+.cache
 /node_modules/
 none
 

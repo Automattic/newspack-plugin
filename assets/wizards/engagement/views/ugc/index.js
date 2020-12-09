@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, withWizardScreen } from '../../../../components/src';
+import { withWizardScreen } from '../../../../components/src';
 
 /**
  * UGC Screen
@@ -22,10 +22,10 @@ class UGC extends Component {
 	 */
 	render() {
 		return (
-			<Card noBackground>
+			<div>
 				<h2>{ __( 'Coming Soon' ) }</h2>
 				<p>{ __( 'User Generated Content features TK.' ) }</p>
-			</Card>
+			</div>
 		);
 	}
 }

@@ -11,11 +11,6 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Search';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -87,7 +82,6 @@ class SEOWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const headerIcon = <HeaderIcon />;
 		const headerText = __( 'SEO', 'newspack' );
 		const subHeaderText = __( 'Search engine and social optimization', 'newspack' );
 		const tabbedNavigation = [
@@ -115,7 +109,6 @@ class SEOWizard extends Component {
 		const secondaryButtonText = __( 'Advanced settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
-			headerIcon,
 			headerText,
 			subHeaderText,
 			tabbedNavigation,

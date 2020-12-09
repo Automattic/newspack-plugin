@@ -3,11 +3,6 @@
  */
 
 /**
- * WordPress dependencies.
- */
-import { Component } from '@wordpress/element';
-
-/**
  * External dependencies.
  */
 import classNames from 'classnames';
@@ -18,32 +13,40 @@ import Router from '../proxied-imports/router';
  */
 import './style.scss';
 
-const { NavLink } = Router;
+const { NavLink, useHistory } = Router;
 
 /**
- * Progress bar.
+ * Tabbed navigation.
  */
-class TabbedNavigation extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { items, className } = this.props;
-		const classes = classNames( 'newspack-tabbed-navigation', className );
-		return (
-			<div className={ classes }>
-				<ul>
-					{ items.map( ( item, key ) => (
-						<li key={ key }>
-							<NavLink to={ item.path } exact={ item.exact } activeClassName="selected">
-								{ item.label }
-							</NavLink>
-						</li>
-					) ) }
-				</ul>
-			</div>
-		);
-	}
-}
+const TabbedNavigation = ( { items, className } ) => {
+	const classes = classNames( 'newspack-tabbed-navigation', className );
+	const {
+		location: { pathname },
+	} = useHistory();
+	// eslint-disable-next-line no-unused-vars
+	const [ _, firstPathPart ] = pathname.split( '/' );
+	return (
+		<div className={ classes }>
+			<ul>
+				{ items.map( ( item, key ) => (
+					<li key={ key }>
+						<NavLink
+							to={ item.path }
+							exact={ item.exact }
+							className={ classNames( {
+								selected:
+									item.path === '/'
+										? pathname === item.path
+										: firstPathPart === item.path.replace( /\//g, '' ),
+							} ) }
+						>
+							{ item.label }
+						</NavLink>
+					</li>
+				) ) }
+			</ul>
+		</div>
+	);
+};
 
 export default TabbedNavigation;

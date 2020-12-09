@@ -149,7 +149,6 @@ class WebPreview extends Component {
 			isSecondary,
 			isTertiary,
 			isLink,
-			isLarge,
 			isSmall,
 			/**
 			 * Inversion of control - let the caller render
@@ -168,7 +167,6 @@ class WebPreview extends Component {
 						isSecondary={ isSecondary }
 						isTertiary={ isTertiary }
 						isLink={ isLink }
-						isLarge={ isLarge }
 						isSmall={ isSmall }
 						onClick={ this.showPreview }
 					>

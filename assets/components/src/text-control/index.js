@@ -36,8 +36,12 @@ class TextControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, required, ...otherProps } = this.props;
-		const classes = classNames( 'newspack-text-control', className );
+		const { className, required, isWide, ...otherProps } = this.props;
+		const classes = classNames(
+			'newspack-text-control',
+			{ 'newspack-text-control--wide': isWide },
+			className
+		);
 		return required ? (
 			<div ref={ this.wrapperRef }>
 				<BaseComponent className={ classes } required={ required } { ...otherProps } />

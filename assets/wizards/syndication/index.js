@@ -11,11 +11,6 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/SyncAlt';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -40,7 +35,6 @@ class SyndicationWizard extends Component {
 							exact
 							render={ () => (
 								<Intro
-									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Syndication', 'newspack' ) }
 									subHeaderText={ 'Distribute your content across multiple websites' }
 								/>
