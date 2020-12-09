@@ -53,29 +53,28 @@
 
 		.newspack-select-control {
 			margin: 0;
-			transition: color 125ms ease-in-out;
+			width: 100%;
 
-			&:hover {
-				color: $primary-500;
-			}
+			.components-select-control {
+				select.components-select-control__input {
+					height: 40px;
+					min-height: 40px;
 
-			select {
-				background-position: right;
-				border: 0;
-				border-radius: 1px;
-				display: block;
-				height: 24px;
-				min-height: 24px;
-				padding: 0;
+					&:focus ~ div.components-input-control__backdrop {
+						border-color: $primary-500;
+						box-shadow: inset 0 0 0 1px $primary-500;
+					}
+				}
 
-				&:focus {
-					box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
+				div.components-input-control__backdrop {
+					border-color: white;
+					padding: 0;
 				}
 			}
 		}
 
 		.newspack-toggle-control {
-			margin: 0 8px;
+			margin: 0;
 
 			.components-form-toggle {
 				border-top: 0;
