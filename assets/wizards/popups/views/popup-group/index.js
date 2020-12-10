@@ -56,7 +56,7 @@ class PopupGroup extends Component {
 		const {
 			deletePopup,
 			emptyMessage,
-			items: { active = [], draft = [], test = [], inactive = [], manual = [] },
+			items: { active = [], draft = [], test = [], inactive = [] },
 			previewPopup,
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
@@ -71,7 +71,6 @@ class PopupGroup extends Component {
 				test: 'newspack-card__is-secondary',
 				inactive: 'newspack-card__is-disabled',
 				draft: 'newspack-card__is-disabled',
-				manual: 'newspack-card__is-supported',
 			}[ key ] );
 
 		return (
@@ -81,7 +80,6 @@ class PopupGroup extends Component {
 					{ key: 'draft', label: __( 'Draft', 'newspack' ), items: draft },
 					{ key: 'test', label: __( 'Test', 'newspack' ), items: test },
 					{ key: 'inactive', label: __( 'Inactive', 'newspack' ), items: inactive },
-					{ key: 'manual', label: __( 'Manual', 'newspack' ), items: manual },
 				] }
 				renderCard={ ( popup, section ) => (
 					<PopupActionCard

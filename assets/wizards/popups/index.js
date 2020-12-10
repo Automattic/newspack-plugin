@@ -15,7 +15,6 @@ import { __ } from '@wordpress/i18n';
  */
 import HeaderIcon from '@material-ui/icons/NewReleases';
 import { stringify } from 'qs';
-import { groupBy } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -174,42 +173,31 @@ class PopupsWizard extends Component {
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopupGroup = popups => {
-		const grouped = groupBy(
-			popups,
-			( { categories, options, sitewide_default: sitewideDefault, status } ) => {
-				if ( 'publish' === status && 'test' === options.frequency ) {
-					return 'test';
-				}
-				if ( 'draft' === status ) {
-					return 'draft';
-				}
-				if ( options.manual_only ) {
-					return 'manual';
-				}
-				if (
-					'inline' === options.placement
-						? 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
-						: 'test' !== options.frequency &&
-						  ( sitewideDefault || categories.length ) &&
-						  'publish' === status
-				) {
-					return 'active';
-				}
-				if (
-					'inline' === options.placement
-						? 'never' === options.frequency && 'publish' === status
-						: 'test' !== options.frequency &&
-						  ( ! sitewideDefault && ! categories.length ) &&
-						  'publish' === status
-				) {
-					return 'inactive';
-				}
-			}
+		const test = popups.filter(
+			( { options, status } ) => 'publish' === status && 'test' === options.frequency
 		);
-
-		grouped.active = ( grouped.active || [] ).sort( a => ( a.sitewide_default ? -1 : 1 ) );
-
-		return grouped;
+		const draft = popups.filter( ( { status } ) => 'draft' === status );
+		const active = popups.filter(
+			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
+				'inline' === options.placement
+					? 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
+					: 'test' !== options.frequency &&
+					  ( sitewideDefault || categories.length ) &&
+					  'publish' === status
+		);
+		const activeWithSitewideDefaultFirst = [
+			...active.filter( ( { sitewide_default: sitewideDefault } ) => sitewideDefault ),
+			...active.filter( ( { sitewide_default: sitewideDefault } ) => ! sitewideDefault ),
+		];
+		const inactive = popups.filter(
+			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
+				'inline' === options.placement
+					? 'never' === options.frequency && 'publish' === status
+					: 'test' !== options.frequency &&
+					  ( ! sitewideDefault && ! categories.length ) &&
+					  'publish' === status
+		);
+		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
