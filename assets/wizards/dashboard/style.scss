@@ -130,10 +130,6 @@
 	&__views {
 		display: none;
 		margin: 0;
-		padding: 46px 22px;
-		position: absolute;
-		right: 0;
-		top: 0;
 
 		@media screen and ( min-width: 600px ) {
 			display: flex;

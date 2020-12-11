@@ -40,36 +40,38 @@ class Dashboard extends Component {
 
 		return (
 			<Fragment>
-				<div className="newspack-logo-wrapper">
-					<NewspackLogo />
+				<div className="newspack-logo__wrapper">
+					<Grid isWide className="newspack-logo__grid">
+						<NewspackLogo />
+						<div className="newspack-dashboard-card__views">
+							<Button
+								icon={ <Icon icon={ grid } /> }
+								label={ __( 'Grid view' ) }
+								isPrimary={ 'grid' === view }
+								isLink={ 'grid' !== view }
+								isSmall
+								onClick={ () =>
+									this.setState( { view: 'grid' }, () =>
+										localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
+									)
+								}
+							></Button>
+							<Button
+								icon={ <Icon icon={ formatListBullets } /> }
+								label={ __( 'List view' ) }
+								isPrimary={ 'list' === view }
+								isLink={ 'list' !== view }
+								isSmall
+								onClick={ () =>
+									this.setState( { view: 'list' }, () =>
+										localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
+									)
+								}
+							></Button>
+						</div>
+					</Grid>
 				</div>
 				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
-					<div className="newspack-dashboard-card__views">
-						<Button
-							icon={ <Icon icon={ grid } /> }
-							label={ __( 'Grid view' ) }
-							isPrimary={ 'grid' === view }
-							isLink={ 'grid' !== view }
-							isSmall
-							onClick={ () =>
-								this.setState( { view: 'grid' }, () =>
-									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
-								)
-							}
-						></Button>
-						<Button
-							icon={ <Icon icon={ formatListBullets } /> }
-							label={ __( 'List view' ) }
-							isPrimary={ 'list' === view }
-							isLink={ 'list' !== view }
-							isSmall
-							onClick={ () =>
-								this.setState( { view: 'list' }, () =>
-									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
-								)
-							}
-						></Button>
-					</div>
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
 					) ) }

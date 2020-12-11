@@ -128,7 +128,7 @@ final class Newspack {
 		global $menu;
 		foreach ( $menu as $key => $value ) {
 			if (
-				class_exists( 'Newspack_Popups' ) && 'edit.php?post_type=' . \Newspack_Popups::NEWSPACK_PLUGINS_CPT === $value[2]
+				class_exists( 'Newspack_Popups' ) && 'edit.php?post_type=' . \Newspack_Popups::NEWSPACK_POPUPS_CPT === $value[2]
 			) {
 				unset( $menu[ $key ] );
 			}

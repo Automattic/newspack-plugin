@@ -41,6 +41,9 @@ class PopupGroup extends Component {
 		if ( sitewideDefault ) {
 			descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 		}
+		if ( options.placement === 'above_header' ) {
+			descriptionMessages.push( __( 'Above header', 'newspack' ) );
+		}
 		if ( categories.length > 0 ) {
 			descriptionMessages.push(
 				__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
