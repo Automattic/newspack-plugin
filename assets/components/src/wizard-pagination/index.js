@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -19,6 +19,7 @@ const { withRouter } = Router;
 
 const WizardPagination = props => {
 	const [ showSteps, setShowSteps ] = useState( false );
+	const stepper = useRef( null );
 	const { history, location, routes } = props;
 	if ( ! routes || ! history || ! location ) {
 		return;
@@ -26,6 +27,21 @@ const WizardPagination = props => {
 
 	const routeList = Object.keys( routes );
 	const currentRoute = routeList.find( route => location.pathname === routes[ route ].path );
+	const hideSteps = e => {
+		// If clicking outside the expanded stepper, hide it.
+		if (
+			stepper.current &&
+			e.target !== stepper.current &&
+			! e.target.classList.contains( 'newspack-wizard-pagination__show-steps' )
+		) {
+			setShowSteps( false );
+		}
+	};
+
+	useEffect( () => {
+		window.addEventListener( 'click', hideSteps );
+		return () => window.removeEventListener( 'click', hideSteps );
+	}, [] );
 
 	useEffect( () => {
 		setShowSteps( false );
@@ -46,6 +62,7 @@ const WizardPagination = props => {
 							className={ `newspack-wizard-pagination__steps ${
 								! showSteps ? 'hidden' : 'newspack-wizard__header__inner'
 							}` }
+							ref={ stepper }
 						>
 							{ routeList.map( ( route, index ) => {
 								if ( 'welcome' === route ) {

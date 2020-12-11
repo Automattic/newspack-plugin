@@ -373,7 +373,7 @@ class SetupWizard extends Component {
 								<ConfigurePlugins
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'Please configure the following core plugins to start using Newspack.'
+										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Jetpack' ) }
@@ -454,9 +454,9 @@ class SetupWizard extends Component {
 							<InstallationProgress
 								autoInstall={ shouldAutoInstallPlugins( routeProps ) }
 								hidden={ routes.integrations.path !== routeProps.location.pathname }
-								headerText={ __( 'Installation...' ) }
+								headerText={ routes.integrations.title }
 								subHeaderText={ __(
-									'Please configure the following core plugin to start using Newspack.'
+									'Please configure the following core plugins to start using Newspack.'
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ '#/configure-jetpack' }
@@ -470,10 +470,9 @@ class SetupWizard extends Component {
 					<Route
 						render={ routeProps => {
 							// If trying to go to an invalid route, go back to Welcome.
-							return 0 ===
-								Object.keys( routes ).find(
-									route => routes[ route ].path === routeProps.location.pathname
-								).length ? (
+							return ! Object.keys( routes ).find(
+								route => routes[ route ].path === routeProps.location.pathname
+							) ? (
 								<Redirect to={ routes.welcome.path } />
 							) : null;
 						} }

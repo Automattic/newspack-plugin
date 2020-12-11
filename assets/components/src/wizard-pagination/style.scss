@@ -16,7 +16,6 @@
 
 	&__show-steps {
 		border: 1px solid white;
-		border-radius: 2px;
 		margin-bottom: 1rem;
 		position: relative;
 		width: 100%;
@@ -37,7 +36,7 @@
 		left: 0;
 		padding-top: 0;
 		position: absolute;
-		top: calc( 100% - 1rem );
+		top: calc( 100% - 1.125rem );
 		width: calc( 100% - 64px );
 		z-index: 1;
 
@@ -73,12 +72,14 @@
 
 		&:first-child {
 			border-top: 1px solid white;
-			padding-top: 1rem;
+			padding-top: 0.75rem;
 		}
 
 		&:last-child {
 			border-bottom: 1px solid white;
-			padding-bottom: 1rem;
+			border-bottom-left-radius: 3px;
+			border-bottom-right-radius: 3px;
+			padding-bottom: 0.75rem;
 		}
 
 		a {
