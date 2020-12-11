@@ -6,9 +6,11 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-toggle-control {
+	margin: 32px 0;
+
 	.components-base-control__field {
+		align-items: flex-start;
 		margin: 0;
-		height: 24px;
 
 		.components-toggle-control__label {
 			color: $dark-gray-300;
@@ -18,8 +20,7 @@
 		}
 
 		.components-form-toggle {
-			border-top: 3px solid transparent;
-			margin-right: 8px;
+			margin: 3px 8px 3px 0;
 
 			&.is-checked {
 				.components-form-toggle__track {
@@ -49,6 +50,13 @@
 		+ .components-form-toggle__track {
 			box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
 		}
+	}
+
+	// Multiple Textarea Controls
+
+	& + & {
+		margin-bottom: 32px;
+		margin-top: -24px;
 	}
 
 	// Reset

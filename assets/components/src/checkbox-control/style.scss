@@ -9,7 +9,6 @@
 	color: $dark-gray-300;
 	display: flex;
 	font-size: 14px;
-	justify-content: space-between;
 	line-height: 24px;
 	margin: 32px 0;
 
@@ -57,7 +56,7 @@
 	// Multiple Checkbox Controls
 
 	& + & {
-		margin-top: -16px;
+		margin-top: -24px;
 	}
 
 	// Reset
