@@ -6,24 +6,135 @@
 
 .newspack-wizard-pagination {
 	align-items: center;
-	background: $primary-600;
 	color: white;
 	display: flex;
 	flex-direction: row-reverse;
 	font-size: 14px;
 	justify-content: space-between;
 	line-height: 24px;
+	position: relative;
 
-	.newspack-wizard-pagination__pagination,
-	.newspack-button {
-		margin: 8px 16px;
+	&__show-steps {
+		border: 1px solid white;
+		border-radius: 2px;
+		margin-bottom: 1rem;
+		position: relative;
+		width: 100%;
+
+		&::after {
+			content: '•••';
+			position: absolute;
+			right: 1rem;
+		}
+
+		@media screen and ( min-width: 1064px ) {
+			display: none;
+		}
 	}
 
-	body[class*='admin-color-'] & .newspack-button.is-link {
-		color: inherit;
+	&__steps {
+		border-top-width: 0;
+		left: 0;
+		padding-top: 0;
+		position: absolute;
+		top: calc( 100% - 1rem );
+		width: calc( 100% - 64px );
+		z-index: 1;
+
+		@media screen and ( min-width: 744px ) {
+			width: calc( 100% - 128px );
+		}
+
+		@media screen and ( min-width: 1064px ) {
+			align-items: center;
+			display: flex;
+			justify-content: space-between;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			width: 100%;
+
+			&.hidden {
+				display: flex;
+			}
+		}
 	}
 
-	.newspack-wizard-pagination__pagination {
-		font-weight: bold;
+	&__step {
+		background-color: $primary-500;
+		border-left: 1px solid white;
+		border-right: 1px solid white;
+		margin: 0;
+		position: relative;
+
+		&.separator {
+			display: none;
+		}
+
+		&:first-child {
+			border-top: 1px solid white;
+			padding-top: 1rem;
+		}
+
+		&:last-child {
+			border-bottom: 1px solid white;
+			padding-bottom: 1rem;
+		}
+
+		a {
+			color: $primary-950;
+			display: block;
+			padding: 0.5rem 1rem;
+			text-decoration: none;
+
+			&:hover,
+			&:focus {
+				color: white;
+			}
+
+			&.active {
+				color: white;
+				font-weight: bold;
+			}
+		}
+
+		@media screen and ( min-width: 1064px ) {
+			border: none;
+			padding: 0;
+
+			&.separator {
+				background-image: url( "data:image/svg+xml;charset=UTF-8,%3csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 12.5L6 7.00001L1 1.50003' stroke='%230E0052' stroke-width='1.5'/%3e%3c/svg%3e " );
+				display: block;
+				height: 14px;
+				width: 8px;
+			}
+
+			&:first-child,
+			&:last-child {
+				border: none;
+				padding-bottom: 0;
+				padding-top: 0;
+			}
+
+			a {
+				display: inline-block;
+				font-weight: bold;
+				padding: 0.5rem 0;
+
+				&.active {
+					border-bottom: 4px solid white;
+				}
+			}
+		}
+	}
+
+	body[class*='admin-color-'] & .newspack-button {
+		padding-left: 1rem;
+		padding-right: 1rem;
+
+		&:hover,
+		&:focus {
+			color: currentColor;
+		}
 	}
 }

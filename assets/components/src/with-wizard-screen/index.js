@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { Button, Handoff, TabbedNavigation } from '../';
+import { Button, Handoff, TabbedNavigation, WizardPagination } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -13,7 +13,7 @@ import classnames from 'classnames';
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizardScreen( WrappedComponent ) {
+export default function withWizardScreen( WrappedComponent, routes = null ) {
 	const WrappedWithWizardScreen = props => {
 		const {
 			className,
@@ -26,6 +26,7 @@ export default function withWizardScreen( WrappedComponent ) {
 			secondaryButtonText,
 			secondaryButtonAction,
 			hidden,
+			routes,
 		} = props;
 		if ( hidden ) {
 			return null;
@@ -48,6 +49,7 @@ export default function withWizardScreen( WrappedComponent ) {
 							</>
 						) }
 					</div>
+					{ routes && <WizardPagination routes={ routes } /> }
 				</div>
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>

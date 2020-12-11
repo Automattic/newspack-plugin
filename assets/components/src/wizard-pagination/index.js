@@ -6,12 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
-
-/**
- * Material UI dependencies.
- */
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -22,38 +17,63 @@ import './style.scss';
 
 const { withRouter } = Router;
 
-class WizardPagination extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { history, location, routes } = this.props;
-		if ( ! routes || ! history || ! location ) {
-			return;
-		}
-		const currentIndex = parseInt( routes.indexOf( location.pathname ) );
-		if ( 0 === currentIndex ) {
-			return <Fragment />;
-		}
-		return (
-			<Fragment>
-				<div className="newspack-wizard-pagination">
-					<div className="newspack-wizard-pagination__pagination">
-						{ __( 'Step' ) } { currentIndex } { __( 'of' ) } { routes.length - 1 }{' '}
-					</div>
-					<Button
-						isLink
-						isSmall
-						className="newspack-wizard-pagination__navigation"
-						onClick={ () => history.goBack() }
-					>
-						<ArrowBackIcon />
-						{ __( 'Back' ) }
-					</Button>
-				</div>
-			</Fragment>
-		);
+const WizardPagination = props => {
+	const [ showSteps, setShowSteps ] = useState( false );
+	const { history, location, routes } = props;
+	if ( ! routes || ! history || ! location ) {
+		return;
 	}
-}
+
+	const routeList = Object.keys( routes );
+	const currentRoute = routeList.find( route => location.pathname === routes[ route ].path );
+
+	useEffect( () => {
+		setShowSteps( false );
+	}, currentRoute );
+
+	return (
+		<Fragment>
+			<div className="newspack-wizard-pagination newspack-wizard__header__inner">
+				{ routeList.length && (
+					<>
+						<Button
+							className="newspack-wizard-pagination__show-steps"
+							onClick={ () => setShowSteps( ! showSteps ) }
+						>
+							{ routes[ currentRoute ].title }
+						</Button>
+						<ul
+							className={ `newspack-wizard-pagination__steps ${
+								! showSteps ? 'hidden' : 'newspack-wizard__header__inner'
+							}` }
+						>
+							{ routeList.map( ( route, index ) => {
+								if ( 'welcome' === route ) {
+									return null;
+								}
+
+								return (
+									<>
+										<li key={ index } className="newspack-wizard-pagination__step">
+											<a
+												className={ route === currentRoute ? 'active' : '' }
+												href={ '#' + routes[ route ].path }
+											>
+												{ routes[ route ].title }
+											</a>
+										</li>
+										{ index + 1 < routeList.length && (
+											<li className="newspack-wizard-pagination__step separator" />
+										) }
+									</>
+								);
+							} ) }
+						</ul>
+					</>
+				) }
+			</div>
+		</Fragment>
+	);
+};
 
 export default withRouter( WizardPagination );

@@ -27,6 +27,10 @@
 				margin: 0;
 				padding-bottom: 32px;
 			}
+
+			&.newspack-wizard-pagination {
+				padding-top: 0;
+			}
 		}
 	}
 
@@ -54,7 +58,8 @@
 		h3,
 		p {
 			line-height: 24px;
-			margin: 32px 0;
+			margin-bottom: 32px;
+			margin-top: 0;
 			padding: 0;
 		}
 
