@@ -45,7 +45,7 @@ const WizardPagination = props => {
 
 	useEffect( () => {
 		setShowSteps( false );
-	}, currentRoute );
+	}, [ currentRoute ] );
 
 	return (
 		<Fragment>
