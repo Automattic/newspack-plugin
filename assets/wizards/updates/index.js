@@ -11,11 +11,6 @@ import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Update';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -39,9 +34,8 @@ class UpdatesWizard extends Component {
 						exact
 						render={ () => (
 							<DevInfo
-								headerIcon={ <HeaderIcon /> }
-								headerText={ __( "What's new?", 'newspack' ) }
-								subHeaderText={ __( 'Updates to the Newspack plugins and theme.' ) }
+								headerText={ __( 'Updates', 'newspack' ) }
+								subHeaderText={ __( 'Updates to the Newspack plugins and theme.', 'newspack' ) }
 							/>
 						) }
 					/>

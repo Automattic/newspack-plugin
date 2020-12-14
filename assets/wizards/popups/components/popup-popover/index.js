@@ -26,6 +26,7 @@ import SitewideDefaultIcon from '@material-ui/icons/Public';
  * Internal dependencies.
  */
 import { Popover, SelectControl, ToggleControl } from '../../../../components/src';
+import { isOverlay } from '../../utils';
 import './style.scss';
 
 const frequencyMap = {
@@ -35,10 +36,9 @@ const frequencyMap = {
 	always: __( 'Every page', 'newspack' ),
 };
 
-const frequenciesForPopup = ( { options } ) => {
-	const { placement } = options;
+const frequenciesForPopup = popup => {
 	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && 'inline' !== placement ) )
+		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 class PopupPopover extends Component {
@@ -56,7 +56,7 @@ class PopupPopover extends Component {
 			updatePopup,
 		} = this.props;
 		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-		const { frequency, placement } = options;
+		const { frequency } = options;
 		const isDraft = 'draft' === status;
 		const isTestMode = 'test' === frequency;
 
@@ -66,7 +66,7 @@ class PopupPopover extends Component {
 				onFocusOutside={ onFocusOutside }
 				onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside() }
 			>
-				{ 'inline' !== placement && ! isTestMode && ! isDraft && (
+				{ isOverlay( { options } ) && ! isTestMode && ! isDraft && (
 					<MenuItem
 						onClick={ () => {
 							setSitewideDefaultPopup( id, ! sitewideDefault );

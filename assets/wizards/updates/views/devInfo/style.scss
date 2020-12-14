@@ -9,9 +9,6 @@
 		border-radius: 3px;
 		> div {
 			margin: 24px 0 0;
-			h3:first-child {
-				margin-top: 0;
-			}
 		}
 		ul {
 			list-style: disc;
@@ -25,8 +22,7 @@
 			margin-bottom: 0;
 		}
 		h3 {
-			font-size: 16px;
-			margin: 0;
+			margin: 24px 0 0;
 		}
 		svg {
 			color: $dark-gray-900;

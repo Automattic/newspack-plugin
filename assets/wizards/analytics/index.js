@@ -11,11 +11,6 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/TrendingUp';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -48,7 +43,6 @@ class AnalyticsWizard extends Component {
 	render() {
 		const { pluginRequirements, wizardApiFetch, isLoading } = this.props;
 		const sharedProps = {
-			headerIcon: <HeaderIcon />,
 			headerText: __( 'Analytics', 'newspack' ),
 			subHeaderText: __( 'Track traffic and activity.', 'newspack' ),
 			tabbedNavigation: TABS,

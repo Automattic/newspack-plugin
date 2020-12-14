@@ -11,11 +11,6 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Healing';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -98,7 +93,6 @@ class HealthCheckWizard extends Component {
 							exact
 							render={ () => (
 								<Plugins
-									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }
@@ -119,7 +113,6 @@ class HealthCheckWizard extends Component {
 							render={ () => (
 								<Configuration
 									hasData={ hasData }
-									headerIcon={ <HeaderIcon /> }
 									headerText={ __( 'Health Check', 'newspack' ) }
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									tabbedNavigation={ tabs }

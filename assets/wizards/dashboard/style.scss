@@ -12,7 +12,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		margin-top: -16px;
 
 		&::after {
 			content: '';
@@ -21,21 +20,21 @@
 
 		.newspack-dashboard-card,
 		&::after {
+			margin-top: 32px;
 			width: 100%;
 
 			@media screen and ( min-width: 600px ) {
-				width: calc( ( 100% - 16px ) / 2 );
+				width: calc( ( 100% - 32px ) / 2 );
 			}
 
 			@media screen and ( min-width: 1224px ) {
-				width: calc( ( 100% - 32px ) / 3 );
+				width: calc( ( 100% - 64px ) / 3 );
 			}
 		}
 	}
 }
 
 .newspack-dashboard-card {
-	box-shadow: 0 4px 8px rgba( black, 0.08 );
 	margin: 16px 0 0;
 	padding: 0;
 
@@ -59,7 +58,7 @@
 		&:focus,
 		&:hover {
 			background-color: $light-gray-100;
-			box-shadow: 0 4px 8px rgba( black, 0.16 );
+			box-shadow: 0 4px 8px rgba( black, 0.08 );
 
 			@media screen and ( min-width: 744px ) {
 				> svg {
@@ -91,8 +90,13 @@
 		transition: color 125ms ease-in-out;
 	}
 
+	p {
+		margin-top: 8px;
+	}
+
 	svg {
 		display: block;
+		flex-shrink: 0;
 		fill: $primary-500;
 		height: 24px;
 		margin: 0;
@@ -126,10 +130,6 @@
 	&__views {
 		display: none;
 		margin: 0;
-		padding: 46px 22px;
-		position: absolute;
-		right: 0;
-		top: 0;
 
 		@media screen and ( min-width: 600px ) {
 			display: flex;

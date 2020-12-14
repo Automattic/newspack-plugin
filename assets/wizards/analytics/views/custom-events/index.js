@@ -122,7 +122,7 @@ class CustomEvents extends Component {
 		const isCreatingEvent = editedEventId === 'new';
 
 		return (
-			<div className="newspack__analytics-configuration newspack-card newspack-card__no-background">
+			<div className="newspack__analytics-configuration">
 				<p>
 					{ __(
 						'Custom events are used to collect and analyze specific user interactions.',

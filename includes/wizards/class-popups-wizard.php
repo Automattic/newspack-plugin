@@ -175,6 +175,35 @@ class Popups_Wizard extends Wizard {
 			]
 		);
 
+		// Plugin settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_plugin_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_plugin_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'option_name'  => [
+						'validate_callback' => [ 'Newspack_Popups_API', 'validate_settings_option_name' ],
+						'sanitize_callback' => 'esc_attr',
+					],
+					'option_value' => [
+						'sanitize_callback' => 'esc_attr',
+					],
+				],
+			]
+		);
+
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/segmentation',
@@ -212,6 +241,21 @@ class Popups_Wizard extends Wizard {
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_delete_segment' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/segmentation-reach',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_segment_reach' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'config' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
 			]
 		);
 
@@ -469,6 +513,24 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get the plugin settings.
+	 */
+	public static function api_get_plugin_settings() {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		return $newspack_popups_configuration_manager->get_settings();
+	}
+
+	/**
+	 * Set the plugin settings.
+	 *
+	 * @param array $options options.
+	 */
+	public static function api_set_plugin_settings( $options ) {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		return $newspack_popups_configuration_manager->set_settings( $options );
+	}
+
+	/**
 	 * Get Campaigns Analytics report.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -538,6 +600,18 @@ class Popups_Wizard extends Wizard {
 	public function api_delete_segment( $request ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$response                              = $newspack_popups_configuration_manager->delete_segment( $request['id'] );
+		return $response;
+	}
+
+	/**
+	 * Get a specific segment's potential reach.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_get_segment_reach( $request ) {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$response                              = $newspack_popups_configuration_manager->get_segment_reach( json_decode( $request['config'] ) );
 		return $response;
 	}
 }

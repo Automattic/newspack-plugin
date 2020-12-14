@@ -79,8 +79,21 @@ class Handoff extends Component {
 	 * Render.
 	 */
 	render() {
-		// eslint-disable-next-line no-unused-vars
-		const { className, children, compact, useModal, onReady, ...otherProps } = this.props;
+		const {
+			className,
+			children,
+			compact,
+			useModal,
+			// eslint-disable-next-line no-unused-vars
+			modalTitle: _modalTitle,
+			// eslint-disable-next-line no-unused-vars
+			modalBody: _modalBody,
+			// eslint-disable-next-line no-unused-vars
+			onReady,
+			// eslint-disable-next-line no-unused-vars
+			editLink,
+			...otherProps
+		} = this.props;
 		const { pluginInfo, showModal } = this.state;
 		const {
 			modalBody,
@@ -96,7 +109,7 @@ class Handoff extends Component {
 				{ Name && 'active' === Status && (
 					<Button
 						className={ classes }
-						isDefault={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
 						onClick={ () =>
 							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
@@ -106,14 +119,14 @@ class Handoff extends Component {
 					</Button>
 				) }
 				{ Name && 'active' !== Status && (
-					<Button className={ classes } isDefault disabled { ...otherProps }>
+					<Button className={ classes } isSecondary disabled { ...otherProps }>
 						{ Name + __( ' not installed' ) }
 					</Button>
 				) }
 				{ ! Name && (
 					<Button
 						className={ classes }
-						isDefault={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
 					>
 						<Fragment>
@@ -131,7 +144,7 @@ class Handoff extends Component {
 						<Button isPrimary onClick={ () => this.goToPlugin( Slug ) }>
 							{ primaryModalButton }
 						</Button>
-						<Button isDefault onClick={ () => this.setState( { showModal: false } ) }>
+						<Button isSecondary onClick={ () => this.setState( { showModal: false } ) }>
 							{ dismissModalButton }
 						</Button>
 					</Modal>
