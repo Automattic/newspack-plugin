@@ -39,7 +39,7 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 										value={ filter }
 										onChange={ setFilter }
 										label={ __( 'Filter:', 'newspack' ) }
-										className="newspack-action-card-sections__group-select"
+										labelPosition="side"
 									/>
 								</div>
 							) : (

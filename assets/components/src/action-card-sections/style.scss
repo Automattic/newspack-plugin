@@ -7,40 +7,23 @@
 
 .newspack-action-card-sections {
 	&__group-wrapper {
-		margin-top: 20px;
-		margin-bottom: -31px;
+		margin-bottom: -32px;
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
 		h2 {
 			margin: 0 !important;
 		}
-	}
+		.newspack-select-control {
+			.components-select-control {
+				div.components-input-control__backdrop {
+					border-color: white;
+				}
 
-	&__group-select {
-		margin: 0;
-
-		.components-base-control__field {
-			margin-bottom: 0;
-			align-items: center;
-			display: flex;
-		}
-
-		.components-base-control__label {
-			margin-right: 4px;
-		}
-
-		select {
-			background-position: right;
-			border: 0;
-			border-radius: 1px;
-			display: block;
-			height: 24px;
-			min-height: 24px;
-			padding: 0 24px 0 0;
-
-			&:focus {
-				box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
+				select.components-select-control__input {
+					height: 32px;
+					min-height: 32px;
+				}
 			}
 		}
 	}

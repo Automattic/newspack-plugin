@@ -9,14 +9,14 @@ import { SelectControl as BaseComponent } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 
 /**
- * Internal dependencies
- */
-import './style.scss';
-
-/**
  * External dependencies
  */
 import classNames from 'classnames';
+
+/**
+ * Internal dependencies
+ */
+import './style.scss';
 
 class SelectControl extends Component {
 	/**
@@ -25,7 +25,11 @@ class SelectControl extends Component {
 	render() {
 		const { className, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-select-control', className );
-		return <BaseComponent className={ classes } { ...otherProps } />;
+		return (
+			<div className={ classes }>
+				<BaseComponent { ...otherProps } />
+			</div>
+		);
 	}
 }
 

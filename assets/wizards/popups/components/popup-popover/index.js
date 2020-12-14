@@ -12,17 +12,6 @@ import { MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 
 /**
- * Material UI dependencies.
- */
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import PreviewIcon from '@material-ui/icons/Visibility';
-import FrequencyIcon from '@material-ui/icons/Today';
-import PublishIcon from '@material-ui/icons/Publish';
-import TestIcon from '@material-ui/icons/BugReport';
-import SitewideDefaultIcon from '@material-ui/icons/Public';
-
-/**
  * Internal dependencies.
  */
 import { Popover, SelectControl, ToggleControl } from '../../../../components/src';
@@ -72,7 +61,6 @@ class PopupPopover extends Component {
 							setSitewideDefaultPopup( id, ! sitewideDefault );
 							onFocusOutside();
 						} }
-						icon={ <SitewideDefaultIcon /> }
 						className="newspack-button"
 					>
 						<div className="newspack-popup-action-card-popover-control">
@@ -86,7 +74,6 @@ class PopupPopover extends Component {
 						updatePopup( id, { frequency: isTestMode ? 'daily' : 'test' } );
 						onFocusOutside();
 					} }
-					icon={ <TestIcon /> }
 					className="newspack-button"
 				>
 					<div className="newspack-popup-action-card-popover-control">
@@ -95,7 +82,7 @@ class PopupPopover extends Component {
 					</div>
 				</MenuItem>
 				{ 'test' !== frequency && (
-					<MenuItem icon={ <FrequencyIcon /> } className="newspack-button">
+					<MenuItem className="newspack-button newspack-popup-action-card-select-button">
 						<SelectControl
 							onChange={ value => {
 								updatePopup( id, { frequency: value } );
@@ -112,33 +99,19 @@ class PopupPopover extends Component {
 						onFocusOutside();
 						previewPopup( popup );
 					} }
-					icon={ <PreviewIcon /> }
 					className="newspack-button"
 				>
 					{ __( 'Preview', 'newspack' ) }
 				</MenuItem>
-				<MenuItem
-					href={ decodeEntities( editLink ) }
-					icon={ <EditIcon /> }
-					className="newspack-button"
-					isLink
-				>
+				<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 					{ __( 'Edit', 'newspack' ) }
 				</MenuItem>
 				{ publishPopup && (
-					<MenuItem
-						onClick={ () => publishPopup( id ) }
-						icon={ <PublishIcon /> }
-						className="newspack-button"
-					>
+					<MenuItem onClick={ () => publishPopup( id ) } className="newspack-button">
 						{ __( 'Publish', 'newspack' ) }
 					</MenuItem>
 				) }
-				<MenuItem
-					onClick={ () => deletePopup( id ) }
-					icon={ <DeleteIcon /> }
-					className="newspack-button"
-				>
+				<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
 					{ __( 'Delete', 'newspack' ) }
 				</MenuItem>
 			</Popover>
