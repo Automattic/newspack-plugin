@@ -99,14 +99,9 @@
 			padding: 0.5rem 1rem;
 			text-decoration: none;
 
-			&:hover,
-			&:focus {
-				color: white;
-			}
-
 			&.active,
 			&.complete {
-				color: white;
+				color: white !important;
 				font-weight: bold;
 			}
 
