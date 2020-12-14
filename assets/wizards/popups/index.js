@@ -165,11 +165,14 @@ class PopupsWizard extends Component {
 	/**
 	 * Sort Pop-ups into categories.
 	 */
-	sortPopups = popups =>
-		mapValues(
+	sortPopups = popups => ( {
+		overlay: [],
+		inline: [],
+		...mapValues(
 			groupBy( popups, popup => ( isOverlay( popup ) ? 'overlay' : 'inline' ) ),
 			this.sortPopupGroup
-		);
+		),
+	} );
 
 	/**
 	 * Sort Pop-up groups into categories.
