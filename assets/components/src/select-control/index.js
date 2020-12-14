@@ -9,6 +9,11 @@ import { SelectControl as BaseComponent } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * Internal dependencies
  */
 import './style.scss';
@@ -19,9 +24,10 @@ class SelectControl extends Component {
 	 */
 	render() {
 		const { className, ...otherProps } = this.props;
+		const classes = classNames( 'newspack-select-control', className );
 		return (
-			<div className={ 'newspack-select-control' }>
-				<BaseComponent className={ className } { ...otherProps } />
+			<div className={ classes }>
+				<BaseComponent { ...otherProps } />
 			</div>
 		);
 	}
