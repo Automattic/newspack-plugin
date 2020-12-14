@@ -59,9 +59,7 @@ const WizardPagination = props => {
 							{ routes[ currentRoute ].title }
 						</Button>
 						<ul
-							className={ `newspack-wizard-pagination__steps ${
-								! showSteps ? 'hidden' : 'newspack-wizard__header__inner'
-							}` }
+							className={ `newspack-wizard-pagination__steps ${ ! showSteps ? 'hidden' : '' }` }
 							ref={ stepper }
 						>
 							{ routeList.map( ( route, index ) => {
@@ -69,18 +67,36 @@ const WizardPagination = props => {
 									return null;
 								}
 
+								const currentIndex = routeList.indexOf( currentRoute );
+								const classes = [];
+
+								if ( route === currentRoute ) {
+									classes.push( 'active' );
+								}
+
+								if ( index < currentIndex ) {
+									classes.push( 'complete' );
+								}
+
 								return (
 									<>
 										<li key={ index } className="newspack-wizard-pagination__step">
-											<a
-												className={ route === currentRoute ? 'active' : '' }
+											<Button
+												className={ classes.join( ' ' ) }
 												href={ '#' + routes[ route ].path }
+												isLink
+												disabled={ index > currentIndex }
 											>
 												{ routes[ route ].title }
-											</a>
+											</Button>
 										</li>
 										{ index + 1 < routeList.length && (
-											<li className="newspack-wizard-pagination__step separator" />
+											<li
+												className={
+													'newspack-wizard-pagination__step separator ' +
+													( index < currentIndex ? 'complete' : '' )
+												}
+											/>
 										) }
 									</>
 								);

@@ -14,11 +14,28 @@
 	line-height: 24px;
 	position: relative;
 
-	&__show-steps {
+	&.newspack-wizard__header__inner {
+		flex-direction: column;
+		padding-bottom: 1rem;
+		padding-top: 0;
+
+		@media screen and ( min-width: 1064px ) {
+			padding-bottom: 0;
+		}
+	}
+
+	&__show-steps.newspack-button,
+	body[class*='admin-color-'] & .newspack-wizard-pagination__show-steps.newspack-button {
 		border: 1px solid white;
-		margin-bottom: 1rem;
+		padding-left: 1rem;
+		padding-right: 1rem;
 		position: relative;
 		width: 100%;
+
+		&:hover,
+		&:focus {
+			color: currentColor;
+		}
 
 		&::after {
 			content: '•••';
@@ -33,16 +50,9 @@
 
 	&__steps {
 		border-top-width: 0;
-		left: 0;
+		margin-top: -1px;
 		padding-top: 0;
-		position: absolute;
-		top: calc( 100% - 1.125rem );
-		width: calc( 100% - 64px );
-		z-index: 1;
-
-		@media screen and ( min-width: 744px ) {
-			width: calc( 100% - 128px );
-		}
+		width: 100%;
 
 		@media screen and ( min-width: 1064px ) {
 			align-items: center;
@@ -82,7 +92,8 @@
 			padding-bottom: 0.75rem;
 		}
 
-		a {
+		.newspack-button.is-link,
+		body[class*='admin-color-'] & .newspack-button.is-link {
 			color: $primary-950;
 			display: block;
 			padding: 0.5rem 1rem;
@@ -93,9 +104,14 @@
 				color: white;
 			}
 
-			&.active {
+			&.active,
+			&.complete {
 				color: white;
 				font-weight: bold;
+			}
+
+			&:disabled {
+				opacity: 1;
 			}
 		}
 
@@ -108,6 +124,10 @@
 				display: block;
 				height: 14px;
 				width: 8px;
+
+				&.complete {
+					background-image: url( "data:image/svg+xml;charset=UTF-8,%3csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 12.5L6 7.00001L1 1.50003' stroke='%23FFFFFF' stroke-width='1.5'/%3e%3c/svg%3e " );
+				}
 			}
 
 			&:first-child,
@@ -117,25 +137,16 @@
 				padding-top: 0;
 			}
 
-			a {
+			.newspack-button.is-link,
+			body[class*='admin-color-'] & .newspack-button.is-link {
+				border-bottom: 4px solid $primary-500;
 				display: inline-block;
-				font-weight: bold;
-				padding: 0.5rem 0;
+				padding: 8px 0 4px;
 
 				&.active {
-					border-bottom: 4px solid white;
+					border-color: white;
 				}
 			}
-		}
-	}
-
-	body[class*='admin-color-'] & .newspack-button {
-		padding-left: 1rem;
-		padding-right: 1rem;
-
-		&:hover,
-		&:focus {
-			color: currentColor;
 		}
 	}
 }
