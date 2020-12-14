@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
 import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 
 /**
@@ -20,13 +19,19 @@ const { withRouter } = Router;
 const WizardPagination = props => {
 	const [ showSteps, setShowSteps ] = useState( false );
 	const stepper = useRef( null );
-	const { history, location, routes } = props;
-	if ( ! routes || ! history || ! location ) {
-		return;
-	}
-
-	const routeList = Object.keys( routes );
+	const { location, routes } = props;
+	const routeList = Object.keys( routes || {} );
 	const currentRoute = routeList.find( route => location.pathname === routes[ route ].path );
+
+	useEffect( () => {
+		window.addEventListener( 'click', hideSteps );
+		return () => window.removeEventListener( 'click', hideSteps );
+	}, [] );
+
+	useEffect( () => {
+		setShowSteps( false );
+	}, [ currentRoute ] );
+
 	const hideSteps = e => {
 		// If clicking outside the expanded stepper, hide it.
 		if (
@@ -37,15 +42,6 @@ const WizardPagination = props => {
 			setShowSteps( false );
 		}
 	};
-
-	useEffect( () => {
-		window.addEventListener( 'click', hideSteps );
-		return () => window.removeEventListener( 'click', hideSteps );
-	}, [] );
-
-	useEffect( () => {
-		setShowSteps( false );
-	}, [ currentRoute ] );
 
 	return (
 		<Fragment>

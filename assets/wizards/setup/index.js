@@ -23,7 +23,7 @@ import {
 	ThemeSelection,
 	StarterContent,
 } from './views/';
-import { withWizard, WizardPagination } from '../../components/src';
+import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
 

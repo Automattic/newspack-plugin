@@ -13,7 +13,7 @@ import classnames from 'classnames';
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizardScreen( WrappedComponent, routes = null ) {
+export default function withWizardScreen( WrappedComponent ) {
 	const WrappedWithWizardScreen = props => {
 		const {
 			className,
