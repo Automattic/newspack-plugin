@@ -93,11 +93,31 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get plugin settings.
+	 */
+	public function get_settings() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Settings::get_settings() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Get segments.
 	 */
 	public function get_segments() {
 		return $this->is_configured() ?
 			\Newspack_Popups_Segmentation::get_segments() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Set plugin settings.
+	 *
+	 * @param object $options options.
+	 */
+	public function set_settings( $options ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Settings::set_settings( $options ) :
 			$this->unconfigured_error();
 	}
 

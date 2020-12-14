@@ -14,11 +14,6 @@ import { render, createElement, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/ContactSupport';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -74,7 +69,6 @@ class SupportWizard extends Component {
 		const isPreLaunch = newspack_support_data.IS_PRE_LAUNCH;
 
 		const props = {
-			headerIcon: <HeaderIcon />,
 			headerText: __( 'Support', 'newspack' ),
 			subHeaderText: __( 'Contact customer support', 'newspack' ),
 			tabbedNavigation: [

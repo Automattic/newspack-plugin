@@ -7,12 +7,6 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import SettingsIcon from '@material-ui/icons/Settings';
-import StyleIcon from '@material-ui/icons/Style';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
@@ -118,8 +112,7 @@ class SiteDesignWizard extends Component {
 								const { theme } = this.state;
 								return (
 									<ThemeSelection
-										headerIcon={ <StyleIcon /> }
-										headerText={ __( 'Theme', 'newspack' ) }
+										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
 										buttonText={ __( 'Configure', 'newspack' ) }
@@ -138,8 +131,7 @@ class SiteDesignWizard extends Component {
 								const { themeMods } = this.state;
 								return (
 									<ThemeMods
-										headerIcon={ <SettingsIcon /> }
-										headerText={ __( 'Settings', 'newspack' ) }
+										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
 										themeMods={ themeMods }

@@ -12,20 +12,24 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/AccountBalanceWallet';
-import LoyaltyIcon from '@material-ui/icons/Loyalty';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Donation, LocationSetup, StripeSetup, RevenueMain, Salesforce } from './views';
+import {
+	Donation,
+	LocationSetup,
+	NRHSettings,
+	Platform,
+	Services,
+	StripeSetup,
+	Salesforce,
+} from './views';
+import { NEWSPACK, NRH } from './constants';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
+const headerText = __( 'Reader revenue', 'newspack' );
+const subHeaderText = __( 'Generate revenue from your customers.', 'newspack' );
 
 class ReaderRevenueWizard extends Component {
 	/**
@@ -39,6 +43,8 @@ class ReaderRevenueWizard extends Component {
 				stripeData: {},
 				donationData: {},
 				salesforceData: {},
+				platformData: {},
+				pluginStatus: false,
 			},
 		};
 	}
@@ -111,6 +117,8 @@ class ReaderRevenueWizard extends Component {
 		currencyFields: data.currency_fields,
 		donationPage: data.donation_page,
 		salesforceData: data.salesforce_settings,
+		platformData: data.platform_data,
+		pluginStatus: data.plugin_status,
 	} );
 
 	/**
@@ -182,6 +190,57 @@ class ReaderRevenueWizard extends Component {
 	};
 
 	/**
+	 * Get navigation tabs dependant on selected platform.
+	 */
+	navigationForPlatform = ( platform, data ) => {
+		if ( NEWSPACK === platform ) {
+			const { pluginStatus } = data;
+			if ( ! pluginStatus ) {
+				return [];
+			}
+			return [
+				{
+					label: __( 'Donations', 'newspack' ),
+					path: '/donations',
+					exact: true,
+				},
+				{
+					label: __( 'Salesforce', 'newspack' ),
+					path: '/salesforce',
+					exact: true,
+				},
+				{
+					label: __( 'Address', 'newspack' ),
+					path: '/location-setup',
+				},
+				{
+					label: __( 'Stripe', 'newspack' ),
+					path: '/stripe-setup',
+				},
+				{
+					label: __( 'Platform', 'newspack' ),
+					path: '/',
+					exact: true,
+				},
+			];
+		} else if ( NRH === platform ) {
+			return [
+				{
+					label: __( 'Settings', 'newspack' ),
+					path: '/settings',
+					exact: true,
+				},
+				{
+					label: __( 'Platform', 'newspack' ),
+					path: '/',
+					exact: true,
+				},
+			];
+		}
+		return null;
+	};
+
+	/**
 	 * Render
 	 */
 	render() {
@@ -195,25 +254,12 @@ class ReaderRevenueWizard extends Component {
 			donationData,
 			donationPage,
 			salesforceData,
+			platformData,
+			pluginStatus,
 		} = data;
-
-		const tabbedNavigation = [
-			{
-				label: __( 'Monetization Services' ),
-				path: '/',
-				exact: true,
-			},
-			{
-				label: __( 'Address' ),
-				path: '/location-setup',
-			},
-			{
-				label: __( 'Payment Gateways' ),
-				path: '/stripe-setup',
-			},
-		];
-		const isConfigured = !! donationData.created;
+		const { platform } = platformData;
 		const salesforceIsConnected = !! salesforceData.refresh_token;
+		const tabbedNavigation = this.navigationForPlatform( platform, data );
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -223,33 +269,60 @@ class ReaderRevenueWizard extends Component {
 							path="/"
 							exact
 							render={ () => (
-								<RevenueMain
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Reader revenue' ) }
-									subHeaderText={ __( 'Generate revenue from your customers.' ) }
-									tabbedNavigation={ isConfigured && tabbedNavigation }
-									buttonText={ ! isConfigured && __( 'Get Started' ) }
-									buttonAction="#location-setup"
+								<Platform
+									data={ platformData }
+									pluginStatus={ pluginStatus }
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
+									tabbedNavigation={ tabbedNavigation }
+									onChange={ _platformData => this.update( '', _platformData ) }
+									onReady={ () => {
+										this.setState( { data: { ...data, pluginStatus: true } } );
+									} }
+								/>
+							) }
+						/>
+						<Route
+							path="/services"
+							exact
+							render={ () => (
+								<Services
+									data={ platformData }
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
+									tabbedNavigation={ tabbedNavigation }
+								/>
+							) }
+						/>
+						<Route
+							path="/settings"
+							exact
+							render={ () => (
+								<NRHSettings
+									data={ platformData }
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
+									tabbedNavigation={ tabbedNavigation }
+									buttonText={ __( 'Update', 'newspack' ) }
+									buttonAction={ () => this.update( '', platformData ) }
+									onChange={ _platformData =>
+										this.setState( { data: { ...data, platformData: _platformData } } )
+									}
 								/>
 							) }
 						/>
 						<Route
 							path="/location-setup"
-							render={ routeProps => (
+							render={ () => (
 								<LocationSetup
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Reader revenue' ) }
-									subHeaderText={ __( "Configure your publication's address." ) }
-									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
-									buttonAction={ () =>
-										this.update( 'location', locationData ).then(
-											() => ! isConfigured && routeProps.history.push( 'stripe-setup' )
-										)
-									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
+									buttonText={ __( 'Save Settings', 'newspack' ) }
+									buttonAction={ () => this.update( 'location', locationData ) }
+									tabbedNavigation={ tabbedNavigation }
 									onChange={ _locationData =>
 										this.setState( { data: { ...data, locationData: _locationData } } )
 									}
@@ -258,19 +331,14 @@ class ReaderRevenueWizard extends Component {
 						/>
 						<Route
 							path="/stripe-setup"
-							render={ routeProps => (
+							render={ () => (
 								<StripeSetup
 									data={ stripeData }
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Reader revenue' ) }
-									subHeaderText={ __( 'Configure your payment gateway to process transactions.' ) }
-									buttonText={ isConfigured ? __( 'Save Settings' ) : __( 'Continue Setup' ) }
-									buttonAction={ () =>
-										this.update( 'stripe', stripeData ).then(
-											() => ! isConfigured && routeProps.history.push( 'donations' )
-										)
-									}
-									tabbedNavigation={ isConfigured && tabbedNavigation }
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
+									buttonText={ __( 'Save Settings', 'newspack' ) }
+									buttonAction={ () => this.update( 'stripe', stripeData ) }
+									tabbedNavigation={ tabbedNavigation }
 									onChange={ _stripeData =>
 										this.setState( { data: { ...data, stripeData: _stripeData } } )
 									}
@@ -282,7 +350,6 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Donation
 									data={ donationData }
-									headerIcon={ <LoyaltyIcon /> }
 									headerText={ __( 'Set up donations' ) }
 									subHeaderText={ __(
 										'Configure your landing page and your suggested donation presets.'
@@ -293,8 +360,7 @@ class ReaderRevenueWizard extends Component {
 									onChange={ _donationData =>
 										this.setState( { data: { ...data, donationData: _donationData } } )
 									}
-									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
-									secondaryButtonAction="#"
+									tabbedNavigation={ tabbedNavigation }
 								/>
 							) }
 						/>
@@ -304,7 +370,6 @@ class ReaderRevenueWizard extends Component {
 								<Salesforce
 									routeProps={ routeProps }
 									data={ salesforceData }
-									headerIcon={ <GroupAddIcon /> }
 									headerText={ __( 'Configure Salesforce', 'newspack' ) }
 									isConnected={ salesforceIsConnected }
 									subHeaderText={ __(
@@ -322,8 +387,7 @@ class ReaderRevenueWizard extends Component {
 									onChange={ _salesforceData =>
 										this.setState( { data: { ...data, salesforceData: _salesforceData } } )
 									}
-									secondaryButtonText={ __( 'Back to Monetization Services', 'newspack' ) }
-									secondaryButtonAction="#"
+									tabbedNavigation={ tabbedNavigation }
 									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
@@ -337,13 +401,6 @@ class ReaderRevenueWizard extends Component {
 }
 
 render(
-	createElement(
-		withWizard( ReaderRevenueWizard, [
-			'newspack-blocks',
-			'woocommerce',
-			'woocommerce-subscriptions',
-			'woocommerce-name-your-price',
-		] )
-	),
+	createElement( withWizard( ReaderRevenueWizard, [ 'newspack-blocks' ] ) ),
 	document.getElementById( 'newspack-reader-revenue-wizard' )
 );

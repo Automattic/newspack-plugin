@@ -1,5 +1,5 @@
 /**
- * Revenue Main Screen
+ * Services Screen
  */
 
 /**
@@ -11,12 +11,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, PluginToggle, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
- * Revenue Main Screen Component
+ * Services Screen Component
  */
-class RevenueMain extends Component {
+class Services extends Component {
 	/**
 	 * Render.
 	 */
@@ -24,11 +24,12 @@ class RevenueMain extends Component {
 		return (
 			<Fragment>
 				<ActionCard
-					title={ __( 'Donations' ) }
+					title={ __( 'Donations', 'newspack' ) }
 					description={ __(
-						'Set up a donations page and accept one-time or recurring payments from your readers.'
+						'Set up a donations page and accept one-time or recurring payments from your readers.',
+						'newspack'
 					) }
-					actionText={ __( 'Configure' ) }
+					actionText={ __( 'Configure', 'newspack' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/donations"
 				/>
 				<ActionCard
@@ -40,14 +41,9 @@ class RevenueMain extends Component {
 					actionText={ __( 'Configure', 'newspack' ) }
 					href="/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce"
 				/>
-				<PluginToggle
-					plugins={ {
-						laterpay: true,
-					} }
-				/>
 			</Fragment>
 		);
 	}
 }
 
-export default withWizardScreen( RevenueMain );
+export default withWizardScreen( Services );

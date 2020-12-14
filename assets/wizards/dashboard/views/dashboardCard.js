@@ -20,7 +20,7 @@ import {
 	reusableBlock,
 	rss,
 	search,
-	tag,
+	stretchWide,
 	typography,
 } from '@wordpress/icons';
 
@@ -39,18 +39,18 @@ class DashboardCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url, status } = this.props;
-		const classes = classNames( 'newspack-dashboard-card', slug, status );
+		const { name, description, slug, url } = this.props;
+		const classes = classNames( 'newspack-dashboard-card', slug );
 		const iconMap = {
 			'site-design': <Icon icon={ typography } />,
 			'reader-revenue': <Icon icon={ payment } />,
-			advertising: <Icon icon={ megaphone } />,
+			advertising: <Icon icon={ stretchWide } />,
 			syndication: <Icon icon={ rss } />,
 			analytics: <Icon icon={ chartLine } />,
 			seo: <Icon icon={ search } />,
 			'health-check': <Icon icon={ lifesaver } />,
 			engagement: <Icon icon={ postComments } />,
-			popups: <Icon icon={ tag } />,
+			popups: <Icon icon={ megaphone } />,
 			support: <Icon icon={ help } />,
 			updates: <Icon icon={ reusableBlock } />,
 		};
@@ -64,13 +64,6 @@ class DashboardCard extends Component {
 			</div>
 		);
 
-		if ( 'disabled' === status ) {
-			return (
-				<Card className={ classes }>
-					<div className="newspack-dashboard-card__disabled-link">{ contents }</div>
-				</Card>
-			);
-		}
 		return (
 			<Card className={ classes }>
 				<a href={ url }>
