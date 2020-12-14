@@ -22,7 +22,7 @@ import { groupBy, mapValues } from 'lodash';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import { PopupGroup, Analytics, Settings, Segmentation } from './views';
+import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -55,6 +55,11 @@ const tabbedNavigation = [
 		path: '/settings',
 		exact: true,
 	},
+	{
+		label: __( 'Preview', 'newpack' ),
+		path: '/preview',
+		exact: true,
+	},
 ];
 
 class PopupsWizard extends Component {
@@ -70,15 +75,8 @@ class PopupsWizard extends Component {
 		};
 	}
 	onWizardReady = () => {
-		this.getPopups();
-	};
-
-	/**
-	 * Get Pop-ups for the current wizard.
-	 */
-	getPopups = () => {
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
 			.then( ( { popups, segments } ) =>
@@ -240,6 +238,7 @@ class PopupsWizard extends Component {
 						startLoading,
 						doneLoading,
 						wizardApiFetch,
+						segments,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
@@ -252,7 +251,6 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
-						segments,
 					};
 					return (
 						<HashRouter hashType="slash">
@@ -290,10 +288,17 @@ class PopupsWizard extends Component {
 								/>
 								<Route
 									path="/segmentation/:id?"
-									render={ props => <Segmentation { ...props } { ...sharedProps } /> }
+									render={ props => (
+										<Segmentation
+											{ ...props }
+											{ ...sharedProps }
+											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }
+										/>
+									) }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } isWide /> } />
+								<Route path="/preview" render={ () => <Preview { ...sharedProps } isWide /> } />
 								<Redirect to="/overlay" />
 							</Switch>
 						</HashRouter>
