@@ -1,3 +1,10 @@
+# [1.27.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.27.0-alpha.1...v1.27.0-alpha.2) (2020-12-15)
+
+
+### Features
+
+* improve debug mode ([56992a7](https://github.com/Automattic/newspack-plugin/commit/56992a70cb6abc9e1401948f6a0d5b346ba267bb))
+
 # [1.27.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.26.0...v1.27.0-alpha.1) (2020-12-15)
 
 
