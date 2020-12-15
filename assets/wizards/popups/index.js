@@ -14,12 +14,14 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { stringify } from 'qs';
+import { groupBy, mapValues } from 'lodash';
 
 /**
  * Internal dependencies.
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
+import { isOverlay } from './utils';
 import { PopupGroup, Analytics, Settings, Segmentation } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -163,15 +165,14 @@ class PopupsWizard extends Component {
 	/**
 	 * Sort Pop-ups into categories.
 	 */
-	sortPopups = popups => {
-		const overlay = this.sortPopupGroup(
-			popups.filter( ( { options } ) => 'inline' !== options.placement )
-		);
-		const inline = this.sortPopupGroup(
-			popups.filter( ( { options } ) => 'inline' === options.placement )
-		);
-		return { overlay, inline };
-	};
+	sortPopups = popups => ( {
+		overlay: [],
+		inline: [],
+		...mapValues(
+			groupBy( popups, popup => ( isOverlay( popup ) ? 'overlay' : 'inline' ) ),
+			this.sortPopupGroup
+		),
+	} );
 
 	/**
 	 * Sort Pop-up groups into categories.
@@ -183,11 +184,11 @@ class PopupsWizard extends Component {
 		const draft = popups.filter( ( { status } ) => 'draft' === status );
 		const active = popups.filter(
 			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
-				'inline' === options.placement
-					? 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
-					: 'test' !== options.frequency &&
+				isOverlay( { options } )
+					? 'test' !== options.frequency &&
 					  ( sitewideDefault || categories.length ) &&
 					  'publish' === status
+					: 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
 		);
 		const activeWithSitewideDefaultFirst = [
 			...active.filter( ( { sitewide_default: sitewideDefault } ) => sitewideDefault ),
@@ -195,11 +196,11 @@ class PopupsWizard extends Component {
 		];
 		const inactive = popups.filter(
 			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
-				'inline' === options.placement
-					? 'never' === options.frequency && 'publish' === status
-					: 'test' !== options.frequency &&
+				isOverlay( { options } )
+					? 'test' !== options.frequency &&
 					  ( ! sitewideDefault && ! categories.length ) &&
 					  'publish' === status
+					: 'never' === options.frequency && 'publish' === status
 		);
 		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
 	};
