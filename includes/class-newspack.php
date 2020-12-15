@@ -185,5 +185,12 @@ final class Newspack {
 		wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 		exit;
 	}
+
+	/**
+	 * Is the site in Newspack debug mode?
+	 */
+	public static function is_debug_mode() {
+		return ( defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG ) || get_option( 'newspack_debug', false );
+	}
 }
 Newspack::instance();
