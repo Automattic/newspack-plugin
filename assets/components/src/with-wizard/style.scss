@@ -80,44 +80,12 @@ body[class*='admin_page_newspack-'] {
 // Newspack Logo
 
 .newspack-logo {
-	&__wrapper {
-		background: $primary-500;
-		color: white;
-		margin: 0 0 64px;
-		padding: 32px 0;
-		position: relative;
-
-		a {
-			color: inherit;
-
-			&:active,
-			&:focus,
-			&:hover {
-				color: $primary-100;
-			}
-
-			&:focus {
-				box-shadow: none;
-				outline: 2px solid white;
-				outline-offset: 4px;
-			}
-		}
-
-		.newspack-logo__svg {
-			display: block;
-			fill: currentColor;
-			height: 56px;
-			transition: color 125ms ease-in-out;
-			width: auto;
-		}
-	}
-
-	&__grid.newspack-grid {
-		align-items: center;
-		display: flex;
-		justify-content: space-between;
-		margin: 0 auto;
-	}
+	display: block;
+	fill: currentColor;
+	height: 56px;
+	margin: 0;
+	padding-bottom: 32px;
+	width: auto;
 }
 
 // Loading
