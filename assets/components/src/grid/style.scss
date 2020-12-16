@@ -8,11 +8,16 @@
 	grid-template-columns: 1fr;
 	margin: 32px 0;
 
+	// Media Queries - 744px
 	@media screen and ( min-width: 744px ) {
-		grid-template-columns: repeat( 2, 1fr );
+		&__columns-2,
+		&__columns-3,
+		&__columns-4 {
+			grid-template-columns: repeat( 2, 1fr );
+		}
 	}
 
-	// Media Queries
+	// Media Queries - 1128px
 	@media screen and ( min-width: 1128px ) {
 		// Columns 3
 		&__columns-3 {
