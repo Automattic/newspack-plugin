@@ -30,7 +30,6 @@ import {
 	ProgressBar,
 	SelectControl,
 	Modal,
-	Grid,
 	ToggleGroup,
 	WebPreview,
 } from '../../components/src';
@@ -81,7 +80,7 @@ class ComponentsDemo extends Component {
 						<p>{ __( 'Demo of all the Newspack components' ) }</p>
 					</div>
 				</div>
-				<Grid>
+				<div className="newspack-wizard newspack-wizard__content">
 					<Card>
 						<h2>{ __( 'Plugin toggles' ) }</h2>
 						<PluginToggle
@@ -536,7 +535,7 @@ class ComponentsDemo extends Component {
 							</Button>
 						</Card>
 					</Card>
-				</Grid>
+				</div>
 			</Fragment>
 		);
 	}
