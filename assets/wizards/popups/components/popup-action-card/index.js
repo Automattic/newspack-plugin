@@ -9,12 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { Tooltip } from '@wordpress/components';
-
-/**
- * Material UI dependencies.
- */
-import FilterListIcon from '@material-ui/icons/FilterList';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { Icon, menu, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -63,7 +58,7 @@ class PopupActionCard extends Component {
 										this.setState( { categoriesVisibility: ! categoriesVisibility } )
 									}
 								>
-									<FilterListIcon />
+									<Icon icon={ menu } />
 								</Button>
 							</Tooltip>
 						) }
@@ -72,7 +67,7 @@ class PopupActionCard extends Component {
 								className="icon-only"
 								onClick={ () => this.setState( { popoverVisibility: ! popoverVisibility } ) }
 							>
-								<MoreVertIcon />
+								<Icon icon={ moreVertical } />
 							</Button>
 						</Tooltip>
 						{ popoverVisibility && (
