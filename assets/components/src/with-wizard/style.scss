@@ -2,6 +2,7 @@
  * With Wizard
  */
 
+@import '~@wordpress/base-styles/colors';
 @import '../../../shared/scss/colors';
 
 // Reset Padding of the Admin Page
@@ -123,51 +124,95 @@ body[class*='admin_page_newspack-'] {
 // Loading
 
 .newspack-wizard__is-loading {
-	.newspack-wizard {
-		cursor: wait;
-		position: relative;
+	background: white;
+	bottom: 0;
+	cursor: wait;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	> * {
+		display: none !important;
+	}
+
+	&::before,
+	&::after {
+		content: '';
+		display: block;
+	}
+
+	&::before {
+		background: $primary-500;
+		height: 160px;
+		width: 100%;
+	}
+
+	&::after {
+		animation: newspack-wizard__is-loading-animation 1.5s ease-in-out infinite;
+		background: $dark-gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 32px 0 0 $dark-gray-300, 0 64px 0 0 $dark-gray-300,
+			40vw 96px 0 0 white, 0 96px 0 0 $dark-gray-300;
+		height: 24px;
+		margin: 68px auto 0;
+		max-width: 1040px;
+		width: calc( 100% - ( 32px * 2 ) );
+
+		@media screen and ( min-width: 744px ) {
+			width: calc( 100% - ( 64px * 2 ) );
+		}
+	}
+
+	// Welcome Screen
+	.newspack_page_newspack-setup-wizard__welcome & {
+		background: $primary-500;
 
 		&::before,
 		&::after {
-			background: white;
-			content: '';
-			display: block;
-			left: 0;
+			left: 50%;
 			position: absolute;
-			right: 0;
-			top: 0;
-			z-index: 102;
-		}
-
-		&::after {
-			border-radius: 4px;
-			bottom: 0;
-			opacity: 0.8;
+			transform: translate( -50% );
 		}
 
 		&::before {
-			animation: newspack-wizard__is-loading-animation 2s ease-in-out infinite;
-			background: $primary-500;
-			height: 4px;
-			right: 100%;
-			z-index: 103;
+			border-radius: 4px;
+			background: white;
+			height: 192px;
+			max-width: 584px;
+			top: 120px;
+			width: calc( 100% - ( 32px * 2 ) );
+
+			@media screen and ( min-width: 744px ) {
+				width: calc( 100% - ( 64px * 2 ) );
+			}
+		}
+
+		&::after {
+			box-shadow: inset -130px 0 0 0 white, 0 32px 0 0 $dark-gray-300, 0 64px 0 0 $dark-gray-300,
+				0 96px 0 0 $dark-gray-300;
+			margin: 0;
+			max-width: 520px;
+			top: 156px;
+			width: calc( 100% - ( 64px * 2 ) );
+
+			@media screen and ( min-width: 600px ) {
+				box-shadow: inset -260px 0 0 0 white, 0 32px 0 0 $dark-gray-300, 0 64px 0 0 $dark-gray-300,
+					0 96px 0 0 $dark-gray-300;
+			}
 		}
 	}
 }
 
 @keyframes newspack-wizard__is-loading-animation {
 	from {
-		left: 0;
-		right: 100%;
+		opacity: 100%;
 	}
 
 	50% {
-		left: 0;
-		right: 0;
+		opacity: 10%;
 	}
 
 	to {
-		left: 100%;
-		right: 0;
+		opacity: 100%;
 	}
 }
