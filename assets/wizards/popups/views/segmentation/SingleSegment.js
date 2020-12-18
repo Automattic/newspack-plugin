@@ -9,7 +9,13 @@ import { find, debounce } from 'lodash';
 /**
  * Internal dependencies.
  */
-import { Button, TextControl, CheckboxControl, Router } from '../../../../components/src';
+import {
+	Button,
+	CategoryAutocomplete,
+	TextControl,
+	CheckboxControl,
+	Router,
+} from '../../../../components/src';
 
 const { NavLink, useHistory } = Router;
 
@@ -206,6 +212,18 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
 						value={ segmentConfig.referrers }
 						onChange={ updateSegmentConfig( 'referrers' ) }
+					/>
+				</SegmentSettingSection>
+				<SegmentSettingSection
+					title={ __( 'Category Affinity', 'newspack' ) }
+					description={ __( 'Most read categories of reader.', 'newspack' ) }
+				>
+					<CategoryAutocomplete
+						value={ segmentConfig.favorite_categories }
+						onChange={ selected => {
+							updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
+						} }
+						label={ __( 'Favorite Categories', 'newspack ' ) }
 					/>
 				</SegmentSettingSection>
 			</div>
