@@ -240,7 +240,7 @@ class Plugin_Manager {
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-plugin/releases/latest/download/newspack-plugin.zip',
+				'Download'    => 'https://github.com/Automattic/newspack-listings/releases/latest/download/newspack-listings.zip',
 			],
 			'newspack-rename-comments'      => [
 				'Name'        => 'Newspack Rename Comments',
