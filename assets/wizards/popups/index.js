@@ -179,7 +179,7 @@ class PopupsWizard extends Component {
 		const test = popups.filter(
 			( { options, status } ) => 'publish' === status && 'test' === options.frequency
 		);
-		const draft = popups.filter( ( { status } ) => 'draft' === status );
+		const draft = popups.filter( ( { status } ) => 'draft' === status || 'pending' === status );
 		const active = popups.filter(
 			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
 				isOverlay( { options } )
@@ -197,8 +197,8 @@ class PopupsWizard extends Component {
 				isOverlay( { options } )
 					? 'test' !== options.frequency &&
 					  ( ! sitewideDefault && ! categories.length ) &&
-					  'publish' === status
-					: 'never' === options.frequency && 'publish' === status
+					  ( 'publish' === status || 'future' === status )
+					: 'never' === options.frequency && ( 'publish' === status || 'future' === status )
 		);
 		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
 	};

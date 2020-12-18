@@ -30,11 +30,12 @@ class PopupGroup extends Component {
 	 * @param {Object} popup object.
 	 */
 	descriptionForPopup = (
-		{ categories, sitewide_default: sitewideDefault, options },
+		{ categories, sitewide_default: sitewideDefault, options, status },
 		segments
 	) => {
 		const segment = find( segments, [ 'id', options.selected_segment_id ] );
 		const descriptionMessages = [];
+
 		if ( segment ) {
 			descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
 		}
@@ -48,6 +49,12 @@ class PopupGroup extends Component {
 			descriptionMessages.push(
 				__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
 			);
+		}
+		if ( 'future' === status ) {
+			descriptionMessages.push( __( 'Scheduled' ) );
+		}
+		if ( 'pending' === status ) {
+			descriptionMessages.push( __( 'Pending review' ) );
 		}
 		return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 	};
