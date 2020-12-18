@@ -58,7 +58,7 @@ const Preview = ( { segments } ) => {
 			</div>
 			<SelectControl
 				options={ [
-					{ value: '', label: __( 'All Readers', 'newspack' ) },
+					{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
 					...segments.map( s => ( { value: s.id, label: s.name } ) ),
 				] }
 				value={ segmentId }
