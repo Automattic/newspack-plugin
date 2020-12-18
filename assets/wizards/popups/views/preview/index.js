@@ -32,8 +32,8 @@ const Preview = ( { segments } ) => {
 
 	const params = {
 		view_as: [
+			`groups:${ groupTaxIds.join( ',' ) }`,
 			...( segmentId.length ? [ `segment:${ segmentId }` ] : [] ),
-			...( groupTaxIds.length ? [ `groups:${ groupTaxIds.join( ',' ) }` ] : [] ),
 		].join( ';' ),
 	};
 
