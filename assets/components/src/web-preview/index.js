@@ -3,14 +3,7 @@
  */
 import { Component, Fragment, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import CloseIcon from '@material-ui/icons/Close';
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
-import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
-import TabletAndroidIcon from '@material-ui/icons/TabletAndroid';
+import { Icon, close, desktop, mobile, tablet } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -87,7 +80,7 @@ class WebPreview extends Component {
 								isSecondary={ 'desktop' !== device }
 								className="is-desktop"
 							>
-								<DesktopWindowsIcon />
+								<Icon icon={ desktop } />
 								<span className="screen-reader-text">{ __( 'Preview desktop size' ) }</span>
 							</Button>
 							<Button
@@ -96,7 +89,7 @@ class WebPreview extends Component {
 								isSecondary={ 'tablet' !== device }
 								className="is-tablet"
 							>
-								<TabletAndroidIcon />
+								<Icon icon={ tablet } />
 								<span className="screen-reader-text">{ __( 'Preview tablet size' ) }</span>
 							</Button>
 							<Button
@@ -105,13 +98,13 @@ class WebPreview extends Component {
 								isSecondary={ 'phone' !== device }
 								className="is-phone"
 							>
-								<PhoneAndroidIcon />
+								<Icon icon={ mobile } />
 								<span className="screen-reader-text">{ __( 'Preview phone size' ) }</span>
 							</Button>
 						</div>
 						<div className="newspack-web-preview__toolbar-right">
 							<Button onClick={ () => this.setState( { isPreviewVisible: false, loaded: false } ) }>
-								<CloseIcon />
+								<Icon icon={ close } />
 								<span className="screen-reader-text">{ __( 'Close preview' ) }</span>
 							</Button>
 						</div>

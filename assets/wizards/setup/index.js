@@ -398,7 +398,6 @@ class SetupWizard extends Component {
 									buttonAction="#/starter-content"
 									updateTheme={ this.updateTheme }
 									theme={ theme }
-									isWide
 								/>
 							);
 						} }

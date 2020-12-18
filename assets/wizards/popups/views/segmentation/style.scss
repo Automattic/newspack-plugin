@@ -16,19 +16,22 @@
 	&__sections-wrapper {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: flex-start;
 		margin-left: -10px;
 		margin-right: -10px;
 	}
 	&__section {
 		flex: 1;
 		padding: 10px;
+		margin-bottom: 30px;
 		min-width: 100%;
 		@media screen and ( min-width: 600px ) {
-			min-width: 200px;
-			max-width: 50%;
+			min-width: 250px;
+			max-width: 250px;
 		}
 		h3 {
 			margin-top: 0;
+			margin-bottom: 15px;
 		}
 		&__description {
 			opacity: 0.6;

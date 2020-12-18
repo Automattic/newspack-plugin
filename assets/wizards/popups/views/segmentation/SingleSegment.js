@@ -34,6 +34,8 @@ const SegmentSettingSection = ( { title, description, children } ) => (
 const DEFAULT_CONFIG = {
 	min_posts: 0,
 	max_posts: 0,
+	min_session_posts: 0,
+	max_session_posts: 0,
 	is_subscribed: false,
 	is_donor: false,
 	is_not_subscribed: false,
@@ -108,7 +110,10 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				onChange={ setName }
 			/>
 			<div className="newspack-campaigns-wizard-segments__sections-wrapper">
-				<SegmentSettingSection title={ __( 'Number of articles read', 'newspack' ) }>
+				<SegmentSettingSection
+					title={ __( 'Articles read', 'newspack' ) }
+					description={ __( 'Number of articles read in the last 30 day period.', 'newspack' ) }
+				>
 					<div>
 						<CheckboxControl
 							checked={ segmentConfig.min_posts > 0 }
@@ -133,6 +138,40 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 							type="number"
 							value={ segmentConfig.max_posts }
 							onChange={ updateSegmentConfig( 'max_posts' ) }
+						/>
+					</div>
+				</SegmentSettingSection>
+				<SegmentSettingSection
+					title={ __( 'Articles read in session', 'newspack' ) }
+					description={ __(
+						'Number of articles read in the current session (45 minutes).',
+						'newspack'
+					) }
+				>
+					<div>
+						<CheckboxControl
+							checked={ segmentConfig.min_session_posts > 0 }
+							onChange={ value => updateSegmentConfig( 'min_session_posts' )( value ? 1 : 0 ) }
+							label={ __( 'Min.', 'newspack' ) }
+						/>
+						<TextControl
+							placeholder={ __( 'Min. posts', 'newspack' ) }
+							type="number"
+							value={ segmentConfig.min_session_posts }
+							onChange={ updateSegmentConfig( 'min_session_posts' ) }
+						/>
+					</div>
+					<div>
+						<CheckboxControl
+							checked={ segmentConfig.max_session_posts > 0 }
+							onChange={ value => updateSegmentConfig( 'max_session_posts' )( value ? 1 : 0 ) }
+							label={ __( 'Max.', 'newspack' ) }
+						/>
+						<TextControl
+							placeholder={ __( 'Max. posts', 'newspack' ) }
+							type="number"
+							value={ segmentConfig.max_session_posts }
+							onChange={ updateSegmentConfig( 'max_session_posts' ) }
 						/>
 					</div>
 				</SegmentSettingSection>

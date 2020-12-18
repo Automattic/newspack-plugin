@@ -5,37 +5,8 @@
 @import '~@wordpress/base-styles/colors';
 @import '../../shared/scss/colors';
 
-.newspack-grid {
-	margin-bottom: 32px;
-
-	&.view-grid {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-
-		&::after {
-			content: '';
-			display: block;
-		}
-
-		.newspack-dashboard-card,
-		&::after {
-			margin-top: 32px;
-			width: 100%;
-
-			@media screen and ( min-width: 600px ) {
-				width: calc( ( 100% - 32px ) / 2 );
-			}
-
-			@media screen and ( min-width: 1224px ) {
-				width: calc( ( 100% - 64px ) / 3 );
-			}
-		}
-	}
-}
-
 .newspack-dashboard-card {
-	margin: 16px 0 0;
+	margin: 0;
 	padding: 0;
 
 	&.disabled {
@@ -122,37 +93,6 @@
 
 		.newspack-dashboard-card__header {
 			margin-left: 12px;
-		}
-	}
-
-	// Views
-
-	&__views {
-		display: none;
-		margin: 0;
-
-		@media screen and ( min-width: 600px ) {
-			display: flex;
-		}
-	}
-}
-
-// Views - Buttons
-
-body[class*='admin-color-'] {
-	.newspack-dashboard-card {
-		&__views {
-			.newspack-button {
-				margin: 2px;
-
-				&.is-primary {
-					pointer-events: none;
-				}
-
-				&.is-link {
-					color: white;
-				}
-			}
 		}
 	}
 }
