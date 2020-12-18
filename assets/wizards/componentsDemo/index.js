@@ -243,13 +243,10 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<h2>{ __( 'Notice' ) }</h2>
-						<Notice noticeText={ __( 'This is a Primary info notice.' ) } isPrimary />
 						<Notice noticeText={ __( 'This is an info notice.' ) } />
-						<Notice noticeText={ __( 'This is a Primary error notice.' ) } isError isPrimary />
 						<Notice noticeText={ __( 'This is an error notice.' ) } isError />
-						<Notice noticeText={ __( 'This is a Primary success notice.' ) } isSuccess isPrimary />
+						<Notice noticeText={ __( 'This is a help notice.' ) } isHelp />
 						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
-						<Notice noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
 						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
 					</Card>
 					<Card>

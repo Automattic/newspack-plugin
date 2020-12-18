@@ -122,7 +122,7 @@ class ActionCard extends Component {
 							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
 						) }
 						{ 'info' === notificationLevel && (
-							<Notice noticeText={ notification } isPrimary rawHTML={ notificationHTML } />
+							<Notice noticeText={ notification } rawHTML={ notificationHTML } />
 						) }
 						{ 'success' === notificationLevel && (
 							<Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } />
