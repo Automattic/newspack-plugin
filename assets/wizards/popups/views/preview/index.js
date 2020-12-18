@@ -52,9 +52,15 @@ const Preview = ( { segments } ) => {
 
 	return (
 		<div className="newspack-campaigns-wizard-preview">
+			<div>
+				{ __(
+					'View your site as a reader in a selected segment, or with campaigns in selected groups. Choose a reader segment and/or one or more groups, then click the "Preview" button to view your site as a reader in that segment. Only the campaigns that match the selected segment and group(s) will be shown.',
+					'newspack'
+				) }
+			</div>
 			<SelectControl
 				options={ [
-					{ value: '', label: __( 'None', 'newspack' ) },
+					{ value: '', label: __( 'All Readers', 'newspack' ) },
 					...segments.map( s => ( { value: s.id, label: s.name } ) ),
 				] }
 				value={ segmentId }
