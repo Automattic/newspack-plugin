@@ -292,8 +292,8 @@ class PopupsWizard extends Component {
 									path="/segmentation/:id?"
 									render={ props => <Segmentation { ...props } { ...sharedProps } /> }
 								/>
-								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
-								<Route path="/settings" render={ () => <Settings { ...sharedProps } isWide /> } />
+								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
+								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/overlay" />
 							</Switch>
 						</HashRouter>
