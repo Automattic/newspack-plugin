@@ -37,17 +37,15 @@ const Preview = ( { segments } ) => {
 		].join( ';' ),
 	};
 
-	const iframeProps = {
-		onLoad: iframeEl => {
-			if ( iframeEl ) {
-				[ ...iframeEl.contentWindow.document.querySelectorAll( 'a' ) ].forEach( anchor => {
-					const href = anchor.getAttribute( 'href' );
-					if ( href.indexOf( frontendUrl ) === 0 ) {
-						anchor.setAttribute( 'href', addQueryArgs( href, params ) );
-					}
-				} );
-			}
-		},
+	const onWebPreviewLoad = iframeEl => {
+		if ( iframeEl ) {
+			[ ...iframeEl.contentWindow.document.querySelectorAll( 'a' ) ].forEach( anchor => {
+				const href = anchor.getAttribute( 'href' );
+				if ( href.indexOf( frontendUrl ) === 0 ) {
+					anchor.setAttribute( 'href', addQueryArgs( href, params ) );
+				}
+			} );
+		}
 	};
 
 	return (
@@ -75,20 +73,9 @@ const Preview = ( { segments } ) => {
 				taxonomy="newspack_popups_taxonomy"
 				label={ __( 'Groups', 'newspack' ) }
 			/>
-			{ postPreviewLink && (
-				<WebPreview
-					{ ...iframeProps }
-					url={ addQueryArgs( postPreviewLink, params ) }
-					renderButton={ ( { showPreview } ) => (
-						<Button isPrimary onClick={ showPreview }>
-							{ __( 'Preview on a post', 'newspack' ) }
-						</Button>
-					) }
-				/>
-			) }
 			<WebPreview
-				{ ...iframeProps }
-				url={ addQueryArgs( frontendUrl, params ) }
+				onLoad={ onWebPreviewLoad }
+				url={ addQueryArgs( postPreviewLink || frontendUrl, params ) }
 				renderButton={ ( { showPreview } ) => (
 					<Button isPrimary onClick={ showPreview }>
 						{ __( 'Preview', 'newspack' ) }
