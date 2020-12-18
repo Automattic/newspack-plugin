@@ -23,7 +23,6 @@ export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
 export { default as SelectControl } from './select-control';
 export { default as StyleCard } from './style-card';
-export { default as StyleCardGroup } from './style-card-group';
 export { default as TabbedNavigation } from './tabbed-navigation';
 export { default as TextControl } from './text-control';
 export { default as TextareaControl } from './textarea-control';

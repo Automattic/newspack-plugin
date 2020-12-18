@@ -13,8 +13,8 @@
 
 	label {
 		color: inherit;
-		font-size: inherit;
-		line-height: inherit;
+		font-size: 14px;
+		line-height: 24px;
 		margin: 0;
 	}
 
@@ -73,7 +73,7 @@
 		}
 	}
 
-	// Multiple Text Controls
+	// Multiple Radio Controls
 
 	& + & {
 		margin-bottom: 32px;
