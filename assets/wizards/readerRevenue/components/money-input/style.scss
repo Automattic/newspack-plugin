@@ -24,6 +24,11 @@
 
 	.newspack-text-control {
 		margin: 0;
+		width: 100%;
+
+		@media screen and ( min-width: 1128px ) {
+			max-width: 293px;
+		}
 
 		label {
 			margin-left: -32px;

@@ -20,7 +20,6 @@ import {
 	ToggleControl,
 	withWizardScreen,
 } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Donation Settings Screen Component
@@ -80,7 +79,7 @@ class Donation extends Component {
 						onChange={ _tiered => onChange( { ...data, tiered: _tiered } ) }
 					/>
 					{ tiered && (
-						<div className="newspack-donations-wizard__tier-suggested-prices">
+						<Grid columns={ 3 } gutter={ 8 }>
 							<MoneyInput
 								currencySymbol={ currencySymbol }
 								label={ __( 'Low-tier' ) }
@@ -105,7 +104,7 @@ class Donation extends Component {
 									onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 2: value } } )
 								}
 							/>
-						</div>
+						</Grid>
 					) }
 					{ ! tiered && (
 						<MoneyInput

@@ -8,12 +8,32 @@
 	grid-template-columns: 1fr;
 	margin: 32px 0;
 
+	// Gutter 8
+	&__gutter-8 {
+		grid-gap: 8px;
+	}
+
+	// Gutter 16
+	&__gutter-16 {
+		grid-gap: 16px;
+	}
+
+	// Gutter 32
+	&__gutter-32 {
+		grid-gap: 32px;
+	}
+
 	// Media Queries - 744px
 	@media screen and ( min-width: 744px ) {
+		// Columns 2 & 4
 		&__columns-2,
-		&__columns-3,
 		&__columns-4 {
 			grid-template-columns: repeat( 2, 1fr );
+		}
+
+		// Columns 3
+		&__columns-3 {
+			grid-template-columns: 1fr;
 		}
 	}
 
@@ -27,11 +47,6 @@
 		// Columns 4
 		&__columns-4 {
 			grid-template-columns: repeat( 4, 1fr );
-		}
-
-		// Gutter 32
-		&__gutter-32 {
-			grid-gap: 32px;
 		}
 
 		// Gutter 48
