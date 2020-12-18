@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { format } from '@wordpress/date';
 import { Tooltip, MenuItem } from '@wordpress/components';
@@ -78,23 +78,13 @@ const SegmentActionCard = ( { segment, deleteSegment } ) => {
 	);
 };
 
-const SegmentsList = ( { wizardApiFetch } ) => {
-	const [ segments, setSegments ] = useState( null );
-
-	const fetchSegments = () => {
-		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation`,
-		} ).then( setSegments );
-	};
-
+const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 	const deleteSegment = segment => {
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
 			method: 'DELETE',
 		} ).then( setSegments );
 	};
-
-	useEffect( fetchSegments, [] );
 
 	if ( segments === null ) {
 		return null;

@@ -38,7 +38,7 @@ class CategoryAutocomplete extends Component {
 
 	componentDidMount() {
 		apiFetch( {
-			path: addQueryArgs( '/wp/v2/categories', {
+			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
 				per_page: -1,
 				_fields: 'id,name',
 			} ),
@@ -59,7 +59,7 @@ class CategoryAutocomplete extends Component {
 	 */
 	updateSuggestions( search ) {
 		apiFetch( {
-			path: addQueryArgs( '/wp/v2/categories', {
+			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
 				search,
 				per_page: 20,
 				_fields: 'id,name',
@@ -115,4 +115,9 @@ class CategoryAutocomplete extends Component {
 		);
 	}
 }
+
+CategoryAutocomplete.defaultProps = {
+	taxonomy: 'categories',
+};
+
 export default CategoryAutocomplete;

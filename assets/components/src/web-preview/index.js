@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, createPortal } from '@wordpress/element';
+import { Component, createRef, Fragment, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, close, desktop, mobile, tablet } from '@wordpress/icons';
 
@@ -27,6 +27,11 @@ class WebPreview extends Component {
 		loaded: false,
 		isPreviewVisible: false,
 	};
+
+	constructor( props ) {
+		super( props );
+		this.iframeRef = createRef();
+	}
 
 	/**
 	 * If a div with id PORTAL_PARENT_ID exists, assign it to class field.
@@ -117,9 +122,13 @@ class WebPreview extends Component {
 							</div>
 						) }
 						<iframe
+							ref={ this.iframeRef }
 							title="web-preview"
 							src={ url }
-							onLoad={ () => this.setState( { loaded: true } ) }
+							onLoad={ () => {
+								this.setState( { loaded: true } );
+								this.props.onLoad( this.iframeRef.current );
+							} }
 						/>
 					</div>
 				</div>
@@ -175,6 +184,7 @@ class WebPreview extends Component {
 WebPreview.defaultProps = {
 	url: '//newspack.blog',
 	label: __( 'Preview', 'newspack' ),
+	onLoad: () => {},
 };
 
 export default WebPreview;
