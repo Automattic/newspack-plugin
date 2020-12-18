@@ -51,13 +51,13 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Settings', 'newpack' ),
-		path: '/settings',
+		label: __( 'Preview', 'newpack' ),
+		path: '/preview',
 		exact: true,
 	},
 	{
-		label: __( 'Preview', 'newpack' ),
-		path: '/preview',
+		label: __( 'Settings', 'newpack' ),
+		path: '/settings',
 		exact: true,
 	},
 ];
@@ -297,8 +297,8 @@ class PopupsWizard extends Component {
 									) }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
-								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
+								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/overlay" />
 							</Switch>
 						</HashRouter>
