@@ -6,14 +6,7 @@
  * WordPress dependencies.
  */
 import { Component, RawHTML } from '@wordpress/element';
-
-/**
- * Material UI dependencies.
- */
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ErrorIcon from '@material-ui/icons/Error';
-import InfoIcon from '@material-ui/icons/Info';
-import WarningIcon from '@material-ui/icons/Warning';
+import { Icon, check, help, info } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -30,28 +23,26 @@ class Notice extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, isError, isSuccess, isWarning, isPrimary, noticeText, rawHTML } = this.props;
+		const { className, isError, isHelp, isSuccess, isWarning, noticeText, rawHTML } = this.props;
 		const classes = classnames(
 			'newspack-notice',
 			className,
 			isError && 'newspack-notice__is-error',
+			isHelp && 'newspack-notice__is-help',
 			isSuccess && 'newspack-notice__is-success',
-			isWarning && 'newspack-notice__is-warning',
-			isPrimary && 'newspack-notice__is-primary'
+			isWarning && 'newspack-notice__is-warning'
 		);
 		let noticeIcon;
-		if ( isError ) {
-			noticeIcon = <ErrorIcon />;
+		if ( isHelp ) {
+			noticeIcon = help;
 		} else if ( isSuccess ) {
-			noticeIcon = <CheckCircleIcon />;
-		} else if ( isWarning ) {
-			noticeIcon = <WarningIcon />;
+			noticeIcon = check;
 		} else {
-			noticeIcon = <InfoIcon />;
+			noticeIcon = info;
 		}
 		return (
 			<div className={ classes }>
-				{ noticeIcon }
+				{ <Icon icon={ noticeIcon } /> }
 				<div className="newspack-notice__content">
 					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
 				</div>

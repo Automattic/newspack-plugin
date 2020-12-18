@@ -32,8 +32,8 @@
 
 	// Active
 	&.newspack-style-card__is-active {
-		border-color: $primary-600;
-		box-shadow: 0 0 0 2px $primary-500;
+		border-color: $primary-500;
+		box-shadow: inset 0 0 0 2px $primary-500;
 
 		.newspack-style-card__actions {
 			display: none;
