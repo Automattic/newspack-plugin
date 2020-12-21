@@ -312,6 +312,7 @@ class Popups_Wizard extends Wizard {
 			'newspack_popups_wizard_data',
 			[
 				'preview_post' => $preview_post,
+				'frontend_url' => get_site_url(),
 			]
 		);
 

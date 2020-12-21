@@ -114,6 +114,9 @@ class PopupPopover extends Component {
 				<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
 					{ __( 'Delete', 'newspack' ) }
 				</MenuItem>
+				<div className="newspack-popup-info">
+					{ __( 'ID:', 'newspack' ) } { popup.id }
+				</div>
 			</Popover>
 		);
 	};

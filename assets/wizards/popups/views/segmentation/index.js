@@ -9,12 +9,12 @@ import './style.scss';
 /**
  * Popups Segmentation screen.
  */
-const PopupSegmentation = ( { wizardApiFetch, match } ) => {
+const PopupSegmentation = ( { wizardApiFetch, match, ...props } ) => {
 	const segmentId = match.params.id;
 	return segmentId ? (
 		<SingleSegment segmentId={ segmentId } wizardApiFetch={ wizardApiFetch } />
 	) : (
-		<SegmentsList wizardApiFetch={ wizardApiFetch } />
+		<SegmentsList wizardApiFetch={ wizardApiFetch } { ...props } />
 	);
 };
 
