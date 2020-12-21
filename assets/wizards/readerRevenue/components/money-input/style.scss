@@ -7,6 +7,7 @@
 .newspack-donations-wizard__money-input {
 	align-items: flex-end;
 	display: flex;
+	margin: 32px 0;
 
 	.currency {
 		background: $light-gray-500;
@@ -17,11 +18,18 @@
 		font-weight: bold;
 		height: 48px;
 		line-height: 48px;
-		margin: 32px 0;
+		margin: 0;
 		text-align: center;
 	}
 
 	.newspack-text-control {
+		margin: 0;
+		width: 100%;
+
+		@media screen and ( min-width: 1128px ) {
+			max-width: 293px;
+		}
+
 		label {
 			margin-left: -32px;
 		}
