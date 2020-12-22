@@ -13,11 +13,22 @@ import './style.scss';
 const ALL_FILTER = { label: __( 'All', 'newspack' ), value: 'all' };
 
 const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
-	const [ allFilters, setAllFilters ] = useState( [ ALL_FILTER ] );
-	const [ filter, setFilter ] = useState( allFilters[ 0 ].value );
+	const [ filter, setFilter ] = useState( ALL_FILTER.value );
 
 	const renderedSections = useMemo( () => {
-		const validFilters = [ ALL_FILTER ];
+		const validFilters = sections.reduce(
+			( acc, section ) =>
+				section.items.length > 0 ? [ ...acc, { label: section.label, value: section.key } ] : acc,
+			[ ALL_FILTER ]
+		);
+		if (
+			! validFilters.reduce(
+				( filterFound, item ) => ( filter === item.value ? true : filterFound ),
+				false
+			)
+		) {
+			setFilter( ALL_FILTER.value );
+		}
 		const validSections = sections.reduce( ( validSectionsAcc, section ) => {
 			if ( section.items.length > 0 ) {
 				const Heading = () => (
@@ -31,11 +42,11 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 				if ( filter === ALL_FILTER.value || filter === section.key ) {
 					validSectionsAcc.push(
 						<Fragment key={ section.key }>
-							{ allFilters.length > 0 && validSectionsAcc.length === 0 ? (
+							{ validFilters.length > 0 && validSectionsAcc.length === 0 ? (
 								<div className="newspack-action-card-sections__group-wrapper">
 									<Heading />
 									<SelectControl
-										options={ allFilters }
+										options={ validFilters }
 										value={ filter }
 										onChange={ setFilter }
 										label={ __( 'Filter:', 'newspack' ) }
@@ -50,14 +61,12 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 						</Fragment>
 					);
 				}
-				validFilters.push( { label: section.label, value: section.key } );
 			}
 			return validSectionsAcc;
 		}, [] );
-		setAllFilters( validFilters );
 
 		return validSections;
-	}, [ sections, filter, allFilters.length ] );
+	}, [ sections, filter ] );
 
 	return renderedSections.length > 0 ? (
 		<Fragment>{ renderedSections }</Fragment>
