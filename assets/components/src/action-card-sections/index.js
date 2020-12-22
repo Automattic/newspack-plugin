@@ -21,7 +21,12 @@ const ActionCardSections = ( { sections, emptyMessage, renderCard } ) => {
 				section.items.length > 0 ? [ ...acc, { label: section.label, value: section.key } ] : acc,
 			[ ALL_FILTER ]
 		);
-		if ( ! validFilters.reduce( ( filterFound, item ) => ( filter === item.value ? true : filterFound ), false ) ) {
+		if (
+			! validFilters.reduce(
+				( filterFound, item ) => ( filter === item.value ? true : filterFound ),
+				false
+			)
+		) {
 			setFilter( ALL_FILTER.value );
 		}
 		const validSections = sections.reduce( ( validSectionsAcc, section ) => {
