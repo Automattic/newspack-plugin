@@ -73,7 +73,6 @@ const PopupGroup = ( {
 	deletePopup,
 	emptyMessage,
 	groups,
-	groupUI,
 	items: { active = [], draft = [], test = [], inactive = [] },
 	previewPopup,
 	publishPopup,
@@ -104,7 +103,7 @@ const PopupGroup = ( {
 	};
 
 	const filteredByGroup = itemsToFilter =>
-		! groupUI || -1 === +group
+		-1 === +group
 			? itemsToFilter
 			: itemsToFilter.filter(
 					( { groups } ) => groups && groups.find( g => +g.term_id === group )
@@ -122,61 +121,59 @@ const PopupGroup = ( {
 	};
 	return (
 		<div className="newspack-campaigns-popup-group">
-			{ groupUI && (
-				<Grid>
-					<Card noBorder>
-						<SelectControl
-							options={ [
-								{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-								...groups.map( item => ( {
-									value: item.term_id,
-									label:
-										item.name +
-										( +currentGroup === +item.term_id ? _( ' (Selected)', 'newspack' ) : '' ),
-								} ) ),
-							] }
-							value={ group }
-							onChange={ value => setGroupTaxSlug( +value ) }
-							label={ __( 'Select a campaign group', 'newspack' ) }
-						/>
-						{ group > 0 && group !== +currentGroup && (
-							<Button onClick={ () => setCurrentGroup( group ) } isPrimary>
-								{ __( 'Activate Group', 'newspack' ) }
-							</Button>
-						) }
-						{ group > 0 && group === +currentGroup && (
-							<Button onClick={ () => unsetCurrentGroup() } isPrimary>
-								{ __( 'Deactivate Group', 'newspack' ) }
-							</Button>
-						) }
-					</Card>
-					<Card noBorder>
-						{ +group > 0 && (
-							<Fragment>
-								<SelectControl
-									options={ [
-										{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-										...segments.map( s => ( { value: s.id, label: s.name } ) ),
-									] }
-									value={ segmentId }
-									onChange={ setSegmentId }
-									label={ __( 'Preview as segment', 'newspack' ) }
-									disabled={ +group <= 0 }
-								/>
-								<WebPreview
-									onLoad={ onWebPreviewLoad }
-									url={ addQueryArgs( postPreviewLink || frontendUrl, params ) }
-									renderButton={ ( { showPreview } ) => (
-										<Button isPrimary onClick={ showPreview }>
-											{ __( 'Preview', 'newspack' ) }
-										</Button>
-									) }
-								/>
-							</Fragment>
-						) }
-					</Card>
-				</Grid>
-			) }
+			<Grid>
+				<Card noBorder>
+					<SelectControl
+						options={ [
+							{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+							...groups.map( item => ( {
+								value: item.term_id,
+								label:
+									item.name +
+									( +currentGroup === +item.term_id ? _( ' (Selected)', 'newspack' ) : '' ),
+							} ) ),
+						] }
+						value={ group }
+						onChange={ value => setGroupTaxSlug( +value ) }
+						label={ __( 'Select a campaign group', 'newspack' ) }
+					/>
+					{ group > 0 && group !== +currentGroup && (
+						<Button onClick={ () => setCurrentGroup( group ) } isPrimary>
+							{ __( 'Activate Group', 'newspack' ) }
+						</Button>
+					) }
+					{ group > 0 && group === +currentGroup && (
+						<Button onClick={ () => unsetCurrentGroup() } isPrimary>
+							{ __( 'Deactivate Group', 'newspack' ) }
+						</Button>
+					) }
+				</Card>
+				<Card noBorder>
+					{ +group > 0 && (
+						<Fragment>
+							<SelectControl
+								options={ [
+									{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+									...segments.map( s => ( { value: s.id, label: s.name } ) ),
+								] }
+								value={ segmentId }
+								onChange={ setSegmentId }
+								label={ __( 'Preview as segment', 'newspack' ) }
+								disabled={ +group <= 0 }
+							/>
+							<WebPreview
+								onLoad={ onWebPreviewLoad }
+								url={ addQueryArgs( postPreviewLink || frontendUrl, params ) }
+								renderButton={ ( { showPreview } ) => (
+									<Button isPrimary onClick={ showPreview }>
+										{ __( 'Preview', 'newspack' ) }
+									</Button>
+								) }
+							/>
+						</Fragment>
+					) }
+				</Card>
+			</Grid>
 			<hr />
 			<ActionCardSections
 				sections={ [

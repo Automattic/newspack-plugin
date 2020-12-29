@@ -32,7 +32,7 @@ const Preview = ( { segments } ) => {
 
 	const params = {
 		view_as: [
-			`groups:${ groupTaxIds.join( ',' ) }`,
+			`groups:${ Array.isArray( groupTaxIds ) ? groupTaxIds.join( ',' ) : groupTaxIds }`,
 			...( segmentId.length ? [ `segment:${ segmentId }` ] : [] ),
 		].join( ';' ),
 	};
@@ -66,7 +66,7 @@ const Preview = ( { segments } ) => {
 				label={ __( 'Segment', 'newspack' ) }
 			/>
 			<CategoryAutocomplete
-				value={ groupTaxIds }
+				value={ Array.isArray( groupTaxIds ) ? groupTaxIds : [ groupTaxIds ] }
 				onChange={ selected => {
 					setGroupTaxSlug( selected.map( item => item.id ) );
 				} }

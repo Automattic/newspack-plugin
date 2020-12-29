@@ -36,16 +36,6 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Overlay', 'newpack' ),
-		path: '/overlay',
-		exact: true,
-	},
-	{
-		label: __( 'Inline', 'newpack' ),
-		path: '/inline',
-		exact: true,
-	},
-	{
 		label: __( 'Segmentation', 'newpack' ),
 		path: '/segmentation',
 		exact: true,
@@ -74,8 +64,6 @@ class PopupsWizard extends Component {
 			groups: [],
 			popups: {
 				all: {},
-				inline: {},
-				overlay: {},
 			},
 			segments: [],
 			previewUrl: null,
@@ -206,12 +194,6 @@ class PopupsWizard extends Component {
 	 */
 	sortPopups = popups => ( {
 		all: {},
-		overlay: {},
-		inline: {},
-		...mapValues(
-			groupBy( popups, popup => ( isOverlay( popup ) ? 'overlay' : 'inline' ) ),
-			this.sortPopupGroup
-		),
 		...mapValues(
 			groupBy( popups, popup => 'all' ),
 			this.sortPopupGroup
@@ -270,7 +252,7 @@ class PopupsWizard extends Component {
 			doneLoading,
 		} = this.props;
 		const { currentGroup, groups, popups, segments, previewUrl } = this.state;
-		const { all, inline, overlay } = popups;
+		const { all } = popups;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -316,39 +298,8 @@ class PopupsWizard extends Component {
 												'No Campaigns have been created yet.',
 												'newspack'
 											) }
-											groupUI={ true }
 											setCurrentGroup={ this.setCurrentGroup }
 											unsetCurrentGroup={ this.unsetCurrentGroup }
-										/>
-									) }
-								/>
-								<Route
-									path="/overlay"
-									render={ () => (
-										<PopupGroup
-											{ ...popupManagementSharedProps }
-											items={ overlay }
-											buttonText={ __( 'Add new Overlay Campaign', 'newspack' ) }
-											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
-											emptyMessage={ __(
-												'No Overlay Campaigns have been created yet.',
-												'newspack'
-											) }
-										/>
-									) }
-								/>
-								<Route
-									path="/inline"
-									render={ () => (
-										<PopupGroup
-											{ ...popupManagementSharedProps }
-											items={ inline }
-											buttonText={ __( 'Add new Inline Campaign', 'newspack' ) }
-											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
-											emptyMessage={ __(
-												'No Inline Campaigns have been created yet.',
-												'newspack'
-											) }
 										/>
 									) }
 								/>
