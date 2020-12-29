@@ -30,14 +30,18 @@ const descriptionForPopup = (
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
+	if ( options.placement === 'above_header' ) {
+		descriptionMessages.push( __( 'Above header', 'newspack' ) );
+	} else if ( options.placement === 'inline' ) {
+		descriptionMessages.push( __( 'Inline', 'newspack' ) );
+	} else {
+		descriptionMessages.push( __( 'Overlay', 'newspack' ) );
+	}
 	if ( segment ) {
 		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
 	}
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
-	}
-	if ( options.placement === 'above_header' ) {
-		descriptionMessages.push( __( 'Above header', 'newspack' ) );
 	}
 	if ( categories.length > 0 ) {
 		descriptionMessages.push(
