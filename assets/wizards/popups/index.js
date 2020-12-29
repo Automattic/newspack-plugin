@@ -26,7 +26,7 @@ import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views'
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-const headerText = __( 'Campaigns', 'newspack' );
+const headerText = __( 'Campaigns and Segmention', 'newspack' );
 const subHeaderText = __( 'Reach your readers with configurable campaigns.', 'newspack' );
 
 const tabbedNavigation = [
@@ -36,7 +36,7 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Segmentation', 'newpack' ),
+		label: __( 'Segments', 'newpack' ),
 		path: '/segmentation',
 		exact: true,
 	},
@@ -76,7 +76,7 @@ class PopupsWizard extends Component {
 		} )
 			.then( ( { current_group: currentGroup, groups, popups, segments } ) =>
 				this.setState( {
-					currentGroup: currentGroup ? currentGroup : -1 ,
+					currentGroup: currentGroup ? currentGroup : -1,
 					groups,
 					popups: this.sortPopups( popups ),
 					segments,
@@ -194,10 +194,7 @@ class PopupsWizard extends Component {
 	 */
 	sortPopups = popups => ( {
 		all: {},
-		...mapValues(
-			groupBy( popups, popup => 'all' ),
-			this.sortPopupGroup
-		),
+		...mapValues( groupBy( popups, popup => 'all' ), this.sortPopupGroup ),
 	} );
 
 	/**
@@ -294,10 +291,7 @@ class PopupsWizard extends Component {
 											items={ all }
 											buttonText={ __( 'Add new Campaign', 'newspack' ) }
 											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
-											emptyMessage={ __(
-												'No Campaigns have been created yet.',
-												'newspack'
-											) }
+											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
 											setCurrentGroup={ this.setCurrentGroup }
 											unsetCurrentGroup={ this.unsetCurrentGroup }
 										/>
@@ -309,6 +303,11 @@ class PopupsWizard extends Component {
 										<Segmentation
 											{ ...props }
 											{ ...sharedProps }
+											buttonText={
+												props.location.pathname.match( /^\/segmentation\/?$/ ) &&
+												__( 'Add new segment', 'newspack' )
+											}
+											buttonAction="#/segmentation/new"
 											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }
 										/>
 									) }
