@@ -7,6 +7,7 @@
  */
 import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * External dependencies.
@@ -18,10 +19,14 @@ import { find } from 'lodash';
  */
 import {
 	withWizardScreen,
-	Button,
-	SelectControl,
 	ActionCardSections,
+	Button,
+	Card,
+	Grid,
+	SelectControl,
+	WebPreview,
 } from '../../../../components/src';
+import { useStateWithPersistence } from '../../utils';
 import PopupActionCard from '../../components/popup-action-card';
 
 const descriptionForPopup = (
@@ -81,42 +86,95 @@ const PopupGroup = ( {
 	if ( undefined === currentGroup ) {
 		return null;
 	}
-	const [ group, setGroup ] = useState( +currentGroup );
+	const [ segmentId, setSegmentId ] = useStateWithPersistence( 'campaigns-preview-segmentId', '' );
+	const [ group, setGroupTaxSlug ] = useStateWithPersistence(
+		'campaigns-preview-groupTaxIds',
+		+currentGroup
+	);
+
+	const postPreviewLink = window?.newspack_popups_wizard_data?.preview_post;
+	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
+
+	const params = {
+		view_as: [
+			`groups:${ group }`,
+			...( segmentId.length ? [ `segment:${ segmentId }` ] : [] ),
+		].join( ';' ),
+	};
+
 	const filteredByGroup = itemsToFilter =>
 		! groupUI || -1 === +group
 			? itemsToFilter
 			: itemsToFilter.filter(
 					( { groups } ) => groups && groups.find( g => +g.term_id === group )
 			  );
+
+	const onWebPreviewLoad = iframeEl => {
+		if ( iframeEl ) {
+			[ ...iframeEl.contentWindow.document.querySelectorAll( 'a' ) ].forEach( anchor => {
+				const href = anchor.getAttribute( 'href' );
+				if ( href.indexOf( frontendUrl ) === 0 ) {
+					anchor.setAttribute( 'href', addQueryArgs( href, params ) );
+				}
+			} );
+		}
+	};
 	return (
 		<Fragment>
 			{ groupUI && (
-				<Fragment>
-					<SelectControl
-						options={ [
-							{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-							...groups.map( item => ( {
-								value: item.term_id,
-								label:
-									item.name +
-									( +currentGroup === +item.term_id ? _( ' (Selected)', 'newspack' ) : '' ),
-							} ) ),
-						] }
-						value={ group }
-						onChange={ value => setGroup( +value ) }
-						label={ __( 'Campaign Group', 'newspack' ) }
-					/>
-					{ group > 0 && group !== +currentGroup && (
-						<Button onClick={ () => setCurrentGroup( group ) } isPrimary>
-							{ __( 'Activate Group', 'newspack' ) }
-						</Button>
-					) }
-					{ group > 0 && group === +currentGroup && (
-						<Button onClick={ () => unsetCurrentGroup() } isPrimary>
-							{ __( 'Deactivate Group', 'newspack' ) }
-						</Button>
-					) }
-				</Fragment>
+				<Grid>
+					<Card noBorder>
+						<SelectControl
+							options={ [
+								{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+								...groups.map( item => ( {
+									value: item.term_id,
+									label:
+										item.name +
+										( +currentGroup === +item.term_id ? _( ' (Selected)', 'newspack' ) : '' ),
+								} ) ),
+							] }
+							value={ group }
+							onChange={ value => setGroupTaxSlug( +value ) }
+							label={ __( 'Campaign group to view', 'newspack' ) }
+						/>
+						{ group > 0 && group !== +currentGroup && (
+							<Button onClick={ () => setCurrentGroup( group ) } isPrimary>
+								{ __( 'Activate Group', 'newspack' ) }
+							</Button>
+						) }
+						{ group > 0 && group === +currentGroup && (
+							<Button onClick={ () => unsetCurrentGroup() } isPrimary>
+								{ __( 'Deactivate Group', 'newspack' ) }
+							</Button>
+						) }
+					</Card>
+					<Card noBorder>
+						{ +group > 0 && (
+							<Fragment>
+								<SelectControl
+									options={ [
+										{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+										...segments.map( s => ( { value: s.id, label: s.name } ) ),
+									] }
+									value={ segmentId }
+									onChange={ setSegmentId }
+									label={ __( 'Preview as segment', 'newspack' ) }
+									disabled={ +group <= 0 }
+								/>
+								<WebPreview
+									onLoad={ onWebPreviewLoad }
+									url={ addQueryArgs( postPreviewLink || frontendUrl, params ) }
+									renderButton={ ( { showPreview } ) => (
+										<Button isPrimary onClick={ showPreview }>
+											{ __( 'Preview', 'newspack' ) }
+										</Button>
+									) }
+								/>
+							</Fragment>
+						) }
+					</Card>
+				</Grid>
 			) }
 			<ActionCardSections
 				sections={ [
