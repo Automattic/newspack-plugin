@@ -111,6 +111,44 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get campaign groups.
+	 */
+	public function get_groups() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::get_groups() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get the current campaign group.
+	 */
+	public function get_current_group() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::get_current_group() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Set the current campaign group.
+	 *
+	 * @param int $current_group Campaign group term ID.
+	 */
+	public function set_current_group( $current_group ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::set_current_group( $current_group ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Unset the current campaign group.
+	 */
+	public function unset_current_group() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::unset_current_group() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Set plugin settings.
 	 *
 	 * @param object $options options.

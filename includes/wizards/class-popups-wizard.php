@@ -282,6 +282,32 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/current-group/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_set_current_group' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+						'validate_callback' => [ $this, 'api_validate_current_group' ],
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/current-group',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_unset_current_group' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -339,19 +365,23 @@ class Popups_Wizard extends Wizard {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
 		$response = [
-			'popups'   => [],
-			'segments' => [],
+			'current_group' => null,
+			'groups'        => [],
+			'popups'        => [],
+			'segments'      => [],
 		];
 
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
-			$response['popups']   = array_map(
+			$response['popups']        = array_map(
 				function( $popup ) {
 					$popup['edit_link'] = get_edit_post_link( $popup['id'] );
 					return $popup;
 				},
 				$newspack_popups_configuration_manager->get_popups( true )
 			);
-			$response['segments'] = $newspack_popups_configuration_manager->get_segments( true );
+			$response['segments']      = $newspack_popups_configuration_manager->get_segments( true );
+			$response['groups']        = $newspack_popups_configuration_manager->get_groups();
+			$response['current_group'] = $newspack_popups_configuration_manager->get_current_group();
 		}
 		return rest_ensure_response( $response );
 	}
@@ -373,6 +403,52 @@ class Popups_Wizard extends Wizard {
 		}
 
 		return $this->api_get_settings();
+	}
+
+	/**
+	 * Set the current campaign group
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_set_current_group( $request ) {
+		$current_group = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$newspack_popups_configuration_manager->set_current_group( $current_group );
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Unset the current campaign group
+	 *
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_unset_current_group() {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$newspack_popups_configuration_manager->unset_current_group( $current_group );
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Validate current group input.
+	 *
+	 * @param int $current_group Current group term ID.
+	 * @return bool Is ID a valid term ID.
+	 */
+	public function api_validate_current_group( $current_group ) {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$groups = $newspack_popups_configuration_manager->get_groups();
+		return array_reduce(
+			$groups,
+			function( $acc, $group ) use ( $current_group ) {
+				return intval( $group->term_id ) === intval( $current_group ) ? true : $acc;
+			},
+			false
+		);
 	}
 
 	/**

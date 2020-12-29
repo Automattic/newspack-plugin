@@ -22,7 +22,7 @@ import { groupBy, mapValues } from 'lodash';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
+import { PopupGroup, Analytics, Settings, Segmentation, Preview, CampaignGroups } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -56,6 +56,11 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
+		label: __( 'Groups', 'newpack' ),
+		path: '/groups',
+		exact: true,
+	},
+	{
 		label: __( 'Settings', 'newpack' ),
 		path: '/settings',
 		exact: true,
@@ -66,7 +71,10 @@ class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
+			currentGroup: null,
+			groups: [],
 			popups: {
+				allCampaigns: [],
 				inline: [],
 				overlay: [],
 			},
@@ -79,8 +87,13 @@ class PopupsWizard extends Component {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups, segments } ) =>
-				this.setState( { popups: this.sortPopups( popups ), segments } )
+			.then( ( { current_group: currentGroup, groups, popups, segments } ) =>
+				this.setState( {
+					currentGroup: currentGroup ? currentGroup : -1 ,
+					groups,
+					popups: this.sortPopups( popups ),
+					segments,
+				} )
 			)
 			.catch( error => setError( error ) );
 	};
@@ -97,6 +110,34 @@ class PopupsWizard extends Component {
 			method: state ? 'POST' : 'DELETE',
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
+	 * Set current campaign group.
+	 *
+	 * @param {number} Term ID of group to select.
+	 */
+	setCurrentGroup = currentGroup => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/current-group/${ currentGroup }`,
+			method: 'POST',
+		} )
+			.then( ( { current_group } ) => this.setState( { currentGroup: current_group } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
+	 * Unset current campaign group.
+	 */
+	unsetCurrentGroup = () => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/current-group`,
+			method: 'DELETE',
+		} )
+			.then( ( { current_group } ) => this.setState( { currentGroup: current_group } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -164,6 +205,7 @@ class PopupsWizard extends Component {
 	 * Sort Pop-ups into categories.
 	 */
 	sortPopups = popups => ( {
+		allCampaigns: popups,
 		overlay: [],
 		inline: [],
 		...mapValues(
@@ -223,13 +265,15 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, segments, previewUrl } = this.state;
-		const { inline, overlay } = popups;
+		const { currentGroup, groups, popups, segments, previewUrl } = this.state;
+		const { allCampaigns, inline, overlay } = popups;
 		return (
 			<WebPreview
 				url={ previewUrl }
 				renderButton={ ( { showPreview } ) => {
 					const sharedProps = {
+						currentGroup,
+						groups,
 						headerText,
 						subHeaderText,
 						tabbedNavigation,
@@ -298,6 +342,17 @@ class PopupsWizard extends Component {
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
 								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
+								<Route
+									path="/groups"
+									render={ () => (
+										<CampaignGroups
+											{ ...popupManagementSharedProps }
+											campaigns={ allCampaigns }
+											setCurrentGroup={ this.setCurrentGroup }
+											unsetCurrentGroup={ this.unsetCurrentGroup }
+										/>
+									) }
+								/>
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/overlay" />
 							</Switch>
