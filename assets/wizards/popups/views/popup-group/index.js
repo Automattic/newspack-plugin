@@ -28,6 +28,7 @@ import {
 } from '../../../../components/src';
 import { useStateWithPersistence } from '../../utils';
 import PopupActionCard from '../../components/popup-action-card';
+import './style.scss';
 
 const descriptionForPopup = (
 	{ categories, sitewide_default: sitewideDefault, options },
@@ -120,7 +121,7 @@ const PopupGroup = ( {
 		}
 	};
 	return (
-		<Fragment>
+		<div className="newspack-campaigns-popup-group">
 			{ groupUI && (
 				<Grid>
 					<Card noBorder>
@@ -136,7 +137,7 @@ const PopupGroup = ( {
 							] }
 							value={ group }
 							onChange={ value => setGroupTaxSlug( +value ) }
-							label={ __( 'Campaign group to view', 'newspack' ) }
+							label={ __( 'Select a campaign group', 'newspack' ) }
 						/>
 						{ group > 0 && group !== +currentGroup && (
 							<Button onClick={ () => setCurrentGroup( group ) } isPrimary>
@@ -176,6 +177,7 @@ const PopupGroup = ( {
 					</Card>
 				</Grid>
 			) }
+			<hr />
 			<ActionCardSections
 				sections={ [
 					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
@@ -203,7 +205,7 @@ const PopupGroup = ( {
 				) }
 				emptyMessage={ emptyMessage }
 			/>
-		</Fragment>
+		</div>
 	);
 };
 
