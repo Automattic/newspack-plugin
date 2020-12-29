@@ -35,12 +35,12 @@ class PopupActionCard extends Component {
 			deletePopup,
 			popup,
 			previewPopup,
-			setCategoriesForPopup,
+			setTermsForPopup,
 			setSitewideDefaultPopup,
 			publishPopup,
 			updatePopup,
 		} = this.props;
-		const { id, categories, title, sitewide_default: sitewideDefault, status } = popup;
+		const { id, categories, groups, title, sitewide_default: sitewideDefault, status } = popup;
 		return (
 			<ActionCard
 				isSmall
@@ -85,12 +85,20 @@ class PopupActionCard extends Component {
 				}
 			>
 				{ categoriesVisibility && (
-					<CategoryAutocomplete
-						value={ categories || [] }
-						onChange={ tokens => setCategoriesForPopup( id, tokens ) }
-						label={ __( 'Category filtering', 'newspack ' ) }
-						disabled={ sitewideDefault }
-					/>
+					<Fragment>
+						<CategoryAutocomplete
+							value={ groups || [] }
+							onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
+							label={ __( 'Campaign groups', 'newspack ' ) }
+							taxonomy='newspack_popups_taxonomy'
+						/>
+						<CategoryAutocomplete
+							value={ categories || [] }
+							onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
+							label={ __( 'Category filtering', 'newspack ' ) }
+							disabled={ sitewideDefault }
+						/>
+					</Fragment>
 				) }
 			</ActionCard>
 		);
@@ -100,7 +108,7 @@ class PopupActionCard extends Component {
 PopupActionCard.defaultProps = {
 	popup: {},
 	deletePopup: () => null,
-	setCategoriesForPopup: () => null,
+	setTermsForPopup: () => null,
 	setSitewideDefaultPopup: () => null,
 };
 

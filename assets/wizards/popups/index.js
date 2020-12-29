@@ -22,7 +22,7 @@ import { groupBy, mapValues } from 'lodash';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import { PopupGroup, Analytics, Settings, Segmentation, Preview, CampaignGroups } from './views';
+import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -30,6 +30,11 @@ const headerText = __( 'Campaigns', 'newspack' );
 const subHeaderText = __( 'Reach your readers with configurable campaigns.', 'newspack' );
 
 const tabbedNavigation = [
+	{
+		label: __( 'Campaigns', 'newpack' ),
+		path: '/campaigns',
+		exact: true,
+	},
 	{
 		label: __( 'Overlay', 'newpack' ),
 		path: '/overlay',
@@ -56,11 +61,6 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Groups', 'newpack' ),
-		path: '/groups',
-		exact: true,
-	},
-	{
 		label: __( 'Settings', 'newpack' ),
 		path: '/settings',
 		exact: true,
@@ -71,12 +71,11 @@ class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			currentGroup: null,
 			groups: [],
 			popups: {
-				allCampaigns: [],
-				inline: [],
-				overlay: [],
+				all: {},
+				inline: {},
+				overlay: {},
 			},
 			segments: [],
 			previewUrl: null,
@@ -142,18 +141,19 @@ class PopupsWizard extends Component {
 	};
 
 	/**
-	 * Set categories for a Popup.
+	 * Set taxonomy terms for a Popup.
 	 *
 	 * @param {number} popupId ID of the Popup to alter.
 	 * @param {Array} categories Array of categories to assign to the Popup.
 	 */
-	setCategoriesForPopup = ( popupId, categories ) => {
+	setTermsForPopup = ( id, terms, taxonomy ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-categories/${ popupId }`,
+			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
 			method: 'POST',
 			data: {
-				categories,
+				taxonomy,
+				terms,
 			},
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
@@ -205,11 +205,15 @@ class PopupsWizard extends Component {
 	 * Sort Pop-ups into categories.
 	 */
 	sortPopups = popups => ( {
-		allCampaigns: popups,
-		overlay: [],
-		inline: [],
+		all: {},
+		overlay: {},
+		inline: {},
 		...mapValues(
 			groupBy( popups, popup => ( isOverlay( popup ) ? 'overlay' : 'inline' ) ),
+			this.sortPopupGroup
+		),
+		...mapValues(
+			groupBy( popups, popup => 'all' ),
 			this.sortPopupGroup
 		),
 	} );
@@ -266,7 +270,7 @@ class PopupsWizard extends Component {
 			doneLoading,
 		} = this.props;
 		const { currentGroup, groups, popups, segments, previewUrl } = this.state;
-		const { allCampaigns, inline, overlay } = popups;
+		const { all, inline, overlay } = popups;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -287,7 +291,7 @@ class PopupsWizard extends Component {
 					const popupManagementSharedProps = {
 						...sharedProps,
 						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
-						setCategoriesForPopup: this.setCategoriesForPopup,
+						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
 						previewPopup: popup =>
@@ -300,6 +304,24 @@ class PopupsWizard extends Component {
 						<HashRouter hashType="slash">
 							<Switch>
 								{ pluginRequirements }
+								<Route
+									path="/campaigns"
+									render={ () => (
+										<PopupGroup
+											{ ...popupManagementSharedProps }
+											items={ all }
+											buttonText={ __( 'Add new Campaign', 'newspack' ) }
+											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
+											emptyMessage={ __(
+												'No Campaigns have been created yet.',
+												'newspack'
+											) }
+											groupUI={ true }
+											setCurrentGroup={ this.setCurrentGroup }
+											unsetCurrentGroup={ this.unsetCurrentGroup }
+										/>
+									) }
+								/>
 								<Route
 									path="/overlay"
 									render={ () => (
@@ -342,19 +364,8 @@ class PopupsWizard extends Component {
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
 								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
-								<Route
-									path="/groups"
-									render={ () => (
-										<CampaignGroups
-											{ ...popupManagementSharedProps }
-											campaigns={ allCampaigns }
-											setCurrentGroup={ this.setCurrentGroup }
-											unsetCurrentGroup={ this.unsetCurrentGroup }
-										/>
-									) }
-								/>
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
-								<Redirect to="/overlay" />
+								<Redirect to="/campaigns" />
 							</Switch>
 						</HashRouter>
 					);

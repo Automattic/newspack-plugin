@@ -69,14 +69,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Set categories for a Popup.
+	 * Set taxonomy terms for a Popup.
 	 *
 	 * @param integer $id ID of sitewide popup.
-	 * @param array   $categories Array of categories to be set.
+	 * @param array   $terms Array of terms to be set.
+	 * @param string  $taxonomy The taxonomy slug.
 	 */
-	public function set_popup_categories( $id, $categories ) {
+	public function set_popup_terms( $id, $terms, $taxonomy ) {
 		return $this->is_configured() ?
-			\Newspack_Popups_Model::set_popup_categories( $id, $categories ) :
+			\Newspack_Popups_Model::set_popup_terms( $id, $terms, $taxonomy ) :
 			$this->unconfigured_error();
 	}
 
