@@ -143,7 +143,7 @@ const PopupGroup = ( {
 						</Button>
 					) }
 					{ group > 0 && group === +currentGroup && (
-						<Button onClick={ () => unsetCurrentGroup() } isPrimary>
+						<Button onClick={ () => unsetCurrentGroup() } isSecondary>
 							{ __( 'Deactivate Group', 'newspack' ) }
 						</Button>
 					) }
@@ -165,7 +165,7 @@ const PopupGroup = ( {
 								onLoad={ onWebPreviewLoad }
 								url={ addQueryArgs( postPreviewLink || frontendUrl, params ) }
 								renderButton={ ( { showPreview } ) => (
-									<Button isPrimary onClick={ showPreview }>
+									<Button isSecondary onClick={ showPreview }>
 										{ __( 'Preview', 'newspack' ) }
 									</Button>
 								) }
