@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';

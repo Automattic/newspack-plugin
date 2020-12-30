@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies.
  */
-import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -18,6 +17,29 @@ import { find } from 'lodash';
  */
 import { withWizardScreen, ActionCardSections } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
+
+const descriptionForPopup = (
+	{ categories, sitewide_default: sitewideDefault, options },
+	segments
+) => {
+	const segment = find( segments, [ 'id', options.selected_segment_id ] );
+	const descriptionMessages = [];
+	if ( segment ) {
+		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
+	}
+	if ( sitewideDefault ) {
+		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
+	}
+	if ( options.placement === 'above_header' ) {
+		descriptionMessages.push( __( 'Above header', 'newspack' ) );
+	}
+	if ( categories.length > 0 ) {
+		descriptionMessages.push(
+			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
+		);
+	}
+	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+};
 
 /**
  * Popup group screen
@@ -33,29 +55,6 @@ const PopupGroup = ( {
 	updatePopup,
 	segments,
 } ) => {
-	const descriptionForPopup = (
-		{ categories, sitewide_default: sitewideDefault, options },
-		segments
-	) => {
-		const segment = find( segments, [ 'id', options.selected_segment_id ] );
-		const descriptionMessages = [];
-		if ( segment ) {
-			descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
-		}
-		if ( sitewideDefault ) {
-			descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
-		}
-		if ( options.placement === 'above_header' ) {
-			descriptionMessages.push( __( 'Above header', 'newspack' ) );
-		}
-		if ( categories.length > 0 ) {
-			descriptionMessages.push(
-				__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
-			);
-		}
-		return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
-	};
-
 	const getCardClassName = ( { key }, { sitewide_default } ) =>
 		( {
 			active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
