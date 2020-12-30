@@ -19,13 +19,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
  */
 import { ActionCard, Popover, Button, Router } from '../../../../components/src';
 
-const { NavLink, useHistory } = Router;
-
-const AddNewSegmentLink = () => (
-	<NavLink to="segmentation/new">
-		<Button isPrimary>{ __( 'Add new', 'newspack' ) }</Button>
-	</NavLink>
-);
+const { useHistory } = Router;
 
 const SegmentActionCard = ( { segment, deleteSegment } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
@@ -92,9 +86,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 
 	return segments.length ? (
 		<div className="newspack-campaigns-wizard-segments__list-wrapper">
-			<div className="newspack-campaigns-wizard-segments__list-top">
-				<AddNewSegmentLink />
-			</div>
 			<div className="newspack-campaigns-wizard-segments__list">
 				{ segments.map( segment => (
 					<SegmentActionCard
@@ -114,7 +105,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 					'newspack'
 				) }
 			</div>
-			<AddNewSegmentLink />
 		</div>
 	);
 };

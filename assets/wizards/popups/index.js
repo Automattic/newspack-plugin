@@ -292,6 +292,11 @@ class PopupsWizard extends Component {
 										<Segmentation
 											{ ...props }
 											{ ...sharedProps }
+											buttonText={
+												props.location.pathname.match( /^\/segmentation\/?$/ ) &&
+												__( 'Add new segment', 'newspack' )
+											}
+											buttonAction="#/segmentation/new"
 											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }
 										/>
 									) }
