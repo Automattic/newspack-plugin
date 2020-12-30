@@ -101,18 +101,20 @@ class PopupsWizard extends Component {
 	};
 
 	/**
-	 * Set categories for a Popup.
+	 * Set terms for a Popup.
 	 *
-	 * @param {number} popupId ID of the Popup to alter.
-	 * @param {Array} categories Array of categories to assign to the Popup.
+	 * @param {number} id ID of the Popup to alter.
+	 * @param {Array} terms Array of terms to assign to the Popup.
+	 * @param {string} taxonomy Taxonomy slug.
 	 */
-	setCategoriesForPopup = ( popupId, categories ) => {
+	setTermsForPopup = ( id, terms, taxonomy ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-categories/${ popupId }`,
+			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
 			method: 'POST',
 			data: {
-				categories,
+				taxonomy,
+				terms,
 			},
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
@@ -243,7 +245,7 @@ class PopupsWizard extends Component {
 					const popupManagementSharedProps = {
 						...sharedProps,
 						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
-						setCategoriesForPopup: this.setCategoriesForPopup,
+						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
 						previewPopup: popup =>

@@ -24,14 +24,21 @@ const PopupActionCard = ( {
 	deletePopup,
 	popup = {},
 	previewPopup,
-	setCategoriesForPopup,
+	setTermsForPopup,
 	setSitewideDefaultPopup,
 	publishPopup,
 	updatePopup,
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const { id, categories, title, sitewide_default: sitewideDefault, status } = popup;
+	const {
+		id,
+		campaign_groups: campaignGroups,
+		categories,
+		title,
+		sitewide_default: sitewideDefault,
+		status,
+	} = popup;
 	return (
 		<ActionCard
 			isSmall
@@ -41,16 +48,20 @@ const PopupActionCard = ( {
 			description={ description }
 			actionText={
 				<Fragment>
-					{ ! sitewideDefault && (
-						<Tooltip text={ __( 'Category filtering', 'newspack' ) }>
-							<Button
-								className="icon-only"
-								onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
-							>
-								<Icon icon={ menu } />
-							</Button>
-						</Tooltip>
-					) }
+					<Tooltip
+						text={
+							sitewideDefault
+								? __( 'Campaign groups', 'newspack' )
+								: __( 'Category filtering and campaign groups', 'newspack' )
+						}
+					>
+						<Button
+							className="icon-only"
+							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
+						>
+							<Icon icon={ menu } />
+						</Button>
+					</Tooltip>
 					<Tooltip text={ __( 'More options', 'newspack' ) }>
 						<Button
 							className="icon-only"
@@ -74,12 +85,22 @@ const PopupActionCard = ( {
 			}
 		>
 			{ categoriesVisibility && (
-				<CategoryAutocomplete
-					value={ categories || [] }
-					onChange={ tokens => setCategoriesForPopup( id, tokens ) }
-					label={ __( 'Category filtering', 'newspack ' ) }
-					disabled={ sitewideDefault }
-				/>
+				<Fragment>
+					<CategoryAutocomplete
+						value={ campaignGroups || [] }
+						onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
+						label={ __( 'Campaign groups', 'newspack ' ) }
+						taxonomy="newspack_popups_taxonomy"
+					/>
+					{ ! sitewideDefault && (
+						<CategoryAutocomplete
+							value={ categories || [] }
+							onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
+							label={ __( 'Category filtering', 'newspack ' ) }
+							disabled={ sitewideDefault }
+						/>
+					) }
+				</Fragment>
 			) }
 		</ActionCard>
 	);
