@@ -13,6 +13,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies.
  */
 import { FormTokenField } from '../';
+import './style.scss';
 
 /**
  * External dependencies
@@ -99,19 +100,22 @@ class CategoryAutocomplete extends Component {
 		const { value, label } = this.props;
 		const { suggestions, allCategories } = this.state;
 		return (
-			<FormTokenField
-				onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
-				value={ value.reduce( ( acc, item ) => {
-					const category = typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
-					if ( category ) {
-						acc.push( { id: category.term_id || category.id, value: category.name } );
-					}
-					return acc;
-				}, [] ) }
-				suggestions={ Object.keys( suggestions ) }
-				onChange={ this.handleOnChange }
-				label={ label }
-			/>
+			<div className="newspack-category-autocomplete">
+				<FormTokenField
+					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
+					value={ value.reduce( ( acc, item ) => {
+						const category =
+							typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
+						if ( category ) {
+							acc.push( { id: category.term_id || category.id, value: category.name } );
+						}
+						return acc;
+					}, [] ) }
+					suggestions={ Object.keys( suggestions ) }
+					onChange={ this.handleOnChange }
+					label={ label }
+				/>
+			</div>
 		);
 	}
 }
