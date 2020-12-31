@@ -51,13 +51,13 @@ const SegmentationPreview = props => {
 			switch ( typeof item ) {
 				case 'number':
 					return item;
-					break;
 				case 'object':
 					if ( item.id ) {
 						return item.id;
 					}
 					break;
 			}
+			return null;
 		} );
 
 	const beforeLoad = () => {
