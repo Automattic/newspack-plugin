@@ -14,7 +14,6 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { stringify } from 'qs';
-import { groupBy, mapValues } from 'lodash';
 
 /**
  * Internal dependencies.
