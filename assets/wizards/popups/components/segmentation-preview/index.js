@@ -27,7 +27,7 @@ const SegmentationPreview = props => {
 	const decorateURL = urlToDecorate => {
 		const params = {
 			view_as: [
-				`groups:${ campaignGroups.join( ',' ) }`,
+				`groups:${ sanitizeTerms( campaignGroups ).join( ',' ) }`,
 				...( segment.length ? [ `segment:${ segment }` ] : [] ),
 			].join( ';' ),
 		};
@@ -46,11 +46,25 @@ const SegmentationPreview = props => {
 		}
 	};
 
+	const sanitizeTerms = items =>
+		( Array.isArray( items ) ? items : [ items ] ).map( item => {
+			switch ( typeof item ) {
+				case 'number':
+					return item;
+					break;
+				case 'object':
+					if ( item.id ) {
+						return item.id;
+					}
+					break;
+			}
+		} );
+
 	const beforeLoad = () => {
 		localStorage.setItem( 'newspack_campaigns-preview-segmentId', JSON.stringify( segment ) );
 		localStorage.setItem(
 			'newspack_campaigns-preview-groupTaxIds',
-			JSON.stringify( campaignGroups )
+			JSON.stringify( sanitizeTerms( campaignGroups ) )
 		);
 	};
 
