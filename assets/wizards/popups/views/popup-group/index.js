@@ -5,6 +5,8 @@
 /**
  * WordPress dependencies.
  */
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -15,7 +17,7 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCardSections } from '../../../../components/src';
+import { withWizardScreen, ActionCardSections, SelectControl } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 
 const descriptionForPopup = (
@@ -63,6 +65,15 @@ const PopupGroup = ( {
 	updatePopup,
 	segments,
 } ) => {
+	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
+	const [ campaignGroups, setCampaignGroups ] = useState( [] );
+
+	useEffect( () => {
+		apiFetch( {
+			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
+		} ).then( terms => setCampaignGroups( terms ) );
+	}, [] );
+
 	const getCardClassName = ( { key }, { sitewide_default } ) =>
 		( {
 			active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
@@ -71,30 +82,55 @@ const PopupGroup = ( {
 			draft: 'newspack-card__is-disabled',
 		}[ key ] );
 
+	const filteredByGroup = itemsToFilter =>
+		-1 === campaignGroup
+			? itemsToFilter
+			: itemsToFilter.filter(
+					( { campaign_groups: groups } ) =>
+						groups && groups.find( term => +term.term_id === campaignGroup )
+			  );
 	return (
-		<ActionCardSections
-			sections={ [
-				{ key: 'active', label: __( 'Active', 'newspack' ), items: active },
-				{ key: 'draft', label: __( 'Draft', 'newspack' ), items: draft },
-				{ key: 'test', label: __( 'Test', 'newspack' ), items: test },
-				{ key: 'inactive', label: __( 'Inactive', 'newspack' ), items: inactive },
-			] }
-			renderCard={ ( popup, section ) => (
-				<PopupActionCard
-					className={ getCardClassName( section, popup ) }
-					deletePopup={ deletePopup }
-					description={ descriptionForPopup( popup, segments ) }
-					key={ popup.id }
-					popup={ popup }
-					previewPopup={ previewPopup }
-					setTermsForPopup={ setTermsForPopup }
-					setSitewideDefaultPopup={ setSitewideDefaultPopup }
-					updatePopup={ updatePopup }
-					publishPopup={ section.key === 'draft' ? publishPopup : undefined }
-				/>
-			) }
-			emptyMessage={ emptyMessage }
-		/>
+		<Fragment>
+			<SelectControl
+				options={ [
+					{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+					...campaignGroups.map( term => ( {
+						value: term.id,
+						label: term.name,
+					} ) ),
+				] }
+				value={ campaignGroup }
+				onChange={ value => setCampaignGroup( +value ) }
+				label={ __( 'Select a campaign group', 'newspack' ) }
+			/>
+			<ActionCardSections
+				sections={ [
+					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
+					{ key: 'draft', label: __( 'Draft', 'newspack' ), items: filteredByGroup( draft ) },
+					{ key: 'test', label: __( 'Test', 'newspack' ), items: filteredByGroup( test ) },
+					{
+						key: 'inactive',
+						label: __( 'Inactive', 'newspack' ),
+						items: filteredByGroup( inactive ),
+					},
+				] }
+				renderCard={ ( popup, section ) => (
+					<PopupActionCard
+						className={ getCardClassName( section, popup ) }
+						deletePopup={ deletePopup }
+						description={ descriptionForPopup( popup, segments ) }
+						key={ popup.id }
+						popup={ popup }
+						previewPopup={ previewPopup }
+						setTermsForPopup={ setTermsForPopup }
+						setSitewideDefaultPopup={ setSitewideDefaultPopup }
+						updatePopup={ updatePopup }
+						publishPopup={ section.key === 'draft' ? publishPopup : undefined }
+					/>
+				) }
+				emptyMessage={ emptyMessage }
+			/>
+		</Fragment>
 	);
 };
 export default withWizardScreen( PopupGroup );
