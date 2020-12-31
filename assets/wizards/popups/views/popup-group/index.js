@@ -101,7 +101,7 @@ const PopupGroup = ( {
 				] }
 				value={ campaignGroup }
 				onChange={ value => setCampaignGroup( +value ) }
-				label={ __( 'Select a campaign group', 'newspack' ) }
+				label={ __( 'Campaign groups', 'newspack' ) }
 			/>
 			<ActionCardSections
 				sections={ [
