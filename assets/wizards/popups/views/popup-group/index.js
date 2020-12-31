@@ -17,8 +17,14 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCardSections, SelectControl } from '../../../../components/src';
+import {
+	withWizardScreen,
+	ActionCardSections,
+	Button,
+	SelectControl,
+} from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
+import SegmentationPreview from '../../components/segmentation-preview';
 
 const descriptionForPopup = (
 	{ categories, sitewide_default: sitewideDefault, options },
@@ -67,6 +73,7 @@ const PopupGroup = ( {
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( [] );
+	const [ segmentId, setSegmentId ] = useState();
 
 	useEffect( () => {
 		apiFetch( {
@@ -103,6 +110,28 @@ const PopupGroup = ( {
 				onChange={ value => setCampaignGroup( +value ) }
 				label={ __( 'Campaign groups', 'newspack' ) }
 			/>
+			{ campaignGroup > 0 && (
+				<Fragment>
+					<SelectControl
+						options={ [
+							{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+							...segments.map( s => ( { value: s.id, label: s.name } ) ),
+						] }
+						value={ segmentId }
+						onChange={ setSegmentId }
+						label={ __( 'Segment to preview', 'newspack' ) }
+					/>
+					<SegmentationPreview
+						campaignGroups={ campaignGroup }
+						segment={ segmentId }
+						renderButton={ ( { showPreview } ) => (
+							<Button isPrimary onClick={ showPreview }>
+								{ __( 'Preview', 'newspack' ) }
+							</Button>
+						) }
+					/>
+				</Fragment>
+			) }
 			<ActionCardSections
 				sections={ [
 					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
