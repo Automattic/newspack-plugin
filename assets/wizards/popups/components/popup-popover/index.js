@@ -103,7 +103,7 @@ class PopupPopover extends Component {
 						className="newspack-popup-action-card-select"
 						options={ [
 							{ label: __( 'Default (no segment)', 'newspck' ), value: '' },
-							...segments.map( ( { name, id } ) => ( { label: name, value: id } ) ),
+							...segments.map( segment => ( { label: segment.name, value: segment.id } ) ),
 						] }
 						value={ selectedSegmentId }
 					/>
