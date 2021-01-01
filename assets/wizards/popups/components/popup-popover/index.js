@@ -42,13 +42,13 @@ class PopupPopover extends Component {
 			setSitewideDefaultPopup,
 			onFocusOutside,
 			publishPopup,
+			segments,
 			updatePopup,
 		} = this.props;
 		const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-		const { frequency } = options;
+		const { frequency, selected_segment_id: selectedSegmentId } = options;
 		const isDraft = 'draft' === status;
 		const isTestMode = 'test' === frequency;
-
 		return (
 			<Popover
 				position="bottom left"
@@ -94,6 +94,20 @@ class PopupPopover extends Component {
 						/>
 					</MenuItem>
 				) }
+				<MenuItem className="newspack-button newspack-popup-action-card-select-button">
+					<SelectControl
+						onChange={ value => {
+							updatePopup( id, { selected_segment_id: value } );
+							onFocusOutside();
+						} }
+						className="newspack-popup-action-card-select"
+						options={ [
+							{ label: __( 'Default (no segment)', 'newspck' ), value: '' },
+							...segments.map( ( { name, id } ) => ( { label: name, value: id } ) ),
+						] }
+						value={ selectedSegmentId }
+					/>
+				</MenuItem>
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();

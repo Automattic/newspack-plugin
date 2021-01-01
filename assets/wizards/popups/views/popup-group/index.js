@@ -92,6 +92,7 @@ class PopupGroup extends Component {
 						key={ popup.id }
 						popup={ popup }
 						previewPopup={ previewPopup }
+						segments={ segments }
 						setCategoriesForPopup={ setCategoriesForPopup }
 						setSitewideDefaultPopup={ setSitewideDefaultPopup }
 						updatePopup={ updatePopup }

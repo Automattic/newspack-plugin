@@ -35,6 +35,7 @@ class PopupActionCard extends Component {
 			deletePopup,
 			popup,
 			previewPopup,
+			segments,
 			setCategoriesForPopup,
 			setSitewideDefaultPopup,
 			publishPopup,
@@ -75,6 +76,7 @@ class PopupActionCard extends Component {
 								deletePopup={ deletePopup }
 								onFocusOutside={ () => this.setState( { popoverVisibility: false } ) }
 								popup={ popup }
+								segments={ segments }
 								setSitewideDefaultPopup={ setSitewideDefaultPopup }
 								updatePopup={ updatePopup }
 								previewPopup={ previewPopup }
