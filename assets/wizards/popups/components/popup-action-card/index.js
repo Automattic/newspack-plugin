@@ -62,7 +62,7 @@ const PopupActionCard = ( {
 					{ popoverVisibility && (
 						<PopupPopover
 							deletePopup={ deletePopup }
-							onFocusOutside={ () => this.setState( { popoverVisibility: false } ) }
+							onFocusOutside={ () => setPopoverVisibility( false ) }
 							popup={ popup }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
