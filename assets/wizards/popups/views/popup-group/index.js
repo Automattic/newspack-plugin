@@ -77,12 +77,6 @@ const PopupGroup = ( {
 	segments,
 	settings,
 } ) => {
-	/* Don't render until settings are available,
-	which allows correctly setting the initial value for campaignGroup.
-	*/
-	if ( ! settings.length ) {
-		return null;
-	}
 	const activeCampaignGroup = settings.reduce(
 		( acc, { key, value } ) => ( key === 'newspack_popups_active_campaign_group' ? value : acc ),
 		null
