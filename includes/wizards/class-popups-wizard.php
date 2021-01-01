@@ -285,6 +285,36 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/campaign-group/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_activate_campaign_group' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/campaign-group/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_deactivate_campaign_group' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -344,6 +374,7 @@ class Popups_Wizard extends Wizard {
 		$response = [
 			'popups'   => [],
 			'segments' => [],
+			'settings' => [],
 		];
 
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
@@ -355,6 +386,7 @@ class Popups_Wizard extends Wizard {
 				$newspack_popups_configuration_manager->get_popups( true )
 			);
 			$response['segments'] = $newspack_popups_configuration_manager->get_segments( true );
+			$response['settings'] = $newspack_popups_configuration_manager->get_settings();
 		}
 		return rest_ensure_response( $response );
 	}
@@ -619,5 +651,45 @@ class Popups_Wizard extends Wizard {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$response                              = $newspack_popups_configuration_manager->get_segment_reach( json_decode( $request['config'] ) );
 		return $response;
+	}
+
+	/**
+	 * Activate a campaign group.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_activate_campaign_group( $request ) {
+		$id = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->activate_campaign_group( $id );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Deactivate a campaign group.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_deactivate_campaign_group( $request ) {
+		$id = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->deactivate_campaign_group( $id );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
 	}
 }

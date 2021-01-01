@@ -68,17 +68,23 @@ const PopupGroup = ( {
 	deletePopup,
 	emptyMessage,
 	items: { active = [], draft = [], test = [], inactive = [] },
+	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
 	setSitewideDefaultPopup,
 	publishPopup,
 	updatePopup,
 	segments,
+	settings,
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( [] );
 	const [ segmentId, setSegmentId ] = useState();
 
+	const activeCampaignGroup = settings.reduce(
+		( acc, { key, value } ) => ( key === 'newspack_popups_active_campaign_group' ? value : acc ),
+		null
+	);
 	useEffect( () => {
 		apiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
@@ -109,13 +115,25 @@ const PopupGroup = ( {
 							{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
 							...campaignGroups.map( term => ( {
 								value: term.id,
-								label: term.name,
+								label:
+									term.name +
+									( activeCampaignGroup === term.id ? __( ' (Active)', 'newspack' ) : '' ),
 							} ) ),
 						] }
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( +value ) }
 						label={ __( 'Campaign groups', 'newspack' ) }
 					/>
+					{ campaignGroup > 0 && activeCampaignGroup !== campaignGroup && (
+						<Button isTertiary onClick={ () => manageCampaignGroup( campaignGroup ) }>
+							{ __( 'Activate', 'newspack' ) }
+						</Button>
+					) }
+					{ campaignGroup > 0 && activeCampaignGroup === campaignGroup && (
+						<Button isTertiary onClick={ () => manageCampaignGroup( campaignGroup, 'DELETE' ) }>
+							{ __( 'Deactivate', 'newspack' ) }
+						</Button>
+					) }
 				</Card>
 				{ campaignGroup > 0 && (
 					<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
