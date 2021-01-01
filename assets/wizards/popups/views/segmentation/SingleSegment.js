@@ -44,7 +44,7 @@ const DEFAULT_CONFIG = {
 	referrers: '',
 };
 
-const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
+const SingleSegment = ( { segmentId, wizardApiFetch } ) => {
 	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
 	const updateSegmentConfig = key => value =>
 		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
@@ -253,4 +253,4 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 	);
 };
 
-export default SegmentsList;
+export default SingleSegment;
