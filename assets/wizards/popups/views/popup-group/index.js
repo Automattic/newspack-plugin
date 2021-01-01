@@ -77,14 +77,19 @@ const PopupGroup = ( {
 	segments,
 	settings,
 } ) => {
-	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
-	const [ campaignGroups, setCampaignGroups ] = useState( [] );
-	const [ segmentId, setSegmentId ] = useState();
-
+	/* Don't render until settings are available,
+	which allows correctly setting the initial value for campaignGroup.
+	*/
+	if ( ! settings.length ) {
+		return null;
+	}
 	const activeCampaignGroup = settings.reduce(
 		( acc, { key, value } ) => ( key === 'newspack_popups_active_campaign_group' ? value : acc ),
 		null
 	);
+	const [ campaignGroup, setCampaignGroup ] = useState( activeCampaignGroup || -1 );
+	const [ campaignGroups, setCampaignGroups ] = useState( [] );
+	const [ segmentId, setSegmentId ] = useState();
 	useEffect( () => {
 		apiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
