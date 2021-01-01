@@ -1,0 +1,28 @@
+.newspack__campaigns-wizard {
+	&__select-with-button {
+		display: flex;
+		align-items: flex-end;
+		@media screen and ( max-width: 600px ) {
+			flex-wrap: wrap;
+		}
+		.newspack-select-control {
+			flex: 1;
+		}
+		.components-select-control {
+			margin: 0;
+		}
+		> * {
+			margin: 0 !important;
+			&:not( :last-child ) {
+				margin-right: 20px !important;
+			}
+		}
+		button {
+			overflow: visible;
+			margin: 0 !important;
+			@media screen and ( max-width: 600px ) {
+				margin-top: 10px !important;
+			}
+		}
+	}
+}

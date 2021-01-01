@@ -8,6 +8,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 
 /**
  * External dependencies.
@@ -21,10 +22,13 @@ import {
 	withWizardScreen,
 	ActionCardSections,
 	Button,
+	Card,
+	Grid,
 	SelectControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
+import './style.scss';
 
 const descriptionForPopup = (
 	{ categories, sitewide_default: sitewideDefault, options },
@@ -98,40 +102,44 @@ const PopupGroup = ( {
 			  );
 	return (
 		<Fragment>
-			<SelectControl
-				options={ [
-					{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-					...campaignGroups.map( term => ( {
-						value: term.id,
-						label: term.name,
-					} ) ),
-				] }
-				value={ campaignGroup }
-				onChange={ value => setCampaignGroup( +value ) }
-				label={ __( 'Campaign groups', 'newspack' ) }
-			/>
-			{ campaignGroup > 0 && (
-				<Fragment>
+			<Grid>
+				<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
 					<SelectControl
 						options={ [
-							{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-							...segments.map( s => ( { value: s.id, label: s.name } ) ),
+							{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+							...campaignGroups.map( term => ( {
+								value: term.id,
+								label: term.name,
+							} ) ),
 						] }
-						value={ segmentId }
-						onChange={ setSegmentId }
-						label={ __( 'Segment to preview', 'newspack' ) }
+						value={ campaignGroup }
+						onChange={ value => setCampaignGroup( +value ) }
+						label={ __( 'Campaign groups', 'newspack' ) }
 					/>
-					<SegmentationPreview
-						campaignGroups={ campaignGroup }
-						segment={ segmentId }
-						renderButton={ ( { showPreview } ) => (
-							<Button isPrimary onClick={ showPreview }>
-								{ __( 'Preview', 'newspack' ) }
-							</Button>
-						) }
-					/>
-				</Fragment>
-			) }
+				</Card>
+				{ campaignGroup > 0 && (
+					<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
+						<SelectControl
+							options={ [
+								{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+								...segments.map( s => ( { value: s.id, label: s.name } ) ),
+							] }
+							value={ segmentId }
+							onChange={ setSegmentId }
+							label={ __( 'Segment to preview', 'newspack' ) }
+						/>
+						<SegmentationPreview
+							campaignGroups={ campaignGroup }
+							segment={ segmentId }
+							renderButton={ ( { showPreview } ) => (
+								<Button isTertiary onClick={ showPreview }>
+									<Icon icon={ external } />
+								</Button>
+							) }
+						/>
+					</Card>
+				) }
+			</Grid>
 			<ActionCardSections
 				sections={ [
 					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
