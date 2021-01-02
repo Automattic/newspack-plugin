@@ -44,7 +44,7 @@ const DEFAULT_CONFIG = {
 	referrers: '',
 };
 
-const SingleSegment = ( { segmentId, wizardApiFetch } ) => {
+const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
 	const updateSegmentConfig = key => value =>
 		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
@@ -99,7 +99,9 @@ const SingleSegment = ( { segmentId, wizardApiFetch } ) => {
 				name,
 				configuration: segmentConfig,
 			},
-		} ).then( () => history.push( '/segmentation' ) );
+		} )
+			.then( setSegments )
+			.then( history.push( '/segmentation' ) );
 	};
 
 	return (
