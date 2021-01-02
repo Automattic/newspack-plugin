@@ -38,7 +38,7 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		// These tests can't run on environments where we can't install plugins e.g. VIP Go.
-		if ( ! Plugin_Manager::can_install_plugins() ) {
+		if ( ! Plugin_Manager::can_manage_options() ) {
 			$this->markTestSkipped( 'Plugin installation is not allowed in the environment' );
 		}
 

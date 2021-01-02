@@ -533,7 +533,7 @@ class Plugin_Manager {
 	 *
 	 * @return bool
 	 */
-	public static function can_install_plugins() {
+	public static function can_manage_options() {
 		if ( ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) ||
 			( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) ) {
 			return false;
@@ -688,7 +688,7 @@ class Plugin_Manager {
 	 * @return bool True on success. False on failure.
 	 */
 	public static function install( $plugin ) {
-		if ( ! self::can_install_plugins() ) {
+		if ( ! self::can_manage_options() ) {
 			return new WP_Error( 'newspack_plugin_failed_install', __( 'Plugins cannot be installed.', 'newspack' ) );
 		}
 
@@ -706,7 +706,7 @@ class Plugin_Manager {
 	 * @return bool True on success. False on failure.
 	 */
 	public static function uninstall( $plugin ) {
-		if ( ! self::can_install_plugins() ) {
+		if ( ! self::can_manage_options() ) {
 			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'Plugins cannot be uninstalled.', 'newspack' ) );
 		}
 

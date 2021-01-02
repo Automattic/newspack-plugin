@@ -178,7 +178,7 @@ final class Newspack {
 	 * Handle initial redirect after activation
 	 */
 	public function admin_redirects() {
-		if ( ! get_transient( NEWSPACK_ACTIVATION_TRANSIENT ) || wp_doing_ajax() || is_network_admin() || ! current_user_can( 'install_plugins' ) ) {
+		if ( ! get_transient( NEWSPACK_ACTIVATION_TRANSIENT ) || wp_doing_ajax() || is_network_admin() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		delete_transient( NEWSPACK_ACTIVATION_TRANSIENT );

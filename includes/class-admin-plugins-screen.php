@@ -108,7 +108,7 @@ class Admin_Plugins_Screen {
 		if ( in_array( $plugin_slug, $managed_plugins ) && ! isset( $installed_plugins[ $plugin_slug ] ) ) {
 			unset( $actions['activate'] );
 			unset( $actions['delete'] );
-			if ( current_user_can( 'install_plugins' ) ) {
+			if ( current_user_can( 'manage_options' ) ) {
 				if ( empty( $plugin_data['Download'] ) ) {
 					$actions['install'] = __( 'Premium', 'newspack' );
 				} else {
@@ -131,7 +131,7 @@ class Admin_Plugins_Screen {
 	 * Install a plugin when the installation link is clicked.
 	 */
 	public function handle_plugin_install() {
-		if ( ! current_user_can( 'install_plugins' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to install plugins.', 'newspack' ) );
 		}
 
