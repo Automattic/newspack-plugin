@@ -41,14 +41,13 @@ const PopupPopover = ( {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
 	const { frequency } = options;
 	const isDraft = 'draft' === status;
-	const isTestMode = 'test' === frequency;
 	return (
 		<Popover
 			position="bottom left"
 			onFocusOutside={ onFocusOutside }
 			onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside() }
 		>
-			{ isOverlay( { options } ) && ! isTestMode && ! isDraft && (
+			{ isOverlay( { options } ) && ! isDraft && (
 				<MenuItem
 					onClick={ () => {
 						setSitewideDefaultPopup( id, ! sitewideDefault );
@@ -62,31 +61,17 @@ const PopupPopover = ( {
 					</div>
 				</MenuItem>
 			) }
-			<MenuItem
-				onClick={ () => {
-					updatePopup( id, { frequency: isTestMode ? 'daily' : 'test' } );
-					onFocusOutside();
-				} }
-				className="newspack-button"
-			>
-				<div className="newspack-popup-action-card-popover-control">
-					{ __( 'Test mode', 'newspack' ) }
-					<ToggleControl checked={ isTestMode } onChange={ () => null } />
-				</div>
+			<MenuItem className="newspack-button newspack-popup-action-card-select-button">
+				<SelectControl
+					onChange={ value => {
+						updatePopup( id, { frequency: value } );
+						onFocusOutside();
+					} }
+					className="newspack-popup-action-card-select"
+					options={ frequenciesForPopup( popup ) }
+					value={ frequency }
+				/>
 			</MenuItem>
-			{ 'test' !== frequency && (
-				<MenuItem className="newspack-button newspack-popup-action-card-select-button">
-					<SelectControl
-						onChange={ value => {
-							updatePopup( id, { frequency: value } );
-							onFocusOutside();
-						} }
-						className="newspack-popup-action-card-select"
-						options={ frequenciesForPopup( popup ) }
-						value={ frequency }
-					/>
-				</MenuItem>
-			) }
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();

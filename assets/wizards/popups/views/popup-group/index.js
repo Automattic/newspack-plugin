@@ -67,7 +67,7 @@ const descriptionForPopup = (
 const PopupGroup = ( {
 	deletePopup,
 	emptyMessage,
-	items: { active = [], draft = [], test = [], inactive = [] },
+	items: { active = [], draft = [], inactive = [] },
 	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
@@ -93,7 +93,6 @@ const PopupGroup = ( {
 	const getCardClassName = ( { key }, { sitewide_default } ) =>
 		( {
 			active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
-			test: 'newspack-card__is-secondary',
 			inactive: 'newspack-card__is-disabled',
 			draft: 'newspack-card__is-disabled',
 		}[ key ] );
@@ -161,7 +160,6 @@ const PopupGroup = ( {
 				sections={ [
 					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
 					{ key: 'draft', label: __( 'Draft', 'newspack' ), items: filteredByGroup( draft ) },
-					{ key: 'test', label: __( 'Test', 'newspack' ), items: filteredByGroup( test ) },
 					{
 						key: 'inactive',
 						label: __( 'Inactive', 'newspack' ),
