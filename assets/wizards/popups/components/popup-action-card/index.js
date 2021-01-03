@@ -37,7 +37,6 @@ const PopupActionCard = ( {
 		categories,
 		title,
 		sitewide_default: sitewideDefault,
-		status,
 	} = popup;
 	return (
 		<ActionCard
