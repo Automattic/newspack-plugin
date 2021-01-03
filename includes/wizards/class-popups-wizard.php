@@ -142,17 +142,20 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/popup-categories/(?P<id>\d+)',
+			'/wizard/' . $this->slug . '/popup-terms/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_set_popup_categories' ],
+				'callback'            => [ $this, 'api_set_popup_terms' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id'         => [
+					'id'       => [
 						'sanitize_callback' => 'absint',
 					],
-					'categories' => [
-						'sanitize_callback' => [ $this, 'sanitize_categories' ],
+					'taxonomy' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'terms'    => [
+						'sanitize_callback' => [ $this, 'sanitize_terms' ],
 					],
 				],
 			]
@@ -282,6 +285,36 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/campaign-group/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_activate_campaign_group' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/campaign-group/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_deactivate_campaign_group' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -341,6 +374,7 @@ class Popups_Wizard extends Wizard {
 		$response = [
 			'popups'   => [],
 			'segments' => [],
+			'settings' => [],
 		];
 
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
@@ -352,6 +386,7 @@ class Popups_Wizard extends Wizard {
 				$newspack_popups_configuration_manager->get_popups( true )
 			);
 			$response['segments'] = $newspack_popups_configuration_manager->get_segments( true );
+			$response['settings'] = $newspack_popups_configuration_manager->get_settings();
 		}
 		return rest_ensure_response( $response );
 	}
@@ -395,18 +430,20 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
-	 * Set categories for one Popup.
+	 * Set terms for one Popup.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with the info.
 	 */
-	public function api_set_popup_categories( $request ) {
-		$id         = $request['id'];
-		$categories = $request['categories'];
+	public function api_set_popup_terms( $request ) {
+		$id       = $request['id'];
+		$terms    = $request['terms'];
+		$taxonomy = $request['taxonomy'];
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
-		$response = $newspack_popups_configuration_manager->set_popup_categories( $id, $categories );
+		$response = $newspack_popups_configuration_manager->set_popup_terms( $id, $terms, $taxonomy );
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -472,18 +509,18 @@ class Popups_Wizard extends Wizard {
 	 */
 
 	/**
-	 * Sanitize array of categories.
+	 * Sanitize array of terms.
 	 *
-	 * @param array $categories Array of categories to sanitize.
+	 * @param array $terms Array of terms to sanitize.
 	 * @return array Sanitized array.
 	 */
-	public static function sanitize_categories( $categories ) {
-		$categories = is_array( $categories ) ? $categories : [];
+	public static function sanitize_terms( $terms ) {
+		$categories = is_array( $terms ) ? $terms : [];
 		$sanitized  = [];
-		foreach ( $categories as $category ) {
-			$category['id']   = isset( $category['id'] ) ? absint( $category['id'] ) : null;
-			$category['name'] = isset( $category['name'] ) ? sanitize_title( $category['name'] ) : null;
-			$sanitized[]      = $category;
+		foreach ( $terms as $term ) {
+			$term['id']   = isset( $term['id'] ) ? absint( $term['id'] ) : null;
+			$term['name'] = isset( $term['name'] ) ? sanitize_title( $term['name'] ) : null;
+			$sanitized[]  = $term;
 		}
 		return $sanitized;
 	}
@@ -614,5 +651,45 @@ class Popups_Wizard extends Wizard {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$response                              = $newspack_popups_configuration_manager->get_segment_reach( json_decode( $request['config'] ) );
 		return $response;
+	}
+
+	/**
+	 * Activate a campaign group.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_activate_campaign_group( $request ) {
+		$id = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->activate_campaign_group( $id );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Deactivate a campaign group.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_deactivate_campaign_group( $request ) {
+		$id = $request['id'];
+
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->deactivate_campaign_group( $id );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
 	}
 }
