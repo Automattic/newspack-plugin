@@ -84,9 +84,14 @@ const PopupPopover = ( {
 			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
-			{ publishPopup && (
-				<MenuItem onClick={ () => publishPopup( id ) } className="newspack-button">
+			{ 'publish' !== status && (
+				<MenuItem onClick={ () => publishPopup( id, true ) } className="newspack-button">
 					{ __( 'Publish', 'newspack' ) }
+				</MenuItem>
+			) }
+			{ 'publish' === status && (
+				<MenuItem onClick={ () => publishPopup( id, false ) } className="newspack-button">
+					{ __( 'Unpublish', 'newspack' ) }
 				</MenuItem>
 			) }
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">

@@ -144,11 +144,11 @@ class PopupsWizard extends Component {
 	 *
 	 * @param {number} popupId ID of the Popup to alter.
 	 */
-	publishPopup = popupId => {
+	publishPopup = ( popupId, status ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
-			method: 'POST',
+			method: status ? 'POST' : 'DELETE',
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );

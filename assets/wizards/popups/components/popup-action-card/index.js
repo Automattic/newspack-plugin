@@ -78,7 +78,7 @@ const PopupActionCard = ( {
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }
-							publishPopup={ 'publish' !== status ? publishPopup : null }
+							publishPopup={ publishPopup }
 						/>
 					) }
 				</Fragment>

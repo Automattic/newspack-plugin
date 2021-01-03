@@ -177,7 +177,7 @@ const PopupGroup = ( {
 						setTermsForPopup={ setTermsForPopup }
 						setSitewideDefaultPopup={ setSitewideDefaultPopup }
 						updatePopup={ updatePopup }
-						publishPopup={ section.key === 'draft' ? publishPopup : undefined }
+						publishPopup={ publishPopup }
 					/>
 				) }
 				emptyMessage={ emptyMessage }
