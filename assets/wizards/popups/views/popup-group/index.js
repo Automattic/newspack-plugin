@@ -81,14 +81,21 @@ const PopupGroup = ( {
 		( acc, { key, value } ) => ( key === 'newspack_popups_active_campaign_group' ? value : acc ),
 		null
 	);
-	const [ campaignGroup, setCampaignGroup ] = useState( activeCampaignGroup || -1 );
-	const [ campaignGroups, setCampaignGroups ] = useState( [] );
+	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
+	const [ campaignGroups, setCampaignGroups ] = useState( null );
 	const [ segmentId, setSegmentId ] = useState();
+
 	useEffect( () => {
 		apiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
 		} ).then( terms => setCampaignGroups( terms ) );
 	}, [] );
+
+	useEffect( () => {
+		if ( -1 === campaignGroup && activeCampaignGroup > 0 ) {
+			setCampaignGroup( activeCampaignGroup );
+		}
+	}, [ activeCampaignGroup ] );
 
 	const getCardClassName = ( { key }, { sitewide_default } ) =>
 		( {
@@ -109,15 +116,19 @@ const PopupGroup = ( {
 			<Grid>
 				<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
 					<SelectControl
-						options={ [
-							{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-							...campaignGroups.map( term => ( {
-								value: term.id,
-								label:
-									term.name +
-									( activeCampaignGroup === term.id ? __( ' (Active)', 'newspack' ) : '' ),
-							} ) ),
-						] }
+						options={
+							campaignGroups
+								? [
+										{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+										...campaignGroups.map( term => ( {
+											value: term.id,
+											label:
+												term.name +
+												( activeCampaignGroup === term.id ? __( ' (Active)', 'newspack' ) : '' ),
+										} ) ),
+								  ]
+								: []
+						}
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( +value ) }
 						label={ __( 'Campaign groups', 'newspack' ) }
