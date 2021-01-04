@@ -10,9 +10,11 @@
 		border: 1px solid $light-gray-500;
 		border-radius: 4px;
 		box-shadow: 0 4px 8px rgba( black, 0.08 );
+		min-width: 238px;
 
 		.newspack-button {
 			color: $dark-gray-300;
+			display: flex;
 			font-weight: normal;
 			padding: 8px;
 
@@ -51,6 +53,11 @@
 			.components-menu-items__item-icon {
 				fill: $dark-gray-900;
 			}
+
+			.components-menu-item__item {
+				display: flex;
+				width: 100%;
+			}
 		}
 
 		.newspack-select-control {
@@ -76,6 +83,10 @@
 
 		.newspack-toggle-control {
 			margin: 0;
+
+			.components-base-control__field {
+				margin: 3px 0;
+			}
 
 			.components-form-toggle {
 				border-top: 0;
