@@ -16,6 +16,7 @@ import { Icon, menu, moreVertical } from '@wordpress/icons';
  */
 import { ActionCard, Button, CategoryAutocomplete } from '../../../../components/src';
 import PopupPopover from '../popup-popover';
+import { NEWSPACK_POPUPS_TAXONOMY } from '../../constants';
 import './style.scss';
 
 const PopupActionCard = ( {
@@ -90,9 +91,9 @@ const PopupActionCard = ( {
 				<Fragment>
 					<CategoryAutocomplete
 						value={ campaignGroups || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
+						onChange={ tokens => setTermsForPopup( id, tokens, NEWSPACK_POPUPS_TAXONOMY ) }
 						label={ __( 'Campaign groups', 'newspack ' ) }
-						taxonomy="newspack_popups_taxonomy"
+						taxonomy={ NEWSPACK_POPUPS_TAXONOMY }
 					/>
 					{ ! sitewideDefault && (
 						<CategoryAutocomplete
