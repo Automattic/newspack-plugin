@@ -180,7 +180,6 @@ const PopupGroup = ( {
 												ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
 											}
 										>
-											>>>>>> feat/campaign-group-filter-with-preview >
 											<SelectControl
 												options={ [
 													{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
