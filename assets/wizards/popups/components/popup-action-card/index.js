@@ -90,7 +90,9 @@ const PopupActionCard = ( {
 				<Fragment>
 					<CategoryAutocomplete
 						value={ campaignGroups || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, window.newspack_popups_wizard_data.taxonomy ) }
+						onChange={ tokens =>
+							setTermsForPopup( id, tokens, window.newspack_popups_wizard_data.taxonomy )
+						}
 						label={ __( 'Campaign groups', 'newspack ' ) }
 						taxonomy={ window.newspack_popups_wizard_data.taxonomy }
 					/>
