@@ -79,6 +79,7 @@ const PopupGroup = ( {
 					key={ popup.id }
 					popup={ popup }
 					previewPopup={ previewPopup }
+					segments={ segments }
 					setCategoriesForPopup={ setCategoriesForPopup }
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
