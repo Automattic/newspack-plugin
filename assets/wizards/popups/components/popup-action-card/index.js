@@ -25,6 +25,7 @@ const PopupActionCard = ( {
 	popup = {},
 	previewPopup,
 	setTermsForPopup,
+	segments,
 	setSitewideDefaultPopup,
 	publishPopup,
 	updatePopup,
@@ -75,6 +76,7 @@ const PopupActionCard = ( {
 							deletePopup={ deletePopup }
 							onFocusOutside={ () => setPopoverVisibility( false ) }
 							popup={ popup }
+							segments={ segments }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }

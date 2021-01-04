@@ -80,6 +80,7 @@ const PopupGroup = ( {
 					popup={ popup }
 					previewPopup={ previewPopup }
 					setTermsForPopup={ setTermsForPopup }
+					segments={ segments }
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
 					publishPopup={ section.key === 'draft' ? publishPopup : undefined }
