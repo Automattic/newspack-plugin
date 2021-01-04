@@ -8,7 +8,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
+import { ESCAPE } from '@wordpress/keycodes';
 
 /**
  * External dependencies.
@@ -19,7 +19,7 @@ import { find } from 'lodash';
  * Internal dependencies
  */
 
-import { withWizardScreen, Button, SelectControl } from '../../../../components/src';
+import { withWizardScreen, Button, Popover, SelectControl } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
 import { isOverlay } from '../../utils';
@@ -72,6 +72,7 @@ const PopupGroup = ( {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( [] );
 	const [ segmentId, setSegmentId ] = useState();
+	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 
 	useEffect( () => {
 		apiFetch( {
@@ -120,28 +121,51 @@ const PopupGroup = ( {
 					labelPosition="side"
 				/>
 				{ campaignGroup > 0 && (
-					<div className="newspack__campaigns-wizard__select-with-button">
-						<SelectControl
-							options={ [
-								{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-								...segments.map( s => ( { value: s.id, label: s.name } ) ),
-							] }
-							value={ segmentId }
-							onChange={ setSegmentId }
-							label={ __( 'Segment to preview', 'newspack' ) }
-						/>
-						<SegmentationPreview
-							campaignGroups={ campaignGroup }
-							segment={ segmentId }
-							renderButton={ ( { showPreview } ) => (
-								<Button isTertiary onClick={ showPreview }>
-									<Icon icon={ external } />
+					<SegmentationPreview
+						campaignGroups={ campaignGroup }
+						segment={ segmentId }
+						renderButton={ ( { showPreview } ) => (
+							<Fragment>
+								<Button
+									isTertiary
+									isSmall
+									onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
+								>
+									{ __( 'Preview', 'newspack' ) }
 								</Button>
-							) }
-						/>
-					</div>
+								{ previewPopoverIsVisible && (
+									<Popover
+										position="bottom left"
+										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
+										onKeyDown={ event =>
+											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
+										}
+									>
+										<SelectControl
+											options={ [
+												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+												...segments.map( s => ( { value: s.id, label: s.name } ) ),
+											] }
+											value={ segmentId }
+											onChange={ setSegmentId }
+											label={ __( 'Segment to preview', 'newspack' ) }
+										/>
+										<Button
+											isTertiary
+											onClick={ () => {
+												console.log( showPreview );
+												showPreview();
+												setPreviewPopoverIsVisible( false );
+											} }
+										>
+											{ __( 'Preview', 'newspack' ) }
+										</Button>
+									</Popover>
+								) }
+							</Fragment>
+						) }
+					/>
 				) }
-
 				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
