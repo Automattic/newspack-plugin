@@ -103,6 +103,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get campaigns status.
+	 */
+	public function get_status() {
+		return $this->is_configured() ?
+			\Newspack_Popups::get_status() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Get segments.
 	 */
 	public function get_segments() {
@@ -185,6 +194,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function deactivate_campaign_group( $id ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Settings::deactivate_campaign_group( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Upgrade campaigns.
+	 */
+	public function upgrade_campaigns() {
+		return $this->is_configured() ?
+			\Newspack_Popups::upgrade_campaigns() :
 			$this->unconfigured_error();
 	}
 

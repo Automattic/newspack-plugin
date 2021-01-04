@@ -333,6 +333,16 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/upgrade-campaigns',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_upgrade_campaigns' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -405,6 +415,7 @@ class Popups_Wizard extends Wizard {
 			);
 			$response['segments'] = $newspack_popups_configuration_manager->get_segments( true );
 			$response['settings'] = $newspack_popups_configuration_manager->get_settings();
+			$response['status']   = $newspack_popups_configuration_manager->get_status();
 		}
 		return rest_ensure_response( $response );
 	}
@@ -724,6 +735,23 @@ class Popups_Wizard extends Wizard {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
 		$response = $newspack_popups_configuration_manager->deactivate_campaign_group( $id );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Upgrade campaigns.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_upgrade_campaigns() {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
+		$response = $newspack_popups_configuration_manager->upgrade_campaigns();
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

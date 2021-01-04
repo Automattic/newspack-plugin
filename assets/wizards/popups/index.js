@@ -64,6 +64,7 @@ class PopupsWizard extends Component {
 			segments: [],
 			settings: [],
 			previewUrl: null,
+			status: [],
 		};
 	}
 	onWizardReady = () => {
@@ -71,8 +72,8 @@ class PopupsWizard extends Component {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups, segments, settings } ) =>
-				this.setState( { popups: this.sortPopups( popups ), segments, settings } )
+			.then( ( { popups, segments, settings, status } ) =>
+				this.setState( { popups: this.sortPopups( popups ), segments, settings, status } )
 			)
 			.catch( error => setError( error ) );
 	};
@@ -199,6 +200,16 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
+	upgradeCampaigns = () => {
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-popups-wizard/upgrade-campaigns',
+			method: 'POST',
+		} )
+			.then( () => window.location.reload() )
+			.catch( error => setError( error ) );
+	};
+
 	render() {
 		const {
 			pluginRequirements,
@@ -208,7 +219,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, segments, settings, previewUrl } = this.state;
+		const { popups, segments, settings, status, previewUrl } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -224,6 +235,7 @@ class PopupsWizard extends Component {
 						wizardApiFetch,
 						segments,
 						settings,
+						status,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
@@ -252,6 +264,7 @@ class PopupsWizard extends Component {
 											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
 											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
 											groupUI={ true }
+											upgradeCampaigns={ this.upgradeCampaigns }
 										/>
 									) }
 								/>

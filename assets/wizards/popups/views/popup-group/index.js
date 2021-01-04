@@ -24,6 +24,7 @@ import {
 	Button,
 	Card,
 	Grid,
+	Notice,
 	SelectControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
@@ -76,6 +77,8 @@ const PopupGroup = ( {
 	updatePopup,
 	segments,
 	settings,
+	status,
+	upgradeCampaigns,
 } ) => {
 	const activeCampaignGroup = settings.reduce(
 		( acc, { key, value } ) => ( key === 'newspack_popups_active_campaign_group' ? value : acc ),
@@ -111,8 +114,23 @@ const PopupGroup = ( {
 					( { campaign_groups: groups } ) =>
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
+
+	const needsUpgrade = status.indexOf( 'needs_upgrade_1' ) > -1;
 	return (
 		<Fragment>
+			{ needsUpgrade && (
+				<Fragment>
+					<Notice
+						noticeText={ __(
+							'Due to a recent update campaigns need to be upgraded. Please click upgrade to do this.'
+						) }
+						isWarning
+					/>
+					<Button isTertiary onClick={ upgradeCampaigns }>
+						{ __( 'Upgrade Campaigns', 'newspack' ) }
+					</Button>
+				</Fragment>
+			) }
 			<Grid>
 				<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
 					<SelectControl
