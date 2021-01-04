@@ -61,7 +61,7 @@ class WebPreview extends Component {
 	 * Create JSX for the modal
 	 */
 	getWebPreviewModal = () => {
-		const { url } = this.props;
+		const { beforeLoad = () => {}, onClose = () => {}, url } = this.props;
 		const { device, loaded, isPreviewVisible } = this.state;
 
 		if ( ! this.modalDOMElement || ! isPreviewVisible ) {
@@ -73,7 +73,7 @@ class WebPreview extends Component {
 			device,
 			loaded && 'newspack-web-preview__is-loaded'
 		);
-
+		beforeLoad();
 		return createPortal(
 			<div className={ classes }>
 				<div className="newspack-web-preview__interior">
@@ -108,7 +108,12 @@ class WebPreview extends Component {
 							</Button>
 						</div>
 						<div className="newspack-web-preview__toolbar-right">
-							<Button onClick={ () => this.setState( { isPreviewVisible: false, loaded: false } ) }>
+							<Button
+								onClick={ () => {
+									onClose();
+									this.setState( { isPreviewVisible: false, loaded: false } );
+								} }
+							>
 								<Icon icon={ close } />
 								<span className="screen-reader-text">{ __( 'Close preview' ) }</span>
 							</Button>

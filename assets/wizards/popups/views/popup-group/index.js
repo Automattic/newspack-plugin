@@ -49,6 +49,14 @@ const descriptionForPopup = (
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
+const getCardClassName = ( { key }, { sitewide_default } ) =>
+	( {
+		active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
+		test: 'newspack-card__is-secondary',
+		inactive: 'newspack-card__is-disabled',
+		draft: 'newspack-card__is-disabled',
+	}[ key ] );
+
 /**
  * Popup group screen
  */
@@ -63,14 +71,6 @@ const PopupGroup = ( {
 	updatePopup,
 	segments,
 } ) => {
-	const getCardClassName = ( { key }, { sitewide_default } ) =>
-		( {
-			active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
-			test: 'newspack-card__is-secondary',
-			inactive: 'newspack-card__is-disabled',
-			draft: 'newspack-card__is-disabled',
-		}[ key ] );
-
 	return (
 		<ActionCardSections
 			sections={ [
@@ -88,6 +88,7 @@ const PopupGroup = ( {
 					popup={ popup }
 					previewPopup={ previewPopup }
 					setTermsForPopup={ setTermsForPopup }
+					segments={ segments }
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
 					publishPopup={ section.key === 'draft' ? publishPopup : undefined }
