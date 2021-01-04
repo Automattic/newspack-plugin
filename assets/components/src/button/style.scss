@@ -26,7 +26,7 @@ body[class*='admin-color-'] {
 			font-size: 14px;
 			height: auto;
 			line-height: 24px;
-			padding: 3px 12px;
+			padding: 5px 16px;
 		}
 
 		&.icon-only {
@@ -52,7 +52,7 @@ body[class*='admin-color-'] {
 		}
 
 		&:focus:not( :disabled ) {
-			box-shadow: 0 0 0 2px $primary-500;
+			box-shadow: 0 0 0 1px white, 0 0 0 3px $primary-500;
 		}
 
 		&.is-button {
@@ -84,7 +84,7 @@ body[class*='admin-color-'] {
 
 			&:focus,
 			&:focus:enabled {
-				box-shadow: 0 0 0 2px $primary-500;
+				box-shadow: 0 0 0 1px white, 0 0 0 3px $primary-500;
 			}
 
 			&:disabled,
@@ -112,7 +112,7 @@ body[class*='admin-color-'] {
 				font-size: 14px;
 				height: auto;
 				line-height: 24px;
-				padding: 3px 12px;
+				padding: 5px 16px;
 			}
 
 			.newspack-is-waiting {
@@ -125,7 +125,7 @@ body[class*='admin-color-'] {
 			background: white;
 			border: 1px solid $light-gray-500;
 			box-shadow: none;
-			color: $primary-500;
+			color: $dark-gray-900;
 
 			&:active,
 			&:active:enabled,
@@ -141,8 +141,7 @@ body[class*='admin-color-'] {
 
 			&:focus,
 			&:focus:enabled {
-				border-color: $primary-600;
-				box-shadow: 0 0 0 2px $primary-500;
+				box-shadow: 0 0 0 1px white, 0 0 0 3px $primary-500;
 			}
 
 			&:disabled,
@@ -170,7 +169,7 @@ body[class*='admin-color-'] {
 				font-size: 14px;
 				height: auto;
 				line-height: 24px;
-				padding: 3px 12px;
+				padding: 5px 16px;
 			}
 		}
 
@@ -196,8 +195,7 @@ body[class*='admin-color-'] {
 
 			&:focus,
 			&:focus:enabled {
-				border-color: $primary-600;
-				box-shadow: 0 0 0 2px $primary-500;
+				box-shadow: 0 0 0 1px white, 0 0 0 3px $primary-500;
 			}
 
 			&:disabled,
@@ -225,7 +223,7 @@ body[class*='admin-color-'] {
 				font-size: 14px;
 				height: auto;
 				line-height: 24px;
-				padding: 3px 12px;
+				padding: 5px 16px;
 			}
 
 			.newspack-is-waiting {
@@ -281,9 +279,9 @@ body[class*='admin-color-'] {
 			width: 40px;
 
 			&.is-small {
-				height: 32px;
-				min-width: 32px;
-				width: 32px;
+				height: 36px;
+				min-width: 36px;
+				width: 36px;
 			}
 
 			&.is-large {
