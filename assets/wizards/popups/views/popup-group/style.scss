@@ -3,26 +3,57 @@
  */
 
 @import '../../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
 
 .newspack-campaigns__popup-group {
 	&__filter-group-wrapper {
-		margin-bottom: -32px;
+		align-items: center;
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: space-between;
-		align-items: baseline;
-		h2 {
-			margin: 0 !important;
-		}
+		margin: 32px 0 -16px;
+
 		.newspack-select-control {
+			margin: 0;
+
 			.components-select-control {
-				div.components-input-control__backdrop {
-					border-color: white;
+				select.components-select-control__input {
+					height: 36px;
+					min-height: 36px;
+				}
+			}
+		}
+	}
+
+	&__filter-group-actions {
+		align-items: center;
+		display: flex;
+
+		> * + * {
+			margin-left: 8px;
+		}
+	}
+
+	&__filter-group-segmentation {
+		.components-popover {
+			margin-left: -16px;
+
+			&__content {
+				padding: 16px;
+
+				> div {
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: flex-end;
 				}
 
-				select.components-select-control__input {
-					height: 32px;
-					min-height: 32px;
+				.newspack-button.is-link {
+					color: $primary-500;
+					padding: 0;
+					text-decoration: underline;
+
+					&:hover {
+						color: $primary-600;
+					}
 				}
 			}
 		}

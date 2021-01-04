@@ -107,65 +107,68 @@ const PopupGroup = ( {
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
-				<SelectControl
-					options={ [
-						{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-						...campaignGroups.map( term => ( {
-							value: term.id,
-							label: term.name,
-						} ) ),
-					] }
-					value={ campaignGroup }
-					onChange={ value => setCampaignGroup( +value ) }
-					label={ __( 'Groups', 'newspack' ) }
-					labelPosition="side"
-				/>
-				{ campaignGroup > 0 && (
-					<SegmentationPreview
-						campaignGroups={ campaignGroup }
-						segment={ segmentId }
-						renderButton={ ( { showPreview } ) => (
-							<Fragment>
-								<Button
-									isTertiary
-									isSmall
-									onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
-								>
-									{ __( 'Preview', 'newspack' ) }
-								</Button>
-								{ previewPopoverIsVisible && (
-									<Popover
-										position="bottom left"
-										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
-										onKeyDown={ event =>
-											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
-										}
-									>
-										<SelectControl
-											options={ [
-												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-												...segments.map( s => ( { value: s.id, label: s.name } ) ),
-											] }
-											value={ segmentId }
-											onChange={ setSegmentId }
-											label={ __( 'Segment to preview', 'newspack' ) }
-										/>
-										<Button
-											isTertiary
-											onClick={ () => {
-												console.log( showPreview );
-												showPreview();
-												setPreviewPopoverIsVisible( false );
-											} }
-										>
-											{ __( 'Preview', 'newspack' ) }
-										</Button>
-									</Popover>
-								) }
-							</Fragment>
-						) }
+				<div className="newspack-campaigns__popup-group__filter-group-actions">
+					<SelectControl
+						options={ [
+							{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+							...campaignGroups.map( term => ( {
+								value: term.id,
+								label: term.name,
+							} ) ),
+						] }
+						value={ campaignGroup }
+						onChange={ value => setCampaignGroup( +value ) }
+						label={ __( 'Groups', 'newspack' ) }
+						labelPosition="side"
 					/>
-				) }
+					{ campaignGroup > 0 && (
+						<SegmentationPreview
+							campaignGroups={ campaignGroup }
+							segment={ segmentId }
+							renderButton={ ( { showPreview } ) => (
+								<div className="newspack-campaigns__popup-group__filter-group-segmentation">
+									<Button
+										isSecondary
+										isSmall
+										onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
+									>
+										{ __( 'Preview', 'newspack' ) }
+									</Button>
+									{ previewPopoverIsVisible && (
+										<Popover
+											className="has-select-border"
+											position="bottom right"
+											onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
+											onKeyDown={ event =>
+												ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
+											}
+										>
+											<SelectControl
+												options={ [
+													{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+													...segments.map( s => ( { value: s.id, label: s.name } ) ),
+												] }
+												value={ segmentId }
+												onChange={ setSegmentId }
+												label={ __( 'Segment to preview', 'newspack' ) }
+											/>
+											<Button
+												isLink
+												onClick={ () => {
+													console.log( showPreview );
+													showPreview();
+													setPreviewPopoverIsVisible( false );
+												} }
+											>
+												{ __( 'Preview', 'newspack' ) }
+											</Button>
+										</Popover>
+									) }
+								</div>
+							) }
+						/>
+					) }
+				</div>
 				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
