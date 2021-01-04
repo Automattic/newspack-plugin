@@ -1,27 +1,29 @@
-.newspack__campaigns-wizard {
-	&__select-with-button {
+/**
+ * Popup group
+ */
+
+@import '../../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.newspack-campaigns__popup-group {
+	&__filter-group-wrapper {
+		margin-bottom: -32px;
 		display: flex;
-		align-items: flex-end;
-		@media screen and ( max-width: 600px ) {
-			flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		h2 {
+			margin: 0 !important;
 		}
 		.newspack-select-control {
-			flex: 1;
-		}
-		.components-select-control {
-			margin: 0;
-		}
-		> * {
-			margin: 0 !important;
-			&:not( :last-child ) {
-				margin-right: 20px !important;
-			}
-		}
-		button {
-			overflow: visible;
-			margin: 0 !important;
-			@media screen and ( max-width: 600px ) {
-				margin-top: 10px !important;
+			.components-select-control {
+				div.components-input-control__backdrop {
+					border-color: white;
+				}
+
+				select.components-select-control__input {
+					height: 32px;
+					min-height: 32px;
+				}
 			}
 		}
 	}
