@@ -1,5 +1,4 @@
 export { default as ActionCard } from './action-card';
-export { default as ActionCardSections } from './action-card-sections';
 export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as Button } from './button';
 export { default as ButtonGroup } from './button-group';

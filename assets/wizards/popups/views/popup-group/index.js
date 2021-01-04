@@ -8,7 +8,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
+import { ESCAPE } from '@wordpress/keycodes';
 
 /**
  * External dependencies.
@@ -18,16 +18,11 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import {
-	withWizardScreen,
-	ActionCardSections,
-	Button,
-	Card,
-	Grid,
-	SelectControl,
-} from '../../../../components/src';
+
+import { withWizardScreen, Button, Popover, SelectControl } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
+import { isOverlay } from '../../utils';
 import './style.scss';
 
 const descriptionForPopup = (
@@ -66,7 +61,6 @@ const descriptionForPopup = (
  */
 const PopupGroup = ( {
 	deletePopup,
-	emptyMessage,
 	items: { active = [], draft = [], test = [], inactive = [] },
 	manageCampaignGroup,
 	previewPopup,
@@ -84,6 +78,7 @@ const PopupGroup = ( {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( null );
 	const [ segmentId, setSegmentId ] = useState();
+	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 
 	useEffect( () => {
 		apiFetch( {
@@ -97,13 +92,21 @@ const PopupGroup = ( {
 		}
 	}, [ activeCampaignGroup ] );
 
-	const getCardClassName = ( { key }, { sitewide_default } ) =>
-		( {
-			active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
-			test: 'newspack-card__is-secondary',
-			inactive: 'newspack-card__is-disabled',
-			draft: 'newspack-card__is-disabled',
-		}[ key ] );
+	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
+		if ( 'draft' === status ) {
+			return 'newspack-card__is-disabled';
+		}
+		if ( 'test' === options.frequency ) {
+			return 'newspack-card__is-secondary';
+		}
+		if ( sitewideDefault ) {
+			return 'newspack-card__is-primary';
+		}
+		if ( isOverlay( { options } ) && ! sitewideDefault ) {
+			return 'newspack-card__is-disabled';
+		}
+		return 'newspack-card__is-supported';
+	};
 
 	const filteredByGroup = itemsToFilter =>
 		-1 === campaignGroup
@@ -112,89 +115,111 @@ const PopupGroup = ( {
 					( { campaign_groups: groups } ) =>
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
+
+	console.log( campaignGroups );
 	return (
 		<Fragment>
-			<Grid>
-				<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
-					<SelectControl
-						options={
-							campaignGroups
-								? [
-										{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-										...campaignGroups.map( term => ( {
-											value: term.id,
-											label:
-												term.name +
-												( activeCampaignGroup === term.id ? __( ' (Active)', 'newspack' ) : '' ),
-										} ) ),
-								  ]
-								: []
-						}
-						value={ campaignGroup }
-						onChange={ value => setCampaignGroup( +value ) }
-						label={ __( 'Campaign groups', 'newspack' ) }
-					/>
-					{ campaignGroup > 0 && activeCampaignGroup !== campaignGroup && (
-						<Button isTertiary onClick={ () => manageCampaignGroup( campaignGroup ) }>
-							{ __( 'Activate', 'newspack' ) }
-						</Button>
-					) }
-					{ campaignGroup > 0 && activeCampaignGroup === campaignGroup && (
-						<Button isTertiary onClick={ () => manageCampaignGroup( campaignGroup, 'DELETE' ) }>
-							{ __( 'Deactivate', 'newspack' ) }
-						</Button>
-					) }
-				</Card>
+			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
+				<SelectControl
+					options={
+						campaignGroups
+							? [
+									{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+									...campaignGroups.map( term => ( {
+										value: term.id,
+										label:
+											term.name +
+											( activeCampaignGroup === term.id ? __( ' - active', 'newspack' ) : '' ),
+									} ) ),
+							  ]
+							: []
+					}
+					value={ campaignGroup }
+					onChange={ value => setCampaignGroup( +value ) }
+					label={ __( 'Groups', 'newspack' ) }
+					labelPosition="side"
+				/>
 				{ campaignGroup > 0 && (
-					<Card className="newspack__campaigns-wizard__select-with-button" noBorder>
-						<SelectControl
-							options={ [
-								{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-								...segments.map( s => ( { value: s.id, label: s.name } ) ),
-							] }
-							value={ segmentId }
-							onChange={ setSegmentId }
-							label={ __( 'Segment to preview', 'newspack' ) }
-						/>
-						<SegmentationPreview
-							campaignGroups={ campaignGroup }
-							segment={ segmentId }
-							renderButton={ ( { showPreview } ) => (
-								<Button isTertiary onClick={ showPreview }>
-									<Icon icon={ external } />
+					<SegmentationPreview
+						campaignGroups={ campaignGroup }
+						segment={ segmentId }
+						renderButton={ ( { showPreview } ) => (
+							<Fragment>
+								{ activeCampaignGroup !== campaignGroup && (
+									<Button isTertiary isSmall onClick={ () => manageCampaignGroup( campaignGroup ) }>
+										{ __( 'Activate', 'newspack' ) }
+									</Button>
+								) }
+								{ activeCampaignGroup === campaignGroup && (
+									<Button
+										isTertiary
+										isSmall
+										onClick={ () => manageCampaignGroup( campaignGroup, 'DELETE' ) }
+									>
+										{ __( 'Deactivate', 'newspack' ) }
+									</Button>
+								) }
+								<Button
+									isTertiary
+									isSmall
+									onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
+								>
+									{ __( 'Preview', 'newspack' ) }
 								</Button>
-							) }
-						/>
-					</Card>
-				) }
-			</Grid>
-			<ActionCardSections
-				sections={ [
-					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
-					{ key: 'draft', label: __( 'Draft', 'newspack' ), items: filteredByGroup( draft ) },
-					{ key: 'test', label: __( 'Test', 'newspack' ), items: filteredByGroup( test ) },
-					{
-						key: 'inactive',
-						label: __( 'Inactive', 'newspack' ),
-						items: filteredByGroup( inactive ),
-					},
-				] }
-				renderCard={ ( popup, section ) => (
-					<PopupActionCard
-						className={ getCardClassName( section, popup ) }
-						deletePopup={ deletePopup }
-						description={ descriptionForPopup( popup, segments ) }
-						key={ popup.id }
-						popup={ popup }
-						previewPopup={ previewPopup }
-						setTermsForPopup={ setTermsForPopup }
-						setSitewideDefaultPopup={ setSitewideDefaultPopup }
-						updatePopup={ updatePopup }
-						publishPopup={ section.key === 'draft' ? publishPopup : undefined }
+								{ previewPopoverIsVisible && (
+									<Popover
+										position="bottom left"
+										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
+										onKeyDown={ event =>
+											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
+										}
+									>
+										<SelectControl
+											options={ [
+												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+												...segments.map( s => ( {
+													value: s.id,
+													label: s.name,
+												} ) ),
+											] }
+											value={ segmentId }
+											onChange={ setSegmentId }
+											label={ __( 'Segment to preview', 'newspack' ) }
+										/>
+										<Button
+											isTertiary
+											onClick={ () => {
+												console.log( showPreview );
+												showPreview();
+												setPreviewPopoverIsVisible( false );
+											} }
+										>
+											{ __( 'Preview', 'newspack' ) }
+										</Button>
+									</Popover>
+								) }
+							</Fragment>
+						) }
 					/>
 				) }
-				emptyMessage={ emptyMessage }
-			/>
+				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
+					{ __( 'Add New', 'newspack' ) }
+				</Button>
+			</div>
+			{ filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] ).map( campaign => (
+				<PopupActionCard
+					className={ getCardClassName( campaign ) }
+					deletePopup={ deletePopup }
+					description={ descriptionForPopup( campaign, segments ) }
+					key={ campaign.id }
+					popup={ campaign }
+					previewPopup={ previewPopup }
+					setTermsForPopup={ setTermsForPopup }
+					setSitewideDefaultPopup={ setSitewideDefaultPopup }
+					updatePopup={ updatePopup }
+					publishPopup={ publishPopup }
+				/>
+			) ) }
 		</Fragment>
 	);
 };
