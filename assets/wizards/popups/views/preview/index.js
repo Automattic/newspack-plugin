@@ -45,7 +45,7 @@ const Preview = ( { segments } ) => {
 				onChange={ selected => {
 					setGroupTaxIds( selected.map( item => item.id ) );
 				} }
-				taxonomy="newspack_popups_taxonomy"
+				taxonomy={ window.newspack_popups_wizard_data.taxonomy }
 				label={ __( 'Groups', 'newspack' ) }
 			/>
 			<SegmentationPreview

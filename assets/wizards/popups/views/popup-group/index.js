@@ -57,7 +57,7 @@ const PopupGroup = ( {
 	emptyMessage,
 	items: { active = [], draft = [], test = [], inactive = [] },
 	previewPopup,
-	setCategoriesForPopup,
+	setTermsForPopup,
 	setSitewideDefaultPopup,
 	publishPopup,
 	updatePopup,
@@ -79,8 +79,8 @@ const PopupGroup = ( {
 					key={ popup.id }
 					popup={ popup }
 					previewPopup={ previewPopup }
+					setTermsForPopup={ setTermsForPopup }
 					segments={ segments }
-					setCategoriesForPopup={ setCategoriesForPopup }
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
 					publishPopup={ section.key === 'draft' ? publishPopup : undefined }
