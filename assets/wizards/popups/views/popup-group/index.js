@@ -128,7 +128,7 @@ const PopupGroup = ( {
 							renderButton={ ( { showPreview } ) => (
 								<div className="newspack-campaigns__popup-group__filter-group-segmentation">
 									<Button
-										isSecondary
+										isTertiary
 										isSmall
 										onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
 									>
