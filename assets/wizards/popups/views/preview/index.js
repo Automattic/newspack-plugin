@@ -14,7 +14,6 @@ import {
 	CategoryAutocomplete,
 } from '../../../../components/src';
 import SegmentationPreview from '../../components/segmentation-preview';
-import { NEWSPACK_POPUPS_TAXONOMY } from '../../constants';
 import './style.scss';
 
 /**
@@ -46,7 +45,7 @@ const Preview = ( { segments } ) => {
 				onChange={ selected => {
 					setGroupTaxIds( selected.map( item => item.id ) );
 				} }
-				taxonomy={ NEWSPACK_POPUPS_TAXONOMY }
+				taxonomy="newspack_popups_taxonomy"
 				label={ __( 'Groups', 'newspack' ) }
 			/>
 			<SegmentationPreview
