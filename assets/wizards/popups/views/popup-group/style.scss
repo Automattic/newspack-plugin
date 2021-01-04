@@ -34,6 +34,9 @@
 	}
 
 	&__filter-group-segmentation {
+		> * + * {
+			margin-left: 8px;
+		}
 		.components-popover {
 			margin-left: -16px;
 
