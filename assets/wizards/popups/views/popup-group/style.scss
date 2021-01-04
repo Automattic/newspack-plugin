@@ -1,0 +1,30 @@
+/**
+ * Popup group
+ */
+
+@import '../../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.newspack-campaigns__popup-group {
+	&__filter-group-wrapper {
+		margin-bottom: -32px;
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		h2 {
+			margin: 0 !important;
+		}
+		.newspack-select-control {
+			.components-select-control {
+				div.components-input-control__backdrop {
+					border-color: white;
+				}
+
+				select.components-select-control__input {
+					height: 32px;
+					min-height: 32px;
+				}
+			}
+		}
+	}
+}

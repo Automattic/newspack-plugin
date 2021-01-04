@@ -17,8 +17,10 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCardSections, SelectControl } from '../../../../components/src';
+import { withWizardScreen, Button, SelectControl } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
+import { isOverlay } from '../../utils';
+import './style.scss';
 
 const descriptionForPopup = (
 	{ categories, sitewide_default: sitewideDefault, options },
@@ -56,7 +58,6 @@ const descriptionForPopup = (
  */
 const PopupGroup = ( {
 	deletePopup,
-	emptyMessage,
 	items: { active = [], draft = [], test = [], inactive = [] },
 	previewPopup,
 	setTermsForPopup,
@@ -74,13 +75,21 @@ const PopupGroup = ( {
 		} ).then( terms => setCampaignGroups( terms ) );
 	}, [] );
 
-	const getCardClassName = ( { key }, { sitewide_default } ) =>
-		( {
-			active: sitewide_default ? 'newspack-card__is-primary' : 'newspack-card__is-supported',
-			test: 'newspack-card__is-secondary',
-			inactive: 'newspack-card__is-disabled',
-			draft: 'newspack-card__is-disabled',
-		}[ key ] );
+	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
+		if ( 'draft' === status ) {
+			return 'newspack-card__is-disabled';
+		}
+		if ( 'test' === options.frequency ) {
+			return 'newspack-card__is-secondary';
+		}
+		if ( sitewideDefault ) {
+			return 'newspack-card__is-primary';
+		}
+		if ( isOverlay( { options } ) && ! sitewideDefault ) {
+			return 'newspack-card__is-disabled';
+		}
+		return 'newspack-card__is-supported';
+	};
 
 	const filteredByGroup = itemsToFilter =>
 		-1 === campaignGroup
@@ -89,47 +98,42 @@ const PopupGroup = ( {
 					( { campaign_groups: groups } ) =>
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
+
 	return (
 		<Fragment>
-			<SelectControl
-				options={ [
-					{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-					...campaignGroups.map( term => ( {
-						value: term.id,
-						label: term.name,
-					} ) ),
-				] }
-				value={ campaignGroup }
-				onChange={ value => setCampaignGroup( +value ) }
-				label={ __( 'Campaign groups', 'newspack' ) }
-			/>
-			<ActionCardSections
-				sections={ [
-					{ key: 'active', label: __( 'Active', 'newspack' ), items: filteredByGroup( active ) },
-					{ key: 'draft', label: __( 'Draft', 'newspack' ), items: filteredByGroup( draft ) },
-					{ key: 'test', label: __( 'Test', 'newspack' ), items: filteredByGroup( test ) },
-					{
-						key: 'inactive',
-						label: __( 'Inactive', 'newspack' ),
-						items: filteredByGroup( inactive ),
-					},
-				] }
-				renderCard={ ( popup, section ) => (
-					<PopupActionCard
-						className={ getCardClassName( section, popup ) }
-						deletePopup={ deletePopup }
-						description={ descriptionForPopup( popup, segments ) }
-						key={ popup.id }
-						popup={ popup }
-						previewPopup={ previewPopup }
-						setTermsForPopup={ setTermsForPopup }
-						setSitewideDefaultPopup={ setSitewideDefaultPopup }
-						updatePopup={ updatePopup }
-						publishPopup={ section.key === 'draft' ? publishPopup : undefined }
-					/>
-				) }
-				emptyMessage={ emptyMessage }
-			/>
+			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
+				<SelectControl
+					options={ [
+						{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+						...campaignGroups.map( term => ( {
+							value: term.id,
+							label: term.name,
+						} ) ),
+					] }
+					value={ campaignGroup }
+					onChange={ value => setCampaignGroup( +value ) }
+					label={ __( 'Groups', 'newspack' ) }
+					labelPosition="side"
+				/>
+
+				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
+					{ __( 'Add New', 'newspack' ) }
+				</Button>
+			</div>
+			{ filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] ).map( campaign => (
+				<PopupActionCard
+					className={ getCardClassName( campaign ) }
+					deletePopup={ deletePopup }
+					description={ descriptionForPopup( campaign, segments ) }
+					key={ campaign.id }
+					popup={ campaign }
+					previewPopup={ previewPopup }
+					setTermsForPopup={ setTermsForPopup }
+					setSitewideDefaultPopup={ setSitewideDefaultPopup }
+					updatePopup={ updatePopup }
+					publishPopup={ publishPopup }
+				/>
+			) ) }
 		</Fragment>
 	);
 };
