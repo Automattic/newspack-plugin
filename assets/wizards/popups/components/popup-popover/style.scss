@@ -1,3 +1,5 @@
+@import '~@wordpress/base-styles/colors';
+
 .newspack-popup-action-card-popover-control {
 	width: 100%;
 	display: flex;
@@ -8,8 +10,11 @@
 }
 
 .newspack-popup-info {
-	padding: 4px 13px;
-	background: #f7f7f7;
+	background: $light-gray-100;
+	color: $dark-gray-900;
+	font-size: 12px;
+	line-height: 16px;
+	padding: 4px 8px;
 	text-align: left;
 }
 
