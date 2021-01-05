@@ -18,7 +18,6 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-
 import { withWizardScreen, Button, Popover, SelectControl } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
@@ -76,7 +75,7 @@ const PopupGroup = ( {
 		null
 	);
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
-	const [ campaignGroups, setCampaignGroups ] = useState( null );
+	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 
@@ -110,6 +109,7 @@ const PopupGroup = ( {
 
 	const campaignGroupExists =
 		campaignGroups &&
+		Array.isArray( campaignGroups ) &&
 		parseInt( campaignGroup ) > 0 &&
 		-1 !== campaignGroups.some( ( { id: termId } ) => termId === campaignGroup );
 
@@ -121,28 +121,34 @@ const PopupGroup = ( {
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
 
+	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] );
+
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
 					<SelectControl
 						options={
-							campaignGroups
+							-1 === campaignGroups
 								? [
+										{
+											value: -1,
+											label: __( 'Loading...', 'newspack' ),
+										},
+								  ]
+								: [
 										{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
 										...campaignGroups.map( term => ( {
 											value: term.id,
-											label:
-												term.name +
-												( activeCampaignGroup === term.id ? __( ' - active', 'newspack' ) : '' ),
+											label: term.name,
 										} ) ),
 								  ]
-								: []
 						}
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( +value ) }
 						label={ __( 'Groups', 'newspack' ) }
 						labelPosition="side"
+						disabled={ -1 === campaignGroups }
 					/>
 					{ campaignGroup > 0 && (
 						<SegmentationPreview
@@ -216,7 +222,7 @@ const PopupGroup = ( {
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
 			</div>
-			{ filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] ).map( campaign => (
+			{ campaignsToDisplay.map( campaign => (
 				<PopupActionCard
 					className={ getCardClassName( campaign ) }
 					deletePopup={ deletePopup }
@@ -231,6 +237,12 @@ const PopupGroup = ( {
 					publishPopup={ publishPopup }
 				/>
 			) ) }
+			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (
+				<p>{ __( 'No Campaigns have been created yet.', 'newspack' ) }</p>
+			) }
+			{ campaignsToDisplay.length < 1 && campaignGroup > 0 && (
+				<p>{ __( 'There are no Campaigns in this group.', 'newspack' ) }</p>
+			) }
 		</Fragment>
 	);
 };
