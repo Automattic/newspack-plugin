@@ -99,6 +99,8 @@ const PopupGroup = ( {
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
 
+	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] );
+
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
@@ -129,7 +131,7 @@ const PopupGroup = ( {
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
 			</div>
-			{ filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] ).map( campaign => (
+			{ campaignsToDisplay.map( campaign => (
 				<PopupActionCard
 					className={ getCardClassName( campaign ) }
 					deletePopup={ deletePopup }
@@ -144,6 +146,12 @@ const PopupGroup = ( {
 					publishPopup={ publishPopup }
 				/>
 			) ) }
+			{ campaignsToDisplay.length < 1 &&
+				-1 === campaignGroup &&
+				__( 'No Campaigns have been created yet.', 'newspack' ) }
+			{ campaignsToDisplay.length < 1 &&
+				campaignGroup > 0 &&
+				__( 'There are no Campaigns in this group.', 'newspack' ) }
 		</Fragment>
 	);
 };
