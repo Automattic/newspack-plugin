@@ -61,4 +61,20 @@
 			}
 		}
 	}
+
+	&__upgrade {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		margin-bottom: 64px;
+
+		.newspack-notice {
+			flex: 1 1 100%;
+		}
+
+		.newspack-button {
+			flex: 0 0 auto;
+			margin-bottom: 32px;
+		}
+	}
 }

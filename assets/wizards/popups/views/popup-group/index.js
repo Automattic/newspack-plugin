@@ -18,7 +18,14 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Button, Notice, Popover, SelectControl } from '../../../../components/src';
+import {
+	withWizardScreen,
+	Button,
+	Card,
+	Notice,
+	Popover,
+	SelectControl,
+} from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
 import { isOverlay } from '../../utils';
@@ -123,17 +130,17 @@ const PopupGroup = ( {
 	return (
 		<Fragment>
 			{ needsUpgrade && (
-				<Fragment>
+				<Card className="newspack-campaigns__popup-group__upgrade">
 					<Notice
 						noticeText={ __(
-							'Due to a recent update campaigns need to be upgraded. Please click upgrade to do this.'
+							'Due to a recent update campaigns need to be upgraded. Please click "Upgrade Campaigns" to do this.', 'newspack'
 						) }
 						isWarning
 					/>
-					<Button isTertiary onClick={ upgradeCampaigns }>
+					<Button isPrimary onClick={ upgradeCampaigns }>
 						{ __( 'Upgrade Campaigns', 'newspack' ) }
 					</Button>
-				</Fragment>
+				</Card>
 			) }
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
