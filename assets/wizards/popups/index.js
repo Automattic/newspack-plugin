@@ -255,8 +255,6 @@ class PopupsWizard extends Component {
 										<PopupGroup
 											{ ...popupManagementSharedProps }
 											items={ popups }
-											buttonText={ __( 'Add new Campaign', 'newspack' ) }
-											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
 											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
 											groupUI={ true }
 										/>
