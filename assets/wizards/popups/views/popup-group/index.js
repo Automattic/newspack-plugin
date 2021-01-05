@@ -107,7 +107,9 @@ const PopupGroup = ( {
 	};
 
 	const campaignGroupExists =
-		parseInt( campaignGroups ) > 0 && -1 !== campaignGroups.indexOf( campaignGroup );
+		campaignGroups &&
+		parseInt( campaignGroup ) > 0 &&
+		-1 !== campaignGroups.some( ( { id: termId } ) => termId === campaignGroup );
 
 	const filteredByGroup = itemsToFilter =>
 		! campaignGroupExists
