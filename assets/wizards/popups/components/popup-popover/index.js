@@ -29,6 +29,7 @@ const frequenciesForPopup = popup => {
 		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
+
 const PopupPopover = ( {
 	deletePopup,
 	popup,
@@ -36,10 +37,11 @@ const PopupPopover = ( {
 	setSitewideDefaultPopup,
 	onFocusOutside,
 	publishPopup,
+	segments,
 	updatePopup,
 } ) => {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-	const { frequency } = options;
+	const { frequency, selected_segment_id: selectedSegmentId } = options;
 	const isDraft = 'draft' === status;
 	const isTestMode = 'test' === frequency;
 	return (
@@ -87,6 +89,20 @@ const PopupPopover = ( {
 					/>
 				</MenuItem>
 			) }
+			<MenuItem className="newspack-button newspack-popup-action-card-select-button">
+				<SelectControl
+					onChange={ value => {
+						updatePopup( id, { selected_segment_id: value } );
+						onFocusOutside();
+					} }
+					className="newspack-popup-action-card-select"
+					options={ [
+						{ label: __( 'Default (no segment)', 'newspck' ), value: '' },
+						...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
+					] }
+					value={ selectedSegmentId }
+				/>
+			</MenuItem>
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();
