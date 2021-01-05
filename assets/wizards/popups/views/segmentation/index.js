@@ -12,7 +12,7 @@ import './style.scss';
 const PopupSegmentation = ( { wizardApiFetch, match, ...props } ) => {
 	const segmentId = match.params.id;
 	return segmentId ? (
-		<SingleSegment segmentId={ segmentId } wizardApiFetch={ wizardApiFetch } />
+		<SingleSegment segmentId={ segmentId } wizardApiFetch={ wizardApiFetch } { ...props } />
 	) : (
 		<SegmentsList wizardApiFetch={ wizardApiFetch } { ...props } />
 	);
