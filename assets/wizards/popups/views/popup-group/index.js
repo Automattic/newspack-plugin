@@ -108,15 +108,17 @@ const PopupGroup = ( {
 		return 'newspack-card__is-supported';
 	};
 
+	const campaignGroupExists =
+		parseInt( campaignGroups ) > 0 && -1 !== campaignGroups.indexOf( campaignGroup );
+
 	const filteredByGroup = itemsToFilter =>
-		-1 === campaignGroup
+		! campaignGroupExists
 			? itemsToFilter
 			: itemsToFilter.filter(
 					( { campaign_groups: groups } ) =>
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
 
-	console.log( campaignGroups );
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
@@ -155,7 +157,7 @@ const PopupGroup = ( {
 											{ __( 'Activate', 'newspack' ) }
 										</Button>
 									) }
-									{ activeCampaignGroup === campaignGroup && (
+									{ campaignGroupExists && activeCampaignGroup === campaignGroup && (
 										<Button
 											isTertiary
 											isSmall
@@ -164,13 +166,15 @@ const PopupGroup = ( {
 											{ __( 'Deactivate', 'newspack' ) }
 										</Button>
 									) }
-									<Button
-										isTertiary
-										isSmall
-										onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
-									>
-										{ __( 'Preview', 'newspack' ) }
-									</Button>
+									{ campaignGroupExists && (
+										<Button
+											isTertiary
+											isSmall
+											onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
+										>
+											{ __( 'Preview', 'newspack' ) }
+										</Button>
+									) }
 									{ previewPopoverIsVisible && (
 										<Popover
 											className="has-select-border"
