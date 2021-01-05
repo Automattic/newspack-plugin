@@ -123,6 +123,7 @@ const PopupGroup = ( {
 					onChange={ value => setCampaignGroup( +value ) }
 					label={ __( 'Groups', 'newspack' ) }
 					labelPosition="side"
+					disabled={ -1 === campaignGroups }
 				/>
 				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
 					{ __( 'Add New', 'newspack' ) }
