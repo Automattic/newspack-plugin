@@ -166,7 +166,6 @@ const PopupGroup = ( {
 											<Button
 												isLink
 												onClick={ () => {
-													console.log( showPreview );
 													showPreview();
 													setPreviewPopoverIsVisible( false );
 												} }
