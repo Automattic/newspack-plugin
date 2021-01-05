@@ -67,7 +67,7 @@ const PopupGroup = ( {
 	segments,
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
-	const [ campaignGroups, setCampaignGroups ] = useState( [] );
+	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 
 	useEffect( () => {
 		apiFetch( {
@@ -103,19 +103,27 @@ const PopupGroup = ( {
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<SelectControl
-					options={ [
-						{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-						...campaignGroups.map( term => ( {
-							value: term.id,
-							label: term.name,
-						} ) ),
-					] }
+					options={
+						-1 === campaignGroups
+							? [
+									{
+										value: -1,
+										label: __( 'Loading...', 'newspack' ),
+									},
+							  ]
+							: [
+									{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
+									...campaignGroups.map( term => ( {
+										value: term.id,
+										label: term.name,
+									} ) ),
+							  ]
+					}
 					value={ campaignGroup }
 					onChange={ value => setCampaignGroup( +value ) }
 					label={ __( 'Groups', 'newspack' ) }
 					labelPosition="side"
 				/>
-
 				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
