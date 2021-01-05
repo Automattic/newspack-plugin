@@ -87,7 +87,7 @@ const PopupGroup = ( {
 
 	useEffect( () => {
 		if ( -1 === campaignGroup && activeCampaignGroup > 0 ) {
-			setCampaignGroup( activeCampaignGroup );
+			setCampaignGroup( +activeCampaignGroup );
 		}
 	}, [ activeCampaignGroup ] );
 
