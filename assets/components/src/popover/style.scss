@@ -26,6 +26,8 @@
 
 			&:focus:not( :disabled ) {
 				box-shadow: inset 0 0 0 2px $primary-500;
+				position: relative;
+				z-index: 1;
 			}
 
 			&.is-link {
@@ -74,7 +76,6 @@
 				}
 
 				div.components-input-control__backdrop {
-					border-color: white;
 					padding: 0;
 				}
 			}
@@ -91,5 +92,25 @@
 				border-top: 0;
 			}
 		}
+	}
+
+	&:not( .is-without-arrow )::before {
+		border-color: $light-gray-500;
+	}
+
+	&:not( .has-select-border ) {
+		.components-select-control {
+			div.components-input-control__backdrop {
+				border-color: white;
+			}
+		}
+	}
+
+	&.is-from-bottom {
+		margin-bottom: 8px;
+	}
+
+	&.is-from-top {
+		margin-top: 8px;
 	}
 }
