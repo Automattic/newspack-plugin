@@ -24,14 +24,22 @@ const descriptionForPopup = (
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
+	switch ( options.placement ) {
+		case 'above_header':
+			descriptionMessages.push( __( 'Above header', 'newspack' ) );
+			break;
+		case 'inline':
+			descriptionMessages.push( __( 'Inline', 'newspack' ) );
+			break;
+		default:
+			descriptionMessages.push( __( 'Overlay', 'newspack' ) );
+			break;
+	}
 	if ( segment ) {
 		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
 	}
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
-	}
-	if ( options.placement === 'above_header' ) {
-		descriptionMessages.push( __( 'Above header', 'newspack' ) );
 	}
 	if ( categories.length > 0 ) {
 		descriptionMessages.push(
