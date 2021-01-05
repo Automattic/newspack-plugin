@@ -213,6 +213,7 @@ const PopupGroup = ( {
 					key={ campaign.id }
 					popup={ campaign }
 					previewPopup={ previewPopup }
+					segments={ segments }
 					setTermsForPopup={ setTermsForPopup }
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
