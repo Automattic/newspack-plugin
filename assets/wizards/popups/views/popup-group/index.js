@@ -110,7 +110,7 @@ const PopupGroup = ( {
 	const campaignGroupExists =
 		campaignGroups &&
 		Array.isArray( campaignGroups ) &&
-		parseInt( campaignGroup ) > 0 &&
+		+campaignGroup > 0 &&
 		-1 !== campaignGroups.some( ( { id: termId } ) => termId === campaignGroup );
 
 	const filteredByGroup = itemsToFilter =>
@@ -156,7 +156,7 @@ const PopupGroup = ( {
 							segment={ segmentId }
 							renderButton={ ( { showPreview } ) => (
 								<div className="newspack-campaigns__popup-group__filter-group-segmentation">
-									{ activeCampaignGroup !== campaignGroup && (
+									{ +activeCampaignGroup !== campaignGroup && (
 										<Button
 											isTertiary
 											isSmall
@@ -165,7 +165,7 @@ const PopupGroup = ( {
 											{ __( 'Activate', 'newspack' ) }
 										</Button>
 									) }
-									{ campaignGroupExists && activeCampaignGroup === campaignGroup && (
+									{ campaignGroupExists && +activeCampaignGroup === campaignGroup && (
 										<Button
 											isTertiary
 											isSmall
@@ -204,7 +204,6 @@ const PopupGroup = ( {
 											<Button
 												isLink
 												onClick={ () => {
-													console.log( showPreview );
 													showPreview();
 													setPreviewPopoverIsVisible( false );
 												} }
