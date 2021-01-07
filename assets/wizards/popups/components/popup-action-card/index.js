@@ -18,6 +18,15 @@ import { ActionCard, Button, CategoryAutocomplete } from '../../../../components
 import PopupPopover from '../popup-popover';
 import './style.scss';
 
+const placementForPopup = ( { options: { placement } } ) =>
+	( {
+		center: 'Center Overlay',
+		top: 'Top Overlay',
+		bottom: 'Bottom Overlay',
+		inline: 'Inline',
+		above_header: 'Above Header',
+	}[ placement ] );
+
 const PopupActionCard = ( {
 	className,
 	description,
@@ -43,6 +52,7 @@ const PopupActionCard = ( {
 	return (
 		<ActionCard
 			isSmall
+			badge={ placementForPopup( popup ) }
 			className={ className }
 			title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
 			key={ id }
