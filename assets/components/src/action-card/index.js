@@ -48,6 +48,7 @@ class ActionCard extends Component {
 			onClick,
 			onSecondaryActionClick,
 			isWaiting,
+			titleLink,
 			toggleChecked,
 			toggleOnChange,
 		} = this.props;
@@ -75,7 +76,14 @@ class ActionCard extends Component {
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
 						<h2>
-							<span className="newspack-action-card__title">{ title }</span>
+							{ titleLink ? (
+								<a href={ titleLink }>
+									<span className="newspack-action-card__title">{ title }</span>
+								</a>
+							) : (
+								<span className="newspack-action-card__title">{ title }</span>
+							) }
+
 							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
 						</h2>
 						<p>{ description }</p>
