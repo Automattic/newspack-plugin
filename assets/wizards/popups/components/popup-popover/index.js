@@ -22,6 +22,7 @@ const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Every page', 'newspack' ),
+	manual: __( 'Manual Placement', 'newspack' ),
 };
 
 const frequenciesForPopup = popup => {
