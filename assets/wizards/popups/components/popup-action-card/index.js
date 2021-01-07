@@ -15,7 +15,8 @@ import { Icon, menu, moreVertical } from '@wordpress/icons';
  * Internal dependencies.
  */
 import { ActionCard, Button, CategoryAutocomplete } from '../../../../components/src';
-import PopupPopover from '../popup-popover';
+import PrimaryPopupPopover from '../popup-popover/primary';
+import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
 
 const PopupActionCard = ( {
@@ -72,39 +73,29 @@ const PopupActionCard = ( {
 						</Button>
 					</Tooltip>
 					{ popoverVisibility && (
-						<PopupPopover
+						<PrimaryPopupPopover
 							deletePopup={ deletePopup }
 							onFocusOutside={ () => setPopoverVisibility( false ) }
 							popup={ popup }
-							segments={ segments }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }
 							publishPopup={ 'publish' !== status ? publishPopup : null }
 						/>
 					) }
-				</Fragment>
-			}
-		>
-			{ categoriesVisibility && (
-				<Fragment>
-					<CategoryAutocomplete
-						value={ campaignGroups || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
-						label={ __( 'Campaign groups', 'newspack' ) }
-						taxonomy="newspack_popups_taxonomy"
-					/>
-					{ ! sitewideDefault && (
-						<CategoryAutocomplete
-							value={ categories || [] }
-							onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
-							label={ __( 'Category filtering', 'newspack ' ) }
-							disabled={ sitewideDefault }
+					{ categoriesVisibility && (
+						<SecondaryPopupPopover
+							deletePopup={ deletePopup }
+							onFocusOutside={ () => setCategoriesVisibility( false ) }
+							popup={ popup }
+							segments={ segments }
+							setTermsForPopup={ setTermsForPopup }
+							updatePopup={ updatePopup }
 						/>
 					) }
 				</Fragment>
-			) }
-		</ActionCard>
+			}
+		></ActionCard>
 	);
 };
 export default PopupActionCard;
