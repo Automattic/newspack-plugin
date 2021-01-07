@@ -20,11 +20,11 @@ import './style.scss';
 
 const placementForPopup = ( { options: { placement } } ) =>
 	( {
-		center: 'Center Overlay',
-		top: 'Top Overlay',
-		bottom: 'Bottom Overlay',
-		inline: 'Inline',
-		above_header: 'Above Header',
+		center: __( 'Center Overlay', 'newspack' ),
+		top: __( 'Top Overlay', 'newspack' ),
+		bottom: __( 'Bottom Overlay', 'newspack' ),
+		inline: __( 'Inline', 'newspack' ),
+		above_header: __( 'Above Header', 'newspack' ),
 	}[ placement ] );
 
 const PopupActionCard = ( {
