@@ -30,17 +30,6 @@ const descriptionForPopup = (
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
-	switch ( options.placement ) {
-		case 'above_header':
-			descriptionMessages.push( __( 'Above header', 'newspack' ) );
-			break;
-		case 'inline':
-			descriptionMessages.push( __( 'Inline', 'newspack' ) );
-			break;
-		default:
-			descriptionMessages.push( __( 'Overlay', 'newspack' ) );
-			break;
-	}
 	if ( segment ) {
 		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
 	}
