@@ -1,52 +1,27 @@
 /**
  * WordPress dependencies
  */
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies.
  */
 import {
 	withWizardScreen,
-	WebPreview,
 	Button,
 	SelectControl,
 	CategoryAutocomplete,
 } from '../../../../components/src';
-import { useStateWithPersistence } from '../../utils';
+import SegmentationPreview from '../../components/segmentation-preview';
 import './style.scss';
 
 /**
  * Popups "View As" Preview screen.
  */
 const Preview = ( { segments } ) => {
-	const [ segmentId, setSegmentId ] = useStateWithPersistence( 'campaigns-preview-segmentId', '' );
-	const [ groupTaxIds, setGroupTaxSlug ] = useStateWithPersistence(
-		'campaigns-preview-groupTaxIds',
-		[]
-	);
-
-	const postPreviewLink = window?.newspack_popups_wizard_data?.preview_post;
-	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
-
-	const params = {
-		view_as: [
-			`groups:${ groupTaxIds.join( ',' ) }`,
-			...( segmentId.length ? [ `segment:${ segmentId }` ] : [] ),
-		].join( ';' ),
-	};
-
-	const onWebPreviewLoad = iframeEl => {
-		if ( iframeEl ) {
-			[ ...iframeEl.contentWindow.document.querySelectorAll( 'a' ) ].forEach( anchor => {
-				const href = anchor.getAttribute( 'href' );
-				if ( href.indexOf( frontendUrl ) === 0 ) {
-					anchor.setAttribute( 'href', addQueryArgs( href, params ) );
-				}
-			} );
-		}
-	};
+	const [ segmentId, setSegmentId ] = useState( '' );
+	const [ groupTaxIds, setGroupTaxIds ] = useState( [] );
 
 	return (
 		<div className="newspack-campaigns-wizard-preview">
@@ -68,14 +43,14 @@ const Preview = ( { segments } ) => {
 			<CategoryAutocomplete
 				value={ groupTaxIds }
 				onChange={ selected => {
-					setGroupTaxSlug( selected.map( item => item.id ) );
+					setGroupTaxIds( selected.map( item => item.id ) );
 				} }
 				taxonomy="newspack_popups_taxonomy"
 				label={ __( 'Groups', 'newspack' ) }
 			/>
-			<WebPreview
-				onLoad={ onWebPreviewLoad }
-				url={ addQueryArgs( postPreviewLink || frontendUrl, params ) }
+			<SegmentationPreview
+				campaignGroups={ groupTaxIds }
+				segment={ segmentId }
 				renderButton={ ( { showPreview } ) => (
 					<Button isPrimary onClick={ showPreview }>
 						{ __( 'Preview', 'newspack' ) }
