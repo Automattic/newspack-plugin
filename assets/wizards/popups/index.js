@@ -9,6 +9,7 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * External dependencies.
@@ -155,6 +156,21 @@ class PopupsWizard extends Component {
 	};
 
 	/**
+	 * Unublish a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	unpublishPopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/unpublish`,
+			method: 'POST',
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopups = popups => {
@@ -196,13 +212,16 @@ class PopupsWizard extends Component {
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
-	manageCampaignGroup = ( id, method = 'POST' ) => {
+	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
+		const campaignIds = campaigns.map( campaign => campaign.id );
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/campaign-group/${ id }`,
+			path: addQueryArgs( '/newspack/v1/wizard/newspack-popups-wizard/campaign-group/', {
+				ids: campaignIds,
+			} ),
 			method,
 		} )
-			.then( ( { settings } ) => this.setState( { settings } ) )
+			.then( () => this.onWizardReady() )
 			.catch( error => setError( error ) );
 	};
 
@@ -244,6 +263,7 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						unpublishPopup: this.unpublishPopup,
 					};
 					return (
 						<HashRouter hashType="slash">

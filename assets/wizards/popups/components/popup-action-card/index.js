@@ -28,6 +28,7 @@ const PopupActionCard = ( {
 	segments,
 	setSitewideDefaultPopup,
 	publishPopup,
+	unpublishPopup,
 	updatePopup,
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
@@ -81,6 +82,7 @@ const PopupActionCard = ( {
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }
 							publishPopup={ 'publish' !== status ? publishPopup : null }
+							unpublishPopup={ 'publish' === status ? unpublishPopup : null }
 						/>
 					) }
 				</Fragment>

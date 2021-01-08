@@ -37,6 +37,7 @@ const PopupPopover = ( {
 	setSitewideDefaultPopup,
 	onFocusOutside,
 	publishPopup,
+	unpublishPopup,
 	segments,
 	updatePopup,
 } ) => {
@@ -118,6 +119,11 @@ const PopupPopover = ( {
 			{ publishPopup && (
 				<MenuItem onClick={ () => publishPopup( id ) } className="newspack-button">
 					{ __( 'Publish', 'newspack' ) }
+				</MenuItem>
+			) }
+			{ unpublishPopup && (
+				<MenuItem onClick={ () => unpublishPopup( id ) } className="newspack-button">
+					{ __( 'Unpublish', 'newspack' ) }
 				</MenuItem>
 			) }
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">

@@ -18,7 +18,7 @@ const SegmentationPreview = props => {
 	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
 
 	const {
-		campaignGroups = [],
+		campaignsToDisplay = [],
 		onLoad = () => {},
 		segment = '',
 		url = postPreviewLink || frontendUrl,
@@ -27,7 +27,7 @@ const SegmentationPreview = props => {
 	const decorateURL = urlToDecorate => {
 		const params = {
 			view_as: [
-				`groups:${ sanitizeTerms( campaignGroups ).join( ',' ) }`,
+				`campaigns:${ sanitizeTerms( campaignsToDisplay ).join( ',' ) }`,
 				...( segment.length ? [ `segment:${ segment }` ] : [] ),
 			].join( ';' ),
 		};
@@ -63,14 +63,14 @@ const SegmentationPreview = props => {
 	const beforeLoad = () => {
 		localStorage.setItem( 'newspack_campaigns-preview-segmentId', JSON.stringify( segment ) );
 		localStorage.setItem(
-			'newspack_campaigns-preview-groupTaxIds',
-			JSON.stringify( sanitizeTerms( campaignGroups ) )
+			'newspack_campaigns-preview-campaignIds',
+			JSON.stringify( sanitizeTerms( campaignsToDisplay ) )
 		);
 	};
 
 	const onClose = () => {
 		localStorage.removeItem( 'newspack_campaigns-preview-segmentId' );
-		localStorage.removeItem( 'newspack_campaigns-preview-groupTaxIds' );
+		localStorage.removeItem( 'newspack_campaigns-preview-campaignIds' );
 	};
 
 	return (

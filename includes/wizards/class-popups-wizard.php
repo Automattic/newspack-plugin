@@ -177,6 +177,23 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)/unpublish',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_unpublish_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'      => [
+						'sanitize_callback' => 'absint',
+					],
+					'options' => [
+						'validate_callback' => [ $this, 'api_validate_options' ],
+					],
+				],
+			]
+		);
 
 		// Plugin settings.
 		register_rest_route(
@@ -288,7 +305,7 @@ class Popups_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/campaign-group/(?P<id>\d+)',
+			'/wizard/' . $this->slug . '/campaign-group',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_activate_campaign_group' ],
@@ -303,7 +320,7 @@ class Popups_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/campaign-group/(?P<id>\d+)',
+			'/wizard/' . $this->slug . '/campaign-group',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_deactivate_campaign_group' ],
@@ -505,6 +522,23 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
+	 * Unpublish a Pop-up.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
+	 */
+	public function api_unpublish_popup( $request ) {
+		$id = $request['id'];
+
+		$popup = get_post( $id );
+		if ( is_a( $popup, 'WP_Post' ) && 'newspack_popups_cpt' === $popup->post_type ) {
+			$popup->post_status = 'draft';
+			wp_update_post( $popup );
+		}
+		return $this->api_get_settings();
+	}
+
+	/**
 	 * API sanitization and validation functions
 	 */
 
@@ -672,11 +706,23 @@ class Popups_Wizard extends Wizard {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function api_activate_campaign_group( $request ) {
-		$id = $request['id'];
+		$params = $request->get_params();
+		$ids    = $params['ids'];
+
+		if ( empty( $ids ) ) {
+			return new WP_Error(
+				'newspack_missing_ids',
+				esc_html__( 'Could not activate campaigns.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
+		}
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
-		$response = $newspack_popups_configuration_manager->activate_campaign_group( $id );
+		$response = $newspack_popups_configuration_manager->activate_campaign_group( $ids );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -692,11 +738,23 @@ class Popups_Wizard extends Wizard {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function api_deactivate_campaign_group( $request ) {
-		$id = $request['id'];
+		$params = $request->get_params();
+		$ids    = $params['ids'];
+
+		if ( empty( $ids ) ) {
+			return new WP_Error(
+				'newspack_missing_ids',
+				esc_html__( 'Could not activate campaigns.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
+		}
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
-		$response = $newspack_popups_configuration_manager->deactivate_campaign_group( $id );
+		$response = $newspack_popups_configuration_manager->deactivate_campaign_group( $ids );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
