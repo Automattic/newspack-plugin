@@ -58,4 +58,14 @@
 			}
 		}
 	}
+
+	&__add-new-button {
+		position: relative;
+
+		.newspack-popover {
+			background: $primary-500;
+			border-color: $primary-600;
+			margin-left: 23px;
+		}
+	}
 }
