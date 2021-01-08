@@ -72,29 +72,31 @@
 			margin-left: 23px;
 
 			.components-popover__content {
+				background: $primary-500;
+				border-color: $primary-600;
 				min-width: 216px;
 
-				a {
-					background: white;
+				.components-menu-item__button {
+					background: $primary-500;
 					border: 0;
 					box-shadow: none;
 					border-radius: 3px;
-					color: $dark-gray-300;
+					color: white;
 					font-size: 14px;
 					height: 40px;
 					line-height: 24px;
 					min-height: 40px;
 					padding: 8px;
-					transition: box-shadow 125ms ease-in-out, color 125ms ease-in-out;
+					transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
 
 					&:active,
 					&:hover,
 					&:focus {
-						color: $primary-500;
+						background-color: $primary-600;
 					}
 
 					&:focus {
-						box-shadow: inset 0 0 0 2px $primary-500;
+						box-shadow: inset 0 0 0 2px white;
 					}
 				}
 			}
