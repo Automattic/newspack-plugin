@@ -2,6 +2,7 @@
  * Popup group
  */
 
+@import '~@wordpress/base-styles/colors';
 @import '../../../../shared/scss/colors';
 
 .newspack-campaigns__popup-group {
@@ -10,15 +11,22 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		margin: 32px 0 -16px;
+		margin: 32px 0 -24px;
 
 		.newspack-select-control {
 			margin: 0;
 
 			.components-select-control {
 				select.components-select-control__input {
+					color: $dark-gray-900;
+					font-size: 17px;
+					font-weight: bold;
 					height: 36px;
+					line-height: 24px;
 					min-height: 36px;
+				}
+				div.components-input-control__backdrop {
+					border-color: $light-gray-100;
 				}
 			}
 		}
