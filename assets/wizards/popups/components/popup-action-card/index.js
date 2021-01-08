@@ -19,6 +19,15 @@ import PrimaryPopupPopover from '../popup-popover/primary';
 import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
 
+const placementForPopup = ( { options: { placement } } ) =>
+	( {
+		center: __( 'Center Overlay', 'newspack' ),
+		top: __( 'Top Overlay', 'newspack' ),
+		bottom: __( 'Bottom Overlay', 'newspack' ),
+		inline: __( 'Inline', 'newspack' ),
+		above_header: __( 'Above Header', 'newspack' ),
+	}[ placement ] );
+
 const PopupActionCard = ( {
 	className,
 	description,
@@ -33,12 +42,14 @@ const PopupActionCard = ( {
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const { id, title, sitewide_default: sitewideDefault, status } = popup;
+	const { id, edit_link: editLink, title, sitewide_default: sitewideDefault, status } = popup;
 	return (
 		<ActionCard
 			isSmall
+			badge={ placementForPopup( popup ) }
 			className={ className }
 			title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
+			titleLink={ decodeEntities( editLink ) }
 			key={ id }
 			description={ description }
 			actionText={
