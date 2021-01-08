@@ -27,6 +27,7 @@ import {
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
+import { isOverlay } from '../../utils';
 import './style.scss';
 
 const descriptionForPopup = (
@@ -76,8 +77,17 @@ const PopupGroup = ( {
 		} ).then( terms => setCampaignGroups( terms ) );
 	}, [] );
 
-	const getCardClassName = ( { status } ) => {
+	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
 		if ( 'draft' === status ) {
+			return 'newspack-card__is-disabled';
+		}
+		if ( 'test' === options.frequency ) {
+			return 'newspack-card__is-secondary';
+		}
+		if ( sitewideDefault ) {
+			return 'newspack-card__is-primary';
+		}
+		if ( isOverlay( { options } ) && ! sitewideDefault ) {
 			return 'newspack-card__is-disabled';
 		}
 		return 'newspack-card__is-supported';
