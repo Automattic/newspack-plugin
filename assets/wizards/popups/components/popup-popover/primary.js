@@ -13,7 +13,7 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies.
  */
-import { Popover, SelectControl, ToggleControl } from '../../../../components/src';
+import { Popover, ToggleControl } from '../../../../components/src';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
@@ -22,12 +22,6 @@ const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Every page', 'newspack' ),
-};
-
-const frequenciesForPopup = popup => {
-	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
 const PrimaryPopupPopover = ( {
@@ -40,7 +34,7 @@ const PrimaryPopupPopover = ( {
 	updatePopup,
 } ) => {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-	const { frequency, selected_segment_id: selectedSegmentId } = options;
+	const { frequency } = options;
 	const isDraft = 'draft' === status;
 	const isTestMode = 'test' === frequency;
 	return (

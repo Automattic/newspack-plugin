@@ -14,7 +14,7 @@ import { Icon, cog, moreVertical } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, CategoryAutocomplete } from '../../../../components/src';
+import { ActionCard, Button } from '../../../../components/src';
 import PrimaryPopupPopover from '../popup-popover/primary';
 import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
@@ -35,8 +35,6 @@ const PopupActionCard = ( {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const {
 		id,
-		campaign_groups: campaignGroups,
-		categories,
 		title,
 		sitewide_default: sitewideDefault,
 		status,

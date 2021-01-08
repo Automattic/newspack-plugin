@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { decodeEntities } from '@wordpress/html-entities';
 import { MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 
@@ -17,7 +16,6 @@ import {
 	CategoryAutocomplete,
 	Popover,
 	SelectControl,
-	ToggleControl,
 } from '../../../../components/src';
 import { isOverlay } from '../../utils';
 import './style.scss';
@@ -47,13 +45,10 @@ const SecondaryPopupPopover = ( {
 		categories,
 		id,
 		sitewide_default: sitewideDefault,
-		edit_link: editLink,
 		options,
 		status,
 	} = popup;
 	const { frequency, selected_segment_id: selectedSegmentId } = options;
-	const isDraft = 'draft' === status;
-	const isTestMode = 'test' === frequency;
 	return (
 		<Popover
 			position="bottom left"
