@@ -33,12 +33,7 @@ const PopupActionCard = ( {
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const {
-		id,
-		title,
-		sitewide_default: sitewideDefault,
-		status,
-	} = popup;
+	const { id, title, sitewide_default: sitewideDefault, status } = popup;
 	return (
 		<ActionCard
 			isSmall

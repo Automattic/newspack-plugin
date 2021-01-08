@@ -17,13 +17,6 @@ import { Popover, ToggleControl } from '../../../../components/src';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
-const frequencyMap = {
-	never: __( 'Never', 'newspack' ),
-	once: __( 'Once', 'newspack' ),
-	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page', 'newspack' ),
-};
-
 const PrimaryPopupPopover = ( {
 	deletePopup,
 	popup,

@@ -12,11 +12,7 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies.
  */
-import {
-	CategoryAutocomplete,
-	Popover,
-	SelectControl,
-} from '../../../../components/src';
+import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
@@ -46,7 +42,6 @@ const SecondaryPopupPopover = ( {
 		id,
 		sitewide_default: sitewideDefault,
 		options,
-		status,
 	} = popup;
 	const { frequency, selected_segment_id: selectedSegmentId } = options;
 	return (
