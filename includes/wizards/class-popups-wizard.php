@@ -744,7 +744,7 @@ class Popups_Wizard extends Wizard {
 		if ( empty( $ids ) ) {
 			return new WP_Error(
 				'newspack_missing_ids',
-				esc_html__( 'Could not activate campaigns.', 'newspack' ),
+				esc_html__( 'Could not deactivate campaigns.', 'newspack' ),
 				[
 					'status' => 400,
 					'level'  => 'fatal',
