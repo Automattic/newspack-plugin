@@ -184,6 +184,12 @@ const PopupGroup = ( {
 							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
 							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
 						>
+							<MenuItem
+								onClick={ () => setAddNewPopoverIsVisible( false ) }
+								className="screen-reader-text"
+							>
+								{ __( 'Close Popover', 'newspack' ) }
+							</MenuItem>
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
 								{ __( 'Inline Campaign', 'newspack' ) }
 							</MenuItem>
