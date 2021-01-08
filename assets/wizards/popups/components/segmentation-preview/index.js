@@ -18,6 +18,7 @@ const SegmentationPreview = props => {
 	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
 
 	const {
+		campaignGroups = [],
 		campaignsToDisplay = [],
 		onLoad = () => {},
 		segment = '',
@@ -25,13 +26,16 @@ const SegmentationPreview = props => {
 	} = props;
 
 	const decorateURL = urlToDecorate => {
-		const params = {
-			view_as: [
-				`campaigns:${ sanitizeTerms( campaignsToDisplay ).join( ',' ) }`,
-				...( segment.length ? [ `segment:${ segment }` ] : [] ),
-			].join( ';' ),
-		};
-		return addQueryArgs( urlToDecorate, params );
+		const view_as = [ ...( segment.length ? [ `segment:${ segment }` ] : [] ) ];
+
+		// If passed group IDs, those take precedence. Otherwise, look for an array of campaign IDs.
+		if ( 0 < campaignGroups.length ) {
+			view_as.push( `groups:${ sanitizeTerms( campaignGroups ).join( ',' ) }` );
+		} else if ( 0 < campaignsToDisplay.length ) {
+			view_as.push( `campaigns:${ sanitizeTerms( campaignsToDisplay ).join( ',' ) }` );
+		}
+
+		return addQueryArgs( urlToDecorate, { view_as: view_as.join( ';' ) } );
 	};
 
 	const onWebPreviewLoad = iframeEl => {
@@ -62,14 +66,25 @@ const SegmentationPreview = props => {
 
 	const beforeLoad = () => {
 		localStorage.setItem( 'newspack_campaigns-preview-segmentId', JSON.stringify( segment ) );
-		localStorage.setItem(
-			'newspack_campaigns-preview-campaignIds',
-			JSON.stringify( sanitizeTerms( campaignsToDisplay ) )
-		);
+
+		if ( 0 < campaignGroups.length ) {
+			localStorage.setItem(
+				'newspack_campaigns-preview-groupTaxIds',
+				JSON.stringify( sanitizeTerms( campaignGroups ) )
+			);
+		}
+
+		if ( 0 < campaignsToDisplay.length ) {
+			localStorage.setItem(
+				'newspack_campaigns-preview-campaignIds',
+				JSON.stringify( sanitizeTerms( campaignsToDisplay ) )
+			);
+		}
 	};
 
 	const onClose = () => {
 		localStorage.removeItem( 'newspack_campaigns-preview-segmentId' );
+		localStorage.removeItem( 'newspack_campaigns-preview-groupTaxIds' );
 		localStorage.removeItem( 'newspack_campaigns-preview-campaignIds' );
 	};
 
