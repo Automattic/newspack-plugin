@@ -36,6 +36,7 @@ const SegmentActionCard = ( { segment, deleteSegment } ) => {
 		<ActionCard
 			isSmall
 			title={ segment.name }
+			titleLink={ `#/segmentation/${ segment.id }` }
 			description={ `${ __( 'Created on', 'newspack' ) } ${ format(
 				'Y/m/d',
 				segment.created_at

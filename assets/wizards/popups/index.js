@@ -88,6 +88,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/sitewide-popup/${ popupId }`,
 			method: state ? 'POST' : 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -109,6 +110,7 @@ class PopupsWizard extends Component {
 				taxonomy,
 				terms,
 			},
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -120,6 +122,7 @@ class PopupsWizard extends Component {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
 			method: 'POST',
 			data: { options },
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -135,6 +138,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
 			method: 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
