@@ -162,7 +162,6 @@ const PopupGroup = ( {
 								) }
 								{ previewPopoverIsVisible && (
 									<Popover
-										className="has-select-border"
 										position="bottom right"
 										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
 										onKeyDown={ event =>

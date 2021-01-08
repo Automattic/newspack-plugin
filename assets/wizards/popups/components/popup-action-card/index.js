@@ -9,13 +9,14 @@ import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { Tooltip } from '@wordpress/components';
-import { Icon, menu, moreVertical } from '@wordpress/icons';
+import { Icon, cog, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, CategoryAutocomplete } from '../../../../components/src';
-import PopupPopover from '../popup-popover';
+import { ActionCard, Button } from '../../../../components/src';
+import PrimaryPopupPopover from '../popup-popover/primary';
+import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
 
 const placementForPopup = ( { options: { placement } } ) =>
@@ -42,15 +43,7 @@ const PopupActionCard = ( {
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const {
-		id,
-		campaign_groups: campaignGroups,
-		categories,
-		edit_link: editLink,
-		title,
-		sitewide_default: sitewideDefault,
-		status,
-	} = popup;
+	const { id, edit_link: editLink, title, sitewide_default: sitewideDefault, status } = popup;
 	return (
 		<ActionCard
 			isSmall
@@ -73,7 +66,7 @@ const PopupActionCard = ( {
 							className="icon-only"
 							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
 						>
-							<Icon icon={ menu } />
+							<Icon icon={ cog } />
 						</Button>
 					</Tooltip>
 					<Tooltip text={ __( 'More options', 'newspack' ) }>
@@ -85,11 +78,10 @@ const PopupActionCard = ( {
 						</Button>
 					</Tooltip>
 					{ popoverVisibility && (
-						<PopupPopover
+						<PrimaryPopupPopover
 							deletePopup={ deletePopup }
 							onFocusOutside={ () => setPopoverVisibility( false ) }
 							popup={ popup }
-							segments={ segments }
 							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }
@@ -97,28 +89,19 @@ const PopupActionCard = ( {
 							unpublishPopup={ 'publish' === status ? unpublishPopup : null }
 						/>
 					) }
-				</Fragment>
-			}
-		>
-			{ categoriesVisibility && (
-				<Fragment>
-					<CategoryAutocomplete
-						value={ campaignGroups || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
-						label={ __( 'Campaign groups', 'newspack' ) }
-						taxonomy="newspack_popups_taxonomy"
-					/>
-					{ ! sitewideDefault && (
-						<CategoryAutocomplete
-							value={ categories || [] }
-							onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
-							label={ __( 'Category filtering', 'newspack ' ) }
-							disabled={ sitewideDefault }
+					{ categoriesVisibility && (
+						<SecondaryPopupPopover
+							deletePopup={ deletePopup }
+							onFocusOutside={ () => setCategoriesVisibility( false ) }
+							popup={ popup }
+							segments={ segments }
+							setTermsForPopup={ setTermsForPopup }
+							updatePopup={ updatePopup }
 						/>
 					) }
 				</Fragment>
-			) }
-		</ActionCard>
+			}
+		></ActionCard>
 	);
 };
 export default PopupActionCard;

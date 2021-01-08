@@ -13,24 +13,11 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies.
  */
-import { Popover, SelectControl, ToggleControl } from '../../../../components/src';
+import { Popover, ToggleControl } from '../../../../components/src';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
-const frequencyMap = {
-	never: __( 'Never', 'newspack' ),
-	once: __( 'Once', 'newspack' ),
-	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page', 'newspack' ),
-};
-
-const frequenciesForPopup = popup => {
-	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
-};
-
-const PopupPopover = ( {
+const PrimaryPopupPopover = ( {
 	deletePopup,
 	popup,
 	previewPopup,
@@ -38,11 +25,10 @@ const PopupPopover = ( {
 	onFocusOutside,
 	publishPopup,
 	unpublishPopup,
-	segments,
 	updatePopup,
 } ) => {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-	const { frequency, selected_segment_id: selectedSegmentId } = options;
+	const { frequency } = options;
 	const isDraft = 'draft' === status;
 	const isTestMode = 'test' === frequency;
 	return (
@@ -50,7 +36,11 @@ const PopupPopover = ( {
 			position="bottom left"
 			onFocusOutside={ onFocusOutside }
 			onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside() }
+			className="newspack-popover__campaigns__primary-popover"
 		>
+			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+				{ __( 'Close Popover', 'newspack' ) }
+			</MenuItem>
 			{ isOverlay( { options } ) && ! isTestMode && ! isDraft && (
 				<MenuItem
 					onClick={ () => {
@@ -59,7 +49,7 @@ const PopupPopover = ( {
 					} }
 					className="newspack-button"
 				>
-					<div className="newspack-popup-action-card-popover-control">
+					<div className="newspack-popover__campaigns__toggle-control">
 						{ __( 'Sitewide default', 'newspack' ) }
 						<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
 					</div>
@@ -72,37 +62,10 @@ const PopupPopover = ( {
 				} }
 				className="newspack-button"
 			>
-				<div className="newspack-popup-action-card-popover-control">
+				<div className="newspack-popover__campaigns__toggle-control">
 					{ __( 'Test mode', 'newspack' ) }
 					<ToggleControl checked={ isTestMode } onChange={ () => null } />
 				</div>
-			</MenuItem>
-			{ 'test' !== frequency && (
-				<MenuItem className="newspack-button newspack-popup-action-card-select-button">
-					<SelectControl
-						onChange={ value => {
-							updatePopup( id, { frequency: value } );
-							onFocusOutside();
-						} }
-						className="newspack-popup-action-card-select"
-						options={ frequenciesForPopup( popup ) }
-						value={ frequency }
-					/>
-				</MenuItem>
-			) }
-			<MenuItem className="newspack-button newspack-popup-action-card-select-button">
-				<SelectControl
-					onChange={ value => {
-						updatePopup( id, { selected_segment_id: value } );
-						onFocusOutside();
-					} }
-					className="newspack-popup-action-card-select"
-					options={ [
-						{ label: __( 'Default (no segment)', 'newspck' ), value: '' },
-						...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
-					] }
-					value={ selectedSegmentId }
-				/>
 			</MenuItem>
 			<MenuItem
 				onClick={ () => {
@@ -141,10 +104,10 @@ const PopupPopover = ( {
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
 				{ __( 'Delete', 'newspack' ) }
 			</MenuItem>
-			<div className="newspack-popup-info">
+			<div className="newspack-popover__campaigns__info">
 				{ __( 'ID:', 'newspack' ) } { popup.id }
 			</div>
 		</Popover>
 	);
 };
-export default PopupPopover;
+export default PrimaryPopupPopover;

@@ -11,8 +11,9 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Material UI dependencies.
  */
 import EditIcon from '@material-ui/icons/Edit';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import DeleteIcon from '@material-ui/icons/Delete';
+
+import { Icon, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -23,7 +24,9 @@ const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
 	<NavLink to="segmentation/new">
-		<Button isPrimary>{ __( 'Add new', 'newspack' ) }</Button>
+		<Button isPrimary isSmall>
+			{ __( 'Add new', 'newspack' ) }
+		</Button>
 	</NavLink>
 );
 
@@ -48,7 +51,7 @@ const SegmentActionCard = ( { segment, deleteSegment } ) => {
 							className="icon-only"
 							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 						>
-							<MoreVertIcon />
+							<Icon icon={ moreVertical } />
 						</Button>
 					</Tooltip>
 					{ popoverVisibility && (

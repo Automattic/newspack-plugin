@@ -63,15 +63,6 @@
 			line-height: 16px;
 		}
 
-		.newspack-form-token-field {
-			margin: 8px 0 0;
-
-			label {
-				font-size: 12px;
-				line-height: 16px;
-			}
-		}
-
 		& + & {
 			margin-top: -24px;
 		}
@@ -245,12 +236,6 @@
 
 	&.newspack-description-card {
 		font-style: italic;
-	}
-
-	// Form Token Field
-
-	.newspack-form-token-field {
-		margin: 16px 0 0;
 	}
 
 	// Multiple Cards
