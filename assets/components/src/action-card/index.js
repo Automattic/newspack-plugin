@@ -76,7 +76,7 @@ class ActionCard extends Component {
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
 						<h2>
-							<span className="newspack-action-card__title dope">
+							<span className="newspack-action-card__title">
 								{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
 							</span>
 							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
