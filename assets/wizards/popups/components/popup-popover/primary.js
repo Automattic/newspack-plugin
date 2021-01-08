@@ -48,7 +48,11 @@ const PrimaryPopupPopover = ( {
 			position="bottom left"
 			onFocusOutside={ onFocusOutside }
 			onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside() }
+			className="newspack-popover__campaigns__primary-popover"
 		>
+			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+				{ __( 'Close Popover', 'newspack' ) }
+			</MenuItem>
 			{ isOverlay( { options } ) && ! isTestMode && ! isDraft && (
 				<MenuItem
 					onClick={ () => {
@@ -57,7 +61,7 @@ const PrimaryPopupPopover = ( {
 					} }
 					className="newspack-button"
 				>
-					<div className="newspack-popup-action-card-popover-control">
+					<div className="newspack-popover__campaigns__toggle-control">
 						{ __( 'Sitewide default', 'newspack' ) }
 						<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
 					</div>
@@ -70,7 +74,7 @@ const PrimaryPopupPopover = ( {
 				} }
 				className="newspack-button"
 			>
-				<div className="newspack-popup-action-card-popover-control">
+				<div className="newspack-popover__campaigns__toggle-control">
 					{ __( 'Test mode', 'newspack' ) }
 					<ToggleControl checked={ isTestMode } onChange={ () => null } />
 				</div>
@@ -95,7 +99,7 @@ const PrimaryPopupPopover = ( {
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
 				{ __( 'Delete', 'newspack' ) }
 			</MenuItem>
-			<div className="newspack-popup-info">
+			<div className="newspack-popover__campaigns__info">
 				{ __( 'ID:', 'newspack' ) } { popup.id }
 			</div>
 		</Popover>

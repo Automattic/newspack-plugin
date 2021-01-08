@@ -59,51 +59,48 @@ const SecondaryPopupPopover = ( {
 			position="bottom left"
 			onFocusOutside={ onFocusOutside }
 			onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside() }
+			padding={ 8 }
+			className="newspack-popover__campaigns__secondary-popover"
 		>
+			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+				{ __( 'Close Popover', 'newspack' ) }
+			</MenuItem>
 			{ 'test' !== frequency && (
-				<MenuItem className="newspack-button newspack-popup-action-card-select-button">
-					<SelectControl
-						onChange={ value => {
-							updatePopup( id, { frequency: value } );
-							onFocusOutside();
-						} }
-						className="newspack-popup-action-card-select"
-						options={ frequenciesForPopup( popup ) }
-						value={ frequency }
-					/>
-				</MenuItem>
-			) }
-			<MenuItem className="newspack-button newspack-popup-action-card-select-button">
 				<SelectControl
 					onChange={ value => {
-						updatePopup( id, { selected_segment_id: value } );
+						updatePopup( id, { frequency: value } );
 						onFocusOutside();
 					} }
-					className="newspack-popup-action-card-select"
-					options={ [
-						{ label: __( 'Default (no segment)', 'newspck' ), value: '' },
-						...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
-					] }
-					value={ selectedSegmentId }
+					options={ frequenciesForPopup( popup ) }
+					value={ frequency }
+					label={ __( 'Frequency', 'newspack' ) }
 				/>
-			</MenuItem>
-			<MenuItem className="newspack-button newspack-popup-action-card-select-button">
-				<CategoryAutocomplete
-					value={ campaignGroups || [] }
-					onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
-					label={ __( 'Campaign groups', 'newspack' ) }
-					taxonomy="newspack_popups_taxonomy"
-				/>
-			</MenuItem>
+			) }
+			<SelectControl
+				onChange={ value => {
+					updatePopup( id, { selected_segment_id: value } );
+					onFocusOutside();
+				} }
+				options={ [
+					{ label: __( 'Default (no segment)', 'newspack' ), value: '' },
+					...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
+				] }
+				value={ selectedSegmentId }
+				label={ __( 'Segmentation', 'newspack' ) }
+			/>
+			<CategoryAutocomplete
+				value={ campaignGroups || [] }
+				onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
+				label={ __( 'Campaign groups', 'newspack' ) }
+				taxonomy="newspack_popups_taxonomy"
+			/>
 			{ ! sitewideDefault && (
-				<MenuItem className="newspack-button newspack-popup-action-card-select-button">
-					<CategoryAutocomplete
-						value={ categories || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
-						label={ __( 'Category filtering', 'newspack ' ) }
-						disabled={ sitewideDefault }
-					/>
-				</MenuItem>
+				<CategoryAutocomplete
+					value={ categories || [] }
+					onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
+					label={ __( 'Category filtering', 'newspack ' ) }
+					disabled={ sitewideDefault }
+				/>
 			) }
 		</Popover>
 	);

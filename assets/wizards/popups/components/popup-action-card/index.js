@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { Tooltip } from '@wordpress/components';
-import { Icon, menu, moreVertical } from '@wordpress/icons';
+import { Icon, cog, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -61,7 +61,7 @@ const PopupActionCard = ( {
 							className="icon-only"
 							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
 						>
-							<Icon icon={ menu } />
+							<Icon icon={ cog } />
 						</Button>
 					</Tooltip>
 					<Tooltip text={ __( 'More options', 'newspack' ) }>
