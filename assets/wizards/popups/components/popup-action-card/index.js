@@ -45,6 +45,7 @@ const PopupActionCard = ( {
 		id,
 		campaign_groups: campaignGroups,
 		categories,
+		edit_link: editLink,
 		title,
 		sitewide_default: sitewideDefault,
 		status,
@@ -55,6 +56,7 @@ const PopupActionCard = ( {
 			badge={ placementForPopup( popup ) }
 			className={ className }
 			title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
+			titleLink={ decodeEntities( editLink ) }
 			key={ id }
 			description={ description }
 			actionText={
