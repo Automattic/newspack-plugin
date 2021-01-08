@@ -154,6 +154,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
 			method: 'POST',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -169,6 +170,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/unpublish`,
 			method: 'POST',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );

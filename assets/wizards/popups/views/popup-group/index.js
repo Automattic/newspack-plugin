@@ -18,10 +18,15 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Button, Popover, SelectControl } from '../../../../components/src';
+import {
+	withWizardScreen,
+	Button,
+	CheckboxControl,
+	Popover,
+	SelectControl,
+} from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
-import { isOverlay } from '../../utils';
 import './style.scss';
 
 const descriptionForPopup = (
@@ -62,7 +67,8 @@ const PopupGroup = ( {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 	const [ segmentId, setSegmentId ] = useState();
-	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
+	const [ showUnpublished, setShowUnpublished ] = useState( false );
+	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState( false );
 
 	useEffect( () => {
 		apiFetch( {
@@ -70,7 +76,7 @@ const PopupGroup = ( {
 		} ).then( terms => setCampaignGroups( terms ) );
 	}, [] );
 
-	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
+	const getCardClassName = ( { status } ) => {
 		if ( 'draft' === status ) {
 			return 'newspack-card__is-disabled';
 		}
@@ -142,6 +148,7 @@ const PopupGroup = ( {
 					<SegmentationPreview
 						campaignsToDisplay={ campaignsToDisplay }
 						segment={ segmentId }
+						showUnpublished={ showUnpublished }
 						renderButton={ ( { showPreview } ) => (
 							<div className="newspack-campaigns__popup-group__filter-group-segmentation">
 								{ 0 < campaignsToDisplay.length && (
@@ -170,6 +177,11 @@ const PopupGroup = ( {
 											value={ segmentId }
 											onChange={ setSegmentId }
 											label={ __( 'Segment to preview', 'newspack' ) }
+										/>
+										<CheckboxControl
+											label={ __( 'Show unpublished campaigns', 'newspack' ) }
+											checked={ showUnpublished }
+											onChange={ () => setShowUnpublished( ! showUnpublished ) }
 										/>
 										<Button
 											isLink

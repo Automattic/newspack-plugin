@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	withWizardScreen,
 	Button,
+	CheckboxControl,
 	SelectControl,
 	CategoryAutocomplete,
 } from '../../../../components/src';
@@ -22,6 +23,7 @@ import './style.scss';
 const Preview = ( { segments } ) => {
 	const [ segmentId, setSegmentId ] = useState( '' );
 	const [ groupTaxIds, setGroupTaxIds ] = useState( [] );
+	const [ showUnpublished, setShowUnpublished ] = useState( false );
 
 	return (
 		<div className="newspack-campaigns-wizard-preview">
@@ -48,9 +50,15 @@ const Preview = ( { segments } ) => {
 				taxonomy="newspack_popups_taxonomy"
 				label={ __( 'Groups', 'newspack' ) }
 			/>
+			<CheckboxControl
+				label={ __( 'Show unpublished campaigns', 'newspack' ) }
+				checked={ showUnpublished }
+				onChange={ () => setShowUnpublished( ! showUnpublished ) }
+			/>
 			<SegmentationPreview
 				campaignGroups={ groupTaxIds }
 				segment={ segmentId }
+				showUnpublished={ showUnpublished }
 				renderButton={ ( { showPreview } ) => (
 					<Button isPrimary onClick={ showPreview }>
 						{ __( 'Preview', 'newspack' ) }

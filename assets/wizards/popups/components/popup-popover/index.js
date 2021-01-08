@@ -117,12 +117,24 @@ const PopupPopover = ( {
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
 			{ publishPopup && (
-				<MenuItem onClick={ () => publishPopup( id ) } className="newspack-button">
+				<MenuItem
+					onClick={ () => {
+						onFocusOutside();
+						publishPopup( id );
+					} }
+					className="newspack-button"
+				>
 					{ __( 'Publish', 'newspack' ) }
 				</MenuItem>
 			) }
 			{ unpublishPopup && (
-				<MenuItem onClick={ () => unpublishPopup( id ) } className="newspack-button">
+				<MenuItem
+					onClick={ () => {
+						onFocusOutside();
+						unpublishPopup( id );
+					} }
+					className="newspack-button"
+				>
 					{ __( 'Unpublish', 'newspack' ) }
 				</MenuItem>
 			) }

@@ -22,11 +22,16 @@ const SegmentationPreview = props => {
 		campaignsToDisplay = [],
 		onLoad = () => {},
 		segment = '',
+		showUnpublished = false,
 		url = postPreviewLink || frontendUrl,
 	} = props;
 
 	const decorateURL = urlToDecorate => {
 		const view_as = [ ...( segment.length ? [ `segment:${ segment }` ] : [] ) ];
+
+		if ( showUnpublished ) {
+			view_as.push( 'show_unpublished:true' );
+		}
 
 		// If passed group IDs, those take precedence. Otherwise, look for an array of campaign IDs.
 		if ( 0 < campaignGroups.length ) {
