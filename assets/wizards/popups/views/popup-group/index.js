@@ -7,6 +7,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
+import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
 
@@ -21,9 +22,9 @@ import { find } from 'lodash';
 import {
 	withWizardScreen,
 	Button,
-	CheckboxControl,
 	Popover,
 	SelectControl,
+	ToggleControl
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
@@ -178,6 +179,9 @@ const PopupGroup = ( {
 											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
 										}
 									>
+										<MenuItem onClick={ () => setPreviewPopoverIsVisible( false ) } className="screen-reader-text">
+											{ __( 'Close Popover', 'newspack' ) }
+										</MenuItem>
 										<SelectControl
 											options={ [
 												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
@@ -187,7 +191,7 @@ const PopupGroup = ( {
 											onChange={ setSegmentId }
 											label={ __( 'Segment to preview', 'newspack' ) }
 										/>
-										<CheckboxControl
+										<ToggleControl
 											label={ __( 'Show unpublished campaigns', 'newspack' ) }
 											checked={ showUnpublished }
 											onChange={ () => setShowUnpublished( ! showUnpublished ) }

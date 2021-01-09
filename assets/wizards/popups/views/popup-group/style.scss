@@ -12,8 +12,17 @@
 		flex-wrap: wrap;
 		justify-content: space-between;
 		margin: 32px 0 -24px;
+	}
 
-		.newspack-select-control {
+	&__filter-group-actions {
+		align-items: center;
+		display: flex;
+
+		> * + * {
+			margin-left: 8px;
+		}
+
+		> .newspack-select-control {
 			margin: 0;
 
 			.components-select-control {
@@ -30,37 +39,24 @@
 				}
 			}
 		}
-
-		.newspack-checkbox-control {
-			margin-bottom: 16px;
-			margin-top: 16px;
-			width: 100%;
-		}
-	}
-
-	&__filter-group-actions {
-		align-items: center;
-		display: flex;
-
-		> * + * {
-			margin-left: 8px;
-		}
 	}
 
 	&__filter-group-segmentation {
-		> * + * {
-			margin-left: 8px;
-		}
 		.components-popover {
-			margin-left: -16px;
+			margin-left: -20px;
 
 			&__content {
-				padding: 16px;
+				padding: 8px;
 
 				> div {
 					display: flex;
 					flex-wrap: wrap;
 					justify-content: flex-end;
+				}
+
+				.newspack-toggle-control {
+					margin: 8px 0;
+					width: 100%;
 				}
 
 				.newspack-button.is-link {
