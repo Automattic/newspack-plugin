@@ -24,7 +24,7 @@ import {
 	Button,
 	Popover,
 	SelectControl,
-	ToggleControl
+	ToggleControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
@@ -179,7 +179,10 @@ const PopupGroup = ( {
 											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
 										}
 									>
-										<MenuItem onClick={ () => setPreviewPopoverIsVisible( false ) } className="screen-reader-text">
+										<MenuItem
+											onClick={ () => setPreviewPopoverIsVisible( false ) }
+											className="screen-reader-text"
+										>
 											{ __( 'Close Popover', 'newspack' ) }
 										</MenuItem>
 										<SelectControl
