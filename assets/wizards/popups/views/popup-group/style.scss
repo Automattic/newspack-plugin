@@ -74,7 +74,8 @@
 			.components-popover__content {
 				background: $primary-500;
 				border-color: $primary-600;
-				min-width: 216px;
+				min-width: 206px;
+				text-align: right;
 
 				.components-menu-item__button {
 					background: $primary-500;
@@ -82,17 +83,18 @@
 					box-shadow: none;
 					border-radius: 3px;
 					color: white;
+					display: block;
 					font-size: 14px;
 					height: 40px;
 					line-height: 24px;
 					min-height: 40px;
-					padding: 8px;
+					padding: 8px 16px;
 					transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
 
 					&:active,
 					&:hover,
 					&:focus {
-						background-color: $primary-600;
+						text-decoration: underline;
 					}
 
 					&:focus {
