@@ -17,8 +17,4 @@
 			border-top: 1px solid $light-gray-500;
 		}
 	}
-
-	&:not( .newspack-card__is-primary ) .newspack-popover {
-		margin-left: 18px;
-	}
 }

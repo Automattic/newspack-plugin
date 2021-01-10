@@ -16,7 +16,7 @@
 			color: $dark-gray-300;
 			display: flex;
 			font-weight: normal;
-			padding: 8px;
+			padding: 6px 8px;
 
 			&:hover {
 				.components-menu-items__item-icon {
@@ -33,7 +33,7 @@
 			&.is-link {
 				border-radius: 3px;
 				color: $dark-gray-300;
-				padding: 8px;
+				padding: 6px 8px;
 				text-decoration: none;
 
 				&:active,
@@ -60,14 +60,18 @@
 			}
 		}
 
+		.screen-reader-text {
+			display: flex;
+		}
+
 		.newspack-select-control {
 			margin: 0;
 			width: 100%;
 
 			.components-select-control {
 				select.components-select-control__input {
-					height: 40px;
-					min-height: 40px;
+					height: 36px;
+					min-height: 36px;
 
 					&:focus ~ div.components-input-control__backdrop {
 						border-color: $primary-500;
@@ -78,6 +82,24 @@
 				div.components-input-control__backdrop {
 					padding: 0;
 				}
+			}
+		}
+
+		.newspack-form-token-field {
+			margin: 0;
+			text-align: left;
+
+			.newspack-form-token-field__input-container {
+				min-height: 36px;
+				padding: 3px 5px;
+			}
+
+			.components-form-token-field__suggestions-list {
+				margin: 5px -3px -11px;
+			}
+
+			.components-form-token-field__label {
+				display: block;
 			}
 		}
 
@@ -98,19 +120,23 @@
 		border-color: $light-gray-500;
 	}
 
-	&:not( .has-select-border ) {
-		.components-select-control {
-			div.components-input-control__backdrop {
-				border-color: white;
-			}
-		}
-	}
-
 	&.is-from-bottom {
 		margin-bottom: 8px;
 	}
 
 	&.is-from-top {
 		margin-top: 8px;
+	}
+
+	&__padding-8 {
+		.components-popover__content {
+			padding: 8px;
+		}
+	}
+
+	&__padding-16 {
+		.components-popover__content {
+			padding: 16px;
+		}
 	}
 }
