@@ -30,17 +30,6 @@ const descriptionForPopup = (
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
-	switch ( options.placement ) {
-		case 'above_header':
-			descriptionMessages.push( __( 'Above header', 'newspack' ) );
-			break;
-		case 'inline':
-			descriptionMessages.push( __( 'Inline', 'newspack' ) );
-			break;
-		default:
-			descriptionMessages.push( __( 'Overlay', 'newspack' ) );
-			break;
-	}
 	if ( segment ) {
 		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
 	}
@@ -147,7 +136,7 @@ const PopupGroup = ( {
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( +value ) }
 						label={ __( 'Groups', 'newspack' ) }
-						labelPosition="side"
+						hideLabelFromVision={ true }
 						disabled={ -1 === campaignGroups }
 					/>
 					{ campaignGroup > 0 && (
@@ -185,7 +174,6 @@ const PopupGroup = ( {
 									) }
 									{ previewPopoverIsVisible && (
 										<Popover
-											className="has-select-border"
 											position="bottom right"
 											onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
 											onKeyDown={ event =>
