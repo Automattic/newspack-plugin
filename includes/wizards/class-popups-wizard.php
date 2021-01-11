@@ -179,9 +179,9 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/(?P<id>\d+)/unpublish',
+			'/wizard/' . $this->slug . '/(?P<id>\d+)/publish',
 			[
-				'methods'             => \WP_REST_Server::EDITABLE,
+				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_unpublish_popup' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
@@ -305,10 +305,10 @@ class Popups_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/campaign-group',
+			'/wizard/' . $this->slug . '/batch-publish',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_activate_campaign_group' ],
+				'callback'            => [ $this, 'api_batch_publish' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -320,10 +320,10 @@ class Popups_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/campaign-group',
+			'/wizard/' . $this->slug . '/batch-publish',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_deactivate_campaign_group' ],
+				'callback'            => [ $this, 'api_batch_unpublish' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -705,9 +705,9 @@ class Popups_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function api_activate_campaign_group( $request ) {
-		$params = $request->get_params();
-		$ids    = $params['ids'];
+	public function api_batch_publish( $request ) {
+		$data = $request->get_json_params();
+		$ids  = $data['ids'];
 
 		if ( empty( $ids ) ) {
 			return new WP_Error(
@@ -737,9 +737,9 @@ class Popups_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function api_deactivate_campaign_group( $request ) {
-		$params = $request->get_params();
-		$ids    = $params['ids'];
+	public function api_batch_unpublish( $request ) {
+		$data = $request->get_json_params();
+		$ids  = $data['ids'];
 
 		if ( empty( $ids ) ) {
 			return new WP_Error(

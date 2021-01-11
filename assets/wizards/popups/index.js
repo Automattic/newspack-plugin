@@ -168,8 +168,8 @@ class PopupsWizard extends Component {
 	unpublishPopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/unpublish`,
-			method: 'POST',
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
+			method: 'DELETE',
 			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
@@ -220,11 +220,9 @@ class PopupsWizard extends Component {
 
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
-		const campaignIds = campaigns.map( campaign => campaign.id );
 		return wizardApiFetch( {
-			path: addQueryArgs( '/newspack/v1/wizard/newspack-popups-wizard/campaign-group/', {
-				ids: campaignIds,
-			} ),
+			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
+			data: { ids: campaigns.map( campaign => campaign.id ) },
 			method,
 		} )
 			.then( () => this.onWizardReady() )
