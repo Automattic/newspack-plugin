@@ -502,7 +502,7 @@ class Popups_Wizard extends Wizard {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'frequency':
-					if ( ! in_array( $value, [ 'test', 'never', 'once', 'daily', 'always' ] ) ) {
+					if ( ! in_array( $value, [ 'test', 'never', 'once', 'daily', 'always', 'manual' ] ) ) {
 						return false;
 					}
 					break;

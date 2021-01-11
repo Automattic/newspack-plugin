@@ -190,19 +190,22 @@ const PopupGroup = ( {
 								{ __( 'Close Popover', 'newspack' ) }
 							</MenuItem>
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
-								{ __( 'Inline Campaign', 'newspack' ) }
+								{ __( 'Inline', 'newspack' ) }
 							</MenuItem>
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center">
-								{ __( 'Center Overlay Campaign', 'newspack' ) }
+								{ __( 'Center Overlay', 'newspack' ) }
 							</MenuItem>
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top">
-								{ __( 'Top Overlay Campaign', 'newspack' ) }
+								{ __( 'Top Overlay', 'newspack' ) }
 							</MenuItem>
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom">
-								{ __( 'Bottom Overlay Campaign', 'newspack' ) }
+								{ __( 'Bottom Overlay', 'newspack' ) }
 							</MenuItem>
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header">
-								{ __( 'Above Header Campaign', 'newspack' ) }
+								{ __( 'Above Header', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual">
+								{ __( 'Manual Placement', 'newspack' ) }
 							</MenuItem>
 						</Popover>
 					) }
