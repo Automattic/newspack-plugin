@@ -60,28 +60,7 @@ const SegmentationPreview = props => {
 			return null;
 		} );
 
-	const beforeLoad = () => {
-		localStorage.setItem( 'newspack_campaigns-preview-segmentId', JSON.stringify( segment ) );
-		localStorage.setItem(
-			'newspack_campaigns-preview-groupTaxIds',
-			JSON.stringify( sanitizeTerms( campaignGroups ) )
-		);
-	};
-
-	const onClose = () => {
-		localStorage.removeItem( 'newspack_campaigns-preview-segmentId' );
-		localStorage.removeItem( 'newspack_campaigns-preview-groupTaxIds' );
-	};
-
-	return (
-		<WebPreview
-			{ ...props }
-			beforeLoad={ beforeLoad }
-			onClose={ onClose }
-			onLoad={ onWebPreviewLoad }
-			url={ decorateURL( url ) }
-		/>
-	);
+	return <WebPreview { ...props } onLoad={ onWebPreviewLoad } url={ decorateURL( url ) } />;
 };
 
 export default SegmentationPreview;
