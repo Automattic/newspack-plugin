@@ -60,6 +60,15 @@
 			}
 		}
 
+		.components-menu-group__label {
+			color: $dark-gray-900;
+			font-size: 12px;
+			font-weight: bold;
+			line-height: 16px;
+			margin: 0;
+			padding: 10px 8px;
+		}
+
 		.screen-reader-text {
 			display: flex;
 		}
