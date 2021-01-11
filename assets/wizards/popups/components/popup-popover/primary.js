@@ -24,6 +24,7 @@ const PrimaryPopupPopover = ( {
 	setSitewideDefaultPopup,
 	onFocusOutside,
 	publishPopup,
+	unpublishPopup,
 	updatePopup,
 } ) => {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
@@ -79,8 +80,25 @@ const PrimaryPopupPopover = ( {
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
 			{ publishPopup && (
-				<MenuItem onClick={ () => publishPopup( id ) } className="newspack-button">
+				<MenuItem
+					onClick={ () => {
+						onFocusOutside();
+						publishPopup( id );
+					} }
+					className="newspack-button"
+				>
 					{ __( 'Publish', 'newspack' ) }
+				</MenuItem>
+			) }
+			{ unpublishPopup && (
+				<MenuItem
+					onClick={ () => {
+						onFocusOutside();
+						unpublishPopup( id );
+					} }
+					className="newspack-button"
+				>
+					{ __( 'Unpublish', 'newspack' ) }
 				</MenuItem>
 			) }
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">

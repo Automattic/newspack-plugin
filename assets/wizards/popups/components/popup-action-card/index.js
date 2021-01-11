@@ -19,14 +19,18 @@ import PrimaryPopupPopover from '../popup-popover/primary';
 import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
 
-const placementForPopup = ( { options: { placement } } ) =>
-	( {
+const placementForPopup = ( { options: { frequency, placement } } ) => {
+	if ( 'manual' === frequency ) {
+		return __( 'Manual Placement', 'newspack' );
+	}
+	return {
 		center: __( 'Center Overlay', 'newspack' ),
 		top: __( 'Top Overlay', 'newspack' ),
 		bottom: __( 'Bottom Overlay', 'newspack' ),
 		inline: __( 'Inline', 'newspack' ),
 		above_header: __( 'Above Header', 'newspack' ),
-	}[ placement ] );
+	}[ placement ];
+};
 
 const PopupActionCard = ( {
 	className,
@@ -38,6 +42,7 @@ const PopupActionCard = ( {
 	segments,
 	setSitewideDefaultPopup,
 	publishPopup,
+	unpublishPopup,
 	updatePopup,
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
@@ -85,6 +90,7 @@ const PopupActionCard = ( {
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }
 							publishPopup={ 'publish' !== status ? publishPopup : null }
+							unpublishPopup={ 'publish' === status ? unpublishPopup : null }
 						/>
 					) }
 					{ categoriesVisibility && (

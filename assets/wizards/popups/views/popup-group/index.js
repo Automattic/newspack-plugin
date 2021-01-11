@@ -7,6 +7,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
+import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
 
@@ -18,7 +19,13 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Button, Popover, SelectControl } from '../../../../components/src';
+import {
+	withWizardScreen,
+	Button,
+	Popover,
+	SelectControl,
+	ToggleControl,
+} from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
 import { isOverlay } from '../../utils';
@@ -55,30 +62,22 @@ const PopupGroup = ( {
 	setTermsForPopup,
 	setSitewideDefaultPopup,
 	publishPopup,
+	unpublishPopup,
 	updatePopup,
 	segments,
-	settings,
 } ) => {
-	const activeCampaignGroup = settings.reduce(
-		( acc, { key, value } ) => ( key === 'newspack_popups_active_campaign_group' ? value : acc ),
-		null
-	);
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 	const [ segmentId, setSegmentId ] = useState();
+	const [ showUnpublished, setShowUnpublished ] = useState( false );
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
+	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
 
 	useEffect( () => {
 		apiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
 		} ).then( terms => setCampaignGroups( terms ) );
 	}, [] );
-
-	useEffect( () => {
-		if ( -1 === campaignGroup && activeCampaignGroup > 0 ) {
-			setCampaignGroup( +activeCampaignGroup );
-		}
-	}, [ activeCampaignGroup ] );
 
 	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
 		if ( 'draft' === status ) {
@@ -139,75 +138,124 @@ const PopupGroup = ( {
 						hideLabelFromVision={ true }
 						disabled={ -1 === campaignGroups }
 					/>
-					{ campaignGroup > 0 && (
-						<SegmentationPreview
-							campaignGroups={ campaignGroup }
-							segment={ segmentId }
-							renderButton={ ( { showPreview } ) => (
-								<div className="newspack-campaigns__popup-group__filter-group-segmentation">
-									{ +activeCampaignGroup !== campaignGroup && (
-										<Button
-											isTertiary
-											isSmall
-											onClick={ () => manageCampaignGroup( campaignGroup ) }
+					{ 0 < campaignsToDisplay.length && (
+						<>
+							<Button
+								isTertiary
+								isSmall
+								onClick={ () => manageCampaignGroup( campaignsToDisplay ) }
+							>
+								{ __( 'Publish All', 'newspack' ) }
+							</Button>
+							<Button
+								isTertiary
+								isSmall
+								onClick={ () => manageCampaignGroup( campaignsToDisplay, 'DELETE' ) }
+							>
+								{ __( 'Unpublish All', 'newspack' ) }
+							</Button>
+						</>
+					) }
+
+					<SegmentationPreview
+						campaignsToDisplay={ campaignsToDisplay }
+						segment={ segmentId }
+						showUnpublished={ showUnpublished }
+						renderButton={ ( { showPreview } ) => (
+							<div className="newspack-campaigns__popup-group__filter-group-segmentation">
+								{ 0 < campaignsToDisplay.length && (
+									<Button
+										isTertiary
+										isSmall
+										onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
+									>
+										{ __( 'Preview', 'newspack' ) }
+									</Button>
+								) }
+								{ previewPopoverIsVisible && (
+									<Popover
+										position="bottom right"
+										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
+										onKeyDown={ event =>
+											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
+										}
+									>
+										<MenuItem
+											onClick={ () => setPreviewPopoverIsVisible( false ) }
+											className="screen-reader-text"
 										>
-											{ __( 'Activate', 'newspack' ) }
-										</Button>
-									) }
-									{ campaignGroupExists && +activeCampaignGroup === campaignGroup && (
+											{ __( 'Close Popover', 'newspack' ) }
+										</MenuItem>
+										<SelectControl
+											options={ [
+												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+												...segments.map( s => ( { value: s.id, label: s.name } ) ),
+											] }
+											value={ segmentId }
+											onChange={ setSegmentId }
+											label={ __( 'Segment to preview', 'newspack' ) }
+										/>
+										<ToggleControl
+											label={ __( 'Show unpublished campaigns', 'newspack' ) }
+											checked={ showUnpublished }
+											onChange={ () => setShowUnpublished( ! showUnpublished ) }
+										/>
 										<Button
-											isTertiary
-											isSmall
-											onClick={ () => manageCampaignGroup( campaignGroup, 'DELETE' ) }
-										>
-											{ __( 'Deactivate', 'newspack' ) }
-										</Button>
-									) }
-									{ campaignGroupExists && (
-										<Button
-											isTertiary
-											isSmall
-											onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
+											isLink
+											onClick={ () => {
+												showPreview();
+												setPreviewPopoverIsVisible( false );
+											} }
 										>
 											{ __( 'Preview', 'newspack' ) }
 										</Button>
-									) }
-									{ previewPopoverIsVisible && (
-										<Popover
-											position="bottom right"
-											onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
-											onKeyDown={ event =>
-												ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
-											}
-										>
-											<SelectControl
-												options={ [
-													{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-													...segments.map( s => ( { value: s.id, label: s.name } ) ),
-												] }
-												value={ segmentId }
-												onChange={ setSegmentId }
-												label={ __( 'Segment to preview', 'newspack' ) }
-											/>
-											<Button
-												isLink
-												onClick={ () => {
-													showPreview();
-													setPreviewPopoverIsVisible( false );
-												} }
-											>
-												{ __( 'Preview', 'newspack' ) }
-											</Button>
-										</Popover>
-									) }
-								</div>
-							) }
-						/>
+									</Popover>
+								) }
+							</div>
+						) }
+					/>
+				</div>
+				<div className="newspack-campaigns__popup-group__add-new-button">
+					<Button
+						isPrimary
+						isSmall
+						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
+					>
+						{ __( 'Add New', 'newspack' ) }
+					</Button>
+					{ addNewPopoverIsVisible && (
+						<Popover
+							position="bottom left"
+							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
+							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						>
+							<MenuItem
+								onClick={ () => setAddNewPopoverIsVisible( false ) }
+								className="screen-reader-text"
+							>
+								{ __( 'Close Popover', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
+								{ __( 'Inline', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center">
+								{ __( 'Center Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top">
+								{ __( 'Top Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom">
+								{ __( 'Bottom Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header">
+								{ __( 'Above Header', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual">
+								{ __( 'Manual Placement', 'newspack' ) }
+							</MenuItem>
+						</Popover>
 					) }
 				</div>
-				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
-					{ __( 'Add New', 'newspack' ) }
-				</Button>
 			</div>
 			{ campaignsToDisplay.map( campaign => (
 				<PopupActionCard
@@ -222,6 +270,7 @@ const PopupGroup = ( {
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
 					publishPopup={ publishPopup }
+					unpublishPopup={ unpublishPopup }
 				/>
 			) ) }
 			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (

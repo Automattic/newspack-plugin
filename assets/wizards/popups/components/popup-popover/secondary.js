@@ -21,6 +21,7 @@ const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Every page', 'newspack' ),
+	manual: __( 'Manual Placement', 'newspack' ),
 };
 
 const frequenciesForPopup = popup => {
@@ -76,7 +77,7 @@ const SecondaryPopupPopover = ( {
 					...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
 				] }
 				value={ selectedSegmentId }
-				label={ __( 'Segmentation', 'newspack' ) }
+				label={ __( 'Segment', 'newspack' ) }
 			/>
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
