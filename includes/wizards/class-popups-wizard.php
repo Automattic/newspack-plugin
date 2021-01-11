@@ -568,7 +568,7 @@ class Popups_Wizard extends Wizard {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'frequency':
-					if ( ! in_array( $value, [ 'test', 'never', 'once', 'daily', 'always' ] ) ) {
+					if ( ! in_array( $value, [ 'test', 'never', 'once', 'daily', 'always', 'manual' ] ) ) {
 						return false;
 					}
 					break;
@@ -722,7 +722,7 @@ class Popups_Wizard extends Wizard {
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
-		$response = $newspack_popups_configuration_manager->activate_campaign_group( $ids );
+		$response = $newspack_popups_configuration_manager->batch_publish( $ids );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -754,7 +754,7 @@ class Popups_Wizard extends Wizard {
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
-		$response = $newspack_popups_configuration_manager->deactivate_campaign_group( $ids );
+		$response = $newspack_popups_configuration_manager->batch_unpublish( $ids );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

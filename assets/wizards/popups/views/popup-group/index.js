@@ -70,7 +70,8 @@ const PopupGroup = ( {
 	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ showUnpublished, setShowUnpublished ] = useState( false );
-	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState( false );
+	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
+	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
 
 	useEffect( () => {
 		apiFetch( {
@@ -214,9 +215,47 @@ const PopupGroup = ( {
 						) }
 					/>
 				</div>
-				<Button isPrimary isSmall href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
-					{ __( 'Add New', 'newspack' ) }
-				</Button>
+				<div className="newspack-campaigns__popup-group__add-new-button">
+					<Button
+						isPrimary
+						isSmall
+						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
+					>
+						{ __( 'Add New', 'newspack' ) }
+					</Button>
+					{ addNewPopoverIsVisible && (
+						<Popover
+							position="bottom left"
+							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
+							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						>
+							<MenuItem
+								onClick={ () => setAddNewPopoverIsVisible( false ) }
+								className="screen-reader-text"
+							>
+								{ __( 'Close Popover', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
+								{ __( 'Inline', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center">
+								{ __( 'Center Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top">
+								{ __( 'Top Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom">
+								{ __( 'Bottom Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header">
+								{ __( 'Above Header', 'newspack' ) }
+							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual">
+								{ __( 'Manual Placement', 'newspack' ) }
+							</MenuItem>
+						</Popover>
+					) }
+				</div>
 			</div>
 			{ campaignsToDisplay.map( campaign => (
 				<PopupActionCard

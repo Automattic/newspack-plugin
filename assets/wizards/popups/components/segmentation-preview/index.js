@@ -69,39 +69,7 @@ const SegmentationPreview = props => {
 			return null;
 		} );
 
-	const beforeLoad = () => {
-		localStorage.setItem( 'newspack_campaigns-preview-segmentId', JSON.stringify( segment ) );
-
-		if ( 0 < campaignGroups.length ) {
-			localStorage.setItem(
-				'newspack_campaigns-preview-groupTaxIds',
-				JSON.stringify( sanitizeTerms( campaignGroups ) )
-			);
-		}
-
-		if ( 0 < campaignsToDisplay.length ) {
-			localStorage.setItem(
-				'newspack_campaigns-preview-campaignIds',
-				JSON.stringify( sanitizeTerms( campaignsToDisplay ) )
-			);
-		}
-	};
-
-	const onClose = () => {
-		localStorage.removeItem( 'newspack_campaigns-preview-segmentId' );
-		localStorage.removeItem( 'newspack_campaigns-preview-groupTaxIds' );
-		localStorage.removeItem( 'newspack_campaigns-preview-campaignIds' );
-	};
-
-	return (
-		<WebPreview
-			{ ...props }
-			beforeLoad={ beforeLoad }
-			onClose={ onClose }
-			onLoad={ onWebPreviewLoad }
-			url={ decorateURL( url ) }
-		/>
-	);
+	return <WebPreview { ...props } onLoad={ onWebPreviewLoad } url={ decorateURL( url ) } />;
 };
 
 export default SegmentationPreview;

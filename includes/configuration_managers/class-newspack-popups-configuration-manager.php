@@ -171,9 +171,9 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 *
 	 * @param int $id Campaign group ID.
 	 */
-	public function activate_campaign_group( $id ) {
+	public function batch_publish( $id ) {
 		return $this->is_configured() ?
-			\Newspack_Popups_Settings::activate_campaign_group( $id ) :
+			\Newspack_Popups_Settings::batch_publish( $id ) :
 			$this->unconfigured_error();
 	}
 
@@ -182,9 +182,9 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 *
 	 * @param int $id Campaign group ID.
 	 */
-	public function deactivate_campaign_group( $id ) {
+	public function batch_unpublish( $id ) {
 		return $this->is_configured() ?
-			\Newspack_Popups_Settings::deactivate_campaign_group( $id ) :
+			\Newspack_Popups_Settings::batch_unpublish( $id ) :
 			$this->unconfigured_error();
 	}
 
