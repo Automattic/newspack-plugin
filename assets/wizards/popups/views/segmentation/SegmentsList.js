@@ -25,7 +25,7 @@ const { NavLink, useHistory } = Router;
 const AddNewSegmentLink = () => (
 	<NavLink to="segmentation/new">
 		<Button isPrimary isSmall>
-			{ __( 'Add new', 'newspack' ) }
+			{ __( 'Add New', 'newspack' ) }
 		</Button>
 	</NavLink>
 );

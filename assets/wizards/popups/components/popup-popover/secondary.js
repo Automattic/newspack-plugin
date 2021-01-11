@@ -76,7 +76,7 @@ const SecondaryPopupPopover = ( {
 					...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
 				] }
 				value={ selectedSegmentId }
-				label={ __( 'Segmentation', 'newspack' ) }
+				label={ __( 'Segment', 'newspack' ) }
 			/>
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
