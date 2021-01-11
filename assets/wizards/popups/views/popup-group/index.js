@@ -204,6 +204,9 @@ const PopupGroup = ( {
 							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header">
 								{ __( 'Above Header Campaign', 'newspack' ) }
 							</MenuItem>
+							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual">
+								{ __( 'Manual Placement Campaign', 'newspack' ) }
+							</MenuItem>
 						</Popover>
 					) }
 				</div>
