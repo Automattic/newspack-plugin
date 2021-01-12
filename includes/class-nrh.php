@@ -136,6 +136,11 @@ class NRH {
 	 * @param array $gtag_amp_opt gtag config options for AMP.
 	 */
 	public static function googlesitekit_amp_gtag_opt( $gtag_amp_opt ) {
+
+		if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
+			return $gtag_amp_opt; // If Site Kit isn't installed, bail early.
+		}
+
 		$context          = new \Google\Site_Kit\Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
 		$analytics        = new \Google\Site_Kit\Modules\Analytics( $context );
 		$ga_property_code = $analytics->get_data( 'property-id' );
