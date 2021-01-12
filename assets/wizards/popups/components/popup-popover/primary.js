@@ -25,10 +25,8 @@ const PrimaryPopupPopover = ( {
 	onFocusOutside,
 	publishPopup,
 	unpublishPopup,
-	updatePopup,
 } ) => {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-	const { frequency } = options;
 	const isDraft = 'draft' === status;
 	return (
 		<Popover
