@@ -3,26 +3,77 @@
  */
 
 .newspack-grid {
-	margin: 0 auto;
-	max-width: 90%;
-	max-width: calc( 100% - 32px );
+	display: grid;
+	grid-gap: 32px;
+	grid-template-columns: 1fr;
+	margin: 32px 0;
 
-	@media screen and ( min-width: 600px ) {
-		max-width: 80%;
-		max-width: calc( 100% - 64px );
+	// Gutter 8
+	&__gutter-8 {
+		grid-gap: 8px;
 	}
 
+	// Gutter 16
+	&__gutter-16 {
+		grid-gap: 16px;
+	}
+
+	// Gutter 32
+	&__gutter-32 {
+		grid-gap: 32px;
+	}
+
+	// Media Queries - 744px
 	@media screen and ( min-width: 744px ) {
-		max-width: 680px;
-	}
-
-	&.newspack-grid__wide {
-		@media screen and ( min-width: 1064px ) {
-			max-width: 840px;
+		// Columns 2 & 4
+		&__columns-2,
+		&__columns-4 {
+			grid-template-columns: repeat( 2, 1fr );
 		}
 
-		@media screen and ( min-width: 1264px ) {
-			max-width: 1040px;
+		// Columns 3
+		&__columns-3 {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	// Media Queries - 1128px
+	@media screen and ( min-width: 1128px ) {
+		// Columns 3
+		&__columns-3 {
+			grid-template-columns: repeat( 3, 1fr );
+		}
+
+		// Columns 4
+		&__columns-4 {
+			grid-template-columns: repeat( 4, 1fr );
+		}
+
+		// Gutter 48
+		&__gutter-48 {
+			grid-gap: 48px;
+		}
+
+		// Gutter 64
+		&__gutter-64 {
+			grid-gap: 64px;
+		}
+	}
+
+	// Children
+	> * {
+		margin-bottom: 0 !important;
+		margin-top: 0 !important;
+	}
+
+	// Cards
+	> .newspack-card {
+		> *:first-child {
+			margin-top: 0 !important;
+		}
+
+		> *:last-child {
+			margin-bottom: 0 !important;
 		}
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { format } from '@wordpress/date';
 import { Tooltip, MenuItem } from '@wordpress/components';
@@ -11,8 +11,9 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Material UI dependencies.
  */
 import EditIcon from '@material-ui/icons/Edit';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import DeleteIcon from '@material-ui/icons/Delete';
+
+import { Icon, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -23,7 +24,9 @@ const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
 	<NavLink to="segmentation/new">
-		<Button isPrimary>{ __( 'Add new', 'newspack' ) }</Button>
+		<Button isPrimary isSmall>
+			{ __( 'Add New', 'newspack' ) }
+		</Button>
 	</NavLink>
 );
 
@@ -36,6 +39,7 @@ const SegmentActionCard = ( { segment, deleteSegment } ) => {
 		<ActionCard
 			isSmall
 			title={ segment.name }
+			titleLink={ `#/segmentation/${ segment.id }` }
 			description={ `${ __( 'Created on', 'newspack' ) } ${ format(
 				'Y/m/d',
 				segment.created_at
@@ -47,7 +51,7 @@ const SegmentActionCard = ( { segment, deleteSegment } ) => {
 							className="icon-only"
 							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 						>
-							<MoreVertIcon />
+							<Icon icon={ moreVertical } />
 						</Button>
 					</Tooltip>
 					{ popoverVisibility && (
@@ -78,23 +82,13 @@ const SegmentActionCard = ( { segment, deleteSegment } ) => {
 	);
 };
 
-const SegmentsList = ( { wizardApiFetch } ) => {
-	const [ segments, setSegments ] = useState( null );
-
-	const fetchSegments = () => {
-		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation`,
-		} ).then( setSegments );
-	};
-
+const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 	const deleteSegment = segment => {
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
 			method: 'DELETE',
 		} ).then( setSegments );
 	};
-
-	useEffect( fetchSegments, [] );
 
 	if ( segments === null ) {
 		return null;

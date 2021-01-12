@@ -14,7 +14,6 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { stringify } from 'qs';
-import { groupBy, mapValues } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -22,7 +21,7 @@ import { groupBy, mapValues } from 'lodash';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import { PopupGroup, Analytics, Settings, Segmentation } from './views';
+import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -31,13 +30,8 @@ const subHeaderText = __( 'Reach your readers with configurable campaigns.', 'ne
 
 const tabbedNavigation = [
 	{
-		label: __( 'Overlay', 'newpack' ),
-		path: '/overlay',
-		exact: true,
-	},
-	{
-		label: __( 'Inline', 'newpack' ),
-		path: '/inline',
+		label: __( 'Campaigns', 'newpack' ),
+		path: '/campaigns',
 		exact: true,
 	},
 	{
@@ -51,6 +45,11 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
+		label: __( 'Preview', 'newpack' ),
+		path: '/preview',
+		exact: true,
+	},
+	{
 		label: __( 'Settings', 'newpack' ),
 		path: '/settings',
 		exact: true,
@@ -61,28 +60,19 @@ class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			popups: {
-				inline: [],
-				overlay: [],
-			},
+			popups: [],
 			segments: [],
+			settings: [],
 			previewUrl: null,
 		};
 	}
 	onWizardReady = () => {
-		this.getPopups();
-	};
-
-	/**
-	 * Get Pop-ups for the current wizard.
-	 */
-	getPopups = () => {
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups, segments } ) =>
-				this.setState( { popups: this.sortPopups( popups ), segments } )
+			.then( ( { popups, segments, settings } ) =>
+				this.setState( { popups: this.sortPopups( popups ), segments, settings } )
 			)
 			.catch( error => setError( error ) );
 	};
@@ -97,25 +87,29 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/sitewide-popup/${ popupId }`,
 			method: state ? 'POST' : 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
 	};
 
 	/**
-	 * Set categories for a Popup.
+	 * Set terms for a Popup.
 	 *
-	 * @param {number} popupId ID of the Popup to alter.
-	 * @param {Array} categories Array of categories to assign to the Popup.
+	 * @param {number} id ID of the Popup to alter.
+	 * @param {Array} terms Array of terms to assign to the Popup.
+	 * @param {string} taxonomy Taxonomy slug.
 	 */
-	setCategoriesForPopup = ( popupId, categories ) => {
+	setTermsForPopup = ( id, terms, taxonomy ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-categories/${ popupId }`,
+			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
 			method: 'POST',
 			data: {
-				categories,
+				taxonomy,
+				terms,
 			},
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -127,6 +121,7 @@ class PopupsWizard extends Component {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
 			method: 'POST',
 			data: { options },
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -142,6 +137,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
 			method: 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -157,27 +153,32 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
 			method: 'POST',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
 	};
 
 	/**
-	 * Sort Pop-ups into categories.
+	 * Unublish a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
 	 */
-	sortPopups = popups => ( {
-		overlay: [],
-		inline: [],
-		...mapValues(
-			groupBy( popups, popup => ( isOverlay( popup ) ? 'overlay' : 'inline' ) ),
-			this.sortPopupGroup
-		),
-	} );
+	unpublishPopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
+			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
 
 	/**
 	 * Sort Pop-up groups into categories.
 	 */
-	sortPopupGroup = popups => {
+	sortPopups = popups => {
 		const test = popups.filter(
 			( { options, status } ) => 'publish' === status && 'test' === options.frequency
 		);
@@ -216,6 +217,17 @@ class PopupsWizard extends Component {
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
+	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
+			data: { ids: campaigns.map( campaign => campaign.id ) },
+			method,
+		} )
+			.then( () => this.onWizardReady() )
+			.catch( error => setError( error ) );
+	};
+
 	render() {
 		const {
 			pluginRequirements,
@@ -225,8 +237,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, segments, previewUrl } = this.state;
-		const { inline, overlay } = popups;
+		const { popups, segments, settings, previewUrl } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -240,11 +251,14 @@ class PopupsWizard extends Component {
 						startLoading,
 						doneLoading,
 						wizardApiFetch,
+						segments,
+						settings,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
+						manageCampaignGroup: this.manageCampaignGroup,
 						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
-						setCategoriesForPopup: this.setCategoriesForPopup,
+						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
 						previewPopup: popup =>
@@ -252,49 +266,37 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
-						segments,
+						unpublishPopup: this.unpublishPopup,
 					};
 					return (
 						<HashRouter hashType="slash">
 							<Switch>
 								{ pluginRequirements }
 								<Route
-									path="/overlay"
+									path="/campaigns"
 									render={ () => (
 										<PopupGroup
 											{ ...popupManagementSharedProps }
-											items={ overlay }
-											buttonText={ __( 'Add new Overlay Campaign', 'newspack' ) }
-											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt"
-											emptyMessage={ __(
-												'No Overlay Campaigns have been created yet.',
-												'newspack'
-											) }
-										/>
-									) }
-								/>
-								<Route
-									path="/inline"
-									render={ () => (
-										<PopupGroup
-											{ ...popupManagementSharedProps }
-											items={ inline }
-											buttonText={ __( 'Add new Inline Campaign', 'newspack' ) }
-											buttonAction="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=inline"
-											emptyMessage={ __(
-												'No Inline Campaigns have been created yet.',
-												'newspack'
-											) }
+											items={ popups }
+											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
+											groupUI={ true }
 										/>
 									) }
 								/>
 								<Route
 									path="/segmentation/:id?"
-									render={ props => <Segmentation { ...props } { ...sharedProps } /> }
+									render={ props => (
+										<Segmentation
+											{ ...props }
+											{ ...sharedProps }
+											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }
+										/>
+									) }
 								/>
-								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } isWide /> } />
-								<Route path="/settings" render={ () => <Settings { ...sharedProps } isWide /> } />
-								<Redirect to="/overlay" />
+								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
+								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
+								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
+								<Redirect to="/campaigns" />
 							</Switch>
 						</HashRouter>
 					);

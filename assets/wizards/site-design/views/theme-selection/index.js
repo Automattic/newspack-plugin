@@ -6,7 +6,7 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { StyleCard, StyleCardGroup, withWizardScreen } from '../../../../components/src';
+import { Grid, StyleCard, withWizardScreen } from '../../../../components/src';
 import NewspackImg from './images/newspack.png';
 import ScottImg from './images/scott.png';
 import NelsonImg from './images/nelson.png';
@@ -24,7 +24,7 @@ class ThemeSelection extends Component {
 	render() {
 		const { updateTheme, theme } = this.props;
 		return (
-			<StyleCardGroup>
+			<Grid>
 				<StyleCard
 					cardTitle="Newspack"
 					image={ NewspackImg }
@@ -73,7 +73,7 @@ class ThemeSelection extends Component {
 					onClick={ () => updateTheme( 'newspack-joseph' ) }
 					id={ `card--newspack-joseph` }
 				/>
-			</StyleCardGroup>
+			</Grid>
 		);
 	}
 }

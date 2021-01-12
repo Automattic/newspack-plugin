@@ -13,11 +13,12 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies.
  */
 import { FormTokenField } from '../';
+import './style.scss';
 
 /**
  * External dependencies
  */
-import { debounce } from 'lodash';
+import { debounce, find } from 'lodash';
 
 /**
  * Category autocomplete field component.
@@ -25,6 +26,7 @@ import { debounce } from 'lodash';
 class CategoryAutocomplete extends Component {
 	state = {
 		suggestions: {},
+		allCategories: {},
 	};
 
 	/**
@@ -33,6 +35,15 @@ class CategoryAutocomplete extends Component {
 	constructor( props ) {
 		super( props );
 		this.debouncedUpdateSuggestions = debounce( this.updateSuggestions, 100 );
+	}
+
+	componentDidMount() {
+		apiFetch( {
+			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
+				per_page: -1,
+				_fields: 'id,name',
+			} ),
+		} ).then( categories => this.setState( { allCategories: categories } ) );
 	}
 
 	/**
@@ -49,7 +60,7 @@ class CategoryAutocomplete extends Component {
 	 */
 	updateSuggestions( search ) {
 		apiFetch( {
-			path: addQueryArgs( '/wp/v2/categories', {
+			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
 				search,
 				per_page: 20,
 				_fields: 'id,name',
@@ -87,16 +98,30 @@ class CategoryAutocomplete extends Component {
 	 */
 	render() {
 		const { value, label } = this.props;
-		const { suggestions } = this.state;
+		const { suggestions, allCategories } = this.state;
 		return (
-			<FormTokenField
-				onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
-				value={ value.map( item => ( { id: item.term_id, value: item.name } ) ) }
-				suggestions={ Object.keys( suggestions ) }
-				onChange={ this.handleOnChange }
-				label={ label }
-			/>
+			<div className="newspack-category-autocomplete">
+				<FormTokenField
+					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
+					value={ value.reduce( ( acc, item ) => {
+						const category =
+							typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
+						if ( category ) {
+							acc.push( { id: category.term_id || category.id, value: category.name } );
+						}
+						return acc;
+					}, [] ) }
+					suggestions={ Object.keys( suggestions ) }
+					onChange={ this.handleOnChange }
+					label={ label }
+				/>
+			</div>
 		);
 	}
 }
+
+CategoryAutocomplete.defaultProps = {
+	taxonomy: 'categories',
+};
+
 export default CategoryAutocomplete;

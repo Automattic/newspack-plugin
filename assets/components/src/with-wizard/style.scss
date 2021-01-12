@@ -2,6 +2,7 @@
  * With Wizard
  */
 
+@import '~@wordpress/base-styles/colors';
 @import '../../../shared/scss/colors';
 
 // Reset Padding of the Admin Page
@@ -80,82 +81,149 @@ body[class*='admin_page_newspack-'] {
 // Newspack Logo
 
 .newspack-logo {
-	&__wrapper {
-		background: $primary-500;
-		color: white;
-		margin: 0 0 64px;
-		padding: 32px 0;
-		position: relative;
-
-		a {
-			color: inherit;
-
-			&:active,
-			&:focus,
-			&:hover {
-				color: $primary-100;
-			}
-
-			&:focus {
-				box-shadow: none;
-				outline: 2px solid white;
-				outline-offset: 4px;
-			}
-		}
-
-		.newspack-logo__svg {
-			display: block;
-			fill: currentColor;
-			height: 56px;
-			transition: color 125ms ease-in-out;
-			width: auto;
-		}
-	}
-
-	&__grid.newspack-grid {
-		align-items: center;
-		display: flex;
-		justify-content: space-between;
-		margin: 0 auto;
-	}
+	display: block;
+	fill: currentColor;
+	height: 56px;
+	margin: 0;
+	padding-bottom: 32px;
+	width: auto;
 }
 
 // Loading
 
 .newspack-wizard__is-loading {
-	.newspack-wizard {
-		cursor: wait;
-		position: relative;
+	background: white;
+	bottom: 0;
+	cursor: wait;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	> * {
+		display: none !important;
+	}
+
+	&::before,
+	&::after {
+		content: '';
+		display: block;
+	}
+
+	&::before {
+		background: $primary-500;
+		height: 160px;
+		width: 100%;
+	}
+
+	&::after {
+		animation: loading 2s ease-in-out infinite;
+		background: $dark-gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $dark-gray-300, 40vw 96px 0 0 white,
+			0 96px 0 0 $dark-gray-300;
+		height: 24px;
+		margin: 68px auto 0;
+		max-width: 1040px;
+		width: calc( 100% - ( 32px * 2 ) );
+
+		@media screen and ( min-width: 744px ) {
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 200px 96px 0 0 white,
+				0 96px 0 0 $dark-gray-300;
+			width: calc( 100% - ( 64px * 2 ) );
+		}
+
+		@media screen and ( min-width: 1224px ) {
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 520px 96px 0 0 white,
+				0 96px 0 0 $dark-gray-300;
+			width: calc( 100% - ( 64px * 2 ) );
+		}
+	}
+
+	// Welcome Screen
+	.newspack_page_newspack-setup-wizard__welcome & {
+		background: $primary-500;
 
 		&::before,
 		&::after {
-			background: white;
-			content: '';
-			display: block;
-			left: 0;
+			left: 50%;
 			position: absolute;
-			right: 0;
-			top: 0;
-			z-index: 102;
-		}
-
-		&::after {
-			border-radius: 4px;
-			bottom: 0;
-			opacity: 0.8;
+			transform: translate( -50% );
 		}
 
 		&::before {
-			animation: newspack-wizard__is-loading-animation 2s ease-in-out infinite;
+			border-radius: 4px;
+			background: white;
+			height: 192px;
+			max-width: 584px;
+			top: 120px;
+			width: calc( 100% - ( 32px * 2 ) );
+
+			@media screen and ( min-width: 744px ) {
+				width: calc( 100% - ( 64px * 2 ) );
+			}
+		}
+
+		&::after {
+			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 0 96px 0 0 $dark-gray-300;
+			margin: 0;
+			max-width: 520px;
+			top: 156px;
+			width: calc( 100% - ( 64px * 2 ) );
+
+			@media screen and ( min-width: 600px ) {
+				box-shadow: inset -260px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 0 96px 0 0 $dark-gray-300;
+			}
+		}
+	}
+
+	// Quiet
+	&-quiet {
+		cursor: wait;
+		position: relative;
+
+		> * {
+			opacity: 0.5;
+		}
+
+		&::before {
+			animation: loading-quiet 1s ease-in-out infinite;
 			background: $primary-500;
-			height: 4px;
+			content: '';
+			display: block;
+			height: 16px;
+			left: 0;
+			position: fixed;
 			right: 100%;
-			z-index: 103;
+			top: 46px;
+			z-index: 1;
+
+			@media screen and ( min-width: 783px ) {
+				top: 32px;
+				margin-left: 160px;
+
+				body.auto-fold & {
+					margin-left: 36px;
+				}
+			}
 		}
 	}
 }
 
-@keyframes newspack-wizard__is-loading-animation {
+@keyframes loading {
+	from {
+		opacity: 100%;
+	}
+
+	50% {
+		opacity: 10%;
+	}
+
+	to {
+		opacity: 100%;
+	}
+}
+
+@keyframes loading-quiet {
 	from {
 		left: 0;
 		right: 100%;

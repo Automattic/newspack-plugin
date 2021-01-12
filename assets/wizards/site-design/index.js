@@ -119,7 +119,6 @@ class SiteDesignWizard extends Component {
 										buttonAction="#/settings"
 										updateTheme={ this.updateTheme }
 										theme={ theme }
-										isWide
 									/>
 								);
 							} }

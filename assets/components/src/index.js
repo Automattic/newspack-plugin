@@ -1,5 +1,4 @@
 export { default as ActionCard } from './action-card';
-export { default as ActionCardSections } from './action-card-sections';
 export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as Button } from './button';
 export { default as ButtonGroup } from './button-group';
@@ -23,7 +22,6 @@ export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
 export { default as SelectControl } from './select-control';
 export { default as StyleCard } from './style-card';
-export { default as StyleCardGroup } from './style-card-group';
 export { default as TabbedNavigation } from './tabbed-navigation';
 export { default as TextControl } from './text-control';
 export { default as TextareaControl } from './textarea-control';
