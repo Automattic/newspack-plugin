@@ -167,6 +167,28 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Activate campaign group.
+	 *
+	 * @param int $id Campaign group ID.
+	 */
+	public function batch_publish( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Settings::batch_publish( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Deactivate campaign group.
+	 *
+	 * @param int $id Campaign group ID.
+	 */
+	public function batch_unpublish( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Settings::batch_unpublish( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.

@@ -62,6 +62,7 @@ class PopupsWizard extends Component {
 		this.state = {
 			popups: [],
 			segments: [],
+			settings: [],
 			previewUrl: null,
 		};
 	}
@@ -70,8 +71,8 @@ class PopupsWizard extends Component {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups, segments } ) =>
-				this.setState( { popups: this.sortPopups( popups ), segments } )
+			.then( ( { popups, segments, settings } ) =>
+				this.setState( { popups: this.sortPopups( popups ), segments, settings } )
 			)
 			.catch( error => setError( error ) );
 	};
@@ -152,6 +153,23 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
 			method: 'POST',
+			quiet: true,
+		} )
+			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.catch( error => setError( error ) );
+	};
+
+	/**
+	 * Unublish a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	unpublishPopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
+			method: 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
 			.catch( error => setError( error ) );
@@ -199,6 +217,17 @@ class PopupsWizard extends Component {
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
+	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
+			data: { ids: campaigns.map( campaign => campaign.id ) },
+			method,
+		} )
+			.then( () => this.onWizardReady() )
+			.catch( error => setError( error ) );
+	};
+
 	render() {
 		const {
 			pluginRequirements,
@@ -208,7 +237,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, segments, previewUrl } = this.state;
+		const { popups, segments, settings, previewUrl } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -223,9 +252,11 @@ class PopupsWizard extends Component {
 						doneLoading,
 						wizardApiFetch,
 						segments,
+						settings,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
+						manageCampaignGroup: this.manageCampaignGroup,
 						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
 						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
@@ -235,6 +266,7 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						unpublishPopup: this.unpublishPopup,
 					};
 					return (
 						<HashRouter hashType="slash">

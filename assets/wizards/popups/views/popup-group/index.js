@@ -7,9 +7,9 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
+import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
-import { MenuItem } from '@wordpress/components';
 
 /**
  * External dependencies.
@@ -19,7 +19,13 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Button, Popover, SelectControl } from '../../../../components/src';
+import {
+	withWizardScreen,
+	Button,
+	Popover,
+	SelectControl,
+	ToggleControl,
+} from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
 import { isOverlay } from '../../utils';
@@ -51,16 +57,19 @@ const descriptionForPopup = (
 const PopupGroup = ( {
 	deletePopup,
 	items: { active = [], draft = [], test = [], inactive = [] },
+	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
 	setSitewideDefaultPopup,
 	publishPopup,
+	unpublishPopup,
 	updatePopup,
 	segments,
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 	const [ segmentId, setSegmentId ] = useState();
+	const [ showUnpublished, setShowUnpublished ] = useState( false );
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
 
@@ -86,8 +95,14 @@ const PopupGroup = ( {
 		return 'newspack-card__is-supported';
 	};
 
+	const campaignGroupExists =
+		campaignGroups &&
+		Array.isArray( campaignGroups ) &&
+		+campaignGroup > 0 &&
+		-1 !== campaignGroups.some( ( { id: termId } ) => termId === campaignGroup );
+
 	const filteredByGroup = itemsToFilter =>
-		-1 === campaignGroup
+		! campaignGroupExists
 			? itemsToFilter
 			: itemsToFilter.filter(
 					( { campaign_groups: groups } ) =>
@@ -123,12 +138,32 @@ const PopupGroup = ( {
 						hideLabelFromVision={ true }
 						disabled={ -1 === campaignGroups }
 					/>
-					{ campaignGroup > 0 && (
-						<SegmentationPreview
-							campaignGroups={ campaignGroup }
-							segment={ segmentId }
-							renderButton={ ( { showPreview } ) => (
-								<div className="newspack-campaigns__popup-group__filter-group-segmentation">
+					{ 0 < campaignsToDisplay.length && (
+						<>
+							<Button
+								isTertiary
+								isSmall
+								onClick={ () => manageCampaignGroup( campaignsToDisplay ) }
+							>
+								{ __( 'Publish All', 'newspack' ) }
+							</Button>
+							<Button
+								isTertiary
+								isSmall
+								onClick={ () => manageCampaignGroup( campaignsToDisplay, 'DELETE' ) }
+							>
+								{ __( 'Unpublish All', 'newspack' ) }
+							</Button>
+						</>
+					) }
+
+					<SegmentationPreview
+						campaignsToDisplay={ campaignsToDisplay }
+						segment={ segmentId }
+						showUnpublished={ showUnpublished }
+						renderButton={ ( { showPreview } ) => (
+							<div className="newspack-campaigns__popup-group__filter-group-segmentation">
+								{ 0 < campaignsToDisplay.length && (
 									<Button
 										isTertiary
 										isSmall
@@ -136,38 +171,49 @@ const PopupGroup = ( {
 									>
 										{ __( 'Preview', 'newspack' ) }
 									</Button>
-									{ previewPopoverIsVisible && (
-										<Popover
-											position="bottom right"
-											onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
-											onKeyDown={ event =>
-												ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
-											}
+								) }
+								{ previewPopoverIsVisible && (
+									<Popover
+										position="bottom right"
+										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
+										onKeyDown={ event =>
+											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
+										}
+									>
+										<MenuItem
+											onClick={ () => setPreviewPopoverIsVisible( false ) }
+											className="screen-reader-text"
 										>
-											<SelectControl
-												options={ [
-													{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-													...segments.map( s => ( { value: s.id, label: s.name } ) ),
-												] }
-												value={ segmentId }
-												onChange={ setSegmentId }
-												label={ __( 'Segment to preview', 'newspack' ) }
-											/>
-											<Button
-												isLink
-												onClick={ () => {
-													showPreview();
-													setPreviewPopoverIsVisible( false );
-												} }
-											>
-												{ __( 'Preview', 'newspack' ) }
-											</Button>
-										</Popover>
-									) }
-								</div>
-							) }
-						/>
-					) }
+											{ __( 'Close Popover', 'newspack' ) }
+										</MenuItem>
+										<SelectControl
+											options={ [
+												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
+												...segments.map( s => ( { value: s.id, label: s.name } ) ),
+											] }
+											value={ segmentId }
+											onChange={ setSegmentId }
+											label={ __( 'Segment to preview', 'newspack' ) }
+										/>
+										<ToggleControl
+											label={ __( 'Show unpublished campaigns', 'newspack' ) }
+											checked={ showUnpublished }
+											onChange={ () => setShowUnpublished( ! showUnpublished ) }
+										/>
+										<Button
+											isLink
+											onClick={ () => {
+												showPreview();
+												setPreviewPopoverIsVisible( false );
+											} }
+										>
+											{ __( 'Preview', 'newspack' ) }
+										</Button>
+									</Popover>
+								) }
+							</div>
+						) }
+					/>
 				</div>
 				<div className="newspack-campaigns__popup-group__add-new-button">
 					<Button
@@ -224,6 +270,7 @@ const PopupGroup = ( {
 					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
 					publishPopup={ publishPopup }
+					unpublishPopup={ unpublishPopup }
 				/>
 			) ) }
 			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (
