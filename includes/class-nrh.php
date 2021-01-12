@@ -20,8 +20,8 @@ class NRH {
 		add_filter( 'newspack_donation_checkout_url', [ __CLASS__, 'redirect_to_nrh_checkout' ], 10, 3 );
 		add_filter( 'allowed_redirect_hosts', [ __CLASS__, 'allow_redirect_to_nrh' ] );
 		add_filter( 'newspack_blocks_donate_block_html', [ __CLASS__, 'handle_custom_campaign_id' ] );
-		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'googlesitekit_gtag_opt' ] );
-		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'googlesitekit_amp_gtag_opt' ] );
+		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'googlesitekit_gtag_opt' ], 11 );
+		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'googlesitekit_amp_gtag_opt' ], 11 );
 	}
 
 	/**
@@ -120,13 +120,15 @@ class NRH {
 	 * @param array $gtag_opt gtag config options.
 	 */
 	public static function googlesitekit_gtag_opt( $gtag_opt ) {
-		$gtag_opt['linker'] = [
-			'domains'        => [
-				self::get_clean_site_url(),
-				'checkout.fundjournalism.org',
-			],
-			'decorate_forms' => true,
-		];
+		if ( ! isset( $gtag_opt['linker'] ) ) {
+			$gtag_opt['linker'] = [];
+		}
+		if ( ! isset( $gtag_opt['linker']['domains'] ) ) {
+			$gtag_opt['linker']['domains'] = [];
+		}
+		$gtag_opt['linker']['domains'][]      = self::get_clean_site_url();
+		$gtag_opt['linker']['domains'][]      = 'checkout.fundjournalism.org';
+		$gtag_opt['linker']['decorate_forms'] = true;
 		return $gtag_opt;
 	}
 
@@ -145,13 +147,16 @@ class NRH {
 		$analytics        = new \Google\Site_Kit\Modules\Analytics( $context );
 		$ga_property_code = $analytics->get_data( 'property-id' );
 
-		$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker'] = [
-			'domains'        => [
-				self::get_clean_site_url(),
-				'checkout.fundjournalism.org',
-			],
-			'decorate_forms' => true,
-		];
+		if ( ! isset( $gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker'] ) ) {
+			$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker'] = [];
+		}
+		if ( ! isset( $gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker']['domains'] ) ) {
+			$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker']['domains'] = [];
+		}
+
+		$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker']['domains'][]      = self::get_clean_site_url();
+		$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker']['domains'][]      = 'checkout.fundjournalism.org';
+		$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker']['decorate_forms'] = true;
 		return $gtag_amp_opt;
 	}
 
