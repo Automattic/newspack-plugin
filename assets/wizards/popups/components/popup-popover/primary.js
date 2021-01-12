@@ -30,7 +30,6 @@ const PrimaryPopupPopover = ( {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
 	const { frequency } = options;
 	const isDraft = 'draft' === status;
-	const isTestMode = 'test' === frequency;
 	return (
 		<Popover
 			position="bottom left"
@@ -41,7 +40,7 @@ const PrimaryPopupPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ isOverlay( { options } ) && ! isTestMode && ! isDraft && (
+			{ isOverlay( { options } ) && ! isDraft && (
 				<MenuItem
 					onClick={ () => {
 						setSitewideDefaultPopup( id, ! sitewideDefault );
@@ -55,18 +54,6 @@ const PrimaryPopupPopover = ( {
 					</div>
 				</MenuItem>
 			) }
-			<MenuItem
-				onClick={ () => {
-					updatePopup( id, { frequency: isTestMode ? 'daily' : 'test' } );
-					onFocusOutside();
-				} }
-				className="newspack-button"
-			>
-				<div className="newspack-popover__campaigns__toggle-control">
-					{ __( 'Test mode', 'newspack' ) }
-					<ToggleControl checked={ isTestMode } onChange={ () => null } />
-				</div>
-			</MenuItem>
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();

@@ -179,17 +179,12 @@ class PopupsWizard extends Component {
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopups = popups => {
-		const test = popups.filter(
-			( { options, status } ) => 'publish' === status && 'test' === options.frequency
-		);
 		const draft = popups.filter( ( { status } ) => 'draft' === status );
 		const active = popups.filter(
 			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
 				isOverlay( { options } )
-					? 'test' !== options.frequency &&
-					  ( sitewideDefault || categories.length ) &&
-					  'publish' === status
-					: 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
+					? ( sitewideDefault || categories.length ) && 'publish' === status
+					: 'publish' === status
 		);
 		const activeWithSitewideDefaultFirst = [
 			...active.filter( ( { sitewide_default: sitewideDefault } ) => sitewideDefault ),
@@ -198,12 +193,10 @@ class PopupsWizard extends Component {
 		const inactive = popups.filter(
 			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
 				isOverlay( { options } )
-					? 'test' !== options.frequency &&
-					  ( ! sitewideDefault && ! categories.length ) &&
-					  'publish' === status
-					: 'never' === options.frequency && 'publish' === status
+					? ! sitewideDefault && ! categories.length && 'publish' === status
+					: 'publish' === status
 		);
-		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
+		return { draft, active: activeWithSitewideDefaultFirst, inactive };
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
