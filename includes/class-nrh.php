@@ -20,6 +20,8 @@ class NRH {
 		add_filter( 'newspack_donation_checkout_url', [ __CLASS__, 'redirect_to_nrh_checkout' ], 10, 3 );
 		add_filter( 'allowed_redirect_hosts', [ __CLASS__, 'allow_redirect_to_nrh' ] );
 		add_filter( 'newspack_blocks_donate_block_html', [ __CLASS__, 'handle_custom_campaign_id' ] );
+		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'googlesitekit_gtag_opt' ] );
+		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'googlesitekit_amp_gtag_opt' ] );
 	}
 
 	/**
@@ -110,6 +112,50 @@ class NRH {
 		$custom_campaign = '<input type="hidden" name="campaign" value="' . esc_attr( $custom_campaign ) . '"/>';
 		$html            = str_replace( '</form>', $custom_campaign . '</form>', $html );
 		return $html;
+	}
+
+	/**
+	 * Add cross-domain tracking for News Revenue Hub checkout, on AMP pages.
+	 *
+	 * @param array $gtag_opt gtag config options.
+	 */
+	public static function googlesitekit_gtag_opt( $gtag_opt ) {
+		$gtag_opt['linker'] = [
+			'domains'        => [
+				self::get_clean_site_url(),
+				'checkout.fundjournalism.org',
+			],
+			'decorate_forms' => true,
+		];
+		return $gtag_opt;
+	}
+
+	/**
+	 * Add cross-domain tracking for News Revenue Hub checkout, on AMP pages.
+	 *
+	 * @param array $gtag_amp_opt gtag config options for AMP.
+	 */
+	public static function googlesitekit_amp_gtag_opt( $gtag_amp_opt ) {
+		$context          = new \Google\Site_Kit\Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
+		$analytics        = new \Google\Site_Kit\Modules\Analytics( $context );
+		$ga_property_code = $analytics->get_data( 'property-id' );
+
+		$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker'] = [
+			'domains'        => [
+				self::get_clean_site_url(),
+				'checkout.fundjournalism.org',
+			],
+			'decorate_forms' => true,
+		];
+		return $gtag_amp_opt;
+	}
+
+	/**
+	 * Get the site URL with protocol removed.
+	 */
+	public static function get_clean_site_url() {
+		$protocols = [ 'http://', 'https://' ];
+		return str_replace( $protocols, '', get_bloginfo( 'wpurl' ) );
 	}
 }
 NRH::init();
