@@ -1,3 +1,40 @@
+# [1.28.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.27.0...v1.28.0-alpha.1) (2021-01-12)
+
+
+### Bug Fixes
+
+* add min-width to popover and fix alignment ([#778](https://github.com/Automattic/newspack-plugin/issues/778)) ([7107b97](https://github.com/Automattic/newspack-plugin/commit/7107b972bb769cc18666c93894083a622e84f55b)), closes [#762](https://github.com/Automattic/newspack-plugin/issues/762)
+* radio control label font size and line height ([#746](https://github.com/Automattic/newspack-plugin/issues/746)) ([c9a4b31](https://github.com/Automattic/newspack-plugin/commit/c9a4b318b0edddd986ab1c15245fa2e912329bbe))
+
+
+### Features
+
+* campaign group filter ([#769](https://github.com/Automattic/newspack-plugin/issues/769)) ([b790e06](https://github.com/Automattic/newspack-plugin/commit/b790e065375b42a1f4f15dc6beea8035065c29ad))
+* campaign group filter with preview ([#771](https://github.com/Automattic/newspack-plugin/issues/771)) ([f3a23d9](https://github.com/Automattic/newspack-plugin/commit/f3a23d9cbb6a9c3038575f1baad006e529176c47))
+* campaign groups in popup action card ([#767](https://github.com/Automattic/newspack-plugin/issues/767)) ([6d25f06](https://github.com/Automattic/newspack-plugin/commit/6d25f06a6d6cbf7d217ccb2ae8d03183abd00c0f))
+* consolidate campaigns into one tab ([#768](https://github.com/Automattic/newspack-plugin/issues/768)) ([49bba50](https://github.com/Automattic/newspack-plugin/commit/49bba5099de4f1b68c48963b99644a616350344e))
+* hide the confusing help text in category autocomplete field ([#765](https://github.com/Automattic/newspack-plugin/issues/765)) ([5107df7](https://github.com/Automattic/newspack-plugin/commit/5107df794ba6e29077e8f7103626cf74bdb863f8))
+* increase button small height, adjust secondary and focus ([#780](https://github.com/Automattic/newspack-plugin/issues/780)) ([1bbe4be](https://github.com/Automattic/newspack-plugin/commit/1bbe4bebb36f51588b8abe05c9157e1180586d48))
+* linked titles in campaigns wizard action cards ([#795](https://github.com/Automattic/newspack-plugin/issues/795)) ([6cc8bcd](https://github.com/Automattic/newspack-plugin/commit/6cc8bcd8d2bcdc4299d511b38f3a21d0c37275a0))
+* pass UTM params to Salesforce opportunities ([#785](https://github.com/Automattic/newspack-plugin/issues/785)) ([7af0bad](https://github.com/Automattic/newspack-plugin/commit/7af0bad235694ccfdafb666cf79540f98b2a907c))
+* popover to choose type of new campaign ([#797](https://github.com/Automattic/newspack-plugin/issues/797)) ([393a557](https://github.com/Automattic/newspack-plugin/commit/393a557cf9813f80288270bfb5dc99c0aa459d96))
+* quiet loading class ([#798](https://github.com/Automattic/newspack-plugin/issues/798)) ([a12f874](https://github.com/Automattic/newspack-plugin/commit/a12f874bd80c19b1a7c4891e0aec4ee99f861c32))
+* segment picker in campaign popover ([#772](https://github.com/Automattic/newspack-plugin/issues/772)) ([fdcd248](https://github.com/Automattic/newspack-plugin/commit/fdcd248c2baff694570ed4ee46983e13d7e6dd9d))
+* segmentation webview ([#770](https://github.com/Automattic/newspack-plugin/issues/770)) ([fb223fd](https://github.com/Automattic/newspack-plugin/commit/fb223fd3b5e833e4745e8e4e1334a55e844ea772))
+* small visual update to the campaign and segmentation wizards ([#800](https://github.com/Automattic/newspack-plugin/issues/800)) ([1fa60a2](https://github.com/Automattic/newspack-plugin/commit/1fa60a26c799a9e1b899adb022d23e8e0905eaaa))
+* support manual-only placement ([#796](https://github.com/Automattic/newspack-plugin/issues/796)) ([a810207](https://github.com/Automattic/newspack-plugin/commit/a81020772f3036f69dd902ac39f34c1da4a9a235))
+* taxonomy, segment and placement to popover ([#794](https://github.com/Automattic/newspack-plugin/issues/794)) ([0acaff6](https://github.com/Automattic/newspack-plugin/commit/0acaff64fe1c5604d1d89994973891e4d65898f1))
+* update grid component and wizards using it ([#747](https://github.com/Automattic/newspack-plugin/issues/747)) ([4f291db](https://github.com/Automattic/newspack-plugin/commit/4f291db873013dc9b86005fa8c43d1b9aa5777a6))
+* update icons for web preview and popup action card ([#752](https://github.com/Automattic/newspack-plugin/issues/752)) ([33df8ae](https://github.com/Automattic/newspack-plugin/commit/33df8ae3a418be6ed9792c69ed36a32a6daae894))
+* update is-loading animation ([#751](https://github.com/Automattic/newspack-plugin/issues/751)) ([354b87a](https://github.com/Automattic/newspack-plugin/commit/354b87add8ac7ee2d3417ab5b9a8ca439815d6ff))
+* update notice component ([#748](https://github.com/Automattic/newspack-plugin/issues/748)) ([3cd439a](https://github.com/Automattic/newspack-plugin/commit/3cd439a144b04d7cba8e9f8704833236634bde67))
+* update style of the group's select control in the campaign wizard ([#792](https://github.com/Automattic/newspack-plugin/issues/792)) ([e9401ee](https://github.com/Automattic/newspack-plugin/commit/e9401eeb3fdb4fa69a05d382cde62e8a8bda18ed))
+* update the new segmentation wizard style to use grid and card ([#783](https://github.com/Automattic/newspack-plugin/issues/783)) ([4743bc4](https://github.com/Automattic/newspack-plugin/commit/4743bc4839f1455f3ee71f4687f7c9a3845ddf06))
+* **campaigns-wizard:** add session read count segmentation handling ([4194198](https://github.com/Automattic/newspack-plugin/commit/41941983c3ef182155d4bb226d73babf8cf26734))
+* **campaigns-wizard:** display popup ID ([#706](https://github.com/Automattic/newspack-plugin/issues/706)) ([f6cfa87](https://github.com/Automattic/newspack-plugin/commit/f6cfa87fb024a18bc613af50e27f0b04e90794cc))
+* **campaigns-wizard:** handle favorite category segmentation ([#707](https://github.com/Automattic/newspack-plugin/issues/707)) ([37b069e](https://github.com/Automattic/newspack-plugin/commit/37b069e062db6202aec7cefdd1675dca41cb14d3))
+* **campaigns-wizard:** preview ("view as") ([#741](https://github.com/Automattic/newspack-plugin/issues/741)) ([e1af6ec](https://github.com/Automattic/newspack-plugin/commit/e1af6ec787eaa0f0d7d36673facc0eed2244109c))
+
 # [1.27.0](https://github.com/Automattic/newspack-plugin/compare/v1.26.0...v1.27.0) (2020-12-15)
 
 
