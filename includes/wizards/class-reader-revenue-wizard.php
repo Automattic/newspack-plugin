@@ -526,7 +526,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			return \rest_ensure_response(
 				[
 					'error' => __(
-						'Webhook is not configured.',
+						'Webhook is not configured. Please try resetting your Salesforce connection and reconnecting.',
 						'newspack'
 					),
 				]
