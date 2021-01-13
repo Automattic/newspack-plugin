@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useMemo, useEffect, useState } from '@wordpress/element';
+import { useMemo, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { find, debounce } from 'lodash';
@@ -11,24 +11,25 @@ import { find, debounce } from 'lodash';
  */
 import {
 	Button,
+	Card,
 	CategoryAutocomplete,
-	TextControl,
 	CheckboxControl,
+	Grid,
+	InfoButton,
 	Router,
+	TextControl,
 } from '../../../../components/src';
 
-const { NavLink, useHistory } = Router;
+const { useHistory } = Router;
 
 const SegmentSettingSection = ( { title, description, children } ) => (
-	<div className="newspack-campaigns-wizard-segments__section">
-		<h3>{ title }</h3>
-		{ description && (
-			<div className="newspack-campaigns-wizard-segments__section__description">
-				{ description }
-			</div>
-		) }
+	<Card noBorder className="newspack-campaigns-wizard-segments__section">
+		<div className="newspack-campaigns-wizard-segments__section__title">
+			<h2>{ title }</h2>
+			{ description && <InfoButton text={ description } /> }
+		</div>
 		<div className="newspack-campaigns-wizard-segments__section__content">{ children }</div>
-	</div>
+	</Card>
 );
 
 const DEFAULT_CONFIG = {
@@ -44,7 +45,7 @@ const DEFAULT_CONFIG = {
 	referrers: '',
 };
 
-const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
+const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
 	const updateSegmentConfig = key => value =>
 		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
@@ -99,17 +100,23 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				name,
 				configuration: segmentConfig,
 			},
-		} ).then( () => history.push( '/segmentation' ) );
+		} )
+			.then( setSegments )
+			.then( history.push( '/segmentation' ) );
 	};
 
 	return (
-		<div>
-			<TextControl
-				placeholder={ __( 'Untitled Segment', 'newspack' ) }
-				value={ name }
-				onChange={ setName }
-			/>
-			<div className="newspack-campaigns-wizard-segments__sections-wrapper">
+		<Fragment>
+			<Card noBorder className="newspack-campaigns-wizard-segments__title">
+				<TextControl
+					placeholder={ __( 'Untitled Segment', 'newspack' ) }
+					value={ name }
+					onChange={ setName }
+					label={ __( 'Title', 'newspack' ) }
+					hideLabelFromVision={ true }
+				/>
+			</Card>
+			<Grid columns={ 3 }>
 				<SegmentSettingSection
 					title={ __( 'Articles read', 'newspack' ) }
 					description={ __( 'Number of articles read in the last 30 day period.', 'newspack' ) }
@@ -226,7 +233,7 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 						label={ __( 'Favorite Categories', 'newspack ' ) }
 					/>
 				</SegmentSettingSection>
-			</div>
+			</Grid>
 
 			{ reach.total > 0 && (
 				<div style={ { opacity: isFetchingReach ? 0.5 : 1 } }>
@@ -240,17 +247,15 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			) }
 
 			<div className="newspack-buttons-card">
-				<div>
-					<NavLink to="/segmentation">
-						<Button>{ __( 'Cancel', 'newspack' ) }</Button>
-					</NavLink>
-					<Button disabled={ ! isSegmentValid } isPrimary onClick={ saveSegment }>
-						{ __( 'Save', 'newspack' ) }
-					</Button>
-				</div>
+				<Button disabled={ ! isSegmentValid } isPrimary onClick={ saveSegment }>
+					{ __( 'Save', 'newspack' ) }
+				</Button>
+				<Button isSecondary href="#/segmentation">
+					{ __( 'Cancel', 'newspack' ) }
+				</Button>
 			</div>
-		</div>
+		</Fragment>
 	);
 };
 
-export default SegmentsList;
+export default SingleSegment;

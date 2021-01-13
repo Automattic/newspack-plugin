@@ -17,8 +17,7 @@ import { Component, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import './style.scss';
-import { Notice, TextControl, withWizardScreen } from '../../../../components/src';
+import { Card, Grid, Notice, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * Salesforce Settings Screen Component
@@ -150,10 +149,8 @@ class Salesforce extends Component {
 		const { client_id, client_secret, error } = data;
 
 		return (
-			<div className="newspack-salesforce-wizard">
-				<Fragment>
-					<h2>{ __( 'Connected App settings', 'newspack' ) }</h2>
-
+			<Grid>
+				<Card noBorder>
 					{ this.state.error && <Notice noticeText={ this.state.error } isWarning /> }
 
 					{ isConnected && ! this.state.error && (
@@ -177,7 +174,7 @@ class Salesforce extends Component {
 
 							<p>
 								{ __(
-									'Enter your Consumer Key and Secret below, then click “Connect” to authorize access to your Salesforce account.',
+									'Enter your Consumer Key and Secret, then click “Connect” to authorize access to your Salesforce account.',
 									'newspack'
 								) }
 							</p>
@@ -187,22 +184,23 @@ class Salesforce extends Component {
 					{ isConnected && (
 						<p>
 							{ __(
-								'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset" below. You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.',
+								'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset". You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.',
 								'newspack'
 							) }
 						</p>
 					) }
+				</Card>
 
+				<Card noBorder>
 					{ error && (
 						<Notice
 							noticeText={ __(
 								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take up to an hour before we can establish a connection.',
 								'newspack'
 							) }
-							isWarning
+							isError
 						/>
 					) }
-
 					<TextControl
 						disabled={ isConnected }
 						label={
@@ -231,8 +229,8 @@ class Salesforce extends Component {
 							onChange( { ...data, client_secret: value } );
 						} }
 					/>
-				</Fragment>
-			</div>
+				</Card>
+			</Grid>
 		);
 	}
 }

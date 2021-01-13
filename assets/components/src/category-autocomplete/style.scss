@@ -1,0 +1,26 @@
+/**
+ * Category Autocomplete
+ */
+
+.newspack-category-autocomplete {
+	.components-form-token-field__help {
+		display: none;
+	}
+
+	// Multiple Select Controls
+
+	& + & {
+		margin-bottom: 32px;
+		margin-top: -16px;
+	}
+
+	// Multiple Controls
+
+	+ .newspack-select-control,
+	+ .newspack-text-control,
+	+ .newspack-textarea-control,
+	+ .newspack-toggle-control {
+		margin-bottom: 32px;
+		margin-top: -16px;
+	}
+}

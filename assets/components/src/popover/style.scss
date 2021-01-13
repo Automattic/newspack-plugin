@@ -10,11 +10,13 @@
 		border: 1px solid $light-gray-500;
 		border-radius: 4px;
 		box-shadow: 0 4px 8px rgba( black, 0.08 );
+		min-width: 238px;
 
 		.newspack-button {
 			color: $dark-gray-300;
+			display: flex;
 			font-weight: normal;
-			padding: 8px;
+			padding: 6px 8px;
 
 			&:hover {
 				.components-menu-items__item-icon {
@@ -24,12 +26,14 @@
 
 			&:focus:not( :disabled ) {
 				box-shadow: inset 0 0 0 2px $primary-500;
+				position: relative;
+				z-index: 1;
 			}
 
 			&.is-link {
 				border-radius: 3px;
 				color: $dark-gray-300;
-				padding: 8px;
+				padding: 6px 8px;
 				text-decoration: none;
 
 				&:active,
@@ -49,6 +53,24 @@
 			.components-menu-items__item-icon {
 				fill: $dark-gray-900;
 			}
+
+			.components-menu-item__item {
+				display: flex;
+				width: 100%;
+			}
+		}
+
+		.components-menu-group__label {
+			color: $dark-gray-900;
+			font-size: 12px;
+			font-weight: bold;
+			line-height: 16px;
+			margin: 0;
+			padding: 10px 8px;
+		}
+
+		.screen-reader-text {
+			display: flex;
 		}
 
 		.newspack-select-control {
@@ -57,8 +79,8 @@
 
 			.components-select-control {
 				select.components-select-control__input {
-					height: 40px;
-					min-height: 40px;
+					height: 36px;
+					min-height: 36px;
 
 					&:focus ~ div.components-input-control__backdrop {
 						border-color: $primary-500;
@@ -67,18 +89,63 @@
 				}
 
 				div.components-input-control__backdrop {
-					border-color: white;
 					padding: 0;
 				}
+			}
+		}
+
+		.newspack-form-token-field {
+			margin: 0;
+			text-align: left;
+
+			.newspack-form-token-field__input-container {
+				min-height: 36px;
+				padding: 3px 5px;
+			}
+
+			.components-form-token-field__suggestions-list {
+				margin: 5px -3px -11px;
+			}
+
+			.components-form-token-field__label {
+				display: block;
 			}
 		}
 
 		.newspack-toggle-control {
 			margin: 0;
 
+			.components-base-control__field {
+				margin: 3px 0;
+			}
+
 			.components-form-toggle {
 				border-top: 0;
 			}
+		}
+	}
+
+	&:not( .is-without-arrow )::before {
+		border-color: $light-gray-500;
+	}
+
+	&.is-from-bottom {
+		margin-bottom: 8px;
+	}
+
+	&.is-from-top {
+		margin-top: 8px;
+	}
+
+	&__padding-8 {
+		.components-popover__content {
+			padding: 8px;
+		}
+	}
+
+	&__padding-16 {
+		.components-popover__content {
+			padding: 16px;
 		}
 	}
 }
