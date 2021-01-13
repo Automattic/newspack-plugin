@@ -31,10 +31,8 @@ import SegmentationPreview from '../../components/segmentation-preview';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
-const descriptionForPopup = (
-	{ categories, sitewide_default: sitewideDefault, options },
-	segments
-) => {
+const descriptionForPopup = ( campaign, segments ) => {
+	const { categories, sitewide_default: sitewideDefault, options, status } = campaign;
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
 	if ( segment ) {
@@ -47,6 +45,12 @@ const descriptionForPopup = (
 		descriptionMessages.push(
 			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
 		);
+	}
+	if ( 'pending' === status ) {
+		descriptionMessages.push( __( 'Pending review', 'newspack' ) );
+	}
+	if ( 'future' === status ) {
+		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
 	}
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
@@ -80,7 +84,7 @@ const PopupGroup = ( {
 	}, [] );
 
 	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-		if ( 'draft' === status ) {
+		if ( 'draft' === status || 'pending' === status || 'future' === status ) {
 			return 'newspack-card__is-disabled';
 		}
 		if ( 'test' === options.frequency ) {

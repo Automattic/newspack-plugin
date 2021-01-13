@@ -182,7 +182,9 @@ class PopupsWizard extends Component {
 		const test = popups.filter(
 			( { options, status } ) => 'publish' === status && 'test' === options.frequency
 		);
-		const draft = popups.filter( ( { status } ) => 'draft' === status || 'pending' === status );
+		const draft = popups.filter(
+			( { status } ) => 'draft' === status || 'pending' === status || 'future' === status
+		);
 		const active = popups.filter(
 			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
 				isOverlay( { options } )
