@@ -597,7 +597,7 @@ class Advertising_Wizard extends Wizard {
 				<?php endif; ?>
 				<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
-		<?php
+			<?php
 		endif;
 	}
 
