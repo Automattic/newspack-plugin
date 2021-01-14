@@ -49,7 +49,12 @@ class StyleCard extends Component {
 						</div>
 					) }
 				</div>
-				<div className="newspack-style-card__title">{ cardTitle }</div>
+				<div
+					className="newspack-style-card__title"
+					title={ isActive && __( 'Active theme', 'newspack' ) }
+				>
+					{ cardTitle }
+				</div>
 			</div>
 		);
 	}
