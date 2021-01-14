@@ -1,3 +1,11 @@
+# [1.28.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.28.0-alpha.1...v1.28.0-alpha.2) (2021-01-14)
+
+
+### Bug Fixes
+
+* use "all" in view-as spec ([#813](https://github.com/Automattic/newspack-plugin/issues/813)) ([b1962fd](https://github.com/Automattic/newspack-plugin/commit/b1962fdfd2153bed4c24ebda03604203d82a3fad))
+* **salesforce:** handle missing webhook ([#802](https://github.com/Automattic/newspack-plugin/issues/802)) ([07f2b91](https://github.com/Automattic/newspack-plugin/commit/07f2b91d057ab2572b7fec5e2ca9948be2af3658))
+
 # [1.28.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.27.0...v1.28.0-alpha.1) (2021-01-12)
 
 
