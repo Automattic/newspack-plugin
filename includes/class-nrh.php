@@ -186,6 +186,13 @@ class NRH {
 				'year'  => __( 'Annually', 'newspack-blocks' ),
 			];
 
+			$nrh_frequency_keys = [
+				'once'  => 'once',
+				'month' => 'monthly',
+				'year'  => 'yearly',
+
+			];
+
 			$selected_frequency = isset( $attributes['defaultFrequency'] ) ? $attributes['defaultFrequency'] : 'month';
 			$suggested_amounts  = $settings['suggestedAmounts'];
 
@@ -199,11 +206,6 @@ class NRH {
 
 			$organization_id = wp_strip_all_tags( $nrh_config['nrh_organization_id'] );
 
-			$form_open = sprintf(
-				'<form method="GET" action="https://checkout.fundjournalism.org/donateform"><input type="hidden" name="org_id" value="%s" />',
-				esc_attr( $organization_id )
-			);
-
 			$allowed_tags = [
 				'form'  => [
 					'method' => [],
@@ -216,18 +218,75 @@ class NRH {
 				],
 			];
 
+			$is_amp        = function_exists( 'is_amp_endpoint' ) && is_amp_endpoint();
+			$block_id      = 'wpbdbd_' . uniqid();
+			$initial_value = $suggested_amounts[1];
+			if ( ! $settings['tiered'] ) {
+				$initial_value = $settings['suggestedAmountUntiered'];
+				if ( in_array( $selected_frequency, [ 'year', 'once' ] ) ) {
+					$initial_value *= 12;
+				}
+			}
+
+			$form_open = sprintf(
+				'<form method="GET" action="https://checkout.fundjournalism.org/memberform"><input type="hidden" name="org_id" value="%s" />',
+				esc_attr( $organization_id )
+			);
+
+			// phpcs:disable
+
 			ob_start();
+
+		if ( ! $is_amp ) : ?>
+			<script type="text/javascript">
+				function updateAmount( id ) {
+					var container = document.querySelector( 'div.wpbnbd#' + id );
+					var frequencies = {
+						'once': 'once',
+						'monthly': 'month',
+						'yearly': 'year'
+					};
+					var selectedTab = container.querySelector( 'input[name="installmentPeriod"]:checked' ).value;
+					var inputId = 'donation_value_' + frequencies[selectedTab];
+					var amount;
+					var untieredInput = container.querySelector( 'input[name="' + inputId + '_untiered"]' );
+					if ( untieredInput ) {
+						amount = untieredInput.value;
+					} else {
+						amount = container.querySelector( 'input[name="' + inputId + '"]:checked' ).value;
+						if ( 'other' === amount ) {
+							amount = container.querySelector( 'input[name="' + inputId + '_other"]' ).value;
+						}
+					}
+					container.querySelector( 'input[name=amount]' ).value = amount;
+				}
+			</script>
+				<?php
+			endif;
 
 			/**
 			 * For AMP-compatibility, the donation forms are implemented as pure HTML forms (no JS).
 			 * Each frequency and tier option is a radio input, styled to look like a button.
 			 * As the radio inputs are checked/unchecked, fields are hidden/displayed using only CSS.
 			 */
-			if ( ! $settings['tiered'] ) :
+		if ( ! $settings['tiered'] ) :
 
-				?>
-				<div class='wp-block-newspack-blocks-donate wpbnbd untiered'>
+			?>
+				<?php if ( $is_amp ) : ?>
+				<amp-state id="<?php echo esc_attr( $block_id ); ?>">
+					<script type="application/json">
+						{
+							"amount": <?php echo esc_attr( $initial_value ); ?>,
+							"amount_once": <?php echo esc_attr( 12 * intval( $settings['suggestedAmountUntiered'] ) ); ?>,
+							"amount_month": <?php echo esc_attr( $settings['suggestedAmountUntiered'] ); ?>,
+							"amount_year": <?php echo esc_attr( 12 * intval( $settings['suggestedAmountUntiered'] ) ); ?>
+						}
+					</script>
+				</amp-state>
+			<?php endif; ?>
+				<div class='wp-block-newspack-blocks-donate wpbnbd untiered' id='<?php echo esc_attr( $block_id ); ?>'>
 					<?php echo wp_kses( $form_open, $allowed_tags ); ?>
+						<input type="hidden" <?php if ( $is_amp ) : ?>[value]="<?php echo esc_attr( $block_id ); ?>.amount"<?php endif; ?> value="<?php echo esc_attr( $initial_value ); ?>" name="amount" id="amount" />
 						<div class='wp-block-newspack-blocks-donate__options'>
 							<?php foreach ( $frequencies as $frequency_slug => $frequency_name ) : ?>
 								<?php
@@ -238,10 +297,21 @@ class NRH {
 								<div class='wp-block-newspack-blocks-donate__frequency frequency'>
 									<input
 										type='radio'
-										value='<?php echo esc_attr( $frequency_slug ); ?>'
+										value='<?php echo esc_attr( $nrh_frequency_keys[ $frequency_slug ] ); ?>'
 										id='newspack-donate-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>'
-										name='donation_frequency'
+										name='installmentPeriod'
 										<?php checked( $selected_frequency, $frequency_slug ); ?>
+										<?php if ( $is_amp ) : ?>
+										on="tap:AMP.setState(
+											{
+												<?php echo esc_attr( $block_id ); ?>: {
+													amount: <?php echo esc_attr( $block_id ); ?>.amount_<?php echo esc_attr( $frequency_slug ); ?>
+												}
+											}
+										)"
+										<?php else: ?>
+											onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
+										<?php endif; ?>
 									/>
 									<label
 										for='newspack-donate-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>'
@@ -265,6 +335,18 @@ class NRH {
 												name='donation_value_<?php echo esc_attr( $frequency_slug ); ?>_untiered'
 												value='<?php echo esc_attr( $formatted_amount ); ?>'
 												id='newspack-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>-untiered-input'
+												<?php if ( $is_amp ) : ?>
+												on="input-throttled:AMP.setState(
+													{
+														<?php echo esc_attr( $block_id ); ?>: {
+															amount:event.value,
+															amount_<?php echo esc_attr( $frequency_slug ); ?>:event.value
+														}
+													}
+												)"
+												<?php else : ?>
+													oninput="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
+												<?php endif; ?>
 											/>
 										</div>
 									</div>
@@ -285,10 +367,25 @@ class NRH {
 				<?php
 
 		else :
-
 			?>
-			<div class='wp-block-newspack-blocks-donate wpbnbd tiered'>
+			<?php if ( $is_amp ) : ?>
+			<amp-state id="<?php echo esc_attr( $block_id ); ?>">
+				<script type="application/json">
+					{
+						"amount": <?php echo esc_attr( $initial_value ); ?>,
+						"amount_once": <?php echo esc_attr( 12 * intval( $suggested_amounts[1] ) ); ?>,
+						"amount_month": <?php echo esc_attr( $suggested_amounts[1] ); ?>,
+						"amount_year": <?php echo esc_attr( 12 * intval( $suggested_amounts[1] ) ); ?>,
+						"amount_other_once": <?php echo esc_attr( 12 * intval( $suggested_amounts[1] ) ); ?>,
+						"amount_other_month": <?php echo esc_attr( $suggested_amounts[1] ); ?>,
+						"amount_other_year": <?php echo esc_attr( 12 * intval( $suggested_amounts[1] ) ); ?>
+					}
+				</script>
+			</amp-state>
+		<?php endif; ?>
+			<div class='wp-block-newspack-blocks-donate wpbnbd tiered' id='<?php echo esc_attr( $block_id ); ?>'>
 				<?php echo wp_kses( $form_open, $allowed_tags ); ?>
+					<input type="hidden" <?php if ( $is_amp ) : ?>[value]="<?php echo esc_attr( $block_id ); ?>.amount"<?php endif; ?> value="<?php echo esc_attr( $initial_value ); ?>" name="amount" id="amount" />
 					<div class='wp-block-newspack-blocks-donate__options'>
 						<div class='wp-block-newspack-blocks-donate__frequencies frequencies'>
 							<?php foreach ( $frequencies as $frequency_slug => $frequency_name ) : ?>
@@ -296,10 +393,22 @@ class NRH {
 								<div class='wp-block-newspack-blocks-donate__frequency frequency'>
 									<input
 										type='radio'
-										value='<?php echo esc_attr( $frequency_slug ); ?>'
+										value='<?php echo esc_attr( $nrh_frequency_keys[ $frequency_slug ] ); ?>'
 										id='newspack-donate-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>'
-										name='donation_frequency'
+										name='installmentPeriod'
 										<?php checked( $selected_frequency, $frequency_slug ); ?>
+
+										<?php if ( $is_amp ) : ?>
+										on="tap:AMP.setState(
+											{
+												<?php echo esc_attr( $block_id ); ?>: {
+													amount: <?php echo esc_attr( $block_id ); ?>.amount_<?php echo esc_attr( $frequency_slug ); ?>
+												}
+											}
+										)"
+										<?php else: ?>
+											onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
+										<?php endif; ?>
 									/>
 									<label
 										for='newspack-donate-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>'
@@ -321,6 +430,19 @@ class NRH {
 													value='<?php echo esc_attr( $amount ); ?>'
 													id='newspack-tier-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>-<?php echo (int) $index; ?>'
 													<?php checked( 1, $index ); ?>
+
+													<?php if ( $is_amp ) : ?>
+													on="tap:AMP.setState(
+														{
+															<?php echo esc_attr( $block_id ); ?>: {
+																amount:<?php echo esc_attr( $amount ); ?>,
+																amount_<?php echo esc_attr( $frequency_slug ); ?>:<?php echo esc_attr( $amount ); ?>
+															}
+														}
+													)"
+													<?php else: ?>
+														onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
+													<?php endif; ?>
 												/>
 												<label
 													class='tier-select-label tier-label'
@@ -339,6 +461,18 @@ class NRH {
 												name='donation_value_<?php echo esc_attr( $frequency_slug ); ?>'
 												value='other'
 												id='newspack-tier-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>-other'
+
+												<?php if ( $is_amp ) : ?>
+												on="tap:AMP.setState(
+													{
+														<?php echo esc_attr( $block_id ); ?>: {
+															amount: <?php echo esc_attr( $block_id ); ?>.amount_other_<?php echo esc_attr( $frequency_slug ); ?>
+														}
+													}
+												)"
+												<?php else: ?>
+														onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
+												<?php endif; ?>
 											/>
 											<label
 												class='tier-select-label tier-label'
@@ -361,6 +495,19 @@ class NRH {
 													name='donation_value_<?php echo esc_attr( $frequency_slug ); ?>_other'
 													value='<?php echo esc_attr( $amount ); ?>'
 													id='newspack-tier-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>-other-input'
+
+													<?php if ( $is_amp ) : ?>
+													on="input-throttled:AMP.setState(
+														{
+															<?php echo esc_attr( $block_id ); ?>: {
+																amount:event.value,
+																amount_other_<?php echo esc_attr( $frequency_slug ); ?>:event.value
+															}
+														}
+													)"
+													<?php else: ?>
+														oninput="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
+													<?php endif; ?>
 												/>
 											</div>
 										</div>
@@ -383,7 +530,7 @@ class NRH {
 			</div>
 			<?php
 		endif;
-
+		// phpcs:enable
 		return ob_get_clean();
 	}
 }
