@@ -64,7 +64,7 @@ class Salesforce extends Component {
 
 		// If we're already connected, check status of refresh token.
 		if ( ! prevProps.isConnected && isConnected ) {
-			return this.checkToken();
+			return this.checkConnectionStatus();
 		}
 	}
 
@@ -104,7 +104,6 @@ class Salesforce extends Component {
 				} );
 			}
 		} catch ( e ) {
-			console.error( e );
 			this.setState( {
 				error: __(
 					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.',
@@ -119,25 +118,14 @@ class Salesforce extends Component {
 	 * The refresh token is valid until it's manually revoked in the Salesforce dashboard,
 	 * or the Connected App is deleted there.
 	 */
-	async checkToken() {
+	async checkConnectionStatus() {
 		const { wizardApiFetch } = this.props;
-		const error = __(
-			'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.',
-			'newspack'
-		);
-
-		try {
-			const response = await wizardApiFetch( {
-				path: '/newspack/v1/wizard/salesforce/introspect',
-				method: 'POST',
-			} );
-
-			if ( true !== response.active ) {
-				this.setState( { error } );
-			}
-		} catch ( e ) {
-			console.error( e );
-			this.setState( { error } );
+		const response = await wizardApiFetch( {
+			path: '/newspack/v1/wizard/salesforce/connection-status',
+			method: 'POST',
+		} );
+		if ( response.error ) {
+			this.setState( { error: response.error } );
 		}
 	}
 
@@ -146,7 +134,7 @@ class Salesforce extends Component {
 	 */
 	render() {
 		const { data, isConnected, onChange } = this.props;
-		const { client_id, client_secret, error } = data;
+		const { client_id = '', client_secret = '', error } = data;
 
 		return (
 			<Grid>

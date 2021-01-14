@@ -226,7 +226,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					description={ __( 'Most read categories of reader.', 'newspack' ) }
 				>
 					<CategoryAutocomplete
-						value={ segmentConfig.favorite_categories }
+						value={ segmentConfig.favorite_categories.map( v => parseInt( v ) ) }
 						onChange={ selected => {
 							updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
 						} }
