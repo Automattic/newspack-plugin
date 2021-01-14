@@ -31,24 +31,19 @@ class StyleCard extends Component {
 			className
 		);
 		return (
-			<div className={ classes } tabIndex="0" id={ id }>
+			<div className={ classes } tabIndex={ isActive ? -1 : 0 } id={ id }>
 				<div className="newspack-style-card__image">
-					{ image && <img src={ image } alt="style-card" /> }
-					<div className="newspack-style-card__actions">
-						{ ! isActive && (
-							<Button isPrimary isSmall onClick={ onClick }>
+					{ image && <img src={ image } alt={ cardTitle + ' - ' + __( 'Thumbnail' ) } /> }
+					{ ! isActive && (
+						<div className="newspack-style-card__actions">
+							<Button isLink onClick={ onClick } aria-label={ __( 'Activate' ) + ' ' + cardTitle }>
 								{ __( 'Activate' ) }
 							</Button>
-						) }
-						{ url && <WebPreview url={ url } label={ __( 'View Demo' ) } isSmall isSecondary /> }
-					</div>
+							{ url && <WebPreview url={ url } label={ __( 'View Demo' ) } isLink /> }
+						</div>
+					) }
 				</div>
-				<div className="newspack-style-card__content">
-					<h2 className="newspack-style-card__heading">
-						<span className="newspack-style-card__title">{ cardTitle }</span>
-						{ isActive && <span className="newspack-style-card__status">{ __( 'Active' ) }</span> }
-					</h2>
-				</div>
+				<div className="newspack-style-card__title">{ cardTitle }</div>
 			</div>
 		);
 	}
