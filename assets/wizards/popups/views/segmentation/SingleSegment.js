@@ -14,6 +14,7 @@ import {
 	Card,
 	CategoryAutocomplete,
 	CheckboxControl,
+	SelectControl,
 	Grid,
 	InfoButton,
 	Router,
@@ -47,8 +48,12 @@ const DEFAULT_CONFIG = {
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
-	const updateSegmentConfig = key => value =>
-		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
+	const updateSegmentConfig = keyOrPartialUpdate => {
+		if ( typeof keyOrPartialUpdate === 'string' ) {
+			return value => setSegmentConfig( { ...segmentConfig, [ keyOrPartialUpdate ]: value } );
+		}
+		return setSegmentConfig( { ...segmentConfig, ...keyOrPartialUpdate } );
+	};
 	const [ name, setName ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
@@ -183,30 +188,56 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</div>
 				</SegmentSettingSection>
 				<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
-					<CheckboxControl
-						checked={ segmentConfig.is_subscribed }
-						onChange={ updateSegmentConfig( 'is_subscribed' ) }
-						label={ __( 'Is subscribed to newsletter', 'newspack' ) }
-					/>
-					<CheckboxControl
-						checked={ segmentConfig.is_not_subscribed }
-						onChange={ updateSegmentConfig( 'is_not_subscribed' ) }
-						label={ __( 'Is not subscribed to newsletter', 'newspack' ) }
+					<SelectControl
+						onChange={ value => {
+							value = parseInt( value );
+							if ( value === 0 ) {
+								updateSegmentConfig( {
+									is_subscribed: false,
+									is_not_subscribed: false,
+								} );
+							} else {
+								updateSegmentConfig( {
+									is_subscribed: value === 1,
+									is_not_subscribed: value === 2,
+								} );
+							}
+						} }
+						// eslint-disable-next-line no-nested-ternary
+						value={ segmentConfig.is_subscribed ? 1 : segmentConfig.is_not_subscribed ? 2 : 0 }
+						options={ [
+							{ value: 0, label: __( 'N/A', 'newspack' ) },
+							{ value: 1, label: __( 'Is subscribed', 'newspack' ) },
+							{ value: 2, label: __( 'Is not subscribed', 'newspack' ) },
+						] }
 					/>
 				</SegmentSettingSection>
 				<SegmentSettingSection
 					title={ __( 'Donation', 'newspack' ) }
 					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 				>
-					<CheckboxControl
-						checked={ segmentConfig.is_donor }
-						onChange={ updateSegmentConfig( 'is_donor' ) }
-						label={ __( 'Has donated', 'newspack' ) }
-					/>
-					<CheckboxControl
-						checked={ segmentConfig.is_not_donor }
-						onChange={ updateSegmentConfig( 'is_not_donor' ) }
-						label={ __( "Hasn't donated", 'newspack' ) }
+					<SelectControl
+						onChange={ value => {
+							value = parseInt( value );
+							if ( value === 0 ) {
+								updateSegmentConfig( {
+									is_donor: false,
+									is_not_donor: false,
+								} );
+							} else {
+								updateSegmentConfig( {
+									is_donor: value === 1,
+									is_not_donor: value === 2,
+								} );
+							}
+						} }
+						// eslint-disable-next-line no-nested-ternary
+						value={ segmentConfig.is_donor ? 1 : segmentConfig.is_not_donor ? 2 : 0 }
+						options={ [
+							{ value: 0, label: __( 'N/A', 'newspack' ) },
+							{ value: 1, label: __( 'Has donated', 'newspack' ) },
+							{ value: 2, label: __( "Hasn't donated", 'newspack' ) },
+						] }
 					/>
 				</SegmentSettingSection>
 				<SegmentSettingSection
