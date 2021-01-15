@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -25,6 +26,12 @@ const Footer = () => {
 		{
 			label: __( 'About', 'newspack' ),
 			url: 'https://newspack.pub/',
+			external: true,
+		},
+		{
+			label: __( 'Documentation', 'newspack' ),
+			url: 'https://newspack.pub/support/',
+			external: true,
 		},
 	];
 	if ( componentsDemo ) {
@@ -52,14 +59,20 @@ const Footer = () => {
 		} );
 	}
 	return (
-		<div className="newspack__footer">
-			<ul>
-				{ footerElements.map( ( { url, label }, index ) => (
-					<li key={ index }>
-						<a href={ url }>{ label }</a>
-					</li>
-				) ) }
-			</ul>
+		<div className="newspack-footer">
+			<div className="newspack-footer__wrapper">
+				<ul>
+					{ footerElements.map( ( { url, label, external }, index ) => (
+						<li key={ index }>
+							{ external ? (
+								<ExternalLink href={ url }>{ label }</ExternalLink>
+							) : (
+								<a href={ url }>{ label }</a>
+							) }
+						</li>
+					) ) }
+				</ul>
+			</div>
 		</div>
 	);
 };
