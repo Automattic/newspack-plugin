@@ -32,7 +32,7 @@ const SegmentationPreview = props => {
 			view_as.push( 'show_unpublished:true' );
 		}
 
-		// If passed group IDs, those take precedence. Otherwise, look for an array of campaign IDs.
+		// If passed group IDs, get only campaigns matching those groups. Otherwise, get all campaigns.
 		if ( 0 < campaignGroups.length ) {
 			view_as.push( `groups:${ sanitizeTerms( campaignGroups ).join( ',' ) }` );
 		} else {
