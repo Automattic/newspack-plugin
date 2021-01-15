@@ -158,7 +158,7 @@ const PopupGroup = ( {
 					) }
 
 					<SegmentationPreview
-						campaignsToDisplay={ campaignsToDisplay }
+						campaignGroup={ campaignGroup > -1 ? campaignGroup : null }
 						segment={ segmentId }
 						showUnpublished={ showUnpublished }
 						renderButton={ ( { showPreview } ) => (

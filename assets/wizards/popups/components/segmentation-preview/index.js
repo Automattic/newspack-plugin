@@ -19,7 +19,6 @@ const SegmentationPreview = props => {
 
 	const {
 		campaignGroups = [],
-		campaignsToDisplay = [],
 		onLoad = () => {},
 		segment = '',
 		showUnpublished = false,
@@ -36,8 +35,8 @@ const SegmentationPreview = props => {
 		// If passed group IDs, those take precedence. Otherwise, look for an array of campaign IDs.
 		if ( 0 < campaignGroups.length ) {
 			view_as.push( `groups:${ sanitizeTerms( campaignGroups ).join( ',' ) }` );
-		} else if ( 0 < campaignsToDisplay.length ) {
-			view_as.push( `campaigns:${ sanitizeTerms( campaignsToDisplay ).join( ',' ) }` );
+		} else {
+			view_as.push( 'all' );
 		}
 
 		return addQueryArgs( urlToDecorate, { view_as: view_as.join( ';' ) } );
