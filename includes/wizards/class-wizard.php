@@ -115,6 +115,29 @@ abstract class Wizard {
 			],
 		];
 
+		$screen = get_current_screen();
+
+		if ( Newspack::is_debug_mode() ) {
+			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) );
+			$urls['setup_wizard']    = esc_url( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
+			$urls['reset_url']       = esc_url(
+				add_query_arg(
+					array(
+						'newspack_reset' => 'reset',
+					),
+					Wizards::get_url( 'dashboard' )
+				)
+			);
+			$urls['reset_wpcom_url'] = esc_url(
+				add_query_arg(
+					array(
+						'newspack_reset' => 'reset-wpcom',
+					),
+					Wizards::get_url( 'dashboard' )
+				)
+			);
+		}
+
 		$aux_data = [
 			'is_e2e'        => Starter_Content::is_e2e(),
 			'is_debug_mode' => Newspack::is_debug_mode(),

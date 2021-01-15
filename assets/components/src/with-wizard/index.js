@@ -10,6 +10,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { Button, Modal, Notice, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
+import Footer from '../footer';
 import './style.scss';
 
 const { Redirect, Route } = Router;
@@ -274,6 +275,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 					</div>
+					<Footer />
 				</Fragment>
 			);
 		}

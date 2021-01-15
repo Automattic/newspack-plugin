@@ -8,6 +8,7 @@ export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as CheckboxControl } from './checkbox-control';
 export { default as ColorPicker } from './color-picker';
 export { default as FormTokenField } from './form-token-field';
+export { default as Footer } from './footer';
 export { default as Handoff } from './handoff';
 export { default as InfoButton } from './info-button';
 export { default as ImageUpload } from './image-upload';
