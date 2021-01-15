@@ -34,6 +34,7 @@ class AdvertisingWizard extends Component {
 					global_above_footer: {},
 					archives: {},
 					search_results: {},
+					sticky: {},
 				},
 				services: {
 					google_ad_manager: {},
@@ -83,6 +84,7 @@ class AdvertisingWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/service/' + service,
 			method: enabled ? 'POST' : 'DELETE',
+			quiet: true,
 		} )
 			.then( advertisingData => {
 				return new Promise( resolve => {
@@ -110,6 +112,7 @@ class AdvertisingWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/placement/' + placement,
 			method: enabled ? 'POST' : 'DELETE',
+			quiet: true,
 		} )
 			.then( advertisingData => {
 				return new Promise( resolve => {
@@ -149,6 +152,7 @@ class AdvertisingWizard extends Component {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/service/' + service + '/network_code',
 				method: 'post',
+				quiet: true,
 				data: {
 					network_code,
 				},
@@ -183,6 +187,7 @@ class AdvertisingWizard extends Component {
 					ad_unit: data.adUnit,
 					service: data.service,
 				},
+				quiet: true,
 			} )
 				.then( advertisingData => {
 					this.setState(
@@ -230,6 +235,7 @@ class AdvertisingWizard extends Component {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + ( id || 0 ),
 				method: 'post',
 				data,
+				quiet: true,
 			} )
 				.then( advertisingData => {
 					this.setState(
@@ -260,6 +266,7 @@ class AdvertisingWizard extends Component {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
 				method: 'delete',
+				quiet: true,
 			} )
 				.then( advertisingData => {
 					this.setState(
