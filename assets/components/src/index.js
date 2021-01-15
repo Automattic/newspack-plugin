@@ -16,6 +16,7 @@ export { default as Grid } from './grid';
 export { default as Modal } from './modal';
 export { default as NewspackLogo } from './newspack-logo';
 export { default as Notice } from './notice';
+export { default as PatronsLogo } from './patrons-logo';
 export { default as PluginInstaller } from './plugin-installer';
 export { default as PluginToggle } from './plugin-toggle';
 export { default as Popover } from './popover';

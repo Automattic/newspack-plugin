@@ -11,6 +11,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
+import { PatronsLogo } from '../';
 import './style.scss';
 
 const Footer = () => {
@@ -60,7 +61,8 @@ const Footer = () => {
 	}
 	return (
 		<div className="newspack-footer">
-			<div className="newspack-footer__wrapper">
+			<PatronsLogo />
+			<div className="newspack-footer__inner">
 				<ul>
 					{ footerElements.map( ( { url, label, external }, index ) => (
 						<li key={ index }>
