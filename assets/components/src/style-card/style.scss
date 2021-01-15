@@ -35,7 +35,9 @@
 		overflow: hidden;
 		position: relative;
 
-		&:hover {
+		&:hover,
+		&:focus,
+		&:focus-within {
 			.newspack-style-card__actions,
 			.newspack-style-card__actions .newspack-button {
 				opacity: 1;

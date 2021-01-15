@@ -31,7 +31,7 @@ class StyleCard extends Component {
 			className
 		);
 		return (
-			<div className={ classes } tabIndex={ isActive ? -1 : 0 } id={ id }>
+			<div className={ classes } id={ id }>
 				<div className="newspack-style-card__image">
 					{ image && (
 						<img src={ image } alt={ cardTitle + ' - ' + __( 'Thumbnail', 'newspack' ) } />
@@ -42,6 +42,7 @@ class StyleCard extends Component {
 								isLink
 								onClick={ onClick }
 								aria-label={ __( 'Activate', 'newspack' ) + ' ' + cardTitle }
+								tabindex="0"
 							>
 								{ __( 'Activate', 'newspack' ) }
 							</Button>
