@@ -179,7 +179,7 @@ class Support_Wizard extends Wizard {
 
 		$support_request = array(
 			'requester' => array(
-				'name'  => $full_name,
+				'name'  => $wpcom_user_data->display_name,
 				'email' => $wpcom_user_data->email,
 			),
 			'subject'   => '[Newspack ' . $subject_sufffix . '] ' . $request['subject'],
@@ -193,21 +193,20 @@ class Support_Wizard extends Wizard {
 			$support_request['priority'] = $request['priority'];
 		}
 
-		$request_body = wp_json_encode(
-			array(
-				'request' => $support_request,
-			)
-		);
-
-		$response = wp_safe_remote_post(
-			self::support_api_url() . '/requests.json',
-			array(
-				'body'    => $request_body,
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-			)
-		);
+		try {
+			$response = self::perform_wpcom_api_request(
+				'rest/v1.1/newspack/ticket/new',
+				[
+					'request' => $support_request,
+					'user_id' => $wpcom_user_data->ID,
+				]
+			);
+		} catch ( \Exception $e ) {
+			return new WP_Error(
+				'newspack_support_error',
+				$e->getMessage()
+			);
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -240,22 +239,27 @@ class Support_Wizard extends Wizard {
 	/**
 	 * Perform WPCOM API Request.
 	 *
-	 * @param string $endpoint endpoint.
+	 * @param string $endpoint Endpoint.
+	 * @param bool   $payload Payload to send.
 	 * @throws \Exception Error message.
 	 */
-	public static function perform_wpcom_api_request( $endpoint ) {
+	public static function perform_wpcom_api_request( $endpoint, $payload = false ) {
 		$access_token = self::get_access_token();
 		if ( is_wp_error( $access_token ) ) {
 			return $access_token;
 		}
-		$response = wp_safe_remote_get(
-			'https://public-api.wordpress.com/' . $endpoint,
-			array(
-				'headers' => [
-					'Authorization' => 'Bearer ' . $access_token,
-				],
-			)
+		$url  = 'https://public-api.wordpress.com/' . $endpoint;
+		$args = array(
+			'headers' => [
+				'Authorization' => 'Bearer ' . $access_token,
+			],
 		);
+		if ( $payload ) {
+			$args['body'] = wp_json_encode( $payload );
+			$response     = wp_safe_remote_post( $url, $args );
+		} else {
+			$response = wp_safe_remote_get( $url, $args );
+		}
 		if ( is_wp_error( $response ) ) {
 			throw new \Exception( $response->get_error_message() );
 		}
