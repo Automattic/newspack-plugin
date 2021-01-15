@@ -21,6 +21,7 @@ export { default as Popover } from './popover';
 export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
 export { default as SelectControl } from './select-control';
+export { default as StarterContentInstaller } from './starter-content-installer';
 export { default as StyleCard } from './style-card';
 export { default as TabbedNavigation } from './tabbed-navigation';
 export { default as TextControl } from './text-control';

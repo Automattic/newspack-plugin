@@ -29,6 +29,7 @@ import {
 	PluginToggle,
 	ProgressBar,
 	SelectControl,
+	StarterContentInstaller,
 	Modal,
 	ToggleGroup,
 	WebPreview,
@@ -247,6 +248,10 @@ class ComponentsDemo extends Component {
 						<Notice noticeText={ __( 'This is a help notice.' ) } isHelp />
 						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
 						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
+					</Card>
+					<Card>
+						<h2>{ __( 'Starter content instsaller', 'newspack' ) }</h2>
+						<StarterContentInstaller />
 					</Card>
 					<Card>
 						<h2>{ __( 'Plugin installer' ) }</h2>
