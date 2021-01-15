@@ -107,12 +107,15 @@ abstract class Wizard {
 		// It should not actually load a JS file.
 		wp_register_script( 'newspack_data', '', [], '1.0', false );
 
+		$plugin_data = get_plugin_data( NEWSPACK_PLUGIN_FILE );
+
 		$urls = [
-			'dashboard'   => Wizards::get_url( 'dashboard' ),
-			'public_path' => Newspack::plugin_url() . '/dist/',
-			'bloginfo'    => [
+			'dashboard'      => Wizards::get_url( 'dashboard' ),
+			'public_path'    => Newspack::plugin_url() . '/dist/',
+			'bloginfo'       => [
 				'name' => get_bloginfo( 'name' ),
 			],
+			'plugin_version' => $plugin_data['Name'] . ' ' . $plugin_data['Version'],
 		];
 
 		$screen = get_current_screen();

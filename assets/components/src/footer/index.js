@@ -17,7 +17,11 @@ const Footer = props => {
 	const setupWizard = window && window.newspack_urls && window.newspack_urls.setup_wizard;
 	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
 	const resetWpcomUrl = window && window.newspack_urls && window.newspack_urls.reset_wpcom_url;
+	const pluginVersion = window && window.newspack_urls && window.newspack_urls.plugin_version;
 	const footerElements = [
+		{
+			label: pluginVersion,
+		},
 		{
 			label: __( 'About', 'newspack' ),
 			url: 'https://newspack.pub/',
