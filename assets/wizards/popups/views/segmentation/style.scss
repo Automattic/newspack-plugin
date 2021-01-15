@@ -42,3 +42,18 @@
 		}
 	}
 }
+
+.newspack-campaigns__draggable {
+	&.is-dragging {
+		opacity: 0.5;
+	}
+
+	&.is-drop-target::before,
+	&.drop-target-after::after {
+		background-color: blue;
+		content: '';
+		display: block;
+		height: 2px;
+		width: 100%;
+	}
+}
