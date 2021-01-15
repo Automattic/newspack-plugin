@@ -19,6 +19,7 @@ import {
 	InfoButton,
 	Router,
 	TextControl,
+	hooks,
 } from '../../../../components/src';
 
 const { useHistory } = Router;
@@ -61,6 +62,16 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	const isSegmentValid = name.length > 0;
 
+	const [ segmentInitially, setSegmentInitially ] = useState( null );
+	const isDirty =
+		segmentInitially !== null &&
+		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig );
+
+	const unblock = hooks.usePrompt(
+		isDirty,
+		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack' )
+	);
+
 	const isNew = segmentId === 'new';
 	useEffect( () => {
 		if ( ! isNew ) {
@@ -69,7 +80,12 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
-					setSegmentConfig( { ...DEFAULT_CONFIG, ...foundSegment.configuration } );
+					const segmentConfigurationWithDefaults = {
+						...DEFAULT_CONFIG,
+						...foundSegment.configuration,
+					};
+					setSegmentConfig( segmentConfigurationWithDefaults );
+					setSegmentInitially( segmentConfigurationWithDefaults );
 					setName( foundSegment.name );
 				}
 			} );
@@ -95,6 +111,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
+		unblock();
 		const path = isNew
 			? `/newspack/v1/wizard/newspack-popups-wizard/segmentation`
 			: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segmentId }`;
@@ -278,7 +295,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			) }
 
 			<div className="newspack-buttons-card">
-				<Button disabled={ ! isSegmentValid } isPrimary onClick={ saveSegment }>
+				<Button disabled={ ! isSegmentValid || ! isDirty } isPrimary onClick={ saveSegment }>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
 				<Button isSecondary href="#/segmentation">
