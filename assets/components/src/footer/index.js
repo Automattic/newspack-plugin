@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
-const Footer = props => {
+const Footer = () => {
 	const componentsDemo = window && window.newspack_urls && window.newspack_urls.components_demo;
 	const setupWizard = window && window.newspack_urls && window.newspack_urls.setup_wizard;
 	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
