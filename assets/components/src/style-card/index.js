@@ -33,11 +33,9 @@ class StyleCard extends Component {
 		return (
 			<div className={ classes } id={ id }>
 				<div className="newspack-style-card__image">
-					{ image && (
-						<img src={ image } alt={ cardTitle + ' - ' + __( 'Thumbnail', 'newspack' ) } />
-					) }
-					{ ! isActive && (
-						<div className="newspack-style-card__actions">
+					<img src={ image } alt={ cardTitle + ' - ' + __( 'Thumbnail', 'newspack' ) } />
+					<div className="newspack-style-card__actions">
+						{ ! isActive && (
 							<Button
 								isLink
 								onClick={ onClick }
@@ -46,9 +44,9 @@ class StyleCard extends Component {
 							>
 								{ __( 'Activate', 'newspack' ) }
 							</Button>
-							{ url && <WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } isLink /> }
-						</div>
-					) }
+						) }
+						{ url && <WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } isLink /> }
+					</div>
 				</div>
 				<div
 					className="newspack-style-card__title"
