@@ -1,8 +1,42 @@
-.newspack-popup-action-card-popover-control {
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-}
-.newspack-popup-action-card-select {
-	width: 100%;
+@import '~@wordpress/base-styles/colors';
+
+.newspack-popover__campaigns {
+	&__toggle-control {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	&__primary-popover {
+		margin-left: 11px;
+	}
+
+	&__secondary-popover {
+		margin-left: -25px;
+
+		.components-popover__content {
+			min-width: 286px;
+
+			> div > * {
+				margin: 0 0 8px;
+
+				&.newspack-select-control {
+					margin-bottom: 8px;
+				}
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+			}
+		}
+	}
+
+	&__info {
+		background: $light-gray-100;
+		color: $dark-gray-900;
+		font-size: 12px;
+		line-height: 16px;
+		padding: 4px 8px;
+		text-align: left;
+	}
 }

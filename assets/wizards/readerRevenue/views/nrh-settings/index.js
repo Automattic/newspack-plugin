@@ -5,13 +5,13 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { TextControl, withWizardScreen } from '../../../../components/src';
+import { Grid, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * News Revenue Hub Settings Screen Component
@@ -24,7 +24,7 @@ class NRHSettings extends Component {
 		const { data, onChange } = this.props;
 		const { nrh_organization_id, nrh_salesforce_campaign_id } = data;
 		return (
-			<Fragment>
+			<Grid>
 				<TextControl
 					label={ __( 'NRH Organization ID', 'newspack' ) }
 					value={ nrh_organization_id || '' }
@@ -42,7 +42,7 @@ class NRHSettings extends Component {
 						} )
 					}
 				/>
-			</Fragment>
+			</Grid>
 		);
 	}
 }

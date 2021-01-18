@@ -136,6 +136,7 @@
 			body[class*='admin-color-'] & .newspack-button.is-link {
 				border-bottom: 4px solid $primary-500;
 				display: inline-block;
+				font-weight: bold;
 				padding: 8px 0 4px;
 
 				&.active {

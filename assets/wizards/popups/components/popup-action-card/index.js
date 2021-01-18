@@ -6,107 +6,106 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { Tooltip } from '@wordpress/components';
-
-/**
- * Material UI dependencies.
- */
-import FilterListIcon from '@material-ui/icons/FilterList';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { Icon, cog, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, CategoryAutocomplete } from '../../../../components/src';
-import PopupPopover from '../popup-popover';
+import { ActionCard, Button } from '../../../../components/src';
+import PrimaryPopupPopover from '../popup-popover/primary';
+import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
 
-class PopupActionCard extends Component {
-	state = {
-		categoriesVisibility: false,
-		popoverVisibility: false,
-	};
-
-	/**
-	 * Render.
-	 */
-	render = () => {
-		const { categoriesVisibility, popoverVisibility } = this.state;
-		const {
-			className,
-			description,
-			deletePopup,
-			popup,
-			previewPopup,
-			setCategoriesForPopup,
-			setSitewideDefaultPopup,
-			publishPopup,
-			updatePopup,
-		} = this.props;
-		const { id, categories, title, sitewide_default: sitewideDefault, status } = popup;
-		return (
-			<ActionCard
-				isSmall
-				className={ className }
-				title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
-				key={ id }
-				description={ description }
-				actionText={
-					<Fragment>
-						{ ! sitewideDefault && (
-							<Tooltip text={ __( 'Category filtering', 'newspack' ) }>
-								<Button
-									className="icon-only"
-									onClick={ () =>
-										this.setState( { categoriesVisibility: ! categoriesVisibility } )
-									}
-								>
-									<FilterListIcon />
-								</Button>
-							</Tooltip>
-						) }
-						<Tooltip text={ __( 'More options', 'newspack' ) }>
-							<Button
-								className="icon-only"
-								onClick={ () => this.setState( { popoverVisibility: ! popoverVisibility } ) }
-							>
-								<MoreVertIcon />
-							</Button>
-						</Tooltip>
-						{ popoverVisibility && (
-							<PopupPopover
-								deletePopup={ deletePopup }
-								onFocusOutside={ () => this.setState( { popoverVisibility: false } ) }
-								popup={ popup }
-								setSitewideDefaultPopup={ setSitewideDefaultPopup }
-								updatePopup={ updatePopup }
-								previewPopup={ previewPopup }
-								publishPopup={ 'publish' !== status ? publishPopup : null }
-							/>
-						) }
-					</Fragment>
-				}
-			>
-				{ categoriesVisibility && (
-					<CategoryAutocomplete
-						value={ categories || [] }
-						onChange={ tokens => setCategoriesForPopup( id, tokens ) }
-						label={ __( 'Category filtering', 'newspack ' ) }
-						disabled={ sitewideDefault }
-					/>
-				) }
-			</ActionCard>
-		);
-	};
-}
-
-PopupActionCard.defaultProps = {
-	popup: {},
-	deletePopup: () => null,
-	setCategoriesForPopup: () => null,
-	setSitewideDefaultPopup: () => null,
+const placementForPopup = ( { options: { frequency, placement } } ) => {
+	if ( 'manual' === frequency ) {
+		return __( 'Manual Placement', 'newspack' );
+	}
+	return {
+		center: __( 'Center Overlay', 'newspack' ),
+		top: __( 'Top Overlay', 'newspack' ),
+		bottom: __( 'Bottom Overlay', 'newspack' ),
+		inline: __( 'Inline', 'newspack' ),
+		above_header: __( 'Above Header', 'newspack' ),
+	}[ placement ];
 };
 
+const PopupActionCard = ( {
+	className,
+	description,
+	deletePopup,
+	popup = {},
+	previewPopup,
+	setTermsForPopup,
+	segments,
+	setSitewideDefaultPopup,
+	publishPopup,
+	unpublishPopup,
+	updatePopup,
+} ) => {
+	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
+	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
+	const { id, edit_link: editLink, title, sitewide_default: sitewideDefault, status } = popup;
+	return (
+		<ActionCard
+			isSmall
+			badge={ placementForPopup( popup ) }
+			className={ className }
+			title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
+			titleLink={ decodeEntities( editLink ) }
+			key={ id }
+			description={ description }
+			actionText={
+				<Fragment>
+					<Tooltip
+						text={
+							sitewideDefault
+								? __( 'Campaign groups', 'newspack' )
+								: __( 'Category filtering and campaign groups', 'newspack' )
+						}
+					>
+						<Button
+							className="icon-only"
+							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
+						>
+							<Icon icon={ cog } />
+						</Button>
+					</Tooltip>
+					<Tooltip text={ __( 'More options', 'newspack' ) }>
+						<Button
+							className="icon-only"
+							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
+						>
+							<Icon icon={ moreVertical } />
+						</Button>
+					</Tooltip>
+					{ popoverVisibility && (
+						<PrimaryPopupPopover
+							deletePopup={ deletePopup }
+							onFocusOutside={ () => setPopoverVisibility( false ) }
+							popup={ popup }
+							setSitewideDefaultPopup={ setSitewideDefaultPopup }
+							updatePopup={ updatePopup }
+							previewPopup={ previewPopup }
+							publishPopup={ 'publish' !== status ? publishPopup : null }
+							unpublishPopup={ 'publish' === status ? unpublishPopup : null }
+						/>
+					) }
+					{ categoriesVisibility && (
+						<SecondaryPopupPopover
+							deletePopup={ deletePopup }
+							onFocusOutside={ () => setCategoriesVisibility( false ) }
+							popup={ popup }
+							segments={ segments }
+							setTermsForPopup={ setTermsForPopup }
+							updatePopup={ updatePopup }
+						/>
+					) }
+				</Fragment>
+			}
+		></ActionCard>
+	);
+};
 export default PopupActionCard;

@@ -1,4 +1,9 @@
 /**
+ * WordPress dependencies.
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import { Button, Handoff, TabbedNavigation, WizardPagination } from '../';
@@ -39,6 +44,11 @@ export default function withWizardScreen( WrappedComponent ) {
 		const shouldRenderSecondaryButton = secondaryButtonText && secondaryButtonAction;
 		return (
 			<>
+				{ newspack_aux_data.is_debug_mode && (
+					<div className="newspack-wizard__debug-mode-notice">
+						{ __( 'Newspack is in debug mode.', 'newspack' ) }
+					</div>
+				) }
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
 						{ headerText && <h1>{ headerText }</h1> }

@@ -32,7 +32,7 @@ class Welcome extends Component {
 		return (
 			<>
 				<div className="newspack-logo__wrapper welcome">
-					<NewspackLogo />
+					<NewspackLogo centered />
 				</div>
 				<div className="newspack-setup-wizard__welcome">
 					<h2>{ __( 'Welcome to WordPress for your Newsroom!' ) }</h2>

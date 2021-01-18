@@ -422,8 +422,6 @@ class SetupWizard extends Component {
 									buttonAction={ '#' + routes.starterContent.path }
 									updateTheme={ this.updateTheme }
 									theme={ theme }
-									isWide
-									routes={ routes }
 								/>
 							);
 						} }

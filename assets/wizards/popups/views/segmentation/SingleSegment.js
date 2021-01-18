@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useMemo, useEffect, useState } from '@wordpress/element';
+import { useMemo, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { find, debounce } from 'lodash';
@@ -9,25 +9,34 @@ import { find, debounce } from 'lodash';
 /**
  * Internal dependencies.
  */
-import { Button, TextControl, CheckboxControl, Router } from '../../../../components/src';
+import {
+	Button,
+	Card,
+	CategoryAutocomplete,
+	CheckboxControl,
+	Grid,
+	InfoButton,
+	Router,
+	TextControl,
+} from '../../../../components/src';
 
-const { NavLink, useHistory } = Router;
+const { useHistory } = Router;
 
 const SegmentSettingSection = ( { title, description, children } ) => (
-	<div className="newspack-campaigns-wizard-segments__section">
-		<h3>{ title }</h3>
-		{ description && (
-			<div className="newspack-campaigns-wizard-segments__section__description">
-				{ description }
-			</div>
-		) }
+	<Card noBorder className="newspack-campaigns-wizard-segments__section">
+		<div className="newspack-campaigns-wizard-segments__section__title">
+			<h2>{ title }</h2>
+			{ description && <InfoButton text={ description } /> }
+		</div>
 		<div className="newspack-campaigns-wizard-segments__section__content">{ children }</div>
-	</div>
+	</Card>
 );
 
 const DEFAULT_CONFIG = {
 	min_posts: 0,
 	max_posts: 0,
+	min_session_posts: 0,
+	max_session_posts: 0,
 	is_subscribed: false,
 	is_donor: false,
 	is_not_subscribed: false,
@@ -36,7 +45,7 @@ const DEFAULT_CONFIG = {
 	referrers: '',
 };
 
-const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
+const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
 	const updateSegmentConfig = key => value =>
 		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
@@ -91,18 +100,27 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 				name,
 				configuration: segmentConfig,
 			},
-		} ).then( () => history.push( '/segmentation' ) );
+		} )
+			.then( setSegments )
+			.then( history.push( '/segmentation' ) );
 	};
 
 	return (
-		<div>
-			<TextControl
-				placeholder={ __( 'Untitled Segment', 'newspack' ) }
-				value={ name }
-				onChange={ setName }
-			/>
-			<div className="newspack-campaigns-wizard-segments__sections-wrapper">
-				<SegmentSettingSection title={ __( 'Number of articles read', 'newspack' ) }>
+		<Fragment>
+			<Card noBorder className="newspack-campaigns-wizard-segments__title">
+				<TextControl
+					placeholder={ __( 'Untitled Segment', 'newspack' ) }
+					value={ name }
+					onChange={ setName }
+					label={ __( 'Title', 'newspack' ) }
+					hideLabelFromVision={ true }
+				/>
+			</Card>
+			<Grid columns={ 3 }>
+				<SegmentSettingSection
+					title={ __( 'Articles read', 'newspack' ) }
+					description={ __( 'Number of articles read in the last 30 day period.', 'newspack' ) }
+				>
 					<div>
 						<CheckboxControl
 							checked={ segmentConfig.min_posts > 0 }
@@ -127,6 +145,40 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 							type="number"
 							value={ segmentConfig.max_posts }
 							onChange={ updateSegmentConfig( 'max_posts' ) }
+						/>
+					</div>
+				</SegmentSettingSection>
+				<SegmentSettingSection
+					title={ __( 'Articles read in session', 'newspack' ) }
+					description={ __(
+						'Number of articles read in the current session (45 minutes).',
+						'newspack'
+					) }
+				>
+					<div>
+						<CheckboxControl
+							checked={ segmentConfig.min_session_posts > 0 }
+							onChange={ value => updateSegmentConfig( 'min_session_posts' )( value ? 1 : 0 ) }
+							label={ __( 'Min.', 'newspack' ) }
+						/>
+						<TextControl
+							placeholder={ __( 'Min. posts', 'newspack' ) }
+							type="number"
+							value={ segmentConfig.min_session_posts }
+							onChange={ updateSegmentConfig( 'min_session_posts' ) }
+						/>
+					</div>
+					<div>
+						<CheckboxControl
+							checked={ segmentConfig.max_session_posts > 0 }
+							onChange={ value => updateSegmentConfig( 'max_session_posts' )( value ? 1 : 0 ) }
+							label={ __( 'Max.', 'newspack' ) }
+						/>
+						<TextControl
+							placeholder={ __( 'Max. posts', 'newspack' ) }
+							type="number"
+							value={ segmentConfig.max_session_posts }
+							onChange={ updateSegmentConfig( 'max_session_posts' ) }
 						/>
 					</div>
 				</SegmentSettingSection>
@@ -169,7 +221,19 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 						onChange={ updateSegmentConfig( 'referrers' ) }
 					/>
 				</SegmentSettingSection>
-			</div>
+				<SegmentSettingSection
+					title={ __( 'Category Affinity', 'newspack' ) }
+					description={ __( 'Most read categories of reader.', 'newspack' ) }
+				>
+					<CategoryAutocomplete
+						value={ segmentConfig.favorite_categories.map( v => parseInt( v ) ) }
+						onChange={ selected => {
+							updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
+						} }
+						label={ __( 'Favorite Categories', 'newspack ' ) }
+					/>
+				</SegmentSettingSection>
+			</Grid>
 
 			{ reach.total > 0 && (
 				<div style={ { opacity: isFetchingReach ? 0.5 : 1 } }>
@@ -183,17 +247,15 @@ const SegmentsList = ( { segmentId, wizardApiFetch } ) => {
 			) }
 
 			<div className="newspack-buttons-card">
-				<div>
-					<NavLink to="/segmentation">
-						<Button>{ __( 'Cancel', 'newspack' ) }</Button>
-					</NavLink>
-					<Button disabled={ ! isSegmentValid } isPrimary onClick={ saveSegment }>
-						{ __( 'Save', 'newspack' ) }
-					</Button>
-				</div>
+				<Button disabled={ ! isSegmentValid } isPrimary onClick={ saveSegment }>
+					{ __( 'Save', 'newspack' ) }
+				</Button>
+				<Button isSecondary href="#/segmentation">
+					{ __( 'Cancel', 'newspack' ) }
+				</Button>
 			</div>
-		</div>
+		</Fragment>
 	);
 };
 
-export default SegmentsList;
+export default SingleSegment;
