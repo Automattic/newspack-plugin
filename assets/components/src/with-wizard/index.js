@@ -250,6 +250,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * Render.
 		 */
 		render() {
+			const { suppressFooter } = this.props;
 			const { loading, quietLoading, error } = this.state;
 			const loadingClasses = [
 				loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded',
@@ -275,7 +276,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 					</div>
-					<Footer />
+					{ ! suppressFooter && <Footer /> }
 				</Fragment>
 			);
 		}

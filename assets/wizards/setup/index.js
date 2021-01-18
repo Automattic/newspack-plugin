@@ -453,6 +453,6 @@ class SetupWizard extends Component {
 }
 
 render(
-	createElement( withWizard( SetupWizard, [], { suppressLogoLink: true } ) ),
+	createElement( withWizard( SetupWizard, [] ), { suppressFooter: true } ),
 	document.getElementById( 'newspack-setup-wizard' )
 );
