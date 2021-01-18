@@ -44,7 +44,11 @@
 }
 
 .newspack-campaigns__draggable {
-	margin: 32px 0;
+	margin: 16px 0;
+
+	&:first-child {
+		margin-top: 32px;
+	}
 
 	&.is-dragging {
 		display: none;
@@ -52,14 +56,63 @@
 
 	&.is-drop-target::before,
 	&.drop-target-after::after {
-		background-color: blue;
+		background-color: $blue-wordpress-700;
 		content: '';
 		display: block;
 		height: 2px;
+		margin-bottom: 16px;
+		margin-top: 16px;
 		width: 100%;
+	}
+
+	.newspack-campaigns__segment-priority-controls {
+		align-items: center;
+		display: flex;
+		height: 100%;
+		justify-content: center;
+		margin-right: 8px;
+
+		.drag-handle {
+			align-items: center;
+			display: flex;
+			cursor: grab;
+
+			.is-dragging & {
+				cursor: grabbing;
+			}
+		}
+
+		.movers {
+			display: flex;
+			flex-direction: column;
+
+			.newspack-button.is-link {
+				color: $dark-gray-primary;
+				display: block;
+				height: 16px;
+				line-height: 16px;
+
+				&:focus {
+					outline: none;
+				}
+
+				svg {
+					margin-top: -4px;
+				}
+			}
+		}
 	}
 
 	.newspack-card {
 		margin: 0;
+	}
+
+	.newspack-action-card {
+		flex-direction: row;
+
+		.newspack-action-card__region-top {
+			flex: 1;
+			order: 2;
+		}
 	}
 }

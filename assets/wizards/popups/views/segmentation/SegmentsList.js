@@ -4,10 +4,9 @@
 import { useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { format } from '@wordpress/date';
-import { useBlock } from '@wordpress/block-editor';
 import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
-import { Icon, dragHandle, moreVertical } from '@wordpress/icons';
+import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
 
 /**
  * Material UI dependencies.
@@ -44,6 +43,7 @@ const SegmentActionCard = ( {
 
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
+	const isFirstTarget = 0 === index;
 	const isLastTarget = index + 1 === totalSegments;
 	const isDropTarget = index === dropTargetIndex;
 	const targetIsLast = isLastTarget && dropTargetIndex >= totalSegments;
@@ -134,13 +134,23 @@ const SegmentActionCard = ( {
 							</>
 						}
 					>
-						<div
-							className="example-drag-handle"
-							draggable
-							onDragStart={ onDraggableStart }
-							onDragEnd={ onDraggableEnd }
-						>
-							<Icon icon={ dragHandle } />
+						<div className="newspack-campaigns__segment-priority-controls">
+							<div
+								className="drag-handle"
+								draggable
+								onDragStart={ onDraggableStart }
+								onDragEnd={ onDraggableEnd }
+							>
+								<Icon icon={ dragHandle } />
+							</div>
+							<div className="movers">
+								<Button isLink disabled={ isFirstTarget }>
+									<Icon icon={ chevronUp } />
+								</Button>
+								<Button isLink disabled={ isLastTarget }>
+									<Icon icon={ chevronDown } />
+								</Button>
+							</div>
 						</div>
 					</ActionCard>
 				) }
