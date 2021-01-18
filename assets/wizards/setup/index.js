@@ -17,7 +17,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	About,
 	ConfigurePlugins,
-	Newsroom,
 	Welcome,
 	InstallationProgress,
 	ThemeSelection,
@@ -267,10 +266,6 @@ class SetupWizard extends Component {
 				path: '/settings',
 				title: __( 'Settings', 'newspack' ),
 			},
-			newsroom: {
-				path: '/newsroom',
-				title: __( 'Newsroom', 'newspack' ),
-			},
 			integrations: {
 				path: '/integrations',
 				title: __( 'Integrations', 'newspack' ),
@@ -326,32 +321,7 @@ class SetupWizard extends Component {
 								subHeaderText={ __( 'Configure your site with basic settings' ) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ {
-									href: '#' + routes.newsroom.path,
-									onClick: () => this.updateProfile(),
-								} }
-								profile={ profile }
-								currencies={ currencies }
-								countries={ countries }
-								updateProfile={ ( key, value ) => {
-									this.setState( { profile: { ...profile, [ key ]: value } } );
-								} }
-								routes={ routes }
-							/>
-						) }
-					/>
-					<Route
-						path={ routes.newsroom.path }
-						render={ () => (
-							<Newsroom
-								headerText={ __( 'Tell us about your Newsroom' ) }
-								subHeaderText={ __(
-									'The description helps set the stage for the step content below'
-								) }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ {
-									href: installationComplete
-										? '#' + routes.jetpack.path
-										: '#' + routes.integrations.path,
+									href: '#' + routes.integrations.path,
 									onClick: () => this.updateProfile(),
 								} }
 								profile={ profile }
