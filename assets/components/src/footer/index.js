@@ -22,7 +22,8 @@ const Footer = () => {
 	const pluginVersion = window && window.newspack_urls && window.newspack_urls.plugin_version;
 	const footerElements = [
 		{
-			label: pluginVersion,
+			label: pluginVersion.label,
+			url: pluginVersion.url,
 		},
 		{
 			label: __( 'About', 'newspack' ),

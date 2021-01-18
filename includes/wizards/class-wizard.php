@@ -115,7 +115,10 @@ abstract class Wizard {
 			'bloginfo'       => [
 				'name' => get_bloginfo( 'name' ),
 			],
-			'plugin_version' => $plugin_data['Name'] . ' ' . $plugin_data['Version'],
+			'plugin_version' => [
+				'label' => $plugin_data['Name'] . ' ' . $plugin_data['Version'],
+				'url'   => esc_url( admin_url( 'admin.php?page=newspack-updates-wizard' ) ),
+			],
 		];
 
 		$screen = get_current_screen();
