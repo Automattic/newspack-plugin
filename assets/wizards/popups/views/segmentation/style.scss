@@ -44,8 +44,10 @@
 }
 
 .newspack-campaigns__draggable {
+	margin: 32px 0;
+
 	&.is-dragging {
-		opacity: 0.5;
+		display: none;
 	}
 
 	&.is-drop-target::before,
@@ -55,5 +57,9 @@
 		display: block;
 		height: 2px;
 		width: 100%;
+	}
+
+	.newspack-card {
+		margin: 0;
 	}
 }

@@ -46,14 +46,14 @@ const SegmentActionCard = ( {
 	const history = useHistory();
 	const isLastTarget = index + 1 === totalSegments;
 	const isDropTarget = index === dropTargetIndex;
-	const targetIsLast = isLastTarget && dropTargetIndex > totalSegments;
+	const targetIsLast = isLastTarget && dropTargetIndex >= totalSegments;
 	const onDragStart = () => {
 		console.log( 'drag start' );
 		setDropTargetIndex( null );
 		setIsDragging( true );
 	};
 	const onDragEnd = () => {
-		console.log( 'drag end' );
+		console.log( 'drag end', dropTargetIndex );
 		setDropTargetIndex( null );
 		setIsDragging( false );
 	};
@@ -64,8 +64,9 @@ const SegmentActionCard = ( {
 
 			// Handle dropping after the last item.
 			if ( targetIndex + 1 === totalSegments ) {
-				if ( e.pageY > segmentCards[ totalSegments - 1 ].getBoundingClientRect().bottom )
-					targetIndex = totalSegments + 1;
+				const lastSegment = segmentCards[ totalSegments - 1 ];
+				if ( e.pageY > lastSegment.getBoundingClientRect().top + lastSegment.clientHeight / 2 )
+					targetIndex = totalSegments;
 			}
 
 			setDropTargetIndex( 0 <= targetIndex ? targetIndex : null );
@@ -149,7 +150,6 @@ const SegmentActionCard = ( {
 };
 
 const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
-	console.log( segments );
 	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
 
 	const ref = useRef();
