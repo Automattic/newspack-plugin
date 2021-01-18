@@ -66,6 +66,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const isDirty =
 		segmentInitially !== null &&
 		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig );
+	const isEmpty = JSON.stringify( segmentConfig ) === JSON.stringify( DEFAULT_CONFIG );
+	console.log( segmentConfig, isEmpty );
 
 	const unblock = hooks.usePrompt(
 		isDirty,
@@ -223,9 +225,9 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						// eslint-disable-next-line no-nested-ternary
 						value={ segmentConfig.is_subscribed ? 1 : segmentConfig.is_not_subscribed ? 2 : 0 }
 						options={ [
-							{ value: 0, label: __( 'N/A', 'newspack' ) },
-							{ value: 1, label: __( 'Is subscribed', 'newspack' ) },
-							{ value: 2, label: __( 'Is not subscribed', 'newspack' ) },
+							{ value: 0, label: __( 'Subscribers and non-subscribers', 'newspack' ) },
+							{ value: 1, label: __( 'Subscribers', 'newspack' ) },
+							{ value: 2, label: __( 'Non-subscribers', 'newspack' ) },
 						] }
 					/>
 				</SegmentSettingSection>
@@ -251,9 +253,9 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						// eslint-disable-next-line no-nested-ternary
 						value={ segmentConfig.is_donor ? 1 : segmentConfig.is_not_donor ? 2 : 0 }
 						options={ [
-							{ value: 0, label: __( 'N/A', 'newspack' ) },
-							{ value: 1, label: __( 'Has donated', 'newspack' ) },
-							{ value: 2, label: __( "Hasn't donated", 'newspack' ) },
+							{ value: 0, label: __( 'Both donors and non-donors', 'newspack' ) },
+							{ value: 1, label: __( 'Donors', 'newspack' ) },
+							{ value: 2, label: __( 'Non-donors', 'newspack' ) },
 						] }
 					/>
 				</SegmentSettingSection>
@@ -295,7 +297,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			) }
 
 			<div className="newspack-buttons-card">
-				<Button disabled={ ! isSegmentValid || ! isDirty } isPrimary onClick={ saveSegment }>
+				<Button
+					disabled={ ! isSegmentValid || ! isDirty || isEmpty }
+					isPrimary
+					onClick={ saveSegment }
+				>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
 				<Button isSecondary href="#/segmentation">
