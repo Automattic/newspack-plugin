@@ -7,7 +7,7 @@
  */
 import { Path, SVG } from '@wordpress/components';
 
-const NewspackLogo = ( { centered } ) => {
+const NewspackLogo = () => {
 	return (
 		<SVG
 			xmlns="http://www.w3.org/2000/svg"
