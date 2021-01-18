@@ -103,6 +103,7 @@ class Starter_Content {
 		$category_id  = self::is_e2e() ? $category_ids[ $post_index ] : $categories[0];
 
 		wp_set_post_categories( $post_id, $category_id );
+		wp_set_post_tags( $post_id, 'Starter Content' );
 		wp_publish_post( $post_id );
 
 		return $post_id;
