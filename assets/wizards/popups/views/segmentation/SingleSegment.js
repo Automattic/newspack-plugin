@@ -56,6 +56,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		return setSegmentConfig( { ...segmentConfig, ...keyOrPartialUpdate } );
 	};
 	const [ name, setName ] = useState( '' );
+	const [ nameInitially, setNameInitially ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
 	const history = useHistory();
@@ -64,8 +65,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
 	const isDirty =
-		segmentInitially !== null &&
-		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig );
+		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
+		nameInitially !== name;
 	const isEmpty = JSON.stringify( segmentConfig ) === JSON.stringify( DEFAULT_CONFIG );
 
 	const unblock = hooks.usePrompt(
@@ -88,6 +89,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					setSegmentConfig( segmentConfigurationWithDefaults );
 					setSegmentInitially( segmentConfigurationWithDefaults );
 					setName( foundSegment.name );
+					setNameInitially( foundSegment.name );
 				}
 			} );
 		}
