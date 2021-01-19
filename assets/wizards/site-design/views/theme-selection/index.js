@@ -24,7 +24,7 @@ class ThemeSelection extends Component {
 	render() {
 		const { updateTheme, theme } = this.props;
 		return (
-			<Grid>
+			<Grid columns={ 3 } gutter={ 32 }>
 				<StyleCard
 					cardTitle="Newspack"
 					image={ NewspackImg }

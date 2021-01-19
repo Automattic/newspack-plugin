@@ -56,7 +56,7 @@ const descriptionForPopup = (
  */
 const PopupGroup = ( {
 	deletePopup,
-	items: { active = [], draft = [], test = [], inactive = [] },
+	items: { active = [], draft = [], inactive = [] },
 	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
@@ -83,9 +83,6 @@ const PopupGroup = ( {
 		if ( 'draft' === status ) {
 			return 'newspack-card__is-disabled';
 		}
-		if ( 'test' === options.frequency ) {
-			return 'newspack-card__is-secondary';
-		}
 		if ( sitewideDefault ) {
 			return 'newspack-card__is-primary';
 		}
@@ -109,7 +106,7 @@ const PopupGroup = ( {
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
 
-	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] );
+	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...inactive ] );
 
 	return (
 		<Fragment>
@@ -158,7 +155,7 @@ const PopupGroup = ( {
 					) }
 
 					<SegmentationPreview
-						campaignsToDisplay={ campaignsToDisplay }
+						campaignGroups={ campaignGroup > -1 ? [ campaignGroup ] : [] }
 						segment={ segmentId }
 						showUnpublished={ showUnpublished }
 						renderButton={ ( { showPreview } ) => (

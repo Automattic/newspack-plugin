@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { stringify } from 'qs';
+import { groupBy } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -179,31 +180,25 @@ class PopupsWizard extends Component {
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopups = popups => {
-		const test = popups.filter(
-			( { options, status } ) => 'publish' === status && 'test' === options.frequency
-		);
-		const draft = popups.filter( ( { status } ) => 'draft' === status );
-		const active = popups.filter(
-			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
-				isOverlay( { options } )
-					? 'test' !== options.frequency &&
-					  ( sitewideDefault || categories.length ) &&
-					  'publish' === status
-					: 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
-		);
-		const activeWithSitewideDefaultFirst = [
-			...active.filter( ( { sitewide_default: sitewideDefault } ) => sitewideDefault ),
-			...active.filter( ( { sitewide_default: sitewideDefault } ) => ! sitewideDefault ),
-		];
-		const inactive = popups.filter(
-			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
-				isOverlay( { options } )
-					? 'test' !== options.frequency &&
-					  ( ! sitewideDefault && ! categories.length ) &&
-					  'publish' === status
-					: 'never' === options.frequency && 'publish' === status
-		);
-		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
+		const groups = {
+			draft: [],
+			active: [],
+			inactive: [],
+			...groupBy( popups, popup => {
+				if ( popup.status === 'draft' ) {
+					return 'draft';
+				}
+				if (
+					popup.status === 'publish' &&
+					( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
+				) {
+					return 'active';
+				}
+				return 'inactive';
+			} ),
+		};
+		groups.active = groups.active.sort( a => ( a.sitewide_default ? -1 : 1 ) );
+		return groups;
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
