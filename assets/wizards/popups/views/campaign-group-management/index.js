@@ -78,23 +78,23 @@ const CampaignGroupManagement = ( {} ) => {
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
 			</div>
-			{ groups !== -1 && groups.length
-				? groups.map( ( { count, id, name } ) => (
-						<ActionCard
-							description={
-								String( count ) +
-								' ' +
-								( 1 === count ? __( 'Campaign', 'newspack' ) : __( 'Campaigns', 'newspack' ) )
-							}
-							isSmall
-							key={ id }
-							title={ name }
-							actionText=<Button onClick={ () => deleteTerm( id ) }>
-								<DeleteIcon />
-							</Button>
-						/>
-				  ) )
-				: null }
+			{ groups !== -1 &&
+				groups.length &&
+				groups.map( ( { count, id, name } ) => (
+					<ActionCard
+						description={
+							String( count ) +
+							' ' +
+							( 1 === count ? __( 'Campaign', 'newspack' ) : __( 'Campaigns', 'newspack' ) )
+						}
+						isSmall
+						key={ id }
+						title={ name }
+						actionText=<Button onClick={ () => deleteTerm( id ) }>
+							<DeleteIcon />
+						</Button>
+					/>
+				) ) }
 			{ groups !== -1 && ! groups.length ? (
 				<p>{ __( 'No campaign groups have been created yet.', 'newspack' ) }</p>
 			) : null }
