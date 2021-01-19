@@ -31,10 +31,12 @@ const AddNewSegmentLink = () => (
 
 const SegmentActionCard = ( {
 	segment,
+	segments,
 	deleteSegment,
 	dropTargetIndex,
 	setDropTargetIndex,
 	index,
+	sortSegments,
 	totalSegments,
 	wrapperRef,
 } ) => {
@@ -47,30 +49,86 @@ const SegmentActionCard = ( {
 	const isLastTarget = index + 1 === totalSegments;
 	const isDropTarget = index === dropTargetIndex;
 	const targetIsLast = isLastTarget && dropTargetIndex >= totalSegments;
+	const resortSegments = targetIndex => {
+		const sortedSegments = [ ...segments ];
+
+		// We need to account for the fact that the dragged segment is actually still in the list.
+		const target = targetIndex > index ? targetIndex - 1 : targetIndex;
+
+		// Remove the segment and drop it back into the array at the target index.
+		sortedSegments.splice( index, 1 );
+		sortedSegments.splice( target, 0, segment );
+
+		// Reindex priorities to avoid gaps and dupes.
+		sortedSegments.map( ( segment, index ) => ( segment.priority = index ) );
+
+		// Only trigger the API request if the order has changed.
+		if ( JSON.stringify( sortedSegments ) !== JSON.stringify( segments ) ) {
+			sortSegments( sortedSegments );
+		}
+	};
 	const onDragStart = () => {
-		console.log( 'drag start' );
-		setDropTargetIndex( null );
 		setIsDragging( true );
 	};
 	const onDragEnd = () => {
-		console.log( 'drag end', dropTargetIndex );
+		if ( null !== dropTargetIndex ) {
+			resortSegments( dropTargetIndex );
+		}
+
 		setDropTargetIndex( null );
 		setIsDragging( false );
 	};
 	const onDragOver = e => {
-		if ( e.target.classList.contains( 'newspack-action-card' ) ) {
-			const segmentCards = Array.prototype.slice.call( wrapperRef.current.children );
+		const wrapperRect = wrapperRef.current.getBoundingClientRect();
+		const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
+		const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
+
+		if (
+			isDraggingToTop ||
+			isDraggingToBottom ||
+			e.target.classList.contains( 'newspack-action-card' )
+		) {
+			const segmentCards = Array.prototype.slice.call(
+				wrapperRef.current.querySelectorAll( '.newspack-campaigns__draggable' )
+			);
+
 			let targetIndex = segmentCards.indexOf( e.target.parentElement );
 
-			// Handle dropping after the last item.
-			if ( targetIndex + 1 === totalSegments ) {
-				const lastSegment = segmentCards[ totalSegments - 1 ];
-				if ( e.pageY > lastSegment.getBoundingClientRect().top + lastSegment.clientHeight / 2 )
-					targetIndex = totalSegments;
+			// If dragging the element over itself or over an invalid target, cancel the drop.
+			if ( 0 > targetIndex || targetIndex === index + 1 ) {
+				targetIndex = index;
 			}
 
-			setDropTargetIndex( 0 <= targetIndex ? targetIndex : null );
+			// Handle dropping before the first item.
+			if ( isDraggingToTop ) {
+				targetIndex = 0;
+			}
+
+			// Handle dropping after the last item.
+			if ( isDraggingToBottom ) {
+				targetIndex = totalSegments;
+			}
+
+			setDropTargetIndex( targetIndex );
 		}
+	};
+	const moveUp = () => {
+		let target = index - 1;
+
+		if ( 0 > target ) {
+			target = 0;
+		}
+
+		resortSegments( target );
+	};
+	const moveDown = () => {
+		let target = index + 2;
+
+		if ( totalSegments < target ) {
+			target = totalSegments;
+		}
+
+		resortSegments( target );
 	};
 
 	return (
@@ -144,10 +202,10 @@ const SegmentActionCard = ( {
 								<Icon icon={ dragHandle } />
 							</div>
 							<div className="movers">
-								<Button isLink disabled={ isFirstTarget }>
+								<Button isLink disabled={ isFirstTarget } onClick={ moveUp }>
 									<Icon icon={ chevronUp } />
 								</Button>
-								<Button isLink disabled={ isLastTarget }>
+								<Button isLink disabled={ isLastTarget } onClick={ moveDown }>
 									<Icon icon={ chevronDown } />
 								</Button>
 							</div>
@@ -161,18 +219,35 @@ const SegmentActionCard = ( {
 
 const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
+	const [ sortedSegments, setSortedSegments ] = useState( null );
 
 	const ref = useRef();
 	const deleteSegment = segment => {
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
 			method: 'DELETE',
+			quiet: true,
 		} ).then( setSegments );
+	};
+	const sortSegments = segmentsToSort => {
+		setSortedSegments( segmentsToSort );
+		wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-sort`,
+			method: 'POST',
+			data: { segments: segmentsToSort },
+			quiet: true,
+		} ).then( segments => {
+			setSortedSegments( null );
+			setSegments( segments );
+		} );
 	};
 
 	if ( segments === null ) {
 		return null;
 	}
+
+	// Optimistically update the order of the list while the sort request is pending.
+	const segmentsToShow = sortedSegments || segments;
 
 	return segments.length ? (
 		<div className="newspack-campaigns-wizard-segments__list-wrapper">
@@ -180,11 +255,13 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 				<AddNewSegmentLink />
 			</div>
 			<div className="newspack-campaigns-wizard-segments__list" ref={ ref }>
-				{ segments.map( ( segment, index ) => (
+				{ segmentsToShow.map( ( segment, index ) => (
 					<SegmentActionCard
 						deleteSegment={ deleteSegment }
 						key={ segment.id }
 						segment={ segment }
+						segments={ segments }
+						sortSegments={ sortSegments }
 						index={ index }
 						wrapperRef={ ref }
 						dropTargetIndex={ dropTargetIndex }
