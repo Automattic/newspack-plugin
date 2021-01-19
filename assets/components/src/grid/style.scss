@@ -25,15 +25,10 @@
 
 	// Media Queries - 744px
 	@media screen and ( min-width: 744px ) {
-		// Columns 2 & 4
 		&__columns-2,
+		&__columns-3,
 		&__columns-4 {
 			grid-template-columns: repeat( 2, 1fr );
-		}
-
-		// Columns 3
-		&__columns-3 {
-			grid-template-columns: 1fr;
 		}
 	}
 
