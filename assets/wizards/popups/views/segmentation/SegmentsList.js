@@ -199,15 +199,23 @@ const SegmentActionCard = ( {
 								onDragStart={ onDraggableStart }
 								onDragEnd={ onDraggableEnd }
 							>
-								<Icon icon={ dragHandle } />
+								<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
 							</div>
 							<div className="movers">
-								<Button isLink disabled={ isFirstTarget } onClick={ moveUp }>
-									<Icon icon={ chevronUp } />
-								</Button>
-								<Button isLink disabled={ isLastTarget } onClick={ moveDown }>
-									<Icon icon={ chevronDown } />
-								</Button>
+								<Button
+									icon={ chevronUp }
+									isLink
+									onClick={ moveUp }
+									disabled={ isFirstTarget }
+									label={ __( 'Move segment position up', 'newspack' ) }
+								/>
+								<Button
+									icon={ chevronDown }
+									isLink
+									onClick={ moveDown }
+									disabled={ isLastTarget }
+									label={ __( 'Move segment position down', 'newspack' ) }
+								/>
 							</div>
 						</div>
 					</ActionCard>
