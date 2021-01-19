@@ -1,7 +1,21 @@
 .newspack-campaigns-wizard-groups__add-ui {
 	display: flex;
 	justify-content: flex-end;
-	> * {
-		margin: 0 0 0 10px;
+	margin: 32px 0 -24px;
+
+	.newspack-button {
+		margin: 0 0 0 8px;
+	}
+
+	.newspack-text-control {
+		margin: 0;
+		max-width: 416px;
+		width: 100%;
+
+		.components-text-control__input {
+			min-height: 36px;
+			padding-bottom: 5px;
+			padding-top: 5px;
+		}
 	}
 }
