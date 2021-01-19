@@ -69,7 +69,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		nameInitially !== name;
 	const isEmpty = JSON.stringify( segmentConfig ) === JSON.stringify( DEFAULT_CONFIG );
 
-	const unblock = hooks.usePrompt(
+	const unBlockUI = hooks.usePrompt(
 		isDirty,
 		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack' )
 	);
@@ -114,7 +114,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
-		unblock();
+		unBlockUI();
 		const path = isNew
 			? `/newspack/v1/wizard/newspack-popups-wizard/segmentation`
 			: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segmentId }`;
