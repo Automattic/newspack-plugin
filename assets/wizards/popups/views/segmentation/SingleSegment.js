@@ -67,7 +67,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		segmentInitially !== null &&
 		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig );
 	const isEmpty = JSON.stringify( segmentConfig ) === JSON.stringify( DEFAULT_CONFIG );
-	console.log( segmentConfig, isEmpty );
 
 	const unblock = hooks.usePrompt(
 		isDirty,
