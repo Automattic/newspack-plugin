@@ -144,8 +144,18 @@ const SegmentActionCard = ( {
 								<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
 							</div>
 							<div className="movers">
-								<Button icon={ chevronUp } isLink disabled={ isFirstTarget } label={ __( 'Move segment position up', 'newspack' ) } />
-								<Button icon={ chevronDown } isLink disabled={ isLastTarget } label={ __( 'Move segment position down', 'newspack' ) } />
+								<Button
+									icon={ chevronUp }
+									isLink
+									disabled={ isFirstTarget }
+									label={ __( 'Move segment position up', 'newspack' ) }
+								/>
+								<Button
+									icon={ chevronDown }
+									isLink
+									disabled={ isLastTarget }
+									label={ __( 'Move segment position down', 'newspack' ) }
+								/>
 							</div>
 						</div>
 					</ActionCard>
