@@ -21,7 +21,14 @@ import { stringify } from 'qs';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import { CampaignGroupManagement, PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
+import {
+	CampaignGroupManagement,
+	PopupGroup,
+	Analytics,
+	Settings,
+	Segmentation,
+	Preview,
+} from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -300,7 +307,10 @@ class PopupsWizard extends Component {
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
 								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
-								<Route path="/group-management" render={ () => <CampaignGroupManagement { ...sharedProps } /> } />
+								<Route
+									path="/group-management"
+									render={ () => <CampaignGroupManagement { ...sharedProps } /> }
+								/>
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/campaigns" />
 							</Switch>

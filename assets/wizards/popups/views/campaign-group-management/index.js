@@ -17,12 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 /**
  * Internal dependencies
  */
-import {
-	withWizardScreen,
-	ActionCard,
-	Button,
-	TextControl,
-} from '../../../../components/src';
+import { withWizardScreen, ActionCard, Button, TextControl } from '../../../../components/src';
 import './style.scss';
 
 /**
