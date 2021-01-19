@@ -180,18 +180,23 @@ class PopupsWizard extends Component {
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopups = popups => {
-		const groups = groupBy( popups, popup => {
-			if ( popup.status === 'draft' ) {
-				return 'draft';
-			}
-			if (
-				popup.status === 'publish' &&
-				( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
-			) {
-				return 'active';
-			}
-			return 'inactive';
-		} );
+		const groups = {
+			draft: [],
+			active: [],
+			inactive: [],
+			...groupBy( popups, popup => {
+				if ( popup.status === 'draft' ) {
+					return 'draft';
+				}
+				if (
+					popup.status === 'publish' &&
+					( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
+				) {
+					return 'active';
+				}
+				return 'inactive';
+			} ),
+		};
 		groups.active = groups.active.sort( a => ( a.sitewide_default ? -1 : 1 ) );
 		return groups;
 	};
