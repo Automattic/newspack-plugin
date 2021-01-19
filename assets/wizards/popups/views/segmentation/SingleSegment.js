@@ -253,7 +253,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						// eslint-disable-next-line no-nested-ternary
 						value={ segmentConfig.is_donor ? 1 : segmentConfig.is_not_donor ? 2 : 0 }
 						options={ [
-							{ value: 0, label: __( 'Both donors and non-donors', 'newspack' ) },
+							{ value: 0, label: __( 'Donors and non-donors', 'newspack' ) },
 							{ value: 1, label: __( 'Donors', 'newspack' ) },
 							{ value: 2, label: __( 'Non-donors', 'newspack' ) },
 						] }
