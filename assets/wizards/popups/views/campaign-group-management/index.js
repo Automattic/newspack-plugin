@@ -8,8 +8,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, moreVertical } from '@wordpress/icons';
-import { ESCAPE } from '@wordpress/keycodes';
 
 /**
  * Material UI dependencies.
@@ -23,10 +21,7 @@ import {
 	withWizardScreen,
 	ActionCard,
 	Button,
-	Popover,
-	SelectControl,
 	TextControl,
-	ToggleControl,
 } from '../../../../components/src';
 import './style.scss';
 
@@ -36,10 +31,7 @@ import './style.scss';
 const CampaignGroupManagement = ( {} ) => {
 	const [ groups, setGroups ] = useState( [] );
 	const [ inFlight, setInFlight ] = useState( false );
-	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const [ newGroupName, setNewGroupName ] = useState( '' );
-
-	const onFocusOutside = () => setPopoverVisibility( false );
 
 	const createTerm = term => {
 		setInFlight( true );
