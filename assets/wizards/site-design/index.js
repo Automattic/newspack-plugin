@@ -45,6 +45,7 @@ class SiteDesignWizard extends Component {
 		const params = {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + newTheme,
 			method: 'POST',
+			quiet: true,
 		};
 		wizardApiFetch( params )
 			.then( response => {
@@ -67,6 +68,7 @@ class SiteDesignWizard extends Component {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme-mods/',
 			method: 'POST',
 			data: { theme_mods: themeMods },
+			quiet: true,
 		};
 		wizardApiFetch( params )
 			.then( response => {
