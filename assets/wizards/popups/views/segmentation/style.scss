@@ -1,10 +1,11 @@
+@import '../../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
 .newspack-campaigns-wizard-segments {
 	&__list-top {
 		display: flex;
 		flex-direction: row-reverse;
-		margin: 32px 0 16px;
+		margin: 32px 0 8px;
 	}
 	&__title {
 		margin: 32px 0 64px;
@@ -44,7 +45,7 @@
 }
 
 .newspack-campaigns__draggable {
-	margin: 16px 0;
+	margin: 8px 0;
 
 	&.is-dragging {
 		display: none;
@@ -52,12 +53,12 @@
 
 	&.is-drop-target::before,
 	&.drop-target-after::after {
-		background-color: $blue-wordpress-700;
+		background-color: $primary-500;
 		content: '';
 		display: block;
 		height: 2px;
-		margin-bottom: 16px;
-		margin-top: 16px;
+		margin-bottom: 8px;
+		margin-top: 8px;
 		width: 100%;
 	}
 
@@ -70,30 +71,41 @@
 
 		.drag-handle {
 			align-items: center;
-			display: flex;
 			cursor: grab;
+			display: flex;
+			height: 40px;
+			justify-content: flex-end;
+			margin-left: -8px;
+			width: 32px;
 
 			.is-dragging & {
 				cursor: grabbing;
+			}
+
+			svg {
+				padding: 3px;
 			}
 		}
 
 		.movers {
 			display: flex;
 			flex-direction: column;
+			margin: -4px 0;
 
 			.newspack-button.is-link {
-				color: $dark-gray-primary;
+				color: $dark-gray-900;
 				display: block;
-				height: 16px;
-				line-height: 16px;
+				height: 24px;
+				line-height: 24px;
+				padding: 0 8px;
 
 				&:focus {
 					outline: none;
-				}
 
-				svg {
-					margin-top: -4px;
+					svg {
+						border-radius: 3px;
+						box-shadow: 0 0 0 1px white, 0 0 0 3px $primary-500;
+					}
 				}
 			}
 		}
@@ -104,11 +116,18 @@
 	}
 
 	.newspack-action-card {
+		background: white;
 		flex-direction: row;
 
 		.newspack-action-card__region-top {
 			flex: 1;
 			order: 2;
 		}
+	}
+}
+
+.components-draggable__clone {
+	.newspack-card {
+		box-shadow: 0 0 8px 4px rgba( black, 0.08 );
 	}
 }
