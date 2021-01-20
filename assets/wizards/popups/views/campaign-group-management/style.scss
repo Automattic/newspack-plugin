@@ -1,21 +1,60 @@
-.newspack-campaigns-wizard-groups__add-ui {
-	display: flex;
-	justify-content: flex-end;
-	margin: 32px 0 -24px;
+/**
+ * Popup group management
+ */
 
-	.newspack-button {
-		margin: 0 0 0 8px;
+@import '~@wordpress/base-styles/colors';
+@import '../../../../shared/scss/colors';
+
+.newspack-campaigns-wizard-groups {
+	&__add-ui {
+		display: flex;
+		justify-content: flex-end;
+		margin: 32px 0 -24px;
+
+		.newspack-button {
+			margin: 0 0 0 8px;
+		}
+
+		.newspack-text-control {
+			margin: 0;
+			max-width: 416px;
+			width: 100%;
+
+			.components-text-control__input {
+				min-height: 36px;
+				padding-bottom: 5px;
+				padding-top: 5px;
+			}
+		}
 	}
 
-	.newspack-text-control {
-		margin: 0;
-		max-width: 416px;
-		width: 100%;
+	&__add-new-button {
+		.components-popover {
+			&__content {
+				margin-right: 0 !important;
+				padding: 8px;
 
-		.components-text-control__input {
-			min-height: 36px;
-			padding-bottom: 5px;
-			padding-top: 5px;
+				> div {
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: flex-end;
+				}
+
+				.newspack-text-control {
+					margin: 8px 0;
+					width: 100%;
+				}
+
+				.newspack-button.is-link {
+					color: $primary-500;
+					padding: 0;
+					text-decoration: underline;
+
+					&:hover {
+						color: $primary-600;
+					}
+				}
+			}
 		}
 	}
 }
