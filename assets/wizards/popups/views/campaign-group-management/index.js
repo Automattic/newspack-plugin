@@ -22,6 +22,7 @@ import {
 	withWizardScreen,
 	ActionCard,
 	Button,
+	Notice,
 	Popover,
 	TextControl,
 } from '../../../../components/src';
@@ -35,9 +36,11 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ newGroupName, setNewGroupName ] = useState( '' );
 	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState( false );
+	const [ error, setError ] = useState( null );
 
 	const createTerm = term => {
 		setInFlight( true );
+		setError( false );
 		wizardApiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy',
 			method: 'POST',
@@ -46,39 +49,63 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 				name: term,
 				slug: term,
 			},
-		} ).then( () => {
-			setInFlight( false );
-			setNewGroupName( '' );
-			retrieveTerms();
-		} );
+		} )
+			.then( () => {
+				setInFlight( false );
+				setNewGroupName( '' );
+				retrieveTerms();
+			} )
+			.catch( e => {
+				const message =
+					e.message || __( 'An error occurred when creating this group.', 'newspack' );
+				setError( message );
+				setInFlight( false );
+			} );
 	};
 
 	const deleteTerm = id => {
+		setInFlight( true );
+		setError( false );
 		wizardApiFetch( {
 			path: `/wp/v2/newspack_popups_taxonomy/${ id }?force=true`,
 			method: 'DELETE',
 			quiet: true,
-		} ).then( () => {
-			setInFlight( false );
-			retrieveTerms();
-		} );
+		} )
+			.then( () => {
+				setInFlight( false );
+				retrieveTerms();
+			} )
+			.catch( e => {
+				const message =
+					e.message || __( 'An error occurred when deleting this group.', 'newspack' );
+				setError( message );
+				setInFlight( false );
+			} );
 	};
 
 	const retrieveTerms = () => {
 		setInFlight( true );
+		setError( false );
 		wizardApiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name,count',
 			quiet: null !== groups,
-		} ).then( terms => {
-			setInFlight( false );
-			setGroups( terms );
-		} );
+		} )
+			.then( terms => {
+				setInFlight( false );
+				setGroups( terms );
+			} )
+			.catch( e => {
+				const message = e.message || __( 'An error occurred when retrieving groups.', 'newspack' );
+				setError( message );
+				setInFlight( false );
+			} );
 	};
 
 	useEffect( retrieveTerms, [] );
 
 	return (
 		<Fragment>
+			{ error && <Notice noticeText={ error } isError /> }
 			<div noBorder className="newspack-campaigns-wizard-groups__add-ui">
 				<Button
 					isPrimary
