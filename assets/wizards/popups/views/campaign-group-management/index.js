@@ -8,7 +8,7 @@
 import { MenuItem } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ESCAPE } from '@wordpress/keycodes';
+import { ENTER, ESCAPE } from '@wordpress/keycodes';
 
 /**
  * Material UI dependencies.
@@ -39,6 +39,7 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 	const [ error, setError ] = useState( null );
 
 	const createTerm = term => {
+		setAddNewPopoverIsVisible( false );
 		setInFlight( true );
 		setError( false );
 		wizardApiFetch( {
@@ -135,6 +136,9 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 								hideLabelFromVision={ true }
 								value={ newGroupName }
 								disabled={ !! inFlight }
+								onKeyDown={ event =>
+									ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
+								}
 							/>
 							<Button
 								isLink
