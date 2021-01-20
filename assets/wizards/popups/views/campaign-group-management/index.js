@@ -128,8 +128,8 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 					<ActionCard
 						description={
 							String( count ) +
-							' ' +
-							( 1 === count ? __( 'Campaign', 'newspack' ) : __( 'Campaigns', 'newspack' ) )
+							' Published ' +
+							( 1 === count ? __( 'campaign', 'newspack' ) : __( 'campaigns', 'newspack' ) )
 						}
 						isSmall
 						key={ id }
