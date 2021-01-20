@@ -51,9 +51,13 @@ const CampaignGroupManagement = ( {} ) => {
 	};
 
 	const retrieveTerms = () => {
+		setInFlight( true );
 		apiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name,count',
-		} ).then( terms => setGroups( terms ) );
+		} ).then( terms => {
+			setInFlight( false );
+			setGroups( terms );
+		} );
 	};
 
 	useEffect( retrieveTerms, [] );
