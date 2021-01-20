@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies.
  */
-import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -23,6 +22,7 @@ import {
 	withWizardScreen,
 	Button,
 	Popover,
+	Router,
 	SelectControl,
 	ToggleControl,
 } from '../../../../components/src';
@@ -30,6 +30,8 @@ import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
 import { isOverlay } from '../../utils';
 import './style.scss';
+
+const { useParams } = Router;
 
 const descriptionForPopup = (
 	{ categories, sitewide_default: sitewideDefault, options },
@@ -56,7 +58,7 @@ const descriptionForPopup = (
  */
 const PopupGroup = ( {
 	deletePopup,
-	items: { active = [], draft = [], test = [], inactive = [] },
+	items: { active = [], draft = [], inactive = [] },
 	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
@@ -65,6 +67,7 @@ const PopupGroup = ( {
 	unpublishPopup,
 	updatePopup,
 	segments,
+	wizardApiFetch,
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
@@ -73,18 +76,27 @@ const PopupGroup = ( {
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
 
+	const { group } = useParams();
+
 	useEffect( () => {
-		apiFetch( {
+		wizardApiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
-		} ).then( terms => setCampaignGroups( terms ) );
+		} ).then( terms => {
+			setCampaignGroups( terms );
+
+			if ( group ) {
+				const matchingTerm = terms.find( term => term.id === parseInt( group ) );
+
+				if ( matchingTerm ) {
+					setCampaignGroup( parseInt( group ) );
+				}
+			}
+		} );
 	}, [] );
 
 	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
 		if ( 'draft' === status ) {
 			return 'newspack-card__is-disabled';
-		}
-		if ( 'test' === options.frequency ) {
-			return 'newspack-card__is-secondary';
 		}
 		if ( sitewideDefault ) {
 			return 'newspack-card__is-primary';
@@ -109,7 +121,7 @@ const PopupGroup = ( {
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
 
-	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...test, ...inactive ] );
+	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...inactive ] );
 
 	return (
 		<Fragment>
@@ -158,7 +170,7 @@ const PopupGroup = ( {
 					) }
 
 					<SegmentationPreview
-						campaignsToDisplay={ campaignsToDisplay }
+						campaignGroups={ campaignGroup > -1 ? [ campaignGroup ] : [] }
 						segment={ segmentId }
 						showUnpublished={ showUnpublished }
 						renderButton={ ( { showPreview } ) => (

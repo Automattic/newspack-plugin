@@ -14,10 +14,12 @@ import {
 	Card,
 	CategoryAutocomplete,
 	CheckboxControl,
+	SelectControl,
 	Grid,
 	InfoButton,
 	Router,
 	TextControl,
+	hooks,
 } from '../../../../components/src';
 
 const { useHistory } = Router;
@@ -47,14 +49,30 @@ const DEFAULT_CONFIG = {
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
-	const updateSegmentConfig = key => value =>
-		setSegmentConfig( { ...segmentConfig, [ key ]: value } );
+	const updateSegmentConfig = keyOrPartialUpdate => {
+		if ( typeof keyOrPartialUpdate === 'string' ) {
+			return value => setSegmentConfig( { ...segmentConfig, [ keyOrPartialUpdate ]: value } );
+		}
+		return setSegmentConfig( { ...segmentConfig, ...keyOrPartialUpdate } );
+	};
 	const [ name, setName ] = useState( '' );
+	const [ nameInitially, setNameInitially ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
 	const history = useHistory();
 
-	const isSegmentValid = name.length > 0;
+	const isSegmentValid =
+		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG );
+
+	const [ segmentInitially, setSegmentInitially ] = useState( null );
+	const isDirty =
+		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
+		nameInitially !== name;
+
+	const unblock = hooks.usePrompt(
+		isDirty,
+		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack' )
+	);
 
 	const isNew = segmentId === 'new';
 	useEffect( () => {
@@ -64,8 +82,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
-					setSegmentConfig( { ...DEFAULT_CONFIG, ...foundSegment.configuration } );
+					const segmentConfigurationWithDefaults = {
+						...DEFAULT_CONFIG,
+						...foundSegment.configuration,
+					};
+					setSegmentConfig( segmentConfigurationWithDefaults );
+					setSegmentInitially( segmentConfigurationWithDefaults );
 					setName( foundSegment.name );
+					setNameInitially( foundSegment.name );
 				}
 			} );
 		}
@@ -90,6 +114,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
+		unblock();
 		const path = isNew
 			? `/newspack/v1/wizard/newspack-popups-wizard/segmentation`
 			: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segmentId }`;
@@ -183,30 +208,56 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</div>
 				</SegmentSettingSection>
 				<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
-					<CheckboxControl
-						checked={ segmentConfig.is_subscribed }
-						onChange={ updateSegmentConfig( 'is_subscribed' ) }
-						label={ __( 'Is subscribed to newsletter', 'newspack' ) }
-					/>
-					<CheckboxControl
-						checked={ segmentConfig.is_not_subscribed }
-						onChange={ updateSegmentConfig( 'is_not_subscribed' ) }
-						label={ __( 'Is not subscribed to newsletter', 'newspack' ) }
+					<SelectControl
+						onChange={ value => {
+							value = parseInt( value );
+							if ( value === 0 ) {
+								updateSegmentConfig( {
+									is_subscribed: false,
+									is_not_subscribed: false,
+								} );
+							} else {
+								updateSegmentConfig( {
+									is_subscribed: value === 1,
+									is_not_subscribed: value === 2,
+								} );
+							}
+						} }
+						// eslint-disable-next-line no-nested-ternary
+						value={ segmentConfig.is_subscribed ? 1 : segmentConfig.is_not_subscribed ? 2 : 0 }
+						options={ [
+							{ value: 0, label: __( 'Subscribers and non-subscribers', 'newspack' ) },
+							{ value: 1, label: __( 'Subscribers', 'newspack' ) },
+							{ value: 2, label: __( 'Non-subscribers', 'newspack' ) },
+						] }
 					/>
 				</SegmentSettingSection>
 				<SegmentSettingSection
 					title={ __( 'Donation', 'newspack' ) }
 					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 				>
-					<CheckboxControl
-						checked={ segmentConfig.is_donor }
-						onChange={ updateSegmentConfig( 'is_donor' ) }
-						label={ __( 'Has donated', 'newspack' ) }
-					/>
-					<CheckboxControl
-						checked={ segmentConfig.is_not_donor }
-						onChange={ updateSegmentConfig( 'is_not_donor' ) }
-						label={ __( "Hasn't donated", 'newspack' ) }
+					<SelectControl
+						onChange={ value => {
+							value = parseInt( value );
+							if ( value === 0 ) {
+								updateSegmentConfig( {
+									is_donor: false,
+									is_not_donor: false,
+								} );
+							} else {
+								updateSegmentConfig( {
+									is_donor: value === 1,
+									is_not_donor: value === 2,
+								} );
+							}
+						} }
+						// eslint-disable-next-line no-nested-ternary
+						value={ segmentConfig.is_donor ? 1 : segmentConfig.is_not_donor ? 2 : 0 }
+						options={ [
+							{ value: 0, label: __( 'Donors and non-donors', 'newspack' ) },
+							{ value: 1, label: __( 'Donors', 'newspack' ) },
+							{ value: 2, label: __( 'Non-donors', 'newspack' ) },
+						] }
 					/>
 				</SegmentSettingSection>
 				<SegmentSettingSection
@@ -247,7 +298,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			) }
 
 			<div className="newspack-buttons-card">
-				<Button disabled={ ! isSegmentValid } isPrimary onClick={ saveSegment }>
+				<Button
+					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
+					isPrimary
+					onClick={ saveSegment }
+				>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
 				<Button isSecondary href="#/segmentation">
