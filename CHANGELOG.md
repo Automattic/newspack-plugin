@@ -1,3 +1,20 @@
+# [1.28.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.28.0-alpha.2...v1.28.0-alpha.3) (2021-01-20)
+
+
+### Bug Fixes
+
+* bug preventing new segments from being savable ([#823](https://github.com/Automattic/newspack-plugin/issues/823)) ([5884897](https://github.com/Automattic/newspack-plugin/commit/58848976e8a090f99422f9d9056e1b5bf600e7dc))
+* in preview tab, allow previewing without choosing groups ([#820](https://github.com/Automattic/newspack-plugin/issues/820)) ([a486f26](https://github.com/Automattic/newspack-plugin/commit/a486f26c2a6c6b29c5bb29eb01a1e2dd0b8730cf))
+
+
+### Features
+
+* campaign group management ui ([#822](https://github.com/Automattic/newspack-plugin/issues/822)) ([4c67b86](https://github.com/Automattic/newspack-plugin/commit/4c67b861216921e65242eef2f918c80f348e6bb4))
+* **campaigns-wizard:** selects instead of checkboxes ([7a4c0a9](https://github.com/Automattic/newspack-plugin/commit/7a4c0a979c183680ee727a6ed3bb114b3309362d)), closes [#710](https://github.com/Automattic/newspack-plugin/issues/710)
+* add a sticky ad slot to the Advertising wizard ([#812](https://github.com/Automattic/newspack-plugin/issues/812)) ([fd4eb6f](https://github.com/Automattic/newspack-plugin/commit/fd4eb6f5b6d9aee89833a8a821bca0fa2a9290a1))
+* deprecate test mode and never frequency ([#809](https://github.com/Automattic/newspack-plugin/issues/809)) ([e79c728](https://github.com/Automattic/newspack-plugin/commit/e79c72823077e8ae48be2b166c28b3b9d2bd1fcf))
+* update style card design ([#814](https://github.com/Automattic/newspack-plugin/issues/814)) ([fab3ddb](https://github.com/Automattic/newspack-plugin/commit/fab3ddb0c2abf1e52a75a62676ce155995eedb7f))
+
 # [1.28.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.28.0-alpha.1...v1.28.0-alpha.2) (2021-01-14)
 
 
