@@ -8,6 +8,7 @@
 import { MenuItem } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ESCAPE } from '@wordpress/keycodes';
 
 /**
  * Material UI dependencies.
