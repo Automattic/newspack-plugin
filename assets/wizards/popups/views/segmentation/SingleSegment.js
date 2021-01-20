@@ -61,15 +61,15 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
 	const history = useHistory();
 
-	const isSegmentValid = name.length > 0;
+	const isSegmentValid =
+		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG );
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
 	const isDirty =
 		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
 		nameInitially !== name;
-	const isEmpty = JSON.stringify( segmentConfig ) === JSON.stringify( DEFAULT_CONFIG );
 
-	const unBlockUI = hooks.usePrompt(
+	const unblock = hooks.usePrompt(
 		isDirty,
 		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack' )
 	);
@@ -114,7 +114,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
-		unBlockUI();
+		unblock();
 		const path = isNew
 			? `/newspack/v1/wizard/newspack-popups-wizard/segmentation`
 			: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segmentId }`;
@@ -299,7 +299,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 			<div className="newspack-buttons-card">
 				<Button
-					disabled={ ! isSegmentValid || ! isDirty || isEmpty }
+					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
 					isPrimary
 					onClick={ saveSegment }
 				>
