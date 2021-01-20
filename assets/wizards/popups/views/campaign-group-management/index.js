@@ -29,7 +29,7 @@ import {
 import './style.scss';
 
 /**
- * Popup group screen.
+ * Campaign Groups management screen.
  */
 const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 	const [ groups, setGroups ] = useState( null );
