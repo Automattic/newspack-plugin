@@ -123,7 +123,7 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
 						>
 							<MenuItem
-								onClick={ () => setPreviewPopoverIsVisible( false ) }
+								onClick={ () => setAddNewPopoverIsVisible( false ) }
 								className="screen-reader-text"
 							>
 								{ __( 'Close Popover', 'newspack' ) }
@@ -161,6 +161,7 @@ const CampaignGroupManagement = ( { wizardApiFetch } ) => {
 						isSmall
 						key={ id }
 						title={ name }
+						titleLink={ `#/campaigns/${ id }` }
 						actionText={
 							<Button onClick={ () => deleteTerm( id ) }>
 								<DeleteIcon />

@@ -285,7 +285,7 @@ class PopupsWizard extends Component {
 							<Switch>
 								{ pluginRequirements }
 								<Route
-									path="/campaigns"
+									path="/campaigns/:group?"
 									render={ () => (
 										<PopupGroup
 											{ ...popupManagementSharedProps }
