@@ -61,6 +61,22 @@ const CampaignGroupManagement = ( {} ) => {
 	};
 
 	useEffect( retrieveTerms, [] );
+	const displayGroups = groups !== -1 && groups.length;
+	const renderGroup = ( { count, id, name } ) => (
+		<ActionCard
+			description={
+				String( count ) +
+				' ' +
+				( 1 === count ? __( 'Campaign', 'newspack' ) : __( 'Campaigns', 'newspack' ) )
+			}
+			isSmall
+			key={ id }
+			title={ name }
+			actionText=<Button onClick={ () => deleteTerm( id ) }>
+				<DeleteIcon />
+			</Button>
+		/>
+	);
 
 	return (
 		<Fragment>
@@ -82,23 +98,7 @@ const CampaignGroupManagement = ( {} ) => {
 					{ __( 'Add New', 'newspack' ) }
 				</Button>
 			</div>
-			{ groups !== -1 &&
-				groups.length &&
-				groups.map( ( { count, id, name } ) => (
-					<ActionCard
-						description={
-							String( count ) +
-							' ' +
-							( 1 === count ? __( 'Campaign', 'newspack' ) : __( 'Campaigns', 'newspack' ) )
-						}
-						isSmall
-						key={ id }
-						title={ name }
-						actionText=<Button onClick={ () => deleteTerm( id ) }>
-							<DeleteIcon />
-						</Button>
-					/>
-				) ) }
+			{ displayGroups ? groups.map( renderGroup ) : null }
 			{ groups !== -1 && ! groups.length ? (
 				<p>{ __( 'No campaign groups have been created yet.', 'newspack' ) }</p>
 			) : null }
