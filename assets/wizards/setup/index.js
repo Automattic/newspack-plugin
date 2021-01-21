@@ -17,7 +17,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	About,
 	ConfigurePlugins,
-	Newsroom,
 	Welcome,
 	InstallationProgress,
 	ThemeSelection,
@@ -260,7 +259,6 @@ class SetupWizard extends Component {
 		const routes = [
 			'/',
 			'/about',
-			'/newsroom',
 			'/installation-progress',
 			'/configure-jetpack',
 			'/configure-google-site-kit',
@@ -303,28 +301,6 @@ class SetupWizard extends Component {
 								headerText={ __( 'About your publication' ) }
 								subHeaderText={ __(
 									'Share a few details so we can start setting up your profile'
-								) }
-								buttonText={ __( 'Continue' ) }
-								buttonAction={ {
-									href: '#/newsroom',
-									onClick: () => this.updateProfile(),
-								} }
-								profile={ profile }
-								currencies={ currencies }
-								countries={ countries }
-								updateProfile={ ( key, value ) => {
-									this.setState( { profile: { ...profile, [ key ]: value } } );
-								} }
-							/>
-						) }
-					/>
-					<Route
-						path="/newsroom"
-						render={ () => (
-							<Newsroom
-								headerText={ __( 'Tell us about your Newsroom' ) }
-								subHeaderText={ __(
-									'The description helps set the stage for the step content below'
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ {
@@ -398,7 +374,6 @@ class SetupWizard extends Component {
 									buttonAction="#/starter-content"
 									updateTheme={ this.updateTheme }
 									theme={ theme }
-									isWide
 								/>
 							);
 						} }

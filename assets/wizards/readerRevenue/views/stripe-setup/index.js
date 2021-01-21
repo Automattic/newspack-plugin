@@ -13,12 +13,13 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import {
+	Card,
 	CheckboxControl,
+	Grid,
 	TextControl,
 	ToggleControl,
 	withWizardScreen,
 } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Stripe Setup Screen Component
@@ -38,31 +39,33 @@ class StripeSetup extends Component {
 			testSecretKey = '',
 		} = data;
 		return (
-			<div className="newspack-payment-setup-screen">
-				<ToggleControl
-					label={ __( 'Enable Stripe' ) }
-					checked={ enabled }
-					onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
-				/>
+			<Fragment>
+				<Grid>
+					<ToggleControl
+						label={ __( 'Enable Stripe' ) }
+						checked={ enabled }
+						onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
+					/>
+				</Grid>
 				{ enabled && (
 					<Fragment>
-						<h2 className="newspack-payment-setup-screen__settings-heading">
-							{ __( 'Stripe settings' ) }
-						</h2>
-						<CheckboxControl
-							label={ __( 'Use Stripe in test mode' ) }
-							checked={ testMode }
-							onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
-							tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
-						/>
-						<div className="newspack-payment-setup-screen__api-keys-heading">
-							<p className="newspack-payment-setup-screen__api-keys-instruction">
-								{ __( 'Get your API keys from your Stripe account.' ) }{' '}
-								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-									{ __( 'Learn how' ) }
-								</ExternalLink>
-							</p>
-
+						<Grid>
+							<Card noBorder>
+								<p className="newspack-payment-setup-screen__api-keys-instruction">
+									{ __( 'Get your API keys from your Stripe account.' ) }{' '}
+									<ExternalLink href="https://stripe.com/docs/keys#api-keys">
+										{ __( 'Learn how' ) }
+									</ExternalLink>
+								</p>
+								<CheckboxControl
+									label={ __( 'Use Stripe in test mode' ) }
+									checked={ testMode }
+									onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
+									tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
+								/>
+							</Card>
+						</Grid>
+						<Grid>
 							{ testMode && (
 								<Fragment>
 									<TextControl
@@ -101,18 +104,20 @@ class StripeSetup extends Component {
 									/>
 								</Fragment>
 							) }
-						</div>
+						</Grid>
 					</Fragment>
 				) }
 				{ ! enabled && (
-					<p className="newspack-payment-setup-screen__info">
-						{ __( 'Other gateways can be enabled and set up in the ' ) }
-						<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-							{ __( 'WooCommerce payment gateway settings' ) }
-						</ExternalLink>
-					</p>
+					<Grid>
+						<p className="newspack-payment-setup-screen__info">
+							{ __( 'Other gateways can be enabled and set up in the ' ) }
+							<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+								{ __( 'WooCommerce payment gateway settings' ) }
+							</ExternalLink>
+						</p>
+					</Grid>
 				) }
-			</div>
+			</Fragment>
 		);
 	}
 }

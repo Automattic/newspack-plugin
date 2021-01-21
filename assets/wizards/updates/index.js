@@ -24,11 +24,9 @@ class UpdatesWizard extends Component {
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
 		return (
 			<HashRouter hashType="slash">
 				<Switch>
-					{ pluginRequirements }
 					<Route
 						path="/"
 						exact
