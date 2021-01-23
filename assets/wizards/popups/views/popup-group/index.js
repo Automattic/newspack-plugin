@@ -215,23 +215,29 @@ const PopupGroup = props => {
 			) ) }
 			{ unassigned.length > 0 && (
 				<Fragment>
-					<h2>{ __( 'Unassigned Prompts', 'newspack' ) }</h2>
-					{ unassigned.map( campaign => (
-						<PopupActionCard
-							key={ campaign.id }
-							className={ getCardClassName( campaign ) }
-							deletePopup={ deletePopup }
-							key={ campaign.id }
-							popup={ campaign }
-							previewPopup={ previewPopup }
-							segments={ segments }
-							setTermsForPopup={ setTermsForPopup }
-							setSitewideDefaultPopup={ setSitewideDefaultPopup }
-							updatePopup={ updatePopup }
-							publishPopup={ publishPopup }
-							unpublishPopup={ unpublishPopup }
-						/>
-					) ) }
+					<ActionCard
+						className="newspack-card__is-disabled"
+						isSmall
+						title={ __( 'Unassigned Prompts', 'newspack' ) }
+					/>
+					<div className="newspack-campaigns__popup-group__campaigns-segments-wrapper">
+						{ unassigned.map( campaign => (
+							<PopupActionCard
+								key={ campaign.id }
+								className={ getCardClassName( campaign ) }
+								deletePopup={ deletePopup }
+								key={ campaign.id }
+								popup={ campaign }
+								previewPopup={ previewPopup }
+								segments={ segments }
+								setTermsForPopup={ setTermsForPopup }
+								setSitewideDefaultPopup={ setSitewideDefaultPopup }
+								updatePopup={ updatePopup }
+								publishPopup={ publishPopup }
+								unpublishPopup={ unpublishPopup }
+							/>
+						) ) }
+					</div>
 				</Fragment>
 			) }
 
