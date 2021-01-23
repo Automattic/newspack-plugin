@@ -38,11 +38,12 @@ const SegmentationPreview = props => {
 		} else {
 			view_as.push( 'all' );
 		}
-
+		console.log( 'decorate: ', view_as)
 		return addQueryArgs( urlToDecorate, { view_as: view_as.join( ';' ) } );
 	};
 
 	const onWebPreviewLoad = iframeEl => {
+		console.log( 'well', campaignGroups, segment );
 		if ( iframeEl ) {
 			[ ...iframeEl.contentWindow.document.querySelectorAll( 'a' ) ].forEach( anchor => {
 				const href = anchor.getAttribute( 'href' );

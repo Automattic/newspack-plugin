@@ -1,0 +1,35 @@
+/**
+ * CampaignGroup component styles
+ */
+
+@import '~@wordpress/base-styles/colors';
+@import '../../../../shared/scss/colors';
+
+.newspack-popover__campaigns__group-popover {
+	margin-left: -20px;
+
+	&__content {
+		padding: 8px;
+
+		> div {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+		}
+
+		.newspack-toggle-control {
+			margin: 8px 0;
+			width: 100%;
+		}
+
+		.newspack-button.is-link {
+			color: $primary-500;
+			padding: 0;
+			text-decoration: underline;
+
+			&:hover {
+				color: $primary-600;
+			}
+		}
+	}
+}

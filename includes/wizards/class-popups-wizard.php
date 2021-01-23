@@ -391,6 +391,7 @@ class Popups_Wizard extends Wizard {
 		$response = [
 			'popups'   => [],
 			'segments' => [],
+			'groups'   => [],
 			'settings' => [],
 		];
 
@@ -404,6 +405,12 @@ class Popups_Wizard extends Wizard {
 			);
 			$response['segments'] = $newspack_popups_configuration_manager->get_segments( true );
 			$response['settings'] = $newspack_popups_configuration_manager->get_settings();
+			$response['groups']   = get_terms(
+				'newspack_popups_taxonomy',
+				[
+					'hide_empty' => false,
+				]
+			);
 		}
 		return rest_ensure_response( $response );
 	}

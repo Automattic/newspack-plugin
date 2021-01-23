@@ -8,288 +8,235 @@
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { ESCAPE } from '@wordpress/keycodes';
+import { ENTER, ESCAPE } from '@wordpress/keycodes';
+import { Icon, moreVertical } from '@wordpress/icons';
 
 /**
  * External dependencies.
  */
 import { find } from 'lodash';
+import { groupBy } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import {
 	withWizardScreen,
+	ActionCard,
 	Button,
 	Popover,
 	Router,
 	SelectControl,
+	TextControl,
 	ToggleControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
-import SegmentationPreview from '../../components/segmentation-preview';
-import { isOverlay } from '../../utils';
+import CampaignGroup from '../../components/campaign-group';
+import { getCardClassName, isOverlay } from '../../utils';
 import './style.scss';
 
 const { useParams } = Router;
 
-const descriptionForPopup = (
-	{ categories, sitewide_default: sitewideDefault, options },
-	segments
-) => {
-	const segment = find( segments, [ 'id', options.selected_segment_id ] );
-	const descriptionMessages = [];
-	if ( segment ) {
-		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
-	}
-	if ( sitewideDefault ) {
-		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
-	}
-	if ( categories.length > 0 ) {
-		descriptionMessages.push(
-			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
-		);
-	}
-	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
-};
-
 /**
  * Popup group screen
  */
-const PopupGroup = ( {
-	deletePopup,
-	items: { active = [], draft = [], inactive = [] },
-	manageCampaignGroup,
-	previewPopup,
-	setTermsForPopup,
-	setSitewideDefaultPopup,
-	publishPopup,
-	unpublishPopup,
-	updatePopup,
-	segments,
-	wizardApiFetch,
-} ) => {
+const PopupGroup = props => {
+	const {
+		deletePopup,
+		items = [],
+		groups = [],
+		manageCampaignGroup,
+		previewPopup,
+		setTermsForPopup,
+		setSitewideDefaultPopup,
+		publishPopup,
+		unpublishPopup,
+		updatePopup,
+		refetch,
+		segments = [],
+		wizardApiFetch,
+	} = props;
 	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
 	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ showUnpublished, setShowUnpublished ] = useState( false );
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
-	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
+	const [ addNewGroupPopoverIsVisible, setAddNewGroupPopoverIsVisible ] = useState();
+	const [ newGroupName, setNewGroupName ] = useState( '' );
+	const [ error, setError ] = useState( null );
+	const [ inFlight, setInFlight ] = useState( false );
 
 	const { group } = useParams();
 
-	useEffect( () => {
+	const createTerm = term => {
+		setAddNewGroupPopoverIsVisible( false );
+		setInFlight( true );
+		setError( false );
 		wizardApiFetch( {
-			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
-		} ).then( terms => {
-			setCampaignGroups( terms );
-
-			if ( group ) {
-				const matchingTerm = terms.find( term => term.id === parseInt( group ) );
-
-				if ( matchingTerm ) {
-					setCampaignGroup( parseInt( group ) );
-				}
-			}
-		} );
-	}, [] );
-
-	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-		if ( 'draft' === status ) {
-			return 'newspack-card__is-disabled';
-		}
-		if ( sitewideDefault ) {
-			return 'newspack-card__is-primary';
-		}
-		if ( isOverlay( { options } ) && ! sitewideDefault ) {
-			return 'newspack-card__is-disabled';
-		}
-		return 'newspack-card__is-supported';
+			path: '/wp/v2/newspack_popups_taxonomy',
+			method: 'POST',
+			quiet: true,
+			data: {
+				name: term,
+				slug: term,
+			},
+		} )
+			.then( () => {
+				setInFlight( false );
+				setNewGroupName( '' );
+				refetch();
+			} )
+			.catch( e => {
+				const message =
+					e.message || __( 'An error occurred when creating this group.', 'newspack' );
+				setError( message );
+				setInFlight( false );
+			} );
 	};
 
-	const campaignGroupExists =
-		campaignGroups &&
-		Array.isArray( campaignGroups ) &&
-		+campaignGroup > 0 &&
-		-1 !== campaignGroups.some( ( { id: termId } ) => termId === campaignGroup );
+	const deleteTerm = id => {
+		setInFlight( true );
+		setError( false );
+		wizardApiFetch( {
+			path: `/wp/v2/newspack_popups_taxonomy/${ id }?force=true`,
+			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( () => {
+				setInFlight( false );
+				refetch();
+			} )
+			.catch( e => {
+				const message =
+					e.message || __( 'An error occurred when deleting this group.', 'newspack' );
+				setError( message );
+				setInFlight( false );
+			} );
+	};
 
-	const filteredByGroup = itemsToFilter =>
-		! campaignGroupExists
-			? itemsToFilter
-			: itemsToFilter.filter(
-					( { campaign_groups: groups } ) =>
-						groups && groups.find( term => +term.term_id === campaignGroup )
-			  );
+	const campaignsByGroup = groups.map( ( { name: groupName, term_id: groupId } ) => {
+		const allCampaigns = items.filter(
+			( { campaign_groups: campaignAssignedGroups } ) =>
+				campaignAssignedGroups &&
+				campaignAssignedGroups.some( ( { term_id: termId } ) => termId === groupId )
+		);
 
-	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...inactive ] );
+		const segmentsWithAll = [ ...segments, { id: '', name: 'All users' } ];
+
+		return {
+			allCampaigns,
+			label: groupName,
+			id: groupId,
+			isActive:
+				allCampaigns.length > 0 && allCampaigns.every( ( { status } ) => 'publish' === status ),
+			activeCount: allCampaigns.reduce(
+				( acc, { status } ) => ( 'publish' === status ? acc + 1 : acc ),
+				0
+			),
+			segments: segmentsWithAll
+				.map( ( { name: segmentName, id: segmentId } ) => ( {
+					label: segmentName,
+					id: segmentId,
+					allCampaigns,
+					campaigns: allCampaigns.filter( campaign => {
+						const {
+							options: { selected_segment_id: assignedSegment },
+						} = campaign;
+						return segmentId === assignedSegment;
+					} ),
+				} ) )
+				.filter( ( { id, campaigns } ) => id.length > 0 || campaigns.length ), // Exclude the All User group if empty
+		};
+	} );
+
+	// Move active group to the top.
+	const campaignsByGroupSorted = [
+		...campaignsByGroup.filter( group => !! group.isActive ),
+		...campaignsByGroup.filter( group => ! group.isActive ),
+	];
+
+	const unassigned = items.filter(
+		( { campaign_groups: campaignAssignedGroups } ) =>
+			! campaignAssignedGroups || campaignAssignedGroups.length === 0
+	);
+
+	console.log( campaignsByGroup );
 
 	return (
 		<Fragment>
-			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
-				<div className="newspack-campaigns__popup-group__filter-group-actions">
-					<SelectControl
-						options={
-							-1 === campaignGroups
-								? [
-										{
-											value: -1,
-											label: __( 'Loading...', 'newspack' ),
-										},
-								  ]
-								: [
-										{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-										...campaignGroups.map( term => ( {
-											value: term.id,
-											label: term.name,
-										} ) ),
-								  ]
+			<div className="newspack-campaigns__popup-group__add-new-button">
+				<Button
+					isPrimary
+					isSmall
+					onClick={ () => setAddNewGroupPopoverIsVisible( ! addNewGroupPopoverIsVisible ) }
+				>
+					{ __( 'Add New Campaign', 'newspack' ) }
+				</Button>
+				{ addNewGroupPopoverIsVisible && (
+					<Popover
+						position="bottom left"
+						onFocusOutside={ () => setAddNewGroupPopoverIsVisible( false ) }
+						onKeyDown={ event =>
+							ESCAPE === event.keyCode && setAddNewGroupPopoverIsVisible( false )
 						}
-						value={ campaignGroup }
-						onChange={ value => setCampaignGroup( +value ) }
-						label={ __( 'Groups', 'newspack' ) }
-						hideLabelFromVision={ true }
-						disabled={ -1 === campaignGroups }
-					/>
-					{ 0 < campaignsToDisplay.length && (
-						<>
-							<Button
-								isTertiary
-								isSmall
-								onClick={ () => manageCampaignGroup( campaignsToDisplay ) }
-							>
-								{ __( 'Publish All', 'newspack' ) }
-							</Button>
-							<Button
-								isTertiary
-								isSmall
-								onClick={ () => manageCampaignGroup( campaignsToDisplay, 'DELETE' ) }
-							>
-								{ __( 'Unpublish All', 'newspack' ) }
-							</Button>
-						</>
-					) }
-
-					<SegmentationPreview
-						campaignGroups={ campaignGroup > -1 ? [ campaignGroup ] : [] }
-						segment={ segmentId }
-						showUnpublished={ showUnpublished }
-						renderButton={ ( { showPreview } ) => (
-							<div className="newspack-campaigns__popup-group__filter-group-segmentation">
-								{ 0 < campaignsToDisplay.length && (
-									<Button
-										isTertiary
-										isSmall
-										onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
-									>
-										{ __( 'Preview', 'newspack' ) }
-									</Button>
-								) }
-								{ previewPopoverIsVisible && (
-									<Popover
-										position="bottom right"
-										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
-										onKeyDown={ event =>
-											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
-										}
-									>
-										<MenuItem
-											onClick={ () => setPreviewPopoverIsVisible( false ) }
-											className="screen-reader-text"
-										>
-											{ __( 'Close Popover', 'newspack' ) }
-										</MenuItem>
-										<SelectControl
-											options={ [
-												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-												...segments.map( s => ( { value: s.id, label: s.name } ) ),
-											] }
-											value={ segmentId }
-											onChange={ setSegmentId }
-											label={ __( 'Segment to preview', 'newspack' ) }
-										/>
-										<ToggleControl
-											label={ __( 'Show unpublished campaigns', 'newspack' ) }
-											checked={ showUnpublished }
-											onChange={ () => setShowUnpublished( ! showUnpublished ) }
-										/>
-										<Button
-											isLink
-											onClick={ () => {
-												showPreview();
-												setPreviewPopoverIsVisible( false );
-											} }
-										>
-											{ __( 'Preview', 'newspack' ) }
-										</Button>
-									</Popover>
-								) }
-							</div>
-						) }
-					/>
-				</div>
-				<div className="newspack-campaigns__popup-group__add-new-button">
-					<Button
-						isPrimary
-						isSmall
-						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
 					>
-						{ __( 'Add New', 'newspack' ) }
-					</Button>
-					{ addNewPopoverIsVisible && (
-						<Popover
-							position="bottom left"
-							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
-							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						<MenuItem
+							onClick={ () => setAddNewGroupPopoverIsVisible( false ) }
+							className="screen-reader-text"
 						>
-							<MenuItem
-								onClick={ () => setAddNewPopoverIsVisible( false ) }
-								className="screen-reader-text"
-							>
-								{ __( 'Close Popover', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
-								{ __( 'Inline', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center">
-								{ __( 'Center Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top">
-								{ __( 'Top Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom">
-								{ __( 'Bottom Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header">
-								{ __( 'Above Header', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual">
-								{ __( 'Manual Placement', 'newspack' ) }
-							</MenuItem>
-						</Popover>
-					) }
-				</div>
+							{ __( 'Close Popover', 'newspack' ) }
+						</MenuItem>
+						<TextControl
+							placeholder={ __( 'Campaign Group Name', 'newspack' ) }
+							onChange={ setNewGroupName }
+							label={ __( 'Campaign Group Name', 'newspack' ) }
+							hideLabelFromVision={ true }
+							value={ newGroupName }
+							disabled={ !! inFlight }
+							onKeyDown={ event =>
+								ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
+							}
+						/>
+						<Button
+							isLink
+							disabled={ inFlight || ! newGroupName }
+							onClick={ () => {
+								createTerm( newGroupName );
+								setAddNewGroupPopoverIsVisible( false );
+							} }
+						>
+							{ __( 'Add', 'newspack' ) }
+						</Button>
+					</Popover>
+				) }
 			</div>
-			{ campaignsToDisplay.map( campaign => (
-				<PopupActionCard
-					className={ getCardClassName( campaign ) }
-					deletePopup={ deletePopup }
-					description={ descriptionForPopup( campaign, segments ) }
-					key={ campaign.id }
-					popup={ campaign }
-					previewPopup={ previewPopup }
-					segments={ segments }
-					setTermsForPopup={ setTermsForPopup }
-					setSitewideDefaultPopup={ setSitewideDefaultPopup }
-					updatePopup={ updatePopup }
-					publishPopup={ publishPopup }
-					unpublishPopup={ unpublishPopup }
-				/>
+			{ campaignsByGroupSorted.map( group => (
+				<CampaignGroup { ...props } group={ group } deleteTerm={ deleteTerm } />
 			) ) }
-			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (
-				<p>{ __( 'No Campaigns have been created yet.', 'newspack' ) }</p>
+			{ unassigned.length > 0 && (
+				<Fragment>
+					<h2>{ __( 'Unassigned Prompts', 'newspack' ) }</h2>
+					{ unassigned.map( campaign => (
+						<PopupActionCard
+							key={ campaign.id }
+							className={ getCardClassName( campaign ) }
+							deletePopup={ deletePopup }
+							key={ campaign.id }
+							popup={ campaign }
+							previewPopup={ previewPopup }
+							segments={ segments }
+							setTermsForPopup={ setTermsForPopup }
+							setSitewideDefaultPopup={ setSitewideDefaultPopup }
+							updatePopup={ updatePopup }
+							publishPopup={ publishPopup }
+							unpublishPopup={ unpublishPopup }
+						/>
+					) ) }
+				</Fragment>
 			) }
-			{ campaignsToDisplay.length < 1 && campaignGroup > 0 && (
-				<p>{ __( 'There are no Campaigns in this group.', 'newspack' ) }</p>
+
+			{ items.length < 1 === campaignGroup && (
+				<p>{ __( 'No Campaigns have been created yet.', 'newspack' ) }</p>
 			) }
 		</Fragment>
 	);

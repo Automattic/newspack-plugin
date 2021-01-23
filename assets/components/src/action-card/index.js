@@ -11,6 +11,7 @@ import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 /**
  * Internal dependencies
  */
+import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
 /**
@@ -77,7 +78,7 @@ class ActionCard extends Component {
 					<div className="newspack-action-card__region newspack-action-card__region-center">
 						<h2>
 							<span className="newspack-action-card__title">
-								{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
+								{ titleLink ? <Button { ...buttonProps( titleLink ) }>{ title }</Button> : title }
 							</span>
 							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
 						</h2>

@@ -85,6 +85,10 @@
 
 		.newspack-action-card__title {
 			margin-right: 8px;
+			a,
+			button {
+				padding: 0;
+			}
 		}
 
 		a {
