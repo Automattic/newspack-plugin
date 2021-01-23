@@ -82,10 +82,12 @@ const CampaignGroup = props => {
 					</Popover>
 				) }
 			</div>
-			{ isOpen &&
-				groupSegments.map( segment => (
-					<CampaignSegment { ...props } segment={ segment } groupId={ id } />
-				) ) }
+			<div className="newspack-campaigns__popup-group__campaigns-segments-wrapper">
+				{ isOpen &&
+					groupSegments.map( segment => (
+						<CampaignSegment { ...props } segment={ segment } groupId={ id } />
+					) ) }
+			</div>
 		</Fragment>
 	);
 };
