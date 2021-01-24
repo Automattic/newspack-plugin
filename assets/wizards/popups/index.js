@@ -48,18 +48,8 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Groups', 'newpack' ),
-		path: '/groups',
-		exact: true,
-	},
-	{
 		label: __( 'Analytics', 'newpack' ),
 		path: '/analytics',
-		exact: true,
-	},
-	{
-		label: __( 'Preview', 'newpack' ),
-		path: '/preview',
 		exact: true,
 	},
 	{
@@ -307,11 +297,6 @@ class PopupsWizard extends Component {
 									) }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
-								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
-								<Route
-									path="/groups"
-									render={ () => <CampaignGroupManagement { ...sharedProps } /> }
-								/>
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/campaigns" />
 							</Switch>
