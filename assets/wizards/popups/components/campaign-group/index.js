@@ -38,49 +38,51 @@ const CampaignGroup = props => {
 					title={ label }
 					titleLink={ () => setIsOpen( ! isOpen ) }
 					actionText={
-						<Button isLink onClick={ () => setPopoverVisibility( ! popoverVisibility ) }>
-							<Icon icon={ moreVertical } />
-						</Button>
+						<Fragment>
+							<Button isLink onClick={ () => setPopoverVisibility( ! popoverVisibility ) }>
+								<Icon icon={ moreVertical } />
+							</Button>
+							{ popoverVisibility && (
+								<Popover
+									className="newspack-popover__campaigns__group-popover"
+									position="bottom left"
+									onFocusOutside={ () => setPopoverVisibility( false ) }
+									onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisibility( false ) }
+								>
+									<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+										{ __( 'Close Popover', 'newspack' ) }
+									</MenuItem>
+
+									{ activeCount < allCampaigns.length && (
+										<MenuItem
+											onClick={ () => manageCampaignGroup( allCampaigns ) }
+											className="newspack-button"
+										>
+											{ __( 'Activate', 'newspack' ) }
+										</MenuItem>
+									) }
+									{ activeCount > 1 && (
+										<MenuItem
+											onClick={ () => manageCampaignGroup( allCampaigns, 'DELETE' ) }
+											className="newspack-button"
+										>
+											{ __( 'Deactivate', 'newspack' ) }
+										</MenuItem>
+									) }
+									<MenuItem onClick={ () => null } className="newspack-button">
+										{ __( 'Duplicate (non-functional)', 'newspack' ) }
+									</MenuItem>
+									<MenuItem onClick={ () => null } className="newspack-button">
+										{ __( 'Archive (non-functional)', 'newspack' ) }
+									</MenuItem>
+									<MenuItem onClick={ () => deleteTerm( id ) } className="newspack-button">
+										{ __( 'Delete', 'newspack' ) }
+									</MenuItem>
+								</Popover>
+							) }
+						</Fragment>
 					}
 				/>
-				{ popoverVisibility && (
-					<Popover
-						className="newspack-popover__campaigns__group-popover"
-						position="bottom left"
-						onFocusOutside={ () => setPopoverVisibility( false ) }
-						onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisibility( false ) }
-					>
-						<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
-							{ __( 'Close Popover', 'newspack' ) }
-						</MenuItem>
-
-						{ activeCount < allCampaigns.length && (
-							<MenuItem
-								onClick={ () => manageCampaignGroup( allCampaigns ) }
-								className="newspack-button"
-							>
-								{ __( 'Activate', 'newspack' ) }
-							</MenuItem>
-						) }
-						{ activeCount > 1 && (
-							<MenuItem
-								onClick={ () => manageCampaignGroup( allCampaigns, 'DELETE' ) }
-								className="newspack-button"
-							>
-								{ __( 'Deactivate', 'newspack' ) }
-							</MenuItem>
-						) }
-						<MenuItem onClick={ () => null } className="newspack-button">
-							{ __( 'Duplicate (non-functional)', 'newspack' ) }
-						</MenuItem>
-						<MenuItem onClick={ () => null } className="newspack-button">
-							{ __( 'Archive (non-functional)', 'newspack' ) }
-						</MenuItem>
-						<MenuItem onClick={ () => deleteTerm( id ) } className="newspack-button">
-							{ __( 'Delete', 'newspack' ) }
-						</MenuItem>
-					</Popover>
-				) }
 			</div>
 			<div className="newspack-campaigns__popup-group__campaigns-segments-wrapper">
 				{ isOpen &&

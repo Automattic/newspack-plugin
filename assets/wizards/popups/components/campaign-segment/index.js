@@ -73,59 +73,63 @@ const CampaignSegment = ( {
 				{ 0 === campaigns.length && (
 					<p>{ __( 'No prompts created yet for this segment.', 'newspack' ) }</p>
 				) }
-				<div className="newspack-campaigns-wizard__campaign-segment-component__add-new-button">
-					<Button
-						isTertiary
-						isSmall
-						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
-					>
-						{ __( 'Add Prompt', 'newspack' ) }
-					</Button>
-					{ addNewPopoverIsVisible && (
-						<Popover
-							className=""
-							position="bottom left"
-							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
-							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+				<div className="newspack-campaigns-wizard__campaign-segment-component__add-new-button__wrapper">
+					<div className="newspack-campaigns-wizard__campaign-segment-component__add-new-button">
+						<Button
+							isTertiary
+							isSmall
+							onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
 						>
-							<MenuItem
-								onClick={ () => setAddNewPopoverIsVisible( false ) }
-								className="screen-reader-text"
+							{ __( 'Add Prompt', 'newspack' ) }
+						</Button>
+						{ addNewPopoverIsVisible && (
+							<Popover
+								className=""
+								position="bottom left"
+								onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
+								onKeyDown={ event =>
+									ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false )
+								}
 							>
-								{ __( 'Close Popover', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ groupId }&segment=${ id }` }
-							>
-								{ __( 'Inline', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ groupId }&segment=${ id }` }
-							>
-								{ __( 'Center Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ groupId }&segment=${ id }` }
-							>
-								{ __( 'Top Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ groupId }&segment=${ id }` }
-							>
-								{ __( 'Bottom Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ groupId }&segment=${ id }` }
-							>
-								{ __( 'Above Header', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ groupId }&segment=${ id }` }
-							>
-								{ __( 'Manual Placement', 'newspack' ) }
-							</MenuItem>
-						</Popover>
-					) }
+								<MenuItem
+									onClick={ () => setAddNewPopoverIsVisible( false ) }
+									className="screen-reader-text"
+								>
+									{ __( 'Close Popover', 'newspack' ) }
+								</MenuItem>
+								<MenuItem
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ groupId }&segment=${ id }` }
+								>
+									{ __( 'Inline', 'newspack' ) }
+								</MenuItem>
+								<MenuItem
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ groupId }&segment=${ id }` }
+								>
+									{ __( 'Center Overlay', 'newspack' ) }
+								</MenuItem>
+								<MenuItem
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ groupId }&segment=${ id }` }
+								>
+									{ __( 'Top Overlay', 'newspack' ) }
+								</MenuItem>
+								<MenuItem
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ groupId }&segment=${ id }` }
+								>
+									{ __( 'Bottom Overlay', 'newspack' ) }
+								</MenuItem>
+								<MenuItem
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ groupId }&segment=${ id }` }
+								>
+									{ __( 'Above Header', 'newspack' ) }
+								</MenuItem>
+								<MenuItem
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ groupId }&segment=${ id }` }
+								>
+									{ __( 'Manual Placement', 'newspack' ) }
+								</MenuItem>
+							</Popover>
+						) }
+					</div>
 				</div>
 			</div>
 		</div>

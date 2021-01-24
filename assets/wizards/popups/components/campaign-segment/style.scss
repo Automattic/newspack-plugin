@@ -7,9 +7,11 @@
 
 .newspack-campaigns-wizard__campaign-segment-component {
 	&__add-new-button {
+		&__wrapper {
+			display: flex;
+		}
 		.newspack-popover {
-			margin-left: 23px;
-
+			margin-left: 33px;
 			.components-popover__content {
 				background: $primary-500;
 				border-color: $primary-600;
