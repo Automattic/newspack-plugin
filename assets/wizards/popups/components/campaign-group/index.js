@@ -15,10 +15,24 @@ import { MenuItem } from '@wordpress/components';
  */
 import { ActionCard, Button, Popover } from '../../../../components/src';
 import CampaignSegment from '../campaign-segment';
+import PopupActionCard from '../popup-action-card';
+import { getCardClassName } from '../../utils';
 import './style.scss';
 
 const CampaignGroup = props => {
-	const { deleteTerm, group, manageCampaignGroup, segments } = props;
+	const {
+		deleteTerm,
+		group,
+		manageCampaignGroup,
+		deletePopup,
+		previewPopup,
+		setTermsForPopup,
+		setSitewideDefaultPopup,
+		updatePopup,
+		publishPopup,
+		unpublishPopup,
+		segments,
+	} = props;
 	const { activeCount, allCampaigns, label, id, isActive, segments: groupSegments } = group;
 	const [ popoverVisibility, setPopoverVisibility ] = useState();
 	const [ isOpen, setIsOpen ] = useState( isActive );
@@ -85,9 +99,28 @@ const CampaignGroup = props => {
 				/>
 			</div>
 			<div className="newspack-campaigns__popup-group__campaigns-segments-wrapper">
-				{ isOpen &&
+				{ undefined !== groupSegments &&
+					isOpen &&
 					groupSegments.map( segment => (
 						<CampaignSegment { ...props } segment={ segment } groupId={ id } />
+					) ) }
+				{ undefined === groupSegments &&
+					isOpen &&
+					allCampaigns.map( campaign => (
+						<PopupActionCard
+							key={ campaign.id }
+							className={ getCardClassName( campaign ) }
+							deletePopup={ deletePopup }
+							key={ campaign.id }
+							popup={ campaign }
+							previewPopup={ previewPopup }
+							segments={ segments }
+							setTermsForPopup={ setTermsForPopup }
+							setSitewideDefaultPopup={ setSitewideDefaultPopup }
+							updatePopup={ updatePopup }
+							publishPopup={ publishPopup }
+							unpublishPopup={ unpublishPopup }
+						/>
 					) ) }
 			</div>
 		</Fragment>

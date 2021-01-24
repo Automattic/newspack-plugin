@@ -149,18 +149,25 @@ const PopupGroup = props => {
 		};
 	} );
 
-	// Move active group to the top.
-	const campaignsByGroupSorted = [
-		...campaignsByGroup.filter( group => !! group.isActive ),
-		...campaignsByGroup.filter( group => ! group.isActive ),
-	];
-
 	const unassigned = items.filter(
 		( { campaign_groups: campaignAssignedGroups } ) =>
 			! campaignAssignedGroups || campaignAssignedGroups.length === 0
 	);
 
-	console.log( campaignsByGroup );
+	// Move active group to the top.
+	const campaignsByGroupSorted = [
+		...campaignsByGroup.filter( group => !! group.isActive ),
+		...campaignsByGroup.filter( group => ! group.isActive ),
+		unassigned.length > 0
+			? {
+					label: __( 'Unassigned', 'newspack' ),
+					id: 0,
+					isActive: false,
+					activeCount: 0,
+					allCampaigns: unassigned,
+			  }
+			: null,
+	].filter( item => null !== item );
 
 	return (
 		<Fragment>
@@ -213,34 +220,6 @@ const PopupGroup = props => {
 			{ campaignsByGroupSorted.map( group => (
 				<CampaignGroup { ...props } group={ group } deleteTerm={ deleteTerm } />
 			) ) }
-			{ unassigned.length > 0 && (
-				<Fragment>
-					<ActionCard
-						className="newspack-card__is-disabled"
-						isSmall
-						title={ __( 'Unassigned Prompts', 'newspack' ) }
-					/>
-					<div className="newspack-campaigns__popup-group__campaigns-segments-wrapper">
-						{ unassigned.map( campaign => (
-							<PopupActionCard
-								key={ campaign.id }
-								className={ getCardClassName( campaign ) }
-								deletePopup={ deletePopup }
-								key={ campaign.id }
-								popup={ campaign }
-								previewPopup={ previewPopup }
-								segments={ segments }
-								setTermsForPopup={ setTermsForPopup }
-								setSitewideDefaultPopup={ setSitewideDefaultPopup }
-								updatePopup={ updatePopup }
-								publishPopup={ publishPopup }
-								unpublishPopup={ unpublishPopup }
-							/>
-						) ) }
-					</div>
-				</Fragment>
-			) }
-
 			{ items.length < 1 === campaignGroup && (
 				<p>{ __( 'No Campaigns have been created yet.', 'newspack' ) }</p>
 			) }
