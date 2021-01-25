@@ -24,6 +24,7 @@ import {
 	Button,
 	Handoff,
 	Notice,
+	Footer,
 	TextControl,
 	PluginInstaller,
 	PluginToggle,
@@ -533,6 +534,7 @@ class ComponentsDemo extends Component {
 						</Card>
 					</Card>
 				</div>
+				<Footer />
 			</Fragment>
 		);
 	}

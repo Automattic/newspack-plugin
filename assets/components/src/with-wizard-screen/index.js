@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Handoff, TabbedNavigation } from '../';
+import { Button, Handoff, Notice, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -44,9 +44,11 @@ export default function withWizardScreen( WrappedComponent ) {
 		return (
 			<>
 				{ newspack_aux_data.is_debug_mode && (
-					<div className="newspack-wizard__debug-mode-notice">
-						{ __( 'Newspack is in debug mode.', 'newspack' ) }
-					</div>
+					<Notice
+						isWarning
+						className="newspack-wizard__debug-mode-notice"
+						noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
+					/>
 				) }
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
