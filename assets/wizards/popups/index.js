@@ -91,22 +91,6 @@ class PopupsWizard extends Component {
 	};
 
 	/**
-	 * Designate which popup should be the sitewide default.
-	 *
-	 * @param {number} popupId ID of the Popup to become sitewide default.
-	 */
-	setSitewideDefaultPopup = ( popupId, state ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/sitewide-popup/${ popupId }`,
-			method: state ? 'POST' : 'DELETE',
-			quiet: true,
-		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
-			.catch( error => setError( error ) );
-	};
-
-	/**
 	 * Set terms for a Popup.
 	 *
 	 * @param {number} id ID of the Popup to alter.
@@ -195,21 +179,21 @@ class PopupsWizard extends Component {
 		const groups = {
 			draft: [],
 			active: [],
-			inactive: [],
 			...groupBy( popups, popup => {
 				if ( popup.status === 'draft' ) {
 					return 'draft';
 				}
-				if (
-					popup.status === 'publish' &&
-					( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
-				) {
+				if ( popup.status === 'publish' ) {
 					return 'active';
 				}
-				return 'inactive';
+				return 'draft';
 			} ),
 		};
-		groups.active = groups.active.sort( a => ( a.sitewide_default ? -1 : 1 ) );
+
+		// Keep overlay/inline together.
+		groups.active = groups.active.sort( a => ( isOverlay( a ) ? -1 : 1 ) );
+		groups.draft = groups.draft.sort( b => ( isOverlay( b ) ? -1 : 1 ) );
+
 		return groups;
 	};
 
@@ -264,7 +248,6 @@ class PopupsWizard extends Component {
 					const popupManagementSharedProps = {
 						...sharedProps,
 						manageCampaignGroup: this.manageCampaignGroup,
-						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
 						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,

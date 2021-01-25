@@ -424,44 +424,6 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
-	 * Set the sitewide default Pop-up
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_set_sitewide_popup( $request ) {
-		$sitewide_default = $request['id'];
-
-		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-
-		$response = $newspack_popups_configuration_manager->set_sitewide_popup( $sitewide_default );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $this->api_get_settings();
-	}
-
-	/**
-	 * Unset the sitewide default Pop-up
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_unset_sitewide_popup( $request ) {
-		$sitewide_default = $request['id'];
-
-		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-
-		$response = $newspack_popups_configuration_manager->unset_sitewide_popup( $sitewide_default );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $this->api_get_settings();
-	}
-
-	/**
 	 * Set terms for one Popup.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.

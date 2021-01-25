@@ -14,7 +14,7 @@ import { Icon, cog, moreVertical } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button } from '../../../../components/src';
+import { ActionCard, Button, Notice } from '../../../../components/src';
 import PrimaryPopupPopover from '../popup-popover/primary';
 import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
@@ -35,19 +35,19 @@ const placementForPopup = ( { options: { frequency, placement } } ) => {
 const PopupActionCard = ( {
 	className,
 	description,
+	warning,
 	deletePopup,
 	popup = {},
 	previewPopup,
 	setTermsForPopup,
 	segments,
-	setSitewideDefaultPopup,
 	publishPopup,
 	unpublishPopup,
 	updatePopup,
 } ) => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const { id, edit_link: editLink, title, sitewide_default: sitewideDefault, status } = popup;
+	const { id, edit_link: editLink, title, status } = popup;
 	return (
 		<ActionCard
 			isSmall
@@ -57,15 +57,11 @@ const PopupActionCard = ( {
 			titleLink={ decodeEntities( editLink ) }
 			key={ id }
 			description={ description }
+			notificationLevel="error"
+			notification={ warning }
 			actionText={
 				<Fragment>
-					<Tooltip
-						text={
-							sitewideDefault
-								? __( 'Campaign groups', 'newspack' )
-								: __( 'Category filtering and campaign groups', 'newspack' )
-						}
-					>
+					<Tooltip text={ __( 'Category filtering and campaign groups', 'newspack' ) }>
 						<Button
 							className="icon-only"
 							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
@@ -86,7 +82,6 @@ const PopupActionCard = ( {
 							deletePopup={ deletePopup }
 							onFocusOutside={ () => setPopoverVisibility( false ) }
 							popup={ popup }
-							setSitewideDefaultPopup={ setSitewideDefaultPopup }
 							updatePopup={ updatePopup }
 							previewPopup={ previewPopup }
 							publishPopup={ 'publish' !== status ? publishPopup : null }

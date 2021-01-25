@@ -33,24 +33,44 @@ import './style.scss';
 
 const { useParams } = Router;
 
-const descriptionForPopup = (
-	{ categories, sitewide_default: sitewideDefault, options },
-	segments
-) => {
+const descriptionForPopup = ( { categories, options }, segments ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
 	if ( segment ) {
 		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
-	}
-	if ( sitewideDefault ) {
-		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
 	if ( categories.length > 0 ) {
 		descriptionMessages.push(
 			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
 		);
 	}
+
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+};
+
+const warningForPopup = ( campaigns, campaign ) => {
+	const warningMessages = [];
+	if ( isOverlay( campaign ) && 'publish' === campaign.status ) {
+		const conflictingCampaigns = campaigns.filter( conflict => {
+			return (
+				conflict.id !== campaign.id &&
+				isOverlay( conflict ) &&
+				'publish' === conflict.status &&
+				campaign.options.selected_segment_id === conflict.options.selected_segment_id
+			);
+		} );
+
+		if ( 0 < conflictingCampaigns.length ) {
+			warningMessages.push(
+				`${ __(
+					'Conflicts with the following campaigns:',
+					'newspack'
+				) } ${ conflictingCampaigns.map( a => a.title ).join( ', ' ) }`
+			);
+		}
+	}
+
+	return warningMessages.length ? warningMessages.join( ' | ' ) : null;
 };
 
 /**
@@ -58,11 +78,10 @@ const descriptionForPopup = (
  */
 const PopupGroup = ( {
 	deletePopup,
-	items: { active = [], draft = [], inactive = [] },
+	items: { active = [], draft = [] },
 	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
-	setSitewideDefaultPopup,
 	publishPopup,
 	unpublishPopup,
 	updatePopup,
@@ -94,14 +113,8 @@ const PopupGroup = ( {
 		} );
 	}, [] );
 
-	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-		if ( 'draft' === status ) {
-			return 'newspack-card__is-disabled';
-		}
-		if ( sitewideDefault ) {
-			return 'newspack-card__is-primary';
-		}
-		if ( isOverlay( { options } ) && ! sitewideDefault ) {
+	const getCardClassName = ( { status } ) => {
+		if ( 'publish' !== status ) {
 			return 'newspack-card__is-disabled';
 		}
 		return 'newspack-card__is-supported';
@@ -121,7 +134,7 @@ const PopupGroup = ( {
 						groups && groups.find( term => +term.term_id === campaignGroup )
 			  );
 
-	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...inactive ] );
+	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft ] );
 
 	return (
 		<Fragment>
@@ -279,10 +292,10 @@ const PopupGroup = ( {
 					previewPopup={ previewPopup }
 					segments={ segments }
 					setTermsForPopup={ setTermsForPopup }
-					setSitewideDefaultPopup={ setSitewideDefaultPopup }
 					updatePopup={ updatePopup }
 					publishPopup={ publishPopup }
 					unpublishPopup={ unpublishPopup }
+					warning={ warningForPopup( [ ...active, ...draft ], campaign ) }
 				/>
 			) ) }
 			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (

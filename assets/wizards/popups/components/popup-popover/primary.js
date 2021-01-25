@@ -21,12 +21,11 @@ const PrimaryPopupPopover = ( {
 	deletePopup,
 	popup,
 	previewPopup,
-	setSitewideDefaultPopup,
 	onFocusOutside,
 	publishPopup,
 	unpublishPopup,
 } ) => {
-	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
+	const { id, edit_link: editLink, options, status } = popup;
 	const isDraft = 'draft' === status;
 	return (
 		<Popover
@@ -38,20 +37,6 @@ const PrimaryPopupPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ isOverlay( { options } ) && ! isDraft && (
-				<MenuItem
-					onClick={ () => {
-						setSitewideDefaultPopup( id, ! sitewideDefault );
-						onFocusOutside();
-					} }
-					className="newspack-button"
-				>
-					<div className="newspack-popover__campaigns__toggle-control">
-						{ __( 'Sitewide default', 'newspack' ) }
-						<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
-					</div>
-				</MenuItem>
-			) }
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();
