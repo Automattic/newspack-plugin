@@ -13,8 +13,7 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies.
  */
-import { Popover, ToggleControl } from '../../../../components/src';
-import { isOverlay } from '../../utils';
+import { Popover } from '../../../../components/src';
 import './style.scss';
 
 const PrimaryPopupPopover = ( {
@@ -25,8 +24,7 @@ const PrimaryPopupPopover = ( {
 	publishPopup,
 	unpublishPopup,
 } ) => {
-	const { id, edit_link: editLink, options, status } = popup;
-	const isDraft = 'draft' === status;
+	const { id, edit_link: editLink } = popup;
 	return (
 		<Popover
 			position="bottom left"

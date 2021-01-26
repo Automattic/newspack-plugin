@@ -60,7 +60,7 @@ const SegmentActionCard = ( {
 		sortedSegments.splice( target, 0, segment );
 
 		// Reindex priorities to avoid gaps and dupes.
-		sortedSegments.map( ( segment, index ) => ( segment.priority = index ) );
+		sortedSegments.map( ( _segment, _index ) => ( _segment.priority = _index ) );
 
 		// Only trigger the API request if the order has changed.
 		if ( JSON.stringify( sortedSegments ) !== JSON.stringify( segments ) ) {
@@ -244,9 +244,9 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 			method: 'POST',
 			data: { segments: segmentsToSort },
 			quiet: true,
-		} ).then( segments => {
+		} ).then( _segments => {
 			setSortedSegments( null );
-			setSegments( segments );
+			setSegments( _segments );
 		} );
 	};
 

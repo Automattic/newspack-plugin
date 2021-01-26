@@ -14,7 +14,7 @@ import { Icon, cog, moreVertical } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Notice } from '../../../../components/src';
+import { ActionCard, Button } from '../../../../components/src';
 import PrimaryPopupPopover from '../popup-popover/primary';
 import SecondaryPopupPopover from '../popup-popover/secondary';
 import './style.scss';
