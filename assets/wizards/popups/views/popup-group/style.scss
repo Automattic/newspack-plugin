@@ -114,31 +114,17 @@
 	}
 
 	&__add-new-button {
-		.components-popover {
-			&__content {
-				margin-right: 0 !important;
-				padding: 8px;
+		&__modal {
+			padding: 0 32px;
 
-				> div {
-					display: flex;
-					flex-wrap: wrap;
-					justify-content: flex-end;
-				}
+			.components-modal__header {
+				padding-top: 32px;
+			}
 
-				.newspack-text-control {
-					margin: 8px 0;
-					width: 100%;
-				}
-
-				.newspack-button.is-link {
-					color: $primary-500;
-					padding: 0;
-					text-decoration: underline;
-
-					&:hover {
-						color: $primary-600;
-					}
-				}
+			.newspack-card__buttons-card {
+				display: flex;
+				justify-content: flex-end;
+				margin: -8px;
 			}
 		}
 	}

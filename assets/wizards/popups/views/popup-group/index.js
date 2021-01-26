@@ -21,6 +21,8 @@ import { find } from 'lodash';
 import {
 	withWizardScreen,
 	Button,
+	Card,
+	Modal,
 	Popover,
 	Router,
 	SelectControl,
@@ -297,17 +299,11 @@ const PopupGroup = ( {
 						{ __( 'Add New Campaign', 'newspack' ) }
 					</Button>
 					{ addNewPopoverIsVisible && (
-						<Popover
-							position="bottom left"
-							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
-							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						<Modal
+							title={ __( 'Add New Campaign', 'newspack' ) }
+							isDismissible={ false }
+							className="newspack-campaigns__popup-group__add-new-button__modal"
 						>
-							<MenuItem
-								onClick={ () => setAddNewPopoverIsVisible( false ) }
-								className="screen-reader-text"
-							>
-								{ __( 'Close Popover', 'newspack' ) }
-							</MenuItem>
 							<TextControl
 								placeholder={ __( 'Campaign Name', 'newspack' ) }
 								onChange={ setNewGroupName }
@@ -319,17 +315,25 @@ const PopupGroup = ( {
 									ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
 								}
 							/>
-							<Button
-								isLink
-								disabled={ inFlight || ! newGroupName }
-								onClick={ () => {
-									createTerm( newGroupName );
-									setAddNewPopoverIsVisible( false );
-								} }
-							>
-								{ __( 'Add', 'newspack' ) }
-							</Button>
-						</Popover>
+							<Card buttonsCard noBorder>
+								<Button
+									isSecondary
+									onClick={ () => { setAddNewPopoverIsVisible( false ); } }
+								>
+									{ __( 'Cancel', 'newspack' ) }
+								</Button>
+								<Button
+									isPrimary
+									disabled={ inFlight || ! newGroupName }
+									onClick={ () => {
+										createTerm( newGroupName );
+										setAddNewPopoverIsVisible( false );
+									} }
+								>
+									{ __( 'Add', 'newspack' ) }
+								</Button>
+							</Card>
+						</Modal>
 					) }
 				</div>
 			</div>
