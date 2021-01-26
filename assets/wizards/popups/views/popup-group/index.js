@@ -28,7 +28,7 @@ import {
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
-import { isOverlay } from '../../utils';
+import { isAboveHeader, isOverlay } from '../../utils';
 import './style.scss';
 
 const { useParams } = Router;
@@ -48,24 +48,29 @@ const descriptionForPopup = ( { categories, options }, segments ) => {
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
+const isSameType = ( campaignA, campaignB ) => {
+	return (
+		( isAboveHeader( campaignA ) && isAboveHeader( campaignB ) ) ||
+		( isOverlay( campaignA ) && isOverlay( campaignB ) )
+	);
+};
+
 const warningForPopup = ( campaigns, campaign ) => {
 	const warningMessages = [];
-	if ( isOverlay( campaign ) && 'publish' === campaign.status ) {
+	if ( isAboveHeader( campaign ) || isOverlay( campaign ) ) {
 		const conflictingCampaigns = campaigns.filter( conflict => {
 			return (
 				conflict.id !== campaign.id &&
-				isOverlay( conflict ) &&
-				'publish' === conflict.status &&
+				isSameType( campaign, conflict ) &&
 				campaign.options.selected_segment_id === conflict.options.selected_segment_id
 			);
 		} );
 
 		if ( 0 < conflictingCampaigns.length ) {
 			warningMessages.push(
-				`${ __(
-					'Conflicts with the following campaigns:',
-					'newspack'
-				) } ${ conflictingCampaigns.map( a => a.title ).join( ', ' ) }`
+				`${ __( 'Conflicts with:', 'newspack' ) } ${ conflictingCampaigns
+					.map( a => a.title )
+					.join( ', ' ) }`
 			);
 		}
 	}

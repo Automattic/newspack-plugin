@@ -21,7 +21,7 @@ import { groupBy } from 'lodash';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { isOverlay } from './utils';
+import { isAboveHeader, isOverlay } from './utils';
 import {
 	CampaignGroupManagement,
 	PopupGroup,
@@ -190,9 +190,9 @@ class PopupsWizard extends Component {
 			} ),
 		};
 
-		// Keep overlay/inline together.
-		groups.active = groups.active.sort( a => ( isOverlay( a ) ? -1 : 1 ) );
-		groups.draft = groups.draft.sort( b => ( isOverlay( b ) ? -1 : 1 ) );
+		// Keep overlay/above header/inline together.
+		groups.active = groups.active.sort( a => ( isOverlay( a ) ? -1 : isAboveHeader( a ) ? 0 : 1 ) );
+		groups.draft = groups.draft.sort( b => ( isOverlay( b ) ? -1 : isAboveHeader( b ) ? 0 : 1 ) );
 
 		return groups;
 	};
