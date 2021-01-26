@@ -24,7 +24,7 @@ const StarterContentInstaller = ( {
 	const [ progress, setProgress ] = useState( 0 );
 	const [ total, setTotal ] = useState( 0 );
 	const increment = () => {
-		setProgress( progress + 1 );
+		setProgress( _progress => _progress + 1 );
 		if ( progress > total ) {
 			onComplete();
 		}
