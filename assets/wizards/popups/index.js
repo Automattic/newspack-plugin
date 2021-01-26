@@ -191,8 +191,10 @@ class PopupsWizard extends Component {
 		};
 
 		// Keep overlay/above header/inline together.
-		groups.active = groups.active.sort( a => ( isOverlay( a ) ? -1 : isAboveHeader( a ) ? 0 : 1 ) ); // eslint-disable no-nested-ternary
-		groups.draft = groups.draft.sort( b => ( isOverlay( b ) ? -1 : isAboveHeader( b ) ? 0 : 1 ) ); // eslint-disable no-nested-ternary
+		// eslint-disable-next-line no-nested-ternary
+		groups.active = groups.active.sort( a => ( isOverlay( a ) ? -1 : isAboveHeader( a ) ? 0 : 1 ) );
+		// eslint-disable-next-line no-nested-ternary
+		groups.draft = groups.draft.sort( b => ( isOverlay( b ) ? -1 : isAboveHeader( b ) ? 0 : 1 ) );
 
 		return groups;
 	};
