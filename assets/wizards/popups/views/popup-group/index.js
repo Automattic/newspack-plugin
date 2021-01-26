@@ -83,7 +83,8 @@ const Segment = ( {
 	const { label, id, items } = segment;
 	return (
 		<Fragment>
-			<h2 className="newspack-campaigns__popup-group__subhead">
+			<h3 className="newspack-campaigns__popup-group__subhead">
+				{ __( 'Segment: ', 'newspack' ) }
 				{ label }
 				{ items.length > 0 ? (
 					<SegmentationPreview
@@ -97,7 +98,7 @@ const Segment = ( {
 						) }
 					/>
 				) : null }
-			</h2>
+			</h3>
 			{ items.map( item => (
 				<PopupActionCard
 					className={ getCardClassName( item ) }
@@ -254,18 +255,31 @@ const PopupGroup = ( {
 
 	const allPrompts = filterByGroup( items );
 	const campaignsToDisplay = groupBySegment( segments, allPrompts );
+	let pageTitle;
+	console.log( groups, campaignGroup );
+	if ( 'active' === campaignGroup ) {
+		pageTitle = __( 'All currently active prompts', 'newspack' );
+	} else if ( 'unassigned' === campaignGroup ) {
+		pageTitle = __( 'All unassigned prompts', 'newspack' );
+	} else {
+		const groupName = groups.reduce(
+			( acc, { name, term_id: id } ) => ( +id === +campaignGroup ? name : acc ),
+			''
+		);
+		pageTitle = __( 'Campaign: ', 'newspack' ) + groupName;
+	}
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
 					<SelectControl
 						options={ [
-							{ value: 'active', label: __( 'Active', 'newspack' ) },
+							{ value: 'active', label: __( 'Active Prompts', 'newspack' ) },
 							...groups.map( ( { term_id: id, name } ) => ( {
 								value: id,
 								label: name,
 							} ) ),
-							{ value: 'unassigned', label: __( 'Unassigned', 'newspack' ) },
+							{ value: 'unassigned', label: __( 'Unassigned Prompts', 'newspack' ) },
 						] }
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( value ) }
@@ -336,6 +350,7 @@ const PopupGroup = ( {
 					) }
 				</div>
 			</div>
+			<h2>{ pageTitle }</h2>
 			{ campaignsToDisplay.map( segment => (
 				<Segment
 					key={ segment.id }
