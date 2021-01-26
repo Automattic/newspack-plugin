@@ -21,6 +21,8 @@ import { find } from 'lodash';
 import {
 	withWizardScreen,
 	Button,
+	Card,
+	Modal,
 	Popover,
 	Router,
 	SelectControl,
@@ -40,9 +42,6 @@ const descriptionForPopup = (
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
-	if ( segment ) {
-		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
-	}
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
@@ -123,52 +122,55 @@ const Segment = ( {
 						isTertiary
 						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
 					>
-						{ __( 'Add Prompt', 'newspack' ) }
+						{ __( 'Add New Prompt', 'newspack' ) }
 					</Button>
 					{ addNewPopoverIsVisible && (
-						<Popover
-							className=""
-							position="bottom left"
-							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
-							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						<Modal
+							title={ __( 'Add New Prompt', 'newspack' ) }
+							className="newspack-campaigns__popup-group__add-new-button__modal"
+							onRequestClose={ () => setAddNewPopoverIsVisible( false ) }
+							shouldCloseOnEsc={ false }
+							shouldCloseOnClickOutside={ false }
 						>
-							<MenuItem
-								onClick={ () => setAddNewPopoverIsVisible( false ) }
-								className="screen-reader-text"
-							>
-								{ __( 'Close Popover', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ campaignGroup }&segment=${ id }` }
-							>
-								{ __( 'Inline', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ campaignGroup }&segment=${ id }` }
-							>
-								{ __( 'Center Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ campaignGroup }&segment=${ id }` }
-							>
-								{ __( 'Top Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ campaignGroup }&segment=${ id }` }
-							>
-								{ __( 'Bottom Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ campaignGroup }&segment=${ id }` }
-							>
-								{ __( 'Above Header', 'newspack' ) }
-							</MenuItem>
-							<MenuItem
-								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ campaignGroup }&segment=${ id }` }
-							>
-								{ __( 'Manual Placement', 'newspack' ) }
-							</MenuItem>
-						</Popover>
+							<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
+								<Button
+									isTertiary
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ campaignGroup }&segment=${ id }` }
+								>
+									{ __( 'Inline', 'newspack' ) }
+								</Button>
+								<Button
+									isTertiary
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ campaignGroup }&segment=${ id }` }
+								>
+									{ __( 'Center Overlay', 'newspack' ) }
+								</Button>
+								<Button
+									isTertiary
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ campaignGroup }&segment=${ id }` }
+								>
+									{ __( 'Top Overlay', 'newspack' ) }
+								</Button>
+								<Button
+									isTertiary
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ campaignGroup }&segment=${ id }` }
+								>
+									{ __( 'Bottom Overlay', 'newspack' ) }
+								</Button>
+								<Button
+									isTertiary
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ campaignGroup }&segment=${ id }` }
+								>
+									{ __( 'Above Header', 'newspack' ) }
+								</Button>
+								<Button
+									isTertiary
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ campaignGroup }&segment=${ id }` }
+								>
+									{ __( 'Manual Placement', 'newspack' ) }
+								</Button>
+							</Card>
+						</Modal>
 					) }
 				</div>
 			) }
@@ -289,13 +291,13 @@ const PopupGroup = ( {
 					{ parseInt( campaignGroup ) > 0 && (
 						<Fragment>
 							{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
-								<Button isTertiary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
+								<Button isSecondary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
 									{ __( 'Activate', 'newspack' ) }
 								</Button>
 							) }
 							{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
 								<Button
-									isTertiary
+									isSecondary
 									isSmall
 									onClick={ () => manageCampaignGroup( allPrompts, 'DELETE' ) }
 								>
@@ -314,17 +316,11 @@ const PopupGroup = ( {
 						{ __( 'Add New Campaign', 'newspack' ) }
 					</Button>
 					{ addNewPopoverIsVisible && (
-						<Popover
-							position="bottom left"
-							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
-							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						<Modal
+							title={ __( 'Add New Campaign', 'newspack' ) }
+							isDismissible={ false }
+							className="newspack-campaigns__popup-group__add-new-button__modal"
 						>
-							<MenuItem
-								onClick={ () => setAddNewPopoverIsVisible( false ) }
-								className="screen-reader-text"
-							>
-								{ __( 'Close Popover', 'newspack' ) }
-							</MenuItem>
 							<TextControl
 								placeholder={ __( 'Campaign Name', 'newspack' ) }
 								onChange={ setNewGroupName }
@@ -336,17 +332,25 @@ const PopupGroup = ( {
 									ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
 								}
 							/>
-							<Button
-								isLink
-								disabled={ inFlight || ! newGroupName }
-								onClick={ () => {
-									createTerm( newGroupName );
-									setAddNewPopoverIsVisible( false );
-								} }
-							>
-								{ __( 'Add', 'newspack' ) }
-							</Button>
-						</Popover>
+							<Card buttonsCard noBorder>
+								<Button
+									isSecondary
+									onClick={ () => { setAddNewPopoverIsVisible( false ); } }
+								>
+									{ __( 'Cancel', 'newspack' ) }
+								</Button>
+								<Button
+									isPrimary
+									disabled={ inFlight || ! newGroupName }
+									onClick={ () => {
+										createTerm( newGroupName );
+										setAddNewPopoverIsVisible( false );
+									} }
+								>
+									{ __( 'Add', 'newspack' ) }
+								</Button>
+							</Card>
+						</Modal>
 					) }
 				</div>
 			</div>
