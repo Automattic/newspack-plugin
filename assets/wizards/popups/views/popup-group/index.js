@@ -272,13 +272,13 @@ const PopupGroup = ( {
 					{ parseInt( campaignGroup ) > 0 && (
 						<Fragment>
 							{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
-								<Button isTertiary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
+								<Button isSecondary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
 									{ __( 'Activate', 'newspack' ) }
 								</Button>
 							) }
 							{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
 								<Button
-									isTertiary
+									isSecondary
 									isSmall
 									onClick={ () => manageCampaignGroup( allPrompts, 'DELETE' ) }
 								>
