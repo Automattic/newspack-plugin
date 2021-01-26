@@ -233,6 +233,11 @@ const PopupGroup = ( {
 		if ( 'active' === campaignGroup ) {
 			return itemsToFilter.filter( ( { status } ) => 'publish' === status );
 		}
+		if ( 'unassigned' === campaignGroup ) {
+			return itemsToFilter.filter(
+				( { campaign_groups: campaignGroups } ) => ! campaignGroups || ! campaignGroups.length
+			);
+		}
 		return itemsToFilter.filter(
 			( { campaign_groups: groups } ) =>
 				groups && groups.find( term => +term.term_id === +campaignGroup )
@@ -255,11 +260,12 @@ const PopupGroup = ( {
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
 					<SelectControl
 						options={ [
-							{ value: 'active', label: __( 'Active Campaigns', 'newspack' ) },
+							{ value: 'active', label: __( 'Active', 'newspack' ) },
 							...groups.map( ( { term_id: id, name } ) => ( {
 								value: id,
 								label: name,
 							} ) ),
+							{ value: 'unassigned', label: __( 'Unassigned', 'newspack' ) },
 						] }
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( value ) }
