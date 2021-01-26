@@ -108,12 +108,6 @@ class Dashboard extends Wizard {
 				'url'         => Wizards::get_url( 'popups' ),
 				'description' => Wizards::get_description( 'popups' ),
 			],
-			[
-				'slug'        => 'updates',
-				'name'        => Wizards::get_name( 'updates' ),
-				'url'         => Wizards::get_url( 'updates' ),
-				'description' => Wizards::get_description( 'updates' ),
-			],
 		];
 
 		if ( Support_Wizard::configured() ) {

@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { stringify } from 'qs';
+import { groupBy } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -21,7 +22,14 @@ import { stringify } from 'qs';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
+import {
+	CampaignGroupManagement,
+	PopupGroup,
+	Analytics,
+	Settings,
+	Segmentation,
+	Preview,
+} from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -37,6 +45,11 @@ const tabbedNavigation = [
 	{
 		label: __( 'Segmentation', 'newpack' ),
 		path: '/segmentation',
+		exact: true,
+	},
+	{
+		label: __( 'Groups', 'newpack' ),
+		path: '/groups',
 		exact: true,
 	},
 	{
@@ -179,33 +192,25 @@ class PopupsWizard extends Component {
 	 * Sort Pop-up groups into categories.
 	 */
 	sortPopups = popups => {
-		const test = popups.filter(
-			( { options, status } ) => 'publish' === status && 'test' === options.frequency
-		);
-		const draft = popups.filter(
-			( { status } ) => 'draft' === status || 'pending' === status || 'future' === status
-		);
-		const active = popups.filter(
-			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
-				isOverlay( { options } )
-					? 'test' !== options.frequency &&
-					  ( sitewideDefault || categories.length ) &&
-					  'publish' === status
-					: 'test' !== options.frequency && 'never' !== options.frequency && 'publish' === status
-		);
-		const activeWithSitewideDefaultFirst = [
-			...active.filter( ( { sitewide_default: sitewideDefault } ) => sitewideDefault ),
-			...active.filter( ( { sitewide_default: sitewideDefault } ) => ! sitewideDefault ),
-		];
-		const inactive = popups.filter(
-			( { categories, options, sitewide_default: sitewideDefault, status } ) =>
-				isOverlay( { options } )
-					? 'test' !== options.frequency &&
-					  ( ! sitewideDefault && ! categories.length ) &&
-					  ( 'publish' === status || 'future' === status )
-					: 'never' === options.frequency && ( 'publish' === status || 'future' === status )
-		);
-		return { draft, test, active: activeWithSitewideDefaultFirst, inactive };
+		const groups = {
+			draft: [],
+			active: [],
+			inactive: [],
+			...groupBy( popups, popup => {
+				if ( popup.status === 'draft' || popup.status === 'pending' || popup.status === 'future' ) {
+					return 'draft';
+				}
+				if (
+					popup.status === 'publish' &&
+					( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
+				) {
+					return 'active';
+				}
+				return 'inactive';
+			} ),
+		};
+		groups.active = groups.active.sort( a => ( a.sitewide_default ? -1 : 1 ) );
+		return groups;
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
@@ -275,7 +280,7 @@ class PopupsWizard extends Component {
 							<Switch>
 								{ pluginRequirements }
 								<Route
-									path="/campaigns"
+									path="/campaigns/:group?"
 									render={ () => (
 										<PopupGroup
 											{ ...popupManagementSharedProps }
@@ -297,6 +302,10 @@ class PopupsWizard extends Component {
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
 								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
+								<Route
+									path="/groups"
+									render={ () => <CampaignGroupManagement { ...sharedProps } /> }
+								/>
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/campaigns" />
 							</Switch>
