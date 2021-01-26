@@ -8,7 +8,7 @@
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { ESCAPE } from '@wordpress/keycodes';
+import { ENTER, ESCAPE } from '@wordpress/keycodes';
 
 /**
  * External dependencies.
@@ -24,6 +24,7 @@ import {
 	Popover,
 	Router,
 	SelectControl,
+	TextControl,
 	ToggleControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
@@ -53,12 +54,133 @@ const descriptionForPopup = (
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
+const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
+	if ( 'draft' === status ) {
+		return 'newspack-card__is-disabled';
+	}
+	if ( sitewideDefault ) {
+		return 'newspack-card__is-primary';
+	}
+	if ( isOverlay( { options } ) && ! sitewideDefault ) {
+		return 'newspack-card__is-disabled';
+	}
+	return 'newspack-card__is-supported';
+};
+
+const Segment = ( {
+	segment,
+	campaignGroup,
+	deletePopup,
+	previewPopup,
+	segments,
+	setTermsForPopup,
+	setSitewideDefaultPopup,
+	updatePopup,
+	publishPopup,
+	unpublishPopup,
+} ) => {
+	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
+	const { label, id, items } = segment;
+	return (
+		<Fragment>
+			<h2 className="newspack-campaigns__popup-group__subhead">
+				{ label }
+				{ items.length > 0 ? (
+					<SegmentationPreview
+						campaignGroups={ [ campaignGroup ] }
+						segment={ id }
+						showUnpublished={ true } // Do we need a control for this?
+						renderButton={ ( { showPreview } ) => (
+							<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
+								{ __( 'Preview', 'newspack' ) }
+							</Button>
+						) }
+					/>
+				) : null }
+			</h2>
+			{ items.map( item => (
+				<PopupActionCard
+					className={ getCardClassName( item ) }
+					deletePopup={ deletePopup }
+					description={ descriptionForPopup( item, segments ) }
+					key={ item.id }
+					popup={ item }
+					previewPopup={ previewPopup }
+					segments={ segments }
+					setTermsForPopup={ setTermsForPopup }
+					setSitewideDefaultPopup={ setSitewideDefaultPopup }
+					updatePopup={ updatePopup }
+					publishPopup={ publishPopup }
+					unpublishPopup={ unpublishPopup }
+				/>
+			) ) }
+			{ items.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
+			{ parseInt( campaignGroup ) > 0 && (
+				<div className="newspack-campaigns__popup-group__add-new-wrap">
+					<Button
+						isSmall
+						isTertiary
+						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
+					>
+						{ __( 'Add Prompt', 'newspack' ) }
+					</Button>
+					{ addNewPopoverIsVisible && (
+						<Popover
+							className=""
+							position="bottom left"
+							onFocusOutside={ () => setAddNewPopoverIsVisible( false ) }
+							onKeyDown={ event => ESCAPE === event.keyCode && setAddNewPopoverIsVisible( false ) }
+						>
+							<MenuItem
+								onClick={ () => setAddNewPopoverIsVisible( false ) }
+								className="screen-reader-text"
+							>
+								{ __( 'Close Popover', 'newspack' ) }
+							</MenuItem>
+							<MenuItem
+								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ campaignGroup }&segment=${ id }` }
+							>
+								{ __( 'Inline', 'newspack' ) }
+							</MenuItem>
+							<MenuItem
+								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ campaignGroup }&segment=${ id }` }
+							>
+								{ __( 'Center Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem
+								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ campaignGroup }&segment=${ id }` }
+							>
+								{ __( 'Top Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem
+								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ campaignGroup }&segment=${ id }` }
+							>
+								{ __( 'Bottom Overlay', 'newspack' ) }
+							</MenuItem>
+							<MenuItem
+								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ campaignGroup }&segment=${ id }` }
+							>
+								{ __( 'Above Header', 'newspack' ) }
+							</MenuItem>
+							<MenuItem
+								href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ campaignGroup }&segment=${ id }` }
+							>
+								{ __( 'Manual Placement', 'newspack' ) }
+							</MenuItem>
+						</Popover>
+					) }
+				</div>
+			) }
+		</Fragment>
+	);
+};
 /**
  * Popup group screen
  */
 const PopupGroup = ( {
 	deletePopup,
-	items: { active = [], draft = [], inactive = [] },
+	items = [],
+	groups = [],
 	manageCampaignGroup,
 	previewPopup,
 	setTermsForPopup,
@@ -68,164 +190,100 @@ const PopupGroup = ( {
 	updatePopup,
 	segments,
 	wizardApiFetch,
+	refetch,
 } ) => {
-	const [ campaignGroup, setCampaignGroup ] = useState( -1 );
-	const [ campaignGroups, setCampaignGroups ] = useState( -1 );
+	const [ campaignGroup, setCampaignGroup ] = useState( 'active' );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ showUnpublished, setShowUnpublished ] = useState( false );
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
+	const [ newGroupName, setNewGroupName ] = useState( '' );
+	const [ error, setError ] = useState( null );
+	const [ inFlight, setInFlight ] = useState( false );
 
 	const { group } = useParams();
 
-	useEffect( () => {
+	const createTerm = term => {
+		setAddNewPopoverIsVisible( false );
+		setInFlight( true );
+		setError( false );
 		wizardApiFetch( {
-			path: '/wp/v2/newspack_popups_taxonomy?_fields=id,name',
-		} ).then( terms => {
-			setCampaignGroups( terms );
-
-			if ( group ) {
-				const matchingTerm = terms.find( term => term.id === parseInt( group ) );
-
-				if ( matchingTerm ) {
-					setCampaignGroup( parseInt( group ) );
-				}
-			}
-		} );
-	}, [] );
-
-	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-		if ( 'draft' === status ) {
-			return 'newspack-card__is-disabled';
-		}
-		if ( sitewideDefault ) {
-			return 'newspack-card__is-primary';
-		}
-		if ( isOverlay( { options } ) && ! sitewideDefault ) {
-			return 'newspack-card__is-disabled';
-		}
-		return 'newspack-card__is-supported';
+			path: '/wp/v2/newspack_popups_taxonomy',
+			method: 'POST',
+			quiet: true,
+			data: {
+				name: term,
+				slug: term,
+			},
+		} )
+			.then( () => {
+				setInFlight( false );
+				setNewGroupName( '' );
+				refetch();
+			} )
+			.catch( e => {
+				const message =
+					e.message || __( 'An error occurred when creating this group.', 'newspack' );
+				setError( message );
+				setInFlight( false );
+			} );
 	};
 
-	const campaignGroupExists =
-		campaignGroups &&
-		Array.isArray( campaignGroups ) &&
-		+campaignGroup > 0 &&
-		-1 !== campaignGroups.some( ( { id: termId } ) => termId === campaignGroup );
+	const filterByGroup = itemsToFilter => {
+		if ( 'active' === campaignGroup ) {
+			return itemsToFilter.filter( ( { status } ) => 'publish' === status );
+		}
+		return itemsToFilter.filter(
+			( { campaign_groups: groups } ) =>
+				groups && groups.find( term => +term.term_id === +campaignGroup )
+		);
+	};
+	const groupBySegment = ( segments, itemsToGroup ) =>
+		segments.map( ( { name: label, id } ) => ( {
+			label,
+			id,
+			items: itemsToGroup.filter(
+				( { options: { selected_segment_id: segment } } ) => segment === id
+			),
+		} ) );
 
-	const filteredByGroup = itemsToFilter =>
-		! campaignGroupExists
-			? itemsToFilter
-			: itemsToFilter.filter(
-					( { campaign_groups: groups } ) =>
-						groups && groups.find( term => +term.term_id === campaignGroup )
-			  );
-
-	const campaignsToDisplay = filteredByGroup( [ ...active, ...draft, ...inactive ] );
-
+	const allPrompts = filterByGroup( items );
+	const campaignsToDisplay = groupBySegment( segments, allPrompts );
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
 					<SelectControl
-						options={
-							-1 === campaignGroups
-								? [
-										{
-											value: -1,
-											label: __( 'Loading...', 'newspack' ),
-										},
-								  ]
-								: [
-										{ value: -1, label: __( 'All Campaigns', 'newspack' ) },
-										...campaignGroups.map( term => ( {
-											value: term.id,
-											label: term.name,
-										} ) ),
-								  ]
-						}
+						options={ [
+							{ value: 'active', label: __( 'Active Campaigns', 'newspack' ) },
+							...groups.map( ( { term_id: id, name } ) => ( {
+								value: id,
+								label: name,
+							} ) ),
+						] }
 						value={ campaignGroup }
-						onChange={ value => setCampaignGroup( +value ) }
+						onChange={ value => setCampaignGroup( value ) }
 						label={ __( 'Groups', 'newspack' ) }
 						hideLabelFromVision={ true }
-						disabled={ -1 === campaignGroups }
 					/>
-					{ 0 < campaignsToDisplay.length && (
-						<>
-							<Button
-								isTertiary
-								isSmall
-								onClick={ () => manageCampaignGroup( campaignsToDisplay ) }
-							>
-								{ __( 'Publish All', 'newspack' ) }
-							</Button>
-							<Button
-								isTertiary
-								isSmall
-								onClick={ () => manageCampaignGroup( campaignsToDisplay, 'DELETE' ) }
-							>
-								{ __( 'Unpublish All', 'newspack' ) }
-							</Button>
-						</>
+					{ parseInt( campaignGroup ) > 0 && (
+						<Fragment>
+							{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
+								<Button isTertiary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
+									{ __( 'Activate All', 'newspack' ) }
+								</Button>
+							) }
+							{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
+								<Button
+									isTertiary
+									isSmall
+									onClick={ () => manageCampaignGroup( allPrompts, 'DELETE' ) }
+								>
+									{ __( 'Deactivate All', 'newspack' ) }
+								</Button>
+							) }
+						</Fragment>
 					) }
-
-					<SegmentationPreview
-						campaignGroups={ campaignGroup > -1 ? [ campaignGroup ] : [] }
-						segment={ segmentId }
-						showUnpublished={ showUnpublished }
-						renderButton={ ( { showPreview } ) => (
-							<div className="newspack-campaigns__popup-group__filter-group-segmentation">
-								{ 0 < campaignsToDisplay.length && (
-									<Button
-										isTertiary
-										isSmall
-										onClick={ () => setPreviewPopoverIsVisible( ! previewPopoverIsVisible ) }
-									>
-										{ __( 'Preview', 'newspack' ) }
-									</Button>
-								) }
-								{ previewPopoverIsVisible && (
-									<Popover
-										position="bottom right"
-										onFocusOutside={ () => setPreviewPopoverIsVisible( false ) }
-										onKeyDown={ event =>
-											ESCAPE === event.keyCode && setPreviewPopoverIsVisible( false )
-										}
-									>
-										<MenuItem
-											onClick={ () => setPreviewPopoverIsVisible( false ) }
-											className="screen-reader-text"
-										>
-											{ __( 'Close Popover', 'newspack' ) }
-										</MenuItem>
-										<SelectControl
-											options={ [
-												{ value: '', label: __( 'Default (no segment)', 'newspack' ) },
-												...segments.map( s => ( { value: s.id, label: s.name } ) ),
-											] }
-											value={ segmentId }
-											onChange={ setSegmentId }
-											label={ __( 'Segment to preview', 'newspack' ) }
-										/>
-										<ToggleControl
-											label={ __( 'Show unpublished campaigns', 'newspack' ) }
-											checked={ showUnpublished }
-											onChange={ () => setShowUnpublished( ! showUnpublished ) }
-										/>
-										<Button
-											isLink
-											onClick={ () => {
-												showPreview();
-												setPreviewPopoverIsVisible( false );
-											} }
-										>
-											{ __( 'Preview', 'newspack' ) }
-										</Button>
-									</Popover>
-								) }
-							</div>
-						) }
-					/>
 				</div>
 				<div className="newspack-campaigns__popup-group__add-new-button">
 					<Button
@@ -233,7 +291,7 @@ const PopupGroup = ( {
 						isSmall
 						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
 					>
-						{ __( 'Add New', 'newspack' ) }
+						{ __( 'Add New Campaign', 'newspack' ) }
 					</Button>
 					{ addNewPopoverIsVisible && (
 						<Popover
@@ -247,35 +305,37 @@ const PopupGroup = ( {
 							>
 								{ __( 'Close Popover', 'newspack' ) }
 							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt">
-								{ __( 'Inline', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center">
-								{ __( 'Center Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top">
-								{ __( 'Top Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom">
-								{ __( 'Bottom Overlay', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header">
-								{ __( 'Above Header', 'newspack' ) }
-							</MenuItem>
-							<MenuItem href="/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual">
-								{ __( 'Manual Placement', 'newspack' ) }
-							</MenuItem>
+							<TextControl
+								placeholder={ __( 'Campaign Name', 'newspack' ) }
+								onChange={ setNewGroupName }
+								label={ __( 'Campaign Name', 'newspack' ) }
+								hideLabelFromVision={ true }
+								value={ newGroupName }
+								disabled={ !! inFlight }
+								onKeyDown={ event =>
+									ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
+								}
+							/>
+							<Button
+								isLink
+								disabled={ inFlight || ! newGroupName }
+								onClick={ () => {
+									createTerm( newGroupName );
+									setAddNewPopoverIsVisible( false );
+								} }
+							>
+								{ __( 'Add', 'newspack' ) }
+							</Button>
 						</Popover>
 					) }
 				</div>
 			</div>
-			{ campaignsToDisplay.map( campaign => (
-				<PopupActionCard
-					className={ getCardClassName( campaign ) }
+			{ campaignsToDisplay.map( segment => (
+				<Segment
+					key={ segment.id }
+					segment={ segment }
+					campaignGroup={ campaignGroup }
 					deletePopup={ deletePopup }
-					description={ descriptionForPopup( campaign, segments ) }
-					key={ campaign.id }
-					popup={ campaign }
 					previewPopup={ previewPopup }
 					segments={ segments }
 					setTermsForPopup={ setTermsForPopup }

@@ -72,7 +72,7 @@ const PrimaryPopupPopover = ( {
 					} }
 					className="newspack-button"
 				>
-					{ __( 'Publish', 'newspack' ) }
+					{ __( 'Activate', 'newspack' ) }
 				</MenuItem>
 			) }
 			{ unpublishPopup && (
@@ -83,7 +83,7 @@ const PrimaryPopupPopover = ( {
 					} }
 					className="newspack-button"
 				>
-					{ __( 'Unpublish', 'newspack' ) }
+					{ __( 'Deactivate', 'newspack' ) }
 				</MenuItem>
 			) }
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">

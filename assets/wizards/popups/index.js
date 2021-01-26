@@ -80,12 +80,16 @@ class PopupsWizard extends Component {
 		};
 	}
 	onWizardReady = () => {
+		this.refetch();
+	};
+
+	refetch = () => {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups, segments, settings } ) =>
-				this.setState( { popups: this.sortPopups( popups ), segments, settings } )
+			.then( ( { groups, popups, segments, settings } ) =>
+				this.setState( { groups, popups, segments, settings } )
 			)
 			.catch( error => setError( error ) );
 	};
@@ -102,7 +106,7 @@ class PopupsWizard extends Component {
 			method: state ? 'POST' : 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -124,7 +128,7 @@ class PopupsWizard extends Component {
 			},
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -136,7 +140,7 @@ class PopupsWizard extends Component {
 			data: { options },
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -152,7 +156,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -168,7 +172,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -184,33 +188,8 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popup } ) )
 			.catch( error => setError( error ) );
-	};
-
-	/**
-	 * Sort Pop-up groups into categories.
-	 */
-	sortPopups = popups => {
-		const groups = {
-			draft: [],
-			active: [],
-			inactive: [],
-			...groupBy( popups, popup => {
-				if ( popup.status === 'draft' ) {
-					return 'draft';
-				}
-				if (
-					popup.status === 'publish' &&
-					( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
-				) {
-					return 'active';
-				}
-				return 'inactive';
-			} ),
-		};
-		groups.active = groups.active.sort( a => ( a.sitewide_default ? -1 : 1 ) );
-		return groups;
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
@@ -225,6 +204,7 @@ class PopupsWizard extends Component {
 	};
 
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
+		console.log( campaigns );
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
@@ -244,7 +224,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, segments, settings, previewUrl } = this.state;
+		const { groups, popups, segments, settings, previewUrl } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -274,6 +254,7 @@ class PopupsWizard extends Component {
 							),
 						publishPopup: this.publishPopup,
 						unpublishPopup: this.unpublishPopup,
+						refetch: this.refetch,
 					};
 					return (
 						<HashRouter hashType="slash">
@@ -285,6 +266,7 @@ class PopupsWizard extends Component {
 										<PopupGroup
 											{ ...popupManagementSharedProps }
 											items={ popups }
+											groups={ groups }
 											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
 											groupUI={ true }
 										/>
