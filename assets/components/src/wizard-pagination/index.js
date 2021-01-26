@@ -44,64 +44,62 @@ const WizardPagination = props => {
 	};
 
 	return (
-		<Fragment>
-			<div className="newspack-wizard-pagination newspack-wizard__header__inner">
-				{ routeList.length && (
-					<>
-						<Button
-							className="newspack-wizard-pagination__show-steps"
-							onClick={ () => setShowSteps( ! showSteps ) }
-						>
-							{ routes[ currentRoute ].title }
-						</Button>
-						<ul
-							className={ `newspack-wizard-pagination__steps ${ ! showSteps ? 'hidden' : '' }` }
-							ref={ stepper }
-						>
-							{ routeList.map( ( route, index ) => {
-								if ( 'welcome' === route ) {
-									return null;
-								}
+		<div className="newspack-wizard-pagination newspack-wizard__header__inner">
+			{ routeList.length && (
+				<>
+					<Button
+						className="newspack-wizard-pagination__show-steps"
+						onClick={ () => setShowSteps( ! showSteps ) }
+					>
+						{ routes[ currentRoute ].title }
+					</Button>
+					<ul
+						className={ `newspack-wizard-pagination__steps ${ ! showSteps ? 'hidden' : '' }` }
+						ref={ stepper }
+					>
+						{ routeList.map( ( route, index ) => {
+							if ( 'welcome' === route ) {
+								return null;
+							}
 
-								const currentIndex = routeList.indexOf( currentRoute );
-								const classes = [];
+							const currentIndex = routeList.indexOf( currentRoute );
+							const classes = [];
 
-								if ( route === currentRoute ) {
-									classes.push( 'active' );
-								}
+							if ( route === currentRoute ) {
+								classes.push( 'active' );
+							}
 
-								if ( index < currentIndex ) {
-									classes.push( 'complete' );
-								}
+							if ( index < currentIndex ) {
+								classes.push( 'complete' );
+							}
 
-								return (
-									<>
-										<li key={ index } className="newspack-wizard-pagination__step">
-											<Button
-												className={ classes.join( ' ' ) }
-												href={ '#' + routes[ route ].path }
-												isLink
-												disabled={ index > currentIndex }
-											>
-												{ routes[ route ].title }
-											</Button>
-										</li>
-										{ index + 1 < routeList.length && (
-											<li
-												className={
-													'newspack-wizard-pagination__step separator ' +
-													( index < currentIndex ? 'complete' : '' )
-												}
-											/>
-										) }
-									</>
-								);
-							} ) }
-						</ul>
-					</>
-				) }
-			</div>
-		</Fragment>
+							return (
+								<Fragment key={ index }>
+									<li className="newspack-wizard-pagination__step">
+										<Button
+											className={ classes.join( ' ' ) }
+											href={ '#' + routes[ route ].path }
+											isLink
+											disabled={ index > currentIndex }
+										>
+											{ routes[ route ].title }
+										</Button>
+									</li>
+									{ index + 1 < routeList.length && (
+										<li
+											className={
+												'newspack-wizard-pagination__step separator ' +
+												( index < currentIndex ? 'complete' : '' )
+											}
+										/>
+									) }
+								</Fragment>
+							);
+						} ) }
+					</ul>
+				</>
+			) }
+		</div>
 	);
 };
 
