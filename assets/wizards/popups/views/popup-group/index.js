@@ -270,7 +270,7 @@ const PopupGroup = ( {
 						<Fragment>
 							{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
 								<Button isTertiary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
-									{ __( 'Activate All', 'newspack' ) }
+									{ __( 'Activate', 'newspack' ) }
 								</Button>
 							) }
 							{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
@@ -279,7 +279,7 @@ const PopupGroup = ( {
 									isSmall
 									onClick={ () => manageCampaignGroup( allPrompts, 'DELETE' ) }
 								>
-									{ __( 'Deactivate All', 'newspack' ) }
+									{ __( 'Deactivate', 'newspack' ) }
 								</Button>
 							) }
 						</Fragment>

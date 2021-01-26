@@ -178,7 +178,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popup } ) )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
