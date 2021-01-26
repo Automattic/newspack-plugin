@@ -276,7 +276,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 					</div>
-					{ ! suppressFooter && <Footer /> }
+					{ ! suppressFooter && ! loading && <Footer /> }
 				</Fragment>
 			);
 		}
