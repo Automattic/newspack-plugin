@@ -40,9 +40,6 @@ const descriptionForPopup = (
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const descriptionMessages = [];
-	if ( segment ) {
-		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
-	}
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
