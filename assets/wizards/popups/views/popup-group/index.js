@@ -59,7 +59,6 @@ const warningForPopup = ( campaigns, campaign ) => {
 	const warningMessages = [];
 	if ( isAboveHeader( campaign ) || isOverlay( campaign ) ) {
 		const conflictingCampaigns = campaigns.filter( conflict => {
-			console.log( campaign, conflict );
 			return (
 				conflict.id !== campaign.id &&
 				isSameType( campaign, conflict ) &&
