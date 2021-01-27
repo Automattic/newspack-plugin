@@ -117,18 +117,16 @@ const Segment = ( {
 			<h3 className="newspack-campaigns__popup-group__card__segment">
 				{ __( 'Segment: ', 'newspack' ) }
 				{ label }
-				{ items.length > 0 ? (
-					<SegmentationPreview
-						campaignGroups={ [ campaignGroup ] }
-						segment={ id }
-						showUnpublished={ true } // Do we need a control for this?
-						renderButton={ ( { showPreview } ) => (
-							<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
-								{ __( 'Preview', 'newspack' ) }
-							</Button>
-						) }
-					/>
-				) : null }
+				<SegmentationPreview
+					campaignGroups={ [ campaignGroup ] }
+					segment={ id }
+					showUnpublished={ true } // Do we need a control for this?
+					renderButton={ ( { showPreview } ) => (
+						<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
+							{ __( 'Preview', 'newspack' ) }
+						</Button>
+					) }
+				/>
 			</h3>
 			{ items.map( item => (
 				<PopupActionCard
@@ -289,19 +287,6 @@ const PopupGroup = ( {
 
 	const allPrompts = filterByGroup( items );
 	const campaignsToDisplay = groupBySegment( segments, allPrompts );
-	let pageTitle;
-	console.log( groups, campaignGroup );
-	if ( 'active' === campaignGroup ) {
-		pageTitle = __( 'All currently active prompts', 'newspack' );
-	} else if ( 'unassigned' === campaignGroup ) {
-		pageTitle = __( 'All unassigned prompts', 'newspack' );
-	} else {
-		const groupName = groups.reduce(
-			( acc, { name, term_id: id } ) => ( +id === +campaignGroup ? name : acc ),
-			''
-		);
-		pageTitle = __( 'Campaign: ', 'newspack' ) + groupName;
-	}
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
@@ -388,7 +373,6 @@ const PopupGroup = ( {
 					) }
 				</div>
 			</div>
-			<h2>{ pageTitle }</h2>
 			{ campaignsToDisplay.map( segment => (
 				<Segment
 					key={ segment.id }
