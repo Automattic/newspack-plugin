@@ -64,7 +64,7 @@ const isSameType = ( campaignA, campaignB ) => {
 
 const warningForPopup = ( campaigns, campaign ) => {
 	const warningMessages = [];
-	if ( isAboveHeader( campaign ) || isOverlay( campaign ) ) {
+	if ( 'publish' === campaign.status && ( isAboveHeader( campaign ) || isOverlay( campaign ) ) ) {
 		const conflictingCampaigns = campaigns.filter( conflict => {
 			const campaignCategories = filterOutUncategorized( campaign.categories );
 			const conflictCategories = filterOutUncategorized( conflict.categories );
@@ -81,6 +81,7 @@ const warningForPopup = ( campaigns, campaign ) => {
 					).length;
 
 			return (
+				'publish' === conflict.status &&
 				conflict.id !== campaign.id &&
 				isSameType( campaign, conflict ) &&
 				campaign.options.selected_segment_id === conflict.options.selected_segment_id &&
