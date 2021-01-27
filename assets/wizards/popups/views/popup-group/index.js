@@ -140,14 +140,8 @@ const PopupGroup = ( {
 		} );
 	}, [] );
 
-	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-		if ( 'draft' === status || 'pending' === status || 'future' === status ) {
-			return 'newspack-card__is-disabled';
-		}
-		if ( sitewideDefault ) {
-			return 'newspack-card__is-primary';
-		}
-		if ( isOverlay( { options } ) && ! sitewideDefault ) {
+	const getCardClassName = ( { status } ) => {
+		if ( 'publish' !== status ) {
 			return 'newspack-card__is-disabled';
 		}
 		return 'newspack-card__is-supported';

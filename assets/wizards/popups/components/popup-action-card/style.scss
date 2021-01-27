@@ -4,13 +4,6 @@
 
 @import '~@wordpress/base-styles/colors';
 
-.newspack-menu-group__sitewide {
-	> div {
-		padding-left: 15px;
-		padding-right: 15px;
-	}
-}
-
 .newspack-action-card {
 	.newspack-popover {
 		.components-menu-group + .components-menu-group {

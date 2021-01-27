@@ -114,34 +114,6 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_set_sitewide_popup' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'id' => [
-						'sanitize_callback' => 'absint',
-					],
-				],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
-			[
-				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_unset_sitewide_popup' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'id' => [
-						'sanitize_callback' => 'absint',
-					],
-				],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/popup-terms/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,

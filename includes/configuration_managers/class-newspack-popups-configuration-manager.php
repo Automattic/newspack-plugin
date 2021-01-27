@@ -47,28 +47,6 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Set the sitewide Popup.
-	 *
-	 * @param integer $id ID of sitewide popup.
-	 */
-	public function set_sitewide_popup( $id ) {
-		return $this->is_configured() ?
-			\Newspack_Popups_Model::set_sitewide_popup( $id ) :
-			$this->unconfigured_error();
-	}
-
-	/**
-	 * Unset the sitewide Popup.
-	 *
-	 * @param integer $id ID of sitewide popup.
-	 */
-	public function unset_sitewide_popup( $id ) {
-		return $this->is_configured() ?
-			\Newspack_Popups_Model::unset_sitewide_popup( $id ) :
-			$this->unconfigured_error();
-	}
-
-	/**
 	 * Set taxonomy terms for a Popup.
 	 *
 	 * @param integer $id ID of sitewide popup.
