@@ -164,7 +164,7 @@ class Dashboard extends Wizard {
 			$icon,
 			3
 		);
-		$first_subnav_title = get_option( NEWSPACK_SETUP_COMPLETE ) ? __( 'Dashboard' ) : __( 'Setup' );
+		$first_subnav_title = get_option( NEWSPACK_SETUP_COMPLETE ) ? __( 'Dashboard', 'newspack' ) : __( 'Setup', 'newspack' );
 		add_submenu_page(
 			$this->slug,
 			$first_subnav_title,
