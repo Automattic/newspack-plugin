@@ -34,7 +34,7 @@ import './style.scss';
 const { useParams } = Router;
 
 const descriptionForPopup = (
-	{ categories, sitewide_default: sitewideDefault, options },
+	{ categories, sitewide_default: sitewideDefault, options, status },
 	segments
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
@@ -49,6 +49,12 @@ const descriptionForPopup = (
 		descriptionMessages.push(
 			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
 		);
+	}
+	if ( 'pending' === status ) {
+		descriptionMessages.push( __( 'Pending review', 'newspack' ) );
+	}
+	if ( 'future' === status ) {
+		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
 	}
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
@@ -95,7 +101,7 @@ const PopupGroup = ( {
 	}, [] );
 
 	const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-		if ( 'draft' === status ) {
+		if ( 'draft' === status || 'pending' === status || 'future' === status ) {
 			return 'newspack-card__is-disabled';
 		}
 		if ( sitewideDefault ) {
