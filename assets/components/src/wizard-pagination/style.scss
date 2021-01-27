@@ -16,10 +16,10 @@
 
 	&.newspack-wizard__header__inner {
 		flex-direction: column;
-		padding-bottom: 1rem;
+		padding-bottom: 32px;
 		padding-top: 0;
 
-		@media screen and ( min-width: 1064px ) {
+		@media screen and ( min-width: 960px ) {
 			padding-bottom: 0;
 		}
 	}
@@ -27,8 +27,8 @@
 	&__show-steps.newspack-button,
 	body[class*='admin-color-'] & .newspack-wizard-pagination__show-steps.newspack-button {
 		border: 1px solid white;
-		padding-left: 1rem;
-		padding-right: 1rem;
+		padding-left: 12px;
+		padding-right: 12px;
 		position: relative;
 		width: 100%;
 
@@ -37,13 +37,19 @@
 			color: currentColor;
 		}
 
+		&:focus {
+			box-shadow: 0 0 0 1px $primary-500, 0 0 0 3px white;
+			position: relative;
+			z-index: 1;
+		}
+
 		&::after {
 			content: '•••';
 			position: absolute;
 			right: 1rem;
 		}
 
-		@media screen and ( min-width: 1064px ) {
+		@media screen and ( min-width: 960px ) {
 			display: none;
 		}
 	}
@@ -54,10 +60,9 @@
 		padding-top: 0;
 		width: 100%;
 
-		@media screen and ( min-width: 1064px ) {
+		@media screen and ( min-width: 960px ) {
 			align-items: center;
 			display: flex;
-			justify-content: space-between;
 			margin: 0;
 			padding: 0;
 			position: relative;
@@ -76,53 +81,65 @@
 		margin: 0;
 		position: relative;
 
-		&.separator {
-			display: none;
-		}
-
 		&:first-child {
 			border-top: 1px solid white;
-			padding-top: 0.75rem;
+			padding-top: 6px;
 		}
 
 		&:last-child {
 			border-bottom: 1px solid white;
 			border-bottom-left-radius: 3px;
 			border-bottom-right-radius: 3px;
-			padding-bottom: 0.75rem;
+			padding-bottom: 6px;
 		}
 
 		.newspack-button.is-link,
 		body[class*='admin-color-'] & .newspack-button.is-link {
+			border-radius: 3px;
 			color: $primary-950;
 			display: block;
-			padding: 0.5rem 1rem;
+			font-weight: bold;
+			padding: 6px 12px;
 			text-decoration: none;
+			transition: box-shadow 125ms ease-in-out, color 125ms ease-in-out;
+			width: 100%;
 
 			&.active,
 			&.complete {
 				color: white !important;
-				font-weight: bold;
+			}
+
+			&.active {
+				text-decoration: underline;
+				text-decoration-thickness: 4px;
+				text-underline-offset: 4px;
 			}
 
 			&:disabled {
 				opacity: 1;
 			}
+
+			&:active,
+			&:focus,
+			&:hover:not( :disabled ) {
+				outline: none;
+			}
+
+			&:focus {
+				box-shadow: 0 0 0 1px white, 0 0 0 2px $primary-500, 0 0 0 4px white;
+				position: relative;
+				z-index: 1;
+			}
 		}
 
-		@media screen and ( min-width: 1064px ) {
-			border: none;
+		@media screen and ( min-width: 960px ) {
+			border: 0;
+			flex: 0 0 auto;
+			margin-right: 32px;
 			padding: 0;
 
-			&.separator {
-				background-image: url( "data:image/svg+xml;charset=UTF-8,%3csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 12.5L6 7.00001L1 1.50003' stroke='%230E0052' stroke-width='1.5'/%3e%3c/svg%3e " );
-				display: block;
-				height: 14px;
-				width: 8px;
-
-				&.complete {
-					background-image: url( "data:image/svg+xml;charset=UTF-8,%3csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 12.5L6 7.00001L1 1.50003' stroke='%23FFFFFF' stroke-width='1.5'/%3e%3c/svg%3e " );
-				}
+			&:last-child {
+				margin-right: 0;
 			}
 
 			&:first-child,
@@ -135,12 +152,28 @@
 			.newspack-button.is-link,
 			body[class*='admin-color-'] & .newspack-button.is-link {
 				border-bottom: 4px solid $primary-500;
+				border-radius: 0;
 				display: inline-block;
 				font-weight: bold;
-				padding: 8px 0 4px;
+				padding: 0 0 12px;
+
+				&:active,
+				&:focus,
+				&:hover:not( :disabled ) {
+					border-color: $primary-200;
+					color: white;
+					outline: none;
+				}
+
+				&:focus {
+					box-shadow: none;
+					outline: 1px solid;
+					outline-offset: 16px;
+				}
 
 				&.active {
 					border-color: white;
+					text-decoration: none;
 				}
 			}
 		}

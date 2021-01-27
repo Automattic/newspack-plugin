@@ -85,14 +85,6 @@ const WizardPagination = props => {
 											{ routes[ route ].title }
 										</Button>
 									</li>
-									{ index + 1 < routeList.length && (
-										<li
-											className={
-												'newspack-wizard-pagination__step separator ' +
-												( index < currentIndex ? 'complete' : '' )
-											}
-										/>
-									) }
 								</Fragment>
 							);
 						} ) }
