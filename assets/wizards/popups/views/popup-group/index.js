@@ -61,10 +61,25 @@ const warningForPopup = ( campaigns, campaign ) => {
 	const warningMessages = [];
 	if ( isAboveHeader( campaign ) || isOverlay( campaign ) ) {
 		const conflictingCampaigns = campaigns.filter( conflict => {
+			const campaignCategories = filterOutUncategorized( campaign.categories );
+			const conflictCategories = filterOutUncategorized( conflict.categories );
+
+			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
+			const hasConflictingCategory =
+				( 0 === campaignCategories.length && 0 === conflictCategories.length ) ||
+				0 <
+					campaignCategories.filter(
+						category =>
+							!! conflictCategories.find(
+								conflictCategory => category.term_id === conflictCategory.term_id
+							)
+					).length;
+
 			return (
 				conflict.id !== campaign.id &&
 				isSameType( campaign, conflict ) &&
-				campaign.options.selected_segment_id === conflict.options.selected_segment_id
+				campaign.options.selected_segment_id === conflict.options.selected_segment_id &&
+				hasConflictingCategory
 			);
 		} );
 
