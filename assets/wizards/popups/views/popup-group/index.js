@@ -28,7 +28,7 @@ import {
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
-import { isOverlay } from '../../utils';
+import { filterOutUncategorized, isOverlay } from '../../utils';
 import './style.scss';
 
 const { useParams } = Router;
@@ -38,6 +38,7 @@ const descriptionForPopup = (
 	segments
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
+	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
 	if ( segment ) {
 		descriptionMessages.push( `${ __( 'Segment:', 'newspack' ) } ${ segment.name }` );
@@ -45,9 +46,10 @@ const descriptionForPopup = (
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
-	if ( categories.length > 0 ) {
+	if ( filteredCategories.length > 0 ) {
 		descriptionMessages.push(
-			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
+			__( 'Categories: ', 'newspack' ) +
+				filteredCategories.map( category => category.name ).join( ', ' )
 		);
 	}
 	if ( 'pending' === status ) {
