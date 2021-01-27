@@ -6,47 +6,34 @@
 @import '../../../../shared/scss/colors';
 
 .newspack-campaigns__popup-group {
-	&__add-new-wrap {
-		display: flex;
-		.components-popover {
-			margin-left: -20px;
+	&__card {
+		& > &__segment {
+			margin: -16px -16px 16px !important;
+			padding: 8px 16px;
+		}
 
-			&__content {
-				padding: 8px;
+		&__segment {
+			align-items: center;
+			background: $light-gray-100;
+			border-bottom: 1px solid $light-gray-200;
+			display: flex;
+			justify-content: space-between;
 
-				> div {
-					display: flex;
-					flex-wrap: wrap;
-					justify-content: flex-end;
-				}
-
-				.newspack-toggle-control {
-					margin: 8px 0;
-					width: 100%;
-				}
-
-				.newspack-button.is-link {
-					color: $primary-500;
-					padding: 0;
-					text-decoration: underline;
-
-					&:hover {
-						color: $primary-600;
-					}
-				}
+			+ .newspack-action-card {
+				margin-top: 16px !important;
 			}
 		}
 	}
-	h2 {
-		color: red;
-		align-items: center;
-		display: flex;
-		margin-bottom: 8px !important;
 
-		+ .newspack-action-card {
-			margin-top: 8px !important;
+	&__add-new-wrap {
+		display: flex;
+		justify-content: flex-end;
+
+		.newspack-card + & {
+			margin-top: -24px;
 		}
 	}
+
 	&__filter-group-wrapper {
 		align-items: center;
 		display: flex;
@@ -76,7 +63,7 @@
 					min-height: 36px;
 				}
 				div.components-input-control__backdrop {
-					border-color: $light-gray-100;
+					border-color: $light-gray-200;
 				}
 			}
 		}
@@ -115,6 +102,7 @@
 
 	&__add-new-button {
 		&__modal {
+			max-width: 384px;
 			padding: 0 32px;
 
 			.components-modal__content {
@@ -148,25 +136,42 @@
 	}
 }
 
+.newspack-card__buttons-prompt {
+	.newspack-button {
+		color: $dark-gray-900;
+		display: flex;
+		flex-direction: column;
+		padding: 8px !important;
+		text-align: center;
+		width: 96px;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $primary-500;
+			svg {
+				background: $light-gray-100;
+			}
+		}
+
+		svg {
+			border: 1px solid $light-gray-500;
+			border-radius: 3px;
+			display: block;
+			fill: $primary-500;
+			height: 48px;
+			margin: 0 0 8px;
+			padding: 15px;
+			width: 48px;
+		}
+	}
+}
+
 .newspack-popups-wizard {
 	.newspack-action-card {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		min-height: 40px;
-	}
-}
-
-.newspack-campaigns__popup-group__subhead {
-	align-items: center;
-	display: flex;
-	margin-bottom: 8px !important;
-
-	+ .newspack-action-card {
-		margin-top: 8px !important;
-	}
-
-	.newspack-button {
-		margin-left: 14px;
 	}
 }
