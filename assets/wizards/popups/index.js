@@ -197,7 +197,7 @@ class PopupsWizard extends Component {
 			active: [],
 			inactive: [],
 			...groupBy( popups, popup => {
-				if ( popup.status === 'draft' ) {
+				if ( popup.status === 'draft' || popup.status === 'pending' || popup.status === 'future' ) {
 					return 'draft';
 				}
 				if (

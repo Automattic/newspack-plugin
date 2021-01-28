@@ -37,6 +37,7 @@ class Tools extends Component {
 						<RawHTML>
 							{ sprintf(
 								__(
+									/* translators: hyperlink to Google Search Console */
 									'Get your Google verification code in <a href="%s">Google Search Console</a>.',
 									'newspack'
 								),
@@ -53,6 +54,7 @@ class Tools extends Component {
 						<RawHTML>
 							{ sprintf(
 								__(
+									/* translators: hyperlink to Bing Webmaster Tools */
 									'Get your Bing verification code in <a href="%s">Bing Webmaster Tool</a>.',
 									'newspack'
 								),
