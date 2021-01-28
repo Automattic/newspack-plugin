@@ -237,6 +237,7 @@ const PopupGroup = ( {
 	const [ error, setError ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ duplicateCampaignName, setDuplicateCampaignName ] = useState();
+	const [ duplicateCampaignModalVisible, setDuplicateCampaignModalVisible ] = useState();
 
 	const { group } = useParams();
 
@@ -392,21 +393,10 @@ const PopupGroup = ( {
 											{ __( 'Deactivate all prompts', 'newspack' ) }
 										</MenuItem>
 									) }
-									<TextControl
-										placeholder={ __( 'Campaign Name', 'newspack' ) }
-										onChange={ setDuplicateCampaignName }
-										label={ __( 'Campaign Name', 'newspack' ) }
-										hideLabelFromVision={ true }
-										value={ duplicateCampaignName }
-										disabled={ !! inFlight }
-										onKeyDown={ event =>
-											ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
-										}
-									/>
 									<MenuItem
 										onClick={ () => {
 											setCampaignActionsPopoverVisible( false );
-											duplicateCampaignGroup( campaignGroup, duplicateCampaignName );
+											setDuplicateCampaignModalVisible( true );
 										} }
 										className="newspack-button"
 									>
@@ -444,7 +434,46 @@ const PopupGroup = ( {
 										{ __( 'Delete', 'newspack' ) }
 									</MenuItem>
 								</Popover>
-							) }{' '}
+							) }
+							{ duplicateCampaignModalVisible && (
+								<Modal
+									title={ __( 'Duplicate Campaign', 'newspack' ) }
+									isDismissible={ false }
+									className="newspack-campaigns__popup-group__add-new-button__modal"
+								>
+									<TextControl
+										placeholder={ __( 'Campaign Name', 'newspack' ) }
+										onChange={ setDuplicateCampaignName }
+										label={ __( 'Campaign Name', 'newspack' ) }
+										hideLabelFromVision={ true }
+										value={ duplicateCampaignName }
+										disabled={ !! inFlight }
+										onKeyDown={ event =>
+											ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
+										}
+									/>
+									<Card buttonsCard noBorder>
+										<Button
+											isSecondary
+											onClick={ () => {
+												setAddNewPopoverIsVisible( false );
+											} }
+										>
+											{ __( 'Cancel', 'newspack' ) }
+										</Button>
+										<Button
+											isPrimary
+											disabled={ inFlight || ! duplicateCampaignName }
+											onClick={ () => {
+												duplicateCampaignGroup( campaignGroup, duplicateCampaignName );
+												setDuplicateCampaignModalVisible( false );
+											} }
+										>
+											{ __( 'Duplicate', 'newspack' ) }
+										</Button>
+									</Card>
+								</Modal>
+							) }
 						</Fragment>
 					) }
 				</div>
