@@ -330,12 +330,14 @@ const PopupGroup = ( {
 					{ campaignGroup !== 'active' && (
 						<Fragment>
 							<Button
+								isSmall
+								isSecondary
 								onClick={ () =>
 									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
 								}
-							>
-								<Icon icon={ moreVertical } />
-							</Button>
+								icon={ moreVertical }
+								label={ __( 'Actions', 'newspack' ) }
+							/>
 							{ campaignActionsPopoverVisible && (
 								<Popover
 									position="bottom left"
