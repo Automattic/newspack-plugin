@@ -13,7 +13,7 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Internal dependencies.
  */
 import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { isOverlay } from '../../utils';
+import { filterOutUncategorized, isOverlay } from '../../utils';
 import './style.scss';
 
 const frequencyMap = {
@@ -86,7 +86,7 @@ const SecondaryPopupPopover = ( {
 			/>
 			{ ! sitewideDefault && (
 				<CategoryAutocomplete
-					value={ categories || [] }
+					value={ filterOutUncategorized( categories ) || [] }
 					onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
 					label={ __( 'Category filtering', 'newspack ' ) }
 					disabled={ sitewideDefault }
