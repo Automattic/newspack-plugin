@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { useEffect, useState, Fragment } from '@wordpress/element';
-import { MenuItem, Path, SVG } from '@wordpress/components';
+import { CustomSelectControl, MenuItem, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
 import { Icon, moreVertical, close } from '@wordpress/icons';
@@ -26,13 +26,11 @@ import {
 	Modal,
 	Popover,
 	Router,
-	SelectControl,
 	TextControl,
 	ToggleControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
-import SelectWithOptGroups from '../../components/select-with-optgroups';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
@@ -299,32 +297,52 @@ const PopupGroup = ( {
 		( acc, group ) => ( +campaignGroup > 0 && +campaignGroup === +group.term_id ? group : acc ),
 		null
 	);
+	const nameForCampaignGroup = campaignGroup => {
+		if ( 'active' === campaignGroup ) {
+			return __( 'Active Prompts', 'newspck' );
+		}
+		if ( 'unassigned' === campaignGroup ) {
+			return __( 'Unassigned Prompts', 'newspck' );
+		}
+		if ( +campaignGroup > 0 ) {
+			return groups.reduce(
+				( acc, group ) => ( +campaignGroup === +group.term_id ? group.name : acc ),
+				null
+			);
+		}
+	};
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
-					<SelectWithOptGroups
+					<CustomSelectControl
+						label={ __( 'Campaigns', 'newspack' ) }
 						options={ [
-							{ value: 'active', label: __( 'Active Prompts', 'newspack' ) },
-							{ value: 'unassigned', label: __( 'Unassigned Prompts', 'newspack' ) },
+							{ key: 'active', name: __( 'Active Prompts', 'newspack' ) },
+							{ key: 'unassigned', name: __( 'Unassigned Prompts', 'newspack' ) },
 							{
-								label: __( 'Campaigns', 'newspack ' ),
-								options: activeGroups.map( ( { term_id: id, name } ) => ( {
-									value: id,
-									label: name,
-								} ) ),
+								key: 'header-campaigns',
+								name: __( 'Campaigns', 'newspack' ),
+								className: 'newspack-campaigns__popup-group__select-control-group-header',
 							},
-							{
-								label: __( 'Archived Campaigns', 'newspack ' ),
-								options: archivedGroups.map( ( { term_id: id, name } ) => ( {
-									value: id,
-									label: name,
-								} ) ),
+							...activeGroups.map( ( { term_id: id, name } ) => ( {
+								key: id,
+								name: name,
+								className: 'newspack-campaigns__popup-group__select-control-group-item',
+							} ) ),
+							archivedGroups.length && {
+								key: 'header-archived-campaigns',
+								name: __( 'Archived Campaigns', 'newspack' ),
+								className: 'newspack-campaigns__popup-group__select-control-group-header',
 							},
+							...archivedGroups.map( ( { term_id: id, name } ) => ( {
+								key: id,
+								name: name,
+								className: 'newspack-campaigns__popup-group__select-control-group-item',
+							} ) ),
 						] }
-						value={ campaignGroup }
-						onChange={ value => setCampaignGroup( value ) }
-						label={ __( 'Groups', 'newspack' ) }
+						onChange={ ( { selectedItem: { key } } ) => setCampaignGroup( key ) }
+						value={ { key: campaignGroup, name: nameForCampaignGroup( campaignGroup ) } }
 						hideLabelFromVision={ true }
 					/>
 					{ campaignGroup !== 'active' && (
