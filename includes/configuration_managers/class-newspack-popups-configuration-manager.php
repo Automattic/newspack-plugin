@@ -189,6 +189,40 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Duplicate campaign
+	 *
+	 * @param int    $id Campaign group ID.
+	 * @param string $name Campaign name.
+	 */
+	public function duplicate_campaign( $id, $name ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::duplicate_campaign( $id, $name ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Archive campaign
+	 *
+	 * @param int $id Campaign group ID.
+	 */
+	public function archive_campaign( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::archive_campaign( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Delete campaign
+	 *
+	 * @param int $id Campaign group ID.
+	 */
+	public function delete_campaign( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::delete_campaign( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.

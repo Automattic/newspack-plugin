@@ -194,7 +194,6 @@ class PopupsWizard extends Component {
 	};
 
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
-		console.log( campaigns );
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
@@ -202,6 +201,37 @@ class PopupsWizard extends Component {
 			method,
 		} )
 			.then( () => this.onWizardReady() )
+			.catch( error => setError( error ) );
+	};
+
+	archiveCampaignGroup = id => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
+			method: 'POST',
+		} )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.catch( error => setError( error ) );
+	};
+
+	duplicateCampaignGroup = ( id, name ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
+			method: 'POST',
+			data: { name },
+		} )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.catch( error => setError( error ) );
+	};
+
+	deleteCampaignGroup = id => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
+			method: 'DELETE',
+		} )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -245,6 +275,9 @@ class PopupsWizard extends Component {
 						publishPopup: this.publishPopup,
 						unpublishPopup: this.unpublishPopup,
 						refetch: this.refetch,
+						archiveCampaignGroup: this.archiveCampaignGroup,
+						deleteCampaignGroup: this.deleteCampaignGroup,
+						duplicateCampaignGroup: this.duplicateCampaignGroup,
 					};
 					return (
 						<HashRouter hashType="slash">

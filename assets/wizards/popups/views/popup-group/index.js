@@ -9,7 +9,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
 import { MenuItem, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
-import { Icon } from '@wordpress/icons';
+import { Icon, moreVertical } from '@wordpress/icons';
 
 /**
  * External dependencies.
@@ -224,15 +224,20 @@ const PopupGroup = ( {
 	segments,
 	wizardApiFetch,
 	refetch,
+	duplicateCampaignGroup,
+	deleteCampaignGroup,
+	archiveCampaignGroup,
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( 'active' );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ showUnpublished, setShowUnpublished ] = useState( false );
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
+	const [ campaignActionsPopoverVisible, setCampaignActionsPopoverVisible ] = useState();
 	const [ newGroupName, setNewGroupName ] = useState( '' );
 	const [ error, setError ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
+	const [ duplicateCampaignName, setDuplicateCampaignName ] = useState();
 
 	const { group } = useParams();
 
@@ -305,6 +310,94 @@ const PopupGroup = ( {
 						label={ __( 'Groups', 'newspack' ) }
 						hideLabelFromVision={ true }
 					/>
+					{ campaignGroup !== 'active' && (
+						<Fragment>
+							<Button
+								onClick={ () =>
+									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
+								}
+							>
+								<Icon icon={ moreVertical } />
+							</Button>
+							{ campaignActionsPopoverVisible && (
+								<Popover
+									position="bottom left"
+									onFocusOutside={ () => setCampaignActionsPopoverVisible( false ) }
+									onKeyDown={ event =>
+										ESCAPE === event.keyCode && setCampaignActionsPopoverVisible( false )
+									}
+								>
+									<MenuItem
+										onClick={ () => setCampaignActionsPopoverVisible( false ) }
+										className="screen-reader-text"
+									>
+										{ __( 'Close Popover', 'newspack' ) }
+									</MenuItem>
+
+									{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
+										<MenuItem
+											onClick={ () => {
+												setCampaignActionsPopoverVisible( false );
+												manageCampaignGroup( allPrompts );
+											} }
+											className="newspack-button"
+										>
+											{ __( 'Activate all prompts', 'newspack' ) }
+										</MenuItem>
+									) }
+									{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
+										<MenuItem
+											onClick={ () => {
+												setCampaignActionsPopoverVisible( false );
+												manageCampaignGroup( allPrompts, 'DELETE' );
+											} }
+											className="newspack-button"
+										>
+											{ __( 'Deactivate all prompts', 'newspack' ) }
+										</MenuItem>
+									) }
+									<TextControl
+										placeholder={ __( 'Campaign Name', 'newspack' ) }
+										onChange={ setDuplicateCampaignName }
+										label={ __( 'Campaign Name', 'newspack' ) }
+										hideLabelFromVision={ true }
+										value={ duplicateCampaignName }
+										disabled={ !! inFlight }
+										onKeyDown={ event =>
+											ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
+										}
+									/>
+									<MenuItem
+										onClick={ () => {
+											setCampaignActionsPopoverVisible( false );
+											duplicateCampaignGroup( campaignGroup, duplicateCampaignName );
+										} }
+										className="newspack-button"
+									>
+										{ __( 'Duplicate', 'newspack' ) }
+									</MenuItem>
+									<MenuItem
+										onClick={ () => {
+											setCampaignActionsPopoverVisible( false );
+											archiveCampaignGroup( campaignGroup );
+										} }
+										className="newspack-button"
+									>
+										{ __( 'Archive', 'newspack' ) }
+									</MenuItem>
+									<MenuItem
+										onClick={ () => {
+											setCampaignActionsPopoverVisible( false );
+											deleteCampaignGroup( campaignGroup );
+										} }
+										className="newspack-button"
+									>
+										{ __( 'Delete', 'newspack' ) }
+									</MenuItem>
+								</Popover>
+							) }{' '}
+						</Fragment>
+					) }
 					{ parseInt( campaignGroup ) > 0 && (
 						<Fragment>
 							{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
