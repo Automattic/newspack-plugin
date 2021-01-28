@@ -32,6 +32,7 @@ import {
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
+import SelectWithOptGroups from '../../components/select-with-optgroups';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
@@ -292,18 +293,34 @@ const PopupGroup = ( {
 
 	const allPrompts = filterByGroup( items );
 	const campaignsToDisplay = groupBySegment( segments, allPrompts );
+	const activeGroups = groups.filter( ( { status } ) => 'archive' !== status );
+	const archivedGroups = groups.filter( ( { status } ) => 'archive' === status );
+	const groupInView = groups.reduce(
+		( acc, group ) => ( +campaignGroup > 0 && +campaignGroup === +group.term_id ? group : acc ),
+		null
+	);
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
-					<SelectControl
+					<SelectWithOptGroups
 						options={ [
 							{ value: 'active', label: __( 'Active Prompts', 'newspack' ) },
-							...groups.map( ( { term_id: id, name } ) => ( {
-								value: id,
-								label: name,
-							} ) ),
 							{ value: 'unassigned', label: __( 'Unassigned Prompts', 'newspack' ) },
+							{
+								label: __( 'Campaigns', 'newspack ' ),
+								options: activeGroups.map( ( { term_id: id, name } ) => ( {
+									value: id,
+									label: name,
+								} ) ),
+							},
+							{
+								label: __( 'Archived Campaigns', 'newspack ' ),
+								options: archivedGroups.map( ( { term_id: id, name } ) => ( {
+									value: id,
+									label: name,
+								} ) ),
+							},
 						] }
 						value={ campaignGroup }
 						onChange={ value => setCampaignGroup( value ) }
@@ -376,15 +393,28 @@ const PopupGroup = ( {
 									>
 										{ __( 'Duplicate', 'newspack' ) }
 									</MenuItem>
-									<MenuItem
-										onClick={ () => {
-											setCampaignActionsPopoverVisible( false );
-											archiveCampaignGroup( campaignGroup );
-										} }
-										className="newspack-button"
-									>
-										{ __( 'Archive', 'newspack' ) }
-									</MenuItem>
+									{ groupInView && 'archive' !== groupInView.status && (
+										<MenuItem
+											onClick={ () => {
+												setCampaignActionsPopoverVisible( false );
+												archiveCampaignGroup( campaignGroup, true );
+											} }
+											className="newspack-button"
+										>
+											{ __( 'Archive', 'newspack' ) }
+										</MenuItem>
+									) }
+									{ groupInView && 'archive' === groupInView.status && (
+										<MenuItem
+											onClick={ () => {
+												setCampaignActionsPopoverVisible( false );
+												archiveCampaignGroup( campaignGroup, false );
+											} }
+											className="newspack-button"
+										>
+											{ __( 'Unarchive', 'newspack' ) }
+										</MenuItem>
+									) }
 									<MenuItem
 										onClick={ () => {
 											setCampaignActionsPopoverVisible( false );

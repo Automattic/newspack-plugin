@@ -204,11 +204,11 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
-	archiveCampaignGroup = id => {
+	archiveCampaignGroup = ( id, status ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
-			method: 'POST',
+			method: status ? 'POST' : 'DELETE',
 		} )
 			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
 			.catch( error => setError( error ) );

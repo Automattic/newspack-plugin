@@ -189,7 +189,7 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Duplicate campaign
+	 * Duplicate campaign.
 	 *
 	 * @param int    $id Campaign group ID.
 	 * @param string $name Campaign name.
@@ -201,13 +201,14 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Archive campaign
+	 * Archive campaign.
 	 *
-	 * @param int $id Campaign group ID.
+	 * @param int  $id Campaign group ID.
+	 * @param bool $status Whether to archive or unarchive (true = archive, false = unarchive).
 	 */
-	public function archive_campaign( $id ) {
+	public function archive_campaign( $id, $status ) {
 		return $this->is_configured() ?
-			\Newspack_Popups::archive_campaign( $id ) :
+			\Newspack_Popups::archive_campaign( $id, $status ) :
 			$this->unconfigured_error();
 	}
 
@@ -219,6 +220,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function delete_campaign( $id ) {
 		return $this->is_configured() ?
 			\Newspack_Popups::delete_campaign( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get campaign groups.
+	 */
+	public function get_groups() {
+		return $this->is_configured() ?
+			\Newspack_Popups::get_groups() :
 			$this->unconfigured_error();
 	}
 
