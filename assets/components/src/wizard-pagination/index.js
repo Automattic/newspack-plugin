@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
+import { arrowRight, moreHorizontal, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -50,6 +51,7 @@ const WizardPagination = props => {
 					<Button
 						className="newspack-wizard-pagination__show-steps"
 						onClick={ () => setShowSteps( ! showSteps ) }
+						icon={ showSteps ? moreVertical : moreHorizontal }
 					>
 						{ routes[ currentRoute ].title }
 					</Button>
@@ -80,6 +82,7 @@ const WizardPagination = props => {
 											className={ classes.join( ' ' ) }
 											href={ '#' + routes[ route ].path }
 											isLink
+											icon={ route === currentRoute ? arrowRight : null }
 											disabled={ index > currentIndex }
 										>
 											{ routes[ route ].title }

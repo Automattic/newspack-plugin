@@ -27,6 +27,7 @@
 	&__show-steps.newspack-button,
 	body[class*='admin-color-'] & .newspack-wizard-pagination__show-steps.newspack-button {
 		border: 1px solid white;
+		flex-direction: row-reverse;
 		padding-left: 12px;
 		padding-right: 12px;
 		position: relative;
@@ -43,10 +44,9 @@
 			z-index: 1;
 		}
 
-		&::after {
-			content: '•••';
-			position: absolute;
-			right: 1rem;
+		svg {
+			margin: 0 0 0 auto;
+			padding-left: 12px;
 		}
 
 		@media screen and ( min-width: 960px ) {
@@ -97,7 +97,7 @@
 		body[class*='admin-color-'] & .newspack-button.is-link {
 			border-radius: 3px;
 			color: $primary-950;
-			display: block;
+			display: flex;
 			font-weight: bold;
 			padding: 6px 12px;
 			text-decoration: none;
@@ -107,12 +107,6 @@
 			&.active,
 			&.complete {
 				color: white !important;
-			}
-
-			&.active {
-				text-decoration: underline;
-				text-decoration-thickness: 4px;
-				text-underline-offset: 4px;
 			}
 
 			&:disabled {
@@ -153,7 +147,6 @@
 			body[class*='admin-color-'] & .newspack-button.is-link {
 				border-bottom: 4px solid $primary-500;
 				border-radius: 0;
-				display: inline-block;
 				font-weight: bold;
 				padding: 0 0 12px;
 
@@ -174,6 +167,10 @@
 				&.active {
 					border-color: white;
 					text-decoration: none;
+				}
+
+				svg {
+					display: none;
 				}
 			}
 		}
