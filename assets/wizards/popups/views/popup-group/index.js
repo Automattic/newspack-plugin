@@ -298,20 +298,32 @@ const PopupGroup = ( {
 		( acc, group ) => ( +campaignGroup > 0 && +campaignGroup === +group.term_id ? group : acc ),
 		null
 	);
-	const nameForCampaignGroup = campaignGroup => {
-		if ( 'active' === campaignGroup ) {
-			return __( 'Active Prompts', 'newspck' );
-		}
+	const campaignGroupData = groups.reduce(
+		( acc, group ) => ( +campaignGroup === +group.term_id ? group : acc ),
+		null
+	);
+	const valueForCampaignGroup = campaignGroup => {
 		if ( 'unassigned' === campaignGroup ) {
-			return __( 'Unassigned Prompts', 'newspck' );
+			return {
+				key: 'unassigned',
+				name: __( 'Unassigned Prompts', 'newspack' ),
+			};
 		}
-		if ( +campaignGroup > 0 ) {
-			return groups.reduce(
-				( acc, group ) => ( +campaignGroup === +group.term_id ? group.name : acc ),
-				null
-			);
+
+		if ( campaignGroupData ) {
+			return {
+				key: campaignGroupData.term_id,
+				name: campaignGroupData.name,
+			};
 		}
+		return {
+			key: 'active',
+			name: __( 'Active Prompts', 'newspack' ),
+		};
 	};
+	if ( +campaignGroup > 0 && ! campaignGroupData ) {
+		setCampaignGroup( 'active' );
+	}
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
@@ -343,7 +355,7 @@ const PopupGroup = ( {
 							} ) ),
 						] }
 						onChange={ ( { selectedItem: { key } } ) => setCampaignGroup( key ) }
-						value={ { key: campaignGroup, name: nameForCampaignGroup( campaignGroup ) } }
+						value={ valueForCampaignGroup( campaignGroup ) }
 						hideLabelFromVision={ true }
 					/>
 					{ campaignGroup !== 'active' && (
