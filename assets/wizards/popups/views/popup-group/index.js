@@ -398,24 +398,6 @@ const PopupGroup = ( {
 							) }{' '}
 						</Fragment>
 					) }
-					{ parseInt( campaignGroup ) > 0 && (
-						<Fragment>
-							{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
-								<Button isSecondary isSmall onClick={ () => manageCampaignGroup( allPrompts ) }>
-									{ __( 'Activate', 'newspack' ) }
-								</Button>
-							) }
-							{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
-								<Button
-									isSecondary
-									isSmall
-									onClick={ () => manageCampaignGroup( allPrompts, 'DELETE' ) }
-								>
-									{ __( 'Deactivate', 'newspack' ) }
-								</Button>
-							) }
-						</Fragment>
-					) }
 				</div>
 				<div className="newspack-campaigns__popup-group__add-new-button">
 					<Button
