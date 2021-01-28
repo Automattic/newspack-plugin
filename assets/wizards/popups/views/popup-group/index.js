@@ -330,6 +330,7 @@ const PopupGroup = ( {
 					{ campaignGroup !== 'active' && (
 						<Fragment>
 							<Button
+								className={ campaignActionsPopoverVisible && 'active' }
 								onClick={ () =>
 									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
 								}
