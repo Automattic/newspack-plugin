@@ -14,6 +14,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Load language files.
+load_plugin_textdomain( 'newspack-plugin', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
 // Define NEWSPACK_PLUGIN_FILE.
 if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
 	define( 'NEWSPACK_PLUGIN_FILE', __FILE__ );

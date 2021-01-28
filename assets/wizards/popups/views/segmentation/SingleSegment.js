@@ -45,6 +45,7 @@ const DEFAULT_CONFIG = {
 	is_not_donor: false,
 	favorite_categories: [],
 	referrers: '',
+	referrers_not: '',
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
@@ -270,6 +271,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
 						value={ segmentConfig.referrers }
 						onChange={ updateSegmentConfig( 'referrers' ) }
+					/>
+				</SegmentSettingSection>
+				<SegmentSettingSection
+					title={ __( 'Referrer exclusion', 'newspack' ) }
+					description={ __(
+						'Segment based on traffic source - hide campaigns for visitors coming from specific sources.',
+						'newspack'
+					) }
+				>
+					<TextControl
+						isWide
+						placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
+						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
+						value={ segmentConfig.referrers_not }
+						onChange={ updateSegmentConfig( 'referrers_not' ) }
 					/>
 				</SegmentSettingSection>
 				<SegmentSettingSection

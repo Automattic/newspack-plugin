@@ -10,7 +10,7 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Grid, NewspackLogo } from '../../components/src';
+import { Footer, Grid, NewspackLogo } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
@@ -38,6 +38,7 @@ class Dashboard extends Component {
 						) ) }
 					</Grid>
 				</div>
+				<Footer />
 			</Fragment>
 		);
 	}
