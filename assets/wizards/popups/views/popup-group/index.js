@@ -9,7 +9,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
 import { MenuItem, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
-import { Icon, moreVertical } from '@wordpress/icons';
+import { Icon, moreVertical, close } from '@wordpress/icons';
 
 /**
  * External dependencies.
@@ -335,7 +335,7 @@ const PopupGroup = ( {
 									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
 								}
 							>
-								<Icon icon={ moreVertical } />
+								<Icon icon={ campaignActionsPopoverVisible ? close : moreVertical } />
 							</Button>
 							{ campaignActionsPopoverVisible && (
 								<Popover
