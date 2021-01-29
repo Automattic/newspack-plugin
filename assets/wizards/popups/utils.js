@@ -34,3 +34,18 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 		above_header: __( 'Above Header', 'newspack' ),
 	}[ placement ];
 };
+
+const frequencyMap = {
+	once: __( 'Once', 'newspack' ),
+	daily: __( 'Once a day', 'newspack' ),
+	always: __( 'Every page', 'newspack' ),
+	manual: __( 'Manual Placement', 'newspack' ),
+};
+
+export const frequenciesForPopup = popup => {
+	return Object.keys( frequencyMap )
+		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
+		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+};
+
+export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[ frequency ];

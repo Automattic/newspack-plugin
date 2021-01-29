@@ -32,15 +32,19 @@ import {
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
-import { filterOutUncategorized, isOverlay } from '../../utils';
+import { filterOutUncategorized, isOverlay, frequencyForPopup } from '../../utils';
 import './style.scss';
 
 const { useParams } = Router;
 
-const descriptionForPopup = (
-	{ categories, campaign_groups: campaigns, sitewide_default: sitewideDefault, options, status },
-	segments
-) => {
+const descriptionForPopup = ( prompt, segments ) => {
+	const {
+		categories,
+		campaign_groups: campaigns,
+		sitewide_default: sitewideDefault,
+		options,
+		status,
+	} = prompt;
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
@@ -67,7 +71,7 @@ const descriptionForPopup = (
 	if ( 'future' === status ) {
 		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
 	}
-	console.log( 'options', options );
+	descriptionMessages.push( __( 'Frequency: ', 'newspack' ) + frequencyForPopup( prompt ) );
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 

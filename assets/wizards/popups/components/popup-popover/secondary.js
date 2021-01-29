@@ -13,21 +13,8 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Internal dependencies.
  */
 import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { filterOutUncategorized, isOverlay } from '../../utils';
+import { filterOutUncategorized, frequenciesForPopup, isOverlay } from '../../utils';
 import './style.scss';
-
-const frequencyMap = {
-	once: __( 'Once', 'newspack' ),
-	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page', 'newspack' ),
-	manual: __( 'Manual Placement', 'newspack' ),
-};
-
-const frequenciesForPopup = popup => {
-	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
-};
 
 const SecondaryPopupPopover = ( {
 	popup,
