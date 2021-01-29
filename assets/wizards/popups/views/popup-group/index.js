@@ -67,6 +67,7 @@ const descriptionForPopup = (
 	if ( 'future' === status ) {
 		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
 	}
+	console.log( 'options', options );
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 

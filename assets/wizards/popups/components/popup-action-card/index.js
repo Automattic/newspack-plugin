@@ -16,20 +16,8 @@ import { Icon, cog, moreVertical } from '@wordpress/icons';
 import { ActionCard, Button } from '../../../../components/src';
 import PrimaryPopupPopover from '../popup-popover/primary';
 import SecondaryPopupPopover from '../popup-popover/secondary';
+import { placementForPopup } from '../../utils';
 import './style.scss';
-
-const placementForPopup = ( { options: { frequency, placement } } ) => {
-	if ( 'manual' === frequency ) {
-		return __( 'Manual Placement', 'newspack' );
-	}
-	return {
-		center: __( 'Center Overlay', 'newspack' ),
-		top: __( 'Top Overlay', 'newspack' ),
-		bottom: __( 'Bottom Overlay', 'newspack' ),
-		inline: __( 'Inline', 'newspack' ),
-		above_header: __( 'Above Header', 'newspack' ),
-	}[ placement ];
-};
 
 const PopupActionCard = ( {
 	className,
