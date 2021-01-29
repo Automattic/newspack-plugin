@@ -8,7 +8,6 @@ export const isOverlay = popup =>
 	[ 'top', 'bottom', 'center' ].indexOf( popup.options.placement ) >= 0;
 
 /**
-<<<<<<< HEAD
  * Check whether the given popup is above-header.
  *
  * @param {object} popup Popup object to check.
@@ -17,8 +16,6 @@ export const isOverlay = popup =>
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
 /**
-=======
->>>>>>> master
  * Filter out "Uncategorized" category, which for purposes of Campaigns behaves identically to no category.
  *
  * @param {array} categories Array of category objects.
