@@ -38,12 +38,20 @@ import './style.scss';
 const { useParams } = Router;
 
 const descriptionForPopup = (
-	{ categories, sitewide_default: sitewideDefault, options, status },
+	{ categories, campaign_groups: campaigns, sitewide_default: sitewideDefault, options, status },
 	segments
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
+	if ( campaigns.length > 0 ) {
+		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
+		descriptionMessages.push(
+			( campaigns.length === 1
+				? __( 'Campaign: ', 'newspack' )
+				: __( 'Campaigns: ', 'newspack' ) ) + campaignsList
+		);
+	}
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
