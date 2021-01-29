@@ -477,7 +477,7 @@ const PopupGroup = ( {
 										<Button
 											isSecondary
 											onClick={ () => {
-												setAddNewPopoverIsVisible( false );
+												setDuplicateCampaignModalVisible( false );
 											} }
 										>
 											{ __( 'Cancel', 'newspack' ) }
