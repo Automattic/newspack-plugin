@@ -7,7 +7,7 @@
  */
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { MenuItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
 
 /**
@@ -91,6 +91,15 @@ const warningForPopup = ( campaigns, campaign ) => {
 
 		if ( 0 < conflictingCampaigns.length ) {
 			warningMessages.push(
+				sprintf(
+					__(
+						'Multiple %s campaigns can’t share the same segment or category filtering.',
+						'newspack'
+					),
+					isAboveHeader( campaign ) ? __( 'above-header', 'newspack' ) : __( 'overlay', 'newspack' )
+				)
+			);
+			warningMessages.push(
 				`${ __( 'Conflicts with:', 'newspack' ) } ${ conflictingCampaigns
 					.map( a => a.title )
 					.join( ', ' ) }`
@@ -98,7 +107,7 @@ const warningForPopup = ( campaigns, campaign ) => {
 		}
 	}
 
-	return warningMessages.length ? warningMessages.join( ' | ' ) : null;
+	return warningMessages.length ? warningMessages.join( ' ' ) : null;
 };
 
 /**
