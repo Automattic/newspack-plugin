@@ -298,14 +298,29 @@ const PopupGroup = ( {
 				groups && groups.find( term => +term.term_id === +campaignGroup )
 		);
 	};
-	const groupBySegment = ( segments, itemsToGroup ) =>
-		segments.map( ( { name: label, id } ) => ( {
-			label,
-			id,
-			items: itemsToGroup.filter(
-				( { options: { selected_segment_id: segment } } ) => segment === id
-			),
-		} ) );
+	const groupBySegment = ( segments, itemsToGroup ) => {
+		let groupedResults = [];
+		const unsegmented = itemsToGroup.filter(
+			( { options: { selected_segment_id: segment } } ) => ! segment
+		);
+		if ( unsegmented.length > 0 ) {
+			groupedResults.push( {
+				label: __( 'Default (no segment)', 'newspack' ),
+				id: '',
+				items: unsegmented,
+			} );
+		}
+		groupedResults.push(
+			...segments.map( ( { name: label, id } ) => ( {
+				label,
+				id,
+				items: itemsToGroup.filter(
+					( { options: { selected_segment_id: segment } } ) => segment === id
+				),
+			} ) )
+		);
+		return groupedResults;
+	};
 
 	const allPrompts = filterByGroup( items );
 	const campaignsToDisplay = groupBySegment( segments, allPrompts );
@@ -557,9 +572,9 @@ const PopupGroup = ( {
 					) }
 				</div>
 			</div>
-			{ campaignsToDisplay.map( segment => (
+			{ campaignsToDisplay.map( ( segment, index ) => (
 				<Segment
-					key={ segment.id }
+					key={ index }
 					segment={ segment }
 					campaignGroup={ campaignGroup }
 					deletePopup={ deletePopup }
