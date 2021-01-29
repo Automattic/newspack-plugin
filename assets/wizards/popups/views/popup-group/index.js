@@ -319,13 +319,11 @@ const PopupGroup = ( {
 				),
 			} ) )
 		);
-		if ( unsegmented.length > 0 ) {
-			groupedResults.push( {
-				label: __( 'Default (no segment)', 'newspack' ),
-				id: '',
-				items: unsegmented,
-			} );
-		}
+		groupedResults.push( {
+			label: __( 'Default (no segment)', 'newspack' ),
+			id: '',
+			items: unsegmented,
+		} );
 		return groupedResults;
 	};
 
