@@ -81,7 +81,7 @@ const SecondaryPopupPopover = ( {
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
 				onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
-				label={ __( 'Campaign groups', 'newspack' ) }
+				label={ __( 'Campaigns', 'newspack' ) }
 				taxonomy="newspack_popups_taxonomy"
 			/>
 			{ ! sitewideDefault && (
