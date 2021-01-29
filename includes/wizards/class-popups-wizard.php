@@ -395,6 +395,24 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/rename-campaign/(?P<id>\w+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_campaign_rename' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'   => [
+						'sanitize_callback' => 'absint',
+					],
+					'name' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -873,6 +891,18 @@ class Popups_Wizard extends Wizard {
 	public function api_campaign_delete( $request ) {
 		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$cm->delete_campaign( $request['id'] );
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Rename a campaign.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_campaign_rename( $request ) {
+		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$cm->rename_campaign( $request['id'], $request['name'] );
 		return $this->api_get_settings();
 	}
 }

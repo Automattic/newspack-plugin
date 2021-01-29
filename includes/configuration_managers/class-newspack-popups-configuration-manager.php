@@ -201,6 +201,18 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Rename campaign.
+	 *
+	 * @param int    $id Campaign group ID.
+	 * @param string $name Campaign name.
+	 */
+	public function rename_campaign( $id, $name ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::rename_campaign( $id, $name ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Archive campaign.
 	 *
 	 * @param int  $id Campaign group ID.

@@ -204,6 +204,17 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
+	renameCampaignGroup = ( id, name ) => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
+			method: 'POST',
+			data: { name },
+		} )
+			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.catch( error => setError( error ) );
+	};
+
 	archiveCampaignGroup = ( id, status ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
@@ -278,6 +289,7 @@ class PopupsWizard extends Component {
 						archiveCampaignGroup: this.archiveCampaignGroup,
 						deleteCampaignGroup: this.deleteCampaignGroup,
 						duplicateCampaignGroup: this.duplicateCampaignGroup,
+						renameCampaignGroup: this.renameCampaignGroup,
 					};
 					return (
 						<HashRouter hashType="slash">

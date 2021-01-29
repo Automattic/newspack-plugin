@@ -250,6 +250,7 @@ const PopupGroup = ( {
 	duplicateCampaignGroup,
 	deleteCampaignGroup,
 	archiveCampaignGroup,
+	renameCampaignGroup,
 } ) => {
 	const [ campaignGroup, setCampaignGroup ] = useState( 'active' );
 	const [ segmentId, setSegmentId ] = useState();
@@ -262,6 +263,8 @@ const PopupGroup = ( {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ duplicateCampaignName, setDuplicateCampaignName ] = useState();
 	const [ duplicateCampaignModalVisible, setDuplicateCampaignModalVisible ] = useState();
+	const [ renameCampaignModalVisible, setRenameCampaignModalVisible ] = useState();
+	const [ renamedCampaignName, setRenamedCampaignName ] = useState( '' );
 
 	const { group } = useParams();
 
@@ -453,6 +456,16 @@ const PopupGroup = ( {
 									>
 										{ __( 'Duplicate', 'newspack' ) }
 									</MenuItem>
+									<MenuItem
+										onClick={ () => {
+											setCampaignActionsPopoverVisible( false );
+											setRenamedCampaignName( campaignGroupData.name );
+											setRenameCampaignModalVisible( true );
+										} }
+										className="newspack-button"
+									>
+										{ __( 'Rename', 'newspack' ) }
+									</MenuItem>
 									{ groupInView && 'archive' !== groupInView.status && (
 										<MenuItem
 											onClick={ () => {
@@ -485,6 +498,47 @@ const PopupGroup = ( {
 										{ __( 'Delete', 'newspack' ) }
 									</MenuItem>
 								</Popover>
+							) }
+							{ renameCampaignModalVisible && (
+								<Modal
+									title={ __( 'Rename Campaign', 'newspack' ) }
+									isDismissible={ false }
+									className="newspack-campaigns__popup-group__add-new-button__modal"
+								>
+									<TextControl
+										placeholder={ __( 'Campaign Name', 'newspack' ) }
+										onChange={ setRenamedCampaignName }
+										label={ __( 'Campaign Name', 'newspack' ) }
+										hideLabelFromVision={ true }
+										value={ renamedCampaignName }
+										disabled={ !! inFlight }
+										onKeyDown={ event =>
+											ENTER === event.keyCode &&
+											'' !== renamedCampaignName &&
+											renameCampaignGroup( campaignGroup, renamedCampaignName )
+										}
+									/>
+									<Card buttonsCard noBorder>
+										<Button
+											isSecondary
+											onClick={ () => {
+												setRenameCampaignModalVisible( false );
+											} }
+										>
+											{ __( 'Cancel', 'newspack' ) }
+										</Button>
+										<Button
+											isPrimary
+											disabled={ inFlight || ! renamedCampaignName }
+											onClick={ () => {
+												renameCampaignGroup( campaignGroup, renamedCampaignName );
+												setRenameCampaignModalVisible( false );
+											} }
+										>
+											{ __( 'Rename', 'newspack' ) }
+										</Button>
+									</Card>
+								</Modal>
 							) }
 							{ duplicateCampaignModalVisible && (
 								<Modal
