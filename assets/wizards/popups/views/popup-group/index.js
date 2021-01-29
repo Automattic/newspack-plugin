@@ -368,20 +368,20 @@ const PopupGroup = ( {
 						hideLabelFromVision={ true }
 					/>
 					{ campaignGroup !== 'active' && (
-						<Fragment>
+						<div className="newspack-campaigns__popup-group__filter-group-actions__button">
 							<Button
 								isQuaternary
 								isSmall
-								className={ campaignActionsPopoverVisible && 'active' }
+								className={ campaignActionsPopoverVisible && 'popover-active' }
 								onClick={ () =>
 									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
 								}
-								icon={ campaignActionsPopoverVisible ? close : moreVertical }
+								icon={ moreVertical }
 								label={ __( 'Actions', 'newspack' ) }
 							/>
 							{ campaignActionsPopoverVisible && (
 								<Popover
-									position="bottom left"
+									position="bottom right"
 									onFocusOutside={ () => setCampaignActionsPopoverVisible( false ) }
 									onKeyDown={ event =>
 										ESCAPE === event.keyCode && setCampaignActionsPopoverVisible( false )
@@ -497,7 +497,7 @@ const PopupGroup = ( {
 									</Card>
 								</Modal>
 							) }
-						</Fragment>
+						</div>
 					) }
 				</div>
 				<div className="newspack-campaigns__popup-group__add-new-button">

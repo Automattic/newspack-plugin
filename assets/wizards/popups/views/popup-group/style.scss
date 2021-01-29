@@ -52,10 +52,6 @@
 		align-items: center;
 		display: flex;
 
-		> * + * {
-			margin-left: 8px;
-		}
-
 		.newspack-custom-select-control {
 			margin: 0;
 
@@ -65,6 +61,16 @@
 				font-size: 17px;
 				font-weight: bold;
 				min-height: 36px;
+			}
+		}
+
+		&__button {
+			margin-left: 8px;
+
+			.newspack-popover {
+				margin-left: calc(
+					25px - 36px / 2
+				); // 25px is set by Gutenberg, 36px / 2 is half of the button's width
 			}
 		}
 	}
