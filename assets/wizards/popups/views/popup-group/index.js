@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { useEffect, useState, Fragment } from '@wordpress/element';
-import { CustomSelectControl, MenuItem, Path, SVG } from '@wordpress/components';
+import { MenuItem, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
 import { Icon, moreVertical, close } from '@wordpress/icons';
@@ -23,6 +23,7 @@ import {
 	withWizardScreen,
 	Button,
 	Card,
+	CustomSelectControl,
 	Modal,
 	Popover,
 	Router,
@@ -344,7 +345,7 @@ const PopupGroup = ( {
 							{
 								key: 'header-campaigns',
 								name: __( 'Campaigns', 'newspack' ),
-								className: 'newspack-campaigns__popup-group__select-control-group-header',
+								className: 'is-header',
 							},
 							...activeGroups.map( ( { term_id: id, name } ) => ( {
 								key: id,
@@ -354,7 +355,7 @@ const PopupGroup = ( {
 							archivedGroups.length && {
 								key: 'header-archived-campaigns',
 								name: __( 'Archived Campaigns', 'newspack' ),
-								className: 'newspack-campaigns__popup-group__select-control-group-header',
+								className: 'is-header',
 							},
 							...archivedGroups.map( ( { term_id: id, name } ) => ( {
 								key: id,
@@ -377,8 +378,7 @@ const PopupGroup = ( {
 								}
 								icon={ campaignActionsPopoverVisible ? close : moreVertical }
 								label={ __( 'Actions', 'newspack' ) }
-							>
-							</Button>
+							/>
 							{ campaignActionsPopoverVisible && (
 								<Popover
 									position="bottom left"

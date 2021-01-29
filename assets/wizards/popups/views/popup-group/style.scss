@@ -56,21 +56,14 @@
 			margin-left: 8px;
 		}
 
-		> .newspack-select-control {
+		.newspack-custom-select-control {
 			margin: 0;
 
-			.components-select-control {
-				select.components-select-control__input {
-					color: $dark-gray-900;
-					font-size: 17px;
-					font-weight: bold;
-					height: 36px;
-					line-height: 24px;
-					min-height: 36px;
-				}
-				div.components-input-control__backdrop {
-					border-color: $light-gray-200;
-				}
+			.components-custom-select-control__button {
+				color: $dark-gray-900;
+				font-size: 17px;
+				font-weight: bold;
+				min-height: 36px;
 			}
 		}
 	}
