@@ -22,7 +22,7 @@ import {
 	ThemeSelection,
 	StarterContent,
 } from './views/';
-import { withWizard, WizardPagination } from '../../components/src';
+import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
 
@@ -256,55 +256,72 @@ class SetupWizard extends Component {
 			starterContentTotal,
 			starterContentProgress,
 		} = this.state;
-		const routes = [
-			'/',
-			'/about',
-			'/installation-progress',
-			'/configure-jetpack',
-			'/configure-google-site-kit',
-			'/theme-style-selection',
-			'/starter-content',
-		];
+
+		const routes = {
+			welcome: {
+				path: '/',
+				title: __( 'Welcome', 'newspack' ),
+			},
+			settings: {
+				path: '/settings',
+				title: __( 'Settings', 'newspack' ),
+			},
+			integrations: {
+				path: '/integrations',
+				title: __( 'Integrations', 'newspack' ),
+			},
+			jetpack: {
+				path: '/configure-jetpack',
+				title: __( 'Jetpack', 'newspack' ),
+			},
+			sitekit: {
+				path: '/configure-google-site-kit',
+				title: __( 'Google Site Kit', 'newspack' ),
+			},
+			design: {
+				path: '/design',
+				title: __( 'Design', 'newspack' ),
+			},
+			starterContent: {
+				path: '/starter-content',
+				title: __( 'Starter Content', 'newspack' ),
+			},
+		};
 
 		// background auto installation is a nice feature, but in e2e it
 		// creates an undeterministic environment, since the installation-progress
 		// is not visited (https://github.com/Automattic/newspack-e2e-tests/issues/3)
 		const shouldAutoInstallPlugins = routeProps =>
 			newspack_aux_data.is_e2e
-				? '/installation-progress' === routeProps.location.pathname
-				: '/' !== routeProps.location.pathname;
+				? routes.integrations.path === routeProps.location.pathname
+				: routes.welcome.path !== routeProps.location.pathname;
 
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
-					<WizardPagination routes={ routes } />
 					<Route
-						path="/"
+						path={ routes.welcome.path }
 						exact
 						render={ () => (
 							<Welcome
 								buttonText={ __( 'Get started' ) }
 								buttonAction={ {
-									href: '#/about',
+									href: '#' + routes.settings.path,
 									onClick: () => this.updateProfile(),
 								} }
-								secondaryButtonText={ __( 'Not right now' ) }
-								secondaryButtonAction="/wp-admin"
 								profile={ profile }
 							/>
 						) }
 					/>
 					<Route
-						path="/about"
+						path={ routes.settings.path }
 						render={ () => (
 							<About
-								headerText={ __( 'About your publication' ) }
-								subHeaderText={ __(
-									'Share a few details so we can start setting up your profile'
-								) }
+								headerText={ routes.settings.title }
+								subHeaderText={ __( 'Configure your site with basic settings' ) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ {
-									href: installationComplete ? '#/configure-jetpack' : '#/installation-progress',
+									href: '#' + routes.integrations.path,
 									onClick: () => this.updateProfile(),
 								} }
 								profile={ profile }
@@ -313,11 +330,12 @@ class SetupWizard extends Component {
 								updateProfile={ ( key, value ) => {
 									this.setState( { profile: { ...profile, [ key ]: value } } );
 								} }
+								routes={ routes }
 							/>
 						) }
 					/>
 					<Route
-						path="/configure-jetpack"
+						path={ routes.jetpack.path }
 						render={ () => {
 							const plugin = 'jetpack';
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
@@ -325,21 +343,22 @@ class SetupWizard extends Component {
 								<ConfigurePlugins
 									headerText={ __( 'Configure Core Plugins' ) }
 									subHeaderText={ __(
-										'Please configure the following core plugins to start using Newspack.'
+										'Please configure the following core plugin to start using Newspack.'
 									) }
 									plugin={ plugin }
 									buttonText={ pluginConfigured ? __( 'Continue' ) : __( 'Configure Jetpack' ) }
 									buttonAction={
-										pluginConfigured ? '#/configure-google-site-kit' : { handoff: plugin }
+										pluginConfigured ? '#' + routes.sitekit.path : { handoff: plugin }
 									}
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
+									routes={ routes }
 								/>
 							);
 						} }
 					/>
 					<Route
-						path="/configure-google-site-kit"
+						path={ routes.sitekit.path }
 						render={ () => {
 							const plugin = 'google-site-kit';
 							const pluginConfigured = pluginInfo[ plugin ] && pluginInfo[ plugin ].Configured;
@@ -353,37 +372,37 @@ class SetupWizard extends Component {
 									buttonText={
 										pluginConfigured ? __( 'Continue' ) : __( 'Configure Google Site Kit' )
 									}
-									buttonAction={
-										pluginConfigured ? '#/theme-style-selection' : { handoff: plugin }
-									}
+									buttonAction={ pluginConfigured ? '#' + routes.design.path : { handoff: plugin } }
 									pluginConfigured={ pluginConfigured }
 									onMount={ this.retrievePluginData }
+									routes={ routes }
 								/>
 							);
 						} }
 					/>
 					<Route
-						path="/theme-style-selection"
+						path={ routes.design.path }
 						render={ () => {
 							const { theme } = this.state;
 							return (
 								<ThemeSelection
-									headerText={ __( 'Site Design' ) }
+									headerText={ routes.design.title }
 									subHeaderText={ __( 'Choose a Newspack theme' ) }
 									buttonText={ __( 'Continue' ) }
-									buttonAction="#/starter-content"
+									buttonAction={ '#' + routes.starterContent.path }
 									updateTheme={ this.updateTheme }
 									theme={ theme }
+									routes={ routes }
 								/>
 							);
 						} }
 					/>
 					<Route
-						path="/starter-content"
+						path={ routes.starterContent.path }
 						render={ () => {
 							return (
 								<StarterContent
-									headerText={ __( 'Starter Content' ) }
+									headerText={ routes.starterContent.title }
 									subHeaderText={ __( 'Pre-configure the site for testing and experimentation' ) }
 									buttonText={ __( 'Install Starter Content' ) }
 									buttonAction={ this.installStarterContent }
@@ -393,6 +412,7 @@ class SetupWizard extends Component {
 									starterContentProgress={ starterContentProgress }
 									starterContentTotal={ starterContentTotal }
 									displayProgressBar={ starterContentInstallStarted }
+									routes={ routes }
 								/>
 							);
 						} }
@@ -402,23 +422,27 @@ class SetupWizard extends Component {
 						render={ routeProps => (
 							<InstallationProgress
 								autoInstall={ shouldAutoInstallPlugins( routeProps ) }
-								hidden={ '/installation-progress' !== routeProps.location.pathname }
-								headerText={ __( 'Installation...' ) }
+								hidden={ routes.integrations.path !== routeProps.location.pathname }
+								headerText={ routes.integrations.title }
 								subHeaderText={ __(
-									'Please configure the following core plugin to start using Newspack.'
+									'Please configure the following core plugins to start using Newspack.'
 								) }
 								buttonText={ __( 'Continue' ) }
 								buttonAction={ '#/configure-jetpack' }
 								buttonDisabled={ ! installationComplete }
 								plugins={ REQUIRED_PLUGINS }
 								onStatus={ status => this.setState( { installationComplete: status.complete } ) }
+								routes={ routes }
 							/>
 						) }
 					/>
 					<Route
 						render={ routeProps => {
-							return routes.indexOf( routeProps.location.pathname ) === -1 ? (
-								<Redirect to="/" />
+							// If trying to go to an invalid route, go back to Welcome.
+							return ! Object.keys( routes ).find(
+								route => routes[ route ].path === routeProps.location.pathname
+							) ? (
+								<Redirect to={ routes.welcome.path } />
 							) : null;
 						} }
 					/>

@@ -6,10 +6,10 @@
  * WordPress dependencies.
  */
 import { useEffect, useState, Fragment } from '@wordpress/element';
-import { MenuItem, Path, SVG } from '@wordpress/components';
+import { CustomSelectControl, MenuItem, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
-import { Icon, moreVertical } from '@wordpress/icons';
+import { Icon, moreVertical, close } from '@wordpress/icons';
 
 /**
  * External dependencies.
@@ -26,37 +26,43 @@ import {
 	Modal,
 	Popover,
 	Router,
-	SelectControl,
 	TextControl,
 	ToggleControl,
 } from '../../../../components/src';
 import PopupActionCard from '../../components/popup-action-card';
 import SegmentationPreview from '../../components/segmentation-preview';
-import SelectWithOptGroups from '../../components/select-with-optgroups';
-import { isOverlay } from '../../utils';
+import { filterOutUncategorized, isOverlay } from '../../utils';
 import './style.scss';
 
 const { useParams } = Router;
 
 const descriptionForPopup = (
-	{ categories, sitewide_default: sitewideDefault, options },
+	{ categories, sitewide_default: sitewideDefault, options, status },
 	segments
 ) => {
 	const segment = find( segments, [ 'id', options.selected_segment_id ] );
+	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
 	if ( sitewideDefault ) {
 		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
-	if ( categories.length > 0 ) {
+	if ( filteredCategories.length > 0 ) {
 		descriptionMessages.push(
-			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
+			__( 'Categories: ', 'newspack' ) +
+				filteredCategories.map( category => category.name ).join( ', ' )
 		);
+	}
+	if ( 'pending' === status ) {
+		descriptionMessages.push( __( 'Pending review', 'newspack' ) );
+	}
+	if ( 'future' === status ) {
+		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
 	}
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
 const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-	if ( 'draft' === status ) {
+	if ( 'draft' === status || 'pending' === status || 'future' === status ) {
 		return 'newspack-card__is-disabled';
 	}
 	if ( sitewideDefault ) {
@@ -239,6 +245,7 @@ const PopupGroup = ( {
 	const [ error, setError ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ duplicateCampaignName, setDuplicateCampaignName ] = useState();
+	const [ duplicateCampaignModalVisible, setDuplicateCampaignModalVisible ] = useState();
 
 	const { group } = useParams();
 
@@ -299,45 +306,77 @@ const PopupGroup = ( {
 		( acc, group ) => ( +campaignGroup > 0 && +campaignGroup === +group.term_id ? group : acc ),
 		null
 	);
+	const campaignGroupData = groups.reduce(
+		( acc, group ) => ( +campaignGroup === +group.term_id ? group : acc ),
+		null
+	);
+	const valueForCampaignGroup = campaignGroup => {
+		if ( 'unassigned' === campaignGroup ) {
+			return {
+				key: 'unassigned',
+				name: __( 'Unassigned Prompts', 'newspack' ),
+			};
+		}
+
+		if ( campaignGroupData ) {
+			return {
+				key: campaignGroupData.term_id,
+				name: campaignGroupData.name,
+			};
+		}
+		return {
+			key: 'active',
+			name: __( 'Active Prompts', 'newspack' ),
+		};
+	};
+	if ( +campaignGroup > 0 && ! campaignGroupData ) {
+		setCampaignGroup( 'active' );
+	}
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
 				<div className="newspack-campaigns__popup-group__filter-group-actions">
-					<SelectWithOptGroups
+					<CustomSelectControl
+						label={ __( 'Campaigns', 'newspack' ) }
 						options={ [
-							{ value: 'active', label: __( 'Active Prompts', 'newspack' ) },
-							{ value: 'unassigned', label: __( 'Unassigned Prompts', 'newspack' ) },
+							{ key: 'active', name: __( 'Active Prompts', 'newspack' ) },
+							{ key: 'unassigned', name: __( 'Unassigned Prompts', 'newspack' ) },
 							{
-								label: __( 'Campaigns', 'newspack ' ),
-								options: activeGroups.map( ( { term_id: id, name } ) => ( {
-									value: id,
-									label: name,
-								} ) ),
+								key: 'header-campaigns',
+								name: __( 'Campaigns', 'newspack' ),
+								className: 'newspack-campaigns__popup-group__select-control-group-header',
 							},
-							{
-								label: __( 'Archived Campaigns', 'newspack ' ),
-								options: archivedGroups.map( ( { term_id: id, name } ) => ( {
-									value: id,
-									label: name,
-								} ) ),
+							...activeGroups.map( ( { term_id: id, name } ) => ( {
+								key: id,
+								name: name,
+								className: 'newspack-campaigns__popup-group__select-control-group-item',
+							} ) ),
+							archivedGroups.length && {
+								key: 'header-archived-campaigns',
+								name: __( 'Archived Campaigns', 'newspack' ),
+								className: 'newspack-campaigns__popup-group__select-control-group-header',
 							},
+							...archivedGroups.map( ( { term_id: id, name } ) => ( {
+								key: id,
+								name: name,
+								className: 'newspack-campaigns__popup-group__select-control-group-item',
+							} ) ),
 						] }
-						value={ campaignGroup }
-						onChange={ value => setCampaignGroup( value ) }
-						label={ __( 'Groups', 'newspack' ) }
+						onChange={ ( { selectedItem: { key } } ) => setCampaignGroup( key ) }
+						value={ valueForCampaignGroup( campaignGroup ) }
 						hideLabelFromVision={ true }
 					/>
 					{ campaignGroup !== 'active' && (
 						<Fragment>
 							<Button
-								isSmall
-								isSecondary
+								className={ campaignActionsPopoverVisible && 'active' }
 								onClick={ () =>
 									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
 								}
-								icon={ moreVertical }
+								icon={ campaignActionsPopoverVisible ? close : moreVertical }
 								label={ __( 'Actions', 'newspack' ) }
-							/>
+							>
+							</Button>
 							{ campaignActionsPopoverVisible && (
 								<Popover
 									position="bottom left"
@@ -375,21 +414,10 @@ const PopupGroup = ( {
 											{ __( 'Deactivate all prompts', 'newspack' ) }
 										</MenuItem>
 									) }
-									<TextControl
-										placeholder={ __( 'Campaign Name', 'newspack' ) }
-										onChange={ setDuplicateCampaignName }
-										label={ __( 'Campaign Name', 'newspack' ) }
-										hideLabelFromVision={ true }
-										value={ duplicateCampaignName }
-										disabled={ !! inFlight }
-										onKeyDown={ event =>
-											ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
-										}
-									/>
 									<MenuItem
 										onClick={ () => {
 											setCampaignActionsPopoverVisible( false );
-											duplicateCampaignGroup( campaignGroup, duplicateCampaignName );
+											setDuplicateCampaignModalVisible( true );
 										} }
 										className="newspack-button"
 									>
@@ -427,7 +455,46 @@ const PopupGroup = ( {
 										{ __( 'Delete', 'newspack' ) }
 									</MenuItem>
 								</Popover>
-							) }{' '}
+							) }
+							{ duplicateCampaignModalVisible && (
+								<Modal
+									title={ __( 'Duplicate Campaign', 'newspack' ) }
+									isDismissible={ false }
+									className="newspack-campaigns__popup-group__add-new-button__modal"
+								>
+									<TextControl
+										placeholder={ __( 'Campaign Name', 'newspack' ) }
+										onChange={ setDuplicateCampaignName }
+										label={ __( 'Campaign Name', 'newspack' ) }
+										hideLabelFromVision={ true }
+										value={ duplicateCampaignName }
+										disabled={ !! inFlight }
+										onKeyDown={ event =>
+											ENTER === event.keyCode && '' !== newGroupName && createTerm( newGroupName )
+										}
+									/>
+									<Card buttonsCard noBorder>
+										<Button
+											isSecondary
+											onClick={ () => {
+												setAddNewPopoverIsVisible( false );
+											} }
+										>
+											{ __( 'Cancel', 'newspack' ) }
+										</Button>
+										<Button
+											isPrimary
+											disabled={ inFlight || ! duplicateCampaignName }
+											onClick={ () => {
+												duplicateCampaignGroup( campaignGroup, duplicateCampaignName );
+												setDuplicateCampaignModalVisible( false );
+											} }
+										>
+											{ __( 'Duplicate', 'newspack' ) }
+										</Button>
+									</Card>
+								</Modal>
+							) }
 						</Fragment>
 					) }
 				</div>

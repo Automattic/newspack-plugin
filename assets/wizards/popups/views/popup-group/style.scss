@@ -6,6 +6,12 @@
 @import '../../../../shared/scss/colors';
 
 .newspack-campaigns__popup-group {
+	&__select-control-group-header {
+		color: #ccc;
+	}
+	&__select-control-group-item {
+		padding-left: 36px;
+	}
 	&__card {
 		& > &__segment {
 			margin: -16px -16px 16px !important;
