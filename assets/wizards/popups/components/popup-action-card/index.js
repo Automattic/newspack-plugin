@@ -59,7 +59,9 @@ const PopupActionCard = ( {
 			actionText={
 				<Fragment>
 					<Button
+						isQuaternary
 						isSmall
+						className={ categoriesVisibility && 'popover-active' }
 						onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
 						icon={ cog }
 						label={
@@ -69,7 +71,9 @@ const PopupActionCard = ( {
 						}
 					/>
 					<Button
+						isQuaternary
 						isSmall
+						className={ popoverVisibility && 'popover-active' }
 						onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 						icon={ moreVertical }
 						label={ __( 'More options', 'newspack' ) }

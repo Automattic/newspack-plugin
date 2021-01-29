@@ -17,4 +17,10 @@
 			border-top: 1px solid $light-gray-500;
 		}
 	}
+
+	&__container {
+		.newspack-button + .newspack-button {
+			margin-left: 2px;
+		}
+	}
 }
