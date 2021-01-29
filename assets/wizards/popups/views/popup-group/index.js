@@ -310,13 +310,6 @@ const PopupGroup = ( {
 		const unsegmented = itemsToGroup.filter(
 			( { options: { selected_segment_id: segment } } ) => ! segment
 		);
-		if ( unsegmented.length > 0 ) {
-			groupedResults.push( {
-				label: __( 'Default (no segment)', 'newspack' ),
-				id: '',
-				items: unsegmented,
-			} );
-		}
 		groupedResults.push(
 			...segments.map( ( { name: label, id } ) => ( {
 				label,
@@ -326,6 +319,13 @@ const PopupGroup = ( {
 				),
 			} ) )
 		);
+		if ( unsegmented.length > 0 ) {
+			groupedResults.push( {
+				label: __( 'Default (no segment)', 'newspack' ),
+				id: '',
+				items: unsegmented,
+			} );
+		}
 		return groupedResults;
 	};
 
