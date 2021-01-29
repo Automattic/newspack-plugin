@@ -37,14 +37,17 @@
 			color: $dark-gray-300;
 		}
 
-		&:focus,
-		&[aria-expanded='true'] {
+		&:focus {
 			border-color: $primary-500;
 			box-shadow: inset 0 0 0 2px #36f;
 		}
 
 		&-icon {
 			right: 8px;
+		}
+
+		&[aria-expanded='true'] svg {
+			transform: rotate( 180deg );
 		}
 	}
 
@@ -94,7 +97,8 @@
 	// Multiple Controls
 
 	+ .newspack-category-autocomplete,
-	+ .newspack-select-control + .newspack-text-control,
+	+ .newspack-select-control,
+	+ .newspack-text-control,
 	+ .newspack-textarea-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
