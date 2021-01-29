@@ -144,22 +144,24 @@ const Segment = ( {
 					) }
 				/>
 			</h3>
-			{ items.map( item => (
-				<PopupActionCard
-					className={ getCardClassName( item ) }
-					deletePopup={ deletePopup }
-					description={ descriptionForPopup( item, segments ) }
-					key={ item.id }
-					popup={ item }
-					previewPopup={ previewPopup }
-					segments={ segments }
-					setTermsForPopup={ setTermsForPopup }
-					setSitewideDefaultPopup={ setSitewideDefaultPopup }
-					updatePopup={ updatePopup }
-					publishPopup={ publishPopup }
-					unpublishPopup={ unpublishPopup }
-				/>
-			) ) }
+			<Card noBorder className="newspack-campaigns__popup-group__action-cards">
+				{ items.map( item => (
+					<PopupActionCard
+						className={ getCardClassName( item ) }
+						deletePopup={ deletePopup }
+						description={ descriptionForPopup( item, segments ) }
+						key={ item.id }
+						popup={ item }
+						previewPopup={ previewPopup }
+						segments={ segments }
+						setTermsForPopup={ setTermsForPopup }
+						setSitewideDefaultPopup={ setSitewideDefaultPopup }
+						updatePopup={ updatePopup }
+						publishPopup={ publishPopup }
+						unpublishPopup={ unpublishPopup }
+					/>
+				) ) }
+			</Card>
 			{ items.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
 			{ parseInt( campaignGroup ) > 0 && (
 				<div className="newspack-campaigns__popup-group__add-new-wrap">
