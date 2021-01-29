@@ -370,7 +370,7 @@ const PopupGroup = ( {
 					{ campaignGroup !== 'active' && (
 						<Fragment>
 							<Button
-								isSecondary
+								isQuaternary
 								isSmall
 								className={ campaignActionsPopoverVisible && 'active' }
 								onClick={ () =>
