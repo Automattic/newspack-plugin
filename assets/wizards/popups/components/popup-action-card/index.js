@@ -8,7 +8,6 @@
 import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { Tooltip } from '@wordpress/components';
 import { Icon, cog, moreVertical } from '@wordpress/icons';
 
 /**
@@ -59,28 +58,22 @@ const PopupActionCard = ( {
 			description={ description }
 			actionText={
 				<Fragment>
-					<Tooltip
-						text={
+					<Button
+						isSmall
+						onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
+						icon={ cog }
+						label={
 							sitewideDefault
 								? __( 'Campaign groups', 'newspack' )
 								: __( 'Category filtering and campaign groups', 'newspack' )
 						}
-					>
-						<Button
-							className="icon-only"
-							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
-						>
-							<Icon icon={ cog } />
-						</Button>
-					</Tooltip>
-					<Tooltip text={ __( 'More options', 'newspack' ) }>
-						<Button
-							className="icon-only"
-							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
-						>
-							<Icon icon={ moreVertical } />
-						</Button>
-					</Tooltip>
+					/>
+					<Button
+						isSmall
+						onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
+						icon={ moreVertical }
+						label={ __( 'More options', 'newspack' ) }
+					/>
 					{ popoverVisibility && (
 						<PrimaryPopupPopover
 							deletePopup={ deletePopup }
