@@ -1,4 +1,9 @@
 /**
+ * WordPress dependencies.
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Check whether the given popup is an overlay.
  *
  * @param {object} popup Popup object to check.
@@ -16,3 +21,31 @@ export const isOverlay = popup =>
 export const filterOutUncategorized = categories => {
 	return categories.filter( category => 'uncategorized' !== category.slug );
 };
+
+export const placementForPopup = ( { options: { frequency, placement } } ) => {
+	if ( 'manual' === frequency ) {
+		return __( 'Manual Placement', 'newspack' );
+	}
+	return {
+		center: __( 'Center Overlay', 'newspack' ),
+		top: __( 'Top Overlay', 'newspack' ),
+		bottom: __( 'Bottom Overlay', 'newspack' ),
+		inline: __( 'Inline', 'newspack' ),
+		above_header: __( 'Above Header', 'newspack' ),
+	}[ placement ];
+};
+
+const frequencyMap = {
+	once: __( 'Once', 'newspack' ),
+	daily: __( 'Once a day', 'newspack' ),
+	always: __( 'Every page', 'newspack' ),
+	manual: __( 'Manual Placement', 'newspack' ),
+};
+
+export const frequenciesForPopup = popup => {
+	return Object.keys( frequencyMap )
+		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
+		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+};
+
+export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[ frequency ];
