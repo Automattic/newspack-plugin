@@ -14,7 +14,7 @@ import { Icon } from '@wordpress/icons';
  */
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
-import PopupActionCard from '../popup-action-card';
+import PromptActionCard from '../prompt-action-card';
 import {
 	descriptionForPopup,
 	filterOutUncategorized,
@@ -64,12 +64,12 @@ const SegmentGroup = ( {
 			</h3>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
 				{ items.map( item => (
-					<PopupActionCard
+					<PromptActionCard
 						className={ getCardClassName( item ) }
 						deletePopup={ deletePopup }
 						description={ descriptionForPopup( item, segments ) }
 						key={ item.id }
-						popup={ item }
+						prompt={ item }
 						previewPopup={ previewPopup }
 						segments={ segments }
 						setTermsForPopup={ setTermsForPopup }
