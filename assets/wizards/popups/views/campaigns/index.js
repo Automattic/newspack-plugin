@@ -1,5 +1,5 @@
 /**
- * Pop-ups wizard screen.
+ * Campaign management screen.
  */
 
 /**
@@ -36,9 +36,9 @@ import './style.scss';
 const { useParams } = Router;
 
 /**
- * Popup group screen
+ * Campaign management screen.
  */
-const PopupGroup = props => {
+const Campaigns = props => {
 	const {
 		items = [],
 		groups = [],
@@ -448,4 +448,4 @@ const PopupGroup = props => {
 		</Fragment>
 	);
 };
-export default withWizardScreen( PopupGroup );
+export default withWizardScreen( Campaigns );

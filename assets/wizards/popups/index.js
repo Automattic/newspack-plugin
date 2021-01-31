@@ -23,7 +23,7 @@ import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
 import {
-	PopupGroup,
+	Campaigns,
 	Analytics,
 	Settings,
 	Segmentation,
@@ -296,7 +296,7 @@ class PopupsWizard extends Component {
 								<Route
 									path="/campaigns/:group?"
 									render={ () => (
-										<PopupGroup
+										<Campaigns
 											{ ...popupManagementSharedProps }
 											items={ popups }
 											groups={ groups }
