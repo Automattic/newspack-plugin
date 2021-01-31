@@ -32,18 +32,8 @@ import {
 } from './icons';
 import './style.scss';
 
-const SegmentGroup = ( {
-	segment,
-	campaignGroup,
-	deletePopup,
-	previewPopup,
-	segments,
-	setTermsForPopup,
-	setSitewideDefaultPopup,
-	updatePopup,
-	publishPopup,
-	unpublishPopup,
-} ) => {
+const SegmentGroup = props => {
+	const { segment, campaignGroup, segments } = props;
 	const [ modalVisible, setModalVisible ] = useState();
 	const { label, id, items } = segment;
 	return (
@@ -66,17 +56,10 @@ const SegmentGroup = ( {
 				{ items.map( item => (
 					<PromptActionCard
 						className={ getCardClassName( item ) }
-						deletePopup={ deletePopup }
 						description={ descriptionForPopup( item, segments ) }
 						key={ item.id }
 						prompt={ item }
-						previewPopup={ previewPopup }
-						segments={ segments }
-						setTermsForPopup={ setTermsForPopup }
-						setSitewideDefaultPopup={ setSitewideDefaultPopup }
-						updatePopup={ updatePopup }
-						publishPopup={ publishPopup }
-						unpublishPopup={ unpublishPopup }
+						{ ...props }
 					/>
 				) ) }
 			</Card>

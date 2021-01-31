@@ -38,25 +38,19 @@ const { useParams } = Router;
 /**
  * Popup group screen
  */
-const PopupGroup = ( {
-	deletePopup,
-	items = [],
-	groups = [],
-	manageCampaignGroup,
-	previewPopup,
-	setTermsForPopup,
-	setSitewideDefaultPopup,
-	publishPopup,
-	unpublishPopup,
-	updatePopup,
-	segments,
-	wizardApiFetch,
-	refetch,
-	duplicateCampaignGroup,
-	deleteCampaignGroup,
-	archiveCampaignGroup,
-	renameCampaignGroup,
-} ) => {
+const PopupGroup = props => {
+	const {
+		items = [],
+		groups = [],
+		manageCampaignGroup,
+		segments,
+		wizardApiFetch,
+		refetch,
+		duplicateCampaignGroup,
+		deleteCampaignGroup,
+		archiveCampaignGroup,
+		renameCampaignGroup,
+	} = props;
 	const [ campaignGroup, setCampaignGroup ] = useState( 'active' );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ showUnpublished, setShowUnpublished ] = useState( false );
@@ -441,14 +435,8 @@ const PopupGroup = ( {
 					key={ index }
 					segment={ segment }
 					campaignGroup={ campaignGroup }
-					deletePopup={ deletePopup }
-					previewPopup={ previewPopup }
 					segments={ segments }
-					setTermsForPopup={ setTermsForPopup }
-					setSitewideDefaultPopup={ setSitewideDefaultPopup }
-					updatePopup={ updatePopup }
-					publishPopup={ publishPopup }
-					unpublishPopup={ unpublishPopup }
+					{ ...props }
 				/>
 			) ) }
 			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (
