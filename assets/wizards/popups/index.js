@@ -23,12 +23,10 @@ import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
 import {
-	CampaignGroupManagement,
 	PopupGroup,
 	Analytics,
 	Settings,
 	Segmentation,
-	Preview,
 } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
