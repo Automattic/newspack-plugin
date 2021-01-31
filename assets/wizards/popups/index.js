@@ -22,12 +22,7 @@ import { groupBy } from 'lodash';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { isOverlay } from './utils';
-import {
-	Campaigns,
-	Analytics,
-	Settings,
-	Segmentation,
-} from './views';
+import { Campaigns, Analytics, Settings, Segmentation } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -294,14 +289,14 @@ class PopupsWizard extends Component {
 							<Switch>
 								{ pluginRequirements }
 								<Route
-									path="/campaigns/:group?"
-									render={ () => (
+									path="/campaigns/:id?"
+									render={ props => (
 										<Campaigns
+											{ ...props }
 											{ ...popupManagementSharedProps }
 											items={ popups }
 											groups={ groups }
 											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
-											groupUI={ true }
 										/>
 									) }
 								/>

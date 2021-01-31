@@ -33,7 +33,7 @@ import {
 import SegmentGroup from '../../components/segment-group';
 import './style.scss';
 
-const { useParams } = Router;
+const { useHistory } = Router;
 
 /**
  * Campaign management screen.
@@ -50,8 +50,10 @@ const Campaigns = props => {
 		deleteCampaignGroup,
 		archiveCampaignGroup,
 		renameCampaignGroup,
+		match: {
+			params: { id: campaignGroup },
+		},
 	} = props;
-	const [ campaignGroup, setCampaignGroup ] = useState( 'active' );
 	const [ segmentId, setSegmentId ] = useState();
 	const [ showUnpublished, setShowUnpublished ] = useState( false );
 	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
@@ -65,7 +67,7 @@ const Campaigns = props => {
 	const [ renameCampaignModalVisible, setRenameCampaignModalVisible ] = useState();
 	const [ renamedCampaignName, setRenamedCampaignName ] = useState( '' );
 
-	const { group } = useParams();
+	const history = useHistory();
 
 	const createTerm = term => {
 		setAddNewPopoverIsVisible( false );
@@ -94,7 +96,7 @@ const Campaigns = props => {
 	};
 
 	const filterByGroup = itemsToFilter => {
-		if ( 'active' === campaignGroup ) {
+		if ( 'active' === campaignGroup || ! campaignGroup ) {
 			return itemsToFilter.filter( ( { status } ) => 'publish' === status );
 		}
 		if ( 'unassigned' === campaignGroup ) {
@@ -160,9 +162,6 @@ const Campaigns = props => {
 			name: __( 'Active Prompts', 'newspack' ),
 		};
 	};
-	if ( +campaignGroup > 0 && ! campaignGroupData ) {
-		setCampaignGroup( 'active' );
-	}
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
@@ -193,7 +192,7 @@ const Campaigns = props => {
 								className: 'newspack-campaigns__popup-group__select-control-group-item',
 							} ) ),
 						] }
-						onChange={ ( { selectedItem: { key } } ) => setCampaignGroup( key ) }
+						onChange={ ( { selectedItem: { key } } ) => history.push( `/campaigns/${ key }` ) }
 						value={ valueForCampaignGroup( campaignGroup ) }
 						hideLabelFromVision={ true }
 					/>
