@@ -48,4 +48,55 @@ export const frequenciesForPopup = popup => {
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
+export const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
+	if ( 'draft' === status || 'pending' === status || 'future' === status ) {
+		return 'newspack-card__is-disabled';
+	}
+	if ( sitewideDefault ) {
+		return 'newspack-card__is-primary';
+	}
+	if ( isOverlay( { options } ) && ! sitewideDefault ) {
+		return 'newspack-card__is-disabled';
+	}
+	return 'newspack-card__is-supported';
+};
+
+export const descriptionForPopup = ( prompt, segments ) => {
+	const {
+		categories,
+		campaign_groups: campaigns,
+		sitewide_default: sitewideDefault,
+		options,
+		status,
+	} = prompt;
+	const segment = find( segments, [ 'id', options.selected_segment_id ] );
+	const filteredCategories = filterOutUncategorized( categories );
+	const descriptionMessages = [];
+	if ( campaigns.length > 0 ) {
+		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
+		descriptionMessages.push(
+			( campaigns.length === 1
+				? __( 'Campaign: ', 'newspack' )
+				: __( 'Campaigns: ', 'newspack' ) ) + campaignsList
+		);
+	}
+	if ( sitewideDefault ) {
+		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
+	}
+	if ( filteredCategories.length > 0 ) {
+		descriptionMessages.push(
+			__( 'Categories: ', 'newspack' ) +
+				filteredCategories.map( category => category.name ).join( ', ' )
+		);
+	}
+	if ( 'pending' === status ) {
+		descriptionMessages.push( __( 'Pending review', 'newspack' ) );
+	}
+	if ( 'future' === status ) {
+		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
+	}
+	descriptionMessages.push( __( 'Frequency: ', 'newspack' ) + frequencyForPopup( prompt ) );
+	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+};
+
 export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[ frequency ];
