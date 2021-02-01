@@ -1,17 +1,11 @@
 /**
- * Popup group
+ * Campaign group
  */
 
 @import '~@wordpress/base-styles/colors';
 @import '../../../../shared/scss/colors';
 
-.newspack-campaigns__popup-group {
-	&__select-control-group-header {
-		color: #ccc;
-	}
-	&__select-control-group-item {
-		padding-left: 36px;
-	}
+.newspack-campaigns__campaign-group {
 	&__card {
 		& > &__segment {
 			margin: -16px -16px 16px !important;
@@ -24,27 +18,6 @@
 			border-bottom: 1px solid $light-gray-200;
 			display: flex;
 			justify-content: space-between;
-		}
-	}
-
-	&__action-cards {
-		margin: 0;
-
-		.newspack-action-card {
-			border-radius: 0;
-			margin-bottom: 23px;
-
-			&:first-child {
-				border-top-left-radius: 3px;
-				border-top-right-radius: 3px;
-				margin-top: 0;
-			}
-
-			&:last-child {
-				border-bottom-left-radius: 3px;
-				border-bottom-right-radius: 3px;
-				margin-bottom: 0;
-			}
 		}
 	}
 
@@ -184,14 +157,5 @@
 			padding: 15px;
 			width: 48px;
 		}
-	}
-}
-
-.newspack-popups-wizard {
-	.newspack-action-card {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		min-height: 40px;
 	}
 }

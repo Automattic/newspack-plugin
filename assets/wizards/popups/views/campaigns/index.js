@@ -158,8 +158,8 @@ const Campaigns = props => {
 	};
 	return (
 		<Fragment>
-			<div className="newspack-campaigns__popup-group__filter-group-wrapper">
-				<div className="newspack-campaigns__popup-group__filter-group-actions">
+			<div className="newspack-campaigns__campaign-group__filter-group-wrapper">
+				<div className="newspack-campaigns__campaign-group__filter-group-actions">
 					<CustomSelectControl
 						label={ __( 'Campaigns', 'newspack' ) }
 						options={ [
@@ -173,7 +173,7 @@ const Campaigns = props => {
 							...activeCampaigns.map( ( { term_id: id, name } ) => ( {
 								key: id,
 								name,
-								className: 'newspack-campaigns__popup-group__select-control-group-item',
+								className: 'newspack-campaigns__campaign-group__select-control-group-item',
 							} ) ),
 							archivedCampaigns.length && {
 								key: 'header-archived-campaigns',
@@ -183,7 +183,7 @@ const Campaigns = props => {
 							...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
 								key: id,
 								name,
-								className: 'newspack-campaigns__popup-group__select-control-group-item',
+								className: 'newspack-campaigns__campaign-group__select-control-group-item',
 							} ) ),
 						] }
 						onChange={ ( { selectedItem: { key } } ) =>
@@ -195,7 +195,7 @@ const Campaigns = props => {
 						hideLabelFromVision={ true }
 					/>
 					{ campaignData && (
-						<div className="newspack-campaigns__popup-group__filter-group-actions__button">
+						<div className="newspack-campaigns__campaign-group__filter-group-actions__button">
 							<Button
 								isQuaternary
 								isSmall
@@ -230,7 +230,7 @@ const Campaigns = props => {
 						</div>
 					) }
 				</div>
-				<div className="newspack-campaigns__popup-group__add-new-button">
+				<div className="newspack-campaigns__campaign-group__add-new-button">
 					<Button
 						isPrimary
 						isSmall
@@ -246,7 +246,7 @@ const Campaigns = props => {
 						<Modal
 							title={ modalTitle( modalType ) }
 							isDismissible={ false }
-							className="newspack-campaigns__popup-group__add-new-button__modal"
+							className="newspack-campaigns__campaign-group__add-new-button__modal"
 						>
 							<TextControl
 								placeholder={ __( 'Campaign Name', 'newspack' ) }

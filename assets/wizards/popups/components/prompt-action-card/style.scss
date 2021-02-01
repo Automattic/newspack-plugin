@@ -11,16 +11,22 @@
 	}
 }
 
-.newspack-action-card {
-	.newspack-popover {
-		.components-menu-group + .components-menu-group {
-			border-top: 1px solid $light-gray-500;
+.newspack-popups-wizard {
+	.newspack-action-card {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-height: 40px;
+		.newspack-popover {
+			.components-menu-group + .components-menu-group {
+				border-top: 1px solid $light-gray-500;
+			}
 		}
-	}
 
-	&__container {
-		.newspack-button + .newspack-button {
-			margin-left: 2px;
+		&__container {
+			.newspack-button + .newspack-button {
+				margin-left: 2px;
+			}
 		}
 	}
 }
