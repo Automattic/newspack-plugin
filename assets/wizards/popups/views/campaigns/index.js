@@ -6,9 +6,8 @@
  * WordPress dependencies.
  */
 import { useState, Fragment } from '@wordpress/element';
-import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { ENTER, ESCAPE } from '@wordpress/keycodes';
+import { ENTER } from '@wordpress/keycodes';
 import { moreVertical } from '@wordpress/icons';
 
 /**
@@ -20,10 +19,10 @@ import {
 	Card,
 	CustomSelectControl,
 	Modal,
-	Popover,
 	Router,
 	TextControl,
 } from '../../../../components/src';
+import CampaignManagementPopover from '../../components/campaign-management-popover';
 import SegmentGroup from '../../components/segment-group';
 import './style.scss';
 
@@ -202,94 +201,27 @@ const Campaigns = props => {
 								label={ __( 'Actions', 'newspack' ) }
 							/>
 							{ popoverVisible && (
-								<Popover
-									position="bottom right"
-									onFocusOutside={ () => setPopoverVisible( false ) }
-									onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisible( false ) }
-								>
-									<MenuItem
-										onClick={ () => setPopoverVisible( false ) }
-										className="screen-reader-text"
-									>
-										{ __( 'Close Popover', 'newspack' ) }
-									</MenuItem>
-
-									{ prompts.some( ( { status } ) => 'publish' !== status ) && (
-										<MenuItem
-											onClick={ () => {
-												setPopoverVisible( false );
-												manageCampaignGroup( prompts );
-											} }
-											className="newspack-button"
-										>
-											{ __( 'Activate all prompts', 'newspack' ) }
-										</MenuItem>
-									) }
-									{ prompts.some( ( { status } ) => 'publish' === status ) && (
-										<MenuItem
-											onClick={ () => {
-												setPopoverVisible( false );
-												manageCampaignGroup( prompts, 'DELETE' );
-											} }
-											className="newspack-button"
-										>
-											{ __( 'Deactivate all prompts', 'newspack' ) }
-										</MenuItem>
-									) }
-									<MenuItem
-										onClick={ () => {
-											setPopoverVisible( false );
-											setModalVisible( true );
-											setCampaignName( '' );
-											setModalType( MODAL_TYPE_DUPLICATE );
-										} }
-										className="newspack-button"
-									>
-										{ __( 'Duplicate', 'newspack' ) }
-									</MenuItem>
-									<MenuItem
-										onClick={ () => {
-											setPopoverVisible( false );
-											setCampaignName( campaignData.name );
-											setModalVisible( true );
-											setModalType( MODAL_TYPE_RENAME );
-										} }
-										className="newspack-button"
-									>
-										{ __( 'Rename', 'newspack' ) }
-									</MenuItem>
-									{ campaignData && 'archive' !== campaignData.status && (
-										<MenuItem
-											onClick={ () => {
-												setPopoverVisible( false );
-												archiveCampaignGroup( campaignId, true );
-											} }
-											className="newspack-button"
-										>
-											{ __( 'Archive', 'newspack' ) }
-										</MenuItem>
-									) }
-									{ campaignData && 'archive' === campaignData.status && (
-										<MenuItem
-											onClick={ () => {
-												setPopoverVisible( false );
-												archiveCampaignGroup( campaignId, false );
-											} }
-											className="newspack-button"
-										>
-											{ __( 'Unarchive', 'newspack' ) }
-										</MenuItem>
-									) }
-									<MenuItem
-										onClick={ () => {
-											setPopoverVisible( false );
-											deleteCampaignGroup( campaignId );
-										} }
-										className="newspack-button"
-									>
-										{ __( 'Delete', 'newspack' ) }
-									</MenuItem>
-								</Popover>
+								<CampaignManagementPopover
+									dismiss={ () => setPopoverVisible( false ) }
+									isArchive={ campaignData && 'archive' === campaignData.status }
+									onActivate={ () => manageCampaignGroup( prompts ) }
+									onArchive={ () => archiveCampaignGroup( campaignId, true ) }
+									onDeactivate={ () => manageCampaignGroup( prompts, 'DELETE' ) }
+									onDelete={ () => deleteCampaignGroup( campaignId ) }
+									onDuplicate={ () => {
+										setModalVisible( true );
+										setCampaignName( '' );
+										setModalType( MODAL_TYPE_DUPLICATE );
+									} }
+									onRename={ () => {
+										setCampaignName( campaignData.name );
+										setModalVisible( true );
+										setModalType( MODAL_TYPE_RENAME );
+									} }
+									onUnarchive={ () => archiveCampaignGroup( campaignId, false ) }
+									hasUnpublished={ prompts.some( ( { status } ) => 'publish' !== status ) }
+									hasPublished={ prompts.some( ( { status } ) => 'publish' === status ) }
+								/>
 							) }
 						</div>
 					) }

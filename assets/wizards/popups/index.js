@@ -191,8 +191,9 @@ class PopupsWizard extends Component {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
 			data: { ids: campaigns.map( campaign => campaign.id ) },
 			method,
+			quiet: true,
 		} )
-			.then( () => this.onWizardReady() )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -202,6 +203,7 @@ class PopupsWizard extends Component {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
 			method: 'POST',
 			data: { name },
+			quiet: true,
 		} )
 			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
@@ -212,6 +214,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
 			method: status ? 'POST' : 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
@@ -223,6 +226,7 @@ class PopupsWizard extends Component {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
 			method: 'POST',
 			data: { name },
+			quiet: true,
 		} )
 			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
@@ -233,6 +237,7 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
 			method: 'DELETE',
+			quiet: true,
 		} )
 			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
