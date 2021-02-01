@@ -27,6 +27,21 @@ import {
 } from './icons';
 import './style.scss';
 
+const addNewURL = ( placement, campaignId, segmentId ) => {
+	const base = '/wp-admin/post-new.php?post_type=newspack_popups_cpt&';
+	const params = [];
+	if ( placement ) {
+		params.push( `placement=${ placement }` );
+	}
+	if ( +campaignId > 0 ) {
+		params.push( `group=${ campaignId }` );
+	}
+	if ( segmentId ) {
+		params.push( `segment=${ segmentId }` );
+	}
+	return base + params.join( '&' );
+};
+
 const SegmentGroup = props => {
 	const { segment, campaignId } = props;
 	const [ modalVisible, setModalVisible ] = useState();
@@ -59,7 +74,7 @@ const SegmentGroup = props => {
 				) ) }
 			</Card>
 			{ prompts.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
-			{ +campaignId > 0 && (
+			{ 'unassigned' !== campaignId && (
 				<div className="newspack-campaigns__segment-group__add-new-wrap">
 					<Button isSmall isTertiary onClick={ () => setModalVisible( ! modalVisible ) }>
 						{ __( 'Add New Prompt', 'newspack' ) }
@@ -73,39 +88,27 @@ const SegmentGroup = props => {
 							shouldCloseOnClickOutside={ false }
 						>
 							<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
-								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ campaignId }&segment=${ id }` }
-								>
+								<Button href={ addNewURL( null, campaignId, id ) }>
 									<Icon icon={ iconInline } />
 									{ __( 'Inline', 'newspack' ) }
 								</Button>
-								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ campaignId }&segment=${ id }` }
-								>
+								<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
 									<Icon icon={ iconCenterOverlay } />
 									{ __( 'Center Overlay', 'newspack' ) }
 								</Button>
-								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ campaignId }&segment=${ id }` }
-								>
+								<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
 									<Icon icon={ iconTopOverlay } />
 									{ __( 'Top Overlay', 'newspack' ) }
 								</Button>
-								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ campaignId }&segment=${ id }` }
-								>
+								<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
 									<Icon icon={ iconBottomOverlay } />
 									{ __( 'Bottom Overlay', 'newspack' ) }
 								</Button>
-								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ campaignId }&segment=${ id }` }
-								>
+								<Button href={ addNewURL( 'above-header', campaignId, id ) }>
 									<Icon icon={ iconAboveHeader } />
 									{ __( 'Above Header', 'newspack' ) }
 								</Button>
-								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ campaignId }&segment=${ id }` }
-								>
+								<Button href={ addNewURL( 'manual', campaignId, id ) }>
 									<Icon icon={ iconManualPlacement } />
 									{ __( 'Manual Placement', 'newspack' ) }
 								</Button>
