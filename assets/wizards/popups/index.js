@@ -70,9 +70,7 @@ class PopupsWizard extends Component {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { campaigns, prompts, segments, settings } ) =>
-				this.setState( { campaigns, prompts, segments, settings } )
-			)
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -88,7 +86,7 @@ class PopupsWizard extends Component {
 			method: state ? 'POST' : 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -110,7 +108,7 @@ class PopupsWizard extends Component {
 			},
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -122,7 +120,7 @@ class PopupsWizard extends Component {
 			data: { options },
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -138,7 +136,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -154,7 +152,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -170,7 +168,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -185,6 +183,9 @@ class PopupsWizard extends Component {
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
+	updateAfterAPI = ( { campaigns, prompts, segments, settings } ) =>
+		this.setState( { campaigns, prompts, segments, settings } );
+
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
@@ -193,7 +194,7 @@ class PopupsWizard extends Component {
 			method,
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -205,7 +206,7 @@ class PopupsWizard extends Component {
 			data: { name },
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -216,7 +217,7 @@ class PopupsWizard extends Component {
 			method: status ? 'POST' : 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -228,7 +229,7 @@ class PopupsWizard extends Component {
 			data: { name },
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -239,7 +240,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -253,7 +254,6 @@ class PopupsWizard extends Component {
 			doneLoading,
 		} = this.props;
 		const { campaigns, prompts, segments, settings, previewUrl } = this.state;
-		console.log( prompts, campaigns );
 		return (
 			<WebPreview
 				url={ previewUrl }

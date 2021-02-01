@@ -15,10 +15,7 @@ import { Icon } from '@wordpress/icons';
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
-import {
-	descriptionForPopup,
-	getCardClassName,
-} from '../../utils';
+import { descriptionForPopup, getCardClassName } from '../../utils';
 
 import {
 	iconInline,
@@ -31,7 +28,7 @@ import {
 import './style.scss';
 
 const SegmentGroup = props => {
-	const { segment, campaignId, segments } = props;
+	const { segment, campaignId } = props;
 	const [ modalVisible, setModalVisible ] = useState();
 	const { label, id, prompts } = segment;
 	return (
@@ -54,7 +51,7 @@ const SegmentGroup = props => {
 				{ prompts.map( item => (
 					<PromptActionCard
 						className={ getCardClassName( item ) }
-						description={ descriptionForPopup( item, segments ) }
+						description={ descriptionForPopup( item ) }
 						key={ item.id }
 						prompt={ item }
 						{ ...props }

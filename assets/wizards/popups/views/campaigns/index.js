@@ -126,7 +126,7 @@ const Campaigns = props => {
 				setCampaignName( '' );
 				refetch();
 			} )
-			.catch( e => {
+			.catch( () => {
 				setInFlight( false );
 			} );
 	};

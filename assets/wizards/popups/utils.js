@@ -61,12 +61,11 @@ export const getCardClassName = ( { options, sitewide_default: sitewideDefault, 
 	return 'newspack-card__is-supported';
 };
 
-export const descriptionForPopup = ( prompt, segments ) => {
+export const descriptionForPopup = prompt => {
 	const {
 		categories,
 		campaign_groups: campaigns,
 		sitewide_default: sitewideDefault,
-		options,
 		status,
 	} = prompt;
 	const filteredCategories = filterOutUncategorized( categories );
