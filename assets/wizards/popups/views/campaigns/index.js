@@ -85,6 +85,7 @@ const Campaigns = props => {
 		campaignId,
 		prompts = [],
 		campaigns = [],
+		hasUnassigned,
 		manageCampaignGroup,
 		segments,
 		wizardApiFetch,
@@ -174,7 +175,7 @@ const Campaigns = props => {
 								name: __( 'Active Prompts', 'newspack' ),
 								className: selectValue.key === 'active' && 'is-selected',
 							},
-							{
+							hasUnassigned && {
 								key: 'unassigned',
 								name: __( 'Unassigned Prompts', 'newspack' ),
 								className: selectValue.key === 'unassigned' && 'is-selected',

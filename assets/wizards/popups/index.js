@@ -318,6 +318,7 @@ class PopupsWizard extends Component {
 												campaignId={ campaignId }
 												prompts={ filterByCampaign( prompts, campaignId ) }
 												campaigns={ campaigns }
+												hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }
 											/>
 										);
 									} }
