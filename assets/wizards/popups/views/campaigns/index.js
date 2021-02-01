@@ -190,7 +190,7 @@ const Campaigns = props => {
 						value={ valueForCampaignId( campaignId ) }
 						hideLabelFromVision={ true }
 					/>
-					{ campaignId !== 'active' && (
+					{ campaignData && (
 						<div className="newspack-campaigns__popup-group__filter-group-actions__button">
 							<Button
 								isQuaternary
