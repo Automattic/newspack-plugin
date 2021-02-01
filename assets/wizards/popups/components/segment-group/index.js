@@ -17,11 +17,9 @@ import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
 	descriptionForPopup,
-	filterOutUncategorized,
-	frequencyForPopup,
 	getCardClassName,
-	isOverlay,
 } from '../../utils';
+
 import {
 	iconInline,
 	iconCenterOverlay,

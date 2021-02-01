@@ -8,7 +8,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { Icon, cog, moreVertical } from '@wordpress/icons';
+import { cog, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -24,7 +24,7 @@ const PromptActionCard = props => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 
 	const { className, description, prompt = {}, segments } = props;
-	const { id, edit_link: editLink, title, sitewide_default: sitewideDefault, status } = prompt;
+	const { id, edit_link: editLink, title, sitewide_default: sitewideDefault } = prompt;
 	return (
 		<ActionCard
 			isSmall

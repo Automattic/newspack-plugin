@@ -13,7 +13,7 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Internal dependencies.
  */
 import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { filterOutUncategorized, frequenciesForPopup, isOverlay } from '../../utils';
+import { filterOutUncategorized, frequenciesForPopup } from '../../utils';
 import './style.scss';
 
 const SecondaryPromptPopover = ( {

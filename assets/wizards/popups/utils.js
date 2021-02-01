@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Check whether the given popup is an overlay.
  *
- * @param {object} popup Popup object to check.
+ * @param {Object} popup Popup object to check.
  * @return {boolean} True if the popup is an overlay, otherwise false.
  */
 export const isOverlay = popup =>
@@ -15,8 +15,8 @@ export const isOverlay = popup =>
 /**
  * Filter out "Uncategorized" category, which for purposes of Campaigns behaves identically to no category.
  *
- * @param {array} categories Array of category objects.
- * @return {array} Filtered array of categories, without Uncategorized category.
+ * @param {Array} categories Array of category objects.
+ * @return {Array} Filtered array of categories, without Uncategorized category.
  */
 export const filterOutUncategorized = categories => {
 	return categories.filter( category => 'uncategorized' !== category.slug );
@@ -69,7 +69,6 @@ export const descriptionForPopup = ( prompt, segments ) => {
 		options,
 		status,
 	} = prompt;
-	const segment = find( segments, [ 'id', options.selected_segment_id ] );
 	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {

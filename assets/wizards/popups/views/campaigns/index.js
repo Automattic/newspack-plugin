@@ -5,16 +5,11 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
-import { Icon, moreVertical, close } from '@wordpress/icons';
-
-/**
- * External dependencies.
- */
-import { find } from 'lodash';
+import { moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -37,6 +32,24 @@ const { useHistory } = Router;
 const MODAL_TYPE_DUPLICATE = 1;
 const MODAL_TYPE_RENAME = 2;
 const MODAL_TYPE_NEW = 3;
+
+const modalTitle = modalType => {
+	if ( MODAL_TYPE_RENAME === modalType ) {
+		return __( 'Rename Campaign', 'newspack' );
+	} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
+		return __( 'Duplicate Campaign', 'newspack' );
+	}
+	return __( 'New Campaign', 'newspack' );
+};
+
+const modalButton = modalType => {
+	if ( MODAL_TYPE_RENAME === modalType ) {
+		return __( 'Rename', 'newspack' );
+	} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
+		return __( 'Duplicate', 'newspack' );
+	}
+	return __( 'Add', 'newspack' );
+};
 
 /**
  * Campaign management screen.
@@ -62,28 +75,9 @@ const Campaigns = props => {
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ modalType, setModalType ] = useState();
 	const [ campaignName, setCampaignName ] = useState();
-	const [ error, setError ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
 
 	const history = useHistory();
-
-	const modalTitle = modalType => {
-		if ( MODAL_TYPE_RENAME === modalType ) {
-			return __( 'Rename Campaign', 'newspack' );
-		} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
-			return __( 'Duplicate Campaign', 'newspack' );
-		}
-		return __( 'New Campaign', 'newspack' );
-	};
-
-	const modalButton = modalType => {
-		if ( MODAL_TYPE_RENAME === modalType ) {
-			return __( 'Rename', 'newspack' );
-		} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
-			return __( 'Duplicate', 'newspack' );
-		}
-		return __( 'Add', 'newspack' );
-	};
 
 	const submitModal = modalText => {
 		if ( MODAL_TYPE_NEW === modalType ) {
@@ -99,7 +93,6 @@ const Campaigns = props => {
 	const createTerm = term => {
 		setPopoverVisible( false );
 		setInFlight( true );
-		setError( false );
 		wizardApiFetch( {
 			path: '/wp/v2/newspack_popups_taxonomy',
 			method: 'POST',
@@ -115,9 +108,6 @@ const Campaigns = props => {
 				refetch();
 			} )
 			.catch( e => {
-				const message =
-					e.message || __( 'An error occurred when creating this group.', 'newspack' );
-				setError( message );
 				setInFlight( false );
 			} );
 	};
@@ -137,7 +127,7 @@ const Campaigns = props => {
 		);
 	};
 	const groupBySegment = ( segments, itemsToGroup ) => {
-		let groupedResults = [];
+		const groupedResults = [];
 		const unsegmented = itemsToGroup.filter(
 			( { options: { selected_segment_id: segment } } ) => ! segment
 		);
@@ -205,7 +195,7 @@ const Campaigns = props => {
 							},
 							...activeGroups.map( ( { term_id: id, name } ) => ( {
 								key: id,
-								name: name,
+								name,
 								className: 'newspack-campaigns__popup-group__select-control-group-item',
 							} ) ),
 							archivedGroups.length && {
@@ -215,7 +205,7 @@ const Campaigns = props => {
 							},
 							...archivedGroups.map( ( { term_id: id, name } ) => ( {
 								key: id,
-								name: name,
+								name,
 								className: 'newspack-campaigns__popup-group__select-control-group-item',
 							} ) ),
 						] }
