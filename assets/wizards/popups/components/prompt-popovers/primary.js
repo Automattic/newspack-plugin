@@ -64,7 +64,7 @@ const PrimaryPromptPopover = ( {
 			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
-			{ publishPopup && (
+			{ 'publish' !== status && (
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();
@@ -75,7 +75,7 @@ const PrimaryPromptPopover = ( {
 					{ __( 'Activate', 'newspack' ) }
 				</MenuItem>
 			) }
-			{ unpublishPopup && (
+			{ 'publish' === status && (
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();
