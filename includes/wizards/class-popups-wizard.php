@@ -479,7 +479,7 @@ class Popups_Wizard extends Wizard {
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
 			$response['prompts']   = array_map(
 				function( $prompt ) {
-					$popup['edit_link'] = get_edit_post_link( $prompt['id'] );
+					$prompt['edit_link'] = get_edit_post_link( $prompt['id'] );
 					return $prompt;
 				},
 				$newspack_popups_configuration_manager->get_prompts( true )
