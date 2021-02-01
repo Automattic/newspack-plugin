@@ -31,7 +31,7 @@ import {
 import './style.scss';
 
 const SegmentGroup = props => {
-	const { segment, campaignGroup, segments } = props;
+	const { segment, campaignId, segments } = props;
 	const [ modalVisible, setModalVisible ] = useState();
 	const { label, id, prompts } = segment;
 	return (
@@ -40,7 +40,7 @@ const SegmentGroup = props => {
 				{ __( 'Segment: ', 'newspack' ) }
 				{ label }
 				<SegmentationPreview
-					campaignGroups={ [ campaignGroup ] }
+					campaignId={ [ campaignId ] }
 					segment={ id }
 					showUnpublished={ true } // Do we need a control for this?
 					renderButton={ ( { showPreview } ) => (
@@ -62,7 +62,7 @@ const SegmentGroup = props => {
 				) ) }
 			</Card>
 			{ prompts.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
-			{ parseInt( campaignGroup ) > 0 && (
+			{ +campaignId > 0 && (
 				<div className="newspack-campaigns__segment-group__add-new-wrap">
 					<Button isSmall isTertiary onClick={ () => setModalVisible( ! modalVisible ) }>
 						{ __( 'Add New Prompt', 'newspack' ) }
@@ -77,37 +77,37 @@ const SegmentGroup = props => {
 						>
 							<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
 								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ campaignGroup }&segment=${ id }` }
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&group=${ campaignId }&segment=${ id }` }
 								>
 									<Icon icon={ iconInline } />
 									{ __( 'Inline', 'newspack' ) }
 								</Button>
 								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ campaignGroup }&segment=${ id }` }
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-center&group=${ campaignId }&segment=${ id }` }
 								>
 									<Icon icon={ iconCenterOverlay } />
 									{ __( 'Center Overlay', 'newspack' ) }
 								</Button>
 								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ campaignGroup }&segment=${ id }` }
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-top&group=${ campaignId }&segment=${ id }` }
 								>
 									<Icon icon={ iconTopOverlay } />
 									{ __( 'Top Overlay', 'newspack' ) }
 								</Button>
 								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ campaignGroup }&segment=${ id }` }
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=overlay-bottom&group=${ campaignId }&segment=${ id }` }
 								>
 									<Icon icon={ iconBottomOverlay } />
 									{ __( 'Bottom Overlay', 'newspack' ) }
 								</Button>
 								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ campaignGroup }&segment=${ id }` }
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=above-header&group=${ campaignId }&segment=${ id }` }
 								>
 									<Icon icon={ iconAboveHeader } />
 									{ __( 'Above Header', 'newspack' ) }
 								</Button>
 								<Button
-									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ campaignGroup }&segment=${ id }` }
+									href={ `/wp-admin/post-new.php?post_type=newspack_popups_cpt&placement=manual&group=${ campaignId }&segment=${ id }` }
 								>
 									<Icon icon={ iconManualPlacement } />
 									{ __( 'Manual Placement', 'newspack' ) }

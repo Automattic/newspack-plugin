@@ -56,6 +56,7 @@ const modalButton = modalType => {
  */
 const Campaigns = props => {
 	const {
+		campaignId,
 		prompts = [],
 		campaigns = [],
 		manageCampaignGroup,
@@ -66,9 +67,6 @@ const Campaigns = props => {
 		deleteCampaignGroup,
 		archiveCampaignGroup,
 		renameCampaignGroup,
-		match: {
-			params: { id: campaignGroup },
-		},
 	} = props;
 
 	const [ popoverVisible, setPopoverVisible ] = useState();
@@ -83,9 +81,9 @@ const Campaigns = props => {
 		if ( MODAL_TYPE_NEW === modalType ) {
 			createTerm( modalText );
 		} else if ( MODAL_TYPE_RENAME === modalType ) {
-			renameCampaignGroup( campaignGroup, modalText );
+			renameCampaignGroup( campaignId, modalText );
 		} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
-			duplicateCampaignGroup( campaignGroup, modalText );
+			duplicateCampaignGroup( campaignId, modalText );
 		}
 		setModalVisible( false );
 	};
@@ -112,20 +110,6 @@ const Campaigns = props => {
 			} );
 	};
 
-	const filterByGroup = itemsToFilter => {
-		if ( 'active' === campaignGroup || ! campaignGroup ) {
-			return itemsToFilter.filter( ( { status } ) => 'publish' === status );
-		}
-		if ( 'unassigned' === campaignGroup ) {
-			return itemsToFilter.filter(
-				( { campaign_groups: campaignGroups } ) => ! campaignGroups || ! campaignGroups.length
-			);
-		}
-		return itemsToFilter.filter(
-			( { campaign_groups: groups } ) =>
-				groups && groups.find( term => +term.term_id === +campaignGroup )
-		);
-	};
 	const groupBySegment = ( segments, itemsToGroup ) => {
 		const groupedResults = [];
 		const unsegmented = itemsToGroup.filter(
@@ -148,16 +132,15 @@ const Campaigns = props => {
 		return groupedResults;
 	};
 
-	const allPrompts = filterByGroup( prompts );
-	const campaignsToDisplay = groupBySegment( segments, allPrompts );
+	const campaignsToDisplay = groupBySegment( segments, prompts );
 	const activeGroups = campaigns.filter( ( { status } ) => 'archive' !== status );
 	const archivedGroups = campaigns.filter( ( { status } ) => 'archive' === status );
 	const groupInView = campaigns.reduce(
-		( acc, group ) => ( +campaignGroup > 0 && +campaignGroup === +group.term_id ? group : acc ),
+		( acc, group ) => ( +campaignId > 0 && +campaignId === +group.term_id ? group : acc ),
 		null
 	);
 	const campaignGroupData = campaigns.reduce(
-		( acc, group ) => ( +campaignGroup === +group.term_id ? group : acc ),
+		( acc, group ) => ( +campaignId === +group.term_id ? group : acc ),
 		null
 	);
 	const valueForCampaignGroup = campaignGroup => {
@@ -210,10 +193,10 @@ const Campaigns = props => {
 							} ) ),
 						] }
 						onChange={ ( { selectedItem: { key } } ) => history.push( `/campaigns/${ key }` ) }
-						value={ valueForCampaignGroup( campaignGroup ) }
+						value={ valueForCampaignGroup( campaignId ) }
 						hideLabelFromVision={ true }
 					/>
-					{ campaignGroup !== 'active' && (
+					{ campaignId !== 'active' && (
 						<div className="newspack-campaigns__popup-group__filter-group-actions__button">
 							<Button
 								isQuaternary
@@ -236,22 +219,22 @@ const Campaigns = props => {
 										{ __( 'Close Popover', 'newspack' ) }
 									</MenuItem>
 
-									{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
+									{ prompts.some( ( { status } ) => 'publish' !== status ) && (
 										<MenuItem
 											onClick={ () => {
 												setPopoverVisible( false );
-												manageCampaignGroup( allPrompts );
+												manageCampaignGroup( prompts );
 											} }
 											className="newspack-button"
 										>
 											{ __( 'Activate all prompts', 'newspack' ) }
 										</MenuItem>
 									) }
-									{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
+									{ prompts.some( ( { status } ) => 'publish' === status ) && (
 										<MenuItem
 											onClick={ () => {
 												setPopoverVisible( false );
-												manageCampaignGroup( allPrompts, 'DELETE' );
+												manageCampaignGroup( prompts, 'DELETE' );
 											} }
 											className="newspack-button"
 										>
@@ -284,7 +267,7 @@ const Campaigns = props => {
 										<MenuItem
 											onClick={ () => {
 												setPopoverVisible( false );
-												archiveCampaignGroup( campaignGroup, true );
+												archiveCampaignGroup( campaignId, true );
 											} }
 											className="newspack-button"
 										>
@@ -295,7 +278,7 @@ const Campaigns = props => {
 										<MenuItem
 											onClick={ () => {
 												setPopoverVisible( false );
-												archiveCampaignGroup( campaignGroup, false );
+												archiveCampaignGroup( campaignId, false );
 											} }
 											className="newspack-button"
 										>
@@ -305,7 +288,7 @@ const Campaigns = props => {
 									<MenuItem
 										onClick={ () => {
 											setPopoverVisible( false );
-											deleteCampaignGroup( campaignGroup );
+											deleteCampaignGroup( campaignId );
 										} }
 										className="newspack-button"
 									>
@@ -370,15 +353,15 @@ const Campaigns = props => {
 				<SegmentGroup
 					key={ index }
 					segment={ segment }
-					campaignGroup={ campaignGroup }
+					campaignId={ campaignId }
 					segments={ segments }
 					{ ...props }
 				/>
 			) ) }
-			{ campaignsToDisplay.length < 1 && -1 === campaignGroup && (
+			{ campaignsToDisplay.length < 1 && -1 === campaignId && (
 				<p>{ __( 'No Campaigns have been created yet.', 'newspack' ) }</p>
 			) }
-			{ campaignsToDisplay.length < 1 && campaignGroup > 0 && (
+			{ campaignsToDisplay.length < 1 && campaignId > 0 && (
 				<p>{ __( 'There are no Campaigns in this group.', 'newspack' ) }</p>
 			) }
 		</Fragment>

@@ -154,7 +154,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			quiet: true,
 		} )
-			.then( ( { campaigns, prompts} ) => this.setState( { campaigns, prompts } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -290,15 +290,32 @@ class PopupsWizard extends Component {
 								{ pluginRequirements }
 								<Route
 									path="/campaigns/:id?"
-									render={ props => (
-										<Campaigns
-											{ ...props }
-											{ ...popupManagementSharedProps }
-											prompts={ prompts }
-											campaigns={ campaigns }
-											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
-										/>
-									) }
+									render={ props => {
+										const campaignId = props.match.params.id;
+										const filterByCampaign = ( prompts, campaignId ) => {
+											if ( 'active' === campaignId || ! campaignId ) {
+												return prompts.filter( ( { status } ) => 'publish' === status );
+											}
+											if ( 'unassigned' === campaignId ) {
+												return prompts.filter(
+													( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
+												);
+											}
+											return prompts.filter(
+												( { campaign_groups: campaigns } ) =>
+													campaigns && campaigns.find( term => +term.term_id === +campaignId )
+											);
+										};
+										return (
+											<Campaigns
+												{ ...popupManagementSharedProps }
+												campaignId={ campaignId }
+												prompts={ filterByCampaign( prompts, campaignId ) }
+												campaigns={ campaigns }
+												emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
+											/>
+										);
+									} }
 								/>
 								<Route
 									path="/segmentation/:id?"
