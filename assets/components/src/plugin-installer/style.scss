@@ -7,7 +7,6 @@
 .newspack-card {
 	.newspack-plugin-installer__status {
 		align-items: center;
-		box-shadow: inset 4px 0 0 $light-gray-700;
 		display: flex;
 
 		svg {
@@ -46,7 +45,7 @@
 	}
 
 	&.newspack-plugin-installer__status-installing {
-		opacity: 0.5;
+		box-shadow: inset 4px 0 0 $light-gray-700;
 	}
 }
 
