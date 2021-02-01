@@ -54,14 +54,12 @@ const Campaigns = props => {
 			params: { id: campaignGroup },
 		},
 	} = props;
-	const [ segmentId, setSegmentId ] = useState();
-	const [ showUnpublished, setShowUnpublished ] = useState( false );
-	const [ previewPopoverIsVisible, setPreviewPopoverIsVisible ] = useState();
 	const [ addNewPopoverIsVisible, setAddNewPopoverIsVisible ] = useState();
-	const [ campaignActionsPopoverVisible, setCampaignActionsPopoverVisible ] = useState();
+	const [ popoverVisible, setPopoverVisible ] = useState();
 	const [ newGroupName, setNewGroupName ] = useState( '' );
 	const [ error, setError ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
+
 	const [ duplicateCampaignName, setDuplicateCampaignName ] = useState();
 	const [ duplicateCampaignModalVisible, setDuplicateCampaignModalVisible ] = useState();
 	const [ renameCampaignModalVisible, setRenameCampaignModalVisible ] = useState();
@@ -201,23 +199,23 @@ const Campaigns = props => {
 							<Button
 								isQuaternary
 								isSmall
-								className={ campaignActionsPopoverVisible && 'popover-active' }
+								className={ popoverVisible && 'popover-active' }
 								onClick={ () =>
-									setCampaignActionsPopoverVisible( ! campaignActionsPopoverVisible )
+									setPopoverVisible( ! popoverVisible )
 								}
 								icon={ moreVertical }
 								label={ __( 'Actions', 'newspack' ) }
 							/>
-							{ campaignActionsPopoverVisible && (
+							{ popoverVisible && (
 								<Popover
 									position="bottom right"
-									onFocusOutside={ () => setCampaignActionsPopoverVisible( false ) }
+									onFocusOutside={ () => setPopoverVisible( false ) }
 									onKeyDown={ event =>
-										ESCAPE === event.keyCode && setCampaignActionsPopoverVisible( false )
+										ESCAPE === event.keyCode && setPopoverVisible( false )
 									}
 								>
 									<MenuItem
-										onClick={ () => setCampaignActionsPopoverVisible( false ) }
+										onClick={ () => setPopoverVisible( false ) }
 										className="screen-reader-text"
 									>
 										{ __( 'Close Popover', 'newspack' ) }
@@ -226,7 +224,7 @@ const Campaigns = props => {
 									{ allPrompts.some( ( { status } ) => 'publish' !== status ) && (
 										<MenuItem
 											onClick={ () => {
-												setCampaignActionsPopoverVisible( false );
+												setPopoverVisible( false );
 												manageCampaignGroup( allPrompts );
 											} }
 											className="newspack-button"
@@ -237,7 +235,7 @@ const Campaigns = props => {
 									{ allPrompts.some( ( { status } ) => 'publish' === status ) && (
 										<MenuItem
 											onClick={ () => {
-												setCampaignActionsPopoverVisible( false );
+												setPopoverVisible( false );
 												manageCampaignGroup( allPrompts, 'DELETE' );
 											} }
 											className="newspack-button"
@@ -247,7 +245,7 @@ const Campaigns = props => {
 									) }
 									<MenuItem
 										onClick={ () => {
-											setCampaignActionsPopoverVisible( false );
+											setPopoverVisible( false );
 											setDuplicateCampaignModalVisible( true );
 										} }
 										className="newspack-button"
@@ -256,7 +254,7 @@ const Campaigns = props => {
 									</MenuItem>
 									<MenuItem
 										onClick={ () => {
-											setCampaignActionsPopoverVisible( false );
+											setPopoverVisible( false );
 											setRenamedCampaignName( campaignGroupData.name );
 											setRenameCampaignModalVisible( true );
 										} }
@@ -267,7 +265,7 @@ const Campaigns = props => {
 									{ groupInView && 'archive' !== groupInView.status && (
 										<MenuItem
 											onClick={ () => {
-												setCampaignActionsPopoverVisible( false );
+												setPopoverVisible( false );
 												archiveCampaignGroup( campaignGroup, true );
 											} }
 											className="newspack-button"
@@ -278,7 +276,7 @@ const Campaigns = props => {
 									{ groupInView && 'archive' === groupInView.status && (
 										<MenuItem
 											onClick={ () => {
-												setCampaignActionsPopoverVisible( false );
+												setPopoverVisible( false );
 												archiveCampaignGroup( campaignGroup, false );
 											} }
 											className="newspack-button"
@@ -288,7 +286,7 @@ const Campaigns = props => {
 									) }
 									<MenuItem
 										onClick={ () => {
-											setCampaignActionsPopoverVisible( false );
+											setPopoverVisible( false );
 											deleteCampaignGroup( campaignGroup );
 										} }
 										className="newspack-button"
@@ -384,11 +382,11 @@ const Campaigns = props => {
 					<Button
 						isPrimary
 						isSmall
-						onClick={ () => setAddNewPopoverIsVisible( ! addNewPopoverIsVisible ) }
+						onClick={ () => setPopoverVisible( ! popoverVisible ) }
 					>
 						{ __( 'Add New Campaign', 'newspack' ) }
 					</Button>
-					{ addNewPopoverIsVisible && (
+					{ popoverVisible && (
 						<Modal
 							title={ __( 'Add New Campaign', 'newspack' ) }
 							isDismissible={ false }
