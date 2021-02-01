@@ -27,7 +27,7 @@ const PrimaryPromptPopover = ( {
 	unpublishPopup,
 } ) => {
 	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = prompt;
-	const isDraft = 'draft' === status;
+	const isPublished = 'publish' === status;
 	return (
 		<Popover
 			position="bottom left"
@@ -38,7 +38,7 @@ const PrimaryPromptPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ isOverlay( { options } ) && ! isDraft && (
+			{ isOverlay( { options } ) && isPublished && (
 				<MenuItem
 					onClick={ () => {
 						setSitewideDefaultPopup( id, ! sitewideDefault );
