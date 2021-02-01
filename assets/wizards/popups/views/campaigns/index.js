@@ -26,6 +26,11 @@ import CampaignManagementPopover from '../../components/campaign-management-popo
 import SegmentGroup from '../../components/segment-group';
 import './style.scss';
 
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
 const { useHistory } = Router;
 
 const MODAL_TYPE_DUPLICATE = 1;
@@ -156,6 +161,7 @@ const Campaigns = props => {
 			name: __( 'Active Prompts', 'newspack' ),
 		};
 	};
+	const selectValue = valueForCampaignId( campaignId );
 	return (
 		<Fragment>
 			<div className="newspack-campaigns__campaign-group__filter-group-wrapper">
@@ -163,8 +169,16 @@ const Campaigns = props => {
 					<CustomSelectControl
 						label={ __( 'Campaigns', 'newspack' ) }
 						options={ [
-							{ key: 'active', name: __( 'Active Prompts', 'newspack' ) },
-							{ key: 'unassigned', name: __( 'Unassigned Prompts', 'newspack' ) },
+							{
+								key: 'active',
+								name: __( 'Active Prompts', 'newspack' ),
+								className: selectValue.key === 'active' && 'is-selected',
+							},
+							{
+								key: 'unassigned',
+								name: __( 'Unassigned Prompts', 'newspack' ),
+								className: selectValue.key === 'unassigned' && 'is-selected',
+							},
 							{
 								key: 'header-campaigns',
 								name: __( 'Campaigns', 'newspack' ),
@@ -173,7 +187,10 @@ const Campaigns = props => {
 							...activeCampaigns.map( ( { term_id: id, name } ) => ( {
 								key: id,
 								name,
-								className: 'newspack-campaigns__campaign-group__select-control-group-item',
+								className: classnames(
+									'newspack-campaigns__campaign-group__select-control-group-item',
+									+selectValue.key === +id && 'is-selected'
+								),
 							} ) ),
 							archivedCampaigns.length && {
 								key: 'header-archived-campaigns',
@@ -183,7 +200,10 @@ const Campaigns = props => {
 							...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
 								key: id,
 								name,
-								className: 'newspack-campaigns__campaign-group__select-control-group-item',
+								className: classnames(
+									'newspack-campaigns__campaign-group__select-control-group-item',
+									+selectValue.key === +id && 'is-selected'
+								),
 							} ) ),
 						] }
 						onChange={ ( { selectedItem: { key } } ) =>
@@ -191,7 +211,7 @@ const Campaigns = props => {
 								? history.push( '/campaigns' )
 								: history.push( `/campaigns/${ key }` )
 						}
-						value={ valueForCampaignId( campaignId ) }
+						value={ selectValue }
 						hideLabelFromVision={ true }
 					/>
 					{ campaignData && (

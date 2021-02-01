@@ -86,6 +86,10 @@
 			background: white;
 			color: $primary-500;
 		}
+
+		&.is-selected {
+			text-decoration: underline;
+		}
 	}
 
 	// Multiple Select Controls
