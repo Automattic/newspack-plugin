@@ -318,7 +318,6 @@ class PopupsWizard extends Component {
 												campaignId={ campaignId }
 												prompts={ filterByCampaign( prompts, campaignId ) }
 												campaigns={ campaigns }
-												emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
 											/>
 										);
 									} }
