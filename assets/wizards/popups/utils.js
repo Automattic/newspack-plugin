@@ -38,7 +38,7 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page', 'newspack' ),
+	always: __( 'Until dismissed', 'newspack' ),
 	manual: __( 'Manual Placement', 'newspack' ),
 };
 
