@@ -175,16 +175,24 @@ const Campaigns = props => {
 								name: __( 'Active Prompts', 'newspack' ),
 								className: selectValue.key === 'active' && 'is-selected',
 							},
-							hasUnassigned && {
-								key: 'unassigned',
-								name: __( 'Unassigned Prompts', 'newspack' ),
-								className: selectValue.key === 'unassigned' && 'is-selected',
-							},
-							activeCampaigns.length && {
-								key: 'header-campaigns',
-								name: __( 'Campaigns', 'newspack' ),
-								className: 'is-header',
-							},
+							...( hasUnassigned
+								? [
+										{
+											key: 'unassigned',
+											name: __( 'Unassigned Prompts', 'newspack' ),
+											className: selectValue.key === 'unassigned' && 'is-selected',
+										},
+								  ]
+								: [] ),
+							...( activeCampaigns.length
+								? [
+										{
+											key: 'header-campaigns',
+											name: __( 'Campaigns', 'newspack' ),
+											className: 'is-header',
+										},
+								  ]
+								: [] ),
 							...activeCampaigns.map( ( { term_id: id, name } ) => ( {
 								key: id,
 								name,
@@ -193,11 +201,15 @@ const Campaigns = props => {
 									+selectValue.key === +id && 'is-selected'
 								),
 							} ) ),
-							archivedCampaigns.length && {
-								key: 'header-archived-campaigns',
-								name: __( 'Archived Campaigns', 'newspack' ),
-								className: 'is-header',
-							},
+							...( archivedCampaigns.length
+								? [
+										{
+											key: 'header-archived-campaigns',
+											name: __( 'Archived Campaigns', 'newspack' ),
+											className: 'is-header',
+										},
+								  ]
+								: [] ),
 							...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
 								key: id,
 								name,
