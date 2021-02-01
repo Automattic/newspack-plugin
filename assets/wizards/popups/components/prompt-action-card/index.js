@@ -1,5 +1,5 @@
 /**
- * Popup Action Card
+ * Prompt Action Card
  */
 
 /**
