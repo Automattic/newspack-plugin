@@ -312,12 +312,6 @@ const Campaigns = props => {
 					{ ...props }
 				/>
 			) ) }
-			{ prompts.length < 1 && -1 === campaignId && (
-				<p>{ __( 'No Campaigns have been created yet.', 'newspack' ) }</p>
-			) }
-			{ prompts.length < 1 && campaignId > 0 && (
-				<p>{ __( 'There are no Campaigns in this group.', 'newspack' ) }</p>
-			) }
 		</Fragment>
 	);
 };
