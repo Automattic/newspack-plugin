@@ -51,16 +51,23 @@ const SegmentGroup = props => {
 			<h3 className="newspack-campaigns__segment-group__card__segment">
 				{ __( 'Segment: ', 'newspack' ) }
 				{ label }
-				<SegmentationPreview
-					campaignId={ [ campaignId ] }
-					segment={ id }
-					showUnpublished={ true } // Do we need a control for this?
-					renderButton={ ( { showPreview } ) => (
-						<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
-							{ __( 'Preview', 'newspack' ) }
+				<div>
+					<SegmentationPreview
+						campaignId={ [ campaignId ] }
+						segment={ id }
+						showUnpublished={ true } // Do we need a control for this?
+						renderButton={ ( { showPreview } ) => (
+							<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
+								{ __( 'Preview', 'newspack' ) }
+							</Button>
+						) }
+					/>
+					{ 'unassigned' !== campaignId && (
+						<Button isSmall isTertiary onClick={ () => setModalVisible( ! modalVisible ) }>
+							{ __( 'Add New Prompt', 'newspack' ) }
 						</Button>
 					) }
-				/>
+				</div>
 			</h3>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
 				{ prompts.map( item => (
@@ -74,48 +81,41 @@ const SegmentGroup = props => {
 				) ) }
 			</Card>
 			{ prompts.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
-			{ 'unassigned' !== campaignId && (
-				<div className="newspack-campaigns__segment-group__add-new-wrap">
-					<Button isSmall isTertiary onClick={ () => setModalVisible( ! modalVisible ) }>
-						{ __( 'Add New Prompt', 'newspack' ) }
-					</Button>
-					{ modalVisible && (
-						<Modal
-							title={ __( 'Add New Prompt', 'newspack' ) }
-							className="newspack-campaigns__segment-group__add-new-button__modal"
-							onRequestClose={ () => setModalVisible( false ) }
-							shouldCloseOnEsc={ false }
-							shouldCloseOnClickOutside={ false }
-						>
-							<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
-								<Button href={ addNewURL( null, campaignId, id ) }>
-									<Icon icon={ iconInline } />
-									{ __( 'Inline', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
-									<Icon icon={ iconCenterOverlay } />
-									{ __( 'Center Overlay', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
-									<Icon icon={ iconTopOverlay } />
-									{ __( 'Top Overlay', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
-									<Icon icon={ iconBottomOverlay } />
-									{ __( 'Bottom Overlay', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'above-header', campaignId, id ) }>
-									<Icon icon={ iconAboveHeader } />
-									{ __( 'Above Header', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'manual', campaignId, id ) }>
-									<Icon icon={ iconManualPlacement } />
-									{ __( 'Manual Placement', 'newspack' ) }
-								</Button>
-							</Card>
-						</Modal>
-					) }
-				</div>
+			{ modalVisible && (
+				<Modal
+					title={ __( 'Add New Prompt', 'newspack' ) }
+					className="newspack-campaigns__segment-group__add-new-button__modal"
+					onRequestClose={ () => setModalVisible( false ) }
+					shouldCloseOnEsc={ false }
+					shouldCloseOnClickOutside={ false }
+				>
+					<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
+						<Button href={ addNewURL( null, campaignId, id ) }>
+							<Icon icon={ iconInline } />
+							{ __( 'Inline', 'newspack' ) }
+						</Button>
+						<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
+							<Icon icon={ iconCenterOverlay } />
+							{ __( 'Center Overlay', 'newspack' ) }
+						</Button>
+						<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
+							<Icon icon={ iconTopOverlay } />
+							{ __( 'Top Overlay', 'newspack' ) }
+						</Button>
+						<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
+							<Icon icon={ iconBottomOverlay } />
+							{ __( 'Bottom Overlay', 'newspack' ) }
+						</Button>
+						<Button href={ addNewURL( 'above-header', campaignId, id ) }>
+							<Icon icon={ iconAboveHeader } />
+							{ __( 'Above Header', 'newspack' ) }
+						</Button>
+						<Button href={ addNewURL( 'manual', campaignId, id ) }>
+							<Icon icon={ iconManualPlacement } />
+							{ __( 'Manual Placement', 'newspack' ) }
+						</Button>
+					</Card>
+				</Modal>
 			) }
 		</Card>
 	);

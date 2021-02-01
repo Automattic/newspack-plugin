@@ -24,6 +24,9 @@
 			border-bottom: 1px solid $light-gray-200;
 			display: flex;
 			justify-content: space-between;
+			button {
+				margin-left: 12px;
+			}
 		}
 	}
 
