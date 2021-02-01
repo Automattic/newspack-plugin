@@ -275,9 +275,12 @@ const Campaigns = props => {
 								hideLabelFromVision={ true }
 								value={ campaignName }
 								disabled={ !! inFlight }
-								onKeyDown={ event =>
-									ENTER === event.keyCode && '' !== campaignName && submitModal( campaignName )
-								}
+								onKeyDown={ event => {
+									if ( ENTER === event.keyCode && '' !== campaignName ) {
+										event.preventDefault();
+										submitModal( campaignName );
+									}
+								} }
 							/>
 							<Card buttonsCard noBorder>
 								<Button
