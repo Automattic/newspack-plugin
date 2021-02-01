@@ -179,7 +179,7 @@ const Campaigns = props => {
 								name: __( 'Unassigned Prompts', 'newspack' ),
 								className: selectValue.key === 'unassigned' && 'is-selected',
 							},
-							{
+							activeCampaigns.length && {
 								key: 'header-campaigns',
 								name: __( 'Campaigns', 'newspack' ),
 								className: 'is-header',
