@@ -54,7 +54,8 @@ class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			popups: [],
+			campaigns: [],
+			prompts: [],
 			segments: [],
 			settings: [],
 			previewUrl: null,
@@ -69,8 +70,8 @@ class PopupsWizard extends Component {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { groups, popups, segments, settings } ) =>
-				this.setState( { groups, popups, segments, settings } )
+			.then( ( { campaigns, prompts, segments, settings } ) =>
+				this.setState( { campaigns, prompts, segments, settings } )
 			)
 			.catch( error => setError( error ) );
 	};
@@ -87,7 +88,7 @@ class PopupsWizard extends Component {
 			method: state ? 'POST' : 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -109,7 +110,7 @@ class PopupsWizard extends Component {
 			},
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -121,7 +122,7 @@ class PopupsWizard extends Component {
 			data: { options },
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -137,7 +138,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -153,7 +154,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts} ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -169,7 +170,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -202,7 +203,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			data: { name },
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -212,7 +213,7 @@ class PopupsWizard extends Component {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
 			method: status ? 'POST' : 'DELETE',
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -223,7 +224,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			data: { name },
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -233,7 +234,7 @@ class PopupsWizard extends Component {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
 			method: 'DELETE',
 		} )
-			.then( ( { groups, popups } ) => this.setState( { groups, popups } ) )
+			.then( ( { campaigns, prompts } ) => this.setState( { campaigns, prompts } ) )
 			.catch( error => setError( error ) );
 	};
 
@@ -246,7 +247,8 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { groups, popups, segments, settings, previewUrl } = this.state;
+		const { campaigns, prompts, segments, settings, previewUrl } = this.state;
+		console.log( prompts, campaigns );
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -292,8 +294,8 @@ class PopupsWizard extends Component {
 										<Campaigns
 											{ ...props }
 											{ ...popupManagementSharedProps }
-											items={ popups }
-											groups={ groups }
+											prompts={ prompts }
+											campaigns={ campaigns }
 											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
 										/>
 									) }

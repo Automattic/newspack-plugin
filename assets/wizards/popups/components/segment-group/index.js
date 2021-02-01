@@ -33,7 +33,7 @@ import './style.scss';
 const SegmentGroup = props => {
 	const { segment, campaignGroup, segments } = props;
 	const [ modalVisible, setModalVisible ] = useState();
-	const { label, id, items } = segment;
+	const { label, id, prompts } = segment;
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<h3 className="newspack-campaigns__segment-group__card__segment">
@@ -51,7 +51,7 @@ const SegmentGroup = props => {
 				/>
 			</h3>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
-				{ items.map( item => (
+				{ prompts.map( item => (
 					<PromptActionCard
 						className={ getCardClassName( item ) }
 						description={ descriptionForPopup( item, segments ) }
@@ -61,7 +61,7 @@ const SegmentGroup = props => {
 					/>
 				) ) }
 			</Card>
-			{ items.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
+			{ prompts.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
 			{ parseInt( campaignGroup ) > 0 && (
 				<div className="newspack-campaigns__segment-group__add-new-wrap">
 					<Button isSmall isTertiary onClick={ () => setModalVisible( ! modalVisible ) }>

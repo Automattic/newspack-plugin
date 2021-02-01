@@ -470,23 +470,23 @@ class Popups_Wizard extends Wizard {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 
 		$response = [
-			'popups'   => [],
-			'segments' => [],
-			'groups'   => [],
-			'settings' => [],
+			'prompts'   => [],
+			'segments'  => [],
+			'campaigns' => [],
+			'settings'  => [],
 		];
 
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
-			$response['popups']   = array_map(
-				function( $popup ) {
-					$popup['edit_link'] = get_edit_post_link( $popup['id'] );
-					return $popup;
+			$response['prompts']   = array_map(
+				function( $prompt ) {
+					$popup['edit_link'] = get_edit_post_link( $prompt['id'] );
+					return $prompt;
 				},
-				$newspack_popups_configuration_manager->get_popups( true )
+				$newspack_popups_configuration_manager->get_prompts( true )
 			);
-			$response['segments'] = $newspack_popups_configuration_manager->get_segments( true );
-			$response['settings'] = $newspack_popups_configuration_manager->get_settings();
-			$response['groups']   = $newspack_popups_configuration_manager->get_groups();
+			$response['segments']  = $newspack_popups_configuration_manager->get_segments( true );
+			$response['settings']  = $newspack_popups_configuration_manager->get_settings();
+			$response['campaigns'] = $newspack_popups_configuration_manager->get_campaigns();
 		}
 		return rest_ensure_response( $response );
 	}
@@ -783,7 +783,7 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
-	 * Activate a campaign group.
+	 * Activate a campaign.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.

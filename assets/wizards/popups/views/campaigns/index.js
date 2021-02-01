@@ -56,8 +56,8 @@ const modalButton = modalType => {
  */
 const Campaigns = props => {
 	const {
-		items = [],
-		groups = [],
+		prompts = [],
+		campaigns = [],
 		manageCampaignGroup,
 		segments,
 		wizardApiFetch,
@@ -135,7 +135,7 @@ const Campaigns = props => {
 			...segments.map( ( { name: label, id } ) => ( {
 				label,
 				id,
-				items: itemsToGroup.filter(
+				prompts: itemsToGroup.filter(
 					( { options: { selected_segment_id: segment } } ) => segment === id
 				),
 			} ) )
@@ -143,20 +143,20 @@ const Campaigns = props => {
 		groupedResults.push( {
 			label: __( 'Default (no segment)', 'newspack' ),
 			id: '',
-			items: unsegmented,
+			prompts: unsegmented,
 		} );
 		return groupedResults;
 	};
 
-	const allPrompts = filterByGroup( items );
+	const allPrompts = filterByGroup( prompts );
 	const campaignsToDisplay = groupBySegment( segments, allPrompts );
-	const activeGroups = groups.filter( ( { status } ) => 'archive' !== status );
-	const archivedGroups = groups.filter( ( { status } ) => 'archive' === status );
-	const groupInView = groups.reduce(
+	const activeGroups = campaigns.filter( ( { status } ) => 'archive' !== status );
+	const archivedGroups = campaigns.filter( ( { status } ) => 'archive' === status );
+	const groupInView = campaigns.reduce(
 		( acc, group ) => ( +campaignGroup > 0 && +campaignGroup === +group.term_id ? group : acc ),
 		null
 	);
-	const campaignGroupData = groups.reduce(
+	const campaignGroupData = campaigns.reduce(
 		( acc, group ) => ( +campaignGroup === +group.term_id ? group : acc ),
 		null
 	);

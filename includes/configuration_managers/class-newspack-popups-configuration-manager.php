@@ -35,12 +35,12 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Retrieve all Pop-up CPTs
+	 * Retrieve all prompt CPTs
 	 *
 	 * @param  boolean $include_unpublished Whether to include unpublished posts.
-	 * @return array All Pop-ups
+	 * @return array All prompts
 	 */
-	public function get_popups( $include_unpublished = false ) {
+	public function get_prompts( $include_unpublished = false ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Model::retrieve_popups( $include_unpublished ) :
 			$this->unconfigured_error();
@@ -236,9 +236,9 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Get campaign groups.
+	 * Get campaigns.
 	 */
-	public function get_groups() {
+	public function get_campaigns() {
 		return $this->is_configured() ?
 			\Newspack_Popups::get_groups() :
 			$this->unconfigured_error();
