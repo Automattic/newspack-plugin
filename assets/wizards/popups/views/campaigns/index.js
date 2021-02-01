@@ -186,7 +186,11 @@ const Campaigns = props => {
 								className: 'newspack-campaigns__popup-group__select-control-group-item',
 							} ) ),
 						] }
-						onChange={ ( { selectedItem: { key } } ) => history.push( `/campaigns/${ key }` ) }
+						onChange={ ( { selectedItem: { key } } ) =>
+							'active' === key
+								? history.push( '/campaigns' )
+								: history.push( `/campaigns/${ key }` )
+						}
 						value={ valueForCampaignId( campaignId ) }
 						hideLabelFromVision={ true }
 					/>
