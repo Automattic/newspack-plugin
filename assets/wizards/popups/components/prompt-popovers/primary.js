@@ -36,20 +36,6 @@ const PrimaryPromptPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ isOverlay( { options } ) && isPublished && (
-				<MenuItem
-					onClick={ () => {
-						setSitewideDefaultPopup( id, ! sitewideDefault );
-						onFocusOutside();
-					} }
-					className="newspack-button"
-				>
-					<div className="newspack-popover__campaigns__toggle-control">
-						{ __( 'Sitewide default', 'newspack' ) }
-						<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
-					</div>
-				</MenuItem>
-			) }
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();

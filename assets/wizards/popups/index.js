@@ -21,6 +21,7 @@ import { stringify } from 'qs';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
+import { CampaignsContext } from './contexts';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -320,18 +321,20 @@ class PopupsWizard extends Component {
 										};
 
 										return (
-											<Campaigns
-												{ ...popupManagementSharedProps }
-												archiveCampaignGroup={ archiveCampaignGroup }
-												campaignId={ campaignId }
-												createCampaignGroup={ createCampaignGroup }
-												deleteCampaignGroup={ deleteCampaignGroup }
-												duplicateCampaignGroup={ duplicateCampaignGroup }
-												renameCampaignGroup={ renameCampaignGroup }
-												prompts={ filterByCampaign( prompts, campaignId ) }
-												campaigns={ campaigns }
-												hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }
-											/>
+											<CampaignsContext.Provider value={ prompts }>
+												<Campaigns
+													{ ...popupManagementSharedProps }
+													archiveCampaignGroup={ archiveCampaignGroup }
+													campaignId={ campaignId }
+													createCampaignGroup={ createCampaignGroup }
+													deleteCampaignGroup={ deleteCampaignGroup }
+													duplicateCampaignGroup={ duplicateCampaignGroup }
+													renameCampaignGroup={ renameCampaignGroup }
+													prompts={ filterByCampaign( prompts, campaignId ) }
+													campaigns={ campaigns }
+													hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }
+												/>
+											</CampaignsContext.Provider>
 										);
 									} }
 								/>

@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useContext, useState } from '@wordpress/element';
 import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
@@ -15,6 +15,7 @@ import { Icon, plusCircle } from '@wordpress/icons';
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
+import { CampaignsContext } from '../../contexts';
 import { descriptionForPopup, getCardClassName, warningForPopup } from '../../utils';
 
 import {
@@ -46,6 +47,7 @@ const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState();
 	const { label, id, prompts } = segment;
+	const allPrompts = useContext( CampaignsContext );
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
@@ -77,7 +79,7 @@ const SegmentGroup = props => {
 					<PromptActionCard
 						className={ getCardClassName( item ) }
 						description={ descriptionForPopup( item ) }
-						warning={ warningForPopup( prompts, item ) }
+						warning={ warningForPopup( allPrompts, item ) }
 						key={ item.id }
 						prompt={ item }
 						{ ...props }

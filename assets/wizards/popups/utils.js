@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 
 /**
  * Check whether the given popup is an overlay.
@@ -112,49 +112,67 @@ export const isSameType = ( campaignA, campaignB ) => {
 	);
 };
 
-export const warningForPopup = ( campaigns, campaign ) => {
+export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
-	if ( 'publish' === campaign.status && ( isAboveHeader( campaign ) || isOverlay( campaign ) ) ) {
-		const conflictingCampaigns = campaigns.filter( conflict => {
-			const campaignCategories = filterOutUncategorized( campaign.categories );
+
+	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) ) ) {
+		const promptCategories = filterOutUncategorized( prompt.categories );
+		const conflictingPrompts = prompts.filter( conflict => {
 			const conflictCategories = filterOutUncategorized( conflict.categories );
 
 			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
 			const hasConflictingCategory =
-				( 0 === campaignCategories.length && 0 === conflictCategories.length ) ||
-				0 <
-					campaignCategories.filter(
-						category =>
-							!! conflictCategories.find(
-								conflictCategory => category.term_id === conflictCategory.term_id
-							)
-					).length;
+				( 0 === promptCategories.length && 0 === conflictCategories.length ) ||
+				promptCategories.some(
+					category =>
+						!! conflictCategories.find(
+							conflictCategory => category.term_id === conflictCategory.term_id
+						)
+				);
 
 			return (
 				'publish' === conflict.status &&
-				conflict.id !== campaign.id &&
-				isSameType( campaign, conflict ) &&
-				campaign.options.selected_segment_id === conflict.options.selected_segment_id &&
+				conflict.id !== prompt.id &&
+				isSameType( prompt, conflict ) &&
+				prompt.options.selected_segment_id === conflict.options.selected_segment_id &&
 				hasConflictingCategory
 			);
 		} );
 
-		if ( 0 < conflictingCampaigns.length ) {
-			warningMessages.push(
-				sprintf(
-					__(
-						'Multiple %s campaigns can’t share the same segment or category filtering.',
-						'newspack'
-					),
-					isAboveHeader( campaign ) ? __( 'above-header', 'newspack' ) : __( 'overlay', 'newspack' )
-				)
-			);
-			warningMessages.push(
-				`${ __( 'Conflicts with:', 'newspack' ) } ${ conflictingCampaigns
-					.map( a => a.title )
-					.join( ', ' ) }`
+		if ( 0 < conflictingPrompts.length ) {
+			return (
+				<>
+					<h4 className="newspack-notice__heading">
+						{ sprintf(
+							__( '%s detected:', 'newspack' ),
+							1 < conflictingPrompts.length
+								? __( 'Conflicts', 'newspack' )
+								: __( 'Conflict', 'newspack' )
+						) }
+					</h4>
+					<ul>
+						{ conflictingPrompts.map( conflictingPrompt => (
+							<li key={ conflictingPrompt.id }>
+								<p>
+									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
+									{ sprintf(
+										__( '%s can’t share the same segment %s. ' ),
+										isAboveHeader( prompt )
+											? __( 'Above-header prompts', 'newspack' )
+											: __( 'Overlays', 'newspack' ),
+										0 < promptCategories.length
+											? __( 'and category filtering', 'newspack' )
+											: __( 'if uncategorized', 'newspack' )
+									) }
+								</p>
+							</li>
+						) ) }
+					</ul>
+				</>
 			);
 		}
+
+		return null;
 	}
 
 	return warningMessages.length ? warningMessages.join( ' ' ) : null;
