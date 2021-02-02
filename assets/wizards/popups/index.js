@@ -264,7 +264,6 @@ class PopupsWizard extends Component {
 										const campaignId = props.match.params.id;
 
 										const archiveCampaignGroup = ( id, status ) => {
-											const { setError, wizardApiFetch } = this.props;
 											return wizardApiFetch( {
 												path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
 												method: status ? 'POST' : 'DELETE',
@@ -274,48 +273,59 @@ class PopupsWizard extends Component {
 												.catch( error => setError( error ) );
 										};
 										const createCampaignGroup = name => {
-											const { setError, wizardApiFetch } = this.props;
 											return wizardApiFetch( {
 												path: `/newspack/v1/wizard/newspack-popups-wizard/create-campaign/`,
 												method: 'POST',
 												data: { name },
 												quiet: true,
 											} )
-												.then( ( { campaigns, prompts, segments, settings, term_id: termId } ) => {
-													this.setState( { campaigns, prompts, segments, settings } );
-													props.history.push( `/campaigns/${ termId }` );
+												.then( result => {
+													this.setState( {
+														campaigns: result.campaigns,
+														prompts: result.prompts,
+														segments: result.segments,
+														settings: result.settings,
+													} );
+													props.history.push( `/campaigns/${ result.term_id }` );
 												} )
 												.catch( error => setError( error ) );
 										};
 										const deleteCampaignGroup = id => {
-											const { setError, wizardApiFetch } = this.props;
 											return wizardApiFetch( {
 												path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
 												method: 'DELETE',
 												quiet: true,
 											} )
-												.then( ( { campaigns, prompts, segments, settings, term_id: termId } ) => {
-													this.setState( { campaigns, prompts, segments, settings } );
+												.then( result => {
+													this.setState( {
+														campaigns: result.campaigns,
+														prompts: result.prompts,
+														segments: result.segments,
+														settings: result.settings,
+													} );
 													props.history.push( '/campaigns/' );
 												} )
 												.catch( error => setError( error ) );
 										};
 										const duplicateCampaignGroup = ( id, name ) => {
-											const { setError, wizardApiFetch } = this.props;
 											return wizardApiFetch( {
 												path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
 												method: 'POST',
 												data: { name },
 												quiet: true,
 											} )
-												.then( ( { campaigns, prompts, segments, settings, term_id: termId } ) => {
-													this.setState( { campaigns, prompts, segments, settings } );
-													props.history.push( `/campaigns/${ termId }` );
+												.then( result => {
+													this.setState( {
+														campaigns: result.campaigns,
+														prompts: result.prompts,
+														segments: result.segments,
+														settings: result.settings,
+													} );
+													props.history.push( `/campaigns/${ result.term_id }` );
 												} )
 												.catch( error => setError( error ) );
 										};
 										const renameCampaignGroup = ( id, name ) => {
-											const { setError, wizardApiFetch } = this.props;
 											return wizardApiFetch( {
 												path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
 												method: 'POST',
