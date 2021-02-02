@@ -330,6 +330,7 @@ const Campaigns = props => {
 					key={ index }
 					segment={ segment }
 					campaignId={ campaignId }
+					campaignData={ campaignData }
 					segments={ segments }
 					{ ...props }
 				/>
