@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
-import { Icon } from '@wordpress/icons';
+import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -86,9 +86,14 @@ const SegmentGroup = props => {
 			{ prompts.length < 1 ? <p>{ emptySegmentText }</p> : '' }
 			{ 'unassigned' !== campaignId && (
 				<div className="newspack-campaigns__segment-group__add-new-wrap">
-					<Button isSmall isTertiary onClick={ () => setModalVisible( ! modalVisible ) }>
-						{ __( 'Add New Prompt', 'newspack' ) }
-					</Button>
+					<Button
+						isSmall
+						isQuaternary
+						onClick={ () => setModalVisible( ! modalVisible ) }
+						icon={ plusCircle }
+						label={ __( 'Add New Prompt', 'newspack' ) }
+						tooltipPosition="bottom center"
+					/>
 					{ modalVisible && (
 						<Modal
 							title={ __( 'Add New Prompt', 'newspack' ) }
