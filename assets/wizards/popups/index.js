@@ -213,52 +213,6 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
-	renameCampaignGroup = ( id, name ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
-			method: 'POST',
-			data: { name },
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	archiveCampaignGroup = ( id, status ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
-			method: status ? 'POST' : 'DELETE',
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	duplicateCampaignGroup = ( id, name ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
-			method: 'POST',
-			data: { name },
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	deleteCampaignGroup = id => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
-			method: 'DELETE',
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
 	render() {
 		const {
 			pluginRequirements,
@@ -299,10 +253,6 @@ class PopupsWizard extends Component {
 						publishPopup: this.publishPopup,
 						unpublishPopup: this.unpublishPopup,
 						refetch: this.refetch,
-						archiveCampaignGroup: this.archiveCampaignGroup,
-						deleteCampaignGroup: this.deleteCampaignGroup,
-						duplicateCampaignGroup: this.duplicateCampaignGroup,
-						renameCampaignGroup: this.renameCampaignGroup,
 					};
 					return (
 						<HashRouter hashType="slash">
@@ -312,10 +262,79 @@ class PopupsWizard extends Component {
 									path="/campaigns/:id?"
 									render={ props => {
 										const campaignId = props.match.params.id;
+
+										const archiveCampaignGroup = ( id, status ) => {
+											const { setError, wizardApiFetch } = this.props;
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
+												method: status ? 'POST' : 'DELETE',
+												quiet: true,
+											} )
+												.then( this.updateAfterAPI )
+												.catch( error => setError( error ) );
+										};
+										const createCampaignGroup = name => {
+											const { setError, wizardApiFetch } = this.props;
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/create-campaign/`,
+												method: 'POST',
+												data: { name },
+												quiet: true,
+											} )
+												.then( ( { campaigns, prompts, segments, settings, term_id: termId } ) => {
+													this.setState( { campaigns, prompts, segments, settings } );
+													props.history.push( `/campaigns/${ termId }` );
+												} )
+												.catch( error => setError( error ) );
+										};
+										const deleteCampaignGroup = id => {
+											const { setError, wizardApiFetch } = this.props;
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
+												method: 'DELETE',
+												quiet: true,
+											} )
+												.then( ( { campaigns, prompts, segments, settings, term_id: termId } ) => {
+													this.setState( { campaigns, prompts, segments, settings } );
+													props.history.push( '/campaigns/' );
+												} )
+												.catch( error => setError( error ) );
+										};
+										const duplicateCampaignGroup = ( id, name ) => {
+											const { setError, wizardApiFetch } = this.props;
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
+												method: 'POST',
+												data: { name },
+												quiet: true,
+											} )
+												.then( ( { campaigns, prompts, segments, settings, term_id: termId } ) => {
+													this.setState( { campaigns, prompts, segments, settings } );
+													props.history.push( `/campaigns/${ termId }` );
+												} )
+												.catch( error => setError( error ) );
+										};
+										const renameCampaignGroup = ( id, name ) => {
+											const { setError, wizardApiFetch } = this.props;
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
+												method: 'POST',
+												data: { name },
+												quiet: true,
+											} )
+												.then( this.updateAfterAPI )
+												.catch( error => setError( error ) );
+										};
+
 										return (
 											<Campaigns
 												{ ...popupManagementSharedProps }
+												archiveCampaignGroup={ archiveCampaignGroup }
 												campaignId={ campaignId }
+												createCampaignGroup={ createCampaignGroup }
+												deleteCampaignGroup={ deleteCampaignGroup }
+												duplicateCampaignGroup={ duplicateCampaignGroup }
+												renameCampaignGroup={ renameCampaignGroup }
 												prompts={ filterByCampaign( prompts, campaignId ) }
 												campaigns={ campaigns }
 												hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }

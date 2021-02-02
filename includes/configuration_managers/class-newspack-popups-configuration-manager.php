@@ -189,6 +189,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Create campaign.
+	 *
+	 * @param string $name Campaign name.
+	 */
+	public function create_campaign( $name ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::create_campaign( $name ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Duplicate campaign.
 	 *
 	 * @param int    $id Campaign group ID.

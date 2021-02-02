@@ -87,7 +87,7 @@ const Campaigns = props => {
 		manageCampaignGroup,
 		segments,
 		wizardApiFetch,
-		refetch,
+		createCampaignGroup,
 		duplicateCampaignGroup,
 		deleteCampaignGroup,
 		archiveCampaignGroup,
@@ -112,35 +112,13 @@ const Campaigns = props => {
 
 	const submitModal = modalText => {
 		if ( MODAL_TYPE_NEW === modalType ) {
-			createTerm( modalText );
+			createCampaignGroup( modalText );
 		} else if ( MODAL_TYPE_RENAME === modalType ) {
 			renameCampaignGroup( campaignId, modalText );
 		} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
 			duplicateCampaignGroup( campaignId, modalText );
 		}
 		setModalVisible( false );
-	};
-
-	const createTerm = term => {
-		setPopoverVisible( false );
-		setInFlight( true );
-		wizardApiFetch( {
-			path: '/wp/v2/newspack_popups_taxonomy',
-			method: 'POST',
-			quiet: true,
-			data: {
-				name: term,
-				slug: term,
-			},
-		} )
-			.then( () => {
-				setInFlight( false );
-				setCampaignName( '' );
-				refetch();
-			} )
-			.catch( () => {
-				setInFlight( false );
-			} );
 	};
 
 	const activeCampaigns = campaigns.filter( ( { status } ) => 'archive' !== status );
