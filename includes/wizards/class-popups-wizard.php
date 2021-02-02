@@ -492,7 +492,7 @@ class Popups_Wizard extends Wizard {
 				'campaigns' => [],
 				'settings'  => [],
 			],
-			$extras
+			(array) $extras
 		);
 
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
