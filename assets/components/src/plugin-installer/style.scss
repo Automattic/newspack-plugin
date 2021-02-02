@@ -7,7 +7,6 @@
 .newspack-card {
 	.newspack-plugin-installer__status {
 		align-items: center;
-		border-left-width: 4px;
 		display: flex;
 
 		svg {
@@ -23,9 +22,18 @@
 		}
 	}
 
+	&.newspack-plugin-installer__status-active,
+	&.newspack-plugin-installer__status-error,
+	&.newspack-plugin-installer__status-installing {
+		padding-left: 28px;
+
+		&.is-small {
+			padding-left: 20px;
+		}
+	}
+
 	&.newspack-plugin-installer__status-active {
-		border-left-color: $alert-green;
-		border-left-width: 4px;
+		box-shadow: inset 4px 0 0 $alert-green;
 
 		svg {
 			fill: $alert-green;
@@ -33,13 +41,11 @@
 	}
 
 	&.newspack-plugin-installer__status-error {
-		border-left-color: $alert-red;
-		border-left-width: 4px;
+		box-shadow: inset 4px 0 0 $alert-red;
 	}
 
 	&.newspack-plugin-installer__status-installing {
-		border-left-width: 4px;
-		opacity: 0.5;
+		box-shadow: inset 4px 0 0 $light-gray-700;
 	}
 }
 

@@ -22,7 +22,7 @@ import { ActionCard, Popover, Button, Router } from '../../../../components/src'
 const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
-	<NavLink to="segmentation/new">
+	<NavLink to="segments/new">
 		<Button isPrimary isSmall>
 			{ __( 'Add New', 'newspack' ) }
 		</Button>
@@ -174,7 +174,7 @@ const SegmentActionCard = ( {
 										onFocusOutside={ onFocusOutside }
 									>
 										<MenuItem
-											onClick={ () => history.push( `/segmentation/${ segment.id }` ) }
+											onClick={ () => history.push( `/segments/${ segment.id }` ) }
 											icon={ <EditIcon /> }
 											className="newspack-button"
 										>
