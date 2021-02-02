@@ -7,6 +7,7 @@ export { default as PreviewBox } from './preview-box';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as CheckboxControl } from './checkbox-control';
 export { default as ColorPicker } from './color-picker';
+export { default as CustomSelectControl } from './custom-select-control';
 export { default as FormTokenField } from './form-token-field';
 export { default as Footer } from './footer';
 export { default as Handoff } from './handoff';
