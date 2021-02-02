@@ -47,6 +47,7 @@ const PromptActionCard = props => {
 								? __( 'Campaign groups', 'newspack' )
 								: __( 'Category filtering and campaign groups', 'newspack' )
 						}
+						tooltipPosition="bottom center"
 					/>
 					<Button
 						isQuaternary
@@ -55,6 +56,7 @@ const PromptActionCard = props => {
 						onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 						icon={ moreVertical }
 						label={ __( 'More options', 'newspack' ) }
+						tooltipPosition="bottom center"
 					/>
 					{ popoverVisibility && (
 						<PrimaryPromptPopover

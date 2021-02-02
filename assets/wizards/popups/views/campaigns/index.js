@@ -219,6 +219,7 @@ const Campaigns = props => {
 								onClick={ () => setPopoverVisible( ! popoverVisible ) }
 								icon={ moreVertical }
 								label={ __( 'Actions', 'newspack' ) }
+								tooltipPosition="bottom center"
 							/>
 							{ popoverVisible && (
 								<CampaignManagementPopover
