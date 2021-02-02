@@ -16,8 +16,8 @@ import { Popover } from '../../../../components/src';
 
 const CampaignManagementPopover = ( {
 	dismiss,
+	hasPrompts,
 	hasPublished,
-	hasUnpublished,
 	isArchive,
 	onActivate,
 	onArchive,
@@ -36,7 +36,7 @@ const CampaignManagementPopover = ( {
 			{ __( 'Close Popover', 'newspack' ) }
 		</MenuItem>
 
-		{ hasUnpublished && (
+		{ hasPrompts && (
 			<MenuItem
 				onClick={ () => {
 					dismiss();

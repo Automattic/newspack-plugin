@@ -263,7 +263,7 @@ const Campaigns = props => {
 										setModalType( MODAL_TYPE_RENAME );
 									} }
 									onUnarchive={ () => archiveCampaignGroup( campaignId, false ) }
-									hasUnpublished={ prompts.some( ( { status } ) => 'publish' !== status ) }
+									hasPrompts={ prompts.length > 0 }
 									hasPublished={ prompts.some( ( { status } ) => 'publish' === status ) }
 								/>
 							) }
