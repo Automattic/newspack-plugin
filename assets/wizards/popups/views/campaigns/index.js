@@ -86,7 +86,6 @@ const Campaigns = props => {
 		hasUnassigned,
 		manageCampaignGroup,
 		segments,
-		wizardApiFetch,
 		createCampaignGroup,
 		duplicateCampaignGroup,
 		deleteCampaignGroup,
@@ -100,7 +99,6 @@ const Campaigns = props => {
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ modalType, setModalType ] = useState();
 	const [ campaignName, setCampaignName ] = useState();
-	const [ inFlight, setInFlight ] = useState( false );
 
 	useEffect( () => {
 		if ( modalVisible ) {
@@ -273,7 +271,6 @@ const Campaigns = props => {
 									label={ __( 'Campaign Name', 'newspack' ) }
 									hideLabelFromVision={ true }
 									value={ campaignName }
-									disabled={ !! inFlight }
 									onKeyDown={ event => {
 										if ( ENTER === event.keyCode && '' !== campaignName ) {
 											event.preventDefault();
@@ -293,7 +290,7 @@ const Campaigns = props => {
 								</Button>
 								<Button
 									isPrimary
-									disabled={ inFlight || ! campaignName }
+									disabled={ ! campaignName }
 									onClick={ () => submitModal( campaignName ) }
 								>
 									{ modalButton( modalType ) }
