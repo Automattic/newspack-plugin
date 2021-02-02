@@ -98,3 +98,6 @@ export const descriptionForPopup = prompt => {
 };
 
 export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[ frequency ];
+
+export const dataForCampaignId = ( id, campaigns ) =>
+	campaigns.reduce( ( acc, group ) => ( +id > 0 && +id === +group.term_id ? group : acc ), null );

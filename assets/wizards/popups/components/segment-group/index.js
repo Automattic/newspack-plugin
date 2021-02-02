@@ -15,7 +15,7 @@ import { Icon } from '@wordpress/icons';
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
-import { descriptionForPopup, getCardClassName } from '../../utils';
+import { dataForCampaignId, descriptionForPopup, getCardClassName } from '../../utils';
 
 import {
 	iconInline,
@@ -43,9 +43,10 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 };
 
 const SegmentGroup = props => {
-	const { segment, campaignId } = props;
+	const { campaigns, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState();
 	const { label, id, prompts } = segment;
+	const campaignData = dataForCampaignId( campaignId, campaigns );
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<h3 className="newspack-campaigns__segment-group__card__segment">
@@ -80,7 +81,15 @@ const SegmentGroup = props => {
 					/>
 				) ) }
 			</Card>
-			{ prompts.length < 1 ? <p>{ __( 'No prompts in this segment yet.', 'newspack' ) }</p> : '' }
+			{ prompts.length < 1 ? (
+				<p>
+					{ campaignData
+						? __( 'No prompts in this segment for', 'newspack' ) + ' ' + campaignData.name + '.'
+						: __( 'No prompts in this segment.', 'newspack' ) }
+				</p>
+			) : (
+				''
+			) }
 			{ modalVisible && (
 				<Modal
 					title={ __( 'Add New Prompt', 'newspack' ) }

@@ -24,6 +24,7 @@ import {
 } from '../../../../components/src';
 import CampaignManagementPopover from '../../components/campaign-management-popover';
 import SegmentGroup from '../../components/segment-group';
+import { dataForCampaignId } from '../../utils';
 import './style.scss';
 
 /**
@@ -73,9 +74,6 @@ const groupBySegment = ( segments, prompts ) => {
 	} );
 	return grouped;
 };
-
-const dataForCampaignId = ( id, campaigns ) =>
-	campaigns.reduce( ( acc, group ) => ( +id > 0 && +id === +group.term_id ? group : acc ), null );
 
 /**
  * Campaign management screen.
