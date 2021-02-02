@@ -20,7 +20,7 @@ import { stringify } from 'qs';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Campaigns, Analytics, Settings, Segmentation } from './views';
+import { Campaigns, Analytics, Settings, Segments } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -34,8 +34,8 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Segmentation', 'newpack' ),
-		path: '/segmentation',
+		label: __( 'Segments', 'newpack' ),
+		path: '/segments',
 		exact: true,
 	},
 	{
@@ -324,9 +324,9 @@ class PopupsWizard extends Component {
 									} }
 								/>
 								<Route
-									path="/segmentation/:id?"
+									path="/segments/:id?"
 									render={ props => (
-										<Segmentation
+										<Segments
 											{ ...props }
 											{ ...sharedProps }
 											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }

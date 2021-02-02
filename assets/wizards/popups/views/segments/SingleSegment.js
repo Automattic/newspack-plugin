@@ -128,7 +128,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			},
 		} )
 			.then( setSegments )
-			.then( history.push( '/segmentation' ) );
+			.then( history.push( '/segments' ) );
 	};
 
 	return (
@@ -321,7 +321,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
-				<Button isSecondary href="#/segmentation">
+				<Button isSecondary href="#/segments">
 					{ __( 'Cancel', 'newspack' ) }
 				</Button>
 			</div>
