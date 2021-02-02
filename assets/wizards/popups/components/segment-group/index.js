@@ -104,27 +104,27 @@ const SegmentGroup = props => {
 						>
 							<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
 								<Button href={ addNewURL( null, campaignId, id ) }>
-									<Icon icon={ iconInline } />
+									<Icon icon={ iconInline } height={ 48 } width={ 48 } />
 									{ __( 'Inline', 'newspack' ) }
 								</Button>
 								<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
-									<Icon icon={ iconCenterOverlay } />
+									<Icon icon={ iconCenterOverlay } height={ 48 } width={ 48 } />
 									{ __( 'Center Overlay', 'newspack' ) }
 								</Button>
 								<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
-									<Icon icon={ iconTopOverlay } />
+									<Icon icon={ iconTopOverlay } height={ 48 } width={ 48 } />
 									{ __( 'Top Overlay', 'newspack' ) }
 								</Button>
 								<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
-									<Icon icon={ iconBottomOverlay } />
+									<Icon icon={ iconBottomOverlay } height={ 48 } width={ 48 } />
 									{ __( 'Bottom Overlay', 'newspack' ) }
 								</Button>
 								<Button href={ addNewURL( 'above-header', campaignId, id ) }>
-									<Icon icon={ iconAboveHeader } />
+									<Icon icon={ iconAboveHeader } height={ 48 } width={ 48 } />
 									{ __( 'Above Header', 'newspack' ) }
 								</Button>
 								<Button href={ addNewURL( 'manual', campaignId, id ) }>
-									<Icon icon={ iconManualPlacement } />
+									<Icon icon={ iconManualPlacement } height={ 48 } width={ 48 } />
 									{ __( 'Manual Placement', 'newspack' ) }
 								</Button>
 							</Card>
