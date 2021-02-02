@@ -15,7 +15,7 @@ export const isOverlay = popup =>
 /**
  * Check whether the given popup is above-header.
  *
- * @param {object} popup Popup object to check.
+ * @param {Object} popup Popup object to check.
  * @return {boolean} True if the popup is a above-header, otherwise false.
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
