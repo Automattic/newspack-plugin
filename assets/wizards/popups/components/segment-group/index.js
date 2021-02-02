@@ -59,7 +59,7 @@ const SegmentGroup = props => {
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<h3 className="newspack-campaigns__segment-group__card__segment">
-				{ __( 'Segment: ', 'newspack' ) }
+				{ id ? __( 'Segment: ', 'newspack' ) : '' }
 				{ label }
 				<div>
 					<SegmentationPreview
