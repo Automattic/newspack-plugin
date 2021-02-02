@@ -105,7 +105,9 @@ const Campaigns = props => {
 	const [ inFlight, setInFlight ] = useState( false );
 
 	useEffect( () => {
-		modalVisible && modalTextRef.current.querySelector( 'input' ).focus();
+		if ( modalVisible ) {
+			modalTextRef.current.querySelector( 'input' ).focus();
+		}
 	}, [ modalVisible ] );
 
 	const history = useHistory();
