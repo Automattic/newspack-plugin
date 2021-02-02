@@ -163,8 +163,6 @@ class NRH {
 				esc_attr( $organization_id )
 			);
 
-			// phpcs:disable
-
 			ob_start();
 
 		if ( ! $is_amp ) : ?>
@@ -216,7 +214,8 @@ class NRH {
 			<?php endif; ?>
 				<div class='wp-block-newspack-blocks-donate wpbnbd untiered' id='<?php echo esc_attr( $block_id ); ?>'>
 					<?php echo wp_kses( $form_open, $allowed_tags ); ?>
-						<input type="hidden" <?php if ( $is_amp ) : ?>[value]="<?php echo esc_attr( $block_id ); ?>.amount"<?php endif; ?> value="<?php echo esc_attr( $initial_value ); ?>" name="amount" id="amount" />
+						<input type="hidden" <?php if ( $is_amp ) : ?>
+						[value]="<?php echo esc_attr( $block_id ); ?>.amount"<?php endif; ?> value="<?php echo esc_attr( $initial_value ); ?>" name="amount" id="amount" />
 						<div class='wp-block-newspack-blocks-donate__options'>
 							<?php foreach ( $frequencies as $frequency_slug => $frequency_name ) : ?>
 								<?php
@@ -239,7 +238,7 @@ class NRH {
 												}
 											}
 										)"
-										<?php else: ?>
+										<?php else : ?>
 											onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
 										<?php endif; ?>
 									/>
@@ -315,7 +314,8 @@ class NRH {
 		<?php endif; ?>
 			<div class='wp-block-newspack-blocks-donate wpbnbd tiered' id='<?php echo esc_attr( $block_id ); ?>'>
 				<?php echo wp_kses( $form_open, $allowed_tags ); ?>
-					<input type="hidden" <?php if ( $is_amp ) : ?>[value]="<?php echo esc_attr( $block_id ); ?>.amount"<?php endif; ?> value="<?php echo esc_attr( $initial_value ); ?>" name="amount" id="amount" />
+					<input type="hidden" <?php if ( $is_amp ) : ?>
+					[value]="<?php echo esc_attr( $block_id ); ?>.amount"<?php endif; ?> value="<?php echo esc_attr( $initial_value ); ?>" name="amount" id="amount" />
 					<div class='wp-block-newspack-blocks-donate__options'>
 						<div class='wp-block-newspack-blocks-donate__frequencies frequencies'>
 							<?php foreach ( $frequencies as $frequency_slug => $frequency_name ) : ?>
@@ -336,7 +336,7 @@ class NRH {
 												}
 											}
 										)"
-										<?php else: ?>
+										<?php else : ?>
 											onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
 										<?php endif; ?>
 									/>
@@ -370,7 +370,7 @@ class NRH {
 															}
 														}
 													)"
-													<?php else: ?>
+													<?php else : ?>
 														onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
 													<?php endif; ?>
 												/>
@@ -400,7 +400,7 @@ class NRH {
 														}
 													}
 												)"
-												<?php else: ?>
+												<?php else : ?>
 														onclick="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
 												<?php endif; ?>
 											/>
@@ -435,7 +435,7 @@ class NRH {
 															}
 														}
 													)"
-													<?php else: ?>
+													<?php else : ?>
 														oninput="updateAmount( '<?php echo esc_attr( $block_id ); ?>' );"
 													<?php endif; ?>
 												/>
@@ -460,7 +460,7 @@ class NRH {
 			</div>
 			<?php
 		endif;
-		// phpcs:enable
+
 		return ob_get_clean();
 	}
 }
