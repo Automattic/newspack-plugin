@@ -1,5 +1,5 @@
 /**
- * Secondary Popup Action Card
+ * Secondary PromptActionCard Popover.
  */
 
 /**
@@ -13,24 +13,11 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Internal dependencies.
  */
 import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { isOverlay } from '../../utils';
+import { filterOutUncategorized, frequenciesForPopup } from '../../utils';
 import './style.scss';
 
-const frequencyMap = {
-	once: __( 'Once', 'newspack' ),
-	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page', 'newspack' ),
-	manual: __( 'Manual Placement', 'newspack' ),
-};
-
-const frequenciesForPopup = popup => {
-	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
-};
-
-const SecondaryPopupPopover = ( {
-	popup,
+const SecondaryPromptPopover = ( {
+	prompt,
 	onFocusOutside,
 	segments,
 	setTermsForPopup,
@@ -42,7 +29,7 @@ const SecondaryPopupPopover = ( {
 		id,
 		sitewide_default: sitewideDefault,
 		options,
-	} = popup;
+	} = prompt;
 	const { frequency, selected_segment_id: selectedSegmentId } = options;
 	return (
 		<Popover
@@ -61,7 +48,7 @@ const SecondaryPopupPopover = ( {
 						updatePopup( id, { frequency: value } );
 						onFocusOutside();
 					} }
-					options={ frequenciesForPopup( popup ) }
+					options={ frequenciesForPopup( prompt ) }
 					value={ frequency }
 					label={ __( 'Frequency', 'newspack' ) }
 				/>
@@ -81,12 +68,12 @@ const SecondaryPopupPopover = ( {
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
 				onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
-				label={ __( 'Campaign groups', 'newspack' ) }
+				label={ __( 'Campaigns', 'newspack' ) }
 				taxonomy="newspack_popups_taxonomy"
 			/>
 			{ ! sitewideDefault && (
 				<CategoryAutocomplete
-					value={ categories || [] }
+					value={ filterOutUncategorized( categories ) || [] }
 					onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
 					label={ __( 'Category filtering', 'newspack ' ) }
 					disabled={ sitewideDefault }
@@ -95,4 +82,4 @@ const SecondaryPopupPopover = ( {
 		</Popover>
 	);
 };
-export default SecondaryPopupPopover;
+export default SecondaryPromptPopover;

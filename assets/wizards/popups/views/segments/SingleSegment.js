@@ -45,6 +45,7 @@ const DEFAULT_CONFIG = {
 	is_not_donor: false,
 	favorite_categories: [],
 	referrers: '',
+	referrers_not: '',
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
@@ -56,17 +57,18 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		return setSegmentConfig( { ...segmentConfig, ...keyOrPartialUpdate } );
 	};
 	const [ name, setName ] = useState( '' );
+	const [ nameInitially, setNameInitially ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
 	const history = useHistory();
 
-	const isSegmentValid = name.length > 0;
+	const isSegmentValid =
+		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG );
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
 	const isDirty =
-		segmentInitially !== null &&
-		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig );
-	const isEmpty = JSON.stringify( segmentConfig ) === JSON.stringify( DEFAULT_CONFIG );
+		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
+		nameInitially !== name;
 
 	const unblock = hooks.usePrompt(
 		isDirty,
@@ -88,6 +90,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					setSegmentConfig( segmentConfigurationWithDefaults );
 					setSegmentInitially( segmentConfigurationWithDefaults );
 					setName( foundSegment.name );
+					setNameInitially( foundSegment.name );
 				}
 			} );
 		}
@@ -125,7 +128,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			},
 		} )
 			.then( setSegments )
-			.then( history.push( '/segmentation' ) );
+			.then( history.push( '/segments' ) );
 	};
 
 	return (
@@ -271,6 +274,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					/>
 				</SegmentSettingSection>
 				<SegmentSettingSection
+					title={ __( 'Referrer exclusion', 'newspack' ) }
+					description={ __(
+						'Segment based on traffic source - hide campaigns for visitors coming from specific sources.',
+						'newspack'
+					) }
+				>
+					<TextControl
+						isWide
+						placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
+						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
+						value={ segmentConfig.referrers_not }
+						onChange={ updateSegmentConfig( 'referrers_not' ) }
+					/>
+				</SegmentSettingSection>
+				<SegmentSettingSection
 					title={ __( 'Category Affinity', 'newspack' ) }
 					description={ __( 'Most read categories of reader.', 'newspack' ) }
 				>
@@ -297,13 +315,13 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 			<div className="newspack-buttons-card">
 				<Button
-					disabled={ ! isSegmentValid || ! isDirty || isEmpty }
+					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
 					isPrimary
 					onClick={ saveSegment }
 				>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
-				<Button isSecondary href="#/segmentation">
+				<Button isSecondary href="#/segments">
 					{ __( 'Cancel', 'newspack' ) }
 				</Button>
 			</div>

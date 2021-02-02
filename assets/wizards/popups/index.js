@@ -14,15 +14,13 @@ import { __ } from '@wordpress/i18n';
  * External dependencies.
  */
 import { stringify } from 'qs';
-import { groupBy } from 'lodash';
 
 /**
  * Internal dependencies.
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { isOverlay } from './utils';
-import { PopupGroup, Analytics, Settings, Segmentation, Preview } from './views';
+import { Campaigns, Analytics, Settings, Segments } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -36,18 +34,13 @@ const tabbedNavigation = [
 		exact: true,
 	},
 	{
-		label: __( 'Segmentation', 'newpack' ),
-		path: '/segmentation',
+		label: __( 'Segments', 'newpack' ),
+		path: '/segments',
 		exact: true,
 	},
 	{
 		label: __( 'Analytics', 'newpack' ),
 		path: '/analytics',
-		exact: true,
-	},
-	{
-		label: __( 'Preview', 'newpack' ),
-		path: '/preview',
 		exact: true,
 	},
 	{
@@ -57,24 +50,42 @@ const tabbedNavigation = [
 	},
 ];
 
+const filterByCampaign = ( prompts, campaignId ) => {
+	if ( 'active' === campaignId || ! campaignId ) {
+		return prompts.filter( ( { status } ) => 'publish' === status );
+	}
+	if ( 'unassigned' === campaignId ) {
+		return prompts.filter(
+			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
+		);
+	}
+	return prompts.filter(
+		( { campaign_groups: campaigns } ) =>
+			campaigns && campaigns.find( term => +term.term_id === +campaignId )
+	);
+};
+
 class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			popups: [],
+			campaigns: [],
+			prompts: [],
 			segments: [],
 			settings: [],
 			previewUrl: null,
 		};
 	}
 	onWizardReady = () => {
+		this.refetch();
+	};
+
+	refetch = () => {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( ( { popups, segments, settings } ) =>
-				this.setState( { popups: this.sortPopups( popups ), segments, settings } )
-			)
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -90,7 +101,7 @@ class PopupsWizard extends Component {
 			method: state ? 'POST' : 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -112,7 +123,7 @@ class PopupsWizard extends Component {
 			},
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -124,7 +135,7 @@ class PopupsWizard extends Component {
 			data: { options },
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -140,7 +151,7 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -156,7 +167,7 @@ class PopupsWizard extends Component {
 			method: 'POST',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -172,33 +183,8 @@ class PopupsWizard extends Component {
 			method: 'DELETE',
 			quiet: true,
 		} )
-			.then( ( { popups } ) => this.setState( { popups: this.sortPopups( popups ) } ) )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
-	};
-
-	/**
-	 * Sort Pop-up groups into categories.
-	 */
-	sortPopups = popups => {
-		const groups = {
-			draft: [],
-			active: [],
-			inactive: [],
-			...groupBy( popups, popup => {
-				if ( popup.status === 'draft' ) {
-					return 'draft';
-				}
-				if (
-					popup.status === 'publish' &&
-					( isOverlay( popup ) ? popup.sitewide_default || popup.categories.length : true )
-				) {
-					return 'active';
-				}
-				return 'inactive';
-			} ),
-		};
-		groups.active = groups.active.sort( a => ( a.sitewide_default ? -1 : 1 ) );
-		return groups;
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
@@ -212,14 +198,18 @@ class PopupsWizard extends Component {
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
+	updateAfterAPI = ( { campaigns, prompts, segments, settings } ) =>
+		this.setState( { campaigns, prompts, segments, settings } );
+
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
 			data: { ids: campaigns.map( campaign => campaign.id ) },
 			method,
+			quiet: true,
 		} )
-			.then( () => this.onWizardReady() )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -232,7 +222,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { popups, segments, settings, previewUrl } = this.state;
+		const { campaigns, prompts, segments, settings, previewUrl } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -262,26 +252,110 @@ class PopupsWizard extends Component {
 							),
 						publishPopup: this.publishPopup,
 						unpublishPopup: this.unpublishPopup,
+						refetch: this.refetch,
 					};
 					return (
 						<HashRouter hashType="slash">
 							<Switch>
 								{ pluginRequirements }
 								<Route
-									path="/campaigns"
-									render={ () => (
-										<PopupGroup
-											{ ...popupManagementSharedProps }
-											items={ popups }
-											emptyMessage={ __( 'No Campaigns have been created yet.', 'newspack' ) }
-											groupUI={ true }
-										/>
-									) }
+									path="/campaigns/:id?"
+									render={ props => {
+										const campaignId = props.match.params.id;
+
+										const archiveCampaignGroup = ( id, status ) => {
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
+												method: status ? 'POST' : 'DELETE',
+												quiet: true,
+											} )
+												.then( this.updateAfterAPI )
+												.catch( error => setError( error ) );
+										};
+										const createCampaignGroup = name => {
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/create-campaign/`,
+												method: 'POST',
+												data: { name },
+												quiet: true,
+											} )
+												.then( result => {
+													this.setState( {
+														campaigns: result.campaigns,
+														prompts: result.prompts,
+														segments: result.segments,
+														settings: result.settings,
+													} );
+													props.history.push( `/campaigns/${ result.term_id }` );
+												} )
+												.catch( error => setError( error ) );
+										};
+										const deleteCampaignGroup = id => {
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
+												method: 'DELETE',
+												quiet: true,
+											} )
+												.then( result => {
+													this.setState( {
+														campaigns: result.campaigns,
+														prompts: result.prompts,
+														segments: result.segments,
+														settings: result.settings,
+													} );
+													props.history.push( '/campaigns/' );
+												} )
+												.catch( error => setError( error ) );
+										};
+										const duplicateCampaignGroup = ( id, name ) => {
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
+												method: 'POST',
+												data: { name },
+												quiet: true,
+											} )
+												.then( result => {
+													this.setState( {
+														campaigns: result.campaigns,
+														prompts: result.prompts,
+														segments: result.segments,
+														settings: result.settings,
+													} );
+													props.history.push( `/campaigns/${ result.term_id }` );
+												} )
+												.catch( error => setError( error ) );
+										};
+										const renameCampaignGroup = ( id, name ) => {
+											return wizardApiFetch( {
+												path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
+												method: 'POST',
+												data: { name },
+												quiet: true,
+											} )
+												.then( this.updateAfterAPI )
+												.catch( error => setError( error ) );
+										};
+
+										return (
+											<Campaigns
+												{ ...popupManagementSharedProps }
+												archiveCampaignGroup={ archiveCampaignGroup }
+												campaignId={ campaignId }
+												createCampaignGroup={ createCampaignGroup }
+												deleteCampaignGroup={ deleteCampaignGroup }
+												duplicateCampaignGroup={ duplicateCampaignGroup }
+												renameCampaignGroup={ renameCampaignGroup }
+												prompts={ filterByCampaign( prompts, campaignId ) }
+												campaigns={ campaigns }
+												hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }
+											/>
+										);
+									} }
 								/>
 								<Route
-									path="/segmentation/:id?"
+									path="/segments/:id?"
 									render={ props => (
-										<Segmentation
+										<Segments
 											{ ...props }
 											{ ...sharedProps }
 											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }
@@ -289,7 +363,6 @@ class PopupsWizard extends Component {
 									) }
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
-								<Route path="/preview" render={ () => <Preview { ...sharedProps } /> } />
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/campaigns" />
 							</Switch>

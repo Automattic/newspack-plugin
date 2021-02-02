@@ -14,7 +14,6 @@ const { useHistory } = Router;
 
 export default ( when, message ) => {
 	const history = useHistory();
-
 	const self = useRef( null );
 
 	const onWindowOrTabClose = event => {
@@ -36,18 +35,13 @@ export default ( when, message ) => {
 	useEffect( () => {
 		if ( when ) {
 			self.current = history.block( message );
-		} else {
-			self.current = null;
+			window.addEventListener( 'beforeunload', onWindowOrTabClose );
 		}
-
-		window.addEventListener( 'beforeunload', onWindowOrTabClose );
 
 		return () => {
 			if ( self.current ) {
 				self.current();
-				self.current = null;
 			}
-
 			window.removeEventListener( 'beforeunload', onWindowOrTabClose );
 		};
 	}, [ message, when ] );

@@ -18,34 +18,31 @@
 		}
 	}
 
-	// Unsupported
+	// Status
 
+	&.newspack-card__is-disabled,
+	&.newspack-card__is-primary,
+	&.newspack-card__is-secondary,
+	&.newspack-card__is-supported,
 	&.newspack-card__is-unsupported {
-		border-left: 4px solid $alert-red;
+		box-shadow: inset 4px 0 0 $light-gray-700;
+		padding-left: 28px;
 	}
-
-	// Supported
-
-	&.newspack-card__is-supported {
-		border-left: 4px solid $alert-green;
-	}
-
-	// Primary
 
 	&.newspack-card__is-primary {
-		border-left: 4px solid $primary-500;
+		box-shadow: inset 4px 0 0 $primary-500;
 	}
-
-	// Secondary
 
 	&.newspack-card__is-secondary {
-		border-left: 4px solid orange;
+		box-shadow: inset 4px 0 0 $alert-yellow;
 	}
 
-	// Disabled
+	&.newspack-card__is-supported {
+		box-shadow: inset 4px 0 0 $alert-green;
+	}
 
-	&.newspack-card__is-disabled {
-		border-left: 4px solid $light-gray-700;
+	&.newspack-card__is-unsupported {
+		box-shadow: inset 4px 0 0 $alert-red;
 	}
 
 	// Small
@@ -65,6 +62,14 @@
 
 		& + & {
 			margin-top: -24px;
+		}
+
+		&.newspack-card__is-disabled,
+		&.newspack-card__is-primary,
+		&.newspack-card__is-secondary,
+		&.newspack-card__is-supported,
+		&.newspack-card__is-unsupported {
+			padding-left: 20px;
 		}
 	}
 
@@ -248,36 +253,5 @@
 .newspack-card {
 	.newspack-card.newspack-action-card {
 		border: 1px solid $light-gray-200;
-		box-shadow: none;
-
-		// Unsupported
-
-		&.newspack-card__is-unsupported {
-			border-left: 4px solid $alert-red;
-		}
-
-		// Supported
-
-		&.newspack-card__is-supported {
-			border-left: 4px solid $alert-green;
-		}
-
-		// Primary
-
-		&.newspack-card__is-primary {
-			border-left: 4px solid $primary-500;
-		}
-
-		// Primary
-
-		&.newspack-card__is-secondary {
-			border-left: 4px solid orange;
-		}
-
-		// Disabled
-
-		&.newspack-card__is-disabled {
-			border-left: 4px solid $light-gray-700;
-		}
 	}
 }

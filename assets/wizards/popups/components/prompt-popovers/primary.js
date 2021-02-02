@@ -1,5 +1,5 @@
 /**
- * Popup Action Card
+ * Primary PromptActionCard Popover.
  */
 
 /**
@@ -17,17 +17,17 @@ import { Popover, ToggleControl } from '../../../../components/src';
 import { isOverlay } from '../../utils';
 import './style.scss';
 
-const PrimaryPopupPopover = ( {
+const PrimaryPromptPopover = ( {
 	deletePopup,
-	popup,
+	prompt,
 	previewPopup,
 	setSitewideDefaultPopup,
 	onFocusOutside,
 	publishPopup,
 	unpublishPopup,
 } ) => {
-	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = popup;
-	const isDraft = 'draft' === status;
+	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = prompt;
+	const isPublished = 'publish' === status;
 	return (
 		<Popover
 			position="bottom left"
@@ -38,7 +38,7 @@ const PrimaryPopupPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ isOverlay( { options } ) && ! isDraft && (
+			{ isOverlay( { options } ) && isPublished && (
 				<MenuItem
 					onClick={ () => {
 						setSitewideDefaultPopup( id, ! sitewideDefault );
@@ -55,7 +55,7 @@ const PrimaryPopupPopover = ( {
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();
-					previewPopup( popup );
+					previewPopup( prompt );
 				} }
 				className="newspack-button"
 			>
@@ -64,7 +64,7 @@ const PrimaryPopupPopover = ( {
 			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
-			{ publishPopup && (
+			{ 'publish' !== status && (
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();
@@ -72,10 +72,10 @@ const PrimaryPopupPopover = ( {
 					} }
 					className="newspack-button"
 				>
-					{ __( 'Publish', 'newspack' ) }
+					{ __( 'Activate', 'newspack' ) }
 				</MenuItem>
 			) }
-			{ unpublishPopup && (
+			{ 'publish' === status && (
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();
@@ -83,16 +83,16 @@ const PrimaryPopupPopover = ( {
 					} }
 					className="newspack-button"
 				>
-					{ __( 'Unpublish', 'newspack' ) }
+					{ __( 'Deactivate', 'newspack' ) }
 				</MenuItem>
 			) }
 			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
 				{ __( 'Delete', 'newspack' ) }
 			</MenuItem>
 			<div className="newspack-popover__campaigns__info">
-				{ __( 'ID:', 'newspack' ) } { popup.id }
+				{ __( 'ID:', 'newspack' ) } { id }
 			</div>
 		</Popover>
 	);
 };
-export default PrimaryPopupPopover;
+export default PrimaryPromptPopover;
