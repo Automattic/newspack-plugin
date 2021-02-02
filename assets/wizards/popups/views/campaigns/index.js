@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { useState, Fragment } from '@wordpress/element';
+import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ENTER } from '@wordpress/keycodes';
 import { moreVertical } from '@wordpress/icons';
@@ -96,11 +96,17 @@ const Campaigns = props => {
 		renameCampaignGroup,
 	} = props;
 
+	const modalTextRef = useRef( null );
+
 	const [ popoverVisible, setPopoverVisible ] = useState();
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ modalType, setModalType ] = useState();
 	const [ campaignName, setCampaignName ] = useState();
 	const [ inFlight, setInFlight ] = useState( false );
+
+	useEffect( () => {
+		modalVisible && modalTextRef.current.querySelector( 'input' ).focus();
+	}, [ modalVisible ] );
 
 	const history = useHistory();
 
@@ -281,20 +287,22 @@ const Campaigns = props => {
 							isDismissible={ false }
 							className="newspack-campaigns__campaign-group__add-new-button__modal"
 						>
-							<TextControl
-								placeholder={ __( 'Campaign Name', 'newspack' ) }
-								onChange={ setCampaignName }
-								label={ __( 'Campaign Name', 'newspack' ) }
-								hideLabelFromVision={ true }
-								value={ campaignName }
-								disabled={ !! inFlight }
-								onKeyDown={ event => {
-									if ( ENTER === event.keyCode && '' !== campaignName ) {
-										event.preventDefault();
-										submitModal( campaignName );
-									}
-								} }
-							/>
+							<div ref={ modalTextRef }>
+								<TextControl
+									placeholder={ __( 'Campaign Name', 'newspack' ) }
+									onChange={ setCampaignName }
+									label={ __( 'Campaign Name', 'newspack' ) }
+									hideLabelFromVision={ true }
+									value={ campaignName }
+									disabled={ !! inFlight }
+									onKeyDown={ event => {
+										if ( ENTER === event.keyCode && '' !== campaignName ) {
+											event.preventDefault();
+											submitModal( campaignName );
+										}
+									} }
+								/>
+							</div>
 							<Card buttonsCard noBorder>
 								<Button
 									isSecondary
