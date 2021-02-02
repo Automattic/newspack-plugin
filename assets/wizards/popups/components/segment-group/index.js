@@ -67,7 +67,7 @@ const SegmentGroup = props => {
 					showUnpublished={ true } // Do we need a control for this?
 					renderButton={ ( { showPreview } ) => (
 						<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
-							{ __( 'Preview as segment', 'newspack' ) }
+							{ __( 'Preview', 'newspack' ) }
 						</Button>
 					) }
 				/>
