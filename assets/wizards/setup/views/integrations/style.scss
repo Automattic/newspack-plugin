@@ -1,0 +1,16 @@
+@import '../../../../shared/scss/colors';
+
+.newspack__integration__card {
+	transition: opacity 200ms;
+	h2 {
+		margin-bottom: 0;
+	}
+	&__status {
+		color: $primary-500;
+	}
+	&__logo svg {
+		max-width: 260px;
+		margin: auto;
+		display: block;
+	}
+}
