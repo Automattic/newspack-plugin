@@ -66,7 +66,7 @@
 		cursor: pointer;
 		display: flex;
 		line-height: inherit;
-		margin: 0;
+		margin: 0 0 0 28px;
 		padding: 6px 8px;
 		transition: color 125ms ease-in-out;
 
@@ -79,6 +79,7 @@
 			color: $dark-gray-900;
 			cursor: default;
 			font-weight: bold;
+			margin-left: 0;
 			pointer-events: none;
 		}
 
@@ -88,7 +89,17 @@
 		}
 
 		&.is-selected {
-			text-decoration: underline;
+			margin-left: 0;
+
+			&::before {
+				background: url( 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMTguMyA1LjZMOS45IDE2LjlsLTQuNi0zLjQtLjkgMS4yIDUuOCA0LjMgOS4zLTEyLjZ6IiBmaWxsPSIjMzM2NmZmIj48L3BhdGg+PC9zdmc+Cg==' )
+					0 0 no-repeat;
+				content: '';
+				display: block;
+				height: 24px;
+				margin: 0 4px 0 0;
+				width: 24px;
+			}
 		}
 	}
 
