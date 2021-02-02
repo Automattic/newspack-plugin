@@ -160,7 +160,8 @@ const Campaigns = props => {
 		if ( data ) {
 			return {
 				key: data.term_id,
-				name: data.name,
+				name:
+					'archive' === data.status ? data.name + ' ' + __( '(archived)', 'newspack' ) : data.name,
 			};
 		}
 		return {
