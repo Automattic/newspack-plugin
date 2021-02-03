@@ -135,6 +135,11 @@ class NRH {
 			$nrh_config = get_option( NEWSPACK_NRH_CONFIG );
 
 			$organization_id = wp_strip_all_tags( $nrh_config['nrh_organization_id'] );
+			$campaign_global = wp_strip_all_tags( $nrh_config['nrh_salesforce_campaign_id'] );
+
+			if ( ! $campaign && $campaign_global ) {
+				$campaign = $campaign_global;
+			}
 
 			$allowed_tags = [
 				'form'  => [
