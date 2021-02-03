@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useState } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { format } from '@wordpress/date';
 import { Tooltip, MenuItem } from '@wordpress/components';
@@ -18,14 +18,14 @@ import { Icon, moreVertical } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Popover, Button, Router } from '../../../../components/src';
+import { ActionCard, Button, Card, Popover, Router } from '../../../../components/src';
 
 const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
 	<NavLink to="segments/new">
 		<Button isPrimary isSmall>
-			{ __( 'Add New', 'newspack' ) }
+			{ __( 'Add New Segment', 'newspack' ) }
 		</Button>
 	</NavLink>
 );
@@ -95,10 +95,11 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 	}
 
 	return segments.length ? (
-		<div className="newspack-campaigns-wizard-segments__list-wrapper">
-			<div className="newspack-campaigns-wizard-segments__list-top">
+		<Fragment>
+			<Card cptHeader noBorder>
+				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
-			</div>
+			</Card>
 			<div className="newspack-campaigns-wizard-segments__list">
 				{ segments.map( segment => (
 					<SegmentActionCard
@@ -108,18 +109,20 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 					/>
 				) ) }
 			</div>
-		</div>
+		</Fragment>
 	) : (
-		<div>
-			<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
-			<div className="newspack-campaigns-wizard-segments__subheader">
+		<Fragment>
+			<Card cptHeader noBorder>
+				<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
+				<AddNewSegmentLink />
+			</Card>
+			<p>
 				{ __(
 					'Create audience segments to target visitors by engagement, activity, and more.',
 					'newspack'
 				) }
-			</div>
-			<AddNewSegmentLink />
-		</div>
+			</p>
+		</Fragment>
 	);
 };
 
