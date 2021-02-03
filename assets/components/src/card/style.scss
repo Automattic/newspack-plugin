@@ -26,6 +26,21 @@
 		}
 	}
 
+	// CPT Header Card
+
+	&__cpt-header {
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		margin-bottom: -24px;
+
+		> * {
+			margin-bottom: 0 !important;
+			margin-top: 0 !important;
+		}
+	}
+
 	// Is Clickable
 
 	&__is-clickable {
