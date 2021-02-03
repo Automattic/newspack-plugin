@@ -47,31 +47,9 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Set the sitewide Popup.
-	 *
-	 * @param integer $id ID of sitewide popup.
-	 */
-	public function set_sitewide_popup( $id ) {
-		return $this->is_configured() ?
-			\Newspack_Popups_Model::set_sitewide_popup( $id ) :
-			$this->unconfigured_error();
-	}
-
-	/**
-	 * Unset the sitewide Popup.
-	 *
-	 * @param integer $id ID of sitewide popup.
-	 */
-	public function unset_sitewide_popup( $id ) {
-		return $this->is_configured() ?
-			\Newspack_Popups_Model::unset_sitewide_popup( $id ) :
-			$this->unconfigured_error();
-	}
-
-	/**
 	 * Set taxonomy terms for a Popup.
 	 *
-	 * @param integer $id ID of sitewide popup.
+	 * @param integer $id ID of popup.
 	 * @param array   $terms Array of terms to be set.
 	 * @param string  $taxonomy Taxonomy slug.
 	 */
@@ -84,7 +62,7 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Set Popup options.
 	 *
-	 * @param integer $id ID of sitewide popup.
+	 * @param integer $id ID of popup.
 	 * @param array   $options Array of categories to be set.
 	 */
 	public function set_popup_options( $id, $options ) {
@@ -156,13 +134,24 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Get segment's potential reacj.
+	 * Get segment's potential reach.
 	 *
 	 * @param object $config Segment configuration.
 	 */
 	public function get_segment_reach( $config ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Segmentation::get_segment_reach( $config ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Sort all segments.
+	 *
+	 * @param object $segments Sorted array of segments.
+	 */
+	public function sort_segments( $segments ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::sort_segments( $segments ) :
 			$this->unconfigured_error();
 	}
 
