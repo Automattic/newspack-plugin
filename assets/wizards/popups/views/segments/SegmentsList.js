@@ -24,7 +24,7 @@ const { NavLink, useHistory } = Router;
 const AddNewSegmentLink = () => (
 	<NavLink to="segments/new">
 		<Button isPrimary isSmall>
-			{ __( 'Add New', 'newspack' ) }
+			{ __( 'Add New Segment', 'newspack' ) }
 		</Button>
 	</NavLink>
 );
@@ -152,7 +152,7 @@ const SegmentActionCard = ( {
 					<ActionCard
 						isSmall
 						title={ segment.name }
-						titleLink={ `#/segmentation/${ segment.id }` }
+						titleLink={ `#/segments/${ segment.id }` }
 						description={ `${ __( 'Created on', 'newspack' ) } ${ format(
 							'Y/m/d',
 							segment.created_at
