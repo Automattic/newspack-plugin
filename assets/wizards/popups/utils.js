@@ -56,26 +56,15 @@ export const frequenciesForPopup = popup => {
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
-export const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-	if ( 'draft' === status || 'pending' === status || 'future' === status ) {
-		return 'newspack-card__is-disabled';
-	}
-	if ( sitewideDefault ) {
-		return 'newspack-card__is-primary';
-	}
-	if ( isOverlay( { options } ) && ! sitewideDefault ) {
+export const getCardClassName = ( { status } ) => {
+	if ( 'publish' !== status ) {
 		return 'newspack-card__is-disabled';
 	}
 	return 'newspack-card__is-supported';
 };
 
 export const descriptionForPopup = prompt => {
-	const {
-		categories,
-		campaign_groups: campaigns,
-		sitewide_default: sitewideDefault,
-		status,
-	} = prompt;
+	const { categories, campaign_groups: campaigns, status } = prompt;
 	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
@@ -85,9 +74,6 @@ export const descriptionForPopup = prompt => {
 				? __( 'Campaign: ', 'newspack' )
 				: __( 'Campaigns: ', 'newspack' ) ) + campaignsList
 		);
-	}
-	if ( sitewideDefault ) {
-		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
 	if ( filteredCategories.length > 0 ) {
 		descriptionMessages.push(

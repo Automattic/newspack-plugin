@@ -49,7 +49,7 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Set taxonomy terms for a Popup.
 	 *
-	 * @param integer $id ID of sitewide popup.
+	 * @param integer $id ID of popup.
 	 * @param array   $terms Array of terms to be set.
 	 * @param string  $taxonomy Taxonomy slug.
 	 */
@@ -62,7 +62,7 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Set Popup options.
 	 *
-	 * @param integer $id ID of sitewide popup.
+	 * @param integer $id ID of popup.
 	 * @param array   $options Array of categories to be set.
 	 */
 	public function set_popup_options( $id, $options ) {
