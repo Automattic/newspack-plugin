@@ -51,21 +51,6 @@ const tabbedNavigation = [
 	},
 ];
 
-const filterByCampaign = ( prompts, campaignId ) => {
-	if ( 'active' === campaignId || ! campaignId ) {
-		return prompts.filter( ( { status } ) => 'publish' === status );
-	}
-	if ( 'unassigned' === campaignId ) {
-		return prompts.filter(
-			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
-		);
-	}
-	return prompts.filter(
-		( { campaign_groups: campaigns } ) =>
-			campaigns && campaigns.find( term => +term.term_id === +campaignId )
-	);
-};
-
 class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
@@ -330,9 +315,7 @@ class PopupsWizard extends Component {
 													deleteCampaignGroup={ deleteCampaignGroup }
 													duplicateCampaignGroup={ duplicateCampaignGroup }
 													renameCampaignGroup={ renameCampaignGroup }
-													prompts={ filterByCampaign( prompts, campaignId ) }
 													campaigns={ campaigns }
-													hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }
 												/>
 											</CampaignsContext.Provider>
 										);
