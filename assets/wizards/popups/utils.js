@@ -156,19 +156,17 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	}
 
 	// Messages for reader activity.
-	if ( is_donor || is_not_donor || is_subscribed || is_not_subscribed ) {
-		if ( is_donor ) {
-			descriptionMessages.push( __( 'Has donated', 'newspack' ) );
-		}
-		if ( is_not_donor ) {
-			descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
-		}
-		if ( is_subscribed ) {
-			descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
-		}
-		if ( is_not_subscribed ) {
-			descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
-		}
+	if ( is_donor ) {
+		descriptionMessages.push( __( 'Has donated', 'newspack' ) );
+	}
+	if ( is_not_donor ) {
+		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
+	}
+	if ( is_subscribed ) {
+		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
+	}
+	if ( is_not_subscribed ) {
+		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
 	}
 
 	// Messages for referrer sources.
