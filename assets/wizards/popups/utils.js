@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Check whether the given popup is an overlay.
@@ -94,6 +96,104 @@ export const descriptionForPopup = prompt => {
 		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
 	}
 	descriptionMessages.push( __( 'Frequency: ', 'newspack' ) + frequencyForPopup( prompt ) );
+	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+};
+
+export const getFavoriteCategoryNames = ( favoriteCategories, categories, setCategories ) => {
+	favoriteCategories.forEach( async categoryId => {
+		try {
+			const category = await apiFetch( {
+				path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
+					_fields: 'id,name',
+				} ),
+			} );
+
+			if ( ! categories.find( cat => cat.id === categoryId ) ) {
+				const { id, name } = category;
+				setCategories( [ ...categories, { id, name } ] );
+			}
+		} catch ( e ) {
+			console.error( e );
+		}
+	} );
+};
+
+export const descriptionForSegment = ( segment, categories = [] ) => {
+	const { configuration } = segment;
+	const {
+		favorite_categories = [],
+		is_donor = false,
+		is_not_donor = false,
+		is_not_subscribed = false,
+		is_subscribed = false,
+		max_posts = 0,
+		max_session_posts = 0,
+		min_posts = 0,
+		min_session_posts = 0,
+		referrers = '',
+		referrers_not = '',
+	} = configuration;
+	const descriptionMessages = [];
+
+	// Messages for reader engagement.
+	if ( 0 < min_posts || 0 < max_posts ) {
+		descriptionMessages.push(
+			sprintf(
+				__( 'Articles read (past 30 days): %s %s', 'newspack' ),
+				0 < min_posts ? __( 'min ', 'newspack' ) + min_posts : '',
+				0 < max_posts ? __( 'max ', 'newspack' ) + max_posts : ''
+			)
+		);
+	}
+	if ( 0 < min_session_posts || 0 < max_session_posts ) {
+		descriptionMessages.push(
+			sprintf(
+				__( 'Articles read (session): %s %s', 'newspack' ),
+				0 < min_session_posts ? __( 'min ', 'newspack' ) + min_session_posts : '',
+				0 < max_session_posts ? __( 'max ', 'newspack' ) + max_session_posts : ''
+			)
+		);
+	}
+
+	// Messages for reader activity.
+	if ( is_donor || is_not_donor || is_subscribed || is_not_subscribed ) {
+		if ( is_donor ) {
+			descriptionMessages.push( __( 'Has donated', 'newspack' ) );
+		}
+		if ( is_not_donor ) {
+			descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
+		}
+		if ( is_subscribed ) {
+			descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
+		}
+		if ( is_not_subscribed ) {
+			descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
+		}
+	}
+
+	// Messages for referrer sources.
+	if ( referrers ) {
+		descriptionMessages.push( __( 'Referrers (matching): ' ) + referrers );
+	}
+	if ( referrers_not ) {
+		descriptionMessages.push( __( 'Referrers (excluding): ' ) + referrers_not );
+	}
+
+	// Messages for category affinity.
+	if ( 0 < favorite_categories.length ) {
+		if ( 0 < categories.length ) {
+			descriptionMessages.push(
+				sprintf(
+					__( 'Favorite %s: %s', 'newspack' ),
+					categories.length > 1 ? __( 'categories', 'newspack' ) : __( 'category', 'newspack' ),
+					categories.map( cat => cat.name ).join( ', ' )
+				)
+			);
+		} else {
+			descriptionMessages.push( __( 'Has favorite categories', 'newspack' ) );
+		}
+	}
+
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 

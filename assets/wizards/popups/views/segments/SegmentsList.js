@@ -1,10 +1,9 @@
 /**
  * WordPress dependencies.
  */
+import { Tooltip, MenuItem } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { format } from '@wordpress/date';
-import { Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 
 /**
@@ -12,13 +11,13 @@ import { ESCAPE } from '@wordpress/keycodes';
  */
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-
 import { Icon, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
 import { ActionCard, Popover, Button, Router } from '../../../../components/src';
+import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
 
@@ -32,18 +31,24 @@ const AddNewSegmentLink = () => (
 
 const SegmentActionCard = ( { segment, deleteSegment } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
+	const [ categories, setCategories ] = useState( [] );
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
+
+	if ( 0 < segment.configuration?.favorite_categories?.length ) {
+		getFavoriteCategoryNames(
+			segment.configuration.favorite_categories,
+			categories,
+			setCategories
+		);
+	}
 
 	return (
 		<ActionCard
 			isSmall
 			title={ segment.name }
 			titleLink={ `#/segments/${ segment.id }` }
-			description={ `${ __( 'Created on', 'newspack' ) } ${ format(
-				'Y/m/d',
-				segment.created_at
-			) }` }
+			description={ descriptionForSegment( segment, categories ) }
 			actionText={
 				<>
 					<Tooltip text={ __( 'More options', 'newspack' ) }>

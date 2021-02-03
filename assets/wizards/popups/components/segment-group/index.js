@@ -15,7 +15,12 @@ import { Icon, plusCircle } from '@wordpress/icons';
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
-import { descriptionForPopup, getCardClassName } from '../../utils';
+import {
+	descriptionForPopup,
+	descriptionForSegment,
+	getCardClassName,
+	getFavoriteCategoryNames,
+} from '../../utils';
 
 import {
 	iconInline,
@@ -45,7 +50,12 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState();
-	const { label, id, prompts } = segment;
+	const [ categories, setCategories ] = useState( [] );
+	const { label, id, configuration, prompts } = segment;
+
+	if ( 0 < configuration.favorite_categories?.length ) {
+		getFavoriteCategoryNames( configuration.favorite_categories, categories, setCategories );
+	}
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
@@ -59,8 +69,13 @@ const SegmentGroup = props => {
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<h3 className="newspack-campaigns__segment-group__card__segment">
-				{ id ? __( 'Segment: ', 'newspack' ) : '' }
-				{ label }
+				<a href={ `#/segments/${ id }` }>
+					{ id ? __( 'Segment: ', 'newspack' ) : '' }
+					{ label }
+					<span className="newspack-campaigns__segment-group__description">
+						{ descriptionForSegment( segment, categories ) }
+					</span>
+				</a>
 				<SegmentationPreview
 					campaignId={ [ campaignId ] }
 					segment={ id }
