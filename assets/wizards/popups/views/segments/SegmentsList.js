@@ -3,7 +3,6 @@
  */
 import { useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { format } from '@wordpress/date';
 import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
