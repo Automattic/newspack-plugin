@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useContext, useState } from '@wordpress/element';
 import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
@@ -20,7 +20,9 @@ import {
 	descriptionForSegment,
 	getCardClassName,
 	getFavoriteCategoryNames,
+	warningForPopup,
 } from '../../utils';
+import { CampaignsContext } from '../../contexts';
 
 import {
 	iconInline,
@@ -52,6 +54,7 @@ const SegmentGroup = props => {
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, configuration, prompts } = segment;
+	const allPrompts = useContext( CampaignsContext );
 
 	if ( 0 < configuration.favorite_categories?.length ) {
 		getFavoriteCategoryNames( configuration.favorite_categories, categories, setCategories );
@@ -92,6 +95,7 @@ const SegmentGroup = props => {
 					<PromptActionCard
 						className={ getCardClassName( item ) }
 						description={ descriptionForPopup( item ) }
+						warning={ warningForPopup( allPrompts, item ) }
 						key={ item.id }
 						prompt={ item }
 						{ ...props }

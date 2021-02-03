@@ -23,13 +23,7 @@ const SecondaryPromptPopover = ( {
 	setTermsForPopup,
 	updatePopup,
 } ) => {
-	const {
-		campaign_groups: campaignGroups,
-		categories,
-		id,
-		sitewide_default: sitewideDefault,
-		options,
-	} = prompt;
+	const { campaign_groups: campaignGroups, categories, id, options } = prompt;
 	const { frequency, selected_segment_id: selectedSegmentId } = options;
 	return (
 		<Popover
@@ -71,14 +65,11 @@ const SecondaryPromptPopover = ( {
 				label={ __( 'Campaigns', 'newspack' ) }
 				taxonomy="newspack_popups_taxonomy"
 			/>
-			{ ! sitewideDefault && (
-				<CategoryAutocomplete
-					value={ filterOutUncategorized( categories ) || [] }
-					onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
-					label={ __( 'Category filtering', 'newspack ' ) }
-					disabled={ sitewideDefault }
-				/>
-			) }
+			<CategoryAutocomplete
+				value={ filterOutUncategorized( categories ) || [] }
+				onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
+				label={ __( 'Category filtering', 'newspack ' ) }
+			/>
 		</Popover>
 	);
 };

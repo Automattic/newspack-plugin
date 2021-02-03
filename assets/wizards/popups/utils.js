@@ -15,6 +15,14 @@ export const isOverlay = popup =>
 	[ 'top', 'bottom', 'center' ].indexOf( popup.options.placement ) >= 0;
 
 /**
+ * Check whether the given popup is above-header.
+ *
+ * @param {Object} popup Popup object to check.
+ * @return {boolean} True if the popup is a above-header, otherwise false.
+ */
+export const isAboveHeader = popup => 'above_header' === popup.options.placement;
+
+/**
  * Filter out "Uncategorized" category, which for purposes of Campaigns behaves identically to no category.
  *
  * @param {Array} categories Array of category objects.
@@ -50,26 +58,15 @@ export const frequenciesForPopup = popup => {
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
-export const getCardClassName = ( { options, sitewide_default: sitewideDefault, status } ) => {
-	if ( 'draft' === status || 'pending' === status || 'future' === status ) {
-		return 'newspack-card__is-disabled';
-	}
-	if ( sitewideDefault ) {
-		return 'newspack-card__is-primary';
-	}
-	if ( isOverlay( { options } ) && ! sitewideDefault ) {
+export const getCardClassName = ( { status } ) => {
+	if ( 'publish' !== status ) {
 		return 'newspack-card__is-disabled';
 	}
 	return 'newspack-card__is-supported';
 };
 
 export const descriptionForPopup = prompt => {
-	const {
-		categories,
-		campaign_groups: campaigns,
-		sitewide_default: sitewideDefault,
-		status,
-	} = prompt;
+	const { categories, campaign_groups: campaigns, status } = prompt;
 	const filteredCategories = filterOutUncategorized( categories );
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
@@ -79,9 +76,6 @@ export const descriptionForPopup = prompt => {
 				? __( 'Campaign: ', 'newspack' )
 				: __( 'Campaigns: ', 'newspack' ) ) + campaignsList
 		);
-	}
-	if ( sitewideDefault ) {
-		descriptionMessages.push( __( 'Sitewide default', 'newspack' ) );
 	}
 	if ( filteredCategories.length > 0 ) {
 		descriptionMessages.push(
@@ -193,6 +187,79 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	}
 
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+};
+
+export const isSameType = ( campaignA, campaignB ) => {
+	return (
+		( isAboveHeader( campaignA ) && isAboveHeader( campaignB ) ) ||
+		( isOverlay( campaignA ) && isOverlay( campaignB ) )
+	);
+};
+
+export const warningForPopup = ( prompts, prompt ) => {
+	const warningMessages = [];
+
+	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) ) ) {
+		const promptCategories = filterOutUncategorized( prompt.categories );
+		const conflictingPrompts = prompts.filter( conflict => {
+			const conflictCategories = filterOutUncategorized( conflict.categories );
+
+			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
+			const hasConflictingCategory =
+				( 0 === promptCategories.length && 0 === conflictCategories.length ) ||
+				promptCategories.some(
+					category =>
+						!! conflictCategories.find(
+							conflictCategory => category.term_id === conflictCategory.term_id
+						)
+				);
+
+			return (
+				'publish' === conflict.status &&
+				conflict.id !== prompt.id &&
+				isSameType( prompt, conflict ) &&
+				prompt.options.selected_segment_id === conflict.options.selected_segment_id &&
+				hasConflictingCategory
+			);
+		} );
+
+		if ( 0 < conflictingPrompts.length ) {
+			return (
+				<>
+					<h4 className="newspack-notice__heading">
+						{ sprintf(
+							__( '%s detected:', 'newspack' ),
+							1 < conflictingPrompts.length
+								? __( 'Conflicts', 'newspack' )
+								: __( 'Conflict', 'newspack' )
+						) }
+					</h4>
+					<ul>
+						{ conflictingPrompts.map( conflictingPrompt => (
+							<li key={ conflictingPrompt.id }>
+								<p>
+									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
+									{ sprintf(
+										__( '%s can’t share the same segment %s. ' ),
+										isAboveHeader( prompt )
+											? __( 'Above-header prompts', 'newspack' )
+											: __( 'Overlays', 'newspack' ),
+										0 < promptCategories.length
+											? __( 'and category filtering', 'newspack' )
+											: __( 'if uncategorized', 'newspack' )
+									) }
+								</p>
+							</li>
+						) ) }
+					</ul>
+				</>
+			);
+		}
+
+		return null;
+	}
+
+	return warningMessages.length ? warningMessages.join( ' ' ) : null;
 };
 
 export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[ frequency ];

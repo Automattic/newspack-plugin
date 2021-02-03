@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
+import { useContext, useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ENTER } from '@wordpress/keycodes';
 import { moreVertical } from '@wordpress/icons';
@@ -25,6 +25,7 @@ import {
 import CampaignManagementPopover from '../../components/campaign-management-popover';
 import SegmentGroup from '../../components/segment-group';
 import { dataForCampaignId } from '../../utils';
+import { CampaignsContext } from '../../contexts';
 import './style.scss';
 
 /**
@@ -56,6 +57,21 @@ const modalButton = modalType => {
 	return __( 'Add', 'newspack' );
 };
 
+const filterByCampaign = ( prompts, campaignId ) => {
+	if ( 'active' === campaignId || ! campaignId ) {
+		return prompts.filter( ( { status } ) => 'publish' === status );
+	}
+	if ( 'unassigned' === campaignId ) {
+		return prompts.filter(
+			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
+		);
+	}
+	return prompts.filter(
+		( { campaign_groups: campaigns } ) =>
+			campaigns && campaigns.find( term => +term.term_id === +campaignId )
+	);
+};
+
 const groupBySegment = ( segments, prompts ) => {
 	const grouped = [];
 	grouped.push(
@@ -83,9 +99,7 @@ const groupBySegment = ( segments, prompts ) => {
 const Campaigns = props => {
 	const {
 		campaignId,
-		prompts = [],
 		campaigns = [],
-		hasUnassigned,
 		manageCampaignGroup,
 		segments,
 		createCampaignGroup,
@@ -101,6 +115,10 @@ const Campaigns = props => {
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ modalType, setModalType ] = useState();
 	const [ campaignName, setCampaignName ] = useState();
+
+	const allPrompts = useContext( CampaignsContext );
+	const prompts = filterByCampaign( allPrompts, campaignId );
+	const hasUnassigned = filterByCampaign( prompts, 'unassigned' ).length;
 
 	useEffect( () => {
 		if ( modalVisible ) {
