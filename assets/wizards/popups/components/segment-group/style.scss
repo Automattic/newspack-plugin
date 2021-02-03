@@ -13,6 +13,8 @@
 		padding-left: 36px;
 	}
 	&__card {
+		margin-top: 0 !important;
+
 		& > &__segment {
 			margin: -16px -16px 16px !important;
 			padding: 8px 16px;
@@ -20,8 +22,8 @@
 
 		&__segment {
 			align-items: center;
-			background: $light-gray-100;
-			border-bottom: 1px solid $light-gray-200;
+			background: $light-gray-400;
+			border-bottom: 1px solid $light-gray-500;
 			display: flex;
 			justify-content: space-between;
 			button {
@@ -33,7 +35,8 @@
 	&__action-cards {
 		margin: 0;
 
-		.newspack-action-card {
+		.newspack-action-card.is-small {
+			border-color: $light-gray-500 !important;
 			border-radius: 0;
 			margin-bottom: 23px;
 

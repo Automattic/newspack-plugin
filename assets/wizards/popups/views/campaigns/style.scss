@@ -15,7 +15,7 @@
 		&__segment {
 			align-items: center;
 			background: $light-gray-100;
-			border-bottom: 1px solid $light-gray-200;
+			border-bottom: 1px solid $light-gray-500;
 			display: flex;
 			justify-content: space-between;
 		}
@@ -26,7 +26,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		margin: 32px 0 -24px;
+		margin: 32px 0;
 	}
 
 	&__filter-group-actions {
@@ -37,16 +37,15 @@
 			margin: 0;
 
 			.components-custom-select-control__button {
-				border-color: $light-gray-200;
+				border-color: $light-gray-500;
 				color: $dark-gray-900;
-				font-size: 17px;
 				font-weight: bold;
 				min-height: 36px;
 			}
 		}
 
 		&__button {
-			margin-left: 8px;
+			margin-left: 16px;
 
 			.newspack-popover {
 				margin-left: calc(
