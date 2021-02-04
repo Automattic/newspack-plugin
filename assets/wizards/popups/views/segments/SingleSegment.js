@@ -220,7 +220,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						title={ __( 'Articles read', 'newspack' ) }
 						description={ __( 'Number of articles read in the last 30 day period.', 'newspack' ) }
 					>
-						<div>
+						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
 								checked={ segmentConfig.min_posts > 0 }
 								onChange={ value => {
@@ -245,7 +245,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								} }
 							/>
 						</div>
-						<div>
+						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
 								checked={ segmentConfig.max_posts > 0 }
 								onChange={ value => {
@@ -278,7 +278,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							'newspack'
 						) }
 					>
-						<div>
+						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
 								checked={ segmentConfig.min_session_posts > 0 }
 								onChange={ value => {
@@ -303,7 +303,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								} }
 							/>
 						</div>
-						<div>
+						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
 								checked={ segmentConfig.max_session_posts > 0 }
 								onChange={ value => {
