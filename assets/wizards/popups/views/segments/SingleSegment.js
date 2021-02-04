@@ -452,7 +452,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 			<div className="newspack-buttons-card">
 				{ reach.total > 0 && (
-					<p className="newspack-campaigns-wizard-segments__recorded-visitors" style={ { opacity: isFetchingReach ? 0.5 : 1 } }>
+					<p
+						className="newspack-campaigns-wizard-segments__recorded-visitors"
+						style={ { opacity: isFetchingReach ? 0.5 : 1 } }
+					>
 						{ __( 'This segment would reach approximately ', 'newspack' ) }
 						<strong>
 							{ Math.round( ( reach.in_segment * 100 ) / reach.total ) }
