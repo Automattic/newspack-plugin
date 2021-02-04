@@ -7,6 +7,36 @@
 		flex-direction: row-reverse;
 		margin: 32px 0 8px;
 	}
+	&__header {
+		align-items: center;
+		display: flex;
+		justify-content: center;
+		margin: 32px 0 -24px;
+
+		> * {
+			margin: 0;
+		}
+
+		.newspack-text-control {
+			flex: 1 1 auto;
+
+			input[type='text'] {
+				border-color: $light-gray-200;
+				color: $dark-gray-900;
+				font-size: 17px;
+				font-weight: bold;
+				min-height: 36px;
+				padding-bottom: 5px;
+				padding-top: 5px;
+			}
+		}
+
+		.newspack-buttons-card {
+			.newspack-button {
+				margin-left: 8px;
+			}
+		}
+	}
 	&__section {
 		h2 {
 			margin: 0;

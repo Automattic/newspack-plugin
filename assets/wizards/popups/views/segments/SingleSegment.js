@@ -194,13 +194,28 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	return (
 		<Fragment>
-			<TextControl
-				placeholder={ __( 'Untitled Segment', 'newspack' ) }
-				value={ name }
-				onChange={ setName }
-				label={ __( 'Title', 'newspack' ) }
-				hideLabelFromVision={ true }
-			/>
+			<div className="newspack-campaigns-wizard-segments__header">
+				<TextControl
+					placeholder={ __( 'Untitled Segment', 'newspack' ) }
+					value={ name }
+					onChange={ setName }
+					label={ __( 'Title', 'newspack' ) }
+					hideLabelFromVision={ true }
+				/>
+				<div className="newspack-buttons-card">
+					<Button
+						disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
+						isPrimary
+						isSmall
+						onClick={ saveSegment }
+					>
+						{ __( 'Save', 'newspack' ) }
+					</Button>
+					<Button isSecondary isSmall href="#/segments">
+						{ __( 'Cancel', 'newspack' ) }
+					</Button>
+				</div>
+			</div>
 			<SegmentCriteria
 				title={ __( 'Reader Engagement', 'newspack' ) }
 				description={ __( 'Target readers based on their browsing behavior.', 'newspack' ) }
@@ -450,31 +465,19 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				</Grid>
 			</SegmentCriteria>
 
-			<div className="newspack-buttons-card">
-				{ reach.total > 0 && (
-					<p
-						className="newspack-campaigns-wizard-segments__recorded-visitors"
-						style={ { opacity: isFetchingReach ? 0.5 : 1 } }
-					>
-						{ __( 'This segment would reach approximately ', 'newspack' ) }
-						<strong>
-							{ Math.round( ( reach.in_segment * 100 ) / reach.total ) }
-							{ '%' }
-						</strong>
-						{ __( ' of recorded visitors.', 'newspack' ) }
-					</p>
-				) }
-				<Button
-					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
-					isPrimary
-					onClick={ saveSegment }
+			{ reach.total > 0 && (
+				<p
+					className="newspack-campaigns-wizard-segments__recorded-visitors"
+					style={ { opacity: isFetchingReach ? 0.5 : 1 } }
 				>
-					{ __( 'Save', 'newspack' ) }
-				</Button>
-				<Button isSecondary href="#/segments">
-					{ __( 'Cancel', 'newspack' ) }
-				</Button>
-			</div>
+					{ __( 'This segment would reach approximately ', 'newspack' ) }
+					<strong>
+						{ Math.round( ( reach.in_segment * 100 ) / reach.total ) }
+						{ '%' }
+					</strong>
+					{ __( ' of recorded visitors.', 'newspack' ) }
+				</p>
+			) }
 		</Fragment>
 	);
 };
