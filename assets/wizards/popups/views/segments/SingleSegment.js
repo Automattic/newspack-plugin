@@ -228,7 +228,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					setCriteria( newCriteria );
 				} }
 			>
-				<Grid columns="3">
+				<Grid columns="3" gutter={ 32 }>
 					<SegmentSettingSection
 						title={ __( 'Articles read', 'newspack' ) }
 						description={ __( 'Number of articles read in the last 30 day period.', 'newspack' ) }
@@ -362,7 +362,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				toggleChecked={ criteria.activity }
 				toggleOnChange={ () => setCriteria( { ...criteria, activity: ! criteria.activity } ) }
 			>
-				<Grid columns="3">
+				<Grid columns="3" gutter={ 32 }>
 					<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
 						<SelectControl
 							onChange={ value => {
@@ -432,7 +432,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					setCriteria( newCriteria );
 				} }
 			>
-				<Grid columns="3">
+				<Grid columns="3" gutter={ 32 }>
 					<SegmentSettingSection
 						title={ __( 'Sources to match', 'newspack' ) }
 						description={ __( 'Segment based on traffic source.', 'newspack' ) }
