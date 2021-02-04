@@ -27,7 +27,7 @@ const { useHistory } = Router;
 const SegmentSettingSection = ( { title, description, children } ) => (
 	<Card noBorder className="newspack-campaigns-wizard-segments__section">
 		<div className="newspack-campaigns-wizard-segments__section__title">
-			<h3>{ title }</h3>
+			<h2>{ title }</h2>
 			{ description && <InfoButton text={ description } /> }
 		</div>
 		<div className="newspack-campaigns-wizard-segments__section__content">{ children }</div>
@@ -133,19 +133,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	return (
 		<Fragment>
-			<TextControl
-				placeholder={ __( 'Untitled Segment', 'newspack' ) }
-				value={ name }
-				onChange={ setName }
-				label={ __( 'Title', 'newspack' ) }
-				hideLabelFromVision={ true }
-			/>
-			<Grid columns={ 3 } gutter={ 32 }>
+			<Card noBorder className="newspack-campaigns-wizard-segments__title">
+				<TextControl
+					placeholder={ __( 'Untitled Segment', 'newspack' ) }
+					value={ name }
+					onChange={ setName }
+					label={ __( 'Title', 'newspack' ) }
+					hideLabelFromVision={ true }
+				/>
+			</Card>
+			<Grid columns={ 3 }>
 				<SegmentSettingSection
 					title={ __( 'Articles read', 'newspack' ) }
 					description={ __( 'Number of articles read in the last 30 day period.', 'newspack' ) }
 				>
-					<div className="newspack-campaigns-wizard-segments__section__min-max">
+					<div>
 						<CheckboxControl
 							checked={ segmentConfig.min_posts > 0 }
 							onChange={ value => updateSegmentConfig( 'min_posts' )( value ? 1 : 0 ) }
@@ -158,7 +160,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							onChange={ updateSegmentConfig( 'min_posts' ) }
 						/>
 					</div>
-					<div className="newspack-campaigns-wizard-segments__section__min-max">
+					<div>
 						<CheckboxControl
 							checked={ segmentConfig.max_posts > 0 }
 							onChange={ value => updateSegmentConfig( 'max_posts' )( value ? 1 : 0 ) }
@@ -179,7 +181,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						'newspack'
 					) }
 				>
-					<div className="newspack-campaigns-wizard-segments__section__min-max">
+					<div>
 						<CheckboxControl
 							checked={ segmentConfig.min_session_posts > 0 }
 							onChange={ value => updateSegmentConfig( 'min_session_posts' )( value ? 1 : 0 ) }
@@ -192,7 +194,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							onChange={ updateSegmentConfig( 'min_session_posts' ) }
 						/>
 					</div>
-					<div className="newspack-campaigns-wizard-segments__section__min-max">
+					<div>
 						<CheckboxControl
 							checked={ segmentConfig.max_session_posts > 0 }
 							onChange={ value => updateSegmentConfig( 'max_session_posts' )( value ? 1 : 0 ) }
