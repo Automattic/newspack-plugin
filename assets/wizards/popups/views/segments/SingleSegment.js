@@ -14,6 +14,7 @@ import {
 	Card,
 	CategoryAutocomplete,
 	CheckboxControl,
+	Notice,
 	SelectControl,
 	Grid,
 	InfoButton,
@@ -216,6 +217,18 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</Button>
 				</div>
 			</div>
+			{ reach.total > 0 && (
+				<Notice
+					isInfo
+					className="newspack-campaigns-wizard-segments__recorded-visitors"
+					style={ { opacity: isFetchingReach ? 0.5 : 1 } }
+					noticeText={
+						__( 'This segment would reach approximately ', 'newspack' ) +
+						Math.round( ( reach.in_segment * 100 ) / reach.total ) +
+						__( '% of recorded visitors.', 'newspack' )
+					}
+				/>
+			) }
 			<SegmentCriteria
 				title={ __( 'Reader Engagement', 'newspack' ) }
 				description={ __( 'Target readers based on their browsing behavior.', 'newspack' ) }
@@ -464,20 +477,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</SegmentSettingSection>
 				</Grid>
 			</SegmentCriteria>
-
-			{ reach.total > 0 && (
-				<p
-					className="newspack-campaigns-wizard-segments__recorded-visitors"
-					style={ { opacity: isFetchingReach ? 0.5 : 1 } }
-				>
-					{ __( 'This segment would reach approximately ', 'newspack' ) }
-					<strong>
-						{ Math.round( ( reach.in_segment * 100 ) / reach.total ) }
-						{ '%' }
-					</strong>
-					{ __( ' of recorded visitors.', 'newspack' ) }
-				</p>
-			) }
 		</Fragment>
 	);
 };
