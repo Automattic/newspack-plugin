@@ -294,9 +294,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							<CheckboxControl
 								checked={ segmentConfig.min_session_posts > 0 }
 								onChange={ value => {
-									segmentConfig.max_session_posts && value > segmentConfig.max_session_posts
-										? segmentConfig.max_session_posts
-										: 1;
+									const newValue =
+										segmentConfig.max_session_posts && value > segmentConfig.max_session_posts
+											? segmentConfig.max_session_posts
+											: 1;
 									updateSegmentConfig( 'min_session_posts' )( value ? newValue : 0 );
 								} }
 								label={ __( 'Min.', 'newspack' ) }
