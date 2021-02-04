@@ -69,7 +69,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const history = useHistory();
 
 	const isSegmentValid =
-		name.length > 0 && // Segment has an ame.
+		name.length > 0 && // Segment has a name.
 		JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG ) && // Segment differs from the default config.
 		( criteria.engagement || criteria.activity || criteria.referrers ); // At least one criteria section is enbaled.
 
@@ -143,13 +143,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	}, [] );
 
 	useEffect( () => {
+		// Automatically enable sections with options that differ from the default.
 		const newCriteria = { ...criteria };
 		if (
 			segmentConfig.min_posts ||
 			segmentConfig.max_posts ||
 			segmentConfig.min_session_posts ||
 			segmentConfig.max_session_posts ||
-			( segmentConfig.favorite_categories && 0 < segmentConfig.favorite_categories )
+			( segmentConfig.favorite_categories && 0 < segmentConfig.favorite_categories.length )
 		) {
 			newCriteria.engagement = true;
 		}
