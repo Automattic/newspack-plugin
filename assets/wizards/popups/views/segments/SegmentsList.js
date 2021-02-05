@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
@@ -43,6 +43,16 @@ const SegmentActionCard = ( {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const [ categories, setCategories ] = useState( [] );
 	const [ isDragging, setIsDragging ] = useState( false );
+
+	useEffect( () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			getFavoriteCategoryNames(
+				segment.configuration.favorite_categories,
+				categories,
+				setCategories
+			);
+		}
+	}, [ segment ] );
 
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
@@ -131,14 +141,6 @@ const SegmentActionCard = ( {
 
 		resortSegments( target );
 	};
-
-	if ( 0 < segment.configuration?.favorite_categories?.length ) {
-		getFavoriteCategoryNames(
-			segment.configuration.favorite_categories,
-			categories,
-			setCategories
-		);
-	}
 
 	return (
 		<div

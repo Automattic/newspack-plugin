@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useState } from '@wordpress/element';
+import { useContext, useEffect, useState } from '@wordpress/element';
 import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
@@ -53,12 +53,18 @@ const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState();
 	const [ categories, setCategories ] = useState( [] );
-	const { label, id, configuration, prompts } = segment;
+	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
 
-	if ( 0 < configuration.favorite_categories?.length ) {
-		getFavoriteCategoryNames( configuration.favorite_categories, categories, setCategories );
-	}
+	useEffect( () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			getFavoriteCategoryNames(
+				segment.configuration.favorite_categories,
+				categories,
+				setCategories
+			);
+		}
+	}, [ segment ] );
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
