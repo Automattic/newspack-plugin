@@ -1,0 +1,62 @@
+/**
+ * Footer
+ */
+
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.newspack-footer {
+	bottom: 0;
+	color: $dark-gray-300;
+	font-size: 12px;
+	left: 0;
+	line-height: 16px;
+	position: absolute;
+	right: 0;
+
+	@media screen and ( min-width: 783px ) {
+		bottom: 46px;
+	}
+
+	&__inner {
+		border: 0 solid $light-gray-200;
+		border-width: 1px 0;
+	}
+
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		margin: 8px auto;
+		max-width: 1040px;
+		padding: 0 32px;
+
+		@media screen and ( min-width: 744px ) {
+			padding: 0 64px;
+		}
+	}
+
+	li {
+		display: block;
+		margin: 8px;
+	}
+
+	a {
+		color: inherit;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: $dark-gray-900;
+		}
+	}
+
+	.patrons-logo {
+		display: block;
+		fill: currentColor;
+		margin: 0 auto 16px;
+		max-height: 24px;
+		max-width: calc( 100% - 64px );
+		width: auto;
+	}
+}

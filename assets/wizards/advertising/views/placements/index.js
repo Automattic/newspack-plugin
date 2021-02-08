@@ -59,7 +59,9 @@ class Placements extends Component {
 			global_above_footer,
 			archives,
 			search_results,
+			sticky,
 		} = placements;
+
 		return (
 			<Fragment>
 				<h2>{ __( 'Pre-defined ad placements' ) }</h2>
@@ -131,6 +133,19 @@ class Placements extends Component {
 						services={ services }
 						value={ search_results }
 						onChange={ value => onChange( 'search_results', value ) }
+					/>
+				</ToggleGroup>
+				<ToggleGroup
+					title={ __( 'Sticky' ) }
+					description={ __( 'Choose a sticky ad unit to display at the bottom of the viewport' ) }
+					checked={ sticky && sticky.enabled }
+					onChange={ value => togglePlacement( 'sticky', value ) }
+				>
+					<AdPicker
+						adUnits={ adUnits }
+						services={ services }
+						value={ sticky }
+						onChange={ value => onChange( 'sticky', value ) }
 					/>
 				</ToggleGroup>
 			</Fragment>

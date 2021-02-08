@@ -64,6 +64,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://github.com/westonruter/amp-tablepress',
 				'Download'    => 'https://github.com/westonruter/amp-tablepress/releases/latest/download/amp-tablepress.zip',
 			],
+			'bing-webmaster-tools'          => [
+				'Name'        => 'Bing URL Submissions',
+				'Description' => 'Detects page creation/update in WordPress and automatically submits the URL behind the scenes to Bing, ensuring that the site pages are always fresh in the Bing index.',
+				'Author'      => 'Bing Webmaster',
+				'AuthorURI'   => 'https://www.bing.com/webmasters/homepage',
+				'PluginURI'   => 'https://wordpress.org/plugins/bing-webmaster-tools/',
+				'Download'    => 'wporg',
+			],
 			'broadstreet'                   => [
 				'Name'        => 'Broadstreet',
 				'Description' => 'Integrate Broadstreet business directory and adserving power into your site.',
@@ -163,7 +171,7 @@ class Plugin_Manager {
 			],
 			'newspack-ads'                  => [
 				'Name'        => esc_html__( 'Newspack Ads', 'newspack' ),
-				'Description' => esc_html__( 'Ads integration.' ),
+				'Description' => esc_html__( 'Ads integration.', 'newspack' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
@@ -171,7 +179,7 @@ class Plugin_Manager {
 			],
 			'newspack-blocks'               => [
 				'Name'        => esc_html__( 'Newspack Blocks', 'newspack' ),
-				'Description' => esc_html__( 'A collection of blocks for news publishers.' ),
+				'Description' => esc_html__( 'A collection of blocks for news publishers.', 'newspack' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',
@@ -179,7 +187,7 @@ class Plugin_Manager {
 			],
 			'newspack-content-converter'    => [
 				'Name'        => esc_html__( 'Newspack Content Converter', 'newspack' ),
-				'Description' => esc_html__( 'Batch conversion of Classic->Gutenberg post conversion.' ),
+				'Description' => esc_html__( 'Batch conversion of Classic->Gutenberg post conversion.', 'newspack' ),
 				'Author'      => 'Automattic',
 				'PluginURI'   => 'https://newspack.blog',
 				'AuthorURI'   => 'https://automattic.com',

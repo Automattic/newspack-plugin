@@ -23,8 +23,8 @@ class Button extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, ...otherProps } = this.props;
-		const classes = classnames( 'newspack-button', className );
+		const { className, isQuaternary, ...otherProps } = this.props;
+		const classes = classnames( 'newspack-button', isQuaternary && 'is-quaternary', className );
 		return <BaseComponent className={ classes } { ...otherProps } />;
 	}
 }

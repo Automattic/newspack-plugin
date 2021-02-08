@@ -1,0 +1,94 @@
+/**
+ * Segment group
+ */
+
+@import '~@wordpress/base-styles/colors';
+@import '../../../../shared/scss/colors';
+
+.newspack-campaigns__segment-group {
+	&__select-control-group-header {
+		color: #ccc;
+	}
+	&__select-control-group-item {
+		padding-left: 36px;
+	}
+	&__card {
+		& > &__segment {
+			margin: -16px -16px 16px !important;
+			padding: 8px 16px;
+		}
+
+		&__segment {
+			align-items: center;
+			background: $light-gray-100;
+			border-bottom: 1px solid $light-gray-200;
+			display: flex;
+			justify-content: space-between;
+			button {
+				margin-left: 12px;
+			}
+		}
+	}
+
+	&__action-cards {
+		margin: 0;
+
+		.newspack-action-card {
+			border-radius: 0;
+			margin-bottom: 23px;
+
+			&:first-child {
+				border-top-left-radius: 3px;
+				border-top-right-radius: 3px;
+				margin-top: 0;
+			}
+
+			&:last-child {
+				border-bottom-left-radius: 3px;
+				border-bottom-right-radius: 3px;
+				margin-bottom: 0;
+			}
+		}
+	}
+
+	&__add-new-wrap {
+		display: flex;
+		justify-content: center;
+		margin-top: 16px;
+	}
+
+	&__add-new-button {
+		&__modal {
+			max-width: 384px;
+			padding: 0 32px;
+
+			.components-modal__content {
+				margin: 0;
+			}
+
+			.components-modal__header {
+				background: transparent;
+				padding-top: 32px;
+
+				.components-button.has-icon {
+					right: -32px;
+				}
+			}
+
+			.newspack-text-control {
+				margin-top: 0;
+			}
+
+			.newspack-card__buttons-card {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: flex-end;
+				margin: -8px;
+
+				&.newspack-card__buttons-prompt {
+					justify-content: center;
+				}
+			}
+		}
+	}
+}

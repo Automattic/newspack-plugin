@@ -10,6 +10,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { Button, Modal, Notice, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
+import Footer from '../footer';
 import './style.scss';
 
 const { Redirect, Route } = Router;
@@ -25,6 +26,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				complete: null,
 				error: null,
 				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
+				quietLoading: false,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -145,34 +147,47 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		/**
 		 * Begin loading.
 		 */
-		startLoading = () => {
-			this.setState( state => ( {
-				loading: state.loading + 1,
-			} ) );
+		startLoading = quiet => {
+			if ( quiet ) {
+				this.setState( state => ( {
+					quietLoading: state.quietLoading + 1,
+				} ) );
+			} else {
+				this.setState( state => ( {
+					loading: state.loading + 1,
+				} ) );
+			}
 		};
 
 		/**
 		 * End loading.
 		 */
-		doneLoading = () => {
-			this.setState( state => ( {
-				loading: state.loading - 1,
-			} ) );
+		doneLoading = quiet => {
+			if ( quiet ) {
+				this.setState( state => ( {
+					quietLoading: state.quietLoading - 1,
+				} ) );
+			} else {
+				this.setState( state => ( {
+					loading: state.loading - 1,
+				} ) );
+			}
 		};
 
 		/**
 		 * Replacement for core apiFetch that automatically manages wizard loading UI.
 		 */
 		wizardApiFetch = args => {
-			this.startLoading();
+			const { quiet } = args;
+			this.startLoading( quiet );
 			return new Promise( ( resolve, reject ) => {
 				apiFetch( args )
 					.then( response => {
-						this.doneLoading();
+						this.doneLoading( quiet );
 						resolve( response );
 					} )
 					.catch( error => {
-						this.doneLoading();
+						this.doneLoading( quiet );
 						reject( error );
 					} );
 			} );
@@ -235,11 +250,18 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * Render.
 		 */
 		render() {
-			const { loading, error } = this.state;
+			const { suppressFooter } = this.props;
+			const { loading, quietLoading, error } = this.state;
+			const loadingClasses = [
+				loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded',
+			];
+			if ( quietLoading ) {
+				loadingClasses.push( 'newspack-wizard__is-loading-quiet' );
+			}
 			return (
 				<Fragment>
 					{ this.getError() }
-					<div className={ loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded' }>
+					<div className={ loadingClasses.join( ' ' ) }>
 						<WrappedComponent
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
@@ -254,6 +276,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 							{ ...this.props }
 						/>
 					</div>
+					{ ! suppressFooter && ! loading && <Footer /> }
 				</Fragment>
 			);
 		}
