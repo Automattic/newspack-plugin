@@ -51,8 +51,14 @@ const INTEGRATIONS = {
 		description: __( 'Allows users to sign up to your mailing list', 'newspack' ),
 		buttonText: __( 'Connect Mailchimp', 'newspack' ),
 		logo: logos.Mailchimp,
-		statusFetchHandler: fetchFn =>
-			new Promise( resolve => {
+		statusFetchHandler: async fetchFn => {
+			const jetpackStatus = await fetchFn( { path: `/newspack/v1/plugins/jetpack` } );
+			if ( ! jetpackStatus.Configured ) {
+				return Promise.resolve( {
+					mailchimp: { status: 'inactive', error: { code: 'unavailable_site_id' } },
+				} );
+			}
+			return new Promise( resolve => {
 				fetchFn( { path: '/wpcom/v2/mailchimp' } )
 					.then( result =>
 						resolve( {
@@ -63,7 +69,8 @@ const INTEGRATIONS = {
 						} )
 					)
 					.catch( error => resolve( { mailchimp: { status: 'inactive', error } } ) );
-			} ),
+			} );
+		},
 		isOptional: true,
 	},
 };
