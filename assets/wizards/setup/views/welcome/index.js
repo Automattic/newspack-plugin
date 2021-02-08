@@ -31,7 +31,7 @@ const REQUIRED_SOFTWARE_SLUGS = [
 const TOTAL = POST_COUNT + 4 + REQUIRED_SOFTWARE_SLUGS.length;
 
 const ERROR_TYPES = {
-	plugin_configuration: { message: __( 'Plugin installation' ) },
+	plugin_configuration: { message: __( 'Installation' ) },
 	starter_content: { message: __( 'Starter content' ) },
 };
 
@@ -79,7 +79,12 @@ const Welcome = ( { buttonAction } ) => {
 					method: 'POST',
 				} )
 					.then( increment )
-					.catch( addError( { info: ERROR_TYPES.plugin_configuration, item: item.Name } ) );
+					.catch(
+						addError( {
+							info: ERROR_TYPES.plugin_configuration,
+							item: `${ __( 'Failed to install', 'newspack' ) } ${ item.Name }`,
+						} )
+					);
 		} );
 		for ( let i = 0; i < softwarePromises.length; i++ ) {
 			await softwarePromises[ i ]();
@@ -88,20 +93,40 @@ const Welcome = ( { buttonAction } ) => {
 		// Starter content.
 		await starterContentFetch( `categories` )
 			.then( increment )
-			.catch( addError( { info: ERROR_TYPES.starter_content, item: 'categories' } ) );
+			.catch(
+				addError( {
+					info: ERROR_TYPES.starter_content,
+					item: __( 'Failed to create the categories.', 'newspack' ),
+				} )
+			);
 		await Promise.allSettled(
 			times( POST_COUNT, n =>
 				starterContentFetch( `post/${ n }` )
 					.then( increment )
-					.catch( addError( { info: ERROR_TYPES.starter_content, item: 'post' } ) )
+					.catch(
+						addError( {
+							info: ERROR_TYPES.starter_content,
+							item: __( 'Failed to create a post.', 'newspack' ),
+						} )
+					)
 			)
 		);
 		await starterContentFetch( `homepage` )
 			.then( increment )
-			.catch( addError( { info: ERROR_TYPES.starter_content, item: 'homepage' } ) );
+			.catch(
+				addError( {
+					info: ERROR_TYPES.starter_content,
+					item: __( 'Failed to create the homepage.', 'newspack' ),
+				} )
+			);
 		await starterContentFetch( `theme` )
 			.then( increment )
-			.catch( addError( { info: ERROR_TYPES.starter_content, item: 'theme' } ) );
+			.catch(
+				addError( {
+					info: ERROR_TYPES.starter_content,
+					item: __( 'Failed to activate the theme.', 'newspack' ),
+				} )
+			);
 	};
 
 	const hasErrors = errors.length > 0;
