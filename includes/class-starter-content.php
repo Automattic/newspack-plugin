@@ -41,7 +41,7 @@ class Starter_Content {
 	public static function create_post( $post_index ) {
 		global $wpdb;
 		$meta_key         = self::$starter_post_meta_prefix . $post_index;
-		$existing_post_id = $wpdb->get_row( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s;", $meta_key ), ARRAY_A );
+		$existing_post_id = $wpdb->get_row( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s;", $meta_key ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( $existing_post_id ) {
 			return $existing_post_id['post_id'];
 		}
@@ -142,7 +142,7 @@ class Starter_Content {
 	public static function create_homepage() {
 		global $wpdb;
 		$meta_key         = self::$starter_homepage_meta;
-		$existing_post_id = $wpdb->get_row( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s;", $meta_key ), ARRAY_A );
+		$existing_post_id = $wpdb->get_row( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s;", $meta_key ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		if ( $existing_post_id ) {
 			return $existing_post_id;
 		}
