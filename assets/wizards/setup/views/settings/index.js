@@ -9,7 +9,6 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { SelectControl, withWizardScreen, hooks } from '../../../../components/src';
-import './style.scss';
 
 /**
  * Settings Setup Screen.

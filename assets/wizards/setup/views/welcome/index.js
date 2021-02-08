@@ -133,7 +133,6 @@ const Welcome = ( { buttonAction } ) => {
 	const isInit = installationProgress === 0;
 	const isDone = installationProgress === TOTAL;
 
-	// eslint-disable-next-line no-nested-ternary
 	const getHeadingText = () => {
 		if ( hasErrors ) {
 			return __( 'Installation error' );
