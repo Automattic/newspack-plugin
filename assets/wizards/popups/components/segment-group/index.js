@@ -57,14 +57,14 @@ const SegmentGroup = props => {
 	const allPrompts = useContext( CampaignsContext );
 
 	useEffect( () => {
-		if ( 0 < segment.configuration?.favorite_categories?.length ) {
-			getFavoriteCategoryNames(
-				segment.configuration.favorite_categories,
-				categories,
-				setCategories
-			);
-		}
+		updateCategories();
 	}, [ segment ] );
+
+	const updateCategories = async () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
+		}
+	};
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {

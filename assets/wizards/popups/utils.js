@@ -93,23 +93,25 @@ export const descriptionForPopup = prompt => {
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
-export const getFavoriteCategoryNames = ( favoriteCategories, categories, setCategories ) => {
-	favoriteCategories.forEach( async categoryId => {
-		try {
-			const category = await apiFetch( {
-				path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
-					_fields: 'id,name',
-				} ),
-			} );
+export const getFavoriteCategoryNames = async favoriteCategories => {
+	try {
+		const favoriteCategoryNames = await Promise.all(
+			favoriteCategories.map( async categoryId => {
+				const category = await apiFetch( {
+					path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
+						_fields: 'name',
+					} ),
+				} );
 
-			if ( ! categories.find( cat => cat.id === categoryId ) ) {
-				const { id, name } = category;
-				setCategories( [ ...categories, { id, name } ] );
-			}
-		} catch ( e ) {
-			console.error( e );
-		}
-	} );
+				return category.name;
+			} )
+		);
+
+		return favoriteCategoryNames;
+	} catch ( e ) {
+		console.error( e );
+		return [];
+	}
 };
 
 export const descriptionForSegment = ( segment, categories = [] ) => {
@@ -178,7 +180,7 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 				sprintf(
 					__( 'Favorite %s: %s', 'newspack' ),
 					categories.length > 1 ? __( 'categories', 'newspack' ) : __( 'category', 'newspack' ),
-					categories.map( cat => cat.name ).join( ', ' )
+					categories.filter( cat => !! cat ).join( ', ' )
 				)
 			);
 		} else {
