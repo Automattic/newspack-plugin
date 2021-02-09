@@ -118,7 +118,7 @@ const Campaigns = props => {
 
 	const allPrompts = useContext( CampaignsContext );
 	const prompts = filterByCampaign( allPrompts, campaignId );
-	const hasUnassigned = filterByCampaign( prompts, 'unassigned' ).length;
+	const hasUnassigned = filterByCampaign( allPrompts, 'unassigned' ).length;
 
 	useEffect( () => {
 		if ( modalVisible ) {

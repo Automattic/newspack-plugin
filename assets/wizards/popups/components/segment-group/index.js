@@ -55,6 +55,7 @@ const SegmentGroup = props => {
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
+	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
 
 	useEffect( () => {
 		updateCategories();
@@ -86,9 +87,9 @@ const SegmentGroup = props => {
 					</span>
 				</a>
 				<SegmentationPreview
-					campaignId={ [ campaignId ] }
+					campaign={ campaignId ? campaignToPreview : false }
 					segment={ id }
-					showUnpublished={ true } // Do we need a control for this?
+					showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
 					renderButton={ ( { showPreview } ) => (
 						<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
 							{ __( 'Preview', 'newspack' ) }
