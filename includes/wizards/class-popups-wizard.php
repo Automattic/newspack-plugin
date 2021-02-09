@@ -114,34 +114,6 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_set_sitewide_popup' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'id' => [
-						'sanitize_callback' => 'absint',
-					],
-				],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/sitewide-popup/(?P<id>\d+)',
-			[
-				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_unset_sitewide_popup' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'id' => [
-						'sanitize_callback' => 'absint',
-					],
-				],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/popup-terms/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -274,6 +246,21 @@ class Popups_Wizard extends Wizard {
 				'args'                => [
 					'config' => [
 						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/segmentation-sort',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_sort_segments' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'segments' => [
+						'sanitize_callback' => [ $this, 'sanitize_array' ],
 					],
 				],
 			]
@@ -511,44 +498,6 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
-	 * Set the sitewide default Pop-up
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_set_sitewide_popup( $request ) {
-		$sitewide_default = $request['id'];
-
-		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-
-		$response = $newspack_popups_configuration_manager->set_sitewide_popup( $sitewide_default );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $this->api_get_settings();
-	}
-
-	/**
-	 * Unset the sitewide default Pop-up
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_unset_sitewide_popup( $request ) {
-		$sitewide_default = $request['id'];
-
-		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-
-		$response = $newspack_popups_configuration_manager->unset_sitewide_popup( $sitewide_default );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $this->api_get_settings();
-	}
-
-	/**
 	 * Set terms for one Popup.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -699,6 +648,28 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
+	 * Recursively sanitize an array of arbitrary values.
+	 *
+	 * @param array $array Array to be sanitized.
+	 * @return array Sanitized array.
+	 */
+	public static function sanitize_array( $array ) {
+		foreach ( $array as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$value = self::sanitize_array( $value );
+			} elseif ( is_string( $value ) ) {
+					$value = sanitize_text_field( $value );
+			} elseif ( is_numeric( $value ) ) {
+				$value = intval( $value );
+			} else {
+				$value = boolval( $value );
+			}
+		}
+
+		return $array;
+	}
+
+	/**
 	 * Get the plugin settings.
 	 */
 	public static function api_get_plugin_settings() {
@@ -802,6 +773,19 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
+	 * Update all segments with the given priority sorting.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_sort_segments( $request ) {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$response                              = $newspack_popups_configuration_manager->sort_segments( $request['segments'] );
+		return $response;
+	}
+
+	/**
+	 * Activate a campaign group.
 	 * Activate a campaign.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.

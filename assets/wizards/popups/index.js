@@ -21,6 +21,7 @@ import { stringify } from 'qs';
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
+import { CampaignsContext } from './contexts';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -50,21 +51,6 @@ const tabbedNavigation = [
 	},
 ];
 
-const filterByCampaign = ( prompts, campaignId ) => {
-	if ( 'active' === campaignId || ! campaignId ) {
-		return prompts.filter( ( { status } ) => 'publish' === status );
-	}
-	if ( 'unassigned' === campaignId ) {
-		return prompts.filter(
-			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
-		);
-	}
-	return prompts.filter(
-		( { campaign_groups: campaigns } ) =>
-			campaigns && campaigns.find( term => +term.term_id === +campaignId )
-	);
-};
-
 class PopupsWizard extends Component {
 	constructor( props ) {
 		super( props );
@@ -84,22 +70,6 @@ class PopupsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	/**
-	 * Designate which popup should be the sitewide default.
-	 *
-	 * @param {number} popupId ID of the Popup to become sitewide default.
-	 */
-	setSitewideDefaultPopup = ( popupId, state ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/sitewide-popup/${ popupId }`,
-			method: state ? 'POST' : 'DELETE',
-			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
@@ -242,7 +212,6 @@ class PopupsWizard extends Component {
 					const popupManagementSharedProps = {
 						...sharedProps,
 						manageCampaignGroup: this.manageCampaignGroup,
-						setSitewideDefaultPopup: this.setSitewideDefaultPopup,
 						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
@@ -337,18 +306,18 @@ class PopupsWizard extends Component {
 										};
 
 										return (
-											<Campaigns
-												{ ...popupManagementSharedProps }
-												archiveCampaignGroup={ archiveCampaignGroup }
-												campaignId={ campaignId }
-												createCampaignGroup={ createCampaignGroup }
-												deleteCampaignGroup={ deleteCampaignGroup }
-												duplicateCampaignGroup={ duplicateCampaignGroup }
-												renameCampaignGroup={ renameCampaignGroup }
-												prompts={ filterByCampaign( prompts, campaignId ) }
-												campaigns={ campaigns }
-												hasUnassigned={ filterByCampaign( prompts, 'unassigned' ).length }
-											/>
+											<CampaignsContext.Provider value={ prompts }>
+												<Campaigns
+													{ ...popupManagementSharedProps }
+													archiveCampaignGroup={ archiveCampaignGroup }
+													campaignId={ campaignId }
+													createCampaignGroup={ createCampaignGroup }
+													deleteCampaignGroup={ deleteCampaignGroup }
+													duplicateCampaignGroup={ duplicateCampaignGroup }
+													renameCampaignGroup={ renameCampaignGroup }
+													campaigns={ campaigns }
+												/>
+											</CampaignsContext.Provider>
 										);
 									} }
 								/>

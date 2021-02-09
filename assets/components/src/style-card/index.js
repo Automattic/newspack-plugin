@@ -40,7 +40,7 @@ class StyleCard extends Component {
 								isLink
 								onClick={ onClick }
 								aria-label={ __( 'Activate', 'newspack' ) + ' ' + cardTitle }
-								tabindex="0"
+								tabIndex="0"
 							>
 								{ __( 'Activate', 'newspack' ) }
 							</Button>
@@ -50,7 +50,7 @@ class StyleCard extends Component {
 				</div>
 				<div
 					className="newspack-style-card__title"
-					title={ isActive && __( 'Active theme', 'newspack' ) }
+					title={ isActive ? __( 'Active theme', 'newspack' ) : '' }
 				>
 					{ cardTitle }
 				</div>

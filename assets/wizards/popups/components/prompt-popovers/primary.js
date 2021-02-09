@@ -13,20 +13,18 @@ import { ESCAPE } from '@wordpress/keycodes';
 /**
  * Internal dependencies.
  */
-import { Popover, ToggleControl } from '../../../../components/src';
-import { isOverlay } from '../../utils';
+import { Popover } from '../../../../components/src';
 import './style.scss';
 
 const PrimaryPromptPopover = ( {
 	deletePopup,
 	prompt,
 	previewPopup,
-	setSitewideDefaultPopup,
 	onFocusOutside,
 	publishPopup,
 	unpublishPopup,
 } ) => {
-	const { id, sitewide_default: sitewideDefault, edit_link: editLink, options, status } = prompt;
+	const { id, edit_link: editLink, status } = prompt;
 	const isPublished = 'publish' === status;
 	return (
 		<Popover
@@ -38,20 +36,6 @@ const PrimaryPromptPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ isOverlay( { options } ) && isPublished && (
-				<MenuItem
-					onClick={ () => {
-						setSitewideDefaultPopup( id, ! sitewideDefault );
-						onFocusOutside();
-					} }
-					className="newspack-button"
-				>
-					<div className="newspack-popover__campaigns__toggle-control">
-						{ __( 'Sitewide default', 'newspack' ) }
-						<ToggleControl checked={ sitewideDefault } onChange={ () => null } />
-					</div>
-				</MenuItem>
-			) }
 			<MenuItem
 				onClick={ () => {
 					onFocusOutside();
@@ -64,7 +48,7 @@ const PrimaryPromptPopover = ( {
 			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
-			{ 'publish' !== status && (
+			{ ! isPublished && (
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();
@@ -75,7 +59,7 @@ const PrimaryPromptPopover = ( {
 					{ __( 'Activate', 'newspack' ) }
 				</MenuItem>
 			) }
-			{ 'publish' === status && (
+			{ isPublished && (
 				<MenuItem
 					onClick={ () => {
 						onFocusOutside();

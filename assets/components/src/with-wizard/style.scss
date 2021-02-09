@@ -29,6 +29,15 @@ body[class*='admin_page_newspack-'] {
 	}
 }
 
+svg {
+	&.newspack--error {
+		fill: $alert-red;
+	}
+	&.newspack--success {
+		fill: $alert-green;
+	}
+}
+
 // Welcome Screen
 
 .newspack_page_newspack-setup-wizard__welcome {
@@ -46,6 +55,9 @@ body[class*='admin_page_newspack-'] {
 		@media screen and ( min-width: 584px ) {
 			max-width: 520px;
 		}
+	}
+	.newspack-setup-wizard__welcome {
+		border-radius: 4px;
 	}
 
 	.newspack-buttons-card {
