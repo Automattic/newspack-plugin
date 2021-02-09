@@ -75,9 +75,10 @@ const filterByCampaign = ( prompts, campaignId ) => {
 const groupBySegment = ( segments, prompts ) => {
 	const grouped = [];
 	grouped.push(
-		...segments.map( ( { name: label, id } ) => ( {
+		...segments.map( ( { name: label, id, configuration } ) => ( {
 			label,
 			id,
+			configuration,
 			prompts: prompts.filter(
 				( { options: { selected_segment_id: segment } } ) => segment === id
 			),
@@ -87,6 +88,7 @@ const groupBySegment = ( segments, prompts ) => {
 		label: __( 'Default (no segment)', 'newspack' ),
 		id: '',
 		prompts: prompts.filter( ( { options: { selected_segment_id: segment } } ) => ! segment ),
+		configuration: {},
 	} );
 	return grouped;
 };
@@ -325,7 +327,6 @@ const Campaigns = props => {
 					segment={ segment }
 					campaignId={ campaignId }
 					campaignData={ campaignData }
-					segments={ segments }
 					{ ...props }
 				/>
 			) ) }

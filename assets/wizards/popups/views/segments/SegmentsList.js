@@ -1,9 +1,8 @@
 /**
  * WordPress dependencies.
  */
-import { useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { format } from '@wordpress/date';
 import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
@@ -18,6 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
  * Internal dependencies.
  */
 import { ActionCard, Popover, Button, Router } from '../../../../components/src';
+import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
 
@@ -41,7 +41,18 @@ const SegmentActionCard = ( {
 	wrapperRef,
 } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
+	const [ categories, setCategories ] = useState( [] );
 	const [ isDragging, setIsDragging ] = useState( false );
+
+	useEffect( () => {
+		updateCategories();
+	}, [ segment ] );
+
+	const updateCategories = async () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
+		}
+	};
 
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
@@ -153,10 +164,7 @@ const SegmentActionCard = ( {
 						isSmall
 						title={ segment.name }
 						titleLink={ `#/segments/${ segment.id }` }
-						description={ `${ __( 'Created on', 'newspack' ) } ${ format(
-							'Y/m/d',
-							segment.created_at
-						) }` }
+						description={ descriptionForSegment( segment, categories ) }
 						actionText={
 							<>
 								<Tooltip text={ __( 'More options', 'newspack' ) }>
