@@ -148,7 +148,7 @@ const Campaigns = props => {
 	const selectValue = valueForCampaignId( campaignId );
 	return (
 		<Fragment>
-			<Card cptHeader noBorder>
+			<Card headerActions noBorder>
 				<div className="newspack-campaigns__campaign-group__filter-group-actions">
 					<CustomSelectControl
 						label={ __( 'Campaigns', 'newspack' ) }

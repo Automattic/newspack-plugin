@@ -96,7 +96,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 
 	return segments.length ? (
 		<Fragment>
-			<Card cptHeader noBorder>
+			<Card headerActions noBorder>
 				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
@@ -112,7 +112,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 		</Fragment>
 	) : (
 		<Fragment>
-			<Card cptHeader noBorder>
+			<Card headerActions noBorder>
 				<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
