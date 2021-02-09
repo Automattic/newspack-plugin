@@ -18,7 +18,7 @@ const SegmentationPreview = props => {
 	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
 
 	const {
-		campaignGroups = [],
+		campaign = false,
 		onLoad = () => {},
 		segment = '',
 		showUnpublished = false,
@@ -32,9 +32,9 @@ const SegmentationPreview = props => {
 			view_as.push( 'show_unpublished:true' );
 		}
 
-		// If passed group IDs, get only campaigns matching those groups. Otherwise, get all campaigns.
-		if ( 0 < campaignGroups.length ) {
-			view_as.push( `groups:${ sanitizeTerms( campaignGroups ).join( ',' ) }` );
+		// If passed campaign ID, get only campaigns matching that campaign. Otherwise, get all campaigns.
+		if ( campaign ) {
+			view_as.push( `campaign:${ campaign }` );
 		} else {
 			view_as.push( 'all' );
 		}
@@ -53,20 +53,6 @@ const SegmentationPreview = props => {
 			onLoad( iframeEl );
 		}
 	};
-
-	const sanitizeTerms = items =>
-		( Array.isArray( items ) ? items : [ items ] ).map( item => {
-			switch ( typeof item ) {
-				case 'number':
-					return item;
-				case 'object':
-					if ( item.id ) {
-						return item.id;
-					}
-					break;
-			}
-			return null;
-		} );
 
 	return <WebPreview { ...props } onLoad={ onWebPreviewLoad } url={ decorateURL( url ) } />;
 };
