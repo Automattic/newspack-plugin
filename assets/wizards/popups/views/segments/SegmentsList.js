@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
@@ -16,7 +16,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Popover, Button, Router } from '../../../../components/src';
+import { ActionCard, Card, Popover, Button, Router } from '../../../../components/src';
 import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
@@ -270,7 +270,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 			<Card headerActions noBorder>
 				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
-			</div>
+			</Card>
 			<div className="newspack-campaigns-wizard-segments__list" ref={ ref }>
 				{ segmentsToShow.map( ( segment, index ) => (
 					<SegmentActionCard
