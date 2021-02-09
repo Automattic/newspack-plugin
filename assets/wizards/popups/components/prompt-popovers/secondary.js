@@ -53,7 +53,7 @@ const SecondaryPromptPopover = ( {
 					onFocusOutside();
 				} }
 				options={ [
-					{ label: __( 'Default (no segment)', 'newspack' ), value: '' },
+					{ label: __( 'Everyone', 'newspack' ), value: '' },
 					...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
 				] }
 				value={ selectedSegmentId }
