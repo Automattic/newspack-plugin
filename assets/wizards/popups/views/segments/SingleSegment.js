@@ -63,11 +63,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	} );
 	const history = useHistory();
 
-	const isSegmentValid =
-		name.length > 0 && // Segment has a name.
-		JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG ) && // Segment differs from the default config.
-		( criteria.engagement || criteria.activity || criteria.referrers ); // At least one criteria section is enbaled.
-
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
 	const getConfigToSave = () => {
 		const configToSave = { ...segmentConfig };
@@ -92,6 +87,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 		return configToSave;
 	};
+
+	const isSegmentValid =
+		name.length > 0 && // Segment has a name.
+		JSON.stringify( getConfigToSave() ) !== JSON.stringify( DEFAULT_CONFIG ) && // Segment differs from the default config.
+		( criteria.engagement || criteria.activity || criteria.referrers ); // At least one criteria section is enbaled.
 
 	const isDirty =
 		JSON.stringify( segmentInitially ) !== JSON.stringify( getConfigToSave() ) ||
