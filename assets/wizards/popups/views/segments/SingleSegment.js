@@ -54,7 +54,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
 	const [ nameInitially, setNameInitially ] = useState( '' );
-	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
+	const [ isFetchingReach, setIsFetchingReach ] = useState( false );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
 	const [ criteria, setCriteria ] = useState( {
 		engagement: false,
@@ -124,17 +124,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	}, [ isNew ] );
 
 	const updateReach = useMemo( () => {
-		return debounce( config => {
-			setIsFetchingReach( true );
-			apiFetch( {
-				path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-reach?config=${ JSON.stringify(
-					config
-				) }`,
-			} ).then( res => {
-				setReach( res );
-				setIsFetchingReach( false );
-			} );
-		}, 500 );
+		return debounce(
+			config => {
+				setIsFetchingReach( true );
+				apiFetch( {
+					path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-reach?config=${ JSON.stringify(
+						config
+					) }`,
+				} ).then( res => {
+					setReach( res );
+					setIsFetchingReach( false );
+				} );
+			},
+			500,
+			{ leading: true }
+		);
 	}, [] );
 
 	useEffect( () => {
@@ -164,8 +168,12 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		}
 
 		setCriteria( newCriteria );
-		updateReach( segmentConfig );
+		updateReach( getConfigToSave() );
 	}, [ JSON.stringify( segmentConfig ) ] );
+
+	useEffect( () => {
+		updateReach( getConfigToSave() );
+	}, [ JSON.stringify( criteria ) ] );
 
 	const saveSegment = () => {
 		const configToSave = getConfigToSave();
