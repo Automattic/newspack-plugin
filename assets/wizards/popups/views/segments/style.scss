@@ -2,10 +2,8 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-campaigns-wizard-segments {
-	&__list-top {
-		display: flex;
-		flex-direction: row-reverse;
-		margin: 32px 0 8px;
+	&__list {
+		margin: 32px 0;
 	}
 	&__title {
 		margin: 32px 0 64px;

@@ -168,7 +168,7 @@ const Campaigns = props => {
 	const selectValue = valueForCampaignId( campaignId );
 	return (
 		<Fragment>
-			<div className="newspack-campaigns__campaign-group__filter-group-wrapper">
+			<Card headerActions noBorder>
 				<div className="newspack-campaigns__campaign-group__filter-group-actions">
 					<CustomSelectControl
 						label={ __( 'Campaigns', 'newspack' ) }
@@ -320,7 +320,7 @@ const Campaigns = props => {
 						</Modal>
 					) }
 				</div>
-			</div>
+			</Card>
 			{ groupBySegment( segments, prompts ).map( ( segment, index ) => (
 				<SegmentGroup
 					key={ index }
