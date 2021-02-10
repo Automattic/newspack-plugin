@@ -176,7 +176,7 @@ class WebPreview extends Component {
 						isLink={ isLink }
 						isSmall={ isSmall }
 						onClick={ this.showPreview }
-						tabindex="0"
+						tabIndex="0"
 					>
 						{ label }
 					</Button>

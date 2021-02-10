@@ -1,3 +1,9 @@
+/**
+ * Autocomplete Token Field
+ */
+
+@import '../../../shared/scss/colors';
+
 .newspack-autocomplete-tokenfield {
 	position: relative;
 
@@ -28,5 +34,9 @@
 	.components-form-token-field__suggestions-list {
 		margin-left: 0;
 		padding-left: 0;
+	}
+
+	.components-button:focus:not( :disabled ) {
+		box-shadow: inset 0 0 0 2px $primary-500;
 	}
 }

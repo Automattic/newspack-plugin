@@ -9,6 +9,8 @@
 	margin: 32px 0;
 	position: relative;
 	z-index: 1;
+	border-radius: 4px;
+	overflow: hidden;
 
 	.newspack-progress-bar__headings {
 		align-items: center;
@@ -24,13 +26,16 @@
 
 	.newspack-progress-bar__bar {
 		background-color: $primary-500;
-		height: 4px;
 		transition: width 125ms ease-in-out;
+
+		&,
+		&::before {
+			height: 8px;
+		}
 
 		&::before {
 			background-color: $light-gray-200;
 			content: '';
-			height: 4px;
 			left: 0;
 			position: absolute;
 			width: 100%;

@@ -22,11 +22,13 @@ class Card extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, buttonsCard, noBorder, ...otherProps } = this.props;
+		const { buttonsCard, className, headerActions, isSmall, noBorder, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-card',
 			className,
 			buttonsCard && 'newspack-card__buttons-card',
+			headerActions && 'newspack-card__header-actions',
+			isSmall && 'newspack-card__is-small',
 			noBorder && 'newspack-card__no-border'
 		);
 		return <div className={ classes } { ...otherProps } />;

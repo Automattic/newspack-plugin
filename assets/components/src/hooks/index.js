@@ -1,3 +1,4 @@
 import usePrompt from './usePrompt';
+import useObjectState from './useObjectState';
 
-export default { usePrompt };
+export default { usePrompt, useObjectState };
