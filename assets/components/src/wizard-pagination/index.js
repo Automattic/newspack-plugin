@@ -53,14 +53,14 @@ const WizardPagination = props => {
 						onClick={ () => setShowSteps( ! showSteps ) }
 						icon={ showSteps ? moreVertical : moreHorizontal }
 					>
-						{ routes[ currentRoute ].title }
+						{ routes[ currentRoute ].label }
 					</Button>
 					<ul
 						className={ `newspack-wizard-pagination__steps ${ ! showSteps ? 'hidden' : '' }` }
 						ref={ stepper }
 					>
 						{ routeList.map( ( route, index ) => {
-							if ( 'welcome' === route ) {
+							if ( '0' === route ) {
 								return null;
 							}
 
@@ -85,7 +85,7 @@ const WizardPagination = props => {
 											icon={ route === currentRoute ? arrowRight : null }
 											disabled={ index > currentIndex }
 										>
-											{ routes[ route ].title }
+											{ routes[ route ].label }
 										</Button>
 									</li>
 								</Fragment>

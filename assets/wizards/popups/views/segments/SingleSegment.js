@@ -51,13 +51,7 @@ const DEFAULT_CONFIG = {
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
-	const [ segmentConfig, setSegmentConfig ] = useState( DEFAULT_CONFIG );
-	const updateSegmentConfig = keyOrPartialUpdate => {
-		if ( typeof keyOrPartialUpdate === 'string' ) {
-			return value => setSegmentConfig( { ...segmentConfig, [ keyOrPartialUpdate ]: value } );
-		}
-		return setSegmentConfig( { ...segmentConfig, ...keyOrPartialUpdate } );
-	};
+	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
 	const [ nameInitially, setNameInitially ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( { total: 0, in_segment: 0 } );
@@ -120,7 +114,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						...DEFAULT_CONFIG,
 						...foundSegment.configuration,
 					};
-					setSegmentConfig( segmentConfigurationWithDefaults );
+					updateSegmentConfig( segmentConfigurationWithDefaults );
 					setSegmentInitially( segmentConfigurationWithDefaults );
 					setName( foundSegment.name );
 					setNameInitially( foundSegment.name );

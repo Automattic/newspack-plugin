@@ -53,13 +53,15 @@ class Newsletters extends Component {
 						isSuccess
 					/>
 				) }
-				<p className="wpcom-link">
-					<ExternalLink href={ connectURL }>
-						{ ! connected
-							? __( 'Set up Mailchimp on WordPress.com' )
-							: __( 'Manage your Mailchimp connection' ) }
-					</ExternalLink>
-				</p>
+				{ connectURL ? (
+					<p className="wpcom-link">
+						<ExternalLink href={ connectURL }>
+							{ ! connected
+								? __( 'Set up Mailchimp on WordPress.com' )
+								: __( 'Manage your Mailchimp connection' ) }
+						</ExternalLink>
+					</p>
+				) : null }
 			</Card>,
 			wcConnected && pluginRequirementsMet && (
 				<Card key="wc-mailchimp-plugin">

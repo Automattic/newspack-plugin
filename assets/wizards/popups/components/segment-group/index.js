@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useState } from '@wordpress/element';
+import { useContext, useEffect, useState } from '@wordpress/element';
 import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
@@ -15,8 +15,14 @@ import { Icon, plusCircle } from '@wordpress/icons';
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
+import {
+	descriptionForPopup,
+	descriptionForSegment,
+	getCardClassName,
+	getFavoriteCategoryNames,
+	warningForPopup,
+} from '../../utils';
 import { CampaignsContext } from '../../contexts';
-import { descriptionForPopup, getCardClassName, warningForPopup } from '../../utils';
 
 import {
 	iconInline,
@@ -46,8 +52,19 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState();
+	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
+
+	useEffect( () => {
+		updateCategories();
+	}, [ segment ] );
+
+	const updateCategories = async () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
+		}
+	};
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
@@ -61,8 +78,13 @@ const SegmentGroup = props => {
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<h3 className="newspack-campaigns__segment-group__card__segment">
-				{ id ? __( 'Segment: ', 'newspack' ) : '' }
-				{ label }
+				<a href={ `#/segments/${ id }` }>
+					{ id ? __( 'Segment: ', 'newspack' ) : '' }
+					{ label }
+					<span className="newspack-campaigns__segment-group__description">
+						{ descriptionForSegment( segment, categories ) }
+					</span>
+				</a>
 				<SegmentationPreview
 					campaignId={ [ campaignId ] }
 					segment={ id }
