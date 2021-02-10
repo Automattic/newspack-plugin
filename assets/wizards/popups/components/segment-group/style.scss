@@ -17,8 +17,11 @@
 		display: block;
 		font-size: 12px;
 		font-weight: normal;
+		line-height: 16px;
 	}
 	&__card {
+		border-color: $light-gray-500;
+
 		& > &__segment {
 			margin: -16px -16px 16px !important;
 			padding: 8px 16px;
@@ -27,7 +30,7 @@
 		&__segment {
 			align-items: center;
 			background: $light-gray-100;
-			border-bottom: 1px solid $light-gray-200;
+			border-bottom: 1px solid $light-gray-500;
 			display: flex;
 			justify-content: space-between;
 
@@ -40,10 +43,12 @@
 					color: $primary-500;
 				}
 			}
+		}
 
-			button {
-				margin-left: 12px;
-			}
+		body[class*='admin-color-'] & > .newspack-button.has-icon:not( .has-text ) {
+			display: flex;
+			margin-top: 16px;
+			width: 100%;
 		}
 	}
 
@@ -66,12 +71,6 @@
 				margin-bottom: 0;
 			}
 		}
-	}
-
-	&__add-new-wrap {
-		display: flex;
-		justify-content: center;
-		margin-top: 16px;
 	}
 
 	&__add-new-button {
