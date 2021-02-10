@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useEffect, useState } from '@wordpress/element';
+import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
 import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
@@ -111,7 +111,7 @@ const SegmentGroup = props => {
 			</Card>
 			{ prompts.length < 1 ? <p>{ emptySegmentText }</p> : '' }
 			{ 'unassigned' !== campaignId && (
-				<div className="newspack-campaigns__segment-group__add-new-wrap">
+				<Fragment>
 					<Button
 						isSmall
 						isQuaternary
@@ -156,7 +156,7 @@ const SegmentGroup = props => {
 							</Card>
 						</Modal>
 					) }
-				</div>
+				</Fragment>
 			) }
 		</Card>
 	);
