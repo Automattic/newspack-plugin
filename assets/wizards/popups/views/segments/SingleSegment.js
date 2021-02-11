@@ -270,10 +270,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						if ( criteria.referrers.isEnabled ) {
 							newCriteria.referrers.isEnabled = false;
 						}
-					} else {
-						if ( criteria.referrers.isOpen ) {
-							newCriteria.referrers.isEnabled = true;
-						}
+					} else if ( criteria.referrers.isOpen ) {
+						newCriteria.referrers.isEnabled = true;
 					}
 
 					setCriteria( newCriteria );
@@ -511,10 +509,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						if ( criteria.engagement.isEnabled ) {
 							newCriteria.engagement.isEnabled = false;
 						}
-					} else {
-						if ( criteria.engagement.isOpen ) {
-							newCriteria.engagement.isEnabled = true;
-						}
+					} else if ( criteria.engagement.isOpen ) {
+						newCriteria.engagement.isEnabled = true;
 					}
 
 					setCriteria( newCriteria );

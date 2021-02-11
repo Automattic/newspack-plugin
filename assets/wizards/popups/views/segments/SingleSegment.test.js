@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import SingleSegment from './SingleSegment';

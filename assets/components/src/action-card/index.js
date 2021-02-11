@@ -51,7 +51,6 @@ class ActionCard extends Component {
 			titleLink,
 			toggleChecked,
 			toggleOnChange,
-			disabled,
 		} = this.props;
 		const classes = classnames(
 			'newspack-action-card',
