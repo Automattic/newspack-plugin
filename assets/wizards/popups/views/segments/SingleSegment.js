@@ -321,7 +321,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								label={ __( 'Min.', 'newspack' ) }
 							/>
 							<TextControl
-								placeholder={ __( 'Min. posts', 'newspack' ) }
+								placeholder={ __( 'Min. posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_session_posts }
 								onChange={ value => {
@@ -346,7 +346,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								label={ __( 'Max.', 'newspack' ) }
 							/>
 							<TextControl
-								placeholder={ __( 'Max. posts', 'newspack' ) }
+								placeholder={ __( 'Max. posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_session_posts }
 								onChange={ value => {
