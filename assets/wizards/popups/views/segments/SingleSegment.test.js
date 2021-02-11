@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { act, render, fireEvent, waitFor, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import SingleSegment from './SingleSegment';
@@ -57,6 +57,7 @@ describe( 'A new segment creation', () => {
 
 	it( 'creates a new segment', async () => {
 		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
+
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
 		expect( screen.queryByText( 'Articles read' ) ).toBeInTheDocument();
 
@@ -64,8 +65,10 @@ describe( 'A new segment creation', () => {
 			target: { value: 'Big time readers' },
 		} );
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
+
 		fireEvent.change( screen.getByPlaceholderText( 'Min. posts' ), { target: { value: '42' } } );
 		expect( screen.getByText( 'Save' ) ).not.toBeDisabled();
+
 		fireEvent.click( screen.getByText( 'Save' ) );
 
 		await waitFor( () => expect( mockProps.setSegments ).toHaveBeenCalledTimes( 1 ) );
@@ -88,5 +91,28 @@ describe( 'A new segment creation', () => {
 				name: 'Big time readers',
 			},
 		] );
+	} );
+	it( 'disables engagement if referrers is enabled, and vice versa', () => {
+		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
+
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect( screen.queryByText( 'Articles read' ) ).toBeInTheDocument();
+
+		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
+		expect( screen.queryByText( 'Sources to match' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Disable Referrer Sources in order to use Reader Engagement options.' )
+		).toBeInTheDocument();
+		expect( screen.getByPlaceholderText( 'Min. posts' ) ).toBeDisabled();
+
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect(
+			screen.queryByText( 'Disable Referrer Sources in order to use Reader Engagement options.' )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Disable Reader Engagement in order to use Referrer Sources options.' )
+		).toBeInTheDocument();
+		expect( screen.getByPlaceholderText( 'Min. posts' ) ).not.toBeDisabled();
+		expect( screen.getByPlaceholderText( 'google.com, facebook.com' ) ).toBeDisabled();
 	} );
 } );
