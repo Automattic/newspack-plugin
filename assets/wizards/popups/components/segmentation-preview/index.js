@@ -26,7 +26,7 @@ const SegmentationPreview = props => {
 	} = props;
 
 	const decorateURL = urlToDecorate => {
-		const view_as = segment.length ? [ `segment:${ segment }` ] : [ 'all' ];
+		const view_as = segment.length ? [ `segment:${ segment }` ] : [ 'segment:everyone' ];
 
 		if ( showUnpublished ) {
 			view_as.push( 'show_unpublished:true' );
