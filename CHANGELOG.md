@@ -1,3 +1,16 @@
+# [1.30.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.30.0-alpha.1...v1.30.0-alpha.2) (2021-02-11)
+
+
+### Bug Fixes
+
+* change in how to retrieve property id from site kit ([#849](https://github.com/Automattic/newspack-plugin/issues/849)) ([fd117f8](https://github.com/Automattic/newspack-plugin/commit/fd117f8613b449e029df094abc3061d901cfbfe0))
+* preview functionality by campaign/group ([#856](https://github.com/Automattic/newspack-plugin/issues/856)) ([4eae456](https://github.com/Automattic/newspack-plugin/commit/4eae456db8f114eb7bad6920b1a518873ddaf9d6))
+
+
+### Features
+
+* increase segment border color and increase add prompt button width ([#857](https://github.com/Automattic/newspack-plugin/issues/857)) ([a03635f](https://github.com/Automattic/newspack-plugin/commit/a03635f04ae315e54098d0cdb65a5837cf90bc3e))
+
 # [1.30.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.29.0...v1.30.0-alpha.1) (2021-02-10)
 
 
