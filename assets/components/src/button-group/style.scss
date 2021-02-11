@@ -8,8 +8,33 @@
 
 	.newspack-button {
 		&:active,
-		&:hover {
+		&:focus,
+		&:hover,
+		&.is-pressed {
 			position: relative;
+		}
+
+		&.is-pressed {
+			z-index: 2;
+		}
+	}
+}
+
+body[class*='admin-color-'] {
+	.newspack-button-group {
+		.newspack-button {
+			border-radius: 0;
+			box-shadow: none;
+
+			&:first-child {
+				border-bottom-left-radius: 3px;
+				border-top-left-radius: 3px;
+			}
+
+			&:last-child {
+				border-bottom-right-radius: 3px;
+				border-top-right-radius: 3px;
+			}
 		}
 	}
 }
