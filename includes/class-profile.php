@@ -32,13 +32,6 @@ class Profile {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Profile option prefix.
-	 *
-	 * @var string
-	 */
-	protected static $opt_prefix = '_newspack_profile_';
-
-	/**
 	 * Fields to fetch from WP SEO (Yoast) plugin.
 	 *
 	 * @var array
@@ -92,7 +85,9 @@ class Profile {
 			],
 		];
 
-		self::$profile_fields = [
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$wc_location_data         = $wc_configuration_manager->location_data();
+		self::$profile_fields     = [
 			[
 				'name'    => 'site_icon',
 				'value'   => ! empty( $site_icon ) ? [
@@ -119,17 +114,19 @@ class Profile {
 				},
 			],
 			[
-				'name'    => 'country',
-				'value'   => get_option( self::$opt_prefix . 'country', 'US' ),
+				'name'    => 'countrystate',
+				'value'   => $wc_location_data['countrystate'],
 				'updater' => function( $value ) {
-					self::newspack_update_option( 'country', $value );
+					$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+					$wc_configuration_manager->update_location( [ 'countrystate' => $value ] );
 				},
 			],
 			[
 				'name'    => 'currency',
-				'value'   => get_option( self::$opt_prefix . 'currency', 'USD' ),
+				'value'   => $wc_location_data['currency'],
 				'updater' => function( $value ) {
-					self::newspack_update_option( 'currency', $value );
+					$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+					$wc_configuration_manager->update_location( [ 'currency' => $value ] );
 				},
 			],
 		];
@@ -208,10 +205,11 @@ class Profile {
 	 * @return object|WP_Error
 	 */
 	public function api_get_profile( $request ) {
-		$response = [
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$response                 = [
 			'profile'      => $this->newspack_get_profile(),
-			'currencies'   => newspack_select_prepare( newspack_currencies() ),
-			'countries'    => newspack_select_prepare( newspack_countries() ),
+			'currencies'   => $wc_configuration_manager->currency_fields(),
+			'countries'    => $wc_configuration_manager->country_state_fields(),
 			'wpseo_fields' => self::$wpseo_fields,
 		];
 		return rest_ensure_response( $response );

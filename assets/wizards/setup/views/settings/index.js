@@ -106,7 +106,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 				<div className="fl w-100 w-30-l">
 					{ renderSetting( {
 						options: countries,
-						key: 'country',
+						key: 'countrystate',
 						label: __( 'Where is your business based?' ),
 					} ) }
 					{ renderSetting( { options: currencies, key: 'currency', label: __( 'Currency' ) } ) }
