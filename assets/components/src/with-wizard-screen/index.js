@@ -18,7 +18,7 @@ import classnames from 'classnames';
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizardScreen( WrappedComponent ) {
+export default function withWizardScreen( WrappedComponent, { hidePrimaryButton } = {} ) {
 	const WrappedWithWizardScreen = props => {
 		const {
 			className,
@@ -30,18 +30,29 @@ export default function withWizardScreen( WrappedComponent ) {
 			tabbedNavigation,
 			secondaryButtonText,
 			secondaryButtonAction,
-			hidden,
 			routes,
 		} = props;
-		if ( hidden ) {
-			return null;
-		}
-		const content = <WrappedComponent { ...props } />;
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
 		const SecondaryCTAComponent = retrievedSecondaryButtonProps.plugin ? Handoff : Button;
 		const shouldRenderPrimaryButton = buttonText && buttonAction;
 		const shouldRenderSecondaryButton = secondaryButtonText && secondaryButtonAction;
+		const renderPrimaryButton = ( overridingProps = {} ) =>
+			retrievedButtonProps.plugin ? (
+				<Handoff isPrimary { ...retrievedButtonProps } { ...overridingProps }>
+					{ buttonText }
+				</Handoff>
+			) : (
+				<Button
+					isPrimary={ ! buttonDisabled }
+					isSecondary={ !! buttonDisabled }
+					disabled={ buttonDisabled }
+					{ ...retrievedButtonProps }
+					{ ...overridingProps }
+				>
+					{ buttonText }
+				</Button>
+			);
 		return (
 			<>
 				{ newspack_aux_data.is_debug_mode && (
@@ -65,24 +76,10 @@ export default function withWizardScreen( WrappedComponent ) {
 				</div>
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
-					{ content }
+					{ <WrappedComponent { ...props } renderPrimaryButton={ renderPrimaryButton } /> }
 					{ ( shouldRenderPrimaryButton || shouldRenderSecondaryButton ) && (
 						<div className="newspack-buttons-card">
-							{ shouldRenderPrimaryButton &&
-								( retrievedButtonProps.plugin ? (
-									<Handoff isPrimary { ...retrievedButtonProps }>
-										{ buttonText }
-									</Handoff>
-								) : (
-									<Button
-										isPrimary={ ! buttonDisabled }
-										isSecondary={ !! buttonDisabled }
-										disabled={ buttonDisabled }
-										{ ...retrievedButtonProps }
-									>
-										{ buttonText }
-									</Button>
-								) ) }
+							{ shouldRenderPrimaryButton && ! hidePrimaryButton && renderPrimaryButton() }
 							{ shouldRenderSecondaryButton && (
 								<SecondaryCTAComponent isSecondary { ...retrievedSecondaryButtonProps }>
 									{ secondaryButtonText }
