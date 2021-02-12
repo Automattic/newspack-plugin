@@ -153,6 +153,7 @@ abstract class Wizard {
 		$aux_data = [
 			'is_e2e'        => Starter_Content::is_e2e(),
 			'is_debug_mode' => Newspack::is_debug_mode(),
+			'site_title'    => get_option( 'blogname' ),
 		];
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );

@@ -2,32 +2,48 @@
  * Image Upload
  */
 
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
 .newspack-image-upload {
 	margin: 32px 0;
-
-	.newspack-button {
-		justify-content: center;
-
-		&.newspack-image-upload__remove-image {
-			min-width: 144px;
-		}
-
-		svg {
-			display: block;
-			fill: currentColor;
-			margin-right: 4px;
-		}
+	&__label {
+		color: $dark-gray-900;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 24px;
 	}
-
-	.newspack-image-upload__image-preview {
-		margin-bottom: 8px;
-		max-width: 144px;
-		padding: 0;
-
-		img {
-			display: block;
-			max-width: 100%;
-			height: auto;
+	&__image {
+		max-width: 100%;
+		position: relative;
+		background-repeat: no-repeat;
+		background-size: cover;
+		&--has-image {
+			button,
+			&::after {
+				opacity: 0;
+				transition: opacity 200ms;
+			}
+			button {
+				z-index: 1;
+				position: relative;
+			}
+			&::after {
+				content: '';
+				position: absolute;
+				z-index: 0;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba( white, 0.7 );
+			}
+			&:hover {
+				button,
+				&::after {
+					opacity: 1;
+				}
+			}
 		}
 	}
 }
