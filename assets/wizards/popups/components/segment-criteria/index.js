@@ -9,15 +9,10 @@ import { ActionCard } from '../../../../components/src';
 import './style.scss';
 
 const SegmentCriteria = props => {
-	const { children, isEnabled, isOpen, notification } = props;
+	const { children, toggleChecked } = props;
 	return (
-		<ActionCard
-			{ ...props }
-			toggleChecked={ isEnabled }
-			notification={ isOpen && ! isEnabled ? notification : null }
-			notificationLevel="error"
-		>
-			{ isOpen ? children : null }
+		<ActionCard { ...props } notificationLevel="warning">
+			{ toggleChecked ? children : null }
 		</ActionCard>
 	);
 };

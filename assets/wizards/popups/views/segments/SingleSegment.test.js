@@ -109,27 +109,33 @@ describe( 'A new segment creation', () => {
 		] );
 	} );
 
-	it( 'disables engagement if referrers is enabled, and vice versa', () => {
-		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
-
+	it( 'disables referrers section if engagement section is enabled, and vice versa', () => {
+		// Toggle on Reader Engagement section.
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
 		expect( screen.queryByText( 'Articles read' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Disable Reader Engagement in order to use Referrer Sources options.' )
+		).toBeInTheDocument();
 
+		// Ensure the Referrer Sources section is disabled.
+		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
+		expect( screen.queryByText( 'Sources to match' ) ).not.toBeInTheDocument();
+
+		// Toggle off Reader Engagement section.
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect(
+			screen.queryByText( 'Disable Reader Engagement in order to use Referrer Sources options.' )
+		).not.toBeInTheDocument();
+
+		// Toggle on Referrer Sources section.
 		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
 		expect( screen.queryByText( 'Sources to match' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'Disable Referrer Sources in order to use Reader Engagement options.' )
 		).toBeInTheDocument();
-		expect( screen.getByPlaceholderText( 'Min. posts' ) ).toBeDisabled();
 
+		// Ensure the Reader Engagement section is disabled.
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
-		expect(
-			screen.queryByText( 'Disable Referrer Sources in order to use Reader Engagement options.' )
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Disable Reader Engagement in order to use Referrer Sources options.' )
-		).toBeInTheDocument();
-		expect( screen.getByPlaceholderText( 'Min. posts' ) ).not.toBeDisabled();
-		expect( screen.getByPlaceholderText( 'google.com, facebook.com' ) ).toBeDisabled();
+		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
 	} );
 } );
