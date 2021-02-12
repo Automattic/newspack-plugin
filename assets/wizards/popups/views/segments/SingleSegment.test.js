@@ -55,12 +55,28 @@ describe( 'A new segment creation', () => {
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
 	} );
 
-	it( 'creates a new segment', async () => {
+	it( 'expands and collapses the sections', () => {
 		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
-
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
 		expect( screen.queryByText( 'Articles read' ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
 
+		expect( screen.queryByText( 'Newsletter' ) ).not.toBeInTheDocument();
+		fireEvent.click( screen.getByText( 'Reader Activity' ) );
+		expect( screen.queryByText( 'Newsletter' ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByText( 'Reader Activity' ) );
+		expect( screen.queryByText( 'Newsletter' ) ).not.toBeInTheDocument();
+
+		expect( screen.queryByText( 'Sources to match' ) ).not.toBeInTheDocument();
+		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
+		expect( screen.queryByText( 'Sources to match' ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
+		expect( screen.queryByText( 'Sources to match' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'creates a new segment', async () => {
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
 		fireEvent.change( screen.getByPlaceholderText( 'Untitled Segment' ), {
 			target: { value: 'Big time readers' },
 		} );
@@ -92,6 +108,7 @@ describe( 'A new segment creation', () => {
 			},
 		] );
 	} );
+
 	it( 'disables engagement if referrers is enabled, and vice versa', () => {
 		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
 

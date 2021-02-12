@@ -59,7 +59,9 @@ class ActionCard extends Component {
 			className
 		);
 		const titleProps =
-			toggleOnChange && ! titleLink ? { onClick: toggleOnChange, tabIndex: '0' } : {};
+			toggleOnChange && ! titleLink
+				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
+				: {};
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">

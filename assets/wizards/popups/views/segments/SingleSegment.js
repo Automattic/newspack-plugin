@@ -423,7 +423,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					const newCriteria = { ...criteria };
 					newCriteria.activity = {
 						isEnabled: open,
-						isOpen: ! open,
+						isOpen: open,
 					};
 					setCriteria( newCriteria );
 				} }
