@@ -23,6 +23,7 @@ export { default as PluginToggle } from './plugin-toggle';
 export { default as Popover } from './popover';
 export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
+export { default as SectionHeader } from './section-header';
 export { default as SelectControl } from './select-control';
 export { default as StyleCard } from './style-card';
 export { default as TabbedNavigation } from './tabbed-navigation';
