@@ -102,16 +102,16 @@ class ImageUpload extends Component {
 								} }
 								isLink
 							>
-								{ __( 'Replace' ) }
+								{ __( 'Replace', 'newspack' ) }
 							</Button>
-							<br />
+							<span className="sep" />
 							<Button onClick={ () => onChange( null ) } isLink isDestructive>
-								{ __( 'Remove' ) }
+								{ __( 'Remove', 'newspack' ) }
 							</Button>
 						</div>
 					) : (
 						<Button onClick={ this.openModal } isLink>
-							{ __( 'Add image' ) }
+							{ __( 'Upload', 'newspack' ) }
 						</Button>
 					) }
 				</div>
