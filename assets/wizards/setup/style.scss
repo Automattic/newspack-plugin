@@ -4,6 +4,18 @@
 
 #newspack-setup-wizard {
 	position: relative;
+
+	.newspack-wizard__header {
+		h1 {
+			display: none;
+		}
+
+		p {
+			font-size: 21px;
+			font-weight: bold;
+			line-height: 32px;
+		}
+	}
 }
 
 .newspack-site-profile {
