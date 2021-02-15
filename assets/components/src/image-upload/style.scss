@@ -7,6 +7,9 @@
 
 .newspack-image-upload {
 	margin: 32px 0;
+	&__header {
+		display: flex;
+	}
 	&__label {
 		color: $dark-gray-900;
 		font-size: 14px;

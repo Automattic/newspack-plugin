@@ -75,6 +75,10 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 						className
 					) }
 					image={ profileData[ key ] }
+					info={ __(
+						'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least 512 pixels wide and tall.',
+						'newspack'
+					) }
 					onChange={ updateProfileData( key ) }
 				/>
 			);

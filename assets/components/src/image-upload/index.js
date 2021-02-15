@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button } from '../';
+import { Button, InfoButton } from '../';
 import './style.scss';
 
 /**
@@ -76,7 +76,7 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { onChange, className, label, image, style = {} } = this.props;
+		const { onChange, className, label, info, image, style = {} } = this.props;
 		const classes = classnames(
 			'newspack-image-upload__image',
 			{ 'newspack-image-upload__image--has-image': image },
@@ -84,8 +84,11 @@ class ImageUpload extends Component {
 		);
 		return (
 			<div className="newspack-image-upload">
-				{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
-				{ label && <label className="newspack-image-upload__label">{ label }</label> }
+				<div className="newspack-image-upload__header">
+					{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
+					{ label && <label className="newspack-image-upload__label">{ label }</label> }
+					{ info && <InfoButton text={ info } /> }
+				</div>
 				<div
 					className={ classes }
 					style={ { ...( image ? { backgroundImage: `url('${ image.url }')` } : {} ), ...style } }
