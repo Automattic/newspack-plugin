@@ -18,13 +18,14 @@ import {
 	Handoff,
 	Notice,
 	ToggleControl,
+	InfoButton,
 	withWizardScreen,
 } from '../../../../components/src';
 
 /**
  * Donation Settings Screen Component
  */
-class Donation extends Component {
+export class Donation extends Component {
 	/**
 	 * Render.
 	 */
@@ -69,9 +70,13 @@ class Donation extends Component {
 				<Card noBorder>
 					<h2>{ __( 'Suggested donations' ) }</h2>
 					<p>
-						{ __(
-							'Set a suggested monthly donation amount. This will provide hints to readers about how much to donate, which will increase the average donation amount.'
-						) }
+						{ __( 'Set a suggested monthly donation amount.' ) }
+						<InfoButton
+							text={ __(
+								'This will provide hints to readers about how much to donate, which will increase the average donation amount.',
+								'newspack'
+							) }
+						></InfoButton>
 					</p>
 					<ToggleControl
 						label={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
