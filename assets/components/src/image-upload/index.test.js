@@ -6,6 +6,6 @@ import ImageUpload from './';
 describe( 'ImageUpload', () => {
 	it( 'should render an add image button', () => {
 		const { getByText } = render( <ImageUpload /> );
-		expect( getByText( 'Add image' ) ).toBeInTheDocument();
+		expect( getByText( 'Upload' ) ).toBeInTheDocument();
 	} );
 } );
