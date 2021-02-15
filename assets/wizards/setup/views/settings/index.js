@@ -4,15 +4,17 @@
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
 import {
+	Card,
+	Grid,
+	ImageUpload,
+	SectionHeader,
 	SelectControl,
 	TextControl,
-	ImageUpload,
 	withWizardScreen,
 	hooks,
 } from '../../../../components/src';
@@ -69,11 +71,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 			return (
 				<ImageUpload
 					label={ label }
-					style={ { width: '160px', height: '136px' } }
-					className={ classnames(
-						'ba flex br2 b--light-gray items-center justify-around flex-column',
-						className
-					) }
+					style={ { width: '136px', height: '136px' } }
 					image={ profileData[ key ] }
 					info={ __(
 						'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least 512 pixels wide and tall.',
@@ -97,37 +95,42 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 
 	return (
 		<Fragment>
-			<h2>{ __( 'Site profile', 'newspack' ) }</h2>
-			<span>{ __( 'Add and manage the basic information', 'newspack' ) }</span>
-			<div className="cf">
-				<div className="fl w-100 w-20-l">
-					{ renderSetting( { key: 'site_icon', label: __( 'Site Icon' ), type: 'image' } ) }
-				</div>
-				<div className="fl w-100 w-50-l pr4-l pl3-l">
-					{ renderSetting( { key: 'site_title', label: __( 'Site Title' ) } ) }
-					{ renderSetting( { key: 'tagline', label: __( 'Tagline' ) } ) }
-				</div>
-				<div className="fl w-100 w-30-l">
+			<SectionHeader
+				title={ __( 'Site profile', 'newspack' ) }
+				description={ __( 'Add and manage the basic information', 'newspack' ) }
+			/>
+			<Grid columns={ 3 } gutter={ 32 } className="newspack-site-profile">
+				{ renderSetting( {
+					key: 'site_icon',
+					label: __( 'Site Icon', 'newspack' ),
+					type: 'image',
+				} ) }
+				<Card noBorder>
+					{ renderSetting( { key: 'site_title', label: __( 'Site Title', 'newspack' ) } ) }
+					{ renderSetting( { key: 'tagline', label: __( 'Tagline', 'newspack' ) } ) }
+				</Card>
+				<Card noBorder>
 					{ renderSetting( {
 						options: countries,
 						key: 'countrystate',
-						label: __( 'Where is your business based?' ),
+						label: __( 'Country', 'newspack' ),
 					} ) }
 					{ renderSetting( { options: currencies, key: 'currency', label: __( 'Currency' ) } ) }
-				</div>
-			</div>
-			<h2>{ __( 'Social accounts', 'newspack' ) }</h2>
-			<span>{ __( 'Allow visitors to quickly access your social profiles', 'newspack' ) }</span>
-			<div className="cf">
-				{ wpseoFields.map( ( seoField, i ) => (
-					<span className="fl w-100 w-third-l" key={ seoField.key }>
+				</Card>
+			</Grid>
+			<SectionHeader
+				title={ __( 'Social accounts', 'newspack' ) }
+				description={ __( 'Allow visitors to quickly access your social profiles', 'newspack' ) }
+			/>
+			<Grid columns={ 3 } gutter={ 32 } rowGap={ 16 }>
+				{ wpseoFields.map( seoField => (
+					<Fragment key={ seoField.key }>
 						{ renderSetting( {
 							...seoField,
-							className: classnames( ( i + 1 ) % 3 === 2 && 'ph3-l' ),
 						} ) }
-					</span>
+					</Fragment>
 				) ) }
-			</div>
+			</Grid>
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( { onClick: updateProfile } ) }
 			</div>
