@@ -7,12 +7,14 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
-import { Icon } from '@wordpress/icons';
+import { MenuItem } from '@wordpress/components';
+import { ESCAPE } from '@wordpress/keycodes';
+import { Icon, plus, moreVertical } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Button, Card, Modal } from '../../../../components/src';
+import { Button, Card, Modal, Popover } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
@@ -51,7 +53,8 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
-	const [ modalVisible, setModalVisible ] = useState();
+	const [ modalVisible, setModalVisible ] = useState( false );
+	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
@@ -101,21 +104,16 @@ const SegmentGroup = props => {
 					</span>
 				</div>
 				<div className="newspack-campaigns__segment-group__card__segment-actions">
-					<SegmentationPreview
-						campaign={ campaignId ? campaignToPreview : false }
-						segment={ id }
-						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
-						renderButton={ ( { showPreview } ) => (
-							<Button isLink isSmall onClick={ () => showPreview() }>
-								{ __( 'Preview', 'newspack' ) }
-							</Button>
-						) }
-					/>
 					{ 'unassigned' !== campaignId && (
 						<Fragment>
-							<Button isSmall isSecondary onClick={ () => setModalVisible( ! modalVisible ) }>
-								{ __( 'Add New Prompt', 'newspack' ) }
-							</Button>
+							<Button
+								isSmall
+								isQuaternary
+								onClick={ () => setModalVisible( ! modalVisible ) }
+								icon={ plus }
+								label={ __( 'Add New Prompt', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
 							{ modalVisible && (
 								<Modal
 									title={ __( 'Add New Prompt', 'newspack' ) }
@@ -154,6 +152,47 @@ const SegmentGroup = props => {
 							) }
 						</Fragment>
 					) }
+					<div>
+						<Button
+							isQuaternary
+							isSmall
+							className={ popoverVisibility && 'popover-active' }
+							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
+							icon={ moreVertical }
+							label={ __( 'More options', 'newspack' ) }
+							tooltipPosition="bottom center"
+						/>
+						{ popoverVisibility && (
+							<Popover
+								position="bottom left"
+								onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisibility( false ) }
+								onFocusOutside={ () => setPopoverVisibility( false ) }
+							>
+								<MenuItem
+									onClick={ () => setPopoverVisibility( false ) }
+									className="screen-reader-text"
+								>
+									{ __( 'Close Popover', 'newspack' ) }
+								</MenuItem>
+								<SegmentationPreview
+									campaign={ campaignId ? campaignToPreview : false }
+									segment={ id }
+									showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
+									renderButton={ ( { showPreview } ) => (
+										<MenuItem
+											className="newspack-button"
+											onClick={ () => {
+												setPopoverVisibility( false );
+												showPreview();
+											} }
+										>
+											{ __( 'Preview Segment', 'newspack' ) }
+										</MenuItem>
+									) }
+								/>
+							</Popover>
+						) }
+					</div>
 				</div>
 			</div>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">

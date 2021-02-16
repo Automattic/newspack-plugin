@@ -52,10 +52,16 @@
 				display: flex;
 				flex-wrap: wrap;
 				justify-content: flex-end;
-				padding: 6px;
+				padding: 9px 15px;
 
-				.newspack-button {
-					margin: 4px;
+				.newspack-button:not( .components-menu-item__button ) {
+					margin: 1px;
+				}
+
+				.newspack-popover {
+					margin-left: calc(
+						-25px + 36px / 2
+					); // 25px is set by Gutenberg, 36px / 2 is half of the container's width
 				}
 			}
 		}
@@ -69,7 +75,7 @@
 			border-left: 0;
 			border-radius: 0;
 			border-right: 0;
-			margin-bottom: 24px;
+			margin-bottom: 16px;
 
 			&:first-child {
 				border-top: 0;
