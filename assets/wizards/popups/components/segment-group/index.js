@@ -7,14 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
-import { MenuItem } from '@wordpress/components';
-import { ESCAPE } from '@wordpress/keycodes';
-import { Icon, plus, moreVertical } from '@wordpress/icons';
+import { Icon, external, plus } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Button, Card, Modal, Popover } from '../../../../components/src';
+import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
@@ -54,7 +52,6 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState( false );
-	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
@@ -152,47 +149,21 @@ const SegmentGroup = props => {
 							) }
 						</Fragment>
 					) }
-					<div>
-						<Button
-							isQuaternary
-							isSmall
-							className={ popoverVisibility && 'popover-active' }
-							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
-							icon={ moreVertical }
-							label={ __( 'More options', 'newspack' ) }
-							tooltipPosition="bottom center"
-						/>
-						{ popoverVisibility && (
-							<Popover
-								position="bottom left"
-								onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisibility( false ) }
-								onFocusOutside={ () => setPopoverVisibility( false ) }
-							>
-								<MenuItem
-									onClick={ () => setPopoverVisibility( false ) }
-									className="screen-reader-text"
-								>
-									{ __( 'Close Popover', 'newspack' ) }
-								</MenuItem>
-								<SegmentationPreview
-									campaign={ campaignId ? campaignToPreview : false }
-									segment={ id }
-									showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
-									renderButton={ ( { showPreview } ) => (
-										<MenuItem
-											className="newspack-button"
-											onClick={ () => {
-												setPopoverVisibility( false );
-												showPreview();
-											} }
-										>
-											{ __( 'Preview Segment', 'newspack' ) }
-										</MenuItem>
-									) }
-								/>
-							</Popover>
+					<SegmentationPreview
+						campaign={ campaignId ? campaignToPreview : false }
+						segment={ id }
+						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
+						renderButton={ ( { showPreview } ) => (
+							<Button
+								isQuaternary
+								isSmall
+								onClick={ () => showPreview() }
+								icon={ external }
+								label={ __( 'Preview Segment', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
 						) }
-					</div>
+					/>
 				</div>
 			</div>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
