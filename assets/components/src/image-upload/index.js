@@ -95,13 +95,7 @@ class ImageUpload extends Component {
 				>
 					{ image ? (
 						<div>
-							<Button
-								onClick={ () => {
-									onChange( null );
-									this.openModal();
-								} }
-								isLink
-							>
+							<Button onClick={ this.openModal } isLink>
 								{ __( 'Replace', 'newspack' ) }
 							</Button>
 							<span className="sep" />
