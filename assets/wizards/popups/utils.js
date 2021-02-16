@@ -22,16 +22,6 @@ export const isOverlay = popup =>
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
-/**
- * Filter out "Uncategorized" category, which for purposes of Campaigns behaves identically to no category.
- *
- * @param {Array} categories Array of category objects.
- * @return {Array} Filtered array of categories, without Uncategorized category.
- */
-export const filterOutUncategorized = categories => {
-	return categories.filter( category => 'uncategorized' !== category.slug );
-};
-
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
 	if ( 'manual' === frequency ) {
 		return __( 'Manual Placement', 'newspack' );
@@ -67,7 +57,7 @@ export const getCardClassName = ( { status } ) => {
 
 export const descriptionForPopup = prompt => {
 	const { categories, campaign_groups: campaigns, status } = prompt;
-	const filteredCategories = filterOutUncategorized( categories );
+	const filteredCategories = categories;
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
 		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
@@ -202,9 +192,9 @@ export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
 	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) ) ) {
-		const promptCategories = filterOutUncategorized( prompt.categories );
+		const promptCategories = prompt.categories;
 		const conflictingPrompts = prompts.filter( conflict => {
-			const conflictCategories = filterOutUncategorized( conflict.categories );
+			const conflictCategories = conflict.categories;
 
 			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
 			const hasConflictingCategory =

@@ -13,7 +13,7 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Internal dependencies.
  */
 import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { filterOutUncategorized, frequenciesForPopup } from '../../utils';
+import { frequenciesForPopup } from '../../utils';
 import './style.scss';
 
 const SecondaryPromptPopover = ( {
@@ -66,7 +66,7 @@ const SecondaryPromptPopover = ( {
 				taxonomy="newspack_popups_taxonomy"
 			/>
 			<CategoryAutocomplete
-				value={ filterOutUncategorized( categories ) || [] }
+				value={ categories || [] }
 				onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
 				label={ __( 'Category filtering', 'newspack ' ) }
 			/>
