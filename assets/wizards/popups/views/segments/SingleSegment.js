@@ -50,17 +50,19 @@ const DEFAULT_CONFIG = {
 	referrers_not: '',
 };
 
+const DEFAULT_CRITERIA = {
+	engagement: false,
+	activity: false,
+	referrers: false,
+};
+
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
 	const [ nameInitially, setNameInitially ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( false );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
-	const [ criteria, setCriteria ] = useState( {
-		engagement: false,
-		activity: false,
-		referrers: false,
-	} );
+	const [ criteria, setCriteria ] = useState( DEFAULT_CRITERIA );
 	const history = useHistory();
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
@@ -141,9 +143,49 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		);
 	}, [] );
 
+	const updateCriteria = () => {
+		if ( ! segmentInitially ) {
+			return;
+		}
+
+		// Automatically enable sections with options that differ from the default.
+		const newCriteria = { ...criteria };
+		if (
+			segmentInitially.min_posts ||
+			segmentInitially.max_posts ||
+			segmentInitially.min_session_posts ||
+			segmentInitially.max_session_posts ||
+			( segmentInitially.favorite_categories && 0 < segmentInitially.favorite_categories.length )
+		) {
+			newCriteria.engagement = true;
+			newCriteria.engagement = true;
+		}
+
+		if (
+			segmentInitially.is_subscribed ||
+			segmentInitially.is_not_subscribed ||
+			segmentInitially.is_donor ||
+			segmentInitially.is_not_donor
+		) {
+			newCriteria.activity = true;
+			newCriteria.activity = true;
+		}
+
+		if ( segmentInitially.referrers || segmentInitially.referrers_not ) {
+			newCriteria.referrers = true;
+			newCriteria.referrers = true;
+		}
+
+		setCriteria( newCriteria );
+	};
+
 	useEffect( () => {
 		updateReach( getConfigToSave() );
 	}, [ JSON.stringify( criteria ), JSON.stringify( segmentConfig ) ] );
+
+	useEffect( () => {
+		updateCriteria();
+	}, [ JSON.stringify( segmentInitially ) ] );
 
 	const saveSegment = () => {
 		const configToSave = getConfigToSave();
@@ -228,13 +270,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							<CheckboxControl
 								disabled={ criteria.referrers }
 								checked={ segmentConfig.min_posts > 0 }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.max_posts && value > segmentConfig.max_posts
-											? segmentConfig.max_posts
-											: 1;
-									updateSegmentConfig( 'min_posts' )( value ? newValue : 0 );
-								} }
+								onChange={ value => updateSegmentConfig( 'min_posts' )( value ? 1 : 0 ) }
 								label={ __( 'Min.', 'newspack' ) }
 							/>
 							<TextControl
@@ -242,26 +278,16 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								placeholder={ __( 'Min. posts', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_posts }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.max_posts && value > segmentConfig.max_posts
-											? segmentConfig.max_posts
-											: value;
-									updateSegmentConfig( 'min_posts' )( newValue );
-								} }
+								onChange={ value => updateSegmentConfig( 'min_posts' )( value > 0 ? value : 0 ) }
 							/>
 						</div>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
 								disabled={ criteria.referrers }
 								checked={ segmentConfig.max_posts > 0 }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.min_posts && value < segmentConfig.min_posts
-											? segmentConfig.min_posts
-											: 1;
-									updateSegmentConfig( 'max_posts' )( value ? newValue : 0 );
-								} }
+								onChange={ value =>
+									updateSegmentConfig( 'max_posts' )( value ? segmentConfig.min_posts || 1 : 0 )
+								}
 								label={ __( 'Max.', 'newspack' ) }
 							/>
 							<TextControl
@@ -269,13 +295,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								placeholder={ __( 'Max. posts', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_posts }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.min_posts && value < segmentConfig.min_posts
-											? segmentConfig.min_posts
-											: value;
-									updateSegmentConfig( 'max_posts' )( newValue );
-								} }
+								onChange={ value => updateSegmentConfig( 'max_posts' )( value > 0 ? value : 0 ) }
 							/>
 						</div>
 					</SegmentSettingSection>
@@ -290,13 +310,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							<CheckboxControl
 								disabled={ criteria.referrers }
 								checked={ segmentConfig.min_session_posts > 0 }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.max_session_posts && value > segmentConfig.max_session_posts
-											? segmentConfig.max_session_posts
-											: 1;
-									updateSegmentConfig( 'min_session_posts' )( value ? newValue : 0 );
-								} }
+								onChange={ value => updateSegmentConfig( 'min_session_posts' )( value ? 1 : 0 ) }
 								label={ __( 'Min.', 'newspack' ) }
 							/>
 							<TextControl
@@ -304,26 +318,20 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								placeholder={ __( 'Min. posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_session_posts }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.max_session_posts && value > segmentConfig.max_session_posts
-											? segmentConfig.max_session_posts
-											: value;
-									updateSegmentConfig( 'min_session_posts' )( newValue );
-								} }
+								onChange={ value =>
+									updateSegmentConfig( 'min_session_posts' )( value > 0 ? value : 0 )
+								}
 							/>
 						</div>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
 								disabled={ criteria.referrers }
 								checked={ segmentConfig.max_session_posts > 0 }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.min_session_posts && value < segmentConfig.min_session_posts
-											? segmentConfig.min_session_posts
-											: 1;
-									updateSegmentConfig( 'max_session_posts' )( value ? newValue : 0 );
-								} }
+								onChange={ value =>
+									updateSegmentConfig( 'max_session_posts' )(
+										value ? segmentConfig.min_session_posts || 1 : 0
+									)
+								}
 								label={ __( 'Max.', 'newspack' ) }
 							/>
 							<TextControl
@@ -331,13 +339,9 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								placeholder={ __( 'Max. posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_session_posts }
-								onChange={ value => {
-									const newValue =
-										segmentConfig.min_session_posts && value < segmentConfig.min_session_posts
-											? segmentConfig.min_session_posts
-											: value;
-									updateSegmentConfig( 'max_session_posts' )( newValue );
-								} }
+								onChange={ value =>
+									updateSegmentConfig( 'max_session_posts' )( value > 0 ? value : 0 )
+								}
 							/>
 						</div>
 					</SegmentSettingSection>
