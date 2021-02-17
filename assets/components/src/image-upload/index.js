@@ -91,6 +91,7 @@ class ImageUpload extends Component {
 				</div>
 				<div
 					className={ classes }
+					data-testid="image-upload"
 					style={ { ...( image ? { backgroundImage: `url('${ image.url }')` } : {} ), ...style } }
 				>
 					{ image ? (

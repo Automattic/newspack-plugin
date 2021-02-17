@@ -8,4 +8,17 @@ describe( 'ImageUpload', () => {
 		const { getByText } = render( <ImageUpload /> );
 		expect( getByText( 'Upload' ) ).toBeInTheDocument();
 	} );
+
+	it( 'should render replace and remove buttons if there is an image provided', () => {
+		const image = {
+			id: 1234,
+			url: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+		};
+		const { getByText, getByTestId } = render( <ImageUpload image={ image } /> );
+		expect( getByText( 'Remove' ) ).toBeInTheDocument();
+		expect( getByText( 'Replace' ) ).toBeInTheDocument();
+		expect( getByTestId( 'image-upload' ) ).toHaveStyle( {
+			backgroundImage: `url(${ image.url })`,
+		} );
+	} );
 } );

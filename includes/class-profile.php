@@ -145,16 +145,6 @@ class Profile {
 	}
 
 	/**
-	 * Update one option, prefixing the option name for Newspack profile.
-	 *
-	 * @param string $key The unprefixed option name.
-	 * @param string $value The option value.
-	 */
-	public static function newspack_update_option( $key, $value ) {
-		update_option( self::$opt_prefix . $key, $value );
-	}
-
-	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
