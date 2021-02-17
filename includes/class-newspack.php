@@ -137,9 +137,11 @@ final class Newspack {
 	 * Handle resetting of various options and content.
 	 */
 	public function handle_resets() {
+		$redirect_url   = admin_url( 'admin.php?page=newspack' );
 		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_STRING );
 		if ( 'starter-content' === $newspack_reset ) {
 			Starter_Content::remove_starter_content();
+			$redirect_url = add_query_arg( 'newspack-notice', __( 'Removed Starter Content', 'newspack' ), $redirect_url );
 		}
 
 		if ( self::is_debug_mode() ) {
@@ -155,12 +157,13 @@ final class Newspack {
 			}
 			if ( Support_Wizard::get_wpcom_access_token() && 'reset-wpcom' === $newspack_reset ) {
 				delete_user_meta( get_current_user_id(), Support_Wizard::NEWSPACK_WPCOM_ACCESS_TOKEN );
+				$redirect_url = add_query_arg( 'newspack-notice', __( 'Removed WPCOM Access Token', 'newspack' ), $redirect_url );
 			}
 		}
 
 		if ( $newspack_reset ) {
-				wp_safe_redirect( admin_url( 'admin.php?page=newspack' ) );
-				exit;
+			wp_safe_redirect( $redirect_url );
+			exit;
 		}
 	}
 

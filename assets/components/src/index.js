@@ -13,6 +13,7 @@ export { default as Footer } from './footer';
 export { default as Handoff } from './handoff';
 export { default as InfoButton } from './info-button';
 export { default as ImageUpload } from './image-upload';
+export { default as GlobalNotices } from './global-notices';
 export { default as Grid } from './grid';
 export { default as Modal } from './modal';
 export { default as NewspackLogo } from './newspack-logo';
