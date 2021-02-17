@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
-import { Icon, external, plus } from '@wordpress/icons';
+import { Icon, plus } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -31,6 +31,7 @@ import {
 	iconBottomOverlay,
 	iconAboveHeader,
 	iconManualPlacement,
+	iconPreview,
 } from './icons';
 import './style.scss';
 
@@ -101,6 +102,21 @@ const SegmentGroup = props => {
 					</span>
 				</div>
 				<div className="newspack-campaigns__segment-group__card__segment-actions">
+					<SegmentationPreview
+						campaign={ campaignId ? campaignToPreview : false }
+						segment={ id }
+						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
+						renderButton={ ( { showPreview } ) => (
+							<Button
+								isQuaternary
+								isSmall
+								onClick={ () => showPreview() }
+								icon={ iconPreview }
+								label={ __( 'Preview Segment', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
+						) }
+					/>
 					{ 'unassigned' !== campaignId && (
 						<Fragment>
 							<Button
@@ -149,21 +165,6 @@ const SegmentGroup = props => {
 							) }
 						</Fragment>
 					) }
-					<SegmentationPreview
-						campaign={ campaignId ? campaignToPreview : false }
-						segment={ id }
-						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
-						renderButton={ ( { showPreview } ) => (
-							<Button
-								isQuaternary
-								isSmall
-								onClick={ () => showPreview() }
-								icon={ external }
-								label={ __( 'Preview Segment', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
-						) }
-					/>
 				</div>
 			</div>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
