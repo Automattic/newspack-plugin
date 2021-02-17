@@ -76,7 +76,7 @@ class NRH {
 
 		$context          = new \Google\Site_Kit\Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
 		$analytics        = new \Google\Site_Kit\Modules\Analytics( $context );
-		$ga_property_code = $analytics->get_data( 'property-id' );
+		$ga_property_code = $analytics->get_settings()->get()['propertyID'];
 
 		if ( ! isset( $gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker'] ) ) {
 			$gtag_amp_opt['vars']['config'][ $ga_property_code ]['linker'] = [];

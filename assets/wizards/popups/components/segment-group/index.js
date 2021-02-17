@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useEffect, useState } from '@wordpress/element';
+import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
 import { Icon, plusCircle } from '@wordpress/icons';
 
 /**
@@ -55,6 +55,7 @@ const SegmentGroup = props => {
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
+	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
 
 	useEffect( () => {
 		updateCategories();
@@ -86,9 +87,9 @@ const SegmentGroup = props => {
 					</span>
 				</a>
 				<SegmentationPreview
-					campaignId={ [ campaignId ] }
+					campaign={ campaignId ? campaignToPreview : false }
 					segment={ id }
-					showUnpublished={ true } // Do we need a control for this?
+					showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
 					renderButton={ ( { showPreview } ) => (
 						<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
 							{ __( 'Preview', 'newspack' ) }
@@ -110,7 +111,7 @@ const SegmentGroup = props => {
 			</Card>
 			{ prompts.length < 1 ? <p>{ emptySegmentText }</p> : '' }
 			{ 'unassigned' !== campaignId && (
-				<div className="newspack-campaigns__segment-group__add-new-wrap">
+				<Fragment>
 					<Button
 						isSmall
 						isQuaternary
@@ -155,7 +156,7 @@ const SegmentGroup = props => {
 							</Card>
 						</Modal>
 					) }
-				</div>
+				</Fragment>
 			) }
 		</Card>
 	);
