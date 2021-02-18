@@ -26,7 +26,9 @@ class ToggleControl extends Component {
 		const { className, isDark, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-toggle-control',
-			isDark && 'newspack-toggle-control__is-dark',
+			isDark && 'newspack-toggle-control--is-dark',
+			// NOTE: disabled prop is handled in more recent Gutenberg versions. This special handling can be removed once that's in Core.
+			otherProps.disabled && 'newspack-toggle-control--is-disabled',
 			className
 		);
 		return <BaseComponent className={ classes } { ...otherProps } />;
