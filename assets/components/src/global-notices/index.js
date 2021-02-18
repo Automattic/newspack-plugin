@@ -1,7 +1,7 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
-import { getQueryArgs } from '@wordpress/url';
+import { parse } from 'qs';
 
 /**
  * Internal dependencies
@@ -9,7 +9,7 @@ import { getQueryArgs } from '@wordpress/url';
 import { Notice } from '../';
 
 const GlobalNotices = () => {
-	const notice = getQueryArgs( window.location.href )[ 'newspack-notice' ];
+	const notice = parse( window.location.search )[ 'newspack-notice' ];
 	if ( ! notice ) {
 		return null;
 	}
