@@ -141,7 +141,7 @@ final class Newspack {
 		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_STRING );
 		if ( 'starter-content' === $newspack_reset ) {
 			Starter_Content::remove_starter_content();
-			$redirect_url = add_query_arg( 'newspack-notice', __( 'Removed Starter Content', 'newspack' ), $redirect_url );
+			$redirect_url = add_query_arg( 'newspack-notice', __( 'Starter content removed.', 'newspack' ), $redirect_url );
 		}
 
 		if ( self::is_debug_mode() ) {
