@@ -129,6 +129,17 @@ abstract class Wizard {
 
 		$screen = get_current_screen();
 
+		if ( ! empty( Starter_Content::starter_content_data() ) ) {
+			$urls['remove_starter_content'] = esc_url(
+				add_query_arg(
+					array(
+						'newspack_reset' => 'starter-content',
+					),
+					Wizards::get_url( 'dashboard' )
+				)
+			);
+		}
+
 		if ( Newspack::is_debug_mode() ) {
 			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) );
 			$urls['setup_wizard']    = esc_url( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
@@ -153,6 +164,7 @@ abstract class Wizard {
 		$aux_data = [
 			'is_e2e'        => Starter_Content::is_e2e(),
 			'is_debug_mode' => Newspack::is_debug_mode(),
+			'site_title'    => get_option( 'blogname' ),
 		];
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
