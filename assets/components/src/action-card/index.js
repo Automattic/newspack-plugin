@@ -52,10 +52,14 @@ class ActionCard extends Component {
 			titleLink,
 			toggleChecked,
 			toggleOnChange,
+			hasGreyHeader,
 		} = this.props;
+		const hasChildren = notification || children;
 		const classes = classnames(
 			'newspack-action-card',
-			simple && 'newspack-card__is-clickable',
+			simple && 'newspack-card--is-clickable',
+			hasGreyHeader && 'newspack-card--has-grey-header',
+			hasChildren && 'newspack-card--has-children',
 			isSmall && 'is-small',
 			className
 		);
@@ -129,7 +133,7 @@ class ActionCard extends Component {
 					) }
 				</div>
 				{ notification && (
-					<div className="newspack-action-card__notification">
+					<div className="newspack-action-card__notification newspack-action-card__region-children">
 						{ 'error' === notificationLevel && (
 							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
 						) }
@@ -144,7 +148,7 @@ class ActionCard extends Component {
 						) }
 					</div>
 				) }
-				{ children && <div>{ children }</div> }
+				{ children && <div className="newspack-action-card__region-children">{ children }</div> }
 			</Card>
 		);
 	}

@@ -6,11 +6,12 @@
 @import '../../../shared/scss/colors';
 
 .newspack-card.newspack-action-card {
-	padding: 24px;
+	padding: 0px;
+	border-color: $light-gray-600;
 
 	// Clickable
 
-	&.newspack-card__is-clickable {
+	&.newspack-card--is-clickable {
 		transition: box-shadow 125ms ease-in-out;
 
 		&:hover {
@@ -73,6 +74,20 @@
 		}
 	}
 
+	// Has grey header
+
+	&.newspack-card--has-grey-header {
+		overflow: hidden;
+		&.newspack-card--has-children {
+			.newspack-action-card__region-top {
+				border-bottom: 1px solid $light-gray-600;
+			}
+		}
+		.newspack-action-card__region-top {
+			background-color: $light-gray-100;
+		}
+	}
+
 	// Typography
 
 	h2,
@@ -114,6 +129,7 @@
 	}
 
 	.newspack-action-card__region-top {
+		padding: 24px;
 		display: block;
 
 		@media screen and ( min-width: 744px ) {
@@ -139,6 +155,9 @@
 				margin: 0;
 			}
 		}
+	}
+	.newspack-action-card__region-children {
+		padding: 0 24px 24px 24px;
 	}
 
 	.newspack-action-card__region-left {

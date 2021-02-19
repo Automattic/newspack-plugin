@@ -83,6 +83,7 @@ const Services = ( { renderPrimaryButton } ) => {
 						title={ service.label }
 						description={ service.description }
 						toggleChecked={ service.configuration.is_service_enabled }
+						hasGreyHeader={ service.configuration.is_service_enabled }
 						toggleOnChange={ is_service_enabled =>
 							updateServices( {
 								[ serviceSlug ]: { configuration: { is_service_enabled } },
