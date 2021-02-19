@@ -1,3 +1,16 @@
+# [1.31.0](https://github.com/Automattic/newspack-plugin/compare/v1.30.1...v1.31.0) (2021-02-19)
+
+
+### Bug Fixes
+
+* don't include site domain in linker ([#868](https://github.com/Automattic/newspack-plugin/issues/868)) ([ee435cd](https://github.com/Automattic/newspack-plugin/commit/ee435cd2e4831bb2cc75a014291dd6d8241f2f42))
+
+
+### Features
+
+* starter content removal ([#864](https://github.com/Automattic/newspack-plugin/issues/864)) ([3516cde](https://github.com/Automattic/newspack-plugin/commit/3516cde6a4095c7f0608095e3eb8f550947294ae))
+* **setup-wizard:** settings step ([#863](https://github.com/Automattic/newspack-plugin/issues/863)) ([fff2ec5](https://github.com/Automattic/newspack-plugin/commit/fff2ec537382e38ac7c78db4d2dcd177bb588c77))
+
 ## [1.30.1](https://github.com/Automattic/newspack-plugin/compare/v1.30.0...v1.30.1) (2021-02-16)
 
 
