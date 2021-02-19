@@ -32,9 +32,10 @@
 
 	&__header__inner,
 	&__content {
-		max-width: 1040px;
+		max-width: 1168px;
 		padding-left: 32px;
 		padding-right: 32px;
+
 		@media screen and ( min-width: 744px ) {
 			padding-left: 64px;
 			padding-right: 64px;

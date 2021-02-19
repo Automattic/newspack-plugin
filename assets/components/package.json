@@ -31,6 +31,7 @@
     "@wordpress/i18n": "^3.11.0",
     "classnames": "^2.2.6",
     "lodash": "^4.17.20",
+    "qs": "^6.9.6",
     "react-router-dom": "^5.0.1"
   },
   "devDependencies": {
