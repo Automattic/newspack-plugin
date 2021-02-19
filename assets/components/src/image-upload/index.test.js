@@ -6,16 +6,19 @@ import ImageUpload from './';
 describe( 'ImageUpload', () => {
 	it( 'should render an add image button', () => {
 		const { getByText } = render( <ImageUpload /> );
-		expect( getByText( 'Add image' ) ).toBeInTheDocument();
+		expect( getByText( 'Upload' ) ).toBeInTheDocument();
 	} );
 
-	it( 'should render an image and remove button', () => {
+	it( 'should render replace and remove buttons if there is an image provided', () => {
 		const image = {
 			id: 1234,
 			url: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
 		};
-		const { getByAltText, getByText } = render( <ImageUpload image={ image } /> );
-		expect( getByAltText( 'Upload preview' ) ).toBeInTheDocument();
-		expect( getByText( 'Remove image' ) ).toBeInTheDocument();
+		const { getByText, getByTestId } = render( <ImageUpload image={ image } /> );
+		expect( getByText( 'Remove' ) ).toBeInTheDocument();
+		expect( getByText( 'Replace' ) ).toBeInTheDocument();
+		expect( getByTestId( 'image-upload' ) ).toHaveStyle( {
+			backgroundImage: `url(${ image.url })`,
+		} );
 	} );
 } );

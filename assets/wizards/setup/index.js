@@ -26,20 +26,20 @@ const ROUTES = [
 	{
 		path: '/settings',
 		label: __( 'Settings', 'newspack' ),
-		subHeaderText: __( 'Configure your site with basic settings' ),
+		subHeaderText: __( 'Set up your site', 'newspack' ),
 		render: Settings,
 	},
 	{
 		path: '/integrations',
 		label: __( 'Integrations', 'newspack' ),
-		subHeaderText: __( 'Please configure the following core plugin to start using Newspack.' ),
+		subHeaderText: __( 'Configure core plugins', 'newspack' ),
 		render: Integrations,
 		canProceed: false,
 	},
 	{
 		path: '/design',
 		label: __( 'Design', 'newspack' ),
-		subHeaderText: __( 'Choose a Newspack theme' ),
+		subHeaderText: __( 'Choose a theme', 'newspack' ),
 		render: Design,
 	},
 ];

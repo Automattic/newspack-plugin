@@ -10,7 +10,7 @@ import { Component, Fragment, render } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { Footer, Grid, NewspackLogo } from '../../components/src';
+import { GlobalNotices, Footer, Grid, NewspackLogo } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
@@ -30,6 +30,9 @@ class Dashboard extends Component {
 					<div className="newspack-wizard__header__inner">
 						<NewspackLogo />
 					</div>
+				</div>
+				<div className="mw6 mr-auto ml-auto">
+					<GlobalNotices />
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
 					<Grid columns={ 3 } gutter={ 32 }>
