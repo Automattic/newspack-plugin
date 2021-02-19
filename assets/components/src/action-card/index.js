@@ -31,6 +31,7 @@ class ActionCard extends Component {
 			badge,
 			className,
 			children,
+			disabled,
 			title,
 			description,
 			handoff,
@@ -58,11 +59,19 @@ class ActionCard extends Component {
 			isSmall && 'is-small',
 			className
 		);
+		const titleProps =
+			toggleOnChange && ! titleLink && ! disabled
+				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
+				: {};
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
-						<ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } />
+						<ToggleControl
+							checked={ toggleChecked }
+							onChange={ toggleOnChange }
+							disabled={ disabled }
+						/>
 					) }
 					{ image && ! toggleOnChange && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
@@ -76,7 +85,7 @@ class ActionCard extends Component {
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
 						<h2>
-							<span className="newspack-action-card__title">
+							<span className="newspack-action-card__title" { ...titleProps }>
 								{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
 							</span>
 							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
