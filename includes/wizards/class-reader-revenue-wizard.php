@@ -406,22 +406,32 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
+	 * Handler for setting the donation settings.
+	 *
+	 * @param object $settings Donation settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function update_donation_settings( $settings ) {
+		$required_plugins_installed = $this->check_required_plugins_installed();
+		if ( is_wp_error( $required_plugins_installed ) ) {
+			return rest_ensure_response( $required_plugins_installed );
+		}
+
+		$donations_response = Donations::set_donation_settings( $settings );
+		if ( is_wp_error( $donations_response ) ) {
+			return rest_ensure_response( $donations_response );
+		}
+		return \rest_ensure_response( $this->fetch_all_data() );
+	}
+
+	/**
 	 * API endpoint for setting the donation settings.
 	 *
 	 * @param WP_REST_Request $request Request containing settings.
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function api_update_donation_settings( $request ) {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
-
-		$donations_response = Donations::set_donation_settings( $request->get_params() );
-		if ( is_wp_error( $donations_response ) ) {
-			return rest_ensure_response( $donations_response );
-		}
-		return \rest_ensure_response( $this->fetch_all_data() );
+		return $this->update_donation_settings( $request->get_params() );
 	}
 
 	/**

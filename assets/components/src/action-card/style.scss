@@ -119,6 +119,26 @@
 		@media screen and ( min-width: 744px ) {
 			display: flex;
 		}
+
+		// Toggle Control
+		.components-toggle-control {
+			margin-bottom: 24px;
+			margin-top: 0;
+
+			@media screen and ( min-width: 744px ) {
+				margin-bottom: 0;
+				margin-right: 24px;
+			}
+
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
+
+			.components-form-toggle {
+				display: flex;
+				margin: 0;
+			}
+		}
 	}
 
 	.newspack-action-card__region-left {
@@ -187,27 +207,6 @@
 
 	.newspack_plugin-installer__icon {
 		margin: 0;
-	}
-
-	// Toggle Control
-
-	.components-toggle-control {
-		margin-bottom: 24px;
-		margin-top: 0;
-
-		@media screen and ( min-width: 744px ) {
-			margin-bottom: 0;
-			margin-right: 24px;
-		}
-
-		.components-base-control__field {
-			margin-bottom: 0;
-		}
-
-		.components-form-toggle {
-			display: flex;
-			margin: 0;
-		}
 	}
 
 	// Buttons

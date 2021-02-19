@@ -73,7 +73,7 @@ const PromptActionCard = props => {
 					) }
 				</Fragment>
 			}
-		></ActionCard>
+		/>
 	);
 };
 export default PromptActionCard;
