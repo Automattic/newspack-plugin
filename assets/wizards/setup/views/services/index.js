@@ -16,6 +16,7 @@ import { withWizardScreen, ActionCard, hooks } from '../../../../components/src'
 import ReaderRevenue from './ReaderRevenue';
 import AdManager from './AdManager';
 import { NewspackNewsletters } from '../../../engagement/views/newsletters';
+import './style.scss';
 
 const SERVICES_LIST = {
 	'reader-revenue': {
@@ -79,9 +80,11 @@ const Services = ( { renderPrimaryButton } ) => {
 				const ServiceComponent = service.Component;
 				return (
 					<ActionCard
+						isMedium
 						key={ i }
 						title={ service.label }
 						description={ service.description }
+						className={ serviceSlug }
 						toggleChecked={ service.configuration.is_service_enabled }
 						hasGreyHeader={ service.configuration.is_service_enabled }
 						toggleOnChange={ is_service_enabled =>
@@ -99,7 +102,7 @@ const Services = ( { renderPrimaryButton } ) => {
 					>
 						{ service.configuration.is_service_enabled && ServiceComponent ? (
 							<ServiceComponent
-								className="mt4"
+								className="newspack-action-card__region-children__inner"
 								configuration={ service.configuration }
 								onUpdate={ configuration =>
 									updateServices( { [ serviceSlug ]: { configuration } } )
