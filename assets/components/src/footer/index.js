@@ -20,6 +20,8 @@ const Footer = () => {
 	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
 	const resetWpcomUrl = window && window.newspack_urls && window.newspack_urls.reset_wpcom_url;
 	const pluginVersion = window && window.newspack_urls && window.newspack_urls.plugin_version;
+	const removeStarterContent =
+		window && window.newspack_urls && window.newspack_urls.remove_starter_content;
 	const footerElements = [
 		{
 			label: pluginVersion.label,
@@ -58,6 +60,12 @@ const Footer = () => {
 		footerElements.push( {
 			label: __( 'Reset WordPress.com Authentication', 'newspack' ),
 			url: resetWpcomUrl,
+		} );
+	}
+	if ( removeStarterContent ) {
+		footerElements.push( {
+			label: __( 'Remove Starter Content', 'newspack' ),
+			url: removeStarterContent,
 		} );
 	}
 	return (

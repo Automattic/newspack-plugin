@@ -5,19 +5,13 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
-import DeleteIcon from '@material-ui/icons/Delete';
 
 /**
  * Internal dependencies.
  */
-import { Button } from '../';
+import { Button, InfoButton } from '../';
 import './style.scss';
 
 /**
@@ -79,50 +73,43 @@ class ImageUpload extends Component {
 	};
 
 	/**
-	 * Clear the selected image.
-	 */
-	removeImage = () => {
-		const { onChange } = this.props;
-		onChange( null );
-	};
-
-	/**
 	 * Render.
 	 */
 	render = () => {
-		const { className, image, removeText, addText } = this.props;
-		const classes = classnames( 'newspack-image-upload', className );
+		const { onChange, className, label, info, image, style = {} } = this.props;
+		const classes = classnames(
+			'newspack-image-upload__image',
+			{ 'newspack-image-upload__image--has-image': image },
+			className
+		);
 		return (
-			<div className={ classes }>
-				{ !! image && (
-					<Fragment>
-						<div className="newspack-image-upload__image-preview">
-							<img src={ image.url } alt="Upload preview" />
+			<div className="newspack-image-upload">
+				<div className="newspack-image-upload__header">
+					{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
+					{ label && <label className="newspack-image-upload__label">{ label }</label> }
+					{ info && <InfoButton text={ info } /> }
+				</div>
+				<div
+					className={ classes }
+					data-testid="image-upload"
+					style={ { ...( image ? { backgroundImage: `url('${ image.url }')` } : {} ), ...style } }
+				>
+					{ image ? (
+						<div>
+							<Button onClick={ this.openModal } isLink>
+								{ __( 'Replace', 'newspack' ) }
+							</Button>
+							<span className="sep" />
+							<Button onClick={ () => onChange( null ) } isLink isDestructive>
+								{ __( 'Remove', 'newspack' ) }
+							</Button>
 						</div>
-						<Button
-							onClick={ this.removeImage }
-							className="newspack-image-upload__remove-image"
-							isTertiary
-							isSmall
-						>
-							<DeleteIcon />
-							{ ! removeText && __( 'Remove image' ) }
-							{ removeText && removeText }
+					) : (
+						<Button onClick={ this.openModal } isLink>
+							{ __( 'Upload', 'newspack' ) }
 						</Button>
-					</Fragment>
-				) }
-				{ ! image && (
-					<Button
-						onClick={ this.openModal }
-						className="newspack-image-upload__add-image"
-						isTertiary
-						isSmall
-					>
-						<AddPhotoAlternateIcon />
-						{ ! addText && __( 'Add image' ) }
-						{ addText && addText }
-					</Button>
-				) }
+					) }
+				</div>
 			</div>
 		);
 	};

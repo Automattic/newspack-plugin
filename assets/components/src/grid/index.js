@@ -22,11 +22,12 @@ class Grid extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, columns, gutter, ...otherProps } = this.props;
+		const { className, columns, gutter, rowGap, ...otherProps } = this.props;
 		const classes = classnames(
 			'newspack-grid',
 			columns && 'newspack-grid__columns-' + columns,
 			gutter && 'newspack-grid__gutter-' + gutter,
+			rowGap && 'newspack-grid__row-gap-' + rowGap,
 			className
 		);
 		return <div className={ classes } { ...otherProps } />;
@@ -36,6 +37,7 @@ class Grid extends Component {
 Grid.defaultProps = {
 	columns: 2,
 	gutter: 64,
+	rowGap: null,
 };
 
 export default Grid;

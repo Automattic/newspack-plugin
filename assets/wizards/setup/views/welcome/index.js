@@ -23,6 +23,7 @@ const REQUIRED_SOFTWARE_SLUGS = [
 	'amp',
 	'pwa',
 	'wordpress-seo',
+	'woocommerce',
 	'google-site-kit',
 	'newspack-blocks',
 	'newspack-theme',
