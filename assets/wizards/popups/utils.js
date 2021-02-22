@@ -22,17 +22,25 @@ export const isOverlay = popup =>
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
+const placementMap = {
+	center: __( 'Center Overlay', 'newspack' ),
+	top: __( 'Top Overlay', 'newspack' ),
+	bottom: __( 'Bottom Overlay', 'newspack' ),
+	inline: __( 'Inline', 'newspack' ),
+	above_header: __( 'Above Header', 'newspack' ),
+};
+
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
 	if ( 'manual' === frequency ) {
 		return __( 'Manual Placement', 'newspack' );
 	}
-	return {
-		center: __( 'Center Overlay', 'newspack' ),
-		top: __( 'Top Overlay', 'newspack' ),
-		bottom: __( 'Bottom Overlay', 'newspack' ),
-		inline: __( 'Inline', 'newspack' ),
-		above_header: __( 'Above Header', 'newspack' ),
-	}[ placement ];
+	return placementMap[ placement ];
+};
+
+export const placementsForPopups = prompt => {
+	return Object.keys( placementMap )
+		.filter( key => ! ( 'always' === key && isOverlay( prompt ) ) )
+		.map( key => ( { label: placementMap[ key ], value: key } ) );
 };
 
 const frequencyMap = {

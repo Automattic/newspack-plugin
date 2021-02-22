@@ -13,7 +13,7 @@ import { ESCAPE } from '@wordpress/keycodes';
  * Internal dependencies.
  */
 import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { frequenciesForPopup } from '../../utils';
+import { frequenciesForPopup, placementsForPopups } from '../../utils';
 import './style.scss';
 
 const SecondaryPromptPopover = ( {
@@ -24,7 +24,7 @@ const SecondaryPromptPopover = ( {
 	updatePopup,
 } ) => {
 	const { campaign_groups: campaignGroups, categories, id, options } = prompt;
-	const { frequency, selected_segment_id: selectedSegmentId } = options;
+	const { frequency, placement, selected_segment_id: selectedSegmentId } = options;
 	return (
 		<Popover
 			position="bottom left"
@@ -36,17 +36,24 @@ const SecondaryPromptPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			{ 'test' !== frequency && (
-				<SelectControl
-					onChange={ value => {
-						updatePopup( id, { frequency: value } );
-						onFocusOutside();
-					} }
-					options={ frequenciesForPopup( prompt ) }
-					value={ frequency }
-					label={ __( 'Frequency', 'newspack' ) }
-				/>
-			) }
+			<SelectControl
+				onChange={ value => {
+					updatePopup( id, { frequency: value } );
+					onFocusOutside();
+				} }
+				options={ frequenciesForPopup( prompt ) }
+				value={ frequency }
+				label={ __( 'Frequency', 'newspack' ) }
+			/>
+			<SelectControl
+				onChange={ value => {
+					updatePopup( id, { placement: value } );
+					onFocusOutside();
+				} }
+				options={ placementsForPopups( prompt ) }
+				value={ placement }
+				label={ __( 'Placement', 'newspack' ) }
+			/>
 			<SelectControl
 				onChange={ value => {
 					updatePopup( id, { selected_segment_id: value } );
@@ -59,6 +66,7 @@ const SecondaryPromptPopover = ( {
 				value={ selectedSegmentId }
 				label={ __( 'Segment', 'newspack' ) }
 			/>
+
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
 				onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
