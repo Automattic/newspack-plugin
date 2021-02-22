@@ -45,6 +45,7 @@ class ActionCard extends Component {
 			image,
 			imageLink,
 			isSmall,
+			isMedium,
 			simple,
 			onClick,
 			onSecondaryActionClick,
@@ -61,6 +62,7 @@ class ActionCard extends Component {
 			hasGreyHeader && 'newspack-card--has-grey-header',
 			hasChildren && 'newspack-card--has-children',
 			isSmall && 'is-small',
+			isMedium && 'is-medium',
 			className
 		);
 		const titleProps =
