@@ -6,7 +6,7 @@ import { values, startCase, uniq, mapValues, property } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
@@ -70,27 +70,30 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 					<>
 						{ __( 'Configure Mailchimp and enter your API key', 'newspack' ) }
 						<br />
-						<a href="https://us1.admin.mailchimp.com/account/api/">
+						<ExternalLink href="https://us1.admin.mailchimp.com/account/api/">
 							{ __( 'Generate Mailchimp API key', 'newspack' ) }
-						</a>
+						</ExternalLink>
 					</>
 				) }
 			/>
-			<TextControl
-				label={ __( 'Application ID', 'newspack' ) }
-				{ ...getSettingProps( 'newspack_newsletters_mailchimp_api_key' ) }
-			/>
+			<Grid gutter={ 32 } columns={ 2 }>
+				<TextControl
+					label={ __( 'Application ID', 'newspack' ) }
+					{ ...getSettingProps( 'newspack_newsletters_mailchimp_api_key' ) }
+				/>
+			</Grid>
 		</>
 	);
 	const ProviderSettings = () => {
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
-			<div>
+			<Grid gutter={ 32 } columns={ 2 }>
 				<SelectControl
 					label={ __( 'Service Provider', 'newspack' ) }
 					options={ allProviders.map( value => ( { value, label: startCase( value ) } ) ) }
 					{ ...providerSelectProps }
 				/>
+				<br />
 				{ values( config.settings )
 					.filter( setting => setting.provider === providerSelectProps.value )
 					.map( setting => {
@@ -103,7 +106,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 								return <TextControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
 						}
 					} ) }
-			</div>
+			</Grid>
 		);
 	};
 
@@ -113,7 +116,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 				<PluginInstaller plugins={ [ 'newspack-newsletters' ] } withoutFooterButton />
 			) }
 			{ config.configured === true && (
-				<div>
+				<Fragment>
 					{ mailchimpOnly ? <MailchimpSettings /> : <ProviderSettings /> }
 					<SectionHeader
 						title={ __( 'MJML', 'newspack' ) }
@@ -124,11 +127,13 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 									'newspack'
 								) }
 								<br />
-								<a href="https://mjml.io/api">{ __( 'Request MJML API keys', 'newspack' ) }</a>
+								<ExternalLink href="https://mjml.io/api">
+									{ __( 'Request MJML API keys', 'newspack' ) }
+								</ExternalLink>
 							</>
 						) }
 					/>
-					<Grid>
+					<Grid gutter={ 32 }>
 						<TextControl
 							label={ __( 'Application ID', 'newspack' ) }
 							{ ...getSettingProps( 'newspack_newsletters_mjml_api_key' ) }
@@ -138,13 +143,13 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 							{ ...getSettingProps( 'newspack_newsletters_mjml_api_secret' ) }
 						/>
 					</Grid>
-				</div>
+				</Fragment>
 			) }
 		</div>
 	);
 };
 
-const Newsletters = ( { className } ) => {
+const Newsletters = () => {
 	const [ { status, url, error, newslettersConfig }, updateConfiguration ] = hooks.useObjectState(
 		{}
 	);
@@ -161,13 +166,31 @@ const Newsletters = ( { className } ) => {
 		} );
 
 	return (
-		<div className={ className }>
-			<h2>{ __( 'Signup forms', 'newspack' ) }</h2>
-			<p>
-				{ __(
-					'This feature connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter. The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com.'
+		<Fragment>
+			<SectionHeader
+				title={ __( 'Signup forms', 'newspack' ) }
+				description={ () => (
+					<>
+						{ __(
+							'Connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter',
+							'newspack'
+						) }
+						<br />
+						{ __(
+							'The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com',
+							'newspack'
+						) }
+						<br />
+						{ url ? (
+							<ExternalLink href={ url }>
+								{ isConnected
+									? __( 'Manage your Mailchimp connection' )
+									: __( 'Set up Mailchimp' ) }
+							</ExternalLink>
+						) : null }
+					</>
 				) }
-			</p>
+			/>
 			{ isConnected && (
 				<Notice
 					noticeText={ __(
@@ -179,35 +202,24 @@ const Newsletters = ( { className } ) => {
 			{ error?.code === 'unavailable_site_id' && (
 				<Notice noticeText={ __( 'Connect Jetpack in order to configure Mailchimp.' ) } isWarning />
 			) }
-			{ url ? (
-				<p>
-					<ExternalLink href={ url }>
-						{ isConnected
-							? __( 'Manage your Mailchimp connection' )
-							: __( 'Set up Mailchimp on WordPress.com' ) }
-					</ExternalLink>
-				</p>
-			) : null }
-			<div className="mt3">
-				<h2>{ __( 'Authoring', 'newspack' ) }</h2>
-				<NewspackNewsletters
-					mailchimpOnly={ false }
-					onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
-				/>
-			</div>
+			<SectionHeader title={ __( 'Authoring', 'newspack' ) } />
+			<NewspackNewsletters
+				mailchimpOnly={ false }
+				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
+			/>
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveNewslettersData }>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
 			</div>
-		</div>
+		</Fragment>
 	);
 };
 
 export default withWizardScreen( () => (
 	<>
 		<Newsletters />
-		<h2>{ __( 'WooCommerce integration', 'newspack' ) }</h2>
+		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />{' '}
 		<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
 	</>
 ) );
