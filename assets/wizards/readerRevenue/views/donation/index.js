@@ -34,7 +34,7 @@ export const DontationAmounts = ( { data, onChange } ) => {
 		<>
 			<h2>{ __( 'Suggested donations' ) }</h2>
 			<p>
-				{ __( 'Set a suggested monthly donation amount.' ) }
+				{ __( 'Set a suggested monthly donation amount' ) }
 				<InfoButton
 					text={ __(
 						'This will provide hints to readers about how much to donate, which will increase the average donation amount.',

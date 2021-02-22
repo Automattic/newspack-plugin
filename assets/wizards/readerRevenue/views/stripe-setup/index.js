@@ -33,9 +33,10 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 		<Fragment>
 			<Card noBorder>
 				<p className="newspack-payment-setup-screen__api-keys-instruction">
-					{ __( 'Get your API keys from your Stripe account.' ) }{' '}
+					{ __( 'Configure Stripe and enter your API keys' ) }
+					{ ' – ' }
 					<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-						{ __( 'Learn how' ) }
+						{ __( 'learn how' ) }
 					</ExternalLink>
 				</p>
 				<CheckboxControl
