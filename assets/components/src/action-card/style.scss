@@ -7,7 +7,7 @@
 
 .newspack-card.newspack-action-card {
 	padding: 0;
-	border-color: $light-gray-600;
+	border-color: $light-gray-500;
 
 	// Clickable
 
@@ -27,7 +27,10 @@
 	&.newspack-card__is-supported,
 	&.newspack-card__is-unsupported {
 		box-shadow: inset 4px 0 0 $light-gray-700;
-		padding-left: 28px;
+
+		.newspack-action-card__region-top {
+			padding-left: 28px;
+		}
 	}
 
 	&.newspack-card__is-primary {
@@ -49,7 +52,7 @@
 	// Small
 	&.is-small {
 		.newspack-action-card__region-top {
-			padding: 8px 16px 8px 0;
+			padding: 8px 16px;
 		}
 
 		h2 {
@@ -72,7 +75,27 @@
 		&.newspack-card__is-secondary,
 		&.newspack-card__is-supported,
 		&.newspack-card__is-unsupported {
-			padding-left: 20px;
+			.newspack-action-card__region-top {
+				padding-left: 20px;
+			}
+		}
+	}
+
+	// Medium
+
+	&.is-medium {
+		.newspack-action-card__region-top {
+			padding: 16px;
+
+			.components-toggle-control {
+				@media screen and ( min-width: 744px ) {
+					margin-right: 16px;
+				}
+			}
+		}
+
+		.newspack-action-card__region-children {
+			padding: 0 32px 32px 32px;
 		}
 	}
 
@@ -82,7 +105,7 @@
 		overflow: hidden;
 		&.newspack-card--has-children {
 			.newspack-action-card__region-top {
-				border-bottom: 1px solid $light-gray-600;
+				border-bottom: 1px solid $light-gray-500;
 			}
 		}
 		.newspack-action-card__region-top {
@@ -158,8 +181,33 @@
 			}
 		}
 	}
+
 	.newspack-action-card__region-children {
 		padding: 0 24px 24px 24px;
+
+		&__inner {
+			padding-top: 32px;
+
+			> *:first-child {
+				margin-top: 0 !important;
+			}
+
+			> *:last-child {
+				margin-bottom: 0 !important;
+			}
+		}
+
+		.newspack-section-header {
+			margin: 32px 0 16px;
+		}
+
+		.newspack-card,
+		.newspack-checkbox-control,
+		.newspack-grid,
+		.newspack-text-control,
+		.newspack-toggle-control {
+			margin: 16px 0;
+		}
 	}
 
 	.newspack-action-card__region-left {
@@ -179,6 +227,7 @@
 
 	.newspack-action-card__region-right {
 		align-items: flex-start;
+		flex: 0 0 auto;
 		flex-direction: column;
 		margin-top: 24px;
 		text-align: right;
@@ -205,7 +254,7 @@
 
 	.newspack-action-card__notification {
 		.newspack-notice {
-			margin: 24px 0 0;
+			margin: 0;
 
 			&__heading {
 				margin-top: 0;
