@@ -9,6 +9,11 @@
 import { addQueryArgs } from '@wordpress/url';
 
 /**
+ * External dependencies.
+ */
+import { uniqueId } from 'lodash';
+
+/**
  * Internal dependencies.
  */
 import { WebPreview } from '../../../../components/src';
@@ -27,6 +32,8 @@ const SegmentationPreview = props => {
 
 	const decorateURL = urlToDecorate => {
 		const view_as = segment.length ? [ `segment:${ segment }` ] : [ 'segment:everyone' ];
+
+		view_as.push( `cid:${ uniqueId( 'view_as_client_' ) }` );
 
 		if ( showUnpublished ) {
 			view_as.push( 'show_unpublished:true' );
