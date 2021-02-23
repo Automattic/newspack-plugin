@@ -1,3 +1,10 @@
+## [1.31.1-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.31.1-alpha.1...v1.31.1-alpha.2) (2021-02-23)
+
+
+### Bug Fixes
+
+* force alpha release build ([e52578a](https://github.com/Automattic/newspack-plugin/commit/e52578a9e536b0a250828e67f7ccf1fc2b2e5f72))
+
 ## [1.31.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.31.0...v1.31.1-alpha.1) (2021-02-23)
 
 
