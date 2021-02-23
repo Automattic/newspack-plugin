@@ -51,12 +51,20 @@
 
 		// Typography
 
+		h1,
 		h2,
 		h3,
 		p {
 			line-height: 24px;
 			margin: 32px 0;
 			padding: 0;
+		}
+
+		h1 {
+			color: $dark-gray-900;
+			font-size: 21px;
+			font-weight: bold;
+			line-height: 32px;
 		}
 
 		h2 {
