@@ -636,7 +636,8 @@ class Popups_Wizard extends Wizard {
 						},
 						$cm->get_segments()
 					);
-					if ( strlen( $value ) > 0 && ! in_array( $value, $segments ) ) {
+					$assigned_segments = explode( ',', $value );
+					if ( strlen( $value ) > 0 && 0 === count( array_intersect( $segments, $assigned_segments ) ) ) {
 						return false;
 					}
 					break;
