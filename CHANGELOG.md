@@ -1,3 +1,10 @@
+## [1.31.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.31.0...v1.31.1-alpha.1) (2021-02-23)
+
+
+### Bug Fixes
+
+* only show sticky ad at mobile viewports ([#873](https://github.com/Automattic/newspack-plugin/issues/873)) ([a0fed02](https://github.com/Automattic/newspack-plugin/commit/a0fed02176dbd01ccd546a6020e6911de2d9f4b2))
+
 # [1.31.0](https://github.com/Automattic/newspack-plugin/compare/v1.30.1...v1.31.0) (2021-02-19)
 
 
