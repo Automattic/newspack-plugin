@@ -290,11 +290,13 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function api_get_services() {
 		$rr_wizard                         = new Reader_Revenue_Wizard();
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 		$ads_configuration_manager         = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 		$sitekit_configuration_manager     = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 
 		$response = [
 			'reader-revenue'    => [ 'configuration' => [ 'is_service_enabled' => isset( $rr_wizard->fetch_all_data()['platform_data']['platform'] ) ] ],
+			'newsletters'       => [ 'configuration' => [ 'is_service_enabled' => $newsletters_configuration_manager->is_set_up() ] ],
 			'google-ad-sense'   => [ 'configuration' => [ 'is_service_enabled' => $ads_configuration_manager->is_service_enabled( 'google_adsense' ) ] ],
 			'google-ad-manager' => [ 'configuration' => [ 'is_service_enabled' => $ads_configuration_manager->is_service_enabled( 'google_ad_manager' ) ] ],
 		];
