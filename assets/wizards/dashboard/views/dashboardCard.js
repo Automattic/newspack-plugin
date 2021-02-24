@@ -68,7 +68,6 @@ class DashboardCard extends Component {
 			<Card className={ classes }>
 				<a href={ url }>
 					{ contents }
-					{ 'completed' === status ? <Icon icon={ check } /> : <Icon icon={ chevronRight } /> }
 				</a>
 			</Card>
 		);
