@@ -43,7 +43,7 @@
 }
 
 .newspack-campaigns__draggable {
-	margin: 8px 0;
+	margin: 16px 0;
 
 	&.is-dragging {
 		display: none;
@@ -55,8 +55,8 @@
 		content: '';
 		display: block;
 		height: 2px;
-		margin-bottom: 8px;
-		margin-top: 8px;
+		margin-bottom: 16px;
+		margin-top: 16px;
 		width: 100%;
 	}
 
