@@ -162,6 +162,15 @@ class Setup_Wizard extends Wizard {
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/services',
 			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_services' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/services',
+			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_services' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -275,7 +284,22 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
-	 * Update services step.
+	 * Get Services step initial data.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_get_services() {
+		$rr_wizard                         = new Reader_Revenue_Wizard();
+
+		$response = [
+			'reader-revenue'    => [ 'configuration' => [ 'is_service_enabled' => isset( $rr_wizard->fetch_all_data()['platform_data']['platform'] ) ] ],
+		];
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Update Services step.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response containing info.

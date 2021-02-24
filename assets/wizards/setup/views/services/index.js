@@ -7,6 +7,7 @@ import { values, keys, mapValues, property } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -61,7 +62,17 @@ const SERVICES_LIST = {
 
 const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
+	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
+
+	useEffect( () => {
+		apiFetch( {
+			path: '/newspack/v1/wizard/newspack-setup-wizard/services',
+		} ).then( response => {
+			updateServices( response );
+			setIsLoading( false );
+		} );
+	}, [] );
 
 	const saveSettings = async () =>
 		apiFetch( {
@@ -93,6 +104,7 @@ const Services = ( { renderPrimaryButton } ) => {
 							} )
 						}
 						disabled={
+							isLoading ||
 							( serviceSlug === 'google-ad-manager' && adSenseActive ) ||
 							( serviceSlug === 'google-ad-sense' && adManagerActive )
 						}
