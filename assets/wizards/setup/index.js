@@ -103,6 +103,6 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 };
 
 render(
-	createElement( withWizard( SetupWizard, [] ), { suppressFooter: true } ),
+	createElement( withWizard( SetupWizard, [] ), { footerSimple: true } ),
 	document.getElementById( 'newspack-setup-wizard' )
 );
