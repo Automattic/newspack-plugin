@@ -41,7 +41,7 @@
 				h3 {
 					margin: 0;
 
-					.newspack-button.is-link {
+					.newspack-button.is-link:not( .is-destructive ) {
 						color: inherit;
 						font-weight: inherit;
 						text-decoration: none;
