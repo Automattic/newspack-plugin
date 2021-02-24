@@ -189,7 +189,9 @@ export const isSameType = ( campaignA, campaignB ) => {
 };
 
 const sharesSegments = ( segmentsA, segmentsB ) => {
-	return segmentsA.split( ',' ).some( segment => -1 < segmentsB.split( ',' ).indexOf( segment ) );
+	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
+	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
+	return segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) );
 };
 
 export const warningForPopup = ( prompts, prompt ) => {
