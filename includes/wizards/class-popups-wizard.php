@@ -780,7 +780,7 @@ class Popups_Wizard extends Wizard {
 	 */
 	public function api_sort_segments( $request ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$response                              = $newspack_popups_configuration_manager->sort_segments( $request['segments'] );
+		$response                              = $newspack_popups_configuration_manager->sort_segments( $request['segmentIds'] );
 		return $response;
 	}
 
