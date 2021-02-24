@@ -1,3 +1,10 @@
+# [1.32.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.32.0-alpha.1...v1.32.0-alpha.2) (2021-02-24)
+
+
+### Features
+
+* validated segmentation sort and error handling ([#886](https://github.com/Automattic/newspack-plugin/issues/886)) ([275fb71](https://github.com/Automattic/newspack-plugin/commit/275fb71f8697b8d03df4f96e883a92efaf04a7b9))
+
 # [1.32.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.31.1-alpha.2...v1.32.0-alpha.1) (2021-02-24)
 
 
