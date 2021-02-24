@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
@@ -100,12 +101,12 @@ class ActionCard extends Component {
 					</div>
 					{ actionText && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ handoff && (
+							{ /* eslint-disable no-nested-ternary */
+							handoff ? (
 								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
 									{ actionText }
 								</Handoff>
-							) }
-							{ ( !! onClick || !! href ) && ! handoff && (
+							) : onClick ? (
 								<Button
 									isLink
 									href={ href }
@@ -114,13 +115,17 @@ class ActionCard extends Component {
 								>
 									{ actionText }
 								</Button>
-							) }
-							{ ! handoff && ! onClick && ! href && (
+							) : href ? (
+								<ExternalLink href={ href } className="newspack-action-card__primary_button">
+									{ actionText }
+								</ExternalLink>
+							) : (
 								<div className="newspack-action-card__container">
 									{ actionText }
 									{ isWaiting && <Waiting isRight /> }
 								</div>
 							) }
+							{ /* eslint-enable no-nested-ternary */ }
 
 							{ secondaryActionText && onSecondaryActionClick && (
 								<Button

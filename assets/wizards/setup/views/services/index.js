@@ -44,9 +44,8 @@ const SERVICES_LIST = {
 			'A simple way to place adverts on your news site automatically based on where they best perform',
 			'newspack'
 		),
-		handoff: 'google-site-kit',
-		editLink: 'admin.php?page=googlesitekit-module-adsense',
-		actionText: __( 'Connect Google AdSense', 'newspack' ),
+		href: 'admin.php?page=googlesitekit-splash',
+		actionText: __( 'Configure', 'newspack' ),
 		configuration: { is_service_enabled: false },
 	},
 	'google-ad-manager': {
@@ -108,8 +107,7 @@ const Services = ( { renderPrimaryButton } ) => {
 							( serviceSlug === 'google-ad-manager' && adSenseActive ) ||
 							( serviceSlug === 'google-ad-sense' && adManagerActive )
 						}
-						handoff={ service.configuration.is_service_enabled && service.handoff }
-						editLink={ service.configuration.is_service_enabled && service.editLink }
+						href={ service.configuration.is_service_enabled && service.href }
 						actionText={ service.configuration.is_service_enabled && service.actionText }
 					>
 						{ service.configuration.is_service_enabled && ServiceComponent ? (
