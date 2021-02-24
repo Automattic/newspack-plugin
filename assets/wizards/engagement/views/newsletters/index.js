@@ -62,7 +62,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 		onChange: value => performConfigUpdate( { settings: { [ key ]: { value } } } ),
 	} );
 
-	const MailchimpSettings = () => (
+	const renderMailchimpSettings = () => (
 		<>
 			<SectionHeader
 				title={ __( 'Mailchimp', 'newspack' ) }
@@ -84,7 +84,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 			</Grid>
 		</>
 	);
-	const ProviderSettings = () => {
+	const renderProviderSettings = () => {
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
 			<Grid gutter={ 32 } columns={ 2 }>
@@ -117,7 +117,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 			) }
 			{ config.configured === true && (
 				<Fragment>
-					{ mailchimpOnly ? <MailchimpSettings /> : <ProviderSettings /> }
+					{ mailchimpOnly ? renderMailchimpSettings() : renderProviderSettings() }
 					<SectionHeader
 						title={ __( 'MJML', 'newspack' ) }
 						description={ () => (
