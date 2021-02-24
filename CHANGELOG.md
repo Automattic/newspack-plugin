@@ -1,3 +1,16 @@
+# [1.32.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.31.1-alpha.2...v1.32.0-alpha.1) (2021-02-24)
+
+
+### Bug Fixes
+
+* duplication of segments when dragging while re-sorting ([#881](https://github.com/Automattic/newspack-plugin/issues/881)) ([5f9a760](https://github.com/Automattic/newspack-plugin/commit/5f9a760f258eac0d6f80ccb7241ceee582036811))
+
+
+### Features
+
+* update style of the segments and prompts ([#860](https://github.com/Automattic/newspack-plugin/issues/860)) ([4b66384](https://github.com/Automattic/newspack-plugin/commit/4b6638444bd6e7fa6db4f2479172ffffdeebb6c0))
+* visually update integrations step ([#877](https://github.com/Automattic/newspack-plugin/issues/877)) ([9b82fdb](https://github.com/Automattic/newspack-plugin/commit/9b82fdb55195d6b9af6076d803294c22c38a7395))
+
 ## [1.31.1-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.31.1-alpha.1...v1.31.1-alpha.2) (2021-02-23)
 
 
