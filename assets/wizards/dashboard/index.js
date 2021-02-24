@@ -28,7 +28,7 @@ class Dashboard extends Component {
 			<Fragment>
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
-						<NewspackLogo />
+						<NewspackLogo centered height={ 72 } />
 					</div>
 				</div>
 				<div className="mw6 mr-auto ml-auto">

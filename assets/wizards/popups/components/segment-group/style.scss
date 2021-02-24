@@ -21,10 +21,10 @@
 	}
 	&__card {
 		border-color: $light-gray-500;
+		overflow: hidden;
 
 		& > &__segment {
-			margin: -16px -16px 16px !important;
-			padding: 8px 16px;
+			margin: -16px -16px 0 !important;
 		}
 
 		&__segment {
@@ -34,41 +34,57 @@
 			display: flex;
 			justify-content: space-between;
 
-			a {
-				color: inherit;
-				text-decoration: none;
+			&-title {
+				flex: 1;
+				padding: 8px 16px;
 
-				&:focus,
-				&:hover {
-					color: $primary-500;
+				h3 {
+					margin: 0;
+
+					.newspack-button.is-link:not( .is-destructive ) {
+						color: inherit;
+						font-weight: inherit;
+						text-decoration: none;
+					}
 				}
 			}
-		}
 
-		body[class*='admin-color-'] & > .newspack-button.has-icon:not( .has-text ) {
-			display: flex;
-			margin-top: 16px;
-			width: 100%;
+			&-actions {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: flex-end;
+				padding: 9px 15px;
+
+				.newspack-button:not( .components-menu-item__button ) {
+					margin: 1px;
+				}
+
+				.newspack-popover {
+					margin-left: calc(
+						-25px + 36px / 2
+					); // 25px is set by Gutenberg, 36px / 2 is half of the container's width
+				}
+			}
 		}
 	}
 
 	&__action-cards {
-		margin: 0;
+		margin: 0 -16px;
 
-		.newspack-action-card {
+		.newspack-card.newspack-action-card {
+			border-bottom: 0;
+			border-left: 0;
 			border-radius: 0;
-			margin-bottom: 23px;
+			border-right: 0;
+			margin-bottom: 16px;
 
 			&:first-child {
-				border-top-left-radius: 3px;
-				border-top-right-radius: 3px;
+				border-top: 0;
 				margin-top: 0;
 			}
 
 			&:last-child {
-				border-bottom-left-radius: 3px;
-				border-bottom-right-radius: 3px;
-				margin-bottom: 0;
+				margin-bottom: -16px;
 			}
 		}
 	}
