@@ -4,6 +4,10 @@
 .newspack-campaigns-wizard-segments {
 	&__list {
 		margin: 32px 0;
+
+		&.is-loading {
+			pointer-events: none;
+		}
 	}
 	&__title {
 		margin: 32px 0 64px;

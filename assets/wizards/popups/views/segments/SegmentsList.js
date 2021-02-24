@@ -313,7 +313,10 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
-			<div className="newspack-campaigns-wizard-segments__list" ref={ ref }>
+			<div
+				className={ 'newspack-campaigns-wizard-segments__list' + ( inFlight ? ' is-loading' : '' ) }
+				ref={ ref }
+			>
 				{ segmentsToShow.map( ( segment, index ) => (
 					<SegmentActionCard
 						deleteSegment={ deleteSegment }
