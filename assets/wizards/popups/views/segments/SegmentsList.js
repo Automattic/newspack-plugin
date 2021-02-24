@@ -30,6 +30,7 @@ const AddNewSegmentLink = () => (
 );
 
 const SegmentActionCard = ( {
+	inFlight,
 	segment,
 	segments,
 	deleteSegment,
@@ -61,6 +62,10 @@ const SegmentActionCard = ( {
 	const isDropTarget = index === dropTargetIndex;
 	const targetIsLast = isLastTarget && dropTargetIndex >= totalSegments;
 	const resortSegments = targetIndex => {
+		if ( inFlight ) {
+			return;
+		}
+
 		const sortedSegments = [ ...segments ];
 
 		// We need to account for the fact that the dragged segment is actually still in the list.
@@ -79,9 +84,17 @@ const SegmentActionCard = ( {
 		}
 	};
 	const onDragStart = () => {
+		if ( isDragging || inFlight ) {
+			return;
+		}
+
 		setIsDragging( true );
 	};
 	const onDragEnd = () => {
+		if ( inFlight ) {
+			return;
+		}
+
 		if ( null !== dropTargetIndex ) {
 			resortSegments( dropTargetIndex );
 		}
@@ -90,6 +103,10 @@ const SegmentActionCard = ( {
 		setIsDragging( false );
 	};
 	const onDragOver = e => {
+		if ( inFlight ) {
+			return;
+		}
+
 		const wrapperRect = wrapperRef.current.getBoundingClientRect();
 		const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 		const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
@@ -124,6 +141,10 @@ const SegmentActionCard = ( {
 		}
 	};
 	const moveUp = () => {
+		if ( inFlight ) {
+			return;
+		}
+
 		let target = index - 1;
 
 		if ( 0 > target ) {
@@ -133,6 +154,10 @@ const SegmentActionCard = ( {
 		resortSegments( target );
 	};
 	const moveDown = () => {
+		if ( inFlight ) {
+			return;
+		}
+
 		let target = index + 2;
 
 		if ( totalSegments < target ) {
@@ -233,29 +258,46 @@ const SegmentActionCard = ( {
 	);
 };
 
-const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
+const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) => {
 	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
 	const [ sortedSegments, setSortedSegments ] = useState( null );
+	const [ inFlight, setInFlight ] = useState( false );
 
 	const ref = useRef();
 	const deleteSegment = segment => {
+		setInFlight( true );
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
 			method: 'DELETE',
 			quiet: true,
-		} ).then( setSegments );
+		} )
+			.then( _segments => {
+				setInFlight( false );
+				setSegments( _segments );
+			} )
+			.catch( e => {
+				console.error( e );
+				setInFlight( false );
+			} );
 	};
 	const sortSegments = segmentsToSort => {
 		setSortedSegments( segmentsToSort );
+		setInFlight( true );
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-sort`,
 			method: 'POST',
 			data: { segments: segmentsToSort },
 			quiet: true,
-		} ).then( _segments => {
-			setSortedSegments( null );
-			setSegments( _segments );
-		} );
+		} )
+			.then( _segments => {
+				setInFlight( false );
+				setSortedSegments( null );
+				setSegments( _segments );
+			} )
+			.catch( e => {
+				console.error( e );
+				setInFlight( false );
+			} );
 	};
 
 	if ( segments === null ) {
@@ -276,6 +318,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 					<SegmentActionCard
 						deleteSegment={ deleteSegment }
 						key={ segment.id }
+						inFlight={ inFlight || isLoading > 0 }
 						segment={ segment }
 						segments={ segments }
 						sortSegments={ sortSegments }
