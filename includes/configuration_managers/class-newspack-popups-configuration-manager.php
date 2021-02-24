@@ -149,9 +149,9 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 *
 	 * @param object $segments Sorted array of segments.
 	 */
-	public function sort_segments( $segments ) {
+	public function sort_segments( $segment_ids ) {
 		return $this->is_configured() ?
-			\Newspack_Popups_Segmentation::sort_segments( $segments ) :
+			\Newspack_Popups_Segmentation::sort_segments( $segment_ids ) :
 			$this->unconfigured_error();
 	}
 
