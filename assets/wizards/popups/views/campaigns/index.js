@@ -85,7 +85,7 @@ const groupBySegment = ( segments, prompts ) => {
 		} ) )
 	);
 	grouped.push( {
-		label: __( 'Default (no segment)', 'newspack' ),
+		label: __( 'Default', 'newspack' ),
 		id: '',
 		prompts: prompts.filter( ( { options: { selected_segment_id: segment } } ) => ! segment ),
 		configuration: {},

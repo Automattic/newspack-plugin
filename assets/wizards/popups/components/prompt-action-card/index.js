@@ -8,7 +8,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { cog, moreVertical } from '@wordpress/icons';
+import { moreVertical, settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -43,7 +43,7 @@ const PromptActionCard = props => {
 						isSmall
 						className={ categoriesVisibility && 'popover-active' }
 						onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
-						icon={ cog }
+						icon={ settings }
 						label={ __( 'Category filtering and campaigns', 'newspack' ) }
 						tooltipPosition="bottom center"
 					/>

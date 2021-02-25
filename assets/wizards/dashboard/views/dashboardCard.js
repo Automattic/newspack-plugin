@@ -9,8 +9,6 @@ import { Component } from '@wordpress/element';
 import {
 	Icon,
 	chartLine,
-	check,
-	chevronRight,
 	help,
 	lifesaver,
 	megaphone,
@@ -66,10 +64,7 @@ class DashboardCard extends Component {
 
 		return (
 			<Card className={ classes }>
-				<a href={ url }>
-					{ contents }
-					{ 'completed' === status ? <Icon icon={ check } /> : <Icon icon={ chevronRight } /> }
-				</a>
+				<a href={ url }>{ contents }</a>
 			</Card>
 		);
 	}

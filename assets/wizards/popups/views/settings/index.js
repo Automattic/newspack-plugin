@@ -6,7 +6,7 @@ import { useState, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, CheckboxControl, SelectControl } from '../../../../components/src';
+import { withWizardScreen, CheckboxControl, Grid, SelectControl } from '../../../../components/src';
 
 const ENDPOINT = `/newspack/v1/wizard/newspack-popups-wizard/settings`;
 
@@ -54,7 +54,11 @@ const Settings = ( { isLoading, wizardApiFetch } ) => {
 		return null;
 	};
 
-	return settings.map( renderSetting );
+	return (
+		<Grid gutter={ 32 } rowGap={ 16 }>
+			{ settings.map( renderSetting ) }
+		</Grid>
+	);
 };
 
 export default withWizardScreen( Settings );
