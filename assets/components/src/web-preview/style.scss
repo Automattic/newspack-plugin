@@ -5,128 +5,138 @@
 @import '../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
-body.newspack-web-preview__open {
-	overflow: hidden;
-}
-
-.newspack-web-preview__container {
-	background: rgba( black, 0.7 );
-	box-sizing: border-box;
-	height: 100%;
-	left: 0;
-	margin: 0;
-	max-width: 100%;
-	padding: 32px;
-	position: fixed;
-	top: 0;
-	width: 100%;
-	z-index: 99999;
-
-	&.phone iframe {
-		max-width: 320px;
+.newspack-web-preview {
+	&--open {
+		overflow: hidden;
 	}
 
-	&.tablet iframe {
-		max-width: 768px;
-	}
-
-	&.newspack-web-preview__is-loaded iframe {
-		opacity: 1;
-	}
-}
-
-.newspack-web-preview__interior {
-	animation: newspack-web-preview__appear-animation 0.1s ease-out;
-	animation-fill-mode: forwards;
-	background: white;
-	border-radius: 4px;
-	overflow: hidden;
-	box-shadow: 0 8px 16px rgba( black, 0.08 );
-	height: 100%;
-	width: 100%;
-}
-
-.newspack-web-preview__content {
-	background: $light-gray-100;
-	height: calc( 100% - 57px );
-	-webkit-overflow-scrolling: touch;
-	overflow-x: hidden;
-	width: 100%;
-
-	iframe {
-		background: #fff;
-		display: block;
+	&__container {
+		background: rgba( black, 0.7 );
+		box-sizing: border-box;
 		height: 100%;
-		margin: 0 auto;
+		left: 0;
+		margin: 0;
 		max-width: 100%;
-		opacity: 0;
-		outline: 1px solid $light-gray-500;
-		padding: 0;
-		pointer-events: all;
-		transition: max-width 125ms ease-in-out, opacity 250ms ease-in-out;
+		padding: 32px;
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: 99999;
+
+		&.phone iframe {
+			max-width: 380px;
+		}
+
+		&.tablet iframe {
+			max-width: 768px;
+		}
+
+		&.newspack-web-preview__is-loaded iframe {
+			opacity: 1;
+		}
+	}
+
+	&__interior {
+		animation: appear-animation 125ms ease-in-out;
+		animation-fill-mode: forwards;
+		background: white;
+		border-radius: 3px;
+		overflow: hidden;
+		height: 100%;
 		width: 100%;
 	}
-}
 
-.newspack-web-preview__is-waiting {
-	align-items: center;
-	display: flex;
-	left: 50%;
-	margin: -12px 0 0 0;
-	position: absolute;
-	top: 50%;
-	transform: translateX( -50% );
-}
+	&__content {
+		background: $light-gray-100;
+		height: calc( 100% - 37px );
+		-webkit-overflow-scrolling: touch;
+		overflow-x: hidden;
+		width: 100%;
 
-.newspack-web-preview__toolbar {
-	border-bottom: 1px solid $light-gray-500;
-	display: flex;
-
-	.newspack-button.components-button {
-		height: 40px;
-		justify-content: center;
-		margin: 8px;
-		padding: 0;
-		width: 40px;
+		iframe {
+			background: #fff;
+			display: block;
+			height: 100%;
+			margin: 0 auto;
+			max-width: 100%;
+			opacity: 0;
+			outline: 1px solid $light-gray-500;
+			padding: 0;
+			pointer-events: all;
+			transition: max-width 125ms ease-in-out, opacity 250ms ease-in-out;
+			width: 100%;
+		}
 	}
-}
 
-.newspack-web-preview__toolbar-left {
-	flex: 0 0 auto;
+	&__is-waiting {
+		align-items: center;
+		display: flex;
+		left: 50%;
+		margin: -12px 0 0 0;
+		position: absolute;
+		top: 50%;
+		transform: translateX( -50% );
+	}
 
-	.newspack-button {
-		display: none;
+	&__toolbar {
+		border-bottom: 1px solid $light-gray-500;
+		display: flex;
 
-		@media screen and ( min-width: 528px ) {
-			&.is-phone,
-			&.is-tablet {
-				display: inline-flex;
+		&-left {
+			flex: 0 0 auto;
+
+			.newspack-button-group {
+				margin: 0;
 			}
 
-			&.is-phone {
-				margin-left: 0;
+			.newspack-button {
+				display: none;
+
+				&.is-selected {
+					background: $primary-500;
+					color: white;
+
+					&:active,
+					&:focus,
+					&:hover {
+						box-shadow: none !important;
+						color: white;
+						outline: none;
+					}
+
+					&:focus {
+						box-shadow: inset 0 0 0 1px $primary-500, inset 0 0 0 3px white !important;
+					}
+				}
+
+				@media screen and ( min-width: 528px ) {
+					&.is-phone,
+					&.is-tablet {
+						display: inline-flex;
+					}
+				}
+
+				@media screen and ( min-width: 816px ) {
+					&.is-desktop {
+						display: inline-flex;
+					}
+				}
 			}
 		}
 
-		@media screen and ( min-width: 816px ) {
-			&.is-desktop {
-				display: inline-flex;
-			}
+		&-right {
+			display: flex;
+			flex: 1;
+			justify-content: flex-end;
+		}
 
-			&.is-tablet {
-				margin-left: 0;
-			}
+		.newspack-button {
+			border-radius: 0 !important;
 		}
 	}
 }
 
-.newspack-web-preview__toolbar-right {
-	display: flex;
-	flex: 1;
-	justify-content: flex-end;
-}
-
-@keyframes newspack-web-preview__appear-animation {
+@keyframes appear-animation {
 	from {
 		margin-top: 32px;
 	}
