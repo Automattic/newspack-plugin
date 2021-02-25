@@ -1,3 +1,18 @@
+# [1.32.0](https://github.com/Automattic/newspack-plugin/compare/v1.31.0...v1.32.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* duplication of segments when dragging while re-sorting ([#881](https://github.com/Automattic/newspack-plugin/issues/881)) ([5f9a760](https://github.com/Automattic/newspack-plugin/commit/5f9a760f258eac0d6f80ccb7241ceee582036811))
+* only show sticky ad at mobile viewports ([#873](https://github.com/Automattic/newspack-plugin/issues/873)) ([a0fed02](https://github.com/Automattic/newspack-plugin/commit/a0fed02176dbd01ccd546a6020e6911de2d9f4b2))
+
+
+### Features
+
+* update style of the segments and prompts ([#860](https://github.com/Automattic/newspack-plugin/issues/860)) ([4b66384](https://github.com/Automattic/newspack-plugin/commit/4b6638444bd6e7fa6db4f2479172ffffdeebb6c0))
+* validated segmentation sort and error handling ([#886](https://github.com/Automattic/newspack-plugin/issues/886)) ([275fb71](https://github.com/Automattic/newspack-plugin/commit/275fb71f8697b8d03df4f96e883a92efaf04a7b9))
+* visually update integrations step ([#877](https://github.com/Automattic/newspack-plugin/issues/877)) ([9b82fdb](https://github.com/Automattic/newspack-plugin/commit/9b82fdb55195d6b9af6076d803294c22c38a7395))
+
 # [1.31.0](https://github.com/Automattic/newspack-plugin/compare/v1.30.1...v1.31.0) (2021-02-19)
 
 
