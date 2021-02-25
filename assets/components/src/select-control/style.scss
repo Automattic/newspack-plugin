@@ -55,6 +55,13 @@
 		}
 	}
 
+	// Help
+
+	.components-base-control__help {
+		margin-top: 0;
+		font-style: italic;
+	}
+
 	// Multiple Select Controls
 
 	& + & {
