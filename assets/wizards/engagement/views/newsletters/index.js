@@ -37,7 +37,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 			onUpdate( mapValues( update.settings, property( 'value' ) ) );
 		}
 	};
-	useEffect( () => {
+	const fetchConfiguration = () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 		} ).then( res => {
@@ -54,7 +54,8 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 				),
 			} );
 		} );
-	}, [] );
+	};
+	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
 		value: config.settings[ key ]?.value,
 		checked: Boolean( config.settings[ key ]?.value ),
@@ -113,7 +114,11 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 	return (
 		<div className={ className }>
 			{ config.configured === false && (
-				<PluginInstaller plugins={ [ 'newspack-newsletters' ] } withoutFooterButton />
+				<PluginInstaller
+					plugins={ [ 'newspack-newsletters' ] }
+					withoutFooterButton
+					onStatus={ ( { complete } ) => complete && fetchConfiguration() }
+				/>
 			) }
 			{ config.configured === true && (
 				<Fragment>
