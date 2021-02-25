@@ -47,11 +47,12 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 					isPrimary={ ! buttonDisabled }
 					isSecondary={ !! buttonDisabled }
 					disabled={ buttonDisabled }
+					// Allow overridingProps to set children.
+					// eslint-disable-next-line react/no-children-prop
+					children={ buttonText }
 					{ ...retrievedButtonProps }
 					{ ...overridingProps }
-				>
-					{ buttonText }
-				</Button>
+				/>
 			);
 		return (
 			<>
