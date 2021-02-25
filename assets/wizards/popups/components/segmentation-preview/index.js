@@ -21,6 +21,7 @@ import { WebPreview } from '../../../../components/src';
 const SegmentationPreview = props => {
 	const postPreviewLink = window?.newspack_popups_wizard_data?.preview_post;
 	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
+	const clientId = uniqueId( 'view_as_client_' ); // Spoof a client ID for the preview session.
 
 	const {
 		campaign = false,
@@ -33,7 +34,7 @@ const SegmentationPreview = props => {
 	const decorateURL = urlToDecorate => {
 		const view_as = segment.length ? [ `segment:${ segment }` ] : [ 'segment:everyone' ];
 
-		view_as.push( `cid:${ uniqueId( 'view_as_client_' ) }` );
+		view_as.push( `cid:${ clientId }` );
 
 		if ( showUnpublished ) {
 			view_as.push( 'show_unpublished:true' );
