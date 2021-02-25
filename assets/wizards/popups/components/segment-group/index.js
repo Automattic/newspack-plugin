@@ -98,7 +98,9 @@ const SegmentGroup = props => {
 						) }
 					</h3>
 					<span className="newspack-campaigns__segment-group__description">
-						{ id ? descriptionForSegment( segment, categories ) : __( 'No segment', 'newspack' ) }
+						{ id
+							? descriptionForSegment( segment, categories )
+							: __( 'All readers, regardless of segment', 'newspack' ) }
 					</span>
 				</div>
 				<div className="newspack-campaigns__segment-group__card__segment-actions">
