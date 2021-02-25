@@ -23,6 +23,7 @@ import {
 	SectionHeader,
 	hooks,
 } from '../../../../components/src';
+import { fetchJetpackMailchimpStatus } from '../../../../utils';
 import * as logos from './logos';
 import './style.scss';
 
@@ -34,8 +35,8 @@ const INTEGRATIONS = {
 		description: __( 'The ideal plugin for protection, security, and more', 'newspack' ),
 		buttonText: __( 'Connect Jetpack', 'newspack' ),
 		logo: logos.Jetpack,
-		statusFetchHandler: fetchFn =>
-			fetchFn( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
+		fetchStatus: () =>
+			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
 				jetpack: { status: result.Configured ? result.Status : 'inactive' },
 			} ) ),
 	},
@@ -49,8 +50,8 @@ const INTEGRATIONS = {
 		),
 		buttonText: __( 'Connect Google Site Kit', 'newspack' ),
 		logo: logos.SiteKit,
-		statusFetchHandler: fetchFn =>
-			fetchFn( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
+		fetchStatus: () =>
+			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
 				'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
 			} ) ),
 	},
@@ -59,26 +60,10 @@ const INTEGRATIONS = {
 		description: __( 'Allows users to sign up to your mailing list', 'newspack' ),
 		buttonText: __( 'Connect Mailchimp', 'newspack' ),
 		logo: logos.Mailchimp,
-		statusFetchHandler: async fetchFn => {
-			const jetpackStatus = await fetchFn( { path: `/newspack/v1/plugins/jetpack` } );
-			if ( ! jetpackStatus.Configured ) {
-				return Promise.resolve( {
-					mailchimp: { status: 'inactive', error: { code: 'unavailable_site_id' } },
-				} );
-			}
-			return new Promise( resolve => {
-				fetchFn( { path: '/wpcom/v2/mailchimp' } )
-					.then( result =>
-						resolve( {
-							mailchimp: {
-								url: result.connect_url,
-								status: result.code === 'connected' ? 'active' : 'inactive',
-							},
-						} )
-					)
-					.catch( error => resolve( { mailchimp: { status: 'inactive', error } } ) );
-			} );
-		},
+		fetchStatus: () =>
+			fetchJetpackMailchimpStatus()
+				.then( mailchimp => ( { mailchimp } ) )
+				.catch( mailchimp => ( { mailchimp } ) ),
 		isOptional: true,
 	},
 };
@@ -110,7 +95,7 @@ const Integrations = ( { setError, updateRoute } ) => {
 	const integrationsArray = Object.values( integrations );
 	useEffect( () => {
 		integrationsArray.forEach( async integration => {
-			const update = await integration.statusFetchHandler( apiFetch ).catch( setError );
+			const update = await integration.fetchStatus().catch( setError );
 			setIntegrations( update );
 		} );
 	}, [] );

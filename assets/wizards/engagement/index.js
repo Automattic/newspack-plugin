@@ -23,10 +23,6 @@ class EngagementWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			apiKey: '',
-			connected: false,
-			connectURL: '',
-			wcConnected: false,
 			relatedPostsEnabled: false,
 			relatedPostsMaxAge: 0,
 			relatedPostsUpdated: false,
@@ -38,20 +34,13 @@ class EngagementWizard extends Component {
 	 * Figure out whether to use the WooCommerce or Jetpack Mailchimp wizards and get appropriate settings.
 	 */
 	onWizardReady = () => {
-		this.getSettings();
-	};
-
-	/**
-	 * Get settings for the current wizard.
-	 */
-	getSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/related-content',
 		} )
 			.then( data => this.setState( data ) )
 			.catch( error => setError( error ) );
-	}
+	};
 
 	/**
 	 * Update Related Content settings.
@@ -81,10 +70,6 @@ class EngagementWizard extends Component {
 	render() {
 		const { pluginRequirements } = this.props;
 		const {
-			apiKey,
-			connected,
-			connectURL,
-			wcConnected,
 			relatedPostsEnabled,
 			relatedPostsError,
 			relatedPostsMaxAge,
@@ -128,19 +113,7 @@ class EngagementWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route
-							path="/newsletters"
-							render={ () => (
-								<Newsletters
-									{ ...props }
-									apiKey={ apiKey }
-									connected={ connected }
-									connectURL={ connectURL }
-									wcConnected={ wcConnected }
-									onChange={ _apiKey => this.setState( { apiKey: _apiKey } ) }
-								/>
-							) }
-						/>
+						<Route path="/newsletters" render={ () => <Newsletters { ...props } /> } />
 						<Route path="/social" exact render={ () => <Social { ...props } /> } />
 						<Route path="/commenting" exact render={ () => <Commenting { ...props } /> } />
 						<Route

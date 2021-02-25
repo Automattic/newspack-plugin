@@ -43,7 +43,7 @@
 
 	// Is Clickable
 
-	&__is-clickable {
+	&--is-clickable {
 		cursor: pointer;
 		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
 

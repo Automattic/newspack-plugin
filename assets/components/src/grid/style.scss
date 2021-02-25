@@ -7,6 +7,9 @@
 	grid-gap: 32px;
 	grid-template-columns: 1fr;
 	margin: 32px 0;
+	&--no-margin {
+		margin: 0;
+	}
 
 	// Gutter 8
 	&__gutter-8 {
