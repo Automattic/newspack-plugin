@@ -16,7 +16,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Card, Popover, Button, Router } from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../components/src';
 import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
@@ -76,7 +76,7 @@ const SegmentActionCard = ( {
 		sortedSegments.splice( target, 0, segment );
 
 		// Reindex priorities to avoid gaps and dupes.
-		sortedSegments.map( ( _segment, _index ) => ( _segment.priority = _index ) );
+		sortedSegments.forEach( ( _segment, _index ) => ( _segment.priority = _index ) );
 
 		// Only trigger the API request if the order has changed.
 		if ( JSON.stringify( sortedSegments ) !== JSON.stringify( segments ) ) {
@@ -262,10 +262,11 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
 	const [ sortedSegments, setSortedSegments ] = useState( null );
 	const [ inFlight, setInFlight ] = useState( false );
-
+	const [ error, setError ] = useState( null );
 	const ref = useRef();
 	const deleteSegment = segment => {
 		setInFlight( true );
+		setError( null );
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
 			method: 'DELETE',
@@ -281,12 +282,13 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			} );
 	};
 	const sortSegments = segmentsToSort => {
+		setError( null );
 		setSortedSegments( segmentsToSort );
 		setInFlight( true );
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-sort`,
 			method: 'POST',
-			data: { segments: segmentsToSort },
+			data: { segmentIds: segmentsToSort.map( _segment => _segment.id ) },
 			quiet: true,
 		} )
 			.then( _segments => {
@@ -295,8 +297,9 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				setSegments( _segments );
 			} )
 			.catch( e => {
-				console.error( e );
 				setInFlight( false );
+				setError( e.message || __( 'There was an error sorting segments. Please try again.' ) );
+				setSegments( segments );
 			} );
 	};
 
@@ -309,6 +312,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 
 	return segments.length ? (
 		<Fragment>
+			{ error && <Notice noticeText={ error } isError /> }
 			<Card headerActions noBorder>
 				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
