@@ -4,17 +4,25 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * External dependencies.
  */
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Button, Handoff, hooks } from '../../../../components/src';
+import {
+	withWizardScreen,
+	Button,
+	Card,
+	Grid,
+	Handoff,
+	SectionHeader,
+	hooks,
+} from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 import * as logos from './logos';
 import './style.scss';
@@ -101,41 +109,34 @@ const Integrations = ( { setError, updateRoute } ) => {
 	}, [ canProceed ] );
 
 	return (
-		<div className="mt4">
+		<Card noBorder>
 			{ integrationsArray.map( integration => {
 				const isInactive = integration.status === 'inactive';
 				const isLoading = ! integration.status;
 				return (
-					<div
+					<Grid
 						key={ integration.name }
-						className={ classnames( 'cf mb5 newspack__integration__card', {
-							'o-50': isLoading,
-						} ) }
+						className={ classnames( 'newspack-integration', isLoading && 'o-50' ) }
+						columns={ 3 }
+						gutter={ 16 }
 					>
-						<div className="flex fl w-100 w-70-l pr3-l">
-							{ isInactive || isLoading ? (
-								<div
-									className="b--moon-gray ba br-100 pa2"
-									style={ { width: '24px', height: '24px' } }
-								/>
-							) : (
-								<CheckCircleIcon className="newspack__integration__card__status" />
+						<div
+							className={ classnames(
+								'newspack-integration__status',
+								isInactive || isLoading ? 'to-do' : 'done'
 							) }
-							<div className="pl2">
-								<h2>{ integration.name }</h2>
-								<div>
-									<div>{ integration.description }</div>
-									{ isInactive ? intergationConnectButton( integration ) : null }
-								</div>
-							</div>
+						>
+							{ ! isInactive && ! isLoading && <Icon icon={ check } /> }
 						</div>
-						<div className="fl w-100 w-30-l mt3 mt0-l pa4 pa4-l ba br2 b--moon-gray newspack__integration__card__logo">
-							{ integration.logo() }
-						</div>
-					</div>
+						<Card noBorder className="newspack-integration__description">
+							<SectionHeader title={ integration.name } description={ integration.description } />
+							{ isInactive ? intergationConnectButton( integration ) : null }
+						</Card>
+						<div className="newspack-integration__logo">{ integration.logo() }</div>
+					</Grid>
 				);
 			} ) }
-		</div>
+		</Card>
 	);
 };
 
