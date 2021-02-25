@@ -88,6 +88,6 @@ const Footer = ( { simple } ) => {
 			) }
 		</div>
 	);
-}
+};
 
 export default Footer;
