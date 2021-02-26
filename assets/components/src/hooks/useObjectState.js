@@ -8,7 +8,7 @@ import { merge } from 'lodash';
 /**
  * A useState for an object.
  */
-export default initial => {
+export default ( initial = {} ) => {
 	const [ stateObject, setStateObject ] = useState( initial );
 
 	const runUpdate = update => setStateObject( _stateObject => merge( {}, _stateObject, update ) );

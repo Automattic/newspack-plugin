@@ -101,23 +101,17 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/theme/(?P<theme>[\a-z]+)',
+			'/wizard/' . $this->slug . '/theme',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_theme' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/theme-mods',
-			[
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_theme_mods' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'theme_mods' => [
 						'sanitize_callback' => [ $this, 'sanitize_theme_mods' ],
+					],
+					'theme'      => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -231,7 +225,7 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get current theme
+	 * Get current theme & mods.
 	 *
 	 * @return WP_REST_Response containing info.
 	 */
@@ -246,6 +240,7 @@ class Setup_Wizard extends Wizard {
 				];
 			}
 		}
+		$theme_mods['accent_allcaps'] = get_theme_mod( 'accent_allcaps', true );
 		return rest_ensure_response(
 			[
 				'theme'      => Starter_Content::get_theme(),
@@ -261,18 +256,6 @@ class Setup_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_update_theme( $request ) {
-		$theme = $request['theme'];
-		Starter_Content::set_theme( $theme );
-		return self::api_retrieve_theme();
-	}
-
-	/**
-	 * Update theme mods
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response containing info.
-	 */
-	public function api_update_theme_mods( $request ) {
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
 			if ( in_array( $key, $this->media_theme_mods ) ) {
@@ -280,6 +263,8 @@ class Setup_Wizard extends Wizard {
 			}
 			set_theme_mod( $key, $value );
 		}
+		$theme = $request['theme'];
+		Starter_Content::set_theme( $theme );
 		return self::api_retrieve_theme();
 	}
 
