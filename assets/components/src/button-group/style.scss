@@ -4,7 +4,9 @@
 
 .newspack-button-group {
 	display: block;
-	margin: 32px 0;
+	&:not( .newspack-button-group--no-margin ) {
+		margin: 32px 0;
+	}
 
 	.newspack-button {
 		&:active,

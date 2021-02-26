@@ -18,21 +18,26 @@ import classNames from 'classnames';
  */
 import './style.scss';
 import GroupedSelectControl from './GroupedSelectControl';
+import ButtonGroupControl from './ButtonGroupControl';
 
 class SelectControl extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
-		const { className, optgroups, ...otherProps } = this.props;
+		const { className, optgroups, buttonOptions, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-select-control', className );
 		return (
 			<div className={ classes }>
+				{ /* eslint-disable no-nested-ternary */ }
 				{ optgroups ? (
 					<GroupedSelectControl optgroups={ optgroups } { ...otherProps } />
+				) : buttonOptions ? (
+					<ButtonGroupControl buttonOptions={ buttonOptions } { ...otherProps } />
 				) : (
 					<BaseComponent { ...otherProps } />
 				) }
+				{ /* eslint-enable no-nested-ternary */ }
 			</div>
 		);
 	}
