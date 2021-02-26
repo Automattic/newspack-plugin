@@ -114,7 +114,7 @@ const SegmentGroup = props => {
 								isSmall
 								onClick={ () => {
 									cookies.remove( 'newspack-cid' );
-									cookies.set( 'newspack-cid', `preview-${ Math.round( Math.random() * 9999 ) }`, {
+									cookies.set( 'newspack-cid', `preview-${ Date.now() }`, {
 										domain: window.location.host.replace( /[^\.]+\./, '.' ),
 									} );
 
