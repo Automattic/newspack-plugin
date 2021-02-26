@@ -14,19 +14,20 @@
 	.components-base-control__field {
 		margin: 0;
 	}
+	label.components-input-control__label,
+	label.components-base-control__label {
+		color: $dark-gray-900 !important;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 24px;
+		padding-bottom: 0 !important;
+		margin-bottom: 0;
+	}
 
 	.components-select-control {
 		border-radius: 3px;
 		font-size: 14px;
 		line-height: 24px;
-
-		label.components-input-control__label {
-			color: $dark-gray-900;
-			font-size: 14px;
-			font-weight: bold;
-			line-height: 24px;
-			padding-bottom: 0 !important;
-		}
 
 		div.components-input-control__backdrop {
 			border-color: $light-gray-500;
@@ -34,6 +35,7 @@
 
 		select.components-select-control__input {
 			color: $dark-gray-300;
+			border-color: $light-gray-500;
 			font-size: 16px;
 			height: 48px;
 			line-height: 24px;

@@ -17,17 +17,22 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import './style.scss';
+import GroupedSelectControl from './GroupedSelectControl';
 
 class SelectControl extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
-		const { className, ...otherProps } = this.props;
+		const { className, optgroups, ...otherProps } = this.props;
 		const classes = classNames( 'newspack-select-control', className );
 		return (
 			<div className={ classes }>
-				<BaseComponent { ...otherProps } />
+				{ optgroups ? (
+					<GroupedSelectControl optgroups={ optgroups } { ...otherProps } />
+				) : (
+					<BaseComponent { ...otherProps } />
+				) }
 			</div>
 		);
 	}
