@@ -102,6 +102,50 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 				onChange={ updateMods( 'accent_allcaps' ) }
 				label={ __( 'Use all-caps for accent text', 'newspack' ) }
 			/>
+			<SectionHeader
+				title={ __( 'Header', 'newspack' ) }
+				description={ __( 'Customize the header and add your logo', 'newspack' ) }
+			/>
+			<Grid>
+				<div>
+					<ToggleControl
+						className="mv0"
+						checked={ mods.header_solid_background }
+						onChange={ updateMods( 'header_solid_background' ) }
+						label={ __( 'Apply a background color to the header', 'newspack' ) }
+					/>
+					{ mods.header_solid_background && (
+						<ColorPicker
+							className="mt2"
+							label={ __( 'Background color' ) }
+							color={ mods.header_color_hex }
+							onChange={ updateMods( 'header_color_hex' ) }
+						/>
+					) }
+				</div>
+			</Grid>
+			<SectionHeader
+				title={ __( 'Footer', 'newspack' ) }
+				description={ __( 'Personalize the footer of your site', 'newspack' ) }
+			/>
+			<Grid>
+				<div>
+					<ToggleControl
+						className="mv0"
+						checked={ mods.footer_color !== 'default' }
+						onChange={ checked => updateMods( 'footer_color' )( checked ? 'custom' : 'default' ) }
+						label={ __( 'Apply a background color to the footer', 'newspack' ) }
+					/>
+					{ mods.footer_color === 'custom' && (
+						<ColorPicker
+							className="mt2"
+							label={ __( 'Background color' ) }
+							color={ mods.footer_color_hex }
+							onChange={ updateMods( 'footer_color_hex' ) }
+						/>
+					) }
+				</div>
+			</Grid>
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( {
 					onClick: saveSettings,

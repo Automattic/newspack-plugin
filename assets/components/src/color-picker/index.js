@@ -27,12 +27,12 @@ const InteractiveDiv = ( { style = {}, ...props } ) => (
 	/>
 );
 
-const ColorPicker = ( { label, color = '#fff', onChange } ) => {
+const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const ref = useRef();
 	hooks.useOnClickOutside( ref, () => setIsExpanded( false ) );
 	return (
-		<div className="newspack-color-picker">
+		<div className={ classnames( 'newspack-color-picker', className ) }>
 			<div className="newspack-color-picker__label">{ label }</div>
 			<div className="newspack-color-picker__main" ref={ ref }>
 				<InteractiveDiv
