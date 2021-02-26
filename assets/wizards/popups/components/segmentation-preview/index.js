@@ -9,11 +9,6 @@
 import { addQueryArgs } from '@wordpress/url';
 
 /**
- * External dependencies.
- */
-import { uniqueId } from 'lodash';
-
-/**
  * Internal dependencies.
  */
 import { WebPreview } from '../../../../components/src';
@@ -21,7 +16,6 @@ import { WebPreview } from '../../../../components/src';
 const SegmentationPreview = props => {
 	const postPreviewLink = window?.newspack_popups_wizard_data?.preview_post;
 	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
-	const clientId = uniqueId( 'view_as_client_' ); // Spoof a client ID for the preview session.
 
 	const {
 		campaign = false,
@@ -33,8 +27,6 @@ const SegmentationPreview = props => {
 
 	const decorateURL = urlToDecorate => {
 		const view_as = segment.length ? [ `segment:${ segment }` ] : [ 'segment:everyone' ];
-
-		view_as.push( `cid:${ clientId }` );
 
 		if ( showUnpublished ) {
 			view_as.push( 'show_unpublished:true' );
