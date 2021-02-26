@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useState } from '@wordpress/element';
+import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -10,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	withWizardScreen,
 	ColorPicker,
+	TextControl,
 	SelectControl,
 	ToggleControl,
 	SectionHeader,
@@ -98,7 +100,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 				/>
 			</Grid>
 			<ToggleControl
-				checked={ mods.accent_allcaps }
+				checked={ mods.accent_allcaps === true }
 				onChange={ updateMods( 'accent_allcaps' ) }
 				label={ __( 'Use all-caps for accent text', 'newspack' ) }
 			/>
@@ -107,10 +109,31 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 				description={ __( 'Customize the header and add your logo', 'newspack' ) }
 			/>
 			<Grid>
+				<div className="flex items-baseline">
+					<SelectControl
+						className="mv0 mr3 dib"
+						label={ __( 'Style', 'newspack' ) }
+						value={ mods.header_center_logo ? 'center' : 'left' }
+						onChange={ value => updateMods( 'header_center_logo' )( value === 'center' ) }
+						buttonOptions={ [
+							{ value: 'left', icon: alignLeft },
+							{ value: 'center', icon: alignCenter },
+						] }
+					/>
+					<SelectControl
+						className="mv0 dib"
+						label={ __( 'Size', 'newspack' ) }
+						value={ mods.header_simplified ? 'small' : 'large' }
+						onChange={ value => updateMods( 'header_simplified' )( value === 'small' ) }
+						buttonOptions={ [ { value: 'small', label: 'S' }, { value: 'large', label: 'L' } ] }
+					/>
+				</div>
+			</Grid>
+			<Grid>
 				<div>
 					<ToggleControl
 						className="mv0"
-						checked={ mods.header_solid_background }
+						checked={ mods.header_solid_background === true }
 						onChange={ updateMods( 'header_solid_background' ) }
 						label={ __( 'Apply a background color to the header', 'newspack' ) }
 					/>
@@ -128,6 +151,17 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 				title={ __( 'Footer', 'newspack' ) }
 				description={ __( 'Personalize the footer of your site', 'newspack' ) }
 			/>
+			<Grid>
+				<TextControl
+					label={ __( 'Copyright information', 'newspack' ) }
+					help={ __(
+						'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
+						'newspack'
+					) }
+					value={ mods.footer_copyright || '' }
+					onChange={ updateMods( 'footer_copyright' ) }
+				/>
+			</Grid>
 			<Grid>
 				<div>
 					<ToggleControl

@@ -240,8 +240,9 @@ class Setup_Wizard extends Wizard {
 				];
 			}
 		}
-		$theme_mods['accent_allcaps'] = get_theme_mod( 'accent_allcaps', true );
-		$theme_mods['footer_color']   = get_theme_mod( 'footer_color', 'default' );
+		$theme_mods['accent_allcaps']   = get_theme_mod( 'accent_allcaps', true );
+		$theme_mods['footer_color']     = get_theme_mod( 'footer_color', 'default' );
+		$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', '' );
 		return rest_ensure_response(
 			[
 				'theme'      => Starter_Content::get_theme(),
