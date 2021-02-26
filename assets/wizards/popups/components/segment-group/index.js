@@ -2,6 +2,8 @@
  * Segment group component.
  */
 
+import cookies from 'js-cookie';
+
 /**
  * WordPress dependencies.
  */
@@ -110,7 +112,14 @@ const SegmentGroup = props => {
 							<Button
 								isQuaternary
 								isSmall
-								onClick={ () => showPreview() }
+								onClick={ () => {
+									cookies.remove( 'newspack-cid' );
+									cookies.set( 'newspack-cid', `preview-${ Math.round( Math.random() * 9999 ) }`, {
+										domain: window.location.host.replace( /[^\.]+\./, '.' ),
+									} );
+
+									showPreview();
+								} }
 								icon={ iconPreview }
 								label={ __( 'Preview Segment', 'newspack' ) }
 								tooltipPosition="bottom center"
