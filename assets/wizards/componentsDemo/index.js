@@ -68,8 +68,6 @@ class ComponentsDemo extends Component {
 			actionCardToggleChecked,
 			toggleGroupChecked,
 			color1,
-			color2,
-			color3,
 		} = this.state;
 		return (
 			<Fragment>
