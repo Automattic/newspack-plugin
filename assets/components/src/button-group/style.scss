@@ -2,6 +2,9 @@
  * Button Group
  */
 
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
 .newspack-button-group {
 	display: block;
 	&:not( .newspack-button-group--no-margin ) {
@@ -9,6 +12,7 @@
 	}
 
 	.newspack-button {
+		padding: 11px 17px !important;
 		&:active,
 		&:focus,
 		&:hover,
@@ -17,7 +21,20 @@
 		}
 
 		&.is-pressed {
+			position: relative;
 			z-index: 2;
+			background-color: $primary-050 !important;
+			color: $dark-gray-900 !important;
+			border: none !important;
+			&::after {
+				content: '';
+				position: absolute;
+				top: -1px;
+				left: 0;
+				width: calc( 100% - 6px );
+				height: calc( 100% - 4px );
+				border: 3px solid $primary-500;
+			}
 		}
 	}
 }
@@ -29,13 +46,19 @@ body[class*='admin-color-'] {
 			box-shadow: none;
 
 			&:first-child {
-				border-bottom-left-radius: 3px;
-				border-top-left-radius: 3px;
+				&,
+				&::after {
+					border-bottom-left-radius: 3px;
+					border-top-left-radius: 3px;
+				}
 			}
 
 			&:last-child {
-				border-bottom-right-radius: 3px;
-				border-top-right-radius: 3px;
+				&,
+				&::after {
+					border-bottom-right-radius: 3px;
+					border-top-right-radius: 3px;
+				}
 			}
 		}
 	}
