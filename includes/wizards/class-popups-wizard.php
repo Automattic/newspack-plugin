@@ -629,14 +629,15 @@ class Popups_Wizard extends Wizard {
 					}
 					break;
 				case 'selected_segment_id':
-					$cm       = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-					$segments = array_map(
+					$cm                = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+					$segments          = array_map(
 						function( $segment ) {
 							return $segment['id'];
 						},
 						$cm->get_segments()
 					);
-					if ( strlen( $value ) > 0 && ! in_array( $value, $segments ) ) {
+					$assigned_segments = explode( ',', $value );
+					if ( strlen( $value ) > 0 && 0 === count( array_intersect( $segments, $assigned_segments ) ) ) {
 						return false;
 					}
 					break;

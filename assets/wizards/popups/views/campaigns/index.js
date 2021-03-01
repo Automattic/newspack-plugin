@@ -79,9 +79,9 @@ const groupBySegment = ( segments, prompts ) => {
 			label,
 			id,
 			configuration,
-			prompts: prompts.filter(
-				( { options: { selected_segment_id: segment } } ) => segment === id
-			),
+			prompts: prompts.filter( ( { options: { selected_segment_id: _segments } } ) => {
+				return _segments ? -1 < _segments.split( ',' ).indexOf( id ) : false;
+			} ),
 		} ) )
 	);
 	grouped.push( {
