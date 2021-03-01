@@ -49,7 +49,6 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 			.catch( setError );
 	};
 
-	console.log( mods );
 	return (
 		<>
 			<SectionHeader
@@ -175,13 +174,25 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 						onChange={ updateMods( 'custom_logo' ) }
 					/>
 					{ mods.custom_logo && (
-						<SelectControl
-							className="mv0 dib"
-							label={ __( 'Size', 'newspack' ) }
-							value={ parseLogoSize( mods.logo_size ) }
-							onChange={ updateMods( 'logo_size' ) }
-							buttonOptions={ LOGO_SIZE_OPTIONS }
-						/>
+						<>
+							<SelectControl
+								className="mv0 dib"
+								label={ __( 'Size', 'newspack' ) }
+								value={ parseLogoSize( mods.logo_size ) }
+								onChange={ updateMods( 'logo_size' ) }
+								buttonOptions={ LOGO_SIZE_OPTIONS }
+							/>
+							<ToggleControl
+								checked={ mods.header_text }
+								onChange={ updateMods( 'header_text' ) }
+								label={ __( 'Display Site Title', 'newspack' ) }
+							/>
+							<ToggleControl
+								checked={ mods.header_display_tagline }
+								onChange={ updateMods( 'header_display_tagline' ) }
+								label={ __( 'Display Tagline', 'newspack' ) }
+							/>
+						</>
 					) }
 				</div>
 			</Grid>
