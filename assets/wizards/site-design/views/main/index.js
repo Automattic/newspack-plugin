@@ -17,12 +17,21 @@ import {
 	SectionHeader,
 	ImageUpload,
 	hooks,
+	Button,
 	Grid,
+	WebPreview,
 } from '../../../../components/src';
 import ThemeSelection from '../../components/theme-selection';
 import { getFontsList, getFontImportURL, LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
+import './style.scss';
 
-const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) => {
+const Main = ( {
+	wizardApiFetch,
+	setError,
+	renderPrimaryButton,
+	buttonText,
+	hasPreview = true,
+} ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
 	const [ mods, updateMods ] = hooks.useObjectState();
 
@@ -38,7 +47,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 			.catch( setError );
 	}, [] );
 
-	const saveSettings = () => {
+	const saveSettings = () =>
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
@@ -47,7 +56,6 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 		} )
 			.then( updateSettings )
 			.catch( setError );
-	};
 
 	return (
 		<>
@@ -240,6 +248,18 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 					onChange={ updateMods( 'newspack_footer_logo' ) }
 				/>
 			</Grid>
+			{ hasPreview && (
+				<div className="newspack-floating-button">
+					<WebPreview
+						url="/?newspack_design_preview"
+						renderButton={ ( { showPreview } ) => (
+							<Button onClick={ () => saveSettings().then( showPreview ) } isSecondary>
+								{ __( 'Preview Site', 'newspack' ) }
+							</Button>
+						) }
+					/>
+				</div>
+			) }
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( {
 					onClick: saveSettings,

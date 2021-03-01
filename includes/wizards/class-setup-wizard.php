@@ -46,8 +46,8 @@ class Setup_Wizard extends Wizard {
 		if ( ! get_option( NEWSPACK_SETUP_COMPLETE ) ) {
 			add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
 			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
-
 		}
+		add_filter( 'show_admin_bar', [ $this, 'show_admin_bar' ], 10, 2 ); // phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected
 		$this->hidden = get_option( NEWSPACK_SETUP_COMPLETE, false );
 	}
 
@@ -375,6 +375,19 @@ class Setup_Wizard extends Wizard {
 			wp_safe_redirect( esc_url( $setup_url ) );
 			exit;
 		}
+	}
+
+	/**
+	 * Should admin bar be shown.
+	 *
+	 * @param bool $show Whether to show admin bar.
+	 * @return boolean Whether admin bar should be shown.
+	 */
+	public static function show_admin_bar( $show ) {
+		if ( $show && isset( $_GET['newspack_design_preview'] ) ) {
+			return false;
+		}
+		return $show;
 	}
 
 	/**

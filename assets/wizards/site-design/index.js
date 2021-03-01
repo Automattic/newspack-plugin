@@ -88,6 +88,7 @@ class SiteDesignWizard extends Component {
 										tabbedNavigation={ tabbedNavigation }
 										wizardApiFetch={ wizardApiFetch }
 										setError={ setError }
+										hasPreview={ false }
 									/>
 								);
 							} }
