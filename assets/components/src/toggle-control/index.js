@@ -23,7 +23,7 @@ class ToggleControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, isDark, ...otherProps } = this.props;
+		const { className, isDark, checked, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-toggle-control',
 			isDark && 'newspack-toggle-control--is-dark',
@@ -31,7 +31,7 @@ class ToggleControl extends Component {
 			otherProps.disabled && 'newspack-toggle-control--is-disabled',
 			className
 		);
-		return <BaseComponent className={ classes } { ...otherProps } />;
+		return <BaseComponent className={ classes } checked={ Boolean( checked ) } { ...otherProps } />;
 	}
 }
 

@@ -76,6 +76,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 						'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least 512 pixels wide and tall.',
 						'newspack'
 					) }
+					isCovering
 					onChange={ updateProfileData( key ) }
 				/>
 			);

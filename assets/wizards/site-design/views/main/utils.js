@@ -106,3 +106,20 @@ export const getFontsList = headingsOnly =>
 
 export const getFontImportURL = value =>
 	`//fonts.googleapis.com/css?family=${ value.replace( /\s/g, '+' ) }`;
+
+export const LOGO_SIZE_OPTIONS = [
+	{ value: 0, label: __( 'S', 'newspack' ) },
+	{ value: 25, label: __( 'M', 'newspack' ) },
+	{ value: 50, label: __( 'L', 'newspack' ) },
+	{ value: 75, label: __( 'XL', 'newspack' ) },
+];
+
+/**
+ * Map a logo size to an option value.
+ * The size might have been set in the Customizer, where it is a slider input.
+ */
+export const parseLogoSize = ( size, options = LOGO_SIZE_OPTIONS ) =>
+	options.reduce(
+		( foundSize, { value } ) => ( size >= value ? value : foundSize ),
+		options[ 0 ].value
+	);

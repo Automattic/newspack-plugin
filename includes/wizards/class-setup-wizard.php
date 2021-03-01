@@ -35,7 +35,7 @@ class Setup_Wizard extends Wizard {
 	 *
 	 * @var array
 	 */
-	protected $media_theme_mods = [ 'newspack_footer_logo' ];
+	protected $media_theme_mods = [ 'newspack_footer_logo', 'custom_logo' ];
 
 	/**
 	 * Constructor.
@@ -234,10 +234,13 @@ class Setup_Wizard extends Wizard {
 
 		foreach ( $theme_mods as $key => &$theme_mod ) {
 			if ( in_array( $key, $this->media_theme_mods ) ) {
-				$attachment = wp_get_attachment_image_src( $theme_mod )[0];
-				$theme_mod  = [
-					'url' => is_array( $attachment ) ? $attachment[0] : null,
-				];
+				$attachment = wp_get_attachment_image_src( $theme_mod, 'full' );
+				if ( $attachment ) {
+					$theme_mod = [
+						'id'  => $theme_mod,
+						'url' => is_array( $attachment ) ? $attachment[0] : null,
+					];
+				}
 			}
 		}
 		$theme_mods['accent_allcaps']   = get_theme_mod( 'accent_allcaps', true );

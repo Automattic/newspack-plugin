@@ -15,11 +15,12 @@ import {
 	SelectControl,
 	ToggleControl,
 	SectionHeader,
+	ImageUpload,
 	hooks,
 	Grid,
 } from '../../../../components/src';
 import ThemeSelection from '../../components/theme-selection';
-import { getFontsList, getFontImportURL } from './utils';
+import { getFontsList, getFontImportURL, LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
 
 const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
@@ -48,6 +49,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 			.catch( setError );
 	};
 
+	console.log( mods );
 	return (
 		<>
 			<SectionHeader
@@ -109,40 +111,76 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 				description={ __( 'Customize the header and add your logo', 'newspack' ) }
 			/>
 			<Grid>
-				<div className="flex items-baseline">
-					<SelectControl
-						className="mv0 mr3 dib"
-						label={ __( 'Style', 'newspack' ) }
-						value={ mods.header_center_logo ? 'center' : 'left' }
-						onChange={ value => updateMods( 'header_center_logo' )( value === 'center' ) }
-						buttonOptions={ [
-							{ value: 'left', icon: alignLeft },
-							{ value: 'center', icon: alignCenter },
-						] }
-					/>
-					<SelectControl
-						className="mv0 dib"
-						label={ __( 'Size', 'newspack' ) }
-						value={ mods.header_simplified ? 'small' : 'large' }
-						onChange={ value => updateMods( 'header_simplified' )( value === 'small' ) }
-						buttonOptions={ [ { value: 'small', label: 'S' }, { value: 'large', label: 'L' } ] }
-					/>
-				</div>
-			</Grid>
-			<Grid>
 				<div>
-					<ToggleControl
-						className="mv0"
-						checked={ mods.header_solid_background === true }
-						onChange={ updateMods( 'header_solid_background' ) }
-						label={ __( 'Apply a background color to the header', 'newspack' ) }
+					<div className="flex items-baseline">
+						<SelectControl
+							className="mv0 mr3 dib"
+							label={ __( 'Style', 'newspack' ) }
+							value={ mods.header_center_logo ? 'center' : 'left' }
+							onChange={ value => updateMods( 'header_center_logo' )( value === 'center' ) }
+							buttonOptions={ [
+								{ value: 'left', icon: alignLeft },
+								{ value: 'center', icon: alignCenter },
+							] }
+						/>
+						<SelectControl
+							className="mv0 dib"
+							label={ __( 'Size', 'newspack' ) }
+							value={ mods.header_simplified ? 'small' : 'large' }
+							onChange={ value => updateMods( 'header_simplified' )( value === 'small' ) }
+							buttonOptions={ [ { value: 'small', label: 'S' }, { value: 'large', label: 'L' } ] }
+						/>
+					</div>
+					<div style={ { marginTop: '-32px' } }>
+						<ToggleControl
+							checked={ mods.header_solid_background }
+							onChange={ updateMods( 'header_solid_background' ) }
+							label={ __( 'Apply a background color to the header', 'newspack' ) }
+						/>
+						{ mods.header_solid_background && (
+							<ToggleControl
+								checked={ mods.header_color !== 'default' }
+								onChange={ checked =>
+									updateMods( 'header_color' )( checked ? 'custom' : 'default' )
+								}
+								label={ __( 'Apply a custom background color to the header', 'newspack' ) }
+							/>
+						) }
+						{ mods.header_solid_background && mods.header_color === 'custom' && (
+							<ColorPicker
+								className="mt2"
+								label={ __( 'Background color' ) }
+								color={ mods.header_color_hex }
+								onChange={ updateMods( 'header_color_hex' ) }
+							/>
+						) }
+					</div>
+				</div>
+				<div>
+					<ImageUpload
+						className="mt0"
+						style={ {
+							height: '96px',
+							...( mods.header_solid_background
+								? {
+										backgroundColor:
+											mods.header_color === 'custom'
+												? mods.header_color_hex
+												: mods.primary_color_hex,
+								  }
+								: {} ),
+						} }
+						label={ __( 'Logo', 'newspack' ) }
+						image={ mods.custom_logo }
+						onChange={ updateMods( 'custom_logo' ) }
 					/>
-					{ mods.header_solid_background && (
-						<ColorPicker
-							className="mt2"
-							label={ __( 'Background color' ) }
-							color={ mods.header_color_hex }
-							onChange={ updateMods( 'header_color_hex' ) }
+					{ mods.custom_logo && (
+						<SelectControl
+							className="mv0 dib"
+							label={ __( 'Size', 'newspack' ) }
+							value={ parseLogoSize( mods.logo_size ) }
+							onChange={ updateMods( 'logo_size' ) }
+							buttonOptions={ LOGO_SIZE_OPTIONS }
 						/>
 					) }
 				</div>
@@ -152,18 +190,17 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 				description={ __( 'Personalize the footer of your site', 'newspack' ) }
 			/>
 			<Grid>
-				<TextControl
-					label={ __( 'Copyright information', 'newspack' ) }
-					help={ __(
-						'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
-						'newspack'
-					) }
-					value={ mods.footer_copyright || '' }
-					onChange={ updateMods( 'footer_copyright' ) }
-				/>
-			</Grid>
-			<Grid>
 				<div>
+					<TextControl
+						className="mt0"
+						label={ __( 'Copyright information', 'newspack' ) }
+						help={ __(
+							'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
+							'newspack'
+						) }
+						value={ mods.footer_copyright || '' }
+						onChange={ updateMods( 'footer_copyright' ) }
+					/>
 					<ToggleControl
 						className="mv0"
 						checked={ mods.footer_color !== 'default' }
@@ -179,6 +216,18 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, buttonText } ) =
 						/>
 					) }
 				</div>
+				<ImageUpload
+					label={ __( 'Alternative Logo', 'newspack' ) }
+					info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
+					style={ {
+						height: '96px',
+						...( mods.footer_color === 'custom' && mods.footer_color_hex
+							? { backgroundColor: mods.footer_color_hex }
+							: {} ),
+					} }
+					image={ mods.newspack_footer_logo }
+					onChange={ updateMods( 'newspack_footer_logo' ) }
+				/>
 			</Grid>
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( {
