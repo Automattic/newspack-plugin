@@ -384,7 +384,7 @@ class Setup_Wizard extends Wizard {
 	 * @return boolean Whether admin bar should be shown.
 	 */
 	public static function show_admin_bar( $show ) {
-		if ( $show && isset( $_GET['newspack_design_preview'] ) ) {
+		if ( $show && isset( $_GET['newspack_design_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 		return $show;
