@@ -26,9 +26,6 @@ class ThemeSettings extends Component {
 	render() {
 		const { themeMods, setThemeMods } = this.props;
 		const {
-			header_solid_background: headerSolidBackground = false,
-			header_simplified: headerSimplified = false,
-			header_center_logo: headerCenterLogo = false,
 			show_author_bio: authorBio = true,
 			show_author_email: authorEmail = false,
 			author_bio_length: authorBioLength = 200,
@@ -36,29 +33,6 @@ class ThemeSettings extends Component {
 		} = themeMods;
 		return (
 			<Fragment>
-				<h2>{ __( 'Header', 'newspack' ) }</h2>
-				<ToggleControl
-					isDark
-					label={ __( 'Solid background', 'newspack' ) }
-					help={ __( 'Use the primary color as the header background.', 'newspack' ) }
-					checked={ headerSolidBackground }
-					onChange={ value => setThemeMods( { header_solid_background: value } ) }
-				/>
-				<ToggleControl
-					isDark
-					label={ __( 'Center logo', 'newspack' ) }
-					help={ __( 'Center the logo in the header.', 'newspack' ) }
-					checked={ headerCenterLogo }
-					onChange={ value => setThemeMods( { header_center_logo: value } ) }
-				/>
-				<ToggleControl
-					isDark
-					label={ __( 'Short header', 'newspack' ) }
-					help={ __( 'Display the header as a shorter, simpler version', 'newspack' ) }
-					checked={ headerSimplified }
-					onChange={ value => setThemeMods( { header_simplified: value } ) }
-				/>
-				<hr />
 				<h2>{ __( 'Author bio', 'newspack' ) }</h2>
 				<ToggleGroup
 					title={ __( 'Author bio', 'newspack' ) }
