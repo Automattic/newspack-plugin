@@ -113,10 +113,24 @@ const SegmentGroup = props => {
 								isQuaternary
 								isSmall
 								onClick={ () => {
-									cookies.remove( 'newspack-cid' );
-									cookies.set( 'newspack-cid', `preview-${ Date.now() }`, {
-										domain: window.location.host.replace( /[^\.]+\./, '.' ),
-									} );
+									if ( newspack_aux_data.popups_cookie_name ) {
+										// Remove cookies for all possible domains.
+										window.location.host
+											.split( '.' )
+											.reduce( ( acc, _, i, arr ) => {
+												acc.push( arr.slice( -( i + 1 ) ).join( '.' ) );
+												return acc;
+											}, [] )
+											.map( domain =>
+												cookies.remove( newspack_aux_data.popups_cookie_name, {
+													domain: `.${ domain }`,
+												} )
+											);
+
+										cookies.set( newspack_aux_data.popups_cookie_name, `preview-${ Date.now() }`, {
+											domain: '.' + window.location.host,
+										} );
+									}
 
 									showPreview();
 								} }
