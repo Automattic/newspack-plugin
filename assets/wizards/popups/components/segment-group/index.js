@@ -2,6 +2,8 @@
  * Segment group component.
  */
 
+import cookies from 'js-cookie';
+
 /**
  * WordPress dependencies.
  */
@@ -48,6 +50,23 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 		params.push( `segment=${ segmentId }` );
 	}
 	return base + params.join( '&' );
+};
+
+const removeCIDCookie = () => {
+	if ( newspack_aux_data.popups_cookie_name ) {
+		// Remove cookies for all possible domains.
+		window.location.host
+			.split( '.' )
+			.reduce( ( acc, _, i, arr ) => {
+				acc.push( arr.slice( -( i + 1 ) ).join( '.' ) );
+				return acc;
+			}, [] )
+			.map( domain =>
+				cookies.remove( newspack_aux_data.popups_cookie_name, {
+					domain: `.${ domain }`,
+				} )
+			);
+	}
 };
 
 const SegmentGroup = props => {
@@ -108,11 +127,21 @@ const SegmentGroup = props => {
 						campaign={ campaignId ? campaignToPreview : false }
 						segment={ id }
 						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
+						onClose={ removeCIDCookie }
 						renderButton={ ( { showPreview } ) => (
 							<Button
 								isQuaternary
 								isSmall
-								onClick={ () => showPreview() }
+								onClick={ () => {
+									removeCIDCookie();
+									if ( newspack_aux_data.popups_cookie_name ) {
+										cookies.set( newspack_aux_data.popups_cookie_name, `preview-${ Date.now() }`, {
+											domain: '.' + window.location.host,
+										} );
+									}
+
+									showPreview();
+								} }
 								icon={ iconPreview }
 								label={ __( 'Preview Segment', 'newspack' ) }
 								tooltipPosition="bottom center"
