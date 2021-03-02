@@ -1,3 +1,19 @@
+# [1.33.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.32.0...v1.33.0-alpha.1) (2021-03-02)
+
+
+### Features
+
+* allow disabling NTG events reporting ([1f8a1ea](https://github.com/Automattic/newspack-plugin/commit/1f8a1eaf755d8e0e8a6211516d8535690f640c4a))
+* non-cascading segment logic; multiple segments per prompt ([#853](https://github.com/Automattic/newspack-plugin/issues/853), [#874](https://github.com/Automattic/newspack-plugin/issues/874)) ([8ed836a](https://github.com/Automattic/newspack-plugin/commit/8ed836ad0c41a51694ffa0266b1614c193881812))
+* remove all cookies prior to setting preview cookie ([57748ee](https://github.com/Automattic/newspack-plugin/commit/57748ee1706fdd71316a835576e753da41a0b51f))
+* remove cookie on preview close ([6082910](https://github.com/Automattic/newspack-plugin/commit/6082910153a4f31d5d014b7b11ea25c5cdc982f9))
+* replace CID cookie on preview triggering ([c1d1561](https://github.com/Automattic/newspack-plugin/commit/c1d1561ed842618e860c96cce12b5e5256c1b49b))
+* replace CID cookie on preview triggering ([#891](https://github.com/Automattic/newspack-plugin/issues/891)) ([3dc451b](https://github.com/Automattic/newspack-plugin/commit/3dc451bb75348777a0ffe79f2229fa1706319d1d))
+* update footer to support simple style ([#885](https://github.com/Automattic/newspack-plugin/issues/885)) ([0b2c3f2](https://github.com/Automattic/newspack-plugin/commit/0b2c3f2705224c81bff3f489dfda31db72480eb2))
+* use timestamp as a unique CID suffix ([b70abe6](https://github.com/Automattic/newspack-plugin/commit/b70abe6d3a0657ca955d616545f76845ae925974))
+* **onboarding:** Services step; Newsletters wizard ([#870](https://github.com/Automattic/newspack-plugin/issues/870)) ([b82bd0a](https://github.com/Automattic/newspack-plugin/commit/b82bd0a52d44c1afaf0808ba200bcdd28cda763b))
+* **web-preview:** update design ([#890](https://github.com/Automattic/newspack-plugin/issues/890)) ([eceaf28](https://github.com/Automattic/newspack-plugin/commit/eceaf282442326cfacde59b9ac6e8de440e7e805))
+
 # [1.32.0](https://github.com/Automattic/newspack-plugin/compare/v1.31.0...v1.32.0) (2021-02-25)
 
 
