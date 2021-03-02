@@ -84,7 +84,7 @@ export const getFontsList = headingsOnly =>
 		},
 		{
 			label: __( 'Display', 'newspack' ),
-			options: [ { label: 'Abril Fatface (*)' }, { label: 'Betas Neue (*)' } ],
+			options: [ { label: 'Abril Fatface (*)' }, { label: 'Bebas Neue (*)' } ],
 		},
 		{
 			label: __( 'Monospace', 'newspack' ),
