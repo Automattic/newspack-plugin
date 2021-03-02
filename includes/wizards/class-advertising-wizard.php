@@ -435,7 +435,7 @@ class Advertising_Wizard extends Wizard {
 		foreach ( $this->services as $service => $data ) {
 			$services[ $service ] = array(
 				'label'        => $data['label'],
-				'enabled'      => get_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, '' ),
+				'enabled'      => $configuration_manager->is_service_enabled( $service ),
 				'network_code' => $configuration_manager->get_network_code( $service ),
 			);
 		}

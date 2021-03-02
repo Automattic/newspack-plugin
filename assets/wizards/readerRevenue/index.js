@@ -86,7 +86,7 @@ class ReaderRevenueWizard extends Component {
 		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-reader-revenue-wizard/' + screen,
 			method: 'POST',
-			data: this.prepareData( screen, data ),
+			data,
 		} )
 			.then( _data => {
 				return new Promise( resolve => {
@@ -120,16 +120,6 @@ class ReaderRevenueWizard extends Component {
 		platformData: data.platform_data,
 		pluginStatus: data.plugin_status,
 	} );
-
-	/**
-	 * Prepare data for API update.
-	 */
-	prepareData = ( screen, data ) => {
-		if ( 'donations' === screen ) {
-			data.imageID = data.image ? data.image.id : 0;
-		}
-		return data;
-	};
 
 	/**
 	 * Button handler for Salesforce wizard.

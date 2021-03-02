@@ -22,9 +22,10 @@ class Grid extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, columns, gutter, rowGap, ...otherProps } = this.props;
+		const { className, columns, gutter, noMargin, rowGap, ...otherProps } = this.props;
 		const classes = classnames(
 			'newspack-grid',
+			noMargin && 'newspack-grid--no-margin',
 			columns && 'newspack-grid__columns-' + columns,
 			gutter && 'newspack-grid__gutter-' + gutter,
 			rowGap && 'newspack-grid__row-gap-' + rowGap,

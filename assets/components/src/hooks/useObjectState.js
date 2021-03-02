@@ -8,24 +8,16 @@ import { merge } from 'lodash';
 /**
  * A useState for an object.
  */
-export default ( initial, callback ) => {
-	const [ isAwaitingCallback, setIsAwaitingCallback ] = useState( false );
+export default initial => {
 	const [ stateObject, setStateObject ] = useState( initial );
 
-	const runUpdate = async ( update, { skipCallback } = {} ) => {
-		setStateObject( _stateObject => merge( {}, _stateObject, update ) );
-		if ( callback && ! skipCallback ) {
-			setIsAwaitingCallback( true );
-			await callback( update );
-			setIsAwaitingCallback( false );
-		}
-	};
+	const runUpdate = update => setStateObject( _stateObject => merge( {}, _stateObject, update ) );
 
-	const updateStateObject = ( keyOrUpdate, options ) => {
+	const updateStateObject = keyOrUpdate => {
 		if ( typeof keyOrUpdate === 'string' ) {
-			return value => runUpdate( { [ keyOrUpdate ]: value }, options );
+			return value => runUpdate( { [ keyOrUpdate ]: value } );
 		}
-		runUpdate( keyOrUpdate, options );
+		runUpdate( keyOrUpdate );
 	};
-	return [ stateObject, updateStateObject, isAwaitingCallback ];
+	return [ stateObject, updateStateObject ];
 };

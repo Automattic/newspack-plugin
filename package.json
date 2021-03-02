@@ -126,6 +126,7 @@
     "dompurify": "^2.2.4",
     "happychat-client": "^0.1.0",
     "human-number": "^1.0.5",
+    "js-cookie": "^2.2.1",
     "marked": "^1.2.7",
     "qs": "^6.9.3",
     "react": "^16.12.0",

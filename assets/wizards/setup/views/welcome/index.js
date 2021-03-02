@@ -33,6 +33,7 @@ const REQUIRED_SOFTWARE_SLUGS = [
 	'woocommerce',
 	'google-site-kit',
 	'newspack-blocks',
+	'newspack-newsletters',
 	'newspack-theme',
 ];
 

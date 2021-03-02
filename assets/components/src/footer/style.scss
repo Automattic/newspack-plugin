@@ -21,6 +21,7 @@
 	&__inner {
 		border: 0 solid $light-gray-200;
 		border-width: 1px 0;
+		margin-top: 16px;
 	}
 
 	ul {
@@ -54,7 +55,7 @@
 	.patrons-logo {
 		display: block;
 		fill: currentColor;
-		margin: 0 auto 16px;
+		margin: 0 auto;
 		max-height: 24px;
 		max-width: calc( 100% - 64px );
 		width: auto;
