@@ -24,11 +24,11 @@ class CheckboxControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, tooltip, ...otherProps } = this.props;
+		const { className, checked, tooltip, ...otherProps } = this.props;
 		const classes = classnames( 'newspack-checkbox-control', className );
 		return (
 			<div className={ classes }>
-				<BaseComponent { ...otherProps } />
+				<BaseComponent checked={ Boolean( checked ) } { ...otherProps } />
 				{ tooltip && <InfoButton text={ tooltip } /> }
 			</div>
 		);
