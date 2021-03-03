@@ -68,7 +68,7 @@ const Main = ( {
 				title={ __( 'Colors', 'newspack' ) }
 				description={ __( 'Define your primary and secondary colors', 'newspack' ) }
 			/>
-			<Grid>
+			<Grid gutter={ 32 }>
 				<ColorPicker
 					label={ __( 'Primary' ) }
 					color={ mods.primary_color_hex }
@@ -84,7 +84,7 @@ const Main = ( {
 				title={ __( 'Typography', 'newspack' ) }
 				description={ __( 'Pick the font pairing to use throughout your site', 'newspack' ) }
 			/>
-			<Grid>
+			<Grid gutter={ 32 }>
 				<SelectControl
 					label={ __( 'Headings', 'newspack' ) }
 					optgroups={ getFontsList( true ) }
@@ -117,7 +117,7 @@ const Main = ( {
 				title={ __( 'Header', 'newspack' ) }
 				description={ __( 'Customize the header and add your logo', 'newspack' ) }
 			/>
-			<Grid>
+			<Grid gutter={ 32 }>
 				<div>
 					<div className="flex items-baseline">
 						<SelectControl
@@ -208,7 +208,7 @@ const Main = ( {
 				title={ __( 'Footer', 'newspack' ) }
 				description={ __( 'Personalize the footer of your site', 'newspack' ) }
 			/>
-			<Grid>
+			<Grid gutter={ 32 }>
 				<div>
 					<TextControl
 						className="mt0"
