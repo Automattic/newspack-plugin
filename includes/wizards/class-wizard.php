@@ -167,6 +167,10 @@ abstract class Wizard {
 			'site_title'    => get_option( 'blogname' ),
 		];
 
+		if ( class_exists( 'Newspack_Popups_Segmentation' ) ) {
+			$aux_data['popups_cookie_name'] = \Newspack_Popups_Segmentation::NEWSPACK_SEGMENTATION_CID_NAME;
+		}
+
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
 		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );
 		wp_enqueue_script( 'newspack_data' );
