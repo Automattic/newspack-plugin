@@ -9,12 +9,19 @@ import { omit, times } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { Icon, warning, check } from '@wordpress/icons';
+import { Icon, check, info } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { NewspackLogo, Button, ProgressBar, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	Card,
+	NewspackLogo,
+	ProgressBar,
+	withWizardScreen,
+} from '../../../../components/src';
 
 const POST_COUNT = newspack_aux_data.is_e2e ? 12 : 40;
 
@@ -26,14 +33,15 @@ const REQUIRED_SOFTWARE_SLUGS = [
 	'woocommerce',
 	'google-site-kit',
 	'newspack-blocks',
+	'newspack-newsletters',
 	'newspack-theme',
 ];
 
 const TOTAL = POST_COUNT + 4 + REQUIRED_SOFTWARE_SLUGS.length;
 
 const ERROR_TYPES = {
-	plugin_configuration: { message: __( 'Installation' ) },
-	starter_content: { message: __( 'Starter content' ) },
+	plugin_configuration: { message: __( 'Installation', 'newspack' ) },
+	starter_content: { message: __( 'Demo content', 'newspack' ) },
 };
 
 const starterContentFetch = endpoint =>
@@ -136,82 +144,83 @@ const Welcome = ( { buttonAction } ) => {
 
 	const getHeadingText = () => {
 		if ( hasErrors ) {
-			return __( 'Installation error' );
+			return __( 'Installation error', 'newspack' );
 		}
 		if ( isInit ) {
-			return __( 'Welcome to WordPress for your Newsroom!' );
+			return __( 'Welcome to WordPress for your Newsroom!', 'newspack' );
 		}
 		if ( isDone ) {
-			return __( 'Installation complete!' );
+			return __( 'Installation complete', 'newspack' );
 		}
-		return __( 'Installing…' );
+		return __( 'Installing…', 'newspack' );
 	};
 
 	const getInfoText = () => {
 		if ( hasErrors ) {
 			return __(
-				'There has been an error during the installation. Please retry or manually install required plugins to continue with the configuration of your Newspack site.'
+				'There has been an error during the installation. Please retry or manually install required plugins to continue with the configuration of your Newspack site.',
+				'newspack'
 			);
 		}
 		if ( isInit ) {
 			return __(
-				'We’ll help you get set up by installing the most relevant Newspack plugins in the background.'
+				'We will help you get set up by installing the most relevant plugins first before requiring a few details from you in order to build your Newspack site.',
+				'newspack'
 			);
 		}
 		if ( isDone ) {
-			return __( 'Click the button below to proceed.' );
+			return __( 'Click the button below to start configuring your Newspack site.', 'newspack' );
 		}
 		return __(
-			'We are now installing core plugins and pre-populating your site with categories and placeholder stories to help you pre-configure it. All placeholder content can be deleted later.'
+			'We are now installing core plugins and pre-populating your site with categories and placeholder stories to help you pre-configure it. All placeholder content can be deleted later.',
+			'newspack'
 		);
 	};
 
 	const getHeadingIcon = () => {
 		if ( hasErrors ) {
-			return <Icon className="mr1 newspack--error" icon={ warning } />;
+			return <Icon className="newspack--error" icon={ info } />;
 		}
 		if ( isDone ) {
-			return <Icon className="mr1 newspack--success" icon={ check } />;
+			return <Icon className="newspack--success" icon={ check } />;
 		}
 	};
 
 	const renderErrorBox = ( error, i ) => (
-		<div key={ i } className="ph3 pv2 mb3 ba br1 b--moon-gray">
-			<b>
-				{ error.info.message }: { error.item }
-			</b>
-		</div>
+		<ActionCard isSmall key={ i } title={ error.info.message + ': ' + error.item } />
 	);
 
 	return (
 		<>
-			<div className="newspack-logo__wrapper welcome">
-				<NewspackLogo centered />
+			<div className="newspack-logo__wrapper">
+				<NewspackLogo centered height={ 72 } />
 			</div>
-			<div className="newspack-setup-wizard__welcome">
-				<h2 className="flex">
+			<Card
+				isMedium
+				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
+			>
+				<h1>
 					{ getHeadingIcon() }
 					{ getHeadingText() }
-				</h2>
+				</h1>
 				{ errors.length === 0 && installationProgress > 0 ? (
 					<ProgressBar completed={ installationProgress } total={ TOTAL } />
 				) : null }
 				<p>{ getInfoText() }</p>
 				{ errors.length ? errors.map( renderErrorBox ) : null }
 				{ ( isInit || isDone ) && (
-					<div className="cf">
+					<div className="newspack-buttons-card">
 						<Button
 							disabled={ REQUIRED_SOFTWARE_SLUGS.length !== softwareInfo.length }
 							isPrimary
-							className="fr mt3"
 							onClick={ isInit ? install : null }
 							href={ isDone ? buttonAction.href : null }
 						>
-							{ isInit ? __( 'Start the Installation' ) : __( 'Continue' ) }
+							{ isInit ? __( 'Start the Installation', 'newspack' ) : __( 'Continue', 'newspack' ) }
 						</Button>
 					</div>
 				) }
-			</div>
+			</Card>
 		</>
 	);
 };

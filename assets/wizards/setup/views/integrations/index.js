@@ -4,17 +4,26 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * External dependencies.
  */
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Button, Handoff, hooks } from '../../../../components/src';
+import {
+	withWizardScreen,
+	Button,
+	Card,
+	Grid,
+	Handoff,
+	SectionHeader,
+	hooks,
+} from '../../../../components/src';
+import { fetchJetpackMailchimpStatus } from '../../../../utils';
 import * as logos from './logos';
 import './style.scss';
 
@@ -26,8 +35,8 @@ const INTEGRATIONS = {
 		description: __( 'The ideal plugin for protection, security, and more', 'newspack' ),
 		buttonText: __( 'Connect Jetpack', 'newspack' ),
 		logo: logos.Jetpack,
-		statusFetchHandler: fetchFn =>
-			fetchFn( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
+		fetchStatus: () =>
+			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
 				jetpack: { status: result.Configured ? result.Status : 'inactive' },
 			} ) ),
 	},
@@ -41,8 +50,8 @@ const INTEGRATIONS = {
 		),
 		buttonText: __( 'Connect Google Site Kit', 'newspack' ),
 		logo: logos.SiteKit,
-		statusFetchHandler: fetchFn =>
-			fetchFn( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
+		fetchStatus: () =>
+			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
 				'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
 			} ) ),
 	},
@@ -51,26 +60,10 @@ const INTEGRATIONS = {
 		description: __( 'Allows users to sign up to your mailing list', 'newspack' ),
 		buttonText: __( 'Connect Mailchimp', 'newspack' ),
 		logo: logos.Mailchimp,
-		statusFetchHandler: async fetchFn => {
-			const jetpackStatus = await fetchFn( { path: `/newspack/v1/plugins/jetpack` } );
-			if ( ! jetpackStatus.Configured ) {
-				return Promise.resolve( {
-					mailchimp: { status: 'inactive', error: { code: 'unavailable_site_id' } },
-				} );
-			}
-			return new Promise( resolve => {
-				fetchFn( { path: '/wpcom/v2/mailchimp' } )
-					.then( result =>
-						resolve( {
-							mailchimp: {
-								url: result.connect_url,
-								status: result.code === 'connected' ? 'active' : 'inactive',
-							},
-						} )
-					)
-					.catch( error => resolve( { mailchimp: { status: 'inactive', error } } ) );
-			} );
-		},
+		fetchStatus: () =>
+			fetchJetpackMailchimpStatus()
+				.then( mailchimp => ( { mailchimp } ) )
+				.catch( mailchimp => ( { mailchimp } ) ),
 		isOptional: true,
 	},
 };
@@ -102,7 +95,7 @@ const Integrations = ( { setError, updateRoute } ) => {
 	const integrationsArray = Object.values( integrations );
 	useEffect( () => {
 		integrationsArray.forEach( async integration => {
-			const update = await integration.statusFetchHandler( apiFetch ).catch( setError );
+			const update = await integration.fetchStatus().catch( setError );
 			setIntegrations( update );
 		} );
 	}, [] );
@@ -116,41 +109,34 @@ const Integrations = ( { setError, updateRoute } ) => {
 	}, [ canProceed ] );
 
 	return (
-		<div className="mt4">
+		<Card noBorder>
 			{ integrationsArray.map( integration => {
 				const isInactive = integration.status === 'inactive';
 				const isLoading = ! integration.status;
 				return (
-					<div
+					<Grid
 						key={ integration.name }
-						className={ classnames( 'cf mb5 newspack__integration__card', {
-							'o-50': isLoading,
-						} ) }
+						className={ classnames( 'newspack-integration', isLoading && 'o-50' ) }
+						columns={ 3 }
+						gutter={ 16 }
 					>
-						<div className="flex fl w-100 w-70-l pr3-l">
-							{ isInactive || isLoading ? (
-								<div
-									className="b--moon-gray ba br-100 pa2"
-									style={ { width: '24px', height: '24px' } }
-								/>
-							) : (
-								<CheckCircleIcon className="newspack__integration__card__status" />
+						<div
+							className={ classnames(
+								'newspack-integration__status',
+								isInactive || isLoading ? 'to-do' : 'done'
 							) }
-							<div className="pl2">
-								<h2>{ integration.name }</h2>
-								<div>
-									<div>{ integration.description }</div>
-									{ isInactive ? intergationConnectButton( integration ) : null }
-								</div>
-							</div>
+						>
+							{ ! isInactive && ! isLoading && <Icon icon={ check } /> }
 						</div>
-						<div className="fl w-100 w-30-l mt3 mt0-l pa4 pa4-l ba br2 b--moon-gray newspack__integration__card__logo">
-							{ integration.logo() }
-						</div>
-					</div>
+						<Card noBorder className="newspack-integration__description">
+							<SectionHeader title={ integration.name } description={ integration.description } />
+							{ isInactive ? intergationConnectButton( integration ) : null }
+						</Card>
+						<div className="newspack-integration__logo">{ integration.logo() }</div>
+					</Grid>
 				);
 			} ) }
-		</div>
+		</Card>
 	);
 };
 

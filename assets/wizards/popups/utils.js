@@ -196,6 +196,12 @@ export const isSameType = ( campaignA, campaignB ) => {
 	);
 };
 
+const sharesSegments = ( segmentsA, segmentsB ) => {
+	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
+	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
+	return segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) );
+};
+
 export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
@@ -207,18 +213,20 @@ export const warningForPopup = ( prompts, prompt ) => {
 			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
 			const hasConflictingCategory =
 				( 0 === promptCategories.length && 0 === conflictCategories.length ) ||
-				promptCategories.some(
-					category =>
-						!! conflictCategories.find(
-							conflictCategory => category.term_id === conflictCategory.term_id
-						)
+				promptCategories.some( category =>
+					conflictCategories.some(
+						conflictCategory => category.term_id === conflictCategory.term_id
+					)
 				);
 
 			return (
 				'publish' === conflict.status &&
 				conflict.id !== prompt.id &&
 				isSameType( prompt, conflict ) &&
-				prompt.options.selected_segment_id === conflict.options.selected_segment_id &&
+				sharesSegments(
+					prompt.options.selected_segment_id,
+					conflict.options.selected_segment_id
+				) &&
 				hasConflictingCategory
 			);
 		} );

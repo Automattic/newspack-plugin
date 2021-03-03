@@ -33,7 +33,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		margin-bottom: -24px;
+		margin-bottom: -16px;
 
 		> * {
 			margin-bottom: 0 !important;
@@ -43,7 +43,7 @@
 
 	// Is Clickable
 
-	&__is-clickable {
+	&--is-clickable {
 		cursor: pointer;
 		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
 
@@ -71,7 +71,21 @@
 		}
 
 		& + & {
-			margin-top: -24px;
+			margin-top: -16px;
+		}
+	}
+
+	// Is Medium
+
+	&__is-medium {
+		padding: 32px;
+
+		> *:first-child {
+			margin-top: 0 !important;
+		}
+
+		> *:last-child {
+			margin-bottom: 0 !important;
 		}
 	}
 
