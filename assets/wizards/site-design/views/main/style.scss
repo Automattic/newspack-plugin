@@ -1,9 +1,25 @@
+@import '../../../../shared/scss/colors';
+
 .newspack-floating-button {
 	z-index: 1;
 	position: fixed;
-	bottom: 20px;
-	right: 20px;
-	button {
-		box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.08 ) !important;
+	bottom: 0;
+	right: 16px;
+
+	.newspack-button.is-secondary {
+		border-bottom: 0 !important;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+		box-shadow: 0 -4px 8px rgba( black, 0.08 ) !important;
+		padding-bottom: 12px;
+
+		&:active,
+		&:hover {
+			box-shadow: 0 -4px 8px rgba( black, 0.16 ) !important;
+		}
+
+		&:focus {
+			box-shadow: 0 -4px 8px rgba( black, 0.16 ), 0 0 0 1px white, 0 0 0 3px $primary-500 !important;
+		}
 	}
 }
