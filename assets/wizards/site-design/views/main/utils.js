@@ -84,7 +84,14 @@ export const getFontsList = headingsOnly =>
 		},
 		{
 			label: __( 'Display', 'newspack' ),
-			options: [ { label: 'Abril Fatface (*)' }, { label: 'Bebas Neue (*)' } ],
+			options: [
+				{ label: 'Abril Fatface (*)' },
+				{ label: 'Bangers (*)' },
+				{ label: 'Bebas Neue (*)' },
+				{ label: 'Concert One (*)' },
+				{ label: 'Fredoka One (*)' },
+				{ label: 'Unica One (*)' },
+			],
 		},
 		{
 			label: __( 'Monospace', 'newspack' ),
