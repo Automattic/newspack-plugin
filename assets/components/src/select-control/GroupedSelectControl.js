@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { find, some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -19,7 +20,6 @@ import { hooks } from '..';
 export default function GroupedSelectControl( {
 	help,
 	label,
-	multiple = false,
 	onChange,
 	optgroups = [],
 	className,
@@ -27,13 +27,9 @@ export default function GroupedSelectControl( {
 	...props
 } ) {
 	const onChangeValue = event => {
-		if ( multiple ) {
-			const selectedOptions = [ ...event.target.options ].filter( ( { selected } ) => selected );
-			const newValues = selectedOptions.map( ( { value } ) => value );
-			onChange( newValues );
-			return;
-		}
-		onChange( event.target.value );
+		const { value } = event.target;
+		const optgroup = find( optgroups, group => some( group.options, [ 'value', value ] ) );
+		onChange( value, optgroup );
 	};
 	const id = hooks.useUniqueId( 'group-select' );
 
@@ -50,7 +46,6 @@ export default function GroupedSelectControl( {
 				className="components-select-control__input"
 				onChange={ onChangeValue }
 				aria-describedby={ !! help ? `${ id }__help` : undefined }
-				multiple={ multiple }
 				{ ...props }
 			>
 				{ optgroups.map( ( { label: optgroupLabel, options }, optgroupIndex ) => (

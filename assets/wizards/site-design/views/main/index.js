@@ -89,10 +89,11 @@ const Main = ( {
 					label={ __( 'Headings', 'newspack' ) }
 					optgroups={ getFontsList( true ) }
 					value={ mods.font_header }
-					onChange={ value =>
+					onChange={ ( value, group ) =>
 						updateMods( {
 							font_header: value,
 							custom_font_import_code: getFontImportURL( value ),
+							font_header_stack: group?.fallback,
 						} )
 					}
 				/>
@@ -100,10 +101,11 @@ const Main = ( {
 					label={ __( 'Body', 'newspack' ) }
 					optgroups={ getFontsList() }
 					value={ mods.font_body }
-					onChange={ value =>
+					onChange={ ( value, group ) =>
 						updateMods( {
 							font_body: value,
 							custom_font_import_code_alternate: getFontImportURL( value ),
+							font_body_stack: group?.fallback,
 						} )
 					}
 				/>

@@ -21,6 +21,7 @@ export const getFontsList = headingsOnly =>
 	[
 		{
 			label: __( 'Serif', 'newspack' ),
+			fallback: 'serif',
 			options: [
 				{ label: 'Alegreya' },
 				{ label: 'Arvo' },
@@ -50,6 +51,7 @@ export const getFontsList = headingsOnly =>
 		},
 		{
 			label: __( 'Sans Serif', 'newspack' ),
+			fallback: 'sans_serif',
 			options: [
 				{ label: 'Alegreya Sans' },
 				{ label: 'Archivo' },
@@ -78,12 +80,12 @@ export const getFontsList = headingsOnly =>
 				{ label: 'Roboto Condensed (*)' },
 				{ label: 'Rubik' },
 				{ label: 'Source Sans Pro' },
-				{ label: 'System Font' },
 				{ label: 'Work Sans' },
 			],
 		},
 		{
 			label: __( 'Display', 'newspack' ),
+			fallback: 'display',
 			options: [
 				{ label: 'Abril Fatface (*)' },
 				{ label: 'Bangers (*)' },
@@ -95,6 +97,7 @@ export const getFontsList = headingsOnly =>
 		},
 		{
 			label: __( 'Monospace', 'newspack' ),
+			fallback: 'monospace',
 			options: [
 				{ label: 'Anonymous Pro' },
 				{ label: 'IBM Plex Mono' },
@@ -112,7 +115,10 @@ export const getFontsList = headingsOnly =>
 		.filter( group => group.options.length );
 
 export const getFontImportURL = value =>
-	`//fonts.googleapis.com/css?family=${ value.replace( /\s/g, '+' ) }`;
+	`//fonts.googleapis.com/css2?family=${ value.replace(
+		/\s/g,
+		'+'
+	) }:ital,wght@0,400;0,700;1,400;1,700&display=swap`;
 
 export const LOGO_SIZE_OPTIONS = [
 	{ value: 0, label: __( 'S', 'newspack' ) },
