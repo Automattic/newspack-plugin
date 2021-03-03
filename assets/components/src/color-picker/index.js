@@ -50,7 +50,7 @@ const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 					</div>
 					<Icon
 						icon={ chevronDown }
-						size={ 24 }
+						size={ 18 }
 						style={ isExpanded ? { transform: 'rotate(180deg)' } : {} }
 					/>
 				</InteractiveDiv>
