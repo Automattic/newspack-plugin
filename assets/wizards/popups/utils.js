@@ -39,7 +39,11 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 
 export const placementsForPopups = prompt => {
 	return Object.keys( placementMap )
-		.filter( key => ! ( 'always' === key && isOverlay( prompt ) ) )
+		.filter( key =>
+			isOverlay( prompt )
+				? 'inline' !== key && 'above_header' !== key
+				: 'inline' === key || 'above_header' === key
+		)
 		.map( key => ( { label: placementMap[ key ], value: key } ) );
 };
 

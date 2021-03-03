@@ -624,7 +624,7 @@ class Popups_Wizard extends Wizard {
 					}
 					break;
 				case 'placement':
-					if ( ! in_array( $value, [ 'center', 'top', 'bottom', 'inline' ] ) ) {
+					if ( ! in_array( $value, [ 'center', 'top', 'bottom', 'inline', 'above_header' ] ) ) {
 						return false;
 					}
 					break;
