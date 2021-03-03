@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Welcome, Settings, Integrations, Design } from './views/';
+import { Welcome, Settings, Services, Integrations, Design } from './views/';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
@@ -35,6 +35,12 @@ const ROUTES = [
 		subHeaderText: __( 'Configure core plugins', 'newspack' ),
 		render: Integrations,
 		canProceed: false,
+	},
+	{
+		path: '/services',
+		label: __( 'Services', 'newspack' ),
+		subHeaderText: __( 'Activate extra features' ),
+		render: Services,
 	},
 	{
 		path: '/design',
@@ -103,6 +109,6 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 };
 
 render(
-	createElement( withWizard( SetupWizard, [] ), { suppressFooter: true } ),
+	createElement( withWizard( SetupWizard, [] ), { simpleFooter: true } ),
 	document.getElementById( 'newspack-setup-wizard' )
 );

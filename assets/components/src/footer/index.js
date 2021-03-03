@@ -14,7 +14,7 @@ import { ExternalLink } from '@wordpress/components';
 import { PatronsLogo } from '../';
 import './style.scss';
 
-const Footer = () => {
+const Footer = ( { simple } ) => {
 	const componentsDemo = window && window.newspack_urls && window.newspack_urls.components_demo;
 	const setupWizard = window && window.newspack_urls && window.newspack_urls.setup_wizard;
 	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
@@ -71,19 +71,21 @@ const Footer = () => {
 	return (
 		<div className="newspack-footer">
 			<PatronsLogo />
-			<div className="newspack-footer__inner">
-				<ul>
-					{ footerElements.map( ( { url, label, external }, index ) => (
-						<li key={ index }>
-							{ external ? (
-								<ExternalLink href={ url }>{ label }</ExternalLink>
-							) : (
-								<a href={ url }>{ label }</a>
-							) }
-						</li>
-					) ) }
-				</ul>
-			</div>
+			{ ! simple && (
+				<div className="newspack-footer__inner">
+					<ul>
+						{ footerElements.map( ( { url, label, external }, index ) => (
+							<li key={ index }>
+								{ external ? (
+									<ExternalLink href={ url }>{ label }</ExternalLink>
+								) : (
+									<a href={ url }>{ label }</a>
+								) }
+							</li>
+						) ) }
+					</ul>
+				</div>
+			) }
 		</div>
 	);
 };

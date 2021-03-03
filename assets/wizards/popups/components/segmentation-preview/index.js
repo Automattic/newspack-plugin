@@ -32,7 +32,7 @@ const SegmentationPreview = props => {
 			view_as.push( 'show_unpublished:true' );
 		}
 
-		// If passed campaign ID, get only campaigns matching that campaign. Otherwise, get all campaigns.
+		// If passed campaign ID, get only prompts matching that campaign. Otherwise, get all prompts.
 		if ( campaign ) {
 			view_as.push( `campaign:${ campaign }` );
 		} else {

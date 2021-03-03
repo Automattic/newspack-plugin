@@ -25,10 +25,14 @@
 	&.newspack-plugin-installer__status-active,
 	&.newspack-plugin-installer__status-error,
 	&.newspack-plugin-installer__status-installing {
-		padding-left: 28px;
+		.newspack-action-card__region-top {
+			padding-left: 28px;
+		}
 
 		&.is-small {
-			padding-left: 20px;
+			.newspack-action-card__region-top {
+				padding-left: 20px;
+			}
 		}
 	}
 
