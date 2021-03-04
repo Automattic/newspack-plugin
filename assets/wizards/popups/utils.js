@@ -69,7 +69,6 @@ const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Until dismissed', 'newspack' ),
-	manual: __( 'Manual Placement', 'newspack' ),
 };
 
 export const frequenciesForPopup = popup => {
