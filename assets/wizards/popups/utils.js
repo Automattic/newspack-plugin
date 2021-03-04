@@ -26,6 +26,12 @@ export const isOverlay = popup => overlayPlacements.indexOf( popup.options.place
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
+export const isCustomPlacement = popup => {
+	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
+
+	return -1 < Object.keys( customPlacements ).indexOf( popup.options.placement );
+};
+
 /**
  * Check whether the given prompt is inline.
  *
@@ -218,10 +224,7 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 };
 
 export const isSameType = ( campaignA, campaignB ) => {
-	return (
-		( isAboveHeader( campaignA ) && isAboveHeader( campaignB ) ) ||
-		( isOverlay( campaignA ) && isOverlay( campaignB ) )
-	);
+	return campaignA.options.placement === campaignB.options.placement;
 };
 
 const sharesSegments = ( segmentsA, segmentsB ) => {
@@ -233,7 +236,10 @@ const sharesSegments = ( segmentsA, segmentsB ) => {
 export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
-	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) ) ) {
+	if (
+		'publish' === prompt.status &&
+		( isAboveHeader( prompt ) || isOverlay( prompt ) || isCustomPlacement( prompt ) )
+	) {
 		const promptCategories = prompt.categories;
 		const conflictingPrompts = prompts.filter( conflict => {
 			const conflictCategories = conflict.categories;
@@ -275,15 +281,25 @@ export const warningForPopup = ( prompts, prompt ) => {
 							<li key={ conflictingPrompt.id }>
 								<p>
 									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
-									{ sprintf(
-										__( '%s can’t share the same segment %s. ' ),
-										isAboveHeader( prompt )
-											? __( 'Above-header prompts', 'newspack' )
-											: __( 'Overlays', 'newspack' ),
-										0 < promptCategories.length
-											? __( 'and category filtering', 'newspack' )
-											: __( 'if uncategorized', 'newspack' )
-									) }
+									{ ( isOverlay( prompt ) || isAboveHeader( prompt ) ) &&
+										sprintf(
+											__( '%s can’t share the same segment %s. ' ),
+											isAboveHeader( prompt )
+												? __( 'Above-header prompts', 'newspack' )
+												: __( 'Overlays', 'newspack' ),
+											0 < promptCategories.length
+												? __( 'and category filtering', 'newspack' )
+												: __( 'if uncategorized', 'newspack' )
+										) }
+									{ isCustomPlacement( prompt ) &&
+										sprintf(
+											__(
+												'Prompts in the same custom placement can’t share the same segment  %s.'
+											),
+											0 < promptCategories.length
+												? __( 'and category filtering', 'newspack' )
+												: __( 'if uncategorized', 'newspack' )
+										) }
 								</p>
 							</li>
 						) ) }
