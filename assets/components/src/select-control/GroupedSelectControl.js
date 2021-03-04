@@ -1,13 +1,14 @@
 /**
+ * WordPress dependencies
+ */
+import { BaseControl } from '@wordpress/components';
+import { Icon, chevronDown } from '@wordpress/icons';
+
+/**
  * External dependencies
  */
 import classnames from 'classnames';
 import { find, some } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { BaseControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -62,6 +63,9 @@ export default function GroupedSelectControl( {
 					</optgroup>
 				) ) }
 			</select>
+			<div className="components-select-control__arrow-wrapper">
+				<Icon icon={ chevronDown } size={ 18 } />
+			</div>
 		</BaseControl>
 	);
 }

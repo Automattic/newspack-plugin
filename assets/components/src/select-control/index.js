@@ -26,7 +26,12 @@ class SelectControl extends Component {
 	 */
 	render() {
 		const { className, optgroups, buttonOptions, ...otherProps } = this.props;
-		const classes = classNames( 'newspack-select-control', className );
+		const classes = classNames(
+			'newspack-select-control',
+			optgroups && 'newspack-grouped-select-control',
+			buttonOptions && 'newspack-buttons-select-control',
+			className
+		);
 		return (
 			<div className={ classes }>
 				{ /* eslint-disable no-nested-ternary */ }
