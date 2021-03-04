@@ -187,9 +187,9 @@ const SegmentGroup = props => {
 											<Icon icon={ iconAboveHeader } height={ 48 } width={ 48 } />
 											{ __( 'Above Header', 'newspack' ) }
 										</Button>
-										<Button href={ addNewURL( 'manual', campaignId, id ) }>
+										<Button href={ addNewURL( 'custom', campaignId, id ) }>
 											<Icon icon={ iconManualPlacement } height={ 48 } width={ 48 } />
-											{ __( 'Manual Placement', 'newspack' ) }
+											{ __( 'Custom Placement', 'newspack' ) }
 										</Button>
 									</Card>
 								</Modal>
