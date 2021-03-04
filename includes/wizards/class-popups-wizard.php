@@ -441,15 +441,15 @@ class Popups_Wizard extends Wizard {
 		}
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$placements                            = $newspack_popups_configuration_manager->get_placements();
+		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
 
 		\wp_localize_script(
 			'newspack-popups-wizard',
 			'newspack_popups_wizard_data',
 			[
-				'preview_post' => $preview_post,
-				'frontend_url' => get_site_url(),
-				'placements'   => $placements,
+				'preview_post'      => $preview_post,
+				'frontend_url'      => get_site_url(),
+				'custom_placements' => $custom_placements,
 			]
 		);
 
@@ -630,8 +630,8 @@ class Popups_Wizard extends Wizard {
 					}
 					break;
 				case 'placement':
-					$placements = $cm->get_placements();
-					if ( ! in_array( $value, array_merge( [ 'center', 'top', 'bottom', 'inline', 'above_header' ], array_keys( $placements ) ) ) ) {
+					$custom_placement_values = $cm->get_custom_placement_values();
+					if ( ! in_array( $value, array_merge( [ 'center', 'top', 'bottom', 'inline', 'above_header' ], $custom_placement_values ) ) ) {
 						return false;
 					}
 					break;

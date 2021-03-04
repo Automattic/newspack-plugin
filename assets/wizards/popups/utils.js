@@ -43,7 +43,7 @@ const placementMap = {
 };
 
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
-	const customPlacements = window.newspack_popups_wizard_data?.placements || {};
+	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
 	if ( 'manual' === frequency || customPlacements.hasOwnProperty( placement ) ) {
 		return __( 'Custom Placement', 'newspack' );
 	}
@@ -51,7 +51,7 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 };
 
 export const placementsForPopups = prompt => {
-	const customPlacements = window.newspack_popups_wizard_data?.placements;
+	const customPlacements = window.newspack_popups_wizard_data?.custom_placements;
 	const options = Object.keys( placementMap )
 		.filter( key =>
 			isOverlay( prompt )
