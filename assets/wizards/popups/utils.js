@@ -22,6 +22,14 @@ export const isOverlay = popup =>
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
+/**
+ * Check whether the given prompt is inline.
+ *
+ * @param {Object} prompt Prompt object to check.
+ * @return {boolean} True if the prompt is inline, otherwise false.
+ */
+export const isInline = prompt => ! isOverlay( prompt );
+
 const placementMap = {
 	center: __( 'Center Overlay', 'newspack' ),
 	top: __( 'Top Overlay', 'newspack' ),
@@ -31,20 +39,30 @@ const placementMap = {
 };
 
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
-	if ( 'manual' === frequency ) {
-		return __( 'Manual Placement', 'newspack' );
+	const customPlacements = window.newspack_popups_wizard_data?.placements || {};
+	if ( 'manual' === frequency || customPlacements.hasOwnProperty( placement ) ) {
+		return __( 'Custom Placement', 'newspack' );
 	}
 	return placementMap[ placement ];
 };
 
 export const placementsForPopups = prompt => {
-	return Object.keys( placementMap )
-		.filter( key =>
-			isOverlay( prompt )
-				? 'inline' !== key && 'above_header' !== key
-				: 'inline' === key || 'above_header' === key
-		)
-		.map( key => ( { label: placementMap[ key ], value: key } ) );
+	const customPlacements = window.newspack_popups_wizard_data?.placements;
+	const options = Object.keys( placementMap ).map( key => ( {
+		label: placementMap[ key ],
+		value: key,
+	} ) );
+
+	if ( customPlacements ) {
+		return options.concat(
+			Object.keys( customPlacements ).map( key => ( {
+				label: customPlacements[ key ],
+				value: key,
+			} ) )
+		);
+	}
+
+	return options;
 };
 
 const frequencyMap = {

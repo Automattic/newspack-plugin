@@ -90,6 +90,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get custom placements.
+	 */
+	public function get_placements() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Placements::get_placements() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Set plugin settings.
 	 *
 	 * @param object $options options.
