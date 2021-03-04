@@ -6,13 +6,17 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
+ * Array of overlay placements.
+ */
+const overlayPlacements = [ 'top', 'bottom', 'center' ];
+
+/**
  * Check whether the given popup is an overlay.
  *
  * @param {Object} popup Popup object to check.
  * @return {boolean} True if the popup is an overlay, otherwise false.
  */
-export const isOverlay = popup =>
-	[ 'top', 'bottom', 'center' ].indexOf( popup.options.placement ) >= 0;
+export const isOverlay = popup => overlayPlacements.indexOf( popup.options.placement ) >= 0;
 
 /**
  * Check whether the given popup is above-header.
@@ -48,12 +52,15 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 
 export const placementsForPopups = prompt => {
 	const customPlacements = window.newspack_popups_wizard_data?.placements;
-	const options = Object.keys( placementMap ).map( key => ( {
-		label: placementMap[ key ],
-		value: key,
-	} ) );
+	const options = Object.keys( placementMap )
+		.filter( key =>
+			isOverlay( prompt )
+				? -1 < overlayPlacements.indexOf( key )
+				: -1 === overlayPlacements.indexOf( key )
+		)
+		.map( key => ( { label: placementMap[ key ], value: key } ) );
 
-	if ( customPlacements ) {
+	if ( ! isOverlay( prompt ) && customPlacements ) {
 		return options.concat(
 			Object.keys( customPlacements ).map( key => ( {
 				label: customPlacements[ key ],
