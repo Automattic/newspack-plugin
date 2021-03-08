@@ -169,9 +169,8 @@ const Main = ( {
 				</Card>
 				<Card noBorder>
 					<ImageUpload
-						className="mt0"
+						className="newspack-design__header__logo"
 						style={ {
-							height: '96px',
 							...( mods.header_solid_background
 								? {
 										backgroundColor:
@@ -211,6 +210,7 @@ const Main = ( {
 			<SectionHeader
 				title={ __( 'Footer', 'newspack' ) }
 				description={ __( 'Personalize the footer of your site', 'newspack' ) }
+				className="newspack-design__footer"
 			/>
 			<Grid gutter={ 32 }>
 				<div>
@@ -240,10 +240,10 @@ const Main = ( {
 					) }
 				</div>
 				<ImageUpload
+					className="newspack-design__footer__logo"
 					label={ __( 'Alternative Logo', 'newspack' ) }
 					info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
 					style={ {
-						height: '96px',
 						...( mods.footer_color === 'custom' && mods.footer_color_hex
 							? { backgroundColor: mods.footer_color_hex }
 							: {} ),
