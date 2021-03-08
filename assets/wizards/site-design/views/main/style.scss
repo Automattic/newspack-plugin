@@ -23,3 +23,11 @@
 		}
 	}
 }
+
+.newspack-design {
+	&__header {
+		&__style-size {
+			grid-template-columns: repeat( 2, min-content );
+		}
+	}
+}

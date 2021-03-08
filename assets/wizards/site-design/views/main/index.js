@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	withWizardScreen,
+	Card,
 	ColorPicker,
 	TextControl,
 	SelectControl,
@@ -118,12 +119,13 @@ const Main = ( {
 			<SectionHeader
 				title={ __( 'Header', 'newspack' ) }
 				description={ __( 'Customize the header and add your logo', 'newspack' ) }
+				className="newspack-design__header"
 			/>
 			<Grid gutter={ 32 }>
-				<div>
-					<div className="flex items-baseline">
+				<Card noBorder>
+					<Grid gutter={ 16 } className="newspack-design__header__style-size">
 						<SelectControl
-							className="mv0 mr3 dib"
+							className="icon-only"
 							label={ __( 'Style', 'newspack' ) }
 							value={ mods.header_center_logo ? 'center' : 'left' }
 							onChange={ value => updateMods( 'header_center_logo' )( value === 'center' ) }
@@ -133,14 +135,14 @@ const Main = ( {
 							] }
 						/>
 						<SelectControl
-							className="mv0 dib"
+							className="icon-only"
 							label={ __( 'Size', 'newspack' ) }
 							value={ mods.header_simplified ? 'small' : 'large' }
 							onChange={ value => updateMods( 'header_simplified' )( value === 'small' ) }
 							buttonOptions={ [ { value: 'small', label: 'S' }, { value: 'large', label: 'L' } ] }
 						/>
-					</div>
-					<div style={ { marginTop: '-32px' } }>
+					</Grid>
+					<Card noBorder>
 						<ToggleControl
 							checked={ mods.header_solid_background }
 							onChange={ updateMods( 'header_solid_background' ) }
@@ -163,9 +165,9 @@ const Main = ( {
 								onChange={ updateMods( 'header_color_hex' ) }
 							/>
 						) }
-					</div>
-				</div>
-				<div>
+					</Card>
+				</Card>
+				<Card noBorder>
 					<ImageUpload
 						className="mt0"
 						style={ {
@@ -204,7 +206,7 @@ const Main = ( {
 							/>
 						</>
 					) }
-				</div>
+				</Card>
 			</Grid>
 			<SectionHeader
 				title={ __( 'Footer', 'newspack' ) }

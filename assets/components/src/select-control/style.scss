@@ -117,3 +117,23 @@
 		}
 	}
 }
+
+// Buttons
+
+.newspack-buttons-select-control {
+	&.icon-only {
+		.newspack-button-group {
+			display: flex;
+		}
+
+		.newspack-button {
+			align-items: center;
+			display: flex;
+			font-size: 17px;
+			height: 48px;
+			justify-content: center;
+			padding: 0 !important;
+			width: 48px;
+		}
+	}
+}
