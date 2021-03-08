@@ -17,6 +17,7 @@ import {
 	ToggleControl,
 	SectionHeader,
 	ImageUpload,
+	InfoButton,
 	hooks,
 	Button,
 	Grid,
@@ -152,9 +153,7 @@ const Main = ( {
 					{ mods.header_solid_background && (
 						<ToggleControl
 							checked={ mods.header_color !== 'default' }
-							onChange={ checked =>
-								updateMods( 'header_color' )( checked ? 'custom' : 'default' )
-							}
+							onChange={ checked => updateMods( 'header_color' )( checked ? 'custom' : 'default' ) }
 							label={ __( 'Apply a custom background color to the header', 'newspack' ) }
 						/>
 					) }
@@ -213,15 +212,23 @@ const Main = ( {
 			/>
 			<Grid gutter={ 32 }>
 				<Grid columns={ 1 } gutter={ 16 }>
-					<TextControl
-						label={ __( 'Copyright information', 'newspack' ) }
-						help={ __(
-							'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
-							'newspack'
-						) }
-						value={ mods.footer_copyright || '' }
-						onChange={ updateMods( 'footer_copyright' ) }
-					/>
+					<Card noBorder className="newspack-design__footer__copyright">
+						<TextControl
+							label={ __( 'Copyright information', 'newspack' ) }
+							value={ mods.footer_copyright || '' }
+							onChange={ updateMods( 'footer_copyright' ) }
+							help={ __(
+								'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
+								'newspack'
+							) }
+						/>
+						<InfoButton
+							text={ __(
+								'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
+								'newspack'
+							) }
+						/>
+					</Card>
 					<ToggleControl
 						checked={ mods.footer_color !== 'default' }
 						onChange={ checked => updateMods( 'footer_color' )( checked ? 'custom' : 'default' ) }
