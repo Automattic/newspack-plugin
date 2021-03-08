@@ -45,7 +45,7 @@ const ROUTES = [
 	{
 		path: '/design',
 		label: __( 'Design', 'newspack' ),
-		subHeaderText: __( 'Choose a theme', 'newspack' ),
+		subHeaderText: __( 'Customize your site', 'newspack' ),
 		render: Design,
 	},
 ];
