@@ -30,6 +30,23 @@
 		&--covering {
 			background-size: cover;
 		}
+		&:not( &--has-image ) {
+			.newspack-button {
+				background: white !important;
+				border-radius: 3px !important;
+				padding: 4px 16px !important;
+
+				&:active,
+				&:focus,
+				&:hover {
+					background: white !important;
+				}
+
+				&:focus {
+					outline-offset: -3px !important;
+				}
+			}
+		}
 		&--has-image {
 			border: none;
 			&::before,
