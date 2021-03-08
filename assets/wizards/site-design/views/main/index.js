@@ -59,7 +59,7 @@ const Main = ( {
 			.catch( setError );
 
 	return (
-		<>
+		<Card noBorder className="newspack-design">
 			<SectionHeader
 				title={ __( 'Theme', 'newspack' ) }
 				description={ __( 'Activate a theme you like to get started', 'newspack' ) }
@@ -85,44 +85,46 @@ const Main = ( {
 				title={ __( 'Typography', 'newspack' ) }
 				description={ __( 'Pick the font pairing to use throughout your site', 'newspack' ) }
 			/>
-			<Grid gutter={ 32 }>
-				<SelectControl
-					label={ __( 'Headings', 'newspack' ) }
-					optgroups={ getFontsList( true ) }
-					value={ mods.font_header }
-					onChange={ ( value, group ) =>
-						updateMods( {
-							font_header: value,
-							custom_font_import_code: getFontImportURL( value ),
-							font_header_stack: group?.fallback,
-						} )
-					}
-				/>
-				<SelectControl
-					label={ __( 'Body', 'newspack' ) }
-					optgroups={ getFontsList() }
-					value={ mods.font_body }
-					onChange={ ( value, group ) =>
-						updateMods( {
-							font_body: value,
-							custom_font_import_code_alternate: getFontImportURL( value ),
-							font_body_stack: group?.fallback,
-						} )
-					}
+			<Grid columns={ 1 } gutter={ 16 }>
+				<Grid gutter={ 32 }>
+					<SelectControl
+						label={ __( 'Headings', 'newspack' ) }
+						optgroups={ getFontsList( true ) }
+						value={ mods.font_header }
+						onChange={ ( value, group ) =>
+							updateMods( {
+								font_header: value,
+								custom_font_import_code: getFontImportURL( value ),
+								font_header_stack: group?.fallback,
+							} )
+						}
+					/>
+					<SelectControl
+						label={ __( 'Body', 'newspack' ) }
+						optgroups={ getFontsList() }
+						value={ mods.font_body }
+						onChange={ ( value, group ) =>
+							updateMods( {
+								font_body: value,
+								custom_font_import_code_alternate: getFontImportURL( value ),
+								font_body_stack: group?.fallback,
+							} )
+						}
+					/>
+				</Grid>
+				<ToggleControl
+					checked={ mods.accent_allcaps === true }
+					onChange={ updateMods( 'accent_allcaps' ) }
+					label={ __( 'Use all-caps for accent text', 'newspack' ) }
 				/>
 			</Grid>
-			<ToggleControl
-				checked={ mods.accent_allcaps === true }
-				onChange={ updateMods( 'accent_allcaps' ) }
-				label={ __( 'Use all-caps for accent text', 'newspack' ) }
-			/>
 			<SectionHeader
 				title={ __( 'Header', 'newspack' ) }
 				description={ __( 'Customize the header and add your logo', 'newspack' ) }
 				className="newspack-design__header"
 			/>
 			<Grid gutter={ 32 }>
-				<Card noBorder>
+				<Grid columns={ 1 } gutter={ 16 }>
 					<Grid gutter={ 16 } className="newspack-design__header__style-size">
 						<SelectControl
 							className="icon-only"
@@ -142,32 +144,29 @@ const Main = ( {
 							buttonOptions={ [ { value: 'small', label: 'S' }, { value: 'large', label: 'L' } ] }
 						/>
 					</Grid>
-					<Card noBorder>
+					<ToggleControl
+						checked={ mods.header_solid_background }
+						onChange={ updateMods( 'header_solid_background' ) }
+						label={ __( 'Apply a background color to the header', 'newspack' ) }
+					/>
+					{ mods.header_solid_background && (
 						<ToggleControl
-							checked={ mods.header_solid_background }
-							onChange={ updateMods( 'header_solid_background' ) }
-							label={ __( 'Apply a background color to the header', 'newspack' ) }
+							checked={ mods.header_color !== 'default' }
+							onChange={ checked =>
+								updateMods( 'header_color' )( checked ? 'custom' : 'default' )
+							}
+							label={ __( 'Apply a custom background color to the header', 'newspack' ) }
 						/>
-						{ mods.header_solid_background && (
-							<ToggleControl
-								checked={ mods.header_color !== 'default' }
-								onChange={ checked =>
-									updateMods( 'header_color' )( checked ? 'custom' : 'default' )
-								}
-								label={ __( 'Apply a custom background color to the header', 'newspack' ) }
-							/>
-						) }
-						{ mods.header_solid_background && mods.header_color === 'custom' && (
-							<ColorPicker
-								className="mt2"
-								label={ __( 'Background color' ) }
-								color={ mods.header_color_hex }
-								onChange={ updateMods( 'header_color_hex' ) }
-							/>
-						) }
-					</Card>
-				</Card>
-				<Card noBorder>
+					) }
+					{ mods.header_solid_background && mods.header_color === 'custom' && (
+						<ColorPicker
+							label={ __( 'Background color' ) }
+							color={ mods.header_color_hex }
+							onChange={ updateMods( 'header_color_hex' ) }
+						/>
+					) }
+				</Grid>
+				<Grid columns={ 1 } gutter={ 16 }>
 					<ImageUpload
 						className="newspack-design__header__logo"
 						style={ {
@@ -205,7 +204,7 @@ const Main = ( {
 							/>
 						</>
 					) }
-				</Card>
+				</Grid>
 			</Grid>
 			<SectionHeader
 				title={ __( 'Footer', 'newspack' ) }
@@ -213,9 +212,8 @@ const Main = ( {
 				className="newspack-design__footer"
 			/>
 			<Grid gutter={ 32 }>
-				<div>
+				<Grid columns={ 1 } gutter={ 16 }>
 					<TextControl
-						className="mt0"
 						label={ __( 'Copyright information', 'newspack' ) }
 						help={ __(
 							'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
@@ -225,20 +223,18 @@ const Main = ( {
 						onChange={ updateMods( 'footer_copyright' ) }
 					/>
 					<ToggleControl
-						className="mv0"
 						checked={ mods.footer_color !== 'default' }
 						onChange={ checked => updateMods( 'footer_color' )( checked ? 'custom' : 'default' ) }
 						label={ __( 'Apply a background color to the footer', 'newspack' ) }
 					/>
 					{ mods.footer_color === 'custom' && (
 						<ColorPicker
-							className="mt2"
 							label={ __( 'Background color' ) }
 							color={ mods.footer_color_hex }
 							onChange={ updateMods( 'footer_color_hex' ) }
 						/>
 					) }
-				</div>
+				</Grid>
 				<ImageUpload
 					className="newspack-design__footer__logo"
 					label={ __( 'Alternative Logo', 'newspack' ) }
@@ -270,7 +266,7 @@ const Main = ( {
 					children: buttonText || __( 'Save', 'newspack' ),
 				} ) }
 			</div>
-		</>
+		</Card>
 	);
 };
 
