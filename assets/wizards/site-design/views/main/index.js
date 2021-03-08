@@ -187,7 +187,7 @@ const Main = ( {
 					{ mods.custom_logo && (
 						<>
 							<SelectControl
-								className="mv0 dib"
+								className="icon-only"
 								label={ __( 'Size', 'newspack' ) }
 								value={ parseLogoSize( mods.logo_size ) }
 								onChange={ updateMods( 'logo_size' ) }
