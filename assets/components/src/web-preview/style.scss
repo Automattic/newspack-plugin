@@ -86,11 +86,13 @@
 			flex: 0 0 auto;
 
 			.newspack-button-group {
+				display: flex;
 				margin: 0;
 			}
 
 			.newspack-button {
 				display: none;
+				padding: 0 !important;
 
 				&.is-selected {
 					background: $primary-500;
@@ -112,13 +114,13 @@
 				@media screen and ( min-width: 528px ) {
 					&.is-phone,
 					&.is-tablet {
-						display: inline-flex;
+						display: flex;
 					}
 				}
 
 				@media screen and ( min-width: 816px ) {
 					&.is-desktop {
-						display: inline-flex;
+						display: flex;
 					}
 				}
 			}
