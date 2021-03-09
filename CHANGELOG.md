@@ -1,3 +1,11 @@
+## [1.33.1](https://github.com/Automattic/newspack-plugin/compare/v1.33.0...v1.33.1) (2021-03-09)
+
+
+### Bug Fixes
+
+* draggable ActionCard styling ([16820e3](https://github.com/Automattic/newspack-plugin/commit/16820e337b9184f9985f1daa9ee58d0ac9adf48a))
+* **campaigns-wizard:** settings reading ([29b7020](https://github.com/Automattic/newspack-plugin/commit/29b702096c063f031b96fcc0ee87937e3b379586))
+
 # [1.33.0](https://github.com/Automattic/newspack-plugin/compare/v1.32.0...v1.33.0) (2021-03-03)
 
 
