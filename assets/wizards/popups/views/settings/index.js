@@ -48,7 +48,7 @@ const Settings = ( { isLoading, wizardApiFetch } ) => {
 						/>
 					);
 				default:
-					return <CheckboxControl { ...props } checked={ setting.value === '1' } />;
+					return <CheckboxControl { ...props } checked={ setting.value } />;
 			}
 		}
 		return null;
