@@ -180,28 +180,22 @@ const Main = ( {
 						} }
 						label={ __( 'Logo', 'newspack' ) }
 						image={ mods.custom_logo }
-						onChange={ updateMods( 'custom_logo' ) }
+						onChange={ custom_logo =>
+							updateMods( {
+								custom_logo,
+								header_text: ! custom_logo,
+								header_display_tagline: ! custom_logo,
+							} )
+						}
 					/>
 					{ mods.custom_logo && (
-						<>
-							<SelectControl
-								className="icon-only"
-								label={ __( 'Size', 'newspack' ) }
-								value={ parseLogoSize( mods.logo_size ) }
-								onChange={ updateMods( 'logo_size' ) }
-								buttonOptions={ LOGO_SIZE_OPTIONS }
-							/>
-							<ToggleControl
-								checked={ mods.header_text }
-								onChange={ updateMods( 'header_text' ) }
-								label={ __( 'Display Site Title', 'newspack' ) }
-							/>
-							<ToggleControl
-								checked={ mods.header_display_tagline }
-								onChange={ updateMods( 'header_display_tagline' ) }
-								label={ __( 'Display Tagline', 'newspack' ) }
-							/>
-						</>
+						<SelectControl
+							className="icon-only"
+							label={ __( 'Size', 'newspack' ) }
+							value={ parseLogoSize( mods.logo_size ) }
+							onChange={ updateMods( 'logo_size' ) }
+							buttonOptions={ LOGO_SIZE_OPTIONS }
+						/>
 					) }
 				</Grid>
 			</Grid>
