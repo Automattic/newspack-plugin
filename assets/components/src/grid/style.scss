@@ -7,6 +7,9 @@
 	grid-gap: 32px;
 	grid-template-columns: 1fr;
 	margin: 32px 0;
+	&--no-margin {
+		margin: 0;
+	}
 
 	// Gutter 8
 	&__gutter-8 {
@@ -21,6 +24,21 @@
 	// Gutter 32
 	&__gutter-32 {
 		grid-gap: 32px;
+	}
+
+	// Row Gap 8
+	&__row-gap-8 {
+		grid-row-gap: 8px;
+	}
+
+	// Row Gap 16
+	&__row-gap-16 {
+		grid-row-gap: 16px;
+	}
+
+	// Row Gap 32
+	&__row-gap-32 {
+		grid-row-gap: 32px;
 	}
 
 	// Media Queries - 744px

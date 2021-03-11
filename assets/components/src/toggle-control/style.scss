@@ -33,7 +33,7 @@
 
 	// Is Dark
 
-	&.newspack-toggle-control__is-dark {
+	&.newspack-toggle-control--is-dark {
 		.components-base-control__field label {
 			color: $dark-gray-900;
 			font-weight: bold;
@@ -42,6 +42,13 @@
 		.components-base-control__help {
 			font-style: normal;
 		}
+	}
+
+	// Is disabled
+
+	&.newspack-toggle-control--is-disabled {
+		opacity: 0.5;
+		pointer-events: none;
 	}
 
 	// Focus

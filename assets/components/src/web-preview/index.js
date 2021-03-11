@@ -3,12 +3,12 @@
  */
 import { Component, createRef, Fragment, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, close, desktop, mobile, tablet } from '@wordpress/icons';
+import { close, desktop, mobile, tablet } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { Button, Waiting } from '../';
+import { Button, ButtonGroup, Waiting } from '../';
 import './style.scss';
 
 /**
@@ -51,9 +51,9 @@ class WebPreview extends Component {
 	 */
 	componentDidUpdate() {
 		if ( this.state.isPreviewVisible === true ) {
-			document.body.classList.add( 'newspack-web-preview__open' );
+			document.body.classList.add( 'newspack-web-preview--open' );
 		} else {
-			document.body.classList.remove( 'newspack-web-preview__open' );
+			document.body.classList.remove( 'newspack-web-preview--open' );
 		}
 	}
 
@@ -79,33 +79,29 @@ class WebPreview extends Component {
 				<div className="newspack-web-preview__interior">
 					<div className="newspack-web-preview__toolbar">
 						<div className="newspack-web-preview__toolbar-left">
-							<Button
-								onClick={ () => this.setState( { device: 'desktop' } ) }
-								isPrimary={ 'desktop' === device }
-								isSecondary={ 'desktop' !== device }
-								className="is-desktop"
-							>
-								<Icon icon={ desktop } />
-								<span className="screen-reader-text">{ __( 'Preview desktop size' ) }</span>
-							</Button>
-							<Button
-								onClick={ () => this.setState( { device: 'tablet' } ) }
-								isPrimary={ 'tablet' === device }
-								isSecondary={ 'tablet' !== device }
-								className="is-tablet"
-							>
-								<Icon icon={ tablet } />
-								<span className="screen-reader-text">{ __( 'Preview tablet size' ) }</span>
-							</Button>
-							<Button
-								onClick={ () => this.setState( { device: 'phone' } ) }
-								isPrimary={ 'phone' === device }
-								isSecondary={ 'phone' !== device }
-								className="is-phone"
-							>
-								<Icon icon={ mobile } />
-								<span className="screen-reader-text">{ __( 'Preview phone size' ) }</span>
-							</Button>
+							<ButtonGroup>
+								<Button
+									onClick={ () => this.setState( { device: 'desktop' } ) }
+									isSmall
+									className={ classnames( 'is-desktop', 'desktop' === device && 'is-selected' ) }
+									icon={ desktop }
+									label={ __( 'Preview desktop size', 'newspack' ) }
+								/>
+								<Button
+									onClick={ () => this.setState( { device: 'tablet' } ) }
+									isSmall
+									className={ classnames( 'is-tablet', 'tablet' === device && 'is-selected' ) }
+									icon={ tablet }
+									label={ __( 'Preview tablet size', 'newspack' ) }
+								/>
+								<Button
+									onClick={ () => this.setState( { device: 'phone' } ) }
+									isSmall
+									className={ classnames( 'is-phone', 'phone' === device && 'is-selected' ) }
+									icon={ mobile }
+									label={ __( 'Preview phone size', 'newspack' ) }
+								/>
+							</ButtonGroup>
 						</div>
 						<div className="newspack-web-preview__toolbar-right">
 							<Button
@@ -113,17 +109,17 @@ class WebPreview extends Component {
 									onClose();
 									this.setState( { isPreviewVisible: false, loaded: false } );
 								} }
-							>
-								<Icon icon={ close } />
-								<span className="screen-reader-text">{ __( 'Close preview' ) }</span>
-							</Button>
+								isSmall
+								icon={ close }
+								label={ __( 'Close preview', 'newspack' ) }
+							/>
 						</div>
 					</div>
 					<div className="newspack-web-preview__content">
 						{ ! loaded && (
 							<div className="newspack-web-preview__is-waiting">
 								<Waiting isLeft />
-								{ __( 'Loading...' ) }
+								{ __( 'Loading...', 'newspack' ) }
 							</div>
 						) }
 						<iframe
@@ -155,6 +151,7 @@ class WebPreview extends Component {
 			isPrimary,
 			isSecondary,
 			isTertiary,
+			isQuaternary,
 			isLink,
 			isSmall,
 			/**
@@ -173,10 +170,11 @@ class WebPreview extends Component {
 						isPrimary={ isPrimary }
 						isSecondary={ isSecondary }
 						isTertiary={ isTertiary }
+						isQuaternary={ isQuaternary }
 						isLink={ isLink }
 						isSmall={ isSmall }
 						onClick={ this.showPreview }
-						tabindex="0"
+						tabIndex="0"
 					>
 						{ label }
 					</Button>
@@ -188,7 +186,7 @@ class WebPreview extends Component {
 }
 
 WebPreview.defaultProps = {
-	url: '//newspack.blog',
+	url: '//newspack.pub',
 	label: __( 'Preview', 'newspack' ),
 	onLoad: () => {},
 };

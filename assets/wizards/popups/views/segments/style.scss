@@ -2,10 +2,12 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-campaigns-wizard-segments {
-	&__list-top {
-		display: flex;
-		flex-direction: row-reverse;
-		margin: 32px 0 8px;
+	&__list {
+		margin: 32px 0;
+
+		&.is-loading {
+			pointer-events: none;
+		}
 	}
 	&__title {
 		margin: 32px 0 64px;
@@ -45,7 +47,7 @@
 }
 
 .newspack-campaigns__draggable {
-	margin: 8px 0;
+	margin: 16px 0;
 
 	&.is-dragging {
 		display: none;
@@ -57,8 +59,8 @@
 		content: '';
 		display: block;
 		height: 2px;
-		margin-bottom: 8px;
-		margin-top: 8px;
+		margin-bottom: 16px;
+		margin-top: 16px;
 		width: 100%;
 	}
 
@@ -119,7 +121,12 @@
 		background: white;
 		flex-direction: row;
 
+		.newspack-action-card__region-children {
+			padding: 0 0 0 16px;
+		}
+
 		.newspack-action-card__region-top {
+			padding: 8px 16px 8px 0 !important;
 			flex: 1;
 			order: 2;
 		}

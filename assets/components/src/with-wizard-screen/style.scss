@@ -32,9 +32,10 @@
 
 	&__header__inner,
 	&__content {
-		max-width: 1040px;
+		max-width: 1168px;
 		padding-left: 32px;
 		padding-right: 32px;
+
 		@media screen and ( min-width: 744px ) {
 			padding-left: 64px;
 			padding-right: 64px;
@@ -50,13 +51,20 @@
 
 		// Typography
 
+		h1,
 		h2,
 		h3,
 		p {
 			line-height: 24px;
-			margin-bottom: 32px;
-			margin-top: 0;
+			margin: 32px 0;
 			padding: 0;
+		}
+
+		h1 {
+			color: $dark-gray-900;
+			font-size: 21px;
+			font-weight: bold;
+			line-height: 32px;
 		}
 
 		h2 {

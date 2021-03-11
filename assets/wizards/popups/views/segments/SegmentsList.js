@@ -1,9 +1,8 @@
 /**
  * WordPress dependencies.
  */
-import { useRef, useState } from '@wordpress/element';
+import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { format } from '@wordpress/date';
 import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
@@ -17,7 +16,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Popover, Button, Router } from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../components/src';
+import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
 
@@ -30,6 +30,7 @@ const AddNewSegmentLink = () => (
 );
 
 const SegmentActionCard = ( {
+	inFlight,
 	segment,
 	segments,
 	deleteSegment,
@@ -41,7 +42,18 @@ const SegmentActionCard = ( {
 	wrapperRef,
 } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
+	const [ categories, setCategories ] = useState( [] );
 	const [ isDragging, setIsDragging ] = useState( false );
+
+	useEffect( () => {
+		updateCategories();
+	}, [ segment ] );
+
+	const updateCategories = async () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
+		}
+	};
 
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
@@ -50,6 +62,10 @@ const SegmentActionCard = ( {
 	const isDropTarget = index === dropTargetIndex;
 	const targetIsLast = isLastTarget && dropTargetIndex >= totalSegments;
 	const resortSegments = targetIndex => {
+		if ( inFlight ) {
+			return;
+		}
+
 		const sortedSegments = [ ...segments ];
 
 		// We need to account for the fact that the dragged segment is actually still in the list.
@@ -60,7 +76,7 @@ const SegmentActionCard = ( {
 		sortedSegments.splice( target, 0, segment );
 
 		// Reindex priorities to avoid gaps and dupes.
-		sortedSegments.map( ( _segment, _index ) => ( _segment.priority = _index ) );
+		sortedSegments.forEach( ( _segment, _index ) => ( _segment.priority = _index ) );
 
 		// Only trigger the API request if the order has changed.
 		if ( JSON.stringify( sortedSegments ) !== JSON.stringify( segments ) ) {
@@ -68,9 +84,17 @@ const SegmentActionCard = ( {
 		}
 	};
 	const onDragStart = () => {
+		if ( isDragging || inFlight ) {
+			return;
+		}
+
 		setIsDragging( true );
 	};
 	const onDragEnd = () => {
+		if ( inFlight ) {
+			return;
+		}
+
 		if ( null !== dropTargetIndex ) {
 			resortSegments( dropTargetIndex );
 		}
@@ -79,6 +103,10 @@ const SegmentActionCard = ( {
 		setIsDragging( false );
 	};
 	const onDragOver = e => {
+		if ( inFlight ) {
+			return;
+		}
+
 		const wrapperRect = wrapperRef.current.getBoundingClientRect();
 		const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 		const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
@@ -113,6 +141,10 @@ const SegmentActionCard = ( {
 		}
 	};
 	const moveUp = () => {
+		if ( inFlight ) {
+			return;
+		}
+
 		let target = index - 1;
 
 		if ( 0 > target ) {
@@ -122,6 +154,10 @@ const SegmentActionCard = ( {
 		resortSegments( target );
 	};
 	const moveDown = () => {
+		if ( inFlight ) {
+			return;
+		}
+
 		let target = index + 2;
 
 		if ( totalSegments < target ) {
@@ -153,10 +189,7 @@ const SegmentActionCard = ( {
 						isSmall
 						title={ segment.name }
 						titleLink={ `#/segments/${ segment.id }` }
-						description={ `${ __( 'Created on', 'newspack' ) } ${ format(
-							'Y/m/d',
-							segment.created_at
-						) }` }
+						description={ descriptionForSegment( segment, categories ) }
 						actionText={
 							<>
 								<Tooltip text={ __( 'More options', 'newspack' ) }>
@@ -225,29 +258,49 @@ const SegmentActionCard = ( {
 	);
 };
 
-const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
+const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) => {
 	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
 	const [ sortedSegments, setSortedSegments ] = useState( null );
-
+	const [ inFlight, setInFlight ] = useState( false );
+	const [ error, setError ] = useState( null );
 	const ref = useRef();
 	const deleteSegment = segment => {
+		setInFlight( true );
+		setError( null );
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
 			method: 'DELETE',
 			quiet: true,
-		} ).then( setSegments );
+		} )
+			.then( _segments => {
+				setInFlight( false );
+				setSegments( _segments );
+			} )
+			.catch( e => {
+				console.error( e );
+				setInFlight( false );
+			} );
 	};
 	const sortSegments = segmentsToSort => {
+		setError( null );
 		setSortedSegments( segmentsToSort );
+		setInFlight( true );
 		wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-sort`,
 			method: 'POST',
-			data: { segments: segmentsToSort },
+			data: { segmentIds: segmentsToSort.map( _segment => _segment.id ) },
 			quiet: true,
-		} ).then( _segments => {
-			setSortedSegments( null );
-			setSegments( _segments );
-		} );
+		} )
+			.then( _segments => {
+				setInFlight( false );
+				setSortedSegments( null );
+				setSegments( _segments );
+			} )
+			.catch( e => {
+				setInFlight( false );
+				setError( e.message || __( 'There was an error sorting segments. Please try again.' ) );
+				setSegments( segments );
+			} );
 	};
 
 	if ( segments === null ) {
@@ -258,15 +311,21 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 	const segmentsToShow = sortedSegments || segments;
 
 	return segments.length ? (
-		<div className="newspack-campaigns-wizard-segments__list-wrapper">
-			<div className="newspack-campaigns-wizard-segments__list-top">
+		<Fragment>
+			{ error && <Notice noticeText={ error } isError /> }
+			<Card headerActions noBorder>
+				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
 				<AddNewSegmentLink />
-			</div>
-			<div className="newspack-campaigns-wizard-segments__list" ref={ ref }>
+			</Card>
+			<div
+				className={ 'newspack-campaigns-wizard-segments__list' + ( inFlight ? ' is-loading' : '' ) }
+				ref={ ref }
+			>
 				{ segmentsToShow.map( ( segment, index ) => (
 					<SegmentActionCard
 						deleteSegment={ deleteSegment }
 						key={ segment.id }
+						inFlight={ inFlight || isLoading > 0 }
 						segment={ segment }
 						segments={ segments }
 						sortSegments={ sortSegments }
@@ -278,18 +337,20 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments } ) => {
 					/>
 				) ) }
 			</div>
-		</div>
+		</Fragment>
 	) : (
-		<div>
-			<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
-			<div className="newspack-campaigns-wizard-segments__subheader">
+		<Fragment>
+			<Card headerActions noBorder>
+				<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
+				<AddNewSegmentLink />
+			</Card>
+			<p>
 				{ __(
 					'Create audience segments to target visitors by engagement, activity, and more.',
 					'newspack'
 				) }
-			</div>
-			<AddNewSegmentLink />
-		</div>
+			</p>
+		</Fragment>
 	);
 };
 

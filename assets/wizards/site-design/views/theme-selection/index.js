@@ -17,7 +17,7 @@ import JosephImg from './images/joseph.png';
 /**
  * Theme Selection Screen.
  */
-class ThemeSelection extends Component {
+export class ThemeSelection extends Component {
 	/**
 	 * Render.
 	 */

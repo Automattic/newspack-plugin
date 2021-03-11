@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies.
  */
-import { sprintf, __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
+import { __, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Check whether the given popup is an overlay.
@@ -19,16 +21,6 @@ export const isOverlay = popup =>
  * @return {boolean} True if the popup is a above-header, otherwise false.
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
-
-/**
- * Filter out "Uncategorized" category, which for purposes of Campaigns behaves identically to no category.
- *
- * @param {Array} categories Array of category objects.
- * @return {Array} Filtered array of categories, without Uncategorized category.
- */
-export const filterOutUncategorized = categories => {
-	return categories.filter( category => 'uncategorized' !== category.slug );
-};
 
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
 	if ( 'manual' === frequency ) {
@@ -65,7 +57,7 @@ export const getCardClassName = ( { status } ) => {
 
 export const descriptionForPopup = prompt => {
 	const { categories, campaign_groups: campaigns, status } = prompt;
-	const filteredCategories = filterOutUncategorized( categories );
+	const filteredCategories = categories;
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
 		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
@@ -91,6 +83,104 @@ export const descriptionForPopup = prompt => {
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
+export const getFavoriteCategoryNames = async favoriteCategories => {
+	try {
+		const favoriteCategoryNames = await Promise.all(
+			favoriteCategories.map( async categoryId => {
+				const category = await apiFetch( {
+					path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
+						_fields: 'name',
+					} ),
+				} );
+
+				return category.name;
+			} )
+		);
+
+		return favoriteCategoryNames;
+	} catch ( e ) {
+		console.error( e );
+		return [];
+	}
+};
+
+export const descriptionForSegment = ( segment, categories = [] ) => {
+	const { configuration } = segment;
+	const {
+		favorite_categories = [],
+		is_donor = false,
+		is_not_donor = false,
+		is_not_subscribed = false,
+		is_subscribed = false,
+		max_posts = 0,
+		max_session_posts = 0,
+		min_posts = 0,
+		min_session_posts = 0,
+		referrers = '',
+		referrers_not = '',
+	} = configuration;
+	const descriptionMessages = [];
+
+	// Messages for reader engagement.
+	if ( 0 < min_posts || 0 < max_posts ) {
+		descriptionMessages.push(
+			sprintf(
+				__( 'Articles read (past 30 days): %s %s', 'newspack' ),
+				0 < min_posts ? __( 'min ', 'newspack' ) + min_posts : '',
+				0 < max_posts ? __( 'max ', 'newspack' ) + max_posts : ''
+			)
+		);
+	}
+	if ( 0 < min_session_posts || 0 < max_session_posts ) {
+		descriptionMessages.push(
+			sprintf(
+				__( 'Articles read (session): %s %s', 'newspack' ),
+				0 < min_session_posts ? __( 'min ', 'newspack' ) + min_session_posts : '',
+				0 < max_session_posts ? __( 'max ', 'newspack' ) + max_session_posts : ''
+			)
+		);
+	}
+
+	// Messages for reader activity.
+	if ( is_donor ) {
+		descriptionMessages.push( __( 'Has donated', 'newspack' ) );
+	}
+	if ( is_not_donor ) {
+		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
+	}
+	if ( is_subscribed ) {
+		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
+	}
+	if ( is_not_subscribed ) {
+		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
+	}
+
+	// Messages for referrer sources.
+	if ( referrers ) {
+		descriptionMessages.push( __( 'Referrers (matching): ' ) + referrers );
+	}
+	if ( referrers_not ) {
+		descriptionMessages.push( __( 'Referrers (excluding): ' ) + referrers_not );
+	}
+
+	// Messages for category affinity.
+	if ( 0 < favorite_categories.length ) {
+		if ( 0 < categories.length ) {
+			descriptionMessages.push(
+				sprintf(
+					__( 'Favorite %s: %s', 'newspack' ),
+					categories.length > 1 ? __( 'categories', 'newspack' ) : __( 'category', 'newspack' ),
+					categories.filter( cat => !! cat ).join( ', ' )
+				)
+			);
+		} else {
+			descriptionMessages.push( __( 'Has favorite categories', 'newspack' ) );
+		}
+	}
+
+	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+};
+
 export const isSameType = ( campaignA, campaignB ) => {
 	return (
 		( isAboveHeader( campaignA ) && isAboveHeader( campaignB ) ) ||
@@ -98,29 +188,37 @@ export const isSameType = ( campaignA, campaignB ) => {
 	);
 };
 
+const sharesSegments = ( segmentsA, segmentsB ) => {
+	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
+	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
+	return segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) );
+};
+
 export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
 	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) ) ) {
-		const promptCategories = filterOutUncategorized( prompt.categories );
+		const promptCategories = prompt.categories;
 		const conflictingPrompts = prompts.filter( conflict => {
-			const conflictCategories = filterOutUncategorized( conflict.categories );
+			const conflictCategories = conflict.categories;
 
 			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
 			const hasConflictingCategory =
 				( 0 === promptCategories.length && 0 === conflictCategories.length ) ||
-				promptCategories.some(
-					category =>
-						!! conflictCategories.find(
-							conflictCategory => category.term_id === conflictCategory.term_id
-						)
+				promptCategories.some( category =>
+					conflictCategories.some(
+						conflictCategory => category.term_id === conflictCategory.term_id
+					)
 				);
 
 			return (
 				'publish' === conflict.status &&
 				conflict.id !== prompt.id &&
 				isSameType( prompt, conflict ) &&
-				prompt.options.selected_segment_id === conflict.options.selected_segment_id &&
+				sharesSegments(
+					prompt.options.selected_segment_id,
+					conflict.options.selected_segment_id
+				) &&
 				hasConflictingCategory
 			);
 		} );

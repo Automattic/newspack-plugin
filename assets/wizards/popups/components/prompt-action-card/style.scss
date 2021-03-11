@@ -17,7 +17,7 @@
 		}
 
 		&__container {
-			.newspack-button + .newspack-button {
+			> .newspack-button + .newspack-button {
 				margin-left: 2px;
 			}
 		}

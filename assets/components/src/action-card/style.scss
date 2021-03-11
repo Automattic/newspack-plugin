@@ -6,11 +6,12 @@
 @import '../../../shared/scss/colors';
 
 .newspack-card.newspack-action-card {
-	padding: 24px;
+	padding: 0;
+	border-color: $light-gray-500;
 
 	// Clickable
 
-	&.newspack-card__is-clickable {
+	&.newspack-card--is-clickable {
 		transition: box-shadow 125ms ease-in-out;
 
 		&:hover {
@@ -26,7 +27,10 @@
 	&.newspack-card__is-supported,
 	&.newspack-card__is-unsupported {
 		box-shadow: inset 4px 0 0 $light-gray-700;
-		padding-left: 28px;
+
+		.newspack-action-card__region-top {
+			padding-left: 28px;
+		}
 	}
 
 	&.newspack-card__is-primary {
@@ -47,7 +51,9 @@
 
 	// Small
 	&.is-small {
-		padding: 8px 16px;
+		.newspack-action-card__region-top {
+			padding: 8px 16px;
+		}
 
 		h2 {
 			font-size: 14px;
@@ -61,7 +67,7 @@
 		}
 
 		& + & {
-			margin-top: -24px;
+			margin-top: -16px;
 		}
 
 		&.newspack-card__is-disabled,
@@ -69,7 +75,41 @@
 		&.newspack-card__is-secondary,
 		&.newspack-card__is-supported,
 		&.newspack-card__is-unsupported {
-			padding-left: 20px;
+			.newspack-action-card__region-top {
+				padding-left: 20px;
+			}
+		}
+	}
+
+	// Medium
+
+	&.is-medium {
+		.newspack-action-card__region-top {
+			padding: 16px;
+
+			.components-toggle-control {
+				@media screen and ( min-width: 744px ) {
+					margin-right: 16px;
+				}
+			}
+		}
+
+		.newspack-action-card__region-children {
+			padding: 0 32px 32px 32px;
+		}
+	}
+
+	// Has grey header
+
+	&.newspack-card--has-grey-header {
+		overflow: hidden;
+		&.newspack-card--has-children {
+			.newspack-action-card__region-top {
+				border-bottom: 1px solid $light-gray-500;
+			}
+		}
+		.newspack-action-card__region-top {
+			background-color: $light-gray-100;
 		}
 	}
 
@@ -114,10 +154,59 @@
 	}
 
 	.newspack-action-card__region-top {
+		padding: 24px;
 		display: block;
 
 		@media screen and ( min-width: 744px ) {
 			display: flex;
+		}
+
+		// Toggle Control
+		.components-toggle-control {
+			margin-bottom: 24px;
+			margin-top: 0;
+
+			@media screen and ( min-width: 744px ) {
+				margin-bottom: 0;
+				margin-right: 24px;
+			}
+
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
+
+			.components-form-toggle {
+				display: flex;
+				margin: 0;
+			}
+		}
+	}
+
+	.newspack-action-card__region-children {
+		padding: 0 24px 24px 24px;
+
+		&__inner {
+			padding-top: 32px;
+
+			> *:first-child {
+				margin-top: 0 !important;
+			}
+
+			> *:last-child {
+				margin-bottom: 0 !important;
+			}
+		}
+
+		.newspack-section-header {
+			margin: 32px 0 16px;
+		}
+
+		.newspack-card,
+		.newspack-checkbox-control,
+		.newspack-grid,
+		.newspack-text-control,
+		.newspack-toggle-control {
+			margin: 16px 0;
 		}
 	}
 
@@ -138,6 +227,7 @@
 
 	.newspack-action-card__region-right {
 		align-items: flex-start;
+		flex: 0 0 auto;
 		flex-direction: column;
 		margin-top: 24px;
 		text-align: right;
@@ -164,7 +254,7 @@
 
 	.newspack-action-card__notification {
 		.newspack-notice {
-			margin: 24px 0 0;
+			margin: 0;
 
 			&__heading {
 				margin-top: 0;
@@ -187,27 +277,6 @@
 
 	.newspack_plugin-installer__icon {
 		margin: 0;
-	}
-
-	// Toggle Control
-
-	.components-toggle-control {
-		margin-bottom: 24px;
-		margin-top: 0;
-
-		@media screen and ( min-width: 744px ) {
-			margin-bottom: 0;
-			margin-right: 24px;
-		}
-
-		.components-base-control__field {
-			margin-bottom: 0;
-		}
-
-		.components-form-toggle {
-			display: flex;
-			margin: 0;
-		}
 	}
 
 	// Buttons

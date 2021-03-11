@@ -75,18 +75,20 @@ const filterByCampaign = ( prompts, campaignId ) => {
 const groupBySegment = ( segments, prompts ) => {
 	const grouped = [];
 	grouped.push(
-		...segments.map( ( { name: label, id } ) => ( {
+		...segments.map( ( { name: label, id, configuration } ) => ( {
 			label,
 			id,
-			prompts: prompts.filter(
-				( { options: { selected_segment_id: segment } } ) => segment === id
-			),
+			configuration,
+			prompts: prompts.filter( ( { options: { selected_segment_id: _segments } } ) => {
+				return _segments ? -1 < _segments.split( ',' ).indexOf( id ) : false;
+			} ),
 		} ) )
 	);
 	grouped.push( {
-		label: __( 'Default (no segment)', 'newspack' ),
+		label: __( 'Everyone', 'newspack' ),
 		id: '',
 		prompts: prompts.filter( ( { options: { selected_segment_id: segment } } ) => ! segment ),
+		configuration: {},
 	} );
 	return grouped;
 };
@@ -116,7 +118,7 @@ const Campaigns = props => {
 
 	const allPrompts = useContext( CampaignsContext );
 	const prompts = filterByCampaign( allPrompts, campaignId );
-	const hasUnassigned = filterByCampaign( prompts, 'unassigned' ).length;
+	const hasUnassigned = filterByCampaign( allPrompts, 'unassigned' ).length;
 
 	useEffect( () => {
 		if ( modalVisible ) {
@@ -166,7 +168,7 @@ const Campaigns = props => {
 	const selectValue = valueForCampaignId( campaignId );
 	return (
 		<Fragment>
-			<div className="newspack-campaigns__campaign-group__filter-group-wrapper">
+			<Card headerActions noBorder>
 				<div className="newspack-campaigns__campaign-group__filter-group-actions">
 					<CustomSelectControl
 						label={ __( 'Campaigns', 'newspack' ) }
@@ -318,14 +320,13 @@ const Campaigns = props => {
 						</Modal>
 					) }
 				</div>
-			</div>
+			</Card>
 			{ groupBySegment( segments, prompts ).map( ( segment, index ) => (
 				<SegmentGroup
 					key={ index }
 					segment={ segment }
 					campaignId={ campaignId }
 					campaignData={ campaignData }
-					segments={ segments }
 					{ ...props }
 				/>
 			) ) }

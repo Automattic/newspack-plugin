@@ -2,12 +2,14 @@
  * Segment group component.
  */
 
+import cookies from 'js-cookie';
+
 /**
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useState } from '@wordpress/element';
-import { Icon, plusCircle } from '@wordpress/icons';
+import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
+import { Icon, plus } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -15,8 +17,14 @@ import { Icon, plusCircle } from '@wordpress/icons';
 import { Button, Card, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
+import {
+	descriptionForPopup,
+	descriptionForSegment,
+	getCardClassName,
+	getFavoriteCategoryNames,
+	warningForPopup,
+} from '../../utils';
 import { CampaignsContext } from '../../contexts';
-import { descriptionForPopup, getCardClassName, warningForPopup } from '../../utils';
 
 import {
 	iconInline,
@@ -25,6 +33,7 @@ import {
 	iconBottomOverlay,
 	iconAboveHeader,
 	iconManualPlacement,
+	iconPreview,
 } from './icons';
 import './style.scss';
 
@@ -43,11 +52,40 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 	return base + params.join( '&' );
 };
 
+const removeCIDCookie = () => {
+	if ( newspack_aux_data.popups_cookie_name ) {
+		// Remove cookies for all possible domains.
+		window.location.host
+			.split( '.' )
+			.reduce( ( acc, _, i, arr ) => {
+				acc.push( arr.slice( -( i + 1 ) ).join( '.' ) );
+				return acc;
+			}, [] )
+			.map( domain =>
+				cookies.remove( newspack_aux_data.popups_cookie_name, {
+					domain: `.${ domain }`,
+				} )
+			);
+	}
+};
+
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
-	const [ modalVisible, setModalVisible ] = useState();
+	const [ modalVisible, setModalVisible ] = useState( false );
+	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const allPrompts = useContext( CampaignsContext );
+	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
+
+	useEffect( () => {
+		updateCategories();
+	}, [ segment ] );
+
+	const updateCategories = async () => {
+		if ( 0 < segment.configuration?.favorite_categories?.length ) {
+			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
+		}
+	};
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
@@ -60,20 +98,106 @@ const SegmentGroup = props => {
 	}
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
-			<h3 className="newspack-campaigns__segment-group__card__segment">
-				{ id ? __( 'Segment: ', 'newspack' ) : '' }
-				{ label }
-				<SegmentationPreview
-					campaignId={ [ campaignId ] }
-					segment={ id }
-					showUnpublished={ true } // Do we need a control for this?
-					renderButton={ ( { showPreview } ) => (
-						<Button isTertiary isSmall isLink onClick={ () => showPreview() }>
-							{ __( 'Preview', 'newspack' ) }
-						</Button>
+			<div className="newspack-campaigns__segment-group__card__segment">
+				<div className="newspack-campaigns__segment-group__card__segment-title">
+					<h3>
+						{ id ? (
+							<Button
+								href={ `#/segments/${ id }` }
+								label={ __( 'Edit Segment ', 'newspack' ) }
+								isLink
+								showTooltip
+								tooltipPosition="bottom center"
+							>
+								{ __( 'Segment: ', 'newspack' ) }
+								{ label }
+							</Button>
+						) : (
+							label
+						) }
+					</h3>
+					<span className="newspack-campaigns__segment-group__description">
+						{ id
+							? descriptionForSegment( segment, categories )
+							: __( 'All readers, regardless of segment', 'newspack' ) }
+					</span>
+				</div>
+				<div className="newspack-campaigns__segment-group__card__segment-actions">
+					<SegmentationPreview
+						campaign={ campaignId ? campaignToPreview : false }
+						segment={ id }
+						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
+						onClose={ removeCIDCookie }
+						renderButton={ ( { showPreview } ) => (
+							<Button
+								isQuaternary
+								isSmall
+								onClick={ () => {
+									removeCIDCookie();
+									if ( newspack_aux_data.popups_cookie_name ) {
+										cookies.set( newspack_aux_data.popups_cookie_name, `preview-${ Date.now() }`, {
+											domain: '.' + window.location.host,
+										} );
+									}
+
+									showPreview();
+								} }
+								icon={ iconPreview }
+								label={ __( 'Preview Segment', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
+						) }
+					/>
+					{ 'unassigned' !== campaignId && (
+						<Fragment>
+							<Button
+								isSmall
+								isQuaternary
+								onClick={ () => setModalVisible( ! modalVisible ) }
+								icon={ plus }
+								label={ __( 'Add New Prompt', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
+							{ modalVisible && (
+								<Modal
+									title={ __( 'Add New Prompt', 'newspack' ) }
+									className="newspack-campaigns__segment-group__add-new-button__modal"
+									onRequestClose={ () => setModalVisible( false ) }
+									shouldCloseOnEsc={ false }
+									shouldCloseOnClickOutside={ false }
+								>
+									<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
+										<Button href={ addNewURL( null, campaignId, id ) }>
+											<Icon icon={ iconInline } height={ 48 } width={ 48 } />
+											{ __( 'Inline', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
+											<Icon icon={ iconCenterOverlay } height={ 48 } width={ 48 } />
+											{ __( 'Center Overlay', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
+											<Icon icon={ iconTopOverlay } height={ 48 } width={ 48 } />
+											{ __( 'Top Overlay', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
+											<Icon icon={ iconBottomOverlay } height={ 48 } width={ 48 } />
+											{ __( 'Bottom Overlay', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'above-header', campaignId, id ) }>
+											<Icon icon={ iconAboveHeader } height={ 48 } width={ 48 } />
+											{ __( 'Above Header', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'manual', campaignId, id ) }>
+											<Icon icon={ iconManualPlacement } height={ 48 } width={ 48 } />
+											{ __( 'Manual Placement', 'newspack' ) }
+										</Button>
+									</Card>
+								</Modal>
+							) }
+						</Fragment>
 					) }
-				/>
-			</h3>
+				</div>
+			</div>
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
 				{ prompts.map( item => (
 					<PromptActionCard
@@ -87,54 +211,6 @@ const SegmentGroup = props => {
 				) ) }
 			</Card>
 			{ prompts.length < 1 ? <p>{ emptySegmentText }</p> : '' }
-			{ 'unassigned' !== campaignId && (
-				<div className="newspack-campaigns__segment-group__add-new-wrap">
-					<Button
-						isSmall
-						isQuaternary
-						onClick={ () => setModalVisible( ! modalVisible ) }
-						icon={ plusCircle }
-						label={ __( 'Add New Prompt', 'newspack' ) }
-						tooltipPosition="bottom center"
-					/>
-					{ modalVisible && (
-						<Modal
-							title={ __( 'Add New Prompt', 'newspack' ) }
-							className="newspack-campaigns__segment-group__add-new-button__modal"
-							onRequestClose={ () => setModalVisible( false ) }
-							shouldCloseOnEsc={ false }
-							shouldCloseOnClickOutside={ false }
-						>
-							<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
-								<Button href={ addNewURL( null, campaignId, id ) }>
-									<Icon icon={ iconInline } height={ 48 } width={ 48 } />
-									{ __( 'Inline', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
-									<Icon icon={ iconCenterOverlay } height={ 48 } width={ 48 } />
-									{ __( 'Center Overlay', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
-									<Icon icon={ iconTopOverlay } height={ 48 } width={ 48 } />
-									{ __( 'Top Overlay', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
-									<Icon icon={ iconBottomOverlay } height={ 48 } width={ 48 } />
-									{ __( 'Bottom Overlay', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'above-header', campaignId, id ) }>
-									<Icon icon={ iconAboveHeader } height={ 48 } width={ 48 } />
-									{ __( 'Above Header', 'newspack' ) }
-								</Button>
-								<Button href={ addNewURL( 'manual', campaignId, id ) }>
-									<Icon icon={ iconManualPlacement } height={ 48 } width={ 48 } />
-									{ __( 'Manual Placement', 'newspack' ) }
-								</Button>
-							</Card>
-						</Modal>
-					) }
-				</div>
-			) }
 		</Card>
 	);
 };

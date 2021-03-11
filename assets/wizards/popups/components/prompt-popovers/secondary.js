@@ -7,13 +7,19 @@
  */
 import { __ } from '@wordpress/i18n';
 import { MenuItem } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { ESCAPE } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies.
  */
-import { CategoryAutocomplete, Popover, SelectControl } from '../../../../components/src';
-import { filterOutUncategorized, frequenciesForPopup } from '../../utils';
+import {
+	CategoryAutocomplete,
+	FormTokenField,
+	Popover,
+	SelectControl,
+} from '../../../../components/src';
+import { frequenciesForPopup } from '../../utils';
 import './style.scss';
 
 const SecondaryPromptPopover = ( {
@@ -25,6 +31,16 @@ const SecondaryPromptPopover = ( {
 } ) => {
 	const { campaign_groups: campaignGroups, categories, id, options } = prompt;
 	const { frequency, selected_segment_id: selectedSegmentId } = options;
+	const [ assignedSegments, setAssignedSegments ] = useState( [] );
+
+	useEffect( () => {
+		if ( selectedSegmentId ) {
+			setAssignedSegments( selectedSegmentId.split( ',' ) );
+		} else {
+			setAssignedSegments( [] );
+		}
+	}, [ selectedSegmentId ] );
+
 	return (
 		<Popover
 			position="bottom left"
@@ -47,17 +63,21 @@ const SecondaryPromptPopover = ( {
 					label={ __( 'Frequency', 'newspack' ) }
 				/>
 			) }
-			<SelectControl
-				onChange={ value => {
-					updatePopup( id, { selected_segment_id: value } );
+			<FormTokenField
+				value={ segments
+					.filter( segment => -1 < assignedSegments.indexOf( segment.id ) )
+					.map( segment => segment.name ) }
+				onChange={ _segments => {
+					const segmentsToAssign = segments
+						.filter( segment => -1 < _segments.indexOf( segment.name ) )
+						.map( segment => segment.id );
+					updatePopup( id, { selected_segment_id: segmentsToAssign.join( ',' ) } );
 					onFocusOutside();
 				} }
-				options={ [
-					{ label: __( 'Default (no segment)', 'newspack' ), value: '' },
-					...segments.map( ( { name, id: segmentId } ) => ( { label: name, value: segmentId } ) ),
-				] }
-				value={ selectedSegmentId }
-				label={ __( 'Segment', 'newspack' ) }
+				suggestions={ segments
+					.filter( segment => -1 === assignedSegments.indexOf( segment.id ) )
+					.map( segment => segment.name ) }
+				label={ __( 'Segment', 'newspack-popups' ) }
 			/>
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
@@ -66,7 +86,7 @@ const SecondaryPromptPopover = ( {
 				taxonomy="newspack_popups_taxonomy"
 			/>
 			<CategoryAutocomplete
-				value={ filterOutUncategorized( categories ) || [] }
+				value={ categories || [] }
 				onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
 				label={ __( 'Category filtering', 'newspack ' ) }
 			/>

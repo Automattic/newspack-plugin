@@ -103,6 +103,12 @@ abstract class Wizard {
 		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-commons' );
 
+		// Tachyons atomic CSS framework (http://tachyons.io/).
+		wp_enqueue_style( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			'tachyons',
+			'https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css'
+		);
+
 		// This script is just used for making newspack data available in JS vars.
 		// It should not actually load a JS file.
 		wp_register_script( 'newspack_data', '', [], '1.0', false );
@@ -122,6 +128,17 @@ abstract class Wizard {
 		];
 
 		$screen = get_current_screen();
+
+		if ( ! empty( Starter_Content::starter_content_data() ) ) {
+			$urls['remove_starter_content'] = esc_url(
+				add_query_arg(
+					array(
+						'newspack_reset' => 'starter-content',
+					),
+					Wizards::get_url( 'dashboard' )
+				)
+			);
+		}
 
 		if ( Newspack::is_debug_mode() ) {
 			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) );
@@ -147,7 +164,12 @@ abstract class Wizard {
 		$aux_data = [
 			'is_e2e'        => Starter_Content::is_e2e(),
 			'is_debug_mode' => Newspack::is_debug_mode(),
+			'site_title'    => get_option( 'blogname' ),
 		];
+
+		if ( class_exists( 'Newspack_Popups_Segmentation' ) ) {
+			$aux_data['popups_cookie_name'] = \Newspack_Popups_Segmentation::NEWSPACK_SEGMENTATION_CID_NAME;
+		}
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
 		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );
