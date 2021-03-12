@@ -38,7 +38,7 @@ import {
 import './style.scss';
 
 const addNewURL = ( placement, campaignId, segmentId ) => {
-	const base = '/wp-admin/post-new.php?post_type=newspack_popups_cpt&';
+	const base = '/wp/wp-admin/post-new.php?post_type=newspack_popups_cpt&';
 	const params = [];
 	if ( placement ) {
 		params.push( `placement=${ placement }` );
