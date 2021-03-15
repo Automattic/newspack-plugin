@@ -121,10 +121,11 @@ export const getFontImportURL = value =>
 	) }:ital,wght@0,400;0,700;1,400;1,700&display=swap`;
 
 export const LOGO_SIZE_OPTIONS = [
-	{ value: 0, label: __( 'S', 'newspack' ) },
-	{ value: 25, label: __( 'M', 'newspack' ) },
-	{ value: 50, label: __( 'L', 'newspack' ) },
-	{ value: 75, label: __( 'XL', 'newspack' ) },
+	{ value: 0, label: __( 'XS', 'newspack' ) },
+	{ value: 19, label: __( 'S', 'newspack' ) },
+	{ value: 48, label: __( 'M', 'newspack' ) },
+	{ value: 72, label: __( 'L', 'newspack' ) },
+	{ value: 91, label: __( 'XL', 'newspack' ) },
 ];
 
 /**
