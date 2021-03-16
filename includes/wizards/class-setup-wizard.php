@@ -247,6 +247,9 @@ class Setup_Wizard extends Wizard {
 		if ( 'default' === $theme_mods['theme_colors'] ) {
 			$theme_mods['primary_color_hex']   = newspack_get_primary_color();
 			$theme_mods['secondary_color_hex'] = newspack_get_secondary_color();
+		} else {
+			$theme_mods['primary_color_hex']   = get_theme_mod( 'primary_color_hex', newspack_get_primary_color() );
+			$theme_mods['secondary_color_hex'] = get_theme_mod( 'secondary_color_hex', newspack_get_secondary_color() );
 		}
 		$theme_mods['accent_allcaps']         = get_theme_mod( 'accent_allcaps', true );
 		$theme_mods['footer_color']           = get_theme_mod( 'footer_color', 'default' );
