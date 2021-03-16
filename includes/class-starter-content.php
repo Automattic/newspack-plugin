@@ -128,7 +128,8 @@ class Starter_Content {
 		}
 		$category_ids = array_map(
 			function( $category ) {
-				return wp_create_category( $category );
+				$created_category = wp_insert_term( $category, 'category', [ 'slug' => '_newspack_' . $category ] );
+				return $created_category['term_id'];
 			},
 			self::$starter_categories
 		);
