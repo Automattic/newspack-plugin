@@ -156,13 +156,6 @@ const Main = ( {
 						label={ __( 'Apply a background color to the header', 'newspack' ) }
 					/>
 					{ mods.header_solid_background && (
-						<ToggleControl
-							checked={ mods.header_color !== 'default' }
-							onChange={ checked => updateMods( 'header_color' )( checked ? 'custom' : 'default' ) }
-							label={ __( 'Apply a custom background color to the header', 'newspack' ) }
-						/>
-					) }
-					{ mods.header_solid_background && mods.header_color === 'custom' && (
 						<ColorPicker
 							label={ __( 'Background color' ) }
 							color={ mods.header_color_hex }
@@ -176,10 +169,7 @@ const Main = ( {
 						style={ {
 							...( mods.header_solid_background
 								? {
-										backgroundColor:
-											mods.header_color === 'custom'
-												? mods.header_color_hex
-												: mods.primary_color_hex,
+										backgroundColor: mods.header_color_hex,
 								  }
 								: {} ),
 						} }

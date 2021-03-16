@@ -104,7 +104,7 @@ class Setup_Wizard extends Wizard {
 			'/wizard/' . $this->slug . '/theme',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_theme' ],
+				'callback'            => [ $this, 'api_update_theme_with_mods' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'theme_mods' => [
@@ -232,6 +232,13 @@ class Setup_Wizard extends Wizard {
 	public function api_retrieve_theme() {
 		$theme_mods = get_theme_mods();
 
+		$theme_mods['header_color'] = get_theme_mod( 'header_color', 'default' );
+		// Force custom header color, since the default depends on the theme.
+		if ( 'default' === $theme_mods['header_color'] ) {
+			set_theme_mod( 'header_color', 'custom' );
+			$theme_mods['header_color'] = get_theme_mod( 'header_color' );
+		}
+
 		foreach ( $theme_mods as $key => &$theme_mod ) {
 			if ( in_array( $key, $this->media_theme_mods ) ) {
 				$attachment = wp_get_attachment_image_src( $theme_mod, 'full' );
@@ -251,6 +258,13 @@ class Setup_Wizard extends Wizard {
 			$theme_mods['primary_color_hex']   = get_theme_mod( 'primary_color_hex', newspack_get_primary_color() );
 			$theme_mods['secondary_color_hex'] = get_theme_mod( 'secondary_color_hex', newspack_get_secondary_color() );
 		}
+
+		if ( ! isset( $theme_mods['header_color_hex'] ) ) {
+			set_theme_mod( 'header_color_hex', $theme_mods['primary_color_hex'] );
+			$theme_mods['header_color_hex'] = get_theme_mod( 'header_color_hex' );
+		}
+		// Set custom header color to primary, if not set.
+
 		$theme_mods['accent_allcaps']         = get_theme_mod( 'accent_allcaps', true );
 		$theme_mods['footer_color']           = get_theme_mod( 'footer_color', 'default' );
 		$theme_mods['footer_copyright']       = get_theme_mod( 'footer_copyright', '' );
@@ -270,7 +284,11 @@ class Setup_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response containing info.
 	 */
-	public function api_update_theme( $request ) {
+	public function api_update_theme_with_mods( $request ) {
+		// Set theme before updating theme mods, since a theme might be setting theme mod defaults.
+		$theme = $request['theme'];
+		Starter_Content::set_theme( $theme );
+
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
 			if ( in_array( $key, $this->media_theme_mods ) ) {
@@ -278,8 +296,6 @@ class Setup_Wizard extends Wizard {
 			}
 			set_theme_mod( $key, $value );
 		}
-		$theme = $request['theme'];
-		Starter_Content::set_theme( $theme );
 		return self::api_retrieve_theme();
 	}
 
