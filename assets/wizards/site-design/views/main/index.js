@@ -17,7 +17,6 @@ import {
 	ToggleControl,
 	SectionHeader,
 	ImageUpload,
-	InfoButton,
 	hooks,
 	Button,
 	Grid,
