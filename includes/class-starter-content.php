@@ -228,10 +228,12 @@ class Starter_Content {
 	 * Set up theme.
 	 */
 	public static function initialize_theme() {
-		$logo_id = self::upload_logo();
-		if ( $logo_id ) {
-			set_theme_mod( 'custom_logo', $logo_id );
-			set_theme_mod( 'logo_size', 0 );
+		if ( false === get_theme_mod( 'custom_logo' ) ) {
+			$logo_id = self::upload_logo();
+			if ( $logo_id ) {
+				set_theme_mod( 'custom_logo', $logo_id );
+				set_theme_mod( 'logo_size', 0 );
+			}
 		}
 		set_theme_mod( 'header_solid_background', true );
 		set_theme_mod( 'header_simplified', true );
