@@ -207,12 +207,6 @@ const Main = ( {
 							value={ mods.footer_copyright || '' }
 							onChange={ updateMods( 'footer_copyright' ) }
 						/>
-						<InfoButton
-							text={ __(
-								'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
-								'newspack'
-							) }
-						/>
 					</Card>
 					<ToggleControl
 						checked={ mods.footer_color !== 'default' }
