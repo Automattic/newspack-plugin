@@ -44,31 +44,4 @@
 			grid-template-columns: repeat( 2, min-content );
 		}
 	}
-
-	&__footer {
-		&__copyright {
-			position: relative;
-
-			.newspack-text-control {
-				margin: 0;
-
-				// Specific to wp-admin in English
-				html[lang*='en'] & .components-base-control__help {
-					display: none;
-				}
-			}
-
-			.newspack-info-button {
-				display: none;
-				position: absolute;
-				top: 0;
-
-				// Specific to wp-admin in English
-				html[lang*='en'] & {
-					display: block;
-					left: 152px;
-				}
-			}
-		}
-	}
 }
