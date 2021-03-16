@@ -7,7 +7,7 @@ import { mergeWith, isArray } from 'lodash';
 
 const mergeCustomizer = ( objValue, srcValue ) => {
 	if ( isArray( objValue ) ) {
-		// If it's an array, replace it (instead of contatenating).
+		// If it's an array, replace it (instead of concatenating).
 		return srcValue;
 	}
 };
