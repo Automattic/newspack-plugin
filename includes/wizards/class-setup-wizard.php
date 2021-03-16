@@ -95,7 +95,7 @@ class Setup_Wizard extends Wizard {
 			'/wizard/' . $this->slug . '/theme',
 			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_retrieve_theme' ],
+				'callback'            => [ $this, 'api_retrieve_theme_and_set_defaults' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -229,7 +229,7 @@ class Setup_Wizard extends Wizard {
 	 *
 	 * @return WP_REST_Response containing info.
 	 */
-	public function api_retrieve_theme() {
+	public function api_retrieve_theme_and_set_defaults() {
 		$theme_mods = get_theme_mods();
 
 		$theme_mods['header_color'] = get_theme_mod( 'header_color', 'default' );
@@ -265,9 +265,16 @@ class Setup_Wizard extends Wizard {
 		}
 		// Set custom header color to primary, if not set.
 
-		$theme_mods['accent_allcaps']         = get_theme_mod( 'accent_allcaps', true );
-		$theme_mods['footer_color']           = get_theme_mod( 'footer_color', 'default' );
-		$theme_mods['footer_copyright']       = get_theme_mod( 'footer_copyright', '' );
+		$theme_mods['accent_allcaps'] = get_theme_mod( 'accent_allcaps', true );
+
+		// Footer.
+		$theme_mods['footer_color']     = get_theme_mod( 'footer_color', 'default' );
+		$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', false );
+		if ( false === $theme_mods['footer_copyright'] ) {
+			set_theme_mod( 'footer_copyright', get_option( 'blogdescription', '' ) );
+			$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright' );
+		}
+
 		$theme_mods['header_text']            = get_theme_mod( 'header_text', '' );
 		$theme_mods['header_display_tagline'] = get_theme_mod( 'header_display_tagline', '' );
 		return rest_ensure_response(
@@ -296,7 +303,7 @@ class Setup_Wizard extends Wizard {
 			}
 			set_theme_mod( $key, $value );
 		}
-		return self::api_retrieve_theme();
+		return self::api_retrieve_theme_and_set_defaults();
 	}
 
 	/**

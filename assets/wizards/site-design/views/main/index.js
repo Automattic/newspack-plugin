@@ -206,10 +206,6 @@ const Main = ( {
 							label={ __( 'Copyright information', 'newspack' ) }
 							value={ mods.footer_copyright || '' }
 							onChange={ updateMods( 'footer_copyright' ) }
-							help={ __(
-								'Add custom text to be displayed next to a copyright symbol and current year in the footer. By default, it will display your site title.',
-								'newspack'
-							) }
 						/>
 						<InfoButton
 							text={ __(
