@@ -126,6 +126,7 @@ class Starter_Content {
 		if ( ! function_exists( 'wp_create_category' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/taxonomy.php';
 		}
+		self::remove_starter_categories();
 		$category_ids = array_map(
 			function( $category ) {
 				$created_category = wp_insert_term( $category, 'category', [ 'slug' => '_newspack_' . $category ] );
@@ -459,16 +460,24 @@ class Starter_Content {
 	}
 
 	/**
-	 * Removes all starter content.
+	 * Removes starter categories.
 	 */
-	public static function remove_starter_content() {
-		$starter_content_data = self::starter_content_data();
-		if ( ! empty( $starter_content_data['category_ids'] ) ) {
-			foreach ( $starter_content_data['category_ids'] as $category_id ) {
+	public static function remove_starter_categories() {
+		$category_ids = get_option( self::$starter_categories_meta, [] );
+		if ( ! empty( $category_ids ) ) {
+			foreach ( $category_ids as $category_id ) {
 				wp_delete_category( $category_id );
 			}
 			delete_option( self::$starter_categories_meta );
 		}
+	}
+
+	/**
+	 * Removes all starter content.
+	 */
+	public static function remove_starter_content() {
+		self::remove_starter_categories();
+		$starter_content_data = self::starter_content_data();
 		if ( ! empty( $starter_content_data['post_ids'] ) ) {
 			foreach ( $starter_content_data['post_ids'] as $post_index => $post_id ) {
 				wp_delete_post( $post_id, true );
