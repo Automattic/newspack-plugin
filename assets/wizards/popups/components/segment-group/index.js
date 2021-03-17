@@ -8,7 +8,7 @@ import cookies from 'js-cookie';
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import { Icon, plus } from '@wordpress/icons';
 
 /**
@@ -24,7 +24,6 @@ import {
 	getFavoriteCategoryNames,
 	warningForPopup,
 } from '../../utils';
-import { CampaignsContext } from '../../contexts';
 
 import {
 	iconInline,
@@ -74,7 +73,6 @@ const SegmentGroup = props => {
 	const [ modalVisible, setModalVisible ] = useState( false );
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
-	const allPrompts = useContext( CampaignsContext );
 	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
 
 	useEffect( () => {

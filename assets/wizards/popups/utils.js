@@ -283,22 +283,22 @@ export const warningForPopup = ( prompts, prompt ) => {
 									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
 									{ ( isOverlay( prompt ) || isAboveHeader( prompt ) ) &&
 										sprintf(
-											__( '%s can’t share the same segment %s. ' ),
+											__(
+												'If multiple %s%s share the same segment %s, only the most recent one will be displayed. '
+											),
+											0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
 											isAboveHeader( prompt )
-												? __( 'Above-header prompts', 'newspack' )
-												: __( 'Overlays', 'newspack' ),
-											0 < promptCategories.length
-												? __( 'and category filtering', 'newspack' )
-												: __( 'if uncategorized', 'newspack' )
+												? __( 'above-header prompts', 'newspack' )
+												: __( 'overlays', 'newspack' ),
+											0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
 										) }
 									{ isCustomPlacement( prompt ) &&
 										sprintf(
 											__(
-												'Prompts in the same custom placement can’t share the same segment  %s.'
+												'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
 											),
-											0 < promptCategories.length
-												? __( 'and category filtering', 'newspack' )
-												: __( 'if uncategorized', 'newspack' )
+											0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+											0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
 										) }
 								</p>
 							</li>
