@@ -59,6 +59,17 @@ svg {
 			cursor: wait;
 		}
 
+		&__footer {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+
+			.newspack-checkbox-control {
+				margin: 12px 16px 12px 0;
+			}
+		}
+
 		h1 {
 			align-items: center;
 			display: flex;
