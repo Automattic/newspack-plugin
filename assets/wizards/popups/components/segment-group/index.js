@@ -203,7 +203,7 @@ const SegmentGroup = props => {
 					<PromptActionCard
 						className={ getCardClassName( item ) }
 						description={ descriptionForPopup( item ) }
-						warning={ warningForPopup( allPrompts, item ) }
+						warning={ warningForPopup( prompts, item ) }
 						key={ item.id }
 						prompt={ item }
 						{ ...props }
