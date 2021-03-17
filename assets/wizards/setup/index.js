@@ -73,13 +73,9 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 			<HashRouter hashType="slash">
 				{ routes.map( ( route, index ) => {
 					const nextRoute = routes[ index + 1 ]?.path;
-					const buttonAction = nextRoute
-						? {
-								href: '#' + nextRoute,
-						  }
-						: {
-								onClick: finishSetup,
-						  };
+					const buttonAction = {
+						href: '#' + nextRoute,
+					};
 					return (
 						<Route
 							key={ index }
@@ -93,6 +89,7 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
 									buttonDisabled: route.canProceed === false,
+									onSave: nextRoute ? null : finishSetup,
 									updateRoute: update => {
 										setRoutes( _routes =>
 											_routes.map( ( r, i ) => ( i === index ? { ...r, ...update } : r ) )

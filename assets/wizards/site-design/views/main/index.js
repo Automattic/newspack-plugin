@@ -32,6 +32,7 @@ const Main = ( {
 	renderPrimaryButton,
 	buttonText,
 	hasPreview = true,
+	onSave = () => {},
 } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
 	const [ mods, updateMods ] = hooks.useObjectState();
@@ -55,7 +56,10 @@ const Main = ( {
 			data: { theme_mods: mods, theme: themeSlug },
 			quiet: true,
 		} )
-			.then( updateSettings )
+			.then( res => {
+				updateSettings( res );
+				onSave();
+			} )
 			.catch( setError );
 
 	return (
