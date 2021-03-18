@@ -281,25 +281,31 @@ export const warningForPopup = ( prompts, prompt ) => {
 							<li key={ conflictingPrompt.id }>
 								<p>
 									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
-									{ ( isOverlay( prompt ) || isAboveHeader( prompt ) ) &&
-										sprintf(
-											__(
-												'If multiple %s%s share the same segment %s, only the most recent one will be displayed. '
-											),
-											0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
-											isAboveHeader( prompt )
-												? __( 'above-header prompts', 'newspack' )
-												: __( 'overlays', 'newspack' ),
-											0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
-										) }
-									{ isCustomPlacement( prompt ) &&
-										sprintf(
-											__(
-												'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
-											),
-											0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
-											0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
-										) }
+									<span>
+										{ ( isOverlay( prompt ) || isAboveHeader( prompt ) ) &&
+											sprintf(
+												__(
+													'If multiple%s%s share the same segment%s, only the most recent one will be displayed.'
+												),
+												0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+												isAboveHeader( prompt )
+													? __( ' above-header prompts', 'newspack' )
+													: __( ' overlays', 'newspack' ),
+												0 < promptCategories.length
+													? __( ' and category filtering', 'newspack' )
+													: ''
+											) }
+										{ isCustomPlacement( prompt ) &&
+											sprintf(
+												__(
+													'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
+												),
+												0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+												0 < promptCategories.length
+													? __( ' and category filtering', 'newspack' )
+													: ''
+											) }
+									</span>
 								</p>
 							</li>
 						) ) }
