@@ -55,7 +55,7 @@ jobs:
   test-php:
     docker:
       - image: circleci/php:7.2
-      - image: circleci/mysql:5.6
+      - image: circleci/mysql:5.6.50
     environment:
       - WP_TESTS_DIR: '/tmp/wordpress-tests-lib'
       - WP_CORE_DIR: '/tmp/wordpress/'
