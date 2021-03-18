@@ -217,7 +217,7 @@ const Welcome = ( { buttonAction } ) => {
 				<p>{ getInfoText() }</p>
 				{ errors.length ? errors.map( renderErrorBox ) : null }
 				{ ( isInit || isDone ) && (
-					<div className="flex items-center justify-between">
+					<Card noBorder className="newspack-card__footer">
 						{ isInit ? (
 							<CheckboxControl
 								checked={ shouldInstallStarterContent }
@@ -234,12 +234,10 @@ const Welcome = ( { buttonAction } ) => {
 								onClick={ isInit ? install : null }
 								href={ isDone ? buttonAction.href : null }
 							>
-								{ isInit
-									? __( 'Start the Installation', 'newspack' )
-									: __( 'Continue', 'newspack' ) }
+								{ isInit ? __( 'Get Started', 'newspack' ) : __( 'Continue', 'newspack' ) }
 							</Button>
 						</div>
-					</div>
+					</Card>
 				) }
 			</Card>
 		</>
