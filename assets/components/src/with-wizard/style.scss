@@ -18,6 +18,7 @@ body[class*='admin_page_newspack-'] {
 
 	#wpbody-content {
 		padding-bottom: 220px;
+		min-height: 100vh;
 
 		@media screen and ( min-width: 783px ) {
 			padding-bottom: 202px;
