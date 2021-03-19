@@ -166,6 +166,15 @@ class Analytics {
 	}
 
 	/**
+	 * Get a unique id.
+	 *
+	 * @return string Unique id.
+	 */
+	private static function get_uniqid() {
+		return 'n' . substr( uniqid(), 10 );
+	}
+
+	/**
 	 * Get data about all events.
 	 *
 	 * An event is largely based on the AMP analytics event spec and should contain the following fields:
@@ -184,7 +193,7 @@ class Analytics {
 		if ( Analytics_Wizard::ntg_events_enabled() ) {
 			$events = [
 				[
-					'id'             => 'socialShareClickedFacebook',
+					'id'             => self::get_uniqid(),
 					'on'             => 'click',
 					'element'        => 'a.share-facebook',
 					'amp_element'    => 'amp-social-share[type="facebook"]',
@@ -193,7 +202,7 @@ class Analytics {
 					'event_category' => 'NTG social',
 				],
 				[
-					'id'             => 'socialShareClickedTwitter',
+					'id'             => self::get_uniqid(),
 					'on'             => 'click',
 					'element'        => 'a.share-twitter',
 					'amp_element'    => 'amp-social-share[type="twitter"]',
@@ -202,7 +211,7 @@ class Analytics {
 					'event_category' => 'NTG social',
 				],
 				[
-					'id'             => 'socialShareClickedWhatsApp',
+					'id'             => self::get_uniqid(),
 					'on'             => 'click',
 					'element'        => 'a.share-jetpack-whatsapp',
 					'amp_element'    => 'amp-social-share[type="whatsapp"]',
@@ -211,7 +220,7 @@ class Analytics {
 					'event_category' => 'NTG social',
 				],
 				[
-					'id'             => 'socialShareClickedLinkedIn',
+					'id'             => self::get_uniqid(),
 					'on'             => 'click',
 					'element'        => 'a.share-linkedin',
 					'amp_element'    => 'amp-social-share[type="linkedin"]',
@@ -226,7 +235,7 @@ class Analytics {
 					$events,
 					[
 						[
-							'id'              => 'articleRead25',
+							'id'              => self::get_uniqid(),
 							'on'              => 'scroll',
 							'event_name'      => '25%',
 							'event_value'     => 25,
@@ -238,7 +247,7 @@ class Analytics {
 							],
 						],
 						[
-							'id'              => 'articleRead50',
+							'id'              => self::get_uniqid(),
 							'on'              => 'scroll',
 							'event_name'      => '50%',
 							'event_value'     => 50,
@@ -250,7 +259,7 @@ class Analytics {
 							],
 						],
 						[
-							'id'              => 'articleRead100',
+							'id'              => self::get_uniqid(),
 							'on'              => 'scroll',
 							'event_name'      => '100%',
 							'event_value'     => 100,
@@ -316,13 +325,13 @@ class Analytics {
 	 * @param string $content The block content about to be appended.
 	 */
 	public static function prepare_jetpack_mailchimp_block( $content ) {
-		$block_unique_id = sprintf( 'wp-block-jetpack-mailchimp-%s', uniqid() );
+		$block_unique_id = self::get_uniqid();
 
 		// Wrap the block in amp-layout to enable visibility tracking. Sugggested here: https://github.com/ampproject/amphtml/issues/11678.
 		$content = sprintf( '<amp-layout id="%s">%s</amp-layout>', $block_unique_id, $content );
 
 		self::$ntg_block_events[] = [
-			'id'             => 'newsletterSignup-' . $block_unique_id,
+			'id'             => self::get_uniqid(),
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#' . $block_unique_id . ' form',
@@ -334,7 +343,7 @@ class Analytics {
 			],
 		];
 		self::$ntg_block_events[] = [
-			'id'              => 'newsletterImpression-' . $block_unique_id,
+			'id'              => self::get_uniqid(),
 			'on'              => 'visible',
 			'element'         => '#' . $block_unique_id,
 			'event_name'      => 'newsletter modal impression ' . self::$block_render_context,
@@ -353,7 +362,7 @@ class Analytics {
 	 */
 	public static function prepare_comment_events() {
 		self::$ntg_block_events[] = [
-			'id'             => 'addComment',
+			'id'             => self::get_uniqid(),
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#commentform',
@@ -368,7 +377,7 @@ class Analytics {
 	 */
 	public static function prepare_login_events() {
 		self::$ntg_block_events[] = [
-			'id'             => 'loginSuccess',
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-form-login',
@@ -383,7 +392,7 @@ class Analytics {
 	 */
 	public static function prepare_registration_events() {
 		self::$ntg_block_events[] = [
-			'id'             => 'registrationSuccess',
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-form-register',
@@ -398,7 +407,7 @@ class Analytics {
 	 */
 	public static function prepare_checkout_registration_events() {
 		self::$ntg_block_events[] = [
-			'id'             => 'registrationSuccess',
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-checkout',
