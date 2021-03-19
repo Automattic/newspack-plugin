@@ -176,7 +176,7 @@ class Analytics {
 	 *    'amp_element'    => string CSS selector for AMP version of element if different.
 	 *    'event_name'     => string Name for event in GA (e.g. 'Clicked').
 	 *    'event_label'    => string Label for event in GA (e.g. 'Popup 1')
-	 *    'event_category' => string Category for event in GA (e.g. 'Newspack Announcements').
+	 *    'event_category' => string Category for event in GA (e.g. 'User Interaction').
 	 * There can also be other fields specific for certain events (e.g. 'scrollSpec' for 'scroll' event listener).
 	 */
 	public static function get_events() {
@@ -427,14 +427,18 @@ class Analytics {
 				'request' => 'event',
 				'on'      => isset( $event['amp_on'] ) ? $event['amp_on'] : $event['on'],
 				'vars'    => [
-					'event_name'      => $event['event_name'],
-					'event_label'     => $event['event_label'],
-					'event_category'  => $event['event_category'],
-					'non_interaction' => ! empty( $event['non_interaction'] ) ? $event['non_interaction'] : false,
+					'event_name'     => $event['event_name'],
+					'event_category' => $event['event_category'],
 				],
 			];
+			if ( isset( $event['non_interaction'] ) && true === $event['non_interaction'] ) {
+				$event_config['vars']['non_interaction'] = $event['non_interaction'];
+			}
 			if ( isset( $event['event_value'] ) ) {
 				$event_config['vars']['value'] = $event['event_value'];
+			}
+			if ( isset( $event['event_label'] ) && ! empty( $event['event_label'] ) ) {
+				$event_config['vars']['event_label'] = $event['event_label'];
 			}
 
 			if ( isset( $event['amp_element'] ) || isset( $event['element'] ) ) {
@@ -443,7 +447,7 @@ class Analytics {
 
 			// Handle other config params e.g. 'scrollSpec'.
 			foreach ( $event as $key => $val ) {
-				if ( ! in_array( $key, [ 'id', 'on', 'amp_on', 'element', 'amp_element', 'event_name', 'event_label', 'event_category' ] ) ) {
+				if ( ! in_array( $key, [ 'id', 'on', 'amp_on', 'element', 'amp_element', 'event_name', 'event_label', 'event_category', 'is_active', 'non_interaction' ] ) ) {
 					$event_config[ $key ] = $val;
 				}
 			}
@@ -529,7 +533,9 @@ class Analytics {
 								'<?php echo esc_attr( $event['event_name'] ); ?>',
 								{
 									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+									<?php if ( isset( $event['event_label'] ) ) : ?>
+										event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+									<?php endif; ?>
 								}
 							);
 						};
@@ -568,7 +574,9 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( isset( $event['event_label'] ) ) : ?>
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php endif; ?>
 								value: scrollPercent,
 								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 							}
@@ -602,7 +610,9 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( isset( $event['event_label'] ) ) : ?>
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php endif; ?>
 							}
 						);
 					} );
@@ -666,7 +676,9 @@ class Analytics {
 										'<?php echo esc_attr( $event['event_name'] ); ?>',
 										{
 											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-											event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											<?php if ( isset( $event['event_label'] ) ) : ?>
+												event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											<?php endif; ?>
 											non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 										}
 									);
@@ -701,7 +713,9 @@ class Analytics {
 						'<?php echo esc_attr( $event['event_name'] ); ?>',
 						{
 							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							<?php if ( isset( $event['event_label'] ) ) : ?>
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							<?php endif; ?>
 							non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 						}
 					);
