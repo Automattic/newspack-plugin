@@ -253,15 +253,14 @@ describe( 'A segment with conflicting prompts', () => {
 	} );
 
 	it( 'renders a conflict notice for uncategorized overlays in the same segment', async () => {
-		await waitForElement( () => screen.getByText( `Segment: ${ SEGMENT.label }` ) );
 		const noticeText =
 			'If multiple uncategorized overlays share the same segment, only the most recent one will be displayed.';
+
 		const notices = screen.getAllByText( noticeText );
 		notices.forEach( overlayNotice => expect( overlayNotice ).toBeInTheDocument() );
 	} );
 
 	it( 'renders a conflict notice for categorized overlays in the same segment', async () => {
-		await waitForElement( () => screen.getByText( `Segment: ${ SEGMENT.label }` ) );
 		const noticeText =
 			'If multiple overlays share the same segment and category filtering, only the most recent one will be displayed.';
 		const notices = screen.getAllByText( noticeText );
@@ -269,7 +268,6 @@ describe( 'A segment with conflicting prompts', () => {
 	} );
 
 	it( 'renders a conflict notice for uncategorized above-header prompts in the same segment', async () => {
-		await waitForElement( () => screen.getByText( `Segment: ${ SEGMENT.label }` ) );
 		const noticeText =
 			'If multiple uncategorized above-header prompts share the same segment, only the most recent one will be displayed.';
 		const notices = screen.getAllByText( noticeText );
@@ -277,7 +275,6 @@ describe( 'A segment with conflicting prompts', () => {
 	} );
 
 	it( 'renders a conflict notice for above-header prompts in the same segment', async () => {
-		await waitForElement( () => screen.getByText( `Segment: ${ SEGMENT.label }` ) );
 		const noticeText =
 			'If multiple above-header prompts share the same segment and category filtering, only the most recent one will be displayed.';
 		const notices = screen.getAllByText( noticeText );
@@ -285,7 +282,6 @@ describe( 'A segment with conflicting prompts', () => {
 	} );
 
 	it( 'renders a conflict notice for uncategorized prompts in the same custom placement and segment', async () => {
-		await waitForElement( () => screen.getByText( `Segment: ${ SEGMENT.label }` ) );
 		const noticeText =
 			'If multiple uncategorized prompts in the same custom placement share the same segment, only the most recent one will be displayed.';
 		const notices = screen.getAllByText( noticeText );
@@ -293,7 +289,6 @@ describe( 'A segment with conflicting prompts', () => {
 	} );
 
 	it( 'renders a conflict notice for in the same custom placement and segment', async () => {
-		await waitForElement( () => screen.getByText( `Segment: ${ SEGMENT.label }` ) );
 		const noticeText =
 			'If multiple prompts in the same custom placement share the same segment and category filtering, only the most recent one will be displayed.';
 		const notices = screen.getAllByText( noticeText );
