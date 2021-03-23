@@ -230,11 +230,35 @@ export const isSameType = ( campaignA, campaignB ) => {
 const sharesSegments = ( segmentsA, segmentsB ) => {
 	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
 	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
-	console.log( segmentsArrayA, segmentsArrayB );
 	return (
 		( ! segmentsArrayA.length && ! segmentsArrayB.length ) ||
 		segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) )
 	);
+};
+
+export const buildWarning = ( prompt, promptCategories ) => {
+	if ( isOverlay( prompt ) || isAboveHeader( prompt ) ) {
+		return sprintf(
+			__( 'If multiple%s%s share the same segment%s, only the most recent one will be displayed.' ),
+			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+			isAboveHeader( prompt )
+				? __( ' above-header prompts', 'newspack' )
+				: __( ' overlays', 'newspack' ),
+			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
+		);
+	}
+
+	if ( isCustomPlacement( prompt ) ) {
+		return sprintf(
+			__(
+				'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
+			),
+			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
+		);
+	}
+
+	return '';
 };
 
 export const warningForPopup = ( prompts, prompt ) => {
@@ -283,33 +307,9 @@ export const warningForPopup = ( prompts, prompt ) => {
 					<ul>
 						{ conflictingPrompts.map( conflictingPrompt => (
 							<li key={ conflictingPrompt.id }>
-								<p>
+								<p data-testid={ `conflict-warning-${ prompt.id }` }>
 									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
-									<span>
-										{ ( isOverlay( prompt ) || isAboveHeader( prompt ) ) &&
-											sprintf(
-												__(
-													'If multiple%s%s share the same segment%s, only the most recent one will be displayed.'
-												),
-												0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
-												isAboveHeader( prompt )
-													? __( ' above-header prompts', 'newspack' )
-													: __( ' overlays', 'newspack' ),
-												0 < promptCategories.length
-													? __( ' and category filtering', 'newspack' )
-													: ''
-											) }
-										{ isCustomPlacement( prompt ) &&
-											sprintf(
-												__(
-													'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
-												),
-												0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
-												0 < promptCategories.length
-													? __( ' and category filtering', 'newspack' )
-													: ''
-											) }
-									</span>
+									<span>{ buildWarning( prompt, promptCategories ) }</span>
 								</p>
 							</li>
 						) ) }
