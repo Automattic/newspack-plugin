@@ -8,7 +8,6 @@ import { render } from '@testing-library/react';
  * Internal dependencies
  */
 import SegmentGroup from './index';
-import { warningForPopup } from '../../utils';
 
 // Mock component props.
 const CAMPAIGN = {
@@ -397,7 +396,7 @@ describe( 'A segment with conflicting prompts', () => {
 		);
 	} );
 
-	it( 'renders a conflict notice for in the same custom placement and segment', async () => {
+	it( 'renders a conflict notice for categorized prompts in the same custom placement and segment', async () => {
 		SEGMENT.prompts = PROMPTS.customPlacementsCategorized;
 
 		// Expected warning text.
@@ -422,6 +421,42 @@ describe( 'A segment with conflicting prompts', () => {
 		);
 		expect( notice2.textContent ).toEqual(
 			`${ PROMPTS.customPlacementsCategorized[ 0 ].title }: ${ noticeText }`
+		);
+	} );
+
+	it( 'renders a conflict notice for conflicting prompts that have no segment', async () => {
+		const everyone = {
+			configuration: {},
+			id: '',
+			label: 'Everyone',
+			prompts: [ ...PROMPTS.overlaysUncategorized ],
+		};
+
+		// Unset selected segment ids.
+		everyone.prompts.forEach( prompt => ( prompt.options.selected_segment_id = '' ) );
+
+		// Expected warning text.
+		const noticeText =
+			'If multiple uncategorized overlays share the same segment, only the most recent one will be displayed.';
+		const props = {
+			campaignData: CAMPAIGN.campaignData,
+			campaign: CAMPAIGN.campaignId,
+			segment: everyone,
+		};
+		const { getByTestId } = render( <SegmentGroup { ...props } /> );
+		const notice1 = getByTestId( 'conflict-warning-1' );
+		const notice2 = getByTestId( 'conflict-warning-2' );
+
+		// Elements are in the document.
+		expect( notice1 ).toBeInTheDocument();
+		expect( notice2 ).toBeInTheDocument();
+
+		// Notice text has expected shape.
+		expect( notice1.textContent ).toEqual(
+			`${ PROMPTS.overlaysUncategorized[ 1 ].title }: ${ noticeText }`
+		);
+		expect( notice2.textContent ).toEqual(
+			`${ PROMPTS.overlaysUncategorized[ 0 ].title }: ${ noticeText }`
 		);
 	} );
 } );
