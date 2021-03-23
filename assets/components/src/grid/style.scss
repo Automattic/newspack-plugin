@@ -5,6 +5,7 @@
 .newspack-grid {
 	display: grid;
 	grid-gap: 32px;
+	grid-auto-rows: min-content;
 	grid-template-columns: 1fr;
 	margin: 32px 0;
 	&--no-margin {

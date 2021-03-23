@@ -22,8 +22,12 @@ class ButtonGroup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, ...otherProps } = this.props;
-		const classes = classnames( 'newspack-button-group', className );
+		const { className, noMargin, ...otherProps } = this.props;
+		const classes = classnames(
+			'newspack-button-group',
+			{ 'newspack-button-group--no-margin': noMargin },
+			className
+		);
 		return <BaseComponent className={ classes } { ...otherProps } />;
 	}
 }

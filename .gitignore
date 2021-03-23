@@ -34,3 +34,6 @@ Thumbs.db
 /assets/components/shared
 /assets/components/node_modules
 /assets/release
+
+# Tests
+codecov/

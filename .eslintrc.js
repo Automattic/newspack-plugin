@@ -30,5 +30,7 @@ module.exports = {
 		// JSDoc rules overrides
 		'jsdoc/require-returns': 'off',
 		'jsdoc/require-param': 'off',
+		// Deprecated rules
+		'jsx-a11y/no-onchange': 'off',
 	},
 };

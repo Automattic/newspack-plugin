@@ -294,7 +294,6 @@ class CustomEvents extends Component {
 						'newspack'
 					) }
 				</p>
-				{ console.log( this.state ) }
 				<ToggleControl
 					disabled={ this.state.ntgEventsStatus.enabled === undefined }
 					checked={ this.state.ntgEventsStatus.enabled }
