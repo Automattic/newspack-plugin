@@ -37,6 +37,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				'offset'         => '3',
 				'event_label_id' => '',
 				'event_action'   => '',
+				'end_date'       => '2021-03-19',
 			]
 		);
 		self::assertEquals(
@@ -113,6 +114,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				'offset'         => '3',
 				'event_label_id' => '',
 				'event_action'   => '',
+				'end_date'       => '2021-03-19',
 			]
 		);
 		self::assertEquals(

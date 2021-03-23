@@ -47,28 +47,19 @@ class Popups_Analytics_Utils {
 	}
 
 	/**
-	 * Date before.
-	 *
-	 * @param string $offset date offset in days.
-	 * @return string formatted date.
-	 */
-	private static function date_before( $offset ) {
-		$today = new \DateTime();
-		$today = $today->modify( '-' . $offset . ' days' );
-		return $today->format( 'Y-m-d' );
-	}
-
-	/**
 	 * Fill in dates.
 	 *
 	 * @param array  $input array of days.
 	 * @param string $offset date offset in days.
+	 * @param string $end_date end date.
 	 * @return array array of dates.
 	 */
-	private static function fill_in_dates( $input, $offset ) {
-		$all_days = self::get_dates_in_range(
-			self::date_before( $offset ),
-			self::date_before( '1' )
+	private static function fill_in_dates( $input, $offset, $end_date ) {
+		$range_begin = new \DateTime( $end_date );
+		$range_end   = new \DateTime( $end_date );
+		$all_days    = self::get_dates_in_range(
+			$range_begin->modify( '-' . $offset . ' days' )->format( 'Y-m-d' ),
+			$range_end->modify( '-1 days' )->format( 'Y-m-d' )
 		);
 
 		$days_filled = array_map(
@@ -260,6 +251,11 @@ class Popups_Analytics_Utils {
 		$offset         = $options['offset'];
 		$event_label_id = $options['event_label_id'];
 		$event_action   = $options['event_action'];
+		if ( isset( $options['end_date'] ) ) {
+			$end_date = $options['end_date'];
+		} else {
+			$end_date = 'now';
+		}
 
 		if ( is_wp_error( $ga_data_rows ) ) {
 			return $ga_data_rows;
@@ -370,7 +366,7 @@ class Popups_Analytics_Utils {
 		);
 
 		return array(
-			'report'         => self::fill_in_dates( $ga_data_days, $offset ),
+			'report'         => self::fill_in_dates( $ga_data_days, $offset, $end_date ),
 			'actions'        => $all_actions,
 			'labels'         => array_values( $all_labels ),
 			'key_metrics'    => $key_metrics,
