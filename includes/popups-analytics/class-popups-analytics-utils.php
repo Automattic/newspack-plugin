@@ -131,7 +131,7 @@ class Popups_Analytics_Utils {
 
 		$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
 		$body->setReportRequests( array( $request ) );
-		$client = \Newspack\Google_Services_Connection::get_oauth_client()->get_client();
+		$client = \Newspack\Google_Services_Connection::get_site_kit_oauth_client()->get_client();
 
 		$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
 		// https://developers.google.com/analytics/devguides/reporting/core/v4/rest/v4/reports/batchGet.

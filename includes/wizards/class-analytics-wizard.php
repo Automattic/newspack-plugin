@@ -339,7 +339,7 @@ class Analytics_Wizard extends Wizard {
 		$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
 
 		if ( $analytics && $analytics->is_connected() ) {
-			$authentication = \Newspack\Google_Services_Connection::get_authentication();
+			$authentication = \Newspack\Google_Services_Connection::get_site_kit_authentication();
 
 			if ( false === $authentication->is_authenticated() ) {
 				return new WP_Error( 'newspack_analytics_sitekit_authentication', __( 'Please authenticate with the Site Kit plugin.', 'newspack' ) );
@@ -347,7 +347,7 @@ class Analytics_Wizard extends Wizard {
 
 			// A user might have authenticated with Site Kit before this version of the plugin,
 			// which updated authorization scopes, was deployed.
-			$unsatisfied_scopes = $authentication->get_oauth_client()->get_unsatisfied_scopes();
+			$unsatisfied_scopes = $authentication->get_site_kit_oauth_client()->get_unsatisfied_scopes();
 			if ( 0 !== count( $unsatisfied_scopes ) ) {
 				return new WP_Error(
 					'newspack_analytics_sitekit_unsatisfied_scopes',
@@ -359,7 +359,7 @@ class Analytics_Wizard extends Wizard {
 				);
 			}
 
-			$client = $authentication->get_oauth_client()->get_client();
+			$client = $authentication->get_site_kit_oauth_client()->get_client();
 
 			return [
 				'analytics_service' => new Google_Service_Analytics( $client ),

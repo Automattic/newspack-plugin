@@ -27,7 +27,7 @@ class Google_Services_Connection {
 	 *
 	 * @return Authentication Site Kit's authentication.
 	 */
-	public static function get_authentication() {
+	public static function get_site_kit_authentication() {
 		if ( defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
 			$context        = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
 			$authentication = new Authentication( $context, new Options( $context ), new User_Options( $context ) );
@@ -43,8 +43,8 @@ class Google_Services_Connection {
 	 *
 	 * @return object Google OAuth2 client.
 	 */
-	public static function get_oauth_client() {
-		return self::get_authentication()->get_oauth_client();
+	public static function get_site_kit_oauth_client() {
+		return self::get_site_kit_authentication()->get_site_kit_oauth_client();
 	}
 
 	/**
@@ -59,16 +59,12 @@ class Google_Services_Connection {
 		}
 	}
 
+	/**
+	 * Get OAuth2 credentials.
+	 *
+	 * @return UserRefreshCredentials Credentials to make requests with.
+	 */
 	public static function get_oauth2_credentials() {
-		$client         = self::get_oauth_client();
-		$oauth2_service = $client->get_client()->getOAuth2Service();
-		return new UserRefreshCredentials(
-			null,
-			[
-				'client_id'     => $oauth2_service->getClientId(),
-				'client_secret' => $oauth2_service->getClientSecret(),
-				'refresh_token' => $client->get_refresh_token(),
-			]
-		);
+		return \Newspack\Google_OAuth::get_oauth2_credentials();
 	}
 }
