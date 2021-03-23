@@ -230,7 +230,6 @@ export const isSameType = ( campaignA, campaignB ) => {
 const sharesSegments = ( segmentsA, segmentsB ) => {
 	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
 	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
-	console.log( segmentsArrayA, segmentsArrayB );
 	return (
 		( ! segmentsArrayA.length && ! segmentsArrayB.length ) ||
 		segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) )
