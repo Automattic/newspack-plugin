@@ -5,8 +5,6 @@
  * @package Newspack
  */
 
-use Google\Site_Kit\Modules\Analytics;
-use Google\Site_Kit\Context;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_DateRange;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_Metric;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_ReportRequest;
@@ -15,9 +13,6 @@ use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_GetReportsReq
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_SegmentDimensionFilter;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_DimensionFilterClause;
-use Google\Site_Kit\Core\Storage\Options;
-use Google\Site_Kit\Core\Storage\User_Options;
-use Google\Site_Kit\Core\Authentication\Authentication;
 
 /**
  * Popup Analytics Utilities.
@@ -88,12 +83,11 @@ class Popups_Analytics_Utils {
 	 * Get results of a GA report, taking page token into account.
 	 *
 	 * @param Analytics                                   $analytics The Analytics.
-	 * @param Context                                     $context The Context.
 	 * @param Google_Service_AnalyticsReporting_DateRange $date_range Date range.
 	 * @param string                                      $page_token Page token for the report.
 	 * @return object GA report.
 	 */
-	private static function create_ga_report_result( $analytics, $context, $date_range, $page_token = null ) {
+	private static function create_ga_report_result( $analytics, $date_range, $page_token = null ) {
 		// Create the Metrics object.
 		$metrics = new Google_Service_AnalyticsReporting_Metric();
 		$metrics->setExpression( 'ga:totalEvents' );
@@ -137,8 +131,7 @@ class Popups_Analytics_Utils {
 
 		$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
 		$body->setReportRequests( array( $request ) );
-		$authentication = new Authentication( $context, new Options( $context ), new User_Options( $context ) );
-		$client         = $authentication->get_oauth_client()->get_client();
+		$client = \Newspack\Google_Services_Connection::get_oauth_client()->get_client();
 
 		$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
 		// https://developers.google.com/analytics/devguides/reporting/core/v4/rest/v4/reports/batchGet.
@@ -158,37 +151,34 @@ class Popups_Analytics_Utils {
 		$offset = $options['offset'];
 
 		// Load and query analytics.
-		if ( defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
-			$context   = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
-			$analytics = new Analytics( $context );
+		$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
 
-			if ( $analytics->is_connected() ) {
-				// Create the DateRange object.
-				$date_range = new Google_Service_AnalyticsReporting_DateRange();
-				$start_date = gmdate( 'Y-m-d', strtotime( $offset . ' days ago' ) );
-				$end_date   = gmdate( 'Y-m-d', strtotime( '1 days ago' ) );
-				$date_range->setStartDate( $start_date );
-				$date_range->setEndDate( $end_date );
+		if ( $analytics && $analytics->is_connected() ) {
+			// Create the DateRange object.
+			$date_range = new Google_Service_AnalyticsReporting_DateRange();
+			$start_date = gmdate( 'Y-m-d', strtotime( $offset . ' days ago' ) );
+			$end_date   = gmdate( 'Y-m-d', strtotime( '1 days ago' ) );
+			$date_range->setStartDate( $start_date );
+			$date_range->setEndDate( $end_date );
 
-				try {
-					$rows   = [];
-					$report = self::create_ga_report_result( $analytics, $context, $date_range );
+			try {
+				$rows   = [];
+				$report = self::create_ga_report_result( $analytics, $date_range );
+				$rows   = array_merge( $rows, $report->data->rows );
+				while ( $report->nextPageToken ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$report = self::create_ga_report_result( $analytics, $date_range, $report->nextPageToken ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$rows   = array_merge( $rows, $report->data->rows );
-					while ( $report->nextPageToken ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						$report = self::create_ga_report_result( $analytics, $context, $date_range, $report->nextPageToken ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						$rows   = array_merge( $rows, $report->data->rows );
-					}
-					return $rows;
-				} catch ( \Exception $error ) {
-					$error_data = json_decode( $error->getMessage() );
-					if ( isset( $error_data ) && 'UNAUTHENTICATED' === $error_data->error->status ) {
-						return new WP_Error( 'newspack_campaign_analytics_sitekit_auth', __( 'Please authenticate with Google Analytics to view Campaign analytics.', 'newspack' ) );
-					}
-					return new WP_Error( 'newspack_campaign_analytics', __( 'Google Analytics data fetching error.', 'newspack' ), $error_data );
 				}
-			} else {
-				return new WP_Error( 'newspack_campaign_analytics_sitekit_disconnected', __( 'Connect Site Kit plugin to view Campaign Analytics.', 'newspack' ) );
+				return $rows;
+			} catch ( \Exception $error ) {
+				$error_data = json_decode( $error->getMessage() );
+				if ( isset( $error_data ) && 'UNAUTHENTICATED' === $error_data->error->status ) {
+					return new WP_Error( 'newspack_campaign_analytics_sitekit_auth', __( 'Please authenticate with Google Analytics to view Campaign analytics.', 'newspack' ) );
+				}
+				return new WP_Error( 'newspack_campaign_analytics', __( 'Google Analytics data fetching error.', 'newspack' ), $error_data );
 			}
+		} else {
+			return new WP_Error( 'newspack_campaign_analytics_sitekit_disconnected', __( 'Connect Site Kit plugin to view Campaign Analytics.', 'newspack' ) );
 		}
 	}
 
