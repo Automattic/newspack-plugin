@@ -32,7 +32,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				],
 			],
 		];
-		$report  = \Popups_Analytics_Utils::process_ga_report(
+		$report    = \Popups_Analytics_Utils::process_ga_report(
 			$ga_rows,
 			[
 				'offset'         => '3',
