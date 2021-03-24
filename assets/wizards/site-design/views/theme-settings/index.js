@@ -17,48 +17,22 @@ import {
 import './style.scss';
 
 /**
- * Theme Selection Screen.
+ * Theme Settings Screen.
  */
-class ThemeMods extends Component {
+class ThemeSettings extends Component {
 	/**
 	 * Render.
 	 */
 	render() {
 		const { themeMods, setThemeMods } = this.props;
 		const {
-			header_solid_background: headerSolidBackground,
-			header_simplified: headerSimplified,
-			header_center_logo: headerCenterLogo,
 			show_author_bio: authorBio = true,
-			show_author_email: authorEmail,
+			show_author_email: authorEmail = false,
 			author_bio_length: authorBioLength = 200,
 			featured_image_default: featuredImageDefault,
 		} = themeMods;
 		return (
 			<Fragment>
-				<h2>{ __( 'Header', 'newspack' ) }</h2>
-				<ToggleControl
-					isDark
-					label={ __( 'Solid background', 'newspack' ) }
-					help={ __( 'Use the primary color as the header background.', 'newspack' ) }
-					checked={ headerSolidBackground }
-					onChange={ value => setThemeMods( { header_solid_background: value } ) }
-				/>
-				<ToggleControl
-					isDark
-					label={ __( 'Center logo', 'newspack' ) }
-					help={ __( 'Center the logo in the header.', 'newspack' ) }
-					checked={ headerCenterLogo }
-					onChange={ value => setThemeMods( { header_center_logo: value } ) }
-				/>
-				<ToggleControl
-					isDark
-					label={ __( 'Short header', 'newspack' ) }
-					help={ __( 'Display the header as a shorter, simpler version', 'newspack' ) }
-					checked={ headerSimplified }
-					onChange={ value => setThemeMods( { header_simplified: value } ) }
-				/>
-				<hr />
 				<h2>{ __( 'Author bio', 'newspack' ) }</h2>
 				<ToggleGroup
 					title={ __( 'Author bio', 'newspack' ) }
@@ -103,9 +77,9 @@ class ThemeMods extends Component {
 	}
 }
 
-ThemeMods.defaultProps = {
+ThemeSettings.defaultProps = {
 	themeMods: {},
 	setThemeMods: () => null,
 };
 
-export default withWizardScreen( ThemeMods );
+export default withWizardScreen( ThemeSettings );

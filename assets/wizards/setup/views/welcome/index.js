@@ -21,9 +21,11 @@ import {
 	NewspackLogo,
 	ProgressBar,
 	withWizardScreen,
+	CheckboxControl,
 } from '../../../../components/src';
 
 const POST_COUNT = newspack_aux_data.is_e2e ? 12 : 40;
+const STARTER_CONTENT_REQUEST_COUNT = POST_COUNT + 3;
 
 const REQUIRED_SOFTWARE_SLUGS = [
 	'jetpack',
@@ -36,8 +38,6 @@ const REQUIRED_SOFTWARE_SLUGS = [
 	'newspack-newsletters',
 	'newspack-theme',
 ];
-
-const TOTAL = POST_COUNT + 4 + REQUIRED_SOFTWARE_SLUGS.length;
 
 const ERROR_TYPES = {
 	plugin_configuration: { message: __( 'Installation', 'newspack' ) },
@@ -53,9 +53,14 @@ const starterContentFetch = endpoint =>
 const Welcome = ( { buttonAction } ) => {
 	const [ installationProgress, setInstallationProgress ] = useState( 0 );
 	const [ softwareInfo, setSoftwareInfo ] = useState( [] );
+	const [ shouldInstallStarterContent, setShouldInstallStarterContent ] = useState( true );
 	const [ errors, setErrors ] = useState( [] );
 	const addError = errorInfo => error =>
 		setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
+
+	const total =
+		( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) +
+		REQUIRED_SOFTWARE_SLUGS.length;
 
 	useEffect( () => {
 		document.body.classList.add( 'newspack_page_newspack-setup-wizard__welcome' );
@@ -74,8 +79,6 @@ const Welcome = ( { buttonAction } ) => {
 	const increment = () => setInstallationProgress( progress => progress + 1 );
 
 	const install = async () => {
-		increment();
-
 		// Plugins and theme.
 		const softwarePromises = softwareInfo.map( item => {
 			if ( item.Status === 'active' ) {
@@ -99,48 +102,50 @@ const Welcome = ( { buttonAction } ) => {
 			await softwarePromises[ i ]();
 		}
 
-		// Starter content.
-		await starterContentFetch( `categories` )
-			.then( increment )
-			.catch(
-				addError( {
-					info: ERROR_TYPES.starter_content,
-					item: __( 'Failed to create the categories.', 'newspack' ),
-				} )
+		if ( shouldInstallStarterContent ) {
+			// Starter content.
+			await starterContentFetch( `categories` )
+				.then( increment )
+				.catch(
+					addError( {
+						info: ERROR_TYPES.starter_content,
+						item: __( 'Failed to create the categories.', 'newspack' ),
+					} )
+				);
+			await Promise.allSettled(
+				times( POST_COUNT, n =>
+					starterContentFetch( `post/${ n }` )
+						.then( increment )
+						.catch(
+							addError( {
+								info: ERROR_TYPES.starter_content,
+								item: __( 'Failed to create a post.', 'newspack' ),
+							} )
+						)
+				)
 			);
-		await Promise.allSettled(
-			times( POST_COUNT, n =>
-				starterContentFetch( `post/${ n }` )
-					.then( increment )
-					.catch(
-						addError( {
-							info: ERROR_TYPES.starter_content,
-							item: __( 'Failed to create a post.', 'newspack' ),
-						} )
-					)
-			)
-		);
-		await starterContentFetch( `homepage` )
-			.then( increment )
-			.catch(
-				addError( {
-					info: ERROR_TYPES.starter_content,
-					item: __( 'Failed to create the homepage.', 'newspack' ),
-				} )
-			);
-		await starterContentFetch( `theme` )
-			.then( increment )
-			.catch(
-				addError( {
-					info: ERROR_TYPES.starter_content,
-					item: __( 'Failed to activate the theme.', 'newspack' ),
-				} )
-			);
+			await starterContentFetch( `homepage` )
+				.then( increment )
+				.catch(
+					addError( {
+						info: ERROR_TYPES.starter_content,
+						item: __( 'Failed to create the homepage.', 'newspack' ),
+					} )
+				);
+			await starterContentFetch( `theme` )
+				.then( increment )
+				.catch(
+					addError( {
+						info: ERROR_TYPES.starter_content,
+						item: __( 'Failed to activate the theme.', 'newspack' ),
+					} )
+				);
+		}
 	};
 
 	const hasErrors = errors.length > 0;
 	const isInit = installationProgress === 0;
-	const isDone = installationProgress === TOTAL;
+	const isDone = installationProgress === total;
 
 	const getHeadingText = () => {
 		if ( hasErrors ) {
@@ -171,10 +176,13 @@ const Welcome = ( { buttonAction } ) => {
 		if ( isDone ) {
 			return __( 'Click the button below to start configuring your Newspack site.', 'newspack' );
 		}
-		return __(
-			'We are now installing core plugins and pre-populating your site with categories and placeholder stories to help you pre-configure it. All placeholder content can be deleted later.',
-			'newspack'
-		);
+		if ( shouldInstallStarterContent ) {
+			return __(
+				'We are now installing core plugins and pre-populating your site with categories and placeholder stories to help you pre-configure it. All placeholder content can be deleted later.',
+				'newspack'
+			);
+		}
+		return __( 'We are now installing core plugins.', 'newspack' );
 	};
 
 	const getHeadingIcon = () => {
@@ -204,21 +212,32 @@ const Welcome = ( { buttonAction } ) => {
 					{ getHeadingText() }
 				</h1>
 				{ errors.length === 0 && installationProgress > 0 ? (
-					<ProgressBar completed={ installationProgress } total={ TOTAL } />
+					<ProgressBar completed={ installationProgress } total={ total } />
 				) : null }
 				<p>{ getInfoText() }</p>
 				{ errors.length ? errors.map( renderErrorBox ) : null }
 				{ ( isInit || isDone ) && (
-					<div className="newspack-buttons-card">
-						<Button
-							disabled={ REQUIRED_SOFTWARE_SLUGS.length !== softwareInfo.length }
-							isPrimary
-							onClick={ isInit ? install : null }
-							href={ isDone ? buttonAction.href : null }
-						>
-							{ isInit ? __( 'Start the Installation', 'newspack' ) : __( 'Continue', 'newspack' ) }
-						</Button>
-					</div>
+					<Card noBorder className="newspack-card__footer">
+						{ isInit ? (
+							<CheckboxControl
+								checked={ shouldInstallStarterContent }
+								label={ __( 'Install demo content', 'newspack' ) }
+								onChange={ setShouldInstallStarterContent }
+							/>
+						) : (
+							<div />
+						) }
+						<div>
+							<Button
+								disabled={ REQUIRED_SOFTWARE_SLUGS.length !== softwareInfo.length }
+								isPrimary
+								onClick={ isInit ? install : null }
+								href={ isDone ? buttonAction.href : null }
+							>
+								{ isInit ? __( 'Get Started', 'newspack' ) : __( 'Continue', 'newspack' ) }
+							</Button>
+						</div>
+					</Card>
 				) }
 			</Card>
 		</>

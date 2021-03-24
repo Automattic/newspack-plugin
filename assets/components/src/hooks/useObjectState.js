@@ -16,7 +16,7 @@ const mergeCustomizer = ( objValue, srcValue ) => {
  * A useState for an object.
  * Nested objects will be nested, but arrays replaced.
  */
-export default initial => {
+export default ( initial = {} ) => {
 	const [ stateObject, setStateObject ] = useState( initial );
 
 	const runUpdate = update =>

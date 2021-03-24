@@ -23,18 +23,19 @@ import { useFiltersState, useAnalyticsState } from './utils';
 /**
  * Popups Analytics screen.
  */
-const PopupAnalytics = ( { setError, isLoading, startLoading, doneLoading } ) => {
+const PopupAnalytics = ( { setError } ) => {
 	const [ filtersState, dispatchFilter ] = useFiltersState();
 	const [ siteKitWarningText, setSiteKitWarningText ] = useState();
+	const [ isLoading, setIsLoading ] = useState( false );
 	const [ state, updateState ] = useAnalyticsState();
-	const { report, labels, actions, key_metrics, post_edit_link, hasFetchedOnce } = state;
+	const { report, labels, actions, key_metrics, post_edit_link } = state;
 
 	useEffect( () => {
-		startLoading();
+		setIsLoading( true );
 		apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( filtersState ) }` } )
 			.then( response => {
 				updateState( { type: 'UPDATE_ALL', payload: response } );
-				doneLoading();
+				setIsLoading( false );
 			} )
 			.catch( error => {
 				if (
@@ -42,16 +43,12 @@ const PopupAnalytics = ( { setError, isLoading, startLoading, doneLoading } ) =>
 					error.code === 'newspack_campaign_analytics_sitekit_auth'
 				) {
 					setSiteKitWarningText( error.message );
-					doneLoading();
+					setIsLoading( false );
 				} else {
 					setError( error );
 				}
 			} );
 	}, [ filtersState ] );
-
-	if ( ! hasFetchedOnce && isLoading ) {
-		return null;
-	}
 
 	const handleFilterChange = type => payload => dispatchFilter( { type, payload } );
 

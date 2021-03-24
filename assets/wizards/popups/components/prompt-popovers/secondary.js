@@ -19,7 +19,7 @@ import {
 	Popover,
 	SelectControl,
 } from '../../../../components/src';
-import { frequenciesForPopup } from '../../utils';
+import { frequenciesForPopup, placementsForPopups } from '../../utils';
 import './style.scss';
 
 const SecondaryPromptPopover = ( {
@@ -30,7 +30,7 @@ const SecondaryPromptPopover = ( {
 	updatePopup,
 } ) => {
 	const { campaign_groups: campaignGroups, categories, id, options } = prompt;
-	const { frequency, selected_segment_id: selectedSegmentId } = options;
+	const { frequency, placement, selected_segment_id: selectedSegmentId } = options;
 	const [ assignedSegments, setAssignedSegments ] = useState( [] );
 
 	useEffect( () => {
@@ -63,6 +63,15 @@ const SecondaryPromptPopover = ( {
 					label={ __( 'Frequency', 'newspack' ) }
 				/>
 			) }
+			<SelectControl
+				onChange={ value => {
+					updatePopup( id, { placement: value } );
+					onFocusOutside();
+				} }
+				options={ placementsForPopups( prompt ) }
+				value={ placement }
+				label={ __( 'Placement', 'newspack' ) }
+			/>
 			<FormTokenField
 				value={ segments
 					.filter( segment => -1 < assignedSegments.indexOf( segment.id ) )
@@ -79,6 +88,7 @@ const SecondaryPromptPopover = ( {
 					.map( segment => segment.name ) }
 				label={ __( 'Segment', 'newspack-popups' ) }
 			/>
+
 			<CategoryAutocomplete
 				value={ campaignGroups || [] }
 				onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }

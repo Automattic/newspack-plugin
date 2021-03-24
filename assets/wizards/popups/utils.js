@@ -6,13 +6,17 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
+ * Array of overlay placements.
+ */
+const overlayPlacements = [ 'top', 'bottom', 'center' ];
+
+/**
  * Check whether the given popup is an overlay.
  *
  * @param {Object} popup Popup object to check.
  * @return {boolean} True if the popup is an overlay, otherwise false.
  */
-export const isOverlay = popup =>
-	[ 'top', 'bottom', 'center' ].indexOf( popup.options.placement ) >= 0;
+export const isOverlay = popup => overlayPlacements.indexOf( popup.options.placement ) >= 0;
 
 /**
  * Check whether the given popup is above-header.
@@ -22,24 +26,62 @@ export const isOverlay = popup =>
  */
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
+export const isCustomPlacement = popup => {
+	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
+
+	return -1 < Object.keys( customPlacements ).indexOf( popup.options.placement );
+};
+
+/**
+ * Check whether the given prompt is inline.
+ *
+ * @param {Object} prompt Prompt object to check.
+ * @return {boolean} True if the prompt is inline, otherwise false.
+ */
+export const isInline = prompt => ! isOverlay( prompt );
+
+const placementMap = {
+	center: __( 'Center Overlay', 'newspack' ),
+	top: __( 'Top Overlay', 'newspack' ),
+	bottom: __( 'Bottom Overlay', 'newspack' ),
+	inline: __( 'Inline', 'newspack' ),
+	above_header: __( 'Above Header', 'newspack' ),
+};
+
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
-	if ( 'manual' === frequency ) {
-		return __( 'Manual Placement', 'newspack' );
+	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
+	if ( 'manual' === frequency || customPlacements.hasOwnProperty( placement ) ) {
+		return __( 'Custom Placement', 'newspack' );
 	}
-	return {
-		center: __( 'Center Overlay', 'newspack' ),
-		top: __( 'Top Overlay', 'newspack' ),
-		bottom: __( 'Bottom Overlay', 'newspack' ),
-		inline: __( 'Inline', 'newspack' ),
-		above_header: __( 'Above Header', 'newspack' ),
-	}[ placement ];
+	return placementMap[ placement ];
+};
+
+export const placementsForPopups = prompt => {
+	const customPlacements = window.newspack_popups_wizard_data?.custom_placements;
+	const options = Object.keys( placementMap )
+		.filter( key =>
+			isOverlay( prompt )
+				? -1 < overlayPlacements.indexOf( key )
+				: -1 === overlayPlacements.indexOf( key )
+		)
+		.map( key => ( { label: placementMap[ key ], value: key } ) );
+
+	if ( ! isOverlay( prompt ) && customPlacements ) {
+		return options.concat(
+			Object.keys( customPlacements ).map( key => ( {
+				label: customPlacements[ key ],
+				value: key,
+			} ) )
+		);
+	}
+
+	return options;
 };
 
 const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Until dismissed', 'newspack' ),
-	manual: __( 'Manual Placement', 'newspack' ),
 };
 
 export const frequenciesForPopup = popup => {
@@ -182,22 +224,50 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 };
 
 export const isSameType = ( campaignA, campaignB ) => {
-	return (
-		( isAboveHeader( campaignA ) && isAboveHeader( campaignB ) ) ||
-		( isOverlay( campaignA ) && isOverlay( campaignB ) )
-	);
+	return campaignA.options.placement === campaignB.options.placement;
 };
 
 const sharesSegments = ( segmentsA, segmentsB ) => {
 	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
 	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
-	return segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) );
+	return (
+		( ! segmentsArrayA.length && ! segmentsArrayB.length ) ||
+		segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) )
+	);
+};
+
+export const buildWarning = ( prompt, promptCategories ) => {
+	if ( isOverlay( prompt ) || isAboveHeader( prompt ) ) {
+		return sprintf(
+			__( 'If multiple%s%s share the same segment%s, only the most recent one will be displayed.' ),
+			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+			isAboveHeader( prompt )
+				? __( ' above-header prompts', 'newspack' )
+				: __( ' overlays', 'newspack' ),
+			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
+		);
+	}
+
+	if ( isCustomPlacement( prompt ) ) {
+		return sprintf(
+			__(
+				'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
+			),
+			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
+		);
+	}
+
+	return '';
 };
 
 export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
-	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) ) ) {
+	if (
+		'publish' === prompt.status &&
+		( isAboveHeader( prompt ) || isOverlay( prompt ) || isCustomPlacement( prompt ) )
+	) {
 		const promptCategories = prompt.categories;
 		const conflictingPrompts = prompts.filter( conflict => {
 			const conflictCategories = conflict.categories;
@@ -237,17 +307,9 @@ export const warningForPopup = ( prompts, prompt ) => {
 					<ul>
 						{ conflictingPrompts.map( conflictingPrompt => (
 							<li key={ conflictingPrompt.id }>
-								<p>
+								<p data-testid={ `conflict-warning-${ prompt.id }` }>
 									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
-									{ sprintf(
-										__( '%s can’t share the same segment %s. ' ),
-										isAboveHeader( prompt )
-											? __( 'Above-header prompts', 'newspack' )
-											: __( 'Overlays', 'newspack' ),
-										0 < promptCategories.length
-											? __( 'and category filtering', 'newspack' )
-											: __( 'if uncategorized', 'newspack' )
-									) }
+									<span>{ buildWarning( prompt, promptCategories ) }</span>
 								</p>
 							</li>
 						) ) }
