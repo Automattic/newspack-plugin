@@ -15,10 +15,11 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 	 * Test legacy report generation.
 	 */
 	public function test_report_generation_legacy() {
-		$ga_rows = [
+		$yesterday = ( new \DateTime() )->modify( '-1 days' );
+		$ga_rows   = [
 			[
 				'dimensions' => [
-					'20210318',
+					$yesterday->format( 'Ymd' ),
 					'Seen',
 					'Newspack Announcement: Newsletter form (954)',
 				],
@@ -31,7 +32,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				],
 			],
 		];
-		$report  = \Popups_Analytics_Utils::process_ga_report(
+		$report    = \Popups_Analytics_Utils::process_ga_report(
 			$ga_rows,
 			[
 				'offset'         => '3',
@@ -45,15 +46,15 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				'report'         =>
 				[
 					[
-						'date'  => '2021-03-16',
+						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
 						'value' => 0,
 					],
 					[
-						'date'  => '2021-03-17',
+						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
 						'value' => 0,
 					],
 					[
-						'date'  => '2021-03-18',
+						'date'  => $yesterday->format( 'Y-m-d' ),
 						'value' => 4,
 					],
 				],
@@ -87,6 +88,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 	 * Test report generation.
 	 */
 	public function test_report_generation() {
+		$yesterday   = ( new \DateTime() )->modify( '-1 days' );
 		$popup_title = 'Donations welcome';
 		$event_code  = '1'; // 'Seen'.
 		$popup_id    = wp_insert_post( [ 'post_title' => $popup_title ] );
@@ -94,7 +96,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 		$ga_rows = [
 			[
 				'dimensions' => [
-					'20210318',
+					$yesterday->format( 'Ymd' ),
 					$popup_id . $event_code,
 					'',
 				],
@@ -121,15 +123,15 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				'report'         =>
 				[
 					[
-						'date'  => '2021-03-16',
+						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
 						'value' => 0,
 					],
 					[
-						'date'  => '2021-03-17',
+						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
 						'value' => 0,
 					],
 					[
-						'date'  => '2021-03-18',
+						'date'  => $yesterday->format( 'Y-m-d' ),
 						'value' => 4,
 					],
 				],
