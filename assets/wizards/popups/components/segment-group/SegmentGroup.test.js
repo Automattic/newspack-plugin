@@ -271,10 +271,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice1 = getByTestId( 'conflict-warning-1' );
 		const notice2 = getByTestId( 'conflict-warning-2' );
 
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
-
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
 			`${ PROMPTS.overlaysUncategorized[ 1 ].title }: ${ noticeText }`
@@ -298,10 +294,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const { getByTestId } = render( <SegmentGroup { ...props } /> );
 		const notice1 = getByTestId( 'conflict-warning-3' );
 		const notice2 = getByTestId( 'conflict-warning-4' );
-
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
 
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
@@ -327,10 +319,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice1 = getByTestId( 'conflict-warning-5' );
 		const notice2 = getByTestId( 'conflict-warning-6' );
 
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
-
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
 			`${ PROMPTS.aboveHeadersUncategorized[ 1 ].title }: ${ noticeText }`
@@ -354,10 +342,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const { getByTestId } = render( <SegmentGroup { ...props } /> );
 		const notice1 = getByTestId( 'conflict-warning-7' );
 		const notice2 = getByTestId( 'conflict-warning-8' );
-
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
 
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
@@ -383,10 +367,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice1 = getByTestId( 'conflict-warning-9' );
 		const notice2 = getByTestId( 'conflict-warning-10' );
 
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
-
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
 			`${ PROMPTS.customPlacementsUncategorized[ 1 ].title }: ${ noticeText }`
@@ -410,10 +390,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const { getByTestId } = render( <SegmentGroup { ...props } /> );
 		const notice1 = getByTestId( 'conflict-warning-11' );
 		const notice2 = getByTestId( 'conflict-warning-12' );
-
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
 
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
@@ -446,10 +422,6 @@ describe( 'A segment with conflicting prompts', () => {
 		const { getByTestId } = render( <SegmentGroup { ...props } /> );
 		const notice1 = getByTestId( 'conflict-warning-1' );
 		const notice2 = getByTestId( 'conflict-warning-2' );
-
-		// Elements are in the document.
-		expect( notice1 ).toBeInTheDocument();
-		expect( notice2 ).toBeInTheDocument();
 
 		// Notice text has expected shape.
 		expect( notice1.textContent ).toEqual(
