@@ -6,6 +6,13 @@ commands:
       - checkout
       - attach_workspace:
           at: ~/
+  setup_php:
+    steps:
+      - run:
+          name: Install PHP extensions
+          command: |
+            sudo apt-get update && sudo apt-get install -y libxml2-dev
+            sudo -E docker-php-ext-install soap
 
 jobs:
   build:
@@ -43,9 +50,10 @@ jobs:
   # PHP jobs
   lint-php:
     docker:
-      - image: circleci/php:7.2
+      - image: circleci/php:7.3
     steps:
       - checkout
+      - setup_php
       - run:
           name: Lint Files
           command: |
@@ -54,13 +62,14 @@ jobs:
 
   test-php:
     docker:
-      - image: circleci/php:7.2
+      - image: circleci/php:7.3
       - image: circleci/mysql:5.6.50
     environment:
       - WP_TESTS_DIR: '/tmp/wordpress-tests-lib'
       - WP_CORE_DIR: '/tmp/wordpress/'
     steps:
       - checkout
+      - setup_php
       - run:
           name: Setup Environment Variables
           command: |
@@ -71,7 +80,7 @@ jobs:
           command: |
             sudo apt-get update && sudo apt-get install subversion
             sudo -E docker-php-ext-install mysqli
-            sudo apt-get update && sudo apt-get install default-mysql-client
+            sudo apt-get install default-mysql-client
       - run:
           name: Run Tests
           command: |
@@ -84,9 +93,10 @@ jobs:
   # Release job
   release:
     docker:
-      - image: circleci/php:7.2-node-browsers
+      - image: circleci/php:7.3-node-browsers
     steps:
       - checkout_with_workspace
+      - setup_php
       - run:
           name: Install rsync
           command: sudo apt install rsync
