@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
@@ -45,6 +46,7 @@ class ActionCard extends Component {
 			image,
 			imageLink,
 			isSmall,
+			isMedium,
 			simple,
 			onClick,
 			onSecondaryActionClick,
@@ -52,11 +54,16 @@ class ActionCard extends Component {
 			titleLink,
 			toggleChecked,
 			toggleOnChange,
+			hasGreyHeader,
 		} = this.props;
+		const hasChildren = notification || children;
 		const classes = classnames(
 			'newspack-action-card',
-			simple && 'newspack-card__is-clickable',
+			simple && 'newspack-card--is-clickable',
+			hasGreyHeader && 'newspack-card--has-grey-header',
+			hasChildren && 'newspack-card--has-children',
 			isSmall && 'is-small',
+			isMedium && 'is-medium',
 			className
 		);
 		const titleProps =
@@ -94,12 +101,12 @@ class ActionCard extends Component {
 					</div>
 					{ actionText && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ handoff && (
+							{ /* eslint-disable no-nested-ternary */
+							handoff ? (
 								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
 									{ actionText }
 								</Handoff>
-							) }
-							{ ( !! onClick || !! href ) && ! handoff && (
+							) : onClick ? (
 								<Button
 									isLink
 									href={ href }
@@ -108,13 +115,17 @@ class ActionCard extends Component {
 								>
 									{ actionText }
 								</Button>
-							) }
-							{ ! handoff && ! onClick && ! href && (
+							) : href ? (
+								<ExternalLink href={ href } className="newspack-action-card__primary_button">
+									{ actionText }
+								</ExternalLink>
+							) : (
 								<div className="newspack-action-card__container">
 									{ actionText }
 									{ isWaiting && <Waiting isRight /> }
 								</div>
 							) }
+							{ /* eslint-enable no-nested-ternary */ }
 
 							{ secondaryActionText && onSecondaryActionClick && (
 								<Button
@@ -129,7 +140,7 @@ class ActionCard extends Component {
 					) }
 				</div>
 				{ notification && (
-					<div className="newspack-action-card__notification">
+					<div className="newspack-action-card__notification newspack-action-card__region-children">
 						{ 'error' === notificationLevel && (
 							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
 						) }
@@ -144,7 +155,7 @@ class ActionCard extends Component {
 						) }
 					</div>
 				) }
-				{ children && <div>{ children }</div> }
+				{ children && <div className="newspack-action-card__region-children">{ children }</div> }
 			</Card>
 		);
 	}

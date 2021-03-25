@@ -19,7 +19,7 @@ class Analytics {
 	 *
 	 * @var array
 	 */
-	public static $block_events = [];
+	public static $ntg_block_events = [];
 
 	/**
 	 * An integer to indicate the context a block is rendered in, e.g. content|overlay campaign|inline campaign.
@@ -166,6 +166,15 @@ class Analytics {
 	}
 
 	/**
+	 * Get a unique id.
+	 *
+	 * @return string Unique id.
+	 */
+	private static function get_uniqid() {
+		return 'n' . substr( uniqid(), 10 );
+	}
+
+	/**
 	 * Get data about all events.
 	 *
 	 * An event is largely based on the AMP analytics event spec and should contain the following fields:
@@ -176,91 +185,94 @@ class Analytics {
 	 *    'amp_element'    => string CSS selector for AMP version of element if different.
 	 *    'event_name'     => string Name for event in GA (e.g. 'Clicked').
 	 *    'event_label'    => string Label for event in GA (e.g. 'Popup 1')
-	 *    'event_category' => string Category for event in GA (e.g. 'Newspack Announcements').
+	 *    'event_category' => string Category for event in GA (e.g. 'User Interaction').
 	 * There can also be other fields specific for certain events (e.g. 'scrollSpec' for 'scroll' event listener).
 	 */
 	public static function get_events() {
-		$events = [
-			[
-				'id'             => 'socialShareClickedFacebook',
-				'on'             => 'click',
-				'element'        => 'a.share-facebook',
-				'amp_element'    => 'amp-social-share[type="facebook"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'facebook',
-				'event_category' => 'NTG social',
-			],
-			[
-				'id'             => 'socialShareClickedTwitter',
-				'on'             => 'click',
-				'element'        => 'a.share-twitter',
-				'amp_element'    => 'amp-social-share[type="twitter"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'twitter',
-				'event_category' => 'NTG social',
-			],
-			[
-				'id'             => 'socialShareClickedWhatsApp',
-				'on'             => 'click',
-				'element'        => 'a.share-jetpack-whatsapp',
-				'amp_element'    => 'amp-social-share[type="whatsapp"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'whatsapp',
-				'event_category' => 'NTG social',
-			],
-			[
-				'id'             => 'socialShareClickedLinkedIn',
-				'on'             => 'click',
-				'element'        => 'a.share-linkedin',
-				'amp_element'    => 'amp-social-share[type="linkedin"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'linkedin',
-				'event_category' => 'NTG social',
-			],
-		];
-
-		if ( ! is_front_page() && ! is_archive() ) {
-			$events = array_merge(
-				$events,
+		$events = [];
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			$events = [
 				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-facebook',
+					'amp_element'    => 'amp-social-share[type="facebook"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'facebook',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-twitter',
+					'amp_element'    => 'amp-social-share[type="twitter"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'twitter',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-jetpack-whatsapp',
+					'amp_element'    => 'amp-social-share[type="whatsapp"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'whatsapp',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-linkedin',
+					'amp_element'    => 'amp-social-share[type="linkedin"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'linkedin',
+					'event_category' => 'NTG social',
+				],
+			];
+
+			if ( ! is_front_page() && ! is_archive() ) {
+				$events = array_merge(
+					$events,
 					[
-						'id'              => 'articleRead25',
-						'on'              => 'scroll',
-						'event_name'      => '25%',
-						'event_value'     => 25,
-						'event_label'     => get_the_title(),
-						'event_category'  => 'NTG article milestone',
-						'non_interaction' => true,
-						'scrollSpec'      => [
-							'verticalBoundaries' => [ 25 ],
+						[
+							'id'              => self::get_uniqid(),
+							'on'              => 'scroll',
+							'event_name'      => '25%',
+							'event_value'     => 25,
+							'event_label'     => get_the_title(),
+							'event_category'  => 'NTG article milestone',
+							'non_interaction' => true,
+							'scrollSpec'      => [
+								'verticalBoundaries' => [ 25 ],
+							],
 						],
-					],
-					[
-						'id'              => 'articleRead50',
-						'on'              => 'scroll',
-						'event_name'      => '50%',
-						'event_value'     => 50,
-						'event_label'     => get_the_title(),
-						'event_category'  => 'NTG article milestone',
-						'non_interaction' => true,
-						'scrollSpec'      => [
-							'verticalBoundaries' => [ 50 ],
+						[
+							'id'              => self::get_uniqid(),
+							'on'              => 'scroll',
+							'event_name'      => '50%',
+							'event_value'     => 50,
+							'event_label'     => get_the_title(),
+							'event_category'  => 'NTG article milestone',
+							'non_interaction' => true,
+							'scrollSpec'      => [
+								'verticalBoundaries' => [ 50 ],
+							],
 						],
-					],
-					[
-						'id'              => 'articleRead100',
-						'on'              => 'scroll',
-						'event_name'      => '100%',
-						'event_value'     => 100,
-						'event_label'     => get_the_title(),
-						'event_category'  => 'NTG article milestone',
-						'non_interaction' => true,
-						'scrollSpec'      => [
-							'verticalBoundaries' => [ 100 ],
+						[
+							'id'              => self::get_uniqid(),
+							'on'              => 'scroll',
+							'event_name'      => '100%',
+							'event_value'     => 100,
+							'event_label'     => get_the_title(),
+							'event_category'  => 'NTG article milestone',
+							'non_interaction' => true,
+							'scrollSpec'      => [
+								'verticalBoundaries' => [ 100 ],
+							],
 						],
-					],
-				]
-			);
+					]
+				);
+			}
 		}
 
 		$custom_events = array_reduce(
@@ -313,13 +325,13 @@ class Analytics {
 	 * @param string $content The block content about to be appended.
 	 */
 	public static function prepare_jetpack_mailchimp_block( $content ) {
-		$block_unique_id = sprintf( 'wp-block-jetpack-mailchimp-%s', uniqid() );
+		$block_unique_id = self::get_uniqid();
 
 		// Wrap the block in amp-layout to enable visibility tracking. Sugggested here: https://github.com/ampproject/amphtml/issues/11678.
 		$content = sprintf( '<amp-layout id="%s">%s</amp-layout>', $block_unique_id, $content );
 
-		self::$block_events[] = [
-			'id'             => 'newsletterSignup-' . $block_unique_id,
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#' . $block_unique_id . ' form',
@@ -330,8 +342,8 @@ class Analytics {
 				'totalTimeMin' => 500,
 			],
 		];
-		self::$block_events[] = [
-			'id'              => 'newsletterImpression-' . $block_unique_id,
+		self::$ntg_block_events[] = [
+			'id'              => self::get_uniqid(),
 			'on'              => 'visible',
 			'element'         => '#' . $block_unique_id,
 			'event_name'      => 'newsletter modal impression ' . self::$block_render_context,
@@ -349,8 +361,8 @@ class Analytics {
 	 * Prepare event triggers on user commenting.
 	 */
 	public static function prepare_comment_events() {
-		self::$block_events[] = [
-			'id'             => 'addComment',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#commentform',
@@ -364,8 +376,8 @@ class Analytics {
 	 * Add login event triggers for the WooCommerce My Account and Checkout pages.
 	 */
 	public static function prepare_login_events() {
-		self::$block_events[] = [
-			'id'             => 'loginSuccess',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-form-login',
@@ -379,8 +391,8 @@ class Analytics {
 	 * Add registration event triggers for the WooCommerce My Account page.
 	 */
 	public static function prepare_registration_events() {
-		self::$block_events[] = [
-			'id'             => 'registrationSuccess',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-form-register',
@@ -394,8 +406,8 @@ class Analytics {
 	 * Add a registration event trigger for the WooCommerce Checkout page.
 	 */
 	public static function prepare_checkout_registration_events() {
-		self::$block_events[] = [
-			'id'             => 'registrationSuccess',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-checkout',
@@ -415,20 +427,27 @@ class Analytics {
 		if ( is_user_logged_in() ) {
 			$config['vars']['user_id'] = get_current_user_id();
 		}
-		$all_events = array_merge( self::get_events(), self::$block_events );
+		$all_events = self::get_events();
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			$all_events = array_merge( $all_events, self::$ntg_block_events );
+		}
 		foreach ( $all_events as $event ) {
 			$event_config = [
 				'request' => 'event',
 				'on'      => isset( $event['amp_on'] ) ? $event['amp_on'] : $event['on'],
 				'vars'    => [
-					'event_name'      => $event['event_name'],
-					'event_label'     => $event['event_label'],
-					'event_category'  => $event['event_category'],
-					'non_interaction' => ! empty( $event['non_interaction'] ) ? $event['non_interaction'] : false,
+					'event_name'     => $event['event_name'],
+					'event_category' => $event['event_category'],
 				],
 			];
+			if ( isset( $event['non_interaction'] ) && true === $event['non_interaction'] ) {
+				$event_config['vars']['non_interaction'] = $event['non_interaction'];
+			}
 			if ( isset( $event['event_value'] ) ) {
 				$event_config['vars']['value'] = $event['event_value'];
+			}
+			if ( isset( $event['event_label'] ) && ! empty( $event['event_label'] ) ) {
+				$event_config['vars']['event_label'] = $event['event_label'];
 			}
 
 			if ( isset( $event['amp_element'] ) || isset( $event['element'] ) ) {
@@ -437,7 +456,7 @@ class Analytics {
 
 			// Handle other config params e.g. 'scrollSpec'.
 			foreach ( $event as $key => $val ) {
-				if ( ! in_array( $key, [ 'id', 'on', 'amp_on', 'element', 'amp_element', 'event_name', 'event_label', 'event_category' ] ) ) {
+				if ( ! in_array( $key, [ 'id', 'on', 'amp_on', 'element', 'amp_element', 'event_name', 'event_label', 'event_category', 'is_active', 'non_interaction' ] ) ) {
 					$event_config[ $key ] = $val;
 				}
 			}
@@ -467,7 +486,7 @@ class Analytics {
 		}
 
 		// Discard events with duplicate ids.
-		$all_events   = array_merge( self::get_events(), self::$block_events );
+		$all_events   = array_merge( self::get_events(), self::$ntg_block_events );
 		$unique_array = [];
 		foreach ( $all_events as $element ) {
 			$hash                  = $element['id'];
@@ -523,7 +542,9 @@ class Analytics {
 								'<?php echo esc_attr( $event['event_name'] ); ?>',
 								{
 									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+									<?php if ( isset( $event['event_label'] ) ) : ?>
+										event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+									<?php endif; ?>
 								}
 							);
 						};
@@ -562,7 +583,9 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( isset( $event['event_label'] ) ) : ?>
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php endif; ?>
 								value: scrollPercent,
 								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 							}
@@ -596,7 +619,9 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( isset( $event['event_label'] ) ) : ?>
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php endif; ?>
 							}
 						);
 					} );
@@ -660,7 +685,9 @@ class Analytics {
 										'<?php echo esc_attr( $event['event_name'] ); ?>',
 										{
 											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-											event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											<?php if ( isset( $event['event_label'] ) ) : ?>
+												event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											<?php endif; ?>
 											non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 										}
 									);
@@ -695,7 +722,9 @@ class Analytics {
 						'<?php echo esc_attr( $event['event_name'] ); ?>',
 						{
 							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							<?php if ( isset( $event['event_label'] ) ) : ?>
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							<?php endif; ?>
 							non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 						}
 					);

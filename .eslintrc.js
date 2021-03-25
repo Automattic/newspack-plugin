@@ -26,8 +26,11 @@ module.exports = {
 		// Skip prop types validation for now
 		'react/prop-types': 'off',
 		'react/react-in-jsx-scope': 'off',
+		'react/self-closing-comp': 'error',
 		// JSDoc rules overrides
 		'jsdoc/require-returns': 'off',
 		'jsdoc/require-param': 'off',
+		// Deprecated rules
+		'jsx-a11y/no-onchange': 'off',
 	},
 };

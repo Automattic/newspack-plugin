@@ -76,14 +76,14 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { onChange, className, label, info, image, style = {} } = this.props;
+		const { onChange, className, label, info, image, isCovering, style = {} } = this.props;
 		const classes = classnames(
 			'newspack-image-upload__image',
 			{ 'newspack-image-upload__image--has-image': image },
-			className
+			{ 'newspack-image-upload__image--covering': isCovering }
 		);
 		return (
-			<div className="newspack-image-upload">
+			<div className={ classnames( 'newspack-image-upload', className ) }>
 				<div className="newspack-image-upload__header">
 					{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
 					{ label && <label className="newspack-image-upload__label">{ label }</label> }

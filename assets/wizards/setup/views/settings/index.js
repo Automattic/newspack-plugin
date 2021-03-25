@@ -26,7 +26,7 @@ const pageTitleTemplate = document.title.replace( newspack_aux_data.site_title, 
  */
 const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 	const [ { currencies = [], countries = [], wpseoFields = [] }, setOptions ] = useState( {} );
-	const [ profileData, updateProfileData, isLoading ] = hooks.useObjectState( {} );
+	const [ profileData, updateProfileData ] = hooks.useObjectState( {} );
 
 	useEffect( () => {
 		wizardApiFetch( { path: '/newspack/v1/profile/', method: 'GET' } )
@@ -36,7 +36,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 					countries: response.countries,
 					wpseoFields: response.wpseo_fields,
 				} );
-				updateProfileData( response.profile, { skipCallback: true } );
+				updateProfileData( response.profile );
 			} )
 			.catch( setError );
 	}, [] );
@@ -58,7 +58,6 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 		if ( options ) {
 			return (
 				<SelectControl
-					disabled={ isLoading }
 					label={ label }
 					value={ profileData[ key ] }
 					onChange={ updateProfileData( key ) }
@@ -77,13 +76,13 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 						'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least 512 pixels wide and tall.',
 						'newspack'
 					) }
+					isCovering
 					onChange={ updateProfileData( key ) }
 				/>
 			);
 		}
 		return (
 			<TextControl
-				disabled={ isLoading }
 				label={ label }
 				value={ profileData[ key ] || '' }
 				onChange={ updateProfileData( key ) }

@@ -3,14 +3,13 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import apiFetch from '@wordpress/api-fetch';
 import { Fragment, render, createElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { Welcome, Settings, Integrations, Design } from './views/';
+import { Welcome, Settings, Services, Integrations, Design } from './views/';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
@@ -37,9 +36,15 @@ const ROUTES = [
 		canProceed: false,
 	},
 	{
+		path: '/services',
+		label: __( 'Services', 'newspack' ),
+		subHeaderText: __( 'Activate extra features' ),
+		render: Services,
+	},
+	{
 		path: '/design',
 		label: __( 'Design', 'newspack' ),
-		subHeaderText: __( 'Choose a theme', 'newspack' ),
+		subHeaderText: __( 'Customize your site', 'newspack' ),
 		render: Design,
 	},
 ];
@@ -50,8 +55,9 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 		const params = {
 			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
 			method: 'POST',
+			quiet: true,
 		};
-		apiFetch( params )
+		wizardApiFetch( params )
 			.then( () => ( window.location = newspack_urls.dashboard ) )
 			.catch( setError );
 	};
@@ -71,9 +77,7 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 						? {
 								href: '#' + nextRoute,
 						  }
-						: {
-								onClick: finishSetup,
-						  };
+						: {};
 					return (
 						<Route
 							key={ index }
@@ -87,6 +91,7 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
 									buttonDisabled: route.canProceed === false,
+									onSave: nextRoute ? null : finishSetup,
 									updateRoute: update => {
 										setRoutes( _routes =>
 											_routes.map( ( r, i ) => ( i === index ? { ...r, ...update } : r ) )
@@ -103,6 +108,6 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 };
 
 render(
-	createElement( withWizard( SetupWizard, [] ), { suppressFooter: true } ),
+	createElement( withWizard( SetupWizard, [] ), { simpleFooter: true } ),
 	document.getElementById( 'newspack-setup-wizard' )
 );

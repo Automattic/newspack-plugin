@@ -6,6 +6,7 @@
 @import '../../shared/scss/colors';
 
 .newspack-dashboard-card {
+	border-color: $light-gray-500;
 	margin: 0;
 	padding: 0;
 
@@ -31,12 +32,6 @@
 			background-color: $light-gray-100;
 			box-shadow: 0 4px 8px rgba( black, 0.08 );
 
-			@media screen and ( min-width: 744px ) {
-				> svg {
-					transform: translateX( 8px );
-				}
-			}
-
 			h2 {
 				color: inherit;
 			}
@@ -49,10 +44,6 @@
 		&:focus {
 			outline: none;
 		}
-
-		> svg {
-			margin: 24px 24px 24px 0;
-		}
 	}
 
 	h2,
@@ -61,18 +52,14 @@
 		transition: color 125ms ease-in-out;
 	}
 
-	p {
-		margin-top: 8px;
-	}
-
 	svg {
 		display: block;
 		flex-shrink: 0;
 		fill: $primary-500;
-		height: 24px;
-		margin: 0;
-		transition: fill 125ms ease-in-out, transform 125ms ease-in-out;
-		width: 24px;
+		height: 48px;
+		margin: 0 8px 0 0;
+		transition: fill 125ms ease-in-out;
+		width: 48px;
 
 		&.icon-completed {
 			fill: $alert-green;
@@ -83,16 +70,14 @@
 		align-items: center;
 		display: flex;
 		justify-content: flex-start;
-		padding: 24px;
+		padding: 32px;
 
-		svg {
-			height: 32px;
-			margin-right: 12px;
-			width: 32px;
+		@media screen and ( min-width: 744px ) {
+			min-height: 136px;
 		}
 
 		.newspack-dashboard-card__header {
-			margin-left: 12px;
+			margin-left: 8px;
 		}
 	}
 }

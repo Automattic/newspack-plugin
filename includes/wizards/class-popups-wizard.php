@@ -440,12 +440,16 @@ class Popups_Wizard extends Wizard {
 			$preview_post = \Newspack_Popups::preview_post_permalink();
 		}
 
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
+
 		\wp_localize_script(
 			'newspack-popups-wizard',
 			'newspack_popups_wizard_data',
 			[
-				'preview_post' => $preview_post,
-				'frontend_url' => get_site_url(),
+				'preview_post'      => $preview_post,
+				'frontend_url'      => get_site_url(),
+				'custom_placements' => $custom_placements,
 			]
 		);
 
@@ -616,6 +620,8 @@ class Popups_Wizard extends Wizard {
 	 * @param array $options Array of options to validate.
 	 */
 	public static function api_validate_options( $options ) {
+		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'frequency':
@@ -624,19 +630,20 @@ class Popups_Wizard extends Wizard {
 					}
 					break;
 				case 'placement':
-					if ( ! in_array( $value, [ 'center', 'top', 'bottom', 'inline' ] ) ) {
+					$custom_placement_values = $cm->get_custom_placement_values();
+					if ( ! in_array( $value, array_merge( [ 'center', 'top', 'bottom', 'inline', 'above_header' ], $custom_placement_values ) ) ) {
 						return false;
 					}
 					break;
 				case 'selected_segment_id':
-					$cm       = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-					$segments = array_map(
+					$segments          = array_map(
 						function( $segment ) {
 							return $segment['id'];
 						},
 						$cm->get_segments()
 					);
-					if ( strlen( $value ) > 0 && ! in_array( $value, $segments ) ) {
+					$assigned_segments = explode( ',', $value );
+					if ( strlen( $value ) > 0 && 0 === count( array_intersect( $segments, $assigned_segments ) ) ) {
 						return false;
 					}
 					break;
@@ -780,7 +787,7 @@ class Popups_Wizard extends Wizard {
 	 */
 	public function api_sort_segments( $request ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$response                              = $newspack_popups_configuration_manager->sort_segments( $request['segments'] );
+		$response                              = $newspack_popups_configuration_manager->sort_segments( $request['segmentIds'] );
 		return $response;
 	}
 

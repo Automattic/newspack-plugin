@@ -27,9 +27,9 @@ class InfoButton extends Component {
 		const { className, ...otherProps } = this.props;
 		return (
 			<Tooltip { ...otherProps }>
-				<div className={ classnames( 'newspack-info-button', className ) }>
+				<span className={ classnames( 'newspack-info-button', className ) }>
 					<Icon icon={ info } />
-				</div>
+				</span>
 			</Tooltip>
 		);
 	}

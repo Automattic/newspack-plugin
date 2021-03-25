@@ -19,13 +19,34 @@
 	&__image {
 		align-items: center;
 		background-repeat: no-repeat;
-		background-size: cover;
+		background-size: contain;
+		background-position: center;
 		border: 1px dashed $light-gray-500;
 		border-radius: 3px;
 		display: flex;
 		justify-content: center;
 		max-width: 100%;
 		position: relative;
+		&--covering {
+			background-size: cover;
+		}
+		&:not( &--has-image ) {
+			.newspack-button {
+				background: white !important;
+				border-radius: 3px !important;
+				padding: 4px 16px !important;
+
+				&:active,
+				&:focus,
+				&:hover {
+					background: white !important;
+				}
+
+				&:focus {
+					outline-offset: -3px !important;
+				}
+			}
+		}
 		&--has-image {
 			border: none;
 			&::before,

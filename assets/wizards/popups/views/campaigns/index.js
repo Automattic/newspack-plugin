@@ -79,13 +79,13 @@ const groupBySegment = ( segments, prompts ) => {
 			label,
 			id,
 			configuration,
-			prompts: prompts.filter(
-				( { options: { selected_segment_id: segment } } ) => segment === id
-			),
+			prompts: prompts.filter( ( { options: { selected_segment_id: _segments } } ) => {
+				return _segments ? -1 < _segments.split( ',' ).indexOf( id ) : false;
+			} ),
 		} ) )
 	);
 	grouped.push( {
-		label: __( 'Default (no segment)', 'newspack' ),
+		label: __( 'Everyone', 'newspack' ),
 		id: '',
 		prompts: prompts.filter( ( { options: { selected_segment_id: segment } } ) => ! segment ),
 		configuration: {},

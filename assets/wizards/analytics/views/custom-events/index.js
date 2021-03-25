@@ -11,6 +11,7 @@ import ClearIcon from '@material-ui/icons/Clear';
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -20,6 +21,7 @@ import {
 	Button,
 	Notice,
 	TextControl,
+	ToggleControl,
 	SelectControl,
 	CheckboxControl,
 	withWizardScreen,
@@ -51,6 +53,8 @@ const NEW_EVENT_TEMPLATE = {
 const validateEvent = event =>
 	Boolean( event.event_name && event.event_category && event.on && event.element );
 
+const NTG_EVENTS_ENDPOINT = '/newspack/v1/wizard/analytics/ntg';
+
 /**
  * Analytics Custom Events screen.
  */
@@ -60,7 +64,14 @@ class CustomEvents extends Component {
 		customEvents: newspack_analytics_wizard_data.customEvents,
 		editedEvent: NEW_EVENT_TEMPLATE,
 		editedEventId: null,
+		ntgEventsStatus: {},
 	};
+
+	componentDidMount() {
+		this.props
+			.wizardApiFetch( { path: NTG_EVENTS_ENDPOINT } )
+			.then( ntgEventsStatus => this.setState( { ntgEventsStatus } ) );
+	}
 
 	handleAPIError = ( { message: error } ) => this.setState( { error } );
 
@@ -123,6 +134,7 @@ class CustomEvents extends Component {
 
 		return (
 			<div className="newspack__analytics-configuration">
+				<h2>{ __( 'User-defined custom events', 'newspack' ) }</h2>
 				<p>
 					{ __(
 						'Custom events are used to collect and analyze specific user interactions.',
@@ -272,6 +284,30 @@ class CustomEvents extends Component {
 						) }
 					</Fragment>
 				) }
+				<h2>{ __( 'News Tagging Guide custom events', 'newspack' ) }</h2>
+				<p>
+					<ExternalLink href={ 'https://newsinitiative.withgoogle.com/training/datatools/ntg' }>
+						{ __( 'News Tagging Guide', 'newspack' ) }
+					</ExternalLink>{' '}
+					{ __(
+						'is a free tool that helps you make the most of Google Analytics by capturing better data.',
+						'newspack'
+					) }
+				</p>
+				<ToggleControl
+					disabled={ this.state.ntgEventsStatus.enabled === undefined }
+					checked={ this.state.ntgEventsStatus.enabled }
+					onChange={ () =>
+						this.props
+							.wizardApiFetch( {
+								path: NTG_EVENTS_ENDPOINT,
+								method: this.state.ntgEventsStatus.enabled ? 'DELETE' : 'POST',
+								quiet: true,
+							} )
+							.then( ntgEventsStatus => this.setState( { ntgEventsStatus } ) )
+					}
+					label={ __( 'Enabled', 'newspack' ) }
+				/>
 			</div>
 		);
 	}
