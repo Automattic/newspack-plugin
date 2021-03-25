@@ -133,48 +133,6 @@ class AdvertisingWizard extends Component {
 	}
 
 	/**
-	 * Update GAM Network Code.
-	 */
-	updateNetworkCode = ( code, service ) => {
-		const { advertisingData } = this.state;
-		advertisingData.services[ service ].network_code = code;
-		this.setState( { advertisingData } );
-	};
-
-	/**
-	 * Save Network Code.
-	 */
-	saveNetworkCode = service => {
-		const { setError, wizardApiFetch } = this.props;
-		const { advertisingData } = this.state;
-		const network_code = advertisingData.services[ service ].network_code;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/service/' + service + '/network_code',
-				method: 'post',
-				quiet: true,
-				data: {
-					network_code,
-				},
-			} )
-				.then( data => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( data ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
-		} );
-	};
-
-	/**
 	 * Save placement.
 	 */
 	savePlacement = ( placement, data ) => {
@@ -300,7 +258,7 @@ class AdvertisingWizard extends Component {
 	 */
 	render() {
 		const { advertisingData } = this.state;
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch } = this.props;
 		const { services, placements, adUnits } = advertisingData;
 		const tabs = [
 			{
@@ -375,29 +333,22 @@ class AdvertisingWizard extends Component {
 									buttonAction="#/google_ad_manager/create"
 									secondaryButtonText={ __( 'Back to advertising options' ) }
 									secondaryButtonAction="#/"
+									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
 						/>
 						<Route
 							path="/google_ad_manager-global-codes"
 							exact
-							render={ routeProps => (
+							render={ () => (
 								<HeaderCode
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising.' ) }
-									adUnits={ adUnits }
-									code={ advertisingData.services.google_ad_manager.network_code }
 									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
-									onChange={ value => this.updateNetworkCode( value, 'google_ad_manager' ) }
-									buttonText={ __( 'Save' ) }
-									buttonAction={ () =>
-										this.saveNetworkCode( 'google_ad_manager' ).then( () =>
-											routeProps.history.push( '/google_ad_manager' )
-										)
-									}
 									secondaryButtonText={ __( "I'm done configuring ads" ) }
 									secondaryButtonAction="#/google_ad_manager"
+									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
 						/>

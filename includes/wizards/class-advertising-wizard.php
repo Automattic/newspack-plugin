@@ -8,6 +8,16 @@
 namespace Newspack;
 
 use \WP_Error, \WP_Query;
+use Google\AdsApi\AdManager\AdManagerServices;
+use Google\AdsApi\AdManager\AdManagerSessionBuilder;
+use Google\AdsApi\AdManager\v202102\ServiceFactory;
+use Google\AdsApi\AdManager\Util\v202102\StatementBuilder;
+use Google\AdsApi\Common\Configuration;
+use Google\Auth\Credentials\UserRefreshCredentials;
+use Google\Site_Kit\Context;
+use Google\Site_Kit\Core\Storage\Options;
+use Google\Site_Kit\Core\Storage\User_Options;
+use Google\Site_Kit\Core\Authentication\Authentication;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,6 +30,7 @@ class Advertising_Wizard extends Wizard {
 
 	const NEWSPACK_ADVERTISING_SERVICE_PREFIX   = '_newspack_advertising_service_';
 	const NEWSPACK_ADVERTISING_PLACEMENT_PREFIX = '_newspack_advertising_placement_';
+	const NEWSPACK_ADVERTISING_GAM_OPTION       = 'newspack_advertising_gam_settings';
 
 	/**
 	 * The slug of this wizard.
@@ -70,6 +81,15 @@ class Advertising_Wizard extends Wizard {
 		add_action( 'before_footer', [ $this, 'inject_above_footer_ad' ] );
 		add_action( 'before_footer', [ $this, 'inject_sticky_ad' ] );
 		add_filter( 'newspack_ads_should_show_ads', [ $this, 'maybe_disable_gam_ads' ] );
+
+		// Ensure Site Kit asks for sufficient scopes to manage Google Ad Manager.
+		add_filter(
+			'googlesitekit_auth_scopes',
+			function( array $scopes ) {
+				return array_merge( $scopes, [ 'https://www.googleapis.com/auth/dfp' ] );
+			},
+			1
+		);
 	}
 
 	/**
@@ -112,25 +132,6 @@ class Advertising_Wizard extends Wizard {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_advertising' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-
-		// Update header code.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/service/(?P<service>[\a-z]+)/network_code',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_network_code' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'service'      => [
-						'sanitize_callback' => [ $this, 'sanitize_service' ],
-					],
-					'network_code' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
 			]
 		);
 
@@ -242,6 +243,129 @@ class Advertising_Wizard extends Wizard {
 				],
 			]
 		);
+
+		// Get Ads Manager data.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/gam',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'api_get_gam_data' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		// Refresh Ads Manager data.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/gam/refresh',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'api_refresh_gam_data' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Refresh GAM data.
+	 *
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_refresh_gam_data() {
+		$gam_data = [
+			'network_codes' => [],
+		];
+
+		if ( ! defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
+			return new WP_Error( 'newspack_advertising_wizard', __( 'Please activate Site Kit plugin.', 'newspack' ), $error_data );
+		}
+
+
+		try {
+			$context        = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
+			$ga_options     = new Options( $context );
+			$user_options   = new User_Options( $context );
+			$authentication = new Authentication( $context, $ga_options, $user_options );
+			$client         = $authentication->get_oauth_client();
+			if ( ! empty( $client->get_unsatisfied_scopes() ) ) {
+				return new WP_Error( 'newspack_advertising_wizard', __( 'The plugin can’t access all relevant data because you haven’t granted all permissions. You’ll need to redo the Site Kit setup – make sure to approve all permissions at the authentication stage.', 'newspack' ) );
+			}
+		} catch ( \Exception $error ) {
+			return new WP_Error( 'newspack_advertising_wizard', __( 'Google Ad Manager data fetching error.', 'newspack' ), json_decode( $error->getMessage() ) );
+		}
+
+		try {
+			$oauth2_service     = $client->get_client()->getOAuth2Service();
+			$oauth2_credentials = new UserRefreshCredentials(
+				null,
+				[
+					'client_id'     => $oauth2_service->getClientId(),
+					'client_secret' => $oauth2_service->getClientSecret(),
+					'refresh_token' => $client->get_refresh_token(),
+				]
+			);
+
+			$service_factory = new ServiceFactory();
+
+			// https://developers.google.com/ad-manager/api/soap_xml: An arbitrary string name identifying your application. This will be shown in Google's log files.
+			$app_name = 'Newspack Plugin';
+			// Create a configuration and session to get the network codes.
+			$config = new Configuration(
+				[
+					'AD_MANAGER' => [
+						'networkCode'     => '-', // Provide non-empty network code to pass validation.
+						'applicationName' => $app_name,
+					],
+				]
+			);
+
+			$session  = ( new AdManagerSessionBuilder() )->from( $config )->withOAuth2Credential( $oauth2_credentials )->build();
+			$networks = $service_factory->createNetworkService( $session )->getAllNetworks();
+
+			foreach ( $networks as $network ) {
+				$gam_data['network_codes'][] = $network->getNetworkCode();
+			}
+			// Assume user has access to just one GAM account for now.
+			$first_network_code = $networks[0]->getNetworkCode();
+
+			// Create a new configuration and session, with a network code.
+			$config  = new Configuration(
+				[
+					'AD_MANAGER' => [
+						'networkCode'     => $first_network_code,
+						'applicationName' => $app_name,
+					],
+				]
+			);
+			$session = ( new AdManagerSessionBuilder() )->from( $config )->withOAuth2Credential( $oauth2_credentials )->build();
+
+			$gam_data['user_email']   = $service_factory->createUserService( $session )->getCurrentUser()->getEmail();
+			$gam_data['network_code'] = $first_network_code;
+
+			// Set network code in Newspack Ads plugin.
+			$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+			$configuration_manager->set_network_code( 'google_ad_manager', $first_network_code );
+
+			update_option( self::NEWSPACK_ADVERTISING_GAM_OPTION, $gam_data );
+
+			return $this->api_get_gam_data();
+		} catch ( \Exception $error ) {
+			return new WP_Error( 'newspack_advertising_wizard', __( 'Google Ad Manager data fetching error. This feature requires a GAM account to be set up for the user who authenticated with Site Kit.', 'newspack' ), $error->getMessage() );
+		}
+	}
+
+	/**
+	 * Get GAM data.
+	 *
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_get_gam_data() {
+		$site_kit_configuration_manager                = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+		$ads_configuration_manager                     = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$response                                      = get_option( self::NEWSPACK_ADVERTISING_GAM_OPTION, [] );
+		$response['legacy_hardcoded_gam_network_code'] = $ads_configuration_manager->get_network_code( 'google_ad_manager' );
+		$response['is_site_kit_configured']            = $site_kit_configuration_manager->is_configured();
+		return \rest_ensure_response( $response );
 	}
 
 	/**
@@ -375,22 +499,6 @@ class Advertising_Wizard extends Wizard {
 	}
 
 	/**
-	 * Update/create the header code for a service.
-	 *
-	 * @param WP_REST_Request $request Request with ID of ad unit to delete.
-	 * @return WP_REST_Response Boolean Delete success.
-	 */
-	public function api_update_network_code( $request ) {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-
-		$service      = $request['service'];
-		$network_code = $request['network_code'];
-		$configuration_manager->set_network_code( $service, $network_code );
-
-		return \rest_ensure_response( $this->retrieve_data() );
-	}
-
-	/**
 	 * Retrieve all advertising data.
 	 *
 	 * @return array Advertising data.
@@ -434,9 +542,8 @@ class Advertising_Wizard extends Wizard {
 		$services = array();
 		foreach ( $this->services as $service => $data ) {
 			$services[ $service ] = array(
-				'label'        => $data['label'],
-				'enabled'      => $configuration_manager->is_service_enabled( $service ),
-				'network_code' => $configuration_manager->get_network_code( $service ),
+				'label'   => $data['label'],
+				'enabled' => $configuration_manager->is_service_enabled( $service ),
 			);
 		}
 		/* Check availability of WordAds based on current Jetpack plan */
