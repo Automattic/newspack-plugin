@@ -8,10 +8,10 @@
 import { ActionCard } from '../../../../components/src';
 
 const SegmentCriteria = props => {
-	const { children, toggleChecked } = props;
+	const { children } = props;
 	return (
 		<ActionCard { ...props } notificationLevel="warning">
-			{ toggleChecked ? children : null }
+			{ children }
 		</ActionCard>
 	);
 };

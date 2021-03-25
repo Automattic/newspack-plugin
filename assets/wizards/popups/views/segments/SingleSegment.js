@@ -231,7 +231,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</Button>
 				</div>
 			</div>
-			{ reach.total > 0 && (
+			{ ( criteria.engagement || criteria.activity || criteria.referrers ) && reach.total > 0 && (
 				<Notice
 					isInfo
 					className="newspack-campaigns-wizard-segments__recorded-visitors"
@@ -268,14 +268,15 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers }
+								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.min_posts > 0 }
 								onChange={ value => updateSegmentConfig( 'min_posts' )( value ? 1 : 0 ) }
-								label={ __( 'Min.', 'newspack' ) }
+								label={ __( 'Min', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers }
-								placeholder={ __( 'Min. posts', 'newspack' ) }
+								data-testid="min-articles-input"
+								disabled={ criteria.referrers || ! criteria.engagement }
+								placeholder={ __( 'Min posts', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_posts }
 								onChange={ value => updateSegmentConfig( 'min_posts' )( value > 0 ? value : 0 ) }
@@ -283,16 +284,16 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						</div>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers }
+								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.max_posts > 0 }
 								onChange={ value =>
 									updateSegmentConfig( 'max_posts' )( value ? segmentConfig.min_posts || 1 : 0 )
 								}
-								label={ __( 'Max.', 'newspack' ) }
+								label={ __( 'Max', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers }
-								placeholder={ __( 'Max. posts', 'newspack' ) }
+								disabled={ criteria.referrers || ! criteria.engagement }
+								placeholder={ __( 'Max posts', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_posts }
 								onChange={ value => updateSegmentConfig( 'max_posts' )( value > 0 ? value : 0 ) }
@@ -308,14 +309,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers }
+								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.min_session_posts > 0 }
 								onChange={ value => updateSegmentConfig( 'min_session_posts' )( value ? 1 : 0 ) }
-								label={ __( 'Min.', 'newspack' ) }
+								label={ __( 'Min', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers }
-								placeholder={ __( 'Min. posts in sesssion', 'newspack' ) }
+								disabled={ criteria.referrers || ! criteria.engagement }
+								placeholder={ __( 'Min posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_session_posts }
 								onChange={ value =>
@@ -325,18 +326,18 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						</div>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers }
+								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.max_session_posts > 0 }
 								onChange={ value =>
 									updateSegmentConfig( 'max_session_posts' )(
 										value ? segmentConfig.min_session_posts || 1 : 0
 									)
 								}
-								label={ __( 'Max.', 'newspack' ) }
+								label={ __( 'Max', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers }
-								placeholder={ __( 'Max. posts in sesssion', 'newspack' ) }
+								disabled={ criteria.referrers || ! criteria.engagement }
+								placeholder={ __( 'Max posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_session_posts }
 								onChange={ value =>
@@ -347,10 +348,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</SegmentSettingSection>
 					<SegmentSettingSection
 						title={ __( 'Favorite Categories', 'newspack' ) }
-						description={ __( 'Most read categories of reader.', 'newspack' ) }
+						description={ __( 'Most-read categories of reader.', 'newspack' ) }
 					>
 						<CategoryAutocomplete
-							disabled={ criteria.referrers }
+							disabled={ criteria.referrers || ! criteria.engagement }
 							value={ segmentConfig.favorite_categories.map( v => parseInt( v ) ) }
 							onChange={ selected => {
 								updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
@@ -369,6 +370,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				<Grid columns="3" gutter={ 24 }>
 					<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
 						<SelectControl
+							data-testid="subscriber-select"
+							disabled={ ! criteria.activity }
 							onChange={ value => {
 								value = parseInt( value );
 								if ( value === 0 ) {
@@ -397,6 +400,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 					>
 						<SelectControl
+							disabled={ ! criteria.activity }
 							onChange={ value => {
 								value = parseInt( value );
 								if ( value === 0 ) {
@@ -446,7 +450,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						description={ __( 'Segment based on traffic source.', 'newspack' ) }
 					>
 						<TextControl
-							disabled={ criteria.engagement }
+							data-testid="referrers-input"
+							disabled={ criteria.engagement || ! criteria.referrers }
 							isWide
 							placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
 							help={ __( 'A comma-separated list of domains.', 'newspack' ) }
@@ -462,7 +467,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						) }
 					>
 						<TextControl
-							disabled={ criteria.engagement }
+							disabled={ criteria.engagement || ! criteria.referrers }
 							isWide
 							placeholder={ __( 'twitter.com, instagram.com', 'newspack' ) }
 							help={ __( 'A comma-separated list of domains.', 'newspack' ) }

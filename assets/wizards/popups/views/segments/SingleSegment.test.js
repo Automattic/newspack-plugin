@@ -48,31 +48,46 @@ describe( 'A new segment creation', () => {
 		);
 	} );
 
-	it( 'renders reach notice, title field, and a disabled save button', async () => {
-		const noticeText = 'This segment would reach approximately 100% of recorded visitors.';
-		await waitFor( () => screen.getByText( noticeText ) );
+	it( 'renders title field, and a disabled save button', () => {
 		expect( screen.getByPlaceholderText( 'Untitled Segment' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
 	} );
 
-	it( 'expands and collapses the sections', () => {
-		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
-		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
-		expect( screen.queryByText( 'Articles read' ) ).toBeInTheDocument();
-		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
-		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
+	it( 'shows the reach notice when you start adding criteria.', () => {
+		const noticeText = 'This segment would reach approximately 100% of recorded visitors.';
 
-		expect( screen.queryByText( 'Newsletter' ) ).not.toBeInTheDocument();
-		fireEvent.click( screen.getByText( 'Reader Activity' ) );
-		expect( screen.queryByText( 'Newsletter' ) ).toBeInTheDocument();
-		fireEvent.click( screen.getByText( 'Reader Activity' ) );
-		expect( screen.queryByText( 'Newsletter' ) ).not.toBeInTheDocument();
+		// Reach notice doesn't appear until a section is enabled.
+		expect( screen.queryByText( noticeText ) ).not.toBeInTheDocument();
 
-		expect( screen.queryByText( 'Sources to match' ) ).not.toBeInTheDocument();
+		// Toggle on a section.
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect( screen.queryByText( noticeText ) ).toBeInTheDocument();
+
+		// Toggle off the section.
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+
+		// Reach notice doesn't appear if no criteria are enabled.
+		expect( screen.queryByText( noticeText ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'enables child fields when a section is toggled on', () => {
+		expect( screen.queryByTestId( 'min-articles-input' ) ).toBeDisabled();
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect( screen.queryByTestId( 'min-articles-input' ) ).not.toBeDisabled();
+		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
+		expect( screen.queryByTestId( 'min-articles-input' ) ).toBeDisabled();
+
+		expect( screen.queryByTestId( 'subscriber-select' ) ).toBeDisabled();
+		fireEvent.click( screen.getByText( 'Reader Activity' ) );
+		expect( screen.queryByTestId( 'subscriber-select' ) ).not.toBeDisabled();
+		fireEvent.click( screen.getByText( 'Reader Activity' ) );
+		expect( screen.queryByTestId( 'subscriber-select' ) ).toBeDisabled();
+
+		expect( screen.queryByTestId( 'referrers-input' ) ).toBeDisabled();
 		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
-		expect( screen.queryByText( 'Sources to match' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'referrers-input' ) ).not.toBeDisabled();
 		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
-		expect( screen.queryByText( 'Sources to match' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'referrers-input' ) ).toBeDisabled();
 	} );
 
 	it( 'creates a new segment', async () => {
@@ -82,7 +97,7 @@ describe( 'A new segment creation', () => {
 		} );
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
 
-		fireEvent.change( screen.getByPlaceholderText( 'Min. posts' ), { target: { value: '42' } } );
+		fireEvent.change( screen.getByPlaceholderText( 'Min posts' ), { target: { value: '42' } } );
 		expect( screen.getByText( 'Save' ) ).not.toBeDisabled();
 
 		fireEvent.click( screen.getByText( 'Save' ) );
@@ -112,14 +127,14 @@ describe( 'A new segment creation', () => {
 	it( 'disables referrers section if engagement section is enabled, and vice versa', () => {
 		// Toggle on Reader Engagement section.
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
-		expect( screen.queryByText( 'Articles read' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'min-articles-input' ) ).not.toBeDisabled();
 		expect(
 			screen.queryByText( 'Disable Reader Engagement in order to use Referrer Sources options.' )
 		).toBeInTheDocument();
 
 		// Ensure the Referrer Sources section is disabled.
 		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
-		expect( screen.queryByText( 'Sources to match' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'referrers-input' ) ).toBeDisabled();
 
 		// Toggle off Reader Engagement section.
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
@@ -129,13 +144,13 @@ describe( 'A new segment creation', () => {
 
 		// Toggle on Referrer Sources section.
 		fireEvent.click( screen.getByText( 'Referrer Sources' ) );
-		expect( screen.queryByText( 'Sources to match' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'referrers-input' ) ).not.toBeDisabled();
 		expect(
 			screen.queryByText( 'Disable Referrer Sources in order to use Reader Engagement options.' )
 		).toBeInTheDocument();
 
 		// Ensure the Reader Engagement section is disabled.
 		fireEvent.click( screen.getByText( 'Reader Engagement' ) );
-		expect( screen.queryByText( 'Articles read' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'min-articles-input' ) ).toBeDisabled();
 	} );
 } );
