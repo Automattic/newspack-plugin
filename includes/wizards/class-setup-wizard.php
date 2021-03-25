@@ -472,10 +472,6 @@ class Setup_Wizard extends Wizard {
 				$rr_wizard->update_stripe_settings( $stripe_settings );
 			}
 		}
-		if ( isset( $request['google-ad-manager']['is_service_enabled'], $request['google-ad-manager']['network_code'] ) ) {
-			$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-			$ads_configuration_manager->set_network_code( 'google_ad_manager', $request['google-ad-manager']['network_code'] );
-		}
 		if ( isset( $request['google-ad-sense']['is_service_enabled'] ) ) {
 			$sitekit_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 			if ( $request['google-ad-sense']['is_service_enabled'] ) {

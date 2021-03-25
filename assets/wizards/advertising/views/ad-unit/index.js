@@ -42,6 +42,7 @@ class AdUnit extends Component {
 	render() {
 		const { adUnit, onSave, service } = this.props;
 		const { id, code, name } = adUnit;
+		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
 		return (
 			<Fragment>
@@ -53,6 +54,11 @@ class AdUnit extends Component {
 				<TextControl
 					label={ __( 'Ad unit code' ) }
 					value={ code || '' }
+					help={ __(
+						"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
+						'newspack'
+					) }
+					disabled={ isExistingAdUnit }
 					onChange={ value => this.handleOnChange( 'code', value ) }
 				/>
 				{ sizes.map( ( size, index ) => (
