@@ -6,6 +6,11 @@ import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * Internal dependencies
  */
 import {
@@ -21,25 +26,30 @@ import {
 	Button,
 	Grid,
 	WebPreview,
+	utils,
 } from '../../../../components/src';
 import ThemeSelection from '../../components/theme-selection';
 import { getFontsList, getFontImportURL, LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
 import './style.scss';
+
+const { InteractiveDiv } = utils;
 
 const Main = ( {
 	wizardApiFetch,
 	setError,
 	renderPrimaryButton,
 	buttonText,
-	hasPreview = true,
+	isPartOfSetup = true,
 	onSave = () => {},
 } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
+	const [ homepagePatterns, updateHomepagePatterns ] = useState( [] );
 	const [ mods, updateMods ] = hooks.useObjectState();
 
 	const updateSettings = response => {
 		updateMods( response.theme_mods );
 		updateThemeSlug( response.theme );
+		updateHomepagePatterns( response.homepage_patterns );
 	};
 	useEffect( () => {
 		wizardApiFetch( {
@@ -53,7 +63,10 @@ const Main = ( {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
-			data: { theme_mods: mods, theme: themeSlug },
+			data: {
+				theme_mods: mods,
+				theme: themeSlug,
+			},
 			quiet: true,
 		} )
 			.then( res => {
@@ -90,6 +103,28 @@ const Main = ( {
 					}
 				/>
 			</Grid>
+			{ isPartOfSetup && homepagePatterns.length > 0 ? (
+				<>
+					<SectionHeader
+						title={ __( 'Homepage layout', 'newspack' ) }
+						description={ __( 'Choose your favorite homepage layout', 'newspack' ) }
+						className="newspack-design__header"
+					/>
+					<Grid columns={ 6 } gutter={ 8 } rowGap={ 8 }>
+						{ homepagePatterns.map( ( pattern, i ) => (
+							<InteractiveDiv
+								key={ i }
+								className={ classnames( 'homepage-pattern ba br2 b--black-10', {
+									'homepage-pattern--selected': i === mods.homepage_pattern_index,
+								} ) }
+								onClick={ () => updateMods( { homepage_pattern_index: i } ) }
+							>
+								<div dangerouslySetInnerHTML={ { __html: pattern.image } } />
+							</InteractiveDiv>
+						) ) }
+					</Grid>
+				</>
+			) : null }
 			<SectionHeader
 				title={ __( 'Typography', 'newspack' ) }
 				description={ __( 'Pick the font pairing to use throughout your site', 'newspack' ) }
@@ -237,7 +272,7 @@ const Main = ( {
 					onChange={ updateMods( 'newspack_footer_logo' ) }
 				/>
 			</Grid>
-			{ hasPreview && (
+			{ isPartOfSetup && (
 				<div className="newspack-floating-button">
 					<WebPreview
 						url="/?newspack_design_preview"
