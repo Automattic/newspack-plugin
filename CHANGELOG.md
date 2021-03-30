@@ -1,3 +1,10 @@
+## [1.34.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.34.0...v1.34.1-alpha.1) (2021-03-30)
+
+
+### Bug Fixes
+
+* **campaigns-wizard:** analytics reporting ([4ad398c](https://github.com/Automattic/newspack-plugin/commit/4ad398c31d2b117dbf56bd6fa7c14fffc9c0a4c1))
+
 # [1.34.0](https://github.com/Automattic/newspack-plugin/compare/v1.33.2...v1.34.0) (2021-03-24)
 
 
