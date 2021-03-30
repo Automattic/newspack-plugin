@@ -114,7 +114,7 @@ class Popups_Analytics_Utils {
 				// Filter just the popups custom event category.
 				$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
 				$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
-				$dimension_category_filter->setOperator( 'EXACT' );
+				$dimension_category_filter->setOperator( 'IN_LIST' );
 				$dimension_category_filter->setExpressions( self::EVENT_CATEGORIES );
 
 				// Create the DimensionFilterClauses.
