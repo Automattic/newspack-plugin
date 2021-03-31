@@ -33,11 +33,16 @@ const SEGMENT = {
 	updated_at: '2020-11-02',
 	priority: 0,
 };
+const PROMPT_DEFAULTS = {
+	tags: [],
+	categories: [],
+	campaign_groups: [],
+	status: 'publish',
+};
 const PROMPTS = {
 	overlaysUncategorized: [
 		{
-			campaign_groups: [],
-			categories: [],
+			...PROMPT_DEFAULTS,
 			content: 'Overlay Prompt 1',
 			id: 1,
 			options: {
@@ -45,12 +50,10 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
-			status: 'publish',
 			title: 'Overlay Prompt 1',
 		},
 		{
-			campaign_groups: [],
-			categories: [],
+			...PROMPT_DEFAULTS,
 			content: 'Overlay Prompt 2',
 			id: 2,
 			options: {
@@ -58,13 +61,12 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
-			status: 'publish',
 			title: 'Overlay Prompt 2',
 		},
 	],
 	overlaysCategorized: [
 		{
-			campaign_groups: [],
+			...PROMPT_DEFAULTS,
 			categories: [
 				{
 					name: 'Tech',
@@ -78,11 +80,10 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
-			status: 'publish',
 			title: 'Overlay Prompt 3 with category',
 		},
 		{
-			campaign_groups: [],
+			...PROMPT_DEFAULTS,
 			categories: [
 				{
 					name: 'Tech',
@@ -100,14 +101,12 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
-			status: 'publish',
 			title: 'Overlay Prompt 4 with category',
 		},
 	],
 	aboveHeadersUncategorized: [
 		{
-			campaign_groups: [],
-			categories: [],
+			...PROMPT_DEFAULTS,
 			content: 'Above Header Prompt 1',
 			id: 5,
 			options: {
@@ -115,12 +114,10 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Above Header Prompt 1',
 		},
 		{
-			campaign_groups: [],
-			categories: [],
+			...PROMPT_DEFAULTS,
 			content: 'Above Header Prompt 2',
 			id: 6,
 			options: {
@@ -128,13 +125,12 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Above Header Prompt 2',
 		},
 	],
 	aboveHeadersCategorized: [
 		{
-			campaign_groups: [],
+			...PROMPT_DEFAULTS,
 			categories: [
 				{
 					name: 'Tech',
@@ -148,11 +144,10 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Above Header Prompt 3 with category',
 		},
 		{
-			campaign_groups: [],
+			...PROMPT_DEFAULTS,
 			categories: [
 				{
 					name: 'Tech',
@@ -170,14 +165,12 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Above Header Prompt 4 with category',
 		},
 	],
 	customPlacementsUncategorized: [
 		{
-			campaign_groups: [],
-			categories: [],
+			...PROMPT_DEFAULTS,
 			content: 'Custom Placement Prompt 1',
 			id: 9,
 			options: {
@@ -189,8 +182,7 @@ const PROMPTS = {
 			title: 'Custom Placement Prompt 1',
 		},
 		{
-			campaign_groups: [],
-			categories: [],
+			...PROMPT_DEFAULTS,
 			content: 'Custom Placement Prompt 2',
 			id: 10,
 			options: {
@@ -198,13 +190,12 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Custom Placement Prompt 2',
 		},
 	],
 	customPlacementsCategorized: [
 		{
-			campaign_groups: [],
+			...PROMPT_DEFAULTS,
 			categories: [
 				{
 					name: 'Tech',
@@ -218,11 +209,10 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Custom Placement Prompt 3 with category',
 		},
 		{
-			campaign_groups: [],
+			...PROMPT_DEFAULTS,
 			categories: [
 				{
 					name: 'Tech',
@@ -240,7 +230,6 @@ const PROMPTS = {
 				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
-			status: 'publish',
 			title: 'Custom Placement Prompt 4 with category',
 		},
 	],
