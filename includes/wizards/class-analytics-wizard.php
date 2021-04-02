@@ -537,7 +537,7 @@ class Analytics_Wizard extends Wizard {
 	 * @return bool Status of NTG events.
 	 */
 	public static function ntg_events_enabled() {
-		return 'enabled' === get_option( self::$ntg_events_option_name, 'enabled' );
+		return 'enabled' === get_option( self::$ntg_events_option_name, '' );
 	}
 
 	/**
