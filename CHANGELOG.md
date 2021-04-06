@@ -1,3 +1,16 @@
+# [1.35.0](https://github.com/Automattic/newspack-plugin/compare/v1.34.1...v1.35.0) (2021-04-06)
+
+
+### Bug Fixes
+
+* **campaigns-analytics:** fetch next pages of analytics reports ([e95bbe7](https://github.com/Automattic/newspack-plugin/commit/e95bbe74038db3f7b6b5ee81641624e71d2a6367))
+
+
+### Features
+
+* add web stories to supported plugin list ([#927](https://github.com/Automattic/newspack-plugin/issues/927)) ([d7250f5](https://github.com/Automattic/newspack-plugin/commit/d7250f5784a80e85c59dade3dbc7ad9dda01ebd4))
+* **analytics:** make NTG events reporting disabled by default ([19a8682](https://github.com/Automattic/newspack-plugin/commit/19a868212361fddaa4b33b28db550f50fbd1e560))
+
 ## [1.34.1](https://github.com/Automattic/newspack-plugin/compare/v1.34.0...v1.34.1) (2021-03-30)
 
 
