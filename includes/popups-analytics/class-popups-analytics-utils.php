@@ -85,6 +85,70 @@ class Popups_Analytics_Utils {
 	}
 
 	/**
+	 * Get results of a GA report, taking page token into account.
+	 *
+	 * @param Analytics                                   $analytics The Analytics.
+	 * @param Context                                     $context The Context.
+	 * @param Google_Service_AnalyticsReporting_DateRange $date_range Date range.
+	 * @param string                                      $page_token Page token for the report.
+	 * @return object GA report.
+	 */
+	private static function create_ga_report_result( $analytics, $context, $date_range, $page_token = null ) {
+		// Create the Metrics object.
+		$metrics = new Google_Service_AnalyticsReporting_Metric();
+		$metrics->setExpression( 'ga:totalEvents' );
+		$metrics->setAlias( 'events' );
+
+		// Filter just the popups custom event category.
+		$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+		$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
+		$dimension_category_filter->setOperator( 'IN_LIST' );
+		$dimension_category_filter->setExpressions( self::EVENT_CATEGORIES );
+
+		// Create the DimensionFilterClauses.
+		$dimension_filter_clause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
+		$dimension_filter_clause->setFilters( array( $dimension_category_filter ) );
+
+		// Create the Dimension objects.
+		$date_dimension = new Google_Service_AnalyticsReporting_Dimension();
+		$date_dimension->setName( 'ga:date' );
+		$action_dimension = new Google_Service_AnalyticsReporting_Dimension();
+		$action_dimension->setName( 'ga:eventAction' );
+		$label_dimension = new Google_Service_AnalyticsReporting_Dimension();
+		$label_dimension->setName( 'ga:eventLabel' );
+
+		// Create the ReportRequest object.
+		$profile_id = $analytics->get_settings()->get()['profileID'];
+		$request    = new Google_Service_AnalyticsReporting_ReportRequest();
+		$request->setViewId( $profile_id );
+		$request->setDateRanges( $date_range );
+		$request->setDimensions(
+			array(
+				$date_dimension,
+				$action_dimension,
+				$label_dimension,
+			)
+		);
+		$request->setMetrics( array( $metrics ) );
+		$request->setDimensionFilterClauses( array( $dimension_filter_clause ) );
+		if ( null !== $page_token ) {
+			$request->setPageToken( $page_token );
+		}
+
+		$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+		$body->setReportRequests( array( $request ) );
+		$authentication = new Authentication( $context, new Options( $context ), new User_Options( $context ) );
+		$client         = $authentication->get_oauth_client()->get_client();
+
+		$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
+		// https://developers.google.com/analytics/devguides/reporting/core/v4/rest/v4/reports/batchGet.
+		$report_results = $analyticsreporting->reports->batchGet( $body );
+		if ( isset( $report_results->reports[0] ) ) {
+			return $report_results->reports[0];
+		}
+	}
+
+	/**
 	 * Get GA report.
 	 *
 	 * @param Object $options options.
@@ -106,57 +170,15 @@ class Popups_Analytics_Utils {
 				$date_range->setStartDate( $start_date );
 				$date_range->setEndDate( $end_date );
 
-				// Create the Metrics object.
-				$metrics = new Google_Service_AnalyticsReporting_Metric();
-				$metrics->setExpression( 'ga:totalEvents' );
-				$metrics->setAlias( 'events' );
-
-				// Filter just the popups custom event category.
-				$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
-				$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
-				$dimension_category_filter->setOperator( 'IN_LIST' );
-				$dimension_category_filter->setExpressions( self::EVENT_CATEGORIES );
-
-				// Create the DimensionFilterClauses.
-				$dimension_filter_clause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
-				$dimension_filter_clause->setFilters( array( $dimension_category_filter ) );
-
-				// Create the Dimension objects.
-				$date_dimension = new Google_Service_AnalyticsReporting_Dimension();
-				$date_dimension->setName( 'ga:date' );
-				$action_dimension = new Google_Service_AnalyticsReporting_Dimension();
-				$action_dimension->setName( 'ga:eventAction' );
-				$label_dimension = new Google_Service_AnalyticsReporting_Dimension();
-				$label_dimension->setName( 'ga:eventLabel' );
-
-				// Create the ReportRequest object.
-				$profile_id = $analytics->get_settings()->get()['profileID'];
-				$request    = new Google_Service_AnalyticsReporting_ReportRequest();
-				$request->setViewId( $profile_id );
-				$request->setDateRanges( $date_range );
-				$request->setDimensions(
-					array(
-						$date_dimension,
-						$action_dimension,
-						$label_dimension,
-					)
-				);
-				$request->setMetrics( array( $metrics ) );
-				$request->setDimensionFilterClauses( array( $dimension_filter_clause ) );
-
-				$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
-				$body->setReportRequests( array( $request ) );
-				$ga_options     = new Options( $context );
-				$user_options   = new User_Options( $context );
-				$authentication = new Authentication( $context, $ga_options, $user_options );
-				$client         = $authentication->get_oauth_client()->get_client();
-
 				try {
-					$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
-					$report_results     = $analyticsreporting->reports->batchGet( $body );
-					if ( isset( $report_results->reports[0] ) ) {
-						return $report_results->reports[0]->data->rows;
+					$rows   = [];
+					$report = self::create_ga_report_result( $analytics, $context, $date_range );
+					$rows   = array_merge( $rows, $report->data->rows );
+					while ( $report->nextPageToken ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						$report = self::create_ga_report_result( $analytics, $context, $date_range, $report->nextPageToken ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						$rows   = array_merge( $rows, $report->data->rows );
 					}
+					return $rows;
 				} catch ( \Exception $error ) {
 					$error_data = json_decode( $error->getMessage() );
 					if ( isset( $error_data ) && 'UNAUTHENTICATED' === $error_data->error->status ) {
