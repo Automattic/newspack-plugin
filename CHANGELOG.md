@@ -1,3 +1,10 @@
+# [1.35.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.35.0-alpha.1...v1.35.0-alpha.2) (2021-04-06)
+
+
+### Bug Fixes
+
+* **campaigns-analytics:** fetch next pages of analytics reports ([e95bbe7](https://github.com/Automattic/newspack-plugin/commit/e95bbe74038db3f7b6b5ee81641624e71d2a6367))
+
 # [1.35.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.34.1...v1.35.0-alpha.1) (2021-04-06)
 
 
