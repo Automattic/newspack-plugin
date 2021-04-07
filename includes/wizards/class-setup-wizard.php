@@ -340,7 +340,14 @@ class Setup_Wizard extends Wizard {
 		}
 		if ( isset( $request['reader-revenue']['is_service_enabled'] ) ) {
 			$rr_wizard = new Reader_Revenue_Wizard();
-			$rr_wizard->update_donation_settings( $request['reader-revenue'] );
+			if ( $request['reader-revenue']['donation_data'] ) {
+				$rr_wizard->update_donation_settings( $request['reader-revenue']['donation_data'] );
+			}
+			if ( $request['reader-revenue']['stripe_data'] ) {
+				$stripe_settings            = $request['reader-revenue']['stripe_data'];
+				$stripe_settings['enabled'] = true;
+				$rr_wizard->update_stripe_settings( $stripe_settings );
+			}
 		}
 		if ( isset( $request['google-ad-manager']['is_service_enabled'], $request['google-ad-manager']['network_code'] ) ) {
 			$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
