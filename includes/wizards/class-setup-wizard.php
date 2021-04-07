@@ -298,7 +298,7 @@ class Setup_Wizard extends Wizard {
 
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
-			if ( in_array( $key, $this->media_theme_mods ) ) {
+			if ( null !== $value && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
 			set_theme_mod( $key, $value );
