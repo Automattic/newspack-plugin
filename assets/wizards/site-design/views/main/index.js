@@ -75,27 +75,6 @@ const Main = ( {
 				description={ __( 'Activate a theme you like to get started', 'newspack' ) }
 			/>
 			<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
-			<SectionHeader
-				title={ __( 'Colors', 'newspack' ) }
-				description={ __( 'Define your primary and secondary colors', 'newspack' ) }
-			/>
-			<Grid gutter={ 32 }>
-				{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
-				<ColorPicker
-					label={ __( 'Primary' ) }
-					color={ mods.primary_color_hex }
-					onChange={ primary_color_hex =>
-						updateMods( { primary_color_hex, theme_colors: 'custom' } )
-					}
-				/>
-				<ColorPicker
-					label={ __( 'Secondary' ) }
-					color={ mods.secondary_color_hex }
-					onChange={ secondary_color_hex =>
-						updateMods( { secondary_color_hex, theme_colors: 'custom' } )
-					}
-				/>
-			</Grid>
 			{ isPartOfSetup && homepagePatterns.length > 0 ? (
 				<>
 					<SectionHeader
@@ -117,6 +96,27 @@ const Main = ( {
 					</Grid>
 				</>
 			) : null }
+			<SectionHeader
+				title={ __( 'Colors', 'newspack' ) }
+				description={ __( 'Define your primary and secondary colors', 'newspack' ) }
+			/>
+			<Grid gutter={ 32 }>
+				{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
+				<ColorPicker
+					label={ __( 'Primary' ) }
+					color={ mods.primary_color_hex }
+					onChange={ primary_color_hex =>
+						updateMods( { primary_color_hex, theme_colors: 'custom' } )
+					}
+				/>
+				<ColorPicker
+					label={ __( 'Secondary' ) }
+					color={ mods.secondary_color_hex }
+					onChange={ secondary_color_hex =>
+						updateMods( { secondary_color_hex, theme_colors: 'custom' } )
+					}
+				/>
+			</Grid>
 			<SectionHeader
 				title={ __( 'Typography', 'newspack' ) }
 				description={ __( 'Pick the font pairing to use throughout your site', 'newspack' ) }
