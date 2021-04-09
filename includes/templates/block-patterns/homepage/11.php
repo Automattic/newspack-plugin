@@ -55,18 +55,5 @@ return array(
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div></div>
 <!-- /wp:group -->',
-	'image'   => '<svg width="144" height="104" viewBox="0 0 144 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<rect y="91.5" width="45.375" height="34" fill="#8C8F94"/>
-<rect x="49.375" y="91.5" width="45.25" height="34" fill="#8C8F94"/>
-<rect x="98.625" y="91.5" width="45.375" height="34" fill="#8C8F94"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H144V87.5H0V0ZM3.625 59.125H105.375V68.375H3.625V59.125ZM42.75 69H3.625V78.25H42.75V69ZM3.625 79.5H11.375V81.5H3.625V79.5ZM24.75 79.5H14.25V81.5H24.75V79.5Z" fill="#8C8F94"/>
-</g>
-<defs>
-<clipPath id="clip0">
-<rect width="144" height="104" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-',
+	'image'   => '<svg viewBox="0 0 142 102" xmlns="http://www.w3.org/2000/svg"><path d="m0 90.2292h44.7448v11.7708h-44.7448z"/><path d="m48.6892 90.2292h44.6216v11.7708h-44.6216z"/><path d="m97.2552 90.2292h44.7448v11.7708h-44.7448z"/><path clip-rule="evenodd" d="m0 0h142v86.2847h-142zm3.57465 58.3038h100.33635v9.1215h-100.33635zm38.58155 9.7379h-38.58155v9.1215h38.58155zm-38.58155 10.3541h7.64235v1.9723h-7.64235zm20.83155 0h-10.3541v1.9723h10.3541z" fill-rule="evenodd"/></svg>',
 );

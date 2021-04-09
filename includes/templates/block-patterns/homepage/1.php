@@ -53,39 +53,5 @@ return array(
 <!-- /wp:group -->
 
 ' . $subscribe_block,
-	'image'   => '<svg width="144" height="104" viewBox="0 0 144 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<rect width="93.375" height="70" fill="#8C8F94"/>
-<rect x="97.375" width="46.625" height="35" fill="#8C8F94"/>
-<rect x="97.375" y="37.25" width="36.25" height="4.125" fill="#8C8F94"/>
-<rect x="97.375" y="42.5" width="5" height="5" fill="#8C8F94"/>
-<rect x="103.25" y="44.125" width="7.75" height="2.125" fill="#8C8F94"/>
-<rect x="113.75" y="44.125" width="10.75" height="2.125" fill="#8C8F94"/>
-<rect y="86.875" width="5" height="5" fill="#8C8F94"/>
-<rect x="5.875" y="88.5" width="7.75" height="2.125" fill="#8C8F94"/>
-<rect x="16.375" y="88.5" width="10.75" height="2.125" fill="#8C8F94"/>
-<rect x="97.25" y="55" width="28.375" height="3.125" fill="#8C8F94"/>
-<rect x="97.375" y="59.625" width="6.75" height="2" fill="#8C8F94"/>
-<rect x="106.5" y="59.625" width="9.375" height="2" fill="#8C8F94"/>
-<rect x="97.25" y="67.875" width="45.375" height="3.125" fill="#8C8F94"/>
-<rect x="97.375" y="72.5" width="6.75" height="2" fill="#8C8F94"/>
-<rect x="106.5" y="72.5" width="9.375" height="2" fill="#8C8F94"/>
-<rect x="97.25" y="80.75" width="37.25" height="3.125" fill="#8C8F94"/>
-<rect x="97.375" y="85.375" width="6.75" height="2" fill="#8C8F94"/>
-<rect x="106.5" y="85.375" width="9.375" height="2" fill="#8C8F94"/>
-<rect x="97.25" y="93.625" width="29.875" height="3.125" fill="#8C8F94"/>
-<rect x="97.375" y="98.25" width="6.75" height="2" fill="#8C8F94"/>
-<rect x="106.5" y="98.25" width="9.375" height="2" fill="#8C8F94"/>
-<rect y="72.25" width="63" height="4.125" fill="#8C8F94"/>
-<rect y="78.625" width="93.375" height="2.5" fill="#8C8F94"/>
-<rect y="82.625" width="50.875" height="2.5" fill="#8C8F94"/>
-<rect y="95.875" width="44.625" height="33.5" fill="#8C8F94"/>
-<rect x="48.625" y="95.875" width="44.625" height="33.5" fill="#8C8F94"/>
-</g>
-<defs>
-<clipPath id="clip0">
-<rect width="144" height="104" fill="white"/>
-</clipPath>
-</defs>
-</svg>',
+	'image'   => '<svg viewBox="0 0 142 102" xmlns="http://www.w3.org/2000/svg"><path d="m92.0781 0h-92.0781v69.0278h92.0781z"/><path d="m142 0h-45.9774v34.5139h45.9774z"/><path d="m96.0226 36.7326h35.7464v4.0677h-35.7464z"/><path d="m100.953 41.9097h-4.9304v4.9306h4.9304z"/><path d="m101.816 43.5122h7.642v2.0954h-7.642z"/><path d="m122.771 43.5122h-10.601v2.0954h10.601z"/><path d="m0 85.6684h4.93056v4.9306h-4.93056z"/><path d="m13.4358 87.2708h-7.6424v2.0955h7.6424z"/><path d="m16.1476 87.2708h10.6007v2.0955h-10.6007z"/><path d="m123.88 54.2361h-27.9807v3.0816h27.9807z"/><path d="m96.0226 58.7969h6.6564v1.9722h-6.6564z"/><path d="m114.266 58.7969h-9.245v1.9722h9.245z"/><path d="m95.8993 66.9323h44.7447v3.0816h-44.7447z"/><path d="m102.679 71.4931h-6.6564v1.9722h6.6564z"/><path d="m105.021 71.4931h9.245v1.9722h-9.245z"/><path d="m132.632 82.7101v-3.0816h-36.7327v3.0816z"/><path d="m96.0226 84.1892h6.6564v1.9723h-6.6564z"/><path d="m114.266 84.1892h-9.245v1.9723h9.245z"/><path d="m95.8993 92.3247h29.4597v3.0815h-29.4597z"/><path d="m102.679 96.8854h-6.6564v1.9722h6.6564z"/><path d="m105.021 96.8854h9.245v1.9722h-9.245z"/><path d="m62.125 71.2465h-62.125v4.0677h62.125z"/><path d="m0 77.533h92.0781v2.4653h-92.0781z"/><path d="m50.1684 81.4774h-50.1684v2.4653h50.1684z"/><path d="m0 94.5434h44.0052v7.4566h-44.0052z"/><path d="m91.9549 94.5434h-44.0052v7.4566h44.0052z"/></svg>',
 );

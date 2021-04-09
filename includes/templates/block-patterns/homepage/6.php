@@ -69,57 +69,5 @@ return array(
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div></div>
 <!-- /wp:group -->',
-	'image'   => '<svg width="144" height="104" viewBox="0 0 144 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<rect x="38" width="68" height="51" fill="#8C8F94"/>
-<rect x="110" y="0.375" width="31.5" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="18.75" width="22.5" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="37.125" width="31.5" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="55.5" width="24.5" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="73.875" width="31.5" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="97.75" width="34" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="76.5" width="22.25" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="100.375" width="4.25" height="2.375" fill="#8C8F94"/>
-<rect x="110" y="4.125" width="34" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="22.5" width="30.625" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="40.875" width="28.875" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="59.25" width="32.25" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="83.125" width="30" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="80.375" width="33.5" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="6.875" width="27.625" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="25.25" width="17.875" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="43.625" width="17.875" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="62" width="16.75" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="85.875" width="33.5" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="10.5" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="28.875" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="47.25" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="65.625" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="89.5" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect width="34" height="25.5" fill="#8C8F94"/>
-<rect y="38" width="34" height="25.5" fill="#8C8F94"/>
-<rect y="76" width="34" height="25.5" fill="#8C8F94"/>
-<rect y="27.5" width="28.25" height="3.125" fill="#8C8F94"/>
-<rect y="65.5" width="30.75" height="3.125" fill="#8C8F94"/>
-<rect y="32.125" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect y="70.125" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="38" y="53.625" width="68" height="6.25" fill="#8C8F94"/>
-<rect x="38" y="60.75" width="36.25" height="6.25" fill="#8C8F94"/>
-<rect x="38" y="69.125" width="68" height="2.5" fill="#8C8F94"/>
-<rect x="38" y="73.125" width="31.125" height="2.5" fill="#8C8F94"/>
-<rect x="38" y="78.125" width="10.5" height="2" fill="#8C8F94"/>
-<rect x="62.125" y="84.875" width="28" height="2.375" fill="#8C8F94"/>
-<rect x="62.125" y="88.625" width="43.875" height="1.875" fill="#8C8F94"/>
-<rect x="62.125" y="91.375" width="43.875" height="1.875" fill="#8C8F94"/>
-<rect x="62.125" y="94.125" width="21.75" height="1.875" fill="#8C8F94"/>
-<rect x="62.125" y="97.75" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="38" y="84.5" width="21.625" height="16.25" fill="#8C8F94"/>
-</g>
-<defs>
-<clipPath id="clip0">
-<rect width="144" height="104" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-',
+	'image'   => '<svg viewBox="0 0 142 102" xmlns="http://www.w3.org/2000/svg"><path d="m37.4722 0h67.0558v50.2917h-67.0558z"/><path d="m108.472.369792h31.063v2.342018h-31.063z"/><path d="m108.472 18.4896h22.188v2.342h-22.188z"/><path d="m108.472 36.6094h31.063v2.342h-31.063z"/><path d="m108.472 54.7292h24.16v2.342h-24.16z"/><path d="m108.472 72.849h31.063v2.342h-31.063z"/><path d="m108.472 96.3924h33.528v2.342h-33.528z"/><path d="m108.472 75.4375h21.941v2.342h-21.941z"/><path d="m108.472 98.9809h4.191v2.3421h-4.191z"/><path d="m108.472 4.06771h33.528v1.84896h-33.528z"/><path d="m108.472 22.1875h30.2v1.849h-30.2z"/><path d="m108.472 40.3073h28.474v1.8489h-28.474z"/><path d="m108.472 58.4271h31.802v1.8489h-31.802z"/><path d="m108.472 81.9705h29.584v1.8489h-29.584z"/><path d="m108.472 79.2587h33.035v1.8489h-33.035z"/><path d="m108.472 6.77951h27.242v1.84896h-27.242z"/><path d="m108.472 24.8993h17.627v1.849h-17.627z"/><path d="m108.472 43.0191h17.627v1.849h-17.627z"/><path d="m108.472 61.1389h16.518v1.8489h-16.518z"/><path d="m108.472 84.6823h33.035v1.8489h-33.035z"/><path d="m108.472 10.3542h9.245v1.8489h-9.245z"/><path d="m108.472 28.474h9.245v1.8489h-9.245z"/><path d="m108.472 46.5938h9.245v1.8489h-9.245z"/><path d="m108.472 64.7135h9.245v1.849h-9.245z"/><path d="m108.472 88.2569h9.245v1.849h-9.245z"/><path d="m0 0h33.5278v25.1458h-33.5278z"/><path d="m0 37.4722h33.5278v25.1459h-33.5278z"/><path d="m0 74.9444h33.5278v25.1456h-33.5278z"/><path d="m0 27.1181h27.8576v3.0816h-27.8576z"/><path d="m0 64.5903h30.3229v3.0816h-30.3229z"/><path d="m0 31.6788h9.24479v1.849h-9.24479z"/><path d="m0 69.151h9.24479v1.849h-9.24479z"/><path d="m37.4722 53.8663h67.0558v6.1632h-67.0558z"/><path d="m37.4722 60.8924h35.7466v6.1632h-35.7466z"/><path d="m37.4722 70.1372h67.0558v2.4652h-67.0558z"/><path d="m37.4722 74.0816h30.6927v2.4653h-30.6927z"/><path d="m37.4722 79.0122h10.3542v1.9722h-10.3542z"/><path d="m61.2622 86.901h27.6111v2.3421h-27.6111z"/><path d="m61.2622 90.599h43.2658v1.8489h-43.2658z"/><path d="m61.2622 93.3108h43.2658v1.8489h-43.2658z"/><path d="m61.2622 96.0226h21.4479v1.8489h-21.4479z"/><path d="m61.2622 99.5972h9.2447v1.8488h-9.2447z"/><path d="m37.4722 86.5312h21.3247v15.4688h-21.3247z"/></svg>',
 );

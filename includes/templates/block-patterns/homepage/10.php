@@ -59,19 +59,5 @@ return array(
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div></div>
 <!-- /wp:group -->',
-	'image'   => '<svg width="144" height="104" viewBox="0 0 144 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<rect y="74" width="45.375" height="34" fill="#8C8F94"/>
-<rect x="49.375" y="74" width="45.25" height="34" fill="#8C8F94"/>
-<rect x="98.625" y="74" width="45.375" height="34" fill="#8C8F94"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M70 0H0V70H70V0ZM65.375 46.625H3.75V50.75H65.375V46.625ZM3.75 53H63.75V55.5H3.75V53ZM48.375 57H3.75V59.5H48.375V57ZM3.75 62H11.375V64H3.75V62ZM24.75 62H14.25V64H24.75V62Z" fill="#8C8F94"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M74 0H144V70H74V0ZM77.75 42.625H127.375V46.75H77.75V42.625ZM136.875 53H77.75V55.5H136.875V53ZM77.75 49H137.75V51.5H77.75V49ZM85.5 57H77.75V59.5H85.5V57ZM77.75 62H85.375V64H77.75V62ZM98.75 62H88.25V64H98.75V62Z" fill="#8C8F94"/>
-</g>
-<defs>
-<clipPath id="clip0">
-<rect width="144" height="104" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-',
+	'image'   => '<svg viewBox="0 0 142 102" xmlns="http://www.w3.org/2000/svg"><path d="m0 72.9722h44.7448v29.0278h-44.7448z"/><path d="m48.6892 72.9722h44.6216v29.0278h-44.6216z"/><path d="m97.2552 72.9722h44.7448v29.0278h-44.7448z"/><g clip-rule="evenodd" fill-rule="evenodd"><path d="m69.0278 0h-69.0278v69.0278h69.0278zm-4.5608 45.9774h-60.76908v4.0677h60.76908zm-60.76908 6.2865h59.16668v2.4653h-59.16668zm44.00518 3.9444h-44.00518v2.4653h44.00518zm-44.00518 4.9306h7.51908v1.9722h-7.51908zm20.70828 0h-10.3541v1.9722h10.3541z"/><path d="m72.9722 0h69.0278v69.0278h-69.0278zm3.6979 42.033h48.9359v4.0677h-48.9359zm58.3039 10.2309h-58.3039v2.4653h58.3039zm-58.3039-3.9445h59.1669v2.4653h-59.1669zm7.6424 7.8889h-7.6424v2.4653h7.6424zm-7.6424 4.9306h7.5191v1.9722h-7.5191zm20.7084 0h-10.3542v1.9722h10.3542z"/></g></svg>',
 );

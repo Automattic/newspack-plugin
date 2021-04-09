@@ -57,26 +57,5 @@ return array(
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div></div>
 <!-- /wp:group -->',
-	'image'   => '<svg width="144" height="104" viewBox="0 0 144 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<rect y="1.375" width="69.25" height="7.75" fill="#8C8F94"/>
-<rect y="10.375" width="51.125" height="7.75" fill="#8C8F94"/>
-<rect y="20.25" width="65.75" height="2.5" fill="#8C8F94"/>
-<rect y="24.25" width="67.125" height="2.5" fill="#8C8F94"/>
-<rect y="28.25" width="66.75" height="2.5" fill="#8C8F94"/>
-<rect y="32.25" width="64.75" height="2.5" fill="#8C8F94"/>
-<rect y="36.25" width="18.5" height="2.5" fill="#8C8F94"/>
-<rect y="41.25" width="10.625" height="2.125" fill="#8C8F94"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M49.375 58.75H94.75V104.125H49.375V58.75ZM53 83.25H88.125V88.5H53V83.25ZM53 89.25H62.625V94.5H53V89.25ZM63.625 96.125H53V98.125H63.625V96.125Z" fill="#8C8F94"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M98.625 58.75H144V104.125H98.625V58.75ZM102.25 83.25H138.25V88.5H102.25V83.25ZM135.75 77.25H102.25V82.5H135.75V77.25ZM102.25 89.25H118.625V94.5H102.25V89.25ZM112.875 96.125H102.25V98.125H112.875V96.125Z" fill="#8C8F94"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M0 58.75H45.375V104.125H0V58.75ZM3.625 83.25H37.75V88.5H3.625V83.25ZM40.25 77.25H3.625V82.5H40.25V77.25ZM3.625 89.25H24.375V94.5H3.625V89.25ZM14.25 96.125H3.625V98.125H14.25V96.125Z" fill="#8C8F94"/>
-<rect x="73.25" width="70.75" height="53.125" fill="#8C8F94"/>
-</g>
-<defs>
-<clipPath id="clip0">
-<rect width="144" height="104" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-',
+	'image'   => '<svg viewBox="0 0 142 102" xmlns="http://www.w3.org/2000/svg"><path d="m0 1.3559h68.2882v7.64236h-68.2882z"/><path d="m0 10.2309h50.4149v7.6424h-50.4149z"/><path d="m0 19.9688h64.8368v2.4652h-64.8368z"/><path d="m0 23.9132h66.1927v2.4653h-66.1927z"/><path d="m0 27.8576h65.8229v2.4653h-65.8229z"/><path d="m0 31.8021h63.8507v2.4653h-63.8507z"/><path d="m0 35.7465h18.2431v2.4653h-18.2431z"/><path d="m0 40.6771h10.4774v2.0955h-10.4774z"/><g clip-rule="evenodd" fill-rule="evenodd"><path d="m48.6892 57.934h44.7448v44.066h-44.7448zm3.5747 24.1598h34.6371v5.177h-34.6371zm0 5.9166h9.4913v5.1771h-9.4913zm10.4774 6.7795h-10.4774v1.9723h10.4774z"/><path d="m97.2552 57.934h44.7448v44.066h-44.7448zm3.5748 24.1598h35.5v5.177h-35.5zm33.035-5.9167h-33.035v5.1771h33.035zm-33.035 11.8333h16.147v5.1771h-16.147zm10.477 6.7795h-10.477v1.9723h10.477z"/><path d="m0 57.934h44.7448v44.066h-44.7448zm3.57465 24.1598h33.65105v5.177h-33.65105zm36.11635-5.9167h-36.11635v5.1771h36.11635zm-36.11635 11.8333h20.46185v5.1771h-20.46185zm10.47745 6.7795h-10.47745v1.9723h10.47745z"/></g><path d="m72.2326 0h69.7674v52.3872h-69.7674z"/></svg>',
 );

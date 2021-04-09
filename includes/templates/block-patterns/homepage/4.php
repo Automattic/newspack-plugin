@@ -65,41 +65,5 @@ return array(
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div></div>
 <!-- /wp:group -->',
-	'image'   => '<svg width="144" height="104" viewBox="0 0 144 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<rect y="82.875" width="45.375" height="34" fill="#8C8F94"/>
-<rect x="49.25" y="82.875" width="45.375" height="34" fill="#8C8F94"/>
-<rect x="98.625" y="82.875" width="45.375" height="34" fill="#8C8F94"/>
-<rect width="68" height="51" fill="#8C8F94"/>
-<rect y="53.5" width="68" height="5.25" fill="#8C8F94"/>
-<rect y="59.5" width="16.25" height="5.25" fill="#8C8F94"/>
-<rect y="66.875" width="68" height="2.5" fill="#8C8F94"/>
-<rect y="70.875" width="31.125" height="2.5" fill="#8C8F94"/>
-<rect y="75.875" width="7.6098" height="2" fill="#8C8F94"/>
-<rect x="10.4814" y="75.875" width="10.7686" height="2" fill="#8C8F94"/>
-<rect x="110" width="34" height="25.5" fill="#8C8F94"/>
-<rect x="110" y="38" width="34" height="25.5" fill="#8C8F94"/>
-<rect x="72" y="41.5" width="34" height="25.5" fill="#8C8F94"/>
-<rect x="72" width="34" height="25.5" fill="#8C8F94"/>
-<rect x="110" y="27.5" width="27.125" height="3.125" fill="#8C8F94"/>
-<rect x="110" y="32.125" width="6.625" height="1.875" fill="#8C8F94"/>
-<rect x="119.125" y="32.125" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="110" y="65.5" width="28.25" height="3.125" fill="#8C8F94"/>
-<rect x="110" y="70.125" width="6.625" height="1.875" fill="#8C8F94"/>
-<rect x="119.125" y="70.125" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="72" y="69" width="31.25" height="3.125" fill="#8C8F94"/>
-<rect x="72" y="73.625" width="6.625" height="1.875" fill="#8C8F94"/>
-<rect x="81.125" y="73.625" width="9.375" height="1.875" fill="#8C8F94"/>
-<rect x="72" y="27.5" width="34" height="3.125" fill="#8C8F94"/>
-<rect x="72" y="31" width="5.875" height="3.125" fill="#8C8F94"/>
-<rect x="72" y="35.625" width="6.625" height="1.875" fill="#8C8F94"/>
-<rect x="81.125" y="35.625" width="9.375" height="1.875" fill="#8C8F94"/>
-</g>
-<defs>
-<clipPath id="clip0">
-<rect width="144" height="104" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-',
+	'image'   => '<svg viewBox="0 0 142 102" xmlns="http://www.w3.org/2000/svg"><path d="m0 81.724h44.7448v20.276h-44.7448z"/><path d="m48.566 81.724h44.7448v20.276h-44.7448z"/><path d="m97.2552 81.724h44.7448v20.276h-44.7448z"/><path d="m0 0h67.0556v50.2917h-67.0556z"/><path d="m0 52.7569h67.0556v5.1771h-67.0556z"/><path d="m0 58.6736h16.0243v5.1771h-16.0243z"/><path d="m0 65.9462h67.0556v2.4653h-67.0556z"/><path d="m0 69.8906h30.6927v2.4653h-30.6927z"/><path d="m0 74.8212h7.50411v1.9722h-7.50411z"/><path d="m10.3358 74.8212h10.6191v1.9722h-10.6191z"/><path d="m108.472 0h33.528v25.1458h-33.528z"/><path d="m108.472 37.4722h33.528v25.1459h-33.528z"/><path d="m71 40.9236h33.528v25.1458h-33.528z"/><path d="m71 0h33.528v25.1458h-33.528z"/><path d="m108.472 27.1181h26.748v3.0816h-26.748z"/><path d="m108.472 31.6788h6.533v1.849h-6.533z"/><path d="m117.47 31.6788h9.245v1.849h-9.245z"/><path d="m108.472 64.5903h27.858v3.0816h-27.858z"/><path d="m108.472 69.151h6.533v1.849h-6.533z"/><path d="m117.47 69.151h9.245v1.849h-9.245z"/><path d="m71 68.0417h30.816v3.0816h-30.816z"/><path d="m71 72.6024h6.533v1.849h-6.533z"/><path d="m79.9983 72.6024h9.2448v1.849h-9.2448z"/><path d="m71 27.1181h33.528v3.0816h-33.528z"/><path d="m71 30.5694h5.7934v3.0816h-5.7934z"/><path d="m71 35.1302h6.533v1.849h-6.533z"/><path d="m79.9983 35.1302h9.2448v1.849h-9.2448z"/></svg>',
 );
