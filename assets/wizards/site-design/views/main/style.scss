@@ -45,17 +45,3 @@
 		}
 	}
 }
-
-.homepage-pattern {
-	padding: 7px;
-	&--selected {
-		border-color: $primary-500 !important;
-		box-shadow: inset 0 0 0 3px $primary-500;
-	}
-	svg {
-		max-width: 100%;
-	}
-	> div {
-		text-align: center;
-	}
-}

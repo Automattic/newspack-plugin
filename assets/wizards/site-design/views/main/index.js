@@ -6,11 +6,6 @@ import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
  * Internal dependencies
  */
 import {
@@ -19,6 +14,7 @@ import {
 	ColorPicker,
 	TextControl,
 	SelectControl,
+	StyleCard,
 	ToggleControl,
 	SectionHeader,
 	ImageUpload,
@@ -26,13 +22,10 @@ import {
 	Button,
 	Grid,
 	WebPreview,
-	utils,
 } from '../../../../components/src';
 import ThemeSelection from '../../components/theme-selection';
 import { getFontsList, getFontImportURL, LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
 import './style.scss';
-
-const { InteractiveDiv } = utils;
 
 const Main = ( {
 	wizardApiFetch,
@@ -110,17 +103,16 @@ const Main = ( {
 						description={ __( 'Choose your favorite homepage layout', 'newspack' ) }
 						className="newspack-design__header"
 					/>
-					<Grid columns={ 6 } gutter={ 8 } rowGap={ 8 }>
+					<Grid columns={ 6 } gutter={ 16 }>
 						{ homepagePatterns.map( ( pattern, i ) => (
-							<InteractiveDiv
+							<StyleCard
 								key={ i }
-								className={ classnames( 'homepage-pattern ba br2 b--black-10', {
-									'homepage-pattern--selected': i === mods.homepage_pattern_index,
-								} ) }
+								image={ { __html: pattern.image } }
+								imageType="html"
+								isActive={ i === mods.homepage_pattern_index }
 								onClick={ () => updateMods( { homepage_pattern_index: i } ) }
-							>
-								<div dangerouslySetInnerHTML={ { __html: pattern.image } } />
-							</InteractiveDiv>
+								ariaLabel={ __( 'Activate Layout', 'newspack' ) + ' ' + ( i + 1 ) }
+							/>
 						) ) }
 					</Grid>
 				</>
