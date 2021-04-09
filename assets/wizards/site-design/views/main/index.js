@@ -99,7 +99,7 @@ const Main = ( {
 			{ isPartOfSetup && homepagePatterns.length > 0 ? (
 				<>
 					<SectionHeader
-						title={ __( 'Homepage layout', 'newspack' ) }
+						title={ __( 'Homepage', 'newspack' ) }
 						description={ __( 'Choose your favorite homepage layout', 'newspack' ) }
 						className="newspack-design__header"
 					/>
