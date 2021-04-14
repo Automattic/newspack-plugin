@@ -56,10 +56,7 @@ const Main = ( {
 			data: { theme_mods: mods, theme: themeSlug },
 			quiet: true,
 		} )
-			.then( res => {
-				updateSettings( res );
-				onSave();
-			} )
+			.then( updateSettings )
 			.catch( setError );
 
 	return (
@@ -251,7 +248,7 @@ const Main = ( {
 			) }
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( {
-					onClick: saveSettings,
+					onClick: () => saveSettings().then( onSave ),
 					children: buttonText || __( 'Save', 'newspack' ),
 				} ) }
 			</div>
