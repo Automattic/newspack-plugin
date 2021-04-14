@@ -534,7 +534,7 @@ class Advertising_Wizard extends Wizard {
 			return;
 		}
 
-		$ad_unit = $configuration_manager->get_ad_unit( $placement['ad_unit'], $placement_slug );
+		$ad_unit = $configuration_manager->get_ad_unit_for_display( $placement['ad_unit'], $placement_slug );
 		if ( is_wp_error( $ad_unit ) ) {
 			return;
 		}

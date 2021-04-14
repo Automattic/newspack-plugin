@@ -50,9 +50,9 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * @param string $placement The id of the placement region.
 	 * @return array | WP_Error Returns ad unit or error if the plugin is not active or the ad unit doesn't exist.
 	 */
-	public function get_ad_unit( $id, $placement = null ) {
+	public function get_ad_unit_for_display( $id, $placement = null ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::get_ad_unit( $id, $placement ) :
+			\Newspack_Ads_Model::get_ad_unit_for_display( $id, $placement ) :
 			$this->unconfigured_error();
 	}
 
