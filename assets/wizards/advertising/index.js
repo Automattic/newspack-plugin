@@ -220,7 +220,7 @@ class AdvertisingWizard extends Component {
 	deleteAdUnit( id ) {
 		const { setError, wizardApiFetch } = this.props;
 		// eslint-disable-next-line no-alert
-		if ( confirm( __( 'Are you sure you want to delete this ad unit?' ) ) ) {
+		if ( confirm( __( 'Are you sure you want to archive this ad unit?' ) ) ) {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
 				method: 'delete',
