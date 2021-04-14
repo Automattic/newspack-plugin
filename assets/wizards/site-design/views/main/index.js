@@ -79,7 +79,7 @@ const Main = ( {
 				<>
 					<SectionHeader
 						title={ __( 'Homepage', 'newspack' ) }
-						description={ __( 'Choose your favorite homepage layout', 'newspack' ) }
+						description={ __( 'Choose a homepage layout', 'newspack' ) }
 						className="newspack-design__header"
 					/>
 					<Grid columns={ 6 } gutter={ 16 }>
