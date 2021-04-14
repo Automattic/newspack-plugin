@@ -297,8 +297,8 @@ class Setup_Wizard extends Wizard {
 		$has_donations   = $this->check_service_enabled( 'reader-revenue' );
 		$has_newsletters = $this->check_service_enabled( 'newsletters' );
 		$donate_block    = $has_donations ? '
-		<!-- wp:group {"align":"full","backgroundColor":"primary","className":"newspack-pattern donation__style-3 has-white-color has-text-color"} -->
-		<div class="wp-block-group alignfull newspack-pattern donation__style-3 has-white-color has-text-color has-primary-background-color has-background"><div class="wp-block-group__inner-container"><!-- wp:spacer {"height":20} -->
+		<!-- wp:group {"align":"full","backgroundColor":"primary","className":"has-white-color has-text-color"} -->
+		<div class="wp-block-group alignfull has-white-color has-text-color has-primary-background-color has-background"><div class="wp-block-group__inner-container"><!-- wp:spacer {"height":20} -->
 		<div style="height:20px" aria-hidden="true" class="wp-block-spacer"></div>
 		<!-- /wp:spacer -->
 
