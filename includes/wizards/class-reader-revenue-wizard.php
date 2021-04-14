@@ -410,11 +410,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	public function api_update_stripe_settings( $request ) {
 		$params = $request->get_params();
 		$result = $this->update_stripe_settings( $params );
-
-		if ( is_wp_error( $result ) ) {
-			return rest_ensure_response( $result );
-		}
-
 		return \rest_ensure_response( $result );
 	}
 
