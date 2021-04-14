@@ -362,7 +362,7 @@ class Setup_Wizard extends Wizard {
 
 		// Load all homepage patterns.
 		foreach ( scandir( $patterns_directory ) as $file_name ) {
-			if ( $file_name != '.' && $file_name != '..' ) {
+			if ( '.' !== $file_name && '..' !== $file_name ) {
 				$file_path           = $patterns_directory . $file_name;
 				$homepage_patterns[] = $this->load_homepage_pattern( $file_path );
 			}
