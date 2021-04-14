@@ -348,24 +348,26 @@ class Setup_Wizard extends Wizard {
 	 * @return array|object|bool Homepage pattern (false if not found) or all patterns.
 	 */
 	private function get_homepage_patterns( $index = null ) {
-		$pattern_file_base = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/block-patterns/homepage/';
-		$homepage_patterns = [];
+		$patterns_directory = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/block-patterns/homepage/';
+
+		// Load a single homepage pattern.
 		if ( null !== $index ) {
-			$file_path = $pattern_file_base . ( $index + 1 ) . '.php';
+			$file_path = $patterns_directory . ( $index + 1 ) . '.php';
 			if ( file_exists( $file_path ) ) {
 				return $this->load_homepage_pattern( $file_path );
 			} else {
 				return false;
 			}
 		}
-		$block_patterns_amount = 12;
-		$block_pattern_index   = 0;
-		while ( $block_pattern_index++ < $block_patterns_amount ) {
-			$file_path = $pattern_file_base . $block_pattern_index . '.php';
-			if ( file_exists( $file_path ) ) {
+
+		// Load all homepage patterns.
+		foreach ( scandir( $patterns_directory ) as $file_name ) {
+			if ( $file_name != '.' && $file_name != '..' ) {
+				$file_path           = $patterns_directory . $file_name;
 				$homepage_patterns[] = $this->load_homepage_pattern( $file_path );
 			}
 		}
+
 		return $homepage_patterns;
 	}
 
