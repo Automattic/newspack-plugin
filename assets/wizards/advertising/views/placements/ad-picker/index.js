@@ -28,6 +28,7 @@ class AdPicker extends Component {
 				return {
 					label: adUnit.name,
 					value: adUnit.id,
+					disabled: adUnit.status === 'INACTIVE',
 				};
 			} ),
 		];
