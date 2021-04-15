@@ -44,7 +44,7 @@ class Google_Services_Connection {
 	 * @return object Google OAuth2 client.
 	 */
 	public static function get_site_kit_oauth_client() {
-		return self::get_site_kit_authentication()->get_site_kit_oauth_client();
+		return self::get_site_kit_authentication()->get_oauth_client();
 	}
 
 	/**

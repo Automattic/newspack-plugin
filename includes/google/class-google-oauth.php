@@ -118,9 +118,7 @@ class Google_OAuth {
 			$parameters['state'] = $csrf_token;
 		}
 
-		return new OAuth2(
-			$parameters
-		);
+		return new OAuth2( $parameters );
 	}
 
 	/**
@@ -164,22 +162,13 @@ class Google_OAuth {
 		$google_oauth2->setCode( $auth_code );
 		$auth_data = $google_oauth2->fetchAuthToken();
 
-		// The refresh_token is only provided on the first authorization from the user.
-		// If for some reason the user has authorised the app, but we're missing the creds,
-		// ask the user to revoke access in order to authorise afresh.
-		// https://stackoverflow.com/a/10857806/3772847.
-		if ( ! isset( $auth_data['refresh_token'] ) ) {
-			return new \WP_Error(
-				'newspack_google_oauth',
-				__( 'Refresh token is missing. You may have to remove access to the Newspack app at https://myaccount.google.com/permissions.', 'newspack' ),
-				[ 'status' => 401 ]
-			);
-		}
 		$user_id = get_current_user_id();
 		$auth    = [
-			'access_token'  => $auth_data['access_token'],
-			'refresh_token' => $auth_data['refresh_token'],
+			'access_token' => $auth_data['access_token'],
 		];
+		if ( isset( $auth_data['refresh_token'] ) ) {
+			$auth['refresh_token'] = $auth_data['refresh_token'];
+		}
 		if ( update_user_meta( $user_id, self::AUTH_DATA_USERMETA_NAME, $auth ) ) {
 			return \rest_ensure_response(
 				[
@@ -257,24 +246,36 @@ class Google_OAuth {
 
 	/**
 	 * Get OAuth2 Credentials.
+	 * If refresh token is available, generate refreshable credentials.
+	 * Otherwise, credentials based on auth token.
+	 * The difference is that the latter can expire and the user will be forced to authorise again.
+	 * The refresh token will be issued only upon first authorisation with the app - if the same app
+	 * is used for authorisation on another site, only access token will be issued.
+	 * More at https://stackoverflow.com/a/10857806/3772847.
 	 *
-	 * @return UserRefreshCredentials|bool The credentials, or false of the user has not authenticated.
+	 * @return UserRefreshCredentials|OAuth2|bool The credentials, or false of the user has not authenticated.
 	 */
 	public static function get_oauth2_credentials() {
 		$auth_data = self::get_google_auth_saved_data();
-		if ( ! isset( $auth_data['refresh_token'] ) ) {
+		if ( ! isset( $auth_data['access_token'] ) ) {
 			return false;
 		}
-		// Generate a refreshable OAuth2 credential for authentication.
-		// https://googleapis.github.io/google-auth-library-php/master/Google/Auth/Credentials/UserRefreshCredentials.html.
-		return new UserRefreshCredentials(
-			null,
-			[
-				'client_id'     => self::get_client_id(),
-				'client_secret' => self::get_client_secret(),
-				'refresh_token' => $auth_data['refresh_token'],
-			]
-		);
+		if ( isset( $auth_data['refresh_token'] ) ) {
+			// Generate a refreshable OAuth2 credential for authentication.
+			// https://googleapis.github.io/google-auth-library-php/master/Google/Auth/Credentials/UserRefreshCredentials.html.
+			return new UserRefreshCredentials(
+				null,
+				[
+					'client_id'     => self::get_client_id(),
+					'client_secret' => self::get_client_secret(),
+					'refresh_token' => $auth_data['refresh_token'],
+				]
+			);
+		} else {
+			$google_oauth2 = self::create_google_oauth2();
+			$google_oauth2->setAccessToken( $auth_data['access_token'] );
+			return $google_oauth2;
+		}
 	}
 
 	/**
