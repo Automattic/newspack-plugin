@@ -352,7 +352,8 @@ class Setup_Wizard extends Wizard {
 
 		// Load a single homepage pattern.
 		if ( null !== $index ) {
-			$file_path = $patterns_directory . ( $index + 1 ) . '.php';
+			$index_padded = str_pad( $index + 1, 2, '0', STR_PAD_LEFT );
+			$file_path    = $patterns_directory . $index_padded . '.php';
 			if ( file_exists( $file_path ) ) {
 				return $this->load_homepage_pattern( $file_path );
 			} else {
