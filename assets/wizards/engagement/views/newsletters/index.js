@@ -57,7 +57,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
-		value: config.settings[ key ]?.value,
+		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
 		onChange: value => performConfigUpdate( { settings: { [ key ]: { value } } } ),
