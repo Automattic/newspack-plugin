@@ -360,7 +360,12 @@ class Advertising_Wizard extends Wizard {
 
 		$services   = $this->get_services();
 		$placements = $this->get_placements();
-		$ad_units   = $configuration_manager->get_ad_units();
+		try {
+			$ad_units = $configuration_manager->get_ad_units();
+		} catch ( \Exception $error ) {
+			$message = $error->getMessage();
+			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
+		}
 
 		/* If there is only one enabled service, select it for all placements */
 		$enabled_services = array_filter(
