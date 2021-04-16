@@ -24,7 +24,17 @@ class StyleCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, cardTitle, url, image, isActive, onClick, id } = this.props;
+		const {
+			ariaLabel,
+			className,
+			cardTitle,
+			url,
+			image,
+			imageType,
+			isActive,
+			onClick,
+			id,
+		} = this.props;
 		const classes = classnames(
 			'newspack-style-card',
 			isActive && 'newspack-style-card__is-active',
@@ -33,13 +43,19 @@ class StyleCard extends Component {
 		return (
 			<div className={ classes } id={ id }>
 				<div className="newspack-style-card__image">
-					<img src={ image } alt={ cardTitle + ' - ' + __( 'Thumbnail', 'newspack' ) } />
+					{ imageType === 'html' ? (
+						<div dangerouslySetInnerHTML={ image } />
+					) : (
+						<img src={ image } alt={ cardTitle + ' ' + __( 'Thumbnail', 'newspack' ) } />
+					) }
 					<div className="newspack-style-card__actions">
 						{ ! isActive && (
 							<Button
 								isLink
 								onClick={ onClick }
-								aria-label={ __( 'Activate', 'newspack' ) + ' ' + cardTitle }
+								aria-label={
+									ariaLabel ? ariaLabel : __( 'Activate', 'newspack' ) + ' ' + cardTitle
+								}
 								tabIndex="0"
 							>
 								{ __( 'Activate', 'newspack' ) }
@@ -48,12 +64,14 @@ class StyleCard extends Component {
 						{ url && <WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } isLink /> }
 					</div>
 				</div>
-				<div
-					className="newspack-style-card__title"
-					title={ isActive ? __( 'Active theme', 'newspack' ) : '' }
-				>
-					{ cardTitle }
-				</div>
+				{ cardTitle && (
+					<div
+						className="newspack-style-card__title"
+						title={ isActive ? __( 'Active', 'newspack' ) : null }
+					>
+						{ cardTitle }
+					</div>
+				) }
 			</div>
 		);
 	}

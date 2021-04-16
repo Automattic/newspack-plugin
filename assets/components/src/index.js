@@ -40,3 +40,4 @@ export { default as WizardPagination } from './wizard-pagination';
 
 export { default as Router } from './proxied-imports/router';
 export { default as hooks } from './hooks';
+export { default as utils } from './utils';
