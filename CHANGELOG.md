@@ -1,3 +1,16 @@
+# [1.36.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.35.0...v1.36.0-alpha.1) (2021-04-20)
+
+
+### Bug Fixes
+
+* **onboarding:** flow issues ([#931](https://github.com/Automattic/newspack-plugin/issues/931)) ([794a5f0](https://github.com/Automattic/newspack-plugin/commit/794a5f04034b7ce94164d8bc82c088096a746966))
+
+
+### Features
+
+* **engagement:** remove MJML settings ([#934](https://github.com/Automattic/newspack-plugin/issues/934)) ([fbf5f7d](https://github.com/Automattic/newspack-plugin/commit/fbf5f7d34bd8d20422eb88279dc6e0e00ef3a0e5)), closes [Automattic/newspack-newsletters#443](https://github.com/Automattic/newspack-newsletters/issues/443)
+* **onboarding:** homepage patterns ([#932](https://github.com/Automattic/newspack-plugin/issues/932)) ([4c42f54](https://github.com/Automattic/newspack-plugin/commit/4c42f541ad716c7d1a3a6083ae5ce4a711ad0e69))
+
 # [1.35.0](https://github.com/Automattic/newspack-plugin/compare/v1.34.1...v1.35.0) (2021-04-06)
 
 
