@@ -112,6 +112,9 @@ final class Newspack {
 		}
 
 		include_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-configuration-managers.php';
+
+		// Scheduled post checker CRON job.
+		include_once NEWSPACK_ABSPATH . 'includes/scheduled-post-checker/scheduled-post-checker.php';
 	}
 
 	/**
