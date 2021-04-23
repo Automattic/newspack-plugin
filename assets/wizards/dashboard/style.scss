@@ -16,13 +16,17 @@
 		}
 	}
 
-	a {
+	a,
+	body[class*='admin-color-'] & .newspack-button {
 		align-items: center;
 		border-radius: inherit;
 		color: inherit;
 		display: flex;
+		font-weight: inherit;
 		height: 100%;
 		justify-content: space-between;
+		padding: 0;
+		text-align: inherit;
 		text-decoration: none;
 		transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
 
@@ -31,6 +35,7 @@
 		&:hover {
 			background-color: $light-gray-100;
 			box-shadow: 0 4px 8px rgba( black, 0.08 );
+			color: $primary-600;
 
 			h2 {
 				color: inherit;
@@ -80,4 +85,8 @@
 			margin-left: 8px;
 		}
 	}
+}
+
+.newspack-notice {
+	margin: 0;
 }
