@@ -50,53 +50,21 @@ const DEFAULT_CONFIG = {
 	referrers_not: '',
 };
 
-const DEFAULT_CRITERIA = {
-	engagement: false,
-	activity: false,
-	referrers: false,
-};
-
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
 	const [ nameInitially, setNameInitially ] = useState( '' );
 	const [ isFetchingReach, setIsFetchingReach ] = useState( false );
 	const [ reach, setReach ] = useState( { total: 0, in_segment: 0 } );
-	const [ criteria, setCriteria ] = useState( DEFAULT_CRITERIA );
 	const history = useHistory();
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
-	const getConfigToSave = () => {
-		const configToSave = { ...segmentConfig };
-
-		// If any criteria sections are disabled, reset their options to default.
-		if ( ! criteria.engagement ) {
-			configToSave.max_posts = 0;
-			configToSave.max_session_posts = 0;
-			configToSave.min_posts = 0;
-			configToSave.min_session_posts = 0;
-		}
-		if ( ! criteria.activity ) {
-			configToSave.is_donor = false;
-			configToSave.is_not_donor = false;
-			configToSave.is_not_subscribed = false;
-			configToSave.is_subscribed = false;
-		}
-		if ( ! criteria.referrers ) {
-			configToSave.referrers = '';
-			configToSave.referrers_not = '';
-		}
-
-		return configToSave;
-	};
 
 	const isSegmentValid =
-		name.length > 0 && // Segment has a name.
-		JSON.stringify( getConfigToSave() ) !== JSON.stringify( DEFAULT_CONFIG ) && // Segment differs from the default config.
-		( criteria.engagement || criteria.activity || criteria.referrers ); // At least one criteria section is enbaled.
+		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG ); // Segment has a name. // Segment differs from the default config.
 
 	const isDirty =
-		JSON.stringify( segmentInitially ) !== JSON.stringify( getConfigToSave() ) ||
+		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
 		nameInitially !== name;
 
 	const unblock = hooks.usePrompt(
@@ -143,53 +111,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		);
 	}, [] );
 
-	const updateCriteria = () => {
-		if ( ! segmentInitially ) {
-			return;
-		}
-
-		// Automatically enable sections with options that differ from the default.
-		const newCriteria = { ...criteria };
-		if (
-			segmentInitially.min_posts ||
-			segmentInitially.max_posts ||
-			segmentInitially.min_session_posts ||
-			segmentInitially.max_session_posts ||
-			( segmentInitially.favorite_categories && 0 < segmentInitially.favorite_categories.length )
-		) {
-			newCriteria.engagement = true;
-			newCriteria.engagement = true;
-		}
-
-		if (
-			segmentInitially.is_subscribed ||
-			segmentInitially.is_not_subscribed ||
-			segmentInitially.is_donor ||
-			segmentInitially.is_not_donor
-		) {
-			newCriteria.activity = true;
-			newCriteria.activity = true;
-		}
-
-		if ( segmentInitially.referrers || segmentInitially.referrers_not ) {
-			newCriteria.referrers = true;
-			newCriteria.referrers = true;
-		}
-
-		setCriteria( newCriteria );
-	};
-
 	useEffect( () => {
-		updateReach( getConfigToSave() );
-	}, [ JSON.stringify( criteria ), JSON.stringify( segmentConfig ) ] );
-
-	useEffect( () => {
-		updateCriteria();
-	}, [ JSON.stringify( segmentInitially ) ] );
+		updateReach( segmentConfig );
+	}, [ JSON.stringify( segmentConfig ) ] );
 
 	const saveSegment = () => {
-		const configToSave = getConfigToSave();
-
 		unblock();
 
 		const path = isNew
@@ -200,7 +126,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			method: 'POST',
 			data: {
 				name,
-				configuration: configToSave,
+				configuration: segmentConfig,
 			},
 		} )
 			.then( setSegments )
@@ -231,7 +157,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					</Button>
 				</div>
 			</div>
-			{ ( criteria.engagement || criteria.activity || criteria.referrers ) && reach.total > 0 && (
+			{ reach.total > 0 && (
 				<Notice
 					isInfo
 					className="newspack-campaigns-wizard-segments__recorded-visitors"
@@ -246,20 +172,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			<SegmentCriteria
 				title={ __( 'Reader Engagement', 'newspack' ) }
 				description={ __( 'Target readers based on their browsing behavior.', 'newspack' ) }
-				toggleChecked={ criteria.engagement }
-				toggleOnChange={ () => {
-					const newCriteria = { ...criteria, engagement: ! criteria.engagement };
-					setCriteria( newCriteria );
-				} }
-				notification={
-					criteria.referrers
-						? __(
-								'Disable Referrer Sources in order to use Reader Engagement options.',
-								'newspack'
-						  )
-						: null
-				}
-				disabled={ criteria.referrers }
 			>
 				<Grid columns="3" gutter={ 24 }>
 					<SegmentSettingSection
@@ -268,14 +180,12 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.min_posts > 0 }
 								onChange={ value => updateSegmentConfig( 'min_posts' )( value ? 1 : 0 ) }
 								label={ __( 'Min', 'newspack' ) }
 							/>
 							<TextControl
 								data-testid="min-articles-input"
-								disabled={ criteria.referrers || ! criteria.engagement }
 								placeholder={ __( 'Min posts', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_posts }
@@ -284,7 +194,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						</div>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.max_posts > 0 }
 								onChange={ value =>
 									updateSegmentConfig( 'max_posts' )( value ? segmentConfig.min_posts || 1 : 0 )
@@ -292,7 +201,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								label={ __( 'Max', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								placeholder={ __( 'Max posts', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_posts }
@@ -309,13 +217,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.min_session_posts > 0 }
 								onChange={ value => updateSegmentConfig( 'min_session_posts' )( value ? 1 : 0 ) }
 								label={ __( 'Min', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								placeholder={ __( 'Min posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.min_session_posts }
@@ -326,7 +232,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						</div>
 						<div className="newspack-campaigns-wizard-segments__section__min-max">
 							<CheckboxControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								checked={ segmentConfig.max_session_posts > 0 }
 								onChange={ value =>
 									updateSegmentConfig( 'max_session_posts' )(
@@ -336,7 +241,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 								label={ __( 'Max', 'newspack' ) }
 							/>
 							<TextControl
-								disabled={ criteria.referrers || ! criteria.engagement }
 								placeholder={ __( 'Max posts in sesssion', 'newspack' ) }
 								type="number"
 								value={ segmentConfig.max_session_posts }
@@ -351,7 +255,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						description={ __( 'Most-read categories of reader.', 'newspack' ) }
 					>
 						<CategoryAutocomplete
-							disabled={ criteria.referrers || ! criteria.engagement }
 							value={ segmentConfig.favorite_categories.map( v => parseInt( v ) ) }
 							onChange={ selected => {
 								updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
@@ -364,14 +267,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			<SegmentCriteria
 				title={ __( 'Reader Activity', 'newspack' ) }
 				description={ __( 'Target readers based on their actions.', 'newspack' ) }
-				toggleChecked={ criteria.activity }
-				toggleOnChange={ () => setCriteria( { ...criteria, activity: ! criteria.activity } ) }
 			>
 				<Grid columns="3" gutter={ 24 }>
 					<SegmentSettingSection title={ __( 'Newsletter', 'newspack' ) }>
 						<SelectControl
 							data-testid="subscriber-select"
-							disabled={ ! criteria.activity }
 							onChange={ value => {
 								value = parseInt( value );
 								if ( value === 0 ) {
@@ -400,7 +300,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 					>
 						<SelectControl
-							disabled={ ! criteria.activity }
 							onChange={ value => {
 								value = parseInt( value );
 								if ( value === 0 ) {
@@ -429,20 +328,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			<SegmentCriteria
 				title={ __( 'Referrer Sources', 'newspack' ) }
 				description={ __( 'Target readers based on where they’re coming from.', 'newspack' ) }
-				toggleChecked={ criteria.referrers }
-				toggleOnChange={ () => {
-					const newCriteria = { ...criteria, referrers: ! criteria.referrers };
-					setCriteria( newCriteria );
-				} }
-				notification={
-					criteria.engagement
-						? __(
-								'Disable Reader Engagement in order to use Referrer Sources options.',
-								'newspack'
-						  )
-						: null
-				}
-				disabled={ criteria.engagement }
+				notification={ __(
+					'Segments using these options will apply only to the first page visited after coming from an external source.',
+					'newspack'
+				) }
 			>
 				<Grid columns="3" gutter={ 24 }>
 					<SegmentSettingSection
@@ -451,7 +340,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					>
 						<TextControl
 							data-testid="referrers-input"
-							disabled={ criteria.engagement || ! criteria.referrers }
 							isWide
 							placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
 							help={ __( 'A comma-separated list of domains.', 'newspack' ) }
@@ -467,7 +355,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						) }
 					>
 						<TextControl
-							disabled={ criteria.engagement || ! criteria.referrers }
 							isWide
 							placeholder={ __( 'twitter.com, instagram.com', 'newspack' ) }
 							help={ __( 'A comma-separated list of domains.', 'newspack' ) }

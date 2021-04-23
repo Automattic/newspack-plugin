@@ -10,7 +10,7 @@ import { ActionCard } from '../../../../components/src';
 const SegmentCriteria = props => {
 	const { children } = props;
 	return (
-		<ActionCard { ...props } notificationLevel="warning">
+		<ActionCard { ...props } notificationLevel="info">
 			{ children }
 		</ActionCard>
 	);
