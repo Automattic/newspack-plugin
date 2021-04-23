@@ -9,16 +9,15 @@
 namespace Newspack\Scheduled_Post_Checker;
 
 defined( 'ABSPATH' ) || exit;
-
-define( 'NEWSPACK_SCHEDULED_POST_CRON_HOOK', 'newspack_scheduled_post_checker' );
+define( 'NEWSPACK_SCHEDULED_POST_CHECKER_CRON_HOOK', 'newspack_scheduled_post_checker' );
 
 /**
  * Set up the checking.
  */
 function nspc_init() {
 	register_deactivation_hook( __FILE__, 'nspc_deactivate' );
-	if ( ! wp_next_scheduled( NEWSPACK_SCHEDULED_POST_CRON_HOOK ) ) {
-		wp_schedule_event( time(), 'fivemins', NEWSPACK_SCHEDULED_POST_CRON_HOOK );
+	if ( ! wp_next_scheduled( NEWSPACK_SCHEDULED_POST_CHECKER_CRON_HOOK ) ) {
+		wp_schedule_event( time(), 'fivemins', NEWSPACK_SCHEDULED_POST_CHECKER_CRON_HOOK );
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\nspc_init' );
@@ -27,7 +26,7 @@ add_action( 'init', __NAMESPACE__ . '\nspc_init' );
  * Clear the cron job when this plugin is deactivated.
  */
 function nspc_deactivate() {
-	wp_clear_scheduled_hook( NEWSPACK_SCHEDULED_POST_CRON_HOOK );
+	wp_clear_scheduled_hook( NEWSPACK_SCHEDULED_POST_CHECKER_CRON_HOOK );
 }
 
 /**
@@ -70,7 +69,7 @@ function nspc_run_check() {
 		check_and_publish_future_post( $post_id );
 	}
 }
-add_action( NEWSPACK_SCHEDULED_POST_CRON_HOOK, __NAMESPACE__ . '\nspc_run_check' );
+add_action( NEWSPACK_SCHEDULED_POST_CHECKER_CRON_HOOK, __NAMESPACE__ . '\nspc_run_check' );
 
 /**
  * Add a cron interval for every five minutes.
