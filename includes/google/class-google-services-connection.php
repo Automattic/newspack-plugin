@@ -33,7 +33,7 @@ class Google_Services_Connection {
 			$authentication = new Authentication( $context, new Options( $context ), new User_Options( $context ) );
 			return $authentication;
 		} else {
-			return new WP_Error( 'newspack_sitekit_disconnectedt', __( 'Connect Site Kit plugin to view Campaign Analytics.', 'newspack' ) );
+			return new WP_Error( 'newspack_sitekit_disconnected', __( 'Connect Site Kit plugin to view Campaign Analytics.', 'newspack' ) );
 		}
 	}
 

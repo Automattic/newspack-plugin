@@ -124,7 +124,7 @@ const Dashboard = ( { items } ) => {
 										<Icon icon={ plugins } />
 										<div className="newspack-dashboard-card__header">
 											<h2>{ __( 'Google OAuth2' ) }</h2>
-											<p>{ __( 'Authorise Newspack with Google', 'newspack' ) }</p>
+											<p>{ __( 'Authorize Newspack with Google', 'newspack' ) }</p>
 										</div>
 									</div>
 								</Button>
