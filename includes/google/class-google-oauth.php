@@ -209,13 +209,32 @@ class Google_OAuth {
 	 * @return object|bool Basic information, or false if unauthorised.
 	 */
 	private static function authenticated_user_basic_information() {
-		$auth_data = self::get_google_auth_saved_data();
-		if ( ! isset( $auth_data['access_token'] ) ) {
+		$oauth2_credentials = self::get_oauth2_credentials();
+		if ( false === $oauth2_credentials ) {
 			return false;
 		}
 
+		if ( $oauth2_credentials instanceof OAuth2 ) {
+			// These are non-refreshable credentials, we just have the access token stored.
+			$access_token = $oauth2_credentials->getAccessToken();
+		} elseif ( $oauth2_credentials instanceof UserRefreshCredentials ) {
+			// These credentials are refreshable, let's request a new access token.
+			try {
+				$token_response = $oauth2_credentials->fetchAuthToken();
+			} catch ( \Exception $e ) {
+				// Credentials might be broken, remove them.
+				delete_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME );
+				return false;
+			}
+
+			if ( ! isset( $token_response['access_token'] ) ) {
+				return false;
+			}
+
+			$access_token = $token_response['access_token'];
+		}
+
 		// Validate access token.
-		$access_token        = $auth_data['access_token'];
 		$token_info_response = wp_safe_remote_get(
 			add_query_arg(
 				'access_token',
@@ -223,7 +242,6 @@ class Google_OAuth {
 				'https://www.googleapis.com/oauth2/v1/tokeninfo'
 			)
 		);
-
 
 		if ( 200 === $token_info_response['response']['code'] ) {
 			$user_info_response = wp_safe_remote_get(
