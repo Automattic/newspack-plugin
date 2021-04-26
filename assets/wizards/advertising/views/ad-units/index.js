@@ -35,31 +35,49 @@ class AdUnits extends Component {
 						'Set up multiple ad units to use on your homepage, articles and other places throughout your site. You can place ads through our Newspack Ad Block in the Editor.'
 					) }
 				</p>
-				{ Object.values( adUnits ).map( ( { id, name, status } ) => {
-					return (
-						<ActionCard
-							key={ id }
-							title={ name }
-							actionText={ __( 'Edit' ) }
-							description={ () => (
-								<span>
-									{ __( 'Status:', 'newspack' ) }{' '}
-									<strong
-										className={ classnames( {
-											green: status === 'ACTIVE',
-											orange: status === 'INACTIVE',
-										} ) }
-									>
-										{ status.toLowerCase() }
-									</strong>
-								</span>
-							) }
-							href={ `#${ service }/${ id }` }
-							secondaryActionText={ __( 'Archive' ) }
-							onSecondaryActionClick={ () => onDelete( id ) }
-						/>
-					);
-				} ) }
+				{ Object.values( adUnits )
+					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
+					.sort( a => ( a.is_legacy ? 1 : -1 ) )
+					.map( ( { id, name, status, is_legacy } ) => {
+						return (
+							<ActionCard
+								key={ id }
+								title={ name }
+								description={ () =>
+									is_legacy ? (
+										<i>
+											{ __(
+												'Legacy ad unit - remove it after updating ad placements to use the GAM-sourced ad units.',
+												'newspack'
+											) }
+										</i>
+									) : (
+										<span>
+											{ __( 'Status:', 'newspack' ) }{' '}
+											<strong
+												className={ classnames( {
+													green: status === 'ACTIVE',
+													orange: status === 'INACTIVE',
+												} ) }
+											>
+												{ status.toLowerCase() }
+											</strong>
+										</span>
+									)
+								}
+								onSecondaryActionClick={ () => onDelete( id ) }
+								{ ...( is_legacy
+									? {
+											secondaryActionText: __( 'Delete' ),
+									  }
+									: {
+											href: `#${ service }/${ id }`,
+											actionText: __( 'Edit' ),
+											secondaryActionText: __( 'Archive' ),
+									  } ) }
+							/>
+						);
+					} ) }
 			</Fragment>
 		);
 	}
