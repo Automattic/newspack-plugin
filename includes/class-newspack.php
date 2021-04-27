@@ -75,6 +75,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-analytics.php';
+		include_once NEWSPACK_ABSPATH . 'includes/google/class-google-oauth.php';
+		include_once NEWSPACK_ABSPATH . 'includes/google/class-google-services-connection.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
