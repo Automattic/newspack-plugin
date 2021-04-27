@@ -16,7 +16,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { ActionCard, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Advertising management screen.
@@ -26,13 +26,29 @@ class AdUnits extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnits, onDelete, service } = this.props;
+		const { adUnits, onDelete, service, isGAMConnected } = this.props;
 
 		return (
 			<Fragment>
+				{ isGAMConnected === false && (
+					<Notice
+						noticeText={ `${ __(
+							'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
+							'newspack'
+						) } ${
+							Object.values( adUnits ).length
+								? __(
+										'The legacy ad units will continue to work, but they are not editable.',
+										'newspack'
+								  )
+								: ''
+						}` }
+						isWarning
+					/>
+				) }
 				<p>
 					{ __(
-						'Set up multiple ad units to use on your homepage, articles and other places throughout your site. You can place ads through our Newspack Ad Block in the Editor.'
+						'Set up multiple ad units to use on your homepage, articles and other places throughout your site. You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.'
 					) }
 				</p>
 				{ Object.values( adUnits )

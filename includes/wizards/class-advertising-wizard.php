@@ -209,7 +209,7 @@ class Advertising_Wizard extends Wizard {
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/advertising/ad_unit/(?P<id>\d+)',
 			[
-				'methods'             => 'DELETE',
+				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_delete_adunit' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
@@ -382,9 +382,10 @@ class Advertising_Wizard extends Wizard {
 			}
 		}
 		return array(
-			'services'   => $services,
-			'placements' => $placements,
-			'ad_units'   => $ad_units,
+			'services'         => $services,
+			'placements'       => $placements,
+			'ad_units'         => $ad_units,
+			'is_gam_connected' => $configuration_manager->is_gam_connected(),
 		);
 	}
 

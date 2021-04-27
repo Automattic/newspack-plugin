@@ -93,6 +93,17 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Is GAM connected?
+	 *
+	 * @return bool | WP_Error Returns true if GAM is not connected, of error if the plugin is not active.
+	 */
+	public function is_gam_connected() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::is_gam_connected() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Check whether the current screen should show ads.
 	 *
 	 * @return bool Returns true if ads should be shown.
