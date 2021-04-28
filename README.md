@@ -30,12 +30,17 @@ If you have a patch or have stumbled upon an issue with the Newspack plugin/them
 Some features require environment variables to be set (e.g. in `wp-config.php`):
 
 ```php
-// support
-define('NEWSPACK_SUPPORT_API_URL', 'https://super-tech-support.zendesk.com/api/v2');
-define('NEWSPACK_SUPPORT_EMAIL', 'support@company.com');
-define('NEWSPACK_WPCOM_CLIENT_ID', '12345');
-// optional
-define('NEWSPACK_SUPPORT_IS_PRE_LAUNCH', true);
+// Support
+define( 'NEWSPACK_SUPPORT_API_URL', 'https://super-tech-support.zendesk.com/api/v2' );
+define( 'NEWSPACK_SUPPORT_EMAIL', 'support@company.com' );
+define( 'NEWSPACK_WPCOM_CLIENT_ID', '12345' );
+
+// OAuth2
+define( 'NEWSPACK_GOOGLE_OAUTH_CLIENT_ID', 'abc' );
+define( 'NEWSPACK_GOOGLE_OAUTH_CLIENT_SECRET', 'abc' );
+
+// Optional
+define( 'NEWSPACK_SUPPORT_IS_PRE_LAUNCH', true );
 ```
 
 ## News Consumer Insights integration
