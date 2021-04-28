@@ -1,3 +1,16 @@
+# [1.37.0](https://github.com/Automattic/newspack-plugin/compare/v1.36.0...v1.37.0) (2021-04-28)
+
+
+### Bug Fixes
+
+* **google-oauth:** credentials refreshment ([92c4fce](https://github.com/Automattic/newspack-plugin/commit/92c4fce2f02ae3a45e9c55737534f55baaa471f4))
+
+
+### Features
+
+* reorganize segment UI ([#862](https://github.com/Automattic/newspack-plugin/issues/862)) ([bbf2d35](https://github.com/Automattic/newspack-plugin/commit/bbf2d35c2f6f22506e09c8a663cc52013b57132d))
+* **google:** set up OAuth2 authentication ([#935](https://github.com/Automattic/newspack-plugin/issues/935)) ([98ee47b](https://github.com/Automattic/newspack-plugin/commit/98ee47bdee1222b3985bfde9f5f9f20021d088a8))
+
 # [1.36.0](https://github.com/Automattic/newspack-plugin/compare/v1.35.0...v1.36.0) (2021-04-21)
 
 
