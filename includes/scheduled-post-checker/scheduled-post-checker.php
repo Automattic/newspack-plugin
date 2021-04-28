@@ -49,23 +49,7 @@ function nspc_run_check() {
 		]
 	);
 
-	if ( function_exists( 'spcl_log_event' ) ) {
-		$message = 'Newspack Scheduled Post Checker running';
-		$data    = [
-			'posts_with_missed_schedule' => $posts_with_missed_schedule,
-			'time'                       => $time,
-		];
-		spcl_log_event( $message, $data );
-	}
-
 	foreach ( $posts_with_missed_schedule as $post_id ) {
-		if ( function_exists( 'spcl_log_event' ) ) {
-			$message = 'Trying to publish post with missed schedule';
-			$data    = [
-				'id' => $post_id,
-			];
-			spcl_log_event( $message, $data );
-		}
 		check_and_publish_future_post( $post_id );
 	}
 }
