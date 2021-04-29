@@ -221,8 +221,57 @@ class Profile {
 			$updater = $field['updater'];
 			$updater( $updates[ $field['name'] ] );
 		}
+		self::set_profile_fields();
+
+		$profile               = $this->newspack_get_profile();
+		$social_menu_name      = __( 'Social Links', 'newspack' );
+		$social_menu_placement = 'social';
+
+		// Create social menu if there is none and social links are set.
+		if (
+			// No menu assigned to 'social' placement (defined by Newspack Theme).
+			! has_nav_menu( $social_menu_placement ) &&
+			// No menu called "Social Links".
+			! wp_get_nav_menu_object( $social_menu_name )
+		) {
+			$social_menu_items = [];
+			foreach ( self::$wpseo_fields as $social_field ) {
+				if ( ! empty( $profile[ $social_field['key'] ] ) ) {
+					$social_menu_items[] = [
+						'key'   => $social_field['key'],
+						'label' => $social_field['label'],
+						'value' => $profile[ $social_field['key'] ],
+					];
+				}
+			}
+			if ( ! empty( $social_menu_items ) ) {
+				// Create the menu.
+				$social_menu_id = wp_create_nav_menu( $social_menu_name );
+				// Set nav menu location.
+				$locations                           = get_theme_mod( 'nav_menu_locations' );
+				$locations[ $social_menu_placement ] = $social_menu_id;
+				set_theme_mod( 'nav_menu_locations', $locations );
+				// Set the menu items.
+				foreach ( $social_menu_items as $social_item ) {
+					if ( 'twitter_site' === $social_item['key'] ) {
+						// Twitter is the only one stored (by Yoast) as a username, not full URL.
+						$social_item['value'] = 'https://twitter.com/' . $social_item['value'];
+					}
+					wp_update_nav_menu_item(
+						$social_menu_id,
+						0,
+						[
+							'menu-item-title'  => $social_item['label'],
+							'menu-item-url'    => $social_item['value'],
+							'menu-item-status' => 'publish',
+						]
+					);
+				}
+			}
+		}
+
 		$response = [
-			'profile' => $this->newspack_get_profile(),
+			'profile' => $profile,
 		];
 		return rest_ensure_response( $response );
 	}
