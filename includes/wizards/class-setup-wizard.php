@@ -269,6 +269,7 @@ class Setup_Wizard extends Wizard {
 
 		// Footer.
 		$theme_mods['footer_color']     = get_theme_mod( 'footer_color', 'default' );
+		$theme_mods['footer_logo_size'] = get_theme_mod( 'footer_logo_size', 'medium' );
 		$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', false );
 		if ( false === $theme_mods['footer_copyright'] ) {
 			set_theme_mod( 'footer_copyright', get_option( 'blogdescription', '' ) );
