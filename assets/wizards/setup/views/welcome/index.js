@@ -81,7 +81,7 @@ const Welcome = ( { buttonAction } ) => {
 	const increment = () => setInstallationProgress( progress => progress + 1 );
 
 	const install = async () => {
-		//
+		// Wait 1ms to avoid an immediate "done" state if there's no need to install anything.
 		await new Promise( resolve => setTimeout( resolve, 1 ) );
 		// Plugins and theme.
 		const softwarePromises = softwareInfo.map( item => {
