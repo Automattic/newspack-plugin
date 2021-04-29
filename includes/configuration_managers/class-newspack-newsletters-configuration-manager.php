@@ -61,8 +61,8 @@ class Newspack_Newsletters_Configuration_Manager extends Configuration_Manager {
 	public function is_set_up() {
 		$settings = $this->get_settings();
 		foreach ( $settings as $setting ) {
-			// Assume the plugin has been set up if any setting has been changed.
-			if ( ! empty( $setting['value'] ) ) {
+			// Assume the plugin has been set up if any setting is non-empty.
+			if ( 'text' === $setting['type'] && ! empty( $setting['value'] ) ) {
 				return true;
 			}
 		}
