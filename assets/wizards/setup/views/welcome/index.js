@@ -81,6 +81,9 @@ const Welcome = ( { buttonAction } ) => {
 	const increment = () => setInstallationProgress( progress => progress + 1 );
 
 	const install = async () => {
+		// Reset state.
+		setErrors( [] );
+		setInstallationProgress( 0 );
 		// Wait 1ms to avoid an immediate "done" state if there's no need to install anything.
 		await new Promise( resolve => setTimeout( resolve, 1 ) );
 		// Plugins and theme.
@@ -220,7 +223,13 @@ const Welcome = ( { buttonAction } ) => {
 	};
 
 	const renderErrorBox = ( error, i ) => (
-		<ActionCard isSmall key={ i } title={ error.info.message + ': ' + error.item } />
+		<ActionCard
+			isSmall
+			key={ i }
+			title={ error.info.message + ': ' + error.item }
+			actionText={ __( 'Retry', 'newspack' ) }
+			onClick={ install }
+		/>
 	);
 
 	return (
