@@ -133,9 +133,13 @@ class Profile {
 
 		$wpseo_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'wordpress_seo' );
 		foreach ( self::$wpseo_fields as $field ) {
+			$value = $wpseo_manager->get_option( $field['key'], '' );
+			if ( is_wp_error( $value ) ) {
+				$value = '';
+			}
 			self::$profile_fields[] = [
 				'name'    => $field['key'],
-				'value'   => $wpseo_manager->get_option( $field['key'], '' ),
+				'value'   => $value,
 				'updater' => function( $value ) use ( $field ) {
 					$wpseo_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'wordpress_seo' );
 					$wpseo_manager->set_option( $field['key'], $value );
@@ -206,7 +210,7 @@ class Profile {
 	}
 
 	/**
-	 * Check capabilities for using API.
+	 * Update the site profile.
 	 *
 	 * @param WP_REST_Request $request API request object.
 	 * @return object|WP_Error
