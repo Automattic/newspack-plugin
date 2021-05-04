@@ -424,7 +424,7 @@ class Setup_Wizard extends Wizard {
 				return isset( $rr_wizard->fetch_all_data()['platform_data']['platform'] );
 			case 'newsletters':
 				$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-				return $newsletters_configuration_manager->is_set_up();
+				return $newsletters_configuration_manager->is_esp_set_up();
 			case 'google-ad-sense':
 				$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 				return $ads_configuration_manager->is_service_enabled( 'google_adsense' );
