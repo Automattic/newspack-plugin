@@ -8,7 +8,7 @@ import { omit, times } from 'lodash';
  */
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useRef, useEffect, useState } from '@wordpress/element';
 import { Icon, check, info } from '@wordpress/icons';
 
 /**
@@ -23,7 +23,9 @@ import {
 	withWizardScreen,
 	CheckboxControl,
 } from '../../../../components/src';
+import Router from '../../../../components/src/proxied-imports/router';
 
+const { useHistory } = Router;
 const POST_COUNT = newspack_aux_data.is_e2e ? 12 : 40;
 const STARTER_CONTENT_REQUEST_COUNT = POST_COUNT + 3;
 
@@ -79,6 +81,11 @@ const Welcome = ( { buttonAction } ) => {
 	const increment = () => setInstallationProgress( progress => progress + 1 );
 
 	const install = async () => {
+		// Reset state.
+		setErrors( [] );
+		setInstallationProgress( 0 );
+		// Wait 1ms to avoid an immediate "done" state if there's no need to install anything.
+		await new Promise( resolve => setTimeout( resolve, 1 ) );
 		// Plugins and theme.
 		const softwarePromises = softwareInfo.map( item => {
 			if ( item.Status === 'active' ) {
@@ -143,9 +150,30 @@ const Welcome = ( { buttonAction } ) => {
 		}
 	};
 
+	const history = useHistory();
+	const nextRouteAddress = buttonAction.href;
 	const hasErrors = errors.length > 0;
 	const isInit = installationProgress === 0;
 	const isDone = installationProgress === total;
+	const redirectCounterRef = useRef();
+
+	const REDIRECT_COUNTER_DURATION = 5;
+	const [ redirectCounter, setRedirectCounter ] = useState( REDIRECT_COUNTER_DURATION );
+	useEffect( () => {
+		if ( redirectCounter === 0 ) {
+			clearInterval( redirectCounterRef.current );
+			history.push( nextRouteAddress.replace( '#', '' ) );
+		}
+	}, [ redirectCounter ] );
+
+	useEffect( () => {
+		if ( isDone && redirectCounter === REDIRECT_COUNTER_DURATION ) {
+			// Trigger redirect countdown.
+			redirectCounterRef.current = setInterval( () => {
+				setRedirectCounter( counter => counter - 1 );
+			}, 1000 );
+		}
+	}, [ isDone, redirectCounter ] );
 
 	const getHeadingText = () => {
 		if ( hasErrors ) {
@@ -195,7 +223,13 @@ const Welcome = ( { buttonAction } ) => {
 	};
 
 	const renderErrorBox = ( error, i ) => (
-		<ActionCard isSmall key={ i } title={ error.info.message + ': ' + error.item } />
+		<ActionCard
+			isSmall
+			key={ i }
+			title={ error.info.message + ': ' + error.item }
+			actionText={ __( 'Retry', 'newspack' ) }
+			onClick={ install }
+		/>
 	);
 
 	return (
@@ -214,7 +248,19 @@ const Welcome = ( { buttonAction } ) => {
 				{ errors.length === 0 && installationProgress > 0 ? (
 					<ProgressBar completed={ installationProgress } total={ total } />
 				) : null }
-				<p>{ getInfoText() }</p>
+				<p>
+					{ getInfoText() }
+					{ isDone && (
+						<>
+							<br />
+							<i>
+								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{' '}
+								{ __( 'seconds…', 'newspack' ) }
+							</i>
+						</>
+					) }
+				</p>
+
 				{ errors.length ? errors.map( renderErrorBox ) : null }
 				{ ( isInit || isDone ) && (
 					<Card noBorder className="newspack-card__footer">
@@ -232,7 +278,7 @@ const Welcome = ( { buttonAction } ) => {
 								disabled={ REQUIRED_SOFTWARE_SLUGS.length !== softwareInfo.length }
 								isPrimary
 								onClick={ isInit ? install : null }
-								href={ isDone ? buttonAction.href : null }
+								href={ isDone ? nextRouteAddress : null }
 							>
 								{ isInit ? __( 'Get Started', 'newspack' ) : __( 'Continue', 'newspack' ) }
 							</Button>

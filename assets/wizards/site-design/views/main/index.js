@@ -248,18 +248,34 @@ const Main = ( {
 						/>
 					) }
 				</Grid>
-				<ImageUpload
-					className="newspack-design__footer__logo"
-					label={ __( 'Alternative Logo', 'newspack' ) }
-					info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
-					style={ {
-						...( mods.footer_color === 'custom' && mods.footer_color_hex
-							? { backgroundColor: mods.footer_color_hex }
-							: {} ),
-					} }
-					image={ mods.newspack_footer_logo }
-					onChange={ updateMods( 'newspack_footer_logo' ) }
-				/>
+				<Grid columns={ 1 } gutter={ 16 }>
+					<ImageUpload
+						className="newspack-design__footer__logo"
+						label={ __( 'Alternative Logo', 'newspack' ) }
+						info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
+						style={ {
+							...( mods.footer_color === 'custom' && mods.footer_color_hex
+								? { backgroundColor: mods.footer_color_hex }
+								: {} ),
+						} }
+						image={ mods.newspack_footer_logo }
+						onChange={ updateMods( 'newspack_footer_logo' ) }
+					/>
+					{ mods.newspack_footer_logo && (
+						<SelectControl
+							className="icon-only"
+							label={ __( 'Alternative logo - Size', 'newspack' ) }
+							value={ mods.footer_logo_size }
+							onChange={ updateMods( 'footer_logo_size' ) }
+							buttonOptions={ [
+								{ value: 'small', label: 'S' },
+								{ value: 'medium', label: 'M' },
+								{ value: 'large', label: 'L' },
+								{ value: 'xlarge', label: 'XL' },
+							] }
+						/>
+					) }
+				</Grid>
 			</Grid>
 			{ isPartOfSetup && (
 				<div className="newspack-floating-button">
