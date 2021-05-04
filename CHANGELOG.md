@@ -1,3 +1,16 @@
+# [1.38.0](https://github.com/Automattic/newspack-plugin/compare/v1.37.0...v1.38.0) (2021-05-04)
+
+
+### Bug Fixes
+
+* use guest authors in Slack preview when needed ([#947](https://github.com/Automattic/newspack-plugin/issues/947)) ([e42680e](https://github.com/Automattic/newspack-plugin/commit/e42680e0705f56d78b88c5da7fa20a2750c82442))
+
+
+### Features
+
+* batch amp-analytics events ([481dc97](https://github.com/Automattic/newspack-plugin/commit/481dc9778ca0288b295d4c011f912e604dbe99bb)), closes [#914](https://github.com/Automattic/newspack-plugin/issues/914)
+* integrate Newspack Scheduled Post Checker into main plugin ([#940](https://github.com/Automattic/newspack-plugin/issues/940)) ([c6adc1b](https://github.com/Automattic/newspack-plugin/commit/c6adc1b6fc4904e38b410b71a7c3ee1e2f7a68b8))
+
 # [1.37.0](https://github.com/Automattic/newspack-plugin/compare/v1.36.0...v1.37.0) (2021-04-28)
 
 
