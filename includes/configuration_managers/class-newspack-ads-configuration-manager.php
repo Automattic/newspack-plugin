@@ -84,7 +84,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * Delete an ad unit
 	 *
 	 * @param integer $id The id of the ad unit to delete.
-	 * @return bool | WP_Error Returns true if deletion is successful, of error if the plugin is not active or the ad unit doesn't exist.
+	 * @return bool | WP_Error Returns true if deletion is successful, or error if the plugin is not active or the ad unit doesn't exist.
 	 */
 	public function delete_ad_unit( $id ) {
 		return $this->is_configured() ?
@@ -95,11 +95,22 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Is GAM connected?
 	 *
-	 * @return bool | WP_Error Returns true if GAM is not connected, of error if the plugin is not active.
+	 * @return bool | WP_Error Returns true if GAM is not connected, or error if the plugin is not active.
 	 */
 	public function is_gam_connected() {
 		return $this->is_configured() ?
 			\Newspack_Ads_Model::is_gam_connected() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get GAM connection status.
+	 *
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function get_gam_connection_status() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::get_gam_connection_status() :
 			$this->unconfigured_error();
 	}
 

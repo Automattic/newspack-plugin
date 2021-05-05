@@ -26,24 +26,28 @@ class AdUnits extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnits, onDelete, service, isGAMConnected } = this.props;
+		const { adUnits, onDelete, service, gamConnectionStatus } = this.props;
+		const warningNoticeText = `${ __(
+			'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
+			'newspack'
+		) } ${
+			Object.values( adUnits ).length
+				? __( 'The legacy ad units will continue to work, but they are not editable.', 'newspack' )
+				: ''
+		}`;
+		const gamConnectionMessage = gamConnectionStatus?.error
+			? `${ __( 'Google Ad Manager connection error', 'newspack' ) }: ${
+					gamConnectionStatus.error
+			  }`
+			: false;
 
 		return (
 			<Fragment>
-				{ isGAMConnected === false && (
+				{ gamConnectionStatus?.connected === false && (
 					<Notice
-						noticeText={ `${ __(
-							'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
-							'newspack'
-						) } ${
-							Object.values( adUnits ).length
-								? __(
-										'The legacy ad units will continue to work, but they are not editable.',
-										'newspack'
-								  )
-								: ''
-						}` }
-						isWarning
+						noticeText={ gamConnectionMessage || warningNoticeText }
+						isWarning={ ! gamConnectionMessage }
+						isError={ gamConnectionMessage }
 					/>
 				) }
 				<p>

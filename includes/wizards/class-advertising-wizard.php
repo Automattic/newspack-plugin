@@ -385,7 +385,7 @@ class Advertising_Wizard extends Wizard {
 			'services'         => $services,
 			'placements'       => $placements,
 			'ad_units'         => $ad_units,
-			'is_gam_connected' => $configuration_manager->is_gam_connected(),
+			'gam_connection_status' => $configuration_manager->get_gam_connection_status(),
 		);
 	}
 

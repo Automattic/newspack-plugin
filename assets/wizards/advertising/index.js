@@ -42,7 +42,7 @@ class AdvertisingWizard extends Component {
 					google_adsense: {},
 					wordads: {},
 				},
-				is_gam_connected: null,
+				gam_connection_status: null,
 			},
 		};
 	}
@@ -261,7 +261,7 @@ class AdvertisingWizard extends Component {
 		const { advertisingData } = this.state;
 		const { pluginRequirements, wizardApiFetch } = this.props;
 		const { services, placements, adUnits } = advertisingData;
-		const isGAMConnected = advertisingData.is_gam_connected;
+		const isGAMConnected = advertisingData.gam_connection_status?.connected;
 		const tabs = [
 			{
 				label: __( 'Ad Providers' ),
@@ -329,7 +329,7 @@ class AdvertisingWizard extends Component {
 									secondaryButtonText={ __( 'Back to advertising options' ) }
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
-									isGAMConnected={ isGAMConnected }
+									gamConnectionStatus={ advertisingData.gam_connection_status }
 								/>
 							) }
 						/>
