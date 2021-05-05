@@ -181,20 +181,11 @@ class AdvertisingWizard extends Component {
 	saveAdUnit( id ) {
 		const { setError, wizardApiFetch } = this.props;
 		const { adUnits } = this.state.advertisingData;
-		const adUnit = adUnits[ id ];
-		const { name, code, sizes, ad_service } = adUnit;
-		const data = {
-			id,
-			code,
-			name,
-			sizes,
-			ad_service,
-		};
 		return new Promise( ( resolve, reject ) => {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + ( id || 0 ),
 				method: 'post',
-				data,
+				data: adUnits[ id ],
 				quiet: true,
 			} )
 				.then( advertisingData => {
@@ -330,66 +321,69 @@ class AdvertisingWizard extends Component {
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
 									gamConnectionStatus={ advertisingData.gam_connection_status }
+									updateAdUnit={ adUnit => {
+										this.onAdUnitChange( adUnit );
+										this.saveAdUnit( adUnit.id );
+									} }
 								/>
 							) }
 						/>
-						{ isGAMConnected ? (
-							<>
-								<Route
-									path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
-									render={ routeProps => {
-										return (
-											<AdUnit
-												headerText={ __( 'Add an ad unit' ) }
-												subHeaderText={ __(
-													'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
-												) }
-												adUnit={
-													adUnits[ 0 ] || {
-														id: 0,
-														name: '',
-														code: '',
-														sizes: [ [ 120, 120 ] ],
-													}
-												}
-												service={ 'google_ad_manager' }
-												onChange={ this.onAdUnitChange }
-												onSave={ id =>
-													this.saveAdUnit( id ).then( () => {
-														routeProps.history.push( '/google_ad_manager' );
-													} )
-												}
-											/>
-										);
-									} }
-								/>
-								<Route
-									path="/google_ad_manager/:id"
-									render={ routeProps => {
-										const adId = routeProps.match.params.id;
-										if ( adId === CREATE_AD_ID_PARAM ) {
-											return null;
+						<Route
+							path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
+							render={ routeProps => {
+								if ( ! isGAMConnected ) {
+									return null;
+								}
+								return (
+									<AdUnit
+										headerText={ __( 'Add an ad unit' ) }
+										subHeaderText={ __(
+											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
+										) }
+										adUnit={
+											adUnits[ 0 ] || {
+												id: 0,
+												name: '',
+												code: '',
+												sizes: [ [ 120, 120 ] ],
+											}
 										}
-										return (
-											<AdUnit
-												headerText={ __( 'Edit ad unit' ) }
-												subHeaderText={ __(
-													'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
-												) }
-												adUnit={ adUnits[ adId ] || {} }
-												service={ 'google_ad_manager' }
-												onChange={ this.onAdUnitChange }
-												onSave={ id =>
-													this.saveAdUnit( id ).then( () => {
-														routeProps.history.push( '/google_ad_manager' );
-													} )
-												}
-											/>
-										);
-									} }
-								/>
-							</>
-						) : null }
+										service={ 'google_ad_manager' }
+										onChange={ this.onAdUnitChange }
+										onSave={ id =>
+											this.saveAdUnit( id ).then( () => {
+												routeProps.history.push( '/google_ad_manager' );
+											} )
+										}
+									/>
+								);
+							} }
+						/>
+						<Route
+							path="/google_ad_manager/:id"
+							render={ routeProps => {
+								const adId = routeProps.match.params.id;
+								if ( ! isGAMConnected || adId === CREATE_AD_ID_PARAM ) {
+									return null;
+								}
+								return (
+									<AdUnit
+										headerText={ __( 'Edit ad unit' ) }
+										subHeaderText={ __(
+											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
+										) }
+										adUnit={ adUnits[ adId ] || {} }
+										service={ 'google_ad_manager' }
+										onChange={ this.onAdUnitChange }
+										onSave={ id =>
+											this.saveAdUnit( id ).then( () => {
+												routeProps.history.push( '/google_ad_manager' );
+											} )
+										}
+									/>
+								);
+							} }
+						/>
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>

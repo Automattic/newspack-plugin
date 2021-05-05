@@ -7,16 +7,12 @@
  */
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * External dependencies
- */
-import classnames from 'classnames';
+import { trash, pencil } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Notice, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Advertising management screen.
@@ -26,7 +22,7 @@ class AdUnits extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnits, onDelete, service, gamConnectionStatus } = this.props;
+		const { adUnits, onDelete, updateAdUnit, service, gamConnectionStatus } = this.props;
 		const warningNoticeText = `${ __(
 			'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
 			'newspack'
@@ -58,13 +54,24 @@ class AdUnits extends Component {
 				{ Object.values( adUnits )
 					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
-					.map( ( { id, name, status, is_legacy } ) => {
+					.map( adUnit => {
+						const editLink = `#${ service }/${ adUnit.id }`;
 						return (
 							<ActionCard
-								key={ id }
-								title={ name }
+								key={ adUnit.id }
+								title={ adUnit.name }
+								{ ...( adUnit.is_legacy
+									? {}
+									: {
+											titleLink: editLink,
+											toggleChecked: adUnit.status === 'ACTIVE',
+											toggleOnChange: value => {
+												adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
+												updateAdUnit( adUnit );
+											},
+									  } ) }
 								description={ () =>
-									is_legacy ? (
+									adUnit.is_legacy ? (
 										<i>
 											{ __(
 												'Legacy ad unit - remove it after updating ad placements to use the GAM-sourced ad units.',
@@ -73,28 +80,35 @@ class AdUnits extends Component {
 										</i>
 									) : (
 										<span>
-											{ __( 'Status:', 'newspack' ) }{' '}
-											<strong
-												className={ classnames( {
-													green: status === 'ACTIVE',
-													orange: status === 'INACTIVE',
-												} ) }
-											>
-												{ status.toLowerCase() }
-											</strong>
+											{ __( 'Sizes:', 'newspack' ) }{' '}
+											{ adUnit.sizes.map( ( size, i ) => (
+												<code key={ i }>{ size.join( 'x' ) }</code>
+											) ) }
 										</span>
 									)
 								}
-								onSecondaryActionClick={ () => onDelete( id ) }
-								{ ...( is_legacy
-									? {
-											secondaryActionText: __( 'Delete' ),
-									  }
-									: {
-											href: `#${ service }/${ id }`,
-											actionText: __( 'Edit' ),
-											secondaryActionText: __( 'Archive' ),
-									  } ) }
+								actionText={
+									<div className="flex items-center">
+										{ ! adUnit.is_legacy && (
+											<Button
+												isQuaternary
+												isSmall
+												href={ editLink }
+												icon={ pencil }
+												label={ __( 'Edit the ad unit', 'newspack' ) }
+												tooltipPosition="bottom center"
+											/>
+										) }
+										<Button
+											isQuaternary
+											isSmall
+											onClick={ () => onDelete( adUnit.id ) }
+											icon={ trash }
+											label={ __( 'Archive the ad unit', 'newspack' ) }
+											tooltipPosition="bottom center"
+										/>
+									</div>
+								}
 							/>
 						);
 					} ) }
