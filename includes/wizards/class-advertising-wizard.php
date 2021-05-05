@@ -382,9 +382,9 @@ class Advertising_Wizard extends Wizard {
 			}
 		}
 		return array(
-			'services'         => $services,
-			'placements'       => $placements,
-			'ad_units'         => $ad_units,
+			'services'              => $services,
+			'placements'            => $placements,
+			'ad_units'              => $ad_units,
 			'gam_connection_status' => $configuration_manager->get_gam_connection_status(),
 		);
 	}
