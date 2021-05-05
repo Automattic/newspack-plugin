@@ -18,6 +18,7 @@ import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Placements, Services } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
+const CREATE_AD_ID_PARAM = 'create';
 
 class AdvertisingWizard extends Component {
 	/**
@@ -322,7 +323,7 @@ class AdvertisingWizard extends Component {
 									{ ...( isGAMConnected
 										? {
 												buttonText: __( 'Add an individual ad unit' ),
-												buttonAction: '#/google_ad_manager/create',
+												buttonAction: `#/google_ad_manager/${ CREATE_AD_ID_PARAM }`,
 										  }
 										: {} ) }
 									secondaryButtonText={ __( 'Back to advertising options' ) }
@@ -335,7 +336,7 @@ class AdvertisingWizard extends Component {
 						{ isGAMConnected ? (
 							<>
 								<Route
-									path="/google_ad_manager/create"
+									path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
 									render={ routeProps => {
 										return (
 											<AdUnit
@@ -365,13 +366,17 @@ class AdvertisingWizard extends Component {
 								<Route
 									path="/google_ad_manager/:id"
 									render={ routeProps => {
+										const adId = routeProps.match.params.id;
+										if ( adId === CREATE_AD_ID_PARAM ) {
+											return null;
+										}
 										return (
 											<AdUnit
 												headerText={ __( 'Edit ad unit' ) }
 												subHeaderText={ __(
 													'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
 												) }
-												adUnit={ adUnits[ routeProps.match.params.id ] || {} }
+												adUnit={ adUnits[ adId ] || {} }
 												service={ 'google_ad_manager' }
 												onChange={ this.onAdUnitChange }
 												onSave={ id =>
