@@ -311,7 +311,7 @@ class AdvertisingWizard extends Component {
 									adUnits={ adUnits }
 									service={ 'google_ad_manager' }
 									onDelete={ id => this.deleteAdUnit( id ) }
-									{ ...( isGAMConnected
+									{ ...( true === advertisingData.gam_connection_status?.is_network_code_matched
 										? {
 												buttonText: __( 'Add an individual ad unit' ),
 												buttonAction: `#/google_ad_manager/${ CREATE_AD_ID_PARAM }`,
