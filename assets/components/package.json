@@ -23,21 +23,21 @@
     "access": "public"
   },
   "dependencies": {
-    "@material-ui/core": "^4.8.2",
-    "@material-ui/icons": "^4.5.1",
-    "@wordpress/base-styles": "^1.0.0",
-    "@wordpress/components": "^7.3.1",
-    "@wordpress/element": "^2.3.0",
-    "@wordpress/i18n": "^3.11.0",
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
+    "@wordpress/base-styles": "^1.6.0",
+    "@wordpress/components": "^12.0.6",
+    "@wordpress/element": "^2.19.0",
+    "@wordpress/i18n": "^3.17.0",
     "classnames": "^2.2.6",
     "lodash": "^4.17.20",
     "qs": "^6.9.6",
-    "react-router-dom": "^5.0.1"
+    "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
-    "@automattic/calypso-build": "^5.1.0",
+    "@automattic/calypso-build": "^6.3.0",
     "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
+    "@babel/core": "^7.12.10",
     "recursive-copy": "2.0.10"
   },
   "babel": {
