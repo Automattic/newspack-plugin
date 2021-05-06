@@ -37,8 +37,26 @@ class AdUnits extends Component {
 			  }`
 			: false;
 
+		const isDisabled = false === gamConnectionStatus?.is_network_code_matched;
+		const buttonProps = {
+			disabled: isDisabled,
+			isQuaternary: true,
+			isSmall: true,
+			tooltipPosition: 'bottom center',
+			disableLinkColor: true,
+		};
+
 		return (
 			<Fragment>
+				{ false === gamConnectionStatus?.is_network_code_matched && (
+					<Notice
+						noticeText={ __(
+							'Your GAM network code is different than the network code the site was configured with. Editing has been disabled.',
+							'newspack'
+						) }
+						isError
+					/>
+				) }
 				{ gamConnectionStatus?.connected === false && (
 					<Notice
 						noticeText={ gamConnectionMessage || warningNoticeText }
@@ -58,12 +76,13 @@ class AdUnits extends Component {
 						const editLink = `#${ service }/${ adUnit.id }`;
 						return (
 							<ActionCard
+								disabled={ isDisabled }
 								key={ adUnit.id }
 								title={ adUnit.name }
 								{ ...( adUnit.is_legacy
 									? {}
 									: {
-											titleLink: editLink,
+											titleLink: isDisabled ? null : editLink,
 											toggleChecked: adUnit.status === 'ACTIVE',
 											toggleOnChange: value => {
 												adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
@@ -91,21 +110,17 @@ class AdUnits extends Component {
 									<div className="flex items-center">
 										{ ! adUnit.is_legacy && (
 											<Button
-												isQuaternary
-												isSmall
 												href={ editLink }
 												icon={ pencil }
 												label={ __( 'Edit the ad unit', 'newspack' ) }
-												tooltipPosition="bottom center"
+												{ ...buttonProps }
 											/>
 										) }
 										<Button
-											isQuaternary
-											isSmall
 											onClick={ () => onDelete( adUnit.id ) }
 											icon={ trash }
 											label={ __( 'Archive the ad unit', 'newspack' ) }
-											tooltipPosition="bottom center"
+											{ ...buttonProps }
 										/>
 									</div>
 								}
