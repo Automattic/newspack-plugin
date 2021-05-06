@@ -6,6 +6,8 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-autocomplete-with-suggestions {
+	width: 100%;
+
 	.components-spinner {
 		position: absolute;
 		top: 2em;
