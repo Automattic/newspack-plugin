@@ -247,6 +247,10 @@ body[class*='admin-color-'] {
 			}
 		}
 
+		&.disable-link-color {
+			color: initial;
+		}
+
 		&.is-link {
 			background: none;
 			border: 0;
