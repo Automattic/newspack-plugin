@@ -290,7 +290,8 @@ class Popups_Analytics_Utils {
 		$ga_data_days = array_reduce(
 			$ga_data_rows,
 			function ( $days, $row ) use ( $event_label_id, $event_action, &$all_actions, &$all_labels, &$aggregate_seen_events, &$aggregate_form_submission_events, &$aggregate_link_click_events, &$post_edit_link ) {
-				if ( isset( $row['dimensions'][2] ) && strpos( $row['dimensions'][2], 'Newspack Announcement' ) !== false ) {
+				$label = $row['dimensions'][2];
+				if ( '(not set)' !== $label ) {
 					$item          = self::process_legacy_item( $row );
 					$label_object  = $item['label'];
 					$action_object = $item['action'];
