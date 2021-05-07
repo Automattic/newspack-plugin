@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/Automattic/newspack-plugin/compare/v1.38.0...v1.38.1) (2021-05-07)
+
+
+### Bug Fixes
+
+* trigger release build ([95d0c54](https://github.com/Automattic/newspack-plugin/commit/95d0c54a2f36ec6cd2275e4cfbfc2ab8859ba06f))
+
 # [1.38.0](https://github.com/Automattic/newspack-plugin/compare/v1.37.0...v1.38.0) (2021-05-04)
 
 
