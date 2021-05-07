@@ -12,7 +12,7 @@ import { trash, pencil } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Advertising management screen.
@@ -43,7 +43,6 @@ class AdUnits extends Component {
 			isQuaternary: true,
 			isSmall: true,
 			tooltipPosition: 'bottom center',
-			disableLinkColor: true,
 		};
 
 		return (
@@ -66,67 +65,75 @@ class AdUnits extends Component {
 				) }
 				<p>
 					{ __(
-						'Set up multiple ad units to use on your homepage, articles and other places throughout your site. You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.'
+						'Set up multiple ad units to use on your homepage, articles and other places throughout your site.'
+					) }
+					<br />
+					{ __(
+						'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.'
 					) }
 				</p>
-				{ Object.values( adUnits )
-					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
-					.sort( a => ( a.is_legacy ? 1 : -1 ) )
-					.map( adUnit => {
-						const editLink = `#${ service }/${ adUnit.id }`;
-						return (
-							<ActionCard
-								disabled={ isDisabled }
-								key={ adUnit.id }
-								title={ adUnit.name }
-								{ ...( adUnit.is_legacy
-									? {}
-									: {
-											titleLink: isDisabled ? null : editLink,
-											toggleChecked: adUnit.status === 'ACTIVE',
-											toggleOnChange: value => {
-												adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
-												updateAdUnit( adUnit );
-											},
-									  } ) }
-								description={ () =>
-									adUnit.is_legacy ? (
-										<i>
-											{ __(
-												'Legacy ad unit - remove it after updating ad placements to use the GAM-sourced ad units.',
-												'newspack'
+				<Card noBorder>
+					{ Object.values( adUnits )
+						.sort( ( a, b ) => b.name.localeCompare( a.name ) )
+						.sort( a => ( a.is_legacy ? 1 : -1 ) )
+						.map( adUnit => {
+							const editLink = `#${ service }/${ adUnit.id }`;
+							return (
+								<ActionCard
+									disabled={ isDisabled }
+									key={ adUnit.id }
+									title={ adUnit.name }
+									isSmall
+									className="mv0"
+									{ ...( adUnit.is_legacy
+										? {}
+										: {
+												titleLink: isDisabled ? null : editLink,
+												toggleChecked: adUnit.status === 'ACTIVE',
+												toggleOnChange: value => {
+													adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
+													updateAdUnit( adUnit );
+												},
+										  } ) }
+									description={ () =>
+										adUnit.is_legacy ? (
+											<em>
+												{ __(
+													'Legacy ad unit - remove it after updating ad placements to use the GAM-sourced ad units.',
+													'newspack'
+												) }
+											</em>
+										) : (
+											<span>
+												{ __( 'Sizes:', 'newspack' ) }{' '}
+												{ adUnit.sizes.map( ( size, i ) => (
+													<code key={ i }>{ size.join( 'x' ) }</code>
+												) ) }
+											</span>
+										)
+									}
+									actionText={
+										<div className="flex items-center">
+											{ ! adUnit.is_legacy && (
+												<Button
+													href={ editLink }
+													icon={ pencil }
+													label={ __( 'Edit the ad unit', 'newspack' ) }
+													{ ...buttonProps }
+												/>
 											) }
-										</i>
-									) : (
-										<span>
-											{ __( 'Sizes:', 'newspack' ) }{' '}
-											{ adUnit.sizes.map( ( size, i ) => (
-												<code key={ i }>{ size.join( 'x' ) }</code>
-											) ) }
-										</span>
-									)
-								}
-								actionText={
-									<div className="flex items-center">
-										{ ! adUnit.is_legacy && (
 											<Button
-												href={ editLink }
-												icon={ pencil }
-												label={ __( 'Edit the ad unit', 'newspack' ) }
+												onClick={ () => onDelete( adUnit.id ) }
+												icon={ trash }
+												label={ __( 'Archive the ad unit', 'newspack' ) }
 												{ ...buttonProps }
 											/>
-										) }
-										<Button
-											onClick={ () => onDelete( adUnit.id ) }
-											icon={ trash }
-											label={ __( 'Archive the ad unit', 'newspack' ) }
-											{ ...buttonProps }
-										/>
-									</div>
-								}
-							/>
-						);
-					} ) }
+										</div>
+									}
+								/>
+							);
+						} ) }
+				</Card>
 			</Fragment>
 		);
 	}
