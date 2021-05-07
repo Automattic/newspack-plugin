@@ -233,14 +233,17 @@ body[class*='admin-color-'] {
 
 		&.is-quaternary {
 			border: 1px solid transparent;
+			color: $dark-gray-900;
 
 			&:hover {
 				border-color: $light-gray-200;
+				color: $primary-500;
 			}
 
 			&:focus {
 				border-color: $primary-500;
 				box-shadow: inset 0 0 0 1px $primary-500;
+				color: $primary-500;
 			}
 		}
 
