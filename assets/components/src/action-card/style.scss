@@ -53,6 +53,15 @@
 	&.is-small {
 		.newspack-action-card__region-top {
 			padding: 8px 16px;
+
+			.components-toggle-control {
+				margin-bottom: 16px;
+
+				@media screen and ( min-width: 744px ) {
+					margin-bottom: 0;
+					margin-right: 16px;
+				}
+			}
 		}
 
 		h2 {
@@ -110,7 +119,10 @@
 			padding: 16px;
 
 			.components-toggle-control {
+				margin-bottom: 16px;
+
 				@media screen and ( min-width: 744px ) {
+					margin-bottom: 0;
 					margin-right: 16px;
 				}
 			}
