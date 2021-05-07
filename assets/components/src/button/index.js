@@ -21,15 +21,11 @@ import classnames from 'classnames';
 
 const { useHistory } = Router;
 
-const Button = ( { className, isQuaternary, disableLinkColor, href, onClick, ...otherProps } ) => {
+const Button = ( { className, isQuaternary, href, onClick, ...otherProps } ) => {
 	const history = useHistory();
 	const [ isAwaitingOnClick, setIsAwaitingOnClick ] = useState( false );
 
-	const classes = classnames(
-		'newspack-button',
-		{ 'is-quaternary': isQuaternary, 'disable-link-color': disableLinkColor },
-		className
-	);
+	const classes = classnames( 'newspack-button', isQuaternary && 'is-quaternary', className );
 
 	// If both onClick and href are present, await the onClick action an then redirect.
 	if ( href && onClick ) {

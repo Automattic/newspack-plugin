@@ -136,6 +136,14 @@
 		line-height: 16px;
 	}
 
+	code {
+		background: $light-gray-100;
+		color: $dark-gray-900;
+		font-size: 12px;
+		line-height: 16px;
+		padding: 4px 8px;
+	}
+
 	// Thematic Break
 
 	hr {

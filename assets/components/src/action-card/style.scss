@@ -76,13 +76,15 @@
 			border-right-color: $light-gray-500;
 
 			&:first-of-type {
-				border-radius: 3px 3px 0 0;
 				border-top-color: $light-gray-500;
+				border-top-left-radius: 3px;
+				border-top-right-radius: 3px;
 			}
 
 			&:last-of-type {
 				border-bottom-color: $light-gray-500;
-				border-radius: 0 0 3px 3px;
+				border-bottom-left-radius: 3px;
+				border-bottom-right-radius: 3px;
 			}
 
 			& + & {
