@@ -206,11 +206,11 @@ svg {
 		}
 
 		&::before {
-			animation: loading-quiet 1s ease-in-out infinite;
+			animation: loading-quiet 1.25s ease-in-out infinite;
 			background: $primary-500;
 			content: '';
 			display: block;
-			height: 16px;
+			height: 8px;
 			left: 0;
 			position: fixed;
 			right: 100%;
@@ -221,7 +221,8 @@ svg {
 				top: 32px;
 				margin-left: 160px;
 
-				body.auto-fold & {
+				body.auto-fold &,
+				body.folded & {
 					margin-left: 36px;
 				}
 			}
