@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/Automattic/newspack-plugin/compare/v1.38.1...v1.39.0) (2021-05-13)
+
+
+### Features
+
+* add link to manage reusable blocks ([#949](https://github.com/Automattic/newspack-plugin/issues/949)) ([101baa2](https://github.com/Automattic/newspack-plugin/commit/101baa2245696d535a09a77fd5dc2d9987826d8a))
+
 ## [1.38.1](https://github.com/Automattic/newspack-plugin/compare/v1.38.0...v1.38.1) (2021-05-07)
 
 
