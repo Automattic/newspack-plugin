@@ -11,6 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { audio, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -22,6 +23,7 @@ import {
 	CheckboxControl,
 	Card,
 	Button,
+	ButtonCard,
 	Handoff,
 	Notice,
 	Footer,
@@ -468,6 +470,38 @@ class ComponentsDemo extends Component {
 								isTertiary
 							</Button>
 						</Card>
+					</Card>
+					<Card>
+						<h2>{ __( 'ButtonCard' ) }</h2>
+						<ButtonCard
+							href="admin.php?page=newspack-site-design-wizard"
+							title={ __( 'Site Design', 'newspack' ) }
+							desc={ __( 'Branding, color, typography, layouts', 'newspack' ) }
+							icon={ typography }
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Start a new site', 'newspack' ) }
+							desc={ __( "You don't have content to import", 'newspack' ) }
+							icon={ plus }
+							className="br--top"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Migrate an existing site', 'newspack' ) }
+							desc={ __( 'You have content to import', 'newspack' ) }
+							icon={ reusableBlock }
+							className="br--bottom"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Podcast', 'newspack' ) }
+							desc="isSmall"
+							icon={ audio }
+							isSmall
+						/>
 					</Card>
 				</div>
 				<Footer />
