@@ -10,6 +10,9 @@ import '../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Component, Fragment, render } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { decodeEntities } from '@wordpress/html-entities';
+import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -33,6 +36,7 @@ import {
 	Modal,
 	ToggleGroup,
 	WebPreview,
+	AutocompleteWithSuggestions,
 } from '../../components/src';
 
 class ComponentsDemo extends Component {
@@ -42,6 +46,7 @@ class ComponentsDemo extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			selectedPostForAutocompleteWithSuggestions: [],
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
 			inputNumValue: 0,
@@ -59,6 +64,7 @@ class ComponentsDemo extends Component {
 	 */
 	render() {
 		const {
+			selectedPostForAutocompleteWithSuggestions,
 			inputTextValue1,
 			inputTextValue2,
 			inputNumValue,
@@ -78,6 +84,52 @@ class ComponentsDemo extends Component {
 					</div>
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
+					<Card>
+						<AutocompleteWithSuggestions
+							label={ __( 'Search for a post', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							fetchSavedPosts={ async postIDs => {
+								const posts = await apiFetch( {
+									path: addQueryArgs( '/wp/v2/posts', {
+										per_page: 100,
+										include: postIDs.join( ',' ),
+										_fields: 'id,title',
+									} ),
+								} );
+
+								return posts.map( post => ( {
+									value: post.id,
+									label: decodeEntities( post.title ) || __( '(no title)', 'newspack' ),
+								} ) );
+							} }
+							fetchSuggestions={ async search => {
+								const posts = await apiFetch( {
+									path: addQueryArgs( '/wp/v2/posts', {
+										search,
+										per_page: 10,
+										_fields: 'id,title',
+									} ),
+								} );
+
+								// Format suggestions for FormTokenField display.
+								return posts.reduce( ( acc, post ) => {
+									acc.push( {
+										value: post.id,
+										label: decodeEntities( post.title.rendered ) || __( '(no title)', 'newspack' ),
+									} );
+
+									return acc;
+								}, [] );
+							} }
+							onChange={ value =>
+								this.setState( { selectedPostForAutocompleteWithSuggestions: parseInt( value ) } )
+							}
+							selectedPost={ selectedPostForAutocompleteWithSuggestions }
+						/>
+					</Card>
 					<Card>
 						<h2>{ __( 'Plugin toggles' ) }</h2>
 						<PluginToggle
