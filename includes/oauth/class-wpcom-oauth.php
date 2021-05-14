@@ -20,6 +20,8 @@ class WPCOM_OAuth {
 
 	/**
 	 * Constructor.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
@@ -27,6 +29,8 @@ class WPCOM_OAuth {
 
 	/**
 	 * Register the endpoints.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function register_api_endpoints() {
 		// Handle access token from WPCOM.
@@ -35,7 +39,7 @@ class WPCOM_OAuth {
 			'/oauth/wpcom/token',
 			[
 				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'api_wpcom_access_token' ],
+				'callback'            => [ $this, 'api_save_wpcom_access_token' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -55,6 +59,7 @@ class WPCOM_OAuth {
 	/**
 	 * Check capabilities for using API.
 	 *
+	 * @codeCoverageIgnore
 	 * @param WP_REST_Request $request API request object.
 	 * @return bool|WP_Error
 	 */
@@ -106,7 +111,7 @@ class WPCOM_OAuth {
 	 *
 	 * @param WP_REST_Request $request The request.
 	 */
-	public function api_wpcom_access_token( $request ) {
+	public static function api_save_wpcom_access_token( $request ) {
 		if ( isset( $request['access_token'], $request['expires_in'] ) ) {
 			$user_id = get_current_user_id();
 			update_user_meta( $user_id, self::NEWSPACK_WPCOM_ACCESS_TOKEN, sanitize_text_field( $request['access_token'] ) );
@@ -125,7 +130,7 @@ class WPCOM_OAuth {
 	 * Get WPCOM access token.
 	 */
 	public static function get_access_token() {
-		$access_token = get_user_meta( get_current_user_id(), self::NEWSPACK_WPCOM_ACCESS_TOKEN, true );
+		$access_token = self::get_wpcom_access_token();
 		if ( ! $access_token ) {
 			return new WP_Error(
 				'newspack_support_error',
@@ -138,28 +143,37 @@ class WPCOM_OAuth {
 	/**
 	 * Perform WPCOM API Request.
 	 *
-	 * @param string $endpoint endpoint.
+	 * @param string $endpoint Endpoint.
+	 * @param object $payload Payload to send.
 	 * @throws \Exception Error message.
 	 */
-	public static function perform_wpcom_api_request( $endpoint ) {
+	public static function perform_wpcom_api_request( $endpoint, $payload = null ) {
 		$access_token = self::get_access_token();
 		if ( is_wp_error( $access_token ) ) {
 			return $access_token;
 		}
-		$response = wp_safe_remote_get(
-			'https://public-api.wordpress.com/' . $endpoint,
-			array(
-				'headers' => [
-					'Authorization' => 'Bearer ' . $access_token,
-				],
-			)
-		);
+		$url  = 'https://public-api.wordpress.com/' . $endpoint;
+		$args = [
+			'headers' => [
+				'Authorization' => 'Bearer ' . $access_token,
+			],
+		];
+		if ( $payload ) {
+			$args['body'] = wp_json_encode( $payload );
+			$response     = wp_safe_remote_post( $url, $args );
+		} else {
+			$response = wp_safe_remote_get( $url, $args );
+		}
 		if ( is_wp_error( $response ) ) {
 			throw new \Exception( $response->get_error_message() );
 		}
 		$response_body = json_decode( $response['body'] );
 		if ( $response['response']['code'] >= 300 ) {
-			throw new \Exception( $response['response']['message'] );
+			$error_message = $response['response']['message'];
+			if ( isset( $response_body->message ) ) {
+				$error_message = $response_body->message;
+			}
+			throw new \Exception( $error_message );
 		}
 		return $response_body;
 	}
@@ -167,10 +181,23 @@ class WPCOM_OAuth {
 	/**
 	 * Return client id of WPCOM auth app.
 	 *
+	 * @codeCoverageIgnore
 	 * @return string client id.
 	 */
 	public static function wpcom_client_id() {
 		return ( defined( 'NEWSPACK_WPCOM_CLIENT_ID' ) && NEWSPACK_WPCOM_CLIENT_ID ) ? NEWSPACK_WPCOM_CLIENT_ID : false;
+	}
+
+	/**
+	 * Is the authenticated user a Newspack customer?
+	 */
+	public static function is_newspack_customer() {
+		try {
+			$response = self::perform_wpcom_api_request( 'rest/v1.1/newspack/is-customer' );
+			return 200 === $response->status;
+		} catch ( \Exception $e ) {
+			return false;
+		}
 	}
 }
 new WPCOM_OAuth();

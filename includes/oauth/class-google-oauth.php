@@ -22,25 +22,19 @@ class Google_OAuth {
 
 	/**
 	 * Constructor.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
 	}
 
 	/**
-	 * Register the endpoints needed for the wizard screens.
+	 * Register the endpoints.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function register_api_endpoints() {
-		// Get Google OAuth2 auth URL.
-		\register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/oauth/google/get-url',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ __CLASS__, 'api_google_auth_get_url' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
-			]
-		);
 		// Get Google OAuth2 auth status.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -51,16 +45,35 @@ class Google_OAuth {
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
+		// Start Google OAuth2 flow.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/oauth/google/start',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_google_auth_start' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
 		// Save Google OAuth2 details.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/oauth/google',
+			'/oauth/google/finish',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_google_auth_save_details' ],
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 				'args'                => [
-					'auth_code' => [
+					'access_token'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'refresh_token' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'csrf_token'    => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'expires_at'    => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
@@ -71,6 +84,7 @@ class Google_OAuth {
 	/**
 	 * Check capabilities for using API.
 	 *
+	 * @codeCoverageIgnore
 	 * @param WP_REST_Request $request API request object.
 	 * @return bool|WP_Error
 	 */
@@ -88,93 +102,99 @@ class Google_OAuth {
 	}
 
 	/**
-	 * Create OAuth2 handler.
+	 * Generate a CSRF token and save it as transient.
 	 *
-	 * @param bool $create_csrf_token Whether to add a CSRF token in state, and save it.
-	 * @return WP_REST_Response Response.
+	 * @return string CSRF token.
 	 */
-	private static function create_google_oauth2( $create_csrf_token = false ) {
-		$scopes       = [
+	private static function generate_csrf_token() {
+		$csrf_token     = sha1( openssl_random_pseudo_bytes( 1024 ) );
+		$transient_name = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . get_current_user_id();
+		set_transient( $transient_name, $csrf_token, 60 );
+		return $csrf_token;
+	}
+
+	/**
+	 * Save OAuth2 credentials for the current user.
+	 *
+	 * @param object $tokens Tokens.
+	 * @return bool True if credentials were saved.
+	 */
+	private static function save_auth_credentials( $tokens ) {
+		$tokens = (array) $tokens;
+
+		$csrf_token_transient_name = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . get_current_user_id();
+		$saved_csrf_token          = get_transient( $csrf_token_transient_name );
+
+		if ( $tokens['csrf_token'] !== $saved_csrf_token ) {
+			return new \WP_Error( 'newspack_google_oauth', __( 'Session token mismatch.', 'newspack' ) );
+		}
+
+		$auth                 = self::get_google_auth_saved_data();
+		$auth['access_token'] = $tokens['access_token'];
+		$auth['expires_at']   = $tokens['expires_at'];
+		if ( isset( $tokens['refresh_token'] ) ) {
+			$auth['refresh_token'] = $tokens['refresh_token'];
+		}
+		return update_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
+	}
+
+	/**
+	 * Create params to obtain a URL for a redirection to Google consent page.
+	 */
+	public static function get_google_auth_url_params() {
+		$scopes         = [
 			'https://www.googleapis.com/auth/userinfo.email', // User's email address.
 			'https://www.googleapis.com/auth/analytics.edit', // Google Analytics.
 			'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
 		];
-		$redirect_uri = admin_url( 'admin.php?page=newspack' );
+		$redirect_after = admin_url( 'admin.php?page=newspack' );
 
-		$parameters = [
-			'authorizationUri'   => 'https://accounts.google.com/o/oauth2/v2/auth',
-			'tokenCredentialUri' => 'https://www.googleapis.com/oauth2/v4/token',
-			'redirectUri'        => $redirect_uri,
-			'clientId'           => self::get_client_id(),
-			'clientSecret'       => self::get_client_secret(),
-			'scope'              => implode( ' ', $scopes ),
+		return [
+			'service'        => 'google',
+			'csrf_token'     => self::generate_csrf_token(),
+			'scope'          => implode( ' ', $scopes ),
+			'redirect_after' => $redirect_after,
 		];
-
-		// Save a CSRF token.
-		if ( $create_csrf_token ) {
-			$csrf_token     = sha1( openssl_random_pseudo_bytes( 1024 ) );
-			$transient_name = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . get_current_user_id();
-			set_transient( $transient_name, $csrf_token, 60 );
-			$parameters['state'] = $csrf_token;
-		}
-
-		return new OAuth2( $parameters );
 	}
 
 	/**
-	 * Request Google OAuth2 URL. The user will visit URL to provide consent,
-	 * then they will be redirected back to the site.
+	 * Start the Google OAuth2 flow, which will use WPCOM as a proxy to issue credentials.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response Response with the URL.
 	 */
-	public static function api_google_auth_get_url( $request ) {
-		$params        = $request->get_params();
-		$auth_code     = isset( $params['code'] ) ? $params['code'] : false;
-		$google_oauth2 = self::create_google_oauth2( true );
-
-		$url = $google_oauth2->buildFullAuthorizationUri(
-			[
-				'access_type' => 'offline',
-			]
-		);
-		return \rest_ensure_response( $url->__toString() );
+	public static function api_google_auth_start( $request ) {
+		try {
+			$response = WPCOM_OAuth::perform_wpcom_api_request(
+				'rest/v1.1/newspack/oauth',
+				self::get_google_auth_url_params()
+			);
+			return \rest_ensure_response( $response->data->url );
+		} catch ( \Exception $e ) {
+			return new WP_Error(
+				'newspack_support_error',
+				$e->getMessage()
+			);
+		}
 	}
 
 	/**
-	 * Save authentication details in user meta.
+	 * Save credentials in user meta.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response Response.
 	 */
 	public static function api_google_auth_save_details( $request ) {
-		$auth_code = $request['auth_code'];
-		$state     = $request['state'];
-
-		$transient_name   = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . get_current_user_id();
-		$saved_csrf_token = get_transient( $transient_name );
-
-		if ( $state !== $saved_csrf_token ) {
-			return new \WP_Error( 'newspack_google_oauth', __( 'Session token mismatch.', 'newspack' ) );
-		}
-
-		$google_oauth2 = self::create_google_oauth2();
-		$google_oauth2->setCode( $auth_code );
-		$auth_data = $google_oauth2->fetchAuthToken();
-
-		$user_id = get_current_user_id();
-		$auth    = [
-			'access_token' => $auth_data['access_token'],
+		$auth_save_data = [
+			'access_token' => $request['access_token'],
+			'csrf_token'   => $request['csrf_token'],
+			'expires_at'   => $request['expires_at'],
 		];
-		if ( isset( $auth_data['refresh_token'] ) ) {
-			$auth['refresh_token'] = $auth_data['refresh_token'];
+		if ( isset( $request['refresh_token'] ) ) {
+			$auth_save_data['refresh_token'] = $request['refresh_token'];
 		}
-		if ( update_user_meta( $user_id, self::AUTH_DATA_USERMETA_NAME, $auth ) ) {
-			return \rest_ensure_response(
-				[
-					'status' => 'ok',
-				]
-			);
+		if ( self::save_auth_credentials( $auth_save_data ) ) {
+			return \rest_ensure_response( [ 'status' => 'ok' ] );
 		} else {
 			return new \WP_Error( 'newspack_google_oauth', __( 'Could not save auth data for user.', 'newspack' ) );
 		}
@@ -195,7 +215,7 @@ class Google_OAuth {
 	/**
 	 * Get Google authentication details.
 	 */
-	private static function get_google_auth_saved_data() {
+	public static function get_google_auth_saved_data() {
 		$auth_data = get_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, true );
 		if ( $auth_data ) {
 			return $auth_data;
@@ -214,25 +234,7 @@ class Google_OAuth {
 			return false;
 		}
 
-		if ( $oauth2_credentials instanceof OAuth2 ) {
-			// These are non-refreshable credentials, we just have the access token stored.
-			$access_token = $oauth2_credentials->getAccessToken();
-		} elseif ( $oauth2_credentials instanceof UserRefreshCredentials ) {
-			// These credentials are refreshable, let's request a new access token.
-			try {
-				$token_response = $oauth2_credentials->fetchAuthToken();
-			} catch ( \Exception $e ) {
-				// Credentials might be broken, remove them.
-				delete_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME );
-				return false;
-			}
-
-			if ( ! isset( $token_response['access_token'] ) ) {
-				return false;
-			}
-
-			$access_token = $token_response['access_token'];
-		}
+		$access_token = $oauth2_credentials->getAccessToken();
 
 		// Validate access token.
 		$token_info_response = wp_safe_remote_get(
@@ -257,6 +259,9 @@ class Google_OAuth {
 					'email' => $user_info->email,
 				];
 			}
+		} else {
+			// Credentials are invalid, remove them.
+			self::remove_credentials();
 		}
 
 		return false;
@@ -264,57 +269,62 @@ class Google_OAuth {
 
 	/**
 	 * Get OAuth2 Credentials.
-	 * If refresh token is available, generate refreshable credentials.
-	 * Otherwise, credentials based on auth token.
+	 * If refresh token is available, refresh credentials.
+	 * Otherwise, return credentials based on access token.
 	 * The difference is that the latter can expire and the user will be forced to authorise again.
 	 * The refresh token will be issued only upon first authorisation with the app - if the same app
 	 * is used for authorisation on another site, only access token will be issued.
 	 * More at https://stackoverflow.com/a/10857806/3772847.
 	 *
-	 * @return UserRefreshCredentials|OAuth2|bool The credentials, or false of the user has not authenticated.
+	 * @return OAuth2|bool The credentials, or false of the user has not authenticated.
 	 */
 	public static function get_oauth2_credentials() {
 		$auth_data = self::get_google_auth_saved_data();
 		if ( ! isset( $auth_data['access_token'] ) ) {
 			return false;
 		}
-		if ( isset( $auth_data['refresh_token'] ) ) {
-			// Generate a refreshable OAuth2 credential for authentication.
-			// https://googleapis.github.io/google-auth-library-php/master/Google/Auth/Credentials/UserRefreshCredentials.html.
-			return new UserRefreshCredentials(
-				null,
-				[
-					'client_id'     => self::get_client_id(),
-					'client_secret' => self::get_client_secret(),
-					'refresh_token' => $auth_data['refresh_token'],
-				]
-			);
-		} else {
-			$google_oauth2 = self::create_google_oauth2();
-			$google_oauth2->setAccessToken( $auth_data['access_token'] );
-			return $google_oauth2;
+
+		$is_expired = time() > $auth_data['expires_at'];
+
+		if ( $is_expired && isset( $auth_data['refresh_token'] ) ) {
+			// Refresh the access token.
+			try {
+				$response = WPCOM_OAuth::perform_wpcom_api_request(
+					add_query_arg(
+						[
+							'refresh_token' => $auth_data['refresh_token'],
+							'csrf_token'    => self::generate_csrf_token(),
+						],
+						'rest/v1.1/newspack/oauth/refresh-token'
+					)
+				);
+				if ( isset( $response->data->access_token ) ) {
+					self::save_auth_credentials( $response->data );
+				}
+			} catch ( \Exception $e ) {
+				// Credentials might be broken, remove them.
+				self::remove_credentials();
+				return false;
+			}
 		}
+
+		$oauth_object = new OAuth2( [] );
+		$oauth_object->setAccessToken( $auth_data['access_token'] );
+		return $oauth_object;
 	}
 
 	/**
-	 * Get OAuth2 Client ID.
+	 * Remove saved credentials.
 	 */
-	private static function get_client_id() {
-		return defined( 'NEWSPACK_GOOGLE_OAUTH_CLIENT_ID' ) ? NEWSPACK_GOOGLE_OAUTH_CLIENT_ID : false;
-	}
-
-	/**
-	 * Get OAuth2 Client Secret.
-	 */
-	private static function get_client_secret() {
-		return defined( 'NEWSPACK_GOOGLE_OAUTH_CLIENT_SECRET' ) ? NEWSPACK_GOOGLE_OAUTH_CLIENT_SECRET : false;
+	public static function remove_credentials() {
+		delete_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME );
 	}
 
 	/**
 	 * Is OAuth2 configured for this instance?
 	 */
 	private static function is_oauth_configured() {
-		return false !== self::get_client_secret() && false !== self::get_client_id();
+		return WPCOM_OAuth::is_newspack_customer();
 	}
 }
 new Google_OAuth();
