@@ -85,6 +85,7 @@ class ComponentsDemo extends Component {
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
 					<Card>
+						<h2>{ __( 'Autocomplete with Suggestions', 'newspack' ) }</h2>
 						<AutocompleteWithSuggestions
 							label={ __( 'Search for a post', 'newspack' ) }
 							help={ __(
@@ -124,8 +125,8 @@ class ComponentsDemo extends Component {
 									return acc;
 								}, [] );
 							} }
-							onChange={ value =>
-								this.setState( { selectedPostForAutocompleteWithSuggestions: parseInt( value ) } )
+							onChange={ items =>
+								this.setState( { selectedPostForAutocompleteWithSuggestions: items.pop() } )
 							}
 							selectedPost={ selectedPostForAutocompleteWithSuggestions }
 						/>

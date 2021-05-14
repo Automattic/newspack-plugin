@@ -39,7 +39,7 @@ class AutocompleteWithSuggestions extends Component {
 	renderSuggestion( suggestion, index ) {
 		const { onChange } = this.props;
 		return (
-			<Button isLink key={ index } onClick={ () => onChange( [ suggestion.value.toString() ] ) }>
+			<Button isLink key={ index } onClick={ () => onChange( [ suggestion ] ) }>
 				{ suggestion.label }
 			</Button>
 		);
