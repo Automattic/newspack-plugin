@@ -27,9 +27,9 @@ const AutocompleteWithSuggestions = ( {
 	 */
 	useEffect( () => {
 		if ( fetchSuggestions ) {
-			fetchSuggestions().then( suggestions => {
-				if ( 0 < suggestions.length ) {
-					setSuggestions( suggestions );
+			fetchSuggestions().then( _suggestions => {
+				if ( 0 < _suggestions.length ) {
+					setSuggestions( _suggestions );
 				}
 			} );
 		}
