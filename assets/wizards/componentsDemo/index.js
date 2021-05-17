@@ -478,6 +478,7 @@ class ComponentsDemo extends Component {
 							title={ __( 'Site Design', 'newspack' ) }
 							desc={ __( 'Branding, color, typography, layouts', 'newspack' ) }
 							icon={ typography }
+							chevron
 						/>
 						<ButtonCard
 							href="#"
@@ -500,7 +501,19 @@ class ComponentsDemo extends Component {
 							title={ __( 'Add a new Podcast', 'newspack' ) }
 							desc="isSmall"
 							icon={ audio }
+							className="br--top"
 							isSmall
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Font', 'newspack' ) }
+							desc="isSmall + chevron"
+							icon={ typography }
+							className="br--bottom"
+							chevron
+							isSmall
+							grouped
 						/>
 					</Card>
 				</div>

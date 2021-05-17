@@ -59,7 +59,7 @@
 	&.grouped {
 		border-radius: 0;
 
-		& + & {
+		& + &:not( .br--top ) {
 			margin-top: -33px;
 		}
 
@@ -74,13 +74,14 @@
 		}
 	}
 
-	// Icon
+	// Chevron & Icon
 
+	&.has-chevron,
 	&.has-icon {
 		align-items: center;
 		display: grid;
 		grid-gap: 16px;
-		grid-template-columns: 48px auto;
+		grid-template-columns: auto 24px;
 
 		&:active,
 		&:focus,
@@ -96,9 +97,44 @@
 		}
 	}
 
+	&.has-icon {
+		grid-template-columns: 48px auto;
+
+		&.has-chevron {
+			grid-template-columns: 48px auto 24px;
+		}
+	}
+
 	// Is Small
 
 	&.is-small {
 		padding: 16px;
+
+		&.has-chevron,
+		&.has-icon {
+			grid-gap: 8px;
+
+			svg {
+				height: 24px;
+				width: 24px;
+			}
+		}
+
+		&.has-icon {
+			grid-template-columns: 24px auto;
+
+			&.has-chevron {
+				grid-template-columns: 24px auto 24px;
+			}
+		}
+
+		.title {
+			font-size: 14px;
+		}
+
+		.desc {
+			font-size: 12px;
+			line-height: 16px;
+		}
 	}
 }

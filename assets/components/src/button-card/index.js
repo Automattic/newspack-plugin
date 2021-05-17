@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Icon } from '@wordpress/icons';
+import { Icon, chevronRight } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -23,10 +23,11 @@ class ButtonCard extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, desc, grouped, icon, isSmall, title, ...otherProps } = this.props;
+		const { chevron, className, desc, grouped, icon, isSmall, title, ...otherProps } = this.props;
 		const classes = classnames(
 			'newspack-button-card',
 			className,
+			chevron && 'has-chevron',
 			grouped && 'grouped',
 			icon && 'has-icon',
 			isSmall && 'is-small'
@@ -39,6 +40,7 @@ class ButtonCard extends Component {
 					{ title && <div className="title">{ title }</div> }
 					{ desc && <div className="desc">{ desc }</div> }
 				</div>
+				{ chevron && <Icon icon={ chevronRight } height={ 24 } width={ 24 } /> }
 			</a>
 		);
 	}
