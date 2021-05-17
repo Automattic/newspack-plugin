@@ -59,7 +59,7 @@ const AutocompleteWithSuggestions = ( {
 					{ __( 'Or, select a recent ', 'newspack' ) + sprintf( ' %s:', postTypeLabel ) }
 				</p>
 				<div className="newspack-autocomplete-with-suggestions__search-suggestions">
-					{ suggestions.map( renderSuggestion.bind( this ) ) }
+					{ suggestions.map( renderSuggestion ) }
 				</div>
 			</>
 		);
