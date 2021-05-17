@@ -1,6 +1,7 @@
 export { default as ActionCard } from './action-card';
 export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as Button } from './button';
+export { default as AutocompleteWithSuggestions } from './autocomplete-with-suggestions';
 export { default as ButtonGroup } from './button-group';
 export { default as Card } from './card';
 export { default as PreviewBox } from './preview-box';
