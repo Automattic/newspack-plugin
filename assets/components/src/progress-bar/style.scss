@@ -7,12 +7,8 @@
 
 .newspack-progress-bar {
 	margin: 32px 0;
-	position: relative;
-	z-index: 1;
-	border-radius: 4px;
-	overflow: hidden;
 
-	.newspack-progress-bar__headings {
+	& &__headings {
 		align-items: center;
 		display: flex;
 		justify-content: space-between;
@@ -20,26 +16,27 @@
 
 		h2,
 		p {
-			margin: 0;
+			margin-bottom: 0;
+			margin-top: 0;
+		}
+
+		p {
+			margin-left: auto;
 		}
 	}
 
-	.newspack-progress-bar__bar {
+	&__container {
+		background-color: $light-gray-200;
+		border-radius: 4px;
+		height: 8px;
+		overflow: hidden;
+		position: relative;
+		z-index: 1;
+	}
+
+	&__bar {
 		background-color: $primary-500;
+		height: 8px;
 		transition: width 125ms ease-in-out;
-
-		&,
-		&::before {
-			height: 8px;
-		}
-
-		&::before {
-			background-color: $light-gray-200;
-			content: '';
-			left: 0;
-			position: absolute;
-			width: 100%;
-			z-index: -1;
-		}
 	}
 }

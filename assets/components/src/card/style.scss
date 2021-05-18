@@ -41,18 +41,6 @@
 		}
 	}
 
-	// Is Clickable
-
-	&--is-clickable {
-		cursor: pointer;
-		transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
-
-		&:hover {
-			box-shadow: 0 8px 16px rgba( black, 0.08 );
-			transform: translateY( -4px );
-		}
-	}
-
 	// Is Small
 
 	&__is-small {

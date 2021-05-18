@@ -10,7 +10,11 @@ import '../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Component, Fragment, render } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { decodeEntities } from '@wordpress/html-entities';
+import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
+import { audio, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -22,6 +26,7 @@ import {
 	CheckboxControl,
 	Card,
 	Button,
+	ButtonCard,
 	Handoff,
 	Notice,
 	Footer,
@@ -33,6 +38,7 @@ import {
 	Modal,
 	ToggleGroup,
 	WebPreview,
+	AutocompleteWithSuggestions,
 } from '../../components/src';
 
 class ComponentsDemo extends Component {
@@ -42,6 +48,7 @@ class ComponentsDemo extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			selectedPostForAutocompleteWithSuggestions: [],
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
 			inputNumValue: 0,
@@ -59,6 +66,7 @@ class ComponentsDemo extends Component {
 	 */
 	render() {
 		const {
+			selectedPostForAutocompleteWithSuggestions,
 			inputTextValue1,
 			inputTextValue2,
 			inputNumValue,
@@ -78,6 +86,53 @@ class ComponentsDemo extends Component {
 					</div>
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
+					<Card>
+						<h2>{ __( 'Autocomplete with Suggestions', 'newspack' ) }</h2>
+						<AutocompleteWithSuggestions
+							label={ __( 'Search for a post', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							fetchSavedPosts={ async postIDs => {
+								const posts = await apiFetch( {
+									path: addQueryArgs( '/wp/v2/posts', {
+										per_page: 100,
+										include: postIDs.join( ',' ),
+										_fields: 'id,title',
+									} ),
+								} );
+
+								return posts.map( post => ( {
+									value: post.id,
+									label: decodeEntities( post.title ) || __( '(no title)', 'newspack' ),
+								} ) );
+							} }
+							fetchSuggestions={ async search => {
+								const posts = await apiFetch( {
+									path: addQueryArgs( '/wp/v2/posts', {
+										search,
+										per_page: 10,
+										_fields: 'id,title',
+									} ),
+								} );
+
+								// Format suggestions for FormTokenField display.
+								return posts.reduce( ( acc, post ) => {
+									acc.push( {
+										value: post.id,
+										label: decodeEntities( post.title.rendered ) || __( '(no title)', 'newspack' ),
+									} );
+
+									return acc;
+								}, [] );
+							} }
+							onChange={ items =>
+								this.setState( { selectedPostForAutocompleteWithSuggestions: items.pop() } )
+							}
+							selectedPost={ selectedPostForAutocompleteWithSuggestions }
+						/>
+					</Card>
 					<Card>
 						<h2>{ __( 'Plugin toggles' ) }</h2>
 						<PluginToggle
@@ -468,6 +523,51 @@ class ComponentsDemo extends Component {
 								isTertiary
 							</Button>
 						</Card>
+					</Card>
+					<Card>
+						<h2>{ __( 'ButtonCard' ) }</h2>
+						<ButtonCard
+							href="admin.php?page=newspack-site-design-wizard"
+							title={ __( 'Site Design', 'newspack' ) }
+							desc={ __( 'Branding, color, typography, layouts', 'newspack' ) }
+							icon={ typography }
+							chevron
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Start a new site', 'newspack' ) }
+							desc={ __( "You don't have content to import", 'newspack' ) }
+							icon={ plus }
+							className="br--top"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Migrate an existing site', 'newspack' ) }
+							desc={ __( 'You have content to import', 'newspack' ) }
+							icon={ reusableBlock }
+							className="br--bottom"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Podcast', 'newspack' ) }
+							desc="isSmall"
+							icon={ audio }
+							className="br--top"
+							isSmall
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Font', 'newspack' ) }
+							desc="isSmall + chevron"
+							icon={ typography }
+							className="br--bottom"
+							chevron
+							isSmall
+							grouped
+						/>
 					</Card>
 				</div>
 				<Footer />
