@@ -14,6 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
+import { audio, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -25,6 +26,7 @@ import {
 	CheckboxControl,
 	Card,
 	Button,
+	ButtonCard,
 	Handoff,
 	Notice,
 	Footer,
@@ -521,6 +523,51 @@ class ComponentsDemo extends Component {
 								isTertiary
 							</Button>
 						</Card>
+					</Card>
+					<Card>
+						<h2>{ __( 'ButtonCard' ) }</h2>
+						<ButtonCard
+							href="admin.php?page=newspack-site-design-wizard"
+							title={ __( 'Site Design', 'newspack' ) }
+							desc={ __( 'Branding, color, typography, layouts', 'newspack' ) }
+							icon={ typography }
+							chevron
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Start a new site', 'newspack' ) }
+							desc={ __( "You don't have content to import", 'newspack' ) }
+							icon={ plus }
+							className="br--top"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Migrate an existing site', 'newspack' ) }
+							desc={ __( 'You have content to import', 'newspack' ) }
+							icon={ reusableBlock }
+							className="br--bottom"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Podcast', 'newspack' ) }
+							desc="isSmall"
+							icon={ audio }
+							className="br--top"
+							isSmall
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Font', 'newspack' ) }
+							desc="isSmall + chevron"
+							icon={ typography }
+							className="br--bottom"
+							chevron
+							isSmall
+							grouped
+						/>
 					</Card>
 				</div>
 				<Footer />
