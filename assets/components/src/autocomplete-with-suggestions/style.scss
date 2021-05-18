@@ -1,0 +1,56 @@
+/**
+* Styles for AutocompleteWithSuggestions component.
+*/
+
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.newspack-autocomplete-with-suggestions {
+	width: 100%;
+
+	.components-spinner {
+		position: absolute;
+		top: 2em;
+		right: 0;
+	}
+
+	.newspack-autocomplete-tokenfield__help {
+		font-size: 12px;
+	}
+
+	.components-form-token-field__suggestions-list {
+		margin: 4px -4px -4px;
+	}
+
+	.components-form-token-field__suggestion {
+		padding: 8px;
+	}
+
+	p.newspack-autocomplete-with-suggestions__label {
+		margin-bottom: 8px;
+	}
+
+	&__search-suggestions {
+		border-radius: 2px;
+		border: 1px solid $dark-gray-600;
+		max-height: 182px;
+		padding: 4px;
+		overflow: scroll;
+
+		.components-button {
+			color: $dark-gray-600;
+			display: block;
+			margin: 0;
+			padding: 10px 12px;
+			text-decoration: none;
+			width: 100%;
+
+			&:active:not( :disabled ),
+			&:hover:not( :disabled ) {
+				background: white;
+				background: var( --wp-admin-theme-color );
+				color: white;
+			}
+		}
+	}
+}
