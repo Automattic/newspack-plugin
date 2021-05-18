@@ -341,6 +341,14 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://alex.blog/wordpress-plugins/regenerate-thumbnails/',
 				'Download'    => 'wporg',
 			],
+			'reusable-blocks-extended'      => [
+				'Name'        => 'Reusable Blocks Extended',
+				'Description' => 'Extend Gutenberg Reusable Blocks feature with a complete admin panel, widgets, shortcodes and PHP functions.',
+				'Author'      => 'audrasjb',
+				'AuthorURI'   => 'https://jeanbaptisteaudras.com/en',
+				'PluginURI'   => 'https://jeanbaptisteaudras.com/en/2019/09/reusable-block-extended-a-cool-wordpress-plugin-to-extend-gutenberg-reusable-block-feature/',
+				'Download'    => 'wporg',
+			],
 			'super-cool-ad-inserter'        => [
 				'Name'        => __( 'Super Cool Ad Inserter Plugin', 'newspack' ),
 				'Description' => __( 'This WordPress plugin gives site administrators a way to insert widgets such as ads, newsletter signups, or calls to action into posts at set intervals.', 'newspack' ),
