@@ -441,12 +441,12 @@ class Plugin_Manager {
 				'PluginURI'   => 'https://wordpress.org/plugins/wp-gdpr-cookie-notice/',
 				'Download'    => 'wporg',
 			],
-			'wp-user-avatar'                => [
-				'Name'        => 'WP User Avatar',
-				'Description' => 'Use any image from your WordPress Media Library as a custom user avatar. Add your own Default Avatar.',
-				'Author'      => 'flippercode',
-				'AuthorURI'   => 'https://www.flippercode.com/',
-				'PluginURI'   => 'https://wordpress.org/plugins/wp-user-avatar/',
+			'simple-local-avatars'          => [
+				'Name'        => 'Simple Local Avatars',
+				'Description' => 'Adds an avatar upload field to user profiles if the current user has media permissions. Generates requested sizes on demand just like Gravatar! Simple and lightweight.',
+				'Author'      => 'Jake Goldman, 10up',
+				'AuthorURI'   => 'https://10up.com',
+				'PluginURI'   => 'https://wordpress.org/plugins/simple-local-avatars/',
 				'Download'    => 'wporg',
 			],
 			'web-stories'                   => [
