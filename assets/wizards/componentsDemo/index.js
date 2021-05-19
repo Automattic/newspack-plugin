@@ -514,11 +514,21 @@ class ComponentsDemo extends Component {
 						</Card>
 						<h3>{ __( 'Disabled' ) }</h3>
 						<Card buttonsCard noBorder>
-							<Button isPrimary disabled>isPrimary</Button>
-							<Button isSecondary disabled>isSecondary</Button>
-							<Button isTertiary disabled>isTertiary</Button>
-							<Button isQuaternary disabled>isQuaternary</Button>
-							<Button isLink disabled>isLink</Button>
+							<Button isPrimary disabled>
+								isPrimary
+							</Button>
+							<Button isSecondary disabled>
+								isSecondary
+							</Button>
+							<Button isTertiary disabled>
+								isTertiary
+							</Button>
+							<Button isQuaternary disabled>
+								isQuaternary
+							</Button>
+							<Button isLink disabled>
+								isLink
+							</Button>
 						</Card>
 						<h3>isSmall</h3>
 						<Card buttonsCard noBorder>
