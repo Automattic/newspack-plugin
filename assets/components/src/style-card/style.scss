@@ -11,7 +11,7 @@
 
 	// Title
 	&__title {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-weight: bold;
 		margin: 16px 0 0;
 		text-align: center;
@@ -23,7 +23,7 @@
 
 	// Image
 	&__image {
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 3px;
 		overflow: hidden;
 		position: relative;
@@ -45,7 +45,7 @@
 		}
 
 		svg {
-			fill: $dark-gray-200;
+			fill: $gray-900; // NEEDS CHECK
 			margin: 8px;
 		}
 

@@ -138,23 +138,23 @@ svg {
 
 	&::after {
 		animation: loading 2s ease-in-out infinite;
-		background: $dark-gray-900;
-		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $dark-gray-300, 40vw 96px 0 0 white,
-			0 96px 0 0 $dark-gray-300;
+		background: $gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
+			0 96px 0 0 $gray-700;
 		height: 24px;
 		margin: 68px auto 0;
 		max-width: 1040px;
 		width: calc( 100% - ( 32px * 2 ) );
 
 		@media screen and ( min-width: 744px ) {
-			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 200px 96px 0 0 white,
-				0 96px 0 0 $dark-gray-300;
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $gray-700, 200px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 520px 96px 0 0 white,
-				0 96px 0 0 $dark-gray-300;
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 520px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
 	}
@@ -184,14 +184,14 @@ svg {
 		}
 
 		&::after {
-			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 0 96px 0 0 $dark-gray-300;
+			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
 			margin: 0;
 			max-width: 520px;
 			top: 156px;
 			width: calc( 100% - ( 64px * 2 ) );
 
 			@media screen and ( min-width: 600px ) {
-				box-shadow: inset -260px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 0 96px 0 0 $dark-gray-300;
+				box-shadow: inset -260px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
 			}
 		}
 	}
