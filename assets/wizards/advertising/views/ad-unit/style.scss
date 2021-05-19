@@ -5,7 +5,7 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack_ad_unit__sizes {
-	border-bottom: 1px solid $light-gray-200;
+	border-bottom: 1px solid $gray-200;
 
 	@media screen and ( min-width: 744px ) {
 		align-items: flex-end;
@@ -43,7 +43,7 @@
 	}
 
 	.newspack-text-control + & {
-		border-top: 1px solid $light-gray-200;
+		border-top: 1px solid $gray-200;
 	}
 
 	+ .newspack-button {

@@ -7,7 +7,7 @@
 
 .newspack-button-card {
 	border-radius: 3px;
-	border: 1px solid $light-gray-500;
+	border: 1px solid $gray-300;
 	box-shadow: inset 0 0 0 2px transparent;
 	cursor: pointer;
 	display: block;
@@ -20,7 +20,7 @@
 	&:active,
 	&:focus,
 	&:hover {
-		background-color: $light-gray-100;
+		background-color: $gray-100;
 		color: $primary-600;
 		text-decoration: none;
 
@@ -44,13 +44,13 @@
 	}
 
 	.title {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-size: 17px;
 		font-weight: bold;
 	}
 
 	.desc {
-		color: $dark-gray-300;
+		color: $gray-700;
 		font-size: 14px;
 	}
 

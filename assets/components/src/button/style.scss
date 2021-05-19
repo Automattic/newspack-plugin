@@ -123,9 +123,9 @@ body[class*='admin-color-'] {
 		&.is-default,
 		&.is-secondary {
 			background: white;
-			border: 1px solid $light-gray-500;
+			border: 1px solid $gray-300;
 			box-shadow: none;
-			color: $dark-gray-900;
+			color: $gray-900;
 
 			&:active,
 			&:active:enabled,
@@ -133,7 +133,7 @@ body[class*='admin-color-'] {
 			&:focus:enabled,
 			&:hover,
 			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
-				background: $light-gray-100;
+				background: $gray-100;
 				border-color: $primary-500;
 				box-shadow: none;
 				color: $primary-500;
@@ -148,14 +148,14 @@ body[class*='admin-color-'] {
 			&:disabled:active:enabled,
 			&[aria-disabled='true'],
 			&[aria-disabled='true']:active:enabled {
-				background: $light-gray-100;
-				border-color: $light-gray-500;
-				color: $light-gray-900;
+				background: $gray-100;
+				border-color: $gray-300;
+				color: $gray-600;
 
 				&:hover {
-					background: $light-gray-100;
-					border-color: $light-gray-500;
-					color: $light-gray-900;
+					background: $gray-100;
+					border-color: $gray-300;
+					color: $gray-600;
 				}
 			}
 
@@ -174,9 +174,9 @@ body[class*='admin-color-'] {
 		}
 
 		&.is-tertiary {
-			background: $light-gray-300;
-			border: 1px solid $light-gray-500;
-			color: $dark-gray-600;
+			background: $gray-100;
+			border: 1px solid $gray-300;
+			color: $gray-800;
 			height: auto;
 			line-height: 24px;
 			padding: 11px 24px;
@@ -187,10 +187,10 @@ body[class*='admin-color-'] {
 			&:focus:enabled,
 			&:hover,
 			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
-				background: $light-gray-400;
-				border-color: $light-gray-900;
+				background: $gray-200;
+				border-color: $gray-600;
 				box-shadow: none;
-				color: $dark-gray-900;
+				color: $gray-900;
 			}
 
 			&:focus,
@@ -202,14 +202,14 @@ body[class*='admin-color-'] {
 			&:disabled:active:enabled,
 			&[aria-disabled='true'],
 			&[aria-disabled='true']:active:enabled {
-				background: $light-gray-300;
-				border-color: $light-gray-500;
-				color: $dark-gray-100;
+				background: $gray-100;
+				border-color: $gray-300;
+				color: $gray-400; // NEEDS CHECK
 
 				&:hover {
-					background: $light-gray-300;
-					border-color: $light-gray-500;
-					color: $dark-gray-100;
+					background: $gray-100;
+					border-color: $gray-300;
+					color: $gray-400;
 				}
 			}
 
@@ -227,7 +227,7 @@ body[class*='admin-color-'] {
 			}
 
 			.newspack-is-waiting {
-				fill: $dark-gray-600;
+				fill: $gray-700;
 			}
 		}
 
@@ -235,7 +235,7 @@ body[class*='admin-color-'] {
 			border: 1px solid transparent;
 
 			&:hover {
-				border-color: $light-gray-200;
+				border-color: $gray-200;
 			}
 
 			&:focus {
@@ -251,6 +251,7 @@ body[class*='admin-color-'] {
 			font-weight: normal;
 			padding: 0;
 			transition: color 125ms ease-in-out, outline 125ms ease-in-out;
+
 			&:not( .is-destructive ) {
 				color: $primary-500;
 			}
@@ -267,8 +268,13 @@ body[class*='admin-color-'] {
 			}
 
 			&:focus,
-			&:focus:enabled {
+			&:focus:enabled,
+			&.is-destructive:not( :disabled ):hover {
 				box-shadow: none;
+			}
+
+			&:focus,
+			&:focus:enabled {
 				outline: 2px solid $primary-500;
 				outline-offset: 2px;
 			}
@@ -286,7 +292,7 @@ body[class*='admin-color-'] {
 		// Popover Active
 
 		&.popover-active {
-			border: 1px solid $light-gray-500;
+			border: 1px solid $gray-300;
 		}
 
 		// Icon-only

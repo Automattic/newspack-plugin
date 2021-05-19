@@ -11,7 +11,7 @@
 		display: flex;
 	}
 	&__label {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-size: 14px;
 		font-weight: bold;
 		line-height: 24px;
@@ -21,7 +21,7 @@
 		background-repeat: no-repeat;
 		background-size: contain;
 		background-position: center;
-		border: 1px dashed $light-gray-500;
+		border: 1px dashed $gray-300;
 		border-radius: 3px;
 		display: flex;
 		justify-content: center;
@@ -51,7 +51,7 @@
 			border: none;
 			&::before,
 			&::after {
-				border: 1px solid rgba( black, 0.1 );
+				border: 1px solid rgba( black, 0.125 );
 				border-radius: 3px;
 				bottom: 0;
 				content: '';
@@ -72,7 +72,7 @@
 			}
 			&::after {
 				background: rgba( white, 0.9 );
-				border-color: $light-gray-500;
+				border-color: $gray-300;
 			}
 			&:focus-within,
 			&:hover {
