@@ -212,7 +212,7 @@ const AutocompleteWithSuggestions = ( {
 			<Button
 				isLink
 				key={ suggestion.value }
-				onClick={ () => handleOnChange( [ { ...suggestion, postType } ] ) }
+				onClick={ () => handleOnChange( [ { ...suggestion, postType: postTypeToSearch } ] ) }
 			>
 				{ suggestion.label }
 			</Button>
