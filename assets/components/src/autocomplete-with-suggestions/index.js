@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button, CheckboxControl, SelectControl, Spinner } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -26,7 +26,7 @@ const AutocompleteWithSuggestions = ( {
 	postTypeLabel = __( 'item', 'newspack' ),
 	postTypeLabelPlural = __( 'items', 'newspack' ),
 	selectedItems = [],
-	selectedPost = 0, // legacy prop.
+	selectedPost = 0, // legacy prop when single-select was the only option.
 	suggestionsToFetch = 10,
 } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -153,7 +153,15 @@ const AutocompleteWithSuggestions = ( {
 
 		return (
 			<div className="newspack-autocomplete-with-suggestions__selected-items">
-				<p className="newspack-autocomplete-with-suggestions__label">{ selectedMessage }</p>
+				<p className="newspack-autocomplete-with-suggestions__label">
+					{ selectedMessage }
+					{ 1 < selections.length && _x( ' – ', 'separator character', 'newspack' ) }
+					{ 1 < selections.length && (
+						<Button onClick={ () => onChange( [] ) } isLink>
+							{ __( 'Clear all', 'newspack' ) }
+						</Button>
+					) }
+				</p>
 				{ selections.map( selection => (
 					<Button
 						key={ selection.value }
