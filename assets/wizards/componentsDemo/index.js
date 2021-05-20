@@ -49,6 +49,7 @@ class ComponentsDemo extends Component {
 		super( ...arguments );
 		this.state = {
 			selectedPostForAutocompleteWithSuggestions: [],
+			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
 			inputNumValue: 0,
@@ -67,6 +68,7 @@ class ComponentsDemo extends Component {
 	render() {
 		const {
 			selectedPostForAutocompleteWithSuggestions,
+			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
 			inputTextValue1,
 			inputTextValue2,
 			inputNumValue,
@@ -77,6 +79,7 @@ class ComponentsDemo extends Component {
 			toggleGroupChecked,
 			color1,
 		} = this.state;
+
 		return (
 			<Fragment>
 				<div className="newspack-wizard__header">
@@ -87,50 +90,36 @@ class ComponentsDemo extends Component {
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
 					<Card>
-						<h2>{ __( 'Autocomplete with Suggestions', 'newspack' ) }</h2>
+						<h2>{ __( 'Autocomplete with Suggestions (single-select)', 'newspack' ) }</h2>
 						<AutocompleteWithSuggestions
 							label={ __( 'Search for a post', 'newspack' ) }
 							help={ __(
 								'Begin typing post title, click autocomplete result to select.',
 								'newspack'
 							) }
-							fetchSavedPosts={ async postIDs => {
-								const posts = await apiFetch( {
-									path: addQueryArgs( '/wp/v2/posts', {
-										per_page: 100,
-										include: postIDs.join( ',' ),
-										_fields: 'id,title',
-									} ),
-								} );
-
-								return posts.map( post => ( {
-									value: post.id,
-									label: decodeEntities( post.title ) || __( '(no title)', 'newspack' ),
-								} ) );
-							} }
-							fetchSuggestions={ async search => {
-								const posts = await apiFetch( {
-									path: addQueryArgs( '/wp/v2/posts', {
-										search,
-										per_page: 10,
-										_fields: 'id,title',
-									} ),
-								} );
-
-								// Format suggestions for FormTokenField display.
-								return posts.reduce( ( acc, post ) => {
-									acc.push( {
-										value: post.id,
-										label: decodeEntities( post.title.rendered ) || __( '(no title)', 'newspack' ),
-									} );
-
-									return acc;
-								}, [] );
-							} }
 							onChange={ items =>
-								this.setState( { selectedPostForAutocompleteWithSuggestions: items.pop() } )
+								this.setState( { selectedPostForAutocompleteWithSuggestions: items } )
 							}
-							selectedPost={ selectedPostForAutocompleteWithSuggestions }
+							selectedItems={ selectedPostForAutocompleteWithSuggestions }
+						/>
+
+						<hr />
+
+						<h2>{ __( 'Autocomplete with Suggestions (multi-select)', 'newspack' ) }</h2>
+						<AutocompleteWithSuggestions
+							hideHelp
+							multiSelect
+							label={ __( 'Search widgets', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							onChange={ items =>
+								this.setState( { selectedPostsForAutocompleteWithSuggestionsMultiSelect: items } )
+							}
+							postTypes={ [ { slug: 'page', label: 'Pages' }, { slug: 'post', label: 'Posts' } ] }
+							postTypeLabel={ 'widget' }
+							selectedItems={ selectedPostsForAutocompleteWithSuggestionsMultiSelect }
 						/>
 					</Card>
 					<Card>

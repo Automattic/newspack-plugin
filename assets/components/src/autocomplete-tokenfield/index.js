@@ -92,7 +92,21 @@ class AutocompleteTokenField extends Component {
 	 * @return {Array} Array of valid values corresponding to the labels.
 	 */
 	getValuesForLabels( labels ) {
+		const { returnFullObjects } = this.props; // If this prop is passed, return both the value and label. Otherwise, return just the label.
 		const { validValues } = this.state;
+
+		if ( returnFullObjects ) {
+			return labels.reduce( ( acc, label ) => {
+				Object.keys( validValues ).forEach( key => {
+					if ( validValues[ key ] === label ) {
+						acc.push( { value: key, label } );
+					}
+				} );
+
+				return acc;
+			}, [] );
+		}
+
 		return labels.map( label =>
 			Object.keys( validValues ).find( key => validValues[ key ] === label )
 		);
@@ -121,14 +135,18 @@ class AutocompleteTokenField extends Component {
 					}
 
 					const { validValues } = this.state;
-					const currentSuggestions = [];
+					const currentSuggestions = [ ...suggestions ];
+					const currentValidValues = {};
 
 					suggestions.forEach( suggestion => {
-						currentSuggestions.push( suggestion.label );
-						validValues[ suggestion.value ] = suggestion.label;
+						currentValidValues[ suggestion.value ] = suggestion.label;
 					} );
 
-					this.setState( { suggestions: currentSuggestions, validValues, loading: false } );
+					this.setState( {
+						suggestions: currentSuggestions,
+						validValues: currentValidValues,
+						loading: false,
+					} );
 				} )
 				.catch( () => {
 					if ( this.suggestionsRequest === request ) {
@@ -173,7 +191,7 @@ class AutocompleteTokenField extends Component {
 			<div className="newspack-autocomplete-tokenfield">
 				<FormTokenField
 					value={ this.getTokens() }
-					suggestions={ suggestions }
+					suggestions={ suggestions.map( suggestion => suggestion.label ) }
 					onChange={ tokens => this.handleOnChange( tokens ) }
 					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
 					label={ label }

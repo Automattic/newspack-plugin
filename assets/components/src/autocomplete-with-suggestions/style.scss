@@ -8,10 +8,25 @@
 .newspack-autocomplete-with-suggestions {
 	width: 100%;
 
+	&.hide-help {
+		> .components-base-control,
+		> .newspack-autocomplete-tokenfield,
+		> .newspack-autocomplete-with-suggestions__search-suggestions,
+		> .newspack-autocomplete-with-suggestions__search-suggestions-multiselect {
+			margin-top: 1.5rem;
+		}
+	}
+
 	.components-spinner {
 		position: absolute;
 		top: 2em;
 		right: 0;
+	}
+
+	&__suggestions-spinner .components-spinner {
+		display: block;
+		margin: 0 auto 1rem;
+		position: relative;
 	}
 
 	.newspack-autocomplete-tokenfield__help {
@@ -30,12 +45,39 @@
 		margin-bottom: 8px;
 	}
 
-	&__search-suggestions {
+	&__selected-items {
+		border-bottom: 1px solid $light-gray-500;
+		margin-bottom: 2rem;
+		padding-bottom: 1.75rem;
+	}
+
+	&__selected-item-button.components-button.is-tertiary {
+		background-color: $light-gray-300;
 		border-radius: 2px;
-		border: 1px solid $dark-gray-600;
-		max-height: 182px;
-		padding: 4px;
-		overflow: scroll;
+		color: #1e1e1e;
+		font-size: 13px;
+		height: auto;
+		margin-bottom: 4px;
+		margin-right: 4px;
+		padding-left: 8px;
+		padding-right: 8px;
+
+		&::after {
+			content: '✕';
+			margin-left: 8px;
+		}
+
+		&:hover {
+			box-shadow: none;
+			color: black;
+		}
+	}
+
+	&__search-suggestions,
+	&__search-suggestions-multiselect {
+		max-height: 172px;
+		overflow-x: visible;
+		overflow-y: auto;
 
 		.components-button {
 			color: $dark-gray-600;
@@ -52,5 +94,19 @@
 				color: white;
 			}
 		}
+	}
+
+	/* Extra space on sides to handle outline styles of focused checkboxes. */
+	&__search-suggestions-multiselect {
+		margin-left: -4px;
+		margin-right: -4px;
+		padding: 0 4px;
+	}
+
+	&__search-suggestions {
+		border-radius: 2px;
+		border: 1px solid $dark-gray-600;
+		max-height: 182px;
+		padding: 4px;
 	}
 }
