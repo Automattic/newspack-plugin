@@ -10,9 +10,6 @@ import '../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Component, Fragment, render } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
-import { decodeEntities } from '@wordpress/html-entities';
-import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 import { audio, plus, reusableBlock, typography } from '@wordpress/icons';
 

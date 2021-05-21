@@ -211,7 +211,7 @@ const AutocompleteWithSuggestions = ( {
 		return (
 			<SelectControl
 				label={ sprintf(
-					__( `%s type`, 'newspack' ),
+					__( '%s type', 'newspack' ),
 					postTypeLabel.charAt( 0 ).toUpperCase() + postTypeLabel.slice( 1 )
 				) }
 				value={ postTypeToSearch }

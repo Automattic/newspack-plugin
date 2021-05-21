@@ -134,7 +134,6 @@ class AutocompleteTokenField extends Component {
 						return;
 					}
 
-					const { validValues } = this.state;
 					const currentSuggestions = [ ...suggestions ];
 					const currentValidValues = {};
 
