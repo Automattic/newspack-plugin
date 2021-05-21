@@ -116,6 +116,7 @@ class ComponentsDemo extends Component {
 							}
 							postTypes={ [ { slug: 'page', label: 'Pages' }, { slug: 'post', label: 'Posts' } ] }
 							postTypeLabel={ 'widget' }
+							postTypeLabelPlural={ 'widgets' }
 							selectedItems={ selectedPostsForAutocompleteWithSuggestionsMultiSelect }
 						/>
 					</Card>
