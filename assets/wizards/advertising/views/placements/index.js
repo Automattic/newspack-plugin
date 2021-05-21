@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ToggleGroup, withWizardScreen } from '../../../../components/src';
+import { ActionCard, SectionHeader, withWizardScreen } from '../../../../components/src';
 import AdPicker from './ad-picker';
 
 /**
@@ -64,90 +64,124 @@ class Placements extends Component {
 
 		return (
 			<Fragment>
-				<h2>{ __( 'Pre-defined ad placements' ) }</h2>
-				<p>
-					{ __(
-						'Define global advertising placements to serve ad units on your site. Enable the individual pre-defined ad placements to select which ads to serve.'
+				<SectionHeader
+					title={ __( 'Pre-defined ad placements', 'newspack' ) }
+					description={ () => (
+						<>
+							{ __(
+								'Define global advertising placements to serve ad units on your site',
+								'newspack'
+							) }
+							<br />
+							{ __(
+								'Enable the individual pre-defined ad placements to select which ads to serve',
+								'newspack'
+							) }
+						</>
 					) }
-				</p>
-				<ToggleGroup
+				/>
+				<ActionCard
+					isMedium
 					title={ __( 'Global: Above Header' ) }
 					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ global_above_header && global_above_header.enabled }
-					onChange={ value => togglePlacement( 'global_above_header', value ) }
+					toggleChecked={ global_above_header && global_above_header.enabled }
+					hasGreyHeader={ global_above_header && global_above_header.enabled }
+					toggleOnChange={ value => togglePlacement( 'global_above_header', value ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ global_above_header }
-						onChange={ value => onChange( 'global_above_header', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
+					{ global_above_header && global_above_header.enabled ? (
+						<AdPicker
+							adUnits={ adUnits }
+							services={ services }
+							value={ global_above_header }
+							onChange={ value => onChange( 'global_above_header', value ) }
+						/>
+					) : null }
+				</ActionCard>
+				<ActionCard
+					isMedium
 					title={ __( 'Global: Below Header' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ global_below_header && global_below_header.enabled }
-					onChange={ value => togglePlacement( 'global_below_header', value ) }
+					description={ __( 'Choose an ad unit to display below the header' ) }
+					toggleChecked={ global_below_header && global_below_header.enabled }
+					hasGreyHeader={ global_below_header && global_below_header.enabled }
+					toggleOnChange={ value => togglePlacement( 'global_below_header', value ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ global_below_header }
-						onChange={ value => onChange( 'global_below_header', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
+					{ global_below_header && global_below_header.enabled ? (
+						<AdPicker
+							adUnits={ adUnits }
+							services={ services }
+							value={ global_below_header }
+							onChange={ value => onChange( 'global_below_header', value ) }
+						/>
+					) : null }
+				</ActionCard>
+				<ActionCard
+					isMedium
 					title={ __( 'Global: Above Footer' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ global_above_footer && global_above_footer.enabled }
-					onChange={ value => togglePlacement( 'global_above_footer', value ) }
+					description={ __( 'Choose an ad unit to display above the footer' ) }
+					toggleChecked={ global_above_footer && global_above_footer.enabled }
+					hasGreyHeader={ global_above_footer && global_above_footer.enabled }
+					toggleOnChange={ value => togglePlacement( 'global_above_footer', value ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ global_above_footer }
-						onChange={ value => onChange( 'global_above_footer', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
+					{ global_above_footer && global_above_footer.enabled ? (
+						<AdPicker
+							adUnits={ adUnits }
+							services={ services }
+							value={ global_above_footer }
+							onChange={ value => onChange( 'global_above_footer', value ) }
+						/>
+					) : null }
+				</ActionCard>
+				<ActionCard
+					isMedium
 					title={ __( 'Archives' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ archives && archives.enabled }
-					onChange={ value => togglePlacement( 'archives', value ) }
+					description={ __( 'Choose an ad unit to display on your archives' ) }
+					toggleChecked={ archives && archives.enabled }
+					hasGreyHeader={ archives && archives.enabled }
+					toggleOnChange={ value => togglePlacement( 'archives', value ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ archives }
-						onChange={ value => onChange( 'archives', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
+					{ archives && archives.enabled ? (
+						<AdPicker
+							adUnits={ adUnits }
+							services={ services }
+							value={ archives }
+							onChange={ value => onChange( 'archives', value ) }
+						/>
+					) : null }
+				</ActionCard>
+				<ActionCard
+					isMedium
 					title={ __( 'Search Results' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ search_results && search_results.enabled }
-					onChange={ value => togglePlacement( 'search_results', value ) }
+					description={ __( 'Choose an ad unit to display on your search results' ) }
+					toggleChecked={ search_results && search_results.enabled }
+					hasGreyHeader={ search_results && search_results.enabled }
+					toggleOnChange={ value => togglePlacement( 'search_results', value ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ search_results }
-						onChange={ value => onChange( 'search_results', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
+					{ search_results && search_results.enabled ? (
+						<AdPicker
+							adUnits={ adUnits }
+							services={ services }
+							value={ search_results }
+							onChange={ value => onChange( 'search_results', value ) }
+						/>
+					) : null }
+				</ActionCard>
+				<ActionCard
+					isMedium
 					title={ __( 'Sticky' ) }
 					description={ __( 'Choose a sticky ad unit to display at the bottom of the viewport' ) }
-					checked={ sticky && sticky.enabled }
-					onChange={ value => togglePlacement( 'sticky', value ) }
+					toggleChecked={ sticky && sticky.enabled }
+					hasGreyHeader={ sticky && sticky.enabled }
+					toggleOnChange={ value => togglePlacement( 'sticky', value ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ sticky }
-						onChange={ value => onChange( 'sticky', value ) }
-					/>
-				</ToggleGroup>
+					{ sticky && sticky.enabled ? (
+						<AdPicker
+							adUnits={ adUnits }
+							services={ services }
+							value={ sticky }
+							onChange={ value => onChange( 'sticky', value ) }
+						/>
+					) : null }
+				</ActionCard>
 			</Fragment>
 		);
 	}

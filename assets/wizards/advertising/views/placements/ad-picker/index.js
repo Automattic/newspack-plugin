@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { SelectControl } from '../../../../../components/src';
+import { Grid, SelectControl } from '../../../../../components/src';
 import './style.scss';
 
 /**
@@ -68,22 +68,22 @@ class AdPicker extends Component {
 		const { adUnits, onChange, services, value } = this.props;
 		const { service, ad_unit: adUnit } = value;
 		return (
-			<div className="newspack-ad-picker">
+			<Grid gutter={ 32 }>
 				<SelectControl
-					label={ __( 'Ad Provider' ) }
+					label={ __( 'Ad Provider', 'newspack' ) }
 					value={ service || '' }
 					options={ this.adServicesForSelect( services ) }
 					onChange={ _service => onChange( { ...value, service: _service } ) }
 				/>
 				{ this.needsAdUnit( value ) && (
 					<SelectControl
-						label={ __( 'Ad Unit' ) }
+						label={ __( 'Ad Unit', 'newspack' ) }
 						value={ adUnit || '' }
 						options={ this.adUnitsForSelect( adUnits ) }
 						onChange={ _adUnit => onChange( { ...value, adUnit: _adUnit } ) }
 					/>
 				) }
-			</div>
+			</Grid>
 		);
 	}
 }
