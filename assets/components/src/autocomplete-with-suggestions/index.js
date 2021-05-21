@@ -22,6 +22,7 @@ const AutocompleteWithSuggestions = ( {
 	help = __( 'Begin typing search term, click autocomplete result to select.', 'newspack' ),
 	hideHelp = false,
 	label = __( 'Search', 'newspack' ),
+	maxItemsToSuggest = 0,
 	postTypes = [ { slug: 'post', label: 'Post' } ],
 	postTypeLabel = __( 'item', 'newspack' ),
 	postTypeLabelPlural = __( 'items', 'newspack' ),
@@ -29,8 +30,10 @@ const AutocompleteWithSuggestions = ( {
 	selectedPost = 0, // legacy prop when single-select was the only option.
 	suggestionsToFetch = 10,
 } ) => {
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isLoadingMore, setIsLoadingMore ] = useState( false );
 	const [ suggestions, setSuggestions ] = useState( [] );
+	const [ maxSuggestions, setMaxSuggestions ] = useState( 0 );
 	const [ postTypeToSearch, setPostTypeToSearch ] = useState( postTypes[ 0 ].slug );
 
 	const classNames = [ 'newspack-autocomplete-with-suggestions' ];
@@ -52,6 +55,21 @@ const AutocompleteWithSuggestions = ( {
 			} )
 			.finally( () => setIsLoading( false ) );
 	}, [ postTypeToSearch ] );
+
+	/**
+	 * Fetch more suggestions.
+	 */
+	useEffect( () => {
+		if ( isLoadingMore ) {
+			handleFetchSuggestions( null, suggestions.length )
+				.then( _suggestions => {
+					if ( 0 < _suggestions.length ) {
+						setSuggestions( suggestions.concat( _suggestions ) );
+					}
+				} )
+				.finally( () => setIsLoadingMore( false ) );
+		}
+	}, [ isLoadingMore ] );
 
 	/**
 	 * If passed a `fetchSavedPosts` prop, use that, otherwise, build it based on the selected post type.
@@ -87,7 +105,8 @@ const AutocompleteWithSuggestions = ( {
 					'post' === postTypeToSearch || 'page' === postTypeToSearch
 						? postTypeToSearch + 's' // Default post type endpoints are plural.
 						: postTypeToSearch; // Custom post type endpoints are singular.
-				const posts = await apiFetch( {
+				const response = await apiFetch( {
+					parse: false,
 					path: addQueryArgs( '/wp/v2/' + postTypeSlug, {
 						search,
 						offset,
@@ -95,6 +114,13 @@ const AutocompleteWithSuggestions = ( {
 						_fields: 'id,title',
 					} ),
 				} );
+
+				const total = parseInt( response.headers.get( 'x-wp-total' ) || 0 );
+				const posts = await response.json();
+
+				if ( total > posts.length ) {
+					setMaxSuggestions( total );
+				}
 
 				// Format suggestions for FormTokenField display.
 				return posts.reduce( ( acc, post ) => {
@@ -254,7 +280,18 @@ const AutocompleteWithSuggestions = ( {
 						{ sprintf( __( 'Or, select a recent %s:', 'newspack' ), postTypeLabel ) }
 					</p>
 				) }
-				<div className={ className }>{ suggestions.map( renderSuggestion ) }</div>
+				<div className={ className }>
+					{ suggestions.map( renderSuggestion ) }
+					{ suggestions.length < ( maxItemsToSuggest || maxSuggestions ) && (
+						<Button
+							disabled={ isLoadingMore }
+							isSecondary
+							onClick={ () => setIsLoadingMore( true ) }
+						>
+							{ isLoadingMore ? __( 'Loading...', 'newspack' ) : __( 'Load more', 'newspack' ) }
+						</Button>
+					) }
+				</div>
 			</>
 		);
 	};
@@ -266,7 +303,7 @@ const AutocompleteWithSuggestions = ( {
 			<AutocompleteTokenField
 				tokens={ [] }
 				onChange={ handleOnChange }
-				fetchSuggestions={ fetchSuggestions }
+				fetchSuggestions={ handleFetchSuggestions }
 				fetchSavedInfo={ postIds => handleFetchSaved( postIds ) }
 				label={ label }
 				help={ ! hideHelp && help }

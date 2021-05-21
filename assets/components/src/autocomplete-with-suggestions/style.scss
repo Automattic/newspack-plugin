@@ -23,6 +23,10 @@
 		right: 0;
 	}
 
+	.components-select-control__input {
+		max-width: none;
+	}
+
 	&__suggestions-spinner .components-spinner {
 		display: block;
 		margin: 0 auto 1rem;
@@ -79,10 +83,10 @@
 		overflow-x: visible;
 		overflow-y: auto;
 
-		.components-button {
+		.components-button.is-link {
 			color: $dark-gray-600;
 			display: block;
-			margin: 0;
+			margin: auto;
 			padding: 10px 12px;
 			text-decoration: none;
 			width: 100%;
@@ -93,6 +97,10 @@
 				background: var( --wp-admin-theme-color );
 				color: white;
 			}
+		}
+		.components-button.is-secondary {
+			display: block;
+			margin: 1rem auto;
 		}
 	}
 
