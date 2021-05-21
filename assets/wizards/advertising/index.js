@@ -334,7 +334,7 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<Services
 									headerText={ __( 'Advertising', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising' ) }
 									services={ services }
 									toggleService={ ( service, value ) => this.toggleService( service, value ) }
 									tabbedNavigation={ tabs }
@@ -346,7 +346,7 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<Placements
 									headerText={ __( 'Advertising', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising' ) }
 									placements={ placements }
 									adUnits={ adUnits }
 									services={ services }
@@ -355,8 +355,6 @@ class AdvertisingWizard extends Component {
 										this.togglePlacement( placement, value )
 									}
 									tabbedNavigation={ tabs }
-									buttonText={ __( 'Back to ad providers' ) }
-									buttonAction="#/"
 								/>
 							) }
 						/>
@@ -366,7 +364,7 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<AdUnits
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising' ) }
 									adUnits={ adUnits }
 									tabbedNavigation={ gam_tabs }
 									service={ 'google_ad_manager' }
@@ -384,7 +382,7 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => (
 								<HeaderCode
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising' ) }
 									adUnits={ adUnits }
 									code={ advertisingData.services.google_ad_manager.network_code }
 									tabbedNavigation={ gam_tabs }
