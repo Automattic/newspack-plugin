@@ -15,27 +15,27 @@ import { AutocompleteTokenField } from '../';
 import './style.scss';
 
 const AutocompleteWithSuggestions = ( {
-	multiSelect = false,
-	fetchSavedPosts = false,
-	fetchSuggestions = false,
-	onChange = false,
+	fetchSavedPosts = false, // If passed, will use this function to fetch saved data.
+	fetchSuggestions = false, // If passed, will use this function to fetch suggestions data.
 	help = __( 'Begin typing search term, click autocomplete result to select.', 'newspack' ),
-	hideHelp = false,
+	hideHelp = false, // If true, all help text will be hidden.
 	label = __( 'Search', 'newspack' ),
-	maxItemsToSuggest = 0,
-	postTypes = [ { slug: 'post', label: 'Post' } ],
-	postTypeLabel = __( 'item', 'newspack' ),
-	postTypeLabelPlural = __( 'items', 'newspack' ),
-	selectedItems = [],
-	selectedPost = 0, // legacy prop when single-select was the only option.
-	suggestionsToFetch = 10,
+	maxItemsToSuggest = 0, // If passed, will be used to determine "load more" state. Necessary if you want "load more" functionality when using a custom `fetchSuggestions` function.
+	multiSelect = false, // If true, component can select multiple values at once.
+	onChange = false, // Function to call when selections change.
+	onPostTypeChange = false, // Funciton to call when the post type selector is changed.
+	postTypes = [ { slug: 'post', label: 'Post' } ], // If passed, will render a selector to change the post type queried for suggestions.
+	postTypeLabel = __( 'item', 'newspack' ), // String to describe the data being shown.
+	postTypeLabelPlural = __( 'items', 'newspack' ), // Plural string to describe the data being shown.
+	selectedItems = [], // Array of saved items.
+	selectedPost = 0, // Legacy prop when single-select was the only option.
+	suggestionsToFetch = 10, // Number of suggestions to fetch per query.
 } ) => {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isLoadingMore, setIsLoadingMore ] = useState( false );
 	const [ suggestions, setSuggestions ] = useState( [] );
 	const [ maxSuggestions, setMaxSuggestions ] = useState( 0 );
 	const [ postTypeToSearch, setPostTypeToSearch ] = useState( postTypes[ 0 ].slug );
-
 	const classNames = [ 'newspack-autocomplete-with-suggestions' ];
 
 	if ( hideHelp ) {
@@ -219,7 +219,13 @@ const AutocompleteWithSuggestions = ( {
 					label: postTypeOption.label,
 					value: postTypeOption.slug,
 				} ) ) }
-				onChange={ _postType => setPostTypeToSearch( _postType ) }
+				onChange={ _postType => {
+					if ( onPostTypeChange ) {
+						onPostTypeChange( _postType );
+					}
+
+					setPostTypeToSearch( _postType );
+				} }
 			/>
 		);
 	};
