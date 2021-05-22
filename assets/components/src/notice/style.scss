@@ -7,9 +7,9 @@
 
 .newspack-notice {
 	align-items: flex-start;
-	background: $light-gray-100;
+	background: $gray-100;
 	border-radius: 3px;
-	color: $dark-gray-900;
+	color: $gray-900;
 	display: flex;
 	font-size: 14px;
 	justify-content: flex-start;
@@ -19,13 +19,13 @@
 
 	> svg {
 		display: block;
-		fill: $dark-gray-900;
+		fill: $gray-900;
 		flex: 0 0 24px;
 		margin-right: 4px;
 	}
 
 	&__is-error {
-		background: lighten( $alert-red, 40.5% );
+		background: lighten( $alert-red, 54% );
 
 		> svg {
 			fill: $alert-red;
