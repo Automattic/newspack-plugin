@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Router, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
  * Advertising management screen.
