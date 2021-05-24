@@ -14,16 +14,10 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, Router, withWizardScreen } from '../../../../components/src';
 
 /**
- * Router component for managing single-page app nav.
- */
-const { useHistory } = Router;
-
-/**
  * Advertising management screen.
  */
 const Services = ( { services, toggleService } ) => {
 	const { wordads, google_adsense, google_ad_manager } = services;
-	const history = useHistory();
 
 	return (
 		<>
@@ -73,7 +67,7 @@ const Services = ( { services, toggleService } ) => {
 				toggleChecked={ google_ad_manager && google_ad_manager.enabled }
 				toggleOnChange={ value => toggleService( 'google_ad_manager', value ) }
 				titleLink={ google_ad_manager ? '#/google_ad_manager' : null }
-				onClick={ () => google_ad_manager && history.push( '/google_ad_manager' ) }
+				href={ google_ad_manager && '#/google_ad_manager' }
 			/>
 		</>
 	);

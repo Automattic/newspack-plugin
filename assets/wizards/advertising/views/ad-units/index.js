@@ -13,16 +13,9 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, Router, withWizardScreen } from '../../../../components/src';
 
 /**
- * Router component for managing single-page app nav.
- */
-const { useHistory } = Router;
-
-/**
  * Advertising management screen.
  */
 const AdUnits = ( { adUnits, onDelete, service } ) => {
-	const history = useHistory();
-
 	return (
 		<>
 			<p>
@@ -37,7 +30,7 @@ const AdUnits = ( { adUnits, onDelete, service } ) => {
 						title={ name }
 						actionText={ __( 'Edit' ) }
 						titleLink={ `#${ service }/${ id }` }
-						onClick={ () => history.push( `${ service }/${ id }` ) }
+						href={ `#${ service }/${ id }` }
 						secondaryActionText={ __( 'Delete' ) }
 						onSecondaryActionClick={ () => onDelete( id ) }
 					/>
