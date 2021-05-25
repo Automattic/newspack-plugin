@@ -47,7 +47,7 @@
 	}
 
 	&__content {
-		background: $light-gray-100;
+		background: $gray-100;
 		height: calc( 100% - 37px );
 		-webkit-overflow-scrolling: touch;
 		overflow-x: hidden;
@@ -60,7 +60,7 @@
 			margin: 0 auto;
 			max-width: 100%;
 			opacity: 0;
-			outline: 1px solid $light-gray-500;
+			outline: 1px solid $gray-300;
 			padding: 0;
 			pointer-events: all;
 			transition: max-width 125ms ease-in-out, opacity 250ms ease-in-out;
@@ -79,7 +79,7 @@
 	}
 
 	&__toolbar {
-		border-bottom: 1px solid $light-gray-500;
+		border-bottom: 1px solid $gray-300;
 		display: flex;
 
 		&-left {

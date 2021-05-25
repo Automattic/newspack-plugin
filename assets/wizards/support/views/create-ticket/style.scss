@@ -27,16 +27,16 @@
 	}
 
 	&__dropzone {
-		background: $light-gray-100;
-		border: 1px dashed $light-gray-500;
+		background: $gray-100;
+		border: 1px dashed $gray-300;
 		border-radius: 3px;
-		color: $dark-gray-600;
+		color: $gray-900;
 		cursor: pointer;
 		margin: 32px 0;
 		transition: all 125ms ease-in-out;
 
 		&:hover {
-			border-color: $light-gray-900;
+			border-color: $gray-600;
 		}
 
 		&--active {
@@ -51,7 +51,7 @@
 
 			svg {
 				display: block;
-				fill: $dark-gray-900;
+				fill: $gray-900;
 				height: 48px;
 				margin: 0 auto;
 				width: 48px;

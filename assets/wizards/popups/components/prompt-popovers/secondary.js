@@ -19,7 +19,7 @@ import {
 	Popover,
 	SelectControl,
 } from '../../../../components/src';
-import { frequenciesForPopup, placementsForPopups } from '../../utils';
+import { frequenciesForPopup, isOverlay, placementsForPopups } from '../../utils';
 import './style.scss';
 
 const SecondaryPromptPopover = ( {
@@ -70,7 +70,7 @@ const SecondaryPromptPopover = ( {
 				} }
 				options={ placementsForPopups( prompt ) }
 				value={ placement }
-				label={ __( 'Placement', 'newspack' ) }
+				label={ isOverlay( prompt ) ? __( 'Position' ) : __( 'Placement' ) }
 			/>
 			<FormTokenField
 				value={ segments

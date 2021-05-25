@@ -19,12 +19,23 @@
 
 	.components-spinner {
 		position: absolute;
-		top: 2em;
 		right: 0;
+		top: 2em;
 	}
 
 	.components-select-control__input {
 		max-width: none;
+	}
+
+	.components-input-control__backdrop {
+		border-color: $gray-900 !important;
+	}
+
+	.newspack-autocomplete-with-suggestions__label,
+	.components-form-token-field__label,
+	.components-input-control__label,
+	.components-checkbox-control__label {
+		color: $gray-900 !important;
 	}
 
 	&__suggestions-spinner .components-spinner {
@@ -34,29 +45,45 @@
 	}
 
 	.newspack-autocomplete-tokenfield__help {
-		font-size: 12px;
+		font-size: inherit;
 	}
 
-	.components-form-token-field__suggestions-list {
-		margin: 4px -4px -4px;
-	}
+	.components-form-token-field {
+		&__input-container {
+			border-color: $gray-900;
+		}
 
-	.components-form-token-field__suggestion {
-		padding: 8px;
+		&__suggestions-list {
+			border-top-color: $gray-900;
+			margin: 4px -4px -2px;
+		}
+
+		&__suggestion {
+			padding: 8px;
+		}
 	}
 
 	p.newspack-autocomplete-with-suggestions__label {
-		margin-bottom: 8px;
+		font-size: inherit;
+		margin-bottom: 4px;
 	}
 
 	&__selected-items {
-		border-bottom: 1px solid $light-gray-500;
+		border-bottom: 1px solid $gray-300;
 		margin-bottom: 2rem;
 		padding-bottom: 1.75rem;
+
+		.newspack-autocomplete-with-suggestions__label {
+			font-weight: bold;
+
+			.components-button {
+				font-weight: normal;
+			}
+		}
 	}
 
 	&__selected-item-button.components-button.is-tertiary {
-		background-color: $light-gray-300;
+		background-color: $gray-300;
 		border-radius: 2px;
 		color: #1e1e1e;
 		font-size: 13px;
@@ -79,15 +106,15 @@
 
 	&__search-suggestions,
 	&__search-suggestions-multiselect {
-		max-height: 172px;
+		max-height: 166px;
 		overflow-x: visible;
 		overflow-y: auto;
 
 		.components-button.is-link {
-			color: $dark-gray-600;
+			color: $gray-900;
 			display: block;
 			margin: auto;
-			padding: 10px 12px;
+			padding: 8px;
 			text-decoration: none;
 			width: 100%;
 
@@ -113,8 +140,8 @@
 
 	&__search-suggestions {
 		border-radius: 2px;
-		border: 1px solid $dark-gray-600;
-		max-height: 182px;
+		border: 1px solid $gray-900;
+		max-height: 192px;
 		padding: 4px;
 	}
 }

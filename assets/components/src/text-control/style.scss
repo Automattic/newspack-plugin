@@ -6,7 +6,7 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-text-control {
-	color: $dark-gray-300;
+	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
@@ -19,7 +19,7 @@
 	}
 
 	label {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-size: 14px;
 		font-weight: bold;
 		line-height: 24px;
@@ -30,7 +30,7 @@
 				content: attr( data-required-text );
 				padding-left: 5px;
 				font-weight: normal;
-				color: $dark-gray-300;
+				color: $gray-700;
 			}
 		}
 	}
@@ -49,7 +49,7 @@
 	input[type='url'],
 	input[type='week'] {
 		background: white;
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 3px;
 		box-shadow: none;
 		color: inherit;
@@ -75,8 +75,8 @@
 
 		&:disabled,
 		&.disabled {
-			background: $light-gray-100;
-			color: $light-gray-900;
+			background: $gray-100;
+			color: $gray-600;
 			cursor: not-allowed;
 		}
 	}
