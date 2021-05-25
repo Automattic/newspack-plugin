@@ -47,7 +47,7 @@ const AutocompleteWithSuggestions = ( {
 	 */
 	useEffect( () => {
 		setIsLoading( true );
-		handleFetchSuggestions()
+		handleFetchSuggestions( null, 0, postTypeToSearch )
 			.then( _suggestions => {
 				if ( 0 < _suggestions.length ) {
 					setSuggestions( _suggestions );
@@ -61,7 +61,7 @@ const AutocompleteWithSuggestions = ( {
 	 */
 	useEffect( () => {
 		if ( isLoadingMore ) {
-			handleFetchSuggestions( null, suggestions.length )
+			handleFetchSuggestions( null, suggestions.length, postTypeToSearch )
 				.then( _suggestions => {
 					if ( 0 < _suggestions.length ) {
 						setSuggestions( suggestions.concat( _suggestions ) );
@@ -76,13 +76,14 @@ const AutocompleteWithSuggestions = ( {
 	 */
 	const handleFetchSaved = fetchSavedPosts
 		? fetchSavedPosts
-		: async ( postIds = [] ) => {
-				const postTypeSlug =
-					'post' === postTypeToSearch || 'page' === postTypeToSearch
-						? postTypeToSearch + 's' // Default post type endpoints are plural.
-						: postTypeToSearch; // Custom post type endpoints are singular.
+		: async ( postIds = [], searchSlug = null ) => {
+				const postTypeSlug = searchSlug || postTypeToSearch;
+				const endpoint =
+					'post' === postTypeSlug || 'page' === postTypeSlug
+						? postTypeSlug + 's' // Default post type endpoints are plural.
+						: postTypeSlug; // Custom post type endpoints are singular.
 				const posts = await apiFetch( {
-					path: addQueryArgs( '/wp/v2/' + postTypeSlug, {
+					path: addQueryArgs( '/wp/v2/' + endpoint, {
 						per_page: 100,
 						include: postIds.join( ',' ),
 						_fields: 'id,title',
@@ -100,14 +101,15 @@ const AutocompleteWithSuggestions = ( {
 	 */
 	const handleFetchSuggestions = fetchSuggestions
 		? fetchSuggestions
-		: async ( search = null, offset = 0 ) => {
-				const postTypeSlug =
-					'post' === postTypeToSearch || 'page' === postTypeToSearch
-						? postTypeToSearch + 's' // Default post type endpoints are plural.
-						: postTypeToSearch; // Custom post type endpoints are singular.
+		: async ( search = null, offset = 0, searchSlug = null ) => {
+				const postTypeSlug = searchSlug || postTypeToSearch;
+				const endpoint =
+					'post' === postTypeSlug || 'page' === postTypeSlug
+						? postTypeSlug + 's' // Default post type endpoints are plural.
+						: postTypeSlug; // Custom post type endpoints are singular.
 				const response = await apiFetch( {
 					parse: false,
-					path: addQueryArgs( '/wp/v2/' + postTypeSlug, {
+					path: addQueryArgs( '/wp/v2/' + endpoint, {
 						search,
 						offset,
 						per_page: suggestionsToFetch,
@@ -126,7 +128,7 @@ const AutocompleteWithSuggestions = ( {
 				return posts.reduce( ( acc, post ) => {
 					acc.push( {
 						value: post.id,
-						label: decodeEntities( post.title.rendered ) || __( '(no title)', 'newspack' ),
+						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack' ),
 					} );
 
 					return acc;
