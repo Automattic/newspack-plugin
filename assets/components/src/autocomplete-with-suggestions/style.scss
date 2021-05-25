@@ -10,38 +10,45 @@
 
 	.components-spinner {
 		position: absolute;
-		top: 2em;
 		right: 0;
+		top: 2em;
 	}
 
 	.newspack-autocomplete-tokenfield__help {
-		font-size: 12px;
+		font-size: inherit;
 	}
 
-	.components-form-token-field__suggestions-list {
-		margin: 4px -4px -4px;
-	}
+	.components-form-token-field {
+		&__input-container {
+			border-color: $gray-900;
+		}
 
-	.components-form-token-field__suggestion {
-		padding: 8px;
+		&__suggestions-list {
+			border-top-color: $gray-900;
+			margin: 4px -4px -2px;
+		}
+
+		&__suggestion {
+			padding: 8px;
+		}
 	}
 
 	p.newspack-autocomplete-with-suggestions__label {
-		margin-bottom: 8px;
+		font-size: inherit;
+		margin-bottom: 4px;
 	}
 
 	&__search-suggestions {
 		border-radius: 2px;
-		border: 1px solid $dark-gray-600;
-		max-height: 182px;
-		padding: 4px;
+		border: 1px solid $gray-900;
+		max-height: 164px;
 		overflow: scroll;
 
 		.components-button {
-			color: $dark-gray-600;
+			color: $gray-900;
 			display: block;
 			margin: 0;
-			padding: 10px 12px;
+			padding: 8px;
 			text-decoration: none;
 			width: 100%;
 

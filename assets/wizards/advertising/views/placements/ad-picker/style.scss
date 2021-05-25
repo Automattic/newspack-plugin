@@ -2,18 +2,10 @@
  * Ad Picker
  */
 
-.newspack-toggle-group__description {
-	flex: 1;
-
-	.newspack-ad-picker {
-		@media screen and ( min-width: 744px ) {
-			display: flex;
-			justify-content: space-between;
-			width: 100%;
-		}
-
-		.newspack-select-control {
-			margin: 16px 0;
+.newspack-card.newspack-action-card {
+	.newspack-action-card__region-children {
+		.newspack-grid {
+			margin: 32px 0 0;
 		}
 	}
 }

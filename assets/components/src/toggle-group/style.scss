@@ -15,10 +15,14 @@
 		margin: 0;
 	}
 
+	&__description {
+		flex: 1;
+	}
+
 	// Multiple Toogle Groups
 
 	& + & {
 		margin-bottom: 32px;
-		margin-top: -24px;
+		margin-top: -16px;
 	}
 }

@@ -10,7 +10,7 @@
 		display: flex;
 
 		svg {
-			fill: $light-gray-900;
+			fill: $gray-600;
 			margin-left: 4px;
 			margin-right: 0;
 			order: -1;
@@ -49,7 +49,7 @@
 	}
 
 	&.newspack-plugin-installer__status-installing {
-		box-shadow: inset 4px 0 0 $light-gray-700;
+		box-shadow: inset 4px 0 0 $gray-200;
 	}
 }
 

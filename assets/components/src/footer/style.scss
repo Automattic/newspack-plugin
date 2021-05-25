@@ -7,7 +7,7 @@
 
 .newspack-footer {
 	bottom: 0;
-	color: $dark-gray-300;
+	color: $gray-700;
 	font-size: 12px;
 	left: 0;
 	line-height: 16px;
@@ -19,7 +19,7 @@
 	}
 
 	&__inner {
-		border: 0 solid $light-gray-200;
+		border: 0 solid $gray-300;
 		border-width: 1px 0;
 		margin-top: 16px;
 	}
@@ -48,7 +48,7 @@
 		&:active,
 		&:focus,
 		&:hover {
-			color: $dark-gray-900;
+			color: $gray-900;
 		}
 	}
 
