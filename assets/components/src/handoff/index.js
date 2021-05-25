@@ -83,6 +83,7 @@ class Handoff extends Component {
 			className,
 			children,
 			compact,
+			noStatus,
 			useModal,
 			// eslint-disable-next-line no-unused-vars
 			modalTitle: _modalTitle,
@@ -131,7 +132,7 @@ class Handoff extends Component {
 					>
 						<Fragment>
 							{ ! compact && <Waiting isLeft /> }
-							{ __( 'Retrieving Plugin Info' ) }
+							{ ! noStatus && __( 'Retrieving Plugin Info' ) }
 						</Fragment>
 					</Button>
 				) }
