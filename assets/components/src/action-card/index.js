@@ -7,11 +7,11 @@
  */
 import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
-import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
  * Internal dependencies
  */
+import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 import './style.scss';
 
 /**
