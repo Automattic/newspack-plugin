@@ -76,7 +76,8 @@
 		.newspack-autocomplete-with-suggestions__label {
 			font-weight: bold;
 
-			.components-button {
+			.components-button.is-link {
+				color: $alert-red;
 				font-weight: normal;
 			}
 		}
