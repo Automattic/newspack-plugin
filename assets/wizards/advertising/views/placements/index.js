@@ -100,7 +100,7 @@ class Placements extends Component {
 				<ActionCard
 					isMedium
 					title={ __( 'Global: Below Header' ) }
-					description={ __( 'Choose an ad unit to display below the header' ) }
+					description={ __( 'Choose an ad unit to display below the header', 'newspack' ) }
 					toggleChecked={ global_below_header && global_below_header.enabled }
 					hasGreyHeader={ global_below_header && global_below_header.enabled }
 					toggleOnChange={ value => togglePlacement( 'global_below_header', value ) }
