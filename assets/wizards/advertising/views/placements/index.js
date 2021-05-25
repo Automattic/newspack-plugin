@@ -21,7 +21,7 @@ class Placements extends Component {
 	adUnitsForSelect = adUnits => {
 		return [
 			{
-				label: __( 'Select an ad unit' ),
+				label: __( 'Select an ad unit', 'newspack' ),
 				value: null,
 			},
 			...Object.values( adUnits ).map( adUnit => {
@@ -36,7 +36,7 @@ class Placements extends Component {
 	adServicesForSelect = services => {
 		return [
 			{
-				label: __( 'Select an ad provider' ),
+				label: __( 'Select an ad provider', 'newspack' ),
 				value: null,
 			},
 			...Object.keys( services ).map( key => {
@@ -82,8 +82,8 @@ class Placements extends Component {
 				/>
 				<ActionCard
 					isMedium
-					title={ __( 'Global: Above Header' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
+					title={ __( 'Global: Above Header', 'newspack' ) }
+					description={ __( 'Choose an ad unit to display above the header', 'newspack' ) }
 					toggleChecked={ global_above_header && global_above_header.enabled }
 					hasGreyHeader={ global_above_header && global_above_header.enabled }
 					toggleOnChange={ value => togglePlacement( 'global_above_header', value ) }
@@ -99,7 +99,7 @@ class Placements extends Component {
 				</ActionCard>
 				<ActionCard
 					isMedium
-					title={ __( 'Global: Below Header' ) }
+					title={ __( 'Global: Below Header', 'newspack' ) }
 					description={ __( 'Choose an ad unit to display below the header', 'newspack' ) }
 					toggleChecked={ global_below_header && global_below_header.enabled }
 					hasGreyHeader={ global_below_header && global_below_header.enabled }
@@ -116,8 +116,8 @@ class Placements extends Component {
 				</ActionCard>
 				<ActionCard
 					isMedium
-					title={ __( 'Global: Above Footer' ) }
-					description={ __( 'Choose an ad unit to display above the footer' ) }
+					title={ __( 'Global: Above Footer', 'newspack' ) }
+					description={ __( 'Choose an ad unit to display above the footer', 'newspack' ) }
 					toggleChecked={ global_above_footer && global_above_footer.enabled }
 					hasGreyHeader={ global_above_footer && global_above_footer.enabled }
 					toggleOnChange={ value => togglePlacement( 'global_above_footer', value ) }
@@ -133,8 +133,8 @@ class Placements extends Component {
 				</ActionCard>
 				<ActionCard
 					isMedium
-					title={ __( 'Archives' ) }
-					description={ __( 'Choose an ad unit to display on your archives' ) }
+					title={ __( 'Archives', 'newspack' ) }
+					description={ __( 'Choose an ad unit to display on your archives', 'newspack' ) }
 					toggleChecked={ archives && archives.enabled }
 					hasGreyHeader={ archives && archives.enabled }
 					toggleOnChange={ value => togglePlacement( 'archives', value ) }
@@ -150,8 +150,8 @@ class Placements extends Component {
 				</ActionCard>
 				<ActionCard
 					isMedium
-					title={ __( 'Search Results' ) }
-					description={ __( 'Choose an ad unit to display on your search results' ) }
+					title={ __( 'Search Results', 'newspack' ) }
+					description={ __( 'Choose an ad unit to display on your search results', 'newspack' ) }
 					toggleChecked={ search_results && search_results.enabled }
 					hasGreyHeader={ search_results && search_results.enabled }
 					toggleOnChange={ value => togglePlacement( 'search_results', value ) }
@@ -167,8 +167,11 @@ class Placements extends Component {
 				</ActionCard>
 				<ActionCard
 					isMedium
-					title={ __( 'Sticky' ) }
-					description={ __( 'Choose a sticky ad unit to display at the bottom of the viewport' ) }
+					title={ __( 'Sticky', 'newspack' ) }
+					description={ __(
+						'Choose a sticky ad unit to display at the bottom of the viewport',
+						'newspack'
+					) }
 					toggleChecked={ sticky && sticky.enabled }
 					hasGreyHeader={ sticky && sticky.enabled }
 					toggleOnChange={ value => togglePlacement( 'sticky', value ) }
