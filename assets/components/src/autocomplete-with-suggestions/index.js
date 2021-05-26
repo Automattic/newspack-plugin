@@ -46,6 +46,10 @@ const AutocompleteWithSuggestions = ( {
 	 * Fetch recent posts to show as suggestions.
 	 */
 	useEffect( () => {
+		if ( onPostTypeChange ) {
+			onPostTypeChange( postTypeToSearch );
+		}
+
 		setIsLoading( true );
 		handleFetchSuggestions( null, 0, postTypeToSearch )
 			.then( _suggestions => {
@@ -222,13 +226,7 @@ const AutocompleteWithSuggestions = ( {
 					label: postTypeOption.label,
 					value: postTypeOption.slug,
 				} ) ) }
-				onChange={ _postType => {
-					if ( onPostTypeChange ) {
-						onPostTypeChange( _postType );
-					}
-
-					setPostTypeToSearch( _postType );
-				} }
+				onChange={ _postType => setPostTypeToSearch( _postType ) }
 			/>
 		);
 	};
