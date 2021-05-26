@@ -162,7 +162,8 @@ const AutocompleteWithSuggestions = ( {
 			}
 		} );
 
-		onChange( selections );
+		// Include currently selected post type in selection results.
+		onChange( selections.map( selection => ( { ...selection, postType: postTypeToSearch } ) ) );
 	};
 
 	/**
@@ -245,17 +246,13 @@ const AutocompleteWithSuggestions = ( {
 				<CheckboxControl
 					key={ suggestion.value }
 					checked={ isSelected }
-					onChange={ () => handleOnChange( [ { ...suggestion, postType: postTypeToSearch } ] ) }
+					onChange={ () => handleOnChange( [ suggestion ] ) }
 					label={ suggestion.label }
 				/>
 			);
 		}
 		return (
-			<Button
-				isLink
-				key={ suggestion.value }
-				onClick={ () => handleOnChange( [ { ...suggestion, postType: postTypeToSearch } ] ) }
-			>
+			<Button isLink key={ suggestion.value } onClick={ () => handleOnChange( [ suggestion ] ) }>
 				{ suggestion.label }
 			</Button>
 		);
@@ -311,7 +308,7 @@ const AutocompleteWithSuggestions = ( {
 			<AutocompleteTokenField
 				tokens={ [] }
 				onChange={ handleOnChange }
-				fetchSuggestions={ handleFetchSuggestions }
+				fetchSuggestions={ async search => handleFetchSuggestions( search, 0, postTypeToSearch ) }
 				fetchSavedInfo={ postIds => handleFetchSaved( postIds ) }
 				label={ label }
 				help={ ! hideHelp && help }
