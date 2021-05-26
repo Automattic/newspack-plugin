@@ -91,7 +91,7 @@ const AutocompleteWithSuggestions = ( {
 				} );
 
 				return posts.map( post => ( {
-					value: post.id,
+					value: parseInt( post.id ),
 					label: decodeEntities( post.title ) || __( '(no title)', 'newspack' ),
 				} ) );
 		  };
@@ -127,7 +127,7 @@ const AutocompleteWithSuggestions = ( {
 				// Format suggestions for FormTokenField display.
 				return posts.reduce( ( acc, post ) => {
 					acc.push( {
-						value: post.id,
+						value: parseInt( post.id ),
 						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack' ),
 					} );
 
@@ -150,7 +150,7 @@ const AutocompleteWithSuggestions = ( {
 		// Loop through new selections to determine whether to add or remove them.
 		_selections.forEach( _selection => {
 			const existingSelection = selections.findIndex(
-				selection => selection.value === _selection.value
+				selection => parseInt( selection.value ) === parseInt( _selection.value )
 			);
 
 			if ( -1 < existingSelection ) {
@@ -241,7 +241,9 @@ const AutocompleteWithSuggestions = ( {
 	const renderSuggestion = suggestion => {
 		if ( multiSelect ) {
 			const selections = selectedPost ? [ ...selectedItems, selectedPost ] : [ ...selectedItems ];
-			const isSelected = !! selections.find( _selection => _selection.value === suggestion.value );
+			const isSelected = !! selections.find(
+				_selection => parseInt( _selection.value ) === parseInt( suggestion.value )
+			);
 			return (
 				<CheckboxControl
 					key={ suggestion.value }
