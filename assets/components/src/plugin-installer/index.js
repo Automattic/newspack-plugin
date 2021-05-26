@@ -8,12 +8,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -173,8 +168,8 @@ class PluginInstaller extends Component {
 			currentStatus === 'active' || currentStatus === 'inactive';
 
 		const buttonText = currentPluginStatuses.every( pluginInstalled )
-			? __( 'Activate' )
-			: __( 'Install' );
+			? __( 'Activate', 'newspack' )
+			: __( 'Install', 'newspack' );
 
 		const needsInstall = slugs.some( slug => {
 			const plugin = pluginInfo[ slug ];
@@ -202,22 +197,24 @@ class PluginInstaller extends Component {
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Install' ) }
-									<RadioButtonUncheckedIcon />
+									{ __( 'Install', 'newspack' ) }
+									<span className="newspack-plugin-installer__checkbox"></span>
 								</span>
 							);
 						} else if ( Status === 'inactive' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Activate' ) }
-									<RadioButtonUncheckedIcon />
+									{ __( 'Activate', 'newspack' ) }
+									<span className="newspack-plugin-installer__checkbox"></span>
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Installed' ) }
-									<CheckCircleIcon />
+									{ __( 'Installed', 'newspack' ) }
+									<span className="newspack-plugin-installer__checkbox">
+										<Icon icon={ check } />
+									</span>
 								</span>
 							);
 						}
