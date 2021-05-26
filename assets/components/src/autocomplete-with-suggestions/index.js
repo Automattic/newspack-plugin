@@ -124,9 +124,7 @@ const AutocompleteWithSuggestions = ( {
 				const total = parseInt( response.headers.get( 'x-wp-total' ) || 0 );
 				const posts = await response.json();
 
-				if ( total > posts.length ) {
-					setMaxSuggestions( total );
-				}
+				setMaxSuggestions( total );
 
 				// Format suggestions for FormTokenField display.
 				return posts.reduce( ( acc, post ) => {
