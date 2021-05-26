@@ -5,7 +5,6 @@
  */
 import Dropzone from 'react-dropzone';
 import classnames from 'classnames';
-import CloseIcon from '@material-ui/icons/Close';
 import { uniqueId } from 'lodash';
 import RichTextEditor from 'react-rte';
 
@@ -14,11 +13,7 @@ import RichTextEditor from 'react-rte';
  */
 import { Fragment, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies
- */
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import { trash } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -200,9 +195,12 @@ class CreateTicket extends Component {
 						<div className="newspack-support__files">
 							{ attachments.map( ( { file, id } ) => (
 								<div key={ id } className="newspack-support__files__item">
-									<Button onClick={ () => this.removeAttachment( id ) }>
-										<CloseIcon />
-									</Button>
+									<Button
+										onClick={ () => this.removeAttachment( id ) }
+										icon={ trash }
+										isQuaternary
+										isSmall
+									/>
 									<span>{ file.name }</span>
 								</div>
 							) ) }
@@ -217,7 +215,6 @@ class CreateTicket extends Component {
 									<div { ...getRootProps() }>
 										<input { ...getInputProps() } />
 										<div className="newspack-support__dropzone__text">
-											<CloudUploadIcon />
 											{ __( 'Drop files to upload, or click to select files.', 'newspack' ) }
 										</div>
 									</div>
