@@ -7,13 +7,13 @@
 
 .newspack-popover {
 	.components-popover__content {
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 3px;
 		box-shadow: 0 4px 8px rgba( black, 0.08 );
 		min-width: 238px;
 
 		.newspack-button {
-			color: $dark-gray-300;
+			color: $gray-700;
 			display: flex;
 			font-weight: normal;
 			padding: 6px 8px;
@@ -32,7 +32,7 @@
 
 			&.is-link {
 				border-radius: 3px;
-				color: $dark-gray-300;
+				color: $gray-700;
 				padding: 6px 8px;
 				text-decoration: none;
 
@@ -45,13 +45,13 @@
 
 				&:focus,
 				&:focus:enabled {
-					color: $dark-gray-300;
+					color: $gray-700;
 					outline: none;
 				}
 			}
 
 			.components-menu-items__item-icon {
-				fill: $dark-gray-900;
+				fill: $gray-900;
 			}
 
 			.components-menu-item__item {
@@ -61,7 +61,7 @@
 		}
 
 		.components-menu-group__label {
-			color: $dark-gray-900;
+			color: $gray-900;
 			font-size: 12px;
 			font-weight: bold;
 			line-height: 16px;
@@ -126,7 +126,7 @@
 	}
 
 	&:not( .is-without-arrow )::before {
-		border-color: $light-gray-500;
+		border-color: $gray-300;
 	}
 
 	&.is-from-bottom {
