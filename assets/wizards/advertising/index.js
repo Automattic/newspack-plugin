@@ -433,9 +433,9 @@ class AdvertisingWizard extends Component {
 							render={ routeProps => {
 								return (
 									<AdUnit
-										headerText={ __( 'Edit ad unit', 'newspack' ) }
+										headerText={ __( 'Edit Ad Unit', 'newspack' ) }
 										subHeaderText={ __(
-											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.',
+											'Allows you to place ads on your site through our Ads block',
 											'newspack'
 										) }
 										adUnit={ adUnits[ routeProps.match.params.id ] || {} }
