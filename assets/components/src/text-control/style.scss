@@ -18,6 +18,25 @@
 		}
 	}
 
+	&--required {
+		margin: 32px 0;
+
+		> * {
+			margin: 0;
+		}
+
+		& + & {
+			margin-bottom: 32px;
+			margin-top: -16px;
+		}
+
+		+ .newspack-select-control,
+		+ .newspack-textarea-control {
+			margin-bottom: 32px;
+			margin-top: -16px;
+		}
+	}
+
 	label {
 		color: $gray-900;
 		font-size: 14px;
@@ -28,7 +47,7 @@
 		&[data-required-text] {
 			&::after {
 				content: attr( data-required-text );
-				padding-left: 5px;
+				padding-left: 0.25em;
 				font-weight: normal;
 				color: $gray-700;
 			}

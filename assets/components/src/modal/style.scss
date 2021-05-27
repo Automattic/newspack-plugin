@@ -24,6 +24,10 @@
 	@media screen and ( min-width: 744px ) {
 		max-width: 680px;
 		padding: 0 64px;
+
+		&--wide {
+			max-width: 1168px;
+		}
 	}
 
 	// Header

@@ -2158,7 +2158,7 @@ msgstr ""
 
 #: includes/wizards/class-analytics-wizard.php:82
 #: assets/wizards/analytics/index.js:47
-msgid "Track traffic and activity."
+msgid "Track traffic and activity"
 msgstr ""
 
 #: includes/wizards/class-analytics-wizard.php:220
