@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Button, Card, Grid, TextControl, withWizardScreen } from '../../../../components/src';
-import './style.scss';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -39,68 +38,67 @@ class AdUnit extends Component {
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
 		return (
 			<Fragment>
-				<TextControl
-					label={ __( 'Ad Unit Name', 'newspack' ) }
-					value={ name || '' }
-					onChange={ value => this.handleOnChange( 'name', value ) }
-				/>
-				<TextControl
-					label={ __( 'Ad Unit Code', 'newspack' ) }
-					value={ code || '' }
-					onChange={ value => this.handleOnChange( 'code', value ) }
-				/>
+				<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+				<Grid gutter={ 32 }>
+					<TextControl
+						label={ __( 'Name', 'newspack' ) }
+						value={ name || '' }
+						onChange={ value => this.handleOnChange( 'name', value ) }
+					/>
+					<TextControl
+						label={ __( 'Code', 'newspack' ) }
+						value={ code || '' }
+						onChange={ value => this.handleOnChange( 'code', value ) }
+						className="code"
+					/>
+				</Grid>
 				{ sizes.map( ( size, index ) => (
-					<div className="newspack_ad_unit__sizes" key={ index }>
-						<div className="newspack_ad_unit__sizes__header">
-							<p className="is-dark">
-								<strong>
-									{ __( 'Ad Unit Size', 'newspack' ) }
-									{ sizes.length > 1 && ' ' + ( index + 1 ) }
-								</strong>
-							</p>
+					<Card noBorder key={ index }>
+						<div className="flex flex-wrap items-center">
+							<h2>
+								{ sizes.length > 1
+									? __( 'Ad Unit Size #', 'newspack' ) + ( index + 1 )
+									: __( 'Ad Unit Size', 'newspack' ) }
+							</h2>
 							{ sizes.length > 1 && (
-								<Button
-									isLink
-									isDestructive
-									onClick={ () => {
-										sizes.splice( index, 1 );
-										this.handleOnChange( 'sizes', sizes );
-									} }
-								>
-									{ __( 'Delete Size', 'newspack' ) }
-									{ ' ' + ( index + 1 ) }
-								</Button>
+								<>
+									<span className="sep" />
+									<Button
+										isLink
+										isDestructive
+										onClick={ () => {
+											sizes.splice( index, 1 );
+											this.handleOnChange( 'sizes', sizes );
+										} }
+									>
+										{ __( 'Delete', 'newspack' ) }
+									</Button>
+								</>
 							) }
 						</div>
-						<Card isMedium>
-							<Grid gutter={ 32 }>
-								<TextControl
-									label={ __( 'Width' ) }
-									value={ size[ 0 ] }
-									type="number"
-									onChange={ value => {
-										sizes[ index ][ 0 ] = value;
-										this.handleOnChange( 'sizes', sizes );
-									} }
-								/>
-								<TextControl
-									label={ __( 'Height' ) }
-									value={ size[ 1 ] }
-									type="number"
-									onChange={ value => {
-										sizes[ index ][ 1 ] = value;
-										this.handleOnChange( 'sizes', sizes );
-									} }
-								/>
-							</Grid>
-						</Card>
-					</div>
+						<Grid gutter={ 32 } noMargin>
+							<TextControl
+								label={ __( 'Width' ) }
+								value={ size[ 0 ] }
+								type="number"
+								onChange={ value => {
+									sizes[ index ][ 0 ] = value;
+									this.handleOnChange( 'sizes', sizes );
+								} }
+							/>
+							<TextControl
+								label={ __( 'Height' ) }
+								value={ size[ 1 ] }
+								type="number"
+								onChange={ value => {
+									sizes[ index ][ 1 ] = value;
+									this.handleOnChange( 'sizes', sizes );
+								} }
+							/>
+						</Grid>
+					</Card>
 				) ) }
-				<Button
-					isLink
-					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }
-					className="fr"
-				>
+				<Button isLink onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }>
 					{ __( 'Add Size', 'newspack' ) }
 				</Button>
 				<div className="clear" />
