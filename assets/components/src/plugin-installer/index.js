@@ -198,21 +198,21 @@ class PluginInstaller extends Component {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ __( 'Install', 'newspack' ) }
-									<span className="newspack-plugin-installer__checkbox" />
+									<span className="newspack-checkbox-icon" />
 								</span>
 							);
 						} else if ( Status === 'inactive' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ __( 'Activate', 'newspack' ) }
-									<span className="newspack-plugin-installer__checkbox" />
+									<span className="newspack-checkbox-icon" />
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ __( 'Installed', 'newspack' ) }
-									<span className="newspack-plugin-installer__checkbox">
+									<span className="newspack-checkbox-icon newspack-checkbox-icon--checked">
 										<Icon icon={ check } />
 									</span>
 								</span>

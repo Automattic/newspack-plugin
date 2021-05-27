@@ -9,18 +9,13 @@
 		align-items: center;
 		display: flex;
 
-		.newspack-plugin-installer__checkbox {
-			background: white;
-			border-radius: 50%;
-			box-shadow: inset 0 0 0 1px $gray-300;
-			display: block;
-			height: 24px;
+		.newspack-checkbox-icon {
 			margin-left: 4px;
-			width: 24px;
-		}
 
-		svg {
-			fill: $gray-700;
+			svg {
+				height: inherit;
+				width: inherit;
+			}
 		}
 	}
 
@@ -62,8 +57,7 @@
 	// Is Small
 	&.is-small {
 		.newspack-plugin-installer__status {
-			svg,
-			.newspack-plugin-installer__checkbox {
+			.newspack-checkbox-icon {
 				height: 16px;
 				width: 16px;
 			}
