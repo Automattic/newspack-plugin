@@ -81,6 +81,14 @@
 		}
 	}
 
+	// Code
+
+	&.code {
+		input {
+			font-family: Consolas, monaco, monospace;
+		}
+	}
+
 	// Multiple Text Controls
 
 	& + & {
