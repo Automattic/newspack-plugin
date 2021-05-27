@@ -115,8 +115,6 @@
     "release": "npm run build && npm run semantic-release"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.2",
-    "@material-ui/icons": "^4.11.2",
     "@wordpress/date": "^3.13.0",
     "@wordpress/html-entities": "^2.10.0",
     "@wordpress/icons": "^4.0.0",
