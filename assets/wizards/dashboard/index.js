@@ -20,7 +20,7 @@ import { Icon, plugins } from '@wordpress/icons';
  */
 import {
 	GlobalNotices,
-	Button,
+	ButtonCard,
 	Card,
 	Waiting,
 	Footer,
@@ -29,11 +29,6 @@ import {
 } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
-
-/**
- * External dependencies.
- */
-import classnames from 'classnames';
 
 const Dashboard = ( { items } ) => {
 	const params = qs.parse( window.location.search );
@@ -108,30 +103,28 @@ const Dashboard = ( { items } ) => {
 						</div>
 					) }
 					{ displayAuth ? (
-						<Card className={ classnames( 'newspack-dashboard-card', 'google-oauth2' ) }>
+						<>
 							{ userBasicInfo ? (
-								<div className="newspack-dashboard-card__contents">
-									<Icon icon={ plugins } />
-									<div className="newspack-dashboard-card__header">
+								<Card className="newspack-dashboard-card">
+									<Icon icon={ plugins } height={ 48 } width={ 48 } />
+									<div>
 										<h2>{ __( 'Google OAuth2' ) }</h2>
 										<p>
 											{ __( 'Authorized Google as', 'newspack' ) }{' '}
 											<strong>{ userBasicInfo.email }</strong>
 										</p>
 									</div>
-								</div>
+								</Card>
 							) : (
-								<Button onClick={ goToAuthPage }>
-									<div className="newspack-dashboard-card__contents">
-										<Icon icon={ plugins } />
-										<div className="newspack-dashboard-card__header">
-											<h2>{ __( 'Google OAuth2' ) }</h2>
-											<p>{ __( 'Authorize Newspack with Google', 'newspack' ) }</p>
-										</div>
-									</div>
-								</Button>
+								<ButtonCard
+									onClick={ goToAuthPage }
+									title={ __( 'Google OAuth2', 'newspack' ) }
+									desc={ __( 'Authorize Newspack with Google', 'newspack' ) }
+									icon={ plugins }
+									tabIndex="0"
+								/>
 							) }
-						</Card>
+						</>
 					) : null }
 				</Grid>
 			</div>

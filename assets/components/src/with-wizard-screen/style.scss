@@ -43,10 +43,11 @@
 	}
 
 	&__content {
-		color: $dark-gray-300;
+		color: $gray-700;
 		font-size: 14px;
 		line-height: 24px;
 		margin: auto;
+		padding-bottom: 32px;
 		padding-top: 32px;
 
 		// Typography
@@ -61,20 +62,20 @@
 		}
 
 		h1 {
-			color: $dark-gray-900;
+			color: $gray-900;
 			font-size: 21px;
 			font-weight: bold;
 			line-height: 32px;
 		}
 
 		h2 {
-			color: $dark-gray-900;
+			color: $gray-900;
 			font-size: 17px;
 			font-weight: bold;
 		}
 
 		h3 {
-			color: $dark-gray-900;
+			color: $gray-900;
 			font-size: 14px;
 			font-weight: bold;
 		}
@@ -83,7 +84,7 @@
 			font-size: 14px;
 
 			&.is-dark {
-				color: $dark-gray-900;
+				color: $gray-900;
 			}
 		}
 
@@ -99,7 +100,7 @@
 		// Thematic Break
 
 		hr {
-			background: $light-gray-500;
+			background: $gray-300;
 			border: 0;
 			height: 1px;
 			margin: 48px 0;
