@@ -108,7 +108,7 @@ const Dashboard = ( { items } ) => {
 								<Card className="newspack-dashboard-card">
 									<Icon icon={ plugins } height={ 48 } width={ 48 } />
 									<div>
-										<h2>{ __( 'Google OAuth2' ) }</h2>
+										<h2>{ __( 'Google Connection' ) }</h2>
 										<p>
 											{ __( 'Authorized Google as', 'newspack' ) }{' '}
 											<strong>{ userBasicInfo.email }</strong>
@@ -118,7 +118,7 @@ const Dashboard = ( { items } ) => {
 							) : (
 								<ButtonCard
 									onClick={ goToAuthPage }
-									title={ __( 'Google OAuth2', 'newspack' ) }
+									title={ __( 'Google Connection', 'newspack' ) }
 									desc={ __( 'Authorize Newspack with Google', 'newspack' ) }
 									icon={ plugins }
 									tabIndex="0"
