@@ -1,3 +1,10 @@
+# [1.42.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.41.0...v1.42.0-alpha.1) (2021-06-01)
+
+
+### Features
+
+* add multi-select capabillity to AutocompleteWithSuggestions ([#975](https://github.com/Automattic/newspack-plugin/issues/975)) ([d7aebe2](https://github.com/Automattic/newspack-plugin/commit/d7aebe22ffce8426049728a262055da8fd800251))
+
 # [1.41.0](https://github.com/Automattic/newspack-plugin/compare/v1.40.0...v1.41.0) (2021-05-26)
 
 
