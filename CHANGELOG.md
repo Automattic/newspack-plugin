@@ -1,3 +1,10 @@
+# [1.42.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.42.0-alpha.1...v1.42.0-alpha.2) (2021-06-01)
+
+
+### Features
+
+* use WPCOM as a proxy for Google OAuth2 flow ([#962](https://github.com/Automattic/newspack-plugin/issues/962)) ([b95fcc0](https://github.com/Automattic/newspack-plugin/commit/b95fcc0b9994b1073b193e6e05b57e3cda210c74))
+
 # [1.42.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.41.0...v1.42.0-alpha.1) (2021-06-01)
 
 
