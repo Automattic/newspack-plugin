@@ -324,6 +324,10 @@ class Google_OAuth {
 	 * Is OAuth2 configured for this instance?
 	 */
 	private static function is_oauth_configured() {
+		$is_enabled = defined( 'NEWSPACK_GOOGLE_OAUTH_ENABLED' ) && NEWSPACK_GOOGLE_OAUTH_ENABLED;
+		if ( ! $is_enabled ) {
+			return false;
+		}
 		return WPCOM_OAuth::is_newspack_customer();
 	}
 }
