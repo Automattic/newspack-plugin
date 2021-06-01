@@ -26,7 +26,7 @@ const withWPCOMAuth = WrappedComponent => {
 			if ( WPCOM_ACCESS_TOKEN ) {
 				this.setState( { isInFlight: true } );
 				apiFetch( {
-					path: `/newspack/v1/wizard/newspack-support-wizard/validate-access-token`,
+					path: `/newspack/v1/oauth/wpcom/validate`,
 				} )
 					.then( () => {
 						this.setState( { isInFlight: false, shouldAuthenticate: false } );
