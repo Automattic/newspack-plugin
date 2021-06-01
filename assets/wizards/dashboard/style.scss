@@ -6,84 +6,21 @@
 @import '../../shared/scss/colors';
 
 .newspack-dashboard-card {
-	border-color: $light-gray-500;
+	align-items: center;
+	border-color: $gray-300;
+	display: grid;
+	grid-gap: 16px;
+	grid-template-columns: 48px auto;
 	margin: 0;
-	padding: 0;
-
-	&.disabled {
-		> * {
-			opacity: 0.75;
-		}
-	}
-
-	a,
-	body[class*='admin-color-'] & .newspack-button {
-		align-items: center;
-		border-radius: inherit;
-		color: inherit;
-		display: flex;
-		font-weight: inherit;
-		height: 100%;
-		justify-content: space-between;
-		padding: 0;
-		text-align: inherit;
-		text-decoration: none;
-		transition: background-color 125ms ease-in-out, box-shadow 125ms ease-in-out;
-
-		&:active,
-		&:focus,
-		&:hover {
-			background-color: $light-gray-100;
-			box-shadow: 0 4px 8px rgba( black, 0.08 );
-			color: $primary-600;
-
-			h2 {
-				color: inherit;
-			}
-
-			svg {
-				fill: currentColor;
-			}
-		}
-
-		&:focus {
-			outline: none;
-		}
-	}
+	padding: 32px;
 
 	h2,
 	p {
 		margin: 0;
-		transition: color 125ms ease-in-out;
 	}
 
 	svg {
-		display: block;
-		flex-shrink: 0;
 		fill: $primary-500;
-		height: 48px;
-		margin: 0 8px 0 0;
-		transition: fill 125ms ease-in-out;
-		width: 48px;
-
-		&.icon-completed {
-			fill: $alert-green;
-		}
-	}
-
-	&__contents {
-		align-items: center;
-		display: flex;
-		justify-content: flex-start;
-		padding: 32px;
-
-		@media screen and ( min-width: 744px ) {
-			min-height: 136px;
-		}
-
-		.newspack-dashboard-card__header {
-			margin-left: 8px;
-		}
 	}
 }
 

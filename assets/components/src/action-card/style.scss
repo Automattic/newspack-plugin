@@ -7,7 +7,7 @@
 
 .newspack-card.newspack-action-card {
 	padding: 0;
-	border-color: $light-gray-500;
+	border-color: $gray-300;
 
 	// Clickable
 
@@ -26,7 +26,7 @@
 	&.newspack-card__is-secondary,
 	&.newspack-card__is-supported,
 	&.newspack-card__is-unsupported {
-		box-shadow: inset 4px 0 0 $light-gray-700;
+		box-shadow: inset 4px 0 0 $gray-200;
 
 		.newspack-action-card__region-top {
 			padding-left: 28px;
@@ -143,11 +143,11 @@
 		overflow: hidden;
 		&.newspack-card--has-children {
 			.newspack-action-card__region-top {
-				border-bottom: 1px solid $light-gray-500;
+				border-bottom: 1px solid $gray-300;
 			}
 		}
 		.newspack-action-card__region-top {
-			background-color: $light-gray-100;
+			background-color: $gray-100;
 		}
 	}
 
@@ -336,7 +336,7 @@
 	// Badge
 
 	.newspack-action-card__badge {
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 12px;
 		display: block;
 		flex: 0 0 auto;
@@ -363,6 +363,6 @@
 
 .newspack-card {
 	.newspack-card.newspack-action-card {
-		border: 1px solid $light-gray-200;
+		border: 1px solid $gray-200;
 	}
 }

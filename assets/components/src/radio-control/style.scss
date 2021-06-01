@@ -6,7 +6,7 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-radio-control {
-	color: $dark-gray-300;
+	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
@@ -19,7 +19,7 @@
 	}
 
 	.components-base-control__label {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-weight: bold;
 	}
 
@@ -54,17 +54,6 @@
 		&:checked {
 			background-color: $primary-500;
 			border-color: $primary-500;
-
-			&::before {
-				height: 6px;
-				margin: 5px 0 0 5px;
-				width: 6px;
-
-				@media screen and ( min-width: 782px ) {
-					border: 0;
-					margin: 6px 0 0 6px;
-				}
-			}
 		}
 
 		&:focus {

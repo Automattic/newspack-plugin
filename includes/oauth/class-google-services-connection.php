@@ -25,6 +25,7 @@ class Google_Services_Connection {
 	/**
 	 * Get Site Kit's authentication.
 	 *
+	 * @codeCoverageIgnore
 	 * @return Authentication Site Kit's authentication.
 	 */
 	public static function get_site_kit_authentication() {
@@ -41,6 +42,7 @@ class Google_Services_Connection {
 	 * Get OAuth2 client.
 	 * More at https://googleapis.github.io/google-auth-library-php/master/Google/Auth/OAuth2.html.
 	 *
+	 * @codeCoverageIgnore
 	 * @return object Google OAuth2 client.
 	 */
 	public static function get_site_kit_oauth_client() {
@@ -50,6 +52,7 @@ class Google_Services_Connection {
 	/**
 	 * Get Site Kit's Analytics module.
 	 *
+	 * @codeCoverageIgnore
 	 * @return object Google OAuth2 client.
 	 */
 	public static function get_site_kit_analytics_module() {

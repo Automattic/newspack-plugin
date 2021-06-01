@@ -213,7 +213,7 @@ class AdvertisingWizard extends Component {
 	deleteAdUnit( id ) {
 		const { setError, wizardApiFetch } = this.props;
 		// eslint-disable-next-line no-alert
-		if ( confirm( __( 'Are you sure you want to archive this ad unit?' ) ) ) {
+		if ( confirm( __( 'Are you sure you want to archive this ad unit?', 'newspack' ) ) ) {
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
 				method: 'delete',
@@ -255,12 +255,12 @@ class AdvertisingWizard extends Component {
 		const isGAMConnected = advertisingData.gam_connection_status?.connected;
 		const tabs = [
 			{
-				label: __( 'Ad Providers' ),
+				label: __( 'Ad Providers', 'newspack' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Global Settings' ),
+				label: __( 'Global Settings', 'newspack' ),
 				path: '/ad-placements',
 			},
 		];
@@ -275,7 +275,7 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<Services
 									headerText={ __( 'Advertising', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
 									services={ services }
 									toggleService={ ( service, value ) => this.toggleService( service, value ) }
 									tabbedNavigation={ tabs }
@@ -287,7 +287,7 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<Placements
 									headerText={ __( 'Advertising', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
 									placements={ placements }
 									adUnits={ adUnits }
 									services={ services }
@@ -296,8 +296,6 @@ class AdvertisingWizard extends Component {
 										this.togglePlacement( placement, value )
 									}
 									tabbedNavigation={ tabs }
-									buttonText={ __( 'Back to ad providers' ) }
-									buttonAction="#/"
 								/>
 							) }
 						/>
@@ -307,17 +305,17 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<AdUnits
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising.' ) }
+									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
 									adUnits={ adUnits }
 									service={ 'google_ad_manager' }
 									onDelete={ id => this.deleteAdUnit( id ) }
 									{ ...( true === advertisingData.gam_connection_status?.is_network_code_matched
 										? {
-												buttonText: __( 'Add an individual ad unit' ),
+												buttonText: __( 'Add an individual ad unit', 'newspack' ),
 												buttonAction: `#/google_ad_manager/${ CREATE_AD_ID_PARAM }`,
 										  }
 										: {} ) }
-									secondaryButtonText={ __( 'Back to advertising options' ) }
+									secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
 									gamConnectionStatus={ advertisingData.gam_connection_status }
@@ -336,9 +334,10 @@ class AdvertisingWizard extends Component {
 								}
 								return (
 									<AdUnit
-										headerText={ __( 'Add an ad unit' ) }
+										headerText={ __( 'Add an ad unit', 'newspack' ) }
 										subHeaderText={ __(
-											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
+											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.',
+											'newspack'
 										) }
 										adUnit={
 											adUnits[ 0 ] || {
@@ -368,9 +367,10 @@ class AdvertisingWizard extends Component {
 								}
 								return (
 									<AdUnit
-										headerText={ __( 'Edit ad unit' ) }
+										headerText={ __( 'Edit ad unit', 'newspack' ) }
 										subHeaderText={ __(
-											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.'
+											'Setting up individual ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.',
+											'newspack'
 										) }
 										adUnit={ adUnits[ adId ] || {} }
 										service={ 'google_ad_manager' }
