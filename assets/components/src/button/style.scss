@@ -223,7 +223,7 @@ body[class*='admin-color-'] {
 			@include button-style( transparent, transparent, $gray-900 );
 			border-style: solid;
 			border-width: 1px;
-			color: $dark-gray-900;
+			color: $gray-700;
 
 			&:hover {
 				border-color: $gray-200;
