@@ -37,17 +37,12 @@ class AdUnits extends Component {
 			  }`
 			: false;
 
-		const isDisabled = false === gamConnectionStatus?.is_network_code_matched;
-		const buttonProps = {
-			disabled: isDisabled,
-			isQuaternary: true,
-			isSmall: true,
-			tooltipPosition: 'bottom center',
-		};
+		const isDisplayingNetworkMismatchNotice =
+			! gamConnectionMessage && false === gamConnectionStatus?.is_network_code_matched;
 
 		return (
 			<Fragment>
-				{ false === gamConnectionStatus?.is_network_code_matched && (
+				{ isDisplayingNetworkMismatchNotice && (
 					<Notice
 						noticeText={ __(
 							'Your GAM network code is different than the network code the site was configured with. Editing has been disabled.',
@@ -78,6 +73,14 @@ class AdUnits extends Component {
 						.sort( a => ( a.is_legacy ? 1 : -1 ) )
 						.map( adUnit => {
 							const editLink = `#${ service }/${ adUnit.id }`;
+							const isDisabled =
+								! adUnit.is_legacy && false === gamConnectionStatus?.is_network_code_matched;
+							const buttonProps = {
+								disabled: isDisabled,
+								isQuaternary: true,
+								isSmall: true,
+								tooltipPosition: 'bottom center',
+							};
 							return (
 								<ActionCard
 									disabled={ isDisabled }
