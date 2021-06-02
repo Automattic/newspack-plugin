@@ -1,3 +1,11 @@
+# [1.42.0](https://github.com/Automattic/newspack-plugin/compare/v1.41.0...v1.42.0) (2021-06-02)
+
+
+### Features
+
+* add multi-select capabillity to AutocompleteWithSuggestions ([#975](https://github.com/Automattic/newspack-plugin/issues/975)) ([d7aebe2](https://github.com/Automattic/newspack-plugin/commit/d7aebe22ffce8426049728a262055da8fd800251))
+* use WPCOM as a proxy for Google OAuth2 flow ([#962](https://github.com/Automattic/newspack-plugin/issues/962)) ([b95fcc0](https://github.com/Automattic/newspack-plugin/commit/b95fcc0b9994b1073b193e6e05b57e3cda210c74))
+
 # [1.41.0](https://github.com/Automattic/newspack-plugin/compare/v1.40.0...v1.41.0) (2021-05-26)
 
 
