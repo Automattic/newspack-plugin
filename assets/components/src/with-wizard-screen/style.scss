@@ -152,3 +152,27 @@
 		margin-left: 16px;
 	}
 }
+
+// Checkbox Icon
+
+.newspack-checkbox-icon {
+	background: white;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 1px $gray-300;
+	display: block;
+	height: 24px;
+	width: 24px;
+
+	svg {
+		fill: $gray-700;
+	}
+
+	&--checked {
+		background: $alert-green;
+		box-shadow: none;
+
+		svg {
+			fill: white;
+		}
+	}
+}
