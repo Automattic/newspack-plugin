@@ -43,7 +43,7 @@ class SupportWizard extends Component {
 		if ( hashData ) {
 			this.props
 				.wizardApiFetch( {
-					path: '/newspack/v1/wizard/newspack-support-wizard/wpcom_access_token',
+					path: '/newspack/v1/oauth/wpcom/token',
 					method: 'POST',
 					data: hashData,
 				} )

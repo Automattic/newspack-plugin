@@ -5,8 +5,6 @@
  * @package Newspack
  */
 
-use Google\Site_Kit\Modules\Analytics;
-use Google\Site_Kit\Context;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_DateRange;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_Metric;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_ReportRequest;
@@ -15,16 +13,16 @@ use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_GetReportsReq
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_SegmentDimensionFilter;
 use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_DimensionFilterClause;
-use Google\Site_Kit\Core\Storage\Options;
-use Google\Site_Kit\Core\Storage\User_Options;
-use Google\Site_Kit\Core\Authentication\Authentication;
 
 /**
  * Popup Analytics Utilities.
  */
 class Popups_Analytics_Utils {
 	// Category is fixed, it identifies the GA custom event.
-	const EVENT_CATEGORY = 'Newspack Announcement';
+	const EVENT_CATEGORIES = [
+		'Newspack Announcement', // Legacy category name.
+		'NC',
+	];
 
 	/**
 	 * Get dates in range.
@@ -82,89 +80,175 @@ class Popups_Analytics_Utils {
 	}
 
 	/**
+	 * Get results of a GA report, taking page token into account.
+	 *
+	 * @param Analytics                                   $analytics The Analytics.
+	 * @param Google_Service_AnalyticsReporting_DateRange $date_range Date range.
+	 * @param string                                      $page_token Page token for the report.
+	 * @return object GA report.
+	 */
+	private static function create_ga_report_result( $analytics, $date_range, $page_token = null ) {
+		// Create the Metrics object.
+		$metrics = new Google_Service_AnalyticsReporting_Metric();
+		$metrics->setExpression( 'ga:totalEvents' );
+		$metrics->setAlias( 'events' );
+
+		// Filter just the popups custom event category.
+		$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+		$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
+		$dimension_category_filter->setOperator( 'IN_LIST' );
+		$dimension_category_filter->setExpressions( self::EVENT_CATEGORIES );
+
+		// Create the DimensionFilterClauses.
+		$dimension_filter_clause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
+		$dimension_filter_clause->setFilters( array( $dimension_category_filter ) );
+
+		// Create the Dimension objects.
+		$date_dimension = new Google_Service_AnalyticsReporting_Dimension();
+		$date_dimension->setName( 'ga:date' );
+		$action_dimension = new Google_Service_AnalyticsReporting_Dimension();
+		$action_dimension->setName( 'ga:eventAction' );
+		$label_dimension = new Google_Service_AnalyticsReporting_Dimension();
+		$label_dimension->setName( 'ga:eventLabel' );
+
+		// Create the ReportRequest object.
+		$profile_id = $analytics->get_settings()->get()['profileID'];
+		$request    = new Google_Service_AnalyticsReporting_ReportRequest();
+		$request->setViewId( $profile_id );
+		$request->setDateRanges( $date_range );
+		$request->setDimensions(
+			array(
+				$date_dimension,
+				$action_dimension,
+				$label_dimension,
+			)
+		);
+		$request->setMetrics( array( $metrics ) );
+		$request->setDimensionFilterClauses( array( $dimension_filter_clause ) );
+		if ( null !== $page_token ) {
+			$request->setPageToken( $page_token );
+		}
+
+		$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+		$body->setReportRequests( array( $request ) );
+		$client = \Newspack\Google_Services_Connection::get_site_kit_oauth_client()->get_client();
+
+		$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
+		// https://developers.google.com/analytics/devguides/reporting/core/v4/rest/v4/reports/batchGet.
+		$report_results = $analyticsreporting->reports->batchGet( $body );
+		if ( isset( $report_results->reports[0] ) ) {
+			return $report_results->reports[0];
+		}
+	}
+
+	/**
 	 * Get GA report.
 	 *
 	 * @param Object $options options.
 	 * @return array array of rows with GA report data.
 	 */
-	public static function get_ga_report( $options ) {
+	private static function get_ga_report( $options ) {
 		$offset = $options['offset'];
 
 		// Load and query analytics.
-		if ( defined( 'GOOGLESITEKIT_PLUGIN_MAIN_FILE' ) ) {
-			$context   = new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
-			$analytics = new Analytics( $context );
+		$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
 
-			if ( $analytics->is_connected() ) {
-				// Create the DateRange object.
-				$date_range = new Google_Service_AnalyticsReporting_DateRange();
-				$start_date = gmdate( 'Y-m-d', strtotime( $offset . ' days ago' ) );
-				$end_date   = gmdate( 'Y-m-d', strtotime( '1 days ago' ) );
-				$date_range->setStartDate( $start_date );
-				$date_range->setEndDate( $end_date );
+		if ( $analytics && $analytics->is_connected() ) {
+			// Create the DateRange object.
+			$date_range = new Google_Service_AnalyticsReporting_DateRange();
+			$start_date = gmdate( 'Y-m-d', strtotime( $offset . ' days ago' ) );
+			$end_date   = gmdate( 'Y-m-d', strtotime( '1 days ago' ) );
+			$date_range->setStartDate( $start_date );
+			$date_range->setEndDate( $end_date );
 
-				// Create the Metrics object.
-				$metrics = new Google_Service_AnalyticsReporting_Metric();
-				$metrics->setExpression( 'ga:totalEvents' );
-				$metrics->setAlias( 'events' );
-
-				// Filter just the popups custom event category.
-				$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
-				$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
-				$dimension_category_filter->setOperator( 'EXACT' );
-				$dimension_category_filter->setExpressions( array( self::EVENT_CATEGORY ) );
-
-				// Create the DimensionFilterClauses.
-				$dimension_filter_clause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
-				$dimension_filter_clause->setFilters( array( $dimension_category_filter ) );
-
-				// Create the Dimension objects.
-				$date_dimension = new Google_Service_AnalyticsReporting_Dimension();
-				$date_dimension->setName( 'ga:date' );
-				$action_dimension = new Google_Service_AnalyticsReporting_Dimension();
-				$action_dimension->setName( 'ga:eventAction' );
-				$label_dimension = new Google_Service_AnalyticsReporting_Dimension();
-				$label_dimension->setName( 'ga:eventLabel' );
-
-				// Create the ReportRequest object.
-				$profile_id = $analytics->get_settings()->get()['profileID'];
-				$request    = new Google_Service_AnalyticsReporting_ReportRequest();
-				$request->setViewId( $profile_id );
-				$request->setDateRanges( $date_range );
-				$request->setDimensions(
-					array(
-						$date_dimension,
-						$action_dimension,
-						$label_dimension,
-					)
-				);
-				$request->setMetrics( array( $metrics ) );
-				$request->setDimensionFilterClauses( array( $dimension_filter_clause ) );
-
-				$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
-				$body->setReportRequests( array( $request ) );
-				$ga_options     = new Options( $context );
-				$user_options   = new User_Options( $context );
-				$authentication = new Authentication( $context, $ga_options, $user_options );
-				$client         = $authentication->get_oauth_client()->get_client();
-
-				try {
-					$analyticsreporting = new Google_Service_AnalyticsReporting( $client );
-					$report_results     = $analyticsreporting->reports->batchGet( $body );
-					if ( isset( $report_results->reports[0] ) ) {
-						return $report_results->reports[0]->data->rows;
-					}
-				} catch ( \Exception $error ) {
-					$error_data = json_decode( $error->getMessage() );
-					if ( isset( $error_data ) && 'UNAUTHENTICATED' === $error_data->error->status ) {
-						return new WP_Error( 'newspack_campaign_analytics_sitekit_auth', __( 'Please authenticate with Google Analytics to view Campaign analytics.', 'newspack' ) );
-					}
-					return new WP_Error( 'newspack_campaign_analytics', __( 'Google Analytics data fetching error.', 'newspack' ), $error_data );
+			try {
+				$rows   = [];
+				$report = self::create_ga_report_result( $analytics, $date_range );
+				$rows   = array_merge( $rows, $report->data->rows );
+				while ( $report->nextPageToken ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$report = self::create_ga_report_result( $analytics, $date_range, $report->nextPageToken ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$rows   = array_merge( $rows, $report->data->rows );
 				}
-			} else {
-				return new WP_Error( 'newspack_campaign_analytics_sitekit_disconnected', __( 'Connect Site Kit plugin to view Campaign Analytics.', 'newspack' ) );
+				return $rows;
+			} catch ( \Exception $error ) {
+				$error_data = json_decode( $error->getMessage() );
+				if ( isset( $error_data ) && 'UNAUTHENTICATED' === $error_data->error->status ) {
+					return new WP_Error( 'newspack_campaign_analytics_sitekit_auth', __( 'Please authenticate with Google Analytics to view Campaign analytics.', 'newspack' ) );
+				}
+				return new WP_Error( 'newspack_campaign_analytics', __( 'Google Analytics data fetching error.', 'newspack' ), $error_data );
 			}
+		} else {
+			return new WP_Error( 'newspack_campaign_analytics_sitekit_disconnected', __( 'Connect Site Kit plugin to view Campaign Analytics.', 'newspack' ) );
 		}
+	}
+
+	/**
+	 * Legacy event format handling - where:
+	 * - category was `Newspack Announcement`
+	 * - label - `Newspack Announcement: <title> <popup-id>`
+	 * - action - plain text action (e.g. `Dismissal`, `Seen`)
+	 *
+	 * @param object $row Report result row.
+	 * @return object Action & label objects.
+	 */
+	private static function process_legacy_item( $row ) {
+		$action_object = [
+			'label' => $row['dimensions'][1],
+			'value' => $row['dimensions'][1],
+		];
+		$label         = str_replace( 'Newspack Announcement: ', '', $row['dimensions'][2] );
+		// Extract post id from the label.
+		preg_match(
+			'/\(([0-9]*)\)$/',
+			$label,
+			$id_matches
+		);
+		$post_id      = isset( $id_matches[1] ) ? $id_matches[1] : '';
+		$label_object = [
+			// Remove post id in parens.
+			'label' => str_replace( " ($post_id)", '', $label ),
+			'value' => $post_id,
+		];
+		return [
+			'action' => $action_object,
+			'label'  => $label_object,
+		];
+	}
+
+	/**
+	 * Decode event name, as it was reported to GA (`<popup-id><event-code>`).
+	 * See Newspack_Popups_Model::encode_event_name.
+	 *
+	 * @param string $name Encoded event name.
+	 */
+	private static function decode_item( $name ) {
+		preg_match( '/(\d*)(\d$)/', $name, $matches );
+		if ( count( $matches ) === 3 ) {
+			return [
+				'post_id'    => $matches[1],
+				'event_name' => self::get_event_name( $matches[2] ),
+			];
+		}
+		return [];
+	}
+
+	/**
+	 * Translate an event index to an event name.
+	 * For external use, to decode an event name saved in GA.
+	 *
+	 * @param int $index Event Index.
+	 * @return string Event name.
+	 */
+	private static function get_event_name( $index ) {
+		$event_names = [
+			esc_html__( 'Load', 'newspack-popups' ),
+			esc_html__( 'Seen', 'newspack-popups' ),
+			esc_html__( 'Link Click', 'newspack-popups' ),
+			esc_html__( 'Form Submission', 'newspack-popups' ),
+			esc_html__( 'Dismissal', 'newspack-popups' ),
+			esc_html__( 'Permanent Dismissal', 'newspack-popups' ),
+		];
+		return $event_names[ $index ];
 	}
 
 	/**
@@ -174,11 +258,21 @@ class Popups_Analytics_Utils {
 	 * @return Object report data.
 	 */
 	public static function get_report( $options ) {
+		return self::process_ga_report( self::get_ga_report( $options ), $options );
+	}
+
+	/**
+	 * Process data for a report.
+	 *
+	 * @param array  $ga_data_rows Raw data from a GA report.
+	 * @param Object $options Options.
+	 * @return Object Report data.
+	 */
+	public static function process_ga_report( $ga_data_rows, $options ) {
 		$offset         = $options['offset'];
 		$event_label_id = $options['event_label_id'];
 		$event_action   = $options['event_action'];
 
-		$ga_data_rows = self::get_ga_report( $options );
 		if ( is_wp_error( $ga_data_rows ) ) {
 			return $ga_data_rows;
 		}
@@ -196,27 +290,26 @@ class Popups_Analytics_Utils {
 		$ga_data_days = array_reduce(
 			$ga_data_rows,
 			function ( $days, $row ) use ( $event_label_id, $event_action, &$all_actions, &$all_labels, &$aggregate_seen_events, &$aggregate_form_submission_events, &$aggregate_link_click_events, &$post_edit_link ) {
-				$action = array(
-					'label' => $row['dimensions'][1],
-					'value' => $row['dimensions'][1],
-				);
-
-				$label_name = str_replace( self::EVENT_CATEGORY . ': ', '', $row['dimensions'][2] );
-				preg_match(
-					'/\(([0-9]*)\)$/',
-					$label_name,
-					$id_matches
-				);
-
-				$post_id = isset( $id_matches[1] ) ? $id_matches[1] : '';
-				$label   = array(
-					// Remove post id in parens.
-					'label' => str_replace( " ($post_id)", '', $label_name ),
-					'value' => $post_id,
-				);
+				$label = $row['dimensions'][2];
+				if ( '(not set)' !== $label ) {
+					$item          = self::process_legacy_item( $row );
+					$label_object  = $item['label'];
+					$action_object = $item['action'];
+				} else {
+					$decoded_popup_data = self::decode_item( $row['dimensions'][1] );
+					$label_object       = [
+						'label' => get_the_title( $decoded_popup_data['post_id'] ), // Popup title.
+						'value' => $decoded_popup_data['post_id'], // Popup post id.
+					];
+					$action_object      = [
+						'label' => $decoded_popup_data['event_name'], // Event type.
+						'value' => $decoded_popup_data['event_name'], // Event type.
+					];
+				}
+				$post_id = $label_object['value'];
 
 				$matches_label  = '' == $event_label_id || $post_id == $event_label_id;
-				$matches_action = '' == $event_action || $action['value'] == $event_action;
+				$matches_action = '' == $event_action || $action_object['value'] == $event_action;
 
 				if ( $matches_label && $post_id ) {
 					$value = $row['metrics'][0]['values'][0];
@@ -245,25 +338,25 @@ class Popups_Analytics_Utils {
 					}
 
 					// Key metrics.
-					if ( 'Seen' == $action['value'] ) {
+					if ( 'Seen' == $action_object['value'] ) {
 						$aggregate_seen_events = $aggregate_seen_events + $value;
 					}
-					if ( 'Form Submission' == $action['value'] ) {
+					if ( 'Form Submission' == $action_object['value'] ) {
 						$aggregate_form_submission_events = $aggregate_form_submission_events + $value;
 					}
-					if ( 'Link Click' == $action['value'] ) {
+					if ( 'Link Click' == $action_object['value'] ) {
 						$aggregate_link_click_events = $aggregate_link_click_events + $value;
 					}
 
 					if ( $matches_action ) {
-						if ( ! in_array( $action, $all_actions ) ) {
-							$all_actions[] = $action;
+						if ( ! in_array( $action_object, $all_actions ) ) {
+							$all_actions[] = $action_object;
 						}
 
 						if ( $post_id ) {
 							// Last event with this label will be the final one.
 							// If a popup was renamed, the last title will end up as the label.
-							$all_labels[ $post_id ] = $label;
+							$all_labels[ $post_id ] = $label_object;
 						}
 
 						$parsed_date = date_create( $row['dimensions'][0] );

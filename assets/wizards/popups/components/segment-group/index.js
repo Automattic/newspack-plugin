@@ -8,7 +8,7 @@ import cookies from 'js-cookie';
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useContext, useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import { Icon, plus } from '@wordpress/icons';
 
 /**
@@ -24,7 +24,6 @@ import {
 	getFavoriteCategoryNames,
 	warningForPopup,
 } from '../../utils';
-import { CampaignsContext } from '../../contexts';
 
 import {
 	iconInline,
@@ -74,7 +73,6 @@ const SegmentGroup = props => {
 	const [ modalVisible, setModalVisible ] = useState( false );
 	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
-	const allPrompts = useContext( CampaignsContext );
 	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
 
 	useEffect( () => {
@@ -187,9 +185,9 @@ const SegmentGroup = props => {
 											<Icon icon={ iconAboveHeader } height={ 48 } width={ 48 } />
 											{ __( 'Above Header', 'newspack' ) }
 										</Button>
-										<Button href={ addNewURL( 'manual', campaignId, id ) }>
+										<Button href={ addNewURL( 'custom', campaignId, id ) }>
 											<Icon icon={ iconManualPlacement } height={ 48 } width={ 48 } />
-											{ __( 'Manual Placement', 'newspack' ) }
+											{ __( 'Custom Placement', 'newspack' ) }
 										</Button>
 									</Card>
 								</Modal>
@@ -203,7 +201,7 @@ const SegmentGroup = props => {
 					<PromptActionCard
 						className={ getCardClassName( item ) }
 						description={ descriptionForPopup( item ) }
-						warning={ warningForPopup( allPrompts, item ) }
+						warning={ warningForPopup( prompts, item ) }
 						key={ item.id }
 						prompt={ item }
 						{ ...props }

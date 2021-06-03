@@ -9,8 +9,35 @@
 			pointer-events: none;
 		}
 	}
-	&__title {
-		margin: 32px 0 64px;
+	&__header {
+		align-items: center;
+		display: flex;
+		justify-content: center;
+		margin: 32px 0 -24px;
+
+		> * {
+			margin: 0;
+		}
+
+		.newspack-text-control {
+			flex: 1 1 auto;
+
+			input[type='text'] {
+				border-color: $gray-200;
+				color: $gray-900;
+				font-size: 17px;
+				font-weight: bold;
+				min-height: 36px;
+				padding-bottom: 5px;
+				padding-top: 5px;
+			}
+		}
+
+		.newspack-buttons-card {
+			.newspack-button {
+				margin-left: 8px;
+			}
+		}
 	}
 	&__section {
 		h2 {
@@ -18,11 +45,15 @@
 		}
 		&__title {
 			display: flex;
-			margin: 0 0 16px;
+			margin: 0;
+
+			h3 {
+				margin: 0;
+			}
 		}
 		&__content {
 			> div {
-				margin-top: 16px;
+				margin: 0;
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
@@ -31,9 +62,12 @@
 					margin: 0;
 				}
 			}
-			> *:last-child {
-				margin-bottom: 0 !important;
+
+			.newspack-category-autocomplete,
+			.newspack-select-control {
+				margin-top: 16px;
 			}
+
 			.newspack-form-token-field .components-form-token-field {
 				&__label {
 					display: none;
@@ -42,7 +76,34 @@
 					display: block;
 				}
 			}
+
+			.newspack-select-control {
+				.components-base-control {
+					width: 100%;
+				}
+			}
 		}
+		&__min-max {
+			& + & {
+				margin-top: 8px;
+			}
+
+			.newspack-checkbox-control {
+				flex: 0 0 60px;
+			}
+
+			.newspack-text-control {
+				flex: 1 1 auto;
+				margin-left: 8px;
+
+				.components-text-control__input {
+					text-align: right;
+				}
+			}
+		}
+	}
+	&__recorded-visitors {
+		margin: 32px 0 -24px;
 	}
 }
 
@@ -95,7 +156,7 @@
 			margin: -4px 0;
 
 			.newspack-button.is-link {
-				color: $dark-gray-900;
+				color: $gray-900;
 				display: block;
 				height: 24px;
 				line-height: 24px;

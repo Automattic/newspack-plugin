@@ -3,7 +3,6 @@
  */
 import { ColorPicker as ColorPickerComponent } from '@wordpress/components';
 import { useState, useRef } from '@wordpress/element';
-import { ENTER } from '@wordpress/keycodes';
 import { Icon, chevronDown } from '@wordpress/icons';
 
 /**
@@ -15,17 +14,10 @@ import classnames from 'classnames';
  * Internal dependencies.
  */
 import hooks from '../hooks';
+import utils from '../utils';
 import './style.scss';
 
-const InteractiveDiv = ( { style = {}, ...props } ) => (
-	<div
-		tabIndex="0"
-		role="button"
-		onKeyDown={ event => ENTER === event.keyCode && props.onClick() }
-		style={ { cursor: 'pointer', ...style } }
-		{ ...props }
-	/>
-);
+const { InteractiveDiv } = utils;
 
 const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );

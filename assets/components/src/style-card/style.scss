@@ -11,7 +11,7 @@
 
 	// Title
 	&__title {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-weight: bold;
 		margin: 16px 0 0;
 		text-align: center;
@@ -23,7 +23,7 @@
 
 	// Image
 	&__image {
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 3px;
 		overflow: hidden;
 		position: relative;
@@ -37,10 +37,16 @@
 			}
 		}
 
-		img {
+		img,
+		svg {
 			display: block;
 			height: auto;
 			max-width: 100%;
+		}
+
+		svg {
+			fill: $gray-600;
+			margin: 8px;
 		}
 
 		.newspack-style-card__is-active & {
@@ -69,6 +75,10 @@
 		right: 0;
 		top: 0;
 		transition: opacity 125ms ease-in-out;
+
+		&:empty {
+			display: none;
+		}
 
 		.newspack-button {
 			margin: 4px;

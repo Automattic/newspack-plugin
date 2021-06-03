@@ -37,7 +37,6 @@ export const useFiltersState = () => useReducer( filtersReducer, filtersInitialS
 const analyticsInitialState = {
 	labels: [],
 	actions: [],
-	hasFetchedOnce: false,
 };
 
 const analyticsReducer = ( state, action ) => {
@@ -51,9 +50,6 @@ const analyticsReducer = ( state, action ) => {
 				labels: uniqBy( [ ...state.labels, ...labels ], 'value' ),
 				actions: uniqBy( [ ...state.actions, ...actions ], 'value' ),
 			};
-			if ( ! state.hasFetchedOnce ) {
-				newState.hasFetchedOnce = true;
-			}
 			return newState;
 		default:
 			return state;

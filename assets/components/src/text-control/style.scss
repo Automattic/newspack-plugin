@@ -6,7 +6,7 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-text-control {
-	color: $dark-gray-300;
+	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
@@ -18,8 +18,27 @@
 		}
 	}
 
+	&--required {
+		margin: 32px 0;
+
+		> * {
+			margin: 0;
+		}
+
+		& + & {
+			margin-bottom: 32px;
+			margin-top: -16px;
+		}
+
+		+ .newspack-select-control,
+		+ .newspack-textarea-control {
+			margin-bottom: 32px;
+			margin-top: -16px;
+		}
+	}
+
 	label {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-size: 14px;
 		font-weight: bold;
 		line-height: 24px;
@@ -28,9 +47,9 @@
 		&[data-required-text] {
 			&::after {
 				content: attr( data-required-text );
-				padding-left: 5px;
+				padding-left: 0.25em;
 				font-weight: normal;
-				color: $dark-gray-300;
+				color: $gray-700;
 			}
 		}
 	}
@@ -49,7 +68,7 @@
 	input[type='url'],
 	input[type='week'] {
 		background: white;
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 3px;
 		box-shadow: none;
 		color: inherit;
@@ -75,9 +94,17 @@
 
 		&:disabled,
 		&.disabled {
-			background: $light-gray-100;
-			color: $light-gray-900;
+			background: $gray-100;
+			color: $gray-600;
 			cursor: not-allowed;
+		}
+	}
+
+	// Code
+
+	&.code {
+		input {
+			font-family: Consolas, monaco, monospace;
 		}
 	}
 
