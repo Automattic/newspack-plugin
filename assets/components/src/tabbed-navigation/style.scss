@@ -13,19 +13,25 @@
 	}
 
 	li {
-		// margin-bottom: 10px;
 		width: 100%;
 		@media screen and ( min-width: 500px ) {
 			width: auto;
 			margin-bottom: 0;
 		}
+
+		&:last-child {
+			> * {
+				margin-right: 0 !important;
+			}
+		}
 	}
 
 	a {
-		display: block;
-		text-decoration: none;
 		border-bottom: 4px solid $primary-500;
+		color: white;
+		display: block;
 		font-weight: bold;
+		text-decoration: none;
 
 		@media screen and ( min-width: 500px ) {
 			margin-right: 32px;
@@ -35,9 +41,9 @@
 		&:active,
 		&:focus,
 		&:hover {
-			outline: none;
-			color: white;
 			border-color: $primary-200;
+			color: white;
+			outline: none;
 		}
 
 		&:focus {
