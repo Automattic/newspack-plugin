@@ -219,6 +219,33 @@ class Advertising_Wizard extends Wizard {
 				],
 			]
 		);
+
+		// Update network code.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/network_code',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_network_code' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'network_code' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Update network code.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_update_network_code( $request ) {
+		update_option( \Newspack_Ads_Model::OPTION_NAME_NETWORK_CODE, $request['network_code'] );
+		return \rest_ensure_response( [] );
 	}
 
 	/**

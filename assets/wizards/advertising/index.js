@@ -42,7 +42,6 @@ class AdvertisingWizard extends Component {
 					google_adsense: {},
 					wordads: {},
 				},
-				gam_connection_status: {},
 			},
 		};
 	}
@@ -301,30 +300,32 @@ class AdvertisingWizard extends Component {
 						<Route
 							path="/google_ad_manager"
 							exact
-							render={ () => (
-								<AdUnits
-									headerText={ __( 'Google Ad Manager', 'newspack' ) }
-									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
-									adUnits={ adUnits }
-									service={ 'google_ad_manager' }
-									onDelete={ id => this.deleteAdUnit( id ) }
-									buttonText={ __( 'Add an ad unit', 'newspack' ) }
-									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
-									secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
-									secondaryButtonAction="#/"
-									wizardApiFetch={ wizardApiFetch }
-									gamConnectionStatus={ advertisingData.gam_connection_status }
-									updateAdUnit={ adUnit => {
-										this.onAdUnitChange( adUnit );
-										this.saveAdUnit( adUnit.id );
-									} }
-								/>
-							) }
+							render={ () =>
+								advertisingData.gam_connection_status ? (
+									<AdUnits
+										headerText={ __( 'Google Ad Manager', 'newspack' ) }
+										subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
+										adUnits={ adUnits }
+										service={ 'google_ad_manager' }
+										onDelete={ id => this.deleteAdUnit( id ) }
+										buttonText={ __( 'Add an ad unit', 'newspack' ) }
+										buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
+										secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
+										secondaryButtonAction="#/"
+										wizardApiFetch={ wizardApiFetch }
+										gamConnectionStatus={ advertisingData.gam_connection_status }
+										updateAdUnit={ adUnit => {
+											this.onAdUnitChange( adUnit );
+											this.saveAdUnit( adUnit.id );
+										} }
+									/>
+								) : null
+							}
 						/>
 						<Route
 							path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
-							render={ routeProps => {
-								return (
+							render={ routeProps =>
+								advertisingData.gam_connection_status ? (
 									<AdUnit
 										headerText={ __( 'Add an ad unit', 'newspack' ) }
 										subHeaderText={ __(
@@ -341,6 +342,7 @@ class AdvertisingWizard extends Component {
 										}
 										service={ 'google_ad_manager' }
 										gamConnectionStatus={ advertisingData.gam_connection_status }
+										wizardApiFetch={ wizardApiFetch }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
 											this.saveAdUnit( id ).then( () => {
@@ -348,8 +350,8 @@ class AdvertisingWizard extends Component {
 											} )
 										}
 									/>
-								);
-							} }
+								) : null
+							}
 						/>
 						<Route
 							path="/google_ad_manager/:id"
