@@ -97,7 +97,7 @@ class SEOWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Tools', 'newspack' ),
+				label: __( 'Webmaster Tools', 'newspack' ),
 				path: '/tools',
 				exact: true,
 			},
@@ -105,12 +105,9 @@ class SEOWizard extends Component {
 				label: __( 'Social', 'newspack' ),
 				path: '/social',
 			},
-			{
-				label: __( 'Advanced Settings', 'newspack' ),
-				handoff: 'wordpress-seo',
-			},
 		];
 		const buttonText = __( 'Save Settings', 'newspack' );
+		const secondaryButtonText = __( 'Advanced Settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
 			headerText,
@@ -143,6 +140,11 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										editLink: 'admin.php?page=wpseo_titles',
+										handoff: 'wordpress-seo',
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
@@ -155,6 +157,11 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										editLink: 'admin.php?page=wpseo_social',
+										handoff: 'wordpress-seo',
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
@@ -167,6 +174,11 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
+									secondaryButtonAction={ {
+										editLink: 'admin.php?page=wpseo_dashboard#top#webmaster-tools',
+										handoff: 'wordpress-seo',
+									} }
+									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>
