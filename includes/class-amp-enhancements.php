@@ -30,6 +30,19 @@ class AMP_Enhancements {
 			}
 		);
 		add_filter( 'amp_content_sanitizers', [ __CLASS__, 'amp_content_sanitizers' ] );
+
+		add_action(
+			'wp_footer',
+			function() {
+				?>
+				<script type="text/javascript" amp-plus-allowed>
+					console.log('hello, world!')
+				</script>
+				<?php
+			}
+		);
+		add_filter( 'amp_validation_error_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
+		add_filter( 'amp_validation_error_default_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
 	}
 
 	/**
@@ -44,6 +57,19 @@ class AMP_Enhancements {
 			$should = true;
 		}
 		return apply_filters( 'should_use_amp_plus', $should, $context );
+	}
+
+	/**
+	 * Sanitize AMP Plugin errors to reject some errors.
+	 *
+	 * @param bool|null $is_sanitized If null, the error will be handled. If false, rejected.
+	 * @param object    $error The AMP sanitisation error.
+	 */
+	public static function amp_validation_error_sanitized( $is_sanitized, $error ) {
+		if ( isset( $error['node_attributes'], $error['node_attributes']['amp-plus-allowed'] ) ) {
+			return false;
+		}
+		return $is_sanitized;
 	}
 
 	/**
