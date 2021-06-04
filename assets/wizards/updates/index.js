@@ -33,7 +33,7 @@ class UpdatesWizard extends Component {
 						render={ () => (
 							<DevInfo
 								headerText={ __( 'Updates', 'newspack' ) }
-								subHeaderText={ __( 'Updates to the Newspack plugins and theme.', 'newspack' ) }
+								subHeaderText={ __( 'Updates to the Newspack plugins and theme', 'newspack' ) }
 							/>
 						) }
 					/>

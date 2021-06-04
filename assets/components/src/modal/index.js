@@ -23,8 +23,8 @@ class Modal extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, overlayClassName, ...otherProps } = this.props;
-		const classes = classnames( 'newspack-modal', className );
+		const { className, overlayClassName, isWide, ...otherProps } = this.props;
+		const classes = classnames( 'newspack-modal', isWide && 'newspack-modal--wide', className );
 		const overlayClasses = classnames( 'newspack-modal__overlay', overlayClassName );
 
 		return (

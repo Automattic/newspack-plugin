@@ -11,17 +11,12 @@ import 'whatwg-fetch';
  */
 import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { Spinner } from '@wordpress/components';
-
-/**
- * Material UI dependencies.
- */
-import ExpandIcon from '@material-ui/icons/ExpandMore';
+import { Icon, chevronDown } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { withWizardScreen } from '../../../../components/src';
+import { Waiting, withWizardScreen } from '../../../../components/src';
 import './style.scss';
 
 const HEADING_REGEX = /##? \[([\d\.]*)\].*\(([\d-]*)\)\n\n/;
@@ -93,7 +88,7 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 		<details>
 			<summary>
 				<div>
-					<ExpandIcon />
+					<Icon icon={ chevronDown } />
 				</div>
 				<span>
 					<strong>{ repoName }</strong> { __( 'was released', 'newspack' ) }{' '}
@@ -105,7 +100,7 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 		</details>
 	) : (
 		<div>
-			<Spinner />
+			<Waiting />
 		</div>
 	);
 };

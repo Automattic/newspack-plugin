@@ -7,7 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import {
-	chartLine,
+	chartBar,
 	help,
 	lifesaver,
 	megaphone,
@@ -36,7 +36,7 @@ class DashboardCard extends Component {
 			'reader-revenue': payment,
 			advertising: stretchWide,
 			syndication: rss,
-			analytics: chartLine,
+			analytics: chartBar,
 			seo: search,
 			'health-check': lifesaver,
 			engagement: postComments,

@@ -44,7 +44,7 @@ class AnalyticsWizard extends Component {
 		const { pluginRequirements, wizardApiFetch, isLoading } = this.props;
 		const sharedProps = {
 			headerText: __( 'Analytics', 'newspack' ),
-			subHeaderText: __( 'Track traffic and activity.', 'newspack' ),
+			subHeaderText: __( 'Track traffic and activity', 'newspack' ),
 			tabbedNavigation: TABS,
 			wizardApiFetch,
 			isLoading,

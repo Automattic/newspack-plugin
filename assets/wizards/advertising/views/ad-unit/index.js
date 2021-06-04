@@ -9,16 +9,9 @@ import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import DeleteIcon from '@material-ui/icons/Delete';
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
-
-/**
  * Internal dependencies.
  */
-import { Button, TextControl, withWizardScreen } from '../../../../components/src';
-import './style.scss';
+import { Button, Card, Grid, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -46,71 +39,82 @@ class AdUnit extends Component {
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
 		return (
 			<Fragment>
-				<TextControl
-					label={ __( 'Ad unit name' ) }
-					value={ name || '' }
-					onChange={ value => this.handleOnChange( 'name', value ) }
-				/>
-				{ isExistingAdUnit && (
+				<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+				<Grid gutter={ 32 }>
 					<TextControl
-						label={ __( 'Ad unit code' ) }
-						value={ code || '' }
-						help={ __(
-							"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
-							'newspack'
-						) }
-						disabled
-						onChange={ value => this.handleOnChange( 'code', value ) }
+						label={ __( 'Name', 'newspack' ) }
+						value={ name || '' }
+						onChange={ value => this.handleOnChange( 'name', value ) }
 					/>
-				) }
+					{ isExistingAdUnit && (
+						<TextControl
+							label={ __( 'Code', 'newspack' ) }
+							value={ code || '' }
+							help={ __(
+								"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
+								'newspack'
+							) }
+							disabled
+							onChange={ value => this.handleOnChange( 'code', value ) }
+						/>
+					) }
+				</Grid>
 				{ sizes.map( ( size, index ) => (
-					<div className="newspack_ad_unit__sizes" key={ index }>
-						<TextControl
-							label={ __( 'Width' ) }
-							value={ size[ 0 ] }
-							type="number"
-							onChange={ value => {
-								sizes[ index ][ 0 ] = value;
-								this.handleOnChange( 'sizes', sizes );
-							} }
-						/>
-						<TextControl
-							label={ __( 'Height' ) }
-							value={ size[ 1 ] }
-							type="number"
-							onChange={ value => {
-								sizes[ index ][ 1 ] = value;
-								this.handleOnChange( 'sizes', sizes );
-							} }
-						/>
-						{ sizes.length > 1 && (
-							<Button
-								isTertiary
-								onClick={ () => {
-									sizes.splice( index, 1 );
+					<Card noBorder key={ index }>
+						<div className="flex flex-wrap items-center">
+							<h2>
+								{ sizes.length > 1
+									? __( 'Ad Unit Size #', 'newspack' ) + ( index + 1 )
+									: __( 'Ad Unit Size', 'newspack' ) }
+							</h2>
+							{ sizes.length > 1 && (
+								<>
+									<span className="sep" />
+									<Button
+										isLink
+										isDestructive
+										onClick={ () => {
+											sizes.splice( index, 1 );
+											this.handleOnChange( 'sizes', sizes );
+										} }
+									>
+										{ __( 'Delete', 'newspack' ) }
+									</Button>
+								</>
+							) }
+						</div>
+						<Grid gutter={ 32 } noMargin>
+							<TextControl
+								label={ __( 'Width' ) }
+								value={ size[ 0 ] }
+								type="number"
+								onChange={ value => {
+									sizes[ index ][ 0 ] = value;
 									this.handleOnChange( 'sizes', sizes );
 								} }
-							>
-								<DeleteIcon />
-							</Button>
-						) }
-					</div>
+							/>
+							<TextControl
+								label={ __( 'Height' ) }
+								value={ size[ 1 ] }
+								type="number"
+								onChange={ value => {
+									sizes[ index ][ 1 ] = value;
+									this.handleOnChange( 'sizes', sizes );
+								} }
+							/>
+						</Grid>
+					</Card>
 				) ) }
-				<Button
-					isTertiary
-					className="newspack-button__add-size"
-					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }
-				>
-					<LibraryAddIcon />
+				<Button isLink onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }>
 					{ __( 'Add Size', 'newspack' ) }
 				</Button>
 				<div className="clear" />
 				<div className="newspack-buttons-card">
 					<Button disabled={ name.length === 0 } isPrimary onClick={ () => onSave( id ) }>
-						{ __( 'Save' ) }
+						{ __( 'Save', 'newspack' ) }
 					</Button>
 					<Button isSecondary href={ `#/${ service }` }>
-						{ __( 'Cancel' ) }
+						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>
 			</Fragment>
