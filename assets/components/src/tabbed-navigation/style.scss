@@ -26,10 +26,9 @@
 		}
 	}
 
-	a,
-	& &__handoff.newspack-button.is-link {
+	a {
 		border-bottom: 4px solid $primary-500;
-		color: white !important;
+		color: white;
 		display: block;
 		font-weight: bold;
 		text-decoration: none;
@@ -42,25 +41,19 @@
 		&:active,
 		&:focus,
 		&:hover {
-			outline: none;
 			border-color: $primary-200;
+			color: white;
+			outline: none;
 		}
 
 		&:focus {
 			box-shadow: none;
-			outline: 1px solid !important;
-			outline-offset: 16px !important;
+			outline: 1px solid;
+			outline-offset: 16px;
 		}
 
 		&.selected {
 			border-color: white;
-		}
-	}
-
-	& &__handoff.newspack-button.is-link {
-		.newspack-is-waiting {
-			display: block;
-			margin: 0;
 		}
 	}
 }

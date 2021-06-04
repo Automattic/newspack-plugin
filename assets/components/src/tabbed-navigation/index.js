@@ -11,7 +11,6 @@ import Router from '../proxied-imports/router';
 /**
  * Internal dependencies.
  */
-import { Handoff } from '../';
 import './style.scss';
 
 const { NavLink, useHistory } = Router;
@@ -31,30 +30,18 @@ const TabbedNavigation = ( { items, className } ) => {
 			<ul>
 				{ items.map( ( item, key ) => (
 					<li key={ key }>
-						{ item.handoff ? (
-							<Handoff
-								className="newspack-tabbed-navigation__handoff"
-								plugin={ item.handoff }
-								editLink={ item.editLink }
-								noStatus
-								isLink
-							>
-								{ item.label }
-							</Handoff>
-						) : (
-							<NavLink
-								to={ item.path }
-								exact={ item.exact }
-								className={ classNames( {
-									selected:
-										item.path === '/'
-											? pathname === item.path
-											: firstPathPart === item.path.replace( /\//g, '' ),
-								} ) }
-							>
-								{ item.label }
-							</NavLink>
-						) }
+						<NavLink
+							to={ item.path }
+							exact={ item.exact }
+							className={ classNames( {
+								selected:
+									item.path === '/'
+										? pathname === item.path
+										: firstPathPart === item.path.replace( /\//g, '' ),
+							} ) }
+						>
+							{ item.label }
+						</NavLink>
 					</li>
 				) ) }
 			</ul>
