@@ -22,7 +22,7 @@ class AdUnits extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnits, onDelete, updateAdUnit, service, gamConnectionStatus } = this.props;
+		const { adUnits, onDelete, updateAdUnit, service, gamConnectionStatus = {} } = this.props;
 		const warningNoticeText = `${ __(
 			'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
 			'newspack'
@@ -42,22 +42,26 @@ class AdUnits extends Component {
 
 		return (
 			<Fragment>
-				{ isDisplayingNetworkMismatchNotice && (
-					<Notice
-						noticeText={ __(
-							'Your GAM network code is different than the network code the site was configured with. Editing has been disabled.',
-							'newspack'
+				{ gamConnectionStatus.can_connect ? (
+					<>
+						{ isDisplayingNetworkMismatchNotice && (
+							<Notice
+								noticeText={ __(
+									'Your GAM network code is different than the network code the site was configured with. Editing has been disabled.',
+									'newspack'
+								) }
+								isError
+							/>
 						) }
-						isError
-					/>
-				) }
-				{ gamConnectionStatus?.connected === false && (
-					<Notice
-						noticeText={ gamConnectionMessage || warningNoticeText }
-						isWarning={ ! gamConnectionMessage }
-						isError={ gamConnectionMessage }
-					/>
-				) }
+						{ gamConnectionStatus?.connected === false && (
+							<Notice
+								noticeText={ gamConnectionMessage || warningNoticeText }
+								isWarning={ ! gamConnectionMessage }
+								isError={ gamConnectionMessage }
+							/>
+						) }
+					</>
+				) : null }
 				<p>
 					{ __(
 						'Set up multiple ad units to use on your homepage, articles and other places throughout your site.'
@@ -73,8 +77,9 @@ class AdUnits extends Component {
 						.sort( a => ( a.is_legacy ? 1 : -1 ) )
 						.map( adUnit => {
 							const editLink = `#${ service }/${ adUnit.id }`;
-							const isDisabled =
-								! adUnit.is_legacy && false === gamConnectionStatus?.is_network_code_matched;
+							const isDisabled = adUnit.is_legacy
+								? false === gamConnectionStatus?.is_network_code_matched
+								: false;
 							const buttonProps = {
 								disabled: isDisabled,
 								isQuaternary: true,
@@ -87,44 +92,36 @@ class AdUnits extends Component {
 									key={ adUnit.id }
 									title={ adUnit.name }
 									isSmall
+									titleLink={ isDisabled ? null : editLink }
 									className="mv0"
 									{ ...( adUnit.is_legacy
 										? {}
 										: {
-												titleLink: isDisabled ? null : editLink,
 												toggleChecked: adUnit.status === 'ACTIVE',
 												toggleOnChange: value => {
 													adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
 													updateAdUnit( adUnit );
 												},
 										  } ) }
-									description={ () =>
-										adUnit.is_legacy ? (
-											<em>
-												{ __(
-													'Legacy ad unit - remove it after updating ad placements to use the GAM-sourced ad units.',
-													'newspack'
-												) }
-											</em>
-										) : (
-											<span>
-												{ __( 'Sizes:', 'newspack' ) }{' '}
-												{ adUnit.sizes.map( ( size, i ) => (
-													<code key={ i }>{ size.join( 'x' ) }</code>
-												) ) }
-											</span>
-										)
-									}
+									description={ () => (
+										<span>
+											{ gamConnectionStatus.can_connect && adUnit.is_legacy ? (
+												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i>
+											) : null }
+											{ __( 'Sizes:', 'newspack' ) }{' '}
+											{ adUnit.sizes.map( ( size, i ) => (
+												<code key={ i }>{ size.join( 'x' ) }</code>
+											) ) }
+										</span>
+									) }
 									actionText={
 										<div className="flex items-center">
-											{ ! adUnit.is_legacy && (
-												<Button
-													href={ editLink }
-													icon={ pencil }
-													label={ __( 'Edit the ad unit', 'newspack' ) }
-													{ ...buttonProps }
-												/>
-											) }
+											<Button
+												href={ editLink }
+												icon={ pencil }
+												label={ __( 'Edit the ad unit', 'newspack' ) }
+												{ ...buttonProps }
+											/>
 											<Button
 												onClick={ () => onDelete( adUnit.id ) }
 												icon={ trash }
