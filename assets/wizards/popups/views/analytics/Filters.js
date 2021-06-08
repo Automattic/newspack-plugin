@@ -11,7 +11,7 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 		<div className="newspack-campaigns-wizard-analytics__filters">
 			<div className="newspack-campaigns-wizard-analytics__filters__group">
 				<SelectControl
-					options={ [ { label: __( 'All Campaigns', 'newspack' ), value: '' }, ...labelFilters ] }
+					options={ [ { label: __( 'All Prompts', 'newspack' ), value: '' }, ...labelFilters ] }
 					onChange={ onChange( 'SET_EVENT_LABEL_FILTER' ) }
 					value={ filtersState.event_label_id }
 					disabled={ disabled }
