@@ -1,3 +1,10 @@
+# [1.43.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.43.0-alpha.1...v1.43.0-alpha.2) (2021-06-08)
+
+
+### Bug Fixes
+
+* trigger alpha build ([bbbfa16](https://github.com/Automattic/newspack-plugin/commit/bbbfa16b13e4ce72412815f4cc013dab3166e542))
+
 # [1.43.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.42.0...v1.43.0-alpha.1) (2021-06-08)
 
 
