@@ -99,8 +99,7 @@ export const getCardClassName = ( { status } ) => {
 };
 
 export const descriptionForPopup = prompt => {
-	const { categories, campaign_groups: campaigns, status } = prompt;
-	const filteredCategories = categories;
+	const { categories, tags, campaign_groups: campaigns, status } = prompt;
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
 		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
@@ -110,10 +109,14 @@ export const descriptionForPopup = prompt => {
 				: __( 'Campaigns: ', 'newspack' ) ) + campaignsList
 		);
 	}
-	if ( filteredCategories.length > 0 ) {
+	if ( categories.length > 0 ) {
 		descriptionMessages.push(
-			__( 'Categories: ', 'newspack' ) +
-				filteredCategories.map( category => category.name ).join( ', ' )
+			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
+		);
+	}
+	if ( tags.length > 0 ) {
+		descriptionMessages.push(
+			__( 'Tags: ', 'newspack' ) + tags.map( tag => tag.name ).join( ', ' )
 		);
 	}
 	if ( 'pending' === status ) {

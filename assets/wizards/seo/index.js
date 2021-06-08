@@ -65,6 +65,7 @@ class SEOWizard extends Component {
 			path: '/newspack/v1/wizard/newspack-seo-wizard/settings',
 			method: 'POST',
 			data: deepMapKeys( this.state, key => snakeCase( key ) ),
+			quiet: true,
 		} )
 			.then( response => this.setState( this.sanitizeResponse( response ) ) )
 			.catch( error => setError( error ) );
@@ -96,7 +97,7 @@ class SEOWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Tools', 'newspack' ),
+				label: __( 'Webmaster Tools', 'newspack' ),
 				path: '/tools',
 				exact: true,
 			},
@@ -105,8 +106,8 @@ class SEOWizard extends Component {
 				path: '/social',
 			},
 		];
-		const buttonText = __( 'Save settings', 'newspack' );
-		const secondaryButtonText = __( 'Advanced settings', 'newspack' );
+		const buttonText = __( 'Save Settings', 'newspack' );
+		const secondaryButtonText = __( 'Advanced Settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
 			headerText,
@@ -127,10 +128,6 @@ class SEOWizard extends Component {
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
-									secondaryButtonAction={ {
-										handoff: 'wordpress-seo',
-									} }
-									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }
 						/>

@@ -4,8 +4,6 @@
  * External dependencies
  */
 import { find } from 'lodash';
-import DoneIcon from '@material-ui/icons/Done';
-import ClearIcon from '@material-ui/icons/Clear';
 
 /**
  * WordPress dependencies
@@ -13,21 +11,29 @@ import ClearIcon from '@material-ui/icons/Clear';
 import { Component, Fragment } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import {
+	ActionCard,
 	Button,
+	Grid,
 	Notice,
 	TextControl,
-	ToggleControl,
 	SelectControl,
+	SectionHeader,
 	CheckboxControl,
 	withWizardScreen,
 	Modal,
 } from '../../../../components/src';
 import { NEWSPACK_SUPPORT_URL } from '../../../../components/src/consts';
+
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
 
 /**
  * Not implemented:
@@ -134,20 +140,23 @@ class CustomEvents extends Component {
 
 		return (
 			<div className="newspack__analytics-configuration">
-				<h2>{ __( 'User-defined custom events', 'newspack' ) }</h2>
-				<p>
-					{ __(
-						'Custom events are used to collect and analyze specific user interactions.',
-						'newspack'
-					) }
-				</p>
+				<div className="newspack__analytics-configuration__header">
+					<SectionHeader
+						title={ __( 'User-defined custom events', 'newspack' ) }
+						description={ __( 'Collect and analyze specific user interactions', 'newspack' ) }
+						noMargin
+					/>
+					<Button onClick={ this.setEditModal( 'new' ) } isPrimary isSmall>
+						{ __( 'Add New Custom Event', 'newspack' ) }
+					</Button>
+				</div>
 				<Notice
 					rawHTML
 					isInfo
 					noticeText={ `${ __(
 						'This is an advanced feature, read more about it on our',
 						'newspack'
-					) } <a target="_blank" href="${ NEWSPACK_SUPPORT_URL }/analytics">${ __(
+					) } <a href="${ NEWSPACK_SUPPORT_URL }/analytics">${ __(
 						'support page',
 						'newspack'
 					) }</a>.` }
@@ -174,7 +183,16 @@ class CustomEvents extends Component {
 							<tbody>
 								{ customEvents.map( event => (
 									<tr key={ event.id }>
-										<td>{ event.is_active ? <DoneIcon /> : <ClearIcon /> }</td>
+										<td>
+											<span
+												className={ classnames(
+													'newspack-checkbox-icon',
+													event.is_active && 'newspack-checkbox-icon--checked'
+												) }
+											>
+												{ event.is_active && <Icon icon={ check } /> }
+											</span>
+										</td>
 										<td>{ event.event_name }</td>
 										<td>{ event.event_category }</td>
 										<td>{ event.event_label }</td>
@@ -191,10 +209,6 @@ class CustomEvents extends Component {
 							</tbody>
 						</table>
 
-						<Button onClick={ this.setEditModal( 'new' ) } isPrimary>
-							{ __( 'Create a new custom event', 'newspack' ) }
-						</Button>
-
 						{ editedEventId !== null && (
 							<Modal
 								title={
@@ -203,51 +217,54 @@ class CustomEvents extends Component {
 										: __( 'Editing custom event', 'newspack' )
 								}
 								onRequestClose={ this.setEditModal( null ) }
+								isWide
 							>
 								<div>
-									<TextControl
-										disabled={ isLoading }
-										value={ editedEvent.event_name }
-										onChange={ this.updateEditedEvent( 'event_name' ) }
-										label={ __( 'Action', 'newspack' ) }
-										required
-									/>
-									<TextControl
-										disabled={ isLoading }
-										value={ editedEvent.event_category }
-										onChange={ this.updateEditedEvent( 'event_category' ) }
-										label={ __( 'Category', 'newspack' ) }
-										required
-									/>
-									<TextControl
-										disabled={ isLoading }
-										value={ editedEvent.event_label }
-										onChange={ this.updateEditedEvent( 'event_label' ) }
-										label={ __( 'Label', 'newspack' ) }
-									/>
-									<SelectControl
-										disabled={ isLoading }
-										value={ editedEvent.on }
-										onChange={ this.updateEditedEvent( 'on' ) }
-										label={ __( 'Trigger', 'newspack' ) }
-										options={ TRIGGER_OPTIONS }
-										required
-									/>
-									<TextControl
-										disabled={ isLoading }
-										value={ editedEvent.element }
-										onChange={ this.updateEditedEvent( 'element' ) }
-										label={ __( 'Selector', 'newspack' ) }
-										className="newspack__analytics-configuration__code"
-										required
-									/>
-									<TextControl
-										disabled={ isLoading }
-										value={ editedEvent.amp_element }
-										onChange={ this.updateEditedEvent( 'amp_element' ) }
-										label={ __( 'AMP Selector', 'newspack' ) }
-										className="newspack__analytics-configuration__code"
-									/>
+									<Grid gutter={ 32 }>
+										<TextControl
+											disabled={ isLoading }
+											value={ editedEvent.event_name }
+											onChange={ this.updateEditedEvent( 'event_name' ) }
+											label={ __( 'Action', 'newspack' ) }
+											required
+										/>
+										<TextControl
+											disabled={ isLoading }
+											value={ editedEvent.event_category }
+											onChange={ this.updateEditedEvent( 'event_category' ) }
+											label={ __( 'Category', 'newspack' ) }
+											required
+										/>
+										<TextControl
+											disabled={ isLoading }
+											value={ editedEvent.event_label }
+											onChange={ this.updateEditedEvent( 'event_label' ) }
+											label={ __( 'Label', 'newspack' ) }
+										/>
+										<SelectControl
+											disabled={ isLoading }
+											value={ editedEvent.on }
+											onChange={ this.updateEditedEvent( 'on' ) }
+											label={ __( 'Trigger', 'newspack' ) }
+											options={ TRIGGER_OPTIONS }
+											required
+										/>
+										<TextControl
+											disabled={ isLoading }
+											value={ editedEvent.element }
+											onChange={ this.updateEditedEvent( 'element' ) }
+											label={ __( 'Selector', 'newspack' ) }
+											className="code"
+											required
+										/>
+										<TextControl
+											disabled={ isLoading }
+											value={ editedEvent.amp_element }
+											onChange={ this.updateEditedEvent( 'amp_element' ) }
+											label={ __( 'AMP Selector', 'newspack' ) }
+											className="code"
+										/>
+									</Grid>
 									<CheckboxControl
 										disabled={ isLoading }
 										checked={ editedEvent.non_interaction }
@@ -260,44 +277,52 @@ class CustomEvents extends Component {
 										onChange={ this.updateEditedEvent( 'is_active' ) }
 										label={ __( 'Active', 'newspack' ) }
 									/>
-									<Button
-										onClick={ this.handleCustomEventEdit }
-										disabled={ ! validateEvent( editedEvent ) || isLoading }
-										isPrimary
-									>
-										{ isCreatingEvent ? __( 'Create', 'newspack' ) : __( 'Update', 'newspack' ) }
-									</Button>
-									{ ! isCreatingEvent && (
+									<div className="newspack-buttons-card">
 										<Button
-											disabled={ isLoading }
-											onClick={ () =>
-												this.updateCustomEvents(
-													this.state.customEvents.filter( ( { id } ) => editedEvent.id !== id )
-												)
-											}
+											onClick={ this.handleCustomEventEdit }
+											disabled={ ! validateEvent( editedEvent ) || isLoading }
+											isPrimary
 										>
-											{ __( 'Delete', 'newspack' ) }
+											{ isCreatingEvent ? __( 'Add', 'newspack' ) : __( 'Update', 'newspack' ) }
 										</Button>
-									) }
+										{ ! isCreatingEvent && (
+											<Button
+												isSecondary
+												disabled={ isLoading }
+												onClick={ () =>
+													this.updateCustomEvents(
+														this.state.customEvents.filter( ( { id } ) => editedEvent.id !== id )
+													)
+												}
+											>
+												{ __( 'Delete', 'newspack' ) }
+											</Button>
+										) }
+									</div>
 								</div>
 							</Modal>
 						) }
 					</Fragment>
 				) }
-				<h2>{ __( 'News Tagging Guide custom events', 'newspack' ) }</h2>
-				<p>
-					<ExternalLink href={ 'https://newsinitiative.withgoogle.com/training/datatools/ntg' }>
-						{ __( 'News Tagging Guide', 'newspack' ) }
-					</ExternalLink>{' '}
-					{ __(
-						'is a free tool that helps you make the most of Google Analytics by capturing better data.',
-						'newspack'
-					) }
-				</p>
-				<ToggleControl
+				<ActionCard
+					isMedium
+					title={ __( 'News Tagging Guide custom events', 'newspack' ) }
+					description={ [
+						__(
+							'Free tool that helps you make the most of Google Analytics by capturing better data.',
+							'newspack'
+						) + '\u00A0',
+						<ExternalLink
+							href="https://newsinitiative.withgoogle.com/training/datatools/ntg"
+							key="info-link"
+						>
+							{ __( 'More info', 'newspack' ) }
+						</ExternalLink>,
+					] }
+					toggle
 					disabled={ this.state.ntgEventsStatus.enabled === undefined }
-					checked={ this.state.ntgEventsStatus.enabled }
-					onChange={ () =>
+					toggleChecked={ this.state.ntgEventsStatus.enabled }
+					toggleOnChange={ () =>
 						this.props
 							.wizardApiFetch( {
 								path: NTG_EVENTS_ENDPOINT,
@@ -306,7 +331,6 @@ class CustomEvents extends Component {
 							} )
 							.then( ntgEventsStatus => this.setState( { ntgEventsStatus } ) )
 					}
-					label={ __( 'Enabled', 'newspack' ) }
 				/>
 			</div>
 		);

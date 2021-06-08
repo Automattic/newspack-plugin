@@ -35,10 +35,6 @@ define( 'NEWSPACK_SUPPORT_API_URL', 'https://super-tech-support.zendesk.com/api/
 define( 'NEWSPACK_SUPPORT_EMAIL', 'support@company.com' );
 define( 'NEWSPACK_WPCOM_CLIENT_ID', '12345' );
 
-// OAuth2
-define( 'NEWSPACK_GOOGLE_OAUTH_CLIENT_ID', 'abc' );
-define( 'NEWSPACK_GOOGLE_OAUTH_CLIENT_SECRET', 'abc' );
-
 // Optional
 define( 'NEWSPACK_SUPPORT_IS_PRE_LAUNCH', true );
 ```

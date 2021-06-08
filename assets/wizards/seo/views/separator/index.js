@@ -8,7 +8,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, ButtonGroup, PreviewBox, withWizardScreen } from '../../../../components/src';
+import {
+	Button,
+	ButtonGroup,
+	PreviewBox,
+	SectionHeader,
+	withWizardScreen,
+} from '../../../../components/src';
 
 const SEPARATORS = {
 	'sc-dash': '-',
@@ -43,13 +49,19 @@ class Separator extends Component {
 		const { titleSeparator } = data;
 		return (
 			<Fragment>
-				<h2>{ __( 'Title separator', 'newspack' ) }</h2>
-				<p>
-					{ __(
-						"Choose the symbol to use as your title separator. This will display, for instance, between your post title and site name. Symbols are shown in the size they'll appear in the search results.",
-						'newspack'
+				<SectionHeader
+					title={ __( 'Title separator', 'newspack' ) }
+					description={ () => (
+						<>
+							{ __( 'Choose the symbol to use as your title separator', 'newspack' ) }
+							<br />
+							{ __(
+								'This will display, for instance, between your post title and site name',
+								'newspack'
+							) }
+						</>
 					) }
-				</p>
+				/>
 				<ButtonGroup>
 					{ Object.keys( SEPARATORS ).map( key => {
 						const value = decodeEntities( SEPARATORS[ key ] );
@@ -59,6 +71,7 @@ class Separator extends Component {
 								onClick={ () => onChange( { titleSeparator: key } ) }
 								isPressed={ key === titleSeparator }
 								isSecondary={ key !== titleSeparator }
+								className="icon-only size-48"
 							>
 								{ value }
 							</Button>
