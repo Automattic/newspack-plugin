@@ -137,6 +137,16 @@
 		}
 	}
 
+	// Separator
+
+	.sep {
+		background: $gray-300;
+		height: 1px;
+		margin-left: 8px;
+		margin-right: 8px;
+		width: 12px;
+	}
+
 	// Links
 
 	a {
