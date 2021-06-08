@@ -1,3 +1,12 @@
+# [1.43.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.42.0...v1.43.0-alpha.1) (2021-06-08)
+
+
+### Features
+
+* design update to the SEO wizard ([#979](https://github.com/Automattic/newspack-plugin/issues/979)) ([a259fec](https://github.com/Automattic/newspack-plugin/commit/a259fec94c16e9d2c40c6799b07a71786def05e1))
+* remove material icons and rework Analytics and Ads Wizards ([#982](https://github.com/Automattic/newspack-plugin/issues/982)) ([1fb2eee](https://github.com/Automattic/newspack-plugin/commit/1fb2eee537b460cec6513785acb7126c49d0703d))
+* use WPCOM endpoint for ticket submission ([#819](https://github.com/Automattic/newspack-plugin/issues/819)) ([ffc9567](https://github.com/Automattic/newspack-plugin/commit/ffc95678c66afe2bfe9df429d59f818605bb8f46))
+
 # [1.42.0](https://github.com/Automattic/newspack-plugin/compare/v1.41.0...v1.42.0) (2021-06-02)
 
 
