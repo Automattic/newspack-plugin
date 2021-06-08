@@ -1,3 +1,10 @@
+# [1.43.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.43.0-alpha.2...v1.43.0-alpha.3) (2021-06-08)
+
+
+### Features
+
+* update campaigns wording ([#992](https://github.com/Automattic/newspack-plugin/issues/992)) ([e83d9a8](https://github.com/Automattic/newspack-plugin/commit/e83d9a854acca0d00ef675bd17c55f4775c842fd))
+
 # [1.43.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.43.0-alpha.1...v1.43.0-alpha.2) (2021-06-08)
 
 
