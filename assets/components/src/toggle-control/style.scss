@@ -13,7 +13,7 @@
 		margin: 0;
 
 		.components-toggle-control__label {
-			color: $dark-gray-300;
+			color: $gray-700;
 			font-size: 14px;
 			line-height: 24px;
 			margin: 0;
@@ -35,7 +35,7 @@
 
 	&.newspack-toggle-control--is-dark {
 		.components-base-control__field label {
-			color: $dark-gray-900;
+			color: $gray-900;
 			font-weight: bold;
 		}
 

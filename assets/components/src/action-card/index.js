@@ -7,11 +7,11 @@
  */
 import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
-import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 
 /**
  * Internal dependencies
  */
+import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 import './style.scss';
 
 /**
@@ -70,6 +70,7 @@ class ActionCard extends Component {
 			toggleOnChange && ! titleLink && ! disabled
 				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
 				: {};
+		const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -106,7 +107,7 @@ class ActionCard extends Component {
 								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
 									{ actionText }
 								</Handoff>
-							) : onClick ? (
+							) : onClick || hasInternalLink ? (
 								<Button
 									isLink
 									href={ href }

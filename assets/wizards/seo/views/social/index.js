@@ -7,8 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { TextControl, withWizardScreen } from '../../../../components/src';
-import './style.scss';
+import { Grid, SectionHeader, TextControl, withWizardScreen } from '../../../../components/src';
 
 /**
  * SEO Social screen.
@@ -23,45 +22,51 @@ class Social extends Component {
 		const { facebook, linkedin, twitter, youtube, instagram, pinterest } = urls;
 		return (
 			<Fragment>
-				<h2>{ __( 'Social profiles', 'newspack' ) }</h2>
-				<p>
-					{ __(
-						'To let search engines know which social profiles are associated to this site, enter your site social profiles data below.',
+				<SectionHeader
+					title={ __( 'Social accounts', 'newspack' ) }
+					description={ __(
+						'Let search engines know which social profiles are associated to this site',
 						'newspack'
 					) }
-				</p>
-				<div className="newspack-seo-wizard-social__text-controls">
+				/>
+				<Grid columns={ 3 } gutter={ 32 } rowGap={ 16 }>
 					<TextControl
-						label={ __( 'Facebook page URL', 'newspack' ) }
+						label={ __( 'Facebook Page', 'newspack' ) }
 						onChange={ value => onChange( { urls: { ...urls, facebook: value } } ) }
 						value={ facebook }
+						placeholder={ __( 'https://facebook.com/page', 'newspack' ) }
 					/>
 					<TextControl
-						label={ __( 'Twitter username', 'newspack' ) }
+						label={ __( 'Twitter Username', 'newspack' ) }
 						onChange={ value => onChange( { urls: { ...urls, twitter: value } } ) }
 						value={ twitter }
+						placeholder={ __( 'username', 'newspack' ) }
 					/>
 					<TextControl
-						label={ __( 'Instagram URL', 'newspack' ) }
+						label="Instagram"
 						onChange={ value => onChange( { urls: { ...urls, instagram: value } } ) }
 						value={ instagram }
+						placeholder={ __( 'https://instagram.com/user', 'newspack' ) }
 					/>
 					<TextControl
-						label={ __( 'LinkedIn URL', 'newspack' ) }
+						label="LinkedIn"
 						onChange={ value => onChange( { urls: { ...urls, linkedin: value } } ) }
 						value={ linkedin }
+						placeholder={ __( 'https://linkedin.com/user', 'newspack' ) }
 					/>
 					<TextControl
-						label={ __( 'YouTube URL', 'newspack' ) }
+						label="YouTube"
 						onChange={ value => onChange( { urls: { ...urls, youtube: value } } ) }
 						value={ youtube }
+						placeholder={ __( 'https://youtube.com/c/channel', 'newspack' ) }
 					/>
 					<TextControl
-						label={ __( 'Pinterest URL', 'newspack' ) }
+						label="Pinterest"
 						onChange={ value => onChange( { urls: { ...urls, pinterest: value } } ) }
 						value={ pinterest }
+						placeholder={ __( 'https://pinterest.com/user', 'newspack' ) }
 					/>
-				</div>
+				</Grid>
 			</Fragment>
 		);
 	}

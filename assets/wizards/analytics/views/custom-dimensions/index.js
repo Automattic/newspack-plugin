@@ -11,9 +11,11 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	Button,
+	Card,
 	Notice,
-	TextControl,
+	SectionHeader,
 	SelectControl,
+	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -70,12 +72,13 @@ class CustomDimensions extends Component {
 		const { error, customDimensions, newDimensionName, newDimensionScope } = this.state;
 		return (
 			<div className="newspack__analytics-configuration">
-				<p>
-					{ __(
-						"Custom dimensions are used to collect and analyze data that Google Analytics doesn't automatically track.",
+				<SectionHeader
+					title={ __( 'User-defined custom dimensions', 'newspack' ) }
+					description={ __(
+						"Collect and analyze data that Google Analytics doesn't automatically track",
 						'newspack'
 					) }
-				</p>
+				/>
 				{ error ? (
 					<Notice noticeText={ error } isError rawHTML />
 				) : (
@@ -113,11 +116,8 @@ class CustomDimensions extends Component {
 								) ) }
 							</tbody>
 						</table>
-
-						<p className="is-dark">
-							<strong>{ __( 'Create a new custom dimension:', 'newspack' ) }</strong>
-						</p>
-						<div>
+						<Card isMedium>
+							<h2>{ __( 'Create new custom dimension', 'newspack' ) }</h2>
 							<div className="newspack__analytics-configuration__form">
 								<TextControl
 									value={ newDimensionName }
@@ -138,7 +138,7 @@ class CustomDimensions extends Component {
 									{ __( 'Create', 'newspack' ) }
 								</Button>
 							</div>
-						</div>
+						</Card>
 					</Fragment>
 				) }
 			</div>

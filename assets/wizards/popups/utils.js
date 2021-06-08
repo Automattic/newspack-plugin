@@ -46,6 +46,7 @@ const placementMap = {
 	bottom: __( 'Bottom Overlay', 'newspack' ),
 	inline: __( 'Inline', 'newspack' ),
 	above_header: __( 'Above Header', 'newspack' ),
+	manual: __( 'Manual Only', 'newspack' ),
 };
 
 export const placementForPopup = ( { options: { frequency, placement } } ) => {

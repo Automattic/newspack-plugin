@@ -14,6 +14,7 @@ import {
 	ColorPicker,
 	TextControl,
 	SelectControl,
+	StyleCard,
 	ToggleControl,
 	SectionHeader,
 	ImageUpload,
@@ -31,15 +32,17 @@ const Main = ( {
 	setError,
 	renderPrimaryButton,
 	buttonText,
-	hasPreview = true,
+	isPartOfSetup = true,
 	onSave = () => {},
 } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
+	const [ homepagePatterns, updateHomepagePatterns ] = useState( [] );
 	const [ mods, updateMods ] = hooks.useObjectState();
 
 	const updateSettings = response => {
 		updateMods( response.theme_mods );
 		updateThemeSlug( response.theme );
+		updateHomepagePatterns( response.homepage_patterns );
 	};
 	useEffect( () => {
 		wizardApiFetch( {
@@ -53,13 +56,13 @@ const Main = ( {
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
-			data: { theme_mods: mods, theme: themeSlug },
+			data: {
+				theme_mods: mods,
+				theme: themeSlug,
+			},
 			quiet: true,
 		} )
-			.then( res => {
-				updateSettings( res );
-				onSave();
-			} )
+			.then( updateSettings )
 			.catch( setError );
 
 	return (
@@ -69,6 +72,27 @@ const Main = ( {
 				description={ __( 'Activate a theme you like to get started', 'newspack' ) }
 			/>
 			<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
+			{ isPartOfSetup && homepagePatterns.length > 0 ? (
+				<>
+					<SectionHeader
+						title={ __( 'Homepage', 'newspack' ) }
+						description={ __( 'Choose a homepage layout', 'newspack' ) }
+						className="newspack-design__header"
+					/>
+					<Grid columns={ 6 } gutter={ 16 }>
+						{ homepagePatterns.map( ( pattern, i ) => (
+							<StyleCard
+								key={ i }
+								image={ { __html: pattern.image } }
+								imageType="html"
+								isActive={ i === mods.homepage_pattern_index }
+								onClick={ () => updateMods( { homepage_pattern_index: i } ) }
+								ariaLabel={ __( 'Activate Layout', 'newspack' ) + ' ' + ( i + 1 ) }
+							/>
+						) ) }
+					</Grid>
+				</>
+			) : null }
 			<SectionHeader
 				title={ __( 'Colors', 'newspack' ) }
 				description={ __( 'Define your primary and secondary colors', 'newspack' ) }
@@ -224,20 +248,36 @@ const Main = ( {
 						/>
 					) }
 				</Grid>
-				<ImageUpload
-					className="newspack-design__footer__logo"
-					label={ __( 'Alternative Logo', 'newspack' ) }
-					info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
-					style={ {
-						...( mods.footer_color === 'custom' && mods.footer_color_hex
-							? { backgroundColor: mods.footer_color_hex }
-							: {} ),
-					} }
-					image={ mods.newspack_footer_logo }
-					onChange={ updateMods( 'newspack_footer_logo' ) }
-				/>
+				<Grid columns={ 1 } gutter={ 16 }>
+					<ImageUpload
+						className="newspack-design__footer__logo"
+						label={ __( 'Alternative Logo', 'newspack' ) }
+						info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
+						style={ {
+							...( mods.footer_color === 'custom' && mods.footer_color_hex
+								? { backgroundColor: mods.footer_color_hex }
+								: {} ),
+						} }
+						image={ mods.newspack_footer_logo }
+						onChange={ updateMods( 'newspack_footer_logo' ) }
+					/>
+					{ mods.newspack_footer_logo && (
+						<SelectControl
+							className="icon-only"
+							label={ __( 'Alternative logo - Size', 'newspack' ) }
+							value={ mods.footer_logo_size }
+							onChange={ updateMods( 'footer_logo_size' ) }
+							buttonOptions={ [
+								{ value: 'small', label: 'S' },
+								{ value: 'medium', label: 'M' },
+								{ value: 'large', label: 'L' },
+								{ value: 'xlarge', label: 'XL' },
+							] }
+						/>
+					) }
+				</Grid>
 			</Grid>
-			{ hasPreview && (
+			{ isPartOfSetup && (
 				<div className="newspack-floating-button">
 					<WebPreview
 						url="/?newspack_design_preview"
@@ -251,7 +291,7 @@ const Main = ( {
 			) }
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( {
-					onClick: saveSettings,
+					onClick: () => saveSettings().then( onSave ),
 					children: buttonText || __( 'Save', 'newspack' ),
 				} ) }
 			</div>

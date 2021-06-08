@@ -7,8 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ToggleControl } from '../../../../components/src';
-import './style.scss';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
 
 /**
  * SEO Environment screen.
@@ -22,13 +21,12 @@ class Environment extends Component {
 		const { underConstruction } = data;
 		return (
 			<Fragment>
-				<h2>{ __( 'Environment', 'newspack' ) }</h2>
-				<ToggleControl
-					isDark
-					label={ __( 'Site under construction', 'newspack' ) }
-					checked={ underConstruction }
-					onChange={ value => onChange( { underConstruction: value } ) }
-					help={ __( 'Site is under construction and should not be indexed.', 'newspack' ) }
+				<ActionCard
+					isMedium
+					title={ __( 'Under construction', 'newspack' ) }
+					description={ __( 'Discourage search engines from indexing this site.', 'newspack' ) }
+					toggleChecked={ underConstruction }
+					toggleOnChange={ value => onChange( { underConstruction: value } ) }
 				/>
 			</Fragment>
 		);
