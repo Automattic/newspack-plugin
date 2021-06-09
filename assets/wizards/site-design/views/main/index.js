@@ -16,6 +16,7 @@ import {
 	SelectControl,
 	StyleCard,
 	ToggleControl,
+	RadioControl,
 	SectionHeader,
 	ImageUpload,
 	hooks,
@@ -24,8 +25,19 @@ import {
 	WebPreview,
 } from '../../../../components/src';
 import ThemeSelection from '../../components/theme-selection';
-import { getFontsList, getFontImportURL, LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
+import {
+	getFontsList,
+	isFontInOptions,
+	getFontImportURL,
+	LOGO_SIZE_OPTIONS,
+	parseLogoSize,
+} from './utils';
 import './style.scss';
+
+const TYPOGRAPHY_OPTIONS = [
+	{ value: 'curated', label: __( 'Curated list', 'newspack' ) },
+	{ value: 'custom', label: __( 'Custom fonts', 'newspack' ) },
+];
 
 const Main = ( {
 	wizardApiFetch,
@@ -38,11 +50,20 @@ const Main = ( {
 	const [ themeSlug, updateThemeSlug ] = useState();
 	const [ homepagePatterns, updateHomepagePatterns ] = useState( [] );
 	const [ mods, updateMods ] = hooks.useObjectState();
+	const [ typographyOptionsType, updateTypographyOptionsType ] = useState(
+		TYPOGRAPHY_OPTIONS[ 0 ].value
+	);
 
 	const updateSettings = response => {
 		updateMods( response.theme_mods );
 		updateThemeSlug( response.theme );
 		updateHomepagePatterns( response.homepage_patterns );
+		if (
+			isFontInOptions( response.theme_mods.font_header ) === false ||
+			isFontInOptions( response.theme_mods.font_body ) === false
+		) {
+			updateTypographyOptionsType( TYPOGRAPHY_OPTIONS[ 1 ].value );
+		}
 	};
 	useEffect( () => {
 		wizardApiFetch( {
@@ -64,6 +85,44 @@ const Main = ( {
 		} )
 			.then( updateSettings )
 			.catch( setError );
+
+	const renderCustomFontChoice = type => {
+		const isHeadings = type === 'headings';
+		const label = isHeadings ? __( 'Headings', 'newspack' ) : __( 'Body', 'newspack' );
+		return (
+			<div>
+				<TextControl
+					label={ label + ' - ' + __( 'Font provider import code or URL', 'newspack' ) }
+					help={ __(
+						'Example: <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> or https://fonts.googleapis.com/css?family=Open+Sans',
+						'newspack'
+					) }
+					value={
+						isHeadings ? mods.custom_font_import_code : mods.custom_font_import_code_alternate
+					}
+					onChange={ updateMods(
+						isHeadings ? 'custom_font_import_code' : 'custom_font_import_code_alternate'
+					) }
+				/>
+				<TextControl
+					label={ __( 'Font name', 'newspack' ) }
+					value={ isHeadings ? mods.font_header : mods.font_body }
+					onChange={ updateMods( isHeadings ? 'font_header' : 'font_body' ) }
+				/>
+				<SelectControl
+					label={ label + ' - ' + __( 'Font fallback stack', 'newspack' ) }
+					options={ [
+						{ value: 'serif', label: __( 'Serif', 'newspack' ) },
+						{ value: 'sans-serif', label: __( 'Sans Serif', 'newspack' ) },
+						{ value: 'display', label: __( 'Display', 'newspack' ) },
+						{ value: 'monospace', label: __( 'Monospace', 'newspack' ) },
+					] }
+					value={ isHeadings ? mods.font_header_stack : mods.font_body_stack }
+					onChange={ updateMods( isHeadings ? 'font_header_stack' : 'font_body_stack' ) }
+				/>
+			</div>
+		);
+	};
 
 	return (
 		<Card noBorder className="newspack-design">
@@ -118,32 +177,46 @@ const Main = ( {
 				title={ __( 'Typography', 'newspack' ) }
 				description={ __( 'Pick the font pairing to use throughout your site', 'newspack' ) }
 			/>
+			<RadioControl
+				options={ TYPOGRAPHY_OPTIONS }
+				selected={ typographyOptionsType }
+				onChange={ updateTypographyOptionsType }
+			/>
 			<Grid columns={ 1 } gutter={ 16 }>
 				<Grid gutter={ 32 }>
-					<SelectControl
-						label={ __( 'Headings', 'newspack' ) }
-						optgroups={ getFontsList( true ) }
-						value={ mods.font_header }
-						onChange={ ( value, group ) =>
-							updateMods( {
-								font_header: value,
-								custom_font_import_code: getFontImportURL( value ),
-								font_header_stack: group?.fallback,
-							} )
-						}
-					/>
-					<SelectControl
-						label={ __( 'Body', 'newspack' ) }
-						optgroups={ getFontsList() }
-						value={ mods.font_body }
-						onChange={ ( value, group ) =>
-							updateMods( {
-								font_body: value,
-								custom_font_import_code_alternate: getFontImportURL( value ),
-								font_body_stack: group?.fallback,
-							} )
-						}
-					/>
+					{ typographyOptionsType === 'curated' ? (
+						<>
+							<SelectControl
+								label={ __( 'Headings', 'newspack' ) }
+								optgroups={ getFontsList( true ) }
+								value={ mods.font_header }
+								onChange={ ( value, group ) =>
+									updateMods( {
+										font_header: value,
+										custom_font_import_code: getFontImportURL( value ),
+										font_header_stack: group?.fallback,
+									} )
+								}
+							/>
+							<SelectControl
+								label={ __( 'Body', 'newspack' ) }
+								optgroups={ getFontsList() }
+								value={ mods.font_body }
+								onChange={ ( value, group ) =>
+									updateMods( {
+										font_body: value,
+										custom_font_import_code_alternate: getFontImportURL( value ),
+										font_body_stack: group?.fallback,
+									} )
+								}
+							/>
+						</>
+					) : (
+						<>
+							{ renderCustomFontChoice( 'headings' ) }
+							{ renderCustomFontChoice( 'body' ) }
+						</>
+					) }
 				</Grid>
 				<ToggleControl
 					checked={ mods.accent_allcaps === true }
