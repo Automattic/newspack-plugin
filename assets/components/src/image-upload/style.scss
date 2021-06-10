@@ -82,8 +82,11 @@
 				}
 			}
 			.sep {
+				background: transparent;
 				display: block;
 				height: 8px;
+				margin: 0;
+				width: 100%;
 			}
 		}
 	}
