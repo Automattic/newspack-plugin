@@ -18,6 +18,7 @@ import './style.scss';
 
 const PrimaryPromptPopover = ( {
 	deletePopup,
+	duplicatePopup,
 	prompt,
 	previewPopup,
 	onFocusOutside,
@@ -47,6 +48,9 @@ const PrimaryPromptPopover = ( {
 			</MenuItem>
 			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 				{ __( 'Edit', 'newspack' ) }
+			</MenuItem>
+			<MenuItem onClick={ () => duplicatePopup( id ) } className="newspack-button">
+				{ __( 'Duplicate', 'newspack' ) }
 			</MenuItem>
 			{ ! isPublished && (
 				<MenuItem

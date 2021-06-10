@@ -114,6 +114,23 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)/duplicate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_duplicate_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'      => [
+						'sanitize_callback' => 'absint',
+					],
+					'options' => [
+						'validate_callback' => [ $this, 'api_validate_options' ],
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/popup-terms/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -557,6 +574,18 @@ class Popups_Wizard extends Wizard {
 			wp_delete_post( $id );
 		}
 
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Duplicate a Pop-up.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
+	 */
+	public function api_duplicate_popup( $request ) {
+		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$cm->duplicate_popup( $request['id'] );
 		return $this->api_get_settings();
 	}
 
