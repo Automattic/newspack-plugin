@@ -45,3 +45,21 @@
 		}
 	}
 }
+
+.newspack-radio-control {
+	margin-bottom: -16px;
+
+	.components-base-control__field {
+		display: flex;
+		flex-wrap: wrap;
+
+		.components-radio-control__option {
+			margin: 0;
+
+			&:first-of-type {
+				margin-top: 0;
+				margin-right: 32px;
+			}
+		}
+	}
+}
