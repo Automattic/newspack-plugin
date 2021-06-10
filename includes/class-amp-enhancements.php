@@ -52,10 +52,19 @@ class AMP_Enhancements {
 	 */
 	public static function should_use_amp_plus( $context = null ) {
 		$should = false;
-		if ( isset( $_GET['ampplus'] ) && defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) && is_array( NEWSPACK_AMP_PLUS_CONFIG ) && in_array( $context, NEWSPACK_AMP_PLUS_CONFIG ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['ampplus'] ) && self::is_amp_plus_configured() && in_array( $context, NEWSPACK_AMP_PLUS_CONFIG ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$should = true;
 		}
 		return apply_filters( 'should_use_amp_plus', $should, $context );
+	}
+
+	/**
+	 * Is AMP plus mode configured.
+	 *
+	 * @return bool Is AMP plus mode configured.
+	 */
+	public static function is_amp_plus_configured() {
+		return defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) && is_array( NEWSPACK_AMP_PLUS_CONFIG );
 	}
 
 	/**
