@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useState, Fragment } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { trash, pencil } from '@wordpress/icons';
 
@@ -37,7 +37,7 @@ const AdUnits = ( {
 		'newspack'
 	) } ${
 		Object.values( adUnits ).length
-			? __( 'The legacy ad units will continue to work, but they are not editable.', 'newspack' )
+			? __( 'The legacy ad units will continue to work.', 'newspack' )
 			: ''
 	}`;
 	const gamConnectionMessage = gamConnectionStatus?.error
@@ -58,7 +58,7 @@ const AdUnits = ( {
 	};
 
 	return (
-		<Fragment>
+		<>
 			{ gamConnectionStatus.can_connect ? (
 				<>
 					{ isDisplayingNetworkMismatchNotice && (
@@ -109,14 +109,15 @@ const AdUnits = ( {
 					.map( adUnit => {
 						const editLink = `#${ service }/${ adUnit.id }`;
 						const isDisabled = adUnit.is_legacy
-							? false === gamConnectionStatus?.is_network_code_matched
-							: false;
+							? false
+							: false === gamConnectionStatus?.is_network_code_matched;
 						const buttonProps = {
 							disabled: isDisabled,
 							isQuaternary: true,
 							isSmall: true,
 							tooltipPosition: 'bottom center',
 						};
+						const displayLegacyAdUnitLabel = gamConnectionStatus.can_connect && adUnit.is_legacy;
 						return (
 							<ActionCard
 								disabled={ isDisabled }
@@ -136,8 +137,10 @@ const AdUnits = ( {
 									  } ) }
 								description={ () => (
 									<span>
-										{ gamConnectionStatus.can_connect && adUnit.is_legacy ? (
-											<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i>
+										{ displayLegacyAdUnitLabel ? (
+											<>
+												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{' '}
+											</>
 										) : null }
 										{ __( 'Sizes:', 'newspack' ) }{' '}
 										{ adUnit.sizes.map( ( size, i ) => (
@@ -165,7 +168,7 @@ const AdUnits = ( {
 						);
 					} ) }
 			</Card>
-		</Fragment>
+		</>
 	);
 };
 
