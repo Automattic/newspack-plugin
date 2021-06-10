@@ -30,16 +30,6 @@ class AMP_Enhancements {
 			}
 		);
 
-		add_action(
-			'wp_footer',
-			function() {
-				?>
-				<script type="text/javascript" amp-plus-allowed>
-					console.log('hello, world!')
-				</script>
-				<?php
-			}
-		);
 		add_filter( 'amp_validation_error_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
 		add_filter( 'amp_validation_error_default_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
 	}
