@@ -29,7 +29,6 @@ class AMP_Enhancements {
 				return $gtag_opt;
 			}
 		);
-		add_filter( 'amp_content_sanitizers', [ __CLASS__, 'amp_content_sanitizers' ] );
 
 		add_action(
 			'wp_footer',
@@ -70,19 +69,6 @@ class AMP_Enhancements {
 			return false;
 		}
 		return $is_sanitized;
-	}
-
-	/**
-	 * Allow certain scripts to be included in AMP pages.
-	 *
-	 * @param array $sanitizers The array of sanitizers, 'MyClassName' => [] // array of constructor params for class.
-	 */
-	public static function amp_content_sanitizers( $sanitizers ) {
-		if ( self::should_use_amp_plus( 'gam' ) ) {
-			require_once NEWSPACK_ABSPATH . 'includes/amp-sanitizers/class-amp-sanitizer-gam.php';
-			$sanitizers['AMP_Sanitizer_GAM'] = [];
-		}
-		return $sanitizers;
 	}
 }
 AMP_Enhancements::init();
