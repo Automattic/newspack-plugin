@@ -30,8 +30,12 @@ class AMP_Enhancements {
 			}
 		);
 
-		add_filter( 'amp_validation_error_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
-		add_filter( 'amp_validation_error_default_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
+		// Check if AMP Plugin is in Standard mode.
+		// In Transitional/Reader modes, AMP pages with kept invalid markup get redirected to the non-AMP version, which is not desired.
+		if ( function_exists( 'amp_is_canonical' ) && amp_is_canonical() ) {
+			add_filter( 'amp_validation_error_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
+			add_filter( 'amp_validation_error_default_sanitized', [ __CLASS__, 'amp_validation_error_sanitized' ], 10, 2 );
+		}
 	}
 
 	/**
@@ -44,6 +48,11 @@ class AMP_Enhancements {
 		$should = false;
 		if ( isset( $_GET['ampplus'] ) && self::is_amp_plus_configured() && in_array( $context, NEWSPACK_AMP_PLUS_CONFIG ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$should = true;
+		}
+		// Check if AMP Plugin is in Standard mode.
+		// In Transitional/Reader modes, AMP pages with kept invalid markup get redirected to the non-AMP version, which is not desired.
+		if ( function_exists( 'amp_is_canonical' ) && false === amp_is_canonical() ) {
+			$should = false;
 		}
 		return apply_filters( 'should_use_amp_plus', $should, $context );
 	}
