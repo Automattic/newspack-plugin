@@ -93,10 +93,7 @@ const Main = ( {
 			<Card noBorder>
 				<TextControl
 					label={ label + ' - ' + __( 'Font provider import code or URL', 'newspack' ) }
-					help={ __(
-						'Example: <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> or https://fonts.googleapis.com/css?family=Open+Sans',
-						'newspack'
-					) }
+					placeholder={ 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap' }
 					value={
 						isHeadings ? mods.custom_font_import_code : mods.custom_font_import_code_alternate
 					}
