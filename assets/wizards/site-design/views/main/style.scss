@@ -44,21 +44,18 @@
 			grid-template-columns: repeat( 2, min-content );
 		}
 	}
-}
 
-.newspack-radio-control {
-	margin-bottom: -16px;
+	.newspack-radio-control {
+		.components-base-control__field {
+			display: flex;
+			flex-wrap: wrap;
 
-	.components-base-control__field {
-		display: flex;
-		flex-wrap: wrap;
+			.components-radio-control__option {
+				margin: 0;
 
-		.components-radio-control__option {
-			margin: 0;
-
-			&:first-of-type {
-				margin-top: 0;
-				margin-right: 32px;
+				&:first-of-type {
+					margin-right: 32px;
+				}
 			}
 		}
 	}

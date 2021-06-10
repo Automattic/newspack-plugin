@@ -90,7 +90,7 @@ const Main = ( {
 		const isHeadings = type === 'headings';
 		const label = isHeadings ? __( 'Headings', 'newspack' ) : __( 'Body', 'newspack' );
 		return (
-			<div>
+			<Card noBorder>
 				<TextControl
 					label={ label + ' - ' + __( 'Font provider import code or URL', 'newspack' ) }
 					help={ __(
@@ -105,7 +105,7 @@ const Main = ( {
 					) }
 				/>
 				<TextControl
-					label={ __( 'Font name', 'newspack' ) }
+					label={ label + ' - ' + __( 'Font name', 'newspack' ) }
 					value={ isHeadings ? mods.font_header : mods.font_body }
 					onChange={ updateMods( isHeadings ? 'font_header' : 'font_body' ) }
 				/>
@@ -120,7 +120,7 @@ const Main = ( {
 					value={ isHeadings ? mods.font_header_stack : mods.font_body_stack }
 					onChange={ updateMods( isHeadings ? 'font_header_stack' : 'font_body_stack' ) }
 				/>
-			</div>
+			</Card>
 		);
 	};
 
@@ -135,7 +135,7 @@ const Main = ( {
 				<>
 					<SectionHeader
 						title={ __( 'Homepage', 'newspack' ) }
-						description={ __( 'Choose a homepage layout', 'newspack' ) }
+						description={ __( 'Pick a homepage layout', 'newspack' ) }
 						className="newspack-design__header"
 					/>
 					<Grid columns={ 6 } gutter={ 16 }>
@@ -154,7 +154,7 @@ const Main = ( {
 			) : null }
 			<SectionHeader
 				title={ __( 'Colors', 'newspack' ) }
-				description={ __( 'Define your primary and secondary colors', 'newspack' ) }
+				description={ __( 'Choose your primary and secondary colors', 'newspack' ) }
 			/>
 			<Grid gutter={ 32 }>
 				{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
@@ -175,14 +175,14 @@ const Main = ( {
 			</Grid>
 			<SectionHeader
 				title={ __( 'Typography', 'newspack' ) }
-				description={ __( 'Pick the font pairing to use throughout your site', 'newspack' ) }
-			/>
-			<RadioControl
-				options={ TYPOGRAPHY_OPTIONS }
-				selected={ typographyOptionsType }
-				onChange={ updateTypographyOptionsType }
+				description={ __( 'Define the font pairing to use throughout your site', 'newspack' ) }
 			/>
 			<Grid columns={ 1 } gutter={ 16 }>
+				<RadioControl
+					options={ TYPOGRAPHY_OPTIONS }
+					selected={ typographyOptionsType }
+					onChange={ updateTypographyOptionsType }
+				/>
 				<Grid gutter={ 32 }>
 					{ typographyOptionsType === 'curated' ? (
 						<>
