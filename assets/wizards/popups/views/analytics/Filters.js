@@ -2,7 +2,11 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { SelectControl } from '@wordpress/components';
+
+/**
+ * Internal dependencies.
+ */
+import { SelectControl } from '../../../../components/src';
 
 import { OFFSETS } from './consts';
 
