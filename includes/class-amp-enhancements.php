@@ -73,7 +73,11 @@ class AMP_Enhancements {
 	 * @param object    $error The AMP sanitisation error.
 	 */
 	public static function amp_validation_error_sanitized( $is_sanitized, $error ) {
-		if ( isset( $error['node_attributes'], $error['node_attributes']['data-amp-plus-allowed'] ) ) {
+		if ( false === self::should_use_amp_plus() ) {
+			return $is_sanitized;
+		}
+		// Explicitly allowed scripts - with a 'data-amp-plus-allowed' attribute.
+		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['data-amp-plus-allowed'] ) ) {
 			return false;
 		}
 		return $is_sanitized;
