@@ -120,7 +120,7 @@ class Popups_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_duplicate_popup' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id'      => [
+					'id' => [
 						'sanitize_callback' => 'absint',
 					],
 				],
