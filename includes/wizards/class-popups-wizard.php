@@ -123,9 +123,6 @@ class Popups_Wizard extends Wizard {
 					'id'      => [
 						'sanitize_callback' => 'absint',
 					],
-					'options' => [
-						'validate_callback' => [ $this, 'api_validate_options' ],
-					],
 				],
 			]
 		);
