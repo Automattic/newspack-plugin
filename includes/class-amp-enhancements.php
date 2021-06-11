@@ -44,9 +44,9 @@ class AMP_Enhancements {
 	 * @param  string $context The context for which AMP plus should be assessed.
 	 * @return bool Should AMP plus be applied.
 	 */
-	public static function should_use_amp_plus( $context = null ) {
+	public static function should_use_amp_plus() {
 		$should = false;
-		if ( isset( $_GET['ampplus'] ) && self::is_amp_plus_configured() && in_array( $context, NEWSPACK_AMP_PLUS_CONFIG ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( self::is_amp_plus_configured() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$should = true;
 		}
 		// Check if AMP Plugin is in Standard mode.
@@ -54,7 +54,7 @@ class AMP_Enhancements {
 		if ( function_exists( 'amp_is_canonical' ) && false === amp_is_canonical() ) {
 			$should = false;
 		}
-		return apply_filters( 'should_use_amp_plus', $should, $context );
+		return apply_filters( 'should_use_amp_plus', $should );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class AMP_Enhancements {
 	 * @return bool Is AMP plus mode configured.
 	 */
 	public static function is_amp_plus_configured() {
-		return defined( 'NEWSPACK_AMP_PLUS_CONFIG' ) && is_array( NEWSPACK_AMP_PLUS_CONFIG );
+		return defined( 'NEWSPACK_AMP_PLUS_ENABLED' );
 	}
 
 	/**
