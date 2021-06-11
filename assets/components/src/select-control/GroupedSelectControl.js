@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { BaseControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown } from '@wordpress/icons';
 
 /**
@@ -49,6 +50,7 @@ export default function GroupedSelectControl( {
 				aria-describedby={ !! help ? `${ id }__help` : undefined }
 				{ ...props }
 			>
+				<option value="">{ __( '-- Select --', 'newspack' ) }</option>
 				{ optgroups.map( ( { label: optgroupLabel, options }, optgroupIndex ) => (
 					<optgroup label={ optgroupLabel } key={ optgroupIndex }>
 						{ options.map( ( option, optionIndex ) => (
