@@ -41,7 +41,6 @@ class AMP_Enhancements {
 	/**
 	 * AMP plus mode.
 	 *
-	 * @param  string $context The context for which AMP plus should be assessed.
 	 * @return bool Should AMP plus be applied.
 	 */
 	public static function should_use_amp_plus() {
