@@ -13,6 +13,7 @@ import {
 	Card,
 	ColorPicker,
 	TextControl,
+	TextareaControl,
 	SelectControl,
 	StyleCard,
 	ToggleControl,
@@ -35,8 +36,8 @@ import {
 import './style.scss';
 
 const TYPOGRAPHY_OPTIONS = [
-	{ value: 'curated', label: __( 'Curated list', 'newspack' ) },
-	{ value: 'custom', label: __( 'Custom fonts', 'newspack' ) },
+	{ value: 'curated', label: __( 'Default', 'newspack' ) },
+	{ value: 'custom', label: __( 'Custom', 'newspack' ) },
 ];
 
 const Main = ( {
@@ -91,7 +92,7 @@ const Main = ( {
 		const label = isHeadings ? __( 'Headings', 'newspack' ) : __( 'Body', 'newspack' );
 		return (
 			<Card noBorder>
-				<TextControl
+				<TextareaControl
 					label={ label + ' - ' + __( 'Font provider import code or URL', 'newspack' ) }
 					placeholder={
 						'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap'
@@ -102,6 +103,7 @@ const Main = ( {
 					onChange={ updateMods(
 						isHeadings ? 'custom_font_import_code' : 'custom_font_import_code_alternate'
 					) }
+					rows={ 3 }
 				/>
 				<TextControl
 					label={ label + ' - ' + __( 'Font name', 'newspack' ) }
