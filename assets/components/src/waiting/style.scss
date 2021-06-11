@@ -2,12 +2,10 @@
  * Waiting
  */
 
-@import '~@wordpress/base-styles/colors';
-
 .newspack-is-waiting {
 	animation: newspack-is-waiting__animation 1s infinite linear;
 	display: block;
-	fill: $light-gray-900;
+	fill: currentColor;
 	flex: 0 0 24px;
 
 	&.newspack-is-waiting__is-left {

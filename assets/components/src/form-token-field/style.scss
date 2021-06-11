@@ -6,14 +6,14 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-form-token-field {
-	color: $dark-gray-300;
+	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
 	width: 100%;
 
 	label {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-size: inherit;
 		font-weight: bold;
 		line-height: inherit;
@@ -22,7 +22,7 @@
 
 	.newspack-form-token-field__input-container {
 		background: white;
-		border: 1px solid $light-gray-500;
+		border: 1px solid $gray-300;
 		border-radius: 3px;
 		box-shadow: none;
 		box-sizing: border-box;
@@ -42,6 +42,13 @@
 		&.is-active {
 			border-color: $primary-500;
 			box-shadow: inset 0 0 0 2px $primary-500;
+		}
+
+		&:disabled,
+		&.is-disabled {
+			background: $gray-100;
+			color: $gray-600;
+			cursor: not-allowed;
 		}
 
 		input[type='text'] {
@@ -65,7 +72,7 @@
 	}
 
 	.components-form-token-field__suggestions-list {
-		border-top-color: $light-gray-500;
+		border-top-color: $gray-300;
 		margin: 12px -8px -11px;
 		padding: 8px 0 0;
 

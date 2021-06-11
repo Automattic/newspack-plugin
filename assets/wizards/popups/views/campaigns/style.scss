@@ -14,8 +14,8 @@
 
 		&__segment {
 			align-items: center;
-			background: $light-gray-100;
-			border-bottom: 1px solid $light-gray-200;
+			background: $gray-100;
+			border-bottom: 1px solid $gray-300;
 			display: flex;
 			justify-content: space-between;
 		}
@@ -29,8 +29,8 @@
 			margin: 0;
 
 			.components-custom-select-control__button {
-				border-color: $light-gray-200;
-				color: $dark-gray-900;
+				border-color: $gray-200;
+				color: $gray-900;
 				font-size: 17px;
 				font-weight: bold;
 				min-height: 36px;
@@ -117,7 +117,7 @@
 
 .newspack-card__buttons-prompt {
 	.newspack-button {
-		color: $dark-gray-900;
+		color: $gray-900;
 		display: flex;
 		flex-direction: column;
 		padding: 8px !important;
@@ -130,13 +130,13 @@
 			color: $primary-500;
 
 			svg {
-				background: $light-gray-100;
+				background: $gray-100;
 				border-color: $primary-500;
 			}
 		}
 
 		svg {
-			border: 1px solid $light-gray-500;
+			border: 1px solid $gray-300;
 			border-radius: 3px;
 			display: block;
 			fill: $primary-500;

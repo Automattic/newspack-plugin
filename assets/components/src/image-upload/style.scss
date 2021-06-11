@@ -11,7 +11,7 @@
 		display: flex;
 	}
 	&__label {
-		color: $dark-gray-900;
+		color: $gray-900;
 		font-size: 14px;
 		font-weight: bold;
 		line-height: 24px;
@@ -19,18 +19,39 @@
 	&__image {
 		align-items: center;
 		background-repeat: no-repeat;
-		background-size: cover;
-		border: 1px dashed $light-gray-500;
+		background-size: contain;
+		background-position: center;
+		border: 1px dashed $gray-300;
 		border-radius: 3px;
 		display: flex;
 		justify-content: center;
 		max-width: 100%;
 		position: relative;
+		&--covering {
+			background-size: cover;
+		}
+		&:not( &--has-image ) {
+			.newspack-button {
+				background: white !important;
+				border-radius: 3px !important;
+				padding: 4px 16px !important;
+
+				&:active,
+				&:focus,
+				&:hover {
+					background: white !important;
+				}
+
+				&:focus {
+					outline-offset: -3px !important;
+				}
+			}
+		}
 		&--has-image {
 			border: none;
 			&::before,
 			&::after {
-				border: 1px solid rgba( black, 0.1 );
+				border: 1px solid rgba( black, 0.125 );
 				border-radius: 3px;
 				bottom: 0;
 				content: '';
@@ -51,7 +72,7 @@
 			}
 			&::after {
 				background: rgba( white, 0.9 );
-				border-color: $light-gray-500;
+				border-color: $gray-300;
 			}
 			&:focus-within,
 			&:hover {

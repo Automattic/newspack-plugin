@@ -3,15 +3,9 @@
  */
 import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Draggable, Tooltip, MenuItem } from '@wordpress/components';
+import { Draggable, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
-
-/**
- * Material UI dependencies.
- */
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
 
 /**
  * Internal dependencies.
@@ -192,30 +186,29 @@ const SegmentActionCard = ( {
 						description={ descriptionForSegment( segment, categories ) }
 						actionText={
 							<>
-								<Tooltip text={ __( 'More options', 'newspack' ) }>
-									<Button
-										className="icon-only"
-										onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
-									>
-										<Icon icon={ moreVertical } />
-									</Button>
-								</Tooltip>
+								<Button
+									isQuaternary
+									onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
+									label={ __( 'More options', 'newspack' ) }
+									icon={ moreVertical }
+								/>
 								{ popoverVisibility && (
 									<Popover
 										position="bottom left"
 										onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside }
 										onFocusOutside={ onFocusOutside }
 									>
+										<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+											{ __( 'Close Popover', 'newspack' ) }
+										</MenuItem>
 										<MenuItem
 											onClick={ () => history.push( `/segments/${ segment.id }` ) }
-											icon={ <EditIcon /> }
 											className="newspack-button"
 										>
 											{ __( 'Edit', 'newspack' ) }
 										</MenuItem>
 										<MenuItem
 											onClick={ () => deleteSegment( segment ) }
-											icon={ <DeleteIcon /> }
 											className="newspack-button"
 										>
 											{ __( 'Delete', 'newspack' ) }

@@ -23,7 +23,16 @@ class Notice extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, isError, isHelp, isSuccess, isWarning, noticeText, rawHTML } = this.props;
+		const {
+			className,
+			isError,
+			isHelp,
+			isSuccess,
+			isWarning,
+			noticeText,
+			rawHTML,
+			style = {},
+		} = this.props;
 		const classes = classnames(
 			'newspack-notice',
 			className,
@@ -41,7 +50,7 @@ class Notice extends Component {
 			noticeIcon = info;
 		}
 		return (
-			<div className={ classes }>
+			<div className={ classes } style={ style }>
 				{ <Icon icon={ noticeIcon } /> }
 				<div className="newspack-notice__content">
 					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }

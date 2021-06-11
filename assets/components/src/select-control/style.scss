@@ -6,7 +6,7 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-select-control {
-	color: $dark-gray-300;
+	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
@@ -14,26 +14,28 @@
 	.components-base-control__field {
 		margin: 0;
 	}
+	.components-input-control__label,
+	.components-base-control__label {
+		color: $gray-900 !important;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 24px;
+		padding-bottom: 0 !important;
+		margin-bottom: 0;
+	}
 
 	.components-select-control {
 		border-radius: 3px;
 		font-size: 14px;
 		line-height: 24px;
 
-		label.components-input-control__label {
-			color: $dark-gray-900;
-			font-size: 14px;
-			font-weight: bold;
-			line-height: 24px;
-			padding-bottom: 0 !important;
-		}
-
 		div.components-input-control__backdrop {
-			border-color: $light-gray-500;
+			border-color: $gray-300;
 		}
 
 		select.components-select-control__input {
-			color: $dark-gray-300;
+			color: $gray-700;
+			border-color: $gray-300;
 			font-size: 16px;
 			height: 48px;
 			line-height: 24px;
@@ -76,5 +78,62 @@
 	+ .newspack-textarea-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
+	}
+}
+
+// Grouped
+
+.newspack-grouped-select-control {
+	position: relative;
+
+	.components-select-control {
+		&__input {
+			appearance: none;
+			background: transparent;
+			border-radius: 3px;
+			box-shadow: none !important;
+			box-sizing: border-box;
+			display: block;
+			margin: 0;
+			outline: none;
+			padding: 0 24px 0 7px;
+			width: 100%;
+
+			&:focus {
+				border-color: $primary-500 !important;
+				box-shadow: inset 0 0 0 2px $primary-500 !important;
+			}
+		}
+
+		&__arrow-wrapper {
+			align-items: center;
+			bottom: 0;
+			display: flex;
+			height: 48px;
+			justify-content: center;
+			position: absolute;
+			right: 1px;
+			width: 24px;
+		}
+	}
+}
+
+// Buttons
+
+.newspack-buttons-select-control {
+	&.icon-only {
+		.newspack-button-group {
+			display: flex;
+		}
+
+		.newspack-button {
+			align-items: center;
+			display: flex;
+			font-size: 17px;
+			height: 48px;
+			justify-content: center;
+			padding: 0 !important;
+			width: 48px;
+		}
 	}
 }

@@ -97,7 +97,7 @@ class CategoryAutocomplete extends Component {
 	 * Render the component.
 	 */
 	render() {
-		const { value, label } = this.props;
+		const { value, label, disabled } = this.props;
 		const { suggestions, allCategories } = this.state;
 		return (
 			<div className="newspack-category-autocomplete">
@@ -114,6 +114,7 @@ class CategoryAutocomplete extends Component {
 					suggestions={ Object.keys( suggestions ) }
 					onChange={ this.handleOnChange }
 					label={ label }
+					disabled={ disabled }
 				/>
 			</div>
 		);

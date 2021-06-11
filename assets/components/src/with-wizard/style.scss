@@ -18,6 +18,7 @@ body[class*='admin_page_newspack-'] {
 
 	#wpbody-content {
 		padding-bottom: 220px;
+		min-height: 100vh;
 
 		@media screen and ( min-width: 783px ) {
 			padding-bottom: 202px;
@@ -57,6 +58,17 @@ svg {
 
 		&.loading {
 			cursor: wait;
+		}
+
+		&__footer {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+
+			.newspack-checkbox-control {
+				margin: 12px 16px 12px 0;
+			}
 		}
 
 		h1 {
@@ -126,23 +138,23 @@ svg {
 
 	&::after {
 		animation: loading 2s ease-in-out infinite;
-		background: $dark-gray-900;
-		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $dark-gray-300, 40vw 96px 0 0 white,
-			0 96px 0 0 $dark-gray-300;
+		background: $gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
+			0 96px 0 0 $gray-700;
 		height: 24px;
 		margin: 68px auto 0;
 		max-width: 1040px;
 		width: calc( 100% - ( 32px * 2 ) );
 
 		@media screen and ( min-width: 744px ) {
-			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 200px 96px 0 0 white,
-				0 96px 0 0 $dark-gray-300;
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $gray-700, 200px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 520px 96px 0 0 white,
-				0 96px 0 0 $dark-gray-300;
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 520px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
 	}
@@ -172,14 +184,14 @@ svg {
 		}
 
 		&::after {
-			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 0 96px 0 0 $dark-gray-300;
+			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
 			margin: 0;
 			max-width: 520px;
 			top: 156px;
 			width: calc( 100% - ( 64px * 2 ) );
 
 			@media screen and ( min-width: 600px ) {
-				box-shadow: inset -260px 0 0 0 white, 0 64px 0 0 $dark-gray-300, 0 96px 0 0 $dark-gray-300;
+				box-shadow: inset -260px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
 			}
 		}
 	}
@@ -194,11 +206,11 @@ svg {
 		}
 
 		&::before {
-			animation: loading-quiet 1s ease-in-out infinite;
+			animation: loading-quiet 1.25s ease-in-out infinite;
 			background: $primary-500;
 			content: '';
 			display: block;
-			height: 16px;
+			height: 8px;
 			left: 0;
 			position: fixed;
 			right: 100%;
@@ -209,7 +221,8 @@ svg {
 				top: 32px;
 				margin-left: 160px;
 
-				body.auto-fold & {
+				body.auto-fold &,
+				body.folded & {
 					margin-left: 36px;
 				}
 			}

@@ -5,8 +5,11 @@
 .newspack-grid {
 	display: grid;
 	grid-gap: 32px;
+	grid-auto-rows: min-content;
 	grid-template-columns: 1fr;
 	margin: 32px 0;
+
+	// No Margin
 	&--no-margin {
 		margin: 0;
 	}
@@ -19,6 +22,11 @@
 	// Gutter 16
 	&__gutter-16 {
 		grid-gap: 16px;
+	}
+
+	// Gutter 24
+	&__gutter-24 {
+		grid-gap: 24px;
 	}
 
 	// Gutter 32
@@ -41,12 +49,21 @@
 		grid-row-gap: 32px;
 	}
 
+	// Columns 6
+	&__columns-6 {
+		grid-template-columns: repeat( 2, 1fr );
+	}
+
 	// Media Queries - 744px
 	@media screen and ( min-width: 744px ) {
 		&__columns-2,
 		&__columns-3,
 		&__columns-4 {
 			grid-template-columns: repeat( 2, 1fr );
+		}
+
+		&__columns-6 {
+			grid-template-columns: repeat( 3, 1fr );
 		}
 	}
 
@@ -60,6 +77,11 @@
 		// Columns 4
 		&__columns-4 {
 			grid-template-columns: repeat( 4, 1fr );
+		}
+
+		// Columns 6
+		&__columns-6 {
+			grid-template-columns: repeat( 6, 1fr );
 		}
 
 		// Gutter 48

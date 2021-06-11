@@ -11,6 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { audio, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -22,6 +23,7 @@ import {
 	CheckboxControl,
 	Card,
 	Button,
+	ButtonCard,
 	Handoff,
 	Notice,
 	Footer,
@@ -33,6 +35,7 @@ import {
 	Modal,
 	ToggleGroup,
 	WebPreview,
+	AutocompleteWithSuggestions,
 } from '../../components/src';
 
 class ComponentsDemo extends Component {
@@ -42,6 +45,8 @@ class ComponentsDemo extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			selectedPostForAutocompleteWithSuggestions: [],
+			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
 			inputTextValue1: 'Input value',
 			inputTextValue2: '',
 			inputNumValue: 0,
@@ -51,8 +56,6 @@ class ComponentsDemo extends Component {
 			modalShown: false,
 			toggleGroupChecked: false,
 			color1: '#3366ff',
-			color2: '#4ab866',
-			color3: '#d94f4f',
 		};
 	}
 
@@ -61,6 +64,8 @@ class ComponentsDemo extends Component {
 	 */
 	render() {
 		const {
+			selectedPostForAutocompleteWithSuggestions,
+			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
 			inputTextValue1,
 			inputTextValue2,
 			inputNumValue,
@@ -70,9 +75,8 @@ class ComponentsDemo extends Component {
 			actionCardToggleChecked,
 			toggleGroupChecked,
 			color1,
-			color2,
-			color3,
 		} = this.state;
+
 		return (
 			<Fragment>
 				<div className="newspack-wizard__header">
@@ -82,6 +86,40 @@ class ComponentsDemo extends Component {
 					</div>
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
+					<Card>
+						<h2>{ __( 'Autocomplete with Suggestions (single-select)', 'newspack' ) }</h2>
+						<AutocompleteWithSuggestions
+							label={ __( 'Search for a post', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							onChange={ items =>
+								this.setState( { selectedPostForAutocompleteWithSuggestions: items } )
+							}
+							selectedItems={ selectedPostForAutocompleteWithSuggestions }
+						/>
+
+						<hr />
+
+						<h2>{ __( 'Autocomplete with Suggestions (multi-select)', 'newspack' ) }</h2>
+						<AutocompleteWithSuggestions
+							hideHelp
+							multiSelect
+							label={ __( 'Search widgets', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							onChange={ items =>
+								this.setState( { selectedPostsForAutocompleteWithSuggestionsMultiSelect: items } )
+							}
+							postTypes={ [ { slug: 'page', label: 'Pages' }, { slug: 'post', label: 'Posts' } ] }
+							postTypeLabel={ 'widget' }
+							postTypeLabelPlural={ 'widgets' }
+							selectedItems={ selectedPostsForAutocompleteWithSuggestionsMultiSelect }
+						/>
+					</Card>
 					<Card>
 						<h2>{ __( 'Plugin toggles' ) }</h2>
 						<PluginToggle
@@ -120,66 +158,6 @@ class ComponentsDemo extends Component {
 							label={ __( 'Color Picker' ) }
 							color={ color1 }
 							onChange={ color => this.setState( { color1: color } ) }
-						/>
-						<hr />
-						<ColorPicker
-							hasDefaultColors
-							label={ __( 'Color Picker with default colors' ) }
-							color={ color2 }
-							onChange={ color => this.setState( { color2: color } ) }
-						/>
-						<hr />
-						<ColorPicker
-							suggestedColors={ [
-								{
-									name: __( 'pale pink' ),
-									color: '#f78da7',
-								},
-								{ name: __( 'vivid red' ), color: '#cf2e2e' },
-								{
-									name: __( 'luminous vivid orange' ),
-									color: '#ff6900',
-								},
-								{
-									name: __( 'luminous vivid amber' ),
-									color: '#fcb900',
-								},
-								{
-									name: __( 'light green cyan' ),
-									color: '#7bdcb5',
-								},
-								{
-									name: __( 'vivid green cyan' ),
-									color: '#00d084',
-								},
-								{
-									name: __( 'pale cyan blue' ),
-									color: '#8ed1fc',
-								},
-								{
-									name: __( 'vivid cyan blue' ),
-									color: '#0693e3',
-								},
-								{
-									name: __( 'vivid purple' ),
-									color: '#9b51e0',
-								},
-								{
-									name: __( 'very light gray' ),
-									color: '#eeeeee',
-								},
-								{
-									name: __( 'cyan bluish gray' ),
-									color: '#abb8c3',
-								},
-								{
-									name: __( 'very dark gray' ),
-									color: '#313131',
-								},
-							] }
-							label={ __( 'Color Picker with suggested colors' ) }
-							color={ color3 }
-							onChange={ color => this.setState( { color3: color } ) }
 						/>
 					</Card>
 					<Card>
@@ -518,7 +496,26 @@ class ComponentsDemo extends Component {
 							<Button isPrimary>isPrimary</Button>
 							<Button isSecondary>isSecondary</Button>
 							<Button isTertiary>isTertiary</Button>
+							<Button isQuaternary>isQuaternary</Button>
 							<Button isLink>isLink</Button>
+						</Card>
+						<h3>{ __( 'Disabled' ) }</h3>
+						<Card buttonsCard noBorder>
+							<Button isPrimary disabled>
+								isPrimary
+							</Button>
+							<Button isSecondary disabled>
+								isSecondary
+							</Button>
+							<Button isTertiary disabled>
+								isTertiary
+							</Button>
+							<Button isQuaternary disabled>
+								isQuaternary
+							</Button>
+							<Button isLink disabled>
+								isLink
+							</Button>
 						</Card>
 						<h3>isSmall</h3>
 						<Card buttonsCard noBorder>
@@ -531,7 +528,55 @@ class ComponentsDemo extends Component {
 							<Button isTertiary isSmall>
 								isTertiary
 							</Button>
+							<Button isQuaternary isSmall>
+								isQuaternary
+							</Button>
 						</Card>
+					</Card>
+					<Card>
+						<h2>{ __( 'ButtonCard' ) }</h2>
+						<ButtonCard
+							href="admin.php?page=newspack-site-design-wizard"
+							title={ __( 'Site Design', 'newspack' ) }
+							desc={ __( 'Branding, color, typography, layouts', 'newspack' ) }
+							icon={ typography }
+							chevron
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Start a new site', 'newspack' ) }
+							desc={ __( "You don't have content to import", 'newspack' ) }
+							icon={ plus }
+							className="br--top"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Migrate an existing site', 'newspack' ) }
+							desc={ __( 'You have content to import', 'newspack' ) }
+							icon={ reusableBlock }
+							className="br--bottom"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Podcast', 'newspack' ) }
+							desc="isSmall"
+							icon={ audio }
+							className="br--top"
+							isSmall
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Font', 'newspack' ) }
+							desc="isSmall + chevron"
+							icon={ typography }
+							className="br--bottom"
+							chevron
+							isSmall
+							grouped
+						/>
 					</Card>
 				</div>
 				<Footer />

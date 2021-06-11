@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ThemeMods, ThemeSelection } from './views';
+import { ThemeSettings, Main } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -20,42 +20,14 @@ const { HashRouter, Redirect, Route, Switch } = Router;
  */
 class SiteDesignWizard extends Component {
 	componentDidMount = () => {
-		this.retrieveTheme();
-	};
-
-	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 			method: 'GET',
 		};
 		wizardApiFetch( params )
-			.then( response => {
-				const { theme, theme_mods: themeMods } = response;
-				this.setState( { theme, themeMods } );
-			} )
-			.catch( error => {
-				console.log( '[Theme Fetch Error]', error );
-				setError( { error } );
-			} );
-	};
-
-	updateTheme = newTheme => {
-		const { setError, wizardApiFetch } = this.props;
-		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + newTheme,
-			method: 'POST',
-			quiet: true,
-		};
-		wizardApiFetch( params )
-			.then( response => {
-				const { theme, theme_mods: themeMods } = response;
-				this.setState( { theme, themeMods } );
-			} )
-			.catch( error => {
-				console.log( '[Theme Update Error]', error );
-				setError( { error } );
-			} );
+			.then( response => this.setState( { themeMods: response.theme_mods } ) )
+			.catch( setError );
 	};
 
 	setThemeMods = themeModUpdates =>
@@ -81,18 +53,16 @@ class SiteDesignWizard extends Component {
 			} );
 	};
 
-	state = {
-		theme: null,
-	};
+	state = {};
 
 	/**
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch, setError } = this.props;
 		const tabbedNavigation = [
 			{
-				label: __( 'Theme' ),
+				label: __( 'Design' ),
 				path: '/',
 				exact: true,
 			},
@@ -111,16 +81,14 @@ class SiteDesignWizard extends Component {
 							path="/"
 							exact
 							render={ () => {
-								const { theme } = this.state;
 								return (
-									<ThemeSelection
+									<Main
 										headerText={ __( 'Site Design', 'newspack' ) }
-										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
+										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
-										buttonText={ __( 'Configure', 'newspack' ) }
-										buttonAction="#/settings"
-										updateTheme={ this.updateTheme }
-										theme={ theme }
+										wizardApiFetch={ wizardApiFetch }
+										setError={ setError }
+										isPartOfSetup={ false }
 									/>
 								);
 							} }
@@ -131,7 +99,7 @@ class SiteDesignWizard extends Component {
 							render={ () => {
 								const { themeMods } = this.state;
 								return (
-									<ThemeMods
+									<ThemeSettings
 										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
