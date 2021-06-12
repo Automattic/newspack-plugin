@@ -381,6 +381,24 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
+						title="Example Twelve"
+						description="Action card with an unchecked checkbox."
+						actionText="Configure"
+						onClick={ () => {
+							console.log( 'Configure' );
+						} }
+						checkbox="unchecked"
+					/>
+					<ActionCard
+						title="Example Thirteen"
+						description="Action card with a checked checkbox."
+						secondaryActionText="Disconnect"
+						onSecondaryActionClick={ () => {
+							console.log( 'Disconnect' );
+						} }
+						checkbox="checked"
+					/>
+					<ActionCard
 						title="Handoff"
 						description="An example of an action card with Handoff."
 						actionText="Configure"
