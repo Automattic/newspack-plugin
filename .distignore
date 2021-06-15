@@ -35,6 +35,7 @@ yarn.lock
 
 # directories
 node_modules
+.cache
 .git
 .github
 .circleci

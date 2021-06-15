@@ -2,58 +2,64 @@
  * Popups Analytics
  */
 
+@import '~@wordpress/base-styles/colors';
+
 .newspack-campaigns-wizard-analytics {
 	&__wrapper {
-		transition: opacity 200ms;
+		transition: opacity 125ms;
 		&--loading {
 			opacity: 0.5;
 		}
 	}
 	&__filters {
-		margin: 20px 0;
+		margin: 32px 0;
 		&,
 		&__group {
 			display: flex;
 			justify-content: space-between;
 		}
+		.newspack-select-control {
+			margin: 0 !important;
+		}
 	}
 	&__filters__group {
-		> div {
-			margin-left: 10px;
+		.newspack-select-control {
+			margin-right: 8px !important;
 		}
 	}
 
 	&__info {
 		&__sections {
 			display: flex;
-			margin: 40px 0;
+			margin: 32px 0;
 			&__section {
 				display: flex;
 				flex: 1;
 				justify-content: center;
 				align-items: center;
 				flex-direction: column;
-				transition: opacity 200ms;
+				transition: opacity 125ms;
 				h2 {
 					margin: 0;
-					padding-bottom: 20px;
-					font-size: 40px;
+					font-size: 36px;
+					line-height: 48px;
 				}
 				&--with-separator {
 					position: relative;
 					&::after {
 						content: '';
 						position: absolute;
-						height: 80%;
+						height: 100%;
 						width: 1px;
-						background-color: #cecece;
+						background-color: $gray-300;
 						right: 0;
-						top: 10%;
+						top: 0;
 					}
 				}
 				&--dimmed {
-					opacity: 0.3;
+					color: $gray-600;
 					h2 {
+						color: inherit;
 						font-weight: normal;
 					}
 				}

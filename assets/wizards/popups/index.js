@@ -142,7 +142,7 @@ class PopupsWizard extends Component {
 	};
 
 	/**
-	 * Unublish a popup.
+	 * Unpublish a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to alter.
 	 */
@@ -151,6 +151,22 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
 			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( this.updateAfterAPI )
+			.catch( error => setError( error ) );
+	};
+
+	/**
+	 * Duplicate a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to duplicate.
+	 */
+	duplicatePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/duplicate`,
+			method: 'POST',
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
@@ -215,6 +231,7 @@ class PopupsWizard extends Component {
 						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
+						duplicatePopup: this.duplicatePopup,
 						previewPopup: popup =>
 							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
 								showPreview()

@@ -7,6 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -31,6 +32,7 @@ class ActionCard extends Component {
 		const {
 			badge,
 			className,
+			checkbox,
 			children,
 			disabled,
 			title,
@@ -71,6 +73,7 @@ class ActionCard extends Component {
 				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
 				: {};
 		const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
+		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -91,6 +94,19 @@ class ActionCard extends Component {
 							</a>
 						</div>
 					) }
+					{ checkbox && ! toggleOnChange && (
+						<div className="newspack-action-card__region newspack-action-card__region-left">
+							<span
+								className={ classnames(
+									'newspack-checkbox-icon',
+									'is-primary',
+									'checked' === checkbox && 'newspack-checkbox-icon--checked'
+								) }
+							>
+								{ 'checked' === checkbox && <Icon icon={ check } /> }
+							</span>
+						</div>
+					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
 						<h2>
 							<span className="newspack-action-card__title" { ...titleProps }>
@@ -98,37 +114,37 @@ class ActionCard extends Component {
 							</span>
 							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
 						</h2>
-						<p>{ description }</p>
+						<p>{ typeof description === 'string' ? description : description() }</p>
 					</div>
-					{ actionText && (
+					{ ( actionText || isDisplayingSecondaryAction ) && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ /* eslint-disable no-nested-ternary */
-							handoff ? (
-								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
-									{ actionText }
-								</Handoff>
-							) : onClick || hasInternalLink ? (
-								<Button
-									isLink
-									href={ href }
-									onClick={ onClick }
-									className="newspack-action-card__primary_button"
-								>
-									{ actionText }
-								</Button>
-							) : href ? (
-								<ExternalLink href={ href } className="newspack-action-card__primary_button">
-									{ actionText }
-								</ExternalLink>
-							) : (
-								<div className="newspack-action-card__container">
-									{ actionText }
-									{ isWaiting && <Waiting isRight /> }
-								</div>
-							) }
+							{ /* eslint-disable no-nested-ternary */ }
+							{ actionText &&
+								( handoff ? (
+									<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
+										{ actionText }
+									</Handoff>
+								) : onClick || hasInternalLink ? (
+									<Button
+										isLink
+										href={ href }
+										onClick={ onClick }
+										className="newspack-action-card__primary_button"
+									>
+										{ actionText }
+									</Button>
+								) : href ? (
+									<ExternalLink href={ href } className="newspack-action-card__primary_button">
+										{ actionText }
+									</ExternalLink>
+								) : (
+									<div className="newspack-action-card__container">
+										{ actionText }
+										{ isWaiting && <Waiting isRight /> }
+									</div>
+								) ) }
 							{ /* eslint-enable no-nested-ternary */ }
-
-							{ secondaryActionText && onSecondaryActionClick && (
+							{ isDisplayingSecondaryAction && (
 								<Button
 									isLink
 									onClick={ onSecondaryActionClick }
