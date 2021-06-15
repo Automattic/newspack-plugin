@@ -62,7 +62,7 @@ class AMP_Enhancements {
 	 * @return bool Is AMP plus mode configured.
 	 */
 	public static function is_amp_plus_configured() {
-		return defined( 'NEWSPACK_AMP_PLUS_ENABLED' );
+		return defined( 'NEWSPACK_AMP_PLUS_ENABLED' ) && NEWSPACK_AMP_PLUS_ENABLED;
 	}
 
 	/**
