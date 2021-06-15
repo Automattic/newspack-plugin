@@ -26,7 +26,7 @@
 	&.newspack-card__is-secondary,
 	&.newspack-card__is-supported,
 	&.newspack-card__is-unsupported {
-		box-shadow: inset 4px 0 0 $gray-200;
+		box-shadow: inset 4px 0 0 $gray-100;
 
 		.newspack-action-card__region-top {
 			padding-left: 28px;
@@ -129,6 +129,15 @@
 					margin-bottom: 0;
 					margin-right: 16px;
 				}
+			}
+		}
+
+		.newspack-action-card__region-left {
+			margin-bottom: 16px;
+
+			@media screen and ( min-width: 744px ) {
+				margin-bottom: 0;
+				margin-right: 16px;
 			}
 		}
 

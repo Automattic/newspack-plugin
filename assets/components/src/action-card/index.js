@@ -7,11 +7,12 @@
  */
 import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
-import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
+import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
 import './style.scss';
 
 /**
@@ -31,6 +32,7 @@ class ActionCard extends Component {
 		const {
 			badge,
 			className,
+			checkbox,
 			children,
 			disabled,
 			title,
@@ -90,6 +92,19 @@ class ActionCard extends Component {
 									style={ this.backgroundImageStyles( image ) }
 								/>
 							</a>
+						</div>
+					) }
+					{ checkbox && ! toggleOnChange && (
+						<div className="newspack-action-card__region newspack-action-card__region-left">
+							<span
+								className={ classnames(
+									'newspack-checkbox-icon',
+									'is-primary',
+									'checked' === checkbox && 'newspack-checkbox-icon--checked'
+								) }
+							>
+								{ 'checked' === checkbox && <Icon icon={ check } /> }
+							</span>
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
