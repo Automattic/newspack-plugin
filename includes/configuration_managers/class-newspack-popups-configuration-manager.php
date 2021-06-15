@@ -263,6 +263,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Duplicate a prompt.
+	 *
+	 * @param int $id Prompt ID.
+	 */
+	public function duplicate_popup( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::duplicate_popup( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.

@@ -54,6 +54,10 @@
 		&:checked {
 			background-color: $primary-500;
 			border-color: $primary-500;
+
+			&::before {
+				border: none;
+			}
 		}
 
 		&:focus {

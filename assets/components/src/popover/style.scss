@@ -32,20 +32,23 @@
 
 			&.is-link {
 				border-radius: 3px;
-				color: $gray-700;
 				padding: 6px 8px;
 				text-decoration: none;
 
-				&:active,
-				&:active:enabled,
-				&:hover,
-				&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
-					color: $primary-500;
+				&:not( .is-destructive ) {
+					color: $gray-700;
+
+					&:active,
+					&:active:enabled,
+					&:focus,
+					&:focus:enabled &:hover,
+					&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
+						color: $primary-500;
+					}
 				}
 
 				&:focus,
 				&:focus:enabled {
-					color: $gray-700;
 					outline: none;
 				}
 			}

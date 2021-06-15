@@ -33,8 +33,10 @@ class AdUnit extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnit, onSave, service } = this.props;
-		const { id, code, name } = adUnit;
+		const { adUnit, onSave, service, gamConnectionStatus = {} } = this.props;
+		const { id, code, name = '' } = adUnit;
+		const isLegacy = false === gamConnectionStatus.can_connect || adUnit.is_legacy;
+		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
 		return (
 			<Fragment>
@@ -45,12 +47,22 @@ class AdUnit extends Component {
 						value={ name || '' }
 						onChange={ value => this.handleOnChange( 'name', value ) }
 					/>
-					<TextControl
-						label={ __( 'Code', 'newspack' ) }
-						value={ code || '' }
-						onChange={ value => this.handleOnChange( 'code', value ) }
-						className="code"
-					/>
+					{ ( isExistingAdUnit || isLegacy ) && (
+						<TextControl
+							label={ __( 'Code', 'newspack' ) }
+							value={ code || '' }
+							help={
+								isLegacy
+									? undefined
+									: __(
+											"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
+											'newspack'
+									  )
+							}
+							disabled={ ! isLegacy }
+							onChange={ value => this.handleOnChange( 'code', value ) }
+						/>
+					) }
 				</Grid>
 				{ sizes.map( ( size, index ) => (
 					<Card noBorder key={ index }>
@@ -103,7 +115,11 @@ class AdUnit extends Component {
 				</Button>
 				<div className="clear" />
 				<div className="newspack-buttons-card">
-					<Button isPrimary onClick={ () => onSave( id ) }>
+					<Button
+						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) }
+						isPrimary
+						onClick={ () => onSave( id ) }
+					>
 						{ __( 'Save', 'newspack' ) }
 					</Button>
 					<Button isSecondary href={ `#/${ service }` }>
