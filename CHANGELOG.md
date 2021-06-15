@@ -1,3 +1,15 @@
+# [1.44.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.43.0...v1.44.0-alpha.1) (2021-06-15)
+
+
+### Features
+
+* add checkbox prop to action-card ([#1002](https://github.com/Automattic/newspack-plugin/issues/1002)) ([167ab07](https://github.com/Automattic/newspack-plugin/commit/167ab07dd1ea4d3c7cb476a8e4d3e68a1c526aeb))
+* campaign analytics update design ([#995](https://github.com/Automattic/newspack-plugin/issues/995)) ([ea89802](https://github.com/Automattic/newspack-plugin/commit/ea898024007ae8812f908fb8dcb35021765f6efa))
+* duplicate a prompt ([#1001](https://github.com/Automattic/newspack-plugin/issues/1001)) ([e25cdcd](https://github.com/Automattic/newspack-plugin/commit/e25cdcd40813b1636574fb071e1765b1edde87f7))
+* handle GAM ad units ([#936](https://github.com/Automattic/newspack-plugin/issues/936)) ([ecd0179](https://github.com/Automattic/newspack-plugin/commit/ecd0179dbf4b17e7610ef4549e5dddfbec114e2b))
+* setup wizard use action cards for integrations ([#1003](https://github.com/Automattic/newspack-plugin/issues/1003)) ([2bfdaf5](https://github.com/Automattic/newspack-plugin/commit/2bfdaf51c6a837b7951f7d7bea2f861856ae8266))
+* **design-wizard:** allow custom font importing ([#999](https://github.com/Automattic/newspack-plugin/issues/999)) ([1e1a77c](https://github.com/Automattic/newspack-plugin/commit/1e1a77c4fd2e119354522228ca4b5dd90cae7bc5))
+
 # [1.43.0](https://github.com/Automattic/newspack-plugin/compare/v1.42.0...v1.43.0) (2021-06-08)
 
 
