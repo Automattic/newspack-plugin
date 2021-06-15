@@ -94,6 +94,15 @@
 			}
 		}
 
+		.newspack-action-card__region-left {
+			margin-bottom: 16px;
+
+			@media screen and ( min-width: 744px ) {
+				margin-bottom: 0;
+				margin-right: 16px;
+			}
+		}
+
 		.newspack-action-card__region-children {
 			padding: 0 32px 32px 32px;
 		}
