@@ -1,3 +1,10 @@
+# [1.45.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.44.0...v1.45.0-alpha.1) (2021-06-16)
+
+
+### Features
+
+* **amp-plus:** selectively allow JS on AMP pages ([#990](https://github.com/Automattic/newspack-plugin/issues/990)) ([40d181a](https://github.com/Automattic/newspack-plugin/commit/40d181a2cb20c8ed059b320bfa83df4affa8e880))
+
 # [1.44.0](https://github.com/Automattic/newspack-plugin/compare/v1.43.0...v1.44.0) (2021-06-15)
 
 
