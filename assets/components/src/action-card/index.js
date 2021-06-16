@@ -114,7 +114,10 @@ class ActionCard extends Component {
 							</span>
 							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
 						</h2>
-						<p>{ typeof description === 'string' ? description : description() }</p>
+						<p>
+							{ typeof description === 'string' && description }
+							{ typeof description === 'function' && description() }
+						</p>
 					</div>
 					{ ( actionText || isDisplayingSecondaryAction ) && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
