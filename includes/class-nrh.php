@@ -17,7 +17,7 @@ class NRH {
 	 * Add hooks.
 	 */
 	public static function init() {
-		add_filter( 'newspack_blocks_donate_block_html', [ __CLASS__, 'handle_custom_campaign_id' ] );
+		add_filter( 'newspack_blocks_donate_block_html', [ __CLASS__, 'handle_custom_campaign_id' ], 10, 2 );
 		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'googlesitekit_gtag_opt' ], 11 );
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'googlesitekit_amp_gtag_opt' ], 11 );
 		add_filter( 'newspack_blocks_donate_block_html', [ __CLASS__, 'render_nrh_donate_block' ], 10, 2 );
@@ -27,9 +27,14 @@ class NRH {
 	 * Add a hidden campaign input when a custom campaign is present in the GET request.
 	 *
 	 * @param string $html The donate form html.
+	 * @param array  $attributes Block attributes.
 	 * @return string modified $html.
 	 */
-	public static function handle_custom_campaign_id( $html ) {
+	public static function handle_custom_campaign_id( $html, $attributes ) {
+		if ( isset( $attributes['isStreamlined'] ) && true === $attributes['isStreamlined'] ) {
+			// The streamlined block communicates directly with Stripe, no need to handle linking.
+			return $html;
+		}
 		// Don't add a global campaign ID if there is already a campaign ID.
 		if ( stripos( $html, "name='campaign'" ) || stripos( $html, 'name="campaign"' ) ) {
 			return $html;
@@ -104,6 +109,10 @@ class NRH {
 	 * @return string modified $html.
 	 */
 	public static function render_nrh_donate_block( $html, $attributes ) {
+		if ( isset( $attributes['isStreamlined'] ) && true === $attributes['isStreamlined'] ) {
+			// The streamlined block communicates directly with Stripe, no need to handle linking.
+			return $html;
+		}
 			$settings = array_merge( Donations::get_donation_settings(), $attributes );
 
 			$frequencies = [

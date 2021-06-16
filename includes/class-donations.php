@@ -20,6 +20,7 @@ class Donations {
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
 	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
+	const STRIPE_DATA_OPTION_NAME                 = 'newspack_stripe_data';
 	const DONATION_ORDER_META_KEYS                = [
 		'referer_tags'       => [
 			'label' => 'Post Tags',
@@ -83,12 +84,11 @@ class Donations {
 	 * @return array Array of settings info.
 	 */
 	protected static function get_donation_default_settings( $suggest_donations = false, $platform = 'wc' ) {
-		$currency_symbol = 'wc' === $platform ? \get_woocommerce_currency_symbol() : '$';
 		return [
 			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
-			'currencySymbol'          => html_entity_decode( $currency_symbol ),
+			'currencySymbol'          => html_entity_decode( self::get_currency_symbol() ),
 			'tiered'                  => false,
 			'image'                   => false,
 			'created'                 => 'wc' !== $platform,
@@ -102,12 +102,24 @@ class Donations {
 	}
 
 	/**
+	 * Get the donation currency symbol.
+	 */
+	private static function get_currency_symbol() {
+		if ( self::is_platform_wc() ) {
+			return \get_woocommerce_currency_symbol();
+		} else {
+			$currency = self::get_stripe_data()['currency'];
+			return newspack_get_currency_symbol( $currency );
+		}
+	}
+
+	/**
 	 * Get the donation settings.
 	 *
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
-		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+		if ( self::is_platform_nrh() ) {
 			return self::get_donation_default_settings( true, 'nrh' );
 		}
 
@@ -361,11 +373,72 @@ class Donations {
 	}
 
 	/**
+	 * Is NRH the donation platform?
+	 */
+	public static function is_platform_nrh() {
+		return 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM );
+	}
+
+	/**
+	 * Is WooCommerce the donation platform?
+	 */
+	public static function is_platform_wc() {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		return 'wc' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) && $wc_configuration_manager->is_active();
+	}
+
+	/**
+	 * Get Stripe data blueprint.
+	 */
+	public static function get_default_stripe_data() {
+		return [
+			'enabled'            => false,
+			'testMode'           => false,
+			'publishableKey'     => '',
+			'secretKey'          => '',
+			'testPublishableKey' => '',
+			'testSecretKey'      => '',
+			'currency'           => 'USD',
+		];
+	}
+
+	/**
+	 * Get Stripe data, either from WC, or saved in options table.
+	 */
+	public static function get_stripe_data() {
+		$stripe_data = self::get_default_stripe_data();
+		if ( self::is_platform_wc() ) {
+			// If WC is configured, get Stripe data from WC.
+			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+			$stripe_data              = $wc_configuration_manager->stripe_data();
+		} else {
+			$stripe_data = get_option( self::STRIPE_DATA_OPTION_NAME, self::get_default_stripe_data() );
+		}
+		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
+		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
+		return $stripe_data;
+	}
+
+	/**
+	 * Update Stripe data. Either in WC, or in options table.
+	 *
+	 * @param object $updated_stripe_data Updated Stripe data to be saved.
+	 */
+	public static function update_stripe_data( $updated_stripe_data ) {
+		if ( self::is_platform_wc() ) {
+			// If WC is configured, set Stripe data in WC.
+			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+			$wc_configuration_manager->update_stripe_settings( $updated_stripe_data );
+		}
+		// Otherwise, save it in options table.
+		return update_option( self::STRIPE_DATA_OPTION_NAME, $updated_stripe_data );
+	}
+
+	/**
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
-		$platform = get_option( NEWSPACK_READER_REVENUE_PLATFORM );
-		$is_wc    = 'nrh' !== $platform;
+		$is_wc = false === self::is_platform_nrh();
 
 		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
 		if ( ! $donation_form_submitted || ( $is_wc && is_wp_error( self::is_woocommerce_suite_active() ) ) ) {

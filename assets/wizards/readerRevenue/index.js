@@ -183,6 +183,17 @@ class ReaderRevenueWizard extends Component {
 	 * Get navigation tabs dependant on selected platform.
 	 */
 	navigationForPlatform = ( platform, data ) => {
+		const platformAgnosticFields = [
+			{
+				label: __( 'Stripe', 'newspack' ),
+				path: '/stripe-setup',
+			},
+			{
+				label: __( 'Platform', 'newspack' ),
+				path: '/',
+				exact: true,
+			},
+		];
 		if ( NEWSPACK === platform ) {
 			const { pluginStatus } = data;
 			if ( ! pluginStatus ) {
@@ -203,29 +214,10 @@ class ReaderRevenueWizard extends Component {
 					label: __( 'Address', 'newspack' ),
 					path: '/location-setup',
 				},
-				{
-					label: __( 'Stripe', 'newspack' ),
-					path: '/stripe-setup',
-				},
-				{
-					label: __( 'Platform', 'newspack' ),
-					path: '/',
-					exact: true,
-				},
+				...platformAgnosticFields,
 			];
 		} else if ( NRH === platform ) {
-			return [
-				{
-					label: __( 'Settings', 'newspack' ),
-					path: '/settings',
-					exact: true,
-				},
-				{
-					label: __( 'Platform', 'newspack' ),
-					path: '/',
-					exact: true,
-				},
-			];
+			return platformAgnosticFields;
 		}
 		return null;
 	};
@@ -323,7 +315,9 @@ class ReaderRevenueWizard extends Component {
 							path="/stripe-setup"
 							render={ () => (
 								<StripeSetup
+									displayStripeSettingsOnly={ NRH === platform }
 									data={ stripeData }
+									currencyFields={ currencyFields }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									buttonText={ __( 'Save Settings', 'newspack' ) }
