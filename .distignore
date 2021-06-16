@@ -42,3 +42,6 @@ node_modules
 /tests
 /bin
 /assets
+.cache
+codecov
+__mocks__
