@@ -18,15 +18,16 @@ import './style.scss';
 
 const PrimaryPromptPopover = ( {
 	deletePopup,
-	duplicatePopup,
+	onFocusOutside,
 	prompt,
 	previewPopup,
-	onFocusOutside,
 	publishPopup,
+	setModalVisible,
 	unpublishPopup,
 } ) => {
-	const { id, edit_link: editLink, status } = prompt;
+	const { id, edit_link: editLink, status, title } = prompt;
 	const isPublished = 'publish' === status;
+
 	return (
 		<Popover
 			position="bottom left"
@@ -49,7 +50,7 @@ const PrimaryPromptPopover = ( {
 			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 				{ __( 'Edit', 'newspack' ) }
 			</MenuItem>
-			<MenuItem onClick={ () => duplicatePopup( id ) } className="newspack-button">
+			<MenuItem onClick={ () => setModalVisible( true ) } className="newspack-button">
 				{ __( 'Duplicate', 'newspack' ) }
 			</MenuItem>
 			{ ! isPublished && (

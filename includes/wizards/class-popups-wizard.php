@@ -120,8 +120,11 @@ class Popups_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_duplicate_popup' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id' => [
+					'id'    => [
 						'sanitize_callback' => 'absint',
+					],
+					'title' => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -512,6 +515,7 @@ class Popups_Wizard extends Wizard {
 			$response['settings']  = $newspack_popups_configuration_manager->get_settings();
 			$response['campaigns'] = $newspack_popups_configuration_manager->get_campaigns();
 		}
+
 		return rest_ensure_response( $response );
 	}
 
@@ -581,9 +585,9 @@ class Popups_Wizard extends Wizard {
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
 	public function api_duplicate_popup( $request ) {
-		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$cm->duplicate_popup( $request['id'] );
-		return $this->api_get_settings();
+		$cm           = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$duplicate_id = $cm->duplicate_popup( $request['id'], $request['title'] );
+		return $this->api_get_settings( [ 'duplicated' => $duplicate_id ] );
 	}
 
 	/**
