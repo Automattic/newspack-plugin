@@ -46,10 +46,10 @@ const PromptActionCard = props => {
 	const getDefaultDupicateTitle = () => {
 		const promptToDuplicate = parseInt( prompt?.duplicate_of || prompt.id );
 		const originalPrompt =
-			prompts.find( _prompt => parseInt( _prompt.id ) === promptToDuplicate ) || {};
+			prompts?.find( _prompt => parseInt( _prompt.id ) === promptToDuplicate ) || {};
 		const baseTitle = sprintf( __( '%s copy' ), originalPrompt?.title || title );
 		const existingDuplicates =
-			prompts.filter( _prompt => -1 < _prompt.title.indexOf( baseTitle ) ) || [];
+			prompts?.filter( _prompt => -1 < _prompt.title.indexOf( baseTitle ) ) || [];
 
 		return (
 			baseTitle + ( 0 < existingDuplicates.length ? ' ' + ( existingDuplicates.length + 1 ) : '' )
