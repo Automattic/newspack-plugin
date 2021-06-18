@@ -177,7 +177,12 @@ class PopupsWizard extends Component {
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
+			.catch( () => {
+				setError( {
+					code: 'duplicate_prompt_error',
+					message: __( 'Error duplicating prompt. Please try again later.', 'newspack' ),
+				} );
+			} );
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
