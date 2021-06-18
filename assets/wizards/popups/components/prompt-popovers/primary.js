@@ -25,7 +25,7 @@ const PrimaryPromptPopover = ( {
 	setModalVisible,
 	unpublishPopup,
 } ) => {
-	const { id, edit_link: editLink, status, title } = prompt;
+	const { id, edit_link: editLink, status } = prompt;
 	const isPublished = 'publish' === status;
 
 	return (
