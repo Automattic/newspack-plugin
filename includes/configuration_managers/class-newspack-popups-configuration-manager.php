@@ -263,6 +263,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get default title for a duplicated prompt.
+	 *
+	 * @param int $id Prompt ID to duplicate.
+	 */
+	public function get_duplicate_title( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::get_duplicate_title( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Duplicate a prompt.
 	 *
 	 * @param int    $id Prompt ID to duplicate.

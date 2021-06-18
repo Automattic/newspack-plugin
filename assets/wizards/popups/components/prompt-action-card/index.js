@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -33,27 +34,28 @@ const PromptActionCard = props => {
 		inFlight,
 		resetDuplicated,
 		prompt = {},
-		prompts,
 		segments,
 		warning,
 	} = props;
 	const { campaign_groups: campaignGroups, id, edit_link: editLink, title } = prompt;
 
 	useEffect( () => {
-		setDuplicateTitle( getDefaultDupicateTitle() );
-	}, [ prompts, title ] );
+		if ( modalVisible && ! duplicateTitle ) {
+			getDefaultDupicateTitle();
+		}
+	}, [ modalVisible ] );
 
-	const getDefaultDupicateTitle = () => {
+	const getDefaultDupicateTitle = async () => {
 		const promptToDuplicate = parseInt( prompt?.duplicate_of || prompt.id );
-		const originalPrompt =
-			prompts?.find( _prompt => parseInt( _prompt.id ) === promptToDuplicate ) || {};
-		const baseTitle = sprintf( __( '%s copy' ), originalPrompt?.title || title );
-		const existingDuplicates =
-			prompts?.filter( _prompt => -1 < _prompt.title.indexOf( baseTitle ) ) || [];
+		try {
+			const defaultTitle = await apiFetch( {
+				path: `/newspack/v1/wizard/newspack-popups-wizard/${ promptToDuplicate }/duplicate`,
+			} );
 
-		return (
-			baseTitle + ( 0 < existingDuplicates.length ? ' ' + ( existingDuplicates.length + 1 ) : '' )
-		);
+			setDuplicateTitle( defaultTitle );
+		} catch ( e ) {
+			setDuplicateTitle( title + __( ' copy', 'newspack-popups' ) );
+		}
 	};
 
 	return (
@@ -112,25 +114,27 @@ const PromptActionCard = props => {
 					className="newspack-popups__duplicate-modal"
 					title={ sprintf( __( 'Duplicate “%s”', 'newspack' ), title ) }
 					onRequestClose={ () => {
-						resetDuplicated();
 						setModalVisible( false );
+						setDuplicateTitle( null );
+						resetDuplicated();
 					} }
 				>
 					{ duplicated ? (
 						<>
-							<p>{ sprintf( __( 'Duplicate of “%s” created as a draft.', 'newspack' ), title ) }</p>
 							{ ! campaignGroups && (
 								<Notice
 									isWarning
-									noticeText={ __( 'The duplicate is currently unassigned.', 'newspack' ) }
+									noticeText={ __( 'The prompt is currently unassigned.', 'newspack' ) }
 								/>
 							) }
+							<p>{ sprintf( __( 'Duplicate of “%s” created as a draft.', 'newspack' ), title ) }</p>
 							<div className="newspack-buttons-card">
 								<Button
 									isSecondary
 									onClick={ () => {
-										resetDuplicated();
 										setModalVisible( false );
+										setDuplicateTitle( null );
+										resetDuplicated();
 									} }
 								>
 									{ __( 'Close', 'newspack' ) }
@@ -142,26 +146,32 @@ const PromptActionCard = props => {
 						</>
 					) : (
 						<>
+							{ ! campaignGroups && (
+								<Notice
+									isWarning
+									noticeText={ __( 'This prompt will be unassigned.', 'newspack' ) }
+								/>
+							) }
 							<TextControl
-								disabled={ inFlight }
+								disabled={ inFlight || null === duplicateTitle }
 								label={ __( 'New Title', 'newspack' ) }
 								value={ duplicateTitle }
 								onChange={ value => setDuplicateTitle( value ) }
 							/>
-
 							<div className="newspack-buttons-card">
 								<Button
 									disabled={ inFlight }
 									isSecondary
 									onClick={ () => {
-										resetDuplicated();
 										setModalVisible( false );
+										setDuplicateTitle( null );
+										resetDuplicated();
 									} }
 								>
 									{ __( 'Cancel', 'newspack' ) }
 								</Button>
 								<Button
-									disabled={ inFlight }
+									disabled={ inFlight || null === duplicateTitle }
 									isPrimary
 									onClick={ () => {
 										const titleForDuplicate = duplicateTitle.trim() || getDefaultDupicateTitle();
