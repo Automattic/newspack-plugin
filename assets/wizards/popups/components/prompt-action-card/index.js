@@ -123,7 +123,10 @@ const PromptActionCard = props => {
 						<>
 							<Notice
 								isSuccess
-								noticeText={ sprintf( __( 'Duplicate of “%s” created as a draft.', 'newspack' ), title ) }
+								noticeText={ sprintf(
+									__( 'Duplicate of “%s” created as a draft.', 'newspack' ),
+									title
+								) }
 							/>
 							{ ! campaignGroups && (
 								<Notice
