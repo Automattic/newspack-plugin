@@ -122,7 +122,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
-			'distributor'                   => [
+			'distributor-stable'            => [
 				'Name'        => 'Distributor',
 				'Description' => 'Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.',
 				'Author'      => '10up Inc.',
