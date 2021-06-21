@@ -16,7 +16,7 @@
 	width: 100%;
 
 	@media screen and ( min-width: 600px ) {
-		border-radius: 4px;
+		border-radius: 3px;
 		max-width: 80%;
 		max-width: calc( 100% - 64px );
 	}
@@ -33,29 +33,30 @@
 	// Header
 
 	.components-modal__header {
+		align-items: flex-start;
 		background: white;
-		border: none;
+		border: 0;
 		height: auto;
-		margin: 0;
-		padding: 64px 0 32px;
+		justify-content: flex-end;
+		margin: 0 -48px;
+		padding: 64px 48px 32px;
+
+		@media screen and ( min-width: 744px ) {
+			margin-left: -64px;
+			margin-right: -64px;
+			padding-left: 64px;
+			padding-right: 64px;
+		}
 
 		.components-modal__header-heading-container {
 			display: block;
+			margin-right: 16px;
 		}
 
 		.components-button.has-icon {
-			height: 48px;
-			justify-content: center;
-			left: auto;
-			padding: 0;
-			position: absolute;
-			right: -40px;
-			top: 8px;
-			width: 48px;
-
-			@media screen and ( min-width: 744px ) {
-				right: -56px;
-			}
+			flex: 0 0 36px;
+			left: 0;
+			margin: -2px 0;
 
 			&:hover,
 			&[aria-expended='true'] {
@@ -78,10 +79,9 @@
 
 		.components-modal__header-heading {
 			color: $gray-900;
-			font-size: 20px;
+			font-size: 21px;
 			font-weight: bold;
-			line-height: 24px;
-			text-align: center;
+			line-height: 32px;
 		}
 	}
 
