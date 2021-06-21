@@ -91,36 +91,7 @@
 
 	&__add-new-button {
 		&__modal {
-			max-width: 384px;
-			padding: 0 32px;
-
-			.components-modal__content {
-				margin: 0;
-			}
-
-			.components-modal__header {
-				background: transparent;
-				padding-top: 32px;
-
-				.components-button.has-icon {
-					right: -32px;
-				}
-			}
-
-			.newspack-text-control {
-				margin-top: 0;
-			}
-
-			.newspack-card__buttons-card {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: flex-end;
-				margin: -8px;
-
-				&.newspack-card__buttons-prompt {
-					justify-content: center;
-				}
-			}
+			max-width: 448px;
 		}
 	}
 }

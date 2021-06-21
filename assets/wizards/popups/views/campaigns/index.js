@@ -45,7 +45,7 @@ const modalTitle = modalType => {
 	} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
 		return __( 'Duplicate Campaign', 'newspack' );
 	}
-	return __( 'New Campaign', 'newspack' );
+	return __( 'Add New Campaign', 'newspack' );
 };
 
 const modalButton = modalType => {
@@ -282,8 +282,9 @@ const Campaigns = props => {
 					{ modalVisible && (
 						<Modal
 							title={ modalTitle( modalType ) }
-							isDismissible={ false }
-							className="newspack-campaigns__campaign-group__add-new-button__modal"
+							onRequestClose={ () => {
+								setModalVisible( false );
+							} }
 						>
 							<div ref={ modalTextRef }>
 								<TextControl
@@ -300,7 +301,7 @@ const Campaigns = props => {
 									} }
 								/>
 							</div>
-							<Card buttonsCard noBorder>
+							<Card buttonsCard noBorder className="justify-end">
 								<Button
 									isPrimary
 									disabled={ ! campaignName }
