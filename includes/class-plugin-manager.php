@@ -128,7 +128,7 @@ class Plugin_Manager {
 				'Author'      => '10up Inc.',
 				'AuthorURI'   => 'https://distributorplugin.com/',
 				'PluginURI'   => 'https://distributorplugin.com/',
-				'Download'    => 'https://github.com/10up/distributor/releases/latest/download/distributor.zip',
+				'Download'    => 'https://github.com/10up/distributor/archive/stable.zip',
 				'EditPath'    => 'admin.php?page=pull',
 			],
 			'google-site-kit'               => [
