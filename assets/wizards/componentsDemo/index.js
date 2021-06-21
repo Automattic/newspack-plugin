@@ -200,7 +200,7 @@ class ComponentsDemo extends Component {
 						</Card>
 						{ modalShown && (
 							<Modal
-								title="This is the modal title"
+								title={ __( 'This is the modal title', 'newspack' ) }
 								onRequestClose={ () => this.setState( { modalShown: false } ) }
 							>
 								<p>
@@ -208,7 +208,7 @@ class ComponentsDemo extends Component {
 										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
 									) }
 								</p>
-								<Card buttonsCard noBorder>
+								<Card buttonsCard noBorder className="justify-end">
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
 										{ __( 'Dismiss' ) }
 									</Button>

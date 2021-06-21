@@ -19,6 +19,7 @@ import { Icon, check } from '@wordpress/icons';
 import {
 	ActionCard,
 	Button,
+	Card,
 	Grid,
 	Notice,
 	TextControl,
@@ -277,14 +278,7 @@ class CustomEvents extends Component {
 										onChange={ this.updateEditedEvent( 'is_active' ) }
 										label={ __( 'Active', 'newspack' ) }
 									/>
-									<div className="newspack-buttons-card">
-										<Button
-											onClick={ this.handleCustomEventEdit }
-											disabled={ ! validateEvent( editedEvent ) || isLoading }
-											isPrimary
-										>
-											{ isCreatingEvent ? __( 'Add', 'newspack' ) : __( 'Update', 'newspack' ) }
-										</Button>
+									<Card buttonsCard noBorder className="justify-end">
 										{ ! isCreatingEvent && (
 											<Button
 												isSecondary
@@ -298,7 +292,14 @@ class CustomEvents extends Component {
 												{ __( 'Delete', 'newspack' ) }
 											</Button>
 										) }
-									</div>
+										<Button
+											onClick={ this.handleCustomEventEdit }
+											disabled={ ! validateEvent( editedEvent ) || isLoading }
+											isPrimary
+										>
+											{ isCreatingEvent ? __( 'Add', 'newspack' ) : __( 'Update', 'newspack' ) }
+										</Button>
+									</Card>
 								</div>
 							</Modal>
 						) }
