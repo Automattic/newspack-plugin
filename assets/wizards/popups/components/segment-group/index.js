@@ -9,7 +9,7 @@ import cookies from 'js-cookie';
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState, Fragment } from '@wordpress/element';
-import { Icon, plus } from '@wordpress/icons';
+import { Icon, header, layout, plus } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -27,11 +27,9 @@ import {
 
 import {
 	iconInline,
-	iconCenterOverlay,
-	iconTopOverlay,
-	iconBottomOverlay,
-	iconAboveHeader,
-	iconManualPlacement,
+	iconOverlayBottom,
+	iconOverlayCenter,
+	iconOverlayTop,
 	iconPreview,
 } from './icons';
 import './style.scss';
@@ -165,28 +163,28 @@ const SegmentGroup = props => {
 									shouldCloseOnClickOutside={ false }
 								>
 									<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
+										<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
+											<Icon icon={ iconOverlayCenter } height={ 48 } width={ 48 } />
+											{ __( 'Center Overlay', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
+											<Icon icon={ iconOverlayTop } height={ 48 } width={ 48 } />
+											{ __( 'Top Overlay', 'newspack' ) }
+										</Button>
+										<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
+											<Icon icon={ iconOverlayBottom } height={ 48 } width={ 48 } />
+											{ __( 'Bottom Overlay', 'newspack' ) }
+										</Button>
 										<Button href={ addNewURL( null, campaignId, id ) }>
 											<Icon icon={ iconInline } height={ 48 } width={ 48 } />
 											{ __( 'Inline', 'newspack' ) }
 										</Button>
-										<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
-											<Icon icon={ iconCenterOverlay } height={ 48 } width={ 48 } />
-											{ __( 'Center Overlay', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
-											<Icon icon={ iconTopOverlay } height={ 48 } width={ 48 } />
-											{ __( 'Top Overlay', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
-											<Icon icon={ iconBottomOverlay } height={ 48 } width={ 48 } />
-											{ __( 'Bottom Overlay', 'newspack' ) }
-										</Button>
 										<Button href={ addNewURL( 'above-header', campaignId, id ) }>
-											<Icon icon={ iconAboveHeader } height={ 48 } width={ 48 } />
+											<Icon icon={ header } height={ 48 } width={ 48 } />
 											{ __( 'Above Header', 'newspack' ) }
 										</Button>
 										<Button href={ addNewURL( 'custom', campaignId, id ) }>
-											<Icon icon={ iconManualPlacement } height={ 48 } width={ 48 } />
+											<Icon icon={ layout } height={ 48 } width={ 48 } />
 											{ __( 'Custom Placement', 'newspack' ) }
 										</Button>
 									</Card>
