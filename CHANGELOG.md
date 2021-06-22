@@ -1,3 +1,16 @@
+# [1.46.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.45.0...v1.46.0-alpha.1) (2021-06-22)
+
+
+### Bug Fixes
+
+* distributor plugin URL and slug in plugins whitelist ([#1014](https://github.com/Automattic/newspack-plugin/issues/1014)) ([ab46f1c](https://github.com/Automattic/newspack-plugin/commit/ab46f1c759b661f95fcb578608c45c21b4085c68))
+
+
+### Features
+
+* remove organic-profile-block from supported plugins ([05f8ebf](https://github.com/Automattic/newspack-plugin/commit/05f8ebfe9f3e6b5d496298871bed3096963255c3))
+* update "add new prompt" icons to match Gutenberg style ([#1007](https://github.com/Automattic/newspack-plugin/issues/1007)) ([f831198](https://github.com/Automattic/newspack-plugin/commit/f831198dd78f4a6113a576a5217083f4510353d3))
+
 # [1.45.0](https://github.com/Automattic/newspack-plugin/compare/v1.44.0...v1.45.0) (2021-06-16)
 
 
