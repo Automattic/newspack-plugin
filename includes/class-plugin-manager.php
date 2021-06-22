@@ -122,13 +122,13 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
-			'distributor'                   => [
+			'distributor-stable'            => [
 				'Name'        => 'Distributor',
 				'Description' => 'Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.',
 				'Author'      => '10up Inc.',
 				'AuthorURI'   => 'https://distributorplugin.com/',
 				'PluginURI'   => 'https://distributorplugin.com/',
-				'Download'    => 'https://github.com/10up/distributor/releases/latest/download/distributor.zip',
+				'Download'    => 'https://github.com/10up/distributor/archive/stable.zip',
 				'EditPath'    => 'admin.php?page=pull',
 			],
 			'google-site-kit'               => [
