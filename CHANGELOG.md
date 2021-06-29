@@ -1,3 +1,11 @@
+## [1.46.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.46.0...v1.46.1-alpha.1) (2021-06-29)
+
+
+### Bug Fixes
+
+* make autocreated donation products downloadable for better checkout ([#1017](https://github.com/Automattic/newspack-plugin/issues/1017)) ([0e11b5c](https://github.com/Automattic/newspack-plugin/commit/0e11b5c6c4ba67ca02f100f73322e9657bb47555))
+* use http ogurl for consistency ([#1019](https://github.com/Automattic/newspack-plugin/issues/1019)) ([791bcee](https://github.com/Automattic/newspack-plugin/commit/791bceec98d9eafa033928d04c636e04f868f6ef))
+
 # [1.46.0](https://github.com/Automattic/newspack-plugin/compare/v1.45.0...v1.46.0) (2021-06-22)
 
 
