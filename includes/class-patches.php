@@ -20,6 +20,7 @@ class Patches {
 		add_filter( 'redirect_canonical', [ __CLASS__, 'patch_redirect_canonical' ], 10, 2 );
 		add_filter( 'wpseo_enhanced_slack_data', [ __CLASS__, 'use_cap_for_slack_preview' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
+		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 	}
 
 	/**
@@ -90,6 +91,20 @@ class Patches {
 	 */
 	public static function add_reusable_blocks_menu_link() {
 		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'read', 'edit.php?post_type=wp_block', '', 2 );  
+	}
+
+	/**
+	 * On Atomic infrastructure, URLs are `http` for Facebook requests.
+	 * This forces the `og:url` to `http` for consistency, to prevent 301 redirect loop issues.
+	 *
+	 * @param string $og_url The opengraph URL.
+	 * @return string modified $og_url
+	 */
+	public static function http_ogurls( $og_url ) {
+		if ( defined( 'ATOMIC_SITE_ID' ) && ATOMIC_SITE_ID ) {
+			$og_url = str_replace( 'https:', 'http:', $og_url );
+		}
+		return $og_url;
 	}
 }
 Patches::init();
