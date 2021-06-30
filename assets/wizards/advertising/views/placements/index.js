@@ -53,14 +53,7 @@ class Placements extends Component {
 	 */
 	render() {
 		const { togglePlacement, placements, adUnits, services, onChange } = this.props;
-		const {
-			global_above_header,
-			global_below_header,
-			global_above_footer,
-			archives,
-			search_results,
-			sticky,
-		} = placements;
+		const { global_above_header, global_below_header, global_above_footer, sticky } = placements;
 
 		return (
 			<Fragment>
@@ -128,40 +121,6 @@ class Placements extends Component {
 							services={ services }
 							value={ global_above_footer }
 							onChange={ value => onChange( 'global_above_footer', value ) }
-						/>
-					) : null }
-				</ActionCard>
-				<ActionCard
-					isMedium
-					title={ __( 'Archives', 'newspack' ) }
-					description={ __( 'Choose an ad unit to display on your archives', 'newspack' ) }
-					toggleChecked={ archives && archives.enabled }
-					hasGreyHeader={ archives && archives.enabled }
-					toggleOnChange={ value => togglePlacement( 'archives', value ) }
-				>
-					{ archives && archives.enabled ? (
-						<AdPicker
-							adUnits={ adUnits }
-							services={ services }
-							value={ archives }
-							onChange={ value => onChange( 'archives', value ) }
-						/>
-					) : null }
-				</ActionCard>
-				<ActionCard
-					isMedium
-					title={ __( 'Search Results', 'newspack' ) }
-					description={ __( 'Choose an ad unit to display on your search results', 'newspack' ) }
-					toggleChecked={ search_results && search_results.enabled }
-					hasGreyHeader={ search_results && search_results.enabled }
-					toggleOnChange={ value => togglePlacement( 'search_results', value ) }
-				>
-					{ search_results && search_results.enabled ? (
-						<AdPicker
-							adUnits={ adUnits }
-							services={ services }
-							value={ search_results }
-							onChange={ value => onChange( 'search_results', value ) }
 						/>
 					) : null }
 				</ActionCard>
