@@ -1,3 +1,10 @@
+# [1.47.0](https://github.com/Automattic/newspack-plugin/compare/v1.46.1...v1.47.0) (2021-06-30)
+
+
+### Features
+
+* prompt duplication UI in a modal in the Campaigns wizard ([#1012](https://github.com/Automattic/newspack-plugin/issues/1012)) ([087004f](https://github.com/Automattic/newspack-plugin/commit/087004f2150279cd0c7c532daea7373f5398f092))
+
 ## [1.46.1](https://github.com/Automattic/newspack-plugin/compare/v1.46.0...v1.46.1) (2021-06-29)
 
 
