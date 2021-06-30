@@ -33,8 +33,6 @@ class AdvertisingWizard extends Component {
 					global_above_header: {},
 					global_below_header: {},
 					global_above_footer: {},
-					archives: {},
-					search_results: {},
 					sticky: {},
 				},
 				services: {
