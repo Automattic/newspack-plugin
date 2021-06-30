@@ -1,3 +1,10 @@
+# [1.47.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.47.0-alpha.1...v1.47.0-alpha.2) (2021-06-30)
+
+
+### Bug Fixes
+
+* force alpha build ([7f2755f](https://github.com/Automattic/newspack-plugin/commit/7f2755fbcfa5b7ea6052d89bb68cdf8eca5650ca))
+
 # [1.47.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.46.1...v1.47.0-alpha.1) (2021-06-30)
 
 
