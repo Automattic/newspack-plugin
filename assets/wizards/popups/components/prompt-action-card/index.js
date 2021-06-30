@@ -131,7 +131,10 @@ const PromptActionCard = props => {
 							{ ! campaignGroups && (
 								<Notice
 									isWarning
-									noticeText={ __( 'This prompt is currently not assigned to any campaign.', 'newspack' ) }
+									noticeText={ __(
+										'This prompt is currently not assigned to any campaign.',
+										'newspack'
+									) }
 								/>
 							) }
 							<div className="newspack-buttons-card">
