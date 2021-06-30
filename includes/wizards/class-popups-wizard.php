@@ -116,12 +116,29 @@ class Popups_Wizard extends Wizard {
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/(?P<id>\d+)/duplicate',
 			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_duplicate_popup' ],
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_duplicate_title' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
 						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)/duplicate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_duplicate_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id'    => [
+						'sanitize_callback' => 'absint',
+					],
+					'title' => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -512,6 +529,7 @@ class Popups_Wizard extends Wizard {
 			$response['settings']  = $newspack_popups_configuration_manager->get_settings();
 			$response['campaigns'] = $newspack_popups_configuration_manager->get_campaigns();
 		}
+
 		return rest_ensure_response( $response );
 	}
 
@@ -575,15 +593,27 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get default title for a duplicated prompt.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
+	 */
+	public function api_get_duplicate_title( $request ) {
+		$cm            = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$default_title = $cm->get_duplicate_title( $request['id'] );
+		return $default_title;
+	}
+
+	/**
 	 * Duplicate a Pop-up.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
 	public function api_duplicate_popup( $request ) {
-		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$cm->duplicate_popup( $request['id'] );
-		return $this->api_get_settings();
+		$cm           = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$duplicate_id = $cm->duplicate_popup( $request['id'], $request['title'] );
+		return $this->api_get_settings( [ 'duplicated' => $duplicate_id ] );
 	}
 
 	/**
