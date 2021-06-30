@@ -10,7 +10,8 @@
 	"require"    : {
 		"composer/installers": "~1.6",
 		"joshtronic/php-loremipsum": "^1.0",
-		"google/auth": "^1.15"
+		"google/auth": "^1.15",
+		"stripe/stripe-php": "^7.87"
 	},
 	"require-dev": {
 		"brainmaestro/composer-git-hooks": "^2.6",

@@ -362,7 +362,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			return rest_ensure_response( $required_plugins_installed );
 		}
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$args                     = wp_parse_args( $settings, Donations::get_default_stripe_data() );
+		$args                     = wp_parse_args( $settings, Stripe_Connection::get_default_stripe_data() );
 		// If Stripe is enabled, make sure the API key fields are non-empty.
 		if ( $args['enabled'] ) {
 			if ( $args['testMode'] && ( ! $this->api_validate_not_empty( $args['testPublishableKey'] ) || ! $this->api_validate_not_empty( $args['testSecretKey'] ) ) ) {
@@ -386,7 +386,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 		}
 
-		Donations::update_stripe_data( $args );
+		Stripe_Connection::update_stripe_data( $args );
 		return $this->fetch_all_data();
 	}
 
@@ -597,7 +597,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'country_state_fields' => [],
 			'currency_fields'      => newspack_get_currencies_options(),
 			'location_data'        => [],
-			'stripe_data'          => Donations::get_stripe_data(),
+			'stripe_data'          => Stripe_Connection::get_stripe_data(),
 			'donation_data'        => [],
 			'donation_page'        => [],
 			'salesforce_settings'  => [],

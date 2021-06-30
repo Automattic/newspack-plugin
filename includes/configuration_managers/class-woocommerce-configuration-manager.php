@@ -83,7 +83,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	public function stripe_data() {
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
-			return Donations::get_default_stripe_data();
+			return Stripe_Connection::get_default_stripe_data();
 		}
 		$stripe      = $gateways['stripe'];
 		$stripe_data = [

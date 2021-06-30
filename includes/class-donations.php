@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
+use \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,7 +20,6 @@ class Donations {
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
 	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
-	const STRIPE_DATA_OPTION_NAME                 = 'newspack_stripe_data';
 	const DONATION_ORDER_META_KEYS                = [
 		'referer_tags'       => [
 			'label' => 'Post Tags',
@@ -108,7 +107,7 @@ class Donations {
 		if ( self::is_platform_wc() ) {
 			return \get_woocommerce_currency_symbol();
 		} else {
-			$currency = self::get_stripe_data()['currency'];
+			$currency = Stripe_Connection::get_stripe_data()['currency'];
 			return newspack_get_currency_symbol( $currency );
 		}
 	}
@@ -385,53 +384,6 @@ class Donations {
 	public static function is_platform_wc() {
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		return 'wc' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) && $wc_configuration_manager->is_active();
-	}
-
-	/**
-	 * Get Stripe data blueprint.
-	 */
-	public static function get_default_stripe_data() {
-		return [
-			'enabled'            => false,
-			'testMode'           => false,
-			'publishableKey'     => '',
-			'secretKey'          => '',
-			'testPublishableKey' => '',
-			'testSecretKey'      => '',
-			'currency'           => 'USD',
-		];
-	}
-
-	/**
-	 * Get Stripe data, either from WC, or saved in options table.
-	 */
-	public static function get_stripe_data() {
-		$stripe_data = self::get_default_stripe_data();
-		if ( self::is_platform_wc() ) {
-			// If WC is configured, get Stripe data from WC.
-			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-			$stripe_data              = $wc_configuration_manager->stripe_data();
-		} else {
-			$stripe_data = get_option( self::STRIPE_DATA_OPTION_NAME, self::get_default_stripe_data() );
-		}
-		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
-		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
-		return $stripe_data;
-	}
-
-	/**
-	 * Update Stripe data. Either in WC, or in options table.
-	 *
-	 * @param object $updated_stripe_data Updated Stripe data to be saved.
-	 */
-	public static function update_stripe_data( $updated_stripe_data ) {
-		if ( self::is_platform_wc() ) {
-			// If WC is configured, set Stripe data in WC.
-			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-			$wc_configuration_manager->update_stripe_settings( $updated_stripe_data );
-		}
-		// Otherwise, save it in options table.
-		return update_option( self::STRIPE_DATA_OPTION_NAME, $updated_stripe_data );
 	}
 
 	/**
