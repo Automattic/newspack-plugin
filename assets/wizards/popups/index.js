@@ -9,6 +9,7 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * External dependencies.
@@ -60,6 +61,8 @@ class PopupsWizard extends Component {
 			segments: [],
 			settings: [],
 			previewUrl: null,
+			duplicated: null,
+			inFlight: false,
 		};
 	}
 	onWizardReady = () => {
@@ -161,16 +164,25 @@ class PopupsWizard extends Component {
 	 * Duplicate a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to duplicate.
+	 * @param {string} title Title to give to the duplicated prompt.
 	 */
-	duplicatePopup = popupId => {
+	duplicatePopup = ( popupId, title ) => {
 		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/duplicate`,
+			path: addQueryArgs( `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/duplicate`, {
+				title,
+			} ),
 			method: 'POST',
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
+			.catch( () => {
+				setError( {
+					code: 'duplicate_prompt_error',
+					message: __( 'Error duplicating prompt. Please try again later.', 'newspack' ),
+				} );
+			} );
 	};
 
 	previewUrlForPopup = ( { options, id } ) => {
@@ -184,8 +196,8 @@ class PopupsWizard extends Component {
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
-	updateAfterAPI = ( { campaigns, prompts, segments, settings } ) =>
-		this.setState( { campaigns, prompts, segments, settings } );
+	updateAfterAPI = ( { campaigns, prompts, segments, settings, duplicated = null } ) =>
+		this.setState( { campaigns, prompts, segments, settings, duplicated, inFlight: false } );
 
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
@@ -208,7 +220,7 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { campaigns, prompts, segments, settings, previewUrl } = this.state;
+		const { campaigns, inFlight, prompts, segments, settings, previewUrl, duplicated } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -222,8 +234,11 @@ class PopupsWizard extends Component {
 						startLoading,
 						doneLoading,
 						wizardApiFetch,
+						prompts,
 						segments,
 						settings,
+						duplicated,
+						inFlight,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
@@ -237,6 +252,7 @@ class PopupsWizard extends Component {
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						resetDuplicated: () => this.setState( { duplicated: null } ),
 						unpublishPopup: this.unpublishPopup,
 						refetch: this.refetch,
 					};
