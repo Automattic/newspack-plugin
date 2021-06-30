@@ -158,7 +158,10 @@ const PromptActionCard = props => {
 							{ ! campaignGroups && (
 								<Notice
 									isWarning
-									noticeText={ __( 'This prompt will be unassigned.', 'newspack' ) }
+									noticeText={ __(
+										'This prompt will not be assigned to any campaign.',
+										'newspack'
+									) }
 								/>
 							) }
 							<TextControl
