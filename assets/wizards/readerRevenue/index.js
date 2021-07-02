@@ -217,7 +217,14 @@ class ReaderRevenueWizard extends Component {
 				...platformAgnosticFields,
 			];
 		} else if ( NRH === platform ) {
-			return platformAgnosticFields;
+			return [
+				{
+					label: __( 'NRH Settings', 'newspack' ),
+					path: '/settings',
+					exact: true,
+				},
+				...platformAgnosticFields,
+			];
 		}
 		return null;
 	};
