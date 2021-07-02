@@ -146,7 +146,7 @@ class Patches {
 		}
 
 		// WooCommerce pages.
-		if ( function_exists( 'wc_get_page_id' ) ) {
+		if ( function_exists( 'wc_get_page_id' ) && function_exists( 'wc_privacy_policy_page_id' ) ) {
 			// WooCommerce myaccount page.
 			$account_page = wc_get_page_id( 'myaccount' );
 			if ( 0 < $account_page ) {
