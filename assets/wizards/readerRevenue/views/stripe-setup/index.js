@@ -19,6 +19,7 @@ import {
 	TextControl,
 	ToggleControl,
 	SelectControl,
+	Notice,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -101,6 +102,19 @@ class StripeSetup extends Component {
 			<Fragment>
 				{ displayStripeSettingsOnly ? (
 					<>
+						{ data.isSSL === false && (
+							<Notice
+								isWarning
+								noticeText={
+									<a href="https://stripe.com/docs/security/guide">
+										{ __(
+											'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
+											'newspack'
+										) }
+									</a>
+								}
+							/>
+						) }
 						<StripeKeysSettings data={ data } onChange={ onChange } />
 						<SelectControl
 							label={ __( 'Which currency does your business use?', 'newspack' ) }

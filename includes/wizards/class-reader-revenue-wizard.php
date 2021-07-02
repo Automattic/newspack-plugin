@@ -604,6 +604,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'platform_data'        => [
 				'platform' => $platform,
 			],
+			'is_ssl'               => is_ssl(),
 		];
 		if ( 'wc' === $platform && $wc_installed ) {
 			$plugin_status    = true;

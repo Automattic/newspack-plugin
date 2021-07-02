@@ -119,6 +119,7 @@ class ReaderRevenueWizard extends Component {
 		salesforceData: data.salesforce_settings,
 		platformData: data.platform_data,
 		pluginStatus: data.plugin_status,
+		isSSL: data.is_ssl,
 	} );
 
 	/**
@@ -323,7 +324,7 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<StripeSetup
 									displayStripeSettingsOnly={ NRH === platform }
-									data={ stripeData }
+									data={ { ...stripeData, isSSL: data.isSSL } }
 									currencyFields={ currencyFields }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
