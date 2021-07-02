@@ -12,7 +12,8 @@
 	font-size: 14px;
 	line-height: 24px;
 	margin: 0;
-	padding: 0 48px;
+	max-height: 100%;
+	padding: 0 32px;
 	width: 100%;
 
 	@media screen and ( min-width: 600px ) {
@@ -38,8 +39,8 @@
 		border: 0;
 		height: auto;
 		justify-content: flex-end;
-		margin: 0 -48px;
-		padding: 64px 48px 32px;
+		margin: 0 -32px;
+		padding: 64px 32px 32px;
 
 		@media screen and ( min-width: 744px ) {
 			margin-left: -64px;
@@ -89,11 +90,7 @@
 
 	.components-modal__content {
 		margin: -32px 0 0;
-		padding: 0 0 16px;
-
-		@media screen and ( min-width: 744px ) {
-			padding-bottom: 32px;
-		}
+		padding: 0 0 32px;
 	}
 
 	// Typography
