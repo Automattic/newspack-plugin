@@ -145,6 +145,12 @@ class Patches {
 			$protected_post_ids[] = $posts_page;
 		}
 
+		// Privacy policy page.
+		$privacy_policy = intval( get_option( 'wp_page_for_privacy_policy', -1 ) );
+		if ( 0 < $privacy_policy ) {
+			$protected_post_ids[] = $privacy_policy;
+		}
+
 		// WooCommerce pages.
 		if ( function_exists( 'wc_get_page_id' ) && function_exists( 'wc_privacy_policy_page_id' ) ) {
 			// WooCommerce myaccount page.
@@ -183,11 +189,10 @@ class Patches {
 				$protected_post_ids[] = $terms;
 			}
 
-			// WooCommerce Privacy Policy page.
-			$privacy_policy = wc_privacy_policy_page_id();
-
-			if ( 0 < $privacy_policy ) {
-				$protected_post_ids[] = $privacy_policy;
+			// WooCommerce privacy policy page.
+			$wc_privacy_policy = wc_privacy_policy_page_id();
+			if ( 0 < $wc_privacy_policy ) {
+				$protected_post_ids[] = $wc_privacy_policy;
 			}
 		}
 
