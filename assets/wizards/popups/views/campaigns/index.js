@@ -303,19 +303,19 @@ const Campaigns = props => {
 							</div>
 							<Card buttonsCard noBorder className="justify-end">
 								<Button
-									isPrimary
-									disabled={ ! campaignName }
-									onClick={ () => submitModal( campaignName ) }
-								>
-									{ modalButton( modalType ) }
-								</Button>
-								<Button
 									isSecondary
 									onClick={ () => {
 										setModalVisible( false );
 									} }
 								>
 									{ __( 'Cancel', 'newspack' ) }
+								</Button>
+								<Button
+									isPrimary
+									disabled={ ! campaignName }
+									onClick={ () => submitModal( campaignName ) }
+								>
+									{ modalButton( modalType ) }
 								</Button>
 							</Card>
 						</Modal>
