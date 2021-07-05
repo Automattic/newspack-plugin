@@ -186,7 +186,7 @@ class ReaderRevenueWizard extends Component {
 	navigationForPlatform = ( platform, data ) => {
 		const platformAgnosticFields = [
 			{
-				label: __( 'Stripe', 'newspack' ),
+				label: __( 'Stripe Settings', 'newspack' ),
 				path: '/stripe-setup',
 			},
 			{
