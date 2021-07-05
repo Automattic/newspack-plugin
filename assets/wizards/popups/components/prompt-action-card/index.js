@@ -14,7 +14,7 @@ import { moreVertical, settings } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Modal, Notice, TextControl } from '../../../../components/src';
+import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../components/src';
 import PrimaryPromptPopover from '../prompt-popovers/primary';
 import SecondaryPromptPopover from '../prompt-popovers/secondary';
 import { placementForPopup } from '../../utils';
@@ -137,10 +137,7 @@ const PromptActionCard = props => {
 									) }
 								/>
 							) }
-							<div className="newspack-buttons-card">
-								<Button isPrimary href={ `/wp-admin/post.php?post=${ duplicated }&action=edit` }>
-									{ __( 'Edit', 'newspack' ) }
-								</Button>
+							<Card buttonsCard noBorder className="justify-end">
 								<Button
 									isSecondary
 									onClick={ () => {
@@ -151,7 +148,10 @@ const PromptActionCard = props => {
 								>
 									{ __( 'Close', 'newspack' ) }
 								</Button>
-							</div>
+								<Button isPrimary href={ `/wp-admin/post.php?post=${ duplicated }&action=edit` }>
+									{ __( 'Edit', 'newspack' ) }
+								</Button>
+							</Card>
 						</>
 					) : (
 						<>
@@ -170,17 +170,7 @@ const PromptActionCard = props => {
 								value={ duplicateTitle }
 								onChange={ value => setDuplicateTitle( value ) }
 							/>
-							<div className="newspack-buttons-card">
-								<Button
-									disabled={ inFlight || null === duplicateTitle }
-									isPrimary
-									onClick={ () => {
-										const titleForDuplicate = duplicateTitle.trim() || getDefaultDupicateTitle();
-										duplicatePopup( id, titleForDuplicate );
-									} }
-								>
-									{ __( 'Duplicate', 'newspack' ) }
-								</Button>
+							<Card buttonsCard noBorder className="justify-end">
 								<Button
 									disabled={ inFlight }
 									isSecondary
@@ -192,7 +182,17 @@ const PromptActionCard = props => {
 								>
 									{ __( 'Cancel', 'newspack' ) }
 								</Button>
-							</div>
+								<Button
+									disabled={ inFlight || null === duplicateTitle }
+									isPrimary
+									onClick={ () => {
+										const titleForDuplicate = duplicateTitle.trim() || getDefaultDupicateTitle();
+										duplicatePopup( id, titleForDuplicate );
+									} }
+								>
+									{ __( 'Duplicate', 'newspack' ) }
+								</Button>
+							</Card>
 						</>
 					) }
 				</Modal>

@@ -9,12 +9,12 @@ import cookies from 'js-cookie';
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState, Fragment } from '@wordpress/element';
-import { Icon, header, layout, plus } from '@wordpress/icons';
+import { header, layout, plus } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Button, Card, Modal } from '../../../../components/src';
+import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
@@ -157,37 +157,49 @@ const SegmentGroup = props => {
 							{ modalVisible && (
 								<Modal
 									title={ __( 'Add New Prompt', 'newspack' ) }
-									className="newspack-campaigns__segment-group__add-new-button__modal"
 									onRequestClose={ () => setModalVisible( false ) }
 									shouldCloseOnEsc={ false }
 									shouldCloseOnClickOutside={ false }
+									isWide
 								>
-									<Card buttonsCard noBorder className="newspack-card__buttons-prompt">
-										<Button href={ addNewURL( 'overlay-center', campaignId, id ) }>
-											<Icon icon={ iconOverlayCenter } height={ 48 } width={ 48 } />
-											{ __( 'Center Overlay', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( 'overlay-top', campaignId, id ) }>
-											<Icon icon={ iconOverlayTop } height={ 48 } width={ 48 } />
-											{ __( 'Top Overlay', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( 'overlay-bottom', campaignId, id ) }>
-											<Icon icon={ iconOverlayBottom } height={ 48 } width={ 48 } />
-											{ __( 'Bottom Overlay', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( null, campaignId, id ) }>
-											<Icon icon={ iconInline } height={ 48 } width={ 48 } />
-											{ __( 'Inline', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( 'above-header', campaignId, id ) }>
-											<Icon icon={ header } height={ 48 } width={ 48 } />
-											{ __( 'Above Header', 'newspack' ) }
-										</Button>
-										<Button href={ addNewURL( 'custom', campaignId, id ) }>
-											<Icon icon={ layout } height={ 48 } width={ 48 } />
-											{ __( 'Custom Placement', 'newspack' ) }
-										</Button>
-									</Card>
+									<Grid gutter={ 32 } columns={ 3 }>
+										<ButtonCard
+											href={ addNewURL( 'overlay-center', campaignId, id ) }
+											title={ __( 'Center Overlay', 'newspack' ) }
+											desc={ __( 'Fixed at the center of the screen', 'newspack' ) }
+											icon={ iconOverlayCenter }
+										/>
+										<ButtonCard
+											href={ addNewURL( 'overlay-top', campaignId, id ) }
+											title={ __( 'Top Overlay', 'newspack' ) }
+											desc={ __( 'Fixed at the top of the screen', 'newspack' ) }
+											icon={ iconOverlayTop }
+										/>
+										<ButtonCard
+											href={ addNewURL( 'overlay-bottom', campaignId, id ) }
+											title={ __( 'Bottom Overlay', 'newspack' ) }
+											desc={ __( 'Fixed at the bottom of the screen', 'newspack' ) }
+											icon={ iconOverlayBottom }
+										/>
+										<ButtonCard
+											href={ addNewURL( null, campaignId, id ) }
+											title={ __( 'Inline', 'newspack' ) }
+											desc={ __( 'Embedded in content', 'newspack' ) }
+											icon={ iconInline }
+										/>
+										<ButtonCard
+											href={ addNewURL( 'above-header', campaignId, id ) }
+											title={ __( 'Above Header', 'newspack' ) }
+											desc={ __( 'Embedded at the very top of the page', 'newspack' ) }
+											icon={ header }
+										/>
+										<ButtonCard
+											href={ addNewURL( 'custom', campaignId, id ) }
+											title={ __( 'Custom Placement', 'newspack' ) }
+											desc={ __( 'Only appears when placed in content', 'newspack' ) }
+											icon={ layout }
+										/>
+									</Grid>
 								</Modal>
 							) }
 						</Fragment>
