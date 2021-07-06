@@ -1,3 +1,19 @@
+# [1.48.0](https://github.com/Automattic/newspack-plugin/compare/v1.47.0...v1.48.0) (2021-07-06)
+
+
+### Bug Fixes
+
+* prevent newspack plugins from being flagged as unsupported ([6046c1c](https://github.com/Automattic/newspack-plugin/commit/6046c1ce9764348693098114f84e03e074419857)), closes [#1031](https://github.com/Automattic/newspack-plugin/issues/1031)
+* use the new token after refreshing ([0d91e4b](https://github.com/Automattic/newspack-plugin/commit/0d91e4b412cd9229a94f7b6db2f0f7ed4f78602b))
+
+
+### Features
+
+* **ga-events:** make NTG events reporting enabled by default ([3301b01](https://github.com/Automattic/newspack-plugin/commit/3301b0116cb81d2f7f709e7ba1b3bc30a7e1a474))
+* prevent accidental deletion of essential pages ([#1030](https://github.com/Automattic/newspack-plugin/issues/1030)) ([eac3ee2](https://github.com/Automattic/newspack-plugin/commit/eac3ee202fa53413157ec5a26cd0a31f75951306))
+* remove unused global ad placements ([3d8d6e3](https://github.com/Automattic/newspack-plugin/commit/3d8d6e3ba2ffddfb9d6548609071dba5ee92e665))
+* update the style of the Modal component ([#1013](https://github.com/Automattic/newspack-plugin/issues/1013)) ([a979210](https://github.com/Automattic/newspack-plugin/commit/a979210b2c21c718a5efad8f4ce22087a08f045a)), closes [#1014](https://github.com/Automattic/newspack-plugin/issues/1014) [#1017](https://github.com/Automattic/newspack-plugin/issues/1017) [#1019](https://github.com/Automattic/newspack-plugin/issues/1019) [#1012](https://github.com/Automattic/newspack-plugin/issues/1012) [#1026](https://github.com/Automattic/newspack-plugin/issues/1026) [#861](https://github.com/Automattic/newspack-plugin/issues/861)
+
 # [1.47.0](https://github.com/Automattic/newspack-plugin/compare/v1.46.1...v1.47.0) (2021-06-30)
 
 
