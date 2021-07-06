@@ -57,7 +57,7 @@ class Advertising_Wizard extends Wizard {
 	 *
 	 * @var array
 	 */
-	protected $placements = array( 'global_above_header', 'global_below_header', 'global_above_footer', 'archives', 'search_results', 'sticky' );
+	protected $placements = array( 'global_above_header', 'global_below_header', 'global_above_footer', 'sticky' );
 
 	/**
 	 * Constructor.

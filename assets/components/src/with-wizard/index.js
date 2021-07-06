@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import { Button, Modal, Notice, PluginInstaller } from '../';
+import { Button, Card, Modal, Notice, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
 import Footer from '../footer';
 import './style.scss';
@@ -100,11 +100,11 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					onRequestClose={ () => ( window.location = fallbackURL ) }
 				>
 					<Notice noticeText={ message } isError rawHTML />
-					<div className="newspack-buttons-card">
+					<Card buttonsCard noBorder className="justify-end">
 						<Button isPrimary href={ fallbackURL }>
-							{ __( 'Return to dashboard' ) }
+							{ __( 'Return to dashboard', 'newspack' ) }
 						</Button>
-					</div>
+					</Card>
 				</Modal>
 			);
 		};

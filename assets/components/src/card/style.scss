@@ -19,10 +19,12 @@
 	// Buttons Card
 
 	&__buttons-card {
-		margin: 24px -8px;
+		display: flex;
+		flex-wrap: wrap;
+		margin: 32px -8px 16px;
 
 		.newspack-button {
-			margin: 8px;
+			margin: 0 8px 16px;
 		}
 	}
 
