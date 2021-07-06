@@ -510,10 +510,9 @@ class Plugin_Manager {
 	public static function get_unmanaged_plugins() {
 		$plugins_info      = self::get_installed_plugins_info();
 		$managed_plugins   = self::get_managed_plugins();
-		$ignore            = [ 'newspack-plugin' ];
 		$unmanaged_plugins = [];
 		foreach ( $plugins_info as $slug => $info ) {
-			if ( ! isset( $managed_plugins[ $slug ] ) && ! in_array( $slug, $ignore ) && is_plugin_active( $info['Path'] ) ) {
+			if ( ! isset( $managed_plugins[ $slug ] ) && 0 !== strpos( $slug, 'newspack-' ) && is_plugin_active( $info['Path'] ) ) {
 				$unmanaged_plugins[ $slug ] = $info;
 			}
 		}
