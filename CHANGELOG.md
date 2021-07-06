@@ -1,3 +1,10 @@
+# [1.48.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.48.0-alpha.1...v1.48.0-alpha.2) (2021-07-06)
+
+
+### Bug Fixes
+
+* prevent newspack plugins from being flagged as unsupported ([6046c1c](https://github.com/Automattic/newspack-plugin/commit/6046c1ce9764348693098114f84e03e074419857)), closes [#1031](https://github.com/Automattic/newspack-plugin/issues/1031)
+
 # [1.48.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.47.0...v1.48.0-alpha.1) (2021-07-06)
 
 
