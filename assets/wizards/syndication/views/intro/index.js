@@ -39,7 +39,7 @@ class Intro extends Component {
 				/>
 				<PluginToggle
 					plugins={ {
-						distributor: true,
+						'distributor-stable': true,
 					} }
 				/>
 			</Fragment>
