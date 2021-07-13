@@ -1,3 +1,10 @@
+## [1.48.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.48.0...v1.48.1-alpha.1) (2021-07-13)
+
+
+### Bug Fixes
+
+* apply correct plugin slug for Distributor in the Syndication Wizard ([#1038](https://github.com/Automattic/newspack-plugin/issues/1038)) ([32adb6d](https://github.com/Automattic/newspack-plugin/commit/32adb6de9ade47d80d446263dfdf40851d1a9ef6))
+
 # [1.48.0](https://github.com/Automattic/newspack-plugin/compare/v1.47.0...v1.48.0) (2021-07-06)
 
 
