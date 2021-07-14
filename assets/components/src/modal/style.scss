@@ -37,7 +37,7 @@
 		border: 0;
 		height: auto;
 		justify-content: flex-end;
-		padding: 32px 0 0;
+		padding: 32px 32px 0;
 		position: relative;
 
 		.components-modal__header-heading-container {
@@ -81,10 +81,10 @@
 
 	.components-modal__content {
 		margin: 0;
-		padding: 0;
+		padding: 0 32px;
 
 		@media screen and ( min-width: 744px ) {
-			padding: 0 32px;
+			padding: 32px 64px;
 		}
 
 		&::before {
