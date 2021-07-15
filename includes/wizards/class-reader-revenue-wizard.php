@@ -696,15 +696,6 @@ class Reader_Revenue_Wizard extends Wizard {
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/readerRevenue.js' ),
 			true
 		);
-
-		\wp_register_style(
-			'newspack-reader-revenue-wizard',
-			Newspack::plugin_url() . '/dist/readerRevenue.css',
-			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/readerRevenue.css' )
-		);
-		\wp_style_add_data( 'newspack-reader-revenue-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-reader-revenue-wizard' );
 	}
 
 	/**
