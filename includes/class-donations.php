@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use  \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
+use \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -83,12 +83,11 @@ class Donations {
 	 * @return array Array of settings info.
 	 */
 	protected static function get_donation_default_settings( $suggest_donations = false, $platform = 'wc' ) {
-		$currency_symbol = 'wc' === $platform ? \get_woocommerce_currency_symbol() : '$';
 		return [
 			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
-			'currencySymbol'          => html_entity_decode( $currency_symbol ),
+			'currencySymbol'          => html_entity_decode( self::get_currency_symbol() ),
 			'tiered'                  => false,
 			'image'                   => false,
 			'created'                 => 'wc' !== $platform,
@@ -102,12 +101,24 @@ class Donations {
 	}
 
 	/**
+	 * Get the donation currency symbol.
+	 */
+	private static function get_currency_symbol() {
+		if ( self::is_platform_wc() ) {
+			return \get_woocommerce_currency_symbol();
+		} else {
+			$currency = Stripe_Connection::get_stripe_data()['currency'];
+			return newspack_get_currency_symbol( $currency );
+		}
+	}
+
+	/**
 	 * Get the donation settings.
 	 *
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
-		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+		if ( self::is_platform_nrh() ) {
 			return self::get_donation_default_settings( true, 'nrh' );
 		}
 
@@ -361,11 +372,25 @@ class Donations {
 	}
 
 	/**
+	 * Is NRH the donation platform?
+	 */
+	public static function is_platform_nrh() {
+		return 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM );
+	}
+
+	/**
+	 * Is WooCommerce the donation platform?
+	 */
+	public static function is_platform_wc() {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		return 'wc' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) && $wc_configuration_manager->is_active();
+	}
+
+	/**
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
-		$platform = get_option( NEWSPACK_READER_REVENUE_PLATFORM );
-		$is_wc    = 'nrh' !== $platform;
+		$is_wc = false === self::is_platform_nrh();
 
 		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
 		if ( ! $donation_form_submitted || ( $is_wc && is_wp_error( self::is_woocommerce_suite_active() ) ) ) {

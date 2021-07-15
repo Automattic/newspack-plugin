@@ -18,6 +18,8 @@ import {
 	Grid,
 	TextControl,
 	ToggleControl,
+	SelectControl,
+	Notice,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -95,27 +97,54 @@ class StripeSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { data, onChange } = this.props;
+		const { data, onChange, displayStripeSettingsOnly, currencyFields } = this.props;
 		return (
 			<Fragment>
-				<Grid>
-					<ToggleControl
-						label={ __( 'Enable Stripe' ) }
-						checked={ data.enabled }
-						onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
-					/>
-				</Grid>
-				{ data.enabled ? (
-					<StripeKeysSettings data={ data } onChange={ onChange } />
+				{ displayStripeSettingsOnly ? (
+					<>
+						{ data.isSSL === false && (
+							<Notice
+								isWarning
+								noticeText={
+									<a href="https://stripe.com/docs/security/guide">
+										{ __(
+											'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
+											'newspack'
+										) }
+									</a>
+								}
+							/>
+						) }
+						<StripeKeysSettings data={ data } onChange={ onChange } />
+						<SelectControl
+							label={ __( 'Which currency does your business use?', 'newspack' ) }
+							value={ data.currency }
+							options={ currencyFields }
+							onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+						/>
+					</>
 				) : (
-					<Grid>
-						<p className="newspack-payment-setup-screen__info">
-							{ __( 'Other gateways can be enabled and set up in the ' ) }
-							<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-								{ __( 'WooCommerce payment gateway settings' ) }
-							</ExternalLink>
-						</p>
-					</Grid>
+					<>
+						<Grid>
+							<ToggleControl
+								label={ __( 'Enable Stripe' ) }
+								checked={ data.enabled }
+								onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
+							/>
+						</Grid>
+						{ data.enabled ? (
+							<StripeKeysSettings data={ data } onChange={ onChange } />
+						) : (
+							<Grid>
+								<p className="newspack-payment-setup-screen__info">
+									{ __( 'Other gateways can be enabled and set up in the ' ) }
+									<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+										{ __( 'WooCommerce payment gateway settings' ) }
+									</ExternalLink>
+								</p>
+							</Grid>
+						) }
+					</>
 				) }
 			</Fragment>
 		);
