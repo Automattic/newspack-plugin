@@ -113,7 +113,13 @@ class NRH {
 			// The streamlined block communicates directly with Stripe, no need to handle linking.
 			return $html;
 		}
-			$settings = array_merge( Donations::get_donation_settings(), $attributes );
+
+		$settings = Donations::get_donation_settings();
+		if ( isset( $attributes['manual'] ) && true === $attributes['manual'] ) {
+			$settings['suggestedAmounts']        = $attributes['suggestedAmounts'];
+			$settings['suggestedAmountUntiered'] = $attributes['suggestedAmountUntiered'];
+			$settings['tiered']                  = $attributes['tiered'];
+		}
 
 			$frequencies = [
 				'once'  => __( 'One-time', 'newspack-blocks' ),
