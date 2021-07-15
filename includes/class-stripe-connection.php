@@ -36,7 +36,6 @@ class Stripe_Connection {
 	 * Get Stripe data, either from WC, or saved in options table.
 	 */
 	public static function get_stripe_data() {
-		$stripe_data              = self::get_default_stripe_data();
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 
 		if ( Donations::is_platform_wc() && $wc_configuration_manager->is_configured() ) {
