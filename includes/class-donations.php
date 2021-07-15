@@ -20,6 +20,7 @@ class Donations {
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
 	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
 	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
+	const DONATION_NON_WC_SETTINGS_OPTION         = 'newspack_donations_settings';
 	const DONATION_ORDER_META_KEYS                = [
 		'referer_tags'       => [
 			'label' => 'Post Tags',
@@ -87,7 +88,6 @@ class Donations {
 			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7.50, 15.00, 30.00 ] : [],
 			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
-			'currencySymbol'          => html_entity_decode( self::get_currency_symbol() ),
 			'tiered'                  => false,
 			'image'                   => false,
 			'created'                 => 'wc' !== $platform,
@@ -118,8 +118,14 @@ class Donations {
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
+		$currency_symbol = html_entity_decode( self::get_currency_symbol() );
+
 		if ( self::is_platform_nrh() ) {
-			return self::get_donation_default_settings( true, 'nrh' );
+			$saved_settings             = get_option( self::DONATION_NON_WC_SETTINGS_OPTION, [] );
+			$defaults                   = self::get_donation_default_settings( true, 'nrh' );
+			$settings                   = wp_parse_args( $saved_settings, $defaults );
+			$settings['currencySymbol'] = $currency_symbol;
+			return $settings;
 		}
 
 		$ready = self::is_woocommerce_suite_active();
@@ -127,7 +133,8 @@ class Donations {
 			return $ready;
 		}
 
-		$settings = self::get_donation_default_settings( true );
+		$settings                   = self::get_donation_default_settings( true );
+		$settings['currencySymbol'] = $currency_symbol;
 
 		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
 		if ( ! $product_id ) {
@@ -188,6 +195,11 @@ class Donations {
 	 * @return array Updated settings.
 	 */
 	public static function set_donation_settings( $args ) {
+		if ( self::is_platform_nrh() ) {
+			update_option( self::DONATION_NON_WC_SETTINGS_OPTION, $args );
+			return self::get_donation_settings();
+		}
+
 		$ready = self::is_woocommerce_suite_active();
 		if ( is_wp_error( $ready ) ) {
 			return $ready;
@@ -390,7 +402,7 @@ class Donations {
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
-		$is_wc = false === self::is_platform_nrh();
+		$is_wc = self::is_platform_wc();
 
 		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
 		if ( ! $donation_form_submitted || ( $is_wc && is_wp_error( self::is_woocommerce_suite_active() ) ) ) {
