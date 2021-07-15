@@ -144,9 +144,13 @@ class NRH {
 			$button_text = $attributes['buttonText'];
 
 			$nrh_config = get_option( NEWSPACK_NRH_CONFIG );
+			if ( ! isset( $nrh_config['nrh_organization_id'] ) ) {
+				// The Organisation ID is crucial.
+				return '';
+			}
 
 			$organization_id = wp_strip_all_tags( $nrh_config['nrh_organization_id'] );
-			$campaign_global = wp_strip_all_tags( $nrh_config['nrh_salesforce_campaign_id'] );
+			$campaign_global = wp_strip_all_tags( isset( $nrh_config['nrh_salesforce_campaign_id'] ) ? $nrh_config['nrh_salesforce_campaign_id'] : '' );
 
 			if ( ! $campaign && $campaign_global ) {
 				$campaign = $campaign_global;
