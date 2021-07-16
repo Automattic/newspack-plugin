@@ -6,8 +6,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
@@ -16,6 +17,7 @@ import {
 	Card,
 	CheckboxControl,
 	Grid,
+	Button,
 	TextControl,
 	ToggleControl,
 	SelectControl,
@@ -89,67 +91,86 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 	);
 };
 
-/**
- * Stripe Setup Screen Component
- */
-class StripeSetup extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, onChange, displayStripeSettingsOnly, currencyFields } = this.props;
-		return (
-			<Fragment>
-				{ displayStripeSettingsOnly ? (
-					<>
-						{ data.isSSL === false && (
-							<Notice
-								isWarning
-								noticeText={
-									<a href="https://stripe.com/docs/security/guide">
-										{ __(
-											'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
-											'newspack'
-										) }
-									</a>
-								}
-							/>
-						) }
-						<StripeKeysSettings data={ data } onChange={ onChange } />
-						<SelectControl
-							label={ __( 'Which currency does your business use?', 'newspack' ) }
-							value={ data.currency }
-							options={ currencyFields }
-							onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyFields } ) => {
+	const [ isLoading, setIsLoading ] = useState( false );
+	const createWebhooks = () => {
+		setIsLoading( true );
+		apiFetch( {
+			path: '/newspack/v1/stripe/create-webhooks',
+		} ).then( () => {
+			window.location.reload();
+		} );
+	};
+	return (
+		<Fragment>
+			{ displayStripeSettingsOnly ? (
+				<>
+					{ data.isSSL === false && (
+						<Notice
+							isWarning
+							noticeText={
+								<a href="https://stripe.com/docs/security/guide">
+									{ __(
+										'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
+										'newspack'
+									) }
+								</a>
+							}
 						/>
-					</>
-				) : (
-					<>
-						<Grid>
-							<ToggleControl
-								label={ __( 'Enable Stripe' ) }
-								checked={ data.enabled }
-								onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
-							/>
-						</Grid>
-						{ data.enabled ? (
-							<StripeKeysSettings data={ data } onChange={ onChange } />
+					) }
+					<StripeKeysSettings data={ data } onChange={ onChange } />
+					<SelectControl
+						label={ __( 'Which currency does your business use?', 'newspack' ) }
+						value={ data.currency }
+						options={ currencyFields }
+						onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+					/>
+					<details>
+						<summary>
+							<h3 className="di">{ __( 'Webhooks', 'newspack' ) }</h3>
+						</summary>
+						{ data.webhooks.length ? (
+							<ul>
+								{ data.webhooks.map( ( webhook, i ) => (
+									<li key={ i }>
+										- <code>{ webhook.url }</code>
+									</li>
+								) ) }
+							</ul>
 						) : (
-							<Grid>
-								<p className="newspack-payment-setup-screen__info">
-									{ __( 'Other gateways can be enabled and set up in the ' ) }
-									<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-										{ __( 'WooCommerce payment gateway settings' ) }
-									</ExternalLink>
-								</p>
-							</Grid>
+							<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
 						) }
-					</>
-				) }
-			</Fragment>
-		);
-	}
-}
+						<Button disabled={ isLoading } onClick={ createWebhooks } isSecondary>
+							{ __( 'Create webhooks', 'newspack' ) }
+						</Button>
+					</details>
+				</>
+			) : (
+				<>
+					<Grid>
+						<ToggleControl
+							label={ __( 'Enable Stripe' ) }
+							checked={ data.enabled }
+							onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
+						/>
+					</Grid>
+					{ data.enabled ? (
+						<StripeKeysSettings data={ data } onChange={ onChange } />
+					) : (
+						<Grid>
+							<p className="newspack-payment-setup-screen__info">
+								{ __( 'Other gateways can be enabled and set up in the ' ) }
+								<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+									{ __( 'WooCommerce payment gateway settings' ) }
+								</ExternalLink>
+							</p>
+						</Grid>
+					) }
+				</>
+			) }
+		</Fragment>
+	);
+};
 
 StripeSetup.defaultProps = {
 	data: {},
