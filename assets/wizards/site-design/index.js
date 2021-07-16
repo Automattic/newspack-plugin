@@ -37,7 +37,7 @@ class SiteDesignWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { themeMods } = this.state;
 		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme-mods/',
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
 			data: { theme_mods: themeMods },
 			quiet: true,
