@@ -125,24 +125,28 @@ class Stripe_Connection {
 
 	/**
 	 * Receive Stripe webhook.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	public static function receive_webhook( $request ) {
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
-				$payment  = $request['data']['object'];
-				$metadata = $payment['metadata'];
+				$payment   = $request['data']['object'];
+				$metadata  = $payment['metadata'];
+				$frequency = __( 'Unknown', 'newspack' );
+				if ( isset( $payment['metadata']['Frequency'] ) ) {
+					$frequency = $payment['metadata']['Frequency'];
+				}
 
 				// Update data in Campaigns plugin.
 				if ( isset( $metadata['clientId'] ) && ! empty( $metadata['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
 					$donation_data = [
 						'stripe_id'     => $payment['id'],
-						'date'          => date( 'Y-m-d H:i:s', $payment['created'] ),
+						'date'          => gmdate( 'Y-m-d H:i:s', $payment['created'] ),
 						'amount'        => $payment['amount'],
 						'receipt_email' => $payment['receipt_email'],
+						'frequency'     => $frequency,
 					];
-					if ( isset( $payment['metadata']['Frequency'] ) ) {
-						$donation_data['frequency'] = $payment['metadata']['Frequency'];
-					}
 					\Newspack_Popups_Segmentation::update_client_data(
 						$metadata['clientId'],
 						[
@@ -150,6 +154,29 @@ class Stripe_Connection {
 						]
 					);
 				}
+
+				// Send custom event to GA.
+				$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
+				if ( $analytics->is_connected() ) {
+					$tracking_id        = $analytics->get_settings()->get()['propertyID'];
+					$analytics_ping_url = 'https://www.google-analytics.com/collect?v=1';
+
+					// Params docs: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters.
+					$analytics_ping_params = array(
+						'tid' => $tracking_id, // Tracking ID/ Web Property ID.
+						'cid' => '555', // Client ID.
+						't'   => 'event', // Hit type.
+						'an'  => 'Newspack', // Application Name.
+						'ec'  => __( 'Newspack Donation', 'newspack' ), // Event Category.
+						'ea'  => __( 'Stripe', 'newspack' ), // Event Action.
+						'el'  => $frequency, // Event Label.
+						'ev'  => $payment['amount'], // Event Value.
+					);
+
+					wp_remote_post( $analytics_ping_url . '&' . http_build_query( $analytics_ping_params ) );
+				}
+
+				break;
 			case 'charge.failed':
 				break;
 			default:
