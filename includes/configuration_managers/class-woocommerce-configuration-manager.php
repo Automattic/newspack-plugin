@@ -32,7 +32,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Whether WooCommerce is active and set up.
 	 */
 	public function is_configured() {
-		return true;
+		return function_exists( 'WC' );
 	}
 
 	/**
