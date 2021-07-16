@@ -186,6 +186,11 @@ class ReaderRevenueWizard extends Component {
 	navigationForPlatform = ( platform, data ) => {
 		const platformAgnosticFields = [
 			{
+				label: __( 'Donations', 'newspack' ),
+				path: '/donations',
+				exact: true,
+			},
+			{
 				label: __( 'Stripe Settings', 'newspack' ),
 				path: '/stripe-setup',
 			},
@@ -202,11 +207,6 @@ class ReaderRevenueWizard extends Component {
 			}
 			return [
 				{
-					label: __( 'Donations', 'newspack' ),
-					path: '/donations',
-					exact: true,
-				},
-				{
 					label: __( 'Salesforce', 'newspack' ),
 					path: '/salesforce',
 					exact: true,
@@ -219,12 +219,12 @@ class ReaderRevenueWizard extends Component {
 			];
 		} else if ( NRH === platform ) {
 			return [
+				...platformAgnosticFields,
 				{
 					label: __( 'NRH Settings', 'newspack' ),
 					path: '/settings',
 					exact: true,
 				},
-				...platformAgnosticFields,
 			];
 		}
 		return null;

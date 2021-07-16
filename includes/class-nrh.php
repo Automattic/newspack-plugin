@@ -113,7 +113,13 @@ class NRH {
 			// The streamlined block communicates directly with Stripe, no need to handle linking.
 			return $html;
 		}
-			$settings = array_merge( Donations::get_donation_settings(), $attributes );
+
+		$settings = Donations::get_donation_settings();
+		if ( isset( $attributes['manual'] ) && true === $attributes['manual'] ) {
+			$settings['suggestedAmounts']        = $attributes['suggestedAmounts'];
+			$settings['suggestedAmountUntiered'] = $attributes['suggestedAmountUntiered'];
+			$settings['tiered']                  = $attributes['tiered'];
+		}
 
 			$frequencies = [
 				'once'  => __( 'One-time', 'newspack-blocks' ),
@@ -138,9 +144,13 @@ class NRH {
 			$button_text = $attributes['buttonText'];
 
 			$nrh_config = get_option( NEWSPACK_NRH_CONFIG );
+			if ( ! isset( $nrh_config['nrh_organization_id'] ) ) {
+				// The Organisation ID is crucial.
+				return '';
+			}
 
 			$organization_id = wp_strip_all_tags( $nrh_config['nrh_organization_id'] );
-			$campaign_global = wp_strip_all_tags( $nrh_config['nrh_salesforce_campaign_id'] );
+			$campaign_global = wp_strip_all_tags( isset( $nrh_config['nrh_salesforce_campaign_id'] ) ? $nrh_config['nrh_salesforce_campaign_id'] : '' );
 
 			if ( ! $campaign && $campaign_global ) {
 				$campaign = $campaign_global;

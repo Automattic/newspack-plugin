@@ -15,7 +15,7 @@ import { MoneyInput } from '../../components/';
 import {
 	Card,
 	Grid,
-	Handoff,
+	Button,
 	Notice,
 	ToggleControl,
 	InfoButton,
@@ -115,15 +115,9 @@ class Donation extends Component {
 								) }
 							/>
 						) }
-						<Handoff
-							plugin="woocommerce"
-							editLink={ donationPage.editUrl }
-							isTertiary
-							isSmall
-							showOnBlockEditor
-						>
+						<Button isSecondary href={ donationPage.editUrl }>
 							{ __( 'Edit Page' ) }
-						</Handoff>
+						</Button>
 					</Card>
 				) }
 				<Card noBorder>
