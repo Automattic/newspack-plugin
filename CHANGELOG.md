@@ -1,3 +1,10 @@
+# [1.49.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.49.0-alpha.1...v1.49.0-alpha.2) (2021-07-19)
+
+
+### Bug Fixes
+
+* **donations:** nrh tweaks ([#1046](https://github.com/Automattic/newspack-plugin/issues/1046)) ([f0e8c13](https://github.com/Automattic/newspack-plugin/commit/f0e8c13ff9c0b3b084d622f17140c18f21e4b1b9))
+
 # [1.49.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.48.1...v1.49.0-alpha.1) (2021-07-19)
 
 
