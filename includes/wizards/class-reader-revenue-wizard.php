@@ -100,7 +100,6 @@ class Reader_Revenue_Wizard extends Wizard {
 					],
 					'nrh_salesforce_campaign_id' => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 				],
 			]
@@ -307,11 +306,13 @@ class Reader_Revenue_Wizard extends Wizard {
 			delete_option( NEWSPACK_READER_REVENUE_PLATFORM );
 			update_option( NEWSPACK_READER_REVENUE_PLATFORM, $platform, true );
 		}
-		if ( 'nrh' === $platform && isset( $params['nrh_organization_id'], $params['nrh_salesforce_campaign_id'] ) ) {
+		if ( 'nrh' === $platform && isset( $params['nrh_organization_id'] ) ) {
 			$nrh_config = [
-				'nrh_organization_id'        => $params['nrh_organization_id'],
-				'nrh_salesforce_campaign_id' => $params['nrh_salesforce_campaign_id'],
+				'nrh_organization_id' => $params['nrh_organization_id'],
 			];
+			if ( isset( $params['nrh_salesforce_campaign_id'] ) ) {
+				$nrh_config['nrh_salesforce_campaign_id'] = $params['nrh_salesforce_campaign_id'];
+			}
 			update_option( NEWSPACK_NRH_CONFIG, $nrh_config );
 		}
 		return \rest_ensure_response( $this->fetch_all_data() );
