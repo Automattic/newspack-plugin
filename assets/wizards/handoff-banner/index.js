@@ -34,10 +34,10 @@ class HandoffBanner extends Component {
 				<div className="newspack-handoff-banner">
 					<div className="newspack-handoff-banner__text">{ bodyText }</div>
 					<div className="newspack-handoff-banner__buttons">
-						<Button isLink onClick={ () => this.setState( { visibility: false } ) }>
+						<Button isPrimary isSmall onClick={ () => this.setState( { visibility: false } ) }>
 							{ dismissButtonText }
 						</Button>
-						<Button isPrimary href={ primaryButtonURL }>
+						<Button isSecondary isSmall href={ primaryButtonURL }>
 							{ primaryButtonText }
 						</Button>
 					</div>
@@ -48,10 +48,10 @@ class HandoffBanner extends Component {
 }
 
 HandoffBanner.defaultProps = {
-	primaryButtonText: __( 'Back to Newspack' ),
-	dismissButtonText: __( 'Dismiss' ),
+	primaryButtonText: __( 'Back to Newspack', 'newspack' ),
+	dismissButtonText: __( 'Dismiss', 'newspack' ),
 	primaryButtonURL: '/wp-admin/admin.php?page=newspack',
-	bodyText: __( 'Click to return to Newspack after completing configuration' ),
+	bodyText: __( 'Return to Newspack after completing configuration', 'newspack' ),
 };
 
 const el = document.getElementById( 'newspack-handoff-banner' );

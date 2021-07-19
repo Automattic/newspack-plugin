@@ -11,9 +11,8 @@
 	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
-	margin: 0;
+	margin: auto;
 	max-height: 100%;
-	padding: 0 32px;
 	width: 100%;
 
 	@media screen and ( min-width: 600px ) {
@@ -24,7 +23,6 @@
 
 	@media screen and ( min-width: 744px ) {
 		max-width: 680px;
-		padding: 0 64px;
 
 		&--wide {
 			max-width: 1168px;
@@ -39,15 +37,8 @@
 		border: 0;
 		height: auto;
 		justify-content: flex-end;
-		margin: 0 -32px;
-		padding: 64px 32px 32px;
-
-		@media screen and ( min-width: 744px ) {
-			margin-left: -64px;
-			margin-right: -64px;
-			padding-left: 64px;
-			padding-right: 64px;
-		}
+		padding: 32px 32px 0;
+		position: relative;
 
 		.components-modal__header-heading-container {
 			display: block;
@@ -89,8 +80,16 @@
 	// Content
 
 	.components-modal__content {
-		margin: -32px 0 0;
-		padding: 0 0 32px;
+		margin: 0;
+		padding: 0 32px;
+
+		@media screen and ( min-width: 744px ) {
+			padding: 32px 64px;
+		}
+
+		&::before {
+			display: none;
+		}
 	}
 
 	// Typography
