@@ -60,18 +60,22 @@ const modalButton = modalType => {
 };
 
 const filterByCampaign = ( prompts, campaignId ) => {
+	if ( 'trash' === campaignId ) {
+		return prompts.filter( ( { status } ) => 'trash' === status );
+	}
+	const notTrashedPrompts = prompts.filter( ( { status } ) => 'trash' !== status );
 	if ( DEFAULT_CAMPAIGNS_FILTER === campaignId ) {
-		return prompts.filter( ( { status } ) => 'publish' === status );
+		return notTrashedPrompts.filter( ( { status } ) => 'publish' === status );
 	}
 	if ( 'all' === campaignId ) {
-		return prompts;
+		return notTrashedPrompts.filter( ( { status } ) => 'trash' !== status );
 	}
 	if ( 'unassigned' === campaignId ) {
-		return prompts.filter(
+		return notTrashedPrompts.filter(
 			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
 		);
 	}
-	return prompts.filter(
+	return notTrashedPrompts.filter(
 		( { campaign_groups: campaigns } ) =>
 			campaigns && campaigns.find( term => +term.term_id === +campaignId )
 	);
@@ -156,6 +160,10 @@ const Campaigns = props => {
 		{
 			key: 'all',
 			name: __( 'All Prompts', 'newspack' ),
+		},
+		{
+			key: 'trash',
+			name: __( 'Trash', 'newspack' ),
 		},
 		...( hasUnassigned
 			? [

@@ -129,6 +129,22 @@ class PopupsWizard extends Component {
 	};
 
 	/**
+	 * Restore a deleted a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	restorePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/restore`,
+			method: 'POST',
+			quiet: true,
+		} )
+			.then( this.updateAfterAPI )
+			.catch( error => setError( error ) );
+	};
+
+	/**
 	 * Publish a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to alter.
@@ -246,6 +262,7 @@ class PopupsWizard extends Component {
 						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
+						restorePopup: this.restorePopup,
 						duplicatePopup: this.duplicatePopup,
 						previewPopup: popup =>
 							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
