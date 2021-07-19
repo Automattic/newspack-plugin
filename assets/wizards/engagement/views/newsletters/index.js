@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
-import { values, startCase, uniq, mapValues, property } from 'lodash';
+import { values, mapValues, property } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { useState, useEffect, Fragment } from '@wordpress/element';
+import { useEffect, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
