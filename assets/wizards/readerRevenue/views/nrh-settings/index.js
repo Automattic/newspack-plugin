@@ -26,7 +26,7 @@ class NRHSettings extends Component {
 		return (
 			<Grid>
 				<TextControl
-					label={ __( 'NRH Organization ID', 'newspack' ) }
+					label={ __( 'NRH Organization ID (required)', 'newspack' ) }
 					value={ nrh_organization_id || '' }
 					onChange={ _nrh_organization_id =>
 						onChange( { ...data, nrh_organization_id: _nrh_organization_id } )
