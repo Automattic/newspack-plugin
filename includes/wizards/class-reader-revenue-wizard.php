@@ -358,12 +358,14 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function update_stripe_settings( $settings ) {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
+		if ( Donations::is_platform_wc() ) {
+			$required_plugins_installed = $this->check_required_plugins_installed();
+			if ( is_wp_error( $required_plugins_installed ) ) {
+				return rest_ensure_response( $required_plugins_installed );
+			}
 		}
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$args                     = wp_parse_args( $settings, Stripe_Connection::get_default_stripe_data() );
+
+		$args = wp_parse_args( $settings, Stripe_Connection::get_default_stripe_data() );
 		// If Stripe is enabled, make sure the API key fields are non-empty.
 		if ( $args['enabled'] ) {
 			if ( $args['testMode'] && ( ! $this->api_validate_not_empty( $args['testPublishableKey'] ) || ! $this->api_validate_not_empty( $args['testSecretKey'] ) ) ) {
@@ -410,11 +412,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function update_donation_settings( $settings ) {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
-
 		$donations_response = Donations::set_donation_settings( $settings );
 		if ( is_wp_error( $donations_response ) ) {
 			return rest_ensure_response( $donations_response );
@@ -599,8 +596,8 @@ class Reader_Revenue_Wizard extends Wizard {
 			'currency_fields'      => newspack_get_currencies_options(),
 			'location_data'        => [],
 			'stripe_data'          => Stripe_Connection::get_stripe_data(),
-			'donation_data'        => [],
-			'donation_page'        => [],
+			'donation_data'        => Donations::get_donation_settings(),
+			'donation_page'        => Donations::get_donation_page_info(),
 			'salesforce_settings'  => [],
 			'platform_data'        => [
 				'platform' => $platform,
@@ -625,8 +622,6 @@ class Reader_Revenue_Wizard extends Wizard {
 				[
 					'country_state_fields' => $wc_configuration_manager->country_state_fields(),
 					'location_data'        => $wc_configuration_manager->location_data(),
-					'donation_data'        => Donations::get_donation_settings(),
-					'donation_page'        => Donations::get_donation_page_info(),
 					'salesforce_settings'  => Salesforce::get_salesforce_settings(),
 					'plugin_status'        => $plugin_status,
 				],
@@ -645,17 +640,11 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_get_donation_settings() {
-		if ( Donations::is_platform_nrh() ) {
-			return rest_ensure_response(
-				array_merge(
-					Donations::get_donation_settings(),
-					[ 'force_manual' => true ]
-				)
-			);
-		}
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
+		if ( Donations::is_platform_wc() ) {
+			$required_plugins_installed = $this->check_required_plugins_installed();
+			if ( is_wp_error( $required_plugins_installed ) ) {
+				return rest_ensure_response( $required_plugins_installed );
+			}
 		}
 
 		return rest_ensure_response( Donations::get_donation_settings() );
