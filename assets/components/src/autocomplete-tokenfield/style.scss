@@ -3,6 +3,7 @@
  */
 
 @import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
 
 .newspack-autocomplete-tokenfield {
 	position: relative;
@@ -26,8 +27,8 @@
 	}
 
 	.newspack-autocomplete-tokenfield__help {
-		font-size: 1rem;
-		font-style: italic;
+		color: $gray-700;
+		font-size: inherit;
 		margin-top: 0;
 	}
 
