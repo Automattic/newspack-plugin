@@ -82,26 +82,47 @@ class Popups_Analytics_Utils {
 	/**
 	 * Get results of a GA report, taking page token into account.
 	 *
-	 * @param Analytics                                   $analytics The Analytics.
-	 * @param Google_Service_AnalyticsReporting_DateRange $date_range Date range.
-	 * @param string                                      $page_token Page token for the report.
+	 * @param Analytics $analytics The Analytics.
+	 * @param object    $options Options.
+	 * @param string    $page_token Page token for the report.
 	 * @return object GA report.
 	 */
-	private static function create_ga_report_result( $analytics, $date_range, $page_token = null ) {
+	private static function create_ga_report_result( $analytics, $options, $page_token = null ) {
+		$date_range = $options['date_range'];
 		// Create the Metrics object.
 		$metrics = new Google_Service_AnalyticsReporting_Metric();
 		$metrics->setExpression( 'ga:totalEvents' );
 		$metrics->setAlias( 'events' );
+
+		// Set up filters.
+		$filters = [];
 
 		// Filter just the popups custom event category.
 		$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
 		$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
 		$dimension_category_filter->setOperator( 'IN_LIST' );
 		$dimension_category_filter->setExpressions( self::EVENT_CATEGORIES );
+		$filters[] = $dimension_category_filter;
+
+		if ( ! empty( $options['event_action'] ) ) {
+			$dimension_action_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+			$dimension_action_filter->setDimensionName( 'ga:eventAction' );
+			$dimension_action_filter->setOperator( 'IN_LIST' );
+			$dimension_action_filter->setExpressions( [ $options['event_action'] ] );
+			$filters[] = $dimension_action_filter;
+		}
+		if ( ! empty( $options['event_label_id'] ) ) {
+			$dimension_label_id_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+			$dimension_label_id_filter->setDimensionName( 'ga:eventLabel' );
+			$dimension_label_id_filter->setOperator( 'PARTIAL' );
+			$dimension_label_id_filter->setExpressions( $options['event_label_id'] );
+			$filters[] = $dimension_label_id_filter;
+		}
 
 		// Create the DimensionFilterClauses.
 		$dimension_filter_clause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
-		$dimension_filter_clause->setFilters( array( $dimension_category_filter ) );
+		$dimension_filter_clause->setFilters( $filters );
+		$dimension_filter_clause->setOperator( 'AND' );
 
 		// Create the Dimension objects.
 		$date_dimension = new Google_Service_AnalyticsReporting_Dimension();
@@ -160,13 +181,14 @@ class Popups_Analytics_Utils {
 			$end_date   = gmdate( 'Y-m-d', strtotime( '1 days ago' ) );
 			$date_range->setStartDate( $start_date );
 			$date_range->setEndDate( $end_date );
+			$options['date_range'] = $date_range;
 
 			try {
 				$rows   = [];
-				$report = self::create_ga_report_result( $analytics, $date_range );
+				$report = self::create_ga_report_result( $analytics, $options );
 				$rows   = array_merge( $rows, $report->data->rows );
 				while ( $report->nextPageToken ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$report = self::create_ga_report_result( $analytics, $date_range, $report->nextPageToken ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$report = self::create_ga_report_result( $analytics, $options, $report->nextPageToken ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$rows   = array_merge( $rows, $report->data->rows );
 				}
 				return $rows;
@@ -271,7 +293,6 @@ class Popups_Analytics_Utils {
 	public static function process_ga_report( $ga_data_rows, $options ) {
 		$offset         = $options['offset'];
 		$event_label_id = $options['event_label_id'];
-		$event_action   = $options['event_action'];
 
 		if ( is_wp_error( $ga_data_rows ) ) {
 			return $ga_data_rows;
@@ -289,7 +310,7 @@ class Popups_Analytics_Utils {
 
 		$ga_data_days = array_reduce(
 			$ga_data_rows,
-			function ( $days, $row ) use ( $event_label_id, $event_action, &$all_actions, &$all_labels, &$aggregate_seen_events, &$aggregate_form_submission_events, &$aggregate_link_click_events, &$post_edit_link ) {
+			function ( $days, $row ) use ( $event_label_id, &$all_actions, &$all_labels, &$aggregate_seen_events, &$aggregate_form_submission_events, &$aggregate_link_click_events, &$post_edit_link ) {
 				$label = $row['dimensions'][2];
 				if ( '(not set)' !== $label ) {
 					$item          = self::process_legacy_item( $row );
@@ -308,10 +329,7 @@ class Popups_Analytics_Utils {
 				}
 				$post_id = $label_object['value'];
 
-				$matches_label  = '' == $event_label_id || $post_id == $event_label_id;
-				$matches_action = '' == $event_action || $action_object['value'] == $event_action;
-
-				if ( $matches_label && $post_id ) {
+				if ( $post_id ) {
 					$value = $row['metrics'][0]['values'][0];
 
 					$post = get_post( $post_id, ARRAY_A );
@@ -348,29 +366,25 @@ class Popups_Analytics_Utils {
 						$aggregate_link_click_events = $aggregate_link_click_events + $value;
 					}
 
-					if ( $matches_action ) {
-						if ( ! in_array( $action_object, $all_actions ) ) {
-							$all_actions[] = $action_object;
-						}
-
-						if ( $post_id ) {
-							// Last event with this label will be the final one.
-							// If a popup was renamed, the last title will end up as the label.
-							$all_labels[ $post_id ] = $label_object;
-						}
-
-						$parsed_date = date_create( $row['dimensions'][0] );
-						$date        = date_format( $parsed_date, 'Y-m-d' );
-						if ( isset( $days[ $date ] ) ) {
-							$value = $days[ $date ] + $value;
-						}
-						$days[ $date ] = $value;
+					if ( ! in_array( $action_object, $all_actions ) ) {
+						$all_actions[] = $action_object;
 					}
+
+					if ( $post_id ) {
+						// Last event with this label will be the final one.
+						// If a popup was renamed, the last title will end up as the label.
+						$all_labels[ $post_id ] = $label_object;
+					}
+
+					$parsed_date = date_create( $row['dimensions'][0] );
+					$date        = date_format( $parsed_date, 'Y-m-d' );
+					if ( isset( $days[ $date ] ) ) {
+						$value = $days[ $date ] + $value;
+					}
+					$days[ $date ] = $value;
 				}
 
-
 				return $days;
-
 			},
 			array()
 		);
