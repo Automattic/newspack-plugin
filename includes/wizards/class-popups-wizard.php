@@ -114,6 +114,20 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/(?P<id>\d+)/restore',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_restore_popup' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/(?P<id>\d+)/duplicate',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -523,7 +537,7 @@ class Popups_Wizard extends Wizard {
 					$prompt['edit_link'] = get_edit_post_link( $prompt['id'] );
 					return $prompt;
 				},
-				$newspack_popups_configuration_manager->get_prompts( true )
+				$newspack_popups_configuration_manager->get_prompts( true, true )
 			);
 			$response['segments']  = $newspack_popups_configuration_manager->get_segments( true );
 			$response['settings']  = $newspack_popups_configuration_manager->get_settings();
@@ -586,7 +600,28 @@ class Popups_Wizard extends Wizard {
 
 		$popup = get_post( $id );
 		if ( is_a( $popup, 'WP_Post' ) && 'newspack_popups_cpt' === $popup->post_type ) {
-			wp_delete_post( $id );
+			if ( 'trash' === $popup->post_status ) {
+				wp_delete_post( $id, true );
+			} else {
+				wp_trash_post( $id );
+			}
+		}
+
+		return $this->api_get_settings();
+	}
+
+	/**
+	 * Restore a deleted a Pop-up.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
+	 */
+	public function api_restore_popup( $request ) {
+		$id = $request['id'];
+
+		$popup = get_post( $id );
+		if ( is_a( $popup, 'WP_Post' ) && 'newspack_popups_cpt' === $popup->post_type ) {
+			wp_untrash_post( $id );
 		}
 
 		return $this->api_get_settings();
