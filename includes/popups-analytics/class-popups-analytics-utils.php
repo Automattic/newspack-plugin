@@ -178,7 +178,7 @@ class Popups_Analytics_Utils {
 			// Create the DateRange object.
 			$date_range = new Google_Service_AnalyticsReporting_DateRange();
 			$start_date = gmdate( 'Y-m-d', strtotime( $offset . ' days ago' ) );
-			$end_date   = gmdate( 'Y-m-d', strtotime( '1 days ago' ) );
+			$end_date   = gmdate( 'Y-m-d' );
 			$date_range->setStartDate( $start_date );
 			$date_range->setEndDate( $end_date );
 			$options['date_range'] = $date_range;
@@ -306,23 +306,29 @@ class Popups_Analytics_Utils {
 		$aggregate_form_submission_events = -1;
 		$aggregate_link_click_events      = -1;
 
+		// Report by popup ID.
+		$report_by_id = [];
+
 		$post_edit_link = null;
 
 		$ga_data_days = array_reduce(
 			$ga_data_rows,
-			function ( $days, $row ) use ( $event_label_id, &$all_actions, &$all_labels, &$aggregate_seen_events, &$aggregate_form_submission_events, &$aggregate_link_click_events, &$post_edit_link ) {
-				$label = $row['dimensions'][2];
-				if ( '(not set)' !== $label ) {
+			function ( $days, $row ) use ( $event_label_id, $options, &$all_actions, &$all_labels, &$aggregate_seen_events, &$aggregate_form_submission_events, &$aggregate_link_click_events, &$post_edit_link, &$report_by_id ) {
+				$label_dimension_value = $row['dimensions'][2];
+				$has_no_label          = '(not set)' !== $label_dimension_value;
+
+				if ( $has_no_label ) {
 					$item          = self::process_legacy_item( $row );
 					$label_object  = $item['label'];
 					$action_object = $item['action'];
 				} else {
-					$decoded_popup_data = self::decode_item( $row['dimensions'][1] );
-					$label_object       = [
+					$action_dimension_value = $row['dimensions'][1];
+					$decoded_popup_data     = self::decode_item( $action_dimension_value );
+					$label_object           = [
 						'label' => get_the_title( $decoded_popup_data['post_id'] ), // Popup title.
 						'value' => $decoded_popup_data['post_id'], // Popup post id.
 					];
-					$action_object      = [
+					$action_object          = [
 						'label' => $decoded_popup_data['event_name'], // Event type.
 						'value' => $decoded_popup_data['event_name'], // Event type.
 					];
@@ -331,6 +337,19 @@ class Popups_Analytics_Utils {
 
 				if ( $post_id ) {
 					$value = $row['metrics'][0]['values'][0];
+
+					if ( isset( $options['with_report_by_id'] ) ) {
+						$action = strtolower( preg_replace( '/\s/', '_', $action_object['value'] ) );
+						if ( isset( $report_by_id[ $post_id ] ) ) {
+							if ( isset( $report_by_id[ $post_id ][ $action ] ) ) {
+								$report_by_id[ $post_id ][ $action ] += $value;
+							} else {
+								$report_by_id[ $post_id ][ $action ] = (int) $value;
+							}
+						} else {
+							$report_by_id[ $post_id ] = [ $action => (int) $value ];
+						}
+					}
 
 					$post = get_post( $post_id, ARRAY_A );
 					if ( isset( $post['post_content'] ) ) {
@@ -398,6 +417,7 @@ class Popups_Analytics_Utils {
 
 		return array(
 			'report'         => self::fill_in_dates( $ga_data_days, $offset ),
+			'report_by_id'   => $report_by_id,
 			'actions'        => $all_actions,
 			'labels'         => array_values( $all_labels ),
 			'key_metrics'    => $key_metrics,
