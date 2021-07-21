@@ -27,8 +27,15 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 
 	const hasConversionRate = form_submissions >= 0 && seen > 0;
 	const hasClickThroughRate = link_clicks >= 0 && seen > 0;
-	const notApplicable = __( 'n/a', 'newspack' );
+	const isAllEventFilterOn = filtersState.event_action === '';
 
+	if ( ! isAllEventFilterOn ) {
+		return (
+			<Notice noticeText={ __( 'Choose "All Events" filter to see key metrics.', 'newspack' ) } />
+		);
+	}
+
+	const notApplicable = __( 'n/a', 'newspack' );
 	return (
 		<div className="newspack-campaigns-wizard-analytics__info">
 			<h2>

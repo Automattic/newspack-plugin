@@ -6,6 +6,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
+ * External dependencies.
+ */
+import { memoize } from 'lodash';
+
+/**
  * Array of overlay placements.
  */
 const overlayPlacements = [ 'top', 'bottom', 'center' ];
@@ -129,7 +134,7 @@ export const descriptionForPopup = prompt => {
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
-export const getFavoriteCategoryNames = async favoriteCategories => {
+const getFavoriteCategoryNamesFn = async favoriteCategories => {
 	try {
 		const favoriteCategoryNames = await Promise.all(
 			favoriteCategories.map( async categoryId => {
@@ -149,6 +154,7 @@ export const getFavoriteCategoryNames = async favoriteCategories => {
 		return [];
 	}
 };
+export const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
 
 export const descriptionForSegment = ( segment, categories = [] ) => {
 	const { configuration } = segment;
