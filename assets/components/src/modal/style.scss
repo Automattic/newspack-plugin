@@ -29,6 +29,10 @@
 		}
 	}
 
+	&--narrow {
+		max-width: 360px;
+	}
+
 	// Header
 
 	.components-modal__header {
@@ -37,6 +41,7 @@
 		border: 0;
 		height: auto;
 		justify-content: flex-end;
+		margin: 0 -32px 0;
 		padding: 32px 32px 0;
 		position: relative;
 
@@ -80,6 +85,8 @@
 	// Content
 
 	.components-modal__content {
+		padding: 0 32px;
+
 		&::before {
 			display: none;
 		}
