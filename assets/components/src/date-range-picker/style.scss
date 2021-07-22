@@ -5,32 +5,69 @@
 	margin: 32px 0;
 	max-width: 296px;
 	width: 100%;
+
 	&__PaginationArrow {
+		border-radius: 3px;
 		height: 36px;
+		transition: background-color 125ms ease-in-out;
 		width: 36px;
 
 		&--previous {
 			left: 0;
 		}
+
 		&--next {
 			right: 0;
 		}
+
+		&:hover {
+			background: $gray-100;
+		}
 	}
+	&__PaginationArrowIcon {
+		background: transparent
+			url( 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgaGVpZ2h0PSIyNHB4IiB3aWR0aD0iMjRweCI+PHBhdGggZD0iTTIwIDEwLjhINi43bDQuMS00LjUtMS4xLTEuMS01LjggNi4zIDUuOCA1LjggMS4xLTEuMS00LTMuOUgyMHoiIGZpbGw9IiMxZTFlMWUiIC8+PC9zdmc+Cg==' )
+			50% 50% no-repeat;
+		border: none;
+		height: 36px;
+		left: 0;
+		position: relative;
+		right: 0;
+		top: 0;
+		width: 36px;
+
+		&--next {
+			background-image: url( 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgaGVpZ2h0PSIyNHB4IiB3aWR0aD0iMjRweCI+PHBhdGggZD0iTTE0LjMgNi43bC0xLjEgMS4xIDQgNEg0djEuNWgxMy4zbC00LjEgNC40IDEuMSAxLjEgNS44LTYuM3oiIGZpbGw9IiMxZTFlMWUiIC8+PC9zdmc+Cg==' );
+		}
+	}
+
 	&__Month {
 		margin: 0;
 		width: inherit;
 	}
+
+	&__MonthHeader {
+		color: $gray-900;
+		font-size: 17px;
+		height: auto;
+		line-height: 24px;
+		padding: 6px 44px;
+	}
+
 	&__CalendarSelection,
 	&__CalendarHighlight {
 		top: 0;
 		bottom: 0;
 		border-color: $primary-500;
 	}
+
 	&__CalendarSelection {
 		background-color: $primary-500;
+
 		&--start {
 			left: 0;
 		}
+
 		&--end {
 			right: 0;
 		}
