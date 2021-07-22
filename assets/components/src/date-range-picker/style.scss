@@ -2,8 +2,23 @@
 @import '~@wordpress/base-styles/colors';
 
 .DateRangePicker {
+	margin: 32px 0;
+	max-width: 296px;
+	width: 100%;
+	&__PaginationArrow {
+		height: 36px;
+		width: 36px;
+
+		&--previous {
+			left: 0;
+		}
+		&--next {
+			right: 0;
+		}
+	}
 	&__Month {
 		margin: 0;
+		width: inherit;
 	}
 	&__CalendarSelection,
 	&__CalendarHighlight {

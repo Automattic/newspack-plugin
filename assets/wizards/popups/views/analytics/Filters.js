@@ -53,6 +53,7 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 					onRequestClose={ () => {
 						setIsRangePickerVisible( false );
 					} }
+					isNarrow
 				>
 					<DateRangePicker
 						start={ parseDate( filtersState.start_date ) }
