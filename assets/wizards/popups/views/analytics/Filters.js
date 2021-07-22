@@ -2,15 +2,24 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { SelectControl } from '../../../../components/src';
+import { DateRangePicker, Modal, Button, SelectControl } from '../../../../components/src';
+import { formatDate, parseDate } from '../../utils';
 
-import { OFFSETS } from './consts';
+/**
+ * External dependencies.
+ */
+import { format } from 'date-fns';
+
+const formatDateWithMonthName = formattedDate =>
+	format( parseDate( formattedDate ), 'MMM do yyyy' );
 
 const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disabled } ) => {
+	const [ isRangePickerVisible, setIsRangePickerVisible ] = useState( false );
 	return (
 		<div className="newspack-campaigns-wizard-analytics__filters">
 			<div className="newspack-campaigns-wizard-analytics__filters__group">
@@ -30,12 +39,34 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 					disabled={ disabled }
 				/>
 			</div>
-			<SelectControl
-				options={ OFFSETS }
-				onChange={ onChange( 'SET_OFFSET_FILTER' ) }
-				value={ filtersState.offset }
+			<Button
+				isSecondary
 				disabled={ disabled }
-			/>
+				onClick={ () => setIsRangePickerVisible( _isVisible => ! _isVisible ) }
+			>{ `${ formatDateWithMonthName( filtersState.start_date ) } ${ __(
+				'to',
+				'newspack'
+			) } ${ formatDateWithMonthName( filtersState.end_date ) }` }</Button>
+			{ isRangePickerVisible && (
+				<Modal
+					title={ __( 'Choose a date range', 'newspack' ) }
+					onRequestClose={ () => {
+						setIsRangePickerVisible( false );
+					} }
+				>
+					<DateRangePicker
+						start={ parseDate( filtersState.start_date ) }
+						end={ parseDate( filtersState.end_date ) }
+						onChange={ range => {
+							onChange( 'SET_RANGE_FILTER' )( {
+								start_date: formatDate( range.start ),
+								end_date: formatDate( range.end ),
+							} );
+							setIsRangePickerVisible( false );
+						} }
+					/>
+				</Modal>
+			) }
 		</div>
 	);
 };

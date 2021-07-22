@@ -42,29 +42,15 @@ class Popups_Analytics_Utils {
 	}
 
 	/**
-	 * Date before.
-	 *
-	 * @param string $offset date offset in days.
-	 * @return string formatted date.
-	 */
-	private static function date_before( $offset ) {
-		$today = new \DateTime();
-		$today = $today->modify( '-' . $offset . ' days' );
-		return $today->format( 'Y-m-d' );
-	}
-
-	/**
 	 * Fill in dates.
 	 *
-	 * @param array  $input array of days.
-	 * @param string $offset date offset in days.
+	 * @param array    $input array of days.
+	 * @param DateTime $start_date start date.
+	 * @param DateTime $end_date end date.
 	 * @return array array of dates.
 	 */
-	private static function fill_in_dates( $input, $offset ) {
-		$all_days = self::get_dates_in_range(
-			self::date_before( $offset ),
-			self::date_before( '1' )
-		);
+	private static function fill_in_dates( $input, $start_date, $end_date ) {
+		$all_days = self::get_dates_in_range( $start_date, $end_date );
 
 		$days_filled = array_map(
 			function ( $day ) use ( $input ) {
@@ -169,18 +155,14 @@ class Popups_Analytics_Utils {
 	 * @return array array of rows with GA report data.
 	 */
 	private static function get_ga_report( $options ) {
-		$offset = $options['offset'];
-
 		// Load and query analytics.
 		$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
 
 		if ( $analytics && $analytics->is_connected() ) {
 			// Create the DateRange object.
 			$date_range = new Google_Service_AnalyticsReporting_DateRange();
-			$start_date = gmdate( 'Y-m-d', strtotime( $offset . ' days ago' ) );
-			$end_date   = gmdate( 'Y-m-d' );
-			$date_range->setStartDate( $start_date );
-			$date_range->setEndDate( $end_date );
+			$date_range->setStartDate( $options['start_date'] );
+			$date_range->setEndDate( $options['end_date'] );
 			$options['date_range'] = $date_range;
 
 			try {
@@ -291,7 +273,6 @@ class Popups_Analytics_Utils {
 	 * @return Object Report data.
 	 */
 	public static function process_ga_report( $ga_data_rows, $options ) {
-		$offset         = $options['offset'];
 		$event_label_id = $options['event_label_id'];
 
 		if ( is_wp_error( $ga_data_rows ) ) {
@@ -416,7 +397,7 @@ class Popups_Analytics_Utils {
 		);
 
 		return array(
-			'report'         => self::fill_in_dates( $ga_data_days, $offset ),
+			'report'         => self::fill_in_dates( $ga_data_days, $options['start_date'], $options['end_date'] ),
 			'report_by_id'   => $report_by_id,
 			'actions'        => $all_actions,
 			'labels'         => array_values( $all_labels ),

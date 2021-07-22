@@ -321,7 +321,10 @@ class Popups_Wizard extends Wizard {
 					'callback'            => [ $this, 'get_popups_analytics_report' ],
 					'permission_callback' => [ $this, 'api_permissions_check' ],
 					'args'                => [
-						'offset'            => [
+						'start_date'        => [
+							'sanitize_callback' => 'sanitize_text_field',
+						],
+						'end_date'          => [
 							'sanitize_callback' => 'sanitize_text_field',
 						],
 						'event_label_id'    => [
@@ -796,7 +799,8 @@ class Popups_Wizard extends Wizard {
 	 */
 	public function get_popups_analytics_report( $request ) {
 		$options = array(
-			'offset'            => $request['offset'],
+			'start_date'        => $request['start_date'],
+			'end_date'          => $request['end_date'],
 			'event_label_id'    => $request['event_label_id'],
 			'event_action'      => $request['event_action'],
 			'with_report_by_id' => $request['with_report_by_id'],
