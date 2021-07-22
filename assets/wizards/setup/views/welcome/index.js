@@ -22,24 +22,13 @@ import {
 	ProgressBar,
 	withWizardScreen,
 	CheckboxControl,
+	Notice,
 } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 
 const { useHistory } = Router;
 const POST_COUNT = newspack_aux_data.is_e2e ? 12 : 40;
 const STARTER_CONTENT_REQUEST_COUNT = POST_COUNT + 3;
-
-const REQUIRED_SOFTWARE_SLUGS = [
-	'jetpack',
-	'amp',
-	'pwa',
-	'wordpress-seo',
-	'woocommerce',
-	'google-site-kit',
-	'newspack-blocks',
-	'newspack-newsletters',
-	'newspack-theme',
-];
 
 const ERROR_TYPES = {
 	plugin_configuration: { message: __( 'Installation', 'newspack' ) },
@@ -55,25 +44,22 @@ const starterContentFetch = endpoint =>
 const Welcome = ( { buttonAction } ) => {
 	const [ installationProgress, setInstallationProgress ] = useState( 0 );
 	const [ softwareInfo, setSoftwareInfo ] = useState( [] );
+	const [ isSSL, setIsSSL ] = useState( null );
 	const [ shouldInstallStarterContent, setShouldInstallStarterContent ] = useState( true );
 	const [ errors, setErrors ] = useState( [] );
 	const addError = errorInfo => error =>
 		setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
 
 	const total =
-		( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) +
-		REQUIRED_SOFTWARE_SLUGS.length;
+		( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
 
 	useEffect( () => {
 		document.body.classList.add( 'newspack_page_newspack-setup-wizard__welcome' );
 
-		Promise.all(
-			REQUIRED_SOFTWARE_SLUGS.map( item =>
-				apiFetch( { path: `/newspack/v1/plugins/${ item }` } ).then( res =>
-					setSoftwareInfo( _softwareInfo => [ ..._softwareInfo, res ] )
-				)
-			)
-		);
+		apiFetch( { path: '/newspack/v1/wizard/newspack-setup-wizard/initial-check/' } ).then( res => {
+			setSoftwareInfo( res.plugins );
+			setIsSSL( res.is_ssl );
+		} );
 
 		return () => document.body.classList.remove( 'newspack_page_newspack-setup-wizard__welcome' );
 	}, [] );
@@ -248,6 +234,15 @@ const Welcome = ( { buttonAction } ) => {
 				{ errors.length === 0 && installationProgress > 0 ? (
 					<ProgressBar completed={ installationProgress } total={ total } />
 				) : null }
+				{ isSSL === false && (
+					<Notice
+						isError
+						noticeText={ __(
+							"This site does not use HTTPS. Newspack can't be installed.",
+							'newspack'
+						) }
+					/>
+				) }
 				<p>
 					{ getInfoText() }
 					{ isDone && (
@@ -275,7 +270,7 @@ const Welcome = ( { buttonAction } ) => {
 						) }
 						<div>
 							<Button
-								disabled={ REQUIRED_SOFTWARE_SLUGS.length !== softwareInfo.length }
+								disabled={ ! isSSL }
 								isPrimary
 								onClick={ isInit ? install : null }
 								href={ isDone ? nextRouteAddress : null }
