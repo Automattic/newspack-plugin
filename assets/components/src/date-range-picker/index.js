@@ -17,6 +17,7 @@ const DateRangePicker = ( { start, end, onChange } ) => {
 	return (
 		<ReactDateRangePicker
 			value={ moment.range( moment( start ), moment( end ) ) }
+			firstOfWeek={ 1 }
 			onSelect={ range => {
 				onChange( {
 					start: range.start._d,
