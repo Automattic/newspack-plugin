@@ -80,13 +80,6 @@
 	// Content
 
 	.components-modal__content {
-		margin: 0;
-		padding: 0 32px;
-
-		@media screen and ( min-width: 744px ) {
-			padding: 32px 64px;
-		}
-
 		&::before {
 			display: none;
 		}
