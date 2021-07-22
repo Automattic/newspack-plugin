@@ -1,0 +1,23 @@
+@import '../../../shared/scss/colors';
+@import '~@wordpress/base-styles/colors';
+
+.DateRangePicker {
+	&__Month {
+		margin: 0;
+	}
+	&__CalendarSelection,
+	&__CalendarHighlight {
+		top: 0;
+		bottom: 0;
+		border-color: $primary-500;
+	}
+	&__CalendarSelection {
+		background-color: $primary-500;
+		&--start {
+			left: 0;
+		}
+		&--end {
+			right: 0;
+		}
+	}
+}
