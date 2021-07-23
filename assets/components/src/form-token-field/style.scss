@@ -115,4 +115,10 @@
 		display: block;
 		margin: 0;
 	}
+
+	&--help-hidden {
+		.components-form-token-field__help {
+			display: none;
+		}
+	}
 }
