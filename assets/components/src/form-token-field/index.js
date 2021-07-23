@@ -23,7 +23,7 @@ class FormTokenField extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, isHelpTextHidden, ...otherProps } = this.props;
+		const { className, isHelpTextHidden, description, ...otherProps } = this.props;
 		const classes = classnames( 'newspack-form-token-field__input-container', className );
 		return (
 			<div
@@ -35,6 +35,7 @@ class FormTokenField extends Component {
 				) }
 			>
 				<BaseComponent className={ classes } { ...otherProps } />
+				{ description && <div className="i">{ description }</div> }
 			</div>
 		);
 	}
