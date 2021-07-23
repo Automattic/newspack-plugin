@@ -25,11 +25,12 @@ class SelectControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, optgroups, buttonOptions, ...otherProps } = this.props;
+		const { className, optgroups, buttonOptions, isSmall, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-select-control',
 			optgroups && 'newspack-grouped-select-control',
 			buttonOptions && 'newspack-buttons-select-control',
+			isSmall && 'newspack-select-control--small',
 			className
 		);
 		return (
