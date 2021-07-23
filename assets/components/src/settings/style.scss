@@ -23,16 +23,20 @@
 
 				.newspack-category-autocomplete,
 				.newspack-select-control {
-					margin-top: 16px;
+					margin-top: 12px;
 				}
 
-				.newspack-form-token-field .components-form-token-field {
-					&__label {
-						display: none;
+				.newspack-form-token-field {
+					margin: 12px 0 0 0;
+					.components-form-token-field {
+						width: 100%;
+						&__label {
+							display: none;
+						}
 					}
-					&__help {
-						display: block;
-					}
+				}
+				.newspack-category-autocomplete .newspack-form-token-field {
+					margin-top: 0;
 				}
 
 				.newspack-select-control {

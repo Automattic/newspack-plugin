@@ -25,7 +25,7 @@ import {
 	Waiting,
 } from '../../../../components/src';
 import PrimaryPromptPopover from '../prompt-popovers/primary';
-import SecondaryPromptPopover from '../prompt-popovers/secondary';
+import PromptSettingsModal from '../settings-modal';
 import { placementForPopup } from '../../utils';
 import './style.scss';
 
@@ -81,9 +81,9 @@ const AnalyticsData = ( { error, id, analyticsData } ) => {
 };
 
 const PromptActionCard = props => {
-	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
+	const [ isSettingsModalVisible, setIsSettingsModalVisible ] = useState( false );
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const [ modalVisible, setModalVisible ] = useState( false );
+	const [ isDuplicatePromptModalVisible, setIsDuplicatePromptModalVisible ] = useState( false );
 	const [ duplicateTitle, setDuplicateTitle ] = useState( null );
 
 	const {
@@ -101,10 +101,10 @@ const PromptActionCard = props => {
 	const { campaign_groups: campaignGroups, id, edit_link: editLink, title } = prompt;
 
 	useEffect( () => {
-		if ( modalVisible && ! duplicateTitle ) {
+		if ( isDuplicatePromptModalVisible && ! duplicateTitle ) {
 			getDefaultDupicateTitle();
 		}
-	}, [ modalVisible ] );
+	}, [ isDuplicatePromptModalVisible ] );
 
 	const getDefaultDupicateTitle = async () => {
 		const promptToDuplicate = parseInt( prompt?.duplicate_of || prompt.id );
@@ -142,10 +142,10 @@ const PromptActionCard = props => {
 							<Button
 								isQuaternary
 								isSmall
-								className={ categoriesVisibility && 'popover-active' }
-								onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
+								className={ isSettingsModalVisible && 'popover-active' }
+								onClick={ () => setIsSettingsModalVisible( ! isSettingsModalVisible ) }
 								icon={ settings }
-								label={ __( 'Category filtering and campaigns', 'newspack' ) }
+								label={ __( 'Prompt settings', 'newspack' ) }
 								tooltipPosition="bottom center"
 							/>
 							<Button
@@ -161,15 +161,7 @@ const PromptActionCard = props => {
 								<PrimaryPromptPopover
 									onFocusOutside={ () => setPopoverVisibility( false ) }
 									prompt={ prompt }
-									setModalVisible={ setModalVisible }
-									{ ...props }
-								/>
-							) }
-							{ categoriesVisibility && (
-								<SecondaryPromptPopover
-									onFocusOutside={ () => setCategoriesVisibility( false ) }
-									prompt={ prompt }
-									segments={ segments }
+									setIsDuplicatePromptModalVisible={ setIsDuplicatePromptModalVisible }
 									{ ...props }
 								/>
 							) }
@@ -177,12 +169,22 @@ const PromptActionCard = props => {
 					</>
 				}
 			/>
-			{ modalVisible && (
+			{ isSettingsModalVisible && (
+				<PromptSettingsModal
+					prompt={ prompt }
+					disabled={ inFlight }
+					onClose={ () => setIsSettingsModalVisible( false ) }
+					segments={ segments }
+					setTermsForPopup={ props.setTermsForPopup }
+					updatePopup={ props.updatePopup }
+				/>
+			) }
+			{ isDuplicatePromptModalVisible && (
 				<Modal
 					className="newspack-popups__duplicate-modal"
 					title={ sprintf( __( 'Duplicate “%s”', 'newspack' ), title ) }
 					onRequestClose={ () => {
-						setModalVisible( false );
+						setIsDuplicatePromptModalVisible( false );
 						setDuplicateTitle( null );
 						resetDuplicated();
 					} }
@@ -209,7 +211,7 @@ const PromptActionCard = props => {
 								<Button
 									isSecondary
 									onClick={ () => {
-										setModalVisible( false );
+										setIsDuplicatePromptModalVisible( false );
 										setDuplicateTitle( null );
 										resetDuplicated();
 									} }
@@ -243,7 +245,7 @@ const PromptActionCard = props => {
 									disabled={ inFlight }
 									isSecondary
 									onClick={ () => {
-										setModalVisible( false );
+										setIsDuplicatePromptModalVisible( false );
 										setDuplicateTitle( null );
 										resetDuplicated();
 									} }

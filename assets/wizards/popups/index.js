@@ -110,6 +110,7 @@ class PopupsWizard extends Component {
 	 */
 	setTermsForPopup = ( id, terms, taxonomy ) => {
 		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
 			method: 'POST',
@@ -125,6 +126,7 @@ class PopupsWizard extends Component {
 
 	updatePopup = ( popupId, options ) => {
 		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
 			method: 'POST',
