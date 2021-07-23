@@ -24,7 +24,6 @@ import {
 	getFavoriteCategoryNames,
 	warningForPopup,
 } from '../../utils';
-
 import {
 	iconInline,
 	iconOverlayBottom,
