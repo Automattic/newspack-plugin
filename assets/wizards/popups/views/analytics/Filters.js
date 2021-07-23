@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
+import { Icon, calendar, chevronDown } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -22,6 +23,42 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 	const [ isRangePickerVisible, setIsRangePickerVisible ] = useState( false );
 	return (
 		<div className="newspack-campaigns-wizard-analytics__filters">
+			<div className="newspack-campaigns-wizard-analytics__filters__date">
+				<Button
+					isSecondary
+					isSmall
+					icon={ chevronDown }
+					iconSize={ 16 }
+					disabled={ disabled }
+					onClick={ () => setIsRangePickerVisible( _isVisible => ! _isVisible ) }
+				>
+					{ `${ formatDateWithMonthName( filtersState.start_date ) } ${ __(
+						'to',
+						'newspack'
+					) } ${ formatDateWithMonthName( filtersState.end_date ) }` }
+				</Button>
+				{ isRangePickerVisible && (
+					<Modal
+						title={ __( 'Choose a date range', 'newspack' ) }
+						onRequestClose={ () => {
+							setIsRangePickerVisible( false );
+						} }
+						isNarrow
+					>
+						<DateRangePicker
+							start={ parseDate( filtersState.start_date ) }
+							end={ parseDate( filtersState.end_date ) }
+							onChange={ range => {
+								onChange( 'SET_RANGE_FILTER' )( {
+									start_date: formatDate( range.start ),
+									end_date: formatDate( range.end ),
+								} );
+								setIsRangePickerVisible( false );
+							} }
+						/>
+					</Modal>
+				) }
+			</div>
 			<div className="newspack-campaigns-wizard-analytics__filters__group">
 				<SelectControl
 					options={ [ { label: __( 'All Prompts', 'newspack' ), value: '' }, ...labelFilters ] }
@@ -39,35 +76,6 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 					disabled={ disabled }
 				/>
 			</div>
-			<Button
-				isSecondary
-				disabled={ disabled }
-				onClick={ () => setIsRangePickerVisible( _isVisible => ! _isVisible ) }
-			>{ `${ formatDateWithMonthName( filtersState.start_date ) } ${ __(
-				'to',
-				'newspack'
-			) } ${ formatDateWithMonthName( filtersState.end_date ) }` }</Button>
-			{ isRangePickerVisible && (
-				<Modal
-					title={ __( 'Choose a date range', 'newspack' ) }
-					onRequestClose={ () => {
-						setIsRangePickerVisible( false );
-					} }
-					isNarrow
-				>
-					<DateRangePicker
-						start={ parseDate( filtersState.start_date ) }
-						end={ parseDate( filtersState.end_date ) }
-						onChange={ range => {
-							onChange( 'SET_RANGE_FILTER' )( {
-								start_date: formatDate( range.start ),
-								end_date: formatDate( range.end ),
-							} );
-							setIsRangePickerVisible( false );
-						} }
-					/>
-				</Modal>
-			) }
 		</div>
 	);
 };
