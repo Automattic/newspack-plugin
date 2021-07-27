@@ -1,3 +1,10 @@
+## [1.50.1](https://github.com/Automattic/newspack-plugin/compare/v1.50.0...v1.50.1) (2021-07-27)
+
+
+### Bug Fixes
+
+* namespace wp_error correctly ([#1071](https://github.com/Automattic/newspack-plugin/issues/1071)) ([80028f0](https://github.com/Automattic/newspack-plugin/commit/80028f05e4fbdfe7e571f23889b4cec821674924))
+
 # [1.50.0](https://github.com/Automattic/newspack-plugin/compare/v1.49.0...v1.50.0) (2021-07-27)
 
 
