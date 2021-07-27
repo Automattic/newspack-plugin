@@ -46,6 +46,13 @@ class Donations {
 	];
 
 	/**
+	 * Cached status of the current request - is it a WC page.
+	 *
+	 * @var string
+	 */
+	private static $is_wc_page = null;
+
+	/**
 	 * Initialize hooks/filters/etc.
 	 */
 	public static function init() {
@@ -53,7 +60,31 @@ class Donations {
 			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
 			add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
 			add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
+			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
 		}
+	}
+
+	/**
+	 * Should AMP be skipped?
+	 * If it's a WooCommerce page (e.g. cart), then yes, cause AMP breaks interactivity on those.
+	 *
+	 * @param bool $skip True if AMP should be skipped.
+	 * @param int  $post_id Post ID.
+	 */
+	public static function should_skip_amp( $skip, $post_id ) {
+		if ( null === self::$is_wc_page ) {
+			$wc_pages_ids     = [
+				get_option( 'woocommerce_shop_page_id' ),
+				get_option( 'woocommerce_cart_page_id' ),
+				get_option( 'woocommerce_checkout_page_id' ),
+				get_option( 'woocommerce_myaccount_page_id' ),
+			];
+			self::$is_wc_page = in_array( $post_id, $wc_pages_ids );
+		}
+		if ( self::$is_wc_page ) {
+			return true;
+		}
+		return $skip;
 	}
 
 	/**

@@ -32,12 +32,14 @@ import './style.scss';
  * External dependencies
  */
 import classnames from 'classnames';
+import { find } from 'lodash';
 
 const { useHistory } = Router;
 
 const MODAL_TYPE_DUPLICATE = 1;
 const MODAL_TYPE_RENAME = 2;
 const MODAL_TYPE_NEW = 3;
+const DEFAULT_CAMPAIGNS_FILTER = 'active';
 
 const modalTitle = modalType => {
 	if ( MODAL_TYPE_RENAME === modalType ) {
@@ -58,15 +60,22 @@ const modalButton = modalType => {
 };
 
 const filterByCampaign = ( prompts, campaignId ) => {
-	if ( 'active' === campaignId || ! campaignId ) {
-		return prompts.filter( ( { status } ) => 'publish' === status );
+	if ( 'trash' === campaignId ) {
+		return prompts.filter( ( { status } ) => 'trash' === status );
+	}
+	const notTrashedPrompts = prompts.filter( ( { status } ) => 'trash' !== status );
+	if ( DEFAULT_CAMPAIGNS_FILTER === campaignId ) {
+		return notTrashedPrompts.filter( ( { status } ) => 'publish' === status );
+	}
+	if ( 'all' === campaignId ) {
+		return notTrashedPrompts.filter( ( { status } ) => 'trash' !== status );
 	}
 	if ( 'unassigned' === campaignId ) {
-		return prompts.filter(
+		return notTrashedPrompts.filter(
 			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
 		);
 	}
-	return prompts.filter(
+	return notTrashedPrompts.filter(
 		( { campaign_groups: campaigns } ) =>
 			campaigns && campaigns.find( term => +term.term_id === +campaignId )
 	);
@@ -98,7 +107,7 @@ const groupBySegment = ( segments, prompts ) => {
  */
 const Campaigns = props => {
 	const {
-		campaignId,
+		campaignId = DEFAULT_CAMPAIGNS_FILTER,
 		campaigns = [],
 		manageCampaignGroup,
 		segments,
@@ -143,91 +152,78 @@ const Campaigns = props => {
 	const archivedCampaigns = campaigns.filter( ( { status } ) => 'archive' === status );
 	const campaignData = dataForCampaignId( campaignId, campaigns );
 
-	const valueForCampaignId = id => {
-		if ( 'unassigned' === id ) {
-			return {
-				key: 'unassigned',
-				name: __( 'Unassigned Prompts', 'newspack' ),
-			};
-		}
-
-		const data = dataForCampaignId( id, campaigns );
-
-		if ( data ) {
-			return {
-				key: data.term_id,
-				name:
-					'archive' === data.status ? data.name + ' ' + __( '(archived)', 'newspack' ) : data.name,
-			};
-		}
-		return {
-			key: 'active',
+	const campaignsSelectOptions = [
+		{
+			key: DEFAULT_CAMPAIGNS_FILTER,
 			name: __( 'Active Prompts', 'newspack' ),
-		};
-	};
-	const selectValue = valueForCampaignId( campaignId );
+		},
+		{
+			key: 'all',
+			name: __( 'All Prompts', 'newspack' ),
+		},
+		{
+			key: 'trash',
+			name: __( 'Trash', 'newspack' ),
+		},
+		...( hasUnassigned
+			? [
+					{
+						key: 'unassigned',
+						name: __( 'Unassigned Prompts', 'newspack' ),
+					},
+			  ]
+			: [] ),
+		...( activeCampaigns.length
+			? [
+					{
+						key: 'header-campaigns',
+						name: __( 'Campaigns', 'newspack' ),
+						className: 'is-header',
+					},
+			  ]
+			: [] ),
+		...activeCampaigns.map( ( { term_id: id, name } ) => ( {
+			key: String( id ),
+			name,
+			className: 'newspack-campaigns__campaign-group__select-control-group-item',
+		} ) ),
+		...( archivedCampaigns.length
+			? [
+					{
+						key: 'header-archived-campaigns',
+						name: __( 'Archived Campaigns', 'newspack' ),
+						className: 'is-header',
+					},
+			  ]
+			: [] ),
+		...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
+			key: String( id ),
+			name: name + ' ' + __( '(archived)', 'newspack' ),
+			className: 'newspack-campaigns__campaign-group__select-control-group-item',
+		} ) ),
+	];
+
 	return (
 		<Fragment>
 			<Card headerActions noBorder>
 				<div className="newspack-campaigns__campaign-group__filter-group-actions">
 					<CustomSelectControl
 						label={ __( 'Campaigns', 'newspack' ) }
-						options={ [
-							{
-								key: 'active',
-								name: __( 'Active Prompts', 'newspack' ),
-								className: selectValue.key === 'active' && 'is-selected',
-							},
-							...( hasUnassigned
-								? [
-										{
-											key: 'unassigned',
-											name: __( 'Unassigned Prompts', 'newspack' ),
-											className: selectValue.key === 'unassigned' && 'is-selected',
-										},
-								  ]
-								: [] ),
-							...( activeCampaigns.length
-								? [
-										{
-											key: 'header-campaigns',
-											name: __( 'Campaigns', 'newspack' ),
-											className: 'is-header',
-										},
-								  ]
-								: [] ),
-							...activeCampaigns.map( ( { term_id: id, name } ) => ( {
-								key: id,
-								name,
-								className: classnames(
-									'newspack-campaigns__campaign-group__select-control-group-item',
-									+selectValue.key === +id && 'is-selected'
-								),
-							} ) ),
-							...( archivedCampaigns.length
-								? [
-										{
-											key: 'header-archived-campaigns',
-											name: __( 'Archived Campaigns', 'newspack' ),
-											className: 'is-header',
-										},
-								  ]
-								: [] ),
-							...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
-								key: id,
-								name,
-								className: classnames(
-									'newspack-campaigns__campaign-group__select-control-group-item',
-									+selectValue.key === +id && 'is-selected'
-								),
-							} ) ),
-						] }
+						options={ campaignsSelectOptions.map( option => ( {
+							...option,
+							className: classnames( option.className, {
+								'is-selected': option.key === campaignId,
+							} ),
+						} ) ) }
 						onChange={ ( { selectedItem: { key } } ) =>
-							'active' === key
+							DEFAULT_CAMPAIGNS_FILTER === key
 								? history.push( '/campaigns' )
 								: history.push( `/campaigns/${ key }` )
 						}
-						value={ selectValue }
+						value={ find( campaignsSelectOptions, [
+							'key',
+							campaignId || DEFAULT_CAMPAIGNS_FILTER,
+						] ) }
 						hideLabelFromVision={ true }
 					/>
 					{ campaignData && (

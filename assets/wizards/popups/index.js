@@ -10,6 +10,7 @@ import '../../shared/js/public-path';
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * External dependencies.
@@ -58,6 +59,7 @@ class PopupsWizard extends Component {
 		this.state = {
 			campaigns: [],
 			prompts: [],
+			promptsAnalyticsData: null,
 			segments: [],
 			settings: [],
 			previewUrl: null,
@@ -66,15 +68,36 @@ class PopupsWizard extends Component {
 		};
 	}
 	onWizardReady = () => {
-		this.refetch();
+		this.refetch( { isInitial: true } );
 	};
 
-	refetch = () => {
+	refetch = ( { isInitial } = {} ) => {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( this.updateAfterAPI )
+			.then( response => {
+				this.updateAfterAPI( response );
+
+				if ( isInitial ) {
+					// Fetch GA report to display per-popup data.
+					const reportSpec = {
+						offset: 30,
+						with_report_by_id: true,
+					};
+					apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( reportSpec ) }` } )
+						.then( ( { report_by_id } ) => {
+							this.setState( {
+								promptsAnalyticsData: report_by_id,
+							} );
+						} )
+						.catch( error => {
+							this.setState( {
+								promptsAnalyticsData: { error },
+							} );
+						} );
+				}
+			} )
 			.catch( error => setError( error ) );
 	};
 
@@ -122,6 +145,22 @@ class PopupsWizard extends Component {
 		return wizardApiFetch( {
 			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
 			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( this.updateAfterAPI )
+			.catch( error => setError( error ) );
+	};
+
+	/**
+	 * Restore a deleted a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	restorePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/restore`,
+			method: 'POST',
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
@@ -220,7 +259,16 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { campaigns, inFlight, prompts, segments, settings, previewUrl, duplicated } = this.state;
+		const {
+			campaigns,
+			inFlight,
+			prompts,
+			segments,
+			settings,
+			previewUrl,
+			duplicated,
+			promptsAnalyticsData,
+		} = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -246,6 +294,7 @@ class PopupsWizard extends Component {
 						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
+						restorePopup: this.restorePopup,
 						duplicatePopup: this.duplicatePopup,
 						previewPopup: popup =>
 							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
@@ -349,6 +398,7 @@ class PopupsWizard extends Component {
 													duplicateCampaignGroup={ duplicateCampaignGroup }
 													renameCampaignGroup={ renameCampaignGroup }
 													campaigns={ campaigns }
+													promptsAnalyticsData={ promptsAnalyticsData }
 												/>
 											</CampaignsContext.Provider>
 										);

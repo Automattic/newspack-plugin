@@ -14,11 +14,71 @@ import { moreVertical, settings } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../components/src';
+import {
+	ActionCard,
+	InfoButton,
+	Button,
+	Card,
+	Modal,
+	Notice,
+	TextControl,
+	Waiting,
+} from '../../../../components/src';
 import PrimaryPromptPopover from '../prompt-popovers/primary';
 import SecondaryPromptPopover from '../prompt-popovers/secondary';
 import { placementForPopup } from '../../utils';
 import './style.scss';
+
+const AnalyticsDataItem = ( { value, description } ) => (
+	<div className="newspack-popups-wizard__analytics-data--value">
+		<strong>{ value }%</strong>
+		<small>{ description }</small>
+	</div>
+);
+
+const AnalyticsData = ( { error, id, analyticsData } ) => {
+	if ( error ) {
+		return (
+			<InfoButton
+				className="newspack-popups-wizard__analytics-data--icon"
+				text={ __( 'Could not fetch Analytics data', 'newspack' ) }
+			/>
+		);
+	}
+	if ( ! analyticsData ) {
+		return (
+			<div className="newspack-popups-wizard__analytics-data--icon">
+				<Waiting />
+			</div>
+		);
+	}
+	const { seen, load, form_submission } = analyticsData[ id ] || {};
+	if ( ! seen || ! load ) {
+		return (
+			<InfoButton
+				className="newspack-popups-wizard__analytics-data--icon"
+				text={ __( 'No Analytics data', 'newspack' ) }
+			/>
+		);
+	}
+	const viewability = Math.min( 100, Math.round( ( seen / load ) * 100 ) );
+	const renderViewability = () => (
+		<AnalyticsDataItem value={ viewability } description={ __( 'viewability', 'newspack' ) } />
+	);
+	if ( form_submission ) {
+		const conversionRate = Math.min( 100, Math.round( ( form_submission / seen ) * 100 ) );
+		return (
+			<>
+				<AnalyticsDataItem
+					value={ conversionRate }
+					description={ __( 'conversion rate', 'newspack' ) }
+				/>
+				{ renderViewability() }
+			</>
+		);
+	}
+	return renderViewability();
+};
 
 const PromptActionCard = props => {
 	const [ categoriesVisibility, setCategoriesVisibility ] = useState( false );
@@ -36,6 +96,7 @@ const PromptActionCard = props => {
 		prompt = {},
 		segments,
 		warning,
+		promptsAnalyticsData,
 	} = props;
 	const { campaign_groups: campaignGroups, id, edit_link: editLink, title } = prompt;
 
@@ -71,42 +132,49 @@ const PromptActionCard = props => {
 				notification={ warning }
 				notificationLevel="error"
 				actionText={
-					<Fragment>
-						<Button
-							isQuaternary
-							isSmall
-							className={ categoriesVisibility && 'popover-active' }
-							onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
-							icon={ settings }
-							label={ __( 'Category filtering and campaigns', 'newspack' ) }
-							tooltipPosition="bottom center"
+					<>
+						<AnalyticsData
+							error={ promptsAnalyticsData?.error }
+							analyticsData={ promptsAnalyticsData }
+							id={ prompt.id }
 						/>
-						<Button
-							isQuaternary
-							isSmall
-							className={ popoverVisibility && 'popover-active' }
-							onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
-							icon={ moreVertical }
-							label={ __( 'More options', 'newspack' ) }
-							tooltipPosition="bottom center"
-						/>
-						{ popoverVisibility && (
-							<PrimaryPromptPopover
-								onFocusOutside={ () => setPopoverVisibility( false ) }
-								prompt={ prompt }
-								setModalVisible={ setModalVisible }
-								{ ...props }
+						<div className="newspack-popups-wizard__buttons">
+							<Button
+								isQuaternary
+								isSmall
+								className={ categoriesVisibility && 'popover-active' }
+								onClick={ () => setCategoriesVisibility( ! categoriesVisibility ) }
+								icon={ settings }
+								label={ __( 'Category filtering and campaigns', 'newspack' ) }
+								tooltipPosition="bottom center"
 							/>
-						) }
-						{ categoriesVisibility && (
-							<SecondaryPromptPopover
-								onFocusOutside={ () => setCategoriesVisibility( false ) }
-								prompt={ prompt }
-								segments={ segments }
-								{ ...props }
+							<Button
+								isQuaternary
+								isSmall
+								className={ popoverVisibility && 'popover-active' }
+								onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
+								icon={ moreVertical }
+								label={ __( 'More options', 'newspack' ) }
+								tooltipPosition="bottom center"
 							/>
-						) }
-					</Fragment>
+							{ popoverVisibility && (
+								<PrimaryPromptPopover
+									onFocusOutside={ () => setPopoverVisibility( false ) }
+									prompt={ prompt }
+									setModalVisible={ setModalVisible }
+									{ ...props }
+								/>
+							) }
+							{ categoriesVisibility && (
+								<SecondaryPromptPopover
+									onFocusOutside={ () => setCategoriesVisibility( false ) }
+									prompt={ prompt }
+									segments={ segments }
+									{ ...props }
+								/>
+							) }
+						</div>
+					</>
 				}
 			/>
 			{ modalVisible && (
