@@ -220,8 +220,8 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 											</h1>
 											<p>
 												{ requiredPlugins.length > 1
-													? __( 'This feature requires the following plugins.' )
-													: __( 'This feature requires the following plugin.' ) }
+													? __( 'This feature requires the following plugins' )
+													: __( 'This feature requires the following plugin' ) }
 											</p>
 										</div>
 									</div>
@@ -231,7 +231,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
-									isSmall
 								/>
 							</div>
 						</Fragment>
