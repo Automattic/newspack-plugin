@@ -1,3 +1,22 @@
+# [1.50.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.49.0...v1.50.0-alpha.1) (2021-07-27)
+
+
+### Bug Fixes
+
+* **engagement-wizard:** grid columns and provider selector ([#1055](https://github.com/Automattic/newspack-plugin/issues/1055)) ([03a0fc8](https://github.com/Automattic/newspack-plugin/commit/03a0fc8d710f778773792ee5e1c3263bb02e0b82))
+
+
+### Features
+
+* add isSmall prop to text-control and select-control ([#1064](https://github.com/Automattic/newspack-plugin/issues/1064)) ([e180bd0](https://github.com/Automattic/newspack-plugin/commit/e180bd0fa75c8cd7436d2f42063c0c3929f40785))
+* update campaigns action card style for analytics data ([#1063](https://github.com/Automattic/newspack-plugin/issues/1063)) ([f1eb89e](https://github.com/Automattic/newspack-plugin/commit/f1eb89e544605a1f125fd401a24e98d41838e313))
+* **amp:** skip AMP on WC pages ([dcb0a38](https://github.com/Automattic/newspack-plugin/commit/dcb0a3831c2b87befdfdbe75b57bb133611458bd)), closes [#967](https://github.com/Automattic/newspack-plugin/issues/967)
+* **campaigns-wizard:** all prompts view, trash handling ([#1052](https://github.com/Automattic/newspack-plugin/issues/1052)) ([5d4af0f](https://github.com/Automattic/newspack-plugin/commit/5d4af0f61cff0179c0b8509f4c591e1f62b910ae)), closes [#784](https://github.com/Automattic/newspack-plugin/issues/784) [#869](https://github.com/Automattic/newspack-plugin/issues/869)
+* **campaigns-wizard:** display GA insights in prompts list ([#1057](https://github.com/Automattic/newspack-plugin/issues/1057)) ([4fe84dc](https://github.com/Automattic/newspack-plugin/commit/4fe84dcab594b55b67442c1f805e49758e42efff)), closes [#993](https://github.com/Automattic/newspack-plugin/issues/993)
+* **setup-wizard:** prevent installation on non-HTTPS sites ([cb8eab2](https://github.com/Automattic/newspack-plugin/commit/cb8eab24076029ceb25c2a14eb0057c99c6db1ee)), closes [#186](https://github.com/Automattic/newspack-plugin/issues/186)
+* **starter-content:** set primary category on posts ([dbdbd36](https://github.com/Automattic/newspack-plugin/commit/dbdbd3674076e4198e83f0ec05169a45e72d805c)), closes [#682](https://github.com/Automattic/newspack-plugin/issues/682)
+* **stripe:** handle webhooks; update Campaigns, GA data ([#1047](https://github.com/Automattic/newspack-plugin/issues/1047)) ([a78c6d4](https://github.com/Automattic/newspack-plugin/commit/a78c6d4d8ecd0ace8c4f2abd670254bd44c8c5ad))
+
 # [1.49.0](https://github.com/Automattic/newspack-plugin/compare/v1.48.1...v1.49.0) (2021-07-19)
 
 
