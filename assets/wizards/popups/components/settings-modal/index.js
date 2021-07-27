@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { MenuItem } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
@@ -41,9 +41,9 @@ const PromptSettingsModal = ( {
 
 	return (
 		<Modal title={ prompt.title } onRequestClose={ onClose }>
-			<MenuItem onClick={ () => onClose() } className="screen-reader-text">
+			<Button onClick={ () => onClose() } className="screen-reader-text">
 				{ __( 'Close Modal', 'newspack' ) }
-			</MenuItem>
+			</Button>
 
 			<CategoryAutocomplete
 				disabled={ disabled }
