@@ -18,6 +18,7 @@ import './style.scss';
 
 const PrimaryPromptPopover = ( {
 	deletePopup,
+	restorePopup,
 	onFocusOutside,
 	prompt,
 	previewPopup,
@@ -27,6 +28,7 @@ const PrimaryPromptPopover = ( {
 } ) => {
 	const { id, edit_link: editLink, status } = prompt;
 	const isPublished = 'publish' === status;
+	const isTrash = status === 'trash';
 
 	return (
 		<Popover
@@ -38,46 +40,46 @@ const PrimaryPromptPopover = ( {
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 				{ __( 'Close Popover', 'newspack' ) }
 			</MenuItem>
-			<MenuItem
-				onClick={ () => {
-					onFocusOutside();
-					previewPopup( prompt );
-				} }
-				className="newspack-button"
-			>
-				{ __( 'Preview', 'newspack' ) }
-			</MenuItem>
-			<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
-				{ __( 'Edit', 'newspack' ) }
-			</MenuItem>
-			<MenuItem onClick={ () => setModalVisible( true ) } className="newspack-button">
-				{ __( 'Duplicate', 'newspack' ) }
-			</MenuItem>
-			{ ! isPublished && (
-				<MenuItem
-					onClick={ () => {
-						onFocusOutside();
-						publishPopup( id );
-					} }
-					className="newspack-button"
-				>
-					{ __( 'Activate', 'newspack' ) }
-				</MenuItem>
+			{ isTrash ? (
+				<>
+					<MenuItem onClick={ () => restorePopup( id ) } className="newspack-button">
+						{ __( 'Restore', 'newspack' ) }
+					</MenuItem>
+					<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
+						{ __( 'Delete permanently', 'newspack' ) }
+					</MenuItem>
+				</>
+			) : (
+				<>
+					<MenuItem
+						onClick={ () => {
+							onFocusOutside();
+							previewPopup( prompt );
+						} }
+						className="newspack-button"
+					>
+						{ __( 'Preview', 'newspack' ) }
+					</MenuItem>
+					<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
+						{ __( 'Edit', 'newspack' ) }
+					</MenuItem>
+					<MenuItem onClick={ () => setModalVisible( true ) } className="newspack-button">
+						{ __( 'Duplicate', 'newspack' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ () => {
+							onFocusOutside();
+							( isPublished ? unpublishPopup : publishPopup )( id );
+						} }
+						className="newspack-button"
+					>
+						{ isPublished ? __( 'Deactivate', 'newspack' ) : __( 'Activate', 'newspack' ) }
+					</MenuItem>
+					<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
+						{ __( 'Delete', 'newspack' ) }
+					</MenuItem>
+				</>
 			) }
-			{ isPublished && (
-				<MenuItem
-					onClick={ () => {
-						onFocusOutside();
-						unpublishPopup( id );
-					} }
-					className="newspack-button"
-				>
-					{ __( 'Deactivate', 'newspack' ) }
-				</MenuItem>
-			) }
-			<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
-				{ __( 'Delete', 'newspack' ) }
-			</MenuItem>
 			<div className="newspack-popover__campaigns__info">
 				{ __( 'ID:', 'newspack' ) } { id }
 			</div>

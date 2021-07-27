@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
-import { values, startCase, uniq, mapValues, property } from 'lodash';
+import { values, mapValues, property } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { useState, useEffect, Fragment } from '@wordpress/element';
+import { useEffect, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
@@ -30,7 +30,6 @@ import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
 export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true } ) => {
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
-	const [ allProviders, setAllProviders ] = useState( [] );
 	const performConfigUpdate = update => {
 		updateConfig( update );
 		if ( onUpdate ) {
@@ -41,11 +40,6 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 		} ).then( res => {
-			setAllProviders(
-				uniq( res.settings.reduce( ( acc, setting ) => [ ...acc, setting.provider ], [] ) ).filter(
-					Boolean
-				)
-			);
 			performConfigUpdate( {
 				...res,
 				settings: res.settings.reduce(
@@ -60,6 +54,11 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
+		options:
+			config.settings[ key ]?.options?.map( option => ( {
+				value: option.value,
+				label: option.name,
+			} ) ) || null,
 		onChange: value => performConfigUpdate( { settings: { [ key ]: { value } } } ),
 	} );
 
@@ -88,17 +87,13 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 	const renderProviderSettings = () => {
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
-			<Grid gutter={ 32 } columns={ 2 }>
-				<SelectControl
-					label={ __( 'Service Provider', 'newspack' ) }
-					options={ allProviders.map( value => ( { value, label: startCase( value ) } ) ) }
-					{ ...providerSelectProps }
-				/>
-				<br />
+			<Grid gutter={ 32 } columns={ 1 }>
 				{ values( config.settings )
-					.filter( setting => setting.provider === providerSelectProps.value )
+					.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
 					.map( setting => {
 						switch ( setting.type ) {
+							case 'select':
+								return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
 							case 'checkbox':
 								return (
 									<CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />

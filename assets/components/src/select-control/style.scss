@@ -65,6 +65,15 @@
 		font-style: italic;
 	}
 
+	// Small
+
+	&--small {
+		.components-select-control select.components-select-control__input {
+			height: 36px;
+			min-height: 36px;
+		}
+	}
+
 	// Multiple Select Controls
 
 	& + & {
