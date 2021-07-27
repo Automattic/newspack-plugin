@@ -36,7 +36,10 @@ class SyndicationWizard extends Component {
 							render={ () => (
 								<Intro
 									headerText={ __( 'Syndication', 'newspack' ) }
-									subHeaderText={ 'Distribute your content across multiple websites' }
+									subHeaderText={ __(
+										'Distribute your content across multiple websites',
+										'newspack'
+									) }
 								/>
 							) }
 						/>
