@@ -175,7 +175,6 @@ const PromptActionCard = props => {
 					disabled={ inFlight }
 					onClose={ () => setIsSettingsModalVisible( false ) }
 					segments={ segments }
-					setTermsForPopup={ props.setTermsForPopup }
 					updatePopup={ props.updatePopup }
 				/>
 			) }

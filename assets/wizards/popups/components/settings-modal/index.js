@@ -2,8 +2,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -14,30 +12,21 @@ import {
 	Modal,
 	SelectControl,
 	Settings,
+	Button,
+	hooks,
 } from '../../../../components/src';
 import { frequenciesForPopup, isOverlay, placementsForPopups } from '../../utils';
 
 const { SettingsCard, SettingsSection } = Settings;
 
-const PromptSettingsModal = ( {
-	prompt,
-	disabled,
-	onClose,
-	segments,
-	setTermsForPopup,
-	updatePopup,
-} ) => {
-	const { campaign_groups: campaignGroups, categories, tags, id, options } = prompt;
-	const { frequency, placement, selected_segment_id: selectedSegmentId } = options;
-	const [ assignedSegments, setAssignedSegments ] = useState( [] );
+const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup } ) => {
+	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
 
-	useEffect( () => {
-		if ( selectedSegmentId ) {
-			setAssignedSegments( selectedSegmentId.split( ',' ) );
-		} else {
-			setAssignedSegments( [] );
-		}
-	}, [ selectedSegmentId ] );
+	const handleSave = () => {
+		updatePopup( promptConfig ).then( onClose );
+	};
+
+	const assignedSegmentsIds = ( promptConfig.options.selected_segment_id || '' ).split( ',' );
 
 	return (
 		<Modal title={ prompt.title } onRequestClose={ onClose }>
@@ -47,8 +36,8 @@ const PromptSettingsModal = ( {
 
 			<CategoryAutocomplete
 				disabled={ disabled }
-				value={ campaignGroups || [] }
-				onChange={ tokens => setTermsForPopup( id, tokens, 'newspack_popups_taxonomy' ) }
+				value={ promptConfig.campaign_groups || [] }
+				onChange={ tokens => setPromptConfig( { campaign_groups: tokens } ) }
 				label={ __( 'Campaigns', 'newspack' ) }
 				taxonomy="newspack_popups_taxonomy"
 				description={ __(
@@ -65,20 +54,20 @@ const PromptSettingsModal = ( {
 					<SelectControl
 						disabled={ disabled }
 						onChange={ value => {
-							updatePopup( id, { frequency: value } );
+							setPromptConfig( { options: { frequency: value } } );
 						} }
 						options={ frequenciesForPopup( prompt ) }
-						value={ frequency }
+						value={ promptConfig.options.frequency }
 					/>
 				</SettingsSection>
 				<SettingsSection title={ isOverlay( prompt ) ? __( 'Position' ) : __( 'Placement' ) }>
 					<SelectControl
 						disabled={ disabled }
 						onChange={ value => {
-							updatePopup( id, { placement: value } );
+							setPromptConfig( { options: { placement: value } } );
 						} }
 						options={ placementsForPopups( prompt ) }
-						value={ placement }
+						value={ promptConfig.options.placement }
 					/>
 				</SettingsSection>
 			</SettingsCard>
@@ -95,16 +84,16 @@ const PromptSettingsModal = ( {
 						disabled={ disabled }
 						isHelpTextHidden
 						value={ segments
-							.filter( segment => -1 < assignedSegments.indexOf( segment.id ) )
+							.filter( ( { id } ) => assignedSegmentsIds.indexOf( id ) > -1 )
 							.map( segment => segment.name ) }
 						onChange={ _segments => {
 							const segmentsToAssign = segments
 								.filter( segment => -1 < _segments.indexOf( segment.name ) )
 								.map( segment => segment.id );
-							updatePopup( id, { selected_segment_id: segmentsToAssign.join( ',' ) } );
+							setPromptConfig( { options: { selected_segment_id: segmentsToAssign.join( ',' ) } } );
 						} }
 						suggestions={ segments
-							.filter( segment => -1 === assignedSegments.indexOf( segment.id ) )
+							.filter( segment => -1 === assignedSegmentsIds.indexOf( segment.id ) )
 							.map( segment => segment.name ) }
 						description={ __(
 							'Prompt will only appear to reader belonging to the specified segments.',
@@ -115,8 +104,8 @@ const PromptSettingsModal = ( {
 				<SettingsSection title={ __( 'Post categories', 'newspack ' ) }>
 					<CategoryAutocomplete
 						disabled={ disabled }
-						value={ categories || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, 'category' ) }
+						value={ promptConfig.categories || [] }
+						onChange={ tokens => setPromptConfig( { categories: tokens } ) }
 						description={ __(
 							'Prompt will only appear on posts with the specified categories.',
 							'newspack'
@@ -127,8 +116,8 @@ const PromptSettingsModal = ( {
 					<CategoryAutocomplete
 						disabled={ disabled }
 						taxonomy="tags"
-						value={ tags || [] }
-						onChange={ tokens => setTermsForPopup( id, tokens, 'post_tag' ) }
+						value={ promptConfig.tags || [] }
+						onChange={ tokens => setPromptConfig( { tags: tokens } ) }
 						description={ __(
 							'Prompt will only appear on posts with the specified tags.',
 							'newspack'
@@ -136,6 +125,15 @@ const PromptSettingsModal = ( {
 					/>
 				</SettingsSection>
 			</SettingsCard>
+
+			<div className="flex justify-between">
+				<Button onClick={ onClose } isSecondary>
+					{ __( 'Cancel', 'newspack' ) }
+				</Button>
+				<Button onClick={ handleSave } isPrimary>
+					{ __( 'Save', 'newspack' ) }
+				</Button>
+			</div>
 		</Modal>
 	);
 };
