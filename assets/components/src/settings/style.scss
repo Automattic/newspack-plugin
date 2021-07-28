@@ -1,0 +1,66 @@
+.newspack-settings {
+	&__card {
+		.newspack-settings__section {
+			&__title {
+				display: flex;
+				margin: 0;
+
+				h3 {
+					margin: 0;
+				}
+			}
+			&__content {
+				> div {
+					margin: 0;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					flex-wrap: wrap;
+					> * {
+						margin: 0;
+					}
+				}
+
+				.newspack-category-autocomplete,
+				.newspack-select-control {
+					margin-top: 12px;
+				}
+
+				.newspack-form-token-field {
+					margin: 12px 0 0 0;
+					.components-form-token-field {
+						width: 100%;
+						&__label {
+							display: none;
+						}
+					}
+				}
+				.newspack-category-autocomplete .newspack-form-token-field {
+					margin-top: 0;
+				}
+
+				.newspack-select-control {
+					.components-base-control {
+						width: 100%;
+					}
+				}
+			}
+		}
+		.newspack-settings__min-max {
+			margin-top: 8px;
+
+			.newspack-checkbox-control {
+				flex: 0 0 60px;
+			}
+
+			.newspack-text-control {
+				flex: 1 1 auto;
+				margin-left: 8px;
+
+				.components-text-control__input {
+					text-align: right;
+				}
+			}
+		}
+	}
+}
