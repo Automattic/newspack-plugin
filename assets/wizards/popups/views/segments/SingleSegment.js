@@ -158,7 +158,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			) }
 			<SettingsCard
 				title={ __( 'Reader Engagement', 'newspack' ) }
-				description={ __( 'Target readers based on their browsing behavior.', 'newspack' ) }
+				description={ __( 'Target readers based on their browsing behavior', 'newspack' ) }
 			>
 				<SettingsSection
 					title={ __( 'Articles read', 'newspack' ) }
@@ -198,12 +198,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							updateSegmentConfig( 'favorite_categories' )( selected.map( item => item.id ) );
 						} }
 						label={ __( 'Favorite Categories', 'newspack ' ) }
+						hideLabelFromVision
 					/>
 				</SettingsSection>
 			</SettingsCard>
 			<SettingsCard
 				title={ __( 'Reader Activity', 'newspack' ) }
-				description={ __( 'Target readers based on their actions.', 'newspack' ) }
+				description={ __( 'Target readers based on their actions', 'newspack' ) }
+				columns={ 2 }
 			>
 				<SettingsSection title={ __( 'Newsletter', 'newspack' ) }>
 					<SelectControl
@@ -262,11 +264,12 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			</SettingsCard>
 			<SettingsCard
 				title={ __( 'Referrer Sources', 'newspack' ) }
-				description={ __( 'Target readers based on where they’re coming from.', 'newspack' ) }
+				description={ __( 'Target readers based on where they’re coming from', 'newspack' ) }
 				notification={ __(
 					'Segments using these options will apply only to the first page visited after coming from an external source.',
 					'newspack'
 				) }
+				columns={ 2 }
 			>
 				<SettingsSection
 					title={ __( 'Sources to match', 'newspack' ) }
