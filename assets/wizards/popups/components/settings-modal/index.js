@@ -7,17 +7,19 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import {
+	Button,
+	Card,
 	CategoryAutocomplete,
 	FormTokenField,
+	Grid,
 	Modal,
 	SelectControl,
 	Settings,
-	Button,
 	hooks,
 } from '../../../../components/src';
 import { frequenciesForPopup, isOverlay, placementsForPopups } from '../../utils';
 
-const { SettingsCard, SettingsSection } = Settings;
+const { SettingsCard } = Settings;
 
 const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup } ) => {
 	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
@@ -29,29 +31,38 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 	const assignedSegmentsIds = ( promptConfig.options.selected_segment_id || '' ).split( ',' );
 
 	return (
-		<Modal title={ prompt.title } onRequestClose={ onClose }>
+		<Modal title={ prompt.title } onRequestClose={ onClose } isWide>
 			<Button onClick={ () => onClose() } className="screen-reader-text">
 				{ __( 'Close Modal', 'newspack' ) }
 			</Button>
+			<Grid gutter={ 16 } columns={ 1 }>
+				<SettingsCard
+					title={ __( 'Campaigns', 'newspack' ) }
+					description={ __(
+						'Assign a prompt to one or more campaigns for easier management',
+						'newspack'
+					) }
+					columns={ 1 }
+					className="newspack-settings__campaigns"
+				>
+					<CategoryAutocomplete
+						disabled={ disabled }
+						value={ promptConfig.campaign_groups || [] }
+						onChange={ tokens => setPromptConfig( { campaign_groups: tokens } ) }
+						label={ __( 'Campaigns', 'newspack' ) }
+						taxonomy="newspack_popups_taxonomy"
+						hideLabelFromVision
+					/>
+				</SettingsCard>
 
-			<CategoryAutocomplete
-				disabled={ disabled }
-				value={ promptConfig.campaign_groups || [] }
-				onChange={ tokens => setPromptConfig( { campaign_groups: tokens } ) }
-				label={ __( 'Campaigns', 'newspack' ) }
-				taxonomy="newspack_popups_taxonomy"
-				description={ __(
-					'Assign a prompt to one or more campaigns for easier management.',
-					'newspack'
-				) }
-			/>
-
-			<SettingsCard
-				title={ __( 'Settings', 'newspack' ) }
-				description={ __( 'When and how should the prompt be displayed.', 'newspack' ) }
-			>
-				<SettingsSection title={ __( 'Frequency', 'newspack' ) }>
+				<SettingsCard
+					title={ __( 'Settings', 'newspack' ) }
+					description={ __( 'When and how should the prompt be displayed', 'newspack' ) }
+					columns={ 2 }
+					className="newspack-settings__settings"
+				>
 					<SelectControl
+						label={ __( 'Frequency', 'newspack' ) }
 						disabled={ disabled }
 						onChange={ value => {
 							setPromptConfig( { options: { frequency: value } } );
@@ -59,9 +70,8 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 						options={ frequenciesForPopup( prompt ) }
 						value={ promptConfig.options.frequency }
 					/>
-				</SettingsSection>
-				<SettingsSection title={ isOverlay( prompt ) ? __( 'Position' ) : __( 'Placement' ) }>
 					<SelectControl
+						label={ isOverlay( prompt ) ? __( 'Position' ) : __( 'Placement' ) }
 						disabled={ disabled }
 						onChange={ value => {
 							setPromptConfig( { options: { placement: value } } );
@@ -69,20 +79,26 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 						options={ placementsForPopups( prompt ) }
 						value={ promptConfig.options.placement }
 					/>
-				</SettingsSection>
-			</SettingsCard>
+				</SettingsCard>
 
-			<SettingsCard
-				title={ __( 'Targeting', 'newspack' ) }
-				description={ __(
-					'Under which conditions should the prompt be displayed. If multiple conditions are set, all will have to be satisfied in order to display the prompt.',
-					'newspack'
-				) }
-			>
-				<SettingsSection title={ __( 'Segment', 'newspack' ) }>
+				<SettingsCard
+					title={ __( 'Targeting', 'newspack' ) }
+					description={ () => (
+						<>
+							{ __( 'Under which conditions should the prompt be displayed', 'newspack' ) }
+							<br />
+							{ __(
+								'If multiple conditions are set, all will have to be satisfied in order to display the prompt',
+								'newspack'
+							) }
+						</>
+					) }
+					className="newspack-settings__targeting"
+				>
 					<FormTokenField
+						label={ __( 'Segment', 'newspack' ) }
 						disabled={ disabled }
-						isHelpTextHidden
+						hideHelpFromVision
 						value={ segments
 							.filter( ( { id } ) => assignedSegmentsIds.indexOf( id ) > -1 )
 							.map( segment => segment.name ) }
@@ -100,10 +116,10 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 							'newspack'
 						) }
 					/>
-				</SettingsSection>
-				<SettingsSection title={ __( 'Post categories', 'newspack ' ) }>
 					<CategoryAutocomplete
+						label={ __( 'Post categories', 'newspack ' ) }
 						disabled={ disabled }
+						hideHelpFromVision
 						value={ promptConfig.categories || [] }
 						onChange={ tokens => setPromptConfig( { categories: tokens } ) }
 						description={ __(
@@ -111,10 +127,10 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 							'newspack'
 						) }
 					/>
-				</SettingsSection>
-				<SettingsSection title={ __( 'Post tags', 'newspack ' ) }>
 					<CategoryAutocomplete
+						label={ __( 'Post tags', 'newspack ' ) }
 						disabled={ disabled }
+						hideHelpFromVision
 						taxonomy="tags"
 						value={ promptConfig.tags || [] }
 						onChange={ tokens => setPromptConfig( { tags: tokens } ) }
@@ -123,17 +139,17 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 							'newspack'
 						) }
 					/>
-				</SettingsSection>
-			</SettingsCard>
+				</SettingsCard>
+			</Grid>
 
-			<div className="flex justify-between">
+			<Card buttonsCard noBorder className="justify-end">
 				<Button onClick={ onClose } isSecondary>
 					{ __( 'Cancel', 'newspack' ) }
 				</Button>
 				<Button onClick={ handleSave } isPrimary>
 					{ __( 'Save', 'newspack' ) }
 				</Button>
-			</div>
+			</Card>
 		</Modal>
 	);
 };
