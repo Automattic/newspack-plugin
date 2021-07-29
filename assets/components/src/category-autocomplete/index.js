@@ -19,6 +19,7 @@ import './style.scss';
  * External dependencies
  */
 import { debounce, find } from 'lodash';
+import classnames from 'classnames';
 
 /**
  * Category autocomplete field component.
@@ -97,10 +98,19 @@ class CategoryAutocomplete extends Component {
 	 * Render the component.
 	 */
 	render() {
-		const { value, label, disabled, description } = this.props;
+		const {
+			className,
+			disabled,
+			description,
+			hideHelpFromVision,
+			hideLabelFromVision,
+			label,
+			value,
+		} = this.props;
 		const { suggestions, allCategories } = this.state;
+		const classes = classnames( 'newspack-category-autocomplete', className );
 		return (
-			<div className="newspack-category-autocomplete">
+			<div className={ classes }>
 				<FormTokenField
 					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
 					value={ value.reduce( ( acc, item ) => {
@@ -116,6 +126,8 @@ class CategoryAutocomplete extends Component {
 					label={ label }
 					disabled={ disabled }
 					description={ description }
+					hideHelpFromVision={ hideHelpFromVision }
+					hideLabelFromVision={ hideLabelFromVision }
 				/>
 			</div>
 		);
