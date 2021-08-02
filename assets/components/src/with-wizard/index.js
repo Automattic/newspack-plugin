@@ -215,13 +215,13 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 										<div className="newspack-wizard__header__inner">
 											<h1>
 												{ requiredPlugins.length > 1
-													? __( 'Required plugins' )
-													: __( 'Required plugin' ) }
+													? __( 'Required plugins', 'newspack' )
+													: __( 'Required plugin', 'newspack' ) }
 											</h1>
 											<p>
 												{ requiredPlugins.length > 1
-													? __( 'This feature requires the following plugins.' )
-													: __( 'This feature requires the following plugin.' ) }
+													? __( 'This feature requires the following plugins', 'newspack' )
+													: __( 'This feature requires the following plugin', 'newspack' ) }
 											</p>
 										</div>
 									</div>
@@ -231,7 +231,6 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
-									isSmall
 								/>
 							</div>
 						</Fragment>
