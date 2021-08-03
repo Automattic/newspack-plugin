@@ -36,7 +36,10 @@ class SyndicationWizard extends Component {
 							render={ () => (
 								<Intro
 									headerText={ __( 'Syndication', 'newspack' ) }
-									subHeaderText={ 'Distribute your content across multiple websites' }
+									subHeaderText={ __(
+										'Distribute your content across multiple websites',
+										'newspack'
+									) }
 								/>
 							) }
 						/>
@@ -49,8 +52,6 @@ class SyndicationWizard extends Component {
 }
 
 render(
-	createElement(
-		withWizard( SyndicationWizard, [ 'fb-instant-articles', 'publish-to-apple-news' ] )
-	),
+	createElement( withWizard( SyndicationWizard ) ),
 	document.getElementById( 'newspack-syndication-wizard' )
 );

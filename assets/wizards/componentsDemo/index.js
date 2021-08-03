@@ -47,12 +47,14 @@ class ComponentsDemo extends Component {
 		this.state = {
 			selectedPostForAutocompleteWithSuggestions: [],
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
-			inputTextValue1: 'Input value',
+			inputTextValue1: __( 'Input value', 'newspack' ),
 			inputTextValue2: '',
+			inputTextValue3: '',
 			inputNumValue: 0,
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
+			selectValue3: '',
 			modalShown: false,
 			toggleGroupChecked: false,
 			color1: '#3366ff',
@@ -68,9 +70,11 @@ class ComponentsDemo extends Component {
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
 			inputTextValue1,
 			inputTextValue2,
+			inputTextValue3,
 			inputNumValue,
 			selectValue1,
 			selectValue2,
+			selectValue3,
 			modalShown,
 			actionCardToggleChecked,
 			toggleGroupChecked,
@@ -81,8 +85,8 @@ class ComponentsDemo extends Component {
 			<Fragment>
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
-						<h1>{ __( 'Components' ) }</h1>
-						<p>{ __( 'Demo of all the Newspack components' ) }</p>
+						<h1>{ __( 'Components', 'newspack' ) }</h1>
+						<p>{ __( 'Demo of all the Newspack components', 'newspack' ) }</p>
 					</div>
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">
@@ -121,7 +125,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Plugin toggles' ) }</h2>
+						<h2>{ __( 'Plugin toggles', 'newspack' ) }</h2>
 						<PluginToggle
 							plugins={ {
 								woocommerce: {
@@ -135,7 +139,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Web Previews' ) }</h2>
+						<h2>{ __( 'Web Previews', 'newspack' ) }</h2>
 						<Card buttonsCard noBorder>
 							<WebPreview
 								url="//newspack.pub/"
@@ -153,29 +157,32 @@ class ComponentsDemo extends Component {
 						</Card>
 					</Card>
 					<Card>
-						<h2>{ __( 'Color picker' ) }</h2>
+						<h2>{ __( 'Color picker', 'newspack' ) }</h2>
 						<ColorPicker
-							label={ __( 'Color Picker' ) }
+							label={ __( 'Color Picker', 'newspack' ) }
 							color={ color1 }
 							onChange={ color => this.setState( { color1: color } ) }
 						/>
 					</Card>
 					<Card>
 						<ToggleGroup
-							title={ __( 'Example Toggle Group' ) }
-							description={ __( 'This is the description of a toggle group.' ) }
+							title={ __( 'Example Toggle Group', 'newspack' ) }
+							description={ __( 'This is the description of a toggle group.', 'newspack' ) }
 							checked={ toggleGroupChecked }
 							onChange={ checked => this.setState( { toggleGroupChecked: checked } ) }
 						>
-							<p>{ __( 'This is the content of the toggle group' ) }</p>
+							<p>{ __( 'This is the content of the toggle group', 'newspack' ) }</p>
 						</ToggleGroup>
 					</Card>
 					<Card>
-						<h2>{ __( 'Handoff Buttons' ) }</h2>
+						<h2>{ __( 'Handoff Buttons', 'newspack' ) }</h2>
 						<Card buttonsCard noBorder>
 							<Handoff
-								modalTitle="Manage AMP"
-								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
+								modalTitle={ __( 'Manage AMP', 'newspack' ) }
+								modalBody={ __(
+									'Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack.',
+									'newspack'
+								) }
 								plugin="amp"
 								isTertiary
 							/>
@@ -187,15 +194,15 @@ class ComponentsDemo extends Component {
 								isPrimary
 								editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features"
 							>
-								{ __( 'Specific Yoast Page' ) }
+								{ __( 'Specific Yoast Page', 'newspack' ) }
 							</Handoff>
 						</Card>
 					</Card>
 					<Card>
-						<h2>{ __( 'Modal' ) }</h2>
+						<h2>{ __( 'Modal', 'newspack' ) }</h2>
 						<Card buttonsCard noBorder>
 							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
-								{ __( 'Open modal' ) }
+								{ __( 'Open modal', 'newspack' ) }
 							</Button>
 						</Card>
 						{ modalShown && (
@@ -205,30 +212,31 @@ class ComponentsDemo extends Component {
 							>
 								<p>
 									{ __(
-										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
+										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.',
+										'newspack'
 									) }
 								</p>
 								<Card buttonsCard noBorder className="justify-end">
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
-										{ __( 'Dismiss' ) }
+										{ __( 'Dismiss', 'newspack' ) }
 									</Button>
 									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
-										{ __( 'Also dismiss' ) }
+										{ __( 'Also dismiss', 'newspack' ) }
 									</Button>
 								</Card>
 							</Modal>
 						) }
 					</Card>
 					<Card>
-						<h2>{ __( 'Notice' ) }</h2>
-						<Notice noticeText={ __( 'This is an info notice.' ) } />
-						<Notice noticeText={ __( 'This is an error notice.' ) } isError />
-						<Notice noticeText={ __( 'This is a help notice.' ) } isHelp />
-						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
-						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
+						<h2>{ __( 'Notice', 'newspack' ) }</h2>
+						<Notice noticeText={ __( 'This is an info notice.', 'newspack' ) } />
+						<Notice noticeText={ __( 'This is an error notice.', 'newspack' ) } isError />
+						<Notice noticeText={ __( 'This is a help notice.', 'newspack' ) } isHelp />
+						<Notice noticeText={ __( 'This is a success notice.', 'newspack' ) } isSuccess />
+						<Notice noticeText={ __( 'This is a warning notice.', 'newspack' ) } isWarning />
 					</Card>
 					<Card>
-						<h2>{ __( 'Plugin installer' ) }</h2>
+						<h2>{ __( 'Plugin installer', 'newspack' ) }</h2>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							canUninstall
@@ -243,7 +251,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Plugin installer (small)' ) }</h2>
+						<h2>{ __( 'Plugin installer (small)', 'newspack' ) }</h2>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							isSmall
@@ -278,18 +286,21 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
-						title="Example One"
-						description="Has an action button."
-						actionText="Install"
+						title={ __( 'Example One', 'newspack' ) }
+						description={ __( 'Has an action button.', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
 					/>
 					<ActionCard
-						title="Example Two"
-						description="Has action button and secondary button (visible on hover)."
-						actionText={ __( 'Edit' ) }
-						secondaryActionText={ __( 'Delete' ) }
+						title={ __( 'Example Two', 'newspack' ) }
+						description={ __(
+							'Has action button and secondary button (visible on hover).',
+							'newspack'
+						) }
+						actionText={ __( 'Edit', 'newspack' ) }
+						secondaryActionText={ __( 'Delete', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Edit clicked' );
 						} }
@@ -298,15 +309,15 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
-						title="Example Three"
-						description="Waiting/in-progress state, no action button."
-						actionText="Installing..."
+						title={ __( 'Example Three', 'newspack' ) }
+						description={ __( 'Waiting/in-progress state, no action button.', 'newspack' ) }
+						actionText={ __( 'Installing...', 'newspack' ) }
 						isWaiting
 					/>
 					<ActionCard
-						title="Example Four"
-						description="Error notification"
-						actionText="Install"
+						title={ __( 'Example Four', 'newspack' ) }
+						description={ __( 'Error notification', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
@@ -318,8 +329,8 @@ class ComponentsDemo extends Component {
 						notificationLevel="error"
 					/>
 					<ActionCard
-						title="Example Five"
-						description="Warning notification, action button"
+						title={ __( 'Example Five', 'newspack' ) }
+						description={ __( 'Warning notification, action button', 'newspack' ) }
 						notification={
 							<Fragment>
 								There is a new version available. <a href="#">View details</a> or{' '}
@@ -329,90 +340,93 @@ class ComponentsDemo extends Component {
 						notificationLevel="warning"
 					/>
 					<ActionCard
-						title="Example Six"
-						description="Static text, no button"
-						actionText="Active"
+						title={ __( 'Example Six', 'newspack' ) }
+						description={ __( 'Static text, no button', 'newspack' ) }
+						actionText={ __( 'Active', 'newspack' ) }
 					/>
 					<ActionCard
-						title="Example Seven"
-						description="Static text, secondary action button."
-						actionText="Active"
-						secondaryActionText={ __( 'Delete' ) }
+						title={ __( 'Example Seven', 'newspack' ) }
+						description={ __( 'Static text, secondary action button.', 'newspack' ) }
+						actionText={ __( 'Active', 'newspack' ) }
+						secondaryActionText={ __( 'Delete', 'newspack' ) }
 						onSecondaryActionClick={ () => {
 							console.log( 'Delete clicked' );
 						} }
 					/>
 					<ActionCard
-						title="Example Eight"
-						description="Image with link and action button."
-						actionText="Set Up"
+						title={ __( 'Example Eight', 'newspack' ) }
+						description={ __( 'Image with link and action button.', 'newspack' ) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						onClick={ () => {
-							console.log( 'Set Up' );
+							console.log( 'Configure clicked' );
 						} }
-						image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
-						imageLink="https://wordpress.com"
+						image="https://i0.wp.com/newspack.pub/wp-content/uploads/2020/06/pexels-photo-3183150.jpeg"
+						imageLink="https://newspack.pub"
 					/>
 					<ActionCard
-						title="Example Nine"
-						description="Action Card with Toggle Control."
-						actionText={ actionCardToggleChecked && 'Set Up' }
+						title={ __( 'Example Nine', 'newspack' ) }
+						description={ __( 'Action Card with Toggle Control.', 'newspack' ) }
+						actionText={ actionCardToggleChecked && __( 'Configure', 'newspack' ) }
 						onClick={ () => {
-							console.log( 'Set Up' );
+							console.log( 'Configure clicked' );
 						} }
 						toggleOnChange={ checked => this.setState( { actionCardToggleChecked: checked } ) }
 						toggleChecked={ actionCardToggleChecked }
 					/>
 					<ActionCard
-						badge="Premium"
-						title="Example Ten"
-						description="An example of an action card with a badge."
-						actionText="Install"
+						badge={ __( 'Premium', 'newspack' ) }
+						title={ __( 'Example Ten', 'newspack' ) }
+						description={ __( 'An example of an action card with a badge.', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
 					/>
 					<ActionCard
 						isSmall
-						title="Example Eleven (small)"
-						description="An example of a small action card."
-						actionText="Install"
+						title={ __( 'Example Eleven', 'newspack' ) }
+						description={ __( 'An example of a small action card.', 'newspack' ) }
+						actionText={ __( 'Installing', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
 					/>
 					<ActionCard
-						title="Example Twelve"
-						description="Action card with an unchecked checkbox."
-						actionText="Configure"
+						title={ __( 'Example Twelve', 'newspack' ) }
+						description={ __( 'Action card with an unchecked checkbox.', 'newspack' ) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Configure' );
 						} }
 						checkbox="unchecked"
 					/>
 					<ActionCard
-						title="Example Thirteen"
-						description="Action card with a checked checkbox."
-						secondaryActionText="Disconnect"
+						title={ __( 'Example Thirteen', 'newspack' ) }
+						description={ __( 'Action card with a checked checkbox.', 'newspack' ) }
+						secondaryActionText={ __( 'Disconnect', 'newspack' ) }
 						onSecondaryActionClick={ () => {
 							console.log( 'Disconnect' );
 						} }
 						checkbox="checked"
 					/>
 					<ActionCard
-						title="Handoff"
-						description="An example of an action card with Handoff."
-						actionText="Configure"
+						title={ __( 'Handoff', 'newspack' ) }
+						description={ __( 'An example of an action card with Handoff.', 'newspack' ) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						handoff="jetpack"
 					/>
 					<ActionCard
-						title="Handoff"
-						description="An example of an action card with Handoff and EditLink."
-						actionText="Configure"
+						title={ __( 'Handoff', 'newspack' ) }
+						description={ __(
+							' An example of an action card with Handoff and EditLink.',
+							'newspack'
+						) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
 					/>
 					<Card>
-						<h2>{ __( 'Checkboxes' ) }</h2>
+						<h2>{ __( 'Checkboxes', 'newspack' ) }</h2>
 						<CheckboxControl
 							label={ __( 'Checkbox is tested?' ) }
 							onChange={ function() {
@@ -420,22 +434,22 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 						<CheckboxControl
-							label={ __( 'Checkbox w/Tooltip' ) }
+							label={ __( 'Checkbox w/Tooltip', 'newspack' ) }
 							onChange={ function() {
 								console.log( "Yep, it's tested" );
 							} }
-							tooltip="This is tooltip text"
+							tooltip={ __( 'This is the tooltip text', 'newspack' ) }
 						/>
 						<CheckboxControl
-							label={ __( 'Checkbox w/Help' ) }
+							label={ __( 'Checkbox w/Help', 'newspack' ) }
 							onChange={ function() {
 								console.log( "Yep, it's tested" );
 							} }
-							help="This is help text"
+							help={ __( 'This is the help text', 'newspack' ) }
 						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Image Uploader' ) }</h2>
+						<h2>{ __( 'Image Uploader', 'newspack' ) }</h2>
 						<ImageUpload
 							image={ this.state.image }
 							onChange={ image => {
@@ -446,70 +460,93 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Text Inputs' ) }</h2>
+						<h2>{ __( 'Text Inputs', 'newspack' ) }</h2>
 						<TextControl
-							label={ __( 'Text Input with value' ) }
+							label={ __( 'Text Input with value', 'newspack' ) }
 							value={ inputTextValue1 }
 							onChange={ value => this.setState( { inputTextValue1: value } ) }
 						/>
 						<TextControl
-							label={ __( 'Text Input empty' ) }
+							label={ __( 'Text Input empty', 'newspack' ) }
 							value={ inputTextValue2 }
 							onChange={ value => this.setState( { inputTextValue2: value } ) }
 						/>
 						<TextControl
 							type="number"
-							label={ __( 'Number Input' ) }
+							label={ __( 'Number Input', 'newspack' ) }
 							value={ inputNumValue }
 							onChange={ value => this.setState( { inputNumValue: value } ) }
 						/>
-						<TextControl label={ __( 'Text Input disabled' ) } disabled />
+						<TextControl label={ __( 'Text Input disabled', 'newspack' ) } disabled />
+						<TextControl
+							label={ __( 'Small', 'newspack' ) }
+							value={ inputTextValue3 }
+							isSmall
+							onChange={ value => this.setState( { inputTextValue3: value } ) }
+						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Progress bar' ) }</h2>
+						<h2>{ __( 'Progress bar', 'newspack' ) }</h2>
 						<ProgressBar completed="2" total="3" />
-						<ProgressBar completed="2" total="5" label={ __( 'Progress made' ) } />
+						<ProgressBar completed="2" total="5" label={ __( 'Progress made', 'newspack' ) } />
 						<ProgressBar completed="0" total="5" displayFraction />
-						<ProgressBar completed="3" total="8" label={ __( 'Progress made' ) } displayFraction />
+						<ProgressBar
+							completed="3"
+							total="8"
+							label={ __( 'Progress made', 'newspack' ) }
+							displayFraction
+						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Select dropdowns' ) }</h2>
+						<h2>{ __( 'Select dropdowns', 'newspack' ) }</h2>
 						<SelectControl
-							label={ __( 'Label for Select with a preselection' ) }
+							label={ __( 'Label for Select with a preselection', 'newspack' ) }
 							value={ selectValue1 }
 							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								{ value: '1st', label: __( 'First' ) },
-								{ value: '2nd', label: __( 'Second' ) },
-								{ value: '3rd', label: __( 'Third' ) },
+								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: '1st', label: __( 'First', 'newspack' ) },
+								{ value: '2nd', label: __( 'Second', 'newspack' ) },
+								{ value: '3rd', label: __( 'Third', 'newspack' ) },
 							] }
 							onChange={ value => this.setState( { selectValue1: value } ) }
 						/>
 						<SelectControl
-							label={ __( 'Label for Select with no preselection' ) }
+							label={ __( 'Label for Select with no preselection', 'newspack' ) }
 							value={ selectValue2 }
 							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								{ value: '1st', label: __( 'First' ) },
-								{ value: '2nd', label: __( 'Second' ) },
-								{ value: '3rd', label: __( 'Third' ) },
+								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: '1st', label: __( 'First', 'newspack' ) },
+								{ value: '2nd', label: __( 'Second', 'newspack' ) },
+								{ value: '3rd', label: __( 'Third', 'newspack' ) },
 							] }
 							onChange={ value => this.setState( { selectValue2: value } ) }
 						/>
 						<SelectControl
-							label={ __( 'Label for disabled Select' ) }
+							label={ __( 'Label for disabled Select', 'newspack' ) }
 							disabled
 							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								{ value: '1st', label: __( 'First' ) },
-								{ value: '2nd', label: __( 'Second' ) },
-								{ value: '3rd', label: __( 'Third' ) },
+								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: '1st', label: __( 'First', 'newspack' ) },
+								{ value: '2nd', label: __( 'Second', 'newspack' ) },
+								{ value: '3rd', label: __( 'Third', 'newspack' ) },
 							] }
+						/>
+						<SelectControl
+							label={ __( 'Small', 'newspack' ) }
+							value={ selectValue3 }
+							isSmall
+							options={ [
+								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: '1st', label: __( 'First', 'newspack' ) },
+								{ value: '2nd', label: __( 'Second', 'newspack' ) },
+								{ value: '3rd', label: __( 'Third', 'newspack' ) },
+							] }
+							onChange={ value => this.setState( { selectValue3: value } ) }
 						/>
 					</Card>
 					<Card>
-						<h2>{ __( 'Buttons' ) }</h2>
-						<h3>{ __( 'Default' ) }</h3>
+						<h2>{ __( 'Buttons', 'newspack' ) }</h2>
+						<h3>{ __( 'Default', 'newspack' ) }</h3>
 						<Card buttonsCard noBorder>
 							<Button isPrimary>isPrimary</Button>
 							<Button isSecondary>isSecondary</Button>
@@ -517,7 +554,7 @@ class ComponentsDemo extends Component {
 							<Button isQuaternary>isQuaternary</Button>
 							<Button isLink>isLink</Button>
 						</Card>
-						<h3>{ __( 'Disabled' ) }</h3>
+						<h3>{ __( 'Disabled', 'newspack' ) }</h3>
 						<Card buttonsCard noBorder>
 							<Button isPrimary disabled>
 								isPrimary
@@ -535,7 +572,7 @@ class ComponentsDemo extends Component {
 								isLink
 							</Button>
 						</Card>
-						<h3>isSmall</h3>
+						<h3>{ __( 'Small', 'newspack' ) }</h3>
 						<Card buttonsCard noBorder>
 							<Button isPrimary isSmall>
 								isPrimary
@@ -552,7 +589,7 @@ class ComponentsDemo extends Component {
 						</Card>
 					</Card>
 					<Card>
-						<h2>{ __( 'ButtonCard' ) }</h2>
+						<h2>ButtonCard</h2>
 						<ButtonCard
 							href="admin.php?page=newspack-site-design-wizard"
 							title={ __( 'Site Design', 'newspack' ) }
@@ -579,7 +616,7 @@ class ComponentsDemo extends Component {
 						<ButtonCard
 							href="#"
 							title={ __( 'Add a new Podcast', 'newspack' ) }
-							desc="isSmall"
+							desc={ ( 'Small', 'newspack' ) }
 							icon={ audio }
 							className="br--top"
 							isSmall
@@ -588,7 +625,7 @@ class ComponentsDemo extends Component {
 						<ButtonCard
 							href="#"
 							title={ __( 'Add a new Font', 'newspack' ) }
-							desc="isSmall + chevron"
+							desc={ ( 'Small + chevron', 'newspack' ) }
 							icon={ typography }
 							className="br--bottom"
 							chevron
