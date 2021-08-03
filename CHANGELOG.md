@@ -1,3 +1,20 @@
+# [1.51.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.50.1...v1.51.0-alpha.1) (2021-08-03)
+
+
+### Bug Fixes
+
+* **stripe:** error namespace, listing webhooks condition ([5cd841b](https://github.com/Automattic/newspack-plugin/commit/5cd841ba035655be6a9f84458772f458ce2178f7))
+* namespace wp_error correctly ([ea2a528](https://github.com/Automattic/newspack-plugin/commit/ea2a528b66cb56af51bd42b777fd554484d972d3))
+
+
+### Features
+
+* add RSS Enhancement to Syndication Wizard ([#1068](https://github.com/Automattic/newspack-plugin/issues/1068)) ([d5fd533](https://github.com/Automattic/newspack-plugin/commit/d5fd5333c30646115c3a9113d10445f710ff6d84))
+* reorganize campaigns settings modal ([#1073](https://github.com/Automattic/newspack-plugin/issues/1073)) ([1ff9147](https://github.com/Automattic/newspack-plugin/commit/1ff91473d27a9a656686c29f8c55a32bbc4efc32))
+* update engagement wizard, reorganize recirculation and remove UGC ([#1074](https://github.com/Automattic/newspack-plugin/issues/1074)) ([68b3a26](https://github.com/Automattic/newspack-plugin/commit/68b3a263fe41aee8963aca0ae8e5b806138afa2f))
+* **campaigns-wizard:** manage prompt settings in a modal ([#1065](https://github.com/Automattic/newspack-plugin/issues/1065)) ([2bb3d19](https://github.com/Automattic/newspack-plugin/commit/2bb3d194e3433c8814f9157dfc34f8c86252684d)), closes [#926](https://github.com/Automattic/newspack-plugin/issues/926)
+* **reader-revenue-wizard:** clarify donation tiers description ([3ab4dc7](https://github.com/Automattic/newspack-plugin/commit/3ab4dc790a3642f676e4bf156e4437d2ae843ded)), closes [#457](https://github.com/Automattic/newspack-plugin/issues/457)
+
 ## [1.50.1](https://github.com/Automattic/newspack-plugin/compare/v1.50.0...v1.50.1) (2021-07-27)
 
 
