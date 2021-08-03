@@ -1,3 +1,10 @@
+# [1.51.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.51.0-alpha.1...v1.51.0-alpha.2) (2021-08-03)
+
+
+### Features
+
+* **campaigns-wizard:** analytics - enable setting precise date range ([#1062](https://github.com/Automattic/newspack-plugin/issues/1062)) ([c08ad8d](https://github.com/Automattic/newspack-plugin/commit/c08ad8d60804f7d224508f978d79643e56310d39)), closes [#991](https://github.com/Automattic/newspack-plugin/issues/991)
+
 # [1.51.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.50.1...v1.51.0-alpha.1) (2021-08-03)
 
 
