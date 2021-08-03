@@ -101,34 +101,13 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
-	/**
-	 * Set terms for a Popup.
-	 *
-	 * @param {number} id ID of the Popup to alter.
-	 * @param {Array} terms Array of terms to assign to the Popup.
-	 * @param {string} taxonomy Taxonomy slug.
-	 */
-	setTermsForPopup = ( id, terms, taxonomy ) => {
+	updatePopup = ( { id, ...promptConfig } ) => {
 		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ id }`,
 			method: 'POST',
-			data: {
-				taxonomy,
-				terms,
-			},
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	updatePopup = ( popupId, options ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
-			method: 'POST',
-			data: { options },
+			data: { config: promptConfig },
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
@@ -291,7 +270,6 @@ class PopupsWizard extends Component {
 					const popupManagementSharedProps = {
 						...sharedProps,
 						manageCampaignGroup: this.manageCampaignGroup,
-						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
 						restorePopup: this.restorePopup,
