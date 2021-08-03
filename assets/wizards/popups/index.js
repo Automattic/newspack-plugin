@@ -16,6 +16,7 @@ import apiFetch from '@wordpress/api-fetch';
  * External dependencies.
  */
 import { stringify } from 'qs';
+import { subDays } from 'date-fns';
 
 /**
  * Internal dependencies.
@@ -24,6 +25,7 @@ import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
 import { CampaignsContext } from './contexts';
+import { formatDate } from './utils';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -82,7 +84,8 @@ class PopupsWizard extends Component {
 				if ( isInitial ) {
 					// Fetch GA report to display per-popup data.
 					const reportSpec = {
-						offset: 30,
+						start_date: formatDate( subDays( new Date(), 30 ) ),
+						end_date: formatDate(),
 						with_report_by_id: true,
 					};
 					apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( reportSpec ) }` } )
@@ -101,34 +104,13 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
-	/**
-	 * Set terms for a Popup.
-	 *
-	 * @param {number} id ID of the Popup to alter.
-	 * @param {Array} terms Array of terms to assign to the Popup.
-	 * @param {string} taxonomy Taxonomy slug.
-	 */
-	setTermsForPopup = ( id, terms, taxonomy ) => {
+	updatePopup = ( { id, ...promptConfig } ) => {
 		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ id }`,
 			method: 'POST',
-			data: {
-				taxonomy,
-				terms,
-			},
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	updatePopup = ( popupId, options ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
-			method: 'POST',
-			data: { options },
+			data: { config: promptConfig },
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
@@ -291,7 +273,6 @@ class PopupsWizard extends Component {
 					const popupManagementSharedProps = {
 						...sharedProps,
 						manageCampaignGroup: this.manageCampaignGroup,
-						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
 						restorePopup: this.restorePopup,

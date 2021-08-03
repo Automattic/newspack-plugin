@@ -90,7 +90,8 @@ class Stripe_Connection {
 	public static function get_stripe_data() {
 		$stripe_data             = self::get_saved_stripe_data();
 		$stripe_data['webhooks'] = [];
-		if ( self::get_stripe_secret_key() ) {
+		// Currently, the Stripe integration that requires webhooks will only work with NRH, since NRH handles recurring charges.
+		if ( self::get_stripe_secret_key() && Donations::is_platform_nrh() ) {
 			$stripe_data['webhooks'] = self::list_webhooks();
 		}
 		return $stripe_data;
@@ -180,7 +181,7 @@ class Stripe_Connection {
 			case 'charge.failed':
 				break;
 			default:
-				return new WP_Error( 'newspack_unsupported_webhook' );
+				return new \WP_Error( 'newspack_unsupported_webhook' );
 		}
 	}
 
@@ -200,7 +201,7 @@ class Stripe_Connection {
 				]
 			);
 		} catch ( \Exception $e ) {
-			return new WP_Error( 'newspack_plugin_webhooks', __( 'Problem creating webhooks.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'newspack_plugin_webhooks', __( 'Problem creating webhooks.', 'newspack' ), $e->getMessage() );
 		}
 		return self::list_webhooks();
 	}

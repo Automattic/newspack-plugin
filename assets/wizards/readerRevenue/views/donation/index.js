@@ -18,7 +18,6 @@ import {
 	Button,
 	Notice,
 	ToggleControl,
-	InfoButton,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -34,16 +33,12 @@ export const DontationAmounts = ( { data, onChange } ) => {
 		<>
 			<h2>{ __( 'Suggested donations' ) }</h2>
 			<p>
-				{ __( 'Set a suggested monthly donation amount' ) }
-				<InfoButton
-					text={ __(
-						'This will provide hints to readers about how much to donate, which will increase the average donation amount.',
-						'newspack'
-					) }
-				/>
+				{ __(
+					'Set suggested monthly donation amounts. The one-time and annual suggested donation amount will be adjusted according to the monthly amount.'
+				) }
 			</p>
 			<ToggleControl
-				label={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
+				label={ __( 'Set exact monthly donation tiers' ) }
 				checked={ tiered }
 				onChange={ _tiered => onChange( { ...data, tiered: _tiered } ) }
 			/>

@@ -21,7 +21,8 @@
 
 	&.newspack-plugin-installer__status-active,
 	&.newspack-plugin-installer__status-error,
-	&.newspack-plugin-installer__status-installing {
+	&.newspack-plugin-installer__status-installing,
+	&.newspack-plugin-installer__status-none {
 		.newspack-action-card__region-top {
 			padding-left: 28px;
 		}
@@ -50,7 +51,8 @@
 		box-shadow: inset 4px 0 0 $alert-red;
 	}
 
-	&.newspack-plugin-installer__status-installing {
+	&.newspack-plugin-installer__status-installing,
+	&.newspack-plugin-installer__status-none {
 		box-shadow: inset 4px 0 0 $gray-100;
 	}
 
