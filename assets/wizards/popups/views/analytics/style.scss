@@ -14,20 +14,26 @@
 	&__filters {
 		margin: 32px 0;
 		&,
-		&__group {
+		&__group,
+		&__date {
 			display: flex;
 			justify-content: space-between;
 		}
+		&__date {
+			.newspack-button {
+				font-size: 17px !important;
+				padding-left: 8px !important;
+				padding-right: 0 !important;
+				svg {
+					order: 2;
+					margin-left: 8px;
+				}
+			}
+		}
 		.newspack-select-control {
-			margin: 0 !important;
+			margin: 0 8px 0 0;
 		}
 	}
-	&__filters__group {
-		.newspack-select-control {
-			margin-right: 8px !important;
-		}
-	}
-
 	&__info {
 		&__sections {
 			display: flex;

@@ -16,6 +16,7 @@ import apiFetch from '@wordpress/api-fetch';
  * External dependencies.
  */
 import { stringify } from 'qs';
+import { subDays } from 'date-fns';
 
 /**
  * Internal dependencies.
@@ -24,6 +25,7 @@ import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
 import { CampaignsContext } from './contexts';
+import { formatDate } from './utils';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -82,7 +84,8 @@ class PopupsWizard extends Component {
 				if ( isInitial ) {
 					// Fetch GA report to display per-popup data.
 					const reportSpec = {
-						offset: 30,
+						start_date: formatDate( subDays( new Date(), 30 ) ),
+						end_date: formatDate(),
 						with_report_by_id: true,
 					};
 					apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( reportSpec ) }` } )
