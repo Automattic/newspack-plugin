@@ -61,9 +61,9 @@ svg {
 			cursor: wait;
 		}
 
-		&__buttons {
-			.br--top {
-				margin-top: 0;
+		.newspack-button-card.br--bottom {
+			svg {
+				transform: scaleX( -1 );
 			}
 		}
 
