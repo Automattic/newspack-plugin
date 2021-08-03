@@ -17,6 +17,16 @@
 	transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out,
 		box-shadow 125ms ease-in-out;
 
+	&.is-pressed {
+		background-color: $gray-100;
+		color: $primary-500;
+
+		.title,
+		.desc {
+			color: inherit;
+		}
+	}
+
 	&:active,
 	&:focus,
 	&:hover {
