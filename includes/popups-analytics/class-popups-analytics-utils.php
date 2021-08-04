@@ -5,14 +5,14 @@
  * @package Newspack
  */
 
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_DateRange;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_Metric;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_ReportRequest;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_Dimension;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_GetReportsRequest;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_SegmentDimensionFilter;
-use Google\Site_Kit_Dependencies\Google_Service_AnalyticsReporting_DimensionFilterClause;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\DateRange as Google_Service_AnalyticsReporting_DateRange;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\Metric as Google_Service_AnalyticsReporting_Metric;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\ReportRequest as Google_Service_AnalyticsReporting_ReportRequest;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\Dimension as Google_Service_AnalyticsReporting_Dimension;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\GetReportsRequest as Google_Service_AnalyticsReporting_GetReportsRequest;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\DimensionFilter as Google_Service_AnalyticsReporting_DimensionFilter;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting as Google_Service_AnalyticsReporting;
+use Google\Site_Kit_Dependencies\Google\Service\AnalyticsReporting\DimensionFilterClause as Google_Service_AnalyticsReporting_DimensionFilterClause;
 
 /**
  * Popup Analytics Utilities.
@@ -84,21 +84,21 @@ class Popups_Analytics_Utils {
 		$filters = [];
 
 		// Filter just the popups custom event category.
-		$dimension_category_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+		$dimension_category_filter = new Google_Service_AnalyticsReporting_DimensionFilter();
 		$dimension_category_filter->setDimensionName( 'ga:eventCategory' );
 		$dimension_category_filter->setOperator( 'IN_LIST' );
 		$dimension_category_filter->setExpressions( self::EVENT_CATEGORIES );
 		$filters[] = $dimension_category_filter;
 
 		if ( ! empty( $options['event_action'] ) ) {
-			$dimension_action_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+			$dimension_action_filter = new Google_Service_AnalyticsReporting_DimensionFilter();
 			$dimension_action_filter->setDimensionName( 'ga:eventAction' );
 			$dimension_action_filter->setOperator( 'IN_LIST' );
 			$dimension_action_filter->setExpressions( [ $options['event_action'] ] );
 			$filters[] = $dimension_action_filter;
 		}
 		if ( ! empty( $options['event_label_id'] ) ) {
-			$dimension_label_id_filter = new Google_Service_AnalyticsReporting_SegmentDimensionFilter();
+			$dimension_label_id_filter = new Google_Service_AnalyticsReporting_DimensionFilter();
 			$dimension_label_id_filter->setDimensionName( 'ga:eventLabel' );
 			$dimension_label_id_filter->setOperator( 'PARTIAL' );
 			$dimension_label_id_filter->setExpressions( $options['event_label_id'] );
