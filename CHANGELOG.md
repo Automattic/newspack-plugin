@@ -1,3 +1,10 @@
+## [1.51.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.51.0...v1.51.1-alpha.1) (2021-08-04)
+
+
+### Bug Fixes
+
+* update Google imports namespaces ([#1081](https://github.com/Automattic/newspack-plugin/issues/1081)) ([2d1e2ab](https://github.com/Automattic/newspack-plugin/commit/2d1e2ab2c2aab03ecd21cabd0d02165d8ba9bd6e))
+
 # [1.51.0](https://github.com/Automattic/newspack-plugin/compare/v1.50.1...v1.51.0) (2021-08-03)
 
 
