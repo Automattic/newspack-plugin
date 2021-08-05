@@ -15,7 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * All things Stripe.
  */
 class Stripe_Connection {
-	const STRIPE_DATA_OPTION_NAME = 'newspack_stripe_data';
+	const STRIPE_DATA_OPTION_NAME        = 'newspack_stripe_data';
+	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
 
 	/**
 	 * Initialize.
@@ -201,7 +202,7 @@ class Stripe_Connection {
 				]
 			);
 		} catch ( \Exception $e ) {
-			return new \WP_Error( 'newspack_plugin_webhooks', __( 'Problem creating webhooks.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'newspack_plugin_stripe', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
 		}
 		return self::list_webhooks();
 	}
@@ -229,6 +230,79 @@ class Stripe_Connection {
 	private static function get_stripe_secret_key() {
 		$stripe_data = self::get_saved_stripe_data();
 		return $stripe_data['usedSecretKey'];
+	}
+
+	/**
+	 * Create a recurring donation product in Stripe.
+	 *
+	 * @param string $name Name.
+	 * @param string $interval Interval.
+	 */
+	private static function create_donation_product( $name, $interval ) {
+		$payment_data = self::get_stripe_data();
+		$currency     = $payment_data['currency'];
+
+		$stripe = self::get_stripe_client();
+		// A price has to be assigned to a product.
+		$product = $stripe->products->create( [ 'name' => $name ] );
+		// Tiered volume pricing allows the subscription prices to be arbitrary.
+		$price = $stripe->prices->create(
+			[
+				'product'        => $product['id'],
+				'currency'       => $currency,
+				'billing_scheme' => 'tiered',
+				'tiers'          => [
+					[
+						'up_to'               => 1,
+						'unit_amount_decimal' => 1,
+					],
+					[
+						'up_to'               => 'inf',
+						'unit_amount_decimal' => 1,
+					],
+				],
+				'tiers_mode'     => 'volume',
+				'recurring'      => [
+					'interval' => $interval,
+				],
+				'metadata'       => [
+					self::STRIPE_DONATION_PRICE_METADATA => $interval,
+				],
+			]
+		);
+		return $price;
+	}
+
+	/**
+	 * List Stripe donation-related products. Products will be created if not found.
+	 */
+	public static function get_donation_prices() {
+		try {
+			$stripe        = self::get_stripe_client();
+			$all_prices    = $stripe->prices->all()['data'];
+			$prices_mapped = [];
+			foreach ( $all_prices as $price ) {
+				$has_metadata_field = isset( $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ] );
+				if ( $has_metadata_field ) {
+					$metadata_field_value = $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ];
+					if ( 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
+						$prices_mapped['month'] = $price;
+					}
+					if ( 'year' === $metadata_field_value && 'year' === $price['recurring']['interval'] ) {
+						$prices_mapped['year'] = $price;
+					}
+				}
+			}
+			if ( ! isset( $prices_mapped['month'] ) ) {
+				$prices_mapped['month'] = self::create_donation_product( __( 'Newspack Monthly Donation', 'newspack' ), 'month' );
+			}
+			if ( ! isset( $prices_mapped['year'] ) ) {
+				$prices_mapped['year'] = self::create_donation_product( __( 'Newspack Annual Donation', 'newspack' ), 'year' );
+			}
+			return $prices_mapped;
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'newspack_plugin_stripe', __( 'Products retrieval failed.', 'newspack' ), $e->getMessage() );
+		}
 	}
 
 	/**
