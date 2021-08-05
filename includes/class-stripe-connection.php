@@ -126,6 +126,34 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Get Stripe customer.
+	 *
+	 * @param string $customer_id Customer ID.
+	 */
+	private static function get_customer( $customer_id ) {
+		$stripe = self::get_stripe_client();
+		try {
+			return $stripe->customers->retrieve( $customer_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get Stripe invoice.
+	 *
+	 * @param string $invoice_id Customer ID.
+	 */
+	private static function get_invoice( $invoice_id ) {
+		$stripe = self::get_stripe_client();
+		try {
+			return $stripe->invoices->retrieve( $invoice_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Receive Stripe webhook.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -133,28 +161,38 @@ class Stripe_Connection {
 	public static function receive_webhook( $request ) {
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
-				$payment   = $request['data']['object'];
-				$metadata  = $payment['metadata'];
-				$frequency = __( 'Unknown', 'newspack' );
-				if ( isset( $payment['metadata']['Frequency'] ) ) {
-					$frequency = $payment['metadata']['Frequency'];
+				$payment  = $request['data']['object'];
+				$metadata = $payment['metadata'];
+				$customer = self::get_customer( $payment['customer'] );
+
+				$frequency = 'once';
+				if ( $payment['invoice'] ) {
+					// A subscription payment will have an invoice.
+					$invoice   = self::get_invoice( $payment['invoice'] );
+					$recurring = $invoice['lines']['data'][0]['price']['recurring'];
+					if ( isset( $recurring['interval'] ) ) {
+						$frequency = $recurring['interval'];
+					}
 				}
 
 				// Update data in Campaigns plugin.
-				if ( isset( $metadata['clientId'] ) && ! empty( $metadata['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
-					$donation_data = [
-						'stripe_id'     => $payment['id'],
-						'date'          => gmdate( 'Y-m-d H:i:s', $payment['created'] ),
-						'amount'        => $payment['amount'],
-						'receipt_email' => $payment['receipt_email'],
-						'frequency'     => $frequency,
-					];
-					\Newspack_Popups_Segmentation::update_client_data(
-						$metadata['clientId'],
-						[
-							'donation' => $donation_data,
-						]
-					);
+				if ( isset( $customer['metadata']['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
+					$client_id = $customer['metadata']['clientId'];
+					if ( ! empty( $client_id ) ) {
+						$donation_data = [
+							'stripe_id'          => $payment['id'],
+							'stripe_customer_id' => $customer['id'],
+							'date'               => $payment['created'],
+							'amount'             => $payment['amount'],
+							'frequency'          => $frequency,
+						];
+						\Newspack_Popups_Segmentation::update_client_data(
+							$client_id,
+							[
+								'donation' => $donation_data,
+							]
+						);
+					}
 				}
 
 				// Send custom event to GA.
