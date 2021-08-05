@@ -2,6 +2,7 @@
  * Popups Analytics
  */
 
+@import '../../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
 .newspack-campaigns-wizard-analytics {
@@ -20,13 +21,24 @@
 			justify-content: space-between;
 		}
 		&__date {
-			.newspack-button {
+			.newspack-button.has-icon.has-text {
 				font-size: 17px !important;
 				padding-left: 8px !important;
 				padding-right: 0 !important;
+				&:focus,
+				&:hover {
+					background: white !important;
+					border-color: $gray-300 !important;
+					color: $gray-900 !important;
+				}
+				&:focus {
+					border-color: $primary-500 !important;
+					box-shadow: inset 0 0 0 2px $primary-500 !important;
+				}
 				svg {
 					order: 2;
-					margin-left: 8px;
+					margin-left: 3px;
+					margin-right: 3px;
 				}
 			}
 		}
