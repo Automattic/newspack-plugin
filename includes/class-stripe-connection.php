@@ -165,6 +165,11 @@ class Stripe_Connection {
 				$metadata = $payment['metadata'];
 				$customer = self::get_customer( $payment['customer'] );
 
+				$referer = '';
+				if ( isset( $metadata['referer'] ) ) {
+					$referer = $metadata['referer'];
+				}
+
 				$frequency = 'once';
 				if ( $payment['invoice'] ) {
 					// A subscription payment will have an invoice.
@@ -172,6 +177,9 @@ class Stripe_Connection {
 					$recurring = $invoice['lines']['data'][0]['price']['recurring'];
 					if ( isset( $recurring['interval'] ) ) {
 						$frequency = $recurring['interval'];
+					}
+					if ( isset( $invoice['metadata']['referer'] ) ) {
+						$referer = $invoice['metadata']['referer'];
 					}
 				}
 
@@ -210,7 +218,8 @@ class Stripe_Connection {
 						'ec'  => __( 'Newspack Donation', 'newspack' ), // Event Category.
 						'ea'  => __( 'Stripe', 'newspack' ), // Event Action.
 						'el'  => $frequency, // Event Label.
-						'ev'  => $payment['amount'], // Event Value.
+						'ev'  => (float) $payment['amount'] / 100, // Event Value.
+						'dr'  => $referer, // Document Referrer.
 					);
 
 					wp_remote_post( $analytics_ping_url . '&' . http_build_query( $analytics_ping_params ) );
