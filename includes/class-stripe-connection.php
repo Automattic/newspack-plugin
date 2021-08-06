@@ -352,6 +352,125 @@ class Stripe_Connection {
 			return new \Stripe\StripeClient( $secret_key );
 		}
 	}
+
+	/**
+	 * Process the amount. Some currencies are zero-decimal, but for others,
+	 * the amount should be multiplied by 100 (100 USD is 100*100 currency units, aka cents).
+	 * https://stripe.com/docs/currencies#zero-decimal
+	 *
+	 * @param number $amount Amount to process.
+	 * @param strin  $currency Currency code.
+	 * @return number Amount.
+	 */
+	private static function get_amount( $amount, $currency ) {
+		$zero_decimal_currencies = [ 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF' ];
+		if ( in_array( $currency, $zero_decimal_currencies, true ) ) {
+			return $amount;
+		}
+		return $amount * 100;
+	}
+
+	/**
+	 * Handle a donation in Stripe.
+	 * If it's a recurring donation, a subscription will be created. Otherwise,
+	 * a single charge.
+	 *
+	 * @param object $config Data about the donation.
+	 */
+	public static function handle_donation( $config ) {
+		$response = [
+			'error'  => null,
+			'status' => null,
+		];
+		try {
+			$stripe = self::get_stripe_client();
+
+			$amount_raw       = $config['amount'];
+			$frequency        = $config['frequency'];
+			$email_address    = $config['email_address'];
+			$token_data       = $config['token_data'];
+			$client_metadata  = $config['client_metadata'];
+			$payment_metadata = $config['payment_metadata'];
+
+			// Find or create the customer by email.
+			$found_customers = $stripe->customers->all( [ 'email' => $email_address ] )['data'];
+			$customer        = count( $found_customers ) ? $found_customers[0] : null;
+			if ( null === $customer ) {
+				$customer = $stripe->customers->create(
+					[
+						'email'       => $email_address,
+						'description' => __( 'Newspack Donor', 'newspack-blocks' ),
+						'source'      => $token_data['id'],
+						'metadata'    => $client_metadata,
+					]
+				);
+			}
+			if ( $customer['default_source'] !== $token_data['card']['id'] ) {
+				$stripe->customers->update(
+					$customer['id'],
+					[
+						'source'   => $token_data['id'],
+						'metadata' => $client_metadata,
+					]
+				);
+			}
+
+			if ( 'once' === $frequency ) {
+				// Create a Payment Intent on Stripe.
+				$payment_data              = self::get_stripe_data();
+				$intent                    = $stripe->paymentIntents->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					[
+						'amount'               => self::get_amount( $amount_raw, $payment_data['currency'] ),
+						'currency'             => $payment_data['currency'],
+						'receipt_email'        => $email_address,
+						'customer'             => $customer['id'],
+						'metadata'             => $payment_metadata,
+						'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
+						'payment_method_types' => [ 'card' ],
+					]
+				);
+				$response['client_secret'] = $intent['client_secret'];
+			} else {
+				// Create a Subscription on Stripe.
+				$prices = self::get_donation_prices();
+				$price  = $prices[ $frequency ];
+				$amount = self::get_amount( $amount_raw, $price['currency'] );
+
+				$subscription = $stripe->subscriptions->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					[
+						'customer'         => $customer['id'],
+						'items'            => [
+							[
+								'price'    => $price['id'],
+								'quantity' => $amount,
+							],
+						],
+						'payment_behavior' => 'allow_incomplete',
+						'metadata'         => $payment_metadata,
+						'expand'           => [ 'latest_invoice.payment_intent' ],
+					]
+				);
+
+				// Update invoice metadata.
+				$stripe->invoices->update(
+					$subscription->latest_invoice['id'],
+					[
+						'metadata' => $payment_metadata,
+					]
+				);
+
+				if ( 'incomplete' === $subscription->status ) {
+					// The card may require additional authentication.
+					$response['client_secret'] = $subscription->latest_invoice->payment_intent->client_secret;
+				} elseif ( 'active' === $subscription->status ) {
+					$response['status'] = 'success';
+				}
+			}
+		} catch ( \Exception $e ) {
+			$response['error'] = $e->getMessage();
+		}
+		return $response;
+	}
 }
 
 Stripe_Connection::init();
