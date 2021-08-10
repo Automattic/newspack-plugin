@@ -1,3 +1,10 @@
+# [1.52.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.51.1...v1.52.0-alpha.1) (2021-08-10)
+
+
+### Features
+
+* update campaigns analytics style ([#1085](https://github.com/Automattic/newspack-plugin/issues/1085)) ([d32d583](https://github.com/Automattic/newspack-plugin/commit/d32d583a7b1e6786d91ce8524cf2c48277bcb540))
+
 ## [1.51.1](https://github.com/Automattic/newspack-plugin/compare/v1.51.0...v1.51.1) (2021-08-04)
 
 
