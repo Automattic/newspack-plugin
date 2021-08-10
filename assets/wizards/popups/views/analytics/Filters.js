@@ -28,7 +28,7 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 					isSecondary
 					isSmall
 					icon={ chevronDown }
-					iconSize={ 16 }
+					iconSize={ 18 }
 					disabled={ disabled }
 					onClick={ () => setIsRangePickerVisible( _isVisible => ! _isVisible ) }
 				>
@@ -65,6 +65,7 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 					onChange={ onChange( 'SET_EVENT_LABEL_FILTER' ) }
 					value={ filtersState.event_label_id }
 					disabled={ disabled }
+					isSmall
 				/>
 				<SelectControl
 					options={ [
@@ -74,6 +75,7 @@ const Info = ( { filtersState, labelFilters, eventActionFilters, onChange, disab
 					onChange={ onChange( 'SET_EVENT_ACTION_FILTER' ) }
 					value={ filtersState.event_action }
 					disabled={ disabled }
+					isSmall
 				/>
 			</div>
 		</div>
