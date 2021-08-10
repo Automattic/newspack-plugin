@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Stripe_Connection {
 	const STRIPE_DATA_OPTION_NAME        = 'newspack_stripe_data';
+	const STRIPE_WEBHOOK_OPTION_NAME     = 'newspack_stripe_webhook';
 	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
 
 	/**
@@ -159,6 +160,23 @@ class Stripe_Connection {
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	public static function receive_webhook( $request ) {
+		// Verify the webhook signature (https://stripe.com/docs/webhooks/signatures).
+		$webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME, false );
+		if ( false === $webhook || ! isset( $webhook['secret'], $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ) {
+			return new \WP_Error( 'newspack_webhook_missing_data' );
+		}
+		try {
+			$sig_header = sanitize_text_field( $_SERVER['HTTP_STRIPE_SIGNATURE'] );
+			$payload    = @file_get_contents( 'php://input' ); // phpcs:disable WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile, WordPress.PHP.NoSilencedErrors.Discouraged
+			$event      = \Stripe\Webhook::constructEvent(
+				$payload,
+				$sig_header,
+				$webhook['secret']
+			);
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'newspack_webhook_error' );
+		}
+
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
 				$payment  = $request['data']['object'];
@@ -239,13 +257,20 @@ class Stripe_Connection {
 	public static function create_webhooks() {
 		$stripe = self::get_stripe_client();
 		try {
-			$stripe->webhookEndpoints->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$webhook = $stripe->webhookEndpoints->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				[
 					'url'            => get_rest_url( null, NEWSPACK_API_NAMESPACE . '/stripe/webhook' ),
 					'enabled_events' => [
 						'charge.failed',
 						'charge.succeeded',
 					],
+				]
+			);
+			update_option(
+				self::STRIPE_WEBHOOK_OPTION_NAME,
+				[
+					'id'     => $webhook->id,
+					'secret' => $webhook->secret,
 				]
 			);
 		} catch ( \Exception $e ) {
