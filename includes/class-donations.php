@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Handles donations functionality.
  */
 class Donations {
+	const NEWSPACK_READER_REVENUE_PLATFORM        = 'newspack_reader_revenue_platform';
 	const DONATION_PRODUCT_ID_OPTION              = 'newspack_donation_product_id';
 	const DONATION_SUGGESTED_AMOUNT_META          = 'newspack_donation_suggested_amount';
 	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
@@ -54,6 +55,8 @@ class Donations {
 
 	/**
 	 * Initialize hooks/filters/etc.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function init() {
 		if ( ! is_admin() ) {
@@ -110,11 +113,11 @@ class Donations {
 	/**
 	 * Get the default donation settings.
 	 *
-	 * @param bool   $suggest_donations Whether to include suggested default donation amounts (Default: false).
-	 * @param string $platform Selected reader revenue platform (Default: wc).
+	 * @param bool $suggest_donations Whether to include suggested default donation amounts (Default: false).
 	 * @return array Array of settings info.
 	 */
-	protected static function get_donation_default_settings( $suggest_donations = false, $platform = 'wc' ) {
+	protected static function get_donation_default_settings( $suggest_donations = false ) {
+		$platform = self::get_platform_slug();
 		return [
 			'name'                    => __( 'Donate', 'newspack' ),
 			'suggestedAmounts'        => $suggest_donations ? [ 7, 15.00, 30.00 ] : [],
@@ -135,11 +138,17 @@ class Donations {
 	 * Get the donation currency symbol.
 	 */
 	private static function get_currency_symbol() {
-		if ( self::is_platform_wc() ) {
-			return \get_woocommerce_currency_symbol();
-		} else {
-			$currency = Stripe_Connection::get_stripe_data()['currency'];
-			return newspack_get_currency_symbol( $currency );
+		switch ( self::get_platform_slug() ) {
+			case 'wc':
+				if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+					return \get_woocommerce_currency_symbol();
+				}
+				break;
+			case 'stripe':
+				$currency = Stripe_Connection::get_stripe_data()['currency'];
+				return newspack_get_currency_symbol( $currency );
+			default:
+				return '$';
 		}
 	}
 
@@ -151,9 +160,9 @@ class Donations {
 	public static function get_donation_settings() {
 		$currency_symbol = html_entity_decode( self::get_currency_symbol() );
 
-		if ( self::is_platform_nrh() ) {
+		if ( ! self::is_platform_wc() ) {
 			$saved_settings             = get_option( self::DONATION_NON_WC_SETTINGS_OPTION, [] );
-			$defaults                   = self::get_donation_default_settings( true, 'nrh' );
+			$defaults                   = self::get_donation_default_settings( true );
 			$settings                   = wp_parse_args( $saved_settings, $defaults );
 			$settings['currencySymbol'] = $currency_symbol;
 			return $settings;
@@ -226,7 +235,7 @@ class Donations {
 	 * @return array Updated settings.
 	 */
 	public static function set_donation_settings( $args ) {
-		if ( self::is_platform_nrh() ) {
+		if ( ! self::is_platform_wc() ) {
 			update_option( self::DONATION_NON_WC_SETTINGS_OPTION, $args );
 			return self::get_donation_settings();
 		}
@@ -415,18 +424,41 @@ class Donations {
 	}
 
 	/**
+	 * Get donation platform slug.
+	 */
+	public static function get_platform_slug() {
+		return get_option( self::NEWSPACK_READER_REVENUE_PLATFORM, 'wc' );
+	}
+
+	/**
+	 * Set donation platform slug.
+	 *
+	 * @param string $platform Platform slug.
+	 */
+	public static function set_platform_slug( $platform ) {
+		delete_option( self::NEWSPACK_READER_REVENUE_PLATFORM );
+		update_option( self::NEWSPACK_READER_REVENUE_PLATFORM, $platform, true );
+	}
+
+	/**
 	 * Is NRH the donation platform?
 	 */
 	public static function is_platform_nrh() {
-		return 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM );
+		return 'nrh' === self::get_platform_slug();
 	}
 
 	/**
 	 * Is WooCommerce the donation platform?
 	 */
 	public static function is_platform_wc() {
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		return 'wc' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) && $wc_configuration_manager->is_active();
+		return 'wc' === self::get_platform_slug();
+	}
+
+	/**
+	 * Is Stripe the donation platform?
+	 */
+	public static function is_platform_stripe() {
+		return 'stripe' === self::get_platform_slug();
 	}
 
 	/**
@@ -707,6 +739,32 @@ class Donations {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Can Stripe platform be used?
+	 *
+	 * @return bool True if it can.
+	 */
+	public static function can_use_stripe_platform() {
+		$is_amp_plugin_active = is_plugin_active( 'amp/amp.php' );
+		$is_using_amp_plus    = AMP_Enhancements::is_amp_plus_configured();
+		// Only if AMP plugin is not active, or site is using AMP Plus.
+		return ! $is_amp_plugin_active || $is_using_amp_plus;
+	}
+
+	/**
+	 * Can the streamlined donate block be used?
+	 *
+	 * @return bool True if it can.
+	 */
+	public static function can_use_streamlined_donate_block() {
+		if ( self::can_use_stripe_platform() ) {
+			$payment_data    = Stripe_Connection::get_stripe_data();
+			$has_stripe_keys = isset( $payment_data['usedPublishableKey'], $payment_data['usedSecretKey'] ) && $payment_data['usedPublishableKey'] && $payment_data['usedSecretKey'];
+			return $has_stripe_keys;
+		}
+		return false;
 	}
 }
 Donations::init();
