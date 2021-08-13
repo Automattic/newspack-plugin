@@ -121,16 +121,31 @@ class Engagement_Wizard extends Wizard {
 	/**
 	 * Get Newspack Newsletters setttings.
 	 *
+	 * @return object with the info.
+	 */
+	private static function get_newsletters_settings() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		$settings                          = array_reduce(
+			$newsletters_configuration_manager->get_settings(),
+			function ( $acc, $value ) {
+				$acc[ $value['key'] ] = $value;
+				return $acc;
+			},
+			[]
+		);
+		return [
+			'configured' => $newsletters_configuration_manager->is_configured(),
+			'settings'   => $settings,
+		];
+	}
+
+	/**
+	 * Get Newspack Newsletters setttings API response.
+	 *
 	 * @return WP_REST_Response with the info.
 	 */
 	public function api_get_newsletters_settings() {
-		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		return rest_ensure_response(
-			[
-				'configured' => $newsletters_configuration_manager->is_configured(),
-				'settings'   => $newsletters_configuration_manager->get_settings(),
-			]
-		);
+		return rest_ensure_response( self::get_newsletters_settings() );
 	}
 
 	/**
@@ -193,7 +208,7 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the Jetpack-Mailchimp connection settings.
+	 * Get the Jetpack connection settings.
 	 *
 	 * @return WP_REST_Response with the info.
 	 */

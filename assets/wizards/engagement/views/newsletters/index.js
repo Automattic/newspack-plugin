@@ -39,15 +39,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 	const fetchConfiguration = () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
-		} ).then( res => {
-			performConfigUpdate( {
-				...res,
-				settings: res.settings.reduce(
-					( acc, setting ) => ( { ...acc, [ setting.key ]: setting } ),
-					{}
-				),
-			} );
-		} );
+		} ).then( performConfigUpdate );
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
