@@ -419,6 +419,7 @@ class Stripe_Connection {
 			$amount_raw       = $config['amount'];
 			$frequency        = $config['frequency'];
 			$email_address    = $config['email_address'];
+			$full_name        = $config['full_name'];
 			$token_data       = $config['token_data'];
 			$client_metadata  = $config['client_metadata'];
 			$payment_metadata = $config['payment_metadata'];
@@ -430,6 +431,7 @@ class Stripe_Connection {
 				$customer = $stripe->customers->create(
 					[
 						'email'       => $email_address,
+						'name'        => $full_name,
 						'description' => __( 'Newspack Donor', 'newspack-blocks' ),
 						'source'      => $token_data['id'],
 						'metadata'    => $client_metadata,
