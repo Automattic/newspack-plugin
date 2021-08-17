@@ -9,7 +9,7 @@
 	background: $primary-500;
 	display: block;
 	margin: 0 0 0 -10px;
-	padding: 4px;
+	padding: 4px 16px;
 	position: relative;
 
 	@media screen and ( min-width: 783px ) {
@@ -17,41 +17,16 @@
 	}
 
 	// Dismissed
-
 	&:empty {
 		display: none;
 	}
 
-	// Help Tabs
-
-	&.has-help-tabs {
-		margin-top: 40px;
-
-		@media screen and ( min-width: 783px ) {
-			margin-top: 30px;
-		}
-
-		&::before {
-			background: $primary-500;
-			content: '';
-			display: block;
-			height: 100vh;
-			left: 0;
-			position: absolute;
-			right: 0;
-			top: -100vh;
-			z-index: -1;
-		}
-	}
-
 	// Jetpack
-
 	.jetpack-pagestyles & {
 		margin-left: 0;
 	}
 
 	// Google Site Kit
-
 	.site-kit_page_googlesitekit-splash & {
 		margin-bottom: -25px;
 	}
@@ -72,7 +47,6 @@
 	}
 
 	// Text
-
 	.newspack-handoff-banner__text {
 		align-items: center;
 		display: flex;
@@ -93,7 +67,6 @@
 	}
 
 	// Buttons
-
 	.newspack-handoff-banner__buttons {
 		display: flex;
 		flex-wrap: wrap;
@@ -124,5 +97,25 @@
 				}
 			}
 		}
+	}
+}
+
+#screen-meta-links {
+	margin-bottom: 4px;
+	position: relative;
+	z-index: 2;
+}
+
+#screen-meta {
+	&::before {
+		background: $primary-500;
+		bottom: 0;
+		content: '';
+		display: block;
+		left: -100vw;
+		position: absolute;
+		right: -100vw;
+		top: 0;
+		z-index: -1;
 	}
 }
