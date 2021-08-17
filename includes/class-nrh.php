@@ -101,6 +101,13 @@ class NRH {
 	}
 
 	/**
+	 * Get NRH config.
+	 */
+	public static function get_nrh_config() {
+		return get_option( NEWSPACK_NRH_CONFIG, [] );
+	}
+
+	/**
 	 * Rewrite Donate block for News Revenue Hub submission.
 	 *
 	 * @param string $html The donate form html.
@@ -143,7 +150,7 @@ class NRH {
 
 			$button_text = $attributes['buttonText'];
 
-			$nrh_config = get_option( NEWSPACK_NRH_CONFIG );
+			$nrh_config = self::get_nrh_config();
 			if ( ! isset( $nrh_config['nrh_organization_id'] ) ) {
 				// The Organisation ID is crucial.
 				return '';
