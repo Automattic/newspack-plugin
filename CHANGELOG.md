@@ -1,3 +1,10 @@
+# [1.53.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.53.0-alpha.1...v1.53.0-alpha.2) (2021-08-17)
+
+
+### Features
+
+* trigger release ([0d883c3](https://github.com/Automattic/newspack-plugin/commit/0d883c37b71f40776c7b424688b7cdf46c4ddcba))
+
 # [1.53.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.52.0...v1.53.0-alpha.1) (2021-08-17)
 
 
