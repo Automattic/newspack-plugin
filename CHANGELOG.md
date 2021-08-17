@@ -1,3 +1,16 @@
+# [1.53.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.52.0...v1.53.0-alpha.1) (2021-08-17)
+
+
+### Bug Fixes
+
+* handoff banner style when admin has meta links ([#1088](https://github.com/Automattic/newspack-plugin/issues/1088)) ([dacc554](https://github.com/Automattic/newspack-plugin/commit/dacc5549bc1d93a12ed1c0d4d81f4f752eae6e83))
+* remove missing CSS from Engagement wizard ([#1092](https://github.com/Automattic/newspack-plugin/issues/1092)) ([4342026](https://github.com/Automattic/newspack-plugin/commit/4342026b20206d4eae72af95589309b50b454ca6))
+
+
+### Features
+
+* **stripe:** handle recurring donations ([#1087](https://github.com/Automattic/newspack-plugin/issues/1087)) ([4437a79](https://github.com/Automattic/newspack-plugin/commit/4437a7976167de8162c850010f1403e6bd91a24d))
+
 # [1.52.0](https://github.com/Automattic/newspack-plugin/compare/v1.51.1...v1.52.0) (2021-08-10)
 
 
