@@ -6,21 +6,22 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Settings, CheckboxControl, withWizardScreen } from '../../../../components/src';
+import { Settings, ToggleControl, withWizardScreen } from '../../../../components/src';
 
 const { SettingsCard } = Settings;
 
 const Suppression = ( { config, onChange } ) => {
 	return (
 		<SettingsCard
-			title={ __( 'Archive pages', 'newspack' ) }
+			title={ __( 'Archive Pages', 'newspack' ) }
 			description={ __(
-				'Suppress ads on automatically generated pages which display lists of posts, e.g. tag archives.',
+				'Suppress ads on automatically generated pages which display a list of posts (e.g. tag archives)',
 				'newspack'
 			) }
 			columns={ 1 }
+			gutter={ 16 }
 		>
-			<CheckboxControl
+			<ToggleControl
 				disabled={ config === false }
 				checked={ config?.tag_archive_pages }
 				onChange={ tag_archive_pages => {
@@ -28,7 +29,7 @@ const Suppression = ( { config, onChange } ) => {
 				} }
 				label={ __( 'Suppress ads on tag archive pages', 'newspack' ) }
 			/>
-			<CheckboxControl
+			<ToggleControl
 				disabled={ config === false }
 				checked={ config?.category_archive_pages }
 				onChange={ category_archive_pages => {
@@ -36,7 +37,7 @@ const Suppression = ( { config, onChange } ) => {
 				} }
 				label={ __( 'Suppress ads on category archive pages', 'newspack' ) }
 			/>
-			<CheckboxControl
+			<ToggleControl
 				disabled={ config === false }
 				checked={ config?.author_archive_pages }
 				onChange={ author_archive_pages => {

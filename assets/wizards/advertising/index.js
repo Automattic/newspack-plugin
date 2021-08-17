@@ -407,7 +407,7 @@ class AdvertisingWizard extends Component {
 								<Suppression
 									headerText={ __( 'Ad Suppression', 'newspack' ) }
 									subHeaderText={ __(
-										'Allows you to manage site-wide ad suppression.',
+										'Allows you to manage site-wide ad suppression',
 										'newspack'
 									) }
 									tabbedNavigation={ tabs }
