@@ -235,6 +235,17 @@ class Advertising_Wizard extends Wizard {
 				],
 			]
 		);
+
+		// Update global ad suppression.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/suppression',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_ad_suppression' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -246,6 +257,18 @@ class Advertising_Wizard extends Wizard {
 	public function api_update_network_code( $request ) {
 		update_option( \Newspack_Ads_Model::OPTION_NAME_NETWORK_CODE, $request['network_code'] );
 		return \rest_ensure_response( [] );
+	}
+
+	/**
+	 * Update global ad suppression settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_update_ad_suppression( $request ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$configuration_manager->update_suppression_config( $request['config'] );
+		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
 	/**
@@ -413,6 +436,7 @@ class Advertising_Wizard extends Wizard {
 			'placements'            => $placements,
 			'ad_units'              => $ad_units,
 			'gam_connection_status' => $configuration_manager->get_gam_connection_status(),
+			'suppression'           => $configuration_manager->get_suppression_config(),
 		);
 	}
 
