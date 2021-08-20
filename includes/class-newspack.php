@@ -59,7 +59,6 @@ final class Newspack {
 			define( 'NEWSPACK_COMPOSER_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/vendor/' );
 		}
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
-		define( 'NEWSPACK_READER_REVENUE_PLATFORM', 'newspack_reader_revenue_platform' );
 		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
 	}
 
@@ -109,7 +108,7 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 
-		if ( 'nrh' === get_option( NEWSPACK_READER_REVENUE_PLATFORM ) ) {
+		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';
 		}
 

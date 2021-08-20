@@ -81,6 +81,9 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return Array Array of Stripe data.
 	 */
 	public function stripe_data() {
+		if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
+			return Stripe_Connection::get_default_stripe_data();
+		}
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
 			return Stripe_Connection::get_default_stripe_data();
@@ -146,7 +149,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @param Array $args Address data.
 	 * @return Array|WP_Error The data that was updated or an error.
 	 */
-	public function update_stripe_settings( $args ) {
+	public function update_wc_stripe_settings( $args ) {
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
 			if ( $args['enabled'] ) {
