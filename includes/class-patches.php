@@ -22,6 +22,9 @@ class Patches {
 		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
+
+		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
+		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
 	}
 
 	/**
