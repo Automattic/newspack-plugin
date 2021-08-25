@@ -8,14 +8,14 @@ import classnames from 'classnames';
  */
 import { Grid, ActionCard } from '../';
 
-const SettingsCard = ( { children, className, columns, ...props } ) => {
+const SettingsCard = ( { children, className, columns, gutter, ...props } ) => {
 	return (
 		<ActionCard
 			{ ...props }
 			className={ classnames( className, 'newspack-settings__card' ) }
 			notificationLevel="info"
 		>
-			<Grid columns={ columns } gutter={ 32 }>
+			<Grid columns={ columns } gutter={ gutter }>
 				{ children }
 			</Grid>
 		</ActionCard>
@@ -24,6 +24,7 @@ const SettingsCard = ( { children, className, columns, ...props } ) => {
 
 SettingsCard.defaultProps = {
 	columns: 3,
+	gutter: 32,
 };
 
 export default SettingsCard;
