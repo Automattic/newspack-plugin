@@ -40,7 +40,7 @@ const Suppression = ( { config, onChange } ) => {
 							specific_tag_archive_pages: selected.map( item => item.id ),
 						} );
 					} }
-					label={ __( "Specific tags' pages", 'newspack ' ) }
+					label={ __( 'Specific tags archive pages', 'newspack ' ) }
 					taxonomy="tags"
 				/>
 				<ToggleControl
@@ -70,7 +70,7 @@ const Suppression = ( { config, onChange } ) => {
 							specific_category_archive_pages: selected.map( item => item.id ),
 						} );
 					} }
-					label={ __( "Specific categories' pages", 'newspack ' ) }
+					label={ __( 'Specific category archive pages', 'newspack ' ) }
 				/>
 				<ToggleControl
 					disabled={ config === false }
