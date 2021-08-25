@@ -1,3 +1,18 @@
+# [1.54.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.53.0...v1.54.0-alpha.1) (2021-08-25)
+
+
+### Bug Fixes
+
+* disable WooCommerce image regeneration ([#1105](https://github.com/Automattic/newspack-plugin/issues/1105)) ([e4f9f7d](https://github.com/Automattic/newspack-plugin/commit/e4f9f7d834456b088c28574afec4106235550fea))
+* increase pwa network timeout limit ([#1107](https://github.com/Automattic/newspack-plugin/issues/1107)) ([cc32462](https://github.com/Automattic/newspack-plugin/commit/cc32462057f620a8407caba88f7326c49d518087))
+
+
+### Features
+
+* revert redirect patch ([558b9d2](https://github.com/Automattic/newspack-plugin/commit/558b9d2a1abc43ee2537d2f9b27c86f6ee4316cd))
+* **donations:** stripe as platform ([#1095](https://github.com/Automattic/newspack-plugin/issues/1095)) ([7df2371](https://github.com/Automattic/newspack-plugin/commit/7df2371090506252e31c5204222038f9868070b9))
+* update focus/focus-visible on buttons ([#1101](https://github.com/Automattic/newspack-plugin/issues/1101)) ([c944c76](https://github.com/Automattic/newspack-plugin/commit/c944c76d3a1ab40316762ca3b1e0d8743ea247eb))
+
 # [1.53.0](https://github.com/Automattic/newspack-plugin/compare/v1.52.0...v1.53.0) (2021-08-17)
 
 
