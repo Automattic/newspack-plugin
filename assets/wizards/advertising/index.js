@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Placements, Services } from './views';
+import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 const CREATE_AD_ID_PARAM = 'create';
@@ -40,6 +40,7 @@ class AdvertisingWizard extends Component {
 					google_adsense: {},
 					wordads: {},
 				},
+				suppression: false,
 			},
 		};
 	}
@@ -232,6 +233,28 @@ class AdvertisingWizard extends Component {
 		}
 	}
 
+	/**
+	 * Update ad suppression settings.
+	 */
+	updateAdSuppression( suppressionConfig ) {
+		const { setError, wizardApiFetch } = this.props;
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/advertising/suppression',
+			method: 'post',
+			data: { config: suppressionConfig },
+			quiet: true,
+		} )
+			.then( advertisingData => {
+				this.setState(
+					{
+						advertisingData: this.prepareData( advertisingData ),
+					},
+					setError
+				);
+			} )
+			.catch( setError );
+	}
+
 	prepareData = data => {
 		return {
 			...data,
@@ -258,6 +281,10 @@ class AdvertisingWizard extends Component {
 			{
 				label: __( 'Global Settings', 'newspack' ),
 				path: '/ad-placements',
+			},
+			{
+				label: __( 'Suppression', 'newspack' ),
+				path: '/suppression',
 			},
 		];
 		return (
@@ -373,6 +400,21 @@ class AdvertisingWizard extends Component {
 									/>
 								);
 							} }
+						/>
+						<Route
+							path="/suppression"
+							render={ () => (
+								<Suppression
+									headerText={ __( 'Ad Suppression', 'newspack' ) }
+									subHeaderText={ __(
+										'Allows you to manage site-wide ad suppression',
+										'newspack'
+									) }
+									tabbedNavigation={ tabs }
+									config={ advertisingData.suppression }
+									onChange={ config => this.updateAdSuppression( config ) }
+								/>
+							) }
 						/>
 						<Redirect to="/" />
 					</Switch>

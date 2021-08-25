@@ -6,7 +6,11 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+
+/**
+ * External dependencies.
+ */
+import { values } from 'lodash';
 
 /**
  * Internal dependencies.
@@ -86,13 +90,18 @@ export const DontationAmounts = ( { data, onChange } ) => {
 /**
  * Donation Settings Screen Component
  */
-class Donation extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, onChange, donationPage } = this.props;
-		return (
+const Donation = ( { data = {}, onChange = () => null, donationPage } ) => {
+	const renderErrorNotices = () => {
+		if ( data.errors && values( data.errors ).length ) {
+			return values( data.errors ).map( ( error, i ) => (
+				<Notice key={ i } isError noticeText={ error } />
+			) );
+		}
+	};
+
+	return (
+		<>
+			{ renderErrorNotices() }
 			<Grid>
 				{ donationPage && (
 					<Card noBorder>
@@ -119,13 +128,8 @@ class Donation extends Component {
 					<DontationAmounts data={ data } onChange={ onChange } />
 				</Card>
 			</Grid>
-		);
-	}
-}
-
-Donation.defaultProps = {
-	data: {},
-	onChange: () => null,
+		</>
+	);
 };
 
 export default withWizardScreen( Donation );

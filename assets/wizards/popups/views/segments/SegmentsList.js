@@ -191,6 +191,7 @@ const SegmentActionCard = ( {
 									onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 									label={ __( 'More options', 'newspack' ) }
 									icon={ moreVertical }
+									className={ popoverVisibility && 'popover-active' }
 								/>
 								{ popoverVisibility && (
 									<Popover
