@@ -22,6 +22,8 @@ class PWA {
 	public static function init() {
 		// For backwards compatibility and because there's no reason not to, always and automatically enable offline browsing.
 		add_filter( 'pre_option_offline_browsing', '__return_true' );
+
+		add_filter( 'wp_service_worker_navigation_caching', [ __CLASS__, 'increase_network_timeout' ] );
 	}
 
 	/**
@@ -69,6 +71,19 @@ class PWA {
 		} else {
 			delete_option( 'site_icon' );
 		}
+	}
+
+	/**
+	 * By default, PWA serves the offline-cached page if a request takes longer than 2 seconds. 
+	 * This is too short, especially for homepages with a lot of posts blocks.
+	 * 44 seconds is right before the 45-second PHP process timeout.
+	 *
+	 * @param array $config PWA config.
+	 * @return array Modified $config.
+	 */
+	public static function increase_network_timeout( $config ) {
+		$config['network_timeout_seconds'] = 44;
+		return $config;
 	}
 }
 PWA::init();

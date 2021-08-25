@@ -103,19 +103,28 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 	};
 	return (
 		<Fragment>
+			{ data.isSSL === false && (
+				<Notice
+					isWarning
+					noticeText={
+						<a href="https://stripe.com/docs/security/guide">
+							{ __(
+								'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
+								'newspack'
+							) }
+						</a>
+					}
+				/>
+			) }
 			{ displayStripeSettingsOnly ? (
 				<>
-					{ data.isSSL === false && (
+					{ data.can_use_stripe_platform === false && (
 						<Notice
-							isWarning
-							noticeText={
-								<a href="https://stripe.com/docs/security/guide">
-									{ __(
-										'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
-										'newspack'
-									) }
-								</a>
-							}
+							isError
+							noticeText={ __(
+								'The Stripe platform will not work properly on this site.',
+								'newspack'
+							) }
 						/>
 					) }
 					<StripeKeysSettings data={ data } onChange={ onChange } />

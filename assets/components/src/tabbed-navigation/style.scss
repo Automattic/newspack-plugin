@@ -48,6 +48,9 @@
 
 		&:focus {
 			box-shadow: none;
+		}
+
+		&:focus-visible {
 			outline: 1px solid;
 			outline-offset: 16px;
 		}

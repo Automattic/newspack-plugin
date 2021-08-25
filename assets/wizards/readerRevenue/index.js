@@ -16,16 +16,8 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import {
-	Donation,
-	LocationSetup,
-	NRHSettings,
-	Platform,
-	Services,
-	StripeSetup,
-	Salesforce,
-} from './views';
-import { NEWSPACK, NRH } from './constants';
+import { Donation, LocationSetup, NRHSettings, Platform, StripeSetup, Salesforce } from './views';
+import { NEWSPACK, NRH, STRIPE } from './constants';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 const headerText = __( 'Reader revenue', 'newspack' );
@@ -184,28 +176,30 @@ class ReaderRevenueWizard extends Component {
 	 * Get navigation tabs dependant on selected platform.
 	 */
 	navigationForPlatform = ( platform, data ) => {
-		const platformAgnosticFields = [
-			{
-				label: __( 'Donations', 'newspack' ),
-				path: '/donations',
-				exact: true,
-			},
-			{
-				label: __( 'Stripe Settings', 'newspack' ),
-				path: '/stripe-setup',
-			},
-			{
-				label: __( 'Platform', 'newspack' ),
-				path: '/',
-				exact: true,
-			},
-		];
+		const platformField = {
+			label: __( 'Platform', 'newspack' ),
+			path: '/',
+			exact: true,
+		};
+		if ( ! platform ) {
+			return [ platformField ];
+		}
+		const donationField = {
+			label: __( 'Donations', 'newspack' ),
+			path: '/donations',
+			exact: true,
+		};
 		if ( NEWSPACK === platform ) {
 			const { pluginStatus } = data;
 			if ( ! pluginStatus ) {
 				return [];
 			}
 			return [
+				donationField,
+				{
+					label: __( 'Stripe Gateway', 'newspack' ),
+					path: '/stripe-setup',
+				},
 				{
 					label: __( 'Salesforce', 'newspack' ),
 					path: '/salesforce',
@@ -215,19 +209,29 @@ class ReaderRevenueWizard extends Component {
 					label: __( 'Address', 'newspack' ),
 					path: '/location-setup',
 				},
-				...platformAgnosticFields,
+				platformField,
 			];
 		} else if ( NRH === platform ) {
 			return [
-				...platformAgnosticFields,
+				donationField,
 				{
 					label: __( 'NRH Settings', 'newspack' ),
 					path: '/settings',
 					exact: true,
 				},
+				platformField,
+			];
+		} else if ( STRIPE === platform ) {
+			return [
+				donationField,
+				{
+					label: __( 'Stripe Settings', 'newspack' ),
+					path: '/stripe-setup',
+				},
+				platformField,
 			];
 		}
-		return null;
+		return [];
 	};
 
 	/**
@@ -260,7 +264,7 @@ class ReaderRevenueWizard extends Component {
 							exact
 							render={ () => (
 								<Platform
-									data={ platformData }
+									data={ { ...platformData, stripeData } }
 									pluginStatus={ pluginStatus }
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
@@ -269,18 +273,6 @@ class ReaderRevenueWizard extends Component {
 									onReady={ () => {
 										this.setState( { data: { ...data, pluginStatus: true } } );
 									} }
-								/>
-							) }
-						/>
-						<Route
-							path="/services"
-							exact
-							render={ () => (
-								<Services
-									data={ platformData }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
-									tabbedNavigation={ tabbedNavigation }
 								/>
 							) }
 						/>
@@ -323,7 +315,7 @@ class ReaderRevenueWizard extends Component {
 							path="/stripe-setup"
 							render={ () => (
 								<StripeSetup
-									displayStripeSettingsOnly={ NRH === platform }
+									displayStripeSettingsOnly={ STRIPE === platform }
 									data={ { ...stripeData, isSSL: data.isSSL } }
 									currencyFields={ currencyFields }
 									headerText={ headerText }

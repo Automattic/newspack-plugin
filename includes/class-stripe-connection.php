@@ -21,6 +21,8 @@ class Stripe_Connection {
 
 	/**
 	 * Initialize.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
@@ -90,17 +92,12 @@ class Stripe_Connection {
 	 * Get Stripe data, either from WC, or saved in options table.
 	 */
 	public static function get_stripe_data() {
-		$stripe_data             = self::get_saved_stripe_data();
-		$stripe_data['webhooks'] = [];
-		// Currently, the Stripe integration that requires webhooks will only work with NRH, since NRH handles recurring charges.
-		if ( self::get_stripe_secret_key() && Donations::is_platform_nrh() ) {
-			$stripe_data['webhooks'] = self::list_webhooks();
-		}
+		$stripe_data = self::get_saved_stripe_data();
 		return $stripe_data;
 	}
 
 	/**
-	 * Update Stripe data. Either in WC, or in options table.
+	 * Update Stripe data. If WC is the donations platform, update is there too.
 	 *
 	 * @param object $updated_stripe_data Updated Stripe data to be saved.
 	 */
@@ -108,16 +105,16 @@ class Stripe_Connection {
 		if ( Donations::is_platform_wc() ) {
 			// If WC is configured, set Stripe data in WC.
 			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-			$wc_configuration_manager->update_stripe_settings( $updated_stripe_data );
+			$wc_configuration_manager->update_wc_stripe_settings( $updated_stripe_data );
 		}
-		// Otherwise, save it in options table.
+		// Save it in options table.
 		return update_option( self::STRIPE_DATA_OPTION_NAME, $updated_stripe_data );
 	}
 
 	/**
 	 * List Stripe webhooks.
 	 */
-	private static function list_webhooks() {
+	public static function list_webhooks() {
 		$stripe = self::get_stripe_client();
 		try {
 			return $stripe->webhookEndpoints->all()['data']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
