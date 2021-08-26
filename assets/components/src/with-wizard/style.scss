@@ -16,21 +16,6 @@ body[class*='admin_page_newspack-'] {
 		padding-left: 0;
 	}
 
-	#wpbody {
-		&::before {
-			bottom: 40px;
-			box-shadow: 1px 0 0 0 $gray-300;
-			content: '';
-			display: block;
-			left: 0;
-			max-width: 1208px;
-			position: absolute;
-			top: 0;
-			width: 100%;
-			z-index: -1;
-		}
-	}
-
 	#wpbody-content {
 		padding-bottom: 220px;
 		min-height: 100vh;
