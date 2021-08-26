@@ -6,35 +6,34 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-footer {
+	align-items: stretch;
+	background: white;
+	border: 0 solid $gray-300;
+	border-width: 1px 0;
 	bottom: 0;
 	color: $gray-700;
+	display: flex;
 	font-size: 12px;
+	justify-content: space-between;
 	left: 0;
 	line-height: 16px;
 	position: absolute;
 	right: 0;
 
 	@media screen and ( min-width: 783px ) {
-		bottom: 46px;
+		bottom: 40px;
 	}
 
 	&__inner {
-		border: 0 solid $gray-300;
-		border-width: 1px 0;
-		margin-top: 16px;
+		align-items: center;
+		display: flex;
 	}
 
 	ul {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
-		margin: 8px auto;
-		max-width: 1040px;
-		padding: 0 32px;
-
-		@media screen and ( min-width: 744px ) {
-			padding: 0 64px;
-		}
+		margin: 0;
+		padding: 8px;
 	}
 
 	li {
@@ -52,12 +51,19 @@
 		}
 	}
 
-	.patrons-logo {
-		display: block;
-		fill: currentColor;
-		margin: 0 auto;
-		max-height: 24px;
-		max-width: calc( 100% - 64px );
-		width: auto;
+	&__logo {
+		align-items: center;
+		background: $primary-500;
+		display: flex;
+		margin: -1px 0 -1px 8px;
+		max-width: 33.33%;
+		padding: 19px;
+
+		.patrons-logo {
+			display: block;
+			fill: white;
+			max-height: 24px;
+			width: auto;
+		}
 	}
 }

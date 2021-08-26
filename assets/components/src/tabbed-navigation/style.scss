@@ -7,42 +7,35 @@
 
 .newspack-tabbed-navigation {
 	ul {
+		box-shadow: 0 -1px 0 inset $gray-300;
 		display: flex;
 		flex-wrap: wrap;
+		font-size: 14px;
+		line-height: 24px;
 		margin: 0;
 	}
 
 	li {
+		margin-bottom: 0;
 		width: 100%;
-		@media screen and ( min-width: 500px ) {
-			width: auto;
-			margin-bottom: 0;
-		}
 
-		&:last-child {
-			> * {
-				margin-right: 0 !important;
-			}
+		@media screen and ( min-width: 600px ) {
+			width: auto;
 		}
 	}
 
 	a {
-		border-bottom: 4px solid $primary-500;
-		color: white;
+		border-bottom: 4px solid transparent;
+		color: $gray-900;
 		display: block;
 		font-weight: bold;
+		padding: 12px 16px 8px;
 		text-decoration: none;
-
-		@media screen and ( min-width: 500px ) {
-			margin-right: 32px;
-			padding-bottom: 12px;
-		}
 
 		&:active,
 		&:focus,
 		&:hover {
-			border-color: $primary-200;
-			color: white;
+			color: $primary-500;
 			outline: none;
 		}
 
@@ -51,12 +44,21 @@
 		}
 
 		&:focus-visible {
-			outline: 1px solid;
-			outline-offset: 16px;
+			outline: 3px solid;
+			outline-offset: -3px;
 		}
 
 		&.selected {
-			border-color: white;
+			border-bottom-width: 0;
+			border-left: 4px solid $primary-500;
+			padding-bottom: 12px;
+
+			@media screen and ( min-width: 600px ) {
+				border-bottom-width: 4px;
+				border-color: $primary-500;
+				border-left-width: 0;
+				padding-left: 16px;
+			}
 		}
 	}
 }
