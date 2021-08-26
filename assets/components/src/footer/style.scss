@@ -60,7 +60,7 @@
 
 	&__logo {
 		align-items: center;
-		background: $primary-500;
+		background: $gray-900;
 		display: flex;
 		margin: 0 0 -1px;
 		padding: 19px;
@@ -75,7 +75,7 @@
 		.patrons-logo {
 			display: block;
 			fill: white;
-			max-height: 24px;
+			max-height: 16px;
 			width: auto;
 		}
 	}

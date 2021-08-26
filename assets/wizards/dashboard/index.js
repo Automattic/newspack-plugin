@@ -6,11 +6,12 @@ import '../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Fragment, render } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { GlobalNotices, Footer, Grid, NewspackLogo } from '../../components/src';
+import { GlobalNotices, Footer, Grid, NewspackIcon } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
@@ -20,7 +21,10 @@ const Dashboard = ( { items } ) => {
 			<GlobalNotices />
 			<div className="newspack-wizard__header">
 				<div className="newspack-wizard__header__inner">
-					<NewspackLogo centered height={ 72 } />
+					<div className="newspack-wizard__title">
+						<NewspackIcon size={ 36 } />
+						<h1>{ __( 'Dashboard', 'newspack' ) }</h1>
+					</div>
 				</div>
 			</div>
 			<div className="newspack-wizard newspack-wizard__content">
