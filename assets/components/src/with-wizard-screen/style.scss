@@ -7,38 +7,26 @@
 
 .newspack-wizard {
 	&__header {
-		background: $primary-500;
-		h1 {
-			font-size: 21px;
-			line-height: 32px;
-			margin: 0;
-		}
-		* {
-			color: white;
-		}
-		&__inner {
-			margin: auto;
-			padding-top: 32px;
-			> * {
-				font-size: 14px;
-				line-height: 24px;
-			}
-			> p {
-				margin: 0;
-				padding-bottom: 32px;
-			}
-		}
+		background: white;
 	}
 
-	&__header__inner,
-	&__content {
-		max-width: 1168px;
-		padding-left: 32px;
-		padding-right: 32px;
+	&__title {
+		align-items: center;
+		border-bottom: 1px solid $gray-300;
+		display: flex;
 
-		@media screen and ( min-width: 744px ) {
-			padding-left: 64px;
-			padding-right: 64px;
+		h1 {
+			color: $gray-900;
+			font-size: 21px;
+			line-height: 30px;
+			margin: 0;
+			padding: 0 24px;
+		}
+
+		svg {
+			flex: 0 0 36px;
+			margin-bottom: -1px;
+			padding-bottom: 13px;
 		}
 	}
 
@@ -46,9 +34,13 @@
 		color: $gray-700;
 		font-size: 14px;
 		line-height: 24px;
-		margin: auto;
-		padding-bottom: 32px;
-		padding-top: 32px;
+		margin: 0;
+		max-width: 1208px;
+		padding: 0 16px;
+
+		@media screen and ( min-width: 744px ) {
+			padding: 32px 84px;
+		}
 
 		// Typography
 
