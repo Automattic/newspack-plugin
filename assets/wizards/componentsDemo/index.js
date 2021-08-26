@@ -25,6 +25,7 @@ import {
 	Button,
 	ButtonCard,
 	Handoff,
+	NewspackIcon,
 	Notice,
 	Footer,
 	TextControl,
@@ -85,8 +86,10 @@ class ComponentsDemo extends Component {
 			<Fragment>
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
-						<h1>{ __( 'Components', 'newspack' ) }</h1>
-						<p>{ __( 'Demo of all the Newspack components', 'newspack' ) }</p>
+						<div className="newspack-wizard__title">
+							<NewspackIcon size={ 36 } />
+							<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
+						</div>
 					</div>
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">

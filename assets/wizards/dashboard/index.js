@@ -25,7 +25,7 @@ import {
 	Waiting,
 	Footer,
 	Grid,
-	NewspackLogo,
+	NewspackIcon,
 } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
@@ -89,9 +89,13 @@ const Dashboard = ( { items } ) => {
 			<GlobalNotices />
 			<div className="newspack-wizard__header">
 				<div className="newspack-wizard__header__inner">
-					<NewspackLogo centered height={ 72 } />
+					<div className="newspack-wizard__title">
+						<NewspackIcon size={ 36 } />
+						<h1>{ __( 'Dashboard', 'newspack' ) }</h1>
+					</div>
 				</div>
 			</div>
+
 			<div className="newspack-wizard newspack-wizard__content">
 				<Grid columns={ 3 } gutter={ 32 }>
 					{ items.map( card => (
