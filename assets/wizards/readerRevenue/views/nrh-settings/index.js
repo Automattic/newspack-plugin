@@ -24,7 +24,7 @@ class NRHSettings extends Component {
 		const { data, onChange } = this.props;
 		const { nrh_organization_id, nrh_salesforce_campaign_id } = data;
 		return (
-			<Grid>
+			<Grid gutter={ 32 }>
 				<TextControl
 					label={ __( 'NRH Organization ID (required)', 'newspack' ) }
 					value={ nrh_organization_id || '' }

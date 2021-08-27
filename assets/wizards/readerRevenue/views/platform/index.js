@@ -24,9 +24,9 @@ const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
 	const { platform } = data;
 	return (
 		<Fragment>
-			<Grid>
+			<Grid gutter={ 32 }>
 				<SelectControl
-					label={ __( 'Select Reader Revenue Platform', 'newspack' ) }
+					label={ __( 'Reader Revenue Platform', 'newspack' ) }
 					value={ platform }
 					options={ [
 						{ label: __( '-- Select Your Platform --', 'newspack' ), value: '' },

@@ -137,7 +137,7 @@ class Salesforce extends Component {
 		const { client_id = '', client_secret = '', error } = data;
 
 		return (
-			<Grid>
+			<Grid gutter={ 32 }>
 				<Card noBorder>
 					{ this.state.error && <Notice noticeText={ this.state.error } isWarning /> }
 

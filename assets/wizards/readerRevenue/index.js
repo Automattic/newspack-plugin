@@ -21,7 +21,7 @@ import { NEWSPACK, NRH, STRIPE } from './constants';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 const headerText = __( 'Reader revenue', 'newspack' );
-const subHeaderText = __( 'Generate revenue from your customers.', 'newspack' );
+const subHeaderText = __( 'Generate revenue from your customers', 'newspack' );
 
 class ReaderRevenueWizard extends Component {
 	/**
@@ -195,6 +195,7 @@ class ReaderRevenueWizard extends Component {
 				return [];
 			}
 			return [
+				platformField,
 				donationField,
 				{
 					label: __( 'Stripe Gateway', 'newspack' ),
@@ -209,26 +210,25 @@ class ReaderRevenueWizard extends Component {
 					label: __( 'Address', 'newspack' ),
 					path: '/location-setup',
 				},
-				platformField,
 			];
 		} else if ( NRH === platform ) {
 			return [
+				platformField,
 				donationField,
 				{
 					label: __( 'NRH Settings', 'newspack' ),
 					path: '/settings',
 					exact: true,
 				},
-				platformField,
 			];
 		} else if ( STRIPE === platform ) {
 			return [
+				platformField,
 				donationField,
 				{
 					label: __( 'Stripe Settings', 'newspack' ),
 					path: '/stripe-setup',
 				},
-				platformField,
 			];
 		}
 		return [];
@@ -285,7 +285,7 @@ class ReaderRevenueWizard extends Component {
 									headerText={ headerText }
 									subHeaderText={ subHeaderText }
 									tabbedNavigation={ tabbedNavigation }
-									buttonText={ __( 'Update', 'newspack' ) }
+									buttonText={ __( 'Save Settings', 'newspack' ) }
 									buttonAction={ () => this.update( '', platformData ) }
 									onChange={ _platformData =>
 										this.setState( { data: { ...data, platformData: _platformData } } )
@@ -334,10 +334,8 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Donation
 									data={ donationData }
-									headerText={ __( 'Set up donations' ) }
-									subHeaderText={ __(
-										'Configure your landing page and your suggested donation presets.'
-									) }
+									headerText={ headerText }
+									subHeaderText={ subHeaderText }
 									donationPage={ donationPage }
 									buttonText={ __( 'Save Settings' ) }
 									buttonAction={ () => this.update( 'donations', donationData ) }
@@ -354,12 +352,9 @@ class ReaderRevenueWizard extends Component {
 								<Salesforce
 									routeProps={ routeProps }
 									data={ salesforceData }
-									headerText={ __( 'Configure Salesforce', 'newspack' ) }
+									headerText={ headerText }
 									isConnected={ salesforceIsConnected }
-									subHeaderText={ __(
-										'Connect your site with a Salesforce account to capture donor contact information.',
-										'newspack'
-									) }
+									subHeaderText={ subHeaderText }
 									buttonText={
 										salesforceIsConnected ? __( 'Reset', 'newspack' ) : __( 'Connect', 'newspack' )
 									}

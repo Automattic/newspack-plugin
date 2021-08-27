@@ -6,15 +6,15 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
+import { Icon, chevronDown } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import {
-	Card,
 	CheckboxControl,
 	Grid,
 	Button,
@@ -34,25 +34,23 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 		testSecretKey = '',
 	} = data;
 	return (
-		<Fragment>
-			<Card noBorder>
-				<p className="newspack-payment-setup-screen__api-keys-instruction">
-					{ __( 'Configure Stripe and enter your API keys' ) }
-					{ ' – ' }
-					<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-						{ __( 'learn how' ) }
-					</ExternalLink>
-				</p>
-				<CheckboxControl
-					label={ __( 'Use Stripe in test mode' ) }
-					checked={ testMode }
-					onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
-					tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
-				/>
-			</Card>
-			<Grid noMargin>
+		<Grid columns={ 1 } gutter={ 16 }>
+			<p>
+				{ __( 'Configure Stripe and enter your API keys' ) }
+				{ ' – ' }
+				<ExternalLink href="https://stripe.com/docs/keys#api-keys">
+					{ __( 'learn how' ) }
+				</ExternalLink>
+			</p>
+			<CheckboxControl
+				label={ __( 'Use Stripe in test mode' ) }
+				checked={ testMode }
+				onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
+				tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
+			/>
+			<Grid gutter={ 32 }>
 				{ testMode ? (
-					<Fragment>
+					<>
 						<TextControl
 							type="password"
 							value={ testPublishableKey }
@@ -67,9 +65,9 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 							label={ __( 'Test Secret Key' ) }
 							onChange={ _testSecretKey => onChange( { ...data, testSecretKey: _testSecretKey } ) }
 						/>
-					</Fragment>
+					</>
 				) : (
-					<Fragment>
+					<>
 						<TextControl
 							type="password"
 							value={ publishableKey }
@@ -84,10 +82,10 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 							label={ __( 'Secret Key' ) }
 							onChange={ _secretKey => onChange( { ...data, secretKey: _secretKey } ) }
 						/>
-					</Fragment>
+					</>
 				) }
 			</Grid>
-		</Fragment>
+		</Grid>
 	);
 };
 
@@ -102,7 +100,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 		} );
 	};
 	return (
-		<Fragment>
+		<>
 			{ data.isSSL === false && (
 				<Notice
 					isWarning
@@ -128,15 +126,18 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 						/>
 					) }
 					<StripeKeysSettings data={ data } onChange={ onChange } />
-					<SelectControl
-						label={ __( 'Which currency does your business use?', 'newspack' ) }
-						value={ data.currency }
-						options={ currencyFields }
-						onChange={ _currency => onChange( { ...data, currency: _currency } ) }
-					/>
-					<details>
+					<Grid gutter={ 32 } style={ { marginTop: -16 } }>
+						<SelectControl
+							label={ __( 'Currency', 'newspack' ) }
+							value={ data.currency }
+							options={ currencyFields }
+							onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+						/>
+					</Grid>
+					<details className="newspack-details" style={ { marginTop: 64 } }>
 						<summary>
-							<h3 className="di">{ __( 'Webhooks', 'newspack' ) }</h3>
+							<h2>{ __( 'Webhooks', 'newspack' ) }</h2>
+							<Icon icon={ chevronDown } size={ 18 } />
 						</summary>
 						{ data.webhooks.length ? (
 							<ul>
@@ -147,37 +148,33 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 								) ) }
 							</ul>
 						) : (
-							<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+							<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
 						) }
-						<Button disabled={ isLoading } onClick={ createWebhooks } isSecondary>
+						<Button disabled={ isLoading } onClick={ createWebhooks } isSecondary isSmall>
 							{ __( 'Create webhooks', 'newspack' ) }
 						</Button>
 					</details>
 				</>
 			) : (
 				<>
-					<Grid>
-						<ToggleControl
-							label={ __( 'Enable Stripe' ) }
-							checked={ data.enabled }
-							onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
-						/>
-					</Grid>
+					<ToggleControl
+						label={ __( 'Enable Stripe' ) }
+						checked={ data.enabled }
+						onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
+					/>
 					{ data.enabled ? (
 						<StripeKeysSettings data={ data } onChange={ onChange } />
 					) : (
-						<Grid>
-							<p className="newspack-payment-setup-screen__info">
-								{ __( 'Other gateways can be enabled and set up in the ' ) }
-								<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-									{ __( 'WooCommerce payment gateway settings' ) }
-								</ExternalLink>
-							</p>
-						</Grid>
+						<p>
+							{ __( 'Other gateways can be enabled and set up in the ' ) }
+							<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+								{ __( 'WooCommerce payment gateway settings' ) }
+							</ExternalLink>
+						</p>
 					) }
 				</>
 			) }
-		</Fragment>
+		</>
 	);
 };
 
