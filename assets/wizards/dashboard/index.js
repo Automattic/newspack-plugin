@@ -19,6 +19,13 @@ const Dashboard = ( { items } ) => {
 	return (
 		<Fragment>
 			<GlobalNotices />
+			{ newspack_aux_data.is_debug_mode && (
+				<Notice
+					isWarning
+					className="newspack-wizard__debug-mode-notice"
+					noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
+				/>
+			) }
 			<div className="newspack-wizard__header">
 				<div className="newspack-wizard__header__inner">
 					<div className="newspack-wizard__title">

@@ -11,7 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { audio, plus, reusableBlock, typography } from '@wordpress/icons';
+import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -84,10 +84,25 @@ class ComponentsDemo extends Component {
 
 		return (
 			<Fragment>
+				{ newspack_aux_data.is_debug_mode && (
+					<Notice
+						isWarning
+						className="newspack-wizard__debug-mode-notice"
+						noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
+					/>
+				) }
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
 						<div className="newspack-wizard__title">
-							<NewspackIcon size={ 36 } />
+							<Button
+								isLink
+								href={ newspack_urls.dashboard }
+								label={ __( 'Return to Dashboard', 'newspack' ) }
+								showTooltip={ true }
+								icon={ home }
+							>
+								<NewspackIcon size={ 36 } />
+							</Button>
 							<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
 						</div>
 					</div>
