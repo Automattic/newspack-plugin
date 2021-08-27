@@ -102,7 +102,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					<Notice noticeText={ message } isError rawHTML />
 					<Card buttonsCard noBorder className="justify-end">
 						<Button isPrimary href={ fallbackURL }>
-							{ __( 'Return to dashboard', 'newspack' ) }
+							{ __( 'Return to Dashboard', 'newspack' ) }
 						</Button>
 					</Card>
 				</Modal>
