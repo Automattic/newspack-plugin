@@ -23,7 +23,7 @@ const PrimaryPromptPopover = ( {
 	prompt,
 	previewPopup,
 	publishPopup,
-	setModalVisible,
+	setIsDuplicatePromptModalVisible,
 	unpublishPopup,
 } ) => {
 	const { id, edit_link: editLink, status } = prompt;
@@ -63,7 +63,10 @@ const PrimaryPromptPopover = ( {
 					<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 						{ __( 'Edit', 'newspack' ) }
 					</MenuItem>
-					<MenuItem onClick={ () => setModalVisible( true ) } className="newspack-button">
+					<MenuItem
+						onClick={ () => setIsDuplicatePromptModalVisible( true ) }
+						className="newspack-button"
+					>
 						{ __( 'Duplicate', 'newspack' ) }
 					</MenuItem>
 					<MenuItem
