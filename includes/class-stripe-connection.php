@@ -85,6 +85,7 @@ class Stripe_Connection {
 			'testPublishableKey' => '',
 			'testSecretKey'      => '',
 			'currency'           => 'USD',
+			'newsletter_list_id' => '',
 		];
 	}
 
@@ -176,9 +177,10 @@ class Stripe_Connection {
 
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
-				$payment  = $request['data']['object'];
-				$metadata = $payment['metadata'];
-				$customer = self::get_customer( $payment['customer'] );
+				$payment           = $request['data']['object'];
+				$metadata          = $payment['metadata'];
+				$customer          = self::get_customer( $payment['customer'] );
+				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
 
 				$referer = '';
 				if ( isset( $metadata['referer'] ) ) {
@@ -206,7 +208,7 @@ class Stripe_Connection {
 							'stripe_id'          => $payment['id'],
 							'stripe_customer_id' => $customer['id'],
 							'date'               => $payment['created'],
-							'amount'             => $payment['amount'],
+							'amount'             => $amount_normalised,
 							'frequency'          => $frequency,
 						];
 						\Newspack_Popups_Segmentation::update_client_data(
@@ -216,6 +218,25 @@ class Stripe_Connection {
 							]
 						);
 					}
+				}
+
+				// Update data in Newsletters provider.
+				$stripe_data = self::get_stripe_data();
+				if ( ! empty( $stripe_data['newsletter_list_id'] ) && isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'] ) {
+					$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+					$newsletters_configuration_manager->add_contact(
+						[
+							'email'    => $customer['email'],
+							'name'     => $customer['name'],
+							'metadata' => [
+								'donation_date'      => gmdate( 'Y-m-d', $payment['created'] ),
+								'donation_amount'    => $amount_normalised,
+								'donation_frequency' => $frequency,
+								'donation_recurring' => 'once' !== $frequency,
+							],
+						],
+						$stripe_data['newsletter_list_id']
+					);
 				}
 
 				// Send custom event to GA.
@@ -233,7 +254,7 @@ class Stripe_Connection {
 						'ec'  => __( 'Newspack Donation', 'newspack' ), // Event Category.
 						'ea'  => __( 'Stripe', 'newspack' ), // Event Action.
 						'el'  => $frequency, // Event Label.
-						'ev'  => (float) $payment['amount'] / 100, // Event Value.
+						'ev'  => $amount_normalised, // Event Value.
 						'dr'  => $referer, // Document Referrer.
 					);
 
@@ -385,7 +406,34 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Process the amount. Some currencies are zero-decimal, but for others,
+	 * Is the currency zero-decimal?
+	 *
+	 * @param strin $currency Currency code.
+	 * @return number Amount.
+	 */
+	private static function is_currency_zero_decimal( $currency ) {
+		$zero_decimal_currencies = [ 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF' ];
+		return in_array( strtoupper( $currency ), $zero_decimal_currencies, true );
+	}
+
+	/**
+	 * Normalise the amount.
+	 *
+	 * @see get_amount
+	 *
+	 * @param number $amount Amount to process.
+	 * @param strin  $currency Currency code.
+	 * @return number Amount.
+	 */
+	private static function normalise_amount( $amount, $currency ) {
+		if ( self::is_currency_zero_decimal( $currency ) ) {
+			return $amount;
+		}
+		return (float) $amount / 100;
+	}
+
+	/**
+	 * Process the amount for Stripe. Some currencies are zero-decimal, but for others,
 	 * the amount should be multiplied by 100 (100 USD is 100*100 currency units, aka cents).
 	 * https://stripe.com/docs/currencies#zero-decimal
 	 *
@@ -394,8 +442,7 @@ class Stripe_Connection {
 	 * @return number Amount.
 	 */
 	private static function get_amount( $amount, $currency ) {
-		$zero_decimal_currencies = [ 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF' ];
-		if ( in_array( $currency, $zero_decimal_currencies, true ) ) {
+		if ( self::is_currency_zero_decimal( $currency ) ) {
 			return $amount;
 		}
 		return $amount * 100;
@@ -419,6 +466,7 @@ class Stripe_Connection {
 			$amount_raw       = $config['amount'];
 			$frequency        = $config['frequency'];
 			$email_address    = $config['email_address'];
+			$full_name        = $config['full_name'];
 			$token_data       = $config['token_data'];
 			$client_metadata  = $config['client_metadata'];
 			$payment_metadata = $config['payment_metadata'];
@@ -430,6 +478,7 @@ class Stripe_Connection {
 				$customer = $stripe->customers->create(
 					[
 						'email'       => $email_address,
+						'name'        => $full_name,
 						'description' => __( 'Newspack Donor', 'newspack-blocks' ),
 						'source'      => $token_data['id'],
 						'metadata'    => $client_metadata,
@@ -442,6 +491,7 @@ class Stripe_Connection {
 					[
 						'source'   => $token_data['id'],
 						'metadata' => $client_metadata,
+						'name'     => $full_name,
 					]
 				);
 			}
