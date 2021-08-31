@@ -200,30 +200,12 @@ class Stripe_Connection {
 					}
 				}
 
-				// Update data in Campaigns plugin.
-				if ( isset( $customer['metadata']['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
-					$client_id = $customer['metadata']['clientId'];
-					if ( ! empty( $client_id ) ) {
-						$donation_data = [
-							'stripe_id'          => $payment['id'],
-							'stripe_customer_id' => $customer['id'],
-							'date'               => $payment['created'],
-							'amount'             => $amount_normalised,
-							'frequency'          => $frequency,
-						];
-						\Newspack_Popups_Segmentation::update_client_data(
-							$client_id,
-							[
-								'donation' => $donation_data,
-							]
-						);
-					}
-				}
-
 				// Update data in Newsletters provider.
-				$stripe_data = self::get_stripe_data();
+				$was_customer_added_to_mailing_list = false;
+				$stripe_data                        = self::get_stripe_data();
 				if ( ! empty( $stripe_data['newsletter_list_id'] ) && isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'] ) {
 					$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
 					$newsletters_configuration_manager->add_contact(
 						[
 							'email'    => $customer['email'],
@@ -237,6 +219,33 @@ class Stripe_Connection {
 						],
 						$stripe_data['newsletter_list_id']
 					);
+					$was_customer_added_to_mailing_list = true;
+				}
+
+				// Update data in Campaigns plugin.
+				if ( isset( $customer['metadata']['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
+					$client_id = $customer['metadata']['clientId'];
+					if ( ! empty( $client_id ) ) {
+						$donation_data = [
+							'stripe_id'          => $payment['id'],
+							'stripe_customer_id' => $customer['id'],
+							'date'               => $payment['created'],
+							'amount'             => $amount_normalised,
+							'frequency'          => $frequency,
+						];
+						$client_update = [
+							'donation' => $donation_data,
+						];
+						if ( $was_customer_added_to_mailing_list ) {
+							$client_update['email_subscription'] = [
+								'email' => $customer['email'],
+							];
+						}
+						\Newspack_Popups_Segmentation::update_client_data(
+							$client_id,
+							$client_update
+						);
+					}
 				}
 
 				// Send custom event to GA.
