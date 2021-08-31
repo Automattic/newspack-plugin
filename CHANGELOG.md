@@ -1,3 +1,11 @@
+# [1.55.0](https://github.com/Automattic/newspack-plugin/compare/v1.54.0...v1.55.0) (2021-08-31)
+
+
+### Features
+
+* **stripe:** handle adding subscriber when donating ([#1098](https://github.com/Automattic/newspack-plugin/issues/1098)) ([1a2de16](https://github.com/Automattic/newspack-plugin/commit/1a2de16efdaff472708dca2f5e89d43b148e63b8))
+* **stripe:** handle donor name ([d7cbc20](https://github.com/Automattic/newspack-plugin/commit/d7cbc2081ac782a09e4ed0c8b0fbbd97eebd2b89))
+
 # [1.54.0](https://github.com/Automattic/newspack-plugin/compare/v1.53.0...v1.54.0) (2021-08-25)
 
 
