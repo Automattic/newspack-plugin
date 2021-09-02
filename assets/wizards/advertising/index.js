@@ -55,9 +55,9 @@ class AdvertisingWizard extends Component {
 	/**
 	 * Retrieve advertising data
 	 */
-	fetchAdvertisingData = () => {
+	fetchAdvertisingData = ( quiet = false ) => {
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( { path: '/newspack/v1/wizard/advertising' } )
+		return wizardApiFetch( { path: '/newspack/v1/wizard/advertising', quiet } )
 			.then( advertisingData => {
 				return new Promise( resolve => {
 					this.setState(
@@ -339,6 +339,7 @@ class AdvertisingWizard extends Component {
 										secondaryButtonAction="#/"
 										wizardApiFetch={ wizardApiFetch }
 										gamConnectionStatus={ advertisingData.gam_connection_status }
+										fetchAdvertisingData={ this.fetchAdvertisingData }
 										updateAdUnit={ adUnit => {
 											this.onAdUnitChange( adUnit );
 											this.saveAdUnit( adUnit.id );

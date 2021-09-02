@@ -31,6 +31,7 @@ const AdUnits = ( {
 	wizardApiFetch,
 	service,
 	gamConnectionStatus = {},
+	fetchAdvertisingData,
 } ) => {
 	const warningNoticeText = `${ __(
 		'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
@@ -48,13 +49,14 @@ const AdUnits = ( {
 		! gamConnectionMessage && false === gamConnectionStatus?.is_network_code_matched;
 
 	const [ networkCode, setNetworkCode ] = useState( gamConnectionStatus.network_code );
-	const saveNetworkCode = () => {
-		wizardApiFetch( {
+	const saveNetworkCode = async () => {
+		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
 			data: { network_code: networkCode },
 			quiet: true,
 		} );
+		fetchAdvertisingData( true );
 	};
 
 	return (
