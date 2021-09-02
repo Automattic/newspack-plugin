@@ -232,11 +232,16 @@ class Advertising_Wizard extends Wizard {
 					'network_code' => [
 						'sanitize_callback' => function( $value ) {
 							$raw_codes       = explode( ',', $value );
-							$sanitized_codes = array_map(
-								function( $code ) {
-									return absint( $code );
+							$sanitized_codes = array_reduce(
+								$raw_codes,
+								function( $acc, $code ) {
+									$sanitized_code = absint( $code );
+									if ( ! empty( $sanitized_code ) ) {
+										$acc[] = $sanitized_code;
+									}
+									return $acc;
 								},
-								$raw_codes
+								[]
 							);
 
 							return implode( ',', $sanitized_codes );

@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { trash, pencil } from '@wordpress/icons';
 
@@ -56,8 +56,12 @@ const AdUnits = ( {
 			data: { network_code: networkCode },
 			quiet: true,
 		} );
-		fetchAdvertisingData( true );
+		await fetchAdvertisingData( true );
 	};
+
+	useEffect( () => {
+		setNetworkCode( gamConnectionStatus.network_code );
+	}, [ gamConnectionStatus.network_code ] );
 
 	return (
 		<>
