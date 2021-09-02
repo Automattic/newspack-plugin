@@ -56,7 +56,7 @@ const AdUnits = ( {
 			data: { network_code: networkCode },
 			quiet: true,
 		} );
-		await fetchAdvertisingData( true );
+		fetchAdvertisingData( true );
 	};
 
 	useEffect( () => {
