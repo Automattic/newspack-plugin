@@ -230,7 +230,17 @@ class Advertising_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'network_code' => [
-						'sanitize_callback' => 'absint',
+						'sanitize_callback' => function( $value ) {
+							$raw_codes       = explode( ',', $value );
+							$sanitized_codes = array_map(
+								function( $code ) {
+									return absint( $code );
+								},
+								$raw_codes
+							);
+
+							return implode( ',', $sanitized_codes );
+						},
 					],
 				],
 			]
