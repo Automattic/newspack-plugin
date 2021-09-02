@@ -235,7 +235,7 @@ class Advertising_Wizard extends Wizard {
 							$sanitized_codes = array_reduce(
 								$raw_codes,
 								function( $acc, $code ) {
-									$sanitized_code = absint( $code );
+									$sanitized_code = absint( trim( $code ) );
 									if ( ! empty( $sanitized_code ) ) {
 										$acc[] = $sanitized_code;
 									}
