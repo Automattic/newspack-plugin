@@ -41,6 +41,7 @@ final class Newspack {
 		$this->define_constants();
 		$this->includes();
 		add_action( 'admin_init', [ $this, 'admin_redirects' ] );
+		add_action( 'current_screen', [ $this, 'restrict_user_access' ] );
 		add_action( 'admin_menu', [ $this, 'handle_resets' ], 1 );
 		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
 		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
@@ -193,6 +194,25 @@ final class Newspack {
 	 */
 	public function activation_hook() {
 		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+	}
+
+	/**
+	 * Restrict access to certain pages for non-whitelisted users.
+	 */
+	public static function restrict_user_access() {
+		if ( ! defined( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS' ) ) {
+			return;
+		}
+
+		$current_user = wp_get_current_user();
+		if ( ! in_array( $current_user->user_login, NEWSPACK_ALLOWED_PLUGIN_EDITORS ) ) {
+			$current_page = get_current_screen();
+			if ( 'plugins' === $current_page->id ) {
+				wp_safe_redirect( get_admin_url() );
+				exit;
+			}
+			remove_menu_page( 'plugins.php' );
+		}
 	}
 
 	/**
