@@ -198,6 +198,8 @@ final class Newspack {
 
 	/**
 	 * Restrict access to certain pages for non-whitelisted users.
+	 *
+	 * @param WP_Screen $current_screen Current WP_Screen object.
 	 */
 	public static function restrict_user_access( $current_screen ) {
 		if ( ! defined( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS' ) ) {
