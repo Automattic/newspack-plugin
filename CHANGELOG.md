@@ -1,3 +1,18 @@
+# [1.56.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.55.0...v1.56.0-alpha.1) (2021-09-08)
+
+
+### Bug Fixes
+
+* stricter plugin area restriction ([#1127](https://github.com/Automattic/newspack-plugin/issues/1127)) ([37fc1ea](https://github.com/Automattic/newspack-plugin/commit/37fc1eaa6126286b2c1df551b32efe9a982e04b1))
+* **campaigns-wizard:** prompt duplication ([8927ef4](https://github.com/Automattic/newspack-plugin/commit/8927ef4d6e5b62447d4abf2581bf467e6a731611))
+
+
+### Features
+
+* **stripe:** handle subscriber status in campaigns data update ([f939bb6](https://github.com/Automattic/newspack-plugin/commit/f939bb66eec0467f1f9e4a61656a51644a6a95a0))
+* allow multiple GAM network codes ([#1123](https://github.com/Automattic/newspack-plugin/issues/1123)) ([12cccca](https://github.com/Automattic/newspack-plugin/commit/12ccccaa859715448e3c8f4878cf4a05f5b7099c))
+* plugin screen access restriction ([61d3f59](https://github.com/Automattic/newspack-plugin/commit/61d3f5982f4bbf63bc2251661bc89a13303bc25b))
+
 # [1.55.0](https://github.com/Automattic/newspack-plugin/compare/v1.54.0...v1.55.0) (2021-08-31)
 
 
