@@ -198,16 +198,26 @@ final class Newspack {
 
 	/**
 	 * Restrict access to certain pages for non-whitelisted users.
+	 *
+	 * @param WP_Screen $current_screen Current WP_Screen object.
 	 */
-	public static function restrict_user_access() {
+	public static function restrict_user_access( $current_screen ) {
 		if ( ! defined( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS' ) ) {
 			return;
 		}
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		$plugin_screens = [
+			'plugins',
+			'plugin-install',
+			'plugin-editor',
+		];
 
 		$current_user = wp_get_current_user();
-		if ( ! in_array( $current_user->user_login, NEWSPACK_ALLOWED_PLUGIN_EDITORS ) ) {
-			$current_page = get_current_screen();
-			if ( 'plugins' === $current_page->id ) {
+		if ( 0 !== $current_user->ID && ! in_array( $current_user->user_login, NEWSPACK_ALLOWED_PLUGIN_EDITORS ) ) {
+			if ( in_array( $current_screen->base, $plugin_screens ) ) {
 				wp_safe_redirect( get_admin_url() );
 				exit;
 			}
