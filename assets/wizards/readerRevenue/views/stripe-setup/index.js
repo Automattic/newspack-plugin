@@ -11,6 +11,11 @@ import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
+ * External dependencies
+ */
+import { values } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import {
@@ -122,6 +127,9 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 			) }
 			{ displayStripeSettingsOnly ? (
 				<>
+					{ data.connection_error !== false && (
+						<Notice isError noticeText={ data.connection_error } />
+					) }
 					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 }>
 						{ data.can_use_stripe_platform === false && (
 							<Notice
@@ -162,20 +170,26 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 						columns={ 1 }
 					>
 						<div>
-							{ data.webhooks.length ? (
-								<ul>
-									{ data.webhooks.map( ( webhook, i ) => (
-										<li key={ i }>
-											- <code>{ webhook.url }</code>
-										</li>
-									) ) }
-								</ul>
+							{ data.webhooks?.errors ? (
+								<Notice isError noticeText={ values( data.webhooks.errors ).join( ', ' ) } />
 							) : (
-								<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+								<>
+									{ data.webhooks.length ? (
+										<ul>
+											{ data.webhooks.map( ( webhook, i ) => (
+												<li key={ i }>
+													- <code>{ webhook.url }</code>
+												</li>
+											) ) }
+										</ul>
+									) : (
+										<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+									) }
+									<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
+										{ __( 'Create webhooks', 'newspack' ) }
+									</Button>
+								</>
 							) }
-							<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
-								{ __( 'Create webhooks', 'newspack' ) }
-							</Button>
 						</div>
 					</SettingsCard>
 				</>
