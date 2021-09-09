@@ -140,7 +140,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 								) }
 							/>
 						) }
-						<StripeKeysSettings data={ data } />
+						<StripeKeysSettings data={ data } onChange={ onChange } />
 						<SelectControl
 							label={ __( 'Which currency does your business use?', 'newspack' ) }
 							value={ data.currency }
