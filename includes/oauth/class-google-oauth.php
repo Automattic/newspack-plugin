@@ -174,10 +174,14 @@ class Google_OAuth {
 	 * @return WP_REST_Response Response with the URL.
 	 */
 	public static function api_google_auth_start() {
+		$wpcom_access_token = WPCOM_OAuth::get_access_token();
+		if ( is_wp_error( $wpcom_access_token ) ) {
+			return $wpcom_access_token;
+		}
 		$proxy_url = self::get_oauth_proxy_url( '/wp-json/newspack-oauth-proxy/v1/start' );
 		try {
 			$query_args                       = self::get_google_auth_url_params();
-			$query_args['wpcom_access_token'] = WPCOM_OAuth::get_access_token();
+			$query_args['wpcom_access_token'] = $wpcom_access_token;
 			$url                              = add_query_arg( $query_args, $proxy_url );
 			$result                           = wp_safe_remote_get( $url );
 			if ( is_wp_error( $result ) ) {
