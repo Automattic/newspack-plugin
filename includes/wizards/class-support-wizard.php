@@ -260,21 +260,12 @@ class Support_Wizard extends Wizard {
 			true
 		);
 
-		$client_id    = WPCOM_OAuth::wpcom_client_id();
-		$redirect_uri = admin_url() . 'admin.php?page=' . $this->slug;
-		$access_token = WPCOM_OAuth::get_access_token();
-		$access_token = $access_token ? $access_token : '';
-		if ( is_wp_error( $access_token ) ) {
-			$access_token = '';
-		}
 		wp_localize_script(
 			'newspack-support-wizard',
 			'newspack_support_data',
 			array(
-				'API_URL'            => self::support_api_url(),
-				'WPCOM_AUTH_URL'     => 'https://public-api.wordpress.com/oauth2/authorize?client_id=' . $client_id . '&redirect_uri=' . $redirect_uri . '&response_type=token&scope=global',
-				'WPCOM_ACCESS_TOKEN' => $access_token,
-				'IS_PRE_LAUNCH'      => false !== self::is_pre_launch(),
+				'API_URL'       => self::support_api_url(),
+				'IS_PRE_LAUNCH' => false !== self::is_pre_launch(),
 			)
 		);
 		wp_enqueue_script( 'newspack-support-wizard' );

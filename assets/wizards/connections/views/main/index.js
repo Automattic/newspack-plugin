@@ -1,5 +1,14 @@
+/**
+ * Internal dependencies
+ */
+import WPCOMAuth from './wpcom';
+
 const Main = () => {
-	return <>{ 'Connections' }</>;
+	return (
+		<>
+			<WPCOMAuth />
+		</>
+	);
 };
 
 export default Main;

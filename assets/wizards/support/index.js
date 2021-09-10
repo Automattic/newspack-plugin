@@ -50,9 +50,13 @@ class SupportWizard extends Component {
 				.then( () => {
 					const returnPath = getReturnPath();
 					if ( returnPath ) {
-						// redirect so that Router can take over
-						window.location = returnPath;
-						window.location.reload();
+						if ( returnPath.indexOf( window.location.search ) > 0 ) {
+							window.location = returnPath;
+							// Same page, needs reload for the Router to take over rendering.
+							window.location.reload();
+						} else {
+							window.location = returnPath;
+						}
 					}
 				} )
 				.catch( ( { message: errorMessage } ) => {
