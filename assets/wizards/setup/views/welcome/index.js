@@ -43,7 +43,20 @@ const starterContentFetch = endpoint =>
 		method: 'post',
 	} );
 
-const Welcome = ( { buttonAction } ) => {
+const existingContentFetchInit = endpoint =>
+	apiFetch( {
+		path: `/newspack/v1/wizard/newspack-setup-wizard/existing-content/init`,
+		method: 'post',
+		data: { site: endpoint },
+	} );
+
+const existingContentFetch = endpoint =>
+	apiFetch( {
+		path: `/newspack/v1/wizard/newspack-setup-wizard/existing-content/post/${ endpoint }`,
+		method: 'post',
+	} );
+
+const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 	const [ installationProgress, setInstallationProgress ] = useState( 0 );
 	const [ softwareInfo, setSoftwareInfo ] = useState( [] );
 	const [ isSSL, setIsSSL ] = useState( null );
@@ -51,6 +64,7 @@ const Welcome = ( { buttonAction } ) => {
 	const [ errors, setErrors ] = useState( [] );
 	const [ buttonNew, setButtonNew ] = useState();
 	const [ buttonMigrate, setButtonMigrate ] = useState();
+	const [ existingSiteURL, setExistingSiteURL ] = useState( '' );
 
 	useEffect( () => {
 		if ( buttonNew ) {
@@ -113,7 +127,19 @@ const Welcome = ( { buttonAction } ) => {
 			await softwarePromises[ i ]();
 		}
 
-		if ( shouldInstallStarterContent ) {
+		if ( buttonNew && shouldInstallStarterContent ) {
+			// Init generated starter content
+		}
+
+		if ( buttonMigrate ) {
+			// Init migrated content
+		}
+
+		// Generate posts
+
+		// Generate homepage
+
+		if ( buttonNew && shouldInstallStarterContent ) {
 			// Starter content.
 			await starterContentFetch( `categories` )
 				.then( increment )
@@ -151,6 +177,29 @@ const Welcome = ( { buttonAction } ) => {
 						item: __( 'Failed to activate the theme.', 'newspack' ),
 					} )
 				);
+		}
+
+		if ( buttonMigrate ) {
+			await wizardApiFetch( { 
+					path: `/newspack/v1/wizard/newspack-setup-wizard/existing-content/init`,
+					method: 'post',
+					data: { site: existingSiteURL },
+				} )
+				.then( increment )
+				.catch( setError );
+			
+			await Promise.allSettled(
+				times( POST_COUNT, n =>
+					existingContentFetch( `${ n }` )
+						.then( increment )
+						.catch(
+							addError( {
+								info: ERROR_TYPES.starter_content,
+								item: __( 'Failed to create a post.', 'newspack' ),
+							} )
+						)
+				)
+			);
 		}
 	};
 
@@ -292,7 +341,7 @@ const Welcome = ( { buttonAction } ) => {
 									icon={ addCard }
 									className="br--top"
 									isPressed={ buttonNew }
-									onClick={ () => setButtonNew( ! buttonNew ) }
+									onClick={ () => setButtonNew( true ) }
 									grouped
 								/>
 								<ButtonCard
@@ -302,7 +351,7 @@ const Welcome = ( { buttonAction } ) => {
 									icon={ layout }
 									className="br--bottom"
 									isPressed={ buttonMigrate }
-									onClick={ () => setButtonMigrate( ! buttonMigrate ) }
+									onClick={ () => setButtonMigrate( true ) }
 									grouped
 								/>
 								{ buttonMigrate && (
@@ -313,6 +362,7 @@ const Welcome = ( { buttonAction } ) => {
 											'We will import the last 50 articles from your existing site to help you with the set up and customization.',
 											'newspack'
 										) }
+										onChange={ ( val ) => setExistingSiteURL( val ) }
 									/>
 								) }
 							</>
@@ -327,7 +377,7 @@ const Welcome = ( { buttonAction } ) => {
 							) }
 							{ isInit && ( buttonNew || buttonMigrate ) && (
 								<Button
-									disabled={ ! isSSL }
+									disabled={ ! isSSL  || ( buttonMigrate && ! existingSiteURL.length ) }
 									isPrimary
 									onClick={ install }
 									href={ nextRouteAddress }

@@ -163,6 +163,24 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/existing-content/init',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_existing_content_init' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/existing-content/post/(?P<id>[\a-z]+)',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_existing_content_post' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/services',
 			[
 				'methods'             => WP_REST_Server::READABLE,
@@ -265,6 +283,26 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function api_starter_content_homepage() {
 		$status = Starter_Content::create_homepage();
+		return rest_ensure_response( [ 'status' => $status ] );
+	}
+
+	public function api_existing_content_init( $request ) {
+		$request_params = $request->get_params();
+		if ( empty( $request_params ) || ! wp_http_validate_url( $request_params['site'] ) ) {
+			return new WP_Error( 'newspack_setup', __( 'Invalid site URL entered', 'newspack' ) );
+		}
+
+		$result = Starter_Content::initialize_existing_posts( $request_params['site'] );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( [ 'status' => 200 ] );
+	}
+
+	public function api_existing_content_post( $request ) {
+		$id = $request['id'];
+		$status = Starter_Content::create_existing_post( $id );
 		return rest_ensure_response( [ 'status' => $status ] );
 	}
 

@@ -32,6 +32,104 @@ class Starter_Content {
 	// phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $starter_homepage_meta = '_newspack_starter_content_homepage';
 
+	private static $existing_content_raw_data_option = '_newspack_existing_content_raw_data';
+
+	public static function initialize_existing_posts( $site_url ) {
+		$site_url = trailingslashit( esc_url_raw( $site_url ) );
+		$wp_api_url = $site_url . 'wp-json/wp/v2/posts?per_page=50';
+
+		$response = wp_remote_get( $wp_api_url, [ 'timeout' => 60 ] );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return new WP_Error( 'newspack_starter_content', __( 'Site does not appear to be a WordPress site', 'newspack' ) );
+		}
+
+		$response_body = wp_remote_retrieve_body( $response );
+		$response_json = json_decode( $response_body, true );
+		if ( ! $response_json ) {
+			return new WP_Error( 'newspack_starter_content', __( 'Unable to parse response from site', 'newspack' ) );
+		}
+
+		$relevant_info = array_map( 
+			function( $post_data ) use ( $site_url ) {
+				return [
+					'title' => $post_data['title']['rendered'],
+					'date' => $post_data['date'],
+					'content' => $post_data['content']['rendered'],
+					'featured_image' => $post_data['featured_media'],
+					'site_url' => $site_url,
+				];
+			},
+			$response_json 
+		);
+
+		update_option( self::$existing_content_raw_data_option, $relevant_info );
+		return true;
+	}
+
+	public static function create_existing_post( $post_index ) {
+		global $wpdb;
+		/*$meta_key         = self::$starter_post_meta_prefix . $post_index;
+		$existing_post_id = $wpdb->get_row( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s;", $meta_key ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		if ( $existing_post_id ) {
+			return $existing_post_id['post_id'];
+		}*/
+		if ( ! function_exists( 'wp_insert_post' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/post.php';
+		}
+
+		$existing_content_raw_data = get_option( self::$existing_content_raw_data_option, [] );
+		if ( ! $existing_content_raw_data ) {
+			return false;
+		}
+
+		if ( empty( $existing_content_raw_data[ $post_index ] ) ) {
+			return false;
+		}
+
+		$raw_post_data = $existing_content_raw_data[ $post_index ];
+
+		$post_data      = [
+			'post_title'   => sanitize_text_field( $raw_post_data['title'] ),
+			'post_status'  => 'publish',
+			'post_content' => wp_kses_post( $raw_post_data['content'] ),
+			'post_date' => sanitize_text_field( $raw_post_data['date'] ),
+		];
+		$post_id = wp_insert_post( $post_data );
+		if ( ! $post_id ) {
+			return false;
+		}
+
+		if ( ! empty( $raw_post_data['featured_image'] ) && ! empty( $raw_post_data['site_url'] ) ) {
+			$featured_image_id = (int) $raw_post_data['featured_image'];
+			if ( $featured_image_id ) {
+				$media_endpoint = trailingslashit( esc_url_raw( $raw_post_data['site_url'] ) ) . 'wp-json/wp/v2/media/' . $featured_image_id;
+				$media_response = wp_remote_get( $media_endpoint, [ 'timeout' => 60 ] );
+				if ( ! is_wp_error( $media_response ) && 200 === wp_remote_retrieve_response_code( $media_response ) ) {
+					$media_response_body = json_decode( wp_remote_retrieve_body( $media_response ), true );
+					$media_src = $media_response_body['source_url'];
+
+					if ( ! function_exists( 'media_sideload_image' ) ) {
+						require_once( ABSPATH . 'wp-admin/includes/media.php' );
+						require_once( ABSPATH . 'wp-admin/includes/file.php' );
+						require_once( ABSPATH . 'wp-admin/includes/image.php' );
+					}
+
+					$image_id = media_sideload_image( $media_src, $post_id, null, 'id' );
+					if ( is_numeric( $image_id ) ) {
+						set_post_thumbnail( $post_id, $image_id );
+					}
+				}
+			}
+		}
+
+		return $post_id;
+	}
+
 	/**
 	 * Create a single post.
 	 *
