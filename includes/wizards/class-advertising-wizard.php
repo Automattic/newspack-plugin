@@ -259,6 +259,51 @@ class Advertising_Wizard extends Wizard {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_ad_suppression' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'config' => [
+						'required'          => true,
+						'sanitize_callback' => function( $item ) {
+							return [
+								'tag_archive_pages'      => $item['tag_archive_pages'],
+								'specific_tag_archive_pages' => $item['specific_tag_archive_pages'],
+								'category_archive_pages' => $item['category_archive_pages'],
+								'specific_category_archive_pages' => $item['specific_category_archive_pages'],
+								'author_archive_pages'   => $item['author_archive_pages'],
+							];
+						},
+						'type'              => [
+							'type'       => 'object',
+							'properties' => [
+								'tag_archive_pages'      => [
+									'required' => true,
+									'type'     => 'boolean',
+								],
+								'specific_tag_archive_pages' => [
+									'required' => true,
+									'type'     => 'array',
+									'items'    => [
+										'type' => 'integer',
+									],
+								],
+								'category_archive_pages' => [
+									'required' => true,
+									'type'     => 'boolean',
+								],
+								'specific_category_archive_pages' => [
+									'required' => true,
+									'type'     => 'array',
+									'items'    => [
+										'type' => 'integer',
+									],
+								],
+								'author_archive_pages'   => [
+									'required' => true,
+									'type'     => 'boolean',
+								],
+							],
+						],
+					],
+				],
 			]
 		);
 	}
