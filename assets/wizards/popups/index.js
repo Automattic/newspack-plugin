@@ -211,19 +211,19 @@ class PopupsWizard extends Component {
 
 		let previewURL = '/';
 		if (
-			( 'inline' === placement || 'scroll' === triggerType ) &&
-			window &&
-			window.newspack_popups_wizard_data &&
-			window.newspack_popups_wizard_data.preview_post
-		) {
-			previewURL = window.newspack_popups_wizard_data.preview_post;
-		} else if (
 			'archives' === placement &&
 			window &&
 			window.newspack_popups_wizard_data &&
 			window.newspack_popups_wizard_data.preview_archive
 		) {
 			previewURL = window.newspack_popups_wizard_data.preview_archive;
+		} else if (
+			( 'inline' === placement || 'scroll' === triggerType ) &&
+			window &&
+			window.newspack_popups_wizard_data &&
+			window.newspack_popups_wizard_data.preview_post
+		) {
+			previewURL = window.newspack_popups_wizard_data.preview_post;
 		}
 
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
