@@ -6,6 +6,10 @@
     "url": "https://github.com/Automattic/newspack-plugin/issues"
   },
   "homepage": "https://newspack.blog",
+  "engines": {
+    "node": "14",
+    "npm": "7"
+  },
   "devDependencies": {
     "@automattic/calypso-build": "^6.3.0",
     "@babel/core": "^7.12.10",
