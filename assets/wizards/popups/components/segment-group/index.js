@@ -187,6 +187,12 @@ const SegmentGroup = props => {
 											icon={ iconInline }
 										/>
 										<ButtonCard
+											href={ addNewURL( 'archives', campaignId, id ) }
+											title={ __( 'In Archive Pages', 'newspack' ) }
+											desc={ __( 'Embedded once or many times in archive pages', 'newspack' ) }
+											icon={ iconInline }
+										/>
+										<ButtonCard
 											href={ addNewURL( 'above-header', campaignId, id ) }
 											title={ __( 'Above Header', 'newspack' ) }
 											desc={ __( 'Embedded at the very top of the page', 'newspack' ) }
