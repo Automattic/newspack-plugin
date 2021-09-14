@@ -153,6 +153,7 @@ class Health_Check_Wizard extends Wizard {
 
 		return array(
 			'unsupported_plugins'  => Plugin_Manager::get_unmanaged_plugins(),
+			'missing_plugins'      => Plugin_Manager::get_missing_plugins(),
 			'configuration_status' => [
 				'amp'     => $amp_manager->is_standard_mode(),
 				'jetpack' => $jetpack_manager->is_configured(),
