@@ -275,7 +275,7 @@ class Google_OAuth {
 			)
 		);
 
-		if ( 200 === $token_info_response['response']['code'] ) {
+		if ( 200 === wp_remote_retrieve_response_code( $token_info_response ) ) {
 			$user_info_response = wp_safe_remote_get(
 				add_query_arg(
 					'access_token',
@@ -283,7 +283,7 @@ class Google_OAuth {
 					'https://www.googleapis.com/oauth2/v2/userinfo'
 				)
 			);
-			if ( 200 === $user_info_response['response']['code'] ) {
+			if ( 200 === wp_remote_retrieve_response_code( $user_info_response ) ) {
 				$user_info = json_decode( $user_info_response['body'] );
 				return [
 					'email' => $user_info->email,
@@ -332,8 +332,8 @@ class Google_OAuth {
 				}
 				$response_body = json_decode( $result['body'] );
 
-				if ( isset( $response->access_token ) ) {
-					self::save_auth_credentials( $response->data );
+				if ( isset( $response_body->access_token ) ) {
+					self::save_auth_credentials( $response_body );
 					$auth_data = self::get_google_auth_saved_data();
 				}
 			} catch ( \Exception $e ) {
