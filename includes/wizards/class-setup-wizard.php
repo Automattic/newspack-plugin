@@ -192,7 +192,6 @@ class Setup_Wizard extends Wizard {
 			'amp',
 			'pwa',
 			'wordpress-seo',
-			'woocommerce',
 			'google-site-kit',
 			'newspack-blocks',
 			'newspack-newsletters',
@@ -465,7 +464,7 @@ class Setup_Wizard extends Wizard {
 		switch ( $service_name ) {
 			case 'reader-revenue':
 				$rr_wizard = new Reader_Revenue_Wizard();
-				return isset( $rr_wizard->fetch_all_data()['platform_data']['platform'] );
+				return isset( $rr_wizard->fetch_all_data()['plugin_status'] ) && true === $rr_wizard->fetch_all_data()['plugin_status'];
 			case 'newsletters':
 				$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 				return $newsletters_configuration_manager->is_esp_set_up();
@@ -502,11 +501,12 @@ class Setup_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_update_services( $request ) {
-		if ( isset( $request['newsletters']['is_service_enabled'] ) ) {
+		if ( true === $request['newsletters']['is_service_enabled'] ) {
 			$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 			$newsletters_configuration_manager->update_settings( $request['newsletters'] );
 		}
-		if ( isset( $request['reader-revenue']['is_service_enabled'] ) ) {
+		if ( true === $request['reader-revenue']['is_service_enabled'] ) {
+			Plugin_Manager::activate( 'woocommerce' );
 			$rr_wizard = new Reader_Revenue_Wizard();
 			if ( isset( $request['reader-revenue']['donation_data'] ) ) {
 				$rr_wizard->update_donation_settings( $request['reader-revenue']['donation_data'] );
@@ -517,13 +517,13 @@ class Setup_Wizard extends Wizard {
 				$rr_wizard->update_stripe_settings( $stripe_settings );
 			}
 		}
-		if ( isset( $request['google-ad-sense']['is_service_enabled'] ) ) {
+		if ( true === $request['google-ad-sense']['is_service_enabled'] ) {
 			$sitekit_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 			if ( $request['google-ad-sense']['is_service_enabled'] ) {
 				$sitekit_configuration_manager->activate_module( 'adsense' );
 			}
 		}
-		if ( isset( $request['google-ad-manager']['is_service_enabled'] ) ) {
+		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
 			$service = 'google_ad_manager';
 			update_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
 		}
