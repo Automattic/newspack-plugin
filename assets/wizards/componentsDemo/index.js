@@ -118,7 +118,10 @@ class ComponentsDemo extends Component {
 							onChange={ items =>
 								this.setState( { selectedPostsForAutocompleteWithSuggestionsMultiSelect: items } )
 							}
-							postTypes={ [ { slug: 'page', label: 'Pages' }, { slug: 'post', label: 'Posts' } ] }
+							postTypes={ [
+								{ slug: 'page', label: 'Pages' },
+								{ slug: 'post', label: 'Posts' },
+							] }
 							postTypeLabel={ 'widget' }
 							postTypeLabelPlural={ 'widgets' }
 							selectedItems={ selectedPostsForAutocompleteWithSuggestionsMultiSelect }
@@ -333,7 +336,7 @@ class ComponentsDemo extends Component {
 						description={ __( 'Warning notification, action button', 'newspack' ) }
 						notification={
 							<Fragment>
-								There is a new version available. <a href="#">View details</a> or{' '}
+								There is a new version available. <a href="#">View details</a> or{ ' ' }
 								<a href="#">update now</a>
 							</Fragment>
 						}
@@ -429,20 +432,20 @@ class ComponentsDemo extends Component {
 						<h2>{ __( 'Checkboxes', 'newspack' ) }</h2>
 						<CheckboxControl
 							label={ __( 'Checkbox is tested?' ) }
-							onChange={ function() {
+							onChange={ function () {
 								console.log( "Yep, it's tested" );
 							} }
 						/>
 						<CheckboxControl
 							label={ __( 'Checkbox w/Tooltip', 'newspack' ) }
-							onChange={ function() {
+							onChange={ function () {
 								console.log( "Yep, it's tested" );
 							} }
 							tooltip={ __( 'This is the tooltip text', 'newspack' ) }
 						/>
 						<CheckboxControl
 							label={ __( 'Checkbox w/Help', 'newspack' ) }
-							onChange={ function() {
+							onChange={ function () {
 								console.log( "Yep, it's tested" );
 							} }
 							help={ __( 'This is the help text', 'newspack' ) }

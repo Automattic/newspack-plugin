@@ -145,10 +145,10 @@ const AdUnits = ( {
 									<span>
 										{ displayLegacyAdUnitLabel ? (
 											<>
-												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{' '}
+												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
 											</>
 										) : null }
-										{ __( 'Sizes:', 'newspack' ) }{' '}
+										{ __( 'Sizes:', 'newspack' ) }{ ' ' }
 										{ adUnit.sizes.map( ( size, i ) => (
 											<code key={ i }>{ size.join( 'x' ) }</code>
 										) ) }

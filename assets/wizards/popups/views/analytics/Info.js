@@ -42,7 +42,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 				{ nameFilter ? `${ nameFilter.label }:` : __( 'All:', 'newspack' ) }
 				{ postEditLink && (
 					<Fragment>
-						{' '}
+						{ ' ' }
 						(<a href={ unescape( postEditLink ) }>edit</a>)
 					</Fragment>
 				) }
