@@ -33,13 +33,6 @@ class Connections_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
