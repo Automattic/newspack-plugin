@@ -91,8 +91,8 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 					<Icon icon={ chevronDown } />
 				</div>
 				<span>
-					<strong>{ repoName }</strong> { __( 'was released', 'newspack' ) }{' '}
-					{ formatDistanceToNow( new Date( date ), { addSuffix: true } ) }{' '}
+					<strong>{ repoName }</strong> { __( 'was released', 'newspack' ) }{ ' ' }
+					{ formatDistanceToNow( new Date( date ), { addSuffix: true } ) }{ ' ' }
 					<strong>{ infoStrings.join( __( ' and ', 'newspack' ) ) }</strong>.
 				</span>
 			</summary>
