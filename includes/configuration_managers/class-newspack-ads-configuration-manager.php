@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use \WP_Error;
+
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/configuration_managers/class-configuration-manager.php';
@@ -30,6 +32,23 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function is_configured() {
 		return class_exists( 'Newspack_Ads_Model' );
+	}
+
+	/**
+	 * Update custom targeting keys.
+	 *
+	 * @return string[]|WP_Error Created custom targeting keys or error if it fails.
+	 */
+	public function update_custom_targeting_keys() {
+		if ( ! $this->is_configured() ) {
+			return $this->unconfigured_error();
+		}
+		try {
+			$custom_targeting_keys = \Newspack_Ads_GAM::update_custom_targeting_keys();
+			return $custom_targeting_keys;
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'newspack_ads_update_custom_targeting_keys_failed', $e->getMessage() );
+		}
 	}
 
 	/**
