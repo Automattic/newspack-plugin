@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
+import './style.scss';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 const CREATE_AD_ID_PARAM = 'create';
@@ -258,10 +259,11 @@ class AdvertisingWizard extends Component {
 	prepareData = data => {
 		return {
 			...data,
-			adUnits: data.ad_units.reduce( ( result, value ) => {
-				result[ value.id ] = value;
-				return result;
-			}, {} ),
+			adUnits:
+				data?.ad_units?.reduce( ( result, value ) => {
+					result[ value.id ] = value;
+					return result;
+				}, {} ) || [],
 		};
 	};
 
