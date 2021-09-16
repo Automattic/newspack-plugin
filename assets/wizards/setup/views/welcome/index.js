@@ -37,22 +37,16 @@ const ERROR_TYPES = {
 	starter_content: { message: __( 'Demo content', 'newspack' ) },
 };
 
+const starterContentInit = ( approach, site = '' ) => 
+	apiFetch( {
+		path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/init`,
+		method: 'post',
+		data: { type: approach, site: site },
+	} );
+
 const starterContentFetch = endpoint =>
 	apiFetch( {
 		path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/${ endpoint }`,
-		method: 'post',
-	} );
-
-const existingContentFetchInit = endpoint =>
-	apiFetch( {
-		path: `/newspack/v1/wizard/newspack-setup-wizard/existing-content/init`,
-		method: 'post',
-		data: { site: endpoint },
-	} );
-
-const existingContentFetch = endpoint =>
-	apiFetch( {
-		path: `/newspack/v1/wizard/newspack-setup-wizard/existing-content/post/${ endpoint }`,
 		method: 'post',
 	} );
 
@@ -127,28 +121,20 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 			await softwarePromises[ i ]();
 		}
 
-		if ( buttonNew && shouldInstallStarterContent ) {
-			// Init generated starter content
-		}
+		if ( ( buttonNew && shouldInstallStarterContent ) || buttonMigrate ) {
 
-		if ( buttonMigrate ) {
-			// Init migrated content
-		}
-
-		// Generate posts
-
-		// Generate homepage
-
-		if ( buttonNew && shouldInstallStarterContent ) {
-			// Starter content.
-			await starterContentFetch( `categories` )
+			// Initialize starter content approach.
+			const starterContentApproach = buttonNew ? 'generated' : 'import';
+			await starterContentInit( starterContentApproach, existingSiteURL )
 				.then( increment )
 				.catch(
 					addError( {
 						info: ERROR_TYPES.starter_content,
-						item: __( 'Failed to create the categories.', 'newspack' ),
+						item: __( 'Failed to initialize starter content.', 'newspack' ),
 					} )
 				);
+
+			// Generate posts.
 			await Promise.allSettled(
 				times( POST_COUNT, n =>
 					starterContentFetch( `post/${ n }` )
@@ -161,6 +147,8 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 						)
 				)
 			);
+
+			// Generate homepage.
 			await starterContentFetch( `homepage` )
 				.then( increment )
 				.catch(
@@ -169,6 +157,8 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 						item: __( 'Failed to create the homepage.', 'newspack' ),
 					} )
 				);
+
+			// Generate theme.
 			await starterContentFetch( `theme` )
 				.then( increment )
 				.catch(
@@ -177,29 +167,6 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 						item: __( 'Failed to activate the theme.', 'newspack' ),
 					} )
 				);
-		}
-
-		if ( buttonMigrate ) {
-			await wizardApiFetch( { 
-					path: `/newspack/v1/wizard/newspack-setup-wizard/existing-content/init`,
-					method: 'post',
-					data: { site: existingSiteURL },
-				} )
-				.then( increment )
-				.catch( setError );
-			
-			await Promise.allSettled(
-				times( POST_COUNT, n =>
-					existingContentFetch( `${ n }` )
-						.then( increment )
-						.catch(
-							addError( {
-								info: ERROR_TYPES.starter_content,
-								item: __( 'Failed to create a post.', 'newspack' ),
-							} )
-						)
-				)
-			);
 		}
 	};
 
