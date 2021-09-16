@@ -141,6 +141,13 @@ class Connections_Wizard extends Wizard {
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/connections.js' ),
 			true
 		);
+		\wp_localize_script(
+			'newspack-connections-wizard',
+			'newspack_connections_data',
+			[
+				'can_connect_google' => Google_OAuth::is_oauth_configured(),
+			]
+		);
 		\wp_enqueue_script( 'newspack-connections-wizard' );
 	}
 

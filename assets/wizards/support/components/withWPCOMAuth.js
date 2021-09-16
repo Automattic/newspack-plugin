@@ -66,12 +66,15 @@ const withWPCOMAuth = ( WrappedComponent, renderer = false ) => {
 		render() {
 			// If a renderer is provided, use it.
 			if ( renderer ) {
-				return renderer( {
+				const RendererComponent = renderer;
+				const rendererProps = {
 					...this.state,
+					...this.props,
 					authURL: newspack_aux_data.wpcom_auth_url,
 					disconnectURL: newspack_aux_data.wpcom_disconnect_url,
 					token: WPCOM_ACCESS_TOKEN,
-				} );
+				};
+				return <RendererComponent { ...rendererProps } />;
 			}
 			return (
 				<Fragment>
