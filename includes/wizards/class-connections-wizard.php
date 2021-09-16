@@ -37,7 +37,6 @@ class Connections_Wizard extends Wizard {
 	 */
 	public function __construct() {
 		parent::__construct();
-		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 	}
 
 	/**
@@ -65,63 +64,6 @@ class Connections_Wizard extends Wizard {
 	 */
 	public function get_length() {
 		return esc_html__( '10 minutes', 'newspack' );
-	}
-
-	/**
-	 * Register the endpoints needed for the wizard screens.
-	 */
-	public function register_api_endpoints() {
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/connections',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_connections' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/connections/(?P<provider>[\a-z]+)',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_create_connection' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'provider' => [
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'service'  => [
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
-			]
-		);
-	}
-
-	/**
-	 * Get all connections.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 */
-	public static function api_get_connections( $request ) {
-		$connections = [];
-		return \rest_ensure_response( $connections );
-	}
-
-	/**
-	 * Create a new connection.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 */
-	public function api_create_connection( $request ) {
-		$provider = $request->get_param( 'provider' );
-		switch ( $provider ) {
-			default:
-				return wp_send_json_error( [ 'message' => __( 'Provider not implemented.', 'newspack' ) ], 404 );
-		}
 	}
 
 	/**
