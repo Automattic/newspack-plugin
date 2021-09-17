@@ -6,7 +6,7 @@ import ImageUpload from './';
 describe( 'ImageUpload', () => {
 	it( 'should render an add image button', () => {
 		const { getByText } = render( <ImageUpload /> );
-		expect( getByText( 'Upload' ) ).toBeInTheDocument();
+		expect( getByText( 'Select Image' ) ).toBeInTheDocument();
 	} );
 
 	it( 'should render replace and remove buttons if there is an image provided', () => {
