@@ -64,7 +64,11 @@ class ImageUpload extends Component {
 	 */
 	handleImageSelect = () => {
 		const { onChange } = this.props;
-		const attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
+		const attachment = this.state.frame
+			.state()
+			.get( 'selection' )
+			.first()
+			.toJSON();
 		onChange( attachment );
 	};
 
@@ -85,21 +89,24 @@ class ImageUpload extends Component {
 					{ label && <label className="newspack-image-upload__label">{ label }</label> }
 					{ info && <InfoButton text={ info } /> }
 				</div>
-				<div
-					className={ classes }
-					data-testid="image-upload"
-					style={ { ...( image ? { backgroundImage: `url('${ image.url }')` } : {} ), ...style } }
-				>
-					{ image ? (
-						<div>
-							<Button onClick={ this.openModal } isLink>
-								{ __( 'Replace', 'newspack' ) }
-							</Button>
-							<span className="sep" />
-							<Button onClick={ () => onChange( null ) } isLink isDestructive>
-								{ __( 'Remove', 'newspack' ) }
-							</Button>
-						</div>
+				<div className={ classes } style={ { style } }>
+					{ image?.url ? (
+						<>
+							<img
+								data-testid="image-upload"
+								src={ image.url }
+								alt={ __( 'Image preview', 'newspack' ) }
+							/>
+							<div className="newspack-image-upload__controls">
+								<Button onClick={ this.openModal } isLink>
+									{ __( 'Replace', 'newspack' ) }
+								</Button>
+								<span className="sep" />
+								<Button onClick={ () => onChange( null ) } isLink isDestructive>
+									{ __( 'Remove', 'newspack' ) }
+								</Button>
+							</div>
+						</>
 					) : (
 						<Button onClick={ this.openModal } isLink>
 							{ __( 'Upload', 'newspack' ) }

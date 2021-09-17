@@ -17,8 +17,11 @@ describe( 'ImageUpload', () => {
 		const { getByText, getByTestId } = render( <ImageUpload image={ image } /> );
 		expect( getByText( 'Remove' ) ).toBeInTheDocument();
 		expect( getByText( 'Replace' ) ).toBeInTheDocument();
-		expect( getByTestId( 'image-upload' ) ).toHaveStyle( {
-			backgroundImage: `url(${ image.url })`,
-		} );
+		expect( getByTestId( 'image-upload' ) ).toBeInTheDocument();
+		expect(
+			getByTestId( 'image-upload' )
+				.getDOMNode()
+				.getAttribute( 'src' )
+		).toEqual( image.url );
 	} );
 } );

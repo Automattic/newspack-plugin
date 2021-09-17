@@ -285,7 +285,7 @@ class Setup_Wizard extends Wizard {
 
 		foreach ( $theme_mods as $key => &$theme_mod ) {
 			if ( in_array( $key, $this->media_theme_mods ) ) {
-				$attachment = wp_get_attachment_image_src( $theme_mod, 'full' );
+				$attachment = wp_get_attachment_image_src( $theme_mod, 'large' );
 				if ( $attachment ) {
 					$theme_mod = [
 						'id'  => $theme_mod,
@@ -322,6 +322,19 @@ class Setup_Wizard extends Wizard {
 
 		$theme_mods['header_text']            = get_theme_mod( 'header_text', '' );
 		$theme_mods['header_display_tagline'] = get_theme_mod( 'header_display_tagline', '' );
+
+		// Append media credits settings.
+		$media_credits_settings = Newspack_Image_Credits::get_settings();
+		foreach ( $media_credits_settings as $key => $value ) {
+			$theme_mods[ $key ] = $value;
+
+			if ( 'newspack_image_credits_placeholder' === $key && ! empty( $value ) ) {
+				$attachment_url = wp_get_attachment_image_url( $value, 'full' );
+				if ( $attachment_url ) {
+					$theme_mods['newspack_image_credits_placeholder_url'] = $attachment_url;
+				}
+			}
+		}
 
 		return rest_ensure_response(
 			[
@@ -447,6 +460,12 @@ class Setup_Wizard extends Wizard {
 
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
+			// Media credits are actually options, not theme mods.
+			if ( 'newspack_image_credits' === substr( $key, 0, 22 ) ) {
+				Newspack_Image_Credits::update_setting( $key, $value );
+				continue;
+			}
+
 			if ( null !== $value && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
