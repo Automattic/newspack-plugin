@@ -530,7 +530,7 @@ class Advertising_Wizard extends Wizard {
 
 		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
 
-		// Verify GAM connection and create custom targeting keys.
+		// Verify GAM connection and run initial setup.
 		$gam_connection_status = $configuration_manager->get_gam_connection_status();
 		if ( true === $gam_connection_status['connected'] ) {
 			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
