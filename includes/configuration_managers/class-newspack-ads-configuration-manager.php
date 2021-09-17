@@ -35,9 +35,9 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Update custom targeting keys.
+	 * Initial GAM setup
 	 *
-	 * @return string[]|WP_Error Created custom targeting keys or error if it fails.
+	 * @return object|WP_Error Setup results or error if it fails.
 	 */
 	public function setup_gam() {
 		return $this->is_configured() ?
