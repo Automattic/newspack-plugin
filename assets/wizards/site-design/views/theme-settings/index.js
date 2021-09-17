@@ -106,7 +106,10 @@ const ThemeSettings = props => {
 
 			<SectionHeader
 				title={ __( 'Media Credits', 'newspack' ) }
-				description={ __( 'Control how credits are displayed alongside images.', 'newspack' ) }
+				description={ __(
+					'Control how credits are displayed alongside media attachments.',
+					'newspack'
+				) }
 			/>
 			<Grid gutter={ 32 }>
 				<Grid columns={ 1 } gutter={ 16 }>
