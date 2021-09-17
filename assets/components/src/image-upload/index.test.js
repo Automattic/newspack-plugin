@@ -18,10 +18,6 @@ describe( 'ImageUpload', () => {
 		expect( getByText( 'Remove' ) ).toBeInTheDocument();
 		expect( getByText( 'Replace' ) ).toBeInTheDocument();
 		expect( getByTestId( 'image-upload' ) ).toBeInTheDocument();
-		expect(
-			getByTestId( 'image-upload' )
-				.getDOMNode()
-				.getAttribute( 'src' )
-		).toEqual( image.url );
+		expect( getByTestId( 'image-upload' ).getAttribute( 'src' ) ).toEqual( image.url );
 	} );
 } );
