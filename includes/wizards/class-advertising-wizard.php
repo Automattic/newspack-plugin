@@ -476,6 +476,10 @@ class Advertising_Wizard extends Wizard {
 			$message = $error->getMessage();
 			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
+		
+		if ( \is_wp_error( $ad_units ) ) {
+			return $ad_units;
+		}
 
 		/* If there is only one enabled service, select it for all placements */
 		$enabled_services = array_filter(

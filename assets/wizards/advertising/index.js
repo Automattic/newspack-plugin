@@ -260,7 +260,7 @@ class AdvertisingWizard extends Component {
 		return {
 			...data,
 			adUnits:
-				data?.ad_units?.reduce( ( result, value ) => {
+				data.ad_units.reduce( ( result, value ) => {
 					result[ value.id ] = value;
 					return result;
 				}, {} ) || [],
