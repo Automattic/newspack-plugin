@@ -258,11 +258,10 @@ class AdvertisingWizard extends Component {
 	prepareData = data => {
 		return {
 			...data,
-			adUnits:
-				data.ad_units.reduce( ( result, value ) => {
-					result[ value.id ] = value;
-					return result;
-				}, {} ) || [],
+			adUnits: data.ad_units.reduce( ( result, value ) => {
+				result[ value.id ] = value;
+				return result;
+			}, {} ),
 		};
 	};
 
