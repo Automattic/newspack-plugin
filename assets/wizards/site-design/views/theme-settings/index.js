@@ -26,8 +26,6 @@ const ThemeSettings = props => {
 	const [ imageThumbnail, setImageThumbnail ] = useState( null );
 	const { themeMods, setThemeMods } = props;
 
-	console.log( imageThumbnail );
-
 	const {
 		show_author_bio: authorBio = true,
 		show_author_email: authorEmail = false,
@@ -117,7 +115,7 @@ const ThemeSettings = props => {
 						image={ imageThumbnail ? { url: imageThumbnail } : null }
 						label={ __( 'Placeholder Image', 'newspack' ) }
 						onChange={ image => {
-							setImageThumbnail( image?.sizes?.large?.url || null );
+							setImageThumbnail( image.url || null );
 							setThemeMods( { newspack_image_credits_placeholder: image?.id || null } );
 						} }
 					/>
