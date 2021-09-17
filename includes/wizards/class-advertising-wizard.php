@@ -531,14 +531,14 @@ class Advertising_Wizard extends Wizard {
 		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
 
 		// Verify GAM connection and create custom targeting keys.
-		$gam_connection_status                         = $configuration_manager->get_gam_connection_status();
-		$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
+		$gam_connection_status = $configuration_manager->get_gam_connection_status();
 		if ( true === $gam_connection_status['connected'] ) {
-			$created_targeting_keys = $configuration_manager->update_custom_targeting_keys();
-			if ( ! \is_wp_error( $created_targeting_keys ) ) {
-				$services['google_ad_manager']['created_targeting_keys'] = $created_targeting_keys;
+			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
+			$gam_setup_results                             = $configuration_manager->setup_gam();
+			if ( ! \is_wp_error( $gam_setup_results ) ) {
+				$services['google_ad_manager']['created_targeting_keys'] = $gam_setup_results['created_targeting_keys'];
 			} else {
-				$services['google_ad_manager']['error'] = $created_targeting_keys->get_error_message();
+				$services['google_ad_manager']['error'] = $gam_setup_results->get_error_message();
 			}
 		}
 

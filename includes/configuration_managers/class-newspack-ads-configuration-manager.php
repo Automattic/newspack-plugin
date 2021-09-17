@@ -39,16 +39,10 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 *
 	 * @return string[]|WP_Error Created custom targeting keys or error if it fails.
 	 */
-	public function update_custom_targeting_keys() {
-		if ( ! $this->is_configured() ) {
-			return $this->unconfigured_error();
-		}
-		try {
-			$custom_targeting_keys = \Newspack_Ads_GAM::update_custom_targeting_keys();
-			return $custom_targeting_keys;
-		} catch ( \Exception $e ) {
-			return new \WP_Error( 'newspack_ads_update_custom_targeting_keys_failed', $e->getMessage() );
-		}
+	public function setup_gam() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::setup_gam() :
+			$this->unconfigured_error();
 	}
 
 	/**
