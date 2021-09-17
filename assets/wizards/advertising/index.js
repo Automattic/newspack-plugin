@@ -16,7 +16,6 @@ import { __ } from '@wordpress/i18n';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
-import './style.scss';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 const CREATE_AD_ID_PARAM = 'create';
