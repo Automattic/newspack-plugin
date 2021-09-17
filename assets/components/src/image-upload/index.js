@@ -64,11 +64,7 @@ class ImageUpload extends Component {
 	 */
 	handleImageSelect = () => {
 		const { onChange } = this.props;
-		const attachment = this.state.frame
-			.state()
-			.get( 'selection' )
-			.first()
-			.toJSON();
+		const attachment = this.state.frame.state().get( 'selection' ).first().toJSON();
 		onChange( attachment );
 	};
 
