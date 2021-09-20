@@ -69,8 +69,8 @@ const Services = ( { services, toggleService } ) => {
 				titleLink={ google_ad_manager ? '#/google_ad_manager' : null }
 				href={ google_ad_manager && '#/google_ad_manager' }
 				notification={
-					google_ad_manager.error
-						? [ google_ad_manager.error ]
+					google_ad_manager.status.error
+						? [ google_ad_manager.status.error ]
 						: google_ad_manager.created_targeting_keys?.length > 0 && [
 								__( 'Created custom targeting keys:' ) + '\u00A0',
 								google_ad_manager.created_targeting_keys.join( ', ' ) + '. \u00A0',
