@@ -248,7 +248,10 @@ const Main = ( {
 							label={ __( 'Size', 'newspack' ) }
 							value={ mods.header_simplified ? 'small' : 'large' }
 							onChange={ value => updateMods( 'header_simplified' )( value === 'small' ) }
-							buttonOptions={ [ { value: 'small', label: 'S' }, { value: 'large', label: 'L' } ] }
+							buttonOptions={ [
+								{ value: 'small', label: 'S' },
+								{ value: 'large', label: 'L' },
+							] }
 						/>
 					</Grid>
 					<ToggleControl

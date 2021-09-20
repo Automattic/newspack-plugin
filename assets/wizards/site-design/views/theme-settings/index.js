@@ -81,8 +81,6 @@ const ThemeSettings = props => {
 				</Grid>
 			</Grid>
 
-			<hr />
-
 			<SectionHeader
 				title={ __( 'Featured Image', 'newspack' ) }
 				description={ __( 'Set a default featured image position for new posts.', 'newspack' ) }
@@ -100,8 +98,6 @@ const ThemeSettings = props => {
 				onChange={ value => setThemeMods( { featured_image_default: value } ) }
 			/>
 
-			<hr />
-
 			<SectionHeader
 				title={ __( 'Media Credits', 'newspack' ) }
 				description={ __(
@@ -110,21 +106,6 @@ const ThemeSettings = props => {
 				) }
 			/>
 			<Grid gutter={ 32 }>
-				<Grid columns={ 1 } gutter={ 16 }>
-					<ImageUpload
-						image={ imageThumbnail ? { url: imageThumbnail } : null }
-						label={ __( 'Placeholder Image', 'newspack' ) }
-						buttonLabel={ __( 'Select', 'newspack' ) }
-						onChange={ image => {
-							setImageThumbnail( image.url || null );
-							setThemeMods( { newspack_image_credits_placeholder: image?.id || null } );
-						} }
-						help={ __(
-							'A placeholder image to be displayed in place of images without credits. If none is chosen, the image will be displayed normally whether or not it has a credit.',
-							'newspack'
-						) }
-					/>
-				</Grid>
 				<Grid columns={ 1 } gutter={ 16 }>
 					<TextControl
 						label={ __( 'Credit Class Name', 'newspack' ) }
@@ -143,6 +124,21 @@ const ThemeSettings = props => {
 						) }
 						value={ imageCreditsPrefix }
 						onChange={ value => setThemeMods( { newspack_image_credits_prefix_label: value } ) }
+					/>
+				</Grid>
+				<Grid columns={ 1 } gutter={ 16 }>
+					<ImageUpload
+						image={ imageThumbnail ? { url: imageThumbnail } : null }
+						label={ __( 'Placeholder Image', 'newspack' ) }
+						buttonLabel={ __( 'Select', 'newspack' ) }
+						onChange={ image => {
+							setImageThumbnail( image.url || null );
+							setThemeMods( { newspack_image_credits_placeholder: image?.id || null } );
+						} }
+						help={ __(
+							'A placeholder image to be displayed in place of images without credits. If none is chosen, the image will be displayed normally whether or not it has a credit.',
+							'newspack'
+						) }
 					/>
 				</Grid>
 			</Grid>
