@@ -7,6 +7,7 @@
  */
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 import { trash, pencil } from '@wordpress/icons';
 
 /**
@@ -30,6 +31,7 @@ const AdUnits = ( {
 	updateAdUnit,
 	wizardApiFetch,
 	service,
+	serviceData,
 	gamConnectionStatus = {},
 	fetchAdvertisingData,
 } ) => {
@@ -98,6 +100,22 @@ const AdUnits = ( {
 						</Button>
 					</div>
 				</div>
+			) }
+			{ serviceData.error && <Notice noticeText={ serviceData.error } isError /> }
+			{ serviceData.created_targeting_keys?.length > 0 && (
+				<Notice
+					noticeText={ [
+						__( 'Created custom targeting keys:' ) + '\u00A0',
+						serviceData.created_targeting_keys.join( ', ' ) + '. \u00A0',
+						<ExternalLink
+							href={ `https://admanager.google.com/${ serviceData.network_code }#inventory/custom_targeting/list` }
+							key="google-ad-manager-custom-targeting-link"
+						>
+							{ __( 'Visit your GAM dashboard' ) }
+						</ExternalLink>,
+					] }
+					isSuccess
+				/>
 			) }
 			<p>
 				{ __(

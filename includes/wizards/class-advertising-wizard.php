@@ -476,6 +476,10 @@ class Advertising_Wizard extends Wizard {
 			$message = $error->getMessage();
 			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
+		
+		if ( \is_wp_error( $ad_units ) ) {
+			return $ad_units;
+		}
 
 		/* If there is only one enabled service, select it for all placements */
 		$enabled_services = array_filter(
@@ -525,6 +529,19 @@ class Advertising_Wizard extends Wizard {
 		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 
 		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
+
+		// Verify GAM connection and run initial setup.
+		$gam_connection_status = $configuration_manager->get_gam_connection_status();
+		if ( true === $gam_connection_status['connected'] ) {
+			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
+			$gam_setup_results                             = $configuration_manager->setup_gam();
+			if ( ! \is_wp_error( $gam_setup_results ) ) {
+				$services['google_ad_manager']['created_targeting_keys'] = $gam_setup_results['created_targeting_keys'];
+			} else {
+				$services['google_ad_manager']['error'] = $gam_setup_results->get_error_message();
+			}
+		}
+
 		return $services;
 	}
 
