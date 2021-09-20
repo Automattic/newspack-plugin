@@ -115,7 +115,7 @@ const ThemeSettings = props => {
 						image={ imageThumbnail ? { url: imageThumbnail } : null }
 						label={ __( 'Placeholder Image', 'newspack' ) }
 						onChange={ image => {
-							setImageThumbnail( image.url || null );
+							setImageThumbnail( image?.url || null );
 							setThemeMods( { newspack_image_credits_placeholder: image?.id || null } );
 						} }
 					/>
