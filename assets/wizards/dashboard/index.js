@@ -110,7 +110,7 @@ const Dashboard = ( { items } ) => {
 									<div>
 										<h2>{ __( 'Google Connection' ) }</h2>
 										<p>
-											{ __( 'Authorized Google as', 'newspack' ) }{' '}
+											{ __( 'Authorized Google as', 'newspack' ) }{ ' ' }
 											<strong>{ userBasicInfo.email }</strong>
 										</p>
 									</div>

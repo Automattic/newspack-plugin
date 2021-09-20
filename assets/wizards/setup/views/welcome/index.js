@@ -37,7 +37,7 @@ const ERROR_TYPES = {
 	starter_content: { message: __( 'Demo content', 'newspack' ) },
 };
 
-const starterContentInit = ( approach, site = '' ) => 
+const starterContentInit = ( approach, site = '' ) =>
 	apiFetch( {
 		path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/init`,
 		method: 'post',
@@ -122,7 +122,6 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 		}
 
 		if ( ( buttonNew && shouldInstallStarterContent ) || buttonMigrate ) {
-
 			// Initialize starter content approach.
 			const starterContentApproach = buttonNew ? 'generated' : 'import';
 			await starterContentInit( starterContentApproach, existingSiteURL )
@@ -289,7 +288,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 						<>
 							<br />
 							<i>
-								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{' '}
+								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{ ' ' }
 								{ __( 'seconds…', 'newspack' ) }
 							</i>
 						</>
@@ -329,7 +328,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 											'We will import the last 50 articles from your existing site to help you with the set up and customization.',
 											'newspack'
 										) }
-										onChange={ ( val ) => setExistingSiteURL( val ) }
+										onChange={ val => setExistingSiteURL( val ) }
 									/>
 								) }
 							</>
@@ -344,7 +343,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 							) }
 							{ isInit && ( buttonNew || buttonMigrate ) && (
 								<Button
-									disabled={ ! isSSL  || ( buttonMigrate && ! existingSiteURL.length ) }
+									disabled={ ! isSSL || ( buttonMigrate && ! existingSiteURL.length ) }
 									isPrimary
 									onClick={ install }
 									href={ nextRouteAddress }
