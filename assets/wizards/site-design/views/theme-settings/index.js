@@ -114,17 +114,16 @@ const ThemeSettings = props => {
 					<ImageUpload
 						image={ imageThumbnail ? { url: imageThumbnail } : null }
 						label={ __( 'Placeholder Image', 'newspack' ) }
+						buttonLabel={ __( 'Select', 'newspack' ) }
 						onChange={ image => {
 							setImageThumbnail( image.url || null );
 							setThemeMods( { newspack_image_credits_placeholder: image?.id || null } );
 						} }
-					/>
-					<p className="components-base-control__help">
-						{ __(
+						help={ __(
 							'A placeholder image to be displayed in place of images without credits. If none is chosen, the image will be displayed normally whether or not it has a credit.',
 							'newspack'
 						) }
-					</p>
+					/>
 				</Grid>
 				<Grid columns={ 1 } gutter={ 16 }>
 					<TextControl
