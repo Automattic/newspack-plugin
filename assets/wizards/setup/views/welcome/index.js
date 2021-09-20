@@ -324,6 +324,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 									<TextControl
 										label={ __( 'URL', 'newspack' ) }
 										placeholder="https://"
+										type="url"
 										help={ __(
 											'We will import the last 50 articles from your existing site to help you with the set up and customization.',
 											'newspack'
