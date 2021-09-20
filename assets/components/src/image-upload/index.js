@@ -72,7 +72,17 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { onChange, className, label, info, image, isCovering, style = {} } = this.props;
+		const {
+			buttonLabel,
+			className,
+			help,
+			image,
+			info,
+			isCovering,
+			label,
+			onChange,
+			style = {},
+		} = this.props;
 		const classes = classnames(
 			'newspack-image-upload__image',
 			{ 'newspack-image-upload__image--has-image': image },
@@ -85,7 +95,7 @@ class ImageUpload extends Component {
 					{ label && <label className="newspack-image-upload__label">{ label }</label> }
 					{ info && <InfoButton text={ info } /> }
 				</div>
-				<div className={ classes } style={ { style } }>
+				<div className={ classes } style={ { ...style } }>
 					{ image?.url ? (
 						<>
 							<img
@@ -105,10 +115,11 @@ class ImageUpload extends Component {
 						</>
 					) : (
 						<Button onClick={ this.openModal } isLink>
-							{ __( 'Select Image', 'newspack' ) }
+							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack' ) }
 						</Button>
 					) }
 				</div>
+				{ help && <p className="newspack-image-upload__help">{ help }</p> }
 			</div>
 		);
 	};
