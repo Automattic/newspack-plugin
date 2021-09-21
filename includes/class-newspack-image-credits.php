@@ -327,8 +327,8 @@ class Newspack_Image_Credits {
 		$site_icon       = get_option( 'site_icon' );
 		$custom_logo     = get_theme_mod( 'custom_logo' );
 		$custom_logo_alt = get_theme_mod( 'newspack_alternative_logo', '' );
-		$is_placeholder  = intval( $placeholder_image ) !== intval( $attachment_id );
-		$is_logo         = intval( $site_icon ) !== intval( $attachment_id ) && intval( $custom_logo ) !== intval( $attachment_id ) && intval( $custom_logo_alt ) !== intval( $attachment_id );
+		$is_placeholder  = intval( $placeholder_image ) === intval( $attachment_id );
+		$is_logo         = intval( $site_icon ) === intval( $attachment_id ) || intval( $custom_logo ) === intval( $attachment_id ) || intval( $custom_logo_alt ) === intval( $attachment_id );
 
 		if ( ! $is_placeholder && ! $is_logo ) {
 			$placeholder_data = wp_get_attachment_image_src( $placeholder_image, $size, $icon );
