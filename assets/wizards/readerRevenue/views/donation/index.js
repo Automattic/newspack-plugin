@@ -8,11 +8,6 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * External dependencies.
- */
-import { values } from 'lodash';
-
-/**
  * Internal dependencies.
  */
 import { MoneyInput } from '../../components/';
@@ -104,18 +99,10 @@ export const DontationAmounts = ( { data, onChange } ) => {
 /**
  * Donation Settings Screen Component
  */
-const Donation = ( { data = {}, onChange = () => null, donationPage } ) => {
-	const renderErrorNotices = () => {
-		if ( data.errors && values( data.errors ).length ) {
-			return values( data.errors ).map( ( error, i ) => (
-				<Notice key={ i } isError noticeText={ error } />
-			) );
-		}
-	};
-
+const Donation = ( { data = {}, renderError, onChange = () => null, donationPage } ) => {
 	return (
 		<>
-			{ renderErrorNotices() }
+			{ renderError() }
 			{ donationPage && (
 				<Card noBorder>
 					<Card headerActions noBorder>

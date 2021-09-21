@@ -5,13 +5,12 @@
 /**
  * WordPress dependencies
  */
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { Grid, PluginInstaller, SelectControl, withWizardScreen } from '../../../../components/src';
+import { Grid, SelectControl, withWizardScreen } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 import { NEWSPACK, NRH, STRIPE } from '../../constants';
 
@@ -20,10 +19,11 @@ const { withRouter } = Router;
 /**
  * Platform Selection  Screen Component
  */
-const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
+const Platform = ( { renderError, data, onChange } ) => {
 	const { platform } = data;
 	return (
-		<Fragment>
+		<>
+			{ renderError() }
 			<Grid gutter={ 32 }>
 				<SelectControl
 					label={ __( 'Reader Revenue Platform', 'newspack' ) }
@@ -54,23 +54,7 @@ const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
 					} }
 				/>
 			</Grid>
-			{ NEWSPACK === platform && ! pluginStatus && (
-				<PluginInstaller
-					plugins={ [
-						'woocommerce',
-						'woocommerce-subscriptions',
-						'woocommerce-name-your-price',
-						'woocommerce-gateway-stripe',
-					] }
-					onStatus={ ( { complete } ) => {
-						if ( complete ) {
-							onReady();
-						}
-					} }
-					withoutFooterButton={ true }
-				/>
-			) }
-		</Fragment>
+		</>
 	);
 };
 

@@ -12,9 +12,14 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
+ * External dependencies.
+ */
+import { values } from 'lodash';
+
+/**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, Notice, PluginInstaller } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Donation, LocationSetup, NRHSettings, Platform, StripeSetup, Salesforce } from './views';
 import { NEWSPACK, NRH, STRIPE } from './constants';
@@ -175,7 +180,7 @@ class ReaderRevenueWizard extends Component {
 	/**
 	 * Get navigation tabs dependant on selected platform.
 	 */
-	navigationForPlatform = ( platform, data ) => {
+	navigationForPlatform = platform => {
 		const platformField = {
 			label: __( 'Platform', 'newspack' ),
 			path: '/platform',
@@ -187,10 +192,6 @@ class ReaderRevenueWizard extends Component {
 			exact: true,
 		};
 		if ( NEWSPACK === platform ) {
-			const { pluginStatus } = data;
-			if ( ! pluginStatus ) {
-				return [];
-			}
 			return [
 				donationField,
 				{
@@ -231,6 +232,35 @@ class ReaderRevenueWizard extends Component {
 		return [];
 	};
 
+	renderError = () => {
+		const { data } = this.state;
+		const donationDataErrors =
+			( data.donationData.errors && values( data.donationData.errors ) ) || [];
+		return (
+			<>
+				{ donationDataErrors.map( ( error, i ) => (
+					<Notice key={ i } isError noticeText={ error } />
+				) ) }
+				{ NEWSPACK === data.platformData.platform && ! data.pluginStatus && (
+					<PluginInstaller
+						plugins={ [
+							'woocommerce',
+							'woocommerce-subscriptions',
+							'woocommerce-name-your-price',
+							'woocommerce-gateway-stripe',
+						] }
+						onStatus={ ( { complete } ) => {
+							if ( complete ) {
+								this.setState( { data: { ...this.state.data, pluginStatus: true } } );
+							}
+						} }
+						withoutFooterButton={ true }
+					/>
+				) }
+			</>
+		);
+	};
+
 	/**
 	 * Render
 	 */
@@ -246,11 +276,16 @@ class ReaderRevenueWizard extends Component {
 			donationPage,
 			salesforceData,
 			platformData,
-			pluginStatus,
 		} = data;
 		const { platform } = platformData;
 		const salesforceIsConnected = !! salesforceData.refresh_token;
-		const tabbedNavigation = this.navigationForPlatform( platform, data );
+		const tabbedNavigation = this.navigationForPlatform( platform );
+		const sharedProps = {
+			headerText,
+			subHeaderText,
+			tabbedNavigation,
+			renderError: this.renderError,
+		};
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -262,14 +297,8 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Platform
 									data={ { ...platformData, stripeData } }
-									pluginStatus={ pluginStatus }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
-									tabbedNavigation={ tabbedNavigation }
 									onChange={ _platformData => this.update( '', _platformData ) }
-									onReady={ () => {
-										this.setState( { data: { ...data, pluginStatus: true } } );
-									} }
+									{ ...sharedProps }
 								/>
 							) }
 						/>
@@ -279,14 +308,12 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<NRHSettings
 									data={ platformData }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
-									tabbedNavigation={ tabbedNavigation }
 									buttonText={ __( 'Save Settings', 'newspack' ) }
 									buttonAction={ () => this.update( '', platformData ) }
 									onChange={ _platformData =>
 										this.setState( { data: { ...data, platformData: _platformData } } )
 									}
+									{ ...sharedProps }
 								/>
 							) }
 						/>
@@ -297,14 +324,12 @@ class ReaderRevenueWizard extends Component {
 									data={ locationData }
 									countryStateFields={ countryStateFields }
 									currencyFields={ currencyFields }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
 									buttonText={ __( 'Save Settings', 'newspack' ) }
 									buttonAction={ () => this.update( 'location', locationData ) }
-									tabbedNavigation={ tabbedNavigation }
 									onChange={ _locationData =>
 										this.setState( { data: { ...data, locationData: _locationData } } )
 									}
+									{ ...sharedProps }
 								/>
 							) }
 						/>
@@ -315,14 +340,12 @@ class ReaderRevenueWizard extends Component {
 									displayStripeSettingsOnly={ STRIPE === platform }
 									data={ { ...stripeData, isSSL: data.isSSL } }
 									currencyFields={ currencyFields }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
 									buttonText={ __( 'Save Settings', 'newspack' ) }
 									buttonAction={ () => this.update( 'stripe', stripeData ) }
-									tabbedNavigation={ tabbedNavigation }
 									onChange={ _stripeData =>
 										this.setState( { data: { ...data, stripeData: _stripeData } } )
 									}
+									{ ...sharedProps }
 								/>
 							) }
 						/>
@@ -331,15 +354,13 @@ class ReaderRevenueWizard extends Component {
 							render={ () => (
 								<Donation
 									data={ donationData }
-									headerText={ headerText }
-									subHeaderText={ subHeaderText }
 									donationPage={ donationPage }
 									buttonText={ __( 'Save Settings' ) }
 									buttonAction={ () => this.update( 'donations', donationData ) }
 									onChange={ _donationData =>
 										this.setState( { data: { ...data, donationData: _donationData } } )
 									}
-									tabbedNavigation={ tabbedNavigation }
+									{ ...sharedProps }
 								/>
 							) }
 						/>
@@ -349,7 +370,6 @@ class ReaderRevenueWizard extends Component {
 								<Salesforce
 									routeProps={ routeProps }
 									data={ salesforceData }
-									headerText={ headerText }
 									isConnected={ salesforceIsConnected }
 									subHeaderText={ subHeaderText }
 									buttonText={
@@ -363,8 +383,8 @@ class ReaderRevenueWizard extends Component {
 									onChange={ _salesforceData =>
 										this.setState( { data: { ...data, salesforceData: _salesforceData } } )
 									}
-									tabbedNavigation={ tabbedNavigation }
 									wizardApiFetch={ wizardApiFetch }
+									{ ...sharedProps }
 								/>
 							) }
 						/>

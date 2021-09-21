@@ -27,7 +27,7 @@ class LocationSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { countryStateFields, currencyFields, data, onChange } = this.props;
+		const { renderError, countryStateFields, currencyFields, data, onChange } = this.props;
 		const {
 			address1 = '',
 			address2 = '',
@@ -37,44 +37,47 @@ class LocationSetup extends Component {
 			postcode = '',
 		} = data;
 		return (
-			<Grid gutter={ 32 } rowGap={ 16 }>
-				<Card noBorder>
-					<TextControl
-						label={ __( 'Address', 'newspack' ) }
-						value={ address1 }
-						onChange={ _address1 => onChange( { ...data, address1: _address1 } ) }
-					/>
-					<TextControl
-						label={ __( 'Address line 2', 'newspack' ) }
-						value={ address2 }
-						onChange={ _address2 => onChange( { ...data, address2: _address2 } ) }
-					/>
-					<SelectControl
-						label={ __( 'Country', 'newspack' ) }
-						value={ countrystate }
-						options={ countryStateFields }
-						onChange={ _countrystate => onChange( { ...data, countrystate: _countrystate } ) }
-					/>
-				</Card>
-				<Card noBorder>
-					<TextControl
-						label={ __( 'City', 'newspack' ) }
-						value={ city }
-						onChange={ _city => onChange( { ...data, city: _city } ) }
-					/>
-					<TextControl
-						label={ __( 'Postcode / Zip', 'newspack' ) }
-						value={ postcode }
-						onChange={ _postcode => onChange( { ...data, postcode: _postcode } ) }
-					/>
-					<SelectControl
-						label={ __( 'Currency', 'newspack' ) }
-						value={ currency }
-						options={ currencyFields }
-						onChange={ _currency => onChange( { ...data, currency: _currency } ) }
-					/>
-				</Card>
-			</Grid>
+			<>
+				{ renderError() }
+				<Grid gutter={ 32 } rowGap={ 16 }>
+					<Card noBorder>
+						<TextControl
+							label={ __( 'Address', 'newspack' ) }
+							value={ address1 }
+							onChange={ _address1 => onChange( { ...data, address1: _address1 } ) }
+						/>
+						<TextControl
+							label={ __( 'Address line 2', 'newspack' ) }
+							value={ address2 }
+							onChange={ _address2 => onChange( { ...data, address2: _address2 } ) }
+						/>
+						<SelectControl
+							label={ __( 'Country', 'newspack' ) }
+							value={ countrystate }
+							options={ countryStateFields }
+							onChange={ _countrystate => onChange( { ...data, countrystate: _countrystate } ) }
+						/>
+					</Card>
+					<Card noBorder>
+						<TextControl
+							label={ __( 'City', 'newspack' ) }
+							value={ city }
+							onChange={ _city => onChange( { ...data, city: _city } ) }
+						/>
+						<TextControl
+							label={ __( 'Postcode / Zip', 'newspack' ) }
+							value={ postcode }
+							onChange={ _postcode => onChange( { ...data, postcode: _postcode } ) }
+						/>
+						<SelectControl
+							label={ __( 'Currency', 'newspack' ) }
+							value={ currency }
+							options={ currencyFields }
+							onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+						/>
+					</Card>
+				</Grid>
+			</>
 		);
 	}
 }
