@@ -54,7 +54,7 @@ const AdUnits = ( {
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
 	const saveNetworkCode = async () => {
 		await wizardApiFetch( {
-			path: '/newspack/v1/wizard/advertising	/network_code/',
+			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
 			data: { network_code: networkCode },
 			quiet: true,
