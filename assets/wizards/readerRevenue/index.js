@@ -178,12 +178,9 @@ class ReaderRevenueWizard extends Component {
 	navigationForPlatform = ( platform, data ) => {
 		const platformField = {
 			label: __( 'Platform', 'newspack' ),
-			path: '/',
+			path: '/platform',
 			exact: true,
 		};
-		if ( ! platform ) {
-			return [ platformField ];
-		}
 		const donationField = {
 			label: __( 'Donations', 'newspack' ),
 			path: '/donations',
@@ -260,7 +257,7 @@ class ReaderRevenueWizard extends Component {
 					<Switch>
 						{ pluginRequirements }
 						<Route
-							path="/"
+							path="/platform"
 							exact
 							render={ () => (
 								<Platform
@@ -371,7 +368,7 @@ class ReaderRevenueWizard extends Component {
 								/>
 							) }
 						/>
-						<Redirect to="/" />
+						<Redirect to="/donations" />
 					</Switch>
 				</HashRouter>
 			</Fragment>
