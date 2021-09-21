@@ -179,6 +179,63 @@ class Advertising_Wizard extends Wizard {
 			]
 		);
 
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/credentials',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_gam_credentials' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'credentials' => [
+						'type'       => 'object',
+						'properties' => [
+							'type'                        => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'project_id'                  => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'private_key_id'              => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'private_key'                 => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'client_email'                => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'client_id'                   => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'auth_uri'                    => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'token_uri'                   => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'auth_provider_x509_cert_url' => [
+								'required' => true,
+								'type'     => 'string',
+							],
+							'client_x509_cert_url'        => [
+								'required' => true,
+								'type'     => 'string',
+							],
+						],
+					],
+				],
+			]
+		);
+
 		// Save a ad unit.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -387,6 +444,23 @@ class Advertising_Wizard extends Wizard {
 	}
 
 	/**
+	 * Update GAM credentials.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing current GAM status.
+	 */
+	public function api_update_gam_credentials( $request ) {
+		$params                = $request->get_params();
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$response              = $configuration_manager->update_gam_credentials( $params['credentials'] );
+
+		if ( \is_wp_error( $response ) ) {
+			return \rest_ensure_response( $response );
+		}
+		return \rest_ensure_response( $this->retrieve_data() );
+	}
+
+	/**
 	 * Create/update a placement
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -476,6 +550,10 @@ class Advertising_Wizard extends Wizard {
 			$message = $error->getMessage();
 			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
+		
+		if ( \is_wp_error( $ad_units ) ) {
+			return $ad_units;
+		}
 
 		/* If there is only one enabled service, select it for all placements */
 		$enabled_services = array_filter(
@@ -492,11 +570,10 @@ class Advertising_Wizard extends Wizard {
 			}
 		}
 		return array(
-			'services'              => $services,
-			'placements'            => $placements,
-			'ad_units'              => $ad_units,
-			'gam_connection_status' => $configuration_manager->get_gam_connection_status(),
-			'suppression'           => $configuration_manager->get_suppression_config(),
+			'services'    => $services,
+			'placements'  => $placements,
+			'ad_units'    => $ad_units,
+			'suppression' => $configuration_manager->get_suppression_config(),
 		);
 	}
 
@@ -525,6 +602,20 @@ class Advertising_Wizard extends Wizard {
 		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 
 		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
+
+		// Verify GAM connection and run initial setup.
+		$gam_connection_status                   = $configuration_manager->get_gam_connection_status();
+		$services['google_ad_manager']['status'] = $gam_connection_status;
+		if ( true === $gam_connection_status['connected'] && ! isset( $gam_connection_status['error'] ) ) {
+			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
+			$gam_setup_results                             = $configuration_manager->setup_gam();
+			if ( ! \is_wp_error( $gam_setup_results ) ) {
+				$services['google_ad_manager']['created_targeting_keys'] = $gam_setup_results['created_targeting_keys'];
+			} else {
+				$services['google_ad_manager']['status']['error'] = $gam_setup_results->get_error_message();
+			}
+		}
+
 		return $services;
 	}
 
