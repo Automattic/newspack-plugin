@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 import { trash, pencil } from '@wordpress/icons';
 
 /**
@@ -30,7 +31,9 @@ const AdUnits = ( {
 	updateAdUnit,
 	wizardApiFetch,
 	service,
+	serviceData,
 	gamConnectionStatus = {},
+	fetchAdvertisingData,
 } ) => {
 	const warningNoticeText = `${ __(
 		'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
@@ -48,14 +51,19 @@ const AdUnits = ( {
 		! gamConnectionMessage && false === gamConnectionStatus?.is_network_code_matched;
 
 	const [ networkCode, setNetworkCode ] = useState( gamConnectionStatus.network_code );
-	const saveNetworkCode = () => {
-		wizardApiFetch( {
+	const saveNetworkCode = async () => {
+		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
 			data: { network_code: networkCode },
 			quiet: true,
 		} );
+		fetchAdvertisingData( true );
 	};
+
+	useEffect( () => {
+		setNetworkCode( gamConnectionStatus.network_code );
+	}, [ gamConnectionStatus.network_code ] );
 
 	return (
 		<>
@@ -92,6 +100,22 @@ const AdUnits = ( {
 						</Button>
 					</div>
 				</div>
+			) }
+			{ serviceData.error && <Notice noticeText={ serviceData.error } isError /> }
+			{ serviceData.created_targeting_keys?.length > 0 && (
+				<Notice
+					noticeText={ [
+						__( 'Created custom targeting keys:' ) + '\u00A0',
+						serviceData.created_targeting_keys.join( ', ' ) + '. \u00A0',
+						<ExternalLink
+							href={ `https://admanager.google.com/${ serviceData.network_code }#inventory/custom_targeting/list` }
+							key="google-ad-manager-custom-targeting-link"
+						>
+							{ __( 'Visit your GAM dashboard' ) }
+						</ExternalLink>,
+					] }
+					isSuccess
+				/>
 			) }
 			<p>
 				{ __(
@@ -139,10 +163,10 @@ const AdUnits = ( {
 									<span>
 										{ displayLegacyAdUnitLabel ? (
 											<>
-												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{' '}
+												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
 											</>
 										) : null }
-										{ __( 'Sizes:', 'newspack' ) }{' '}
+										{ __( 'Sizes:', 'newspack' ) }{ ' ' }
 										{ adUnit.sizes.map( ( size, i ) => (
 											<code key={ i }>{ size.join( 'x' ) }</code>
 										) ) }

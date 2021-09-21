@@ -39,15 +39,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 	const fetchConfiguration = () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
-		} ).then( res => {
-			performConfigUpdate( {
-				...res,
-				settings: res.settings.reduce(
-					( acc, setting ) => ( { ...acc, [ setting.key ]: setting } ),
-					{}
-				),
-			} );
-		} );
+		} ).then( performConfigUpdate );
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
@@ -194,7 +186,7 @@ const Newsletters = () => {
 export default withWizardScreen( () => (
 	<>
 		<Newsletters />
-		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />{' '}
+		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />{ ' ' }
 		<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
 	</>
 ) );

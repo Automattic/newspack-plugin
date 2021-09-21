@@ -177,53 +177,9 @@
 	}
 }
 
-// Details
+// List
 
-.newspack-details {
-	margin: 32px 0;
-
-	ul {
-		list-style: disc;
-		margin: 32px 0;
-		padding-left: 18px;
-	}
-
-	li {
-		margin-bottom: 8px;
-	}
-
-	ul:last-child {
-		margin-bottom: 0;
-	}
-
-	svg {
-		color: $gray-900;
-		display: block;
-		margin-left: 3px;
-		transition: transform 125ms ease-in-out;
-	}
-
-	&[open] {
-		svg {
-			transform: rotate( 180deg );
-		}
-	}
-
-	summary {
-		align-items: center;
-		cursor: pointer;
-		display: inline-flex;
-
-		h2 {
-			margin: 0;
-		}
-
-		&:focus {
-			outline: none;
-		}
-
-		&::-webkit-details-marker {
-			display: none;
-		}
-	}
+.newspack-list {
+	list-style: disc;
+	padding-left: 18px;
 }

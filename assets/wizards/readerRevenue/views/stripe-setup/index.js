@@ -8,8 +8,12 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
-import { Icon, chevronDown } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
+
+/**
+ * External dependencies
+ */
+import { values } from 'lodash';
 
 /**
  * Internal dependencies
@@ -22,8 +26,12 @@ import {
 	ToggleControl,
 	SelectControl,
 	Notice,
+	Settings,
 	withWizardScreen,
 } from '../../../../components/src';
+import NewsletterSettings from './newsletter-settings';
+
+const { SettingsCard } = Settings;
 
 export const StripeKeysSettings = ( { data, onChange } ) => {
 	const {
@@ -116,44 +124,73 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 			) }
 			{ displayStripeSettingsOnly ? (
 				<>
-					{ data.can_use_stripe_platform === false && (
-						<Notice
-							isError
-							noticeText={ __(
-								'The Stripe platform will not work properly on this site.',
-								'newspack'
-							) }
-						/>
+					{ data.connection_error !== false && (
+						<Notice isError noticeText={ data.connection_error } />
 					) }
-					<StripeKeysSettings data={ data } onChange={ onChange } />
-					<Grid gutter={ 32 } style={ { marginTop: -16 } }>
-						<SelectControl
-							label={ __( 'Currency', 'newspack' ) }
-							value={ data.currency }
-							options={ currencyFields }
-							onChange={ _currency => onChange( { ...data, currency: _currency } ) }
-						/>
-					</Grid>
-					<details className="newspack-details" style={ { marginTop: 64 } }>
-						<summary>
-							<h2>{ __( 'Webhooks', 'newspack' ) }</h2>
-							<Icon icon={ chevronDown } size={ 18 } />
-						</summary>
-						{ data.webhooks.length ? (
-							<ul>
-								{ data.webhooks.map( ( webhook, i ) => (
-									<li key={ i }>
-										<code>{ webhook.url }</code>
-									</li>
-								) ) }
-							</ul>
-						) : (
-							<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
+					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 }>
+						{ data.can_use_stripe_platform === false && (
+							<Notice
+								isError
+								noticeText={ __(
+									'The Stripe platform will not work properly on this site.',
+									'newspack'
+								) }
+							/>
 						) }
-						<Button disabled={ isLoading } onClick={ createWebhooks } isSecondary isSmall>
-							{ __( 'Create webhooks', 'newspack' ) }
-						</Button>
-					</details>
+						<StripeKeysSettings data={ data } onChange={ onChange } />
+						<Grid gutter={ 32 } style={ { marginTop: -16 } }>
+							<SelectControl
+								label={ __( 'Currency', 'newspack' ) }
+								value={ data.currency }
+								options={ currencyFields }
+								onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+							/>
+						</Grid>
+					</SettingsCard>
+					<SettingsCard
+						title={ __( 'Newsletters', 'newspack' ) }
+						description={ __(
+							'Allow donors to sign up to your newsletter when donating.',
+							'newspack'
+						) }
+						columns={ 1 }
+					>
+						<NewsletterSettings
+							listId={ data.newsletter_list_id }
+							onChange={ listId => onChange( { ...data, newsletter_list_id: listId } ) }
+						/>
+					</SettingsCard>
+					<SettingsCard
+						title={ __( 'Webhooks', 'newspack' ) }
+						description={ __(
+							'These need to be configured to allow Stripe to communicate with the site.',
+							'newspack'
+						) }
+						columns={ 1 }
+					>
+						<div>
+							{ data.webhooks?.errors ? (
+								<Notice isError noticeText={ values( data.webhooks.errors ).join( ', ' ) } />
+							) : (
+								<>
+									{ data.webhooks.length ? (
+										<ul className="newspack-list">
+											{ data.webhooks.map( ( webhook, i ) => (
+												<li key={ i }>
+													<code>{ webhook.url }</code>
+												</li>
+											) ) }
+										</ul>
+									) : (
+										<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+									) }
+									<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
+										{ __( 'Create webhooks', 'newspack' ) }
+									</Button>
+								</>
+							) }
+						</div>
+					</SettingsCard>
 				</>
 			) : (
 				<>

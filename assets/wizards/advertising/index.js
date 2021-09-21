@@ -55,9 +55,9 @@ class AdvertisingWizard extends Component {
 	/**
 	 * Retrieve advertising data
 	 */
-	fetchAdvertisingData = () => {
+	fetchAdvertisingData = ( quiet = false ) => {
 		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( { path: '/newspack/v1/wizard/advertising' } )
+		return wizardApiFetch( { path: '/newspack/v1/wizard/advertising', quiet } )
 			.then( advertisingData => {
 				return new Promise( resolve => {
 					this.setState(
@@ -332,6 +332,7 @@ class AdvertisingWizard extends Component {
 										subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
 										adUnits={ adUnits }
 										service={ 'google_ad_manager' }
+										serviceData={ services.google_ad_manager }
 										onDelete={ id => this.deleteAdUnit( id ) }
 										buttonText={ __( 'Add an ad unit', 'newspack' ) }
 										buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
@@ -339,6 +340,7 @@ class AdvertisingWizard extends Component {
 										secondaryButtonAction="#/"
 										wizardApiFetch={ wizardApiFetch }
 										gamConnectionStatus={ advertisingData.gam_connection_status }
+										fetchAdvertisingData={ this.fetchAdvertisingData }
 										updateAdUnit={ adUnit => {
 											this.onAdUnitChange( adUnit );
 											this.saveAdUnit( adUnit.id );

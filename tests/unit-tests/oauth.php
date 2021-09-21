@@ -50,7 +50,6 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 		self::assertEquals(
 			$consent_page_params,
 			[
-				'service'        => 'google',
 				'scope'          => 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/analytics.edit https://www.googleapis.com/auth/dfp',
 				'redirect_after' => 'http://example.org/wp-admin/admin.php?page=newspack',
 				'csrf_token'     => $csrf_token,

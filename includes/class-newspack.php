@@ -41,12 +41,20 @@ final class Newspack {
 		$this->define_constants();
 		$this->includes();
 		add_action( 'admin_init', [ $this, 'admin_redirects' ] );
+		add_action( 'current_screen', [ $this, 'restrict_user_access' ] );
 		add_action( 'admin_menu', [ $this, 'handle_resets' ], 1 );
 		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
 		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
+
+		// Disable the block-based widget editing altogether until further notice.
+		// See https://github.com/Automattic/newspack-plugin/issues/1124.
+		// Disables the block editor from managing widgets in the Gutenberg plugin.
+		add_filter( 'gutenberg_use_widgets_block_editor', '__return_false' );
+		// Disables the block editor from managing widgets.
+		add_filter( 'use_widgets_block_editor', '__return_false' );
 	}
 
 	/**
@@ -193,6 +201,35 @@ final class Newspack {
 	 */
 	public function activation_hook() {
 		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+	}
+
+	/**
+	 * Restrict access to certain pages for non-whitelisted users.
+	 *
+	 * @param WP_Screen $current_screen Current WP_Screen object.
+	 */
+	public static function restrict_user_access( $current_screen ) {
+		if ( ! defined( 'NEWSPACK_ALLOWED_PLUGIN_EDITORS' ) ) {
+			return;
+		}
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		$plugin_screens = [
+			'plugins',
+			'plugin-install',
+			'plugin-editor',
+		];
+
+		$current_user = wp_get_current_user();
+		if ( 0 !== $current_user->ID && ! in_array( $current_user->user_login, NEWSPACK_ALLOWED_PLUGIN_EDITORS ) ) {
+			if ( in_array( $current_screen->base, $plugin_screens ) ) {
+				wp_safe_redirect( get_admin_url() );
+				exit;
+			}
+			remove_menu_page( 'plugins.php' );
+		}
 	}
 
 	/**
