@@ -217,11 +217,6 @@ class Newspack_Image_Credits {
 	 * @return string Modified $block_output.
 	 */
 	public static function add_credit_to_image_block( $block_output, $block ) {
-		// Only for core image blocks or Jetpack slideshow blocks.
-		if ( 'core/image' !== $block['blockName'] && 'jetpack/slideshow' !== $block['blockName'] ) {
-			return $block_output;
-		}
-
 		// Core image blocks.
 		if ( 'core/image' === $block['blockName'] && ! empty( $block['attrs']['id'] ) ) {
 			$credit_string = self::get_media_credit_string( $block['attrs']['id'] );
@@ -322,14 +317,20 @@ class Newspack_Image_Credits {
 	 * @return array Filtered array of image data.
 	 */
 	public static function maybe_show_placeholder_image( $image_data, $attachment_id, $size, $icon ) {
-		if ( ! is_singular() && ! is_archive() ) {
-			return $image_data;
-		}
-
 		$media_credit      = get_post_meta( $attachment_id, self::MEDIA_CREDIT_META, true );
 		$placeholder_image = self::get_settings( 'newspack_image_credits_placeholder' );
 
-		if ( empty( $media_credit ) && ! empty( $placeholder_image ) && intval( $placeholder_image ) !== intval( $attachment_id ) ) {
+		if ( ! empty( $media_credit ) || empty( $placeholder_image ) ) {
+			return $image_data;
+		}
+
+		$site_icon       = get_option( 'site_icon' );
+		$custom_logo     = get_theme_mod( 'custom_logo' );
+		$custom_logo_alt = get_theme_mod( 'newspack_alternative_logo', '' );
+		$is_placeholder  = intval( $placeholder_image ) !== intval( $attachment_id );
+		$is_logo         = intval( $site_icon ) !== intval( $attachment_id ) && intval( $custom_logo ) !== intval( $attachment_id ) && intval( $custom_logo_alt ) !== intval( $attachment_id );
+
+		if ( ! $is_placeholder && ! $is_logo ) {
 			$placeholder_data = wp_get_attachment_image_src( $placeholder_image, $size, $icon );
 			return $placeholder_data;
 		}
