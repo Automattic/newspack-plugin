@@ -143,7 +143,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 							<ul>
 								{ data.webhooks.map( ( webhook, i ) => (
 									<li key={ i }>
-										- <code>{ webhook.url }</code>
+										<code>{ webhook.url }</code>
 									</li>
 								) ) }
 							</ul>
