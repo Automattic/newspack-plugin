@@ -130,19 +130,21 @@ const AdUnits = ( {
 						noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
 						isWarning
 					/>
-					<ButtonCard
-						onClick={ () => {
-							credentialsInputFile.current.click();
-						} }
-						title={ __( 'Connect your GAM account', 'newspack' ) }
-						desc={ [
-							__(
-								'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
-								'newspack'
-							),
-							fileError && <Notice noticeText={ fileError } isError />,
-						] }
-					/>
+					{ ! serviceData.status.incompatible && (
+						<ButtonCard
+							onClick={ () => {
+								credentialsInputFile.current.click();
+							} }
+							title={ __( 'Connect your GAM account', 'newspack' ) }
+							desc={ [
+								__(
+									'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
+									'newspack'
+								),
+								fileError && <Notice noticeText={ fileError } isError />,
+							] }
+						/>
+					) }
 				</>
 			) }
 			{ serviceData.created_targeting_keys?.length > 0 && (
