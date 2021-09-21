@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { trash, pencil } from '@wordpress/icons';
@@ -15,6 +15,7 @@ import { trash, pencil } from '@wordpress/icons';
  */
 import {
 	ActionCard,
+	ButtonCard,
 	TextControl,
 	Button,
 	Card,
@@ -32,7 +33,7 @@ const AdUnits = ( {
 	wizardApiFetch,
 	service,
 	serviceData,
-	gamConnectionStatus = {},
+	updateGAMCredentials,
 	fetchAdvertisingData,
 } ) => {
 	const warningNoticeText = `${ __(
@@ -43,14 +44,14 @@ const AdUnits = ( {
 			? __( 'The legacy ad units will continue to work.', 'newspack' )
 			: ''
 	}`;
-	const gamConnectionMessage = gamConnectionStatus?.error
-		? `${ __( 'Google Ad Manager connection error', 'newspack' ) }: ${ gamConnectionStatus.error }`
+	const gamConnectionMessage = serviceData?.status?.error
+		? `${ __( 'Google Ad Manager connection error', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
 	const isDisplayingNetworkMismatchNotice =
-		! gamConnectionMessage && false === gamConnectionStatus?.is_network_code_matched;
+		! gamConnectionMessage && false === serviceData.status?.is_network_code_matched;
 
-	const [ networkCode, setNetworkCode ] = useState( gamConnectionStatus.network_code );
+	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
 	const saveNetworkCode = async () => {
 		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
@@ -61,13 +62,34 @@ const AdUnits = ( {
 		fetchAdvertisingData( true );
 	};
 
+	const [ fileError, setFileError ] = useState( '' );
+	const handleCredentialsFile = event => {
+		const reader = new FileReader();
+		reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
+		reader.onload = function ( evt ) {
+			let credentials;
+			try {
+				credentials = JSON.parse( evt.target.result );
+			} catch ( error ) {
+				setFileError( __( 'Invalid JSON file', 'newspack' ) );
+				return;
+			}
+			updateGAMCredentials( credentials );
+		};
+		reader.onerror = function () {
+			setFileError( __( 'Unable to read file', 'newspack' ) );
+		};
+	};
+
 	useEffect( () => {
-		setNetworkCode( gamConnectionStatus.network_code );
-	}, [ gamConnectionStatus.network_code ] );
+		setNetworkCode( serviceData.status.network_code );
+	}, [ serviceData.status.network_code ] );
+
+	const credentialsInputFile = useRef( null );
 
 	return (
 		<>
-			{ gamConnectionStatus.can_connect ? (
+			{ serviceData.status.can_connect ? (
 				<>
 					{ isDisplayingNetworkMismatchNotice && (
 						<Notice
@@ -78,30 +100,58 @@ const AdUnits = ( {
 							isError
 						/>
 					) }
-					{ gamConnectionStatus?.connected === false && (
-						<Notice
-							noticeText={ gamConnectionMessage || warningNoticeText }
-							isWarning={ ! gamConnectionMessage }
-							isError={ gamConnectionMessage }
-						/>
+					{ serviceData.status.connected === false && (
+						<>
+							<Notice
+								noticeText={ gamConnectionMessage || warningNoticeText }
+								isWarning={ ! gamConnectionMessage }
+								isError={ gamConnectionMessage }
+							/>
+							<Button
+								isSecondary
+								onClick={ () => {
+									credentialsInputFile.current.click();
+								} }
+							>
+								{ __( 'Upload new credentials', 'newspack' ) }
+							</Button>
+						</>
 					) }
 				</>
 			) : (
-				<div className="flex items-end" style={ { margin: '-30px 0' } }>
-					<TextControl
-						className="mr2"
-						label={ __( 'Network code', 'newspack' ) }
-						value={ networkCode }
-						onChange={ setNetworkCode }
+				<>
+					<Notice
+						noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
+						isWarning
 					/>
-					<div className="mb4">
-						<Button onClick={ saveNetworkCode } isPrimary>
-							{ __( 'Save', 'newspack' ) }
-						</Button>
+					<ButtonCard
+						onClick={ () => {
+							credentialsInputFile.current.click();
+						} }
+						title={ __( 'Connect your GAM account', 'newspack' ) }
+						desc={ [
+							__(
+								'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
+								'newspack'
+							),
+							fileError && <Notice noticeText={ fileError } isError />,
+						] }
+					/>
+					<div className="flex items-end" style={ { margin: '-30px 0' } }>
+						<TextControl
+							className="mr2"
+							label={ __( 'Network code', 'newspack' ) }
+							value={ networkCode }
+							onChange={ setNetworkCode }
+						/>
+						<div className="mb4">
+							<Button onClick={ saveNetworkCode } isPrimary>
+								{ __( 'Save', 'newspack' ) }
+							</Button>
+						</div>
 					</div>
-				</div>
+				</>
 			) }
-			{ serviceData.error && <Notice noticeText={ serviceData.error } isError /> }
 			{ serviceData.created_targeting_keys?.length > 0 && (
 				<Notice
 					noticeText={ [
@@ -134,14 +184,14 @@ const AdUnits = ( {
 						const editLink = `#${ service }/${ adUnit.id }`;
 						const isDisabled = adUnit.is_legacy
 							? false
-							: false === gamConnectionStatus?.is_network_code_matched;
+							: false === serviceData.status?.is_network_code_matched;
 						const buttonProps = {
 							disabled: isDisabled,
 							isQuaternary: true,
 							isSmall: true,
 							tooltipPosition: 'bottom center',
 						};
-						const displayLegacyAdUnitLabel = gamConnectionStatus.can_connect && adUnit.is_legacy;
+						const displayLegacyAdUnitLabel = serviceData.status.can_connect && adUnit.is_legacy;
 						return (
 							<ActionCard
 								disabled={ isDisabled }
@@ -192,6 +242,13 @@ const AdUnits = ( {
 						);
 					} ) }
 			</Card>
+			<input
+				type="file"
+				accept=".json"
+				ref={ credentialsInputFile }
+				style={ { display: 'none' } }
+				onChange={ handleCredentialsFile }
+			/>
 		</>
 	);
 };

@@ -33,9 +33,9 @@ class AdUnit extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnit, onSave, service, gamConnectionStatus = {} } = this.props;
+		const { adUnit, onSave, service, serviceData = {} } = this.props;
 		const { id, code, name = '' } = adUnit;
-		const isLegacy = false === gamConnectionStatus.can_connect || adUnit.is_legacy;
+		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
 		return (
