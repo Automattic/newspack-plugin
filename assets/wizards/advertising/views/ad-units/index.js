@@ -19,6 +19,7 @@ import {
 	TextControl,
 	Button,
 	Card,
+	Modal,
 	Notice,
 	withWizardScreen,
 } from '../../../../components/src';
@@ -34,6 +35,7 @@ const AdUnits = ( {
 	service,
 	serviceData,
 	updateGAMCredentials,
+	removeGAMCredentials,
 	fetchAdvertisingData,
 } ) => {
 	const warningNoticeText = `${ __(
@@ -64,21 +66,23 @@ const AdUnits = ( {
 
 	const [ fileError, setFileError ] = useState( '' );
 	const handleCredentialsFile = event => {
-		const reader = new FileReader();
-		reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
-		reader.onload = function ( evt ) {
-			let credentials;
-			try {
-				credentials = JSON.parse( evt.target.result );
-			} catch ( error ) {
-				setFileError( __( 'Invalid JSON file', 'newspack' ) );
-				return;
-			}
-			updateGAMCredentials( credentials );
-		};
-		reader.onerror = function () {
-			setFileError( __( 'Unable to read file', 'newspack' ) );
-		};
+		if ( event.target.files.length && event.target.files[ 0 ] ) {
+			const reader = new FileReader();
+			reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
+			reader.onload = function ( ev ) {
+				let credentials;
+				try {
+					credentials = JSON.parse( ev.target.result );
+				} catch ( error ) {
+					setFileError( __( 'Invalid JSON file', 'newspack' ) );
+					return;
+				}
+				updateGAMCredentials( credentials );
+			};
+			reader.onerror = function () {
+				setFileError( __( 'Unable to read file', 'newspack' ) );
+			};
+		}
 	};
 
 	useEffect( () => {
@@ -87,6 +91,8 @@ const AdUnits = ( {
 
 	const credentialsInputFile = useRef( null );
 
+	const [ isRemoving, setIsRemoving ] = useState( false );
+
 	return (
 		<>
 			{ serviceData.status.can_connect ? (
@@ -94,10 +100,10 @@ const AdUnits = ( {
 					{ isDisplayingNetworkMismatchNotice && (
 						<Notice
 							noticeText={ __(
-								'Your GAM network code is different than the network code the site was configured with. Editing has been disabled.',
+								'Your GAM network code is different than the network code the site was configured with.',
 								'newspack'
 							) }
-							isError
+							isWarning
 						/>
 					) }
 					{ serviceData.status.connected === false && (
@@ -137,19 +143,6 @@ const AdUnits = ( {
 							fileError && <Notice noticeText={ fileError } isError />,
 						] }
 					/>
-					<div className="flex items-end" style={ { margin: '-30px 0' } }>
-						<TextControl
-							className="mr2"
-							label={ __( 'Network code', 'newspack' ) }
-							value={ networkCode }
-							onChange={ setNetworkCode }
-						/>
-						<div className="mb4">
-							<Button onClick={ saveNetworkCode } isPrimary>
-								{ __( 'Save', 'newspack' ) }
-							</Button>
-						</div>
-					</div>
 				</>
 			) }
 			{ serviceData.created_targeting_keys?.length > 0 && (
@@ -167,6 +160,70 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
+			<div className="flex items-end" style={ { margin: '-30px 0' } }>
+				<TextControl
+					className="mr2"
+					label={ __( 'Network code', 'newspack' ) }
+					value={ networkCode }
+					onChange={ setNetworkCode }
+					disabled={ serviceData.status.connected }
+				/>
+				<Card buttonsCard noBorder>
+					<Button onClick={ saveNetworkCode } isPrimary disabled={ serviceData.status.connected }>
+						{ __( 'Save', 'newspack' ) }
+					</Button>
+					{ serviceData.status.connected && (
+						<>
+							<Button
+								onClick={ () => {
+									credentialsInputFile.current.click();
+								} }
+								isSecondary
+								isSmall
+							>
+								{ __( 'Upload new credentials', 'newspack' ) }
+							</Button>
+							<Button
+								onClick={ () => {
+									setIsRemoving( true );
+								} }
+								// isQuarternary
+								isSmall
+								isDestructive
+							>
+								{ __( 'Remove credentials', 'newspack' ) }
+							</Button>
+						</>
+					) }
+					{ isRemoving && (
+						<Modal
+							title={ __( 'Remove Service Account Credentials', 'newspack' ) }
+							onRequestClose={ () => setIsRemoving( false ) }
+						>
+							<p>
+								{ __(
+									'The credentials will be removed and Newspack Ads will no longer be connected to this Google Ad Manager account.',
+									'newspack'
+								) }
+							</p>
+							<Card buttonsCard noBorder className="justify-end">
+								<Button
+									isDestructive
+									onClick={ () => {
+										removeGAMCredentials();
+										setIsRemoving( false );
+									} }
+								>
+									{ __( 'Remove credentials', 'newspack' ) }
+								</Button>
+								<Button isSecondary onClick={ () => setIsRemoving( false ) }>
+									{ __( 'Dismiss', 'newspack' ) }
+								</Button>
+							</Card>
+						</Modal>
+					) }
+				</Card>
+			</div>
 			<p>
 				{ __(
 					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.'
@@ -182,11 +239,7 @@ const AdUnits = ( {
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
 					.map( adUnit => {
 						const editLink = `#${ service }/${ adUnit.id }`;
-						const isDisabled = adUnit.is_legacy
-							? false
-							: false === serviceData.status?.is_network_code_matched;
 						const buttonProps = {
-							disabled: isDisabled,
 							isQuaternary: true,
 							isSmall: true,
 							tooltipPosition: 'bottom center',
@@ -194,11 +247,10 @@ const AdUnits = ( {
 						const displayLegacyAdUnitLabel = serviceData.status.can_connect && adUnit.is_legacy;
 						return (
 							<ActionCard
-								disabled={ isDisabled }
 								key={ adUnit.id }
 								title={ adUnit.name }
 								isSmall
-								titleLink={ isDisabled ? null : editLink }
+								titleLink={ editLink }
 								className="mv0"
 								{ ...( adUnit.is_legacy
 									? {}
