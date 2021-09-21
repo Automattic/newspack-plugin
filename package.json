@@ -47,7 +47,7 @@
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^6.0.1",
     "postcss-focus-within": "^3.0.0",
-    "prettier": "git+https://github.com/Automattic/wp-prettier.git#wp-prettier-1.18.2",
+    "prettier": "npm:wp-prettier@2.0.5",
     "react-router-dom": "^5.2.0",
     "recursive-copy": "^2.0.10",
     "rtlcss": "^2.6.2",
@@ -134,8 +134,7 @@
     "react-dropzone": "^10.2.1",
     "react-rte": "^0.16.1",
     "recharts": "^1.8.5",
-    "whatwg-fetch": "^3.0.0",
-    "wp-prettier": "git+https://github.com/Automattic/wp-prettier.git#wp-prettier-1.18.2"
+    "whatwg-fetch": "^3.0.0"
   },
   "release": {
     "branches": [

@@ -26,6 +26,7 @@
 		display: flex;
 		justify-content: center;
 		max-width: 100%;
+		min-height: 48px;
 		position: relative;
 		&--covering {
 			background-size: cover;
@@ -49,6 +50,7 @@
 		}
 		&--has-image {
 			border: none;
+			overflow: hidden;
 			&::before,
 			&::after {
 				border: 1px solid rgba( black, 0.125 );
@@ -81,6 +83,10 @@
 					opacity: 1;
 				}
 			}
+			img {
+				max-height: 100%;
+				max-width: 100%;
+			}
 			.sep {
 				background: transparent;
 				display: block;
@@ -89,5 +95,14 @@
 				width: 100%;
 			}
 		}
+	}
+	&__image + &__help {
+		margin: 0;
+	}
+	&__controls {
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+		position: absolute;
 	}
 }

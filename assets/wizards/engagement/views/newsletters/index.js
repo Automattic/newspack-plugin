@@ -186,7 +186,7 @@ const Newsletters = () => {
 export default withWizardScreen( () => (
 	<>
 		<Newsletters />
-		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />{' '}
+		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />{ ' ' }
 		<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
 	</>
 ) );
