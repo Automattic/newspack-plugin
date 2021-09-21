@@ -72,7 +72,17 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const { onChange, className, label, info, image, isCovering, style = {} } = this.props;
+		const {
+			buttonLabel,
+			className,
+			help,
+			image,
+			info,
+			isCovering,
+			label,
+			onChange,
+			style = {},
+		} = this.props;
 		const classes = classnames(
 			'newspack-image-upload__image',
 			{ 'newspack-image-upload__image--has-image': image },
@@ -85,27 +95,31 @@ class ImageUpload extends Component {
 					{ label && <label className="newspack-image-upload__label">{ label }</label> }
 					{ info && <InfoButton text={ info } /> }
 				</div>
-				<div
-					className={ classes }
-					data-testid="image-upload"
-					style={ { ...( image ? { backgroundImage: `url('${ image.url }')` } : {} ), ...style } }
-				>
-					{ image ? (
-						<div>
-							<Button onClick={ this.openModal } isLink>
-								{ __( 'Replace', 'newspack' ) }
-							</Button>
-							<span className="sep" />
-							<Button onClick={ () => onChange( null ) } isLink isDestructive>
-								{ __( 'Remove', 'newspack' ) }
-							</Button>
-						</div>
+				<div className={ classes } style={ { ...style } }>
+					{ image?.url ? (
+						<>
+							<img
+								data-testid="image-upload"
+								src={ image.url }
+								alt={ __( 'Image preview', 'newspack' ) }
+							/>
+							<div className="newspack-image-upload__controls">
+								<Button onClick={ this.openModal } isLink>
+									{ __( 'Replace', 'newspack' ) }
+								</Button>
+								<span className="sep" />
+								<Button onClick={ () => onChange( null ) } isLink isDestructive>
+									{ __( 'Remove', 'newspack' ) }
+								</Button>
+							</div>
+						</>
 					) : (
 						<Button onClick={ this.openModal } isLink>
-							{ __( 'Upload', 'newspack' ) }
+							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack' ) }
 						</Button>
 					) }
 				</div>
+				{ help && <p className="newspack-image-upload__help">{ help }</p> }
 			</div>
 		);
 	};
