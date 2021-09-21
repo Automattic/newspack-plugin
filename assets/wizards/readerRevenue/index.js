@@ -192,7 +192,6 @@ class ReaderRevenueWizard extends Component {
 				return [];
 			}
 			return [
-				platformField,
 				donationField,
 				{
 					label: __( 'Stripe Gateway', 'newspack' ),
@@ -207,25 +206,26 @@ class ReaderRevenueWizard extends Component {
 					label: __( 'Address', 'newspack' ),
 					path: '/location-setup',
 				},
+				platformField,
 			];
 		} else if ( NRH === platform ) {
 			return [
-				platformField,
 				donationField,
 				{
 					label: __( 'NRH Settings', 'newspack' ),
 					path: '/settings',
 					exact: true,
 				},
+				platformField,
 			];
 		} else if ( STRIPE === platform ) {
 			return [
-				platformField,
 				donationField,
 				{
 					label: __( 'Stripe Settings', 'newspack' ),
 					path: '/stripe-setup',
 				},
+				platformField,
 			];
 		}
 		return [];
