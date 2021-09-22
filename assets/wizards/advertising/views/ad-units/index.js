@@ -219,7 +219,7 @@ const AdUnits = ( {
 									{ __( 'Remove credentials', 'newspack' ) }
 								</Button>
 								<Button isSecondary onClick={ () => setIsRemoving( false ) }>
-									{ __( 'Dismiss', 'newspack' ) }
+									{ __( 'Cancel', 'newspack' ) }
 								</Button>
 							</Card>
 						</Modal>
