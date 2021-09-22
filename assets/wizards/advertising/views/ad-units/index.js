@@ -100,7 +100,7 @@ const AdUnits = ( {
 					{ isDisplayingNetworkMismatchNotice && (
 						<Notice
 							noticeText={ __(
-								'Your GAM network code is different than the network code the site was configured with.',
+								'Your GAM network code is different than the network code the site was configured with. Legacy ad units are likely to not load.',
 								'newspack'
 							) }
 							isWarning
@@ -171,17 +171,17 @@ const AdUnits = ( {
 					disabled={ serviceData.status.connected }
 				/>
 				<Card buttonsCard noBorder>
-					<Button onClick={ saveNetworkCode } isPrimary disabled={ serviceData.status.connected }>
-						{ __( 'Save', 'newspack' ) }
-					</Button>
-					{ serviceData.status.connected && (
+					{ ! serviceData.status.connected ? (
+						<Button onClick={ saveNetworkCode } isPrimary disabled={ serviceData.status.connected }>
+							{ __( 'Save', 'newspack' ) }
+						</Button>
+					) : (
 						<>
 							<Button
 								onClick={ () => {
 									credentialsInputFile.current.click();
 								} }
 								isSecondary
-								isSmall
 							>
 								{ __( 'Upload new credentials', 'newspack' ) }
 							</Button>
@@ -189,8 +189,6 @@ const AdUnits = ( {
 								onClick={ () => {
 									setIsRemoving( true );
 								} }
-								// isQuarternary
-								isSmall
 								isDestructive
 							>
 								{ __( 'Remove credentials', 'newspack' ) }
