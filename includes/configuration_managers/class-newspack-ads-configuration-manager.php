@@ -59,6 +59,17 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Remove GAM credentials.
+	 *
+	 * @return object|WP_Error Connection status or error if it fails.
+	 */
+	public function remove_gam_credentials() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::remove_gam_credentials() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Get the ad units from our saved option.
 	 *
 	 * @return array | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.
