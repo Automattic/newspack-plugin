@@ -179,6 +179,7 @@ class Advertising_Wizard extends Wizard {
 			]
 		);
 
+		// Update GAM credentials.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/advertising/credentials',
@@ -233,6 +234,17 @@ class Advertising_Wizard extends Wizard {
 						],
 					],
 				],
+			]
+		);
+
+		// Remove GAM credentials.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/credentials',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_remove_gam_credentials' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
 
@@ -372,7 +384,7 @@ class Advertising_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_update_network_code( $request ) {
-		update_option( \Newspack_Ads_Model::OPTION_NAME_NETWORK_CODE, $request['network_code'] );
+		update_option( \Newspack_Ads_Model::OPTION_NAME_LEGACY_NETWORK_CODE, $request['network_code'] );
 		return \rest_ensure_response( [] );
 	}
 
@@ -453,6 +465,22 @@ class Advertising_Wizard extends Wizard {
 		$params                = $request->get_params();
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 		$response              = $configuration_manager->update_gam_credentials( $params['credentials'] );
+
+		if ( \is_wp_error( $response ) ) {
+			return \rest_ensure_response( $response );
+		}
+		return \rest_ensure_response( $this->retrieve_data() );
+	}
+
+	/**
+	 * Remove GAM credentials.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing current GAM status.
+	 */
+	public function api_remove_gam_credentials( $request ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$response              = $configuration_manager->remove_gam_credentials();
 
 		if ( \is_wp_error( $response ) ) {
 			return \rest_ensure_response( $response );
