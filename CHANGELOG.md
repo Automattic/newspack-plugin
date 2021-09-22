@@ -1,3 +1,10 @@
+# [1.57.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.57.0-alpha.1...v1.57.0-alpha.2) (2021-09-22)
+
+
+### Bug Fixes
+
+* **ads:** network code and credentials control ([#1151](https://github.com/Automattic/newspack-plugin/issues/1151)) ([cd911a5](https://github.com/Automattic/newspack-plugin/commit/cd911a5a01ebf2f001acadaac3c2a5aa8c394879))
+
 # [1.57.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.56.1...v1.57.0-alpha.1) (2021-09-21)
 
 
