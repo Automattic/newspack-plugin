@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { home } from '@wordpress/icons';
+import { category } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -72,7 +72,8 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 								href={ newspack_urls.dashboard }
 								label={ __( 'Return to Dashboard', 'newspack' ) }
 								showTooltip={ true }
-								icon={ home }
+								icon={ category }
+								iconSize={ 36 }
 							>
 								<NewspackIcon size={ 36 } />
 							</Button>
