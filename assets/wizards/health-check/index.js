@@ -117,6 +117,7 @@ class HealthCheckWizard extends Component {
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									tabbedNavigation={ tabs }
 									configurationStatus={ configurationStatus }
+									missingPlugins={ Object.keys( missingPlugins ) }
 									repairConfiguration={ this.repairConfiguration }
 								/>
 							) }
