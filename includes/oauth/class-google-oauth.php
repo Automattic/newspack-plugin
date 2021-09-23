@@ -181,7 +181,7 @@ class Google_OAuth {
 
 		return add_query_arg(
 			[
-				'wpcom_access_token' => urlencode( WPCOM_OAuth::get_access_token() ),
+				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
 			],
 			NEWSPACK_GOOGLE_OAUTH_PROXY . $path
 		);
