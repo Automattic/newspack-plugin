@@ -28,7 +28,7 @@ const Main = () => {
 		<>
 			{ error && <Notice isError noticeText={ error } /> }
 			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
-			<GoogleAuth canBeConnected={ isWPCOMConnected === true } />
+			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
 		</>
 	);
 };

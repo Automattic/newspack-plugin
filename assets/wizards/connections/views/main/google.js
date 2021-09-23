@@ -50,7 +50,7 @@ export const handleGoogleRedirect = ( { setError } ) => {
 	return Promise.resolve();
 };
 
-const GoogleOAuth = ( { canBeConnected } ) => {
+const GoogleOAuth = ( { setError, canBeConnected } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
@@ -58,15 +58,18 @@ const GoogleOAuth = ( { canBeConnected } ) => {
 	const canUseOauth = newspack_connections_data.can_connect_google;
 
 	const [ inFlight, setInFlight ] = useState( false );
+	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
 
 	useEffect( () => {
 		const params = getURLParams();
 		if ( canUseOauth && ! params.access_token ) {
 			setInFlight( true );
-			apiFetch( { path: '/newspack/v1/oauth/google' } ).then( res => {
-				setAuthState( res );
-				setInFlight( false );
-			} );
+			apiFetch( { path: '/newspack/v1/oauth/google' } )
+				.then( res => {
+					setAuthState( res );
+					setInFlight( false );
+				} )
+				.catch( handleError );
 		}
 	}, [] );
 
@@ -79,7 +82,9 @@ const GoogleOAuth = ( { canBeConnected } ) => {
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/oauth/google/start',
-		} ).then( url => ( window.location = url ) );
+		} )
+			.then( url => ( window.location = url ) )
+			.catch( handleError );
 	};
 
 	// Redirect user to Google auth screen.
@@ -88,10 +93,12 @@ const GoogleOAuth = ( { canBeConnected } ) => {
 		apiFetch( {
 			path: '/newspack/v1/oauth/google/revoke',
 			method: 'DELETE',
-		} ).then( () => {
-			setAuthState( {} );
-			setInFlight( false );
-		} );
+		} )
+			.then( () => {
+				setAuthState( {} );
+				setInFlight( false );
+			} )
+			.catch( handleError );
 	};
 
 	const getDescription = () => {

@@ -202,7 +202,15 @@ class Google_OAuth {
 				return $result;
 			}
 			if ( 200 !== $result['response']['code'] ) {
-				return wp_send_json_error( json_decode( $result['body'] )->data->message, 400 );
+				$error_text  = __( 'Request failed.', 'newspack' );
+				$parsed_data = json_decode( $result['body'] );
+				if ( property_exists( $parsed_data, 'message' ) ) {
+					$error_text = $parsed_data->message;
+				}
+				return new WP_Error(
+					'newspack_google_oauth',
+					$error_text
+				);
 			}
 			$response_body = json_decode( $result['body'] );
 			return \rest_ensure_response( $response_body->url );
