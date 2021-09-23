@@ -42,7 +42,7 @@ const Commenting = () => {
 			{ coralActive ? (
 				<ActionCard
 					title={ __( 'The Coral Project', 'newspack' ) }
-					description={ __( 'Coral Project  commenting system.' ) }
+					description={ __( 'Coral Project commenting system.' ) }
 					actionText={ __( 'Configure' ) }
 					handoff="talk-wp-plugin"
 				/>

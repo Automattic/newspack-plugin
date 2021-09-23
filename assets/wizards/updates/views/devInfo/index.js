@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import marked from 'marked';
-import { sanitize } from 'dompurify';
+import DOMPurify from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
 import 'whatwg-fetch';
 
@@ -71,10 +71,12 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 	const { date, content, bugFixes = [], features = [] } = parseReleaseHeader( releaseData );
 
 	const bugFixesAmountString = sprintf(
+		// Translators: %d: number of bugs.
 		_n( '%d bug', '%d bugs', bugFixes.length, 'newspack' ),
 		bugFixes.length
 	);
 	const featuresAmountString = sprintf(
+		// Translators: %d: number of new features.
 		_n( '%d new feature', '%d new features', features.length, 'newspack' ),
 		features.length
 	);
@@ -96,7 +98,7 @@ const ReleaseNotes = ( { repoSlug, repoName } ) => {
 					<strong>{ infoStrings.join( __( ' and ', 'newspack' ) ) }</strong>.
 				</span>
 			</summary>
-			<div dangerouslySetInnerHTML={ { __html: sanitize( marked( content ) ) } } />
+			<div dangerouslySetInnerHTML={ { __html: DOMPurify.sanitize( marked( content ) ) } } />
 		</details>
 	) : (
 		<div>

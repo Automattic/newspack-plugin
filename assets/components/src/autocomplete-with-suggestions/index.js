@@ -176,11 +176,13 @@ const AutocompleteWithSuggestions = ( {
 		const selections = selectedPost ? [ ...selectedItems, selectedPost ] : selectedItems;
 		const selectedMessage = multiSelect
 			? sprintf(
-					__( '%s %s selected', 'newspack' ),
+					// Translators: %1: the length of selections. %2: the selection leabel.
+					__( '%1$s %2$s selected', 'newspack' ),
 					selections.length,
 					selections.length > 1 ? postTypeLabelPlural : postTypeLabel
 			  )
-			: sprintf( __( 'Selected %s', 'newspack' ), postTypeLabel );
+			: // Translators: %s: The label for the selection.
+			  sprintf( __( 'Selected %s', 'newspack' ), postTypeLabel );
 
 		return (
 			<div className="newspack-autocomplete-with-suggestions__selected-items">
@@ -216,6 +218,7 @@ const AutocompleteWithSuggestions = ( {
 		return (
 			<SelectControl
 				label={ sprintf(
+					// Translators: %s: The name of the type.
 					__( '%s type', 'newspack' ),
 					postTypeLabel.charAt( 0 ).toUpperCase() + postTypeLabel.slice( 1 )
 				) }
@@ -280,7 +283,12 @@ const AutocompleteWithSuggestions = ( {
 			<>
 				{ ! hideHelp && (
 					<p className="newspack-autocomplete-with-suggestions__label">
-						{ sprintf( __( 'Or, select a recent %s:', 'newspack' ), postTypeLabel ) }
+						{
+							/* Translators: %s: the name of a post type. */ sprintf(
+								__( 'Or, select a recent %s:', 'newspack' ),
+								postTypeLabel
+							)
+						}
 					</p>
 				) }
 				<div className={ className }>
@@ -291,7 +299,7 @@ const AutocompleteWithSuggestions = ( {
 							isSecondary
 							onClick={ () => setIsLoadingMore( true ) }
 						>
-							{ isLoadingMore ? __( 'Loading...', 'newspack' ) : __( 'Load more', 'newspack' ) }
+							{ isLoadingMore ? __( 'Loading…', 'newspack' ) : __( 'Load more', 'newspack' ) }
 						</Button>
 					) }
 				</div>
