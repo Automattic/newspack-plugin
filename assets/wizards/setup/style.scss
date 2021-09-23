@@ -2,20 +2,6 @@
  * Setup
  */
 
-#newspack-setup-wizard {
-	.newspack-wizard__header {
-		h1 {
-			display: none;
-		}
-
-		p {
-			font-size: 21px;
-			font-weight: bold;
-			line-height: 32px;
-		}
-	}
-}
-
 .newspack-site-profile {
 	display: flex;
 	flex-wrap: wrap;
@@ -55,5 +41,25 @@
 				grid-template-columns: repeat( auto-fit, 100% );
 			}
 		}
+	}
+}
+
+.newspack-wizard {
+	&__title {
+		a {
+			pointer-events: none;
+		}
+
+		svg:not( .newspack-icon ) {
+			display: none;
+		}
+	}
+}
+
+.newspack-footer {
+	flex-direction: row-reverse;
+
+	&__logo {
+		margin-left: 0;
 	}
 }

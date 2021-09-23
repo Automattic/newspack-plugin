@@ -47,6 +47,10 @@ svg {
 		background: $primary-500;
 	}
 
+	.newspack-wizard__header {
+		display: none;
+	}
+
 	.newspack-card {
 		background: white;
 		border: 0;
@@ -83,7 +87,7 @@ svg {
 	}
 
 	.newspack-logo__wrapper {
-		margin-top: -32px;
+		margin-bottom: 32px;
 	}
 
 	.newspack-buttons-card {
@@ -91,7 +95,12 @@ svg {
 	}
 
 	.newspack-footer {
-		color: white;
+		background: $primary-500;
+		border-color: $primary-600;
+
+		&__logo {
+			background: $primary-700;
+		}
 	}
 
 	#wpfooter {
