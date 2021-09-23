@@ -1,19 +1,23 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies.
  */
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { Button, Handoff, Notice, TabbedNavigation, WizardPagination } from '../';
+import Router from '../proxied-imports/router';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
-/**
- * External dependencies
- */
-import classnames from 'classnames';
+const { useLocation } = Router;
 
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
@@ -54,6 +58,10 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 					{ ...overridingProps }
 				/>
 			);
+		const { pathname } = useLocation();
+		useEffect( () => {
+			window.scrollTo( 0, 0 );
+		}, [ pathname ] );
 		return (
 			<>
 				{ newspack_aux_data.is_debug_mode && (
