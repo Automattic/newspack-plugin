@@ -176,7 +176,7 @@ final class Newspack {
 		if ( WPCOM_OAuth::get_wpcom_access_token() && 'reset-wpcom' === $newspack_reset ) {
 			delete_user_meta( get_current_user_id(), WPCOM_OAuth::NEWSPACK_WPCOM_ACCESS_TOKEN );
 			delete_user_meta( get_current_user_id(), WPCOM_OAuth::NEWSPACK_WPCOM_EXPIRES_IN );
-			$redirect_url = add_query_arg( 'newspack-notice', __( 'Removed WPCOM Access Token', 'newspack' ), $redirect_url );
+			$redirect_url = Wizards::get_url( 'connections' );
 		}
 
 		if ( $newspack_reset ) {
