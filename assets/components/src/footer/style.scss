@@ -40,16 +40,17 @@
 		display: flex;
 		flex-wrap: wrap;
 		margin: 0;
-		padding: 8px;
+		padding: 7px 8px;
 	}
 
 	li {
-		display: block;
 		margin: 8px;
 	}
 
 	a {
+		align-items: flex-end;
 		color: inherit;
+		display: flex;
 
 		&:active,
 		&:focus,
@@ -63,7 +64,7 @@
 		background: $gray-900;
 		display: flex;
 		margin: 0 0 -1px;
-		padding: 19px;
+		padding: 16px;
 		width: 100%;
 
 		@media screen and ( min-width: 783px ) {

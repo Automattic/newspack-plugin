@@ -96,10 +96,11 @@ svg {
 
 	.newspack-footer {
 		background: $primary-500;
-		border-color: $primary-600;
+		border-color: $primary-500;
+		justify-content: center;
 
 		&__logo {
-			background: $primary-700;
+			background: inherit;
 		}
 	}
 
