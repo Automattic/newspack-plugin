@@ -135,9 +135,13 @@ class Support_Wizard extends Wizard {
 		}
 
 		if ( is_wp_error( $response ) ) {
+			$message = __( 'Something went wrong.', 'newspack' );
+			if ( self::support_email() ) {
+				$message = __( 'Something went wrong. Please contact us directly at ', 'newspack' ) . '<a href="mailto:' . self::support_email() . '">' . self::support_email() . '</a>';
+			}
 			return new WP_Error(
 				'newspack_invalid_support',
-				__( 'Something went wrong. Please contact us directly at ', 'newspack' ) . '<a href="mailto:' . self::support_email() . '">' . self::support_email() . '</a>'
+				$message
 			);
 		} else {
 			return \rest_ensure_response(
@@ -304,7 +308,7 @@ class Support_Wizard extends Wizard {
 	 * @return bool True if necessary variables are present.
 	 */
 	public static function configured() {
-		return self::support_api_url() && self::support_email() && WPCOM_OAuth::wpcom_client_id();
+		return WPCOM_OAuth::wpcom_client_id();
 	}
 
 	/**
