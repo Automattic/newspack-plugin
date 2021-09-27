@@ -74,7 +74,7 @@ class ActionCard extends Component {
 				: {};
 		const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
 		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
-		const badges = Array.isArray( badge ) ? badge : [ badge ];
+		const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
@@ -113,7 +113,7 @@ class ActionCard extends Component {
 							<span className="newspack-action-card__title" { ...titleProps }>
 								{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
 							</span>
-							{ badges &&
+							{ badges?.length &&
 								badges.map( ( badgeText, i ) => (
 									<span key={ `badge-${ i }` } className="newspack-action-card__badge">
 										{ badgeText }
