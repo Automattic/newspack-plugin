@@ -17,7 +17,7 @@ import Router from '../proxied-imports/router';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
-const { useLocation } = Router;
+const { withRouter } = Router;
 
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
@@ -35,6 +35,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			secondaryButtonText,
 			secondaryButtonAction,
 			routes,
+			location = {},
 		} = props;
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
@@ -58,7 +59,8 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 					{ ...overridingProps }
 				/>
 			);
-		const { pathname } = useLocation();
+
+		const { pathname } = location;
 		useEffect( () => {
 			window.scrollTo( 0, 0 );
 		}, [ pathname ] );
@@ -100,5 +102,5 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			</>
 		);
 	};
-	return WrappedWithWizardScreen;
+	return withRouter( WrappedWithWizardScreen );
 }
