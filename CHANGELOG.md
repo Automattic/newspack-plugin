@@ -1,3 +1,10 @@
+# [1.58.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.58.0-alpha.1...v1.58.0-alpha.2) (2021-09-28)
+
+
+### Bug Fixes
+
+* react router crash from useLocation in HOC ([#1165](https://github.com/Automattic/newspack-plugin/issues/1165)) ([c954fe2](https://github.com/Automattic/newspack-plugin/commit/c954fe266d622d3eba1509191a98bff9ec395cc0))
+
 # [1.58.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.57.0...v1.58.0-alpha.1) (2021-09-28)
 
 
