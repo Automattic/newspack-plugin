@@ -9,6 +9,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { Waiting, Notice } from '../../../../components/src';
 import WPCOMAuth from './wpcom';
 import GoogleAuth, { handleGoogleRedirect } from './google';
+import MailChimp from './mailchimp';
 
 const Main = () => {
 	const [ error, setError ] = useState();
@@ -29,6 +30,7 @@ const Main = () => {
 			{ error && <Notice isError noticeText={ error } /> }
 			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
 			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
+			<MailChimp setError={ setError } />
 		</>
 	);
 };
