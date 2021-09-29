@@ -73,7 +73,7 @@ class MailChimp_API {
 	 * @return WP_REST_Response
 	 */
 	public static function api_mailchimp_auth_status() {
-		$mailchimp_api_key = get_option( 'newspack_mailchimp_api_key' );
+		$mailchimp_api_key = get_option( 'newspack_newsletters_mailchimp_api_key' );
 		$endpoint          = self::get_api_endpoint_from_key( $mailchimp_api_key );
 		
 		if ( ! $mailchimp_api_key || ! $endpoint ) {
@@ -84,7 +84,7 @@ class MailChimp_API {
 			
 		// delete API key if not valid.
 		if ( is_wp_error( $key_is_valid_response ) ) {
-			delete_option( 'newspack_mailchimp_api_key' );
+			delete_option( 'newspack_newsletters_mailchimp_api_key' );
 		} 
 
 		return $key_is_valid_response;
@@ -106,7 +106,7 @@ class MailChimp_API {
 			$key_is_valid_response = self::is_valid_api_key( $endpoint, $request['api_key'] );
 			
 			if ( ! is_wp_error( $key_is_valid_response ) ) {
-				update_option( 'newspack_mailchimp_api_key', $request['api_key'] );
+				update_option( 'newspack_newsletters_mailchimp_api_key', $request['api_key'] );
 			}
 
 			return $key_is_valid_response;
@@ -121,7 +121,7 @@ class MailChimp_API {
 	 * @return WP_REST_Response
 	 */
 	public static function api_mailchimp_delete_key() {
-		delete_option( 'newspack_mailchimp_api_key' );
+		delete_option( 'newspack_newsletters_mailchimp_api_key' );
 		return \rest_ensure_response( [] );
 	}
 
