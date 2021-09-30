@@ -47,7 +47,7 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 						label: `${ size[ 0 ] } x ${ size[ 1 ] }`,
 						value: index,
 					} ) ),
-					{ label: 'Custom', value: -1 },
+					{ label: __( 'Custom', 'newspack' ), value: -1 },
 				] }
 				onChange={ index => {
 					onChange( DEFAULT_SIZES[ index ] || [ 120, 120 ] );
