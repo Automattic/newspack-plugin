@@ -85,7 +85,7 @@ class Fivetran_Connection {
 		}
 		return add_query_arg(
 			[
-				'wpcom_access_token' => WPCOM_OAuth::get_access_token(),
+ 				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
 			],
 			NEWSPACK_FIVETRAN_PROXY . $path
 		);
