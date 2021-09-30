@@ -80,7 +80,7 @@ class Fivetran_Connection {
 	 * @param string $path Path to append to base URL.
 	 */
 	private static function get_proxy_url( $path = '' ) {
-		if ( ! defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
+		if ( ! self::is_fivetran_configured() ) {
 			return false;
 		}
 		return add_query_arg(
@@ -225,6 +225,13 @@ class Fivetran_Connection {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Is Fivetran configured for this instance?
+	 */
+	public static function is_fivetran_configured() {
+		return defined( 'NEWSPACK_FIVETRAN_PROXY' );
 	}
 }
 new Fivetran_Connection();
