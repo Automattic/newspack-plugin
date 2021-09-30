@@ -373,8 +373,11 @@ class Google_OAuth {
 					$proxy_url
 				);
 				$result    = wp_safe_remote_get( $url );
+				if ( is_wp_error( $result ) ) {
+					return false;
+				}
 				if ( 200 !== $result['response']['code'] ) {
-					return wp_send_json_error( json_decode( $result['body'] )->data->message, 400 );
+					return false;
 				}
 				$response_body = json_decode( $result['body'] );
 
