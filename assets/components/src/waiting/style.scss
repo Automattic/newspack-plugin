@@ -22,6 +22,10 @@
 			order: 1;
 		}
 	}
+
+	&.newspack-is-waiting__is-center {
+		margin: auto;
+	}
 }
 
 @keyframes newspack-is-waiting__animation {

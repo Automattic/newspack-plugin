@@ -34,14 +34,13 @@ class Waiting extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, isRight, isLeft } = this.props;
-		const classes = classnames(
-			'newspack-is-waiting',
-			className,
-			isRight && 'newspack-is-waiting__is-right',
-			isLeft && 'newspack-is-waiting__is-left'
-		);
-		return <Icon icon={ icon } className={ classes } />;
+		const { className, isRight, isLeft, isCenter, size } = this.props;
+		const classes = classnames( 'newspack-is-waiting', className, {
+			'newspack-is-waiting__is-right': isRight,
+			'newspack-is-waiting__is-left': isLeft,
+			'newspack-is-waiting__is-center': isCenter,
+		} );
+		return <Icon icon={ icon } size={ size } className={ classes } />;
 	}
 }
 
