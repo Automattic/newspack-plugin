@@ -413,6 +413,15 @@ class ComponentsDemo extends Component {
 						checkbox="checked"
 					/>
 					<ActionCard
+						badge={ [ __( 'Premium', 'newspack' ), __( 'Archived', 'newspack' ) ] }
+						title={ __( 'Example Fourteen', 'newspack' ) }
+						description={ __( 'An example of an action card with two badges.', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
 						title={ __( 'Handoff', 'newspack' ) }
 						description={ __( 'An example of an action card with Handoff.', 'newspack' ) }
 						actionText={ __( 'Configure', 'newspack' ) }
