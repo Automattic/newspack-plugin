@@ -5,13 +5,14 @@ import { useEffect, useState, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { ENTER } from '@wordpress/keycodes';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Modal, TextControl } from '../../../../components/src';
+import { ActionCard, Button, Card, Grid, Modal, TextControl } from '../../../../components/src';
 
-const MailChimp = ( { setError } ) => {
+const Mailchimp = ( { setError } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 	const [ isModalOpen, setisModalOpen ] = useState( false );
 	const [ apiKey, setAPIKey ] = useState();
@@ -28,7 +29,7 @@ const MailChimp = ( { setError } ) => {
 		setAPIKey();
 	};
 
-	// check the MailChimp connectivity status.
+	// check the Mailchimp connectivity status.
 	useEffect( () => {
 		setIsLoading( true );
 		apiFetch( { path: '/newspack/v1/oauth/mailchimp' } )
@@ -61,7 +62,7 @@ const MailChimp = ( { setError } ) => {
 			.catch( e => {
 				setError(
 					e.message ||
-						__( 'Something went wrong during verification of your MailChimp API key.', 'newspack' )
+						__( 'Something went wrong during verification of your Mailchimp API key.', 'newspack' )
 				);
 			} )
 			.finally( () => {
@@ -106,7 +107,7 @@ const MailChimp = ( { setError } ) => {
 	return (
 		<>
 			<ActionCard
-				title={ __( 'MailChimp', 'newspack' ) }
+				title="Mailchimp"
 				description={ getDescription() }
 				checkbox={ isConnected ? 'checked' : 'unchecked' }
 				actionText={
@@ -122,34 +123,32 @@ const MailChimp = ( { setError } ) => {
 				isMedium
 			/>
 			{ isModalOpen && (
-				<Modal title={ __( 'Add MailChimp API Key', 'newspack' ) } onRequestClose={ closeModal }>
+				<Modal title={ __( 'Add Mailchimp API Key', 'newspack' ) } onRequestClose={ closeModal }>
 					<div ref={ modalTextRef }>
-						<TextControl
-							placeholder={ __( 'MailChimp API Key', 'newspack' ) }
-							label={ __( 'MailChimp API Key', 'newspack' ) }
-							help={
-								<span
-									dangerouslySetInnerHTML={ {
-										__html: sprintf(
-											__(
-												'You can get your API Key from your <a target="_blank" href="%s">API dashboard</a>',
-												'newspack'
-											),
-											'https://us1.admin.mailchimp.com/account/api/'
-										),
-									} }
-								/>
-							}
-							hideLabelFromVision={ true }
-							value={ apiKey }
-							onChange={ setAPIKey }
-							onKeyDown={ event => {
-								if ( ENTER === event.keyCode && '' !== apiKey ) {
-									event.preventDefault();
-									submitAPIKey();
-								}
-							} }
-						/>
+						<Grid columns={ 1 } gutter="0">
+							<TextControl
+								placeholder="1234a56b7cde89f0g1h234-us1"
+								label={ __( 'Mailchimp API Key', 'newspack' ) }
+								hideLabelFromVision={ true }
+								value={ apiKey }
+								onChange={ setAPIKey }
+								onKeyDown={ event => {
+									if ( ENTER === event.keyCode && '' !== apiKey ) {
+										event.preventDefault();
+										submitAPIKey();
+									}
+								} }
+							/>
+							<Card noBorder>
+								<ExternalLink href="https://us1.admin.mailchimp.com/account/api/">
+									{ __( 'Generate Mailchimp API key', 'newspack' ) }
+								</ExternalLink>
+								<span className="sep sep__inline" />
+								<ExternalLink href="https://mailchimp.com/help/about-api-keys/">
+									{ __( 'About Mailchimp API keys', 'newspack' ) }
+								</ExternalLink>
+							</Card>
+						</Grid>
 					</div>
 					<Card buttonsCard noBorder className="justify-end">
 						<Button
@@ -170,4 +169,4 @@ const MailChimp = ( { setError } ) => {
 	);
 };
 
-export default MailChimp;
+export default Mailchimp;

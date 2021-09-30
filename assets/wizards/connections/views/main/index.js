@@ -9,7 +9,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { Waiting, Notice } from '../../../../components/src';
 import WPCOMAuth from './wpcom';
 import GoogleAuth, { handleGoogleRedirect } from './google';
-import MailChimp from './mailchimp';
+import Mailchimp from './mailchimp';
 
 const Main = () => {
 	const [ error, setError ] = useState();
@@ -22,7 +22,7 @@ const Main = () => {
 	}, [] );
 
 	if ( isResolvingAuth ) {
-		return <Waiting isCenter size={ 42 } />;
+		return <Waiting isCenter />;
 	}
 
 	return (
@@ -30,7 +30,7 @@ const Main = () => {
 			{ error && <Notice isError noticeText={ error } /> }
 			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
 			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
-			<MailChimp setError={ setError } />
+			<Mailchimp setError={ setError } />
 		</>
 	);
 };

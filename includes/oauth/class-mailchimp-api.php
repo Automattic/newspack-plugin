@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack's MailChimp API handeling.
+ * Newspack's Mailchimp API handeling.
  *
  * @package Newspack
  */
@@ -10,9 +10,9 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * MailChimp API Settings.
+ * Mailchimp API Settings.
  */
-class MailChimp_API {
+class Mailchimp_API {
 	/** API Endpoint Placeholder, needs to replace <dc> by the right datacenter. */
 	const API_ENDPOINT_PLACEHOLDER = 'https://<dc>.api.mailchimp.com/3.0';
 	
@@ -27,7 +27,7 @@ class MailChimp_API {
 	 * Register the endpoints.
 	 */
 	public static function register_api_endpoints() {
-		// Get MailChimp auth status.
+		// Get Mailchimp auth status.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/oauth/mailchimp',
@@ -40,7 +40,7 @@ class MailChimp_API {
 			]
 		);
 
-		// Verify and save MailChimp API Key.
+		// Verify and save Mailchimp API Key.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/oauth/mailchimp',
@@ -53,7 +53,7 @@ class MailChimp_API {
 			]
 		);
 
-		// Delete MailChimp API Key.
+		// Delete Mailchimp API Key.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/oauth/mailchimp',
@@ -75,23 +75,23 @@ class MailChimp_API {
 	public static function api_mailchimp_auth_status() {
 		$mailchimp_api_key = get_option( 'newspack_newsletters_mailchimp_api_key' );
 		$endpoint          = self::get_api_endpoint_from_key( $mailchimp_api_key );
-		
+
 		if ( ! $mailchimp_api_key || ! $endpoint ) {
 			return \rest_ensure_response( [] );
 		}
 
 		$key_is_valid_response = self::is_valid_api_key( $endpoint, $mailchimp_api_key );
-			
+
 		// delete API key if not valid.
 		if ( is_wp_error( $key_is_valid_response ) ) {
 			delete_option( 'newspack_newsletters_mailchimp_api_key' );
-		} 
+		}
 
 		return $key_is_valid_response;
 	}
 
 	/**
-	 * Verify and save MailChimp API key
+	 * Verify and save Mailchimp API key
 	 *
 	 * @param WP_REST_REQUEST $request call request.
 	 * @return WP_REST_Response
@@ -100,11 +100,11 @@ class MailChimp_API {
 		if ( isset( $request['api_key'] ) ) {
 			$endpoint = self::get_api_endpoint_from_key( $request['api_key'] );
 			if ( ! $endpoint ) {
-				return new \WP_Error( 'wrong_parameter', __( 'Invalid MailChimp API Key.', 'newspack' ) );
+				return new \WP_Error( 'wrong_parameter', __( 'Invalid Mailchimp API Key.', 'newspack' ) );
 			}
 
 			$key_is_valid_response = self::is_valid_api_key( $endpoint, $request['api_key'] );
-			
+
 			if ( ! is_wp_error( $key_is_valid_response ) ) {
 				update_option( 'newspack_newsletters_mailchimp_api_key', $request['api_key'] );
 			}
@@ -116,7 +116,7 @@ class MailChimp_API {
 	}
 
 	/**
-	 * Delete MailChimp API Key option.
+	 * Delete Mailchimp API Key option.
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -128,24 +128,24 @@ class MailChimp_API {
 	/**
 	 * Get the right datacenter from the API key and set it in the endpoint.
 	 *
-	 * @param string $api_key MailChimp API Key.
+	 * @param string $api_key Mailchimp API Key.
 	 * @return string|boolean the API endpoint with the right datacenter.
 	 */
 	private static function get_api_endpoint_from_key( $api_key ) {
 		list(, $data_center) = explode( '-', $api_key );
-		// MailChimp API key format: abc123-datacenter.
+		// Mailchimp API key format: abc123-datacenter.
 		return $data_center ? str_replace( '<dc>', $data_center, self::API_ENDPOINT_PLACEHOLDER ) : false;
 	}
 
 	/**
 	 * Check API Key validity
 	 *
-	 * @param string $endpoint MailChimp API Endpoint.
-	 * @param string $api_key MailChimp API Key.
+	 * @param string $endpoint Mailchimp API Endpoint.
+	 * @param string $api_key Mailchimp API Key.
 	 * @return WP_REST_Response|WP_Error
 	 */
 	private static function is_valid_api_key( $endpoint, $api_key ) {
-		// MailChimp API root endpoint returns details about the Mailchimp user account.
+		// Mailchimp API root endpoint returns details about the Mailchimp user account.
 		$response = wp_safe_remote_get(
 			$endpoint,
 			[
@@ -156,22 +156,22 @@ class MailChimp_API {
 				],
 			]
 		);
-		
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			$parsed_response = json_decode( $response['body'], true );
-			
+
 			return new \WP_Error(
 				'newspack_mailchimp_api',
 				array_key_exists( 'title', $parsed_response ) ? $parsed_response['title'] : __( 'Request failed.', 'newspack' )
 			);
 		}
-		
+
 		$response_body = json_decode( $response['body'], true );
 		return \rest_ensure_response( [ 'username' => $response_body['username'] ] );
 	}
 }
 
-new MailChimp_API();
+new Mailchimp_API();
