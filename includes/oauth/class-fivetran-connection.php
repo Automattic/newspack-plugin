@@ -85,7 +85,7 @@ class Fivetran_Connection {
 		}
 		return add_query_arg(
 			[
- 				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
+				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
 			],
 			NEWSPACK_FIVETRAN_PROXY . $path
 		);
@@ -133,7 +133,7 @@ class Fivetran_Connection {
 			[
 				'service'        => $service,
 				'service_data'   => $service_data,
-				'redirect_after' => admin_url( 'admin.php?page=' . 'newspack-connections-wizard' ),
+				'redirect_after' => admin_url( 'admin.php?page=newspack-connections-wizard' ),
 			],
 			self::get_proxy_url( '/wp-json/newspack-fivetran/v1/connect-card' )
 		);
