@@ -91,7 +91,7 @@ const Dashboard = ( { items } ) => {
 			{ newspack_aux_data.is_debug_mode && (
 				<Notice
 					isWarning
-					className="newspack-wizard__debug-mode-notice"
+					className="newspack-wizard__above-header"
 					noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
 				/>
 			) }
