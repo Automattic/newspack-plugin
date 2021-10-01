@@ -1,5 +1,3 @@
-/* global newspack_support_data */
-
 /**
  * WordPress dependencies
  */
@@ -13,9 +11,9 @@ import apiFetch from '@wordpress/api-fetch';
 import { Notice, Button, Waiting } from '../../../components/src';
 import { saveReturnPath } from '../utils';
 
-const { WPCOM_ACCESS_TOKEN } = newspack_support_data;
+const { WPCOM_ACCESS_TOKEN } = newspack_aux_data;
 
-const withWPCOMAuth = WrappedComponent => {
+const withWPCOMAuth = ( WrappedComponent, renderer = false ) => {
 	return class WithWPCOMAuth extends Component {
 		state = {
 			isInFlight: false,
@@ -57,7 +55,7 @@ const withWPCOMAuth = WrappedComponent => {
 						}
 					/>
 					<div className="newspack-buttons-card">
-						<Button href={ newspack_support_data.WPCOM_AUTH_URL } isPrimary>
+						<Button href={ newspack_aux_data.wpcom_auth_url } isPrimary>
 							{ __( 'Authenticate', 'newspack' ) }
 						</Button>
 					</div>
@@ -66,6 +64,18 @@ const withWPCOMAuth = WrappedComponent => {
 				<WrappedComponent token={ WPCOM_ACCESS_TOKEN } { ...this.props } />
 			);
 		render() {
+			// If a renderer is provided, use it.
+			if ( renderer ) {
+				const RendererComponent = renderer;
+				const rendererProps = {
+					...this.state,
+					...this.props,
+					authURL: newspack_aux_data.wpcom_auth_url,
+					disconnectURL: newspack_aux_data.wpcom_disconnect_url,
+					token: WPCOM_ACCESS_TOKEN,
+				};
+				return <RendererComponent { ...rendererProps } />;
+			}
 			return (
 				<Fragment>
 					{ this.state.isInFlight ? (
