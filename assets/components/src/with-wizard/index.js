@@ -4,11 +4,12 @@
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { home } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, Modal, Notice, PluginInstaller } from '../';
+import { Button, Card, Modal, NewspackIcon, Notice, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
 import Footer from '../footer';
 import './style.scss';
@@ -210,22 +211,27 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					render={ () => (
 						<Fragment>
 							{ complete !== null && (
-								<Fragment>
-									<div className="newspack-wizard__header">
-										<div className="newspack-wizard__header__inner">
+								<div className="newspack-wizard__header">
+									<div className="newspack-wizard__header__inner">
+										<div className="newspack-wizard__title">
+											<Button
+												isLink
+												href={ newspack_urls.dashboard }
+												label={ __( 'Return to Dashboard', 'newspack' ) }
+												showTooltip={ true }
+												icon={ home }
+												iconSize={ 36 }
+											>
+												<NewspackIcon size={ 36 } />
+											</Button>
 											<h1>
 												{ requiredPlugins.length > 1
 													? __( 'Required plugins', 'newspack' )
 													: __( 'Required plugin', 'newspack' ) }
 											</h1>
-											<p>
-												{ requiredPlugins.length > 1
-													? __( 'This feature requires the following plugins', 'newspack' )
-													: __( 'This feature requires the following plugin', 'newspack' ) }
-											</p>
 										</div>
 									</div>
-								</Fragment>
+								</div>
 							) }
 							<div className="newspack-wizard newspack-wizard__content">
 								<PluginInstaller
