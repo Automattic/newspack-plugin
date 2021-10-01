@@ -100,6 +100,7 @@ class ComponentsDemo extends Component {
 								label={ __( 'Return to Dashboard', 'newspack' ) }
 								showTooltip={ true }
 								icon={ home }
+								iconSize={ 36 }
 							>
 								<NewspackIcon size={ 36 } />
 							</Button>
