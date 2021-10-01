@@ -80,7 +80,9 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 */
 		getErrorNotice = error => {
 			const { message } = error;
-			return <Notice noticeText={ message } isError rawHTML />;
+			return (
+				<Notice isError className="newspack-wizard__above-header" noticeText={ message } rawHTML />
+			);
 		};
 
 		/**
