@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, Handoff, Notice, TabbedNavigation, WizardPagination } from '../';
+import { Notice, Button, Handoff, TabbedNavigation, WizardPagination } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -31,6 +31,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			secondaryButtonText,
 			secondaryButtonAction,
 			routes,
+			renderAboveContent,
 		} = props;
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
@@ -77,6 +78,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 				</div>
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
+					{ renderAboveContent ? renderAboveContent() : null }
 					{ <WrappedComponent { ...props } renderPrimaryButton={ renderPrimaryButton } /> }
 					{ ( shouldRenderPrimaryButton || shouldRenderSecondaryButton ) && (
 						<div className="newspack-buttons-card">

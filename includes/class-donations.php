@@ -225,6 +225,17 @@ class Donations {
 			}
 		}
 
+		if (
+			false === $settings['products']['once'] ||
+			false === $settings['products']['month'] ||
+			false === $settings['products']['year']
+		) {
+			return new WP_Error(
+				'newspack_donations_missing_products',
+				__( 'Missing donation products.', 'newspack' )
+			);
+		}
+
 		return $settings;
 	}
 
