@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { GlobalNotices, Footer, Grid, NewspackIcon } from '../../components/src';
+import { GlobalNotices, Footer, Grid, NewspackIcon, Notice } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
