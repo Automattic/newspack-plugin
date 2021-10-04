@@ -475,7 +475,7 @@ class AdvertisingWizard extends Component {
 									<AdUnit
 										headerText={ __( 'Edit Ad Unit', 'newspack' ) }
 										subHeaderText={ __(
-											'Setting up ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.',
+											'Allows you to place ads on your site through our Ads block',
 											'newspack'
 										) }
 										adUnit={ adUnits[ adId ] || {} }
