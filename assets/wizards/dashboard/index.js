@@ -34,6 +34,7 @@ const Dashboard = ( { items } ) => {
 					</div>
 				</div>
 			</div>
+
 			<div className="newspack-wizard newspack-wizard__content">
 				<Grid columns={ 3 } gutter={ 32 }>
 					{ items.map( card => (
