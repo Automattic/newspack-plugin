@@ -164,19 +164,19 @@ class Donations {
 			);
 		}
 
-		$product = \wc_get_product( $product_id );
-		if ( ! $product || 'grouped' !== $product->get_type() ) {
+		$product = self::get_parent_donation_product();
+		if ( ! $product ) {
 			return new WP_Error(
 				'newspack_donations_missing_product',
 				__( 'Misconfigured donation product. Save the donation settings to fix it.', 'newspack' )
 			);
 		}
 
-		$child_products = self::get_donation_product_child_products();
+		$child_products_ids = self::get_donation_product_child_products_ids();
 		if (
-			false === $child_products['once'] ||
-			false === $child_products['month'] ||
-			false === $child_products['year']
+			false === $child_products_ids['once'] ||
+			false === $child_products_ids['month'] ||
+			false === $child_products_ids['year']
 		) {
 			return new WP_Error(
 				'newspack_donations_missing_child_products',
@@ -188,12 +188,22 @@ class Donations {
 	}
 
 	/**
+	 * Get the parent donation product.
+	 */
+	private static function get_parent_donation_product() {
+		$product = \wc_get_product( get_option( self::DONATION_PRODUCT_ID_OPTION, 0 ) );
+		if ( ! $product || 'grouped' !== $product->get_type() || 'trash' === $product->get_status() ) {
+			return false;
+		}
+		return $product;
+	}
+
+	/**
 	 * Get the child products of the main donation product.
 	 */
-	private static function get_donation_product_child_products() {
-		$product_id     = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
-		$product        = \wc_get_product( $product_id );
-		$child_products = [
+	private static function get_donation_product_child_products_ids() {
+		$product            = self::get_parent_donation_product();
+		$child_products_ids = [
 			'once'  => false,
 			'month' => false,
 			'year'  => false,
@@ -202,21 +212,21 @@ class Donations {
 		// Add the product IDs for each frequency.
 		foreach ( $product->get_children() as $child_id ) {
 			$child_product = wc_get_product( $child_id );
-			if ( ! $child_product || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
+			if ( ! $child_product || 'trash' === $child_product->get_status() || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
 				continue;
 			}
 			if ( 'subscription' === $child_product->get_type() ) {
 				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
-					$child_products['year'] = $child_id;
+					$child_products_ids['year'] = $child_id;
 				} elseif ( 'month' == $child_product->get_meta( '_subscription_period', true ) ) {
-					$child_products['month'] = $child_id;
+					$child_products_ids['month'] = $child_id;
 				}
 			} elseif ( 'simple' === $child_product->get_type() ) {
-				$child_products['once'] = $child_id;
+				$child_products_ids['once'] = $child_id;
 			}
 		}
 
-		return $child_products;
+		return $child_products_ids;
 	}
 
 	/**
@@ -248,7 +258,7 @@ class Donations {
 			return $is_donation_product_valid;
 		}
 
-		$product = \wc_get_product( get_option( self::DONATION_PRODUCT_ID_OPTION, 0 ) );
+		$product = self::get_parent_donation_product();
 
 		$settings['created'] = true;
 		$settings['name']    = $product->get_name();
@@ -270,7 +280,7 @@ class Donations {
 		}
 
 		$settings['tiered']   = (bool) $product->get_meta( self::DONATION_TIERED_META, true );
-		$settings['products'] = self::get_donation_product_child_products();
+		$settings['products'] = self::get_donation_product_child_products_ids();
 
 		return $settings;
 	}
@@ -308,7 +318,7 @@ class Donations {
 	}
 
 	/**
-	 * Create new donations products.
+	 * Create missing donations products.
 	 *
 	 * @param array $args Info that will be used to create the products.
 	 */
@@ -317,76 +327,93 @@ class Donations {
 		$args     = wp_parse_args( $args, $defaults );
 
 		// Parent product.
-		$parent_product = new \WC_Product_Grouped();
-		$parent_product->set_name( $args['name'] );
-		$suggested_amounts = array_map( 'wc_format_decimal', $args['suggestedAmounts'] );
-		sort( $suggested_amounts, SORT_NUMERIC );
-		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
-		$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
-		$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
-		$parent_product->set_catalog_visibility( 'hidden' );
-		$parent_product->set_virtual( true );
-		$parent_product->set_downloadable( true );
-		$parent_product->set_sold_individually( true );
+		$parent_product = self::get_parent_donation_product();
+		if ( ! $parent_product ) {
+			$parent_product = new \WC_Product_Grouped();
+			$parent_product->set_name( $args['name'] );
+			$suggested_amounts = array_map( 'wc_format_decimal', $args['suggestedAmounts'] );
+			sort( $suggested_amounts, SORT_NUMERIC );
+			$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
+			$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
+			$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
+			$parent_product->set_catalog_visibility( 'hidden' );
+			$parent_product->set_virtual( true );
+			$parent_product->set_downloadable( true );
+			$parent_product->set_sold_individually( true );
+		}
 
 		$default_price = $args['tiered'] ? wc_format_decimal( $args['suggestedAmounts'][ floor( count( $args['suggestedAmounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
 
+		$child_products_ids = self::get_donation_product_child_products_ids();
+
 		// Monthly donation.
-		$monthly_product = new \WC_Product_Subscription();
-		/* translators: %s: Product name */
-		$monthly_product->set_name( sprintf( __( '%s: Monthly', 'newspack' ), $args['name'] ) );
-		$monthly_product->set_regular_price( $default_price );
-		$monthly_product->update_meta_data( '_suggested_price', $default_price );
-		$monthly_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
-		$monthly_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-		$monthly_product->update_meta_data( '_nyp', 'yes' );
-		$monthly_product->update_meta_data( '_subscription_price', wc_format_decimal( $default_price ) );
-		$monthly_product->update_meta_data( '_subscription_period', 'month' );
-		$monthly_product->update_meta_data( '_subscription_period_interval', 1 );
-		$monthly_product->set_virtual( true );
-		$monthly_product->set_downloadable( true );
-		$monthly_product->set_catalog_visibility( 'hidden' );
-		$monthly_product->set_sold_individually( true );
-		$monthly_product->save();
+		if ( false === $child_products_ids['month'] ) {
+			$monthly_product = new \WC_Product_Subscription();
+			/* translators: %s: Product name */
+			$monthly_product->set_name( sprintf( __( '%s: Monthly', 'newspack' ), $args['name'] ) );
+			$monthly_product->set_regular_price( $default_price );
+			$monthly_product->update_meta_data( '_suggested_price', $default_price );
+			$monthly_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
+			$monthly_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
+			$monthly_product->update_meta_data( '_nyp', 'yes' );
+			$monthly_product->update_meta_data( '_subscription_price', wc_format_decimal( $default_price ) );
+			$monthly_product->update_meta_data( '_subscription_period', 'month' );
+			$monthly_product->update_meta_data( '_subscription_period_interval', 1 );
+			$monthly_product->set_virtual( true );
+			$monthly_product->set_downloadable( true );
+			$monthly_product->set_catalog_visibility( 'hidden' );
+			$monthly_product->set_sold_individually( true );
+			$monthly_product->save();
+
+			$child_products_ids['month'] = $monthly_product->get_id();
+		}
 
 		// Yearly donation.
-		$yearly_product = new \WC_Product_Subscription();
-		/* translators: %s: Product name */
-		$yearly_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
-		$yearly_product->set_regular_price( 12 * $default_price );
-		$yearly_product->update_meta_data( '_suggested_price', 12 * $default_price );
-		$yearly_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
-		$yearly_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-		$yearly_product->update_meta_data( '_nyp', 'yes' );
-		$yearly_product->update_meta_data( '_subscription_price', wc_format_decimal( 12 * $default_price ) );
-		$yearly_product->update_meta_data( '_subscription_period', 'year' );
-		$yearly_product->update_meta_data( '_subscription_period_interval', 1 );
-		$yearly_product->set_virtual( true );
-		$yearly_product->set_downloadable( true );
-		$yearly_product->set_catalog_visibility( 'hidden' );
-		$yearly_product->set_sold_individually( true );
-		$yearly_product->save();
+		if ( false === $child_products_ids['year'] ) {
+			$yearly_product = new \WC_Product_Subscription();
+			/* translators: %s: Product name */
+			$yearly_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
+			$yearly_product->set_regular_price( 12 * $default_price );
+			$yearly_product->update_meta_data( '_suggested_price', 12 * $default_price );
+			$yearly_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
+			$yearly_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
+			$yearly_product->update_meta_data( '_nyp', 'yes' );
+			$yearly_product->update_meta_data( '_subscription_price', wc_format_decimal( 12 * $default_price ) );
+			$yearly_product->update_meta_data( '_subscription_period', 'year' );
+			$yearly_product->update_meta_data( '_subscription_period_interval', 1 );
+			$yearly_product->set_virtual( true );
+			$yearly_product->set_downloadable( true );
+			$yearly_product->set_catalog_visibility( 'hidden' );
+			$yearly_product->set_sold_individually( true );
+			$yearly_product->save();
+
+			$child_products_ids['year'] = $yearly_product->get_id();
+		}
 
 		// One-time donation.
-		$once_product = new \WC_Product_Simple();
-		/* translators: %s: Product name */
-		$once_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
-		$once_product->set_regular_price( 12 * $default_price );
-		$once_product->update_meta_data( '_suggested_price', 12 * $default_price );
-		$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
-		$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-		$once_product->update_meta_data( '_nyp', 'yes' );
-		$once_product->set_virtual( true );
-		$once_product->set_downloadable( true );
-		$once_product->set_catalog_visibility( 'hidden' );
-		$once_product->set_sold_individually( true );
-		$once_product->save();
+		if ( false === $child_products_ids['once'] ) {
+			$once_product = new \WC_Product_Simple();
+			/* translators: %s: Product name */
+			$once_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
+			$once_product->set_regular_price( 12 * $default_price );
+			$once_product->update_meta_data( '_suggested_price', 12 * $default_price );
+			$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
+			$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
+			$once_product->update_meta_data( '_nyp', 'yes' );
+			$once_product->set_virtual( true );
+			$once_product->set_downloadable( true );
+			$once_product->set_catalog_visibility( 'hidden' );
+			$once_product->set_sold_individually( true );
+			$once_product->save();
+
+			$child_products_ids['once'] = $once_product->get_id();
+		}
 
 		$parent_product->set_children(
 			[
-				$monthly_product->get_id(),
-				$yearly_product->get_id(),
-				$once_product->get_id(),
+				$child_products_ids['month'],
+				$child_products_ids['year'],
+				$child_products_ids['once'],
 			]
 		);
 		$parent_product->save();
