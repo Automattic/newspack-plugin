@@ -70,6 +70,28 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get the GAM orders.
+	 *
+	 * @return array|WP_Error Array of orders or WP_Error if Newspack Ads isn't installed and activated.
+	 */
+	public function get_gam_orders() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::get_gam_orders() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get the GAM line items.
+	 *
+	 * @return array|WP_Error Array of line items or WP_Error if Newspack Ads isn't installed and activated.
+	 */
+	public function get_gam_line_items() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::get_gam_line_items() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Get the ad units from our saved option.
 	 *
 	 * @return array | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.

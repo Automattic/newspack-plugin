@@ -572,15 +572,35 @@ class Advertising_Wizard extends Wizard {
 
 		$services   = $this->get_services();
 		$placements = $this->get_placements();
+
 		try {
 			$ad_units = $configuration_manager->get_ad_units();
 		} catch ( \Exception $error ) {
 			$message = $error->getMessage();
 			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
-		
 		if ( \is_wp_error( $ad_units ) ) {
 			return $ad_units;
+		}
+
+		try {
+			$orders = $configuration_manager->get_gam_orders();
+		} catch ( \Exception $error ) {
+			$message = $error->getMessage();
+			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Google Ad Manager Orders failed to fetch.', 'newspack' ) );
+		}
+		if ( \is_wp_error( $orders ) ) {
+			return $orders;
+		}
+
+		try {
+			$line_items = $configuration_manager->get_gam_line_items();
+		} catch ( \Exception $error ) {
+			$message = $error->getMessage();
+			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Google Ad Manager Line Items failed to fetch.', 'newspack' ) );
+		}
+		if ( \is_wp_error( $line_items ) ) {
+			return $line_items;
 		}
 
 		/* If there is only one enabled service, select it for all placements */
@@ -601,6 +621,8 @@ class Advertising_Wizard extends Wizard {
 			'services'    => $services,
 			'placements'  => $placements,
 			'ad_units'    => $ad_units,
+			'orders'      => $orders,
+			'line_items'  => $line_items,
 			'suppression' => $configuration_manager->get_suppression_config(),
 		);
 	}

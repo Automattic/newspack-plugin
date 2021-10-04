@@ -33,7 +33,7 @@ class AdUnit extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnit, onSave, service, serviceData = {} } = this.props;
+		const { adUnit, onSave, serviceData = {}, redirectPath } = this.props;
 		const { id, code, name = '' } = adUnit;
 		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
@@ -122,7 +122,7 @@ class AdUnit extends Component {
 					>
 						{ __( 'Save', 'newspack' ) }
 					</Button>
-					<Button isSecondary href={ `#/${ service }` }>
+					<Button isSecondary href={ `#${ redirectPath }` }>
 						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>

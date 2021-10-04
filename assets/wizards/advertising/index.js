@@ -15,11 +15,11 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
+import { GAM, AdUnit, AdUnits, Orders, Placements, Services, Suppression } from './views';
 import './style.scss';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
-const CREATE_AD_ID_PARAM = 'create';
+const CREATE_ID_PARAM = 'create';
 
 class AdvertisingWizard extends Component {
 	/**
@@ -30,6 +30,8 @@ class AdvertisingWizard extends Component {
 		this.state = {
 			advertisingData: {
 				adUnits: [],
+				orders: [],
+				line_items: [],
 				placements: {
 					global_above_header: {},
 					global_below_header: {},
@@ -318,6 +320,13 @@ class AdvertisingWizard extends Component {
 	prepareData = data => {
 		return {
 			...data,
+			orders: data.orders.reduce( ( result, value ) => {
+				result[ value.id ] = {
+					...value,
+					lineItems: data.line_items.filter( item => item.orderId === value.id ),
+				};
+				return result;
+			}, {} ),
 			adUnits: data.ad_units.reduce( ( result, value ) => {
 				result[ value.id ] = value;
 				return result;
@@ -331,7 +340,7 @@ class AdvertisingWizard extends Component {
 	render() {
 		const { advertisingData } = this.state;
 		const { pluginRequirements, wizardApiFetch } = this.props;
-		const { services, placements, adUnits } = advertisingData;
+		const { services, placements, adUnits, orders } = advertisingData;
 		const tabs = [
 			{
 				label: __( 'Ad Providers', 'newspack' ),
@@ -347,6 +356,9 @@ class AdvertisingWizard extends Component {
 				path: '/suppression',
 			},
 		];
+		const adUnitsRedirectPath = services.google_ad_manager?.status?.can_connect
+			? '/gam/ad-units'
+			: '/gam';
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
@@ -383,24 +395,21 @@ class AdvertisingWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/google_ad_manager"
+							path="/gam"
 							exact
 							render={ () => (
-								<AdUnits
+								<GAM
 									headerText={ __( 'Google Ad Manager', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
-									adUnits={ adUnits }
-									service={ 'google_ad_manager' }
-									serviceData={ services.google_ad_manager }
-									onDelete={ id => this.deleteAdUnit( id ) }
-									buttonText={ __( 'Add an ad unit', 'newspack' ) }
-									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
 									secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
 									secondaryButtonAction="#/"
+									serviceData={ services.google_ad_manager }
+									adUnits={ adUnits }
 									wizardApiFetch={ wizardApiFetch }
 									updateGAMCredentials={ this.updateGAMCredentials }
 									removeGAMCredentials={ this.removeGAMCredentials }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
+									onDeleteAdUnit={ id => this.deleteAdUnit( id ) }
 									updateAdUnit={ adUnit => {
 										this.onAdUnitChange( adUnit );
 										this.saveAdUnit( adUnit.id );
@@ -409,7 +418,28 @@ class AdvertisingWizard extends Component {
 							) }
 						/>
 						<Route
-							path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
+							path="/gam/ad-units"
+							exact
+							render={ () => (
+								<AdUnits
+									headerText={ __( 'Google Ad Manager - Ad Units', 'newspack' ) }
+									subHeaderText={ __( 'Manage your Ad Units inventory', 'newspack' ) }
+									adUnits={ adUnits }
+									serviceData={ services.google_ad_manager }
+									onDelete={ id => this.deleteAdUnit( id ) }
+									buttonText={ __( 'Add an ad unit', 'newspack' ) }
+									buttonAction={ `#/gam/ad-units/${ CREATE_ID_PARAM }` }
+									secondaryButtonText={ __( 'Back to Google Ad Manager', 'newspack' ) }
+									secondaryButtonAction="#/gam"
+									updateAdUnit={ adUnit => {
+										this.onAdUnitChange( adUnit );
+										this.saveAdUnit( adUnit.id );
+									} }
+								/>
+							) }
+						/>
+						<Route
+							path={ `/gam/ad-units/${ CREATE_ID_PARAM }` }
 							render={ routeProps => (
 								<AdUnit
 									headerText={ __( 'Add an ad unit', 'newspack' ) }
@@ -427,38 +457,56 @@ class AdvertisingWizard extends Component {
 									}
 									service={ 'google_ad_manager' }
 									serviceData={ services.google_ad_manager }
-									wizardApiFetch={ wizardApiFetch }
+									redirectPath={ adUnitsRedirectPath }
 									onChange={ this.onAdUnitChange }
 									onSave={ id =>
 										this.saveAdUnit( id ).then( () => {
-											routeProps.history.push( '/google_ad_manager' );
+											routeProps.history.push( adUnitsRedirectPath );
 										} )
 									}
 								/>
 							) }
 						/>
 						<Route
-							path="/google_ad_manager/:id"
+							path="/gam/ad-units/:id"
 							render={ routeProps => {
 								const adId = routeProps.match.params.id;
 								return (
 									<AdUnit
 										headerText={ __( 'Edit Ad Unit', 'newspack' ) }
 										subHeaderText={ __(
-											'Allows you to place ads on your site through our Ads block',
+											'Setting up ad units allows you to place ads on your site through our Google Ad Manager Gutenberg block.',
 											'newspack'
 										) }
 										adUnit={ adUnits[ adId ] || {} }
 										service={ 'google_ad_manager' }
+										serviceData={ services.google_ad_manager }
+										redirectPath={ adUnitsRedirectPath }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
 											this.saveAdUnit( id ).then( () => {
-												routeProps.history.push( '/google_ad_manager' );
+												routeProps.history.push( adUnitsRedirectPath );
 											} )
 										}
 									/>
 								);
 							} }
+						/>
+						<Route
+							path="/gam/orders"
+							exact
+							render={ () => (
+								<Orders
+									headerText={ __( 'Google Ad Manager - Orders', 'newspack' ) }
+									subHeaderText={ __( 'Manage your Orders and Line Items', 'newspack' ) }
+									orders={ orders }
+									serviceData={ services.google_ad_manager }
+									buttonText={ __( 'Create new order', 'newspack' ) }
+									buttonAction={ `#/gam/orders/${ CREATE_ID_PARAM }` }
+									secondaryButtonText={ __( 'Back to Google Ad Manager', 'newspack' ) }
+									secondaryButtonAction="#/gam"
+								/>
+							) }
 						/>
 						<Route
 							path="/suppression"

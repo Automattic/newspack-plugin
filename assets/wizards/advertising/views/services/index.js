@@ -66,8 +66,8 @@ const Services = ( { services, toggleService } ) => {
 				toggle
 				toggleChecked={ google_ad_manager && google_ad_manager.enabled }
 				toggleOnChange={ value => toggleService( 'google_ad_manager', value ) }
-				titleLink={ google_ad_manager ? '#/google_ad_manager' : null }
-				href={ google_ad_manager && '#/google_ad_manager' }
+				titleLink={ google_ad_manager ? '#/gam' : null }
+				href={ google_ad_manager && '#/gam' }
 				notification={
 					google_ad_manager.status.error
 						? [ google_ad_manager.status.error ]
