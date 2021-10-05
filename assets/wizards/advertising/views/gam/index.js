@@ -224,6 +224,7 @@ const GAM = ( {
 							'newspack'
 						) }
 						href="#/gam/ad-units"
+						chevron
 					/>
 					{ status.connected && (
 						<ButtonCard
@@ -233,6 +234,7 @@ const GAM = ( {
 								'newspack'
 							) }
 							href="#/gam/orders"
+							chevron
 						/>
 					) }
 				</Grid>
