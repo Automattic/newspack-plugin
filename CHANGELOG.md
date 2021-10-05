@@ -1,3 +1,15 @@
+# [1.60.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.59.0...v1.60.0-alpha.1) (2021-10-05)
+
+
+### Bug Fixes
+
+* **campaigns-wizard:** segmentation configuration ([fbb5f1b](https://github.com/Automattic/newspack-plugin/commit/fbb5f1b71239cdbb287d24096744d2eb85d04203))
+
+
+### Features
+
+* update header and footer style ([#1161](https://github.com/Automattic/newspack-plugin/issues/1161)) ([bbab72f](https://github.com/Automattic/newspack-plugin/commit/bbab72f46d356d596a2f111f090a577bbc3345e2))
+
 # [1.59.0](https://github.com/Automattic/newspack-plugin/compare/v1.58.0...v1.59.0) (2021-09-30)
 
 
