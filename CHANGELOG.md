@@ -1,3 +1,10 @@
+# [1.60.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.60.0-alpha.1...v1.60.0-alpha.2) (2021-10-05)
+
+
+### Features
+
+* update GAM wizard design ([#1177](https://github.com/Automattic/newspack-plugin/issues/1177)) ([5635f9e](https://github.com/Automattic/newspack-plugin/commit/5635f9e5fe39093351bb808725c98f99b75785b0))
+
 # [1.60.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.59.0...v1.60.0-alpha.1) (2021-10-05)
 
 
