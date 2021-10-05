@@ -7,6 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import { Path, SVG } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 class PatronsLogo extends Component {
 	/**
@@ -16,10 +17,11 @@ class PatronsLogo extends Component {
 		return (
 			<SVG
 				xmlns="http://www.w3.org/2000/svg"
-				width="438"
-				height="32"
+				width="219"
+				height="16"
 				viewBox="0 0 438 32"
 				className="patrons-logo"
+				aria-label={ __( 'A project of WordPress.com and the Google News Initiative', 'newspack' ) }
 			>
 				<Path
 					fillRule="evenodd"
