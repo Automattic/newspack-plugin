@@ -587,7 +587,7 @@ class Advertising_Wizard extends Wizard {
 			$orders = $configuration_manager->get_gam_orders();
 		} catch ( \Exception $error ) {
 			$message = $error->getMessage();
-			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Google Ad Manager Orders failed to fetch.', 'newspack' ) );
+			return new WP_Error( 'newspack_ad_orders', $message ? $message : __( 'Google Ad Manager Orders failed to fetch.', 'newspack' ) );
 		}
 		if ( \is_wp_error( $orders ) ) {
 			return $orders;
@@ -597,7 +597,7 @@ class Advertising_Wizard extends Wizard {
 			$line_items = $configuration_manager->get_gam_line_items();
 		} catch ( \Exception $error ) {
 			$message = $error->getMessage();
-			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Google Ad Manager Line Items failed to fetch.', 'newspack' ) );
+			return new WP_Error( 'newspack_ad_line_items', $message ? $message : __( 'Google Ad Manager Line Items failed to fetch.', 'newspack' ) );
 		}
 		if ( \is_wp_error( $line_items ) ) {
 			return $line_items;
