@@ -63,7 +63,6 @@ const Footer = ( { simple } ) => {
 	}
 	return (
 		<div className="newspack-footer">
-			<PatronsLogo />
 			{ ! simple && (
 				<div className="newspack-footer__inner">
 					<ul>
@@ -79,6 +78,9 @@ const Footer = ( { simple } ) => {
 					</ul>
 				</div>
 			) }
+			<div className="newspack-footer__logo">
+				<PatronsLogo />
+			</div>
 		</div>
 	);
 };
