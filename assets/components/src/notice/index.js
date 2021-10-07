@@ -32,7 +32,7 @@ class Notice extends Component {
 			noticeText,
 			rawHTML,
 			style = {},
-			children,
+			children = null,
 		} = this.props;
 		const classes = classnames(
 			'newspack-notice',
@@ -55,7 +55,7 @@ class Notice extends Component {
 				{ <Icon icon={ noticeIcon } /> }
 				<div className="newspack-notice__content">
 					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
-					{ children ? children : null }
+					{ children || null }
 				</div>
 			</div>
 		);
