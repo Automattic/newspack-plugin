@@ -12,7 +12,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Button, Card, Grid, TextControl, withWizardScreen } from '../../../../components/src';
-import AdUnitSizeControl from '../../components/ad-unit-size-control';
+import AdUnitSizeControl, {
+	DEFAULT_SIZES as adUnitSizes,
+} from '../../components/ad-unit-size-control';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -98,7 +100,10 @@ class AdUnit extends Component {
 						/>
 					</Card>
 				) ) }
-				<Button isLink onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 970, 250 ] ] ) }>
+				<Button
+					isLink
+					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, adUnitSizes[ 0 ] ] ) }
+				>
 					{ __( 'Add Size', 'newspack' ) }
 				</Button>
 				<div className="clear" />

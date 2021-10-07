@@ -7,7 +7,7 @@
 /**
  * WordPress dependencies.
  */
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -18,7 +18,7 @@ import { Grid, SelectControl, TextControl } from '../../../../components/src';
 /**
  * Interactive Advertising Bureau's standard ad sizes.
  */
-const DEFAULT_SIZES = [
+export const DEFAULT_SIZES = [
 	[ 970, 250 ],
 	[ 970, 90 ],
 	[ 728, 90 ],
@@ -36,6 +36,7 @@ const DEFAULT_SIZES = [
  */
 const AdUnitSizeControl = ( { value, onChange } ) => {
 	const [ width, height ] = value;
+	const [ isCustom, setIsCustom ] = useState( false );
 	const sizeIndex = DEFAULT_SIZES.findIndex( size => size[ 0 ] === width && size[ 1 ] === height );
 	return (
 		<Fragment>
@@ -50,10 +51,12 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 					{ label: __( 'Custom', 'newspack' ), value: -1 },
 				] }
 				onChange={ index => {
-					onChange( DEFAULT_SIZES[ index ] || [ 120, 120 ] );
+					const size = DEFAULT_SIZES[ index ];
+					setIsCustom( ! size );
+					if ( size ) onChange( size );
 				} }
 			/>
-			{ sizeIndex === -1 && (
+			{ ( isCustom || sizeIndex === -1 ) && (
 				<Grid gutter={ 32 } noMargin>
 					<TextControl
 						label={ __( 'Width', 'newspack' ) }
