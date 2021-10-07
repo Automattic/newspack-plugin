@@ -202,27 +202,29 @@ class Donations {
 	 * Get the child products of the main donation product.
 	 */
 	private static function get_donation_product_child_products_ids() {
-		$product            = self::get_parent_donation_product();
 		$child_products_ids = [
 			'once'  => false,
 			'month' => false,
 			'year'  => false,
 		];
+		$product            = self::get_parent_donation_product();
 
-		// Add the product IDs for each frequency.
-		foreach ( $product->get_children() as $child_id ) {
-			$child_product = wc_get_product( $child_id );
-			if ( ! $child_product || 'trash' === $child_product->get_status() || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
-				continue;
-			}
-			if ( 'subscription' === $child_product->get_type() ) {
-				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
-					$child_products_ids['year'] = $child_id;
-				} elseif ( 'month' == $child_product->get_meta( '_subscription_period', true ) ) {
-					$child_products_ids['month'] = $child_id;
+		if ( $product ) {
+			// Add the product IDs for each frequency.
+			foreach ( $product->get_children() as $child_id ) {
+				$child_product = wc_get_product( $child_id );
+				if ( ! $child_product || 'trash' === $child_product->get_status() || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
+					continue;
 				}
-			} elseif ( 'simple' === $child_product->get_type() ) {
-				$child_products_ids['once'] = $child_id;
+				if ( 'subscription' === $child_product->get_type() ) {
+					if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
+						$child_products_ids['year'] = $child_id;
+					} elseif ( 'month' == $child_product->get_meta( '_subscription_period', true ) ) {
+						$child_products_ids['month'] = $child_id;
+					}
+				} elseif ( 'simple' === $child_product->get_type() ) {
+					$child_products_ids['once'] = $child_id;
+				}
 			}
 		}
 
