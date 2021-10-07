@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { Grid, SelectControl, TextControl } from '../../../../components/src';
 
 /**
- * IAB Standard Sizes.
+ * Interactive Advertising Bureau's standard ad sizes.
  */
 const DEFAULT_SIZES = [
 	[ 970, 250 ],
