@@ -40,7 +40,8 @@ class AdUnit extends Component {
 		const { id, code, name = '' } = adUnit;
 		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
-		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
+		const sizes =
+			adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ adUnitSizes[ 0 ] ];
 		return (
 			<Fragment>
 				<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
