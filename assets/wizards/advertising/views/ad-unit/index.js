@@ -11,7 +11,14 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button, Card, Grid, TextControl, withWizardScreen } from '../../../../components/src';
+import {
+	Button,
+	Card,
+	Grid,
+	TextControl,
+	CheckboxControl,
+	withWizardScreen,
+} from '../../../../components/src';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -34,7 +41,7 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, onSave, service, serviceData = {} } = this.props;
-		const { id, code, name = '' } = adUnit;
+		const { id, code, fluid = false, name = '' } = adUnit;
 		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
@@ -114,6 +121,15 @@ class AdUnit extends Component {
 					{ __( 'Add Size', 'newspack' ) }
 				</Button>
 				<div className="clear" />
+				<CheckboxControl
+					label={ __( 'Fluid size for native ads', 'newspack' ) }
+					onChange={ value => this.handleOnChange( 'fluid', value ) }
+					checked={ fluid }
+					help={ __(
+						'Fluid is a native ad size that allows more flexibility when styling your ad. Ad Manager automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate (just like a regular HTML div on your site).',
+						'newspack'
+					) }
+				/>
 				<div className="newspack-buttons-card">
 					<Button
 						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) }
