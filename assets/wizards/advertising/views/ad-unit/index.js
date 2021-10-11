@@ -69,36 +69,38 @@ class AdUnit extends Component {
 					) }
 				</Grid>
 				{ sizes.map( ( size, index ) => (
-					<Card noBorder key={ index }>
-						<div className="flex flex-wrap items-center">
-							<h2>
-								{ sizes.length > 1
-									? __( 'Ad Unit Size #', 'newspack' ) + ( index + 1 )
-									: __( 'Ad Unit Size', 'newspack' ) }
-							</h2>
-							{ sizes.length > 1 && (
-								<>
-									<span className="sep" />
-									<Button
-										isLink
-										isDestructive
-										onClick={ () => {
-											sizes.splice( index, 1 );
-											this.handleOnChange( 'sizes', sizes );
-										} }
-									>
-										{ __( 'Delete', 'newspack' ) }
-									</Button>
-								</>
-							) }
-						</div>
-						<AdUnitSizeControl
-							value={ size }
-							onChange={ value => {
-								sizes[ index ] = value;
-								this.handleOnChange( 'sizes', sizes );
-							} }
-						/>
+					<Card noBorder className="newspack-advertising-wizard__ad-unit-size" key={ index }>
+						<Grid columns={ 1 } gutter={ 16 }>
+							<div className="flex flex-wrap items-center">
+								<h2>
+									{ sizes.length > 1
+										? __( 'Ad Unit Size #', 'newspack' ) + ( index + 1 )
+										: __( 'Ad Unit Size', 'newspack' ) }
+								</h2>
+								{ sizes.length > 1 && (
+									<>
+										<span className="sep" />
+										<Button
+											isLink
+											isDestructive
+											onClick={ () => {
+												sizes.splice( index, 1 );
+												this.handleOnChange( 'sizes', sizes );
+											} }
+										>
+											{ __( 'Delete', 'newspack' ) }
+										</Button>
+									</>
+								) }
+							</div>
+							<AdUnitSizeControl
+								value={ size }
+								onChange={ value => {
+									sizes[ index ] = value;
+									this.handleOnChange( 'sizes', sizes );
+								} }
+							/>
+						</Grid>
 					</Card>
 				) ) }
 				<Button

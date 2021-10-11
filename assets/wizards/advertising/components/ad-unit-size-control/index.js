@@ -7,7 +7,7 @@
 /**
  * WordPress dependencies.
  */
-import { Fragment, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -39,7 +39,7 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 	const [ isCustom, setIsCustom ] = useState( false );
 	const sizeIndex = DEFAULT_SIZES.findIndex( size => size[ 0 ] === width && size[ 1 ] === height );
 	return (
-		<Fragment>
+		<Grid gutter={ 32 } columns={ 3 } noMargin>
 			<SelectControl
 				label={ __( 'Size', 'newspack' ) }
 				value={ sizeIndex }
@@ -56,21 +56,21 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 					if ( size ) onChange( size );
 				} }
 			/>
-			{ ( isCustom || sizeIndex === -1 ) && (
-				<Grid gutter={ 32 } noMargin>
-					<TextControl
-						label={ __( 'Width', 'newspack' ) }
-						value={ width }
-						onChange={ newWidth => onChange( [ newWidth, height ] ) }
-					/>
-					<TextControl
-						label={ __( 'Height', 'newspack' ) }
-						value={ height }
-						onChange={ newHeight => onChange( [ width, newHeight ] ) }
-					/>
-				</Grid>
-			) }
-		</Fragment>
+			<TextControl
+				label={ __( 'Width', 'newspack' ) }
+				value={ width }
+				onChange={ newWidth => onChange( [ newWidth, height ] ) }
+				disabled={ ! isCustom && sizeIndex !== -1 }
+				type="number"
+			/>
+			<TextControl
+				label={ __( 'Height', 'newspack' ) }
+				value={ height }
+				onChange={ newHeight => onChange( [ width, newHeight ] ) }
+				disabled={ ! isCustom && sizeIndex !== -1 }
+				type="number"
+			/>
+		</Grid>
 	);
 };
 
