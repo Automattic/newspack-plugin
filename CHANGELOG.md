@@ -1,3 +1,15 @@
+# [1.61.0](https://github.com/Automattic/newspack-plugin/compare/v1.60.0...v1.61.0) (2021-10-12)
+
+
+### Bug Fixes
+
+* **donations:** error handling ([#1176](https://github.com/Automattic/newspack-plugin/issues/1176)) ([a03a45e](https://github.com/Automattic/newspack-plugin/commit/a03a45eaa0870e99a0fb63ee0b3ef2004e570552))
+
+
+### Features
+
+* **ads:** standardize ad unit sizes ([#1174](https://github.com/Automattic/newspack-plugin/issues/1174)) ([89af48c](https://github.com/Automattic/newspack-plugin/commit/89af48c4a5ce8f8007a63f23b6bf26468ac7a79d))
+
 # [1.60.0](https://github.com/Automattic/newspack-plugin/compare/v1.59.0...v1.60.0) (2021-10-05)
 
 
