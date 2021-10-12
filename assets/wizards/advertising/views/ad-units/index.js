@@ -135,7 +135,7 @@ const AdUnits = ( {
 							onClick={ () => {
 								credentialsInputFile.current.click();
 							} }
-							title={ __( 'Connect your GAM account', 'newspack' ) }
+							title={ __( 'Connect your Google Ad Manager account', 'newspack' ) }
 							desc={ [
 								__(
 									'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
@@ -143,6 +143,7 @@ const AdUnits = ( {
 								),
 								fileError && <Notice noticeText={ fileError } isError />,
 							] }
+							chevron
 						/>
 					) }
 				</>
@@ -162,10 +163,9 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
-			<div className="flex items-end" style={ { margin: '-30px 0' } }>
+			<div className="newspack-advertising-wizard__network-code">
 				<TextControl
-					className="mr2"
-					label={ __( 'Network code', 'newspack' ) }
+					label={ __( 'Network Code', 'newspack' ) }
 					value={ networkCode }
 					onChange={ setNetworkCode }
 					disabled={ serviceData.status.connected }
@@ -183,7 +183,7 @@ const AdUnits = ( {
 								} }
 								isSecondary
 							>
-								{ __( 'Upload new credentials', 'newspack' ) }
+								{ __( 'Upload New Credentials', 'newspack' ) }
 							</Button>
 							<Button
 								onClick={ () => {
@@ -191,7 +191,7 @@ const AdUnits = ( {
 								} }
 								isDestructive
 							>
-								{ __( 'Remove credentials', 'newspack' ) }
+								{ __( 'Remove Credentials', 'newspack' ) }
 							</Button>
 						</>
 					) }
@@ -207,6 +207,9 @@ const AdUnits = ( {
 								) }
 							</p>
 							<Card buttonsCard noBorder className="justify-end">
+								<Button isSecondary onClick={ () => setIsRemoving( false ) }>
+									{ __( 'Cancel', 'newspack' ) }
+								</Button>
 								<Button
 									isDestructive
 									onClick={ () => {
@@ -214,10 +217,7 @@ const AdUnits = ( {
 										setIsRemoving( false );
 									} }
 								>
-									{ __( 'Remove credentials', 'newspack' ) }
-								</Button>
-								<Button isSecondary onClick={ () => setIsRemoving( false ) }>
-									{ __( 'Cancel', 'newspack' ) }
+									{ __( 'Remove Credentials', 'newspack' ) }
 								</Button>
 							</Card>
 						</Modal>
@@ -226,11 +226,13 @@ const AdUnits = ( {
 			</div>
 			<p>
 				{ __(
-					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.'
+					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
+					'newspack'
 				) }
 				<br />
 				{ __(
-					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.'
+					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
+					'newspack'
 				) }
 			</p>
 			<Card noBorder>

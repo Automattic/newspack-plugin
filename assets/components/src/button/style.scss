@@ -298,6 +298,24 @@ body[class*='admin-color-'] {
 			}
 		}
 
+		&.is-destructive {
+			&:active,
+			&:active:enabled,
+			&:focus,
+			&:focus:enabled,
+			&:hover,
+			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
+				background: $gray-100;
+			}
+
+			&:focus,
+			&:focus:enabled,
+			&:focus:not( :disabled ) {
+				box-shadow: inset 0 0 0 1px $alert-red, 0 0 0 1px white, 0 0 0 3px $alert-red;
+				color: $alert-red;
+			}
+		}
+
 		.components-tooltip {
 			font-weight: normal;
 		}
