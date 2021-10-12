@@ -380,14 +380,17 @@ class Stripe_Connection {
 			$stripe        = self::get_stripe_client();
 			$all_prices    = $stripe->prices->all()['data'];
 			$prices_mapped = [];
+			$payment_data  = self::get_stripe_data();
+
 			foreach ( $all_prices as $price ) {
 				$has_metadata_field = isset( $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ] );
 				if ( $has_metadata_field ) {
 					$metadata_field_value = $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ];
-					if ( 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
+					$does_currency_match  = strtolower( $payment_data['currency'] ) === strtolower( $price['currency'] );
+					if ( $does_currency_match && 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
 						$prices_mapped['month'] = $price;
 					}
-					if ( 'year' === $metadata_field_value && 'year' === $price['recurring']['interval'] ) {
+					if ( $does_currency_match && 'year' === $metadata_field_value && 'year' === $price['recurring']['interval'] ) {
 						$prices_mapped['year'] = $price;
 					}
 				}
