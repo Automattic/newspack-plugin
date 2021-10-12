@@ -32,6 +32,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			secondaryButtonText,
 			secondaryButtonAction,
 			routes,
+			renderAboveContent,
 		} = props;
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
@@ -90,6 +91,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 				</div>
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
+					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }
 					{ <WrappedComponent { ...props } renderPrimaryButton={ renderPrimaryButton } /> }
 					{ ( shouldRenderPrimaryButton || shouldRenderSecondaryButton ) && (
 						<div className="newspack-buttons-card">
