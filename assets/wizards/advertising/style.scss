@@ -3,6 +3,15 @@
 		margin: 24px 0 0;
 	}
 
+	&__ad-unit-size {
+		margin: 64px 0 16px;
+
+		h2,
+		.newspack-grid {
+			margin: 0;
+		}
+	}
+
 	&__network-code {
 		align-items: flex-end;
 		display: flex;
