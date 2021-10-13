@@ -687,13 +687,21 @@ class Reader_Revenue_Wizard extends Wizard {
 			return;
 		}
 		\wp_enqueue_media();
-		\wp_enqueue_script(
+		\wp_register_script(
 			'newspack-reader-revenue-wizard',
 			Newspack::plugin_url() . '/dist/readerRevenue.js',
 			$this->get_script_dependencies(),
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/readerRevenue.js' ),
 			true
 		);
+		\wp_localize_script(
+			'newspack-reader-revenue-wizard',
+			'newspack_reader_revenue',
+			[
+				'emails' => Reader_Revenue_Emails::get_emails(),
+			] 
+		);
+		\wp_enqueue_script( 'newspack-reader-revenue-wizard' );
 	}
 
 	/**
