@@ -130,7 +130,6 @@ class AdUnit extends Component {
 							'The ad unit must have at least one valid size or fluid size enabled.',
 							'newspack'
 						) }
-						className="newspack-advertising-wizard__ad-unit-size-notice"
 					/>
 				) }
 				<div className="newspack-buttons-card">
