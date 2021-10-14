@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { trash } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -43,8 +44,11 @@ class AdUnit extends Component {
 		const sizes =
 			adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ adUnitSizes[ 0 ] ];
 		return (
-			<Fragment>
-				<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+			<>
+				<Card headerActions noBorder>
+					<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+				</Card>
+
 				<Grid gutter={ 32 }>
 					<TextControl
 						label={ __( 'Name', 'newspack' ) }
@@ -55,6 +59,7 @@ class AdUnit extends Component {
 						<TextControl
 							label={ __( 'Code', 'newspack' ) }
 							value={ code || '' }
+							className="code"
 							help={
 								isLegacy
 									? undefined
@@ -68,48 +73,52 @@ class AdUnit extends Component {
 						/>
 					) }
 				</Grid>
+
+				<Card headerActions noBorder>
+					<h2>
+						{ sizes.length > 1
+							? __( 'Ad Unit Sizes', 'newspack' )
+							: __( 'Ad Unit Size', 'newspack' ) }
+					</h2>
+					<Button
+						isSecondary
+						isSmall
+						onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, adUnitSizes[ 0 ] ] ) }
+					>
+						{ __( 'Add New Size', 'newspack' ) }
+					</Button>
+				</Card>
+
+				<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__thead">
+					<strong>{ __( 'Size', 'newspack' ) }</strong>
+					<strong>{ __( 'Width', 'newspack' ) }</strong>
+					<strong>{ __( 'Height', 'newspack' ) }</strong>
+					<span className="screen-reader-text">{ __( 'Action', 'newspack' ) }</span>
+				</Grid>
+
 				{ sizes.map( ( size, index ) => (
-					<Card noBorder className="newspack-advertising-wizard__ad-unit-size" key={ index }>
-						<Grid columns={ 1 } gutter={ 16 }>
-							<div className="flex flex-wrap items-center">
-								<h2>
-									{ sizes.length > 1
-										? __( 'Ad Unit Size #', 'newspack' ) + ( index + 1 )
-										: __( 'Ad Unit Size', 'newspack' ) }
-								</h2>
-								{ sizes.length > 1 && (
-									<>
-										<span className="sep" />
-										<Button
-											isLink
-											isDestructive
-											onClick={ () => {
-												sizes.splice( index, 1 );
-												this.handleOnChange( 'sizes', sizes );
-											} }
-										>
-											{ __( 'Delete', 'newspack' ) }
-										</Button>
-									</>
-								) }
-							</div>
-							<AdUnitSizeControl
-								value={ size }
-								onChange={ value => {
-									sizes[ index ] = value;
-									this.handleOnChange( 'sizes', sizes );
-								} }
-							/>
-						</Grid>
-					</Card>
+					<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__tbody" key={ index }>
+						<AdUnitSizeControl
+							value={ size }
+							onChange={ value => {
+								sizes[ index ] = value;
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						/>
+						<Button
+							isQuaternary
+							onClick={ () => {
+								sizes.splice( index, 1 );
+								this.handleOnChange( 'sizes', sizes );
+							} }
+							icon={ trash }
+							disabled={ sizes.length <= 1 }
+							label={ __( 'Delete', 'newspack' ) }
+							showTooltip={ true }
+						/>
+					</Grid>
 				) ) }
-				<Button
-					isLink
-					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, adUnitSizes[ 0 ] ] ) }
-				>
-					{ __( 'Add Size', 'newspack' ) }
-				</Button>
-				<div className="clear" />
+
 				<div className="newspack-buttons-card">
 					<Button
 						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) }
@@ -122,7 +131,7 @@ class AdUnit extends Component {
 						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>
-			</Fragment>
+			</>
 		);
 	}
 }
