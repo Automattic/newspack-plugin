@@ -31,7 +31,14 @@ class Starter_Content_WordPress extends Starter_Content_Provider {
 	 */
 	public static function initialize( $args = [] ) {
 		if ( empty( $args['site'] ) || ! wp_http_validate_url( $args['site'] ) ) {
-			return new WP_Error( 'newspack_starter_content', __( 'Invalid exiting site URL', 'newspack' ) );
+			return new WP_Error(
+				'newspack_starter_content',
+				sprintf(
+					/* translators: %s - Site URL */
+					__( 'Invalid site URL: "%s".', 'newspack' ),
+					sanitize_text_field( $request_params['site'] )
+				)
+			);
 		}
 
 		$site_url   = trailingslashit( esc_url_raw( $args['site'] ) );
@@ -43,14 +50,42 @@ class Starter_Content_WordPress extends Starter_Content_Provider {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+
 		if ( 200 !== $response_code ) {
-			return new WP_Error( 'newspack_starter_content', __( 'Site does not appear to be a WordPress site', 'newspack' ) );
+			// Check if the site is a WP site that doesn't have REST API enabled.
+			if ( 404 === $response_code && false !== stripos( $response_body, '/wp-content' ) ) {
+				return new WP_Error(
+					'newspack_starter_content',
+					sprintf(
+						/* translators: %s - Site URL */
+						__( '"%s" is a WordPress site but does not have the REST API enabled.', 'newspack' ),
+						sanitize_text_field( $site_url )
+					)
+				);
+			}
+
+			return new WP_Error(
+				'newspack_starter_content',
+				sprintf(
+					/* translators: %s - Site URL */
+					__( '"%s" does not appear to be a WordPress site.', 'newspack' ),
+					sanitize_text_field( $site_url )
+				)
+			);
 		}
 
 		$response_body = wp_remote_retrieve_body( $response );
 		$response_json = json_decode( $response_body, true );
 		if ( ! $response_json ) {
-			return new WP_Error( 'newspack_starter_content', __( 'Unable to parse response from site', 'newspack' ) );
+			return new WP_Error(
+				'newspack_starter_content',
+				sprintf(
+					/* translators: %s - Site URL */
+					__( 'Unable to parse response from "%s".', 'newspack' ),
+					sanitize_text_field( $site_url )
+				)
+			);
 		}
 
 		$relevant_info = array_map( 

@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { Icon, addCard, check, info, layout } from '@wordpress/icons';
+import { isURL } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -25,6 +26,7 @@ import {
 	CheckboxControl,
 	Notice,
 	TextControl,
+	GlobalNotices,
 } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 
@@ -41,7 +43,7 @@ const starterContentInit = ( approach, site = '' ) =>
 	apiFetch( {
 		path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/init`,
 		method: 'post',
-		data: { type: approach, site: site },
+		data: { type: approach, site },
 	} );
 
 const starterContentFetch = endpoint =>
@@ -50,7 +52,7 @@ const starterContentFetch = endpoint =>
 		method: 'post',
 	} );
 
-const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
+const Welcome = ( { buttonAction } ) => {
 	const [ installationProgress, setInstallationProgress ] = useState( 0 );
 	const [ softwareInfo, setSoftwareInfo ] = useState( [] );
 	const [ isSSL, setIsSSL ] = useState( null );
@@ -126,12 +128,10 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 			const starterContentApproach = buttonNew ? 'generated' : 'import';
 			await starterContentInit( starterContentApproach, existingSiteURL )
 				.then( increment )
-				.catch(
-					addError( {
-						info: ERROR_TYPES.starter_content,
-						item: __( 'Failed to initialize starter content.', 'newspack' ),
-					} )
-				);
+				.catch( err => {
+					window.location =
+						'/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' + err.message;
+				} );
 
 			// Generate posts.
 			await Promise.allSettled(
@@ -288,7 +288,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 						<>
 							<br />
 							<i>
-								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{ ' ' }
+								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{' '}
 								{ __( 'seconds…', 'newspack' ) }
 							</i>
 						</>
@@ -344,7 +344,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 							) }
 							{ isInit && ( buttonNew || buttonMigrate ) && (
 								<Button
-									disabled={ ! isSSL || ( buttonMigrate && ! existingSiteURL.length ) }
+									disabled={ ! isSSL || ( buttonMigrate && ! isURL( existingSiteURL ) ) }
 									isPrimary
 									onClick={ install }
 									href={ nextRouteAddress }
@@ -358,6 +358,7 @@ const Welcome = ( { buttonAction, wizardApiFetch, setError } ) => {
 								</Button>
 							) }
 						</Card>
+						<GlobalNotices />
 					</>
 				) }
 			</Card>

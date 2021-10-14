@@ -242,7 +242,14 @@ class Setup_Wizard extends Wizard {
 		$existing_site_url    = ! empty( $request_params['site'] ) && wp_http_validate_url( $request_params['site'] ) ? esc_url_raw( $request_params['site'] ) : '';
 
 		if ( 'import' === $starter_content_type && ! $existing_site_url ) {
-			return new WP_Error( 'newspack_setup', __( 'Invalid existing site URL.', 'newspack' ) );
+			return new WP_Error(
+				'newspack_setup',
+				sprintf(
+					/* translators: %s - Site URL */
+					__( 'Invalid site URL: "%s".', 'newspack' ),
+					sanitize_text_field( $request_params['site'] )
+				)
+			);
 		}
 
 		$result = Starter_Content::initialize( $starter_content_type, $existing_site_url );
