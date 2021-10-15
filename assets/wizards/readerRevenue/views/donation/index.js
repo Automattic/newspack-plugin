@@ -30,7 +30,7 @@ export const DontationAmounts = ( { data, onChange } ) => {
 	} = data;
 
 	return (
-		<>
+		<div>
 			<SectionHeader
 				title={ __( 'Suggested Donations' ) }
 				description={ () => (
@@ -50,49 +50,45 @@ export const DontationAmounts = ( { data, onChange } ) => {
 					checked={ tiered }
 					onChange={ _tiered => onChange( { ...data, tiered: _tiered } ) }
 				/>
-				<Grid columns={ 2 } gutter={ 32 }>
+				{ tiered ? (
 					<Grid columns={ 3 } gutter={ 8 }>
-						{ tiered ? (
-							<>
-								<MoneyInput
-									currencySymbol={ currencySymbol }
-									label={ __( 'Low-tier', 'newspack' ) }
-									value={ suggestedAmounts[ 0 ] }
-									onChange={ value =>
-										onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 0: value } } )
-									}
-								/>
-								<MoneyInput
-									currencySymbol={ currencySymbol }
-									label={ __( 'Mid-tier', 'newspack' ) }
-									value={ suggestedAmounts[ 1 ] }
-									onChange={ value =>
-										onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 1: value } } )
-									}
-								/>
-								<MoneyInput
-									currencySymbol={ currencySymbol }
-									label={ __( 'High-tier', 'newspack' ) }
-									value={ suggestedAmounts[ 2 ] }
-									onChange={ value =>
-										onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 2: value } } )
-									}
-								/>
-							</>
-						) : (
-							<MoneyInput
-								currencySymbol={ currencySymbol }
-								label={ __( 'Amount', 'newspack' ) }
-								value={ suggestedAmountUntiered }
-								onChange={ _suggestedAmountUntiered =>
-									onChange( { ...data, suggestedAmountUntiered: _suggestedAmountUntiered } )
-								}
-							/>
-						) }
+						<MoneyInput
+							currencySymbol={ currencySymbol }
+							label={ __( 'Low-tier', 'newspack' ) }
+							value={ suggestedAmounts[ 0 ] }
+							onChange={ value =>
+								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 0: value } } )
+							}
+						/>
+						<MoneyInput
+							currencySymbol={ currencySymbol }
+							label={ __( 'Mid-tier', 'newspack' ) }
+							value={ suggestedAmounts[ 1 ] }
+							onChange={ value =>
+								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 1: value } } )
+							}
+						/>
+						<MoneyInput
+							currencySymbol={ currencySymbol }
+							label={ __( 'High-tier', 'newspack' ) }
+							value={ suggestedAmounts[ 2 ] }
+							onChange={ value =>
+								onChange( { ...data, suggestedAmounts: { ...suggestedAmounts, 2: value } } )
+							}
+						/>
 					</Grid>
-				</Grid>
+				) : (
+					<MoneyInput
+						currencySymbol={ currencySymbol }
+						label={ __( 'Amount', 'newspack' ) }
+						value={ suggestedAmountUntiered }
+						onChange={ _suggestedAmountUntiered =>
+							onChange( { ...data, suggestedAmountUntiered: _suggestedAmountUntiered } )
+						}
+					/>
+				) }
 			</Grid>
-		</>
+		</div>
 	);
 };
 
