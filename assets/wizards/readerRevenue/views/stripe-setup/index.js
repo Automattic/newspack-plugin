@@ -97,13 +97,7 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 	);
 };
 
-const StripeSetup = ( {
-	data,
-	onChange,
-	renderError,
-	displayStripeSettingsOnly,
-	currencyFields,
-} ) => {
+const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyFields } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const createWebhooks = () => {
 		setIsLoading( true );
@@ -115,7 +109,6 @@ const StripeSetup = ( {
 	};
 	return (
 		<>
-			{ renderError() }
 			{ data.isSSL === false && (
 				<Notice
 					isWarning

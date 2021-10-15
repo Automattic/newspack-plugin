@@ -27,7 +27,7 @@ class LocationSetup extends Component {
 	 * Render.
 	 */
 	render() {
-		const { renderError, countryStateFields, currencyFields, data, onChange } = this.props;
+		const { countryStateFields, currencyFields, data, onChange } = this.props;
 		const {
 			address1 = '',
 			address2 = '',
@@ -38,7 +38,6 @@ class LocationSetup extends Component {
 		} = data;
 		return (
 			<>
-				{ renderError() }
 				<Grid gutter={ 32 } rowGap={ 16 }>
 					<Card noBorder>
 						<TextControl

@@ -14,12 +14,12 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies.
  */
-import { values } from 'lodash';
+import { values, omit } from 'lodash';
 
 /**
  * Internal dependencies.
  */
-import { withWizard, Notice, PluginInstaller } from '../../components/src';
+import { Notice, withWizard, PluginInstaller } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Donation, LocationSetup, NRHSettings, Platform, StripeSetup, Salesforce } from './views';
 import { NEWSPACK, NRH, STRIPE } from './constants';
@@ -35,6 +35,7 @@ class ReaderRevenueWizard extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			errorMessages: {},
 			data: {
 				locationData: {},
 				stripeData: {},
@@ -51,28 +52,37 @@ class ReaderRevenueWizard extends Component {
 	 */
 	onWizardReady = () => this.fetch();
 
+	handleDataUpdate = data => {
+		this.setState(
+			{
+				errorMessages: data.donation_data.errors,
+				data: {
+					locationData: data.location_data,
+					stripeData: data.stripe_data,
+					donationData: data.donation_data,
+					countryStateFields: data.country_state_fields,
+					currencyFields: data.currency_fields,
+					donationPage: data.donation_page,
+					salesforceData: data.salesforce_settings,
+					platformData: data.platform_data,
+					pluginStatus: data.plugin_status,
+					isSSL: data.is_ssl,
+				},
+			},
+			() => {
+				this.props.setError();
+			}
+		);
+	};
+
 	/**
 	 * Retrieve data model
 	 */
 	fetch = () => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( { path: '/newspack/v1/wizard/newspack-reader-revenue-wizard' } )
-			.then( data => {
-				return new Promise( resolve => {
-					this.setState(
-						{
-							data: this.parseData( data ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} );
-			} )
-			.catch( error => {
-				setError( error );
-			} );
+			.then( this.handleDataUpdate )
+			.catch( setError );
 	};
 
 	/**
@@ -85,39 +95,9 @@ class ReaderRevenueWizard extends Component {
 			method: 'POST',
 			data,
 		} )
-			.then( _data => {
-				return new Promise( resolve => {
-					this.setState(
-						{
-							data: this.parseData( _data ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} );
-			} )
-			.catch( error => {
-				setError( error );
-			} );
+			.then( this.handleDataUpdate )
+			.catch( setError );
 	};
-
-	/**
-	 * Parse API data
-	 */
-	parseData = data => ( {
-		locationData: data.location_data,
-		stripeData: data.stripe_data,
-		donationData: data.donation_data,
-		countryStateFields: data.country_state_fields,
-		currencyFields: data.currency_fields,
-		donationPage: data.donation_page,
-		salesforceData: data.salesforce_settings,
-		platformData: data.platform_data,
-		pluginStatus: data.plugin_status,
-		isSSL: data.is_ssl,
-	} );
 
 	/**
 	 * Button handler for Salesforce wizard.
@@ -233,12 +213,10 @@ class ReaderRevenueWizard extends Component {
 	};
 
 	renderError = () => {
-		const { data } = this.state;
-		const donationDataErrors =
-			( data.donationData.errors && values( data.donationData.errors ) ) || [];
+		const { data, errorMessages } = this.state;
 		return (
 			<>
-				{ donationDataErrors.map( ( error, i ) => (
+				{ values( errorMessages ).map( ( error, i ) => (
 					<Notice key={ i } isError noticeText={ error } />
 				) ) }
 				{ NEWSPACK === data.platformData.platform && ! data.pluginStatus && (
@@ -251,7 +229,13 @@ class ReaderRevenueWizard extends Component {
 						] }
 						onStatus={ ( { complete } ) => {
 							if ( complete ) {
-								this.setState( { data: { ...this.state.data, pluginStatus: true } } );
+								this.setState( {
+									errorMessages: omit( errorMessages, 'newspack_missing_required_plugin' ),
+									data: {
+										...this.state.data,
+										pluginStatus: true,
+									},
+								} );
 							}
 						} }
 						withoutFooterButton={ true }
@@ -284,7 +268,7 @@ class ReaderRevenueWizard extends Component {
 			headerText,
 			subHeaderText,
 			tabbedNavigation,
-			renderError: this.renderError,
+			renderAboveContent: this.renderError,
 		};
 		return (
 			<Fragment>

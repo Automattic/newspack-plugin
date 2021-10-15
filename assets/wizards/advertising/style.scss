@@ -1,0 +1,45 @@
+.newspack-advertising-wizard {
+	.newspack-button-card .newspack-notice {
+		margin: 24px 0 0;
+	}
+
+	&__ad-unit-size {
+		margin: 64px 0 16px;
+
+		h2,
+		.newspack-grid {
+			margin: 0;
+		}
+	}
+
+	&__network-code {
+		align-items: flex-end;
+		display: flex;
+		flex-wrap: wrap;
+		margin-bottom: -32px;
+
+		.newspack-button-card + & {
+			margin-top: -32px;
+		}
+
+		.newspack-text-control {
+			flex: 1 1 100%;
+			margin-bottom: 8px;
+
+			@media screen and ( min-width: 768px ) {
+				flex-basis: auto;
+				margin-bottom: 32px;
+				margin-right: 8px;
+			}
+		}
+
+		.newspack-card__buttons-card {
+			flex: 0 0 auto;
+			margin-top: 0;
+
+			.newspack-button + .newspack-button {
+				margin-left: 0;
+			}
+		}
+	}
+}

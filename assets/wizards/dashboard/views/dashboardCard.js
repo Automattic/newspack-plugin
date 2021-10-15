@@ -42,6 +42,7 @@ class DashboardCard extends Component {
 			engagement: postComments,
 			popups: megaphone,
 			support: help,
+			connections: plugins,
 		};
 		return (
 			<ButtonCard

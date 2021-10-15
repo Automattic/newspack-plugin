@@ -355,6 +355,10 @@
 		margin: 3px 8px 3px 0;
 		padding: 0 8px;
 		text-transform: uppercase;
+
+		+ .newspack-action-card__badge {
+			margin-left: -4px;
+		}
 	}
 
 	// Description Card

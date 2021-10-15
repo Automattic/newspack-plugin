@@ -184,6 +184,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						min={ segmentConfig.min_session_posts }
 						max={ segmentConfig.max_session_posts }
 						onChangeMin={ updateSegmentConfig( 'min_session_posts' ) }
+						onChangeMax={ updateSegmentConfig( 'max_session_posts' ) }
 						minPlaceholder={ __( 'Min posts in session', 'newspack' ) }
 						maxPlaceholder={ __( 'Max posts in session', 'newspack' ) }
 					/>

@@ -99,40 +99,34 @@ export const DontationAmounts = ( { data, onChange } ) => {
 /**
  * Donation Settings Screen Component
  */
-const Donation = ( { data = {}, renderError, onChange = () => null, donationPage } ) => {
-	return (
-		<>
-			{ renderError() }
-			{ donationPage && (
-				<Card noBorder>
-					<Card headerActions noBorder>
-						<h2>{ __( 'Donations Landing Page', 'newspack' ) }</h2>
-						<Button isSecondary isSmall href={ donationPage.editUrl }>
-							{ __( 'Edit Page', 'newspack' ) }
-						</Button>
-					</Card>
-					{ 'publish' === donationPage.status ? (
-						<Notice
-							isSuccess
-							noticeText={ __(
-								'Your donations landing page is set up and published.',
-								'newspack'
-							) }
-						/>
-					) : (
-						<Notice
-							isError
-							noticeText={ __(
-								"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready.",
-								'newspack'
-							) }
-						/>
-					) }
+const Donation = ( { data = {}, onChange = () => null, donationPage } ) => (
+	<Grid>
+		{ donationPage && (
+			<Card noBorder>
+				<Card headerActions noBorder>
+					<h2>{ __( 'Donations Landing Page', 'newspack' ) }</h2>
+					<Button isSecondary isSmall href={ donationPage.editUrl }>
+						{ __( 'Edit Page', 'newspack' ) }
+					</Button>
 				</Card>
-			) }
-			<DontationAmounts data={ data } onChange={ onChange } />
-		</>
-	);
-};
+				{ 'publish' === donationPage.status ? (
+					<Notice
+						isSuccess
+						noticeText={ __( 'Your donations landing page is set up and published.', 'newspack' ) }
+					/>
+				) : (
+					<Notice
+						isError
+						noticeText={ __(
+							"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready.",
+							'newspack'
+						) }
+					/>
+				) }
+			</Card>
+		) }
+		<DontationAmounts data={ data } onChange={ onChange } />
+	</Grid>
+);
 
 export default withWizardScreen( Donation );
