@@ -19,6 +19,7 @@ import { values } from 'lodash';
  * Internal dependencies
  */
 import {
+	Card,
 	CheckboxControl,
 	Grid,
 	Button,
@@ -43,6 +44,13 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 	} = data;
 	return (
 		<Grid columns={ 1 } gutter={ 16 }>
+			<p>
+				{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
+				{ ' – ' }
+				<ExternalLink href="https://stripe.com/docs/keys#api-keys">
+					{ __( 'learn how', 'newspack' ) }
+				</ExternalLink>
+			</p>
 			<CheckboxControl
 				label={ __( 'Use Stripe in test mode' ) }
 				checked={ testMode }
@@ -120,20 +128,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 					{ data.connection_error !== false && (
 						<Notice isError noticeText={ data.connection_error } />
 					) }
-					<SettingsCard
-						title={ __( 'Settings', 'newspack' ) }
-						description={ () => (
-							<>
-								{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
-								{ ' – ' }
-								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-									{ __( 'learn how', 'newspack' ) }
-								</ExternalLink>
-							</>
-						) }
-						columns={ 1 }
-						noBorder
-					>
+					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 } noBorder>
 						{ data.can_use_stripe_platform === false && (
 							<Notice
 								isError
@@ -179,7 +174,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 						{ data.webhooks?.errors ? (
 							<Notice isError noticeText={ values( data.webhooks.errors ).join( ', ' ) } />
 						) : (
-							<div>
+							<>
 								{ data.webhooks.length ? (
 									<ul className="newspack-list">
 										{ data.webhooks.map( ( webhook, i ) => (
@@ -189,12 +184,14 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 										) ) }
 									</ul>
 								) : (
-									<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+									<Notice isWarning noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
 								) }
-								<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
-									{ __( 'Create webhooks', 'newspack' ) }
-								</Button>
-							</div>
+								<Card noBorder>
+									<Button isSecondary isSmall disabled={ isLoading } onClick={ createWebhooks }>
+										{ __( 'Create webhooks', 'newspack' ) }
+									</Button>
+								</Card>
+							</>
 						) }
 					</SettingsCard>
 				</>
