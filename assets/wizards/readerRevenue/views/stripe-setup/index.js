@@ -64,9 +64,7 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 							type="password"
 							value={ testSecretKey }
 							label={ __( 'Test Secret Key' ) }
-							onChange={ _testSecretKey =>
-								onChange( { ...data, testSecretKey: _testSecretKey } )
-							}
+							onChange={ _testSecretKey => onChange( { ...data, testSecretKey: _testSecretKey } ) }
 						/>
 					</>
 				) : (
