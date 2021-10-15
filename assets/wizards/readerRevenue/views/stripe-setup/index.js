@@ -43,13 +43,6 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 	} = data;
 	return (
 		<Grid columns={ 1 } gutter={ 16 }>
-			<p>
-				{ __( 'Configure Stripe and enter your API keys' ) }
-				{ ' – ' }
-				<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-					{ __( 'learn how' ) }
-				</ExternalLink>
-			</p>
 			<CheckboxControl
 				label={ __( 'Use Stripe in test mode' ) }
 				checked={ testMode }
@@ -71,7 +64,9 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 							type="password"
 							value={ testSecretKey }
 							label={ __( 'Test Secret Key' ) }
-							onChange={ _testSecretKey => onChange( { ...data, testSecretKey: _testSecretKey } ) }
+							onChange={ _testSecretKey =>
+								onChange( { ...data, testSecretKey: _testSecretKey } )
+							}
 						/>
 					</>
 				) : (
@@ -127,7 +122,20 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 					{ data.connection_error !== false && (
 						<Notice isError noticeText={ data.connection_error } />
 					) }
-					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 }>
+					<SettingsCard
+						title={ __( 'Settings', 'newspack' ) }
+						description={ () => (
+							<>
+								{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
+								{ ' – ' }
+								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
+									{ __( 'learn how', 'newspack' ) }
+								</ExternalLink>
+							</>
+						) }
+						columns={ 1 }
+						noBorder
+					>
 						{ data.can_use_stripe_platform === false && (
 							<Notice
 								isError
@@ -154,6 +162,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 							'newspack'
 						) }
 						columns={ 1 }
+						noBorder
 					>
 						<NewsletterSettings
 							listId={ data.newsletter_list_id }
@@ -167,29 +176,28 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 							'newspack'
 						) }
 						columns={ 1 }
+						noBorder
 					>
-						<div>
-							{ data.webhooks?.errors ? (
-								<Notice isError noticeText={ values( data.webhooks.errors ).join( ', ' ) } />
-							) : (
-								<>
-									{ data.webhooks.length ? (
-										<ul className="newspack-list">
-											{ data.webhooks.map( ( webhook, i ) => (
-												<li key={ i }>
-													<code>{ webhook.url }</code>
-												</li>
-											) ) }
-										</ul>
-									) : (
-										<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
-									) }
-									<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
-										{ __( 'Create webhooks', 'newspack' ) }
-									</Button>
-								</>
-							) }
-						</div>
+						{ data.webhooks?.errors ? (
+							<Notice isError noticeText={ values( data.webhooks.errors ).join( ', ' ) } />
+						) : (
+							<div>
+								{ data.webhooks.length ? (
+									<ul className="newspack-list">
+										{ data.webhooks.map( ( webhook, i ) => (
+											<li key={ i }>
+												<code>{ webhook.url }</code>
+											</li>
+										) ) }
+									</ul>
+								) : (
+									<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+								) }
+								<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
+									{ __( 'Create webhooks', 'newspack' ) }
+								</Button>
+							</div>
+						) }
 					</SettingsCard>
 				</>
 			) : (

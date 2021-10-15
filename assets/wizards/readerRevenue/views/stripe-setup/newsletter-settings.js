@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { SelectControl, Notice, Waiting } from '../../../../components/src';
+import { Grid, Notice, SelectControl, Waiting } from '../../../../components/src';
 
 const NewslettersSettings = ( { listId, onChange } ) => {
 	const [ newslettersLists, setNewsletterLists ] = useState( false );
@@ -42,15 +42,17 @@ const NewslettersSettings = ( { listId, onChange } ) => {
 					</span>
 				}
 			/>
-			<SelectControl
-				value={ listId }
-				label={ __( 'Chosen list', 'newspack' ) }
-				options={ [
-					{ value: '', label: __( '-- Choose a list --', 'newspack' ) },
-					...newslettersLists.map( item => ( { value: item.id, label: item.name } ) ),
-				] }
-				onChange={ onChange }
-			/>
+			<Grid gutter={ 32 }>
+				<SelectControl
+					value={ listId }
+					label={ __( 'Chosen list', 'newspack' ) }
+					options={ [
+						{ value: '', label: __( '-- Choose a list --', 'newspack' ) },
+						...newslettersLists.map( item => ( { value: item.id, label: item.name } ) ),
+					] }
+					onChange={ onChange }
+				/>
+			</Grid>
 		</>
 	);
 };

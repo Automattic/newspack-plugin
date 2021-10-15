@@ -57,6 +57,7 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 			hasGreyHeader,
+			noBorder,
 		} = this.props;
 		const hasChildren = notification || children;
 		const classes = classnames(
@@ -66,6 +67,7 @@ class ActionCard extends Component {
 			hasChildren && 'newspack-card--has-children',
 			isSmall && 'is-small',
 			isMedium && 'is-medium',
+			noBorder && 'newspack-card__no-border',
 			className
 		);
 		const titleProps =
