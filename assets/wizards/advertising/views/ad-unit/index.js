@@ -119,7 +119,7 @@ class AdUnit extends Component {
 					onChange={ value => this.handleOnChange( 'fluid', value ) }
 					checked={ fluid }
 					help={ __(
-						'Fluid is a native ad size that allows more flexibility when styling your ad. Ad Manager automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate (just like a regular HTML div on your site).',
+						'Fluid is a native ad size that allows more flexibility when styling your ad. Ad Manager automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
 						'newspack'
 					) }
 				/>
