@@ -30,7 +30,7 @@ const Main = () => {
 			{ error && <Notice isError noticeText={ error } /> }
 			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
 			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
-			<FivetranConnection setError={ setError } />
+			<FivetranConnection setError={ setError } wpComStatus={ isWPCOMConnected } />
 		</>
 	);
 };

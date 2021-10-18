@@ -83,9 +83,13 @@ class Fivetran_Connection {
 		if ( ! self::is_fivetran_configured() ) {
 			return false;
 		}
+		$wpcom_token = WPCOM_OAuth::get_access_token();
+		if ( is_wp_error( $wpcom_token ) ) {
+			return false;
+		}
 		return add_query_arg(
 			[
-				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
+				'wpcom_access_token' => urlencode( base64_encode( $wpcom_token ) ),
 			],
 			NEWSPACK_FIVETRAN_PROXY . $path
 		);

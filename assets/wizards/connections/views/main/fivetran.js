@@ -10,7 +10,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button } from '../../../../components/src';
+import { Notice, ActionCard, Button } from '../../../../components/src';
 
 /**
  * External dependencies
@@ -70,10 +70,12 @@ const CONNECTORS = [
 	},
 ];
 
-const FivetranConnection = ( { setError } ) => {
+const FivetranConnection = ( { wpComStatus, setError } ) => {
 	const [ connections, setConnections ] = useState();
 	const [ inFlight, setInFlight ] = useState( false );
 
+	const hasFetched = connections !== undefined;
+	const canBeConnected = wpComStatus === true;
 	const canUseFivetran = newspack_connections_data.can_connect_fivetran;
 
 	const handleError = err => {
@@ -84,7 +86,7 @@ const FivetranConnection = ( { setError } ) => {
 	};
 
 	useEffect( () => {
-		if ( ! canUseFivetran ) {
+		if ( ! canUseFivetran || ! canBeConnected ) {
 			return;
 		}
 		setInFlight( true );
@@ -94,7 +96,7 @@ const FivetranConnection = ( { setError } ) => {
 				setInFlight( false );
 			} )
 			.catch( handleError );
-	}, [] );
+	}, [ canUseFivetran, canBeConnected ] );
 
 	if ( ! canUseFivetran ) {
 		return null;
@@ -116,11 +118,19 @@ const FivetranConnection = ( { setError } ) => {
 	return (
 		<div>
 			<h1>{ __( 'Fivetran', 'newspack' ) }</h1>
+			{ wpComStatus === false && (
+				<Notice isWarning>{ __( 'Connect your WordPress.com account first.', 'newspack' ) }</Notice>
+			) }
 			{ CONNECTORS.map( item => {
 				const setupState = get( connections, [ item.service, 'setup_state' ] );
 				const syncState = get( connections, [ item.service, 'sync_state' ] );
 				const status = {
-					label: setupState ? `${ setupState }, ${ syncState }` : '-',
+					// eslint-disable-next-line no-nested-ternary
+					label: setupState
+						? `${ setupState }, ${ syncState }`
+						: hasFetched
+						? __( 'Not connected', 'newspack' )
+						: '-',
 					isConnected: setupState === 'connected',
 				};
 				return (
@@ -129,7 +139,11 @@ const FivetranConnection = ( { setError } ) => {
 							title={ item.label }
 							description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
 							actionText={
-								<Button disabled={ inFlight } onClick={ () => createConnection( item ) } isLink>
+								<Button
+									disabled={ inFlight || ! hasFetched || ! canBeConnected }
+									onClick={ () => createConnection( item ) }
+									isLink
+								>
 									{ status.isConnected
 										? __( 'Re-connect', 'newspack' )
 										: __( 'Connect', 'newspack' ) }
