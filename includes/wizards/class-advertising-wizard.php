@@ -809,8 +809,8 @@ class Advertising_Wizard extends Wizard {
 			return $should_show_ads;
 		}
 
-		$services = self::get_services();
-		if ( ! $services['google_ad_manager']['enabled'] ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		if ( ! $configuration_manager->is_service_enabled( 'google_ad_manager' ) ) {
 			return false;
 		}
 
