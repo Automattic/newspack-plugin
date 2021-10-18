@@ -85,13 +85,4 @@ class Connections_Wizard extends Wizard {
 		);
 		\wp_enqueue_script( 'newspack-connections-wizard' );
 	}
-
-	/**
-	 * Check if wizard is configured and should be displayed.
-	 *
-	 * @return bool True if necessary variables are present.
-	 */
-	public static function configured() {
-		return WPCOM_OAuth::wpcom_client_id();
-	}
 }
