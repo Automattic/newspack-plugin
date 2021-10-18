@@ -132,6 +132,9 @@ class Mailchimp_API {
 	 * @return string|boolean the API endpoint with the right datacenter.
 	 */
 	private static function get_api_endpoint_from_key( $api_key ) {
+		if ( strpos( $api_key, '-' ) === false ) {
+			return false;
+		}
 		list(, $data_center) = explode( '-', $api_key );
 		// Mailchimp API key format: abc123-datacenter.
 		return $data_center ? str_replace( '<dc>', $data_center, self::API_ENDPOINT_PLACEHOLDER ) : false;
