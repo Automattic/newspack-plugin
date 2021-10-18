@@ -50,6 +50,13 @@ class Mailchimp_API {
 				'permission_callback' => function() {
 					return current_user_can( 'manage_options' );
 				},
+				'args'                => [
+					'api_key' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
+					],
+				],
 			]
 		);
 
@@ -94,22 +101,18 @@ class Mailchimp_API {
 	 * @return WP_REST_Response
 	 */
 	public static function api_mailchimp_save_key( $request ) {
-		if ( isset( $request['api_key'] ) ) {
-			$endpoint = self::get_api_endpoint_from_key( $request['api_key'] );
-			if ( ! $endpoint ) {
-				return new \WP_Error( 'wrong_parameter', __( 'Invalid Mailchimp API Key.', 'newspack' ) );
-			}
-
-			$key_is_valid_response = self::is_valid_api_key( $endpoint, $request['api_key'] );
-
-			if ( ! is_wp_error( $key_is_valid_response ) ) {
-				update_option( 'newspack_mailchimp_api_key', $request['api_key'] );
-			}
-
-			return $key_is_valid_response;
-		} else {
-			return new \WP_Error( 'missing_parameters', __( 'Missing parameters in request.', 'newspack' ) );
+		$endpoint = self::get_api_endpoint_from_key( $request['api_key'] );
+		if ( ! $endpoint ) {
+			return new \WP_Error( 'wrong_parameter', __( 'Invalid Mailchimp API Key.', 'newspack' ) );
 		}
+
+		$key_is_valid_response = self::is_valid_api_key( $endpoint, $request['api_key'] );
+
+		if ( ! is_wp_error( $key_is_valid_response ) ) {
+			update_option( 'newspack_mailchimp_api_key', $request['api_key'] );
+		}
+
+		return $key_is_valid_response;
 	}
 
 	/**
