@@ -29,7 +29,7 @@ const Mailchimp = ( { setError } ) => {
 		setAPIKey();
 	};
 
-	// check the Mailchimp connectivity status.
+	// Check the Mailchimp connectivity status.
 	useEffect( () => {
 		setIsLoading( true );
 		apiFetch( { path: '/newspack/v1/oauth/mailchimp' } )
@@ -151,15 +151,10 @@ const Mailchimp = ( { setError } ) => {
 						</Grid>
 					</div>
 					<Card buttonsCard noBorder className="justify-end">
-						<Button
-							isSecondary
-							onClick={ () => {
-								closeModal();
-							} }
-						>
+						<Button isSecondary onClick={ closeModal }>
 							{ __( 'Cancel', 'newspack' ) }
 						</Button>
-						<Button isPrimary disabled={ ! apiKey } onClick={ () => submitAPIKey() }>
+						<Button isPrimary disabled={ ! apiKey } onClick={ submitAPIKey }>
 							{ getModalButtonText() }
 						</Button>
 					</Card>
