@@ -169,63 +169,6 @@ class AdvertisingWizard extends Component {
 	};
 
 	/**
-	 * Update GAM credentials.
-	 */
-	updateGAMCredentials = credentials => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/credentials',
-				method: 'post',
-				data: { credentials },
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
-		} );
-	};
-
-	/**
-	 * Remove GAM credentials.
-	 */
-	removeGAMCredentials = () => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/credentials',
-				method: 'delete',
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
-		} );
-	};
-
-	/**
 	 * Update a single ad unit.
 	 */
 	onAdUnitChange = adUnit => {
@@ -399,8 +342,6 @@ class AdvertisingWizard extends Component {
 									secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
-									updateGAMCredentials={ this.updateGAMCredentials }
-									removeGAMCredentials={ this.removeGAMCredentials }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
 									updateAdUnit={ adUnit => {
 										this.onAdUnitChange( adUnit );
