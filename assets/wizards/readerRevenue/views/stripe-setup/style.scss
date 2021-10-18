@@ -1,0 +1,13 @@
+/**
+ * Stripe Setup
+ */
+
+.newspack-settings__stripe {
+	.newspack-action-card__region-top {
+		padding-bottom: 0 !important;
+	}
+
+	.newspack-grid__columns-1 > p:first-of-type {
+		padding-bottom: 16px;
+	}
+}

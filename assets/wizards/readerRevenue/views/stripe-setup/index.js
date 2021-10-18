@@ -31,6 +31,7 @@ import {
 	withWizardScreen,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';
+import './style.scss';
 
 const { SettingsCard } = Settings;
 
@@ -128,7 +129,12 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 					{ data.connection_error !== false && (
 						<Notice isError noticeText={ data.connection_error } />
 					) }
-					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 } noBorder>
+					<SettingsCard
+						title={ __( 'Settings', 'newspack' ) }
+						className="newspack-settings__stripe"
+						columns={ 1 }
+						noBorder
+					>
 						{ data.can_use_stripe_platform === false && (
 							<Notice
 								isError
