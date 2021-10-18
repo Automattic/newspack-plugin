@@ -31,6 +31,7 @@ import {
 	iconOverlayTop,
 	iconPreview,
 	postList,
+	blockTable,
 } from './icons';
 import './style.scss';
 
@@ -204,6 +205,15 @@ const SegmentGroup = props => {
 											title={ __( 'Custom Placement', 'newspack' ) }
 											desc={ __( 'Only appears when placed in content', 'newspack' ) }
 											icon={ layout }
+										/>
+										<ButtonCard
+											href={ addNewURL( 'manual', campaignId, id ) }
+											title={ __( 'Manual Only', 'newspack' ) }
+											desc={ __(
+												'Only appears where Single Prompt block is inserted',
+												'newspack'
+											) }
+											icon={ blockTable }
 										/>
 									</Grid>
 								</Modal>
