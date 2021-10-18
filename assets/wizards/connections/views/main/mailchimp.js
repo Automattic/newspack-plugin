@@ -127,7 +127,7 @@ const Mailchimp = ( { setError } ) => {
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter="0">
 							<TextControl
-								placeholder="1234a56b7cde89f0g1h234-us1"
+								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
 								label={ __( 'Mailchimp API Key', 'newspack' ) }
 								hideLabelFromVision={ true }
 								value={ apiKey }
