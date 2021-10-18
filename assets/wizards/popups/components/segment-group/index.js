@@ -30,6 +30,7 @@ import {
 	iconOverlayCenter,
 	iconOverlayTop,
 	iconPreview,
+	postList,
 } from './icons';
 import './style.scss';
 
@@ -190,7 +191,7 @@ const SegmentGroup = props => {
 											href={ addNewURL( 'archives', campaignId, id ) }
 											title={ __( 'In Archive Pages', 'newspack' ) }
 											desc={ __( 'Embedded once or many times in archive pages', 'newspack' ) }
-											icon={ iconInline }
+											icon={ postList }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'above-header', campaignId, id ) }
