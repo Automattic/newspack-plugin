@@ -266,6 +266,9 @@ class Advertising_Wizard extends Wizard {
 					'sizes'      => [
 						'sanitize_callback' => [ $this, 'sanitize_sizes' ],
 					],
+					'fluid'      => [
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
 					'ad_service' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
