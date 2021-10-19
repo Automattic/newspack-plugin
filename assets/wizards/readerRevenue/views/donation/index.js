@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -86,46 +85,33 @@ export const DontationAmounts = ( { data, onChange } ) => {
 /**
  * Donation Settings Screen Component
  */
-class Donation extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, onChange, donationPage } = this.props;
-		return (
-			<Grid>
-				{ donationPage && (
-					<Card noBorder>
-						<h2>{ __( 'Donations landing page' ) }</h2>
-						{ 'publish' === donationPage.status ? (
-							<Notice
-								isSuccess
-								noticeText={ __( 'Your donations landing page is set up and published.' ) }
-							/>
-						) : (
-							<Notice
-								isError
-								noticeText={ __(
-									"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
-								) }
-							/>
+const Donation = ( { data = {}, onChange = () => null, donationPage } ) => (
+	<Grid>
+		{ donationPage && (
+			<Card noBorder>
+				<h2>{ __( 'Donations landing page' ) }</h2>
+				{ 'publish' === donationPage.status ? (
+					<Notice
+						isSuccess
+						noticeText={ __( 'Your donations landing page is set up and published.' ) }
+					/>
+				) : (
+					<Notice
+						isError
+						noticeText={ __(
+							"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
 						) }
-						<Button isSecondary href={ donationPage.editUrl }>
-							{ __( 'Edit Page' ) }
-						</Button>
-					</Card>
+					/>
 				) }
-				<Card noBorder>
-					<DontationAmounts data={ data } onChange={ onChange } />
-				</Card>
-			</Grid>
-		);
-	}
-}
-
-Donation.defaultProps = {
-	data: {},
-	onChange: () => null,
-};
+				<Button isSecondary href={ donationPage.editUrl }>
+					{ __( 'Edit Page' ) }
+				</Button>
+			</Card>
+		) }
+		<Card noBorder>
+			<DontationAmounts data={ data } onChange={ onChange } />
+		</Card>
+	</Grid>
+);
 
 export default withWizardScreen( Donation );

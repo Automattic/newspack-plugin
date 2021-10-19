@@ -25,7 +25,8 @@ class HealthCheckWizard extends Component {
 		this.state = {
 			hasData: false,
 			healthCheckData: {
-				unsupportedPlugins: [],
+				unsupported_plugins: {},
+				missing_plugins: {},
 			},
 		};
 	}
@@ -71,6 +72,7 @@ class HealthCheckWizard extends Component {
 		const { hasData, healthCheckData } = this.state;
 		const {
 			unsupported_plugins: unsupportedPlugins,
+			missing_plugins: missingPlugins,
 			configuration_status: configurationStatus,
 		} = healthCheckData;
 		const tabs = [
@@ -97,13 +99,11 @@ class HealthCheckWizard extends Component {
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }
 									tabbedNavigation={ tabs }
-									unsupportedPlugins={
-										unsupportedPlugins &&
-										Object.keys( unsupportedPlugins ).map( value => ( {
-											...unsupportedPlugins[ value ],
-											Slug: value,
-										} ) )
-									}
+									missingPlugins={ Object.keys( missingPlugins ) }
+									unsupportedPlugins={ Object.keys( unsupportedPlugins ).map( value => ( {
+										...unsupportedPlugins[ value ],
+										Slug: value,
+									} ) ) }
 								/>
 							) }
 						/>
@@ -117,6 +117,7 @@ class HealthCheckWizard extends Component {
 									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
 									tabbedNavigation={ tabs }
 									configurationStatus={ configurationStatus }
+									missingPlugins={ Object.keys( missingPlugins ) }
 									repairConfiguration={ this.repairConfiguration }
 								/>
 							) }

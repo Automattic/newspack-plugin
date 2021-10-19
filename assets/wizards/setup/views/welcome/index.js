@@ -303,7 +303,7 @@ const Welcome = ( { buttonAction } ) => {
 						<>
 							<br />
 							<i>
-								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{' '}
+								{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{ ' ' }
 								{ __( 'seconds…', 'newspack' ) }
 							</i>
 						</>

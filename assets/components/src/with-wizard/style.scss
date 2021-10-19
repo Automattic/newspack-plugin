@@ -47,6 +47,10 @@ svg {
 		background: $primary-500;
 	}
 
+	.newspack-wizard__header {
+		display: none;
+	}
+
 	.newspack-card {
 		background: white;
 		border: 0;
@@ -98,7 +102,7 @@ svg {
 	}
 
 	.newspack-logo__wrapper {
-		margin-top: -32px;
+		margin-bottom: 32px;
 	}
 
 	.newspack-buttons-card {
@@ -106,7 +110,13 @@ svg {
 	}
 
 	.newspack-footer {
-		color: white;
+		background: $primary-500;
+		border-color: $primary-500;
+		justify-content: center;
+
+		&__logo {
+			background: inherit;
+		}
 	}
 
 	#wpfooter {
@@ -141,18 +151,20 @@ svg {
 
 	&::before,
 	&::after {
+		animation: loading 2s ease-in-out infinite;
 		content: '';
 		display: block;
 	}
 
 	&::before {
 		background: $primary-500;
-		height: 160px;
-		width: 100%;
+		box-shadow: 24px 0 0 white, 69px 0 0 -15px $gray-900, 99px 0 0 -15px $gray-900,
+			129px 0 0 -15px $gray-900, 159px 0 0 -15px $gray-900, 189px 0 0 -15px $gray-900;
+		height: 60px;
+		width: 60px;
 	}
 
 	&::after {
-		animation: loading 2s ease-in-out infinite;
 		background: $gray-900;
 		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
 			0 96px 0 0 $gray-700;

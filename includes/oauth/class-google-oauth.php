@@ -79,6 +79,16 @@ class Google_OAuth {
 				],
 			]
 		);
+		// Revoke Google OAuth2 details.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/oauth/google/revoke',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ __CLASS__, 'api_google_auth_revoke' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -89,7 +99,7 @@ class Google_OAuth {
 	 * @return bool|WP_Error
 	 */
 	public static function api_permissions_check( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! self::is_oauth_configured() ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),
@@ -135,7 +145,8 @@ class Google_OAuth {
 		if ( isset( $tokens['refresh_token'] ) ) {
 			$auth['refresh_token'] = $tokens['refresh_token'];
 		}
-		return update_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
+		self::remove_credentials();
+		return add_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
 	}
 
 	/**
@@ -144,13 +155,11 @@ class Google_OAuth {
 	public static function get_google_auth_url_params() {
 		$scopes         = [
 			'https://www.googleapis.com/auth/userinfo.email', // User's email address.
-			'https://www.googleapis.com/auth/analytics.edit', // Google Analytics.
 			'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
 		];
-		$redirect_after = admin_url( 'admin.php?page=newspack' );
+		$redirect_after = admin_url( 'admin.php?page=newspack-connections-wizard' );
 
 		return [
-			'service'        => 'google',
 			'csrf_token'     => self::generate_csrf_token(),
 			'scope'          => implode( ' ', $scopes ),
 			'redirect_after' => $redirect_after,
@@ -158,21 +167,56 @@ class Google_OAuth {
 	}
 
 	/**
+	 * Get the OAuth proxy URL.
+	 *
+	 * @param string $path Path to append to base URL.
+	 */
+	private static function get_oauth_proxy_url( $path = '' ) {
+		if ( ! defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
+			return false;
+		}
+		if ( is_wp_error( WPCOM_OAuth::get_access_token() ) ) {
+			return false;
+		}
+
+		return add_query_arg(
+			[
+				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
+			],
+			NEWSPACK_GOOGLE_OAUTH_PROXY . $path
+		);
+	}
+
+	/**
 	 * Start the Google OAuth2 flow, which will use WPCOM as a proxy to issue credentials.
 	 *
-	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response Response with the URL.
 	 */
-	public static function api_google_auth_start( $request ) {
+	public static function api_google_auth_start() {
+		$proxy_url = self::get_oauth_proxy_url( '/wp-json/newspack-oauth-proxy/v1/start' );
 		try {
-			$response = WPCOM_OAuth::perform_wpcom_api_request(
-				'rest/v1.1/newspack/oauth',
-				self::get_google_auth_url_params()
-			);
-			return \rest_ensure_response( $response->data->url );
+			$query_args = self::get_google_auth_url_params();
+			$url        = add_query_arg( $query_args, $proxy_url );
+			$result     = wp_safe_remote_get( $url );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+			if ( 200 !== $result['response']['code'] ) {
+				$error_text  = __( 'Request failed.', 'newspack' );
+				$parsed_data = json_decode( $result['body'] );
+				if ( property_exists( $parsed_data, 'message' ) ) {
+					$error_text = $parsed_data->message;
+				}
+				return new WP_Error(
+					'newspack_google_oauth',
+					$error_text
+				);
+			}
+			$response_body = json_decode( $result['body'] );
+			return \rest_ensure_response( $response_body->url );
 		} catch ( \Exception $e ) {
 			return new WP_Error(
-				'newspack_support_error',
+				'newspack_google_oauth',
 				$e->getMessage()
 			);
 		}
@@ -201,13 +245,45 @@ class Google_OAuth {
 	}
 
 	/**
+	 * Revoke credentials of current user.
+	 *
+	 * @return WP_REST_Response Response.
+	 */
+	public static function api_google_auth_revoke() {
+		$auth_data = self::get_google_auth_saved_data();
+		if ( ! isset( $auth_data['access_token'] ) ) {
+			return new \WP_Error( 'newspack_google_oauth', __( 'Missing token for user.', 'newspack' ) );
+		}
+		if ( isset( $auth_data['refresh_token'] ) ) {
+			$token = $auth_data['refresh_token'];
+		} else {
+			$token = $auth_data['access_token'];
+		}
+
+		$result = \wp_safe_remote_post(
+			add_query_arg( [ 'token' => $token ], 'https://oauth2.googleapis.com/revoke' )
+		);
+		if ( 200 === $result['response']['code'] ) {
+			self::remove_credentials();
+			return \rest_ensure_response( [ 'status' => 'ok' ] );
+		} else {
+			return new \WP_Error( 'newspack_google_oauth', __( 'Could not save auth data for user.', 'newspack' ) );
+		}
+	}
+
+	/**
 	 * Get Google authentication status.
 	 */
 	public static function api_google_auth_status() {
+		$response = [
+			'user_basic_info' => false,
+		];
+		if ( false === self::is_oauth_configured() ) {
+			return \rest_ensure_response( $response );
+		}
 		return \rest_ensure_response(
 			[
 				'user_basic_info' => self::authenticated_user_basic_information(),
-				'can_google_auth' => self::is_oauth_configured(),
 			]
 		);
 	}
@@ -245,7 +321,7 @@ class Google_OAuth {
 			)
 		);
 
-		if ( 200 === $token_info_response['response']['code'] ) {
+		if ( 200 === wp_remote_retrieve_response_code( $token_info_response ) ) {
 			$user_info_response = wp_safe_remote_get(
 				add_query_arg(
 					'access_token',
@@ -253,15 +329,12 @@ class Google_OAuth {
 					'https://www.googleapis.com/oauth2/v2/userinfo'
 				)
 			);
-			if ( 200 === $user_info_response['response']['code'] ) {
+			if ( 200 === wp_remote_retrieve_response_code( $user_info_response ) ) {
 				$user_info = json_decode( $user_info_response['body'] );
 				return [
 					'email' => $user_info->email,
 				];
 			}
-		} else {
-			// Credentials are invalid, remove them.
-			self::remove_credentials();
 		}
 
 		return false;
@@ -283,28 +356,33 @@ class Google_OAuth {
 		if ( ! isset( $auth_data['access_token'] ) ) {
 			return false;
 		}
-
 		$is_expired = time() > $auth_data['expires_at'];
 
 		if ( $is_expired && isset( $auth_data['refresh_token'] ) ) {
 			// Refresh the access token.
 			try {
-				$response = WPCOM_OAuth::perform_wpcom_api_request(
-					add_query_arg(
-						[
-							'refresh_token' => $auth_data['refresh_token'],
-							'csrf_token'    => self::generate_csrf_token(),
-						],
-						'rest/v1.1/newspack/oauth/refresh-token'
-					)
+				$proxy_url = self::get_oauth_proxy_url( '/wp-json/newspack-oauth-proxy/v1/refresh-token' );
+				$url       = add_query_arg(
+					[
+						'refresh_token' => $auth_data['refresh_token'],
+						'csrf_token'    => self::generate_csrf_token(),
+					],
+					$proxy_url
 				);
-				if ( isset( $response->data->access_token ) ) {
-					self::save_auth_credentials( $response->data );
+				$result    = wp_safe_remote_get( $url );
+				if ( is_wp_error( $result ) ) {
+					return false;
+				}
+				if ( 200 !== $result['response']['code'] ) {
+					return false;
+				}
+				$response_body = json_decode( $result['body'] );
+
+				if ( isset( $response_body->access_token ) ) {
+					self::save_auth_credentials( $response_body );
 					$auth_data = self::get_google_auth_saved_data();
 				}
 			} catch ( \Exception $e ) {
-				// Credentials might be broken, remove them.
-				self::remove_credentials();
 				return false;
 			}
 		}
@@ -324,12 +402,8 @@ class Google_OAuth {
 	/**
 	 * Is OAuth2 configured for this instance?
 	 */
-	private static function is_oauth_configured() {
-		$is_enabled = defined( 'NEWSPACK_GOOGLE_OAUTH_ENABLED' ) && NEWSPACK_GOOGLE_OAUTH_ENABLED;
-		if ( ! $is_enabled ) {
-			return false;
-		}
-		return WPCOM_OAuth::is_newspack_customer();
+	public static function is_oauth_configured() {
+		return defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' );
 	}
 }
 new Google_OAuth();

@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use \WP_Error;
+
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/configuration_managers/class-configuration-manager.php';
@@ -30,6 +32,17 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function is_configured() {
 		return class_exists( 'Newspack_Ads_Model' );
+	}
+
+	/**
+	 * Initial GAM setup
+	 *
+	 * @return object|WP_Error Setup results or error if it fails.
+	 */
+	public function setup_gam() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::setup_gam() :
+			$this->unconfigured_error();
 	}
 
 	/**
@@ -111,6 +124,29 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	public function get_gam_connection_status() {
 		return $this->is_configured() ?
 			\Newspack_Ads_Model::get_gam_connection_status() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get ad suppression config.
+	 *
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function get_suppression_config() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::get_suppression_config() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Update ad suppression config.
+	 *
+	 * @param array $config Updated config.
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function update_suppression_config( $config ) {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::update_suppression_config( $config ) :
 			$this->unconfigured_error();
 	}
 

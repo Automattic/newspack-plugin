@@ -8,6 +8,10 @@
 		&.is-loading {
 			pointer-events: none;
 		}
+
+		.newspack-popover {
+			margin-left: -4px;
+		}
 	}
 	&__header {
 		align-items: center;

@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 import { trash, pencil } from '@wordpress/icons';
 
 /**
@@ -30,76 +31,114 @@ const AdUnits = ( {
 	updateAdUnit,
 	wizardApiFetch,
 	service,
-	gamConnectionStatus = {},
+	serviceData,
+	fetchAdvertisingData,
 } ) => {
-	const warningNoticeText = `${ __(
-		'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
-		'newspack'
-	) } ${
-		Object.values( adUnits ).length
-			? __( 'The legacy ad units will continue to work.', 'newspack' )
-			: ''
-	}`;
-	const gamConnectionMessage = gamConnectionStatus?.error
-		? `${ __( 'Google Ad Manager connection error', 'newspack' ) }: ${ gamConnectionStatus.error }`
+	const gamConnectionErrorMessage = serviceData?.status?.error
+		? `${ __( 'Google Ad Manager connection issue', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
 	const isDisplayingNetworkMismatchNotice =
-		! gamConnectionMessage && false === gamConnectionStatus?.is_network_code_matched;
+		! gamConnectionErrorMessage && false === serviceData.status?.is_network_code_matched;
 
-	const [ networkCode, setNetworkCode ] = useState( gamConnectionStatus.network_code );
-	const saveNetworkCode = () => {
-		wizardApiFetch( {
+	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
+	const saveNetworkCode = async () => {
+		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
 			data: { network_code: networkCode },
 			quiet: true,
 		} );
+		fetchAdvertisingData( true );
 	};
+
+	useEffect( () => {
+		setNetworkCode( serviceData.status.network_code );
+	}, [ serviceData.status.network_code ] );
 
 	return (
 		<>
-			{ gamConnectionStatus.can_connect ? (
+			{ serviceData.status.can_connect ? (
 				<>
 					{ isDisplayingNetworkMismatchNotice && (
 						<Notice
 							noticeText={ __(
-								'Your GAM network code is different than the network code the site was configured with. Editing has been disabled.',
+								'Your GAM network code is different than the network code the site was configured with. Legacy ad units are likely to not load.',
 								'newspack'
 							) }
-							isError
+							isWarning
 						/>
 					) }
-					{ gamConnectionStatus?.connected === false && (
-						<Notice
-							noticeText={ gamConnectionMessage || warningNoticeText }
-							isWarning={ ! gamConnectionMessage }
-							isError={ gamConnectionMessage }
-						/>
+					{ gamConnectionErrorMessage && (
+						<Notice noticeText={ gamConnectionErrorMessage } isError />
 					) }
 				</>
-			) : (
-				<div className="flex items-end" style={ { margin: '-30px 0' } }>
+			) : null }
+			{ serviceData.created_targeting_keys?.length > 0 && (
+				<Notice
+					noticeText={ [
+						__( 'Created custom targeting keys:' ) + '\u00A0',
+						serviceData.created_targeting_keys.join( ', ' ) + '. \u00A0',
+						<ExternalLink
+							href={ `https://admanager.google.com/${ serviceData.network_code }#inventory/custom_targeting/list` }
+							key="google-ad-manager-custom-targeting-link"
+						>
+							{ __( 'Visit your GAM dashboard' ) }
+						</ExternalLink>,
+					] }
+					isSuccess
+				/>
+			) }
+			{ serviceData.status.can_use_oauth && serviceData.status.mode !== 'oauth' && (
+				<Notice isWarning>
+					<>
+						<span>
+							{ __(
+								'You are currently using a legacy version of Google Ad Manager connection. Visit the "Connections" wizard of Newspack plugin to connect your Google account.',
+								'newspack'
+							) }
+						</span>
+						{ serviceData.status.mode === 'service_account' && (
+							<span>
+								{ ' ' }
+								{ __(
+									'Afterwards, remove the service account credentials from the database.',
+									'newspack'
+								) }
+							</span>
+						) }
+					</>
+				</Notice>
+			) }
+			{ serviceData.status.mode === 'legacy' ? (
+				<div className="flex items-end">
 					<TextControl
-						className="mr2"
-						label={ __( 'Network code', 'newspack' ) }
+						label={ __( 'Network Code', 'newspack' ) }
 						value={ networkCode }
 						onChange={ setNetworkCode }
+						withMargin={ false }
 					/>
-					<div className="mb4">
-						<Button onClick={ saveNetworkCode } isPrimary>
+					<span className="pl3">
+						<Button onClick={ saveNetworkCode } isPrimary disabled={ serviceData.status.connected }>
 							{ __( 'Save', 'newspack' ) }
 						</Button>
-					</div>
+					</span>
+				</div>
+			) : (
+				<div className="mb3">
+					<strong>{ __( 'Network code:', 'newspack' ) } </strong>
+					<code>{ networkCode }</code>
 				</div>
 			) }
 			<p>
 				{ __(
-					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.'
+					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
+					'newspack'
 				) }
 				<br />
 				{ __(
-					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.'
+					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
+					'newspack'
 				) }
 			</p>
 			<Card noBorder>
@@ -108,23 +147,18 @@ const AdUnits = ( {
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
 					.map( adUnit => {
 						const editLink = `#${ service }/${ adUnit.id }`;
-						const isDisabled = adUnit.is_legacy
-							? false
-							: false === gamConnectionStatus?.is_network_code_matched;
 						const buttonProps = {
-							disabled: isDisabled,
 							isQuaternary: true,
 							isSmall: true,
 							tooltipPosition: 'bottom center',
 						};
-						const displayLegacyAdUnitLabel = gamConnectionStatus.can_connect && adUnit.is_legacy;
+						const displayLegacyAdUnitLabel = serviceData.status.can_connect && adUnit.is_legacy;
 						return (
 							<ActionCard
-								disabled={ isDisabled }
 								key={ adUnit.id }
 								title={ adUnit.name }
 								isSmall
-								titleLink={ isDisabled ? null : editLink }
+								titleLink={ editLink }
 								className="mv0"
 								{ ...( adUnit.is_legacy
 									? {}
@@ -146,6 +180,7 @@ const AdUnits = ( {
 										{ adUnit.sizes.map( ( size, i ) => (
 											<code key={ i }>{ size.join( 'x' ) }</code>
 										) ) }
+										{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
 									</span>
 								) }
 								actionText={

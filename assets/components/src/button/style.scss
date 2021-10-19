@@ -230,12 +230,14 @@ body[class*='admin-color-'] {
 			border-width: 1px;
 			color: $gray-900;
 
+			&:focus,
 			&:hover {
 				border-color: $gray-200;
+				box-shadow: none;
 				color: $primary-500;
 			}
 
-			&:focus {
+			&:focus-visible {
 				border-color: $primary-500;
 				box-shadow: inset 0 0 0 1px $primary-500;
 				color: $primary-500;
@@ -281,10 +283,11 @@ body[class*='admin-color-'] {
 			&:focus:enabled,
 			&.is-destructive:not( :disabled ):hover {
 				box-shadow: none;
+				outline: none;
 			}
 
-			&:focus,
-			&:focus:enabled {
+			&:focus-visible,
+			&:focus-visible:enabled {
 				outline: 2px solid $primary-500;
 				outline-offset: 2px;
 			}
@@ -292,6 +295,24 @@ body[class*='admin-color-'] {
 			&.is-small,
 			&.is-large {
 				padding: 0;
+			}
+		}
+
+		&.is-destructive {
+			&:active,
+			&:active:enabled,
+			&:focus,
+			&:focus:enabled,
+			&:hover,
+			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
+				background: $gray-100;
+			}
+
+			&:focus,
+			&:focus:enabled,
+			&:focus:not( :disabled ) {
+				box-shadow: inset 0 0 0 1px $alert-red, 0 0 0 1px white, 0 0 0 3px $alert-red;
+				color: $alert-red;
 			}
 		}
 

@@ -28,7 +28,7 @@
 		line-height: 24px;
 		min-height: 48px;
 		min-width: 100%;
-		padding-right: 40px;
+		padding-right: 24px;
 
 		&:active,
 		&:focus,
@@ -43,8 +43,9 @@
 		}
 
 		&-icon {
-			right: 8px;
+			right: 3px;
 			transition: transform 50ms ease-in-out;
+			width: 18px;
 		}
 
 		&[aria-expanded='true'] svg {

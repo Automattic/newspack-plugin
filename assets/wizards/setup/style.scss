@@ -63,3 +63,23 @@
 		}
 	}
 }
+
+.newspack-wizard {
+	&__title {
+		a {
+			pointer-events: none;
+		}
+
+		svg:not( .newspack-icon ) {
+			display: none;
+		}
+	}
+}
+
+.newspack-footer {
+	flex-direction: row-reverse;
+
+	&__logo {
+		margin-left: 0;
+	}
+}

@@ -9,6 +9,7 @@ import { addQueryArgs } from '@wordpress/url';
  * External dependencies.
  */
 import { memoize } from 'lodash';
+import { format, parse } from 'date-fns';
 
 /**
  * Array of overlay placements.
@@ -338,3 +339,6 @@ export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[
 
 export const dataForCampaignId = ( id, campaigns ) =>
 	campaigns.reduce( ( acc, group ) => ( +id > 0 && +id === +group.term_id ? group : acc ), null );
+
+export const formatDate = ( date = new Date() ) => format( date, 'yyyy-MM-dd' );
+export const parseDate = dateString => parse( dateString, 'yyyy-MM-dd', new Date() );

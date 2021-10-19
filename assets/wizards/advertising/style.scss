@@ -1,0 +1,14 @@
+.newspack-advertising-wizard {
+	.newspack-button-card .newspack-notice {
+		margin: 24px 0 0;
+	}
+
+	&__ad-unit-size {
+		margin: 64px 0 16px;
+
+		h2,
+		.newspack-grid {
+			margin: 0;
+		}
+	}
+}

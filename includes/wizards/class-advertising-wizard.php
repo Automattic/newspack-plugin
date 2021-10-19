@@ -197,6 +197,9 @@ class Advertising_Wizard extends Wizard {
 					'sizes'      => [
 						'sanitize_callback' => [ $this, 'sanitize_sizes' ],
 					],
+					'fluid'      => [
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
 					'ad_service' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
@@ -230,7 +233,78 @@ class Advertising_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'network_code' => [
-						'sanitize_callback' => 'absint',
+						'sanitize_callback' => function( $value ) {
+							$raw_codes       = explode( ',', $value );
+							$sanitized_codes = array_reduce(
+								$raw_codes,
+								function( $acc, $code ) {
+									$sanitized_code = absint( trim( $code ) );
+									if ( ! empty( $sanitized_code ) ) {
+										$acc[] = $sanitized_code;
+									}
+									return $acc;
+								},
+								[]
+							);
+
+							return implode( ',', $sanitized_codes );
+						},
+					],
+				],
+			]
+		);
+
+		// Update global ad suppression.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/advertising/suppression',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_ad_suppression' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'config' => [
+						'required'          => true,
+						'sanitize_callback' => function( $item ) {
+							return [
+								'tag_archive_pages'      => $item['tag_archive_pages'],
+								'specific_tag_archive_pages' => $item['specific_tag_archive_pages'],
+								'category_archive_pages' => $item['category_archive_pages'],
+								'specific_category_archive_pages' => $item['specific_category_archive_pages'],
+								'author_archive_pages'   => $item['author_archive_pages'],
+							];
+						},
+						'type'              => [
+							'type'       => 'object',
+							'properties' => [
+								'tag_archive_pages'      => [
+									'required' => true,
+									'type'     => 'boolean',
+								],
+								'specific_tag_archive_pages' => [
+									'required' => true,
+									'type'     => 'array',
+									'items'    => [
+										'type' => 'integer',
+									],
+								],
+								'category_archive_pages' => [
+									'required' => true,
+									'type'     => 'boolean',
+								],
+								'specific_category_archive_pages' => [
+									'required' => true,
+									'type'     => 'array',
+									'items'    => [
+										'type' => 'integer',
+									],
+								],
+								'author_archive_pages'   => [
+									'required' => true,
+									'type'     => 'boolean',
+								],
+							],
+						],
 					],
 				],
 			]
@@ -244,8 +318,20 @@ class Advertising_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_update_network_code( $request ) {
-		update_option( \Newspack_Ads_Model::OPTION_NAME_NETWORK_CODE, $request['network_code'] );
+		update_option( \Newspack_Ads_Model::OPTION_NAME_LEGACY_NETWORK_CODE, $request['network_code'] );
 		return \rest_ensure_response( [] );
+	}
+
+	/**
+	 * Update global ad suppression settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_update_ad_suppression( $request ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$configuration_manager->update_suppression_config( $request['config'] );
+		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
 	/**
@@ -394,6 +480,10 @@ class Advertising_Wizard extends Wizard {
 			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
 
+		if ( \is_wp_error( $ad_units ) ) {
+			return $ad_units;
+		}
+
 		/* If there is only one enabled service, select it for all placements */
 		$enabled_services = array_filter(
 			$services,
@@ -409,10 +499,10 @@ class Advertising_Wizard extends Wizard {
 			}
 		}
 		return array(
-			'services'              => $services,
-			'placements'            => $placements,
-			'ad_units'              => $ad_units,
-			'gam_connection_status' => $configuration_manager->get_gam_connection_status(),
+			'services'    => $services,
+			'placements'  => $placements,
+			'ad_units'    => $ad_units,
+			'suppression' => $configuration_manager->get_suppression_config(),
 		);
 	}
 
@@ -441,6 +531,20 @@ class Advertising_Wizard extends Wizard {
 		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 
 		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
+
+		// Verify GAM connection and run initial setup.
+		$gam_connection_status                   = $configuration_manager->get_gam_connection_status();
+		$services['google_ad_manager']['status'] = $gam_connection_status;
+		if ( true === $gam_connection_status['connected'] && ! isset( $gam_connection_status['error'] ) ) {
+			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
+			$gam_setup_results                             = $configuration_manager->setup_gam();
+			if ( ! \is_wp_error( $gam_setup_results ) ) {
+				$services['google_ad_manager']['created_targeting_keys'] = $gam_setup_results['created_targeting_keys'];
+			} else {
+				$services['google_ad_manager']['status']['error'] = $gam_setup_results->get_error_message();
+			}
+		}
+
 		return $services;
 	}
 
@@ -606,8 +710,8 @@ class Advertising_Wizard extends Wizard {
 			return $should_show_ads;
 		}
 
-		$services = self::get_services();
-		if ( ! $services['google_ad_manager']['enabled'] ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		if ( ! $configuration_manager->is_service_enabled( 'google_ad_manager' ) ) {
 			return false;
 		}
 
