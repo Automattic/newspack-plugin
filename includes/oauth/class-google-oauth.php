@@ -145,7 +145,8 @@ class Google_OAuth {
 		if ( isset( $tokens['refresh_token'] ) ) {
 			$auth['refresh_token'] = $tokens['refresh_token'];
 		}
-		return update_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
+		self::remove_credentials();
+		return add_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
 	}
 
 	/**
