@@ -334,9 +334,6 @@ class Google_OAuth {
 					'email' => $user_info->email,
 				];
 			}
-		} else {
-			// Credentials are invalid, remove them.
-			self::remove_credentials();
 		}
 
 		return false;
@@ -385,8 +382,6 @@ class Google_OAuth {
 					$auth_data = self::get_google_auth_saved_data();
 				}
 			} catch ( \Exception $e ) {
-				// Credentials might be broken, remove them.
-				self::remove_credentials();
 				return false;
 			}
 		}
