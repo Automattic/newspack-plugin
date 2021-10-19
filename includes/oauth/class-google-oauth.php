@@ -145,7 +145,8 @@ class Google_OAuth {
 		if ( isset( $tokens['refresh_token'] ) ) {
 			$auth['refresh_token'] = $tokens['refresh_token'];
 		}
-		return update_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
+		self::remove_credentials();
+		return add_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
 	}
 
 	/**
@@ -154,7 +155,6 @@ class Google_OAuth {
 	public static function get_google_auth_url_params() {
 		$scopes         = [
 			'https://www.googleapis.com/auth/userinfo.email', // User's email address.
-			'https://www.googleapis.com/auth/analytics.edit', // Google Analytics.
 			'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
 		];
 		$redirect_after = admin_url( 'admin.php?page=newspack-connections-wizard' );
@@ -335,9 +335,6 @@ class Google_OAuth {
 					'email' => $user_info->email,
 				];
 			}
-		} else {
-			// Credentials are invalid, remove them.
-			self::remove_credentials();
 		}
 
 		return false;
@@ -386,8 +383,6 @@ class Google_OAuth {
 					$auth_data = self::get_google_auth_saved_data();
 				}
 			} catch ( \Exception $e ) {
-				// Credentials might be broken, remove them.
-				self::remove_credentials();
 				return false;
 			}
 		}
