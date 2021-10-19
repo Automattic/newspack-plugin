@@ -29,6 +29,7 @@ import {
 	GlobalNotices,
 } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
+import '../../style.scss';
 
 const { useHistory } = Router;
 const POST_COUNT = newspack_aux_data.is_e2e ? 12 : 40;
@@ -173,7 +174,7 @@ const Welcome = ( { buttonAction } ) => {
 	const nextRouteAddress = buttonAction.href;
 	const hasErrors = errors.length > 0;
 	const isInit = installationProgress === 0;
-	const isDone = installationProgress === total;
+	const isDone = installationProgress === total && ! hasErrors;
 	const redirectCounterRef = useRef();
 
 	const REDIRECT_COUNTER_DURATION = 5;
@@ -254,8 +255,22 @@ const Welcome = ( { buttonAction } ) => {
 			title={ error.info.message + ': ' + error.item }
 			actionText={ __( 'Retry', 'newspack' ) }
 			onClick={ install }
+			secondaryActionText={ __( 'Skip', 'newspack' ) }
+			onSecondaryActionClick={ () => skipError( i ) }
+			className="newspack--error-actioncard"
 		/>
 	);
+
+	const skipError = i => {
+		const updatedErrors = [];
+		for ( let j = 0; j < errors.length; ++j ) {
+			if ( i !== j ) {
+				updatedErrors.push( errors[ j ] );
+			}
+		}
+		setErrors( updatedErrors );
+		increment();
+	};
 
 	return (
 		<>
@@ -347,7 +362,6 @@ const Welcome = ( { buttonAction } ) => {
 									disabled={ ! isSSL || ( buttonMigrate && ! isURL( existingSiteURL ) ) }
 									isPrimary
 									onClick={ install }
-									href={ nextRouteAddress }
 								>
 									{ __( 'Get Started', 'newspack' ) }
 								</Button>

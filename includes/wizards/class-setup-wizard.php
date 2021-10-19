@@ -269,6 +269,10 @@ class Setup_Wizard extends Wizard {
 	public function api_starter_content_post( $request ) {
 		$id     = $request['id'];
 		$status = Starter_Content::create_post( $id );
+		if ( is_wp_error( $status ) ) {
+			return $status;
+		}
+
 		return rest_ensure_response( [ 'status' => $status ] );
 	}
 
