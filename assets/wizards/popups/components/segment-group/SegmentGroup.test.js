@@ -242,6 +242,7 @@ describe( 'A segment with conflicting prompts', () => {
 			custom_placements: {
 				custom1: 'Custom Placement 1',
 			},
+			overlay_placements: [ 'center' ],
 		};
 	} );
 
