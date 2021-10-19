@@ -1,3 +1,15 @@
+# [1.62.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.61.0...v1.62.0-alpha.1) (2021-10-19)
+
+
+### Features
+
+* **connections:** add Fivetran connection via a proxy ([#1173](https://github.com/Automattic/newspack-plugin/issues/1173)) ([883bad4](https://github.com/Automattic/newspack-plugin/commit/883bad40844632c1c1c167ca82ec8f1c77c84d74))
+
+
+### Performance Improvements
+
+* optimize maybe disable ads verification ([#1185](https://github.com/Automattic/newspack-plugin/issues/1185)) ([1cc6c74](https://github.com/Automattic/newspack-plugin/commit/1cc6c74ddc089d03462f5b3bc6bd44fd85905664))
+
 # [1.61.0](https://github.com/Automattic/newspack-plugin/compare/v1.60.0...v1.61.0) (2021-10-12)
 
 
