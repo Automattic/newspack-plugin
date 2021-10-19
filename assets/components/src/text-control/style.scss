@@ -9,7 +9,9 @@
 	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
-	margin: 32px 0;
+	&--with-margin {
+		margin: 32px 0;
+	}
 
 	&--wide {
 		flex-wrap: wrap;

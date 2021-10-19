@@ -9,7 +9,11 @@ import { useEffect, useState } from '@wordpress/element';
 import { Waiting, Notice } from '../../../../components/src';
 import WPCOMAuth from './wpcom';
 import GoogleAuth, { handleGoogleRedirect } from './google';
+<<<<<<< HEAD
 import Mailchimp from './mailchimp';
+=======
+import FivetranConnection from './fivetran';
+>>>>>>> master
 
 const Main = () => {
 	const [ error, setError ] = useState();
@@ -31,6 +35,7 @@ const Main = () => {
 			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
 			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
 			<Mailchimp setError={ setError } />
+			<FivetranConnection setError={ setError } wpComStatus={ isWPCOMConnected } />
 		</>
 	);
 };

@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { trash, pencil } from '@wordpress/icons';
@@ -15,11 +15,9 @@ import { trash, pencil } from '@wordpress/icons';
  */
 import {
 	ActionCard,
-	ButtonCard,
 	TextControl,
 	Button,
 	Card,
-	Modal,
 	Notice,
 	withWizardScreen,
 } from '../../../../components/src';
@@ -34,24 +32,14 @@ const AdUnits = ( {
 	wizardApiFetch,
 	service,
 	serviceData,
-	updateGAMCredentials,
-	removeGAMCredentials,
 	fetchAdvertisingData,
 } ) => {
-	const warningNoticeText = `${ __(
-		'Please connect your Google account using the Newspack dashboard in order to use ad units from your GAM account.',
-		'newspack'
-	) } ${
-		Object.values( adUnits ).length
-			? __( 'The legacy ad units will continue to work.', 'newspack' )
-			: ''
-	}`;
-	const gamConnectionMessage = serviceData?.status?.error
-		? `${ __( 'Google Ad Manager connection error', 'newspack' ) }: ${ serviceData.status.error }`
+	const gamConnectionErrorMessage = serviceData?.status?.error
+		? `${ __( 'Google Ad Manager connection issue', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
 	const isDisplayingNetworkMismatchNotice =
-		! gamConnectionMessage && false === serviceData.status?.is_network_code_matched;
+		! gamConnectionErrorMessage && false === serviceData.status?.is_network_code_matched;
 
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
 	const saveNetworkCode = async () => {
@@ -64,34 +52,9 @@ const AdUnits = ( {
 		fetchAdvertisingData( true );
 	};
 
-	const [ fileError, setFileError ] = useState( '' );
-	const handleCredentialsFile = event => {
-		if ( event.target.files.length && event.target.files[ 0 ] ) {
-			const reader = new FileReader();
-			reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
-			reader.onload = function ( ev ) {
-				let credentials;
-				try {
-					credentials = JSON.parse( ev.target.result );
-				} catch ( error ) {
-					setFileError( __( 'Invalid JSON file', 'newspack' ) );
-					return;
-				}
-				updateGAMCredentials( credentials );
-			};
-			reader.onerror = function () {
-				setFileError( __( 'Unable to read file', 'newspack' ) );
-			};
-		}
-	};
-
 	useEffect( () => {
 		setNetworkCode( serviceData.status.network_code );
 	}, [ serviceData.status.network_code ] );
-
-	const credentialsInputFile = useRef( null );
-
-	const [ isRemoving, setIsRemoving ] = useState( false );
 
 	return (
 		<>
@@ -106,47 +69,11 @@ const AdUnits = ( {
 							isWarning
 						/>
 					) }
-					{ serviceData.status.connected === false && (
-						<>
-							<Notice
-								noticeText={ gamConnectionMessage || warningNoticeText }
-								isWarning={ ! gamConnectionMessage }
-								isError={ gamConnectionMessage }
-							/>
-							<Button
-								isSecondary
-								onClick={ () => {
-									credentialsInputFile.current.click();
-								} }
-							>
-								{ __( 'Upload new credentials', 'newspack' ) }
-							</Button>
-						</>
+					{ gamConnectionErrorMessage && (
+						<Notice noticeText={ gamConnectionErrorMessage } isError />
 					) }
 				</>
-			) : (
-				<>
-					<Notice
-						noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
-						isWarning
-					/>
-					{ ! serviceData.status.incompatible && (
-						<ButtonCard
-							onClick={ () => {
-								credentialsInputFile.current.click();
-							} }
-							title={ __( 'Connect your GAM account', 'newspack' ) }
-							desc={ [
-								__(
-									'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
-									'newspack'
-								),
-								fileError && <Notice noticeText={ fileError } isError />,
-							] }
-						/>
-					) }
-				</>
-			) }
+			) : null }
 			{ serviceData.created_targeting_keys?.length > 0 && (
 				<Notice
 					noticeText={ [
@@ -162,75 +89,56 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
-			<div className="flex items-end" style={ { margin: '-30px 0' } }>
-				<TextControl
-					className="mr2"
-					label={ __( 'Network code', 'newspack' ) }
-					value={ networkCode }
-					onChange={ setNetworkCode }
-					disabled={ serviceData.status.connected }
-				/>
-				<Card buttonsCard noBorder>
-					{ ! serviceData.status.connected ? (
+			{ serviceData.status.can_use_oauth && serviceData.status.mode !== 'oauth' && (
+				<Notice isWarning>
+					<>
+						<span>
+							{ __(
+								'You are currently using a legacy version of Google Ad Manager connection. Visit the "Connections" wizard of Newspack plugin to connect your Google account.',
+								'newspack'
+							) }
+						</span>
+						{ serviceData.status.mode === 'service_account' && (
+							<span>
+								{ ' ' }
+								{ __(
+									'Afterwards, remove the service account credentials from the database.',
+									'newspack'
+								) }
+							</span>
+						) }
+					</>
+				</Notice>
+			) }
+			{ serviceData.status.mode === 'legacy' ? (
+				<div className="flex items-end">
+					<TextControl
+						label={ __( 'Network Code', 'newspack' ) }
+						value={ networkCode }
+						onChange={ setNetworkCode }
+						withMargin={ false }
+					/>
+					<span className="pl3">
 						<Button onClick={ saveNetworkCode } isPrimary disabled={ serviceData.status.connected }>
 							{ __( 'Save', 'newspack' ) }
 						</Button>
-					) : (
-						<>
-							<Button
-								onClick={ () => {
-									credentialsInputFile.current.click();
-								} }
-								isSecondary
-							>
-								{ __( 'Upload new credentials', 'newspack' ) }
-							</Button>
-							<Button
-								onClick={ () => {
-									setIsRemoving( true );
-								} }
-								isDestructive
-							>
-								{ __( 'Remove credentials', 'newspack' ) }
-							</Button>
-						</>
-					) }
-					{ isRemoving && (
-						<Modal
-							title={ __( 'Remove Service Account Credentials', 'newspack' ) }
-							onRequestClose={ () => setIsRemoving( false ) }
-						>
-							<p>
-								{ __(
-									'The credentials will be removed and Newspack Ads will no longer be connected to this Google Ad Manager account.',
-									'newspack'
-								) }
-							</p>
-							<Card buttonsCard noBorder className="justify-end">
-								<Button
-									isDestructive
-									onClick={ () => {
-										removeGAMCredentials();
-										setIsRemoving( false );
-									} }
-								>
-									{ __( 'Remove credentials', 'newspack' ) }
-								</Button>
-								<Button isSecondary onClick={ () => setIsRemoving( false ) }>
-									{ __( 'Cancel', 'newspack' ) }
-								</Button>
-							</Card>
-						</Modal>
-					) }
-				</Card>
-			</div>
+					</span>
+				</div>
+			) : (
+				<div className="mb3">
+					<strong>{ __( 'Network code:', 'newspack' ) } </strong>
+					<code>{ networkCode }</code>
+				</div>
+			) }
 			<p>
 				{ __(
-					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.'
+					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
+					'newspack'
 				) }
 				<br />
 				{ __(
-					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.'
+					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
+					'newspack'
 				) }
 			</p>
 			<Card noBorder>
@@ -272,6 +180,7 @@ const AdUnits = ( {
 										{ adUnit.sizes.map( ( size, i ) => (
 											<code key={ i }>{ size.join( 'x' ) }</code>
 										) ) }
+										{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
 									</span>
 								) }
 								actionText={
@@ -294,13 +203,6 @@ const AdUnits = ( {
 						);
 					} ) }
 			</Card>
-			<input
-				type="file"
-				accept=".json"
-				ref={ credentialsInputFile }
-				style={ { display: 'none' } }
-				onChange={ handleCredentialsFile }
-			/>
 		</>
 	);
 };
