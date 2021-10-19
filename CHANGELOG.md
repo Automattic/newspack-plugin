@@ -1,3 +1,23 @@
+# [1.62.0](https://github.com/Automattic/newspack-plugin/compare/v1.61.0...v1.62.0) (2021-10-19)
+
+
+### Bug Fixes
+
+* google oauth ([#1191](https://github.com/Automattic/newspack-plugin/issues/1191)) ([502f156](https://github.com/Automattic/newspack-plugin/commit/502f1564af115478f02537631adc6fcc089ebba5))
+
+
+### Features
+
+* **ads:** fluid ad unit sizing ([#1181](https://github.com/Automattic/newspack-plugin/issues/1181)) ([8c7f57e](https://github.com/Automattic/newspack-plugin/commit/8c7f57ef327be7fbeaf6924e3187eb75fd6b890f))
+* **connections:** add Fivetran connection via a proxy ([#1173](https://github.com/Automattic/newspack-plugin/issues/1173)) ([883bad4](https://github.com/Automattic/newspack-plugin/commit/883bad40844632c1c1c167ca82ec8f1c77c84d74))
+* **gam:** use oauth; remove service account flow ([#1188](https://github.com/Automattic/newspack-plugin/issues/1188)) ([a15c385](https://github.com/Automattic/newspack-plugin/commit/a15c385809e2fbfce5ee0d77f7a8c54fc7fe129d))
+* **oauth:** store oauth as option, available to admin users ([caf81a2](https://github.com/Automattic/newspack-plugin/commit/caf81a2836a7ba337a4015cd4e4c4aa28ac70134))
+
+
+### Performance Improvements
+
+* optimize maybe disable ads verification ([#1185](https://github.com/Automattic/newspack-plugin/issues/1185)) ([1cc6c74](https://github.com/Automattic/newspack-plugin/commit/1cc6c74ddc089d03462f5b3bc6bd44fd85905664))
+
 # [1.61.0](https://github.com/Automattic/newspack-plugin/compare/v1.60.0...v1.61.0) (2021-10-12)
 
 
