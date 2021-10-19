@@ -63,6 +63,8 @@ class Newspack_Unit_Tests_Bootstrap {
 		// Install Newspack.
 		tests_add_filter( 'setup_theme', array( $this, 'install_newspack' ) );
 
+		define( 'NEWSPACK_GOOGLE_OAUTH_PROXY', 'http://dummy.proxy' );
+
 		// Load the WP testing environment.
 		require_once $_tests_dir . '/includes/bootstrap.php';
 	}
