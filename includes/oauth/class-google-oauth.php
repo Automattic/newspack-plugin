@@ -154,7 +154,6 @@ class Google_OAuth {
 	public static function get_google_auth_url_params() {
 		$scopes         = [
 			'https://www.googleapis.com/auth/userinfo.email', // User's email address.
-			'https://www.googleapis.com/auth/analytics.edit', // Google Analytics.
 			'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
 		];
 		$redirect_after = admin_url( 'admin.php?page=newspack-connections-wizard' );
