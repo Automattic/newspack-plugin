@@ -123,7 +123,7 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 					isLink
 					isDestructive={ isConnected }
 					onClick={ isConnected ? disconnect : goToAuthPage }
-					disabled={ inFlight || ! canBeConnected }
+					disabled={ inFlight || ( ! isConnected && ! canBeConnected ) }
 				>
 					{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }
 				</Button>
