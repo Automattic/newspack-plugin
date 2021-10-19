@@ -1,3 +1,10 @@
+# [1.62.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.62.0-alpha.3...v1.62.0-alpha.4) (2021-10-19)
+
+
+### Features
+
+* **oauth:** store oauth as option, available to admin users ([caf81a2](https://github.com/Automattic/newspack-plugin/commit/caf81a2836a7ba337a4015cd4e4c4aa28ac70134))
+
 # [1.62.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.62.0-alpha.2...v1.62.0-alpha.3) (2021-10-19)
 
 
