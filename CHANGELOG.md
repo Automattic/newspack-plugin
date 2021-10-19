@@ -1,3 +1,15 @@
+# [1.62.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.62.0-alpha.2...v1.62.0-alpha.3) (2021-10-19)
+
+
+### Bug Fixes
+
+* google oauth ([#1191](https://github.com/Automattic/newspack-plugin/issues/1191)) ([502f156](https://github.com/Automattic/newspack-plugin/commit/502f1564af115478f02537631adc6fcc089ebba5))
+
+
+### Features
+
+* **gam:** use oauth; remove service account flow ([#1188](https://github.com/Automattic/newspack-plugin/issues/1188)) ([a15c385](https://github.com/Automattic/newspack-plugin/commit/a15c385809e2fbfce5ee0d77f7a8c54fc7fe129d))
+
 # [1.62.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.62.0-alpha.1...v1.62.0-alpha.2) (2021-10-19)
 
 
