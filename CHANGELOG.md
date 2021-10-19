@@ -1,3 +1,10 @@
+# [1.62.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.62.0-alpha.1...v1.62.0-alpha.2) (2021-10-19)
+
+
+### Features
+
+* **ads:** fluid ad unit sizing ([#1181](https://github.com/Automattic/newspack-plugin/issues/1181)) ([8c7f57e](https://github.com/Automattic/newspack-plugin/commit/8c7f57ef327be7fbeaf6924e3187eb75fd6b890f))
+
 # [1.62.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.61.0...v1.62.0-alpha.1) (2021-10-19)
 
 
