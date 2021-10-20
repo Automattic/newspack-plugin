@@ -204,7 +204,7 @@ const Welcome = ( { buttonAction } ) => {
 				<>
 					{ __( 'Welcome to Newspack,', 'newspack' ) }
 					<br />
-					{ __( 'WordPress for your Newsroom.', 'newspack' ) }
+					{ __( 'The platform for News.', 'newspack' ) }
 				</>
 			);
 		}
@@ -313,6 +313,7 @@ const Welcome = ( { buttonAction } ) => {
 				{ errors.length ? errors.map( renderErrorBox ) : null }
 				{ ( isInit || isDone ) && (
 					<>
+						<GlobalNotices />
 						{ isInit && (
 							<>
 								<ButtonCard
@@ -372,7 +373,6 @@ const Welcome = ( { buttonAction } ) => {
 								</Button>
 							) }
 						</Card>
-						<GlobalNotices />
 					</>
 				) }
 			</Card>
