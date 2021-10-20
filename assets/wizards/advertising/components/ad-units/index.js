@@ -68,6 +68,7 @@ const AdUnits = ( { adUnits, onDelete, updateAdUnit, serviceData } ) => {
 										{ adUnit.sizes.map( ( size, i ) => (
 											<code key={ i }>{ size.join( 'x' ) }</code>
 										) ) }
+										{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
 									</span>
 								) }
 								actionText={
