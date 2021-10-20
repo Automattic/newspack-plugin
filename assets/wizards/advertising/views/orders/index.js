@@ -16,7 +16,7 @@ import { ActionCard, Button, Card, withWizardScreen } from '../../../../componen
 /**
  * Orders Management.
  */
-const Orders = ( { orders } ) => {
+const Orders = ( { serviceData, orders } ) => {
 	return (
 		<>
 			<p>
@@ -31,6 +31,7 @@ const Orders = ( { orders } ) => {
 							isSmall: true,
 							tooltipPosition: 'bottom center',
 						};
+						const editUrl = `https://admanager.google.com/${ serviceData.status.network_code }#delivery/order/order_overview/order_id=${ order.id }`;
 						const itemsCount = order?.lineItems?.length || 0;
 						const badges = [ order.status ];
 						if ( order.is_archived ) {
@@ -56,13 +57,10 @@ const Orders = ( { orders } ) => {
 								actionText={
 									<div className="flex items-center">
 										<Button
+											href={ editUrl }
+											target="_blank"
 											icon={ pencil }
 											label={ __( 'Edit the order', 'newspack' ) }
-											{ ...buttonProps }
-										/>
-										<Button
-											icon={ trash }
-											label={ __( 'Archive the order', 'newspack' ) }
 											{ ...buttonProps }
 										/>
 									</div>
