@@ -10,24 +10,20 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Notice, withWizardScreen } from '../../../../components/src';
 import AdUnits from '../../components/ad-units';
+import { Notice, withWizardScreen } from '../../../../components/src';
 
 /**
  * Ad Units View.
  */
 const AdUnitsView = ( { adUnits, onDelete, updateAdUnit, serviceData } ) => {
 	const { status } = serviceData;
-	const gamConnectionMessage = serviceData?.status?.error
-		? `${ __( 'Google Ad Manager connection error', 'newspack' ) }: ${ status.error }`
-		: false;
-
-	const shouldDisplayCodeMismatchMessage =
-		! gamConnectionMessage && false === status?.is_network_code_matched && status?.connected;
+	const isDisplayingNetworkMismatchNotice =
+		status.can_connect && ! status?.error && false === status?.is_network_code_matched;
 
 	return (
 		<>
-			{ shouldDisplayCodeMismatchMessage && (
+			{ isDisplayingNetworkMismatchNotice && (
 				<Notice
 					noticeText={ __(
 						'Your GAM network code is different than the network code the site was configured with. Legacy ad units are likely to not load.',
@@ -35,9 +31,6 @@ const AdUnitsView = ( { adUnits, onDelete, updateAdUnit, serviceData } ) => {
 					) }
 					isWarning
 				/>
-			) }
-			{ ! status.can_connect && (
-				<Notice noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) } isWarning />
 			) }
 			<AdUnits
 				serviceData={ serviceData }

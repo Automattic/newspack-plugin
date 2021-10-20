@@ -2,18 +2,13 @@
 	.newspack-button-card .newspack-notice {
 		margin: 24px 0 0;
 	}
-	.newspack-gam-connection {
-		width: 100%;
-		display: flex;
-		align-items: flex-end;
-		.newspack-text-control {
+
+	&__ad-unit-size {
+		margin: 64px 0 16px;
+
+		h2,
+		.newspack-grid {
 			margin: 0;
-		}
-		.newspack-button {
-			margin-left: 12px;
-		}
-		.spacer {
-			flex: 1 1 auto;
 		}
 	}
 }

@@ -46,30 +46,6 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Update GAM credentials.
-	 *
-	 * @param array $credentials Credentials to update.
-	 *
-	 * @return object|WP_Error Connection status or error if it fails.
-	 */
-	public function update_gam_credentials( $credentials ) {
-		return $this->is_configured() ?
-			\Newspack_Ads_Model::update_gam_credentials( $credentials ) :
-			$this->unconfigured_error();
-	}
-
-	/**
-	 * Remove GAM credentials.
-	 *
-	 * @return object|WP_Error Connection status or error if it fails.
-	 */
-	public function remove_gam_credentials() {
-		return $this->is_configured() ?
-			\Newspack_Ads_Model::remove_gam_credentials() :
-			$this->unconfigured_error();
-	}
-
-	/**
 	 * Get the GAM orders.
 	 *
 	 * @return array|WP_Error Array of orders or WP_Error if Newspack Ads isn't installed and activated.
