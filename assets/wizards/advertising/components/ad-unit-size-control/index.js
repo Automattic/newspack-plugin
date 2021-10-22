@@ -55,7 +55,6 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 		: options.findIndex(
 				size => value === size || ( size[ 0 ] === width && size[ 1 ] === height )
 		  );
-	const inputRef = useRef( null );
 	return (
 		<>
 			<SelectControl
@@ -86,7 +85,6 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 				<>
 					<TextControl
 						label={ __( 'Width', 'newspack' ) }
-						ref={ inputRef }
 						value={ width }
 						onChange={ newWidth => onChange( [ newWidth, height ] ) }
 						disabled={ ! isCustom && sizeIndex !== -1 }
