@@ -75,12 +75,12 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 				hideLabelFromVision
 			/>
 			{ value === 'fluid' && ! isCustom ? (
-				<p style={ { gridColumn: '2 / 4', fontSize: '12px' } }>
+				<div className="newspack-advertising-wizard__ad-unit-fluid">
 					{ __(
-						'Fluid is a native ad size that allows more flexibility when styling your ad. Google Ad Manager automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
+						'Fluid is a native ad size that allows more flexibility when styling your ad. It automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
 						'newspack'
 					) }
-				</p>
+				</div>
 			) : (
 				<>
 					<TextControl

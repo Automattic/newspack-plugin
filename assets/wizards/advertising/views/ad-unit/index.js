@@ -31,7 +31,7 @@ class AdUnit extends Component {
 	/**
 	 * Handle an update to an ad unit field.
 	 *
-	 * @param {string|object} adUnitChangesOrKey Ad Unit field name or object containing changes.
+	 * @param {string|Object} adUnitChangesOrKey Ad Unit field name or object containing changes.
 	 * @param {any}           value              New value for field.
 	 *
 	 */
