@@ -91,7 +91,7 @@ class AdUnit extends Component {
 
 				<Card headerActions noBorder>
 					<h2>
-						{ sizes.length > 1
+						{ sizeOptions.length > 1
 							? __( 'Ad Unit Sizes', 'newspack' )
 							: __( 'Ad Unit Size', 'newspack' ) }
 					</h2>
