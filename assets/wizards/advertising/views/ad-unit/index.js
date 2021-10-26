@@ -133,18 +133,12 @@ class AdUnit extends Component {
 									adUnitChanges.fluid = false;
 								}
 								if ( value === 'fluid' ) {
-									adUnitChanges.sizes = sizes.filter(
-										s => JSON.stringify( s ) !== JSON.stringify( prevValue )
-									);
+									sizes.splice( index, 1 );
 									adUnitChanges.fluid = true;
 								} else {
-									sizeOptions = [
-										...sizeOptions.slice( 0, index ),
-										value,
-										...sizeOptions.slice( index + 1 ),
-									];
-									adUnitChanges.sizes = sizeOptions.filter( option => option !== 'fluid' );
+									sizes[ index ] = value;
 								}
+								adUnitChanges.sizes = sizes;
 								this.handleOnChange( adUnitChanges );
 							} }
 						/>
@@ -154,10 +148,8 @@ class AdUnit extends Component {
 								if ( size === 'fluid' ) {
 									this.handleOnChange( 'fluid', false );
 								} else {
-									this.handleOnChange(
-										'sizes',
-										sizes.filter( s => JSON.stringify( s ) !== JSON.stringify( size ) )
-									);
+									sizes.splice( index, 1 );
+									this.handleOnChange( 'sizes', sizes );
 								}
 							} }
 							icon={ trash }
