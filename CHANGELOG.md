@@ -1,3 +1,15 @@
+# [1.63.0](https://github.com/Automattic/newspack-plugin/compare/v1.62.0...v1.63.0) (2021-10-26)
+
+
+### Bug Fixes
+
+* ensure support variables are configured ([#1201](https://github.com/Automattic/newspack-plugin/issues/1201)) ([ba44c58](https://github.com/Automattic/newspack-plugin/commit/ba44c5892729d5e30fd1fa4bb07bf0871a365353))
+
+
+### Features
+
+* update the edit ad unit design ([#1199](https://github.com/Automattic/newspack-plugin/issues/1199)) ([1999878](https://github.com/Automattic/newspack-plugin/commit/19998780cae3aa9723284dffe2378081c4e574df))
+
 # [1.62.0](https://github.com/Automattic/newspack-plugin/compare/v1.61.0...v1.62.0) (2021-10-19)
 
 
