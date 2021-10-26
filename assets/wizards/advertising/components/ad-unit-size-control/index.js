@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Grid, SelectControl, TextControl } from '../../../../components/src';
+import { SelectControl, TextControl } from '../../../../components/src';
 
 /**
  * Interactive Advertising Bureau's standard ad sizes.
@@ -39,7 +39,7 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 	const [ isCustom, setIsCustom ] = useState( false );
 	const sizeIndex = DEFAULT_SIZES.findIndex( size => size[ 0 ] === width && size[ 1 ] === height );
 	return (
-		<Grid gutter={ 32 } columns={ 3 } noMargin>
+		<>
 			<SelectControl
 				label={ __( 'Size', 'newspack' ) }
 				value={ sizeIndex }
@@ -55,6 +55,7 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 					setIsCustom( ! size );
 					if ( size ) onChange( size );
 				} }
+				hideLabelFromVision
 			/>
 			<TextControl
 				label={ __( 'Width', 'newspack' ) }
@@ -62,6 +63,7 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 				onChange={ newWidth => onChange( [ newWidth, height ] ) }
 				disabled={ ! isCustom && sizeIndex !== -1 }
 				type="number"
+				hideLabelFromVision
 			/>
 			<TextControl
 				label={ __( 'Height', 'newspack' ) }
@@ -69,8 +71,9 @@ const AdUnitSizeControl = ( { value, onChange } ) => {
 				onChange={ newHeight => onChange( [ width, newHeight ] ) }
 				disabled={ ! isCustom && sizeIndex !== -1 }
 				type="number"
+				hideLabelFromVision
 			/>
-		</Grid>
+		</>
 	);
 };
 
