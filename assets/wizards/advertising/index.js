@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
+import { AdUnit, AdUnits, Settings, Services, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -284,7 +284,7 @@ class AdvertisingWizard extends Component {
 			},
 			{
 				label: __( 'Global Settings', 'newspack' ),
-				path: '/ad-placements',
+				path: '/settings',
 			},
 			{
 				label: __( 'Suppression', 'newspack' ),
@@ -310,9 +310,9 @@ class AdvertisingWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/ad-placements"
+							path="/settings"
 							render={ () => (
-								<Placements
+								<Settings
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
 									placements={ placements }

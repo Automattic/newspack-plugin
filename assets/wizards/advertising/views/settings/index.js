@@ -17,7 +17,7 @@ import AdPicker from './ad-picker';
 /**
  * Advertising management screen.
  */
-class Placements extends Component {
+class Settings extends Component {
 	adUnitsForSelect = adUnits => {
 		return [
 			{
@@ -149,4 +149,4 @@ class Placements extends Component {
 	}
 }
 
-export default withWizardScreen( Placements );
+export default withWizardScreen( Settings );
