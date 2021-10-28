@@ -143,6 +143,7 @@ const AdUnits = ( {
 			</p>
 			<Card noBorder>
 				{ Object.values( adUnits )
+					.filter( adUnit => adUnit.id !== 0 )
 					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
 					.map( adUnit => {
