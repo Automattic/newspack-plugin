@@ -315,6 +315,7 @@ class AdvertisingWizard extends Component {
 								<Settings
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
+									wizardApiFetch={ wizardApiFetch }
 									placements={ placements }
 									adUnits={ adUnits }
 									services={ services }

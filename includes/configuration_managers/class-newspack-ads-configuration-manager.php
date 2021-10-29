@@ -35,6 +35,31 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get Newspack Ads settings.
+	 *
+	 * @return object Newspack Ads settings.
+	 */
+	public function get_settings_list() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Settings::get_settings_list() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Updated Newspack Ads settings.
+	 *
+	 * @param string $section  The section to update.
+	 * @param object $settings The settings to update.
+	 * 
+	 * @return object Newspack Ads settings.
+	 */
+	public function update_settings_section( $section, $settings ) {
+		return $this->is_configured() ?
+			\Newspack_Ads_Settings::update_section( $section, $settings ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Initial GAM setup
 	 *
 	 * @return object|WP_Error Setup results or error if it fails.
