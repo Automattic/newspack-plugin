@@ -86,8 +86,7 @@ const Welcome = ( { buttonAction } ) => {
 
 		apiFetch( { path: '/newspack/v1/wizard/newspack-setup-wizard/initial-check/' } ).then( res => {
 			setSoftwareInfo( res.plugins );
-			// setIsSSL( res.is_ssl );
-			setIsSSL( true );
+			setIsSSL( res.is_ssl );
 		} );
 
 		return () => document.body.classList.remove( 'newspack_page_newspack-setup-wizard__welcome' );
