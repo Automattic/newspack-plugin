@@ -40,35 +40,6 @@ const Dashboard = ( { items } ) => {
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
 					) ) }
-					{ accessTokenInURL && (
-						<div className="flex justify-around items-center">
-							<Waiting />
-						</div>
-					) }
-					{ displayAuth ? (
-						<>
-							{ userBasicInfo ? (
-								<Card className="newspack-dashboard-card">
-									<Icon icon={ plugins } height={ 48 } width={ 48 } />
-									<div>
-										<h2>{ __( 'Google Connection' ) }</h2>
-										<p>
-											{ __( 'Authorized Google as', 'newspack' ) }{ ' ' }
-											<strong>{ userBasicInfo.email }</strong>
-										</p>
-									</div>
-								</Card>
-							) : (
-								<ButtonCard
-									onClick={ goToAuthPage }
-									title={ __( 'Google Connection', 'newspack' ) }
-									desc={ __( 'Authorize Newspack with Google', 'newspack' ) }
-									icon={ plugins }
-									tabIndex="0"
-								/>
-							) }
-						</>
-					) : null }
 				</Grid>
 			</div>
 			<Footer />
