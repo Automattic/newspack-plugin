@@ -1,3 +1,10 @@
+## [1.63.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.63.0...v1.63.1-alpha.1) (2021-11-01)
+
+
+### Bug Fixes
+
+* update ci images ([#1210](https://github.com/Automattic/newspack-plugin/issues/1210)) ([c476f08](https://github.com/Automattic/newspack-plugin/commit/c476f08a629790ef2b682ae0bc082be6a4bf7149))
+
 # [1.63.0](https://github.com/Automattic/newspack-plugin/compare/v1.62.0...v1.63.0) (2021-10-26)
 
 
