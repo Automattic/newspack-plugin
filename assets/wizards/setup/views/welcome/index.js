@@ -20,7 +20,7 @@ import {
 	Button,
 	ButtonCard,
 	Card,
-	NewspackLogo,
+	NewspackIcon,
 	ProgressBar,
 	withWizardScreen,
 	CheckboxControl,
@@ -191,7 +191,7 @@ const Welcome = ( { buttonAction } ) => {
 				<>
 					{ __( 'Welcome to Newspack,', 'newspack' ) }
 					<br />
-					{ __( 'The platform for News.', 'newspack' ) }
+					{ __( 'the plateform for News', 'newspack' ) }
 				</>
 			);
 		}
@@ -261,29 +261,20 @@ const Welcome = ( { buttonAction } ) => {
 
 	return (
 		<>
-			<div className="newspack-logo__wrapper">
-				<NewspackLogo centered height={ 72 } />
-			</div>
 			<Card
 				isMedium
 				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
 			>
-				<h1>
+				<h1 className={ isInit && 'justify-between flex-row-reverse' }>
 					{ getHeadingIcon() }
+					{ isInit && <NewspackIcon simple size={ 64 } /> }
 					{ getHeadingText() }
 				</h1>
+
 				{ errors.length === 0 && installationProgress > 0 ? (
 					<ProgressBar completed={ installationProgress } total={ total } />
 				) : null }
-				{ isSSL === false && (
-					<Notice
-						isError
-						noticeText={ __(
-							"This site does not use HTTPS. Newspack can't be installed.",
-							'newspack'
-						) }
-					/>
-				) }
+
 				<p>
 					{ getInfoText() }
 					{ isDone && (
@@ -297,7 +288,18 @@ const Welcome = ( { buttonAction } ) => {
 					) }
 				</p>
 
+				{ isSSL === false && (
+					<Notice
+						isError
+						noticeText={ __(
+							"This site does not use HTTPS. Newspack can't be installed.",
+							'newspack'
+						) }
+					/>
+				) }
+
 				{ errors.length ? errors.map( renderErrorBox ) : null }
+
 				{ ( isInit || isDone ) && (
 					<>
 						<GlobalNotices />
@@ -312,6 +314,7 @@ const Welcome = ( { buttonAction } ) => {
 									isPressed={ isSetupApproachNew }
 									onClick={ () => setSetupApproach( 'generated' ) }
 									grouped
+									chevron
 								/>
 								<ButtonCard
 									href="#"
@@ -322,11 +325,12 @@ const Welcome = ( { buttonAction } ) => {
 									isPressed={ isSetupApproachMigrate }
 									onClick={ () => setSetupApproach( 'import' ) }
 									grouped
+									chevron
 								/>
 								{ isSetupApproachMigrate && (
 									<TextControl
 										label={ __( 'URL', 'newspack' ) }
-										placeholder="https://"
+										placeholder="https://yourgroovydomain.com/"
 										type="url"
 										help={ __(
 											'We will import the last 50 articles from your existing site to help you with the set up and customization.',

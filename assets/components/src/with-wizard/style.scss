@@ -54,7 +54,8 @@ svg {
 	.newspack-card {
 		background: white;
 		border: 0;
-		margin: 0 auto 32px;
+		margin-left: auto;
+		margin-right: auto;
 		width: 100%;
 
 		@media screen and ( min-width: 576px ) {
@@ -66,7 +67,7 @@ svg {
 		}
 
 		.newspack-button-card.br--bottom {
-			svg {
+			svg:first-of-type {
 				transform: scaleX( -1 );
 			}
 		}
@@ -95,14 +96,14 @@ svg {
 			display: flex;
 			flex-wrap: wrap;
 
-			svg {
+			&.justify-between {
+				flex-wrap: nowrap;
+			}
+
+			svg:not( .newspack-icon ) {
 				margin-right: 8px;
 			}
 		}
-	}
-
-	.newspack-logo__wrapper {
-		margin-bottom: 32px;
 	}
 
 	.newspack-buttons-card {
