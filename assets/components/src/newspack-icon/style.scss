@@ -8,4 +8,10 @@
 	background: $primary-500;
 	fill: white;
 	padding: 12px;
+
+	&--simple {
+		background: none;
+		fill: $primary-500;
+		padding: 0;
+	}
 }
