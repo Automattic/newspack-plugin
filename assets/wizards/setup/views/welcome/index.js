@@ -59,21 +59,11 @@ const Welcome = ( { buttonAction } ) => {
 	const [ isSSL, setIsSSL ] = useState( null );
 	const [ shouldInstallStarterContent, setShouldInstallStarterContent ] = useState( true );
 	const [ errors, setErrors ] = useState( [] );
-	const [ buttonNew, setButtonNew ] = useState();
-	const [ buttonMigrate, setButtonMigrate ] = useState();
 	const [ existingSiteURL, setExistingSiteURL ] = useState( '' );
+	const [ setupApproach, setSetupApproach ] = useState();
 
-	useEffect( () => {
-		if ( buttonNew ) {
-			setButtonMigrate( false );
-		}
-	}, [ buttonNew ] );
-
-	useEffect( () => {
-		if ( buttonMigrate ) {
-			setButtonNew( false );
-		}
-	}, [ buttonMigrate ] );
+	const isSetupApproachNew = setupApproach === 'generated';
+	const isSetupApproachMigrate = setupApproach === 'import';
 
 	const addError = errorInfo => error =>
 		setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
@@ -123,10 +113,8 @@ const Welcome = ( { buttonAction } ) => {
 			await softwarePromises[ i ]();
 		}
 
-		if ( ( buttonNew && shouldInstallStarterContent ) || buttonMigrate ) {
-			// Initialize starter content approach.
-			const starterContentApproach = buttonNew ? 'generated' : 'import';
-			await starterContentInit( starterContentApproach, existingSiteURL )
+		if ( ( isSetupApproachNew && shouldInstallStarterContent ) || isSetupApproachMigrate ) {
+			await starterContentInit( setupApproach, existingSiteURL )
 				.then( increment )
 				.catch( err => {
 					window.location =
@@ -321,21 +309,21 @@ const Welcome = ( { buttonAction } ) => {
 									desc={ __( "You don't have content to import", 'newspack' ) }
 									icon={ addCard }
 									className="br--top"
-									isPressed={ buttonNew }
-									onClick={ () => setButtonNew( true ) }
+									isPressed={ isSetupApproachNew }
+									onClick={ () => setSetupApproach( 'generated' ) }
 									grouped
 								/>
 								<ButtonCard
 									href="#"
-									title={ __( 'Migrate an existing site', 'newspack' ) }
+									title={ __( 'Migrate a existing site', 'newspack' ) }
 									desc={ __( 'You have content to import', 'newspack' ) }
 									icon={ layout }
 									className="br--bottom"
-									isPressed={ buttonMigrate }
-									onClick={ () => setButtonMigrate( true ) }
+									isPressed={ isSetupApproachMigrate }
+									onClick={ () => setSetupApproach( 'import' ) }
 									grouped
 								/>
-								{ buttonMigrate && (
+								{ isSetupApproachMigrate && (
 									<TextControl
 										label={ __( 'URL', 'newspack' ) }
 										placeholder="https://"
@@ -350,16 +338,16 @@ const Welcome = ( { buttonAction } ) => {
 							</>
 						) }
 						<Card noBorder className="newspack-card__footer">
-							{ isInit && buttonNew && (
+							{ isInit && isSetupApproachNew && (
 								<CheckboxControl
 									checked={ shouldInstallStarterContent }
 									label={ __( 'Install demo content', 'newspack' ) }
 									onChange={ setShouldInstallStarterContent }
 								/>
 							) }
-							{ isInit && ( buttonNew || buttonMigrate ) && (
+							{ isInit && ( isSetupApproachNew || isSetupApproachMigrate ) && (
 								<Button
-									disabled={ ! isSSL || ( buttonMigrate && ! isURL( existingSiteURL ) ) }
+									disabled={ ! isSSL || ( isSetupApproachMigrate && ! isURL( existingSiteURL ) ) }
 									isPrimary
 									onClick={ install }
 								>
