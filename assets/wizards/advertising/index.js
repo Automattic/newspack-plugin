@@ -224,6 +224,7 @@ class AdvertisingWizard extends Component {
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
+									updateWithAPI={ this.updateWithAPI }
 									updateAdUnit={ adUnit => {
 										this.onAdUnitChange( adUnit );
 										this.saveAdUnit( adUnit.id );

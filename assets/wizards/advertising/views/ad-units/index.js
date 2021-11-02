@@ -21,6 +21,7 @@ import {
 	Notice,
 	withWizardScreen,
 } from '../../../../components/src';
+import ServiceAccountConnection from './service-account-connection';
 
 /**
  * Advertising management screen.
@@ -30,6 +31,7 @@ const AdUnits = ( {
 	onDelete,
 	updateAdUnit,
 	wizardApiFetch,
+	updateWithAPI,
 	service,
 	serviceData,
 	fetchAdvertisingData,
@@ -37,9 +39,6 @@ const AdUnits = ( {
 	const gamConnectionErrorMessage = serviceData?.status?.error
 		? `${ __( 'Google Ad Manager connection issue', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
-
-	const isDisplayingNetworkMismatchNotice =
-		! gamConnectionErrorMessage && false === serviceData.status?.is_network_code_matched;
 
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
 	const saveNetworkCode = async () => {
@@ -56,24 +55,21 @@ const AdUnits = ( {
 		setNetworkCode( serviceData.status.network_code );
 	}, [ serviceData.status.network_code ] );
 
+	const { can_use_service_account, can_use_oauth, connection_mode } = serviceData.status;
+	const isLegacy = 'legacy' === connection_mode;
+
 	return (
 		<>
-			{ serviceData.status.can_connect ? (
-				<>
-					{ isDisplayingNetworkMismatchNotice && (
-						<Notice
-							noticeText={ __(
-								'Your GAM network code is different than the network code the site was configured with. Legacy ad units are likely to not load.',
-								'newspack'
-							) }
-							isWarning
-						/>
+			{ false === serviceData.status?.is_network_code_matched && (
+				<Notice
+					noticeText={ __(
+						'Your GAM network code is different than the network code the site was configured with. Legacy ad units are likely to not load.',
+						'newspack'
 					) }
-					{ gamConnectionErrorMessage && (
-						<Notice noticeText={ gamConnectionErrorMessage } isError />
-					) }
-				</>
-			) : null }
+					isWarning
+				/>
+			) }
+			{ gamConnectionErrorMessage && <Notice noticeText={ gamConnectionErrorMessage } isError /> }
 			{ serviceData.created_targeting_keys?.length > 0 && (
 				<Notice
 					noticeText={ [
@@ -89,44 +85,32 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
-			{ serviceData.status.can_use_oauth && serviceData.status.mode !== 'oauth' && (
-				<Notice isWarning>
-					<>
-						<span>
-							{ __(
-								'You are currently using a legacy version of Google Ad Manager connection. Visit the "Connections" wizard of Newspack plugin to connect your Google account.',
-								'newspack'
-							) }
+			{ isLegacy && (
+				<>
+					{ ( can_use_service_account || can_use_oauth ) && (
+						<Notice
+							noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
+							isWarning
+						/>
+					) }
+					<div className="flex items-end">
+						<TextControl
+							label={ __( 'Network Code', 'newspack' ) }
+							value={ networkCode }
+							onChange={ setNetworkCode }
+							withMargin={ false }
+						/>
+						<span className="pl3">
+							<Button onClick={ saveNetworkCode } isPrimary>
+								{ __( 'Save', 'newspack' ) }
+							</Button>
 						</span>
-						{ serviceData.status.mode === 'service_account' && (
-							<span>
-								{ ' ' }
-								{ __(
-									'Afterwards, remove the service account credentials from the database.',
-									'newspack'
-								) }
-							</span>
-						) }
-					</>
-				</Notice>
+					</div>
+				</>
 			) }
-			{ serviceData.status.mode === 'legacy' ? (
-				<div className="flex items-end">
-					<TextControl
-						label={ __( 'Network Code', 'newspack' ) }
-						value={ networkCode }
-						onChange={ setNetworkCode }
-						withMargin={ false }
-					/>
-					<span className="pl3">
-						<Button onClick={ saveNetworkCode } isPrimary disabled={ serviceData.status.connected }>
-							{ __( 'Save', 'newspack' ) }
-						</Button>
-					</span>
-				</div>
-			) : (
-				<div className="mb3">
-					<strong>{ __( 'Network code:', 'newspack' ) } </strong>
+			{ ! isLegacy && ! gamConnectionErrorMessage && (
+				<div>
+					<strong>{ __( 'Connected GAM network code:', 'newspack' ) } </strong>
 					<code>{ networkCode }</code>
 				</div>
 			) }
@@ -153,7 +137,6 @@ const AdUnits = ( {
 							isSmall: true,
 							tooltipPosition: 'bottom center',
 						};
-						const displayLegacyAdUnitLabel = serviceData.status.can_connect && adUnit.is_legacy;
 						return (
 							<ActionCard
 								key={ adUnit.id }
@@ -172,7 +155,7 @@ const AdUnits = ( {
 									  } ) }
 								description={ () => (
 									<span>
-										{ displayLegacyAdUnitLabel ? (
+										{ adUnit.is_legacy ? (
 											<>
 												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
 											</>
@@ -204,6 +187,13 @@ const AdUnits = ( {
 						);
 					} ) }
 			</Card>
+			{ can_use_service_account && connection_mode !== 'oauth' && (
+				<ServiceAccountConnection
+					className="mt3"
+					updateWithAPI={ updateWithAPI }
+					isConnected={ serviceData.status.connected }
+				/>
+			) }
 		</>
 	);
 };
