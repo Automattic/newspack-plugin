@@ -314,18 +314,16 @@ const Welcome = ( { buttonAction } ) => {
 									isPressed={ isSetupApproachNew }
 									onClick={ () => setSetupApproach( 'generated' ) }
 									grouped
-									chevron
 								/>
 								<ButtonCard
 									href="#"
-									title={ __( 'Migrate a existing site', 'newspack' ) }
+									title={ __( 'Migrate an existing WordPress site', 'newspack' ) }
 									desc={ __( 'You have content to import', 'newspack' ) }
 									icon={ layout }
 									className="br--bottom"
 									isPressed={ isSetupApproachMigrate }
 									onClick={ () => setSetupApproach( 'import' ) }
 									grouped
-									chevron
 								/>
 								{ isSetupApproachMigrate && (
 									<TextControl
