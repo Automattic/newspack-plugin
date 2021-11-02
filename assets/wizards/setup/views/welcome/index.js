@@ -265,10 +265,10 @@ const Welcome = ( { buttonAction } ) => {
 				isMedium
 				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
 			>
-				<h1 className={ isInit && 'justify-between flex-row-reverse' }>
+				<h1 className={ isInit && 'welcome-grid' }>
 					{ getHeadingIcon() }
-					{ isInit && <NewspackIcon simple size={ 64 } /> }
 					{ getHeadingText() }
+					{ isInit && <NewspackIcon simple size={ 64 } /> }
 				</h1>
 
 				{ errors.length === 0 && installationProgress > 0 ? (

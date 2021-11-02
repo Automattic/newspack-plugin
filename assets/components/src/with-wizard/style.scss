@@ -92,12 +92,24 @@ svg {
 		}
 
 		h1 {
-			align-items: center;
+			align-items: start;
 			display: flex;
 			flex-wrap: wrap;
 
-			&.justify-between {
-				flex-wrap: nowrap;
+			&.welcome-grid {
+				display: grid;
+				grid-gap: 8px;
+				grid-template-columns: auto 32px;
+
+				@media screen and ( min-width: 420px ) {
+					grid-gap: 16px;
+					grid-template-columns: auto 64px;
+				}
+
+				.newspack-icon {
+					width: 100%;
+					height: auto;
+				}
 			}
 
 			svg:not( .newspack-icon ) {
