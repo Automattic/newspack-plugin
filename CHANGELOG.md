@@ -1,3 +1,11 @@
+# [1.64.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.63.1-alpha.1...v1.64.0-alpha.1) (2021-11-02)
+
+
+### Features
+
+* parsely config manager ([#1207](https://github.com/Automattic/newspack-plugin/issues/1207)) ([7f33cdb](https://github.com/Automattic/newspack-plugin/commit/7f33cdbe40c7c797167f73f3ad9020adbefe67ba))
+* **ntg:** add NTG social events for reddit and telegram ([#1206](https://github.com/Automattic/newspack-plugin/issues/1206)) ([bf2c589](https://github.com/Automattic/newspack-plugin/commit/bf2c5892f84fdfcccafab3a9d48db617d23ecccd))
+
 ## [1.63.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.63.0...v1.63.1-alpha.1) (2021-11-01)
 
 
