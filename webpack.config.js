@@ -20,7 +20,7 @@ const wizardsScripts = fs
 const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
 };
-wizardsScripts.forEach( function( wizard ) {
+wizardsScripts.forEach( function ( wizard ) {
 	wizardsScriptFiles[ wizard ] = path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' );
 } );
 

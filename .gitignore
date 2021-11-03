@@ -33,7 +33,7 @@ Thumbs.db
 /assets/components/dist
 /assets/components/shared
 /assets/components/node_modules
-/assets/release
+release
 
 # Tests
 codecov/
