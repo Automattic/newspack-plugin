@@ -115,34 +115,6 @@ class Advertising_Wizard extends Wizard {
 			]
 		);
 
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/settings',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/settings',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'section'  => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'settings' => [
-						'sanitize_callback' => [ $this, 'sanitize_settings' ],
-					],
-				],
-			]
-		);
-
 		// Enable one service.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
