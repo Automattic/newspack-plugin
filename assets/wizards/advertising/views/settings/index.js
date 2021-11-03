@@ -62,7 +62,7 @@ class Settings extends Component {
 
 	fetchSettings = () => {
 		const { wizardApiFetch } = this.props;
-		wizardApiFetch( { path: '/newspack/v1/wizard/advertising/settings' } ).then( settings => {
+		wizardApiFetch( { path: '/newspack-ads/v1/settings-list' } ).then( settings => {
 			this.setState( { settings: groupBy( settings, 'section' ) } );
 		} );
 	};
@@ -98,7 +98,7 @@ class Settings extends Component {
 	handleSectionUpdate = sectionKey => data => {
 		const { wizardApiFetch } = this.props;
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/advertising/settings',
+			path: '/newspack-ads/v1/settings',
 			method: 'POST',
 			data: {
 				section: sectionKey,

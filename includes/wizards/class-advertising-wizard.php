@@ -371,28 +371,6 @@ class Advertising_Wizard extends Wizard {
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
-
-	/**
-	 * Get Ads settings list.
-	 *
-	 * @return WP_REST_Response containing ads settings list.
-	 */
-	public function api_get_settings() {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-		return \rest_ensure_response( $configuration_manager->get_settings_list() );
-	}
-
-	/**
-	 * Update Ads settings by section.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response containing ads settings list.
-	 */
-	public function api_update_settings( $request ) {
-		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-		return \rest_ensure_response( $configuration_manager->update_settings_section( $request['section'], $request['settings'] ) );
-	}
-
 	/**
 	 * Enable one service
 	 *
@@ -627,20 +605,6 @@ class Advertising_Wizard extends Wizard {
 		);
 
 		return wp_parse_args( $option_value, $defaults );
-	}
-
-	/**
-	 * Sanitize settings.
-	 *
-	 * @param object $settings Settings object to sanitize.
-	 * @return object Sanitized settings object.
-	 */
-	public function sanitize_settings( $settings ) {
-		$sanitized_settings = [];
-		foreach ( $settings as $key => $value ) {
-			$sanitized_settings[ $key ] = sanitize_text_field( $value );
-		}
-		return $sanitized_settings;
 	}
 
 	/**
