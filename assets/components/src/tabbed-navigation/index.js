@@ -1,11 +1,8 @@
 /**
- * Tabbed Navigation
- */
-
-/**
  * External dependencies.
  */
-import classNames from 'classnames';
+import classnames from 'classnames';
+import { findIndex } from 'lodash';
 import Router from '../proxied-imports/router';
 
 /**
@@ -15,29 +12,20 @@ import './style.scss';
 
 const { NavLink, useHistory } = Router;
 
-/**
- * Tabbed navigation.
- */
-const TabbedNavigation = ( { items, className } ) => {
-	const classes = classNames( 'newspack-tabbed-navigation', className );
-	const {
-		location: { pathname },
-	} = useHistory();
-	// eslint-disable-next-line no-unused-vars
-	const [ _, firstPathPart ] = pathname.split( '/' );
+const TabbedNavigation = ( { items, className, disableUpcoming } ) => {
+	const { location } = useHistory();
+	const currentIndex = findIndex( items, [ 'path', location.pathname ] );
 	return (
-		<div className={ classes }>
+		<div className={ classnames( 'newspack-tabbed-navigation', className ) }>
 			<ul>
-				{ items.map( ( item, key ) => (
-					<li key={ key }>
+				{ items.map( ( item, index ) => (
+					<li key={ index }>
 						<NavLink
 							to={ item.path }
 							exact={ item.exact }
-							className={ classNames( {
-								selected:
-									item.path === '/'
-										? pathname === item.path
-										: firstPathPart === item.path.replace( /\//g, '' ),
+							activeClassName={ 'selected' }
+							className={ classnames( {
+								disabled: disableUpcoming && index > currentIndex,
 							} ) }
 						>
 							{ item.label }

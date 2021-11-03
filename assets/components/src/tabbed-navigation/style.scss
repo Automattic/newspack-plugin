@@ -61,5 +61,14 @@
 				padding-left: 16px;
 			}
 		}
+
+		&.disabled {
+			cursor: not-allowed;
+			opacity: 0.3;
+
+			&:hover {
+				color: inherit;
+			}
+		}
 	}
 }
