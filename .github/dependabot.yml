@@ -3,26 +3,27 @@
 # Let's start out with daily updates and then drop back to less frequent intervals after everything is up-to-date.
 
 version: 2
+updates:
   # Enable version updates for npm
-  - package-ecosystem: "npm"
+  - package-ecosystem: 'npm'
     # Look for `package.json` and `lock` files in the `root` directory
-    directory: "/"
+    directory: '/'
     # Check the npm registry for updates every day (weekdays)
     schedule:
-      interval: "daily"
+      interval: 'daily'
 
   # Enable version updates for npm
-  - package-ecosystem: "npm"
+  - package-ecosystem: 'npm'
     # Look for `package.json` and `lock` files in the `assets/components` directory
-    directory: "/assets/components"
+    directory: '/assets/components'
     # Check the npm registry for updates every day (weekdays)
     schedule:
-      interval: "daily"
+      interval: 'daily'
 
   # Enable version updates for Composer
-  - package-ecosystem: "composer"
+  - package-ecosystem: 'composer'
     # Look for a `composer.lock` in the `root` directory
-    directory: "/"
+    directory: '/'
     # Check for updates every day (weekdays)
     schedule:
-      interval: "daily"
+      interval: 'daily'
