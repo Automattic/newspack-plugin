@@ -8,11 +8,6 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * External dependencies.
- */
-import { values } from 'lodash';
-
-/**
  * Internal dependencies.
  */
 import { MoneyInput } from '../../components/';
@@ -90,46 +85,33 @@ export const DontationAmounts = ( { data, onChange } ) => {
 /**
  * Donation Settings Screen Component
  */
-const Donation = ( { data = {}, onChange = () => null, donationPage } ) => {
-	const renderErrorNotices = () => {
-		if ( data.errors && values( data.errors ).length ) {
-			return values( data.errors ).map( ( error, i ) => (
-				<Notice key={ i } isError noticeText={ error } />
-			) );
-		}
-	};
-
-	return (
-		<>
-			{ renderErrorNotices() }
-			<Grid>
-				{ donationPage && (
-					<Card noBorder>
-						<h2>{ __( 'Donations landing page' ) }</h2>
-						{ 'publish' === donationPage.status ? (
-							<Notice
-								isSuccess
-								noticeText={ __( 'Your donations landing page is set up and published.' ) }
-							/>
-						) : (
-							<Notice
-								isError
-								noticeText={ __(
-									"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
-								) }
-							/>
+const Donation = ( { data = {}, onChange = () => null, donationPage } ) => (
+	<Grid>
+		{ donationPage && (
+			<Card noBorder>
+				<h2>{ __( 'Donations landing page' ) }</h2>
+				{ 'publish' === donationPage.status ? (
+					<Notice
+						isSuccess
+						noticeText={ __( 'Your donations landing page is set up and published.' ) }
+					/>
+				) : (
+					<Notice
+						isError
+						noticeText={ __(
+							"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
 						) }
-						<Button isSecondary href={ donationPage.editUrl }>
-							{ __( 'Edit Page' ) }
-						</Button>
-					</Card>
+					/>
 				) }
-				<Card noBorder>
-					<DontationAmounts data={ data } onChange={ onChange } />
-				</Card>
-			</Grid>
-		</>
-	);
-};
+				<Button isSecondary href={ donationPage.editUrl }>
+					{ __( 'Edit Page' ) }
+				</Button>
+			</Card>
+		) }
+		<Card noBorder>
+			<DontationAmounts data={ data } onChange={ onChange } />
+		</Card>
+	</Grid>
+);
 
 export default withWizardScreen( Donation );

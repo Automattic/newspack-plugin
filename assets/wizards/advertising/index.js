@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
+import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -148,63 +149,6 @@ class AdvertisingWizard extends Component {
 					ad_unit: data.adUnit,
 					service: data.service,
 				},
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
-		} );
-	};
-
-	/**
-	 * Update GAM credentials.
-	 */
-	updateGAMCredentials = credentials => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/credentials',
-				method: 'post',
-				data: { credentials },
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
-		} );
-	};
-
-	/**
-	 * Remove GAM credentials.
-	 */
-	removeGAMCredentials = () => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/credentials',
-				method: 'delete',
 				quiet: true,
 			} )
 				.then( advertisingData => {
@@ -398,8 +342,6 @@ class AdvertisingWizard extends Component {
 									secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
-									updateGAMCredentials={ this.updateGAMCredentials }
-									removeGAMCredentials={ this.removeGAMCredentials }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
 									updateAdUnit={ adUnit => {
 										this.onAdUnitChange( adUnit );
@@ -422,7 +364,8 @@ class AdvertisingWizard extends Component {
 											id: 0,
 											name: '',
 											code: '',
-											sizes: [ [ 120, 120 ] ],
+											sizes: [ adUnitSizes[ 0 ] ],
+											fluid: false,
 										}
 									}
 									service={ 'google_ad_manager' }

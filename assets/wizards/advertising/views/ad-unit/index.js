@@ -5,13 +5,25 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { trash } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, Grid, TextControl, withWizardScreen } from '../../../../components/src';
+import {
+	Button,
+	CheckboxControl,
+	Card,
+	Grid,
+	Notice,
+	TextControl,
+	withWizardScreen,
+} from '../../../../components/src';
+import AdUnitSizeControl, {
+	DEFAULT_SIZES as adUnitSizes,
+} from '../../components/ad-unit-size-control';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -33,13 +45,17 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, onSave, service, serviceData = {} } = this.props;
-		const { id, code, name = '' } = adUnit;
+		const { id, code, fluid = false, name = '' } = adUnit;
 		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
-		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
+		const isInvalidSize = ! fluid && sizes.length === 0;
 		return (
-			<Fragment>
-				<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+			<>
+				<Card headerActions noBorder>
+					<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+				</Card>
+
 				<Grid gutter={ 32 }>
 					<TextControl
 						label={ __( 'Name', 'newspack' ) }
@@ -50,6 +66,7 @@ class AdUnit extends Component {
 						<TextControl
 							label={ __( 'Code', 'newspack' ) }
 							value={ code || '' }
+							className="code"
 							help={
 								isLegacy
 									? undefined
@@ -63,59 +80,75 @@ class AdUnit extends Component {
 						/>
 					) }
 				</Grid>
+
+				<Card headerActions noBorder>
+					<h2>
+						{ sizes.length > 1
+							? __( 'Ad Unit Sizes', 'newspack' )
+							: __( 'Ad Unit Size', 'newspack' ) }
+					</h2>
+					<Button
+						isSecondary
+						isSmall
+						onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, adUnitSizes[ 0 ] ] ) }
+					>
+						{ __( 'Add New Size', 'newspack' ) }
+					</Button>
+				</Card>
+
+				{ isInvalidSize && (
+					<Notice
+						isWarning
+						noticeText={ __(
+							'The ad unit must have at least one valid size or fluid size enabled.',
+							'newspack'
+						) }
+					/>
+				) }
+
+				<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__thead">
+					<strong>{ __( 'Size', 'newspack' ) }</strong>
+					<strong>{ __( 'Width', 'newspack' ) }</strong>
+					<strong>{ __( 'Height', 'newspack' ) }</strong>
+					<span className="screen-reader-text">{ __( 'Action', 'newspack' ) }</span>
+				</Grid>
+
 				{ sizes.map( ( size, index ) => (
-					<Card noBorder key={ index }>
-						<div className="flex flex-wrap items-center">
-							<h2>
-								{ sizes.length > 1
-									? __( 'Ad Unit Size #', 'newspack' ) + ( index + 1 )
-									: __( 'Ad Unit Size', 'newspack' ) }
-							</h2>
-							{ sizes.length > 1 && (
-								<>
-									<span className="sep" />
-									<Button
-										isLink
-										isDestructive
-										onClick={ () => {
-											sizes.splice( index, 1 );
-											this.handleOnChange( 'sizes', sizes );
-										} }
-									>
-										{ __( 'Delete', 'newspack' ) }
-									</Button>
-								</>
-							) }
-						</div>
-						<Grid gutter={ 32 } noMargin>
-							<TextControl
-								label={ __( 'Width' ) }
-								value={ size[ 0 ] }
-								type="number"
-								onChange={ value => {
-									sizes[ index ][ 0 ] = value;
-									this.handleOnChange( 'sizes', sizes );
-								} }
-							/>
-							<TextControl
-								label={ __( 'Height' ) }
-								value={ size[ 1 ] }
-								type="number"
-								onChange={ value => {
-									sizes[ index ][ 1 ] = value;
-									this.handleOnChange( 'sizes', sizes );
-								} }
-							/>
-						</Grid>
-					</Card>
+					<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__tbody" key={ index }>
+						<AdUnitSizeControl
+							value={ size }
+							onChange={ value => {
+								sizes[ index ] = value;
+								this.handleOnChange( 'sizes', sizes );
+							} }
+						/>
+						<Button
+							isQuaternary
+							onClick={ () => {
+								sizes.splice( index, 1 );
+								this.handleOnChange( 'sizes', sizes );
+							} }
+							icon={ trash }
+							disabled={ sizes.length <= 1 }
+							label={ __( 'Delete', 'newspack' ) }
+							showTooltip={ true }
+						/>
+					</Grid>
 				) ) }
-				<Button isLink onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }>
-					{ __( 'Add Size', 'newspack' ) }
-				</Button>
-				<div className="clear" />
+
+				<CheckboxControl
+					label={ __( 'Fluid size for native ads', 'newspack' ) }
+					onChange={ value => this.handleOnChange( 'fluid', value ) }
+					checked={ fluid }
+					help={ __(
+						'Fluid is a native ad size that allows more flexibility when styling your ad. Google Ad Manager automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
+						'newspack'
+					) }
+				/>
+
 				<div className="newspack-buttons-card">
 					<Button
-						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) }
+						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) || isInvalidSize }
 						isPrimary
 						onClick={ () => onSave( id ) }
 					>
@@ -125,7 +158,7 @@ class AdUnit extends Component {
 						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>
-			</Fragment>
+			</>
 		);
 	}
 }
