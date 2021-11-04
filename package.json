@@ -64,6 +64,7 @@
 		"stylelint": "^13.3.1",
 		"stylelint-config-prettier": "^9.0.3",
 		"stylelint-prettier": "^1.2.0",
+		"webpack": "^5.46.0",
 		"webpack-cli": "^4.7.2"
 	},
 	"rtlcssConfig": {
@@ -141,7 +142,6 @@
 		"react-dropzone": "^10.2.1",
 		"react-rte": "^0.16.1",
 		"recharts": "^1.8.5",
-		"webpack": "^5.46.0",
 		"whatwg-fetch": "^3.0.0"
 	},
 	"release": {
