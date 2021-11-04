@@ -188,7 +188,7 @@
 				{
 					"assets": [
 						{
-							"path": "./assets/release/newspack-plugin.zip",
+							"path": "./release/newspack-plugin.zip",
 							"label": "newspack-plugin.zip"
 						}
 					]
