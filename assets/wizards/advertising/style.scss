@@ -1,36 +1,33 @@
+@import '~@wordpress/base-styles/colors';
+
 .newspack-advertising-wizard {
 	.newspack-button-card .newspack-notice {
 		margin: 24px 0 0;
 	}
 
-	&__network-code {
-		align-items: flex-end;
-		display: flex;
-		flex-wrap: wrap;
-		margin-bottom: -32px;
+	&__ad-unit-size {
+		margin: 64px 0 16px;
 
-		.newspack-button-card + & {
-			margin-top: -32px;
+		h2,
+		.newspack-grid {
+			margin: 0;
+		}
+	}
+
+	.newspack-grid {
+		&__thead,
+		&__tbody {
+			grid-template-columns: repeat( 3, calc( 33.33% - 24px ) ) 48px;
 		}
 
-		.newspack-text-control {
-			flex: 1 1 100%;
-			margin-bottom: 8px;
-
-			@media screen and ( min-width: 768px ) {
-				flex-basis: auto;
-				margin-bottom: 32px;
-				margin-right: 8px;
-			}
+		.newspack-button.has-icon:not( .has-text ) {
+			height: 48px;
+			min-width: 48px;
+			width: 48px;
 		}
 
-		.newspack-card__buttons-card {
-			flex: 0 0 auto;
-			margin-top: 0;
-
-			.newspack-button + .newspack-button {
-				margin-left: 0;
-			}
+		+ .newspack-card__header-actions {
+			margin-top: 64px;
 		}
 	}
 }
