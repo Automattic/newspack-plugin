@@ -180,23 +180,23 @@ class Stripe_Connection {
 		// Replace content placeholders.
 		$placeholders = [
 			[
-				'template' => '*AMOUNT*',
+				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['AMOUNT'],
 				'value'    => self::format_amount( $amount_normalised, $payment['currency'] ),
 			],
 			[
-				'template' => '*DATE*',
+				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['DATE'],
 				'value'    => gmdate( 'Y-m-d', $payment['created'] ),
 			],
 			[
-				'template' => '*PAYMENT_METHOD*',
+				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['PAYMENT_METHOD'],
 				'value'    => __( 'Card', 'newspack' ) . ' – ' . $payment['payment_method_details']['card']['last4'],
 			],
 			[
-				'template' => '*CONTACT_EMAIL*',
+				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['CONTACT_EMAIL'],
 				'value'    => sprintf( '<a href="mailto:%s">%s</a>', $contact_email, $contact_email ),
 			],
 			[
-				'template' => '*RECEIPT_URL*',
+				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['RECEIPT_URL'],
 				'value'    => sprintf( '<a href="%s">%s</a>', $payment['receipt_url'], 'stripe.com' ),
 			],
 		];
@@ -445,7 +445,7 @@ class Stripe_Connection {
 				$has_metadata_field = isset( $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ] );
 				if ( $has_metadata_field ) {
 					$metadata_field_value = $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ];
-					$currency_matches  = strtolower( $payment_data['currency'] ) === strtolower( $price['currency'] );
+					$currency_matches     = strtolower( $payment_data['currency'] ) === strtolower( $price['currency'] );
 					if ( $does_currency_match && 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
 						$prices_mapped['month'] = $price;
 					}

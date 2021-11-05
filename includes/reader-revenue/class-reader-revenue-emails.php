@@ -17,6 +17,14 @@ class Reader_Revenue_Emails {
 	const POST_TYPE_META     = 'newspack_email_type';
 	const EMAIL_TYPE_RECEIPT = 'receipt';
 
+	const DYNAMIC_CONTENT_PLACEHOLDERS = [
+		'AMOUNT'         => '*AMOUNT*',
+		'DATE'           => '*DATE*',
+		'PAYMENT_METHOD' => '*PAYMENT_METHOD*',
+		'CONTACT_EMAIL'  => '*CONTACT_EMAIL*',
+		'RECEIPT_URL'    => '*RECEIPT_URL*',
+	];
+
 	/**
 	 * Initialize.
 	 *
