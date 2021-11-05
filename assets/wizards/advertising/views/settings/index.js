@@ -3,11 +3,6 @@
  */
 
 /**
- * External dependencies.
- */
-import { groupBy } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
