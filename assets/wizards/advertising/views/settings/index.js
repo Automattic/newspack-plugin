@@ -63,7 +63,7 @@ class Settings extends Component {
 	fetchSettings = () => {
 		const { wizardApiFetch } = this.props;
 		wizardApiFetch( { path: '/newspack-ads/v1/settings-list' } ).then( settings => {
-			this.setState( { settings: groupBy( settings, 'section' ) } );
+			this.setState( { settings } );
 		} );
 	};
 
@@ -109,7 +109,7 @@ class Settings extends Component {
 			},
 			quiet: true,
 		} ).then( settings => {
-			this.setState( { settings: groupBy( settings, 'section' ) } );
+			this.setState( { settings } );
 		} );
 	};
 
