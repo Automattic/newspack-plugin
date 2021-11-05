@@ -445,7 +445,7 @@ class Stripe_Connection {
 				$has_metadata_field = isset( $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ] );
 				if ( $has_metadata_field ) {
 					$metadata_field_value = $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ];
-					$does_currency_match  = strtolower( $payment_data['currency'] ) === strtolower( $price['currency'] );
+					$currency_matches  = strtolower( $payment_data['currency'] ) === strtolower( $price['currency'] );
 					if ( $does_currency_match && 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
 						$prices_mapped['month'] = $price;
 					}
