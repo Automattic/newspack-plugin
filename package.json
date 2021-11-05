@@ -11,7 +11,7 @@
 		"npm": "8"
 	},
 	"devDependencies": {
-		"@automattic/calypso-build": "^9.0.0",
+		"@automattic/calypso-build": "^10.0.0",
 		"@babel/core": "^7.15.0",
 		"@commitlint/cli": "^14.1.0",
 		"@commitlint/config-conventional": "^14.1.0",

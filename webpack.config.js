@@ -44,14 +44,4 @@ webpackConfig.optimization = {
 	},
 };
 
-// Overwrite Calypso's faulty asset module config.
-// For details: https://github.com/Automattic/wp-calypso/pull/56390 and https://github.com/Automattic/jetpack/pull/20972
-if ( Array.isArray( webpackConfig.module.rules ) ) {
-	webpackConfig.module.rules.forEach( rule => {
-		if ( 'asset/resource' === rule.type ) {
-			delete rule.generator.publicPath;
-		}
-	} );
-}
-
 module.exports = webpackConfig;
