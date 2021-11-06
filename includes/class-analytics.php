@@ -48,6 +48,7 @@ class Analytics {
 		add_action( 'newspack_campaigns_before_campaign_render', [ __CLASS__, 'set_campaign_render_context' ], 10, 1 );
 		add_action( 'newspack_campaigns_after_campaign_render', [ __CLASS__, 'reset_render_context' ], 10, 1 );
 		add_action( 'comment_form', [ __CLASS__, 'prepare_comment_events' ] );
+		add_action( 'coral_comment_form', [ __CLASS__, 'prepare_coral_comment_events' ] );
 
 		// WooCommerce hooks. https://docs.woocommerce.com/wc-apidocs/hook-docs.html.
 		add_action( 'woocommerce_login_form_end', [ __CLASS__, 'prepare_login_events' ] );
@@ -393,6 +394,21 @@ class Analytics {
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#commentform',
+			'event_name'     => 'comment added',
+			'event_category' => 'NTG user',
+			'event_label'    => get_the_title(),
+		];
+	}
+
+	/**
+	 * Prepare event triggers on user commenting while using Coral.
+	 */
+	public static function prepare_coral_comment_events() {
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
+			'amp_on'         => 'amp-form-submit-success',
+			'on'             => 'submit',
+			'element'        => '#comments-postCommentForm-form',
 			'event_name'     => 'comment added',
 			'event_category' => 'NTG user',
 			'event_label'    => get_the_title(),
