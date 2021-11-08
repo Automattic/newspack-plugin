@@ -114,6 +114,6 @@ PluginSettings.defaultProps = {
 	title: __( 'General Settings', 'newspack' ),
 };
 
-PluginSettings.SettingsSection = SettingsSection;
+PluginSettings.Section = SettingsSection;
 
 export default PluginSettings;
