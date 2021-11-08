@@ -178,7 +178,7 @@ class Reader_Revenue_Emails {
 	 * @param array      $placeholders Dynamic content substitutions.
 	 */
 	public static function send_email( $type_or_post_id, $to, $placeholders = [] ) {
-		if ( ! self::has_emails_configured() ) {
+		if ( ! self::supports_emails() ) {
 			return;
 		}
 		if ( 'string' === gettype( $type_or_post_id ) ) {
@@ -228,7 +228,7 @@ class Reader_Revenue_Emails {
 	/**
 	 * Does this instance support emails?
 	 */
-	private static function supports_emails() {
+	public static function supports_emails() {
 		if ( ! class_exists( 'Newspack_Newsletters' ) ) {
 			return false;
 		}
@@ -236,17 +236,15 @@ class Reader_Revenue_Emails {
 	}
 
 	/**
-	 * Are emails configured on this instance?
+	 * Can email of a particular type be sent?
+	 *
+	 * @param string $type Type of the email.
 	 */
-	public static function has_emails_configured() {
+	public static function can_send_email( $type ) {
 		if ( ! self::supports_emails() ) {
 			return false;
 		}
-		$receipt_email = self::get_email_config_by_type( self::EMAIL_TYPE_RECEIPT );
-		if ( false === $receipt_email ) {
-			return false;
-		}
-		return true;
+		return false !== self::get_email_config_by_type( $type );
 	}
 
 	/**

@@ -36,12 +36,12 @@ class Newspack_Test_Reader_Revenue_Emails extends WP_UnitTestCase {
 			'Emails are empty until configured.'
 		);
 		self::assertFalse(
-			Reader_Revenue_Emails::has_emails_configured(),
+			Reader_Revenue_Emails::supports_emails(),
 			'Emails are not configured until the Newspack Newsletters plugin is active.'
 		);
 		Plugin_Manager::activate( 'newspack-newsletters' );
 		self::assertTrue(
-			Reader_Revenue_Emails::has_emails_configured(),
+			Reader_Revenue_Emails::supports_emails(),
 			'Emails are not configured after Newspack Newsletters plugin is active.'
 		);
 

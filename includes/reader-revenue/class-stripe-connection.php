@@ -596,8 +596,8 @@ class Stripe_Connection {
 						'payment_method_types' => [ 'card' ],
 					]
 				);
-				if ( ! Reader_Revenue_Emails::has_emails_configured() ) {
-					// If this instance can't send emails, add receipt email to make Stripe send the email.
+				if ( ! Reader_Revenue_Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPE_RECEIPT ) ) {
+					// If this instance can't send the receipt email, make Stripe send the email.
 					$intent['receipt_email'] = $email_address;
 				}
 				$response['client_secret'] = $intent['client_secret'];
