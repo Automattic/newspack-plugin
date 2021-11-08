@@ -40,7 +40,10 @@ const TestEmail = compose( [
 	useEffect( () => {
 		createNotice(
 			'info',
-			__( 'This email will be sent to a reader after they contribute to your site.', 'newspack' ),
+			__(
+				'This email will be sent to a reader after they contribute to your site. The title will be used the email subject.',
+				'newspack'
+			),
 			{
 				isDismissible: false,
 			}
@@ -86,7 +89,10 @@ const TestEmail = compose( [
 							template: '*PAYMENT_METHOD*',
 						},
 						{
-							label: __( 'the contact email to your site', 'newspack' ),
+							label: __(
+								'the contact email to your site (same as the "From" email address)',
+								'newspack'
+							),
 							template: '*CONTACT_EMAIL*',
 						},
 						{

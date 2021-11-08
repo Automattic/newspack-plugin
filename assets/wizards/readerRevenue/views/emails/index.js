@@ -16,7 +16,7 @@ import { values } from 'lodash';
  */
 import { PluginInstaller, ActionCard, withWizardScreen } from '../../../../components/src';
 
-const SECTIONS = values( newspack_reader_revenue.emails );
+const EMAILS = values( newspack_reader_revenue.emails );
 
 const Emails = () => {
 	const [ pluginsReady, setPluginsReady ] = useState( null );
@@ -35,21 +35,33 @@ const Emails = () => {
 
 	return (
 		<>
-			{ SECTIONS.map( ( section, i ) => (
-				<ActionCard
-					key={ i }
-					title={ section.label }
-					titleLink={ section.edit_link }
-					href={ section.edit_link }
-					description={ section.description }
-					actionText={ sprintf(
-						/* translators: %s: Email subject */
-						__( 'Edit the "%s" email', 'newspack' ),
-						section.subject
-					) }
-					secondaryActionText={ __( 'Send a test email', 'newspack' ) }
-				/>
-			) ) }
+			{ EMAILS.map( email => {
+				const isActive = email.status === 'publish';
+				return (
+					<ActionCard
+						key={ email.post_id }
+						title={ email.label }
+						titleLink={ email.edit_link }
+						href={ email.edit_link }
+						description={ email.description }
+						actionText={ sprintf(
+							/* translators: %s: Email subject */
+							__( 'Edit the "%s" email', 'newspack' ),
+							email.subject
+						) }
+						{ ...( isActive
+							? {}
+							: {
+									notification: __(
+										'This email is not active – the default Stripe receipt will be used. Edit and publish the email to activate it.',
+										'newspack'
+									),
+									notificationLevel: 'error',
+							  } ) }
+						secondaryActionText={ __( 'Send a test email', 'newspack' ) }
+					/>
+				);
+			} ) }
 		</>
 	);
 };

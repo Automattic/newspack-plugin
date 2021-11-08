@@ -174,7 +174,6 @@ class Stripe_Connection {
 	 * @param object $payment Stripe payment.
 	 */
 	private static function send_email_to_customer( $customer, $payment ) {
-		$contact_email     = get_bloginfo( 'admin_email' );
 		$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
 
 		// Replace content placeholders.
@@ -190,10 +189,6 @@ class Stripe_Connection {
 			[
 				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['PAYMENT_METHOD'],
 				'value'    => __( 'Card', 'newspack' ) . ' – ' . $payment['payment_method_details']['card']['last4'],
-			],
-			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['CONTACT_EMAIL'],
-				'value'    => sprintf( '<a href="mailto:%s">%s</a>', $contact_email, $contact_email ),
 			],
 			[
 				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['RECEIPT_URL'],

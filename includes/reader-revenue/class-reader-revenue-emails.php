@@ -188,10 +188,15 @@ class Reader_Revenue_Emails {
 		} else {
 			return false;
 		}
-		if ( ! $to || false === $email_config ) {
-			return;
+		if ( ! $to || false === $email_config || 'publish' !== $email_config['status'] ) {
+			return false;
 		}
-		$html = $email_config['html_payload'];
+		$html           = $email_config['html_payload'];
+		$from_email     = $email_config['from_email'];
+		$placeholders[] = [
+			'template' => self::DYNAMIC_CONTENT_PLACEHOLDERS['CONTACT_EMAIL'],
+			'value'    => sprintf( '<a href="mailto:%s">%s</a>', $from_email, $from_email ),
+		];
 		foreach ( $placeholders as $value ) {
 			$html = str_replace(
 				$value['template'],
@@ -208,7 +213,7 @@ class Reader_Revenue_Emails {
 			$email_config['subject'],
 			$html,
 			[
-				sprintf( 'From: %s <%s>', $email_config['from_name'], $email_config['from_email'] ),
+				sprintf( 'From: %s <%s>', $email_config['from_name'], $from_email ),
 			]
 		);
 		remove_filter( 'wp_mail_content_type', $email_content_type );
@@ -244,7 +249,11 @@ class Reader_Revenue_Emails {
 		if ( ! self::supports_emails() ) {
 			return false;
 		}
-		return false !== self::get_email_config_by_type( $type );
+		$email_config = self::get_email_config_by_type( $type );
+		if ( ! $email_config || 'publish' !== $email_config['status'] ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -280,6 +289,7 @@ class Reader_Revenue_Emails {
 			'subject'      => get_the_title( $post_id ),
 			'from_name'    => get_post_meta( $post_id, 'from_name', true ),
 			'from_email'   => get_post_meta( $post_id, 'from_email', true ),
+			'status'       => get_post_status( $post_id ),
 			'html_payload' => $html_payload,
 		];
 		return $serialized_email;

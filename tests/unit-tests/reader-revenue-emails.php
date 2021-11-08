@@ -70,6 +70,13 @@ class Newspack_Test_Reader_Revenue_Emails extends WP_UnitTestCase {
 	public function test_reader_revenue_emails_send() {
 		Plugin_Manager::activate( 'newspack-newsletters' );
 
+		$receipt_email = Reader_Revenue_Emails::get_emails()['receipt'];
+
+		// Mitigate a weird issue with PHPUnit – when running the whole test suite (as opposed to a
+		// single run with `--filter` flag), the default values from `register_meta` calls are ignored.
+		update_post_meta( $receipt_email['post_id'], 'from_name', get_bloginfo( 'name' ) );
+		update_post_meta( $receipt_email['post_id'], 'from_email', get_bloginfo( 'admin_email' ) );
+
 		$recipient    = 'tester@tests.com';
 		$amount       = '$42';
 		$placeholders = [
@@ -84,8 +91,7 @@ class Newspack_Test_Reader_Revenue_Emails extends WP_UnitTestCase {
 			$placeholders
 		);
 
-		$mailer        = tests_retrieve_phpmailer_instance();
-		$receipt_email = Reader_Revenue_Emails::get_emails()['receipt'];
+		$mailer = tests_retrieve_phpmailer_instance();
 
 		self::assertContains(
 			$recipient,
