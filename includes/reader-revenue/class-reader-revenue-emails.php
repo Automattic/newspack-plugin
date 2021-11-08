@@ -42,6 +42,7 @@ class Reader_Revenue_Emails {
 	 * Register the custom post type as edited-as-email.
 	 *
 	 * @param array $email_editor_cpts Post type which should be edited as emails.
+	 * @codeCoverageIgnore
 	 */
 	public static function register_email_cpt_with_email_editor( $email_editor_cpts ) {
 		$email_editor_cpts[] = self::POST_TYPE;
@@ -52,6 +53,7 @@ class Reader_Revenue_Emails {
 	 * Register the editor scripts as allowed when editing email.
 	 *
 	 * @param array $allowed_actions Actions allowed when enqueuing assets for the block editor.
+	 * @codeCoverageIgnore
 	 */
 	public static function register_scripts_enqueue_with_email_editor( $allowed_actions ) {
 		$allowed_actions[] = __CLASS__ . '::enqueue_block_editor_assets';
@@ -60,6 +62,8 @@ class Reader_Revenue_Emails {
 
 	/**
 	 * Register the custom post type for emails.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function register_cpt() {
 		if ( ! current_user_can( 'edit_others_posts' ) ) {
@@ -105,6 +109,8 @@ class Reader_Revenue_Emails {
 
 	/**
 	 * Load up common JS/CSS for newsletter editor.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function enqueue_block_editor_assets() {
 		if ( get_post_type() !== self::POST_TYPE ) {
@@ -131,6 +137,8 @@ class Reader_Revenue_Emails {
 
 	/**
 	 * Register custom fields.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function register_meta() {
 		\register_meta(
@@ -179,7 +187,7 @@ class Reader_Revenue_Emails {
 	 */
 	public static function send_email( $type_or_post_id, $to, $placeholders = [] ) {
 		if ( ! self::supports_emails() ) {
-			return;
+			return false;
 		}
 		if ( 'string' === gettype( $type_or_post_id ) ) {
 			$email_config = self::get_email_config_by_type( $type_or_post_id );
@@ -306,6 +314,7 @@ class Reader_Revenue_Emails {
 			[
 				'post_type'      => self::POST_TYPE,
 				'posts_per_page' => 1,
+				'post_status'    => 'any',
 				'meta_key'       => self::POST_TYPE_META,
 				'meta_value'     => $type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			]
