@@ -23,12 +23,6 @@ import AdPicker from './ad-picker';
  * Advertising management screen.
  */
 class Settings extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			settings: {},
-		};
-	}
 	adUnitsForSelect = adUnits => {
 		return [
 			{
