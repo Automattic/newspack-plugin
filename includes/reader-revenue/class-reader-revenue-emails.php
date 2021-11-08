@@ -33,6 +33,7 @@ class Reader_Revenue_Emails {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_cpt' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
@@ -351,6 +352,71 @@ class Reader_Revenue_Emails {
 			$emails[ self::EMAIL_TYPE_RECEIPT ] = $receipt_email;
 		}
 		return $emails;
+	}
+
+	/**
+	 * Send a test email.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public static function api_send_test_email( $request ) {
+		$was_sent = self::send_email(
+			$request->get_param( 'post_id' ),
+			$request->get_param( 'recipient' )
+		);
+		if ( $was_sent ) {
+			return \rest_ensure_response( [] );
+		} else {
+			return new WP_Error(
+				'newspack_test_email_not_sent',
+				__( 'Test email was not sent.', 'newspack' )
+			);
+		}
+	}
+
+	/**
+	 * Register the endpoints needed for the wizard screens.
+	 */
+	public static function register_api_endpoints() {
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/reader-revenue-emails/test',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_send_test_email' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'recipient' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'post_id'   => [
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Check capabilities for using API.
+	 *
+	 * @codeCoverageIgnore
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public static function api_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
+		}
+		return true;
 	}
 }
 Reader_Revenue_Emails::init();

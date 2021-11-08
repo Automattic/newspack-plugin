@@ -53,7 +53,7 @@ const TestEmail = compose( [
 		setInFlight( true );
 		await savePost();
 		apiFetch( {
-			path: `/newspack/v1/wizard/newspack-reader-revenue-wizard/emails/test`,
+			path: `/newspack/v1/reader-revenue-emails/test`,
 			method: 'POST',
 			data: {
 				recipient: settings.testRecipient,
