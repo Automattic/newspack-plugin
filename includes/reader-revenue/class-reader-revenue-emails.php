@@ -144,6 +144,30 @@ class Reader_Revenue_Emails {
 				'auth_callback'  => '__return_true',
 			]
 		);
+		\register_meta(
+			'post',
+			'from_name',
+			[
+				'object_subtype' => self::POST_TYPE,
+				'show_in_rest'   => true,
+				'type'           => 'string',
+				'single'         => true,
+				'auth_callback'  => '__return_true',
+				'default'        => get_bloginfo( 'name' ),
+			]
+		);
+		\register_meta(
+			'post',
+			'from_email',
+			[
+				'object_subtype' => self::POST_TYPE,
+				'show_in_rest'   => true,
+				'type'           => 'string',
+				'single'         => true,
+				'auth_callback'  => '__return_true',
+				'default'        => get_bloginfo( 'admin_email' ),
+			]
+		);
 	}
 
 	/**
@@ -184,7 +208,7 @@ class Reader_Revenue_Emails {
 			$email_config['subject'],
 			$html,
 			[
-				sprintf( 'From: %s <%s>', get_bloginfo( 'name' ), get_bloginfo( 'admin_email' ) ),
+				sprintf( 'From: %s <%s>', $email_config['from_name'], $email_config['from_email'] ),
 			]
 		);
 		remove_filter( 'wp_mail_content_type', $email_content_type );
@@ -253,8 +277,11 @@ class Reader_Revenue_Emails {
 			'label'        => $label,
 			'description'  => $description,
 			'post_id'      => $post_id,
-			'edit_link'    => get_edit_post_link( $post_id, '' ),
+			// Make the edit link relative.
+			'edit_link'    => str_replace( site_url(), '', get_edit_post_link( $post_id, '' ) ),
 			'subject'      => get_the_title( $post_id ),
+			'from_name'    => get_post_meta( $post_id, 'from_name', true ),
+			'from_email'   => get_post_meta( $post_id, 'from_email', true ),
 			'html_payload' => $html_payload,
 		];
 		return $serialized_email;

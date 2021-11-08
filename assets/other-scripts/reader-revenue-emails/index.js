@@ -12,24 +12,31 @@ import apiFetch from '@wordpress/api-fetch';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
+/**
+ * Internal dependencies
+ */
+import { hooks } from '../../components/src';
+
 const TestEmail = compose( [
 	withSelect( select => {
-		const { getCurrentPostId } = select( 'core/editor' );
-		return { postId: getCurrentPostId() };
+		const { getEditedPostAttribute, getCurrentPostId } = select( 'core/editor' );
+		const postMeta = getEditedPostAttribute( 'meta' );
+		return { postId: getCurrentPostId(), postMeta };
 	} ),
 	withDispatch( dispatch => {
-		const { savePost } = dispatch( 'core/editor' );
+		const { savePost, editPost } = dispatch( 'core/editor' );
 		const { createNotice } = dispatch( 'core/notices' );
 		return {
 			savePost,
 			createNotice,
+			updatePostMeta: key => value => editPost( { meta: { [ key ]: value } } ),
 		};
 	} ),
-] )( ( { postId, savePost, createNotice } ) => {
+] )( ( { postId, savePost, postMeta, updatePostMeta, createNotice } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
-	const [ testedEmailRecipient, setTestedEmailRecipient ] = useState(
-		newspack_emails.current_user_email
-	);
+	const [ settings, updateSettings ] = hooks.useObjectState( {
+		testRecipient: newspack_emails.current_user_email,
+	} );
 	useEffect( () => {
 		createNotice(
 			'info',
@@ -46,7 +53,7 @@ const TestEmail = compose( [
 			path: `/newspack/v1/wizard/newspack-reader-revenue-wizard/emails/test`,
 			method: 'POST',
 			data: {
-				recipient: testedEmailRecipient,
+				recipient: settings.testRecipient,
 				post_id: postId,
 			},
 		} )
@@ -93,12 +100,28 @@ const TestEmail = compose( [
 					) ) }
 				</ul>
 			</PluginDocumentSettingPanel>
+			<PluginDocumentSettingPanel
+				name="email-settings-panel"
+				title={ __( 'Settings', 'newspack' ) }
+			>
+				<TextControl
+					label={ __( '"From" name', 'newspack' ) }
+					value={ postMeta.from_name }
+					onChange={ updatePostMeta( 'from_name' ) }
+				/>
+				<TextControl
+					label={ __( '"From" email address', 'newspack' ) }
+					value={ postMeta.from_email }
+					type="email"
+					onChange={ updatePostMeta( 'from_email' ) }
+				/>
+			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack' ) }>
 				<TextControl
 					label={ __( 'Send to', 'newspack' ) }
-					value={ testedEmailRecipient }
+					value={ settings.testRecipient }
 					type="email"
-					onChange={ setTestedEmailRecipient }
+					onChange={ updateSettings( 'testRecipient' ) }
 				/>
 				<div className="newspack__testing-controls">
 					<Button isPrimary onClick={ sendTestEmail } disabled={ inFlight }>
