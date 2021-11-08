@@ -680,7 +680,7 @@ class Reader_Revenue_Wizard extends Wizard {
 	/**
 	 * Send a test email.
 	 *
-	 * @return WP_REST_Response containing info.
+	 * @param WP_REST_Request $request Request.
 	 */
 	public static function api_send_test_email( $request ) {
 		$was_sent = Reader_Revenue_Emails::send_email(
@@ -692,7 +692,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		} else {
 			return new WP_Error(
 				'newspack_test_email_not_sent',
-				__( 'Test email was not sent.', 'newspack' ),
+				__( 'Test email was not sent.', 'newspack' )
 			);
 		}
 	}
