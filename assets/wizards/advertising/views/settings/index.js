@@ -11,9 +11,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, SectionHeader, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	SectionHeader,
+	PluginSettings,
+	withWizardScreen,
+} from '../../../../components/src';
 import AdPicker from './ad-picker';
-import SettingsSection from './settings-section';
 
 /**
  * Advertising management screen.
@@ -55,65 +59,11 @@ class Settings extends Component {
 		];
 	};
 
-	fetchSettings = () => {
-		const { wizardApiFetch } = this.props;
-		wizardApiFetch( { path: '/newspack-ads/v1/settings-list' } ).then( settings => {
-			this.setState( { settings } );
-		} );
-	};
-
-	componentDidMount() {
-		this.fetchSettings();
-	}
-
-	getSettingsValues = sectionKey => {
-		return (
-			this.state.settings[ sectionKey ]?.reduce( ( map, setting ) => {
-				map[ setting.key ] = setting.value;
-				return map;
-			}, {} ) || {}
-		);
-	};
-
-	handleSettingChange = sectionKey => ( key, value ) => {
-		const sectionSettings = [ ...this.state.settings[ sectionKey ] ];
-		sectionSettings.forEach( setting => {
-			if ( setting.key === key ) {
-				setting.value = value;
-			}
-		} );
-		this.setState( {
-			settings: {
-				...this.state.settings,
-				[ sectionKey ]: sectionSettings,
-			},
-		} );
-	};
-
-	handleSectionUpdate = sectionKey => data => {
-		const { wizardApiFetch } = this.props;
-		wizardApiFetch( {
-			path: '/newspack-ads/v1/settings',
-			method: 'POST',
-			data: {
-				section: sectionKey,
-				settings: {
-					...this.getSettingsValues( sectionKey ),
-					...( data || {} ),
-				},
-			},
-			quiet: true,
-		} ).then( settings => {
-			this.setState( { settings } );
-		} );
-	};
-
 	/**
 	 * Render.
 	 */
 	render() {
 		const { togglePlacement, placements, adUnits, services, onChange } = this.props;
-		const { settings } = this.state;
 		const { global_above_header, global_below_header, global_above_footer, sticky } = placements;
 
 		return (
@@ -205,18 +155,11 @@ class Settings extends Component {
 						/>
 					) : null }
 				</ActionCard>
-				<SectionHeader
+				<PluginSettings
+					pluginSlug="newspack-ads"
 					title={ __( 'General Settings', 'newspack' ) }
 					description={ __( 'Configure display and advanced settings for your ads.', 'newspack' ) }
 				/>
-				{ Object.keys( settings ).map( sectionKey => (
-					<SettingsSection
-						key={ sectionKey }
-						settings={ settings[ sectionKey ] }
-						onChange={ this.handleSettingChange( sectionKey ) }
-						onUpdate={ this.handleSectionUpdate( sectionKey ) }
-					/>
-				) ) }
 			</Fragment>
 		);
 	}
