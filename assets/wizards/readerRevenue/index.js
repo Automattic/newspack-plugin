@@ -222,7 +222,7 @@ class ReaderRevenueWizard extends Component {
 					path: '/stripe-setup',
 				},
 				{
-					label: __( 'Customer Emails', 'newspack' ),
+					label: __( 'Emails', 'newspack' ),
 					path: '/emails',
 				},
 				platformField,

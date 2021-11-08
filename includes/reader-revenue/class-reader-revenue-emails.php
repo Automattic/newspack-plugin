@@ -33,17 +33,29 @@ class Reader_Revenue_Emails {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_cpt' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
+		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
+		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
 	}
 
 	/**
-	 * Register the custom post type.
+	 * Register the custom post type as edited-as-email.
 	 *
 	 * @param array $email_editor_cpts Post type which should be edited as emails.
 	 */
 	public static function register_email_cpt_with_email_editor( $email_editor_cpts ) {
 		$email_editor_cpts[] = self::POST_TYPE;
 		return $email_editor_cpts;
+	}
+
+	/**
+	 * Register the editor scripts as allowed when editing email.
+	 *
+	 * @param array $allowed_actions Actions allowed when enqueuing assets for the block editor.
+	 */
+	public static function register_scripts_enqueue_with_email_editor( $allowed_actions ) {
+		$allowed_actions[] = __CLASS__ . '::enqueue_block_editor_assets';
+		return $allowed_actions;
 	}
 
 	/**
@@ -55,26 +67,26 @@ class Reader_Revenue_Emails {
 		}
 
 		$labels = [
-			'name'                     => _x( 'Emails', 'post type general name', 'newspack' ),
-			'singular_name'            => _x( 'Email', 'post type singular name', 'newspack' ),
-			'menu_name'                => _x( 'Emails', 'admin menu', 'newspack' ),
-			'name_admin_bar'           => _x( 'Email', 'add new on admin bar', 'newspack' ),
+			'name'                     => _x( 'Reader Revenue Emails', 'post type general name', 'newspack' ),
+			'singular_name'            => _x( 'Reader Revenue Email', 'post type singular name', 'newspack' ),
+			'menu_name'                => _x( 'Reader Revenue Emails', 'admin menu', 'newspack' ),
+			'name_admin_bar'           => _x( 'Reader Revenue Email', 'add new on admin bar', 'newspack' ),
 			'add_new'                  => _x( 'Add New', 'popup', 'newspack' ),
-			'add_new_item'             => __( 'Add New Email', 'newspack' ),
-			'new_item'                 => __( 'New Email', 'newspack' ),
-			'edit_item'                => __( 'Edit Email', 'newspack' ),
-			'view_item'                => __( 'View Email', 'newspack' ),
-			'all_items'                => __( 'All Emails', 'newspack' ),
-			'search_items'             => __( 'Search Emails', 'newspack' ),
-			'parent_item_colon'        => __( 'Parent Emails:', 'newspack' ),
-			'not_found'                => __( 'No Emails found.', 'newspack' ),
-			'not_found_in_trash'       => __( 'No Emails found in Trash.', 'newspack' ),
-			'items_list'               => __( 'Emails list', 'newspack' ),
-			'item_published'           => __( 'Email published', 'newspack' ),
-			'item_published_privately' => __( 'Email published privately', 'newspack' ),
-			'item_reverted_to_draft'   => __( 'Email reverted to draft', 'newspack' ),
-			'item_scheduled'           => __( 'Email scheduled', 'newspack' ),
-			'item_updated'             => __( 'Email updated', 'newspack' ),
+			'add_new_item'             => __( 'Add New Reader Revenue Email', 'newspack' ),
+			'new_item'                 => __( 'New Reader Revenue Email', 'newspack' ),
+			'edit_item'                => __( 'Edit Reader Revenue Email', 'newspack' ),
+			'view_item'                => __( 'View Reader Revenue Email', 'newspack' ),
+			'all_items'                => __( 'All Reader Revenue Emails', 'newspack' ),
+			'search_items'             => __( 'Search Reader Revenue Emails', 'newspack' ),
+			'parent_item_colon'        => __( 'Parent Reader Revenue Emails:', 'newspack' ),
+			'not_found'                => __( 'No Reader Revenue Emails found.', 'newspack' ),
+			'not_found_in_trash'       => __( 'No Reader Revenue Emails found in Trash.', 'newspack' ),
+			'items_list'               => __( 'Reader Revenue Emails list', 'newspack' ),
+			'item_published'           => __( 'Reader Revenue Email published', 'newspack' ),
+			'item_published_privately' => __( 'Reader Revenue Email published privately', 'newspack' ),
+			'item_reverted_to_draft'   => __( 'Reader Revenue Email reverted to draft', 'newspack' ),
+			'item_scheduled'           => __( 'Reader Revenue Email scheduled', 'newspack' ),
+			'item_updated'             => __( 'Reader Revenue Email updated', 'newspack' ),
 		];
 
 		\register_post_type(
@@ -89,6 +101,32 @@ class Reader_Revenue_Emails {
 				'taxonomies'   => [],
 			]
 		);
+	}
+
+	/**
+	 * Load up common JS/CSS for newsletter editor.
+	 */
+	public static function enqueue_block_editor_assets() {
+		if ( get_post_type() !== self::POST_TYPE ) {
+			return;
+		}
+		Newspack::load_common_assets();
+		$handle = 'revenue-email-editor';
+		\wp_register_script(
+			$handle,
+			Newspack::plugin_url() . '/dist/other-scripts/reader-revenue-emails.js',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/reader-revenue-emails.js' ),
+			true
+		);
+		\wp_localize_script(
+			$handle,
+			'newspack_emails',
+			[
+				'current_user_email' => wp_get_current_user()->user_email,
+			]
+		);
+		wp_enqueue_script( $handle );
 	}
 
 	/**
@@ -111,15 +149,21 @@ class Reader_Revenue_Emails {
 	/**
 	 * Send an HTML email.
 	 *
-	 * @param string $type Email type.
-	 * @param string $to Recipient's email addesss.
-	 * @param array  $placeholders Dynamic content substitutions.
+	 * @param string|int $type_or_post_id Email type or email post ID.
+	 * @param string     $to Recipient's email addesss.
+	 * @param array      $placeholders Dynamic content substitutions.
 	 */
-	public static function send_email( $type, $to, $placeholders = [] ) {
+	public static function send_email( $type_or_post_id, $to, $placeholders = [] ) {
 		if ( ! self::has_emails_configured() ) {
 			return;
 		}
-		$email_config = self::get_email_config_by_type( $type );
+		if ( 'string' === gettype( $type_or_post_id ) ) {
+			$email_config = self::get_email_config_by_type( $type_or_post_id );
+		} elseif ( 'integer' === gettype( $type_or_post_id ) ) {
+			$email_config = self::serialize_email( null, $type_or_post_id );
+		} else {
+			return false;
+		}
 		if ( ! $to || false === $email_config ) {
 			return;
 		}
@@ -144,6 +188,7 @@ class Reader_Revenue_Emails {
 			]
 		);
 		remove_filter( 'wp_mail_content_type', $email_content_type );
+		return $email_send_result;
 	}
 
 	/**
@@ -186,7 +231,7 @@ class Reader_Revenue_Emails {
 	 * @param string $type Type of the email.
 	 * @param int    $post_id Email post id.
 	 */
-	private static function serialize_email( $type, $post_id = 0 ) {
+	private static function serialize_email( $type = null, $post_id = 0 ) {
 		if ( ! self::supports_emails() ) {
 			return false;
 		}

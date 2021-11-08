@@ -20,8 +20,24 @@ const wizardsScripts = fs
 const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
 };
-wizardsScripts.forEach( function( wizard ) {
+wizardsScripts.forEach( function ( wizard ) {
 	wizardsScriptFiles[ wizard ] = path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' );
+} );
+
+// Get files for other scripts.
+const otherScripts = fs
+	.readdirSync( path.join( __dirname, 'assets', 'other-scripts' ) )
+	.filter( script =>
+		fs.existsSync( path.join( __dirname, 'assets', 'other-scripts', script, 'index.js' ) )
+	);
+otherScripts.forEach( function ( script ) {
+	wizardsScriptFiles[ `other-scripts/${ script }` ] = path.join(
+		__dirname,
+		'assets',
+		'other-scripts',
+		script,
+		'index.js'
+	);
 } );
 
 const webpackConfig = getBaseWebpackConfig(

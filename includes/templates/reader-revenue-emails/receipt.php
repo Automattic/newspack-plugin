@@ -48,7 +48,7 @@ return array(
 <!-- /wp:columns -->
 
 <!-- wp:paragraph -->
-<p>If you have any questions, you can react us at *CONTACT_EMAIL*.</p>
+<p>If you have any questions, you can reach us at *CONTACT_EMAIL*.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -540,7 +540,7 @@ blockquote p,
 
       <div
          style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-      ><p>If you have any questions, you can react us at *CONTACT_EMAIL*.</p></div>
+      ><p>If you have any questions, you can reach us at *CONTACT_EMAIL*.</p></div>
 
                 </td>
               </tr>

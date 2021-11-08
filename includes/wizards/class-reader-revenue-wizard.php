@@ -279,12 +279,31 @@ class Reader_Revenue_Wizard extends Wizard {
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/newspack-donations-wizard/donation/',
 			[
-				'methods'             => 'GET',
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_donation_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
 
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/emails/test',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_send_test_email' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'recipient' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'post_id'   => [
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -659,6 +678,26 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
+	 * Send a test email.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public static function api_send_test_email( $request ) {
+		$was_sent = Reader_Revenue_Emails::send_email(
+			$request->get_param( 'post_id' ),
+			$request->get_param( 'recipient' )
+		);
+		if ( $was_sent ) {
+			return \rest_ensure_response( [] );
+		} else {
+			return new WP_Error(
+				'newspack_test_email_not_sent',
+				__( 'Test email was not sent.', 'newspack' ),
+			);
+		}
+	}
+
+	/**
 	 * Check whether WooCommerce is installed and active.
 	 *
 	 * @return bool | WP_Error True on success, WP_Error on failure.
@@ -699,7 +738,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack_reader_revenue',
 			[
 				'emails' => Reader_Revenue_Emails::get_emails(),
-			] 
+			]
 		);
 		\wp_enqueue_script( 'newspack-reader-revenue-wizard' );
 	}

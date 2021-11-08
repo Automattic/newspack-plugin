@@ -115,10 +115,13 @@
     "release": "npm run build && npm run semantic-release"
   },
   "dependencies": {
+    "@wordpress/compose": "^5.0.4",
     "@wordpress/date": "^3.13.0",
+    "@wordpress/edit-post": "^5.0.4",
     "@wordpress/html-entities": "^2.10.0",
     "@wordpress/icons": "^4.0.1",
     "@wordpress/keycodes": "^2.17.0",
+    "@wordpress/plugins": "^4.0.4",
     "@wordpress/url": "^2.20.0",
     "date-fns": "^2.14.0",
     "dompurify": "^2.2.4",
