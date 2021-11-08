@@ -14,7 +14,7 @@ import { values } from 'lodash';
 /**
  * Internal dependencies
  */
-import { PluginInstaller, ActionCard, withWizardScreen } from '../../../../components/src';
+import { PluginInstaller, ActionCard, Notice, withWizardScreen } from '../../../../components/src';
 
 const EMAILS = values( newspack_reader_revenue.emails );
 
@@ -23,13 +23,27 @@ const Emails = () => {
 
 	if ( ! pluginsReady ) {
 		return (
-			<PluginInstaller
-				style={ pluginsReady ? { display: 'none' } : {} }
-				plugins={ [ 'newspack-newsletters' ] }
-				onStatus={ res => setPluginsReady( res.complete ) }
-				onInstalled={ () => window.location.reload() }
-				withoutFooterButton={ true }
-			/>
+			<>
+				<Notice isError>
+					{ __(
+						'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',
+						'newspack'
+					) }
+				</Notice>
+				<Notice isError>
+					{ __(
+						'Until this feature is configured, default Stripe receipts will be used.',
+						'newspack'
+					) }
+				</Notice>
+				<PluginInstaller
+					style={ pluginsReady ? { display: 'none' } : {} }
+					plugins={ [ 'newspack-newsletters' ] }
+					onStatus={ res => setPluginsReady( res.complete ) }
+					onInstalled={ () => window.location.reload() }
+					withoutFooterButton={ true }
+				/>
+			</>
 		);
 	}
 
