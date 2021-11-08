@@ -72,12 +72,8 @@ class PluginSettings extends Component {
 			method: 'POST',
 			data: {
 				section: sectionKey,
-				settings: {
-					...this.getSettingsValues( sectionKey ),
-					...( data || {} ),
-				},
+				settings: data ? data : this.getSettingsValues( sectionKey ),
 			},
-			quiet: true,
 		} )
 			.then( settings => {
 				this.setState( { settings, error: null } );
