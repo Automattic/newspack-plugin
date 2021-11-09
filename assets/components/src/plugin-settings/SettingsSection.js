@@ -40,12 +40,15 @@ const getControlType = setting => {
 	}
 };
 
-const SettingsSection = ( { settings, disabled, onChange, onUpdate } ) => {
-	const section = settings.find( setting => ! setting.key || setting.key === 'active' );
-	if ( ! section ) {
-		return null;
-	}
-	const activation = settings.find( setting => setting.key === 'active' );
+const SettingsSection = ( {
+	active,
+	title,
+	description,
+	settings,
+	disabled,
+	onChange,
+	onUpdate,
+} ) => {
 	const fields = settings.filter( setting => setting.key && setting.key !== 'active' );
 	const getControlProps = setting => ( {
 		disabled,
@@ -68,13 +71,13 @@ const SettingsSection = ( { settings, disabled, onChange, onUpdate } ) => {
 		<ActionCard
 			isMedium
 			disabled={ disabled }
-			title={ section.description }
-			description={ section.help }
-			toggleChecked={ activation ? activation.value : null }
-			hasGreyHeader={ !! activation }
-			toggleOnChange={ value => onUpdate( { [ activation.key ]: value } ) }
+			title={ title }
+			description={ description }
+			toggleChecked={ active }
+			hasGreyHeader={ active !== null }
+			toggleOnChange={ value => onUpdate( { active: value } ) }
 		>
-			{ ( ! activation || activation.value ) && (
+			{ ( active || active === null ) && (
 				<Fragment>
 					<Grid columns={ fields.length % 3 === 0 ? 3 : 2 } gutter={ 32 }>
 						{ fields.map( setting => {

@@ -87,6 +87,53 @@ class PluginSettings extends Component {
 	};
 
 	/**
+	 * Get the section setting containing section information.
+	 *
+	 * @param {string} sectionKey The section name.
+	 * @return {Object} The section setting.
+	 */
+	getSectionInfo = sectionKey => {
+		return this.state.settings[ sectionKey ]?.find(
+			setting => ! setting.key || setting.key === 'active'
+		);
+	};
+
+	/**
+	 * Get the section title.
+	 *
+	 * @param {string} sectionKey The section name.
+	 * @return {string} The section title.
+	 */
+	getSectionTitle = sectionKey => {
+		return this.getSectionInfo( sectionKey )?.description;
+	};
+
+	/**
+	 * Get the section description.
+	 *
+	 * @param {string} sectionKey The section name.
+	 * @return {string} The section description.
+	 */
+	getSectionDescription = sectionKey => {
+		return this.getSectionInfo( sectionKey )?.help;
+	};
+
+	/**
+	 * Get whether a section is active.
+	 *
+	 * @param {string} sectionKey The section name.
+	 * @return {?boolean} Whether the section is active or not. Null if the section is not found or does not support activation.
+	 */
+	isSectionActive = sectionKey => {
+		const { settings } = this.state;
+		const activation = settings[ sectionKey ]?.find( setting => setting.key === 'active' );
+		if ( ! activation ) {
+			return null;
+		}
+		return activation.value;
+	};
+
+	/**
 	 * Render.
 	 */
 	render() {
@@ -99,6 +146,9 @@ class PluginSettings extends Component {
 				{ Object.keys( settings ).map( sectionKey => (
 					<SettingsSection
 						key={ sectionKey }
+						title={ this.getSectionTitle( sectionKey ) }
+						description={ this.getSectionDescription( sectionKey ) }
+						active={ this.isSectionActive( sectionKey ) }
 						disabled={ inFlight }
 						settings={ settings[ sectionKey ] }
 						onChange={ this.handleSettingChange( sectionKey ) }
