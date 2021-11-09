@@ -24,7 +24,7 @@ class PluginSettings extends Component {
 	fetchSettings = () => {
 		const { pluginSlug } = this.props;
 		this.setState( { inFlight: true } );
-		apiFetch( { path: `/${ pluginSlug }/v1/settings-list` } )
+		apiFetch( { path: `/${ pluginSlug }/v1/settings` } )
 			.then( settings => {
 				this.setState( { settings, error: null } );
 			} )
