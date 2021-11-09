@@ -18,7 +18,7 @@
 		"url": "https://github.com/Automattic/newspack-plugin.git",
 		"directory": "assets/src/components"
 	},
-	"main": "dist/cjs/index.js",
+	"main": "dist/esm/index.js",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -31,7 +31,7 @@
 		"classnames": "^2.3.1",
 		"lodash": "^4.17.21",
 		"qs": "^6.10.1",
-		"react-router-dom": "^6.0.0"
+		"react-router-dom": "^5.3.0"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "^10.0.0",
