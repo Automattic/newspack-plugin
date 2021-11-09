@@ -44,12 +44,11 @@ const SettingsSection = ( {
 	active,
 	title,
 	description,
-	settings,
+	fields,
 	disabled,
 	onChange,
 	onUpdate,
 } ) => {
-	const fields = settings.filter( setting => setting.key && setting.key !== 'active' );
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,

@@ -134,6 +134,18 @@ class PluginSettings extends Component {
 	};
 
 	/**
+	 * Get list of section field settings.
+	 *
+	 * @param {string} sectionKey The section name.
+	 * @return {?Array} List of section fields.
+	 */
+	getSectionFields = sectionKey => {
+		return this.state.settings[ sectionKey ]?.filter(
+			setting => setting.key && setting.key !== 'active'
+		);
+	};
+
+	/**
 	 * Render.
 	 */
 	render() {
@@ -146,11 +158,11 @@ class PluginSettings extends Component {
 				{ Object.keys( settings ).map( sectionKey => (
 					<SettingsSection
 						key={ sectionKey }
+						disabled={ inFlight }
 						title={ this.getSectionTitle( sectionKey ) }
 						description={ this.getSectionDescription( sectionKey ) }
 						active={ this.isSectionActive( sectionKey ) }
-						disabled={ inFlight }
-						settings={ settings[ sectionKey ] }
+						fields={ this.getSectionFields( sectionKey ) }
 						onChange={ this.handleSettingChange( sectionKey ) }
 						onUpdate={ this.handleSectionUpdate( sectionKey ) }
 					/>
