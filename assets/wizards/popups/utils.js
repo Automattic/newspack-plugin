@@ -51,6 +51,7 @@ const placementMap = {
 	top: __( 'Top Overlay', 'newspack' ),
 	bottom: __( 'Bottom Overlay', 'newspack' ),
 	inline: __( 'Inline', 'newspack' ),
+	archives: __( 'In archive pages', 'newspack' ),
 	above_header: __( 'Above Header', 'newspack' ),
 	manual: __( 'Manual Only', 'newspack' ),
 };
