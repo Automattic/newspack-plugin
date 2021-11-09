@@ -76,7 +76,7 @@ const SettingsSection = ( { settings, disabled, onChange, onUpdate } ) => {
 		>
 			{ ( ! activation || activation.value ) && (
 				<Fragment>
-					<Grid columns={ fields.length === 3 ? 3 : 2 } gutter={ 32 }>
+					<Grid columns={ fields.length % 3 === 0 ? 3 : 2 } gutter={ 32 }>
 						{ fields.map( setting => {
 							const Control = getControlComponent( setting ); // eslint-disable-line @wordpress/no-unused-vars-before-return, no-unused-vars
 							return <Control key={ setting.key } { ...getControlProps( setting ) } />;
