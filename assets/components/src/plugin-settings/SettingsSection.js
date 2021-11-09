@@ -13,6 +13,33 @@ import { __ } from '@wordpress/i18n';
  */
 import { ActionCard, Grid, Button, TextControl, CheckboxControl, SelectControl } from '../';
 
+const getControlComponent = setting => {
+	if ( Array.isArray( setting.options ) && setting.options.length ) {
+		return SelectControl;
+	}
+	switch ( setting.type ) {
+		case 'checkbox':
+		case 'boolean':
+			return CheckboxControl;
+		default:
+			return TextControl;
+	}
+};
+const getControlType = setting => {
+	switch ( setting.type ) {
+		case 'int':
+		case 'integer':
+		case 'float':
+		case 'number':
+			return 'number';
+		case 'string':
+		case 'text':
+			return 'text';
+		default:
+			return null;
+	}
+};
+
 const SettingsSection = ( { settings, disabled, onChange, onUpdate } ) => {
 	const section = settings.find( setting => ! setting.key || setting.key === 'active' );
 	if ( ! section ) {
@@ -20,32 +47,6 @@ const SettingsSection = ( { settings, disabled, onChange, onUpdate } ) => {
 	}
 	const activation = settings.find( setting => setting.key === 'active' );
 	const fields = settings.filter( setting => setting.key && setting.key !== 'active' );
-	const getControlComponent = setting => {
-		if ( Array.isArray( setting.options ) && setting.options.length ) {
-			return SelectControl;
-		}
-		switch ( setting.type ) {
-			case 'checkbox':
-			case 'boolean':
-				return CheckboxControl;
-			default:
-				return TextControl;
-		}
-	};
-	const getControlType = setting => {
-		switch ( setting.type ) {
-			case 'int':
-			case 'integer':
-			case 'float':
-			case 'number':
-				return 'number';
-			case 'string':
-			case 'text':
-				return 'text';
-			default:
-				return null;
-		}
-	};
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
