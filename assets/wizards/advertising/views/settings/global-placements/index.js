@@ -1,6 +1,11 @@
 /**
- * Ad Settings view.
+ * Ads Global Placements Settings.
  */
+
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -131,20 +136,26 @@ class GlobalPlacements extends Component {
 					) }
 				/>
 				{ error && <Notice isError noticeText={ error.message } /> }
-				{ Object.keys( placements ).map( placementKey => {
-					const placement = placements[ placementKey ];
-					return (
-						<ActionCard
-							key={ placementKey }
-							disabled={ inFlight }
-							title={ placement.name }
-							description={ placement.description }
-							actionContent={ placement.enabled && this.adUnitControl( placementKey ) }
-							toggleOnChange={ this.handleToggle( placementKey ) }
-							toggleChecked={ placement.enabled }
-						/>
-					);
-				} ) }
+				<div
+					className={ classnames( {
+						'newspack-wizard-section__is-loading': inFlight && ! Object.keys( placements ).length,
+					} ) }
+				>
+					{ Object.keys( placements ).map( placementKey => {
+						const placement = placements[ placementKey ];
+						return (
+							<ActionCard
+								key={ placementKey }
+								disabled={ inFlight }
+								title={ placement.name }
+								description={ placement.description }
+								actionContent={ placement.enabled && this.adUnitControl( placementKey ) }
+								toggleOnChange={ this.handleToggle( placementKey ) }
+								toggleChecked={ placement.enabled }
+							/>
+						);
+					} ) }
+				</div>
 			</Fragment>
 		);
 	}
