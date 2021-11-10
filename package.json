@@ -140,8 +140,8 @@
 		"react": "^17.0.2",
 		"react-daterange-picker": "^2.0.1",
 		"react-dropzone": "^10.2.1",
+		"react-google-charts": "^3.0.15",
 		"react-rte": "^0.16.1",
-		"recharts": "^1.8.5",
 		"whatwg-fetch": "^3.0.0"
 	},
 	"release": {
