@@ -4,7 +4,7 @@
  * WordPress dependencies
  */
 import { useState } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * External dependencies
