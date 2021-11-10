@@ -547,7 +547,7 @@ class Analytics {
 	/**
 	 * Can we rely on Site Kit's Analytics module?
 	 */
-	private static function can_use_site_kits_analytics() {
+	public static function can_use_site_kits_analytics() {
 		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 		return $sitekit_manager->is_module_active( 'analytics' )
 		// If Google Tag Manager module is active, it supersedes the Analytics module.
