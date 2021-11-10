@@ -21,7 +21,7 @@ const EMAILS = values( newspack_reader_revenue.emails );
 const Emails = () => {
 	const [ pluginsReady, setPluginsReady ] = useState( null );
 
-	if ( ! pluginsReady ) {
+	if ( false === pluginsReady ) {
 		return (
 			<>
 				<Notice isError>
