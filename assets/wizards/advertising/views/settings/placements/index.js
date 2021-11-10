@@ -23,7 +23,7 @@ import './style.scss';
 /**
  * Advertising management screen.
  */
-class GlobalPlacements extends Component {
+class Placements extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
@@ -120,7 +120,7 @@ class GlobalPlacements extends Component {
 		return (
 			<Fragment>
 				<SectionHeader
-					title={ __( 'Pre-defined ad placements', 'newspack' ) }
+					title={ __( 'Ad Placements', 'newspack' ) }
 					description={ () => (
 						<>
 							{ __(
@@ -161,4 +161,4 @@ class GlobalPlacements extends Component {
 	}
 }
 
-export default GlobalPlacements;
+export default Placements;

@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { PluginSettings, withWizardScreen } from '../../../../components/src';
-import GlobalPlacements from './global-placements';
+import Placements from './placements';
 
 /**
  * Advertising management screen.
@@ -22,7 +22,7 @@ class Settings extends Component {
 		const { adUnits } = this.props;
 		return (
 			<Fragment>
-				<GlobalPlacements adUnits={ adUnits } />
+				<Placements adUnits={ adUnits } />
 				<PluginSettings
 					pluginSlug="newspack-ads"
 					title={ __( 'General Settings', 'newspack' ) }
