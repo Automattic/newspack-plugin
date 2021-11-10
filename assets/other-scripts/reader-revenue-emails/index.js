@@ -16,12 +16,17 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import { hooks } from '../../components/src';
+import './style.scss';
 
-const TestEmail = compose( [
+const ReaderRevenueEmailSidebar = compose( [
 	withSelect( select => {
 		const { getEditedPostAttribute, getCurrentPostId } = select( 'core/editor' );
 		const postMeta = getEditedPostAttribute( 'meta' );
-		return { postId: getCurrentPostId(), postMeta };
+		return {
+			title: getEditedPostAttribute( 'title' ),
+			postId: getCurrentPostId(),
+			postMeta,
+		};
 	} ),
 	withDispatch( dispatch => {
 		const { savePost, editPost } = dispatch( 'core/editor' );
@@ -30,9 +35,10 @@ const TestEmail = compose( [
 			savePost,
 			createNotice,
 			updatePostMeta: key => value => editPost( { meta: { [ key ]: value } } ),
+			updatePostTitle: title => editPost( { title } ),
 		};
 	} ),
-] )( ( { postId, savePost, postMeta, updatePostMeta, createNotice } ) => {
+] )( ( { postId, savePost, title, postMeta, updatePostTitle, updatePostMeta, createNotice } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ settings, updateSettings ] = hooks.useObjectState( {
 		testRecipient: newspack_emails.current_user_email,
@@ -40,10 +46,7 @@ const TestEmail = compose( [
 	useEffect( () => {
 		createNotice(
 			'info',
-			__(
-				'This email will be sent to a reader after they contribute to your site. The title will be used the email subject.',
-				'newspack'
-			),
+			__( 'This email will be sent to a reader after they contribute to your site.', 'newspack' ),
 			{
 				isDismissible: false,
 			}
@@ -111,6 +114,11 @@ const TestEmail = compose( [
 				title={ __( 'Settings', 'newspack' ) }
 			>
 				<TextControl
+					label={ __( 'Subject', 'newspack' ) }
+					value={ title }
+					onChange={ updatePostTitle }
+				/>
+				<TextControl
 					label={ __( '"From" name', 'newspack' ) }
 					value={ postMeta.from_name }
 					onChange={ updatePostMeta( 'from_name' ) }
@@ -141,6 +149,6 @@ const TestEmail = compose( [
 } );
 
 registerPlugin( 'newspack-reader-revenue-emails-sidebar', {
-	render: TestEmail,
+	render: ReaderRevenueEmailSidebar,
 	icon: null,
 } );

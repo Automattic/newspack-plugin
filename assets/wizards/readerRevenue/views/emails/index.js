@@ -58,11 +58,7 @@ const Emails = () => {
 						titleLink={ email.edit_link }
 						href={ email.edit_link }
 						description={ email.description }
-						actionText={ sprintf(
-							/* translators: %s: Email subject */
-							__( 'Edit the "%s" email', 'newspack' ),
-							email.subject
-						) }
+						actionText={ __( 'Edit', 'newspack' ) }
 						{ ...( isActive
 							? {}
 							: {

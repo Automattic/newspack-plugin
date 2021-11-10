@@ -134,6 +134,15 @@ class Reader_Revenue_Emails {
 			]
 		);
 		wp_enqueue_script( $handle );
+
+		\wp_register_style(
+			$handle,
+			Newspack::plugin_url() . '/dist/other-scripts/reader-revenue-emails.css',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/reader-revenue-emails.css' ),
+		);
+		\wp_style_add_data( $handle, 'rtl', 'replace' );
+		\wp_enqueue_style( $handle );
 	}
 
 	/**
