@@ -1,7 +1,6 @@
 /**
  * External dependencies.
  */
-import { __ } from '@wordpress/i18n';
 import { Chart as GoogleChart } from 'react-google-charts';
 
 const Chart = ( { data } ) => {
