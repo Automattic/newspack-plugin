@@ -65,11 +65,9 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 		if ( canUseOauth && ! params.access_token ) {
 			setInFlight( true );
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
-				.then( res => {
-					setAuthState( res );
-					setInFlight( false );
-				} )
-				.catch( handleError );
+				.then( setAuthState )
+				.catch( handleError )
+				.finally( () => setInFlight( false ) );
 		}
 	}, [] );
 

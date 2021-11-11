@@ -280,9 +280,13 @@ class Google_OAuth {
 		if ( false === self::is_oauth_configured() ) {
 			return \rest_ensure_response( $response );
 		}
+		$user_info_data = self::authenticated_user_basic_information();
+		if ( is_wp_error( $user_info_data ) ) {
+			return $user_info_data;
+		}
 		return \rest_ensure_response(
 			[
-				'user_basic_info' => self::authenticated_user_basic_information(),
+				'user_basic_info' => $user_info_data,
 			]
 		);
 	}
@@ -338,6 +342,8 @@ class Google_OAuth {
 					'email' => $user_info->email,
 				];
 			}
+		} else {
+			return new \WP_Error( 'newspack_google_oauth', __( 'Invalid Google credentials. Please reconnect.', 'newspack' ) );
 		}
 
 		return false;
