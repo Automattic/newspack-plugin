@@ -20,6 +20,11 @@ class Google_OAuth {
 	const AUTH_DATA_META_NAME            = '_newspack_google_oauth';
 	const CSRF_TOKEN_TRANSIENT_NAME_BASE = '_newspack_google_oauth_csrf_';
 
+	const REQUIRED_SCOPES = [
+		'https://www.googleapis.com/auth/userinfo.email', // User's email address.
+		'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
+	];
+
 	/**
 	 * Constructor.
 	 *
@@ -152,16 +157,10 @@ class Google_OAuth {
 	 * Create params to obtain a URL for a redirection to Google consent page.
 	 */
 	public static function get_google_auth_url_params() {
-		$scopes         = [
-			'https://www.googleapis.com/auth/userinfo.email', // User's email address.
-			'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
-		];
-		$redirect_after = admin_url( 'admin.php?page=newspack-connections-wizard' );
-
 		return [
 			'csrf_token'     => self::generate_csrf_token(),
-			'scope'          => implode( ' ', $scopes ),
-			'redirect_after' => $redirect_after,
+			'scope'          => implode( ' ', self::REQUIRED_SCOPES ),
+			'redirect_after' => admin_url( 'admin.php?page=newspack-connections-wizard' ),
 		];
 	}
 
@@ -329,6 +328,13 @@ class Google_OAuth {
 		);
 
 		if ( 200 === wp_remote_retrieve_response_code( $token_info_response ) ) {
+			$token_info     = json_decode( wp_remote_retrieve_body( $token_info_response ) );
+			$granted_scopes = explode( ' ', $token_info->scope );
+			$missing_scopes = array_diff( self::REQUIRED_SCOPES, $granted_scopes );
+			if ( 0 < count( $missing_scopes ) ) {
+				return new \WP_Error( 'newspack_google_oauth', __( 'Newspack can’t access all necessary data because you haven’t granted all permissions requested during setup. Please reconnect your Google account.', 'newspack' ) );
+			}
+
 			$user_info_response = wp_safe_remote_get(
 				add_query_arg(
 					'access_token',
