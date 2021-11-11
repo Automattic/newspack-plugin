@@ -57,6 +57,8 @@ class Newspack_Unit_Tests_Bootstrap {
 		// Load test function so tests_add_filter() is available.
 		require_once $_tests_dir . '/includes/functions.php';
 
+		require_once $this->plugin_dir . '/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
+
 		// Load Newspack.
 		tests_add_filter( 'muplugins_loaded', array( $this, 'load_newspack' ) );
 
