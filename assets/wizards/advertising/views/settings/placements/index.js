@@ -17,7 +17,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { SectionHeader, Notice, ActionCard, SelectControl } from '../../../../../components/src';
+import {
+	SectionHeader,
+	Notice,
+	Grid,
+	ActionCard,
+	SelectControl,
+} from '../../../../../components/src';
 import './style.scss';
 
 /**
@@ -51,10 +57,10 @@ class Placements extends Component {
 			} );
 	};
 
-	handleToggle = placementKey => value => {
+	handleToggle = placement => value => {
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: `/newspack-ads/v1/placements/${ placementKey }`,
+			path: `/newspack-ads/v1/placements/${ placement }`,
 			method: value ? 'POST' : 'DELETE',
 		} )
 			.then( placements => {
@@ -68,12 +74,12 @@ class Placements extends Component {
 			} );
 	};
 
-	handleAdUnitChange = placementKey => value => {
+	handleAdUnitChange = ( placement, hook ) => value => {
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: `/newspack-ads/v1/placements/${ placementKey }`,
+			path: `/newspack-ads/v1/placements/${ placement }`,
 			method: 'POST',
-			data: { ad_unit: value },
+			data: { ad_unit: value, hook },
 		} )
 			.then( placements => {
 				this.setState( { placements, error: null } );
@@ -91,7 +97,7 @@ class Placements extends Component {
 		return [
 			{
 				label: __( 'Select an ad unit', 'newspack' ),
-				value: null,
+				value: '',
 			},
 			...Object.values( adUnits ).map( adUnit => {
 				return {
@@ -102,17 +108,20 @@ class Placements extends Component {
 		];
 	};
 
-	adUnitControl = placementKey => {
-		const { inFlight, placements } = this.state;
-		const placement = placements[ placementKey ];
-		return (
-			<SelectControl
-				disabled={ inFlight }
-				options={ this.adUnitsForSelect() }
-				value={ placement?.ad_unit }
-				onChange={ this.handleAdUnitChange( placementKey ) }
-			/>
-		);
+	adUnitControl = ( placement, hook = '' ) => {
+		const placement = this.state.placements[ placement ];
+		const controlProps = {
+			disabled: this.state.inFlight,
+			onChange: this.handleAdUnitChange( placement, hook ),
+			value: placement?.ad_unit,
+			options: this.adUnitsForSelect(),
+		};
+		if ( hook ) {
+			const hook = placement.hooks[ hook ];
+			controlProps.value = placement[ `ad_unit_${ hook }` ];
+			controlProps.label = hook.name;
+		}
+		return <SelectControl { ...controlProps } />;
 	};
 
 	render() {
@@ -138,23 +147,60 @@ class Placements extends Component {
 				{ error && <Notice isError noticeText={ error.message } /> }
 				<div
 					className={ classnames( {
+						'newspack-wizard-ads-placements': true,
 						'newspack-wizard-section__is-loading': inFlight && ! Object.keys( placements ).length,
 					} ) }
 				>
-					{ Object.keys( placements ).map( placementKey => {
-						const placement = placements[ placementKey ];
-						return (
-							<ActionCard
-								key={ placementKey }
-								disabled={ inFlight }
-								title={ placement.name }
-								description={ placement.description }
-								actionContent={ placement.enabled && this.adUnitControl( placementKey ) }
-								toggleOnChange={ this.handleToggle( placementKey ) }
-								toggleChecked={ placement.enabled }
-							/>
-						);
-					} ) }
+					{ Object.keys( placements )
+						.filter( key => !! placements[ key ].enabled )
+						.map( key => {
+							const placement = placements[ key ];
+							return (
+								<ActionCard
+									key={ key }
+									isSmall={ ! placement.enabled }
+									disabled={ inFlight }
+									title={ placement.name }
+									description={ placement.description }
+									actionContent={
+										placement.enabled && placement.hook_name && this.adUnitControl( key )
+									}
+									toggleOnChange={ this.handleToggle( key ) }
+									toggleChecked={ placement.enabled }
+								>
+									{ placement.hooks && (
+										<Grid columns={ 2 } gutter={ 32 }>
+											{ Object.keys( placement.hooks ).map( hookKey => {
+												const hook = placement.hooks[ hookKey ];
+												return (
+													<Fragment key={ hook.name }>
+														{ this.adUnitControl( key, hookKey ) }
+													</Fragment>
+												);
+											} ) }
+										</Grid>
+									) }
+								</ActionCard>
+							);
+						} ) }
+					<Grid columns={ 3 } gutter={ 16 }>
+						{ Object.keys( placements )
+							.filter( key => ! placements[ key ].enabled )
+							.map( key => {
+								const placement = placements[ key ];
+								return (
+									<ActionCard
+										key={ key }
+										isSmall={ ! placement.enabled }
+										disabled={ inFlight }
+										title={ placement.name }
+										description={ placement.description }
+										toggleOnChange={ this.handleToggle( key ) }
+										toggleChecked={ placement.enabled }
+									/>
+								);
+							} ) }
+					</Grid>
 				</div>
 			</Fragment>
 		);

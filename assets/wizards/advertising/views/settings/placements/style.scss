@@ -1,3 +1,6 @@
-.newspack-action-card__region-top .newspack-select-control {
-	margin: 0;
+.newspack-wizard-ads-placements {
+	.newspack-action-card__region-children .newspack-select-control,
+	.newspack-action-card__region-top .newspack-select-control {
+		margin: 0;
+	}
 }
