@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack's Mailchimp API handeling.
+ * Newspack's Mailchimp API handling.
  *
  * @package Newspack
  */
