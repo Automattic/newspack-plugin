@@ -34,7 +34,6 @@ class AdUnit extends Component {
 	 *
 	 * @param {string} key Ad Unit field
 	 * @param {any}  value New value for field
-	 *
 	 */
 	handleOnChange( key, value ) {
 		const { adUnit, onChange, service } = this.props;

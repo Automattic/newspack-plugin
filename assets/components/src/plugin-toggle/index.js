@@ -133,21 +133,21 @@ class PluginToggle extends Component {
 		if ( 'configure' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Installing...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Installing…', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
 		if ( 'deactivate' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Deactivating...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Deactivating…', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
 		if ( ! name ) {
 			return (
 				<Fragment>
-					{ __( 'Loading...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Loading…', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
