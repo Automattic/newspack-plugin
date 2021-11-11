@@ -119,9 +119,6 @@
     "lint:scss": "stylelint '**/*.scss' --syntax scss",
     "format:scss": "prettier --write '**/*.scss'",
     "lint:scss:staged": "stylelint --syntax scss",
-	"lint:php": "./vendor/bin/phpcs .",
-	"format:php": "./vendor/bin/phpcbf .",
-	"lint:php:staged": "./vendor/bin/phpcs",
     "release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
     "release": "npm run build && npm run semantic-release"
   },
