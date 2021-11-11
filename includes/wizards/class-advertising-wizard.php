@@ -18,8 +18,7 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  */
 class Advertising_Wizard extends Wizard {
 
-	const NEWSPACK_ADVERTISING_SERVICE_PREFIX   = '_newspack_advertising_service_';
-	const NEWSPACK_ADVERTISING_PLACEMENT_PREFIX = '_newspack_advertising_placement_';
+	const NEWSPACK_ADVERTISING_SERVICE_PREFIX = '_newspack_advertising_service_';
 
 	/**
 	 * The slug of this wizard.
@@ -51,13 +50,6 @@ class Advertising_Wizard extends Wizard {
 			'label' => 'Ad Sense',
 		),
 	);
-
-	/**
-	 * Placements.
-	 *
-	 * @var array
-	 */
-	protected $placements = array( 'global_above_header', 'global_below_header', 'global_above_footer', 'sticky' );
 
 	/**
 	 * Constructor.
@@ -515,14 +507,6 @@ class Advertising_Wizard extends Wizard {
 		if ( \is_wp_error( $ad_units ) ) {
 			return $ad_units;
 		}
-
-		/* If there is only one enabled service, select it for all placements */
-		$enabled_services = array_filter(
-			$services,
-			function ( $service ) {
-				return ! empty( $service['enabled'] ) && $service['enabled'];
-			}
-		);
 
 		return array(
 			'services'    => $services,
