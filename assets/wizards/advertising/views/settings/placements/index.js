@@ -108,17 +108,17 @@ class Placements extends Component {
 		];
 	};
 
-	adUnitControl = ( placement, hook = '' ) => {
-		const placement = this.state.placements[ placement ];
+	adUnitControl = ( placementKey, hookKey = '' ) => {
+		const placement = this.state.placements[ placementKey ];
 		const controlProps = {
 			disabled: this.state.inFlight,
-			onChange: this.handleAdUnitChange( placement, hook ),
+			onChange: this.handleAdUnitChange( placementKey, hookKey ),
 			value: placement?.ad_unit,
 			options: this.adUnitsForSelect(),
 		};
-		if ( hook ) {
-			const hook = placement.hooks[ hook ];
-			controlProps.value = placement[ `ad_unit_${ hook }` ];
+		if ( hookKey ) {
+			const hook = placement.hooks[ hookKey ];
+			controlProps.value = placement[ `ad_unit_${ hookKey }` ];
 			controlProps.label = hook.name;
 		}
 		return <SelectControl { ...controlProps } />;
