@@ -44,6 +44,20 @@ class AdUnit extends Component {
 		onChange( { ...adUnit, ad_service: service, ...adUnitChanges } );
 	}
 
+	getSizeOptions() {
+		const { adUnit } = this.props;
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
+		let sizeOptions = [ ...sizes ];
+		if ( adUnit.fluid ) {
+			sizeOptions = [ ...sizeOptions, 'fluid' ];
+		}
+		return sizeOptions;
+	}
+
+	getNextAvailableSize() {
+		return adUnitSizes.find( size => ! this.getSizeOptions().includes( size ) ) || [];
+	}
+
 	/**
 	 * Render.
 	 */
@@ -54,10 +68,7 @@ class AdUnit extends Component {
 		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		const isInvalidSize = ! fluid && sizes.length === 0;
-		let sizeOptions = [ ...sizes ];
-		if ( fluid ) {
-			sizeOptions = [ ...sizeOptions, 'fluid' ];
-		}
+		const sizeOptions = this.getSizeOptions();
 		return (
 			<>
 				<Card headerActions noBorder>
@@ -98,7 +109,9 @@ class AdUnit extends Component {
 					<Button
 						isSecondary
 						isSmall
-						onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, adUnitSizes[ 0 ] ] ) }
+						onClick={ () =>
+							this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] )
+						}
 					>
 						{ __( 'Add New Size', 'newspack' ) }
 					</Button>
