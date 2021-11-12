@@ -119,7 +119,7 @@ class WebPreview extends Component {
 						{ ! loaded && (
 							<div className="newspack-web-preview__is-waiting">
 								<Waiting isLeft />
-								{ __( 'Loading...', 'newspack' ) }
+								{ __( 'Loading…', 'newspack' ) }
 							</div>
 						) }
 						<iframe

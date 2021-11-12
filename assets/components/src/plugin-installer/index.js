@@ -181,7 +181,7 @@ class PluginInstaller extends Component {
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
 					<div className="newspack-plugin-installer_is-waiting">
 						<Waiting isLeft />
-						{ __( 'Retrieving plugin information...' ) }
+						{ __( 'Retrieving plugin information…' ) }
 					</div>
 				) }
 				{ pluginInfo &&
@@ -193,7 +193,7 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing...' );
+							actionText = __( 'Installing…' );
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
