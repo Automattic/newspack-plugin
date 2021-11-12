@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import marked from 'marked';
+import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
 import 'whatwg-fetch';
