@@ -73,8 +73,8 @@ const SettingsSection = ( {
 			title={ title }
 			description={ description }
 			toggleChecked={ active }
-			hasGreyHeader={ active !== null }
-			toggleOnChange={ value => onUpdate( { active: value } ) }
+			hasGreyHeader={ true }
+			toggleOnChange={ active !== null ? value => onUpdate( { active: value } ) : null }
 		>
 			{ ( active || active === null ) && (
 				<Fragment>
