@@ -23,6 +23,8 @@ class Google_OAuth {
 	const REQUIRED_SCOPES = [
 		'https://www.googleapis.com/auth/userinfo.email', // User's email address.
 		'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
+		'https://www.googleapis.com/auth/analytics',
+		'https://www.googleapis.com/auth/analytics.edit',
 	];
 
 	/**
