@@ -237,6 +237,24 @@ class Analytics {
 					'event_label'    => 'linkedin',
 					'event_category' => 'NTG social',
 				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-reddit',
+					'amp_element'    => 'amp-social-share[type="reddit"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'reddit',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-telegram',
+					'amp_element'    => 'amp-social-share[type="telegram"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'telegram',
+					'event_category' => 'NTG social',
+				],
 			];
 
 			if ( ! is_front_page() && ! is_archive() ) {
@@ -527,6 +545,17 @@ class Analytics {
 	}
 
 	/**
+	 * Can we rely on Site Kit's Analytics module?
+	 */
+	private static function can_use_site_kits_analytics() {
+		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+		return $sitekit_manager->is_module_active( 'analytics' )
+		// If Google Tag Manager module is active, it supersedes the Analytics module.
+		// This means that effectively GTM module being active equals Analytics module being inactive.
+		&& false === $sitekit_manager->is_module_active( 'tagmanager' );
+	}
+
+	/**
 	 * Inject event listeners on non-AMP pages.
 	 */
 	public static function inject_non_amp_events() {
@@ -534,8 +563,7 @@ class Analytics {
 			return;
 		}
 
-		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-		if ( ! $sitekit_manager->is_module_active( 'analytics' ) ) {
+		if ( ! self::can_use_site_kits_analytics() ) {
 			return;
 		}
 
