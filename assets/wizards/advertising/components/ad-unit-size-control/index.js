@@ -52,9 +52,14 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 	);
 	const sizeIndex = isCustom
 		? -1
-		: options.findIndex(
-				size => value === size || ( size[ 0 ] === width && size[ 1 ] === height )
-		  );
+		: options.findIndex( size => {
+				if ( typeof value === 'string' ) {
+					return value === size;
+				} else if ( Array.isArray( size ) ) {
+					return size[ 0 ] === width && size[ 1 ] === height;
+				}
+				return false;
+		  } );
 	return (
 		<>
 			<SelectControl
