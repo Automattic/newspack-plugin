@@ -41,7 +41,6 @@ export const DEFAULT_SIZES = [
  * Ad Unit Size Control.
  */
 const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
-	const [ width, height ] = value;
 	const [ isCustom, setIsCustom ] = useState( false );
 	const options = DEFAULT_SIZES.filter(
 		size =>
@@ -55,8 +54,8 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 		: options.findIndex( size => {
 				if ( typeof value === 'string' ) {
 					return value === size;
-				} else if ( Array.isArray( size ) ) {
-					return size[ 0 ] === width && size[ 1 ] === height;
+				} else if ( Array.isArray( value ) ) {
+					return size[ 0 ] === value[ 0 ] && size[ 1 ] === value[ 1 ];
 				}
 				return false;
 		  } );
@@ -75,7 +74,7 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 				onChange={ index => {
 					const size = options[ index ];
 					setIsCustom( ! size );
-					if ( size ) onChange( size );
+					onChange( size || [] );
 				} }
 				hideLabelFromVision
 			/>
@@ -90,16 +89,16 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 				<>
 					<TextControl
 						label={ __( 'Width', 'newspack' ) }
-						value={ width }
-						onChange={ newWidth => onChange( [ newWidth, height ] ) }
+						value={ value[ 0 ] }
+						onChange={ newWidth => onChange( [ newWidth, value[ 1 ] ] ) }
 						disabled={ ! isCustom && sizeIndex !== -1 }
 						type="number"
 						hideLabelFromVision
 					/>
 					<TextControl
 						label={ __( 'Height', 'newspack' ) }
-						value={ height }
-						onChange={ newHeight => onChange( [ width, newHeight ] ) }
+						value={ value[ 1 ] }
+						onChange={ newHeight => onChange( [ value[ 0 ], newHeight ] ) }
 						disabled={ ! isCustom && sizeIndex !== -1 }
 						type="number"
 						hideLabelFromVision
