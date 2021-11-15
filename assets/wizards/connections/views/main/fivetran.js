@@ -77,12 +77,7 @@ const FivetranConnection = ( { setError } ) => {
 	const hasFetched = connections !== undefined;
 	const canUseFivetran = newspack_connections_data.can_connect_fivetran;
 
-	const handleError = err => {
-		if ( err.message ) {
-			setError( err.message );
-		}
-		setInFlight( false );
-	};
+	const handleError = err => setError( err.message || __( 'Something went wrong.', 'newspack' ) );
 
 	useEffect( () => {
 		if ( ! canUseFivetran ) {
@@ -90,11 +85,9 @@ const FivetranConnection = ( { setError } ) => {
 		}
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
-			.then( res => {
-				setConnections( res );
-				setInFlight( false );
-			} )
-			.catch( handleError );
+			.then( setConnections )
+			.catch( handleError )
+			.finally( () => setInFlight( false ) );
 	}, [ canUseFivetran ] );
 
 	if ( ! canUseFivetran ) {
