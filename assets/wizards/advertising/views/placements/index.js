@@ -23,7 +23,8 @@ import {
 	Notice,
 	SectionHeader,
 	SelectControl,
-} from '../../../../../components/src';
+	withWizardScreen,
+} from '../../../../components/src';
 
 /**
  * Advertising management screen.
@@ -208,4 +209,4 @@ class Placements extends Component {
 	}
 }
 
-export default Placements;
+export default withWizardScreen( Placements );
