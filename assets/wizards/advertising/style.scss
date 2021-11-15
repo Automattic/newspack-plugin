@@ -14,6 +14,14 @@
 		}
 	}
 
+	.newspack-card {
+		&--has-grey-header {
+			.newspack-grid {
+				margin: 32px 0 0 !important;
+			}
+		}
+	}
+
 	.newspack-grid {
 		&__thead,
 		&__tbody {

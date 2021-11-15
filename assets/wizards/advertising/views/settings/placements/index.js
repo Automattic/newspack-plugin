@@ -18,13 +18,12 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
-	SectionHeader,
-	Notice,
-	Grid,
 	ActionCard,
+	Grid,
+	Notice,
+	SectionHeader,
 	SelectControl,
 } from '../../../../../components/src';
-import './style.scss';
 
 /**
  * Advertising management screen.
@@ -96,7 +95,7 @@ class Placements extends Component {
 		const { adUnits } = this.props;
 		return [
 			{
-				label: __( 'Select an ad unit', 'newspack' ),
+				label: __( 'Select an Ad Unit', 'newspack' ),
 				value: '',
 			},
 			...Object.values( adUnits ).map( adUnit => {
@@ -115,11 +114,12 @@ class Placements extends Component {
 			onChange: this.handleAdUnitChange( placementKey, hookKey ),
 			value: placement?.ad_unit,
 			options: this.adUnitsForSelect(),
+			label: __( 'Ad Unit', 'newspack' ),
 		};
 		if ( hookKey ) {
 			const hook = placement.hooks[ hookKey ];
 			controlProps.value = placement[ `ad_unit_${ hookKey }` ];
-			controlProps.label = hook.name;
+			controlProps.label = __( 'Ad Unit', 'newspack' ) + ' - ' + hook.name;
 		}
 		return <SelectControl { ...controlProps } />;
 	};
@@ -158,49 +158,50 @@ class Placements extends Component {
 							return (
 								<ActionCard
 									key={ key }
-									isSmall={ ! placement.enabled }
+									isMedium
 									disabled={ inFlight }
 									title={ placement.name }
-									description={ placement.description }
-									actionContent={
-										placement.enabled && placement.hook_name && this.adUnitControl( key )
-									}
 									toggleOnChange={ this.handleToggle( key ) }
 									toggleChecked={ placement.enabled }
+									hasGreyHeader={ placement.enabled }
 								>
-									{ placement.hooks && (
-										<Grid columns={ 2 } gutter={ 32 }>
-											{ Object.keys( placement.hooks ).map( hookKey => {
-												const hook = placement.hooks[ hookKey ];
-												return (
-													<Fragment key={ hook.name }>
-														{ this.adUnitControl( key, hookKey ) }
-													</Fragment>
-												);
-											} ) }
-										</Grid>
-									) }
+									<Grid columns={ 2 } gutter={ 32 }>
+										{ placement.enabled && placement.hook_name && (
+											<>
+												{ this.adUnitControl( key ) }
+												<div />
+											</>
+										) }
+										{ placement.hooks && (
+											<>
+												{ Object.keys( placement.hooks ).map( hookKey => {
+													const hook = placement.hooks[ hookKey ];
+													return (
+														<Fragment key={ hook.name }>
+															{ this.adUnitControl( key, hookKey ) }
+														</Fragment>
+													);
+												} ) }
+											</>
+										) }
+									</Grid>
 								</ActionCard>
 							);
 						} ) }
-					<Grid columns={ 3 } gutter={ 16 }>
-						{ Object.keys( placements )
-							.filter( key => ! placements[ key ].enabled )
-							.map( key => {
-								const placement = placements[ key ];
-								return (
-									<ActionCard
-										key={ key }
-										isSmall={ ! placement.enabled }
-										disabled={ inFlight }
-										title={ placement.name }
-										description={ placement.description }
-										toggleOnChange={ this.handleToggle( key ) }
-										toggleChecked={ placement.enabled }
-									/>
-								);
-							} ) }
-					</Grid>
+					{ Object.keys( placements )
+						.filter( key => ! placements[ key ].enabled )
+						.map( key => {
+							const placement = placements[ key ];
+							return (
+								<ActionCard
+									key={ key }
+									isSmall
+									disabled={ inFlight }
+									title={ placement.name }
+									toggleOnChange={ this.handleToggle( key ) }
+								/>
+							);
+						} ) }
 				</div>
 			</Fragment>
 		);
