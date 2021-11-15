@@ -108,7 +108,7 @@ const AdUnits = ( {
 					</div>
 				</>
 			) }
-			{ ! isLegacy && ! gamConnectionErrorMessage && (
+			{ ! isLegacy && networkCode && (
 				<div>
 					<strong>{ __( 'Connected GAM network code:', 'newspack' ) } </strong>
 					<code>{ networkCode }</code>
