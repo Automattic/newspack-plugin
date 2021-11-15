@@ -24,7 +24,7 @@
     "@wordpress/base-styles": "^4.0.0",
     "@wordpress/blocks": "^11.1.2",
     "@wordpress/browserslist-config": "^4.1.0",
-    "@wordpress/components": "^19.0.1",
+    "@wordpress/components": "^19.0.2",
     "@wordpress/data": "^6.1.0",
     "@wordpress/element": "^4.0.1",
     "@wordpress/eslint-plugin": "^9.2.0",
