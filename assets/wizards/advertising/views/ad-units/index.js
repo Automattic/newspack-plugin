@@ -36,8 +36,8 @@ const AdUnits = ( {
 	serviceData,
 	fetchAdvertisingData,
 } ) => {
-	const gamConnectionErrorMessage = serviceData?.status?.error
-		? `${ __( 'Google Ad Manager connection issue', 'newspack' ) }: ${ serviceData.status.error }`
+	const gamErrorMessage = serviceData?.status?.error
+		? `${ __( 'Google Ad Manager Error:', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
@@ -69,7 +69,7 @@ const AdUnits = ( {
 					isWarning
 				/>
 			) }
-			{ gamConnectionErrorMessage && <Notice noticeText={ gamConnectionErrorMessage } isError /> }
+			{ gamErrorMessage && <Notice noticeText={ gamErrorMessage } isError /> }
 			{ serviceData.created_targeting_keys?.length > 0 && (
 				<Notice
 					noticeText={ [
