@@ -2,6 +2,8 @@
  * Grid
  */
 
+@import '~@wordpress/base-styles/colors';
+
 .newspack-grid {
 	display: grid;
 	grid-gap: 32px;
@@ -120,5 +122,27 @@
 		> *:last-child {
 			margin-bottom: 0 !important;
 		}
+	}
+
+	// Table-like
+	&__thead {
+		background: $gray-100;
+		border-bottom: 1px solid $gray-300;
+		border-top: 1px solid $gray-300;
+		color: $gray-900;
+
+		> *:not( .screen-reader-text ) {
+			padding: 8px;
+		}
+	}
+
+	&__tbody {
+		border-bottom: 1px solid $gray-300;
+		padding: 8px 0;
+	}
+
+	&__thead + &__tbody,
+	&__tbody + &__tbody {
+		margin-top: -32px;
 	}
 }
