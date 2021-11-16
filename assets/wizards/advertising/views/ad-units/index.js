@@ -37,7 +37,7 @@ const AdUnits = ( {
 	fetchAdvertisingData,
 } ) => {
 	const gamErrorMessage = serviceData?.status?.error
-		? `${ __( 'Google Ad Manager Error:', 'newspack' ) }: ${ serviceData.status.error }`
+		? `${ __( 'Google Ad Manager Error', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
 	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
