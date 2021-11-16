@@ -62,8 +62,8 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 					<>
 						{ __( 'Configure Mailchimp and enter your API key', 'newspack' ) }
 						<br />
-						<ExternalLink href="https://us1.admin.mailchimp.com/account/api/">
-							{ __( 'Generate Mailchimp API key', 'newspack' ) }
+						<ExternalLink href="https://mailchimp.com/help/about-api-keys/">
+							{ __( 'About API keys', 'newspack' ) }
 						</ExternalLink>
 					</>
 				) }
