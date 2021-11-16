@@ -71,7 +71,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 			<Grid gutter={ 32 } columns={ 2 }>
 				<TextControl
 					label={ __( 'Application ID', 'newspack' ) }
-					{ ...getSettingProps( 'newspack_newsletters_mailchimp_api_key' ) }
+					{ ...getSettingProps( 'newspack_mailchimp_api_key' ) }
 				/>
 			</Grid>
 		</>
