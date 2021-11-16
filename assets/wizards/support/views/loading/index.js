@@ -18,7 +18,7 @@ class Loading extends Component {
 		return (
 			<div className="newspack_support_loading">
 				<Waiting isLeft />
-				{ __( 'Loading...', 'newspack' ) }
+				{ __( 'Loading…', 'newspack' ) }
 			</div>
 		);
 	}

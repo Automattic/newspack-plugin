@@ -30,6 +30,8 @@ import {
 	iconOverlayCenter,
 	iconOverlayTop,
 	iconPreview,
+	postList,
+	blockTable,
 } from './icons';
 import './style.scss';
 
@@ -187,6 +189,12 @@ const SegmentGroup = props => {
 											icon={ iconInline }
 										/>
 										<ButtonCard
+											href={ addNewURL( 'archives', campaignId, id ) }
+											title={ __( 'In Archive Pages', 'newspack' ) }
+											desc={ __( 'Embedded once or many times in archive pages', 'newspack' ) }
+											icon={ postList }
+										/>
+										<ButtonCard
 											href={ addNewURL( 'above-header', campaignId, id ) }
 											title={ __( 'Above Header', 'newspack' ) }
 											desc={ __( 'Embedded at the very top of the page', 'newspack' ) }
@@ -197,6 +205,15 @@ const SegmentGroup = props => {
 											title={ __( 'Custom Placement', 'newspack' ) }
 											desc={ __( 'Only appears when placed in content', 'newspack' ) }
 											icon={ layout }
+										/>
+										<ButtonCard
+											href={ addNewURL( 'manual', campaignId, id ) }
+											title={ __( 'Manual Only', 'newspack' ) }
+											desc={ __(
+												'Only appears where Single Prompt block is inserted',
+												'newspack'
+											) }
+											icon={ blockTable }
 										/>
 									</Grid>
 								</Modal>

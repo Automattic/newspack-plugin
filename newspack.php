@@ -4,7 +4,7 @@
  * Description: An advanced open-source publishing and revenue-generating platform for news organizations.
  * Version: 1.0.0-alpha.21
  * Author: Automattic
- * Author URI: https://newspack.blog/
+ * Author URI: https://newspack.pub/
  * License: GPL2
  * Text Domain: newspack
  * Domain Path: /languages/

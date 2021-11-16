@@ -34,7 +34,6 @@ class AdUnit extends Component {
 	 *
 	 * @param {string} key Ad Unit field
 	 * @param {any}  value New value for field
-	 *
 	 */
 	handleOnChange( key, value ) {
 		const { adUnit, onChange, service } = this.props;
@@ -45,9 +44,9 @@ class AdUnit extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnit, onSave, service, serviceData = {} } = this.props;
+		const { adUnit, onSave, service } = this.props;
 		const { id, code, fluid = false, name = '' } = adUnit;
-		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
+		const isLegacy = adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		const isInvalidSize = ! fluid && sizes.length === 0;

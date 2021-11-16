@@ -44,7 +44,6 @@ const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
 		entry: wizardsScriptFiles,
-		'output-path': path.join( __dirname, 'dist' ),
 	}
 );
 
