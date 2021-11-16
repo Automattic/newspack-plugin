@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	withWizardScreen,
+	ButtonCard,
 	Card,
 	ColorPicker,
 	TextControl,
@@ -21,7 +22,6 @@ import {
 	SectionHeader,
 	ImageUpload,
 	hooks,
-	Button,
 	Grid,
 	WebPreview,
 } from '../../../../components/src';
@@ -129,14 +129,14 @@ const Main = ( {
 		<Card noBorder className="newspack-design">
 			<SectionHeader
 				title={ __( 'Theme', 'newspack' ) }
-				description={ __( 'Activate a theme you like to get started', 'newspack' ) }
+				description={ __( 'Select a theme you like to get started', 'newspack' ) }
 			/>
 			<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
 			{ isPartOfSetup && homepagePatterns.length > 0 ? (
 				<>
 					<SectionHeader
 						title={ __( 'Homepage', 'newspack' ) }
-						description={ __( 'Pick a homepage layout', 'newspack' ) }
+						description={ __( 'Choose a homepage layout', 'newspack' ) }
 						className="newspack-design__header"
 					/>
 					<Grid columns={ 6 } gutter={ 16 }>
@@ -155,7 +155,7 @@ const Main = ( {
 			) : null }
 			<SectionHeader
 				title={ __( 'Colors', 'newspack' ) }
-				description={ __( 'Choose your primary and secondary colors', 'newspack' ) }
+				description={ __( 'Pick your primary and secondary colors', 'newspack' ) }
 			/>
 			<Grid gutter={ 32 }>
 				{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
@@ -359,9 +359,13 @@ const Main = ( {
 					<WebPreview
 						url="/?newspack_design_preview"
 						renderButton={ ( { showPreview } ) => (
-							<Button onClick={ () => saveSettings().then( showPreview ) } isSecondary>
-								{ __( 'Preview Site', 'newspack' ) }
-							</Button>
+							<ButtonCard
+								onClick={ () => saveSettings().then( showPreview ) }
+								title={ __( 'Preview', 'newspack' ) }
+								desc={ __( 'See how your site looks like', 'newspack' ) }
+								chevron
+								isSmall
+							/>
 						) }
 					/>
 				</div>
