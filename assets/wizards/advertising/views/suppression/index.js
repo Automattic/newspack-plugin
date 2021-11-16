@@ -7,30 +7,28 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
-	Settings,
 	CategoryAutocomplete,
+	Grid,
+	SectionHeader,
 	ToggleControl,
-	withWizardScreen,
 	Waiting,
+	withWizardScreen,
 } from '../../../../components/src';
-
-const { SettingsCard } = Settings;
 
 const Suppression = ( { config, onChange } ) => {
 	if ( config === false ) {
 		return <Waiting />;
 	}
 	return (
-		<>
-			<SettingsCard
-				title={ __( 'Tag archive pages', 'newspack' ) }
-				description={ __(
-					'Suppress ads on automatically generated pages displaying a list of posts with a tag.',
-					'newspack'
-				) }
-				columns={ 1 }
-				gutter={ 16 }
-			>
+		<Grid columns={ 1 } gutter={ 64 }>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<SectionHeader
+					title={ __( 'Tag Archive Pages', 'newspack' ) }
+					description={ __(
+						'Suppress ads on automatically generated pages displaying a list of posts with a tag.',
+						'newspack'
+					) }
+				/>
 				<CategoryAutocomplete
 					disabled={ config.tag_archive_pages === true }
 					value={ config.specific_tag_archive_pages.map( v => parseInt( v ) ) }
@@ -51,16 +49,15 @@ const Suppression = ( { config, onChange } ) => {
 					} }
 					label={ __( 'All tag archive pages', 'newspack' ) }
 				/>
-			</SettingsCard>
-			<SettingsCard
-				title={ __( 'Category archive pages', 'newspack' ) }
-				description={ __(
-					'Suppress ads on automatically generated pages displaying a list of posts of a category.',
-					'newspack'
-				) }
-				columns={ 1 }
-				gutter={ 16 }
-			>
+			</Grid>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<SectionHeader
+					title={ __( 'Category Archive Pages', 'newspack' ) }
+					description={ __(
+						'Suppress ads on automatically generated pages displaying a list of posts of a category.',
+						'newspack'
+					) }
+				/>
 				<CategoryAutocomplete
 					disabled={ config.category_archive_pages === true }
 					value={ config.specific_category_archive_pages.map( v => parseInt( v ) ) }
@@ -80,16 +77,15 @@ const Suppression = ( { config, onChange } ) => {
 					} }
 					label={ __( 'All category archive pages', 'newspack' ) }
 				/>
-			</SettingsCard>
-			<SettingsCard
-				title={ __( 'Author archive pages', 'newspack' ) }
-				description={ __(
-					'Suppress ads on automatically generated pages displaying a list of posts by an author.',
-					'newspack'
-				) }
-				columns={ 1 }
-				gutter={ 16 }
-			>
+			</Grid>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<SectionHeader
+					title={ __( 'Author Archive Pages', 'newspack' ) }
+					description={ __(
+						'Suppress ads on automatically generated pages displaying a list of posts by an author.',
+						'newspack'
+					) }
+				/>
 				<ToggleControl
 					disabled={ config === false }
 					checked={ config?.author_archive_pages }
@@ -98,8 +94,8 @@ const Suppression = ( { config, onChange } ) => {
 					} }
 					label={ __( 'Suppress ads on author archive pages', 'newspack' ) }
 				/>
-			</SettingsCard>
-		</>
+			</Grid>
+		</Grid>
 	);
 };
 
