@@ -89,6 +89,7 @@ const Mailchimp = ( { setError } ) => {
 			return __( 'Loading…', 'newspack' );
 		}
 		if ( isConnected ) {
+			// Translators: user connection status message.
 			return sprintf( __( 'Connected as %s', 'newspack' ), authState.username );
 		}
 		return __( 'Not connected', 'newspack' );
