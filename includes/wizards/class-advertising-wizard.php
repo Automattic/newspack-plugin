@@ -266,6 +266,9 @@ class Advertising_Wizard extends Wizard {
 					'sizes'      => [
 						'sanitize_callback' => [ $this, 'sanitize_sizes' ],
 					],
+					'fluid'      => [
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
 					'ad_service' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
@@ -578,7 +581,7 @@ class Advertising_Wizard extends Wizard {
 			$message = $error->getMessage();
 			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
-		
+
 		if ( \is_wp_error( $ad_units ) ) {
 			return $ad_units;
 		}
@@ -809,8 +812,8 @@ class Advertising_Wizard extends Wizard {
 			return $should_show_ads;
 		}
 
-		$services = self::get_services();
-		if ( ! $services['google_ad_manager']['enabled'] ) {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		if ( ! $configuration_manager->is_service_enabled( 'google_ad_manager' ) ) {
 			return false;
 		}
 

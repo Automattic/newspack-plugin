@@ -54,7 +54,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function update_gam_credentials( $credentials ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::update_gam_credentials( $credentials ) :
+			\Newspack_Ads_GAM::update_gam_credentials( $credentials ) :
 			$this->unconfigured_error();
 	}
 
@@ -65,7 +65,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function remove_gam_credentials() {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::remove_gam_credentials() :
+			\Newspack_Ads_GAM::remove_gam_credentials() :
 			$this->unconfigured_error();
 	}
 

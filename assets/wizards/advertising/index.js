@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Placements, Services, Suppression } from './views';
+import { AdUnit, AdUnits, Settings, Services, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -56,174 +56,58 @@ class AdvertisingWizard extends Component {
 		this.fetchAdvertisingData();
 	};
 
-	/**
-	 * Retrieve advertising data
-	 */
-	fetchAdvertisingData = ( quiet = false ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( { path: '/newspack/v1/wizard/advertising', quiet } )
-			.then( advertisingData => {
-				return new Promise( resolve => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} );
-			} )
-			.catch( error => {
-				setError( error );
-			} );
-	};
+	updateWithAPI = requestConfig =>
+		this.props
+			.wizardApiFetch( requestConfig )
+			.then(
+				response =>
+					new Promise( resolve => {
+						this.setState(
+							{
+								advertisingData: {
+									...response,
+									adUnits: response.ad_units.reduce( ( result, value ) => {
+										result[ value.id ] = value;
+										return result;
+									}, {} ),
+								},
+							},
+							() => {
+								this.props.setError();
+								resolve( this.state );
+							}
+						);
+					} )
+			)
+			.catch( this.props.setError );
 
-	/**
-	 * Toggle advertising service.
-	 */
-	toggleService( service, enabled ) {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
+	fetchAdvertisingData = ( quiet = false ) =>
+		this.updateWithAPI( { path: '/newspack/v1/wizard/advertising', quiet } );
+
+	toggleService = ( service, enabled ) =>
+		this.updateWithAPI( {
 			path: '/newspack/v1/wizard/advertising/service/' + service,
 			method: enabled ? 'POST' : 'DELETE',
 			quiet: true,
-		} )
-			.then( advertisingData => {
-				return new Promise( resolve => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} );
-			} )
-			.catch( error => {
-				setError( error );
-			} );
-	}
+		} );
 
-	/**
-	 * Toggle placement.
-	 */
-	togglePlacement( placement, enabled ) {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
+	togglePlacement = ( placement, enabled ) =>
+		this.updateWithAPI( {
 			path: '/newspack/v1/wizard/advertising/placement/' + placement,
 			method: enabled ? 'POST' : 'DELETE',
 			quiet: true,
-		} )
-			.then( advertisingData => {
-				return new Promise( resolve => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} );
-			} )
-			.catch( error => {
-				setError( error );
-			} );
-	}
-
-	/**
-	 * Save placement.
-	 */
-	savePlacement = ( placement, data ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/placement/' + placement,
-				method: 'post',
-				data: {
-					ad_unit: data.adUnit,
-					service: data.service,
-				},
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
 		} );
-	};
 
-	/**
-	 * Update GAM credentials.
-	 */
-	updateGAMCredentials = credentials => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/credentials',
-				method: 'post',
-				data: { credentials },
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
+	savePlacement = ( placement, data ) =>
+		this.updateWithAPI( {
+			path: '/newspack/v1/wizard/advertising/placement/' + placement,
+			method: 'post',
+			data: {
+				ad_unit: data.adUnit,
+				service: data.service,
+			},
+			quiet: true,
 		} );
-	};
-
-	/**
-	 * Remove GAM credentials.
-	 */
-	removeGAMCredentials = () => {
-		const { setError, wizardApiFetch } = this.props;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/credentials',
-				method: 'delete',
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
-		} );
-	};
 
 	/**
 	 * Update a single ad unit.
@@ -234,97 +118,37 @@ class AdvertisingWizard extends Component {
 		this.setState( { advertisingData } );
 	};
 
-	/**
-	 * Save the fields to an ad unit.
-	 */
-	saveAdUnit( id ) {
-		const { setError, wizardApiFetch } = this.props;
-		const { adUnits } = this.state.advertisingData;
-		return new Promise( ( resolve, reject ) => {
-			wizardApiFetch( {
-				path: '/newspack/v1/wizard/advertising/ad_unit/' + ( id || 0 ),
-				method: 'post',
-				data: adUnits[ id ],
-				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-							resolve( this.state );
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error ).then( () => reject( error ) );
-				} );
+	saveAdUnit = id =>
+		this.updateWithAPI( {
+			path: '/newspack/v1/wizard/advertising/ad_unit/' + ( id || 0 ),
+			method: 'post',
+			data: this.state.advertisingData.adUnits[ id ],
+			quiet: true,
 		} );
-	}
 
 	/**
 	 * Delete an ad unit.
 	 *
 	 * @param {number} id Ad Unit ID.
 	 */
-	deleteAdUnit( id ) {
-		const { setError, wizardApiFetch } = this.props;
+	deleteAdUnit = id => {
 		// eslint-disable-next-line no-alert
 		if ( confirm( __( 'Are you sure you want to archive this ad unit?', 'newspack' ) ) ) {
-			wizardApiFetch( {
+			return this.updateWithAPI( {
 				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
 				method: 'delete',
 				quiet: true,
-			} )
-				.then( advertisingData => {
-					this.setState(
-						{
-							advertisingData: this.prepareData( advertisingData ),
-						},
-						() => {
-							setError();
-						}
-					);
-				} )
-				.catch( error => {
-					setError( error );
-				} );
+			} );
 		}
-	}
+	};
 
-	/**
-	 * Update ad suppression settings.
-	 */
-	updateAdSuppression( suppressionConfig ) {
-		const { setError, wizardApiFetch } = this.props;
-		wizardApiFetch( {
+	updateAdSuppression = suppressionConfig =>
+		this.updateWithAPI( {
 			path: '/newspack/v1/wizard/advertising/suppression',
 			method: 'post',
 			data: { config: suppressionConfig },
 			quiet: true,
-		} )
-			.then( advertisingData => {
-				this.setState(
-					{
-						advertisingData: this.prepareData( advertisingData ),
-					},
-					setError
-				);
-			} )
-			.catch( setError );
-	}
-
-	prepareData = data => {
-		return {
-			...data,
-			adUnits: data.ad_units.reduce( ( result, value ) => {
-				result[ value.id ] = value;
-				return result;
-			}, {} ),
-		};
-	};
+		} );
 
 	/**
 	 * Render
@@ -341,7 +165,7 @@ class AdvertisingWizard extends Component {
 			},
 			{
 				label: __( 'Global Settings', 'newspack' ),
-				path: '/ad-placements',
+				path: '/settings',
 			},
 			{
 				label: __( 'Suppression', 'newspack' ),
@@ -367,11 +191,12 @@ class AdvertisingWizard extends Component {
 							) }
 						/>
 						<Route
-							path="/ad-placements"
+							path="/settings"
 							render={ () => (
-								<Placements
+								<Settings
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
+									wizardApiFetch={ wizardApiFetch }
 									placements={ placements }
 									adUnits={ adUnits }
 									services={ services }
@@ -399,9 +224,8 @@ class AdvertisingWizard extends Component {
 									secondaryButtonText={ __( 'Back to advertising options', 'newspack' ) }
 									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
-									updateGAMCredentials={ this.updateGAMCredentials }
-									removeGAMCredentials={ this.removeGAMCredentials }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
+									updateWithAPI={ this.updateWithAPI }
 									updateAdUnit={ adUnit => {
 										this.onAdUnitChange( adUnit );
 										this.saveAdUnit( adUnit.id );
@@ -424,6 +248,7 @@ class AdvertisingWizard extends Component {
 											name: '',
 											code: '',
 											sizes: [ adUnitSizes[ 0 ] ],
+											fluid: false,
 										}
 									}
 									service={ 'google_ad_manager' }

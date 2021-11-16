@@ -14,7 +14,7 @@ use Newspack\Google_Services_Connection;
  */
 class Newspack_Test_OAuth extends WP_UnitTestCase {
 	public function setUp() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		$user_id = $this->factory->user->create( [ 'role' => 'testsistrator' ] );
 		wp_set_current_user( $user_id );
 	}
 
@@ -50,7 +50,7 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 		self::assertEquals(
 			$consent_page_params,
 			[
-				'scope'          => 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/analytics.edit https://www.googleapis.com/auth/dfp',
+				'scope'          => 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/dfp https://www.googleapis.com/auth/analytics https://www.googleapis.com/auth/analytics.edit',
 				'redirect_after' => 'http://example.org/wp-admin/admin.php?page=newspack-connections-wizard',
 				'csrf_token'     => $csrf_token,
 			],
@@ -68,14 +68,23 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			'expires_at'    => time() + 3600,
 		];
 		Google_OAuth::api_google_auth_save_details( $proxy_response );
-		$auth_data = Google_OAuth::get_google_auth_saved_data();
+
 		self::assertEquals(
-			$auth_data,
+			false,
+			Google_OAuth::get_google_auth_saved_data(),
+			'The auth data is not readable for just anyone.'
+		);
+
+		$administrator_user = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $administrator_user );
+
+		self::assertEquals(
 			[
 				'access_token'  => $proxy_response['access_token'],
 				'refresh_token' => $proxy_response['refresh_token'],
 				'expires_at'    => $proxy_response['expires_at'],
 			],
+			Google_OAuth::get_google_auth_saved_data(),
 			'The saved credentials are as expected.'
 		);
 
