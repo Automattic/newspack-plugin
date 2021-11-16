@@ -61,6 +61,11 @@
 		grid-row-gap: 32px;
 	}
 
+	// Gutter 64
+	&__gutter-64 {
+		grid-gap: 64px;
+	}
+
 	// Columns 6
 	&__columns-6 {
 		grid-template-columns: repeat( 2, 1fr );
