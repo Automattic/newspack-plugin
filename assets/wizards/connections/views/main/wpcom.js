@@ -1,3 +1,5 @@
+/* global newspack_connections_data */
+
 /**
  * WordPress dependencies.
  */
@@ -17,11 +19,18 @@ const WPCOMAuth = ( {
 	disconnectURL,
 	authURL,
 } ) => {
+	const canUseWPCOM = newspack_connections_data.can_connect_wpcom;
+
 	useEffect( () => {
 		if ( ! isInFlight ) {
 			onStatusChange( shouldAuthenticate === false );
 		}
 	}, [ shouldAuthenticate, isInFlight ] );
+
+	if ( ! canUseWPCOM ) {
+		return null;
+	}
+
 	return (
 		<ActionCard
 			title={ __( 'WordPress.com', 'newspack' ) }
