@@ -99,6 +99,7 @@ class PluginInstaller extends Component {
 		return apiFetch( params )
 			.then( response => {
 				const { pluginInfo } = this.state;
+				this.props.onInstalled( slug );
 				this.updatePluginInfo( {
 					...pluginInfo,
 					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_ACTIVE },
@@ -254,6 +255,7 @@ class PluginInstaller extends Component {
 
 PluginInstaller.defaultProps = {
 	onStatus: () => {},
+	onInstalled: () => {},
 };
 
 export default PluginInstaller;
