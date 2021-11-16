@@ -162,6 +162,7 @@ class Placements extends Component {
 									isMedium
 									disabled={ inFlight }
 									title={ placement.name }
+									description={ placement.description }
 									toggleOnChange={ this.handleToggle( key ) }
 									toggleChecked={ placement.enabled }
 									hasGreyHeader={ placement.enabled }
