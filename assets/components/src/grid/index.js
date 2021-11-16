@@ -37,7 +37,7 @@ class Grid extends Component {
 
 Grid.defaultProps = {
 	columns: 2,
-	gutter: 64,
+	gutter: 32,
 	rowGap: null,
 };
 
