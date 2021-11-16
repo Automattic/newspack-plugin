@@ -12,17 +12,15 @@ import { memoize } from 'lodash';
 import { format, parse } from 'date-fns';
 
 /**
- * Array of overlay placements.
- */
-const overlayPlacements = [ 'top', 'bottom', 'center' ];
-
-/**
  * Check whether the given popup is an overlay.
  *
  * @param {Object} popup Popup object to check.
  * @return {boolean} True if the popup is an overlay, otherwise false.
  */
-export const isOverlay = popup => overlayPlacements.indexOf( popup.options.placement ) >= 0;
+export const isOverlay = popup => {
+	const overlayPlacements = window.newspack_popups_wizard_data?.overlay_placements || [];
+	return -1 < overlayPlacements.indexOf( popup.options.placement );
+};
 
 /**
  * Check whether the given popup is above-header.
@@ -47,9 +45,15 @@ export const isCustomPlacement = popup => {
 export const isInline = prompt => ! isOverlay( prompt );
 
 const placementMap = {
-	center: __( 'Center Overlay', 'newspack' ),
 	top: __( 'Top Overlay', 'newspack' ),
+	top_left: __( 'Top Left Overlay', 'newspack' ),
+	top_right: __( 'Top Right Overlay', 'newspack' ),
+	center: __( 'Center Overlay', 'newspack' ),
+	center_left: __( 'Center Left Overlay', 'newspack' ),
+	center_right: __( 'Center Right Overlay', 'newspack' ),
 	bottom: __( 'Bottom Overlay', 'newspack' ),
+	bottom_left: __( 'Bottom Left Overlay', 'newspack' ),
+	bottom_right: __( 'Bottom Right Overlay', 'newspack' ),
 	inline: __( 'Inline', 'newspack' ),
 	archives: __( 'In archive pages', 'newspack' ),
 	above_header: __( 'Above Header', 'newspack' ),
@@ -66,6 +70,7 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 
 export const placementsForPopups = prompt => {
 	const customPlacements = window.newspack_popups_wizard_data?.custom_placements;
+	const overlayPlacements = window.newspack_popups_wizard_data?.overlay_placements;
 	const options = Object.keys( placementMap )
 		.filter( key =>
 			isOverlay( prompt )
@@ -96,6 +101,10 @@ export const frequenciesForPopup = popup => {
 	return Object.keys( frequencyMap )
 		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+};
+
+export const overlaySizesForPopups = () => {
+	return window.newspack_popups_wizard_data?.overlay_sizes;
 };
 
 export const getCardClassName = ( { status } ) => {
