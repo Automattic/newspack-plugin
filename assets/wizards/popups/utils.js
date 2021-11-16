@@ -12,17 +12,15 @@ import { memoize } from 'lodash';
 import { format, parse } from 'date-fns';
 
 /**
- * Array of overlay placements.
- */
-const overlayPlacements = [ 'top', 'bottom', 'center' ];
-
-/**
  * Check whether the given popup is an overlay.
  *
  * @param {Object} popup Popup object to check.
  * @return {boolean} True if the popup is an overlay, otherwise false.
  */
-export const isOverlay = popup => overlayPlacements.indexOf( popup.options.placement ) >= 0;
+export const isOverlay = popup => {
+	const overlayPlacements = window.newspack_popups_wizard_data?.overlay_placements || [];
+	return -1 < overlayPlacements.indexOf( popup.options.placement );
+};
 
 /**
  * Check whether the given popup is above-header.
@@ -47,9 +45,15 @@ export const isCustomPlacement = popup => {
 export const isInline = prompt => ! isOverlay( prompt );
 
 const placementMap = {
-	center: __( 'Center Overlay', 'newspack' ),
 	top: __( 'Top Overlay', 'newspack' ),
+	top_left: __( 'Top Left Overlay', 'newspack' ),
+	top_right: __( 'Top Right Overlay', 'newspack' ),
+	center: __( 'Center Overlay', 'newspack' ),
+	center_left: __( 'Center Left Overlay', 'newspack' ),
+	center_right: __( 'Center Right Overlay', 'newspack' ),
 	bottom: __( 'Bottom Overlay', 'newspack' ),
+	bottom_left: __( 'Bottom Left Overlay', 'newspack' ),
+	bottom_right: __( 'Bottom Right Overlay', 'newspack' ),
 	inline: __( 'Inline', 'newspack' ),
 	archives: __( 'In archive pages', 'newspack' ),
 	above_header: __( 'Above Header', 'newspack' ),
@@ -66,6 +70,7 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 
 export const placementsForPopups = prompt => {
 	const customPlacements = window.newspack_popups_wizard_data?.custom_placements;
+	const overlayPlacements = window.newspack_popups_wizard_data?.overlay_placements;
 	const options = Object.keys( placementMap )
 		.filter( key =>
 			isOverlay( prompt )
@@ -96,6 +101,10 @@ export const frequenciesForPopup = popup => {
 	return Object.keys( frequencyMap )
 		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+};
+
+export const overlaySizesForPopups = () => {
+	return window.newspack_popups_wizard_data?.overlay_sizes;
 };
 
 export const getCardClassName = ( { status } ) => {
@@ -179,7 +188,8 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	if ( 0 < min_posts || 0 < max_posts ) {
 		descriptionMessages.push(
 			sprintf(
-				__( 'Articles read (past 30 days): %s %s', 'newspack' ),
+				// Translators: %1: The minimum number of articles. %2: The maximum number of articles.
+				__( 'Articles read (past 30 days): %1$s %2$s', 'newspack' ),
 				0 < min_posts ? __( 'min ', 'newspack' ) + min_posts : '',
 				0 < max_posts ? __( 'max ', 'newspack' ) + max_posts : ''
 			)
@@ -188,7 +198,8 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	if ( 0 < min_session_posts || 0 < max_session_posts ) {
 		descriptionMessages.push(
 			sprintf(
-				__( 'Articles read (session): %s %s', 'newspack' ),
+				// Translators: %1: The minimum number of articles. %2: The maximum number of articles.
+				__( 'Articles read (session): %1$s %2$s', 'newspack' ),
 				0 < min_session_posts ? __( 'min ', 'newspack' ) + min_session_posts : '',
 				0 < max_session_posts ? __( 'max ', 'newspack' ) + max_session_posts : ''
 			)
@@ -222,7 +233,8 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		if ( 0 < categories.length ) {
 			descriptionMessages.push(
 				sprintf(
-					__( 'Favorite %s: %s', 'newspack' ),
+					// Translators: %1: 'categories' or 'category' depending on number of categories. %2: a list of favorite categories.
+					__( 'Favorite %1$s: %2$s', 'newspack' ),
 					categories.length > 1 ? __( 'categories', 'newspack' ) : __( 'category', 'newspack' ),
 					categories.filter( cat => !! cat ).join( ', ' )
 				)
@@ -251,19 +263,23 @@ const sharesSegments = ( segmentsA, segmentsB ) => {
 export const buildWarning = ( prompt, promptCategories ) => {
 	if ( isOverlay( prompt ) || isAboveHeader( prompt ) ) {
 		return sprintf(
-			__( 'If multiple%s%s share the same segment%s, only the most recent one will be displayed.' ),
+			// Translators: %1: 'uncetegorized' if no categories. %2: 'above-header prompts' if above header, 'overlays' otherwise. %3: 'and category filtering' if categories.
+			__(
+				'If multiple%1$s %2$s share the same segment%3$s, only the most recent one will be displayed.'
+			),
 			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
 			isAboveHeader( prompt )
-				? __( ' above-header prompts', 'newspack' )
-				: __( ' overlays', 'newspack' ),
+				? __( 'above-header prompts', 'newspack' )
+				: __( 'overlays', 'newspack' ),
 			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
 		);
 	}
 
 	if ( isCustomPlacement( prompt ) ) {
 		return sprintf(
+			// Translators: %1: 'uncetegorized' if no categories. %2: 'and category filtering' if categories.
 			__(
-				'If multiple%s prompts in the same custom placement share the same segment%s, only the most recent one will be displayed.'
+				'If multiple%1$s prompts in the same custom placement share the same segment%2$s, only the most recent one will be displayed.'
 			),
 			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
 			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
@@ -310,6 +326,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 				<>
 					<h4 className="newspack-notice__heading">
 						{ sprintf(
+							// Translators: %s: 'Conflicts' or 'Conflict' depending on number of conflicts.
 							__( '%s detected:', 'newspack' ),
 							1 < conflictingPrompts.length
 								? __( 'Conflicts', 'newspack' )
