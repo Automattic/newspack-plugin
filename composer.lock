@@ -739,16 +739,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.87.0",
+            "version": "v7.101.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "9392f03cb8d8803bf8273378ce42d5cbbf1e24fc"
+                "reference": "392d387c61a72a4629a92fa93a4bc44318089224"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/9392f03cb8d8803bf8273378ce42d5cbbf1e24fc",
-                "reference": "9392f03cb8d8803bf8273378ce42d5cbbf1e24fc",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/392d387c61a72a4629a92fa93a4bc44318089224",
+                "reference": "392d387c61a72a4629a92fa93a4bc44318089224",
                 "shasum": ""
             },
             "require": {
@@ -794,9 +794,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.87.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.101.0"
             },
-            "time": "2021-06-30T18:22:47+00:00"
+            "time": "2021-11-16T16:07:54+00:00"
         }
     ],
     "packages-dev": [
