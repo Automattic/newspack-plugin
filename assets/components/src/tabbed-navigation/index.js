@@ -22,7 +22,7 @@ const TabbedNavigation = ( { items, className, disableUpcoming } ) => {
 					<li key={ index }>
 						<NavLink
 							to={ item.path }
-							exact={ item.exact }
+							exact
 							activeClassName={ 'selected' }
 							className={ classnames( {
 								disabled: disableUpcoming && index > currentIndex,

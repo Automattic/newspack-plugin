@@ -40,9 +40,12 @@ export { default as ToggleControl } from './toggle-control';
 export { default as ToggleGroup } from './toggle-group';
 export { default as Waiting } from './waiting';
 export { default as WebPreview } from './web-preview';
+export { default as Wizard } from './wizard';
 export { default as withWizard } from './with-wizard';
 export { default as withWizardScreen } from './with-wizard-screen';
 
 export { default as Router } from './proxied-imports/router';
 export { default as hooks } from './hooks';
 export { default as utils } from './utils';
+
+import './style.scss';
