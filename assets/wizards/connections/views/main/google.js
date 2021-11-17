@@ -54,11 +54,12 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
-	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 	const canUseOauth = newspack_connections_data.can_connect_google;
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
+
+	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
 	useEffect( () => {
 		if ( isConnected && ! userBasicInfo.has_refresh_token ) {
@@ -84,17 +85,16 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 		if ( canUseOauth && ! params.access_token ) {
 			setInFlight( true );
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
-				.then( res => {
-					setAuthState( res );
-					setInFlight( false );
-				} )
-				.catch( handleError );
+				.then( setAuthState )
+				.catch( handleError )
+				.finally( () => setInFlight( false ) );
 		}
 	}, [] );
 
 	if ( ! canUseOauth ) {
 		return null;
 	}
+
 
 	// Redirect user to Google auth screen.
 	const goToAuthPage = () => {
@@ -125,6 +125,7 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 			return __( 'Loading…', 'newspack' );
 		}
 		if ( isConnected ) {
+			// Translators: user connection status message.
 			return sprintf( __( 'Connected as %s', 'newspack' ), userBasicInfo.email );
 		}
 		if ( ! canBeConnected ) {

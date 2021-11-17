@@ -29,4 +29,10 @@
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}
+
+	// Within a Grid
+
+	.newspack-grid & .newspack-form-token-field {
+		margin: 0;
+	}
 }

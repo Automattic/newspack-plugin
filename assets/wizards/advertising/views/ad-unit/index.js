@@ -14,7 +14,6 @@ import { trash } from '@wordpress/icons';
  */
 import {
 	Button,
-	CheckboxControl,
 	Card,
 	Grid,
 	Notice,
@@ -32,25 +31,44 @@ class AdUnit extends Component {
 	/**
 	 * Handle an update to an ad unit field.
 	 *
-	 * @param {string} key Ad Unit field
-	 * @param {any}  value New value for field
+	 * @param {string|Object} adUnitChangesOrKey Ad Unit field name or object containing changes.
+	 * @param {any}           value              New value for field.
 	 *
 	 */
-	handleOnChange( key, value ) {
+	handleOnChange( adUnitChangesOrKey, value ) {
 		const { adUnit, onChange, service } = this.props;
-		onChange( { ...adUnit, ad_service: service, [ key ]: value } );
+		const adUnitChanges =
+			typeof adUnitChangesOrKey === 'string'
+				? { [ adUnitChangesOrKey ]: value }
+				: adUnitChangesOrKey;
+		onChange( { ...adUnit, ad_service: service, ...adUnitChanges } );
+	}
+
+	getSizeOptions() {
+		const { adUnit } = this.props;
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
+		let sizeOptions = [ ...sizes ];
+		if ( adUnit.fluid ) {
+			sizeOptions = [ ...sizeOptions, 'fluid' ];
+		}
+		return sizeOptions;
+	}
+
+	getNextAvailableSize() {
+		return adUnitSizes.find( size => ! this.getSizeOptions().includes( size ) ) || [];
 	}
 
 	/**
 	 * Render.
 	 */
 	render() {
-		const { adUnit, onSave, service, serviceData = {} } = this.props;
+		const { adUnit, onSave, service } = this.props;
 		const { id, code, fluid = false, name = '' } = adUnit;
-		const isLegacy = false === serviceData.status?.can_connect || adUnit.is_legacy;
+		const isLegacy = adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		const isInvalidSize = ! fluid && sizes.length === 0;
+		const sizeOptions = this.getSizeOptions();
 		return (
 			<>
 				<Card headerActions noBorder>
@@ -84,14 +102,16 @@ class AdUnit extends Component {
 
 				<Card headerActions noBorder>
 					<h2>
-						{ sizes.length > 1
+						{ sizeOptions.length > 1
 							? __( 'Ad Unit Sizes', 'newspack' )
 							: __( 'Ad Unit Size', 'newspack' ) }
 					</h2>
 					<Button
 						isSecondary
 						isSmall
-						onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, adUnitSizes[ 0 ] ] ) }
+						onClick={ () =>
+							this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] )
+						}
 					>
 						{ __( 'Add New Size', 'newspack' ) }
 					</Button>
@@ -114,38 +134,44 @@ class AdUnit extends Component {
 					<span className="screen-reader-text">{ __( 'Action', 'newspack' ) }</span>
 				</Grid>
 
-				{ sizes.map( ( size, index ) => (
+				{ sizeOptions.map( ( size, index ) => (
 					<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__tbody" key={ index }>
 						<AdUnitSizeControl
+							selectedOptions={ sizeOptions }
 							value={ size }
 							onChange={ value => {
-								sizes[ index ] = value;
-								this.handleOnChange( 'sizes', sizes );
+								const adUnitChanges = {};
+								const prevValue = sizeOptions[ index ];
+								if ( prevValue === 'fluid' ) {
+									adUnitChanges.fluid = false;
+								}
+								if ( value === 'fluid' ) {
+									sizes.splice( index, 1 );
+									adUnitChanges.fluid = true;
+								} else {
+									sizes[ index ] = value;
+								}
+								adUnitChanges.sizes = sizes;
+								this.handleOnChange( adUnitChanges );
 							} }
 						/>
 						<Button
 							isQuaternary
 							onClick={ () => {
-								sizes.splice( index, 1 );
-								this.handleOnChange( 'sizes', sizes );
+								if ( size === 'fluid' ) {
+									this.handleOnChange( 'fluid', false );
+								} else {
+									sizes.splice( index, 1 );
+									this.handleOnChange( 'sizes', sizes );
+								}
 							} }
 							icon={ trash }
-							disabled={ sizes.length <= 1 }
+							disabled={ sizeOptions.length <= 1 }
 							label={ __( 'Delete', 'newspack' ) }
 							showTooltip={ true }
 						/>
 					</Grid>
 				) ) }
-
-				<CheckboxControl
-					label={ __( 'Fluid size for native ads', 'newspack' ) }
-					onChange={ value => this.handleOnChange( 'fluid', value ) }
-					checked={ fluid }
-					help={ __(
-						'Fluid is a native ad size that allows more flexibility when styling your ad. Google Ad Manager automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
-						'newspack'
-					) }
-				/>
 
 				<div className="newspack-buttons-card">
 					<Button

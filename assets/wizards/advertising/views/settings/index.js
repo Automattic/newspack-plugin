@@ -1,5 +1,5 @@
 /**
- * Ad Services view.
+ * Ad Settings view.
  */
 
 /**
@@ -11,13 +11,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, SectionHeader, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	SectionHeader,
+	PluginSettings,
+	withWizardScreen,
+} from '../../../../components/src';
 import AdPicker from './ad-picker';
 
 /**
  * Advertising management screen.
  */
-class Placements extends Component {
+class Settings extends Component {
 	adUnitsForSelect = adUnits => {
 		return [
 			{
@@ -144,9 +149,14 @@ class Placements extends Component {
 						/>
 					) : null }
 				</ActionCard>
+				<PluginSettings
+					pluginSlug="newspack-ads"
+					title={ __( 'General Settings', 'newspack' ) }
+					description={ __( 'Configure display and advanced settings for your ads.', 'newspack' ) }
+				/>
 			</Fragment>
 		);
 	}
 }
 
-export default withWizardScreen( Placements );
+export default withWizardScreen( Settings );

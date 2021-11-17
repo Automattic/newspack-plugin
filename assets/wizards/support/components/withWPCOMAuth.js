@@ -81,7 +81,7 @@ const withWPCOMAuth = ( WrappedComponent, renderer = false ) => {
 					{ this.state.isInFlight ? (
 						<div className="newspack_support_loading">
 							<Waiting isLeft />
-							{ __( 'Loading...', 'newspack' ) }
+							{ __( 'Loading…', 'newspack' ) }
 						</div>
 					) : (
 						this.renderContent()

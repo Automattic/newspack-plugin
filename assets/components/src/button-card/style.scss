@@ -17,8 +17,20 @@
 	transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out,
 		box-shadow 125ms ease-in-out;
 
-	&:active,
 	&:focus,
+	&.is-pressed {
+		background: white;
+		border-color: $primary-500;
+		box-shadow: inset 0 0 0 2px $primary-500 !important;
+		outline: none !important;
+		position: relative;
+	}
+
+	&.is-pressed:focus-visible {
+		box-shadow: inset 0 0 0 2px $primary-500, 0 0 0 1px white, 0 0 0 2px $primary-500 !important;
+	}
+
+	&:active,
 	&:hover {
 		background-color: $gray-100;
 		color: $primary-600;
@@ -28,13 +40,6 @@
 		.desc {
 			color: inherit;
 		}
-	}
-
-	&:focus {
-		border-color: $primary-500;
-		box-shadow: inset 0 0 0 2px $primary-500 !important;
-		outline: none !important;
-		position: relative;
 	}
 
 	.title,
@@ -84,7 +89,6 @@
 		grid-template-columns: auto 24px;
 
 		&:active,
-		&:focus,
 		&:hover {
 			svg {
 				fill: currentColor;

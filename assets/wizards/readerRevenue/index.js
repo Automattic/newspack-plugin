@@ -21,7 +21,15 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { Notice, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Donation, LocationSetup, NRHSettings, Platform, StripeSetup, Salesforce } from './views';
+import {
+	Donation,
+	LocationSetup,
+	NRHSettings,
+	Platform,
+	StripeSetup,
+	Emails,
+	Salesforce,
+} from './views';
 import { NEWSPACK, NRH, STRIPE } from './constants';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -213,6 +221,10 @@ class ReaderRevenueWizard extends Component {
 					label: __( 'Stripe Settings', 'newspack' ),
 					path: '/stripe-setup',
 				},
+				{
+					label: __( 'Emails', 'newspack' ),
+					path: '/emails',
+				},
 				platformField,
 			];
 		}
@@ -317,6 +329,7 @@ class ReaderRevenueWizard extends Component {
 								/>
 							) }
 						/>
+						<Route path="/emails" render={ () => <Emails { ...sharedProps } /> } />
 						<Route
 							path="/donations"
 							render={ () => (
