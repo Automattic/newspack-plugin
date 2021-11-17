@@ -8,7 +8,14 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Handoff, hooks, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	Handoff,
+	SectionHeader,
+	hooks,
+	withWizardScreen,
+} from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
 const INTEGRATIONS = {
@@ -59,9 +66,7 @@ const intergationConnectButton = integration => {
 		);
 	}
 	if ( ! integration.error?.code === 'unavailable_site_id' ) {
-		return (
-			<span className="i o-80">{ __( 'Connect Jetpack in order to configure Mailchimp.' ) }</span>
-		);
+		return <span className="i">{ __( 'Connect Jetpack in order to configure Mailchimp.' ) }</span>;
 	}
 };
 
@@ -85,6 +90,10 @@ const Integrations = ( { setError, updateRoute } ) => {
 
 	return (
 		<>
+			<SectionHeader
+				title={ __( 'Third-Party Plugins' ) }
+				description={ __( 'Connect and configure the core plugins', 'newspack' ) }
+			/>
 			{ integrationsArray.map( integration => {
 				const isInactive = integration.status === 'inactive';
 				const isLoading = ! integration.status;
@@ -95,6 +104,7 @@ const Integrations = ( { setError, updateRoute } ) => {
 						description={ integration.description }
 						actionText={ isInactive ? intergationConnectButton( integration ) : null }
 						checkbox={ isInactive || isLoading ? 'unchecked' : 'checked' }
+						badge={ integration.isOptional ? null : __( 'Required', 'newspack' ) }
 						isMedium
 					/>
 				);

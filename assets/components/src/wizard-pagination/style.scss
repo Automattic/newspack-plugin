@@ -6,8 +6,15 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-wizard-pagination {
+	box-shadow: 0 -1px 0 inset $gray-300;
+
+	@media screen and ( min-width: 600px ) {
+		align-items: center;
+		display: flex;
+		justify-content: space-between;
+	}
+
 	ul {
-		box-shadow: 0 -1px 0 inset $gray-300;
 		display: flex;
 		flex-wrap: wrap;
 		font-size: 14px;
@@ -69,6 +76,16 @@
 			&:hover {
 				color: inherit;
 			}
+		}
+	}
+
+	.newspack-progress-bar {
+		display: none;
+
+		@media screen and ( min-width: 600px ) {
+			display: block;
+			flex: 0 0 64px;
+			margin: 0 16px;
 		}
 	}
 }
