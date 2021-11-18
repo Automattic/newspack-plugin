@@ -5,6 +5,11 @@
  */
 
 /**
+ * External dependencies.
+ */
+import { startCase } from 'lodash';
+
+/**
  * WordPress dependencies.
  */
 import { useState } from '@wordpress/element';
@@ -29,50 +34,77 @@ export const DEFAULT_SIZES = [
 	[ 320, 50 ],
 	[ 320, 100 ],
 	[ 120, 60 ],
+	'fluid',
 ];
 
 /**
  * Ad Unit Size Control.
  */
-const AdUnitSizeControl = ( { value, onChange } ) => {
-	const [ width, height ] = value;
+const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 	const [ isCustom, setIsCustom ] = useState( false );
-	const sizeIndex = DEFAULT_SIZES.findIndex( size => size[ 0 ] === width && size[ 1 ] === height );
+	const options = DEFAULT_SIZES.filter(
+		size =>
+			JSON.stringify( value ) === JSON.stringify( size ) ||
+			! selectedOptions.find(
+				selectedOption => JSON.stringify( selectedOption ) === JSON.stringify( size )
+			)
+	);
+	const sizeIndex = isCustom
+		? -1
+		: options.findIndex( size => {
+				if ( typeof value === 'string' ) {
+					return value === size;
+				} else if ( Array.isArray( value ) ) {
+					return size[ 0 ] === value[ 0 ] && size[ 1 ] === value[ 1 ];
+				}
+				return false;
+		  } );
 	return (
 		<>
 			<SelectControl
 				label={ __( 'Size', 'newspack' ) }
 				value={ sizeIndex }
 				options={ [
-					...DEFAULT_SIZES.map( ( size, index ) => ( {
-						label: `${ size[ 0 ] } x ${ size[ 1 ] }`,
+					...options.map( ( size, index ) => ( {
+						label: Array.isArray( size ) ? `${ size[ 0 ] } x ${ size[ 1 ] }` : startCase( size ),
 						value: index,
 					} ) ),
 					{ label: __( 'Custom', 'newspack' ), value: -1 },
 				] }
 				onChange={ index => {
-					const size = DEFAULT_SIZES[ index ];
+					const size = options[ index ];
 					setIsCustom( ! size );
-					if ( size ) onChange( size );
+					onChange( size || [] );
 				} }
 				hideLabelFromVision
 			/>
-			<TextControl
-				label={ __( 'Width', 'newspack' ) }
-				value={ width }
-				onChange={ newWidth => onChange( [ newWidth, height ] ) }
-				disabled={ ! isCustom && sizeIndex !== -1 }
-				type="number"
-				hideLabelFromVision
-			/>
-			<TextControl
-				label={ __( 'Height', 'newspack' ) }
-				value={ height }
-				onChange={ newHeight => onChange( [ width, newHeight ] ) }
-				disabled={ ! isCustom && sizeIndex !== -1 }
-				type="number"
-				hideLabelFromVision
-			/>
+			{ value === 'fluid' && ! isCustom ? (
+				<div className="newspack-advertising-wizard__ad-unit-fluid">
+					{ __(
+						'Fluid is a native ad size that allows more flexibility when styling your ad. It automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
+						'newspack'
+					) }
+				</div>
+			) : (
+				<>
+					<TextControl
+						label={ __( 'Width', 'newspack' ) }
+						value={ value[ 0 ] }
+						onChange={ newWidth => onChange( [ newWidth, value[ 1 ] ] ) }
+						disabled={ ! isCustom && sizeIndex !== -1 }
+						type="number"
+						hideLabelFromVision
+					/>
+					<TextControl
+						label={ __( 'Height', 'newspack' ) }
+						value={ value[ 1 ] }
+						onChange={ newHeight => onChange( [ value[ 0 ], newHeight ] ) }
+						disabled={ ! isCustom && sizeIndex !== -1 }
+						type="number"
+						hideLabelFromVision
+					/>
+				</>
+			) }
 		</>
 	);
 };

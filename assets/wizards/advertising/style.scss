@@ -5,13 +5,12 @@
 		margin: 24px 0 0;
 	}
 
-	&__ad-unit-size {
-		margin: 64px 0 16px;
-
-		h2,
-		.newspack-grid {
-			margin: 0;
-		}
+	&__ad-unit-fluid {
+		align-items: center;
+		display: flex;
+		font-size: 12px;
+		grid-column: 2 / 4;
+		line-height: 16px;
 	}
 
 	.newspack-grid {

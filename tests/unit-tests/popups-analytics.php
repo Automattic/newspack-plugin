@@ -52,17 +52,18 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 			[
 				'report'         =>
 				[
+					[ 'Date', 'Views' ],
 					[
-						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-3 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-2 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => $yesterday->format( 'Y-m-d' ),
-						'value' => 4,
+						$yesterday->format( 'M j' ),
+						4,
 					],
 				],
 				'report_by_id'   => [],
@@ -131,17 +132,18 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 			[
 				'report'         =>
 				[
+					[ 'Date', 'Views' ],
 					[
-						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-3 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-2 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => $yesterday->format( 'Y-m-d' ),
-						'value' => 4,
+						$yesterday->format( 'M j' ),
+						4,
 					],
 				],
 				'report_by_id'   => [],
@@ -194,17 +196,18 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 		];
 
 		$expected_report             = [
+			[ 'Date', 'Views' ],
 			[
-				'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
-				'value' => 0,
+				( new \DateTime() )->modify( '-3 days' )->format( 'M j' ),
+				0,
 			],
 			[
-				'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
-				'value' => 0,
+				( new \DateTime() )->modify( '-2 days' )->format( 'M j' ),
+				0,
 			],
 			[
-				'date'  => $yesterday->format( 'Y-m-d' ),
-				'value' => 4,
+				$yesterday->format( 'M j' ),
+				4,
 			],
 		];
 		$expected_report_actions     = [

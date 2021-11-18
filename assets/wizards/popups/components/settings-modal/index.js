@@ -17,7 +17,12 @@ import {
 	Settings,
 	hooks,
 } from '../../../../components/src';
-import { frequenciesForPopup, isOverlay, placementsForPopups } from '../../utils';
+import {
+	frequenciesForPopup,
+	isOverlay,
+	placementsForPopups,
+	overlaySizesForPopups,
+} from '../../utils';
 
 const { SettingsCard } = Settings;
 
@@ -58,7 +63,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 				<SettingsCard
 					title={ __( 'Settings', 'newspack' ) }
 					description={ __( 'When and how should the prompt be displayed', 'newspack' ) }
-					columns={ 2 }
+					columns={ isOverlay( prompt ) ? 3 : 2 }
 					className="newspack-settings__settings"
 				>
 					<SelectControl
@@ -79,6 +84,17 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 						options={ placementsForPopups( prompt ) }
 						value={ promptConfig.options.placement }
 					/>
+					{ isOverlay( prompt ) && (
+						<SelectControl
+							label={ __( 'Size' ) }
+							disabled={ disabled }
+							onChange={ value => {
+								setPromptConfig( { options: { overlay_size: value } } );
+							} }
+							options={ overlaySizesForPopups( prompt ) }
+							value={ promptConfig.options.overlay_size }
+						/>
+					) }
 				</SettingsCard>
 
 				<SettingsCard

@@ -333,7 +333,7 @@ class ComponentsDemo extends Component {
 					<ActionCard
 						title={ __( 'Example Three', 'newspack' ) }
 						description={ __( 'Waiting/in-progress state, no action button.', 'newspack' ) }
-						actionText={ __( 'Installing...', 'newspack' ) }
+						actionText={ __( 'Installing…', 'newspack' ) }
 						isWaiting
 					/>
 					<ActionCard
