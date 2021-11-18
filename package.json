@@ -20,8 +20,6 @@
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^12.1.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
-    "@wordpress/api-fetch": "^5.2.4",
-    "@wordpress/base-styles": "^4.0.0",
     "@wordpress/browserslist-config": "^4.1.0",
     "@wordpress/eslint-plugin": "^9.2.0",
     "@wordpress/stylelint-config": "^19.1.0",
@@ -116,6 +114,8 @@
     "release": "npm run build && npm run semantic-release"
   },
   "dependencies": {
+    "@wordpress/api-fetch": "^5.2.6",
+    "@wordpress/base-styles": "^4.0.3",
     "@wordpress/components": "^19.0.3",
     "@wordpress/compose": "^5.0.6",
     "@wordpress/data": "^6.1.4",
