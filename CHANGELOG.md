@@ -1,3 +1,10 @@
+# [1.67.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.67.0-alpha.1...v1.67.0-alpha.2) (2021-11-18)
+
+
+### Bug Fixes
+
+* add moment-range to newspack-components dependencies ([#1277](https://github.com/Automattic/newspack-plugin/issues/1277)) ([a8524dc](https://github.com/Automattic/newspack-plugin/commit/a8524dc7371c0f7a164a7d061b8d45ec8503e607))
+
 # [1.67.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.66.0...v1.67.0-alpha.1) (2021-11-18)
 
 
