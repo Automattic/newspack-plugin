@@ -1,3 +1,16 @@
+# [1.67.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.66.0...v1.67.0-alpha.1) (2021-11-18)
+
+
+### Features
+
+* **ads:** update placements ui ([#1225](https://github.com/Automattic/newspack-plugin/issues/1225)) ([3adbe06](https://github.com/Automattic/newspack-plugin/commit/3adbe063383e9f0ed181ef903ea48827ce184064))
+* reduce section-header margin when followed by another component ([#1268](https://github.com/Automattic/newspack-plugin/issues/1268)) ([b297c06](https://github.com/Automattic/newspack-plugin/commit/b297c0688b9a0fa1ba56cf6745361069938cb298))
+
+
+### Reverts
+
+* "chore(deps-dev): bump @typescript-eslint/eslint-plugin" ([2e078ea](https://github.com/Automattic/newspack-plugin/commit/2e078ea3cc487d0b9afdafe5d5946ccc2e7af898))
+
 # [1.66.0](https://github.com/Automattic/newspack-plugin/compare/v1.65.0...v1.66.0) (2021-11-18)
 
 
