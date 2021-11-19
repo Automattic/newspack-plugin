@@ -43,7 +43,7 @@ class Starter_Content_Generated extends Starter_Content_Provider {
 	/**
 	 * Create the Xth starter post.
 	 *
-	 * @param int $post_index Number of post to create (1st, second, etc.).
+	 * @param int $post_index Index of the post to create.
 	 * @return int Post ID of existing post at that index or newly created post at that index.
 	 */
 	public static function create_post( $post_index ) {

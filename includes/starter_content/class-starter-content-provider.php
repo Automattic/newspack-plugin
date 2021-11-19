@@ -107,7 +107,7 @@ abstract class Starter_Content_Provider {
 	/**
 	 * Get post ID of Xth starter post.
 	 *
-	 * @param int $post_index Number of starter post to get (1st, second, etc.).
+	 * @param int $post_index Index of a starter post to get.
 	 * @return bool|int False if not found. Post ID if found.
 	 */
 	protected static function get_starter_post( $post_index ) {

@@ -108,7 +108,7 @@ class Starter_Content_WordPress extends Starter_Content_Provider {
 	/**
 	 * Create the Xth starter post.
 	 *
-	 * @param int $post_index Number of post to create (1st, second, etc.).
+	 * @param int $post_index Index of post to create.
 	 * @return int ID of existing post if already created or ID of created post.
 	 */
 	public static function create_post( $post_index ) {
