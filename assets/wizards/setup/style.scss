@@ -2,20 +2,6 @@
  * Setup
  */
 
-#newspack-setup-wizard {
-	.newspack-wizard__header {
-		h1 {
-			display: none;
-		}
-
-		p {
-			font-size: 21px;
-			font-weight: bold;
-			line-height: 32px;
-		}
-	}
-}
-
 .newspack-action-card.newspack--error-actioncard {
 	.newspack-action-card__secondary_button {
 		font-size: 12px;
