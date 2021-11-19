@@ -112,7 +112,7 @@ abstract class Wizard {
 
 		$screen = get_current_screen();
 
-		if ( ! empty( Starter_Content::starter_content_data() ) ) {
+		if ( Starter_Content::has_created_starter_content() ) {
 			$urls['remove_starter_content'] = esc_url(
 				add_query_arg(
 					array(

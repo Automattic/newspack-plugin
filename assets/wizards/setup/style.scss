@@ -2,6 +2,12 @@
  * Setup
  */
 
+.newspack-action-card.newspack--error-actioncard {
+	.newspack-action-card__secondary_button {
+		font-size: 12px;
+	}
+}
+
 .newspack-site-profile {
 	display: flex;
 	flex-wrap: wrap;
