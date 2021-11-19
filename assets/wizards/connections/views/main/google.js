@@ -95,7 +95,6 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 		return null;
 	}
 
-
 	// Redirect user to Google auth screen.
 	const goToAuthPage = () => {
 		setInFlight( true );

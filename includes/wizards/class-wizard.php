@@ -107,7 +107,6 @@ abstract class Wizard {
 			],
 			'plugin_version' => [
 				'label' => $plugin_data['Name'] . ' ' . $plugin_data['Version'],
-				'url'   => esc_url( admin_url( 'admin.php?page=newspack-updates-wizard' ) ),
 			],
 		];
 

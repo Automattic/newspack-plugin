@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Settings, Services, Suppression } from './views';
+import { AdUnit, AdUnits, Settings, Placements, Services, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -31,12 +31,6 @@ class AdvertisingWizard extends Component {
 		this.state = {
 			advertisingData: {
 				adUnits: [],
-				placements: {
-					global_above_header: {},
-					global_below_header: {},
-					global_above_footer: {},
-					sticky: {},
-				},
 				services: {
 					google_ad_manager: {
 						status: {},
@@ -91,24 +85,6 @@ class AdvertisingWizard extends Component {
 			quiet: true,
 		} );
 
-	togglePlacement = ( placement, enabled ) =>
-		this.updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/placement/' + placement,
-			method: enabled ? 'POST' : 'DELETE',
-			quiet: true,
-		} );
-
-	savePlacement = ( placement, data ) =>
-		this.updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/placement/' + placement,
-			method: 'post',
-			data: {
-				ad_unit: data.adUnit,
-				service: data.service,
-			},
-			quiet: true,
-		} );
-
 	/**
 	 * Update a single ad unit.
 	 */
@@ -156,7 +132,7 @@ class AdvertisingWizard extends Component {
 	render() {
 		const { advertisingData } = this.state;
 		const { pluginRequirements, wizardApiFetch } = this.props;
-		const { services, placements, adUnits } = advertisingData;
+		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
 				label: __( 'Ad Providers', 'newspack' ),
@@ -164,7 +140,11 @@ class AdvertisingWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Global Settings', 'newspack' ),
+				label: __( 'Placements', 'newspack' ),
+				path: '/placements',
+			},
+			{
+				label: __( 'Settings', 'newspack' ),
 				path: '/settings',
 			},
 			{
@@ -191,19 +171,22 @@ class AdvertisingWizard extends Component {
 							) }
 						/>
 						<Route
+							path="/placements"
+							render={ () => (
+								<Placements
+									headerText={ __( 'Advertising', 'newspack' ) }
+									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
+									adUnits={ adUnits }
+									tabbedNavigation={ tabs }
+								/>
+							) }
+						/>
+						<Route
 							path="/settings"
 							render={ () => (
 								<Settings
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Monetize your content through advertising', 'newspack' ) }
-									wizardApiFetch={ wizardApiFetch }
-									placements={ placements }
-									adUnits={ adUnits }
-									services={ services }
-									onChange={ ( placement, data ) => this.savePlacement( placement, data ) }
-									togglePlacement={ ( placement, value ) =>
-										this.togglePlacement( placement, value )
-									}
 									tabbedNavigation={ tabs }
 								/>
 							) }
