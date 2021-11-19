@@ -191,7 +191,7 @@ const Welcome = ( { buttonAction } ) => {
 				<>
 					{ __( 'Welcome to Newspack,', 'newspack' ) }
 					<br />
-					{ __( 'the plateform for News', 'newspack' ) }
+					{ __( 'the platform for News', 'newspack' ) }
 				</>
 			);
 		}
