@@ -54,40 +54,68 @@ svg {
 	.newspack-card {
 		background: white;
 		border: 0;
-		margin: 0 auto 32px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 100%;
 
-		@media screen and ( min-width: 584px ) {
-			max-width: 520px;
+		@media screen and ( min-width: 576px ) {
+			max-width: 512px;
 		}
 
 		&.loading {
 			cursor: wait;
 		}
 
+		.newspack-button-card.br--bottom {
+			svg:first-of-type {
+				transform: scaleX( -1 );
+			}
+		}
+
 		&__footer {
 			align-items: center;
 			display: flex;
 			flex-wrap: wrap;
-			justify-content: space-between;
+			justify-content: flex-end;
+
+			&:empty {
+				margin-top: -32px;
+			}
 
 			.newspack-checkbox-control {
 				margin: 12px 16px 12px 0;
 			}
+
+			.newspack-button {
+				margin-left: auto;
+			}
 		}
 
 		h1 {
-			align-items: center;
+			align-items: start;
 			display: flex;
 			flex-wrap: wrap;
 
-			svg {
+			&.welcome-grid {
+				display: grid;
+				grid-gap: 8px;
+				grid-template-columns: auto 32px;
+
+				@media screen and ( min-width: 420px ) {
+					grid-gap: 16px;
+					grid-template-columns: auto 64px;
+				}
+
+				.newspack-icon {
+					width: 100%;
+					height: auto;
+				}
+			}
+
+			svg:not( .newspack-icon ) {
 				margin-right: 8px;
 			}
 		}
-	}
-
-	.newspack-logo__wrapper {
-		margin-bottom: 32px;
 	}
 
 	.newspack-buttons-card {
@@ -165,7 +193,7 @@ svg {
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 520px 96px 0 0 white,
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 512px 96px 0 0 white,
 				0 96px 0 0 $gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
@@ -198,7 +226,7 @@ svg {
 		&::after {
 			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
 			margin: 0;
-			max-width: 520px;
+			max-width: 512px;
 			top: 156px;
 			width: calc( 100% - ( 64px * 2 ) );
 
@@ -238,6 +266,39 @@ svg {
 					margin-left: 36px;
 				}
 			}
+		}
+	}
+}
+
+.newspack-wizard-section__is-loading {
+	background: white;
+	cursor: wait;
+	min-height: 150px;
+
+	> * {
+		display: none !important;
+	}
+
+	&::after {
+		animation: loading 2s ease-in-out infinite;
+		content: '';
+		display: block;
+		background: $gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
+			0 96px 0 0 $gray-700;
+		height: 24px;
+		margin: 0 auto;
+		max-width: 1040px;
+		width: 100%;
+
+		@media screen and ( min-width: 744px ) {
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $gray-700, 200px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
+		}
+
+		@media screen and ( min-width: 1224px ) {
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 520px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
 		}
 	}
 }
