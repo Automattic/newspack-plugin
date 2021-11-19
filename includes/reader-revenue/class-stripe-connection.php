@@ -441,10 +441,10 @@ class Stripe_Connection {
 				if ( $has_metadata_field ) {
 					$metadata_field_value = $price['metadata'][ self::STRIPE_DONATION_PRICE_METADATA ];
 					$currency_matches     = strtolower( $payment_data['currency'] ) === strtolower( $price['currency'] );
-					if ( $does_currency_match && 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
+					if ( $currency_matches && 'month' === $metadata_field_value && 'month' === $price['recurring']['interval'] ) {
 						$prices_mapped['month'] = $price;
 					}
-					if ( $does_currency_match && 'year' === $metadata_field_value && 'year' === $price['recurring']['interval'] ) {
+					if ( $currency_matches && 'year' === $metadata_field_value && 'year' === $price['recurring']['interval'] ) {
 						$prices_mapped['year'] = $price;
 					}
 				}
