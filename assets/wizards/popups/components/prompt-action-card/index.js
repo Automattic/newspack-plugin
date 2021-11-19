@@ -181,7 +181,10 @@ const PromptActionCard = props => {
 			{ isDuplicatePromptModalVisible && (
 				<Modal
 					className="newspack-popups__duplicate-modal"
-					title={ sprintf( __( 'Duplicate “%s”', 'newspack' ), title ) }
+					title={
+						// Translators: %s: The title of the item.
+						sprintf( __( 'Duplicate “%s”', 'newspack' ), title )
+					}
 					onRequestClose={ () => {
 						setIsDuplicatePromptModalVisible( false );
 						setDuplicateTitle( null );
@@ -193,6 +196,7 @@ const PromptActionCard = props => {
 							<Notice
 								isSuccess
 								noticeText={ sprintf(
+									// Translators: %s: The title of the item.
 									__( 'Duplicate of “%s” created as a draft.', 'newspack' ),
 									title
 								) }

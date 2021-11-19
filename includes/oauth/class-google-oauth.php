@@ -17,8 +17,15 @@ defined( 'ABSPATH' ) || exit;
  * Google OAuth2 flow.
  */
 class Google_OAuth {
-	const AUTH_DATA_USERMETA_NAME        = '_newspack_google_oauth';
+	const AUTH_DATA_META_NAME            = '_newspack_google_oauth';
 	const CSRF_TOKEN_TRANSIENT_NAME_BASE = '_newspack_google_oauth_csrf_';
+
+	const REQUIRED_SCOPES = [
+		'https://www.googleapis.com/auth/userinfo.email', // User's email address.
+		'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
+		'https://www.googleapis.com/auth/analytics',
+		'https://www.googleapis.com/auth/analytics.edit',
+	];
 
 	/**
 	 * Constructor.
@@ -42,7 +49,7 @@ class Google_OAuth {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_google_auth_status' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'permission_callback' => [ __CLASS__, 'permissions_check' ],
 			]
 		);
 		// Start Google OAuth2 flow.
@@ -52,7 +59,7 @@ class Google_OAuth {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_google_auth_start' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'permission_callback' => [ __CLASS__, 'permissions_check' ],
 			]
 		);
 		// Save Google OAuth2 details.
@@ -62,7 +69,7 @@ class Google_OAuth {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_google_auth_save_details' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'permission_callback' => [ __CLASS__, 'permissions_check' ],
 				'args'                => [
 					'access_token'  => [
 						'sanitize_callback' => 'sanitize_text_field',
@@ -86,7 +93,7 @@ class Google_OAuth {
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ __CLASS__, 'api_google_auth_revoke' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'permission_callback' => [ __CLASS__, 'permissions_check' ],
 			]
 		);
 	}
@@ -95,10 +102,9 @@ class Google_OAuth {
 	 * Check capabilities for using API.
 	 *
 	 * @codeCoverageIgnore
-	 * @param WP_REST_Request $request API request object.
 	 * @return bool|WP_Error
 	 */
-	public static function api_permissions_check( $request ) {
+	public static function permissions_check() {
 		if ( ! current_user_can( 'manage_options' ) || ! self::is_oauth_configured() ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
@@ -146,23 +152,17 @@ class Google_OAuth {
 			$auth['refresh_token'] = $tokens['refresh_token'];
 		}
 		self::remove_credentials();
-		return add_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, $auth );
+		return add_option( self::AUTH_DATA_META_NAME, $auth );
 	}
 
 	/**
 	 * Create params to obtain a URL for a redirection to Google consent page.
 	 */
 	public static function get_google_auth_url_params() {
-		$scopes         = [
-			'https://www.googleapis.com/auth/userinfo.email', // User's email address.
-			'https://www.googleapis.com/auth/dfp', // Google Ad Manager.
-		];
-		$redirect_after = admin_url( 'admin.php?page=newspack-connections-wizard' );
-
 		return [
 			'csrf_token'     => self::generate_csrf_token(),
-			'scope'          => implode( ' ', $scopes ),
-			'redirect_after' => $redirect_after,
+			'scope'          => implode( ' ', self::REQUIRED_SCOPES ),
+			'redirect_after' => admin_url( 'admin.php?page=newspack-connections-wizard' ),
 		];
 	}
 
@@ -281,9 +281,13 @@ class Google_OAuth {
 		if ( false === self::is_oauth_configured() ) {
 			return \rest_ensure_response( $response );
 		}
+		$user_info_data = self::authenticated_user_basic_information();
+		if ( is_wp_error( $user_info_data ) ) {
+			return $user_info_data;
+		}
 		return \rest_ensure_response(
 			[
-				'user_basic_info' => self::authenticated_user_basic_information(),
+				'user_basic_info' => $user_info_data,
 			]
 		);
 	}
@@ -292,7 +296,11 @@ class Google_OAuth {
 	 * Get Google authentication details.
 	 */
 	public static function get_google_auth_saved_data() {
-		$auth_data = get_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME, true );
+		$is_permitted = self::permissions_check();
+		if ( true !== $is_permitted ) {
+			return false;
+		}
+		$auth_data = get_option( self::AUTH_DATA_META_NAME, false );
 		if ( $auth_data ) {
 			return $auth_data;
 		}
@@ -322,6 +330,13 @@ class Google_OAuth {
 		);
 
 		if ( 200 === wp_remote_retrieve_response_code( $token_info_response ) ) {
+			$token_info     = json_decode( wp_remote_retrieve_body( $token_info_response ) );
+			$granted_scopes = explode( ' ', $token_info->scope );
+			$missing_scopes = array_diff( self::REQUIRED_SCOPES, $granted_scopes );
+			if ( 0 < count( $missing_scopes ) ) {
+				return new \WP_Error( 'newspack_google_oauth', __( 'Newspack can’t access all necessary data because you haven’t granted all permissions requested during setup. Please reconnect your Google account.', 'newspack' ) );
+			}
+
 			$user_info_response = wp_safe_remote_get(
 				add_query_arg(
 					'access_token',
@@ -335,6 +350,8 @@ class Google_OAuth {
 					'email' => $user_info->email,
 				];
 			}
+		} else {
+			return new \WP_Error( 'newspack_google_oauth', __( 'Invalid Google credentials. Please reconnect.', 'newspack' ) );
 		}
 
 		return false;
@@ -396,7 +413,7 @@ class Google_OAuth {
 	 * Remove saved credentials.
 	 */
 	public static function remove_credentials() {
-		delete_user_meta( get_current_user_id(), self::AUTH_DATA_USERMETA_NAME );
+		delete_option( self::AUTH_DATA_META_NAME );
 	}
 
 	/**

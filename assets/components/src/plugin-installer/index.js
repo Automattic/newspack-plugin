@@ -99,6 +99,7 @@ class PluginInstaller extends Component {
 		return apiFetch( params )
 			.then( response => {
 				const { pluginInfo } = this.state;
+				this.props.onInstalled( slug );
 				this.updatePluginInfo( {
 					...pluginInfo,
 					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_ACTIVE },
@@ -181,7 +182,7 @@ class PluginInstaller extends Component {
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
 					<div className="newspack-plugin-installer_is-waiting">
 						<Waiting isLeft />
-						{ __( 'Retrieving plugin information...' ) }
+						{ __( 'Retrieving plugin information…' ) }
 					</div>
 				) }
 				{ pluginInfo &&
@@ -193,7 +194,7 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing...' );
+							actionText = __( 'Installing…' );
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
@@ -254,6 +255,7 @@ class PluginInstaller extends Component {
 
 PluginInstaller.defaultProps = {
 	onStatus: () => {},
+	onInstalled: () => {},
 };
 
 export default PluginInstaller;

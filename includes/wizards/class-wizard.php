@@ -85,23 +85,7 @@ abstract class Wizard {
 			return;
 		}
 
-		wp_register_script(
-			'newspack_commons',
-			Newspack::plugin_url() . '/dist/commons.js',
-			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.js' ),
-			true
-		);
-		wp_enqueue_script( 'newspack_commons' );
-
-		wp_register_style(
-			'newspack-commons',
-			Newspack::plugin_url() . '/dist/commons.css',
-			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.css' )
-		);
-		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-commons' );
+		Newspack::load_common_assets();
 
 		// Tachyons atomic CSS framework (http://tachyons.io/).
 		wp_enqueue_style( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
@@ -123,7 +107,6 @@ abstract class Wizard {
 			],
 			'plugin_version' => [
 				'label' => $plugin_data['Name'] . ' ' . $plugin_data['Version'],
-				'url'   => esc_url( admin_url( 'admin.php?page=newspack-updates-wizard' ) ),
 			],
 		];
 
@@ -268,7 +251,7 @@ abstract class Wizard {
 	 * @return array An array of script dependencies.
 	 */
 	public function get_script_dependencies( $dependencies = [] ) {
-		$base_dependencies = [ 'wp-components', 'wp-api-fetch' ];
+		$base_dependencies = [ 'wp-components', 'wp-api-fetch', 'mediaelement-core' ];
 		return array_merge( $base_dependencies, $dependencies );
 	}
 

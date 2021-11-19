@@ -270,6 +270,39 @@ svg {
 	}
 }
 
+.newspack-wizard-section__is-loading {
+	background: white;
+	cursor: wait;
+	min-height: 150px;
+
+	> * {
+		display: none !important;
+	}
+
+	&::after {
+		animation: loading 2s ease-in-out infinite;
+		content: '';
+		display: block;
+		background: $gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
+			0 96px 0 0 $gray-700;
+		height: 24px;
+		margin: 0 auto;
+		max-width: 1040px;
+		width: 100%;
+
+		@media screen and ( min-width: 744px ) {
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $gray-700, 200px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
+		}
+
+		@media screen and ( min-width: 1224px ) {
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 520px 96px 0 0 white,
+				0 96px 0 0 $gray-700;
+		}
+	}
+}
+
 @keyframes loading {
 	from {
 		opacity: 100%;
