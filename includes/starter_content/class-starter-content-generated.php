@@ -254,7 +254,7 @@ class Starter_Content_Generated extends Starter_Content_Provider {
 	}
 
 	/**
-	 * Retrieve Lorem Ipsum from www.lipsum.com
+	 * Generate dummy text.
 	 *
 	 * @param string $type The type of Lorem Ipsum to retrieve: paras|words.
 	 * @param int    $amount The number of items to retrieve.
