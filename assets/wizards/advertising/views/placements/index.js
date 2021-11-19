@@ -12,7 +12,7 @@ import classnames from 'classnames';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -23,6 +23,8 @@ import {
 	Notice,
 	SectionHeader,
 	SelectControl,
+	TextControl,
+	Button,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -48,12 +50,74 @@ const getAdUnitsForSelect = adUnits => {
 };
 
 /**
+ * Placement Control Component.
+ */
+const PlacementControl = ( {
+	adUnits = {},
+	bidders = {},
+	placement = {},
+	hook = {},
+	onChange,
+	...props
+} ) => {
+	const { data = {} } = placement;
+	let label = __( 'Ad Unit', 'newspack' );
+	let key = 'ad_unit';
+	if ( hook.hookKey ) {
+		label += ` - ${ hook.name }`;
+		key = `ad_unit_${ hook.hookKey }`;
+	}
+	return (
+		<Fragment>
+			<SelectControl
+				label={ label }
+				value={ data[ key ] }
+				options={ getAdUnitsForSelect( adUnits ) }
+				onChange={ value => {
+					onChange( {
+						...data,
+						[ key ]: value,
+					} );
+				} }
+				{ ...props }
+			/>
+			{ Object.keys( bidders ).map( bidderKey => {
+				// Translators: Bidder name.
+				let bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidders[ bidderKey ] );
+				if ( hook.hookKey ) {
+					bidderLabel += ` - ${ hook.name }`;
+				}
+				return (
+					<TextControl
+						key={ bidderKey }
+						value={ data.bidders_ids ? data.bidders_ids[ bidderKey ] : null }
+						label={ bidderLabel }
+						onChange={ value => {
+							onChange( {
+								...data,
+								bidders_ids: {
+									...data.bidders_ids,
+									[ bidderKey ]: value,
+								},
+							} );
+						} }
+						{ ...props }
+					/>
+				);
+			} ) }
+		</Fragment>
+	);
+};
+
+/**
  * Advertising Placements management screen.
  */
 const Placements = ( { adUnits } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ placements, setPlacements ] = useState( {} );
+	const [ bidders, setBidders ] = useState( {} );
+	const [ biddersError, setBiddersError ] = useState( null );
 	const placementsApiFetch = options => {
 		setInFlight( true );
 		apiFetch( options )
@@ -68,40 +132,40 @@ const Placements = ( { adUnits } ) => {
 				setInFlight( false );
 			} );
 	};
-	const fetchPlacements = () => {
-		placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
-	};
-	const handleToggle = placement => value => {
+	const handlePlacementToggle = placement => value => {
 		placementsApiFetch( {
 			path: `/newspack-ads/v1/placements/${ placement }`,
 			method: value ? 'POST' : 'DELETE',
 		} );
 	};
-	const handleAdUnitChange = ( placement, hook ) => value => {
-		placementsApiFetch( {
-			path: `/newspack-ads/v1/placements/${ placement }`,
-			method: 'POST',
-			data: { ad_unit: value, hook },
+	const handlePlacementChange = placementKey => value => {
+		setPlacements( {
+			...placements,
+			[ placementKey ]: {
+				...placements[ placementKey ],
+				data: value,
+			},
 		} );
 	};
-	const adUnitControl = ( placementKey, hookKey = '' ) => {
-		const placement = placements[ placementKey ];
-		const controlProps = {
-			disabled: inFlight,
-			onChange: handleAdUnitChange( placementKey, hookKey ),
-			value: placement?.ad_unit,
-			options: getAdUnitsForSelect( adUnits ),
-			label: __( 'Ad Unit', 'newspack' ),
-		};
-		if ( hookKey ) {
-			const hook = placement.hooks[ hookKey ];
-			controlProps.value = placement[ `ad_unit_${ hookKey }` ];
-			controlProps.label = __( 'Ad Unit', 'newspack' ) + ' - ' + hook.name;
-		}
-		return <SelectControl { ...controlProps } />;
+	const updatePlacement = placementKey => {
+		placementsApiFetch( {
+			path: `/newspack-ads/v1/placements/${ placementKey }`,
+			method: 'POST',
+			data: placements[ placementKey ].data,
+		} );
+	};
+	const isEnabled = placementKey => {
+		return placements[ placementKey ].data.enabled;
 	};
 	useEffect( () => {
-		fetchPlacements();
+		apiFetch( { path: '/newspack-ads/v1/bidders' } )
+			.then( data => {
+				setBidders( data );
+			} )
+			.catch( err => {
+				setBiddersError( err );
+			} );
+		placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
 	}, [] );
 	return (
 		<Fragment>
@@ -122,6 +186,7 @@ const Placements = ( { adUnits } ) => {
 				) }
 			/>
 			{ error && <Notice isError noticeText={ error.message } /> }
+			{ biddersError && <Notice isWarning noticeText={ biddersError.message } /> }
 			<div
 				className={ classnames( {
 					'newspack-wizard-ads-placements': true,
@@ -129,7 +194,7 @@ const Placements = ( { adUnits } ) => {
 				} ) }
 			>
 				{ Object.keys( placements )
-					.filter( key => !! placements[ key ].enabled )
+					.filter( key => !! isEnabled( key ) )
 					.map( key => {
 						const placement = placements[ key ];
 						return (
@@ -139,33 +204,58 @@ const Placements = ( { adUnits } ) => {
 								disabled={ inFlight }
 								title={ placement.name }
 								description={ placement.description }
-								toggleOnChange={ handleToggle( key ) }
-								toggleChecked={ placement.enabled }
-								hasGreyHeader={ placement.enabled }
+								toggleOnChange={ handlePlacementToggle( key ) }
+								toggleChecked={ isEnabled( key ) }
+								hasGreyHeader={ isEnabled( key ) }
 							>
 								<Grid columns={ 2 } gutter={ 32 }>
-									{ placement.enabled && placement.hook_name && (
-										<>
-											{ adUnitControl( key ) }
-											<div />
-										</>
+									{ isEnabled( key ) && placement.hook_name && (
+										<PlacementControl
+											adUnits={ adUnits }
+											bidders={ bidders }
+											placement={ placement }
+											disabled={ inFlight }
+											onChange={ handlePlacementChange( key ) }
+										/>
 									) }
 									{ placement.hooks && (
 										<>
 											{ Object.keys( placement.hooks ).map( hookKey => {
-												const hook = placement.hooks[ hookKey ];
+												const hook = {
+													hookKey,
+													...placement.hooks[ hookKey ],
+												};
 												return (
-													<Fragment key={ hook.name }>{ adUnitControl( key, hookKey ) }</Fragment>
+													<PlacementControl
+														key={ hookKey }
+														adUnits={ adUnits }
+														bidders={ bidders }
+														placement={ placement }
+														hook={ hook }
+														disabled={ inFlight }
+														onChange={ handlePlacementChange( key ) }
+													/>
 												);
 											} ) }
 										</>
 									) }
 								</Grid>
+								<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>
+									<Button
+										isPrimary
+										disabled={ inFlight }
+										onClick={ () => {
+											updatePlacement( key );
+										} }
+									>
+										{ __( 'Save placement settings', 'newspack' ) }
+									</Button>
+								</div>
 							</ActionCard>
 						);
 					} ) }
 				{ Object.keys( placements )
-					.filter( key => ! placements[ key ].enabled )
+					.filter( key => ! isEnabled( key ) )
 					.map( key => {
 						const placement = placements[ key ];
 						return (
@@ -174,7 +264,7 @@ const Placements = ( { adUnits } ) => {
 								isSmall
 								disabled={ inFlight }
 								title={ placement.name }
-								toggleOnChange={ handleToggle( key ) }
+								toggleOnChange={ handlePlacementToggle( key ) }
 							/>
 						);
 					} ) }
