@@ -127,7 +127,7 @@
     "@wordpress/date": "^4.2.1",
     "@wordpress/edit-post": "^5.0.9",
     "@wordpress/html-entities": "^3.2.1",
-    "@wordpress/icons": "^5.0.2",
+    "@wordpress/icons": "^6.1.1",
     "@wordpress/keycodes": "^3.2.2",
     "@wordpress/plugins": "^4.0.6",
     "@wordpress/url": "^3.2.2",
