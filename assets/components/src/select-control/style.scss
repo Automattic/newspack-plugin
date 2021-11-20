@@ -55,6 +55,28 @@
 				border-color: $primary-500;
 				box-shadow: inset 0 0 0 2px $primary-500;
 			}
+
+			&[multiple] {
+				height: auto;
+				max-height: 120px;
+				padding: 7px 0;
+
+				option {
+					align-items: center;
+					display: flex;
+					min-height: 24px;
+					padding: 4px 8px;
+
+					&:checked {
+						background: $primary-500 !important;
+						color: white !important;
+					}
+				}
+
+				~ .components-input-control__suffix {
+					display: none;
+				}
+			}
 		}
 	}
 
