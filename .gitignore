@@ -28,12 +28,5 @@ Thumbs.db
 # Composer
 /vendor/
 
-# Built files
-/dist
-/assets/components/dist
-/assets/components/shared
-/assets/components/node_modules
-release
-
 # Tests
 codecov/
