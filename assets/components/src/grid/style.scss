@@ -2,6 +2,8 @@
  * Grid
  */
 
+@import '~@wordpress/base-styles/colors';
+
 .newspack-grid {
 	display: grid;
 	grid-gap: 32px;
@@ -12,6 +14,11 @@
 	// No Margin
 	&--no-margin {
 		margin: 0;
+	}
+
+	// Gutter 0
+	&__gutter-0 {
+		grid-gap: 0;
 	}
 
 	// Gutter 8
@@ -34,6 +41,11 @@
 		grid-gap: 32px;
 	}
 
+	// Row Gap 0
+	&__row-gap-0 {
+		grid-row-gap: 0;
+	}
+
 	// Row Gap 8
 	&__row-gap-8 {
 		grid-row-gap: 8px;
@@ -47,6 +59,11 @@
 	// Row Gap 32
 	&__row-gap-32 {
 		grid-row-gap: 32px;
+	}
+
+	// Gutter 64
+	&__gutter-64 {
+		grid-gap: 64px;
 	}
 
 	// Columns 6
@@ -110,5 +127,27 @@
 		> *:last-child {
 			margin-bottom: 0 !important;
 		}
+	}
+
+	// Table-like
+	&__thead {
+		background: $gray-100;
+		border-bottom: 1px solid $gray-300;
+		border-top: 1px solid $gray-300;
+		color: $gray-900;
+
+		> *:not( .screen-reader-text ) {
+			padding: 8px;
+		}
+	}
+
+	&__tbody {
+		border-bottom: 1px solid $gray-300;
+		padding: 8px 0;
+	}
+
+	&__thead + &__tbody,
+	&__tbody + &__tbody {
+		margin-top: -32px;
 	}
 }

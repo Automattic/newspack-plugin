@@ -114,21 +114,21 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 			],
 			'fb-instant-articles'           => [
-				'Name'        => 'Instant Articles for WP',
-				'Description' => 'Add support for Instant Articles for Facebook to your WordPress site.',
+				'Name'        => esc_html__( 'Instant Articles for WP', 'newspack' ),
+				'Description' => esc_html__( 'Add support for Instant Articles for Facebook to your site', 'newspack' ),
 				'Author'      => 'Automattic, Dekode, Facebook',
 				'AuthorURI'   => 'https://vip.wordpress.com/plugins/instant-articles/',
 				'PluginURI'   => 'https://vip.wordpress.com/plugins/instant-articles/',
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=instant-articles-wizard',
 			],
-			'distributor'                   => [
+			'distributor-stable'            => [
 				'Name'        => 'Distributor',
-				'Description' => 'Makes it easy to distribute and reuse content across your websites, whether inside of a multisite or across the web.',
+				'Description' => esc_html__( 'Distribute and reuse content across your websites, whether inside of a multisite or across the web', 'newspack' ),
 				'Author'      => '10up Inc.',
 				'AuthorURI'   => 'https://distributorplugin.com/',
 				'PluginURI'   => 'https://distributorplugin.com/',
-				'Download'    => 'https://github.com/10up/distributor/releases/latest/download/distributor.zip',
+				'Download'    => 'https://github.com/10up/distributor/archive/stable.zip',
 				'EditPath'    => 'admin.php?page=pull',
 			],
 			'google-site-kit'               => [
@@ -173,7 +173,7 @@ class Plugin_Manager {
 				'Name'        => esc_html__( 'Newspack Ads', 'newspack' ),
 				'Description' => esc_html__( 'Ads integration.', 'newspack' ),
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-ads/releases/latest/download/newspack-ads.zip',
 			],
@@ -181,7 +181,7 @@ class Plugin_Manager {
 				'Name'        => esc_html__( 'Newspack Blocks', 'newspack' ),
 				'Description' => esc_html__( 'A collection of blocks for news publishers.', 'newspack' ),
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-blocks/releases/latest/download/newspack-blocks.zip',
 			],
@@ -189,7 +189,7 @@ class Plugin_Manager {
 				'Name'        => esc_html__( 'Newspack Content Converter', 'newspack' ),
 				'Description' => esc_html__( 'Batch conversion of Classic->Gutenberg post conversion.', 'newspack' ),
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-content-converter/releases/latest/download/newspack-content-converter.zip',
 				'Quiet'       => true,
@@ -198,23 +198,15 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Disqus AMP',
 				'Description' => 'Adds AMP-compatibility to the Disqus plugin.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-disqus-amp/releases/latest/download/newspack-disqus-amp.zip',
-			],
-			'newspack-image-credits'        => [
-				'Name'        => 'Newspack Image Credits',
-				'Description' => 'Add photo credit info to images.',
-				'Author'      => 'Automattic, INN Labs, Project Argo',
-				'PluginURI'   => 'https://newspack.blog',
-				'AuthorURI'   => 'https://automattic.com',
-				'Download'    => 'https://github.com/Automattic/newspack-image-credits/releases/latest/download/newspack-image-credits.zip',
 			],
 			'newspack-media-partners'       => [
 				'Name'        => 'Newspack Media Partners',
 				'Description' => 'Add media partners and their logos to posts. Intended for posts published in conjunction with other outlets.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-media-partners/releases/latest/download/newspack-media-partners.zip',
 			],
@@ -222,7 +214,7 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Newsletters',
 				'Description' => 'Newsletter authoring using the Gutenberg editor.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-newsletters/releases/latest/download/newspack-newsletters.zip',
 			],
@@ -230,15 +222,24 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Campaigns',
 				'Description' => 'AMP-compatible overlay and inline Campaigns.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-popups/releases/latest/download/newspack-popups.zip',
+			],
+			'newspack-rss-enhancements'     => [
+				'Name'        => esc_html__( 'Newspack RSS Enhancements', 'newspack' ),
+				'Description' => esc_html__( 'Create and manage customized RSS feeds for syndication partners', 'newspack' ),
+				'Author'      => 'Automattic',
+				'PluginURI'   => 'https://newspack.pub',
+				'AuthorURI'   => 'https://automattic.com',
+				'Download'    => 'https://github.com/Automattic/newspack-rss-enhancements/releases/latest/download/newspack-rss-enhancements.zip',
+				'EditPath'    => 'edit.php?post_type=partner_rss_feed',
 			],
 			'newspack-sponsors'             => [
 				'Name'        => 'Newspack Sponsors',
 				'Description' => 'Sponsored and underwritten content for Newspack sites.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-sponsors/releases/latest/download/newspack-sponsors.zip',
 			],
@@ -246,7 +247,7 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Listings',
 				'Description' => 'Create reusable content in list form using the Gutenberg editor.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-listings/releases/latest/download/newspack-listings.zip',
 			],
@@ -254,7 +255,7 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Rename Comments',
 				'Description' => 'Provides the Newspack theme with the ability to allow users to rename comments.',
 				'Author'      => 'Philip John, Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-rename-comments/releases/latest/download/newspack-rename-comments.zip',
 			],
@@ -262,7 +263,7 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Supporters',
 				'Description' => 'Manage and display your site\'s supporters.',
 				'Author'      => 'Automattic',
-				'PluginURI'   => 'https://newspack.blog',
+				'PluginURI'   => 'https://newspack.pub',
 				'AuthorURI'   => 'https://automattic.com',
 				'Download'    => 'https://github.com/Automattic/newspack-supporters/releases/latest/download/newspack-supporters.zip',
 			],
@@ -270,14 +271,6 @@ class Plugin_Manager {
 				'Name'        => 'Newspack Theme',
 				'Description' => 'The Newspack theme.',
 				'Author'      => 'Newspack',
-			],
-			'organic-profile-block'         => [
-				'Name'        => 'Organic Profile Block',
-				'Description' => "The Profile Block is created for the Gutenberg content editor. It displays a profile section with an image, name, subtitle, bio and personal social media links. It's perfect for author biographies, personal profiles, or staff pages.",
-				'Author'      => 'Organic Themes',
-				'PluginURI'   => 'https://organicthemes.com/',
-				'AuthorURI'   => 'https://organicthemes.com/',
-				'Download'    => 'wporg',
 			],
 			'wp-parsely'                    => [
 				'Name'        => 'Parse.ly',
@@ -297,8 +290,8 @@ class Plugin_Manager {
 				'EditPath'    => 'options-general.php?page=password-protected',
 			],
 			'publish-to-apple-news'         => [
-				'Name'        => 'Publish to Apple News',
-				'Description' => 'Export and sync posts to Apple format.',
+				'Name'        => esc_html__( 'Publish to Apple News', 'newspack' ),
+				'Description' => esc_html__( 'Export and synchronize posts to Apple format', 'newspack' ),
 				'Author'      => 'Alley Interactive',
 				'AuthorURI'   => 'https://www.alleyinteractive.com',
 				'PluginURI'   => 'https://github.com/alleyinteractive/apple-news',
@@ -511,17 +504,35 @@ class Plugin_Manager {
 	}
 
 	/**
+	 * Get the list of plugins which are supported, but not managed.
+	 * These plugins will not be added to the WP Admin plugins screen,
+	 * but installing them will not raise any issues in Health Check.
+	 */
+	private static function get_supported_plugins_slugs() {
+		return [
+			'gutenberg',
+			'classic-widgets',
+			'republication-tracker-tool',
+			'the-events-calendar',
+		];
+	}
+
+	/**
 	 * Get info about all the unmanaged plugins that are installed.
 	 *
 	 * @return array of plugin info.
 	 */
-	public static function get_unmanaged_plugins() {
-		$plugins_info      = self::get_installed_plugins_info();
-		$managed_plugins   = self::get_managed_plugins();
-		$ignore            = [ 'newspack-plugin' ];
-		$unmanaged_plugins = [];
+	public static function get_unsupported_plugins() {
+		$plugins_info            = self::get_installed_plugins_info();
+		$managed_plugins         = self::get_managed_plugins();
+		$supported_plugins_slugs = self::get_supported_plugins_slugs();
+		$unmanaged_plugins       = [];
 		foreach ( $plugins_info as $slug => $info ) {
-			if ( ! isset( $managed_plugins[ $slug ] ) && ! in_array( $slug, $ignore ) && is_plugin_active( $info['Path'] ) ) {
+			$is_managed      = ! isset( $managed_plugins[ $slug ] );
+			$is_not_newspack = 0 !== strpos( $slug, 'newspack-' );
+			$is_active       = is_plugin_active( $info['Path'] );
+			$is_supported    = in_array( $slug, $supported_plugins_slugs );
+			if ( ! $is_supported && $is_managed && $is_not_newspack && $is_active ) {
 				$unmanaged_plugins[ $slug ] = $info;
 			}
 		}

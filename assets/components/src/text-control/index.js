@@ -36,10 +36,12 @@ class TextControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, required, isWide, ...otherProps } = this.props;
+		const { className, required, isSmall, isWide, withMargin = true, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-text-control',
+			{ 'newspack-text-control--small': isSmall },
 			{ 'newspack-text-control--wide': isWide },
+			{ 'newspack-text-control--with-margin': withMargin },
 			className
 		);
 		return required ? (
@@ -47,7 +49,7 @@ class TextControl extends Component {
 				<BaseComponent className={ classes } required={ required } { ...otherProps } />
 			</div>
 		) : (
-			<BaseComponent required={ required } className={ classes } { ...otherProps } />
+			<BaseComponent className={ classes } { ...otherProps } />
 		);
 	}
 }

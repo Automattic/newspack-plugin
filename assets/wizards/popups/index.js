@@ -9,11 +9,14 @@ import '../../shared/js/public-path';
  */
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * External dependencies.
  */
 import { stringify } from 'qs';
+import { subDays } from 'date-fns';
 
 /**
  * Internal dependencies.
@@ -22,6 +25,7 @@ import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
 import { CampaignsContext } from './contexts';
+import { formatDate } from './utils';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -57,52 +61,56 @@ class PopupsWizard extends Component {
 		this.state = {
 			campaigns: [],
 			prompts: [],
+			promptsAnalyticsData: null,
 			segments: [],
 			settings: [],
 			previewUrl: null,
+			duplicated: null,
+			inFlight: false,
 		};
 	}
 	onWizardReady = () => {
-		this.refetch();
+		this.refetch( { isInitial: true } );
 	};
 
-	refetch = () => {
+	refetch = ( { isInitial } = {} ) => {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( this.updateAfterAPI )
+			.then( response => {
+				this.updateAfterAPI( response );
+
+				if ( isInitial ) {
+					// Fetch GA report to display per-popup data.
+					const reportSpec = {
+						start_date: formatDate( subDays( new Date(), 30 ) ),
+						end_date: formatDate(),
+						with_report_by_id: true,
+					};
+					apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( reportSpec ) }` } )
+						.then( ( { report_by_id } ) => {
+							this.setState( {
+								promptsAnalyticsData: report_by_id,
+							} );
+						} )
+						.catch( error => {
+							this.setState( {
+								promptsAnalyticsData: { error },
+							} );
+						} );
+				}
+			} )
 			.catch( error => setError( error ) );
 	};
 
-	/**
-	 * Set terms for a Popup.
-	 *
-	 * @param {number} id ID of the Popup to alter.
-	 * @param {Array} terms Array of terms to assign to the Popup.
-	 * @param {string} taxonomy Taxonomy slug.
-	 */
-	setTermsForPopup = ( id, terms, taxonomy ) => {
+	updatePopup = ( { id, ...promptConfig } ) => {
 		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/popup-terms/${ id }`,
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ id }`,
 			method: 'POST',
-			data: {
-				taxonomy,
-				terms,
-			},
-			quiet: true,
-		} )
-			.then( this.updateAfterAPI )
-			.catch( error => setError( error ) );
-	};
-
-	updatePopup = ( popupId, options ) => {
-		const { setError, wizardApiFetch } = this.props;
-		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
-			method: 'POST',
-			data: { options },
+			data: { config: promptConfig },
 			quiet: true,
 		} )
 			.then( this.updateAfterAPI )
@@ -126,6 +134,22 @@ class PopupsWizard extends Component {
 	};
 
 	/**
+	 * Restore a deleted a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to alter.
+	 */
+	restorePopup = popupId => {
+		const { setError, wizardApiFetch } = this.props;
+		return wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/restore`,
+			method: 'POST',
+			quiet: true,
+		} )
+			.then( this.updateAfterAPI )
+			.catch( error => setError( error ) );
+	};
+
+	/**
 	 * Publish a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to alter.
@@ -142,7 +166,7 @@ class PopupsWizard extends Component {
 	};
 
 	/**
-	 * Unublish a popup.
+	 * Unpublish a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to alter.
 	 */
@@ -157,19 +181,56 @@ class PopupsWizard extends Component {
 			.catch( error => setError( error ) );
 	};
 
+	/**
+	 * Duplicate a popup.
+	 *
+	 * @param {number} popupId ID of the Popup to duplicate.
+	 * @param {string} title Title to give to the duplicated prompt.
+	 */
+	duplicatePopup = ( popupId, title ) => {
+		const { setError, wizardApiFetch } = this.props;
+		this.setState( { inFlight: true } );
+		return wizardApiFetch( {
+			path: addQueryArgs( `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/duplicate`, {
+				title,
+			} ),
+			method: 'POST',
+			quiet: true,
+		} )
+			.then( this.updateAfterAPI )
+			.catch( () => {
+				setError( {
+					code: 'duplicate_prompt_error',
+					message: __( 'Error duplicating prompt. Please try again later.', 'newspack' ),
+				} );
+			} );
+	};
+
 	previewUrlForPopup = ( { options, id } ) => {
 		const { placement, trigger_type: triggerType } = options;
-		const previewURL =
-			'inline' === placement || 'scroll' === triggerType
-				? window &&
-				  window.newspack_popups_wizard_data &&
-				  window.newspack_popups_wizard_data.preview_post
-				: '/';
+
+		let previewURL = '/';
+		if (
+			'archives' === placement &&
+			window &&
+			window.newspack_popups_wizard_data &&
+			window.newspack_popups_wizard_data.preview_archive
+		) {
+			previewURL = window.newspack_popups_wizard_data.preview_archive;
+		} else if (
+			( 'inline' === placement || 'scroll' === triggerType ) &&
+			window &&
+			window.newspack_popups_wizard_data &&
+			window.newspack_popups_wizard_data.preview_post
+		) {
+			previewURL = window.newspack_popups_wizard_data.preview_post;
+		}
+
 		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
 	};
 
-	updateAfterAPI = ( { campaigns, prompts, segments, settings } ) =>
-		this.setState( { campaigns, prompts, segments, settings } );
+	updateAfterAPI = ( { campaigns, prompts, segments, settings, duplicated = null } ) =>
+		this.setState( { campaigns, prompts, segments, settings, duplicated, inFlight: false } );
 
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
@@ -192,7 +253,16 @@ class PopupsWizard extends Component {
 			startLoading,
 			doneLoading,
 		} = this.props;
-		const { campaigns, prompts, segments, settings, previewUrl } = this.state;
+		const {
+			campaigns,
+			inFlight,
+			prompts,
+			segments,
+			settings,
+			previewUrl,
+			duplicated,
+			promptsAnalyticsData,
+		} = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -206,20 +276,25 @@ class PopupsWizard extends Component {
 						startLoading,
 						doneLoading,
 						wizardApiFetch,
+						prompts,
 						segments,
 						settings,
+						duplicated,
+						inFlight,
 					};
 					const popupManagementSharedProps = {
 						...sharedProps,
 						manageCampaignGroup: this.manageCampaignGroup,
-						setTermsForPopup: this.setTermsForPopup,
 						updatePopup: this.updatePopup,
 						deletePopup: this.deletePopup,
+						restorePopup: this.restorePopup,
+						duplicatePopup: this.duplicatePopup,
 						previewPopup: popup =>
 							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
 								showPreview()
 							),
 						publishPopup: this.publishPopup,
+						resetDuplicated: () => this.setState( { duplicated: null } ),
 						unpublishPopup: this.unpublishPopup,
 						refetch: this.refetch,
 					};
@@ -316,6 +391,7 @@ class PopupsWizard extends Component {
 													duplicateCampaignGroup={ duplicateCampaignGroup }
 													renameCampaignGroup={ renameCampaignGroup }
 													campaigns={ campaigns }
+													promptsAnalyticsData={ promptsAnalyticsData }
 												/>
 											</CampaignsContext.Provider>
 										);

@@ -80,6 +80,15 @@ class Setup_Wizard extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/initial-check',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_initial_check' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 		// Update option when setup is complete.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -118,10 +127,10 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/starter-content/categories',
+			'/wizard/' . $this->slug . '/starter-content/init',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_starter_content_categories' ],
+				'callback'            => [ $this, 'api_starter_content_init' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -173,6 +182,40 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
+	 * Perform an initial check before starting setup.
+	 *
+	 * @return WP_REST_Response containing info.
+	 */
+	public function api_initial_check() {
+		$required_plugins_slugs = [
+			'jetpack',
+			'amp',
+			'pwa',
+			'wordpress-seo',
+			'google-site-kit',
+			'newspack-blocks',
+			'newspack-newsletters',
+			'newspack-theme',
+		];
+
+		// Gather information about required plugins.
+		$managed_plugins = Plugin_Manager::get_managed_plugins();
+		$plugin_info     = [];
+		foreach ( $required_plugins_slugs as $slug ) {
+			$plugin               = $managed_plugins[ $slug ];
+			$plugin['Configured'] = \Newspack\Configuration_Managers::is_configured( $slug );
+			$plugin_info[]        = $plugin;
+		}
+
+		return rest_ensure_response(
+			[
+				'plugins' => $plugin_info,
+				'is_ssl'  => is_ssl(),
+			]
+		);
+	}
+
+	/**
 	 * Update option when setup is complete.
 	 *
 	 * @return WP_REST_Response containing info.
@@ -183,13 +226,37 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
-	 * Install starter content categories
+	 * Initialize a starter content generator.
 	 *
-	 * @return WP_REST_Response containing info.
+	 * @param WP_REST_Request $request API request object.
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function api_starter_content_categories() {
-		$status = Starter_Content::create_categories();
-		return rest_ensure_response( [ 'status' => $status ] );
+	public function api_starter_content_init( $request ) {
+		$request_params = $request->get_params();
+		if ( empty( $request_params ) || empty( $request_params['type'] ) ) {
+			return new WP_Error( 'newspack_setup', __( 'Missing starter content initialization info', 'newspack' ) );
+		}
+
+		$starter_content_type = 'import' === $request_params['type'] ? 'import' : 'generated';
+		$existing_site_url    = ! empty( $request_params['site'] ) && wp_http_validate_url( $request_params['site'] ) ? esc_url_raw( $request_params['site'] ) : '';
+
+		if ( 'import' === $starter_content_type && ! $existing_site_url ) {
+			return new WP_Error(
+				'newspack_setup',
+				sprintf(
+					/* translators: %s - Site URL */
+					__( 'Invalid site URL: "%s".', 'newspack' ),
+					sanitize_text_field( $request_params['site'] )
+				)
+			);
+		}
+
+		$result = Starter_Content::initialize( $starter_content_type, $existing_site_url );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( [ 'status' => 200 ] );
 	}
 
 	/**
@@ -201,6 +268,10 @@ class Setup_Wizard extends Wizard {
 	public function api_starter_content_post( $request ) {
 		$id     = $request['id'];
 		$status = Starter_Content::create_post( $id );
+		if ( is_wp_error( $status ) ) {
+			return $status;
+		}
+
 		return rest_ensure_response( [ 'status' => $status ] );
 	}
 
@@ -241,7 +312,7 @@ class Setup_Wizard extends Wizard {
 
 		foreach ( $theme_mods as $key => &$theme_mod ) {
 			if ( in_array( $key, $this->media_theme_mods ) ) {
-				$attachment = wp_get_attachment_image_src( $theme_mod, 'full' );
+				$attachment = wp_get_attachment_image_src( $theme_mod, 'large' );
 				if ( $attachment ) {
 					$theme_mod = [
 						'id'  => $theme_mod,
@@ -278,6 +349,19 @@ class Setup_Wizard extends Wizard {
 
 		$theme_mods['header_text']            = get_theme_mod( 'header_text', '' );
 		$theme_mods['header_display_tagline'] = get_theme_mod( 'header_display_tagline', '' );
+
+		// Append media credits settings.
+		$media_credits_settings = Newspack_Image_Credits::get_settings();
+		foreach ( $media_credits_settings as $key => $value ) {
+			$theme_mods[ $key ] = $value;
+
+			if ( 'newspack_image_credits_placeholder' === $key && ! empty( $value ) ) {
+				$attachment_url = wp_get_attachment_image_url( $value, 'full' );
+				if ( $attachment_url ) {
+					$theme_mods['newspack_image_credits_placeholder_url'] = $attachment_url;
+				}
+			}
+		}
 
 		return rest_ensure_response(
 			[
@@ -403,6 +487,12 @@ class Setup_Wizard extends Wizard {
 
 		$theme_mods = $request['theme_mods'];
 		foreach ( $theme_mods as $key => $value ) {
+			// Media credits are actually options, not theme mods.
+			if ( 'newspack_image_credits' === substr( $key, 0, 22 ) ) {
+				Newspack_Image_Credits::update_setting( $key, $value );
+				continue;
+			}
+
 			if ( null !== $value && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
@@ -421,7 +511,7 @@ class Setup_Wizard extends Wizard {
 		switch ( $service_name ) {
 			case 'reader-revenue':
 				$rr_wizard = new Reader_Revenue_Wizard();
-				return isset( $rr_wizard->fetch_all_data()['platform_data']['platform'] );
+				return isset( $rr_wizard->fetch_all_data()['plugin_status'] ) && true === $rr_wizard->fetch_all_data()['plugin_status'];
 			case 'newsletters':
 				$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 				return $newsletters_configuration_manager->is_esp_set_up();
@@ -458,30 +548,31 @@ class Setup_Wizard extends Wizard {
 	 * @return WP_REST_Response containing info.
 	 */
 	public function api_update_services( $request ) {
-		if ( isset( $request['newsletters']['is_service_enabled'] ) ) {
+		if ( true === $request['newsletters']['is_service_enabled'] ) {
 			$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 			$newsletters_configuration_manager->update_settings( $request['newsletters'] );
 		}
-		if ( isset( $request['reader-revenue']['is_service_enabled'] ) ) {
+		if ( true === $request['reader-revenue']['is_service_enabled'] ) {
+			Plugin_Manager::activate( 'woocommerce' );
 			$rr_wizard = new Reader_Revenue_Wizard();
-			if ( $request['reader-revenue']['donation_data'] ) {
+			if ( isset( $request['reader-revenue']['donation_data'] ) ) {
 				$rr_wizard->update_donation_settings( $request['reader-revenue']['donation_data'] );
 			}
-			if ( $request['reader-revenue']['stripe_data'] ) {
+			if ( isset( $request['reader-revenue']['stripe_data'] ) ) {
 				$stripe_settings            = $request['reader-revenue']['stripe_data'];
 				$stripe_settings['enabled'] = true;
 				$rr_wizard->update_stripe_settings( $stripe_settings );
 			}
 		}
-		if ( isset( $request['google-ad-manager']['is_service_enabled'], $request['google-ad-manager']['network_code'] ) ) {
-			$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-			$ads_configuration_manager->set_network_code( 'google_ad_manager', $request['google-ad-manager']['network_code'] );
-		}
-		if ( isset( $request['google-ad-sense']['is_service_enabled'] ) ) {
+		if ( true === $request['google-ad-sense']['is_service_enabled'] ) {
 			$sitekit_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 			if ( $request['google-ad-sense']['is_service_enabled'] ) {
 				$sitekit_configuration_manager->activate_module( 'adsense' );
 			}
+		}
+		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
+			$service = 'google_ad_manager';
+			update_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
 		}
 
 		return rest_ensure_response( [] );

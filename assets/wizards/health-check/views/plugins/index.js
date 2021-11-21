@@ -11,7 +11,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	PluginInstaller,
+	Notice,
+	withWizardScreen,
+} from '../../../../components/src';
 
 /**
  * SEO Intro screen.
@@ -21,10 +27,16 @@ class Plugins extends Component {
 	 * Render.
 	 */
 	render() {
-		const { unsupportedPlugins, deactivateAllPlugins } = this.props;
+		const { unsupportedPlugins, missingPlugins, deactivateAllPlugins } = this.props;
 		return (
 			<Fragment>
-				{ unsupportedPlugins && unsupportedPlugins.length > 0 && (
+				{ missingPlugins.length ? (
+					<>
+						<Notice noticeText={ __( 'These plugins shoud be active:' ) } isWarning />
+						<PluginInstaller plugins={ missingPlugins } />
+					</>
+				) : null }
+				{ unsupportedPlugins.length ? (
 					<Fragment>
 						<Notice noticeText={ __( 'Newspack does not support these plugins:' ) } isError />
 						{ unsupportedPlugins.map( unsupportedPlugin => (
@@ -41,8 +53,7 @@ class Plugins extends Component {
 							</Button>
 						</div>
 					</Fragment>
-				) }
-				{ unsupportedPlugins && unsupportedPlugins.length === 0 && (
+				) : (
 					<Fragment>
 						<Notice noticeText={ __( 'No unsupported plugins found.' ) } isSuccess />
 					</Fragment>

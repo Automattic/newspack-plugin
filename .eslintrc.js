@@ -9,6 +9,7 @@ module.exports = {
 	],
 	env: {
 		browser: true,
+		jest: true,
 	},
 	globals: {
 		newspack_urls: 'readonly',

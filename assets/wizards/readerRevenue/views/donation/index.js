@@ -6,7 +6,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -15,10 +14,9 @@ import { MoneyInput } from '../../components/';
 import {
 	Card,
 	Grid,
-	Handoff,
+	Button,
 	Notice,
 	ToggleControl,
-	InfoButton,
 	withWizardScreen,
 } from '../../../../components/src';
 
@@ -34,16 +32,12 @@ export const DontationAmounts = ( { data, onChange } ) => {
 		<>
 			<h2>{ __( 'Suggested donations' ) }</h2>
 			<p>
-				{ __( 'Set a suggested monthly donation amount' ) }
-				<InfoButton
-					text={ __(
-						'This will provide hints to readers about how much to donate, which will increase the average donation amount.',
-						'newspack'
-					) }
-				/>
+				{ __(
+					'Set suggested monthly donation amounts. The one-time and annual suggested donation amount will be adjusted according to the monthly amount.'
+				) }
 			</p>
 			<ToggleControl
-				label={ __( 'Suggest low, middle, and high tiers for monthly donations' ) }
+				label={ __( 'Set exact monthly donation tiers' ) }
 				checked={ tiered }
 				onChange={ _tiered => onChange( { ...data, tiered: _tiered } ) }
 			/>
@@ -91,52 +85,33 @@ export const DontationAmounts = ( { data, onChange } ) => {
 /**
  * Donation Settings Screen Component
  */
-class Donation extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, onChange, donationPage } = this.props;
-		return (
-			<Grid>
-				{ donationPage && (
-					<Card noBorder>
-						<h2>{ __( 'Donations landing page' ) }</h2>
-						{ 'publish' === donationPage.status ? (
-							<Notice
-								isSuccess
-								noticeText={ __( 'Your donations landing page is set up and published.' ) }
-							/>
-						) : (
-							<Notice
-								isError
-								noticeText={ __(
-									"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
-								) }
-							/>
+const Donation = ( { data = {}, onChange = () => null, donationPage } ) => (
+	<Grid>
+		{ donationPage && (
+			<Card noBorder>
+				<h2>{ __( 'Donations landing page' ) }</h2>
+				{ 'publish' === donationPage.status ? (
+					<Notice
+						isSuccess
+						noticeText={ __( 'Your donations landing page is set up and published.' ) }
+					/>
+				) : (
+					<Notice
+						isError
+						noticeText={ __(
+							"Your donations landing page has been created, but is not yet published. You can now edit it and publish when you're ready."
 						) }
-						<Handoff
-							plugin="woocommerce"
-							editLink={ donationPage.editUrl }
-							isTertiary
-							isSmall
-							showOnBlockEditor
-						>
-							{ __( 'Edit Page' ) }
-						</Handoff>
-					</Card>
+					/>
 				) }
-				<Card noBorder>
-					<DontationAmounts data={ data } onChange={ onChange } />
-				</Card>
-			</Grid>
-		);
-	}
-}
-
-Donation.defaultProps = {
-	data: {},
-	onChange: () => null,
-};
+				<Button isSecondary href={ donationPage.editUrl }>
+					{ __( 'Edit Page' ) }
+				</Button>
+			</Card>
+		) }
+		<Card noBorder>
+			<DontationAmounts data={ data } onChange={ onChange } />
+		</Card>
+	</Grid>
+);
 
 export default withWizardScreen( Donation );

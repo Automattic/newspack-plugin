@@ -115,4 +115,19 @@
 		display: block;
 		margin: 0;
 	}
+
+	// Hidden Elements
+
+	&--label-hidden {
+		label {
+			display: none;
+		}
+	}
+
+	&--help-hidden {
+		.components-form-token-field__help,
+		div.i {
+			display: none;
+		}
+	}
 }

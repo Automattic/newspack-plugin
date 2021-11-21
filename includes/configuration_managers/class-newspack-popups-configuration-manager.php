@@ -38,11 +38,12 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 * Retrieve all prompt CPTs
 	 *
 	 * @param  boolean $include_unpublished Whether to include unpublished posts.
+	 * @param  boolean $include_trash Whether to include trashed posts.
 	 * @return array All prompts
 	 */
-	public function get_prompts( $include_unpublished = false ) {
+	public function get_prompts( $include_unpublished = false, $include_trash = false ) {
 		return $this->is_configured() ?
-			\Newspack_Popups_Model::retrieve_popups( $include_unpublished ) :
+			\Newspack_Popups_Model::retrieve_popups( $include_unpublished, $include_trash ) :
 			$this->unconfigured_error();
 	}
 
@@ -104,6 +105,24 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function get_custom_placement_values() {
 		return $this->is_configured() ?
 			\Newspack_Popups_Custom_Placements::get_custom_placement_values() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get overlay placements.
+	 */
+	public function get_overlay_placements() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Model::get_overlay_placements() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get overlay sizes.
+	 */
+	public function get_overlay_sizes() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Model::get_popup_size_options() :
 			$this->unconfigured_error();
 	}
 
@@ -259,6 +278,29 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function get_campaigns() {
 		return $this->is_configured() ?
 			\Newspack_Popups::get_groups() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get default title for a duplicated prompt.
+	 *
+	 * @param int $id Prompt ID to duplicate.
+	 */
+	public function get_duplicate_title( $id ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::get_duplicate_title( $id ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Duplicate a prompt.
+	 *
+	 * @param int    $id Prompt ID to duplicate.
+	 * @param string $title Title to give the duplicated prompt.
+	 */
+	public function duplicate_popup( $id, $title ) {
+		return $this->is_configured() ?
+			\Newspack_Popups::duplicate_popup( $id, $title ) :
 			$this->unconfigured_error();
 	}
 

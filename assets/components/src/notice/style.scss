@@ -60,7 +60,11 @@
 
 	&__content {
 		> div > * {
-			margin: 0;
+			margin: 0 !important;
 		}
+	}
+
+	& + & {
+		margin-top: -16px;
 	}
 }

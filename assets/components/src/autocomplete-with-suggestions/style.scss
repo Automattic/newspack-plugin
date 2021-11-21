@@ -13,7 +13,7 @@
 		> .newspack-autocomplete-tokenfield,
 		> .newspack-autocomplete-with-suggestions__search-suggestions,
 		> .newspack-autocomplete-with-suggestions__search-suggestions-multiselect {
-			margin-top: 1.5rem;
+			margin-top: 16px;
 		}
 	}
 
@@ -37,10 +37,20 @@
 		color: $gray-900 !important;
 	}
 
-	&__suggestions-spinner .components-spinner {
-		display: block;
-		margin: 0 auto 1rem;
-		position: relative;
+	&__suggestions-spinner {
+		background: $gray-100;
+		border: 1px solid $gray-900;
+		border-radius: 2px;
+		cursor: progress;
+		margin: 16px 0;
+		padding: 32px;
+
+		.components-spinner {
+			display: block;
+			margin: 0 auto;
+			position: relative;
+			top: 0;
+		}
 	}
 
 	.newspack-autocomplete-tokenfield__help {
@@ -69,8 +79,8 @@
 
 	&__selected-items {
 		border-bottom: 1px solid $gray-300;
-		margin-bottom: 2rem;
-		padding-bottom: 1.75rem;
+		margin-bottom: 16px;
+		padding-bottom: 12px;
 
 		.newspack-autocomplete-with-suggestions__label {
 			font-weight: bold;
@@ -106,42 +116,56 @@
 
 	&__search-suggestions,
 	&__search-suggestions-multiselect {
-		max-height: 166px;
+		border-radius: 2px;
+		border: 1px solid $gray-900;
+		max-height: 178px;
 		overflow-x: visible;
 		overflow-y: auto;
+		padding: 8px 8px 0;
 
-		.components-button.is-link {
-			color: $gray-900;
+		.components-button {
 			display: block;
+			line-height: normal;
 			margin: auto;
-			padding: 8px;
-			text-decoration: none;
-			width: 100%;
 
-			&:active:not( :disabled ),
-			&:hover:not( :disabled ) {
-				background: white;
-				background: var( --wp-admin-theme-color );
-				color: white;
+			&.is-link {
+				color: $gray-900;
+				padding: 8px;
+				text-decoration: none;
+				width: 100%;
+
+				&:active:not( :disabled ),
+				&:hover:not( :disabled ) {
+					background: $gray-900;
+					background: var( --wp-admin-theme-color );
+					color: white;
+				}
+			}
+			&.is-secondary {
+				margin-bottom: 8px;
+				margin-top: 8px;
+				width: 100%;
 			}
 		}
-		.components-button.is-secondary {
-			display: block;
-			margin: 1rem auto;
-		}
-	}
-
-	/* Extra space on sides to handle outline styles of focused checkboxes. */
-	&__search-suggestions-multiselect {
-		margin-left: -4px;
-		margin-right: -4px;
-		padding: 0 4px;
 	}
 
 	&__search-suggestions {
 		border-radius: 2px;
 		border: 1px solid $gray-900;
-		max-height: 192px;
-		padding: 4px;
+		padding: 0;
+
+		.components-button {
+			line-height: normal;
+
+			&:focus:not( :disabled ) {
+				border-radius: 0;
+				box-shadow: inset 0 0 0 1.5px $gray-900;
+				box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color );
+			}
+
+			&.is-secondary {
+				width: calc( 100% - 16px );
+			}
+		}
 	}
 }

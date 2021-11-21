@@ -4,37 +4,19 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { Icon, check } from '@wordpress/icons';
-
-/**
- * External dependencies.
- */
-import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import {
-	withWizardScreen,
-	Button,
-	Card,
-	Grid,
-	Handoff,
-	SectionHeader,
-	hooks,
-} from '../../../../components/src';
+import { ActionCard, Button, Handoff, hooks, withWizardScreen } from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
-import * as logos from './logos';
-import './style.scss';
 
 const INTEGRATIONS = {
 	jetpack: {
 		pluginSlug: 'jetpack',
 		editLink: 'admin.php?page=jetpack#/settings',
 		name: 'Jetpack',
-		description: __( 'The ideal plugin for protection, security, and more', 'newspack' ),
-		buttonText: __( 'Connect Jetpack', 'newspack' ),
-		logo: logos.Jetpack,
+		description: __( 'The ideal plugin for security, performance, and more', 'newspack' ),
 		fetchStatus: () =>
 			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
 				jetpack: { status: result.Configured ? result.Status : 'inactive' },
@@ -43,13 +25,8 @@ const INTEGRATIONS = {
 	'google-site-kit': {
 		pluginSlug: 'google-site-kit',
 		editLink: 'admin.php?page=googlesitekit-splash',
-		name: 'Google Site Kit',
-		description: __(
-			'Enables you to deploy, manage, and get insights from critical Google tools',
-			'newspack'
-		),
-		buttonText: __( 'Connect Google Site Kit', 'newspack' ),
-		logo: logos.SiteKit,
+		name: __( 'Site Kit by Google', 'newspack' ),
+		description: __( 'Deploy, manage, and get insights from critical Google tools', 'newspack' ),
 		fetchStatus: () =>
 			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
 				'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
@@ -57,9 +34,7 @@ const INTEGRATIONS = {
 	},
 	mailchimp: {
 		name: 'Mailchimp',
-		description: __( 'Allows users to sign up to your mailing list', 'newspack' ),
-		buttonText: __( 'Connect Mailchimp', 'newspack' ),
-		logo: logos.Mailchimp,
+		description: __( 'Allow users to sign up to your mailing list', 'newspack' ),
 		fetchStatus: () =>
 			fetchJetpackMailchimpStatus()
 				.then( mailchimp => ( { mailchimp } ) )
@@ -72,18 +47,18 @@ const intergationConnectButton = integration => {
 	if ( integration.pluginSlug ) {
 		return (
 			<Handoff plugin={ integration.pluginSlug } editLink={ integration.editLink } compact isLink>
-				{ integration.buttonText }
+				{ __( 'Connect', 'newspack' ) }
 			</Handoff>
 		);
 	}
 	if ( integration.url ) {
 		return (
 			<Button isLink href={ integration.url } target="_blank">
-				{ integration.buttonText }
+				{ __( 'Connect', 'newspack' ) }
 			</Button>
 		);
 	}
-	if ( integration.error?.code === 'unavailable_site_id' ) {
+	if ( ! integration.error?.code === 'unavailable_site_id' ) {
 		return (
 			<span className="i o-80">{ __( 'Connect Jetpack in order to configure Mailchimp.' ) }</span>
 		);
@@ -109,34 +84,22 @@ const Integrations = ( { setError, updateRoute } ) => {
 	}, [ canProceed ] );
 
 	return (
-		<Card noBorder>
+		<>
 			{ integrationsArray.map( integration => {
 				const isInactive = integration.status === 'inactive';
 				const isLoading = ! integration.status;
 				return (
-					<Grid
+					<ActionCard
 						key={ integration.name }
-						className={ classnames( 'newspack-integration', isLoading && 'o-50' ) }
-						columns={ 3 }
-						gutter={ 16 }
-					>
-						<div
-							className={ classnames(
-								'newspack-integration__status',
-								isInactive || isLoading ? 'to-do' : 'done'
-							) }
-						>
-							{ ! isInactive && ! isLoading && <Icon icon={ check } /> }
-						</div>
-						<Card noBorder className="newspack-integration__description">
-							<SectionHeader title={ integration.name } description={ integration.description } />
-							{ isInactive ? intergationConnectButton( integration ) : null }
-						</Card>
-						<div className="newspack-integration__logo">{ integration.logo() }</div>
-					</Grid>
+						title={ integration.name }
+						description={ integration.description }
+						actionText={ isInactive ? intergationConnectButton( integration ) : null }
+						checkbox={ isInactive || isLoading ? 'unchecked' : 'checked' }
+						isMedium
+					/>
 				);
 			} ) }
-		</Card>
+		</>
 	);
 };
 

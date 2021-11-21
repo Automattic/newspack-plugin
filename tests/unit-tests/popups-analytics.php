@@ -11,6 +11,12 @@ use Newspack\Popups_Analytics_Utils;
  * Tests the Campaigns (newspack-popups) Analytics functionality.
  */
 class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
+	private static $start_date; // phpcs:disable Squiz.Commenting.VariableComment.Missing
+	private static $end_date; // phpcs:disable Squiz.Commenting.VariableComment.Missing
+	public function setUp() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+		self::$start_date = ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' );
+		self::$end_date   = ( new \DateTime() )->modify( '-1 days' )->format( 'Y-m-d' );
+	}
 	/**
 	 * Test legacy report generation.
 	 */
@@ -35,7 +41,8 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 		$report    = \Popups_Analytics_Utils::process_ga_report(
 			$ga_rows,
 			[
-				'offset'         => '3',
+				'start_date'     => self::$start_date,
+				'end_date'       => self::$end_date,
 				'event_label_id' => '',
 				'event_action'   => '',
 			]
@@ -45,19 +52,21 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 			[
 				'report'         =>
 				[
+					[ 'Date', 'Views' ],
 					[
-						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-3 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-2 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => $yesterday->format( 'Y-m-d' ),
-						'value' => 4,
+						$yesterday->format( 'M j' ),
+						4,
 					],
 				],
+				'report_by_id'   => [],
 				'actions'        =>
 				[
 					[
@@ -112,7 +121,8 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 		$report  = \Popups_Analytics_Utils::process_ga_report(
 			$ga_rows,
 			[
-				'offset'         => '3',
+				'start_date'     => self::$start_date,
+				'end_date'       => self::$end_date,
 				'event_label_id' => '',
 				'event_action'   => '',
 			]
@@ -122,19 +132,21 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 			[
 				'report'         =>
 				[
+					[ 'Date', 'Views' ],
 					[
-						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-3 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
-						'value' => 0,
+						( new \DateTime() )->modify( '-2 days' )->format( 'M j' ),
+						0,
 					],
 					[
-						'date'  => $yesterday->format( 'Y-m-d' ),
-						'value' => 4,
+						$yesterday->format( 'M j' ),
+						4,
 					],
 				],
+				'report_by_id'   => [],
 				'actions'        =>
 				[
 					[
@@ -162,7 +174,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test legacy report generation.
+	 * Test report generation.
 	 */
 	public function test_report_generation() {
 		$yesterday = ( new \DateTime() )->modify( '-1 days' );
@@ -182,10 +194,45 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				],
 			],
 		];
-		$report    = \Popups_Analytics_Utils::process_ga_report(
+
+		$expected_report             = [
+			[ 'Date', 'Views' ],
+			[
+				( new \DateTime() )->modify( '-3 days' )->format( 'M j' ),
+				0,
+			],
+			[
+				( new \DateTime() )->modify( '-2 days' )->format( 'M j' ),
+				0,
+			],
+			[
+				$yesterday->format( 'M j' ),
+				4,
+			],
+		];
+		$expected_report_actions     = [
+			[
+				'label' => 'Seen',
+				'value' => 'Seen',
+			],
+		];
+		$expected_report_labels      = [
+			[
+				'label' => 'Inline: Newsletter form',
+				'value' => '954',
+			],
+		];
+		$expected_report_key_metrics = [
+			'seen'             => 4,
+			'form_submissions' => -1,
+			'link_clicks'      => -1,
+		];
+
+		$report = \Popups_Analytics_Utils::process_ga_report(
 			$ga_rows,
 			[
-				'offset'         => '3',
+				'start_date'     => self::$start_date,
+				'end_date'       => self::$end_date,
 				'event_label_id' => '',
 				'event_action'   => '',
 			]
@@ -193,44 +240,41 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 		self::assertEquals(
 			$report,
 			[
-				'report'         =>
-				[
-					[
-						'date'  => ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' ),
-						'value' => 0,
-					],
-					[
-						'date'  => ( new \DateTime() )->modify( '-2 days' )->format( 'Y-m-d' ),
-						'value' => 0,
-					],
-					[
-						'date'  => $yesterday->format( 'Y-m-d' ),
-						'value' => 4,
-					],
-				],
-				'actions'        =>
-				[
-					[
-						'label' => 'Seen',
-						'value' => 'Seen',
-					],
-				],
-				'labels'         =>
-				[
-					[
-						'label' => 'Inline: Newsletter form',
-						'value' => '954',
-					],
-				],
-				'key_metrics'    =>
-				[
-					'seen'             => 4,
-					'form_submissions' => -1,
-					'link_clicks'      => -1,
-				],
+				'report'         => $expected_report,
+				'report_by_id'   => [],
+				'actions'        => $expected_report_actions,
+				'labels'         => $expected_report_labels,
+				'key_metrics'    => $expected_report_key_metrics,
 				'post_edit_link' => false,
 			],
 			'Report has expected shape.'
+		);
+
+		$report_with_ids = \Popups_Analytics_Utils::process_ga_report(
+			$ga_rows,
+			[
+				'start_date'        => self::$start_date,
+				'end_date'          => self::$end_date,
+				'event_label_id'    => '',
+				'event_action'      => '',
+				'with_report_by_id' => true,
+			]
+		);
+		self::assertEquals(
+			$report_with_ids,
+			[
+				'report'         => $expected_report,
+				'report_by_id'   => [
+					'954' => [
+						'seen' => 4,
+					],
+				],
+				'actions'        => $expected_report_actions,
+				'labels'         => $expected_report_labels,
+				'key_metrics'    => $expected_report_key_metrics,
+				'post_edit_link' => false,
+			],
+			'Report with IDs has expected shape.'
 		);
 	}
 }

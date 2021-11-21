@@ -3,7 +3,7 @@
  */
 import { Component, createRef, Fragment, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close, desktop, mobile, tablet } from '@wordpress/icons';
+import { closeSmall, desktop, mobile, tablet } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -110,7 +110,7 @@ class WebPreview extends Component {
 									this.setState( { isPreviewVisible: false, loaded: false } );
 								} }
 								isSmall
-								icon={ close }
+								icon={ closeSmall }
 								label={ __( 'Close preview', 'newspack' ) }
 							/>
 						</div>
@@ -119,7 +119,7 @@ class WebPreview extends Component {
 						{ ! loaded && (
 							<div className="newspack-web-preview__is-waiting">
 								<Waiting isLeft />
-								{ __( 'Loading...', 'newspack' ) }
+								{ __( 'Loading…', 'newspack' ) }
 							</div>
 						) }
 						<iframe

@@ -3,7 +3,7 @@
 /**
  * Add handoff notice to block editor.
  */
-( function( wp ) {
+( function ( wp ) {
 	wp.data.dispatch( 'core/notices' ).createNotice( 'info', newspack_handoff.text, {
 		isDismissible: true,
 		actions: [

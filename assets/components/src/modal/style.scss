@@ -11,51 +11,49 @@
 	color: $gray-700;
 	font-size: 14px;
 	line-height: 24px;
-	margin: 0;
-	padding: 0 48px;
+	margin: auto;
+	max-height: 100%;
 	width: 100%;
 
 	@media screen and ( min-width: 600px ) {
-		border-radius: 4px;
+		border-radius: 3px;
 		max-width: 80%;
 		max-width: calc( 100% - 64px );
 	}
 
 	@media screen and ( min-width: 744px ) {
 		max-width: 680px;
-		padding: 0 64px;
 
 		&--wide {
 			max-width: 1168px;
 		}
 	}
 
+	&--narrow {
+		max-width: 360px;
+	}
+
 	// Header
 
 	.components-modal__header {
+		align-items: flex-start;
 		background: white;
-		border: none;
+		border: 0;
 		height: auto;
-		margin: 0;
-		padding: 64px 0 32px;
+		justify-content: flex-end;
+		margin: 0 -32px 0;
+		padding: 32px 32px 0;
+		position: relative;
 
 		.components-modal__header-heading-container {
 			display: block;
+			margin-right: 16px;
 		}
 
 		.components-button.has-icon {
-			height: 48px;
-			justify-content: center;
-			left: auto;
-			padding: 0;
-			position: absolute;
-			right: -40px;
-			top: 8px;
-			width: 48px;
-
-			@media screen and ( min-width: 744px ) {
-				right: -56px;
-			}
+			flex: 0 0 36px;
+			left: 0;
+			margin: -2px 0;
 
 			&:hover,
 			&[aria-expended='true'] {
@@ -78,21 +76,20 @@
 
 		.components-modal__header-heading {
 			color: $gray-900;
-			font-size: 20px;
+			font-size: 21px;
 			font-weight: bold;
-			line-height: 24px;
-			text-align: center;
+			line-height: 32px;
 		}
 	}
 
 	// Content
 
 	.components-modal__content {
-		margin: -32px 0 0;
-		padding: 0 0 16px;
+		padding: 0 32px;
+		margin: 0;
 
-		@media screen and ( min-width: 744px ) {
-			padding-bottom: 32px;
+		&::before {
+			display: none;
 		}
 	}
 

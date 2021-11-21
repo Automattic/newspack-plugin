@@ -49,8 +49,10 @@ const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 				{ isExpanded && (
 					<ColorPickerComponent
 						color={ color }
-						onChangeComplete={ ( { hex } ) => onChange( hex ) }
-						disableAlpha
+						onChangeComplete={ ( { hex } ) => onChange( hex ) } // Prop will be deprecated in favor of onChange, which expects a string hex value.
+						disableAlpha // Prop will be deprecated in favor of enableAlpha, which behaves in the opposite manner.
+						onChange={ hex => onChange( hex ) }
+						enableAlpha={ false }
 					/>
 				) }
 			</div>

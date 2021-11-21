@@ -2,11 +2,12 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { category } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Button, Handoff, Notice, TabbedNavigation, WizardPagination } from '../';
+import { Button, Handoff, NewspackIcon, Notice, TabbedNavigation, WizardPagination } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -31,6 +32,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			secondaryButtonText,
 			secondaryButtonAction,
 			routes,
+			renderAboveContent,
 		} = props;
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
@@ -59,14 +61,26 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 				{ newspack_aux_data.is_debug_mode && (
 					<Notice
 						isWarning
-						className="newspack-wizard__debug-mode-notice"
+						className="newspack-wizard__above-header"
 						noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
 					/>
 				) }
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
-						{ headerText && <h1>{ headerText }</h1> }
-						{ subHeaderText && <p>{ subHeaderText }</p> }
+						<div className="newspack-wizard__title">
+							<Button
+								isLink
+								href={ newspack_urls.dashboard }
+								label={ __( 'Return to Dashboard', 'newspack' ) }
+								showTooltip={ true }
+								icon={ category }
+								iconSize={ 36 }
+							>
+								<NewspackIcon size={ 36 } />
+							</Button>
+							{ headerText && <h1>{ headerText }</h1> }
+							{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
+						</div>
 						{ tabbedNavigation && (
 							<>
 								<TabbedNavigation items={ tabbedNavigation } />
@@ -77,6 +91,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 				</div>
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
+					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }
 					{ <WrappedComponent { ...props } renderPrimaryButton={ renderPrimaryButton } /> }
 					{ ( shouldRenderPrimaryButton || shouldRenderSecondaryButton ) && (
 						<div className="newspack-buttons-card">

@@ -18,14 +18,14 @@ const Footer = ( { simple } ) => {
 	const componentsDemo = window && window.newspack_urls && window.newspack_urls.components_demo;
 	const setupWizard = window && window.newspack_urls && window.newspack_urls.setup_wizard;
 	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
-	const resetWpcomUrl = window && window.newspack_urls && window.newspack_urls.reset_wpcom_url;
 	const pluginVersion = window && window.newspack_urls && window.newspack_urls.plugin_version;
 	const removeStarterContent =
 		window && window.newspack_urls && window.newspack_urls.remove_starter_content;
 	const footerElements = [
 		{
 			label: pluginVersion.label,
-			url: pluginVersion.url,
+			url: 'https://newspack.pub/category/release-notes/',
+			external: true,
 		},
 		{
 			label: __( 'About', 'newspack' ),
@@ -56,12 +56,6 @@ const Footer = ( { simple } ) => {
 			url: resetUrl,
 		} );
 	}
-	if ( resetWpcomUrl ) {
-		footerElements.push( {
-			label: __( 'Reset WordPress.com Authentication', 'newspack' ),
-			url: resetWpcomUrl,
-		} );
-	}
 	if ( removeStarterContent ) {
 		footerElements.push( {
 			label: __( 'Remove Starter Content', 'newspack' ),
@@ -70,7 +64,6 @@ const Footer = ( { simple } ) => {
 	}
 	return (
 		<div className="newspack-footer">
-			<PatronsLogo />
 			{ ! simple && (
 				<div className="newspack-footer__inner">
 					<ul>
@@ -86,6 +79,9 @@ const Footer = ( { simple } ) => {
 					</ul>
 				</div>
 			) }
+			<div className="newspack-footer__logo">
+				<PatronsLogo />
+			</div>
 		</div>
 	);
 };

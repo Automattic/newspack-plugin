@@ -28,6 +28,8 @@ import {
 import './style.scss';
 import withWPCOMAuth from '../../components/withWPCOMAuth';
 
+const { API_URL } = newspack_support_data;
+
 const Footer = props => (
 	<span className="newspack-buttons-card">
 		<Button isPrimary { ...props } />
@@ -47,7 +49,7 @@ const PRIORITY_OPTIONS = [
 class CreateTicket extends Component {
 	state = {
 		isSent: false,
-		errorMessage: false,
+		errorMessage: API_URL ? false : __( 'Missing support API URL.', 'newspack' ),
 		subject: '',
 		priority: PRIORITY_OPTIONS[ 0 ].value,
 		message: RichTextEditor.createEmptyValue(),
@@ -84,7 +86,6 @@ class CreateTicket extends Component {
 
 		const { attachments } = this.state;
 		if ( attachments ) {
-			const { API_URL } = newspack_support_data;
 			const uploadRequests = [ ...attachments ].map( ( { file } ) => {
 				return fetch( `${ API_URL }/uploads.json?filename=${ file.name }`, {
 					method: 'POST',

@@ -29,7 +29,6 @@
 			margin: 0;
 
 			.components-custom-select-control__button {
-				border-color: $gray-200;
 				color: $gray-900;
 				font-size: 17px;
 				font-weight: bold;
@@ -78,41 +77,6 @@
 			}
 		}
 	}
-
-	&__add-new-button {
-		&__modal {
-			max-width: 384px;
-			padding: 0 32px;
-
-			.components-modal__content {
-				margin: 0;
-			}
-
-			.components-modal__header {
-				background: transparent;
-				padding-top: 32px;
-
-				.components-button.has-icon {
-					right: -32px;
-				}
-			}
-
-			.newspack-text-control {
-				margin-top: 0;
-			}
-
-			.newspack-card__buttons-card {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: flex-end;
-				margin: -8px;
-
-				&.newspack-card__buttons-prompt {
-					justify-content: center;
-				}
-			}
-		}
-	}
 }
 
 .newspack-card__buttons-prompt {
@@ -120,7 +84,7 @@
 		color: $gray-900;
 		display: flex;
 		flex-direction: column;
-		padding: 8px !important;
+		padding: 0 !important;
 		text-align: center;
 		width: 96px;
 
@@ -141,7 +105,7 @@
 			display: block;
 			fill: $primary-500;
 			margin: 0 0 8px;
-			padding: 15px;
+			padding: 23px;
 			transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out;
 		}
 	}

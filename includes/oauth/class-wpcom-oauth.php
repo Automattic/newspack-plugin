@@ -197,15 +197,12 @@ class WPCOM_OAuth {
 	}
 
 	/**
-	 * Is the authenticated user a Newspack customer?
+	 * Check if wizard is configured and should be displayed.
+	 *
+	 * @return bool True if necessary variables are present.
 	 */
-	public static function is_newspack_customer() {
-		try {
-			$response = self::perform_wpcom_api_request( 'rest/v1.1/newspack/is-customer' );
-			return 200 === $response->status;
-		} catch ( \Exception $e ) {
-			return false;
-		}
+	public static function is_wpcom_configured() {
+		return self::wpcom_client_id();
 	}
 }
 new WPCOM_OAuth();

@@ -76,44 +76,20 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Retrieve WooCommerce currency fields to populate Select
-	 *
-	 * @return Array Array of objects formatted for use in a SelectControl.
-	 */
-	public function currency_fields() {
-		if ( ! function_exists( 'WC' ) ) {
-			return [];
-		}
-		$currencies    = get_woocommerce_currencies();
-		$currency_info = [];
-		foreach ( $currencies as $code => $currency ) {
-			$currency_info[] = [
-				'value' => $code,
-				'label' => html_entity_decode( $currency ),
-			];
-		}
-		return $currency_info;
-	}
-
-	/**
 	 * Retrieve Stripe data
 	 *
 	 * @return Array Array of Stripe data.
 	 */
 	public function stripe_data() {
+		if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
+			return Stripe_Connection::get_default_stripe_data();
+		}
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
-			return [
-				'enabled'            => false,
-				'testMode'           => false,
-				'publishableKey'     => '',
-				'secretKey'          => '',
-				'testPublishableKey' => '',
-				'testSecretKey'      => '',
-			];
+			return Stripe_Connection::get_default_stripe_data();
 		}
-		$stripe = $gateways['stripe'];
-		return [
+		$stripe      = $gateways['stripe'];
+		$stripe_data = [
 			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
 			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
 			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
@@ -121,6 +97,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
 			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
 		];
+		return $stripe_data;
 	}
 
 	/**
@@ -172,7 +149,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @param Array $args Address data.
 	 * @return Array|WP_Error The data that was updated or an error.
 	 */
-	public function update_stripe_settings( $args ) {
+	public function update_wc_stripe_settings( $args ) {
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
 			if ( $args['enabled'] ) {
@@ -194,6 +171,10 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		$stripe->update_option( 'secret_key', $args['secretKey'] );
 		$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
 		$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+
+		// @todo when is the best time to do this?
+		$this->set_smart_defaults();
+
 		return true;
 	}
 
@@ -211,33 +192,5 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		// Enables checkout without login.
 		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
 		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
-
-		$this->disable_amp_for_woocomm_checkout_page();
-	}
-
-	/**
-	 * Disables AMP for the WooCommerce Checkout page.
-	 */
-	public function disable_amp_for_woocomm_checkout_page() {
-		$checkout_page_id = get_option( 'woocommerce_checkout_page_id' );
-		if ( ! $checkout_page_id ) {
-			return;
-		}
-
-		$this->disable_amp_for_post( $checkout_page_id );
-	}
-
-	/**
-	 * Disables AMP for a specific Post/Page.
-	 *
-	 * @param int $post_id Post ID.
-	 */
-	public function disable_amp_for_post( $post_id ) {
-		$post = get_post( $post_id );
-		if ( ! $post ) {
-			return;
-		}
-
-		update_post_meta( $post_id, 'amp_status', 'disabled' );
 	}
 }
