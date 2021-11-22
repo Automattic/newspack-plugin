@@ -1,3 +1,5 @@
+/* global newspack_connections_data */
+
 /**
  * WordPress dependencies.
  */
@@ -28,10 +30,12 @@ const Main = () => {
 	return (
 		<>
 			{ error && <Notice isError noticeText={ error } /> }
-			<WPCOMAuth />
-			<GoogleAuth setError={ setError } />
+			{ newspack_connections_data.can_connect_wordpress && <WPCOMAuth /> }
+			{ newspack_connections_data.can_connect_google && <GoogleAuth setError={ setError } /> }
 			<Mailchimp setError={ setError } />
-			<FivetranConnection setError={ setError } />
+			{ newspack_connections_data.can_connect_fivetran && (
+				<FivetranConnection setError={ setError } />
+			) }
 		</>
 	);
 };

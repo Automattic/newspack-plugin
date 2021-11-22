@@ -1,5 +1,3 @@
-/* global newspack_connections_data */
-
 /**
  * WordPress dependencies
  */
@@ -75,24 +73,16 @@ const FivetranConnection = ( { setError } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 
 	const hasFetched = connections !== undefined;
-	const canUseFivetran = newspack_connections_data.can_connect_fivetran;
 
 	const handleError = err => setError( err.message || __( 'Something went wrong.', 'newspack' ) );
 
 	useEffect( () => {
-		if ( ! canUseFivetran ) {
-			return;
-		}
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
 			.then( setConnections )
 			.catch( handleError )
 			.finally( () => setInFlight( false ) );
-	}, [ canUseFivetran ] );
-
-	if ( ! canUseFivetran ) {
-		return null;
-	}
+	}, [] );
 
 	const createConnection = ( { service } ) => {
 		setInFlight( true );
