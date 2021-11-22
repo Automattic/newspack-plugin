@@ -137,7 +137,7 @@
     "qs": "^6.9.3",
     "react": "^17.0.2",
     "react-daterange-picker": "^2.0.1",
-    "react-dropzone": "^10.2.1",
+    "react-dropzone": "^11.4.2",
     "react-google-charts": "^3.0.15",
     "react-rte": "^0.16.1"
   },
