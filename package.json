@@ -128,7 +128,7 @@
     "@wordpress/keycodes": "^3.2.2",
     "@wordpress/plugins": "^4.0.6",
     "@wordpress/url": "^3.2.2",
-    "date-fns": "^2.14.0",
+    "date-fns": "^2.26.0",
     "happychat-client": "^0.1.0",
     "human-number": "^1.0.5",
     "js-cookie": "^2.2.1",
