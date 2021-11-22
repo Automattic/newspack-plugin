@@ -4,7 +4,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
 import withWPCOMAuth from '../../../support/components/withWPCOMAuth';
 
 /**
@@ -12,25 +11,10 @@ import withWPCOMAuth from '../../../support/components/withWPCOMAuth';
  */
 import { Button, ActionCard } from '../../../../components/src';
 
-const WPCOMAuth = ( {
-	onStatusChange,
-	shouldAuthenticate,
-	isInFlight,
-	disconnectURL,
-	authURL,
-} ) => {
-	const canUseWPCOM = newspack_connections_data.can_connect_wpcom;
-
-	useEffect( () => {
-		if ( ! isInFlight ) {
-			onStatusChange( shouldAuthenticate === false );
-		}
-	}, [ shouldAuthenticate, isInFlight ] );
-
-	if ( ! canUseWPCOM ) {
+const WPCOMAuth = ( { shouldAuthenticate, isInFlight, disconnectURL, authURL } ) => {
+	if ( ! newspack_connections_data.can_connect_wpcom ) {
 		return null;
 	}
-
 	return (
 		<ActionCard
 			title={ __( 'WordPress.com', 'newspack' ) }

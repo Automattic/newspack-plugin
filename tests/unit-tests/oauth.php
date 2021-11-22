@@ -16,6 +16,14 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 	public function setUp() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		$user_id = $this->factory->user->create( [ 'role' => 'testsistrator' ] );
 		wp_set_current_user( $user_id );
+
+		if ( ! defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
+			define( 'NEWSPACK_GOOGLE_OAUTH_PROXY', 'http://dummy.proxy' );
+		}
+		if ( ! defined( 'NEWSPACK_MANAGER_API_KEY_OPTION_NAME' ) ) {
+			define( 'NEWSPACK_MANAGER_API_KEY_OPTION_NAME', 'newspack-manager-api-key-option-name' );
+		}
+		update_option( NEWSPACK_MANAGER_API_KEY_OPTION_NAME, '123abc' );
 	}
 
 	/**

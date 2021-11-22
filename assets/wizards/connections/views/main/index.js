@@ -15,7 +15,6 @@ import FivetranConnection from './fivetran';
 const Main = () => {
 	const [ error, setError ] = useState();
 	const [ isResolvingAuth, setIsResolvingAuth ] = useState( true );
-	const [ isWPCOMConnected, setIsWPCOMConnected ] = useState();
 	useEffect( () => {
 		handleGoogleRedirect( { setError } ).finally( () => {
 			setIsResolvingAuth( false );
@@ -28,11 +27,11 @@ const Main = () => {
 
 	return (
 		<>
-			{ error && <Notice isError>{ error }</Notice> }
-			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
-			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
+			{ error && <Notice isError noticeText={ error } /> }
+			<WPCOMAuth />
+			<GoogleAuth setError={ setError } />
 			<Mailchimp setError={ setError } />
-			<FivetranConnection setError={ setError } wpComStatus={ isWPCOMConnected } />
+			<FivetranConnection setError={ setError } />
 		</>
 	);
 };

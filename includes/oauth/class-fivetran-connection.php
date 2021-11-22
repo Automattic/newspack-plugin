@@ -75,22 +75,22 @@ class Fivetran_Connection {
 	}
 
 	/**
-	 * Get the Fivetran proxy URL.
+	 * Process OAuth proxy URL.
 	 *
 	 * @param string $path Path to append to base URL.
+	 * @param object $query_args Query params.
 	 */
-	private static function get_proxy_url( $path = '' ) {
+	private static function authenticate_proxy_url( $path = '', $query_args = [] ) {
 		if ( ! self::is_fivetran_configured() ) {
 			return false;
 		}
-		$wpcom_token = WPCOM_OAuth::get_access_token();
-		if ( is_wp_error( $wpcom_token ) ) {
-			return false;
-		}
 		return add_query_arg(
-			[
-				'wpcom_access_token' => urlencode( base64_encode( $wpcom_token ) ),
-			],
+			array_merge(
+				[
+					'api_key' => urlencode( OAuth::get_proxy_api_key() ),
+				],
+				$query_args
+			),
 			NEWSPACK_FIVETRAN_PROXY . $path
 		);
 	}
@@ -99,7 +99,7 @@ class Fivetran_Connection {
 	 * Get Fivetran connections status.
 	 */
 	public static function api_get_fivetran_connection_status() {
-		$url      = self::get_proxy_url( '/wp-json/newspack-fivetran/v1/connections-status' );
+		$url      = self::authenticate_proxy_url( '/wp-json/newspack-fivetran/v1/connections-status' );
 		$response = self::process_proxy_response( \wp_safe_remote_get( $url ) );
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -119,8 +119,7 @@ class Fivetran_Connection {
 		$service      = $request->get_param( 'service' );
 		$service_data = [];
 
-		// For Google Ad Manager (aka double_click_publishers) - if Newspack Ads knows the network code,
-		// let's use it.
+		// For Google Ad Manager (aka double_click_publishers) - if Newspack Ads knows the network code, let's use it.
 		if (
 			'double_click_publishers' === $service &&
 			method_exists( 'Newspack_Ads_Model', 'get_active_network_code' )
@@ -133,13 +132,13 @@ class Fivetran_Connection {
 			}
 		}
 
-		$url      = add_query_arg(
+		$url      = self::authenticate_proxy_url(
+			'/wp-json/newspack-fivetran/v1/connect-card',
 			[
 				'service'        => $service,
 				'service_data'   => $service_data,
 				'redirect_after' => admin_url( 'admin.php?page=newspack-connections-wizard' ),
-			],
-			self::get_proxy_url( '/wp-json/newspack-fivetran/v1/connect-card' )
+			]
 		);
 		$response = self::process_proxy_response( \wp_safe_remote_post( $url, [ 'timeout' => 30 ] ) ); // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 		if ( is_wp_error( $response ) ) {
@@ -159,11 +158,11 @@ class Fivetran_Connection {
 			$payload['paused'] = $request->get_param( 'paused' );
 		}
 		if ( ! empty( $payload ) ) {
-			$url      = add_query_arg(
+			$url      = self::authenticate_proxy_url(
+				'/wp-json/newspack-fivetran/v1/connector',
 				[
 					'connector_id' => $request->get_param( 'connector_id' ),
-				],
-				self::get_proxy_url( '/wp-json/newspack-fivetran/v1/connector' )
+				]
 			);
 			$response = self::process_proxy_response(
 				\wp_safe_remote_post(
@@ -235,7 +234,7 @@ class Fivetran_Connection {
 	 * Is Fivetran configured for this instance?
 	 */
 	public static function is_fivetran_configured() {
-		return defined( 'NEWSPACK_FIVETRAN_PROXY' );
+		return defined( 'NEWSPACK_FIVETRAN_PROXY' ) && OAuth::get_proxy_api_key();
 	}
 }
 new Fivetran_Connection();

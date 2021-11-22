@@ -50,7 +50,7 @@ export const handleGoogleRedirect = ( { setError } ) => {
 	return Promise.resolve();
 };
 
-const GoogleOAuth = ( { setError, canBeConnected } ) => {
+const GoogleOAuth = ( { setError } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
@@ -124,11 +124,11 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 			return __( 'Loading…', 'newspack' );
 		}
 		if ( isConnected ) {
-			// Translators: user connection status message.
-			return sprintf( __( 'Connected as %s', 'newspack' ), userBasicInfo.email );
-		}
-		if ( ! canBeConnected ) {
-			return __( 'First connect to WordPress.com', 'newspack' );
+			return sprintf(
+				// Translators: connected user's email address.
+				__( 'Connected as %s', 'newspack' ),
+				userBasicInfo.email
+			);
 		}
 		return __( 'Not connected', 'newspack' );
 	};
@@ -142,7 +142,7 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 					isLink
 					isDestructive={ isConnected }
 					onClick={ isConnected ? disconnect : goToAuthPage }
-					disabled={ inFlight || ( ! isConnected && ! canBeConnected ) }
+					disabled={ inFlight }
 				>
 					{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }
 				</Button>

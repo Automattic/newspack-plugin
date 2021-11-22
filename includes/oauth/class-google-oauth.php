@@ -167,22 +167,22 @@ class Google_OAuth {
 	}
 
 	/**
-	 * Get the OAuth proxy URL.
+	 * Process OAuth proxy URL.
 	 *
 	 * @param string $path Path to append to base URL.
+	 * @param object $query_args Query params.
 	 */
-	private static function get_oauth_proxy_url( $path = '' ) {
-		if ( ! defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
+	private static function authenticate_proxy_url( $path = '', $query_args = [] ) {
+		if ( ! self::is_oauth_configured() ) {
 			return false;
 		}
-		if ( is_wp_error( WPCOM_OAuth::get_access_token() ) ) {
-			return false;
-		}
-
 		return add_query_arg(
-			[
-				'wpcom_access_token' => urlencode( base64_encode( WPCOM_OAuth::get_access_token() ) ),
-			],
+			array_merge(
+				[
+					'api_key' => urlencode( OAuth::get_proxy_api_key() ),
+				],
+				$query_args
+			),
 			NEWSPACK_GOOGLE_OAUTH_PROXY . $path
 		);
 	}
@@ -193,11 +193,12 @@ class Google_OAuth {
 	 * @return WP_REST_Response Response with the URL.
 	 */
 	public static function api_google_auth_start() {
-		$proxy_url = self::get_oauth_proxy_url( '/wp-json/newspack-oauth-proxy/v1/start' );
 		try {
-			$query_args = self::get_google_auth_url_params();
-			$url        = add_query_arg( $query_args, $proxy_url );
-			$result     = wp_safe_remote_get( $url );
+			$url    = self::authenticate_proxy_url(
+				'/wp-json/newspack-oauth-proxy/v1/start',
+				self::get_google_auth_url_params()
+			);
+			$result = wp_safe_remote_get( $url );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -379,15 +380,14 @@ class Google_OAuth {
 		if ( $is_expired && isset( $auth_data['refresh_token'] ) ) {
 			// Refresh the access token.
 			try {
-				$proxy_url = self::get_oauth_proxy_url( '/wp-json/newspack-oauth-proxy/v1/refresh-token' );
-				$url       = add_query_arg(
+				$url    = self::authenticate_proxy_url(
+					'/wp-json/newspack-oauth-proxy/v1/refresh-token',
 					[
 						'refresh_token' => $auth_data['refresh_token'],
 						'csrf_token'    => self::generate_csrf_token(),
-					],
-					$proxy_url
+					]
 				);
-				$result    = wp_safe_remote_get( $url );
+				$result = wp_safe_remote_get( $url );
 				if ( is_wp_error( $result ) ) {
 					return false;
 				}
@@ -424,7 +424,7 @@ class Google_OAuth {
 	 * Is OAuth2 configured for this instance?
 	 */
 	public static function is_oauth_configured() {
-		return defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' );
+		return defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) && OAuth::get_proxy_api_key();
 	}
 }
 new Google_OAuth();
