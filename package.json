@@ -120,7 +120,7 @@
     "@wordpress/compose": "^5.0.6",
     "@wordpress/data": "^6.1.4",
     "@wordpress/date": "^4.2.1",
-    "@wordpress/edit-post": "^5.0.9",
+    "@wordpress/edit-post": "^5.0.10",
     "@wordpress/element": "^4.0.4",
     "@wordpress/html-entities": "^3.2.1",
     "@wordpress/i18n": "^4.2.4",
