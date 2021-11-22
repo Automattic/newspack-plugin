@@ -55,49 +55,47 @@ const getAdUnitsForSelect = adUnits => {
 const PlacementControl = ( {
 	adUnits = {},
 	bidders = {},
-	placement = {},
+	value = {},
 	hook = {},
 	onChange,
 	...props
 } ) => {
-	const { data = {} } = placement;
-	let label = __( 'Ad Unit', 'newspack' );
-	let key = 'ad_unit';
-	if ( hook.hookKey ) {
-		label += ` - ${ hook.name }`;
-		key = `ad_unit_${ hook.hookKey }`;
-	}
+	const adUnitLabel = hook.name
+		? // Translators: Ad placement hook name.
+		  sprintf( __( 'Ad Unit - %s', 'newspack' ), hook.name )
+		: __( 'Ad Unit', 'newspack' );
+
 	return (
 		<Fragment>
 			<SelectControl
-				label={ label }
-				value={ data[ key ] }
+				label={ adUnitLabel }
+				value={ value.ad_unit }
 				options={ getAdUnitsForSelect( adUnits ) }
-				onChange={ value => {
+				onChange={ data => {
 					onChange( {
-						...data,
-						[ key ]: value,
+						...value,
+						ad_unit: data,
 					} );
 				} }
 				{ ...props }
 			/>
 			{ Object.keys( bidders ).map( bidderKey => {
-				// Translators: Bidder name.
-				let bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidders[ bidderKey ] );
-				if ( hook.hookKey ) {
-					bidderLabel += ` - ${ hook.name }`;
-				}
+				const bidderLabel = hook.name
+					? // Translators: %1: Bidder name. %2 Ad placement hook name.
+					  sprintf( __( '%1$s Placement ID - %2$s', 'newspack' ), bidders[ bidderKey ], hook.name )
+					: // Translators: Bidder name.
+					  sprintf( __( '%s Placement ID', 'newspack' ), bidders[ bidderKey ] );
 				return (
 					<TextControl
 						key={ bidderKey }
-						value={ data.bidders_ids ? data.bidders_ids[ bidderKey ] : null }
+						value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
 						label={ bidderLabel }
-						onChange={ value => {
+						onChange={ data => {
 							onChange( {
-								...data,
+								...value,
 								bidders_ids: {
-									...data.bidders_ids,
-									[ bidderKey ]: value,
+									...value.bidders_ids,
+									[ bidderKey ]: data,
 								},
 							} );
 						} }
@@ -138,12 +136,26 @@ const Placements = ( { adUnits } ) => {
 			method: value ? 'POST' : 'DELETE',
 		} );
 	};
-	const handlePlacementChange = placementKey => value => {
+	const handlePlacementChange = ( placementKey, hookKey ) => value => {
+		const placementData = placements[ placementKey ]?.data;
+		let data = {
+			...placementData,
+			...value,
+		};
+		if ( hookKey ) {
+			data = {
+				...placementData,
+				hooks: {
+					...placementData.hooks,
+					[ hookKey ]: value,
+				},
+			};
+		}
 		setPlacements( {
 			...placements,
 			[ placementKey ]: {
 				...placements[ placementKey ],
-				data: value,
+				data,
 			},
 		} );
 	};
@@ -213,7 +225,7 @@ const Placements = ( { adUnits } ) => {
 										<PlacementControl
 											adUnits={ adUnits }
 											bidders={ bidders }
-											placement={ placement }
+											value={ placement.data }
 											disabled={ inFlight }
 											onChange={ handlePlacementChange( key ) }
 										/>
@@ -230,10 +242,10 @@ const Placements = ( { adUnits } ) => {
 														key={ hookKey }
 														adUnits={ adUnits }
 														bidders={ bidders }
-														placement={ placement }
+														value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
 														hook={ hook }
 														disabled={ inFlight }
-														onChange={ handlePlacementChange( key ) }
+														onChange={ handlePlacementChange( key, hookKey ) }
 													/>
 												);
 											} ) }
