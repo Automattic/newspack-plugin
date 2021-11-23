@@ -50,6 +50,21 @@ const getAdUnitsForSelect = adUnits => {
 };
 
 /**
+ * Whether any `sizesToCheck` size exists in `sizes`.
+ *
+ * @param {Array} sizes Array of sizes.
+ * @param {Array} sizesToCheck Array of sizes to check.
+ * @return {Boolean} Whether any size was found.
+ */
+const hasAnySize = ( sizes, sizesToCheck ) => {
+	return sizesToCheck.some( sizeToCheck => {
+		return ( sizes || [] ).find(
+			size => size[ 0 ] === sizeToCheck[ 0 ] && size[ 1 ] === sizeToCheck[ 1 ]
+		);
+	} );
+};
+
+/**
  * Placement Control Component.
  */
 const PlacementControl = ( {
@@ -57,13 +72,35 @@ const PlacementControl = ( {
 	bidders = {},
 	value = {},
 	hook = {},
+	disabled = false,
 	onChange,
 	...props
 } ) => {
+	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 	const adUnitLabel = hook.name
 		? // Translators: Ad placement hook name.
 		  sprintf( __( 'Ad Unit - %s', 'newspack' ), hook.name )
 		: __( 'Ad Unit', 'newspack' );
+
+	useEffect( () => {
+		const errors = {};
+		Object.keys( bidders ).forEach( bidderKey => {
+			const bidder = bidders[ bidderKey ];
+			const supported =
+				value.ad_unit &&
+				adUnits[ value.ad_unit ] &&
+				hasAnySize( bidder.ad_sizes, adUnits[ value.ad_unit ].sizes );
+			errors[ bidderKey ] = supported
+				? null
+				: sprintf(
+						// Translators: Ad bidder name.
+						__( '%s does not support the selected ad unit sizes.', 'newspack' ),
+						bidder.name,
+						''
+				  );
+		} );
+		setBiddersErrors( errors );
+	}, [ adUnits, value.ad_unit ] );
 
 	return (
 		<Fragment>
@@ -77,19 +114,22 @@ const PlacementControl = ( {
 						ad_unit: data,
 					} );
 				} }
+				disabled={ disabled }
 				{ ...props }
 			/>
 			{ Object.keys( bidders ).map( bidderKey => {
+				const bidder = bidders[ bidderKey ];
 				const bidderLabel = hook.name
 					? // Translators: %1: Bidder name. %2 Ad placement hook name.
-					  sprintf( __( '%1$s Placement ID - %2$s', 'newspack' ), bidders[ bidderKey ], hook.name )
+					  sprintf( __( '%1$s Placement ID - %2$s', 'newspack' ), bidder.name, hook.name )
 					: // Translators: Bidder name.
-					  sprintf( __( '%s Placement ID', 'newspack' ), bidders[ bidderKey ] );
+					  sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
 				return (
 					<TextControl
 						key={ bidderKey }
 						value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
 						label={ bidderLabel }
+						disabled={ biddersErrors[ bidderKey ] || disabled }
 						onChange={ data => {
 							onChange( {
 								...value,
@@ -102,6 +142,16 @@ const PlacementControl = ( {
 						{ ...props }
 					/>
 				);
+			} ) }
+			{ Object.keys( biddersErrors ).map( bidderKey => {
+				if ( biddersErrors[ bidderKey ] ) {
+					return (
+						<Notice key={ bidderKey } isWarning>
+							{ biddersErrors[ bidderKey ] }
+						</Notice>
+					);
+				}
+				return null;
 			} ) }
 		</Fragment>
 	);
@@ -167,7 +217,7 @@ const Placements = ( { adUnits } ) => {
 		} );
 	};
 	const isEnabled = placementKey => {
-		return placements[ placementKey ].data.enabled;
+		return placements[ placementKey ].data?.enabled;
 	};
 	useEffect( () => {
 		apiFetch( { path: '/newspack-ads/v1/bidders' } )
@@ -220,7 +270,7 @@ const Placements = ( { adUnits } ) => {
 								toggleChecked={ isEnabled( key ) }
 								hasGreyHeader={ isEnabled( key ) }
 							>
-								<Grid columns={ 2 } gutter={ 32 }>
+								<Grid columns={ 1 } gutter={ 32 }>
 									{ isEnabled( key ) && placement.hook_name && (
 										<PlacementControl
 											adUnits={ adUnits }
