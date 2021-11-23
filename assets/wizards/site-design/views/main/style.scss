@@ -1,25 +1,32 @@
 @import '../../../../shared/scss/colors';
 
 .newspack-floating-button {
-	z-index: 1;
+	z-index: 9999;
 	position: fixed;
-	bottom: 0;
+	bottom: 16px;
 	right: 16px;
 
-	.newspack-button.is-secondary {
-		border-bottom: 0 !important;
-		border-bottom-left-radius: 0;
-		border-bottom-right-radius: 0;
-		box-shadow: 0 -4px 8px rgba( black, 0.08 ) !important;
-		padding-bottom: 12px;
+	.newspack-button-card {
+		margin: 0;
+		position: relative;
+		z-index: 1;
 
-		&:active,
-		&:hover {
-			box-shadow: 0 -4px 8px rgba( black, 0.16 ) !important;
+		&::before {
+			border-radius: 3px;
+			box-shadow: 0 0 8px 4px rgba( black, 0.08 );
+			bottom: 0;
+			content: '';
+			display: block;
+			left: 0;
+			position: absolute;
+			right: 0;
+			top: 0;
+			transition: box-shadow 125ms ease-in-out;
+			z-index: -1;
 		}
 
-		&:focus {
-			box-shadow: 0 -4px 8px rgba( black, 0.16 ), 0 0 0 1px white, 0 0 0 3px $primary-500 !important;
+		&:hover::before {
+			box-shadow: 0 0 8px 4px rgba( black, 0.16 );
 		}
 	}
 }
