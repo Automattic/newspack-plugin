@@ -510,7 +510,7 @@ class Stripe_Connection {
 	 * @param strin $currency Currency code.
 	 * @return number Amount.
 	 */
-	private static function is_currency_zero_decimal( $currency ) {
+	public static function is_currency_zero_decimal( $currency ) {
 		$zero_decimal_currencies = [ 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF' ];
 		return in_array( strtoupper( $currency ), $zero_decimal_currencies, true );
 	}
