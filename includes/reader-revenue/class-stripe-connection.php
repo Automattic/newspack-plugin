@@ -26,6 +26,8 @@ class Stripe_Connection {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+		add_action( 'init', [ __CLASS__, 'handle_merchant_id_file_request' ] );
+		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
 	}
 
 	/**
@@ -636,6 +638,76 @@ class Stripe_Connection {
 			$response['error'] = $e->getMessage();
 		}
 		return $response;
+	}
+
+	/**
+	 * Handle Stripe's Apple Pay verification.
+	 */
+	public static function handle_merchant_id_file_request() {
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: Input var okay.
+			$raw_uri = sanitize_text_field(
+				wp_unslash( $_SERVER['REQUEST_URI'] ) // WPCS: Input var okay.
+			);
+			if ( '/.well-known/apple-developer-merchantid-domain-association' === $raw_uri ) {
+				$path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/apple-developer-merchantid-domain-association';
+				header( 'content-type: application/octet-stream' );
+				echo file_get_contents( $path ); // phpcs:ignore
+				exit;
+			}
+		}
+	}
+
+	/**
+	 * Get site's domain.
+	 */
+	private static function get_site_domain() {
+		return wp_parse_url( site_url() )['host'];
+	}
+
+	/**
+	 * Does the connected Stripe instance have the site's domain
+	 * registerd with Apple Pay?
+	 */
+	private static function is_apple_pay_domain_registered() {
+		try {
+			$stripe       = self::get_stripe_client();
+			$site_domain  = self::get_site_domain();
+			$found_domain = array_filter(
+				$stripe->applePayDomains->all()['data'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				function( $item ) use ( $site_domain ) {
+					return $site_domain === $item->domain_name && true === $item->livemode;
+				}
+			);
+			return 0 !== count( $found_domain );
+		} catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Ensure the site's domain is registered with Stripe for Apple Pay.
+	 */
+	public static function register_apple_pay_domain() {
+		if ( get_transient( '_newspack_is_registering_apple_pay_domain' ) ) {
+			return;
+		}
+		try {
+			$secret_key = self::get_stripe_secret_key();
+			if ( 0 === stripos( $secret_key, 'sk_test' ) ) {
+				// Apple Pay domains can only be added using live keys.
+				return;
+			}
+			set_transient( '_newspack_is_registering_apple_pay_domain', true, 10 );
+			$stripe = self::get_stripe_client();
+			if ( $stripe ) {
+				$site_domain = self::get_site_domain();
+				if ( ! self::is_apple_pay_domain_registered() ) {
+					$stripe->applePayDomains->create( [ 'domain_name' => $site_domain ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+			}
+		} catch ( \Exception $e ) {
+			return;
+		}
 	}
 }
 
