@@ -131,12 +131,27 @@ class Stripe_Connection {
 	 *
 	 * @param string $customer_id Customer ID.
 	 */
-	private static function get_customer( $customer_id ) {
+	private static function get_customer_by_id( $customer_id ) {
 		$stripe = self::get_stripe_client();
 		try {
 			return $stripe->customers->retrieve( $customer_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Retrieve a customer by email address.
+	 *
+	 * @param string $email_address Email address.
+	 */
+	private static function get_customer_by_email( $email_address ) {
+		try {
+			$stripe          = self::get_stripe_client();
+			$found_customers = $stripe->customers->all( [ 'email' => $email_address ] )['data'];
+			return count( $found_customers ) ? $found_customers[0] : null;
+		} catch ( \Throwable $e ) {
+			return null;
 		}
 	}
 
@@ -232,7 +247,7 @@ class Stripe_Connection {
 			case 'charge.succeeded':
 				$payment           = $request['data']['object'];
 				$metadata          = $payment['metadata'];
-				$customer          = self::get_customer( $payment['customer'] );
+				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
 
 				$referer = '';
@@ -533,6 +548,43 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Get (by email) or create customer.
+	 *
+	 * @param object $data Customer data.
+	 */
+	private static function upsert_customer( $data ) {
+		try {
+			$stripe   = self::get_stripe_client();
+			$customer = self::get_customer_by_email( $data['email'] );
+
+			$customer_data_payload = [
+				'email'       => $data['email'],
+				'name'        => $data['name'],
+				'description' => __( 'Newspack Donor', 'newspack-blocks' ),
+			];
+			if ( isset( $data['metadata'] ) ) {
+				$customer_data_payload['metadata'] = $data['metadata'];
+			}
+
+			if ( null === $customer ) {
+				// Set source only if creating a customer.
+				if ( isset( $data['source'] ) ) {
+					$customer_data_payload['source'] = $data['source'];
+				}
+				$customer = $stripe->customers->create( $customer_data_payload );
+			} else {
+				$customer = $stripe->customers->update(
+					$customer['id'],
+					$customer_data_payload
+				);
+			}
+			return $customer;
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+	}
+
+	/**
 	 * Handle a donation in Stripe.
 	 * If it's a recurring donation, a subscription will be created. Otherwise,
 	 * a single charge.
@@ -555,42 +607,40 @@ class Stripe_Connection {
 			$client_metadata  = $config['client_metadata'];
 			$payment_metadata = $config['payment_metadata'];
 
-			// Find or create the customer by email.
-			$found_customers = $stripe->customers->all( [ 'email' => $email_address ] )['data'];
-			$customer        = count( $found_customers ) ? $found_customers[0] : null;
-			if ( null === $customer ) {
-				$customer = $stripe->customers->create(
-					[
-						'email'       => $email_address,
-						'name'        => $full_name,
-						'description' => __( 'Newspack Donor', 'newspack-blocks' ),
-						'source'      => $token_data['id'],
-						'metadata'    => $client_metadata,
-					]
-				);
-			}
+			$customer = self::upsert_customer(
+				[
+					'email'    => $email_address,
+					'name'     => $full_name,
+					'source'   => $token_data['id'],
+					'metadata' => $client_metadata,
+				]
+			);
 			if ( $customer['default_source'] !== $token_data['card']['id'] ) {
-				$stripe->customers->update(
-					$customer['id'],
-					[
-						'source'   => $token_data['id'],
-						'metadata' => $client_metadata,
-						'name'     => $full_name,
-					]
-				);
+				// A different card was used, update the customer's card to avoid
+				// charging the previously used card.
+				// This does not work well when the card is an Apple Pay "card" –
+				// $token_data['card']['id'] will be different for each transaction.
+				try {
+					$new_source = $stripe->customers->createSource(
+						$customer['id'],
+						[ 'source' => $token_data['id'] ]
+					);
+					$stripe->customers->update(
+						$customer['id'],
+						[ 'default_source' => $new_source['id'] ]
+					);
+				} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				}
 			}
 
 			if ( 'once' === $frequency ) {
 				// Create a Payment Intent on Stripe.
 				$payment_data = self::get_stripe_data();
-				$intent       = $stripe->paymentIntents->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$intent       = self::create_payment_intent(
 					[
-						'amount'               => self::get_amount( $amount_raw, $payment_data['currency'] ),
-						'currency'             => $payment_data['currency'],
-						'customer'             => $customer['id'],
-						'metadata'             => $payment_metadata,
-						'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
-						'payment_method_types' => [ 'card' ],
+						'amount'   => $amount_raw,
+						'customer' => $customer['id'],
+						'metadata' => $payment_metadata,
 					]
 				);
 				if ( ! Reader_Revenue_Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPE_RECEIPT ) ) {
@@ -604,7 +654,7 @@ class Stripe_Connection {
 				$price  = $prices[ $frequency ];
 				$amount = self::get_amount( $amount_raw, $price['currency'] );
 
-				$subscription = $stripe->subscriptions->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$subscription = $stripe->subscriptions->create(
 					[
 						'customer'         => $customer['id'],
 						'items'            => [
@@ -638,6 +688,25 @@ class Stripe_Connection {
 			$response['error'] = $e->getMessage();
 		}
 		return $response;
+	}
+
+	/**
+	 * Create a Stripe payment intent.
+	 *
+	 * @param object $config Data about the payment intent.
+	 */
+	private static function create_payment_intent( $config ) {
+		$stripe       = self::get_stripe_client();
+		$payment_data = self::get_stripe_data();
+		$intent_data  = [
+			'amount'               => self::get_amount( $config['amount'], $payment_data['currency'] ),
+			'metadata'             => $config['metadata'],
+			'currency'             => $payment_data['currency'],
+			'payment_method_types' => [ 'card' ],
+			'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
+			'customer'             => $config['customer'],
+		];
+		return $stripe->paymentIntents->create( $intent_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 	/**
