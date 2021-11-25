@@ -90,14 +90,15 @@ const PlacementControl = ( {
 				value.ad_unit &&
 				adUnits[ value.ad_unit ] &&
 				hasAnySize( bidder.ad_sizes, adUnits[ value.ad_unit ].sizes );
-			errors[ bidderKey ] = supported
-				? null
-				: sprintf(
-						// Translators: Ad bidder name.
-						__( '%s does not support the selected ad unit sizes.', 'newspack' ),
-						bidder.name,
-						''
-				  );
+			errors[ bidderKey ] =
+				! value.ad_unit || supported
+					? null
+					: sprintf(
+							// Translators: Ad bidder name.
+							__( '%s does not support the selected ad unit sizes.', 'newspack' ),
+							bidder.name,
+							''
+					  );
 		} );
 		setBiddersErrors( errors );
 	}, [ adUnits, value.ad_unit ] );
