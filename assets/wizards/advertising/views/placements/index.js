@@ -228,6 +228,7 @@ const Placements = ( { adUnits } ) => {
 			} );
 		placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
 	}, [] );
+	const placement = editingPlacement ? placements[ editingPlacement ] : null;
 	return (
 		<Fragment>
 			<SectionHeader
@@ -253,56 +254,57 @@ const Placements = ( { adUnits } ) => {
 				} ) }
 			>
 				{ Object.keys( placements ).map( key => {
-					const placement = placements[ key ];
 					return (
 						<ActionCard
 							key={ key }
 							isSmall
 							disabled={ inFlight }
-							title={ placement.name }
-							description={ placement.description }
+							title={ placements[ key ].name }
+							description={ placements[ key ].description }
 							toggleOnChange={ handlePlacementToggle( key ) }
 							toggleChecked={ isEnabled( key ) }
 							hasGreyHeader={ isEnabled( key ) }
 							actionText={
-								<Button
-									isQuaternary
-									isSmall
-									onClick={ () => setEditingPlacement( key ) }
-									icon={ settings }
-									label={ __( 'Placement settings', 'newspack' ) }
-									tooltipPosition="bottom center"
-								/>
+								isEnabled( key ) ? (
+									<Button
+										isQuaternary
+										isSmall
+										onClick={ () => setEditingPlacement( key ) }
+										icon={ settings }
+										label={ __( 'Placement settings', 'newspack' ) }
+										tooltipPosition="bottom center"
+									/>
+								) : null
 							}
 						/>
 					);
 				} ) }
 			</div>
-			{ editingPlacement && (
+			{ editingPlacement && placement && (
 				<Modal
 					title={ sprintf(
 						// translators: %s is the name of the placement
 						__( '%s placement settings', 'newspack' ),
-						placements[ editingPlacement ].name
+						placement.name
 					) }
 					onRequestClose={ () => setEditingPlacement( null ) }
 				>
 					{ error && <Notice isError noticeText={ error.message } /> }
 					{ biddersError && <Notice isWarning noticeText={ biddersError.message } /> }
-					{ isEnabled( editingPlacement ) && placements[ editingPlacement ].hook_name && (
+					{ isEnabled( editingPlacement ) && placement.hook_name && (
 						<PlacementControl
 							adUnits={ adUnits }
 							bidders={ bidders }
-							value={ placements[ editingPlacement ].data }
+							value={ placement.data }
 							disabled={ inFlight }
 							onChange={ handlePlacementChange( editingPlacement ) }
 						/>
 					) }
-					{ placements[ editingPlacement ].hooks &&
-						Object.keys( placements[ editingPlacement ].hooks ).map( hookKey => {
+					{ placement.hooks &&
+						Object.keys( placement.hooks ).map( hookKey => {
 							const hook = {
 								hookKey,
-								...placements[ editingPlacement ].hooks[ hookKey ],
+								...placement.hooks[ hookKey ],
 							};
 							return (
 								<>
@@ -311,11 +313,7 @@ const Placements = ( { adUnits } ) => {
 										key={ hookKey }
 										adUnits={ adUnits }
 										bidders={ bidders }
-										value={
-											placements[ editingPlacement ].data?.hooks
-												? placements[ editingPlacement ].data.hooks[ hookKey ]
-												: {}
-										}
+										value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
 										disabled={ inFlight }
 										onChange={ handlePlacementChange( editingPlacement, hookKey ) }
 									/>
