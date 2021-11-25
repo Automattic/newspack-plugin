@@ -13,13 +13,15 @@ import classnames from 'classnames';
 import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import {
 	ActionCard,
-	Grid,
+	Modal,
+	Card,
 	Notice,
 	SectionHeader,
 	SelectControl,
@@ -71,16 +73,11 @@ const PlacementControl = ( {
 	adUnits = {},
 	bidders = {},
 	value = {},
-	hook = {},
 	disabled = false,
 	onChange,
 	...props
 } ) => {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
-	const adUnitLabel = hook.name
-		? // Translators: Ad placement hook name.
-		  sprintf( __( 'Ad Unit - %s', 'newspack' ), hook.name )
-		: __( 'Ad Unit', 'newspack' );
 
 	useEffect( () => {
 		const errors = {};
@@ -106,7 +103,7 @@ const PlacementControl = ( {
 	return (
 		<Fragment>
 			<SelectControl
-				label={ adUnitLabel }
+				label={ __( 'Ad Unit', 'newspack' ) }
 				value={ value.ad_unit }
 				options={ getAdUnitsForSelect( adUnits ) }
 				onChange={ data => {
@@ -120,11 +117,8 @@ const PlacementControl = ( {
 			/>
 			{ Object.keys( bidders ).map( bidderKey => {
 				const bidder = bidders[ bidderKey ];
-				const bidderLabel = hook.name
-					? // Translators: %1: Bidder name. %2 Ad placement hook name.
-					  sprintf( __( '%1$s Placement ID - %2$s', 'newspack' ), bidder.name, hook.name )
-					: // Translators: Bidder name.
-					  sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
+				// Translators: Bidder name.
+				const bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
 				return (
 					<TextControl
 						key={ bidderKey }
@@ -164,12 +158,13 @@ const PlacementControl = ( {
 const Placements = ( { adUnits } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
+	const [ editingPlacement, setEditingPlacement ] = useState( null );
 	const [ placements, setPlacements ] = useState( {} );
 	const [ bidders, setBidders ] = useState( {} );
 	const [ biddersError, setBiddersError ] = useState( null );
-	const placementsApiFetch = options => {
+	const placementsApiFetch = async options => {
 		setInFlight( true );
-		apiFetch( options )
+		await apiFetch( options )
 			.then( data => {
 				setPlacements( data );
 				setError( null );
@@ -181,11 +176,14 @@ const Placements = ( { adUnits } ) => {
 				setInFlight( false );
 			} );
 	};
-	const handlePlacementToggle = placement => value => {
-		placementsApiFetch( {
+	const handlePlacementToggle = placement => async value => {
+		await placementsApiFetch( {
 			path: `/newspack-ads/v1/placements/${ placement }`,
 			method: value ? 'POST' : 'DELETE',
 		} );
+		if ( value ) {
+			setEditingPlacement( placement );
+		}
 	};
 	const handlePlacementChange = ( placementKey, hookKey ) => value => {
 		const placementData = placements[ placementKey ]?.data;
@@ -210,8 +208,8 @@ const Placements = ( { adUnits } ) => {
 			},
 		} );
 	};
-	const updatePlacement = placementKey => {
-		placementsApiFetch( {
+	const updatePlacement = async placementKey => {
+		await placementsApiFetch( {
 			path: `/newspack-ads/v1/placements/${ placementKey }`,
 			method: 'POST',
 			data: placements[ placementKey ].data,
@@ -248,90 +246,105 @@ const Placements = ( { adUnits } ) => {
 					</>
 				) }
 			/>
-			{ error && <Notice isError noticeText={ error.message } /> }
-			{ biddersError && <Notice isWarning noticeText={ biddersError.message } /> }
 			<div
 				className={ classnames( {
 					'newspack-wizard-ads-placements': true,
 					'newspack-wizard-section__is-loading': inFlight && ! Object.keys( placements ).length,
 				} ) }
 			>
-				{ Object.keys( placements )
-					.filter( key => !! isEnabled( key ) )
-					.map( key => {
-						const placement = placements[ key ];
-						return (
-							<ActionCard
-								key={ key }
-								isMedium
-								disabled={ inFlight }
-								title={ placement.name }
-								description={ placement.description }
-								toggleOnChange={ handlePlacementToggle( key ) }
-								toggleChecked={ isEnabled( key ) }
-								hasGreyHeader={ isEnabled( key ) }
-							>
-								<Grid columns={ 1 } gutter={ 32 }>
-									{ isEnabled( key ) && placement.hook_name && (
-										<PlacementControl
-											adUnits={ adUnits }
-											bidders={ bidders }
-											value={ placement.data }
-											disabled={ inFlight }
-											onChange={ handlePlacementChange( key ) }
-										/>
-									) }
-									{ placement.hooks && (
-										<>
-											{ Object.keys( placement.hooks ).map( hookKey => {
-												const hook = {
-													hookKey,
-													...placement.hooks[ hookKey ],
-												};
-												return (
-													<PlacementControl
-														key={ hookKey }
-														adUnits={ adUnits }
-														bidders={ bidders }
-														value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
-														hook={ hook }
-														disabled={ inFlight }
-														onChange={ handlePlacementChange( key, hookKey ) }
-													/>
-												);
-											} ) }
-										</>
-									) }
-								</Grid>
-								<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>
-									<Button
-										isPrimary
-										disabled={ inFlight }
-										onClick={ () => {
-											updatePlacement( key );
-										} }
-									>
-										{ __( 'Save placement settings', 'newspack' ) }
-									</Button>
-								</div>
-							</ActionCard>
-						);
-					} ) }
-				{ Object.keys( placements )
-					.filter( key => ! isEnabled( key ) )
-					.map( key => {
-						const placement = placements[ key ];
-						return (
-							<ActionCard
-								key={ key }
-								isSmall
-								disabled={ inFlight }
-								title={ placement.name }
-								toggleOnChange={ handlePlacementToggle( key ) }
-							/>
-						);
-					} ) }
+				{ Object.keys( placements ).map( key => {
+					const placement = placements[ key ];
+					return (
+						<ActionCard
+							key={ key }
+							isSmall
+							disabled={ inFlight }
+							title={ placement.name }
+							description={ placement.description }
+							toggleOnChange={ handlePlacementToggle( key ) }
+							toggleChecked={ isEnabled( key ) }
+							hasGreyHeader={ isEnabled( key ) }
+							actionText={
+								<Button
+									isQuaternary
+									isSmall
+									onClick={ () => setEditingPlacement( key ) }
+									icon={ settings }
+									label={ __( 'Placement settings', 'newspack' ) }
+									tooltipPosition="bottom center"
+								/>
+							}
+						/>
+					);
+				} ) }
 			</div>
+			{ editingPlacement && (
+				<Modal
+					title={ sprintf(
+						// translators: %s is the name of the placement
+						__( '%s placement settings', 'newspack' ),
+						placements[ editingPlacement ].name
+					) }
+					onRequestClose={ () => setEditingPlacement( null ) }
+				>
+					{ error && <Notice isError noticeText={ error.message } /> }
+					{ biddersError && <Notice isWarning noticeText={ biddersError.message } /> }
+					{ isEnabled( editingPlacement ) && placements[ editingPlacement ].hook_name && (
+						<PlacementControl
+							adUnits={ adUnits }
+							bidders={ bidders }
+							value={ placements[ editingPlacement ].data }
+							disabled={ inFlight }
+							onChange={ handlePlacementChange( editingPlacement ) }
+						/>
+					) }
+					{ placements[ editingPlacement ].hooks &&
+						Object.keys( placements[ editingPlacement ].hooks ).map( hookKey => {
+							const hook = {
+								hookKey,
+								...placements[ editingPlacement ].hooks[ hookKey ],
+							};
+							return (
+								<>
+									<h2>{ hook.name }</h2>
+									<PlacementControl
+										key={ hookKey }
+										adUnits={ adUnits }
+										bidders={ bidders }
+										value={
+											placements[ editingPlacement ].data?.hooks
+												? placements[ editingPlacement ].data.hooks[ hookKey ]
+												: {}
+										}
+										disabled={ inFlight }
+										onChange={ handlePlacementChange( editingPlacement, hookKey ) }
+									/>
+								</>
+							);
+						} ) }
+					<Card buttonsCard noBorder className="justify-end">
+						<Button
+							isSecondary
+							disabled={ inFlight }
+							onClick={ () => {
+								setEditingPlacement( null );
+							} }
+						>
+							{ __( 'Cancel', 'newspack' ) }
+						</Button>
+						<Button
+							isPrimary
+							disabled={ inFlight }
+							onClick={ async () => {
+								await updatePlacement( editingPlacement );
+								setEditingPlacement( null );
+							} }
+						>
+							{ __( 'Save', 'newspack' ) }
+						</Button>
+					</Card>
+				</Modal>
+			) }
 		</Fragment>
 	);
 };
