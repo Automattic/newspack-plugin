@@ -387,7 +387,7 @@ class Stripe_Connection {
 			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 			$stripe_data              = $wc_configuration_manager->stripe_data();
 		} else {
-			$stripe_data = get_option( self::STRIPE_DATA_OPTION_NAME, self::get_default_stripe_data() );
+			$stripe_data = array_merge( $stripe_data, get_option( self::STRIPE_DATA_OPTION_NAME, [] ) );
 		}
 		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
 		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
