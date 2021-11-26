@@ -32,6 +32,8 @@ class Stripe_Connection {
 
 	/**
 	 * Register the endpoints needed for the wizard screens.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public static function register_api_endpoints() {
 		register_rest_route(
