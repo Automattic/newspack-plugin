@@ -596,7 +596,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		$stripe_data['can_use_stripe_platform'] = Donations::can_use_stripe_platform();
 
 		$args = [
-			'country_state_fields' => [],
+			'country_state_fields' => newspack_get_countries(),
 			'currency_fields'      => newspack_get_currencies_options(),
 			'location_data'        => [],
 			'stripe_data'          => $stripe_data,
@@ -624,6 +624,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 			$args = wp_parse_args(
 				[
+					// A more complete list, with states for each country.
 					'country_state_fields' => $wc_configuration_manager->country_state_fields(),
 					'location_data'        => $wc_configuration_manager->location_data(),
 					'salesforce_settings'  => Salesforce::get_salesforce_settings(),
