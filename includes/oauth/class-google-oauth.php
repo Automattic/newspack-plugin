@@ -17,8 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * Google OAuth2 flow.
  */
 class Google_OAuth {
-	const AUTH_DATA_META_NAME            = '_newspack_google_oauth';
-	const CSRF_TOKEN_TRANSIENT_NAME_BASE = '_newspack_google_oauth_csrf_';
+	const AUTH_DATA_META_NAME  = '_newspack_google_oauth';
+	const CSRF_TOKEN_NAMESPACE = 'google';
 
 	const REQUIRED_SCOPES = [
 		'https://www.googleapis.com/auth/userinfo.email', // User's email address.
@@ -105,7 +105,7 @@ class Google_OAuth {
 	 * @return bool|WP_Error
 	 */
 	public static function permissions_check() {
-		if ( ! current_user_can( 'manage_options' ) || ! self::is_oauth_configured() ) {
+		if ( ! current_user_can( 'manage_options' ) || ! OAuth::is_proxy_configured( 'google' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),
@@ -118,28 +118,14 @@ class Google_OAuth {
 	}
 
 	/**
-	 * Generate a CSRF token and save it as transient.
-	 *
-	 * @return string CSRF token.
-	 */
-	private static function generate_csrf_token() {
-		$csrf_token     = sha1( openssl_random_pseudo_bytes( 1024 ) );
-		$transient_name = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . get_current_user_id();
-		set_transient( $transient_name, $csrf_token, 60 );
-		return $csrf_token;
-	}
-
-	/**
 	 * Save OAuth2 credentials for the current user.
 	 *
 	 * @param object $tokens Tokens.
 	 * @return bool True if credentials were saved.
 	 */
 	private static function save_auth_credentials( $tokens ) {
-		$tokens = (array) $tokens;
-
-		$csrf_token_transient_name = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . get_current_user_id();
-		$saved_csrf_token          = get_transient( $csrf_token_transient_name );
+		$tokens           = (array) $tokens;
+		$saved_csrf_token = OAuth::retrieve_csrf_token( self::CSRF_TOKEN_NAMESPACE );
 
 		if ( $tokens['csrf_token'] !== $saved_csrf_token ) {
 			return new \WP_Error( 'newspack_google_oauth', __( 'Session token mismatch.', 'newspack' ) );
@@ -160,31 +146,10 @@ class Google_OAuth {
 	 */
 	public static function get_google_auth_url_params() {
 		return [
-			'csrf_token'     => self::generate_csrf_token(),
+			'csrf_token'     => OAuth::generate_csrf_token( self::CSRF_TOKEN_NAMESPACE ),
 			'scope'          => implode( ' ', self::REQUIRED_SCOPES ),
 			'redirect_after' => admin_url( 'admin.php?page=newspack-connections-wizard' ),
 		];
-	}
-
-	/**
-	 * Process OAuth proxy URL.
-	 *
-	 * @param string $path Path to append to base URL.
-	 * @param object $query_args Query params.
-	 */
-	private static function authenticate_proxy_url( $path = '', $query_args = [] ) {
-		if ( ! self::is_oauth_configured() ) {
-			return false;
-		}
-		return add_query_arg(
-			array_merge(
-				[
-					'api_key' => urlencode( OAuth::get_proxy_api_key() ),
-				],
-				$query_args
-			),
-			NEWSPACK_GOOGLE_OAUTH_PROXY . $path
-		);
 	}
 
 	/**
@@ -194,7 +159,8 @@ class Google_OAuth {
 	 */
 	public static function api_google_auth_start() {
 		try {
-			$url    = self::authenticate_proxy_url(
+			$url    = OAuth::authenticate_proxy_url(
+				'google',
 				'/wp-json/newspack-oauth-proxy/v1/start',
 				self::get_google_auth_url_params()
 			);
@@ -279,7 +245,7 @@ class Google_OAuth {
 		$response = [
 			'user_basic_info' => false,
 		];
-		if ( false === self::is_oauth_configured() ) {
+		if ( false === OAuth::is_proxy_configured( 'google' ) ) {
 			return \rest_ensure_response( $response );
 		}
 		$user_info_data = self::authenticated_user_basic_information();
@@ -362,11 +328,6 @@ class Google_OAuth {
 	/**
 	 * Get OAuth2 Credentials.
 	 * If refresh token is available, refresh credentials.
-	 * Otherwise, return credentials based on access token.
-	 * The difference is that the latter can expire and the user will be forced to authorise again.
-	 * The refresh token will be issued only upon first authorisation with the app - if the same app
-	 * is used for authorisation on another site, only access token will be issued.
-	 * More at https://stackoverflow.com/a/10857806/3772847.
 	 *
 	 * @return OAuth2|bool The credentials, or false of the user has not authenticated or credentials are not usable.
 	 */
@@ -380,11 +341,11 @@ class Google_OAuth {
 		if ( $is_expired && isset( $auth_data['refresh_token'] ) ) {
 			// Refresh the access token.
 			try {
-				$url    = self::authenticate_proxy_url(
+				$url    = OAuth::authenticate_proxy_url(
 					'/wp-json/newspack-oauth-proxy/v1/refresh-token',
 					[
 						'refresh_token' => $auth_data['refresh_token'],
-						'csrf_token'    => self::generate_csrf_token(),
+						'csrf_token'    => OAuth::generate_csrf_token( self::CSRF_TOKEN_NAMESPACE ),
 					]
 				);
 				$result = wp_safe_remote_get( $url );
@@ -418,13 +379,6 @@ class Google_OAuth {
 	 */
 	public static function remove_credentials() {
 		delete_option( self::AUTH_DATA_META_NAME );
-	}
-
-	/**
-	 * Is OAuth2 configured for this instance?
-	 */
-	public static function is_oauth_configured() {
-		return defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) && OAuth::get_proxy_api_key();
 	}
 }
 new Google_OAuth();

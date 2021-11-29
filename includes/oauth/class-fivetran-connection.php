@@ -75,31 +75,10 @@ class Fivetran_Connection {
 	}
 
 	/**
-	 * Process OAuth proxy URL.
-	 *
-	 * @param string $path Path to append to base URL.
-	 * @param object $query_args Query params.
-	 */
-	private static function authenticate_proxy_url( $path = '', $query_args = [] ) {
-		if ( ! self::is_fivetran_configured() ) {
-			return false;
-		}
-		return add_query_arg(
-			array_merge(
-				[
-					'api_key' => urlencode( OAuth::get_proxy_api_key() ),
-				],
-				$query_args
-			),
-			NEWSPACK_FIVETRAN_PROXY . $path
-		);
-	}
-
-	/**
 	 * Get Fivetran connections status.
 	 */
 	public static function api_get_fivetran_connection_status() {
-		$url      = self::authenticate_proxy_url( '/wp-json/newspack-fivetran/v1/connections-status' );
+		$url      = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
 		$response = self::process_proxy_response( \wp_safe_remote_get( $url ) );
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
@@ -132,7 +111,8 @@ class Fivetran_Connection {
 			}
 		}
 
-		$url      = self::authenticate_proxy_url(
+		$url      = OAuth::authenticate_proxy_url(
+			'fivetran',
 			'/wp-json/newspack-fivetran/v1/connect-card',
 			[
 				'service'        => $service,
@@ -158,7 +138,8 @@ class Fivetran_Connection {
 			$payload['paused'] = $request->get_param( 'paused' );
 		}
 		if ( ! empty( $payload ) ) {
-			$url      = self::authenticate_proxy_url(
+			$url      = OAuth::authenticate_proxy_url(
+				'fivetran',
 				'/wp-json/newspack-fivetran/v1/connector',
 				[
 					'connector_id' => $request->get_param( 'connector_id' ),
@@ -228,13 +209,6 @@ class Fivetran_Connection {
 			);
 		}
 		return true;
-	}
-
-	/**
-	 * Is Fivetran configured for this instance?
-	 */
-	public static function is_fivetran_configured() {
-		return defined( 'NEWSPACK_FIVETRAN_PROXY' ) && OAuth::get_proxy_api_key();
 	}
 }
 new Fivetran_Connection();
