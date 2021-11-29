@@ -335,6 +335,9 @@ class Setup_Wizard extends Wizard {
 			set_theme_mod( 'header_color_hex', $theme_mods['primary_color_hex'] );
 			$theme_mods['header_color_hex'] = get_theme_mod( 'header_color_hex' );
 		}
+		if ( ! isset( $theme_mods['homepage_pattern_index'] ) ) {
+			$theme_mods['homepage_pattern_index'] = 0;
+		}
 
 		$theme_mods['accent_allcaps'] = get_theme_mod( 'accent_allcaps', true );
 
