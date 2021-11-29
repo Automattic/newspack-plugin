@@ -82,6 +82,8 @@ class OAuth {
 
 	/**
 	 * Get proxy URL by type.
+	 *
+	 * @param string $type 'google' or 'fivetran' for now.
 	 */
 	private static function get_proxy_url( $type ) {
 		switch ( $type ) {
@@ -89,10 +91,12 @@ class OAuth {
 				if ( defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
 					return NEWSPACK_GOOGLE_OAUTH_PROXY;
 				}
+				break;
 			case 'fivetran':
 				if ( defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
 					return NEWSPACK_FIVETRAN_PROXY;
 				}
+				break;
 		}
 		return false;
 	}
