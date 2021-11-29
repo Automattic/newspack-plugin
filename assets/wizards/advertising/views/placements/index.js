@@ -263,7 +263,7 @@ const Placements = ( { adUnits } ) => {
 							description={ placements[ key ].description }
 							toggleOnChange={ handlePlacementToggle( key ) }
 							toggleChecked={ isEnabled( key ) }
-							hasGreyHeader={ isEnabled( key ) }
+							hasGreyHeader={ ! isEnabled( key ) }
 							actionText={
 								isEnabled( key ) ? (
 									<Button
