@@ -30,7 +30,7 @@ const Main = () => {
 	return (
 		<>
 			{ error && <Notice isError noticeText={ error } /> }
-			{ newspack_connections_data.can_connect_wordpress && <WPCOMAuth /> }
+			{ newspack_connections_data.can_connect_wpcom && <WPCOMAuth /> }
 			{ newspack_connections_data.can_connect_google && <GoogleAuth setError={ setError } /> }
 			<Mailchimp setError={ setError } />
 			{ newspack_connections_data.can_connect_fivetran && (
