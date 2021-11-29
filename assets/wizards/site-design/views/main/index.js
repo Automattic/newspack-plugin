@@ -66,9 +66,10 @@ const Main = ( {
 		updateMods( response.theme_mods );
 		updateThemeSlug( response.theme );
 		updateHomepagePatterns( response.homepage_patterns );
+		const { font_header: headerFont, font_body: bodyFont } = response.theme_mods;
 		if (
-			isFontInOptions( response.theme_mods.font_header ) === false ||
-			isFontInOptions( response.theme_mods.font_body ) === false
+			( headerFont && ! isFontInOptions( headerFont ) ) ||
+			( bodyFont && ! isFontInOptions( bodyFont ) )
 		) {
 			updateTypographyOptionsType( TYPOGRAPHY_OPTIONS[ 1 ].value );
 		}
