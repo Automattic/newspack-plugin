@@ -110,7 +110,7 @@ const PromptActionCard = props => {
 		const promptToDuplicate = parseInt( prompt?.duplicate_of || prompt.id );
 		try {
 			const defaultTitle = await apiFetch( {
-				path: `/newspack/v1/wizard/newspack-popups-wizard/${ promptToDuplicate }/duplicate`,
+				path: `/newspack/v1/wizard/newspack-popups-wizard/${ promptToDuplicate }/${ prompt.id }/duplicate`,
 			} );
 
 			setDuplicateTitle( defaultTitle );
