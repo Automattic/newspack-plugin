@@ -127,10 +127,10 @@ class Setup_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/starter-content/categories',
+			'/wizard/' . $this->slug . '/starter-content/init',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_starter_content_categories' ],
+				'callback'            => [ $this, 'api_starter_content_init' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -226,13 +226,37 @@ class Setup_Wizard extends Wizard {
 	}
 
 	/**
-	 * Install starter content categories
+	 * Initialize a starter content generator.
 	 *
-	 * @return WP_REST_Response containing info.
+	 * @param WP_REST_Request $request API request object.
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function api_starter_content_categories() {
-		$status = Starter_Content::create_categories();
-		return rest_ensure_response( [ 'status' => $status ] );
+	public function api_starter_content_init( $request ) {
+		$request_params = $request->get_params();
+		if ( empty( $request_params ) || empty( $request_params['type'] ) ) {
+			return new WP_Error( 'newspack_setup', __( 'Missing starter content initialization info', 'newspack' ) );
+		}
+
+		$starter_content_type = 'import' === $request_params['type'] ? 'import' : 'generated';
+		$existing_site_url    = ! empty( $request_params['site'] ) && wp_http_validate_url( $request_params['site'] ) ? esc_url_raw( $request_params['site'] ) : '';
+
+		if ( 'import' === $starter_content_type && ! $existing_site_url ) {
+			return new WP_Error(
+				'newspack_setup',
+				sprintf(
+					/* translators: %s - Site URL */
+					__( 'Invalid site URL: "%s".', 'newspack' ),
+					sanitize_text_field( $request_params['site'] )
+				)
+			);
+		}
+
+		$result = Starter_Content::initialize( $starter_content_type, $existing_site_url );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( [ 'status' => 200 ] );
 	}
 
 	/**
@@ -244,6 +268,10 @@ class Setup_Wizard extends Wizard {
 	public function api_starter_content_post( $request ) {
 		$id     = $request['id'];
 		$status = Starter_Content::create_post( $id );
+		if ( is_wp_error( $status ) ) {
+			return $status;
+		}
+
 		return rest_ensure_response( [ 'status' => $status ] );
 	}
 

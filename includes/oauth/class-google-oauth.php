@@ -347,7 +347,8 @@ class Google_OAuth {
 			if ( 200 === wp_remote_retrieve_response_code( $user_info_response ) ) {
 				$user_info = json_decode( $user_info_response['body'] );
 				return [
-					'email' => $user_info->email,
+					'email'             => $user_info->email,
+					'has_refresh_token' => null !== $oauth2_credentials->getRefreshToken(),
 				];
 			}
 		} else {
@@ -406,6 +407,9 @@ class Google_OAuth {
 
 		$oauth_object = new OAuth2( [] );
 		$oauth_object->setAccessToken( $auth_data['access_token'] );
+		if ( isset( $auth_data['refresh_token'] ) ) {
+			$oauth_object->setRefreshToken( $auth_data['refresh_token'] );
+		}
 		return $oauth_object;
 	}
 

@@ -90,6 +90,10 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
+		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
+		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
@@ -105,7 +109,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-support-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-popups-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-updates-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-connections-wizard.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';

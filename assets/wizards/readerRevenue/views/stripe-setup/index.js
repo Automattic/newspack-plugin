@@ -46,7 +46,7 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 		<Fragment>
 			<Card noBorder>
 				<p className="newspack-payment-setup-screen__api-keys-instruction">
-					{ __( 'Configure Stripe and enter your API keys' ) }
+					{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
 					{ ' – ' }
 					<ExternalLink href="https://stripe.com/docs/keys#api-keys">
 						{ __( 'learn how' ) }

@@ -28,7 +28,7 @@ const Main = () => {
 
 	return (
 		<>
-			{ error && <Notice isError noticeText={ error } /> }
+			{ error && <Notice isError>{ error }</Notice> }
 			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
 			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
 			<Mailchimp setError={ setError } />

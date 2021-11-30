@@ -292,6 +292,28 @@ body[class*='admin-color-'] {
 				outline-offset: 2px;
 			}
 
+			&.is-destructive {
+				&:active,
+				&:active:enabled,
+				&:focus,
+				&:focus:enabled,
+				&:hover,
+				&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
+					background: transparent;
+				}
+
+				&:focus,
+				&:focus:enabled,
+				&:focus:not( :disabled ) {
+					box-shadow: none;
+				}
+
+				&:focus-visible,
+				&:focus-visible:enabled {
+					outline-color: $alert-red;
+				}
+			}
+
 			&.is-small,
 			&.is-large {
 				padding: 0;
