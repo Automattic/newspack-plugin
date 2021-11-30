@@ -1,3 +1,20 @@
+# [1.67.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.67.0-alpha.2...v1.67.0-alpha.3) (2021-11-30)
+
+
+### Bug Fixes
+
+* mailchimp connection destructive link and update external link ([#1283](https://github.com/Automattic/newspack-plugin/issues/1283)) ([a11a804](https://github.com/Automattic/newspack-plugin/commit/a11a80473a5a63703fcdf8f8d4cf608ee822aed9))
+* **stripe:** variable name ([a33794a](https://github.com/Automattic/newspack-plugin/commit/a33794a7c293b5934ab4df5c722981819048d475))
+
+
+### Features
+
+* add multiple support for select-control ([#1287](https://github.com/Automattic/newspack-plugin/issues/1287)) ([9d052c5](https://github.com/Automattic/newspack-plugin/commit/9d052c5cfc5d2d9ae0b0d8589119f94b94f353d5))
+* add WP migration option to onboarding ([#1077](https://github.com/Automattic/newspack-plugin/issues/1077)) ([d8c5e69](https://github.com/Automattic/newspack-plugin/commit/d8c5e69cb5c621b9118d2c9b3644392fe88cd678))
+* **google-oauth:** display notice if there's no refresh token ([#1217](https://github.com/Automattic/newspack-plugin/issues/1217)) ([4b0d433](https://github.com/Automattic/newspack-plugin/commit/4b0d4338e092d83ff9cbc85056e04401ce8cf108))
+* remove Updates wizard; replace with a link to manual release notes ([#1262](https://github.com/Automattic/newspack-plugin/issues/1262)) ([761dbd6](https://github.com/Automattic/newspack-plugin/commit/761dbd6f5ba803c1a62c5278d6bd859c6156bf8d))
+* update various elements of the onboarding wizard ([#1282](https://github.com/Automattic/newspack-plugin/issues/1282)) ([8b8dd37](https://github.com/Automattic/newspack-plugin/commit/8b8dd371f535430b23f0ef6e2a1dcc750cba11aa))
+
 # [1.67.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.67.0-alpha.1...v1.67.0-alpha.2) (2021-11-18)
 
 
