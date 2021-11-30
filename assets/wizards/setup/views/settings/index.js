@@ -95,7 +95,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 	return (
 		<Fragment>
 			<SectionHeader
-				title={ __( 'Site profile', 'newspack' ) }
+				title={ __( 'Site Profile', 'newspack' ) }
 				description={ __( 'Add and manage the basic information', 'newspack' ) }
 			/>
 			<Grid columns={ 3 } gutter={ 32 } className="newspack-site-profile">
@@ -118,7 +118,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 				</Card>
 			</Grid>
 			<SectionHeader
-				title={ __( 'Social accounts', 'newspack' ) }
+				title={ __( 'Social Accounts', 'newspack' ) }
 				description={ __( 'Allow visitors to quickly access your social profiles', 'newspack' ) }
 			/>
 			<Grid columns={ 3 } gutter={ 32 } rowGap={ 16 }>

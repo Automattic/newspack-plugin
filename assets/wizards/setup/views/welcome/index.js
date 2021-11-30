@@ -9,7 +9,8 @@ import { omit, times } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useRef, useEffect, useState } from '@wordpress/element';
-import { Icon, check, info } from '@wordpress/icons';
+import { Icon, addCard, check, info, layout } from '@wordpress/icons';
+import { isURL } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -17,14 +18,18 @@ import { Icon, check, info } from '@wordpress/icons';
 import {
 	ActionCard,
 	Button,
+	ButtonCard,
 	Card,
-	NewspackLogo,
+	NewspackIcon,
 	ProgressBar,
 	withWizardScreen,
 	CheckboxControl,
 	Notice,
+	TextControl,
+	GlobalNotices,
 } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
+import '../../style.scss';
 
 const { useHistory } = Router;
 const POST_COUNT = newspack_aux_data.is_e2e ? 12 : 40;
@@ -34,6 +39,13 @@ const ERROR_TYPES = {
 	plugin_configuration: { message: __( 'Installation', 'newspack' ) },
 	starter_content: { message: __( 'Demo content', 'newspack' ) },
 };
+
+const starterContentInit = ( approach, site = '' ) =>
+	apiFetch( {
+		path: `/newspack/v1/wizard/newspack-setup-wizard/starter-content/init`,
+		method: 'post',
+		data: { type: approach, site },
+	} );
 
 const starterContentFetch = endpoint =>
 	apiFetch( {
@@ -47,6 +59,12 @@ const Welcome = ( { buttonAction } ) => {
 	const [ isSSL, setIsSSL ] = useState( null );
 	const [ shouldInstallStarterContent, setShouldInstallStarterContent ] = useState( true );
 	const [ errors, setErrors ] = useState( [] );
+	const [ existingSiteURL, setExistingSiteURL ] = useState( '' );
+	const [ setupApproach, setSetupApproach ] = useState();
+
+	const isSetupApproachNew = setupApproach === 'generated';
+	const isSetupApproachMigrate = setupApproach === 'import';
+
 	const addError = errorInfo => error =>
 		setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
 
@@ -95,16 +113,15 @@ const Welcome = ( { buttonAction } ) => {
 			await softwarePromises[ i ]();
 		}
 
-		if ( shouldInstallStarterContent ) {
-			// Starter content.
-			await starterContentFetch( `categories` )
+		if ( ( isSetupApproachNew && shouldInstallStarterContent ) || isSetupApproachMigrate ) {
+			await starterContentInit( setupApproach, existingSiteURL )
 				.then( increment )
-				.catch(
-					addError( {
-						info: ERROR_TYPES.starter_content,
-						item: __( 'Failed to create the categories.', 'newspack' ),
-					} )
-				);
+				.catch( err => {
+					window.location =
+						'/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' + err.message;
+				} );
+
+			// Generate posts.
 			await Promise.allSettled(
 				times( POST_COUNT, n =>
 					starterContentFetch( `post/${ n }` )
@@ -117,6 +134,8 @@ const Welcome = ( { buttonAction } ) => {
 						)
 				)
 			);
+
+			// Generate homepage.
 			await starterContentFetch( `homepage` )
 				.then( increment )
 				.catch(
@@ -125,6 +144,8 @@ const Welcome = ( { buttonAction } ) => {
 						item: __( 'Failed to create the homepage.', 'newspack' ),
 					} )
 				);
+
+			// Generate theme.
 			await starterContentFetch( `theme` )
 				.then( increment )
 				.catch(
@@ -140,7 +161,7 @@ const Welcome = ( { buttonAction } ) => {
 	const nextRouteAddress = buttonAction.href;
 	const hasErrors = errors.length > 0;
 	const isInit = installationProgress === 0;
-	const isDone = installationProgress === total;
+	const isDone = installationProgress === total && ! hasErrors;
 	const redirectCounterRef = useRef();
 
 	const REDIRECT_COUNTER_DURATION = 5;
@@ -166,7 +187,13 @@ const Welcome = ( { buttonAction } ) => {
 			return __( 'Installation error', 'newspack' );
 		}
 		if ( isInit ) {
-			return __( 'Welcome to WordPress for your Newsroom!', 'newspack' );
+			return (
+				<>
+					{ __( 'Welcome to Newspack,', 'newspack' ) }
+					<br />
+					{ __( 'the platform for News', 'newspack' ) }
+				</>
+			);
 		}
 		if ( isDone ) {
 			return __( 'Installation complete', 'newspack' );
@@ -177,18 +204,18 @@ const Welcome = ( { buttonAction } ) => {
 	const getInfoText = () => {
 		if ( hasErrors ) {
 			return __(
-				'There has been an error during the installation. Please retry or manually install required plugins to continue with the configuration of your Newspack site.',
+				'There has been an error during the installation. Please retry or manually install required plugins to continue with the configuration of your site.',
 				'newspack'
 			);
 		}
 		if ( isInit ) {
 			return __(
-				'We will help you get set up by installing the most relevant plugins first before requiring a few details from you in order to build your Newspack site.',
+				'We will help you get set up by installing the most relevant plugins first before requiring a few details from you in order to build your site.',
 				'newspack'
 			);
 		}
 		if ( isDone ) {
-			return __( 'Click the button below to start configuring your Newspack site.', 'newspack' );
+			return __( 'Click the button below to start configuring your site.', 'newspack' );
 		}
 		if ( shouldInstallStarterContent ) {
 			return __(
@@ -215,34 +242,39 @@ const Welcome = ( { buttonAction } ) => {
 			title={ error.info.message + ': ' + error.item }
 			actionText={ __( 'Retry', 'newspack' ) }
 			onClick={ install }
+			secondaryActionText={ __( 'Skip', 'newspack' ) }
+			onSecondaryActionClick={ () => skipError( i ) }
+			className="newspack--error-actioncard"
 		/>
 	);
 
+	const skipError = i => {
+		const updatedErrors = [];
+		for ( let j = 0; j < errors.length; ++j ) {
+			if ( i !== j ) {
+				updatedErrors.push( errors[ j ] );
+			}
+		}
+		setErrors( updatedErrors );
+		increment();
+	};
+
 	return (
 		<>
-			<div className="newspack-logo__wrapper">
-				<NewspackLogo centered height={ 72 } />
-			</div>
 			<Card
 				isMedium
 				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
 			>
-				<h1>
+				<h1 className={ isInit && 'welcome-grid' }>
 					{ getHeadingIcon() }
 					{ getHeadingText() }
+					{ isInit && <NewspackIcon simple size={ 64 } /> }
 				</h1>
+
 				{ errors.length === 0 && installationProgress > 0 ? (
 					<ProgressBar completed={ installationProgress } total={ total } />
 				) : null }
-				{ isSSL === false && (
-					<Notice
-						isError
-						noticeText={ __(
-							"This site does not use HTTPS. Newspack can't be installed.",
-							'newspack'
-						) }
-					/>
-				) }
+
 				<p>
 					{ getInfoText() }
 					{ isDone && (
@@ -256,29 +288,81 @@ const Welcome = ( { buttonAction } ) => {
 					) }
 				</p>
 
-				{ errors.length ? errors.map( renderErrorBox ) : null }
-				{ ( isInit || isDone ) && (
-					<Card noBorder className="newspack-card__footer">
-						{ isInit ? (
-							<CheckboxControl
-								checked={ shouldInstallStarterContent }
-								label={ __( 'Install demo content', 'newspack' ) }
-								onChange={ setShouldInstallStarterContent }
-							/>
-						) : (
-							<div />
+				{ isSSL === false && (
+					<Notice
+						isError
+						noticeText={ __(
+							"This site does not use HTTPS. Newspack can't be installed.",
+							'newspack'
 						) }
-						<div>
-							<Button
-								disabled={ ! isSSL }
-								isPrimary
-								onClick={ isInit ? install : null }
-								href={ isDone ? nextRouteAddress : null }
-							>
-								{ isInit ? __( 'Get Started', 'newspack' ) : __( 'Continue', 'newspack' ) }
-							</Button>
-						</div>
-					</Card>
+					/>
+				) }
+
+				{ errors.length ? errors.map( renderErrorBox ) : null }
+
+				{ ( isInit || isDone ) && (
+					<>
+						<GlobalNotices />
+						{ isInit && (
+							<>
+								<ButtonCard
+									href="#"
+									title={ __( 'Start a new site', 'newspack' ) }
+									desc={ __( "You don't have content to import", 'newspack' ) }
+									icon={ addCard }
+									className="br--top"
+									isPressed={ isSetupApproachNew }
+									onClick={ () => setSetupApproach( 'generated' ) }
+									grouped
+								/>
+								<ButtonCard
+									href="#"
+									title={ __( 'Migrate an existing WordPress site', 'newspack' ) }
+									desc={ __( 'You have content to import', 'newspack' ) }
+									icon={ layout }
+									className="br--bottom"
+									isPressed={ isSetupApproachMigrate }
+									onClick={ () => setSetupApproach( 'import' ) }
+									grouped
+								/>
+								{ isSetupApproachMigrate && (
+									<TextControl
+										label={ __( 'URL', 'newspack' ) }
+										placeholder="https://yourgroovydomain.com/"
+										type="url"
+										help={ __(
+											'We will import the last 50 articles from your existing site to help you with the set up and customization.',
+											'newspack'
+										) }
+										onChange={ val => setExistingSiteURL( val ) }
+									/>
+								) }
+							</>
+						) }
+						<Card noBorder className="newspack-card__footer">
+							{ isInit && isSetupApproachNew && (
+								<CheckboxControl
+									checked={ shouldInstallStarterContent }
+									label={ __( 'Install demo content', 'newspack' ) }
+									onChange={ setShouldInstallStarterContent }
+								/>
+							) }
+							{ isInit && ( isSetupApproachNew || isSetupApproachMigrate ) && (
+								<Button
+									disabled={ ! isSSL || ( isSetupApproachMigrate && ! isURL( existingSiteURL ) ) }
+									isPrimary
+									onClick={ install }
+								>
+									{ __( 'Get Started', 'newspack' ) }
+								</Button>
+							) }
+							{ ! isInit && (
+								<Button disabled={ ! isSSL } isPrimary href={ isDone ? nextRouteAddress : null }>
+									{ __( 'Continue', 'newspack' ) }
+								</Button>
+							) }
+						</Card>
+					</>
 				) }
 			</Card>
 		</>
