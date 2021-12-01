@@ -1,3 +1,10 @@
+## [1.67.1](https://github.com/Automattic/newspack-plugin/compare/v1.67.0...v1.67.1) (2021-12-01)
+
+
+### Bug Fixes
+
+* plugin settings checkbox ([#1329](https://github.com/Automattic/newspack-plugin/issues/1329)) ([79dcdf2](https://github.com/Automattic/newspack-plugin/commit/79dcdf26530a0e6c24f1d3afdde2ad0703e6975c))
+
 ## [1.67.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.67.0...v1.67.1-alpha.1) (2021-12-01)
 
 
