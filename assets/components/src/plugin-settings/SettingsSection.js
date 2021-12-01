@@ -35,6 +35,9 @@ const getControlType = setting => {
 		case 'string':
 		case 'text':
 			return 'text';
+		case 'boolean':
+		case 'checkbox':
+			return 'checkbox';
 		default:
 			return null;
 	}
