@@ -1,6 +1,5 @@
 # Dependabot config.
 # Keep NPM and Composer packages up-to-date.
-# Let's start out with daily updates and then drop back to less frequent intervals after everything is up-to-date.
 
 version: 2
 updates:
@@ -10,7 +9,7 @@ updates:
     directory: '/'
     # Check the npm registry for updates every day (weekdays)
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     # Add reviewers
     reviewers:
       - 'Automattic/newspack-product'
@@ -21,7 +20,7 @@ updates:
     directory: '/assets/components'
     # Check the npm registry for updates every day (weekdays)
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     # Add reviewers
     reviewers:
       - 'Automattic/newspack-product'
@@ -32,7 +31,7 @@ updates:
     directory: '/'
     # Check for updates every day (weekdays)
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     # Add reviewers
     reviewers:
       - 'Automattic/newspack-product'

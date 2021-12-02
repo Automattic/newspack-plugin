@@ -59,6 +59,27 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
 
+	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
+
+	useEffect( () => {
+		if ( isConnected && ! userBasicInfo.has_refresh_token ) {
+			setError( [
+				__( 'Missing Google refresh token. Please', 'newspack' ),
+				' ',
+				<a
+					key="link"
+					target="_blank"
+					rel="noreferrer"
+					href="https://myaccount.google.com/permissions"
+				>
+					{ __( 'revoke credentials', 'newspack' ) }
+				</a>,
+				' ',
+				__( 'and authorise the site again.', 'newspack' ),
+			] );
+		}
+	}, [ isConnected ] );
+
 	useEffect( () => {
 		const params = getURLParams();
 		if ( canUseOauth && ! params.access_token ) {
@@ -73,8 +94,6 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 	if ( ! canUseOauth ) {
 		return null;
 	}
-
-	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
 	// Redirect user to Google auth screen.
 	const goToAuthPage = () => {
