@@ -88,7 +88,7 @@ const PlacementControl = ( {
 				adUnits[ value.ad_unit ] &&
 				hasAnySize( bidder.ad_sizes, adUnits[ value.ad_unit ].sizes );
 			errors[ bidderKey ] =
-				! value.ad_unit || supported
+				! value.ad_unit || ! adUnits[ value.ad_unit ] || supported
 					? null
 					: sprintf(
 							// Translators: Ad bidder name.
@@ -156,14 +156,16 @@ const PlacementControl = ( {
  * Advertising Placements management screen.
  */
 const Placements = ( { adUnits } ) => {
+	const [ initialized, setInitialized ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ editingPlacement, setEditingPlacement ] = useState( null );
 	const [ placements, setPlacements ] = useState( {} );
 	const [ bidders, setBidders ] = useState( {} );
 	const [ biddersError, setBiddersError ] = useState( null );
-	const placementsApiFetch = async options => {
-		setInFlight( true );
+
+	const placementsApiFetch = async ( options, quiet = false ) => {
+		if ( ! quiet ) setInFlight( true );
 		await apiFetch( options )
 			.then( data => {
 				setPlacements( data );
@@ -173,7 +175,7 @@ const Placements = ( { adUnits } ) => {
 				setError( err );
 			} )
 			.finally( () => {
-				setInFlight( false );
+				if ( ! quiet ) setInFlight( false );
 			} );
 	};
 	const handlePlacementToggle = placement => async value => {
@@ -218,17 +220,29 @@ const Placements = ( { adUnits } ) => {
 	const isEnabled = placementKey => {
 		return placements[ placementKey ].data?.enabled;
 	};
-	useEffect( () => {
-		apiFetch( { path: '/newspack-ads/v1/bidders' } )
+
+	// Fetch placements and bidders on load.
+	useEffect( async () => {
+		await apiFetch( { path: '/newspack-ads/v1/bidders' } )
 			.then( data => {
 				setBidders( data );
 			} )
 			.catch( err => {
 				setBiddersError( err );
 			} );
-		placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+		await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+		setInitialized( true );
 	}, [] );
+
+	// Silently refetch placements data when exiting edit modal.
+	useEffect( () => {
+		if ( ! editingPlacement && initialized ) {
+			placementsApiFetch( { path: '/newspack-ads/v1/placements' }, true );
+		}
+	}, [ editingPlacement ] );
+
 	const placement = editingPlacement ? placements[ editingPlacement ] : null;
+
 	return (
 		<Fragment>
 			<SectionHeader
@@ -269,6 +283,7 @@ const Placements = ( { adUnits } ) => {
 									<Button
 										isQuaternary
 										isSmall
+										disabled={ inFlight }
 										onClick={ () => setEditingPlacement( key ) }
 										icon={ settings }
 										label={ __( 'Placement settings', 'newspack' ) }
