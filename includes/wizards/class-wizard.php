@@ -107,13 +107,12 @@ abstract class Wizard {
 			],
 			'plugin_version' => [
 				'label' => $plugin_data['Name'] . ' ' . $plugin_data['Version'],
-				'url'   => esc_url( admin_url( 'admin.php?page=newspack-updates-wizard' ) ),
 			],
 		];
 
 		$screen = get_current_screen();
 
-		if ( ! empty( Starter_Content::starter_content_data() ) ) {
+		if ( Starter_Content::has_created_starter_content() ) {
 			$urls['remove_starter_content'] = esc_url(
 				add_query_arg(
 					array(

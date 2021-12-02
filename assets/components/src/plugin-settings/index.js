@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
@@ -155,18 +160,24 @@ class PluginSettings extends Component {
 			<Fragment>
 				<SectionHeader title={ title } description={ description } />
 				{ error && <Notice isError noticeText={ error.message } /> }
-				{ Object.keys( settings ).map( sectionKey => (
-					<SettingsSection
-						key={ sectionKey }
-						disabled={ inFlight }
-						title={ this.getSectionTitle( sectionKey ) }
-						description={ this.getSectionDescription( sectionKey ) }
-						active={ this.isSectionActive( sectionKey ) }
-						fields={ this.getSectionFields( sectionKey ) }
-						onChange={ this.handleSettingChange( sectionKey ) }
-						onUpdate={ this.handleSectionUpdate( sectionKey ) }
-					/>
-				) ) }
+				<div
+					className={ classnames( {
+						'newspack-wizard-section__is-loading': inFlight && ! Object.keys( settings ).length,
+					} ) }
+				>
+					{ Object.keys( settings ).map( sectionKey => (
+						<SettingsSection
+							key={ sectionKey }
+							disabled={ inFlight }
+							title={ this.getSectionTitle( sectionKey ) }
+							description={ this.getSectionDescription( sectionKey ) }
+							active={ this.isSectionActive( sectionKey ) }
+							fields={ this.getSectionFields( sectionKey ) }
+							onChange={ this.handleSettingChange( sectionKey ) }
+							onUpdate={ this.handleSectionUpdate( sectionKey ) }
+						/>
+					) ) }
+				</div>
 			</Fragment>
 		);
 	}

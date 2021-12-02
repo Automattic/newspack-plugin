@@ -2147,7 +2147,6 @@ msgstr ""
 #: includes/wizards/class-setup-wizard.php:76
 #: includes/wizards/class-support-wizard.php:312
 #: includes/wizards/class-syndication-wizard.php:67
-#: includes/wizards/class-updates-wizard.php:67
 msgid "10 minutes"
 msgstr ""
 
@@ -2386,15 +2385,6 @@ msgstr ""
 
 #: includes/wizards/class-syndication-wizard.php:58
 msgid "Distribute your content."
-msgstr ""
-
-#: includes/wizards/class-updates-wizard.php:49
-#: assets/wizards/updates/index.js:35
-msgid "Updates"
-msgstr ""
-
-#: includes/wizards/class-updates-wizard.php:58
-msgid "Updates to the Newspack plugins and theme"
 msgstr ""
 
 #: assets/components/src/action-card-sections/index.js:13

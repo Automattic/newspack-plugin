@@ -43,6 +43,7 @@ class ActionCard extends Component {
 			notification,
 			notificationLevel,
 			notificationHTML,
+			actionContent,
 			actionText,
 			secondaryActionText,
 			image,
@@ -125,9 +126,10 @@ class ActionCard extends Component {
 							{ typeof description === 'function' && description() }
 						</p>
 					</div>
-					{ ( actionText || isDisplayingSecondaryAction ) && (
+					{ ( actionText || isDisplayingSecondaryAction || actionContent ) && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
 							{ /* eslint-disable no-nested-ternary */ }
+							{ actionContent && actionContent }
 							{ actionText &&
 								( handoff ? (
 									<Handoff plugin={ handoff } editLink={ editLink } compact isLink>

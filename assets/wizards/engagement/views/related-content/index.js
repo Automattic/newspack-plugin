@@ -47,7 +47,7 @@ class RelatedContent extends Component {
 
 				{ relatedPostsEnabled && (
 					<Grid>
-						<Card isMedium>
+						<Card noBorder>
 							<TextControl
 								help={ __(
 									'If set, posts will be shown as related content only if published within the past number of months. If 0, any published post can be shown, regardless of publish date.',

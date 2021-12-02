@@ -141,12 +141,8 @@ const Mailchimp = ( { setError } ) => {
 								} }
 							/>
 							<Card noBorder>
-								<ExternalLink href="https://us1.admin.mailchimp.com/account/api/">
-									{ __( 'Generate Mailchimp API key', 'newspack' ) }
-								</ExternalLink>
-								<span className="sep sep__inline" />
-								<ExternalLink href="https://mailchimp.com/help/about-api-keys/">
-									{ __( 'About Mailchimp API keys', 'newspack' ) }
+								<ExternalLink href="https://mailchimp.com/help/about-api-keys/#Find_or_generate_your_API_key">
+									{ __( 'Find or generate your API key', 'newspack' ) }
 								</ExternalLink>
 							</Card>
 						</Grid>

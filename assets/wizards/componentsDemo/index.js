@@ -56,6 +56,7 @@ class ComponentsDemo extends Component {
 			selectValue1: '2nd',
 			selectValue2: '',
 			selectValue3: '',
+			selectValues: [],
 			modalShown: false,
 			toggleGroupChecked: false,
 			color1: '#3366ff',
@@ -534,7 +535,7 @@ class ComponentsDemo extends Component {
 							label={ __( 'Label for Select with a preselection', 'newspack' ) }
 							value={ selectValue1 }
 							options={ [
-								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
 								{ value: '1st', label: __( 'First', 'newspack' ) },
 								{ value: '2nd', label: __( 'Second', 'newspack' ) },
 								{ value: '3rd', label: __( 'Third', 'newspack' ) },
@@ -545,7 +546,7 @@ class ComponentsDemo extends Component {
 							label={ __( 'Label for Select with no preselection', 'newspack' ) }
 							value={ selectValue2 }
 							options={ [
-								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
 								{ value: '1st', label: __( 'First', 'newspack' ) },
 								{ value: '2nd', label: __( 'Second', 'newspack' ) },
 								{ value: '3rd', label: __( 'Third', 'newspack' ) },
@@ -556,7 +557,7 @@ class ComponentsDemo extends Component {
 							label={ __( 'Label for disabled Select', 'newspack' ) }
 							disabled
 							options={ [
-								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
 								{ value: '1st', label: __( 'First', 'newspack' ) },
 								{ value: '2nd', label: __( 'Second', 'newspack' ) },
 								{ value: '3rd', label: __( 'Third', 'newspack' ) },
@@ -567,12 +568,37 @@ class ComponentsDemo extends Component {
 							value={ selectValue3 }
 							isSmall
 							options={ [
-								{ value: '', label: __( '- Select -', 'newspack' ), disabled: true },
+								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
 								{ value: '1st', label: __( 'First', 'newspack' ) },
 								{ value: '2nd', label: __( 'Second', 'newspack' ) },
 								{ value: '3rd', label: __( 'Third', 'newspack' ) },
 							] }
 							onChange={ value => this.setState( { selectValue3: value } ) }
+						/>
+						<SelectControl
+							multiple
+							label={ __( 'Multi-select', 'newspack' ) }
+							value={ this.state.selectValues }
+							options={ [
+								{ value: '1st', label: __( 'First', 'newspack' ) },
+								{ value: '2nd', label: __( 'Second', 'newspack' ) },
+								{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								{ value: '4th', label: __( 'Fourth', 'newspack' ) },
+								{ value: '5th', label: __( 'Fifth', 'newspack' ) },
+								{ value: '6th', label: __( 'Sixth', 'newspack' ) },
+								{ value: '7th', label: __( 'Seventh', 'newspack' ) },
+							] }
+							onChange={ selectValues => this.setState( { selectValues } ) }
+						/>
+						<Notice
+							noticeText={
+								<>
+									{ __( 'Selected:', 'newspack' ) }{ ' ' }
+									{ this.state.selectValues.length > 0
+										? this.state.selectValues.join( ', ' )
+										: __( 'none', 'newspack' ) }
+								</>
+							}
 						/>
 					</Card>
 					<Card>
