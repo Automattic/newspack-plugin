@@ -221,17 +221,20 @@ const Placements = ( { adUnits } ) => {
 		return placements[ placementKey ].data?.enabled;
 	};
 
-	// Fetch placements and bidders on load.
-	useEffect( async () => {
-		await apiFetch( { path: '/newspack-ads/v1/bidders' } )
-			.then( data => {
-				setBidders( data );
-			} )
-			.catch( err => {
-				setBiddersError( err );
-			} );
-		await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
-		setInitialized( true );
+	// Fetch initial placements and bidders.
+	useEffect( () => {
+		const init = async () => {
+			await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+			await apiFetch( { path: '/newspack-ads/v1/bidders' } )
+				.then( data => {
+					setBidders( data );
+				} )
+				.catch( err => {
+					setBiddersError( err );
+				} );
+			setInitialized( true );
+		};
+		init();
 	}, [] );
 
 	// Silently refetch placements data when exiting edit modal.
