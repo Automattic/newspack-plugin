@@ -105,7 +105,7 @@ class Google_OAuth {
 	 * @return bool|WP_Error
 	 */
 	public static function permissions_check() {
-		if ( ! current_user_can( 'manage_options' ) || ! OAuth::is_proxy_configured( 'google' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! self::is_oauth_configured() ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),
@@ -245,7 +245,7 @@ class Google_OAuth {
 		$response = [
 			'user_basic_info' => false,
 		];
-		if ( false === OAuth::is_proxy_configured( 'google' ) ) {
+		if ( false === self::is_oauth_configured() ) {
 			return \rest_ensure_response( $response );
 		}
 		$user_info_data = self::authenticated_user_basic_information();
@@ -379,6 +379,13 @@ class Google_OAuth {
 	 */
 	public static function remove_credentials() {
 		delete_option( self::AUTH_DATA_META_NAME );
+	}
+
+	/**
+	 * Is OAuth configured?
+	 */
+	public static function is_oauth_configured() {
+		return OAuth::is_proxy_configured( 'google' );
 	}
 }
 new Google_OAuth();
