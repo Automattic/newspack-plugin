@@ -41,24 +41,23 @@ const AdUnits = ( {
 		? `${ __( 'Google Ad Manager Error', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
-	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
-	const saveNetworkCode = async () => {
+	const updateNetworkCode = async ( value, isGam ) => {
 		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
-			data: { network_code: networkCode },
+			data: { network_code: value, is_gam: isGam },
 			quiet: true,
 		} );
 		fetchAdvertisingData( true );
 	};
-	const updateNetworkCode = async value => {
-		await wizardApiFetch( {
-			path: '/newspack/v1/wizard/advertising/network_code/',
-			method: 'POST',
-			data: { network_code: value, is_gam: true },
-			quiet: true,
-		} );
-		fetchAdvertisingData( true );
+
+	const updateGAMNetworkCode = async value => {
+		updateNetworkCode( value, true );
+	};
+
+	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
+	const updateLegacyNetworkCode = async () => {
+		updateNetworkCode( networkCode, false );
 	};
 
 	useEffect( () => {
@@ -78,7 +77,7 @@ const AdUnits = ( {
 						label: `${ network.name } (${ network.code })`,
 						value: network.code,
 					} ) ) }
-					onChange={ updateNetworkCode }
+					onChange={ updateGAMNetworkCode }
 				/>
 			) }
 			{ false === serviceData.status?.is_network_code_matched && (
@@ -122,7 +121,7 @@ const AdUnits = ( {
 							withMargin={ false }
 						/>
 						<span className="pl3">
-							<Button onClick={ saveNetworkCode } isPrimary>
+							<Button onClick={ updateLegacyNetworkCode } isPrimary>
 								{ __( 'Save', 'newspack' ) }
 							</Button>
 						</span>
