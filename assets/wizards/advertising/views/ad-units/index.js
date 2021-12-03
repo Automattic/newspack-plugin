@@ -16,6 +16,7 @@ import { trash, pencil } from '@wordpress/icons';
 import {
 	ActionCard,
 	TextControl,
+	SelectControl,
 	Button,
 	Card,
 	Notice,
@@ -50,6 +51,15 @@ const AdUnits = ( {
 		} );
 		fetchAdvertisingData( true );
 	};
+	const updateNetworkCode = async value => {
+		await wizardApiFetch( {
+			path: '/newspack/v1/wizard/advertising/network_code/',
+			method: 'POST',
+			data: { network_code: value, is_gam: true },
+			quiet: true,
+		} );
+		fetchAdvertisingData( true );
+	};
 
 	useEffect( () => {
 		setNetworkCode( serviceData.status.network_code );
@@ -60,6 +70,17 @@ const AdUnits = ( {
 
 	return (
 		<>
+			{ ! isLegacy && networkCode && (
+				<SelectControl
+					label={ __( 'Connected GAM network code', 'newspack' ) }
+					value={ networkCode }
+					options={ serviceData.available_networks.map( network => ( {
+						label: `${ network.name } (${ network.code })`,
+						value: network.code,
+					} ) ) }
+					onChange={ updateNetworkCode }
+				/>
+			) }
 			{ false === serviceData.status?.is_network_code_matched && (
 				<Notice
 					noticeText={ __(
@@ -107,12 +128,6 @@ const AdUnits = ( {
 						</span>
 					</div>
 				</>
-			) }
-			{ ! isLegacy && networkCode && (
-				<div>
-					<strong>{ __( 'Connected GAM network code:', 'newspack' ) } </strong>
-					<code>{ networkCode }</code>
-				</div>
 			) }
 			<p>
 				{ __(
