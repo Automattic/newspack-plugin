@@ -58,9 +58,23 @@
 		}
 	}
 
-	&__content {
+	& &__content {
 		> div > * {
 			margin: 0 !important;
+		}
+
+		a {
+			color: inherit;
+
+			&:active,
+			&:focus,
+			&:hover {
+				color: inherit;
+			}
+
+			&:focus {
+				outline-color: currentColor;
+			}
 		}
 	}
 
