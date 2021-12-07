@@ -1,5 +1,3 @@
-/* global newspack_connections_data */
-
 /**
  * WordPress dependencies
  */
@@ -10,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { Notice, ActionCard, Button } from '../../../../components/src';
+import { ActionCard, Button } from '../../../../components/src';
 
 /**
  * External dependencies
@@ -70,37 +68,21 @@ const CONNECTORS = [
 	},
 ];
 
-const FivetranConnection = ( { wpComStatus, setError } ) => {
+const FivetranConnection = ( { setError } ) => {
 	const [ connections, setConnections ] = useState();
 	const [ inFlight, setInFlight ] = useState( false );
 
 	const hasFetched = connections !== undefined;
-	const canBeConnected = wpComStatus === true;
-	const canUseFivetran = newspack_connections_data.can_connect_fivetran;
 
-	const handleError = err => {
-		if ( err.message ) {
-			setError( err.message );
-		}
-		setInFlight( false );
-	};
+	const handleError = err => setError( err.message || __( 'Something went wrong.', 'newspack' ) );
 
 	useEffect( () => {
-		if ( ! canUseFivetran || ! canBeConnected ) {
-			return;
-		}
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
-			.then( res => {
-				setConnections( res );
-				setInFlight( false );
-			} )
-			.catch( handleError );
-	}, [ canUseFivetran, canBeConnected ] );
-
-	if ( ! canUseFivetran ) {
-		return null;
-	}
+			.then( setConnections )
+			.catch( handleError )
+			.finally( () => setInFlight( false ) );
+	}, [] );
 
 	const createConnection = ( { service } ) => {
 		setInFlight( true );
@@ -118,9 +100,6 @@ const FivetranConnection = ( { wpComStatus, setError } ) => {
 	return (
 		<div>
 			<h1>{ __( 'Fivetran', 'newspack' ) }</h1>
-			{ wpComStatus === false && (
-				<Notice isWarning>{ __( 'Connect your WordPress.com account first.', 'newspack' ) }</Notice>
-			) }
 			{ CONNECTORS.map( item => {
 				const setupState = get( connections, [ item.service, 'setup_state' ] );
 				const syncState = get( connections, [ item.service, 'sync_state' ] );
@@ -140,7 +119,7 @@ const FivetranConnection = ( { wpComStatus, setError } ) => {
 							description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
 							actionText={
 								<Button
-									disabled={ inFlight || ! hasFetched || ! canBeConnected }
+									disabled={ inFlight || ! hasFetched }
 									onClick={ () => createConnection( item ) }
 									isLink
 								>
