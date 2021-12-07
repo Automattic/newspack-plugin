@@ -16,6 +16,7 @@ import { trash, pencil } from '@wordpress/icons';
 import {
 	ActionCard,
 	TextControl,
+	SelectControl,
 	Button,
 	Card,
 	Notice,
@@ -40,15 +41,23 @@ const AdUnits = ( {
 		? `${ __( 'Google Ad Manager Error', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
-	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
-	const saveNetworkCode = async () => {
+	const updateNetworkCode = async ( value, isGam ) => {
 		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
-			data: { network_code: networkCode },
+			data: { network_code: value, is_gam: isGam },
 			quiet: true,
 		} );
 		fetchAdvertisingData( true );
+	};
+
+	const updateGAMNetworkCode = async value => {
+		updateNetworkCode( value, true );
+	};
+
+	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
+	const updateLegacyNetworkCode = async () => {
+		updateNetworkCode( networkCode, false );
 	};
 
 	useEffect( () => {
@@ -60,6 +69,17 @@ const AdUnits = ( {
 
 	return (
 		<>
+			{ ! isLegacy && networkCode && (
+				<SelectControl
+					label={ __( 'Connected GAM network code', 'newspack' ) }
+					value={ networkCode }
+					options={ serviceData.available_networks.map( network => ( {
+						label: `${ network.name } (${ network.code })`,
+						value: network.code,
+					} ) ) }
+					onChange={ updateGAMNetworkCode }
+				/>
+			) }
 			{ false === serviceData.status?.is_network_code_matched && (
 				<Notice
 					noticeText={ __(
@@ -101,18 +121,12 @@ const AdUnits = ( {
 							withMargin={ false }
 						/>
 						<span className="pl3">
-							<Button onClick={ saveNetworkCode } isPrimary>
+							<Button onClick={ updateLegacyNetworkCode } isPrimary>
 								{ __( 'Save', 'newspack' ) }
 							</Button>
 						</span>
 					</div>
 				</>
-			) }
-			{ ! isLegacy && networkCode && (
-				<div>
-					<strong>{ __( 'Connected GAM network code:', 'newspack' ) } </strong>
-					<code>{ networkCode }</code>
-				</div>
 			) }
 			<p>
 				{ __(

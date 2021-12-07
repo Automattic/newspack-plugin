@@ -274,6 +274,10 @@ class Advertising_Wizard extends Wizard {
 							return implode( ',', $sanitized_codes );
 						},
 					],
+					'is_gam'       => [
+						'sanitize_callback' => 'rest_sanitize_boolean',
+						'default'           => false,
+					],
 				],
 			]
 		);
@@ -342,7 +346,12 @@ class Advertising_Wizard extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_update_network_code( $request ) {
-		update_option( \Newspack_Ads_Model::OPTION_NAME_LEGACY_NETWORK_CODE, $request['network_code'] );
+		// Update GAM or legacy network code.
+		if ( $request['is_gam'] ) {
+			update_option( \Newspack_Ads_Model::OPTION_NAME_GAM_NETWORK_CODE, $request['network_code'] );
+		} else {
+			update_option( \Newspack_Ads_Model::OPTION_NAME_LEGACY_NETWORK_CODE, $request['network_code'] );
+		}
 		return \rest_ensure_response( [] );
 	}
 
@@ -497,21 +506,23 @@ class Advertising_Wizard extends Wizard {
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 
 		$services = $this->get_services();
+		$error    = false;
 		try {
 			$ad_units = $configuration_manager->get_ad_units();
 		} catch ( \Exception $error ) {
 			$message = $error->getMessage();
-			return new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
+			$error   = new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
 		}
 
 		if ( \is_wp_error( $ad_units ) ) {
-			return $ad_units;
+			$error = $ad_units;
 		}
 
 		return array(
 			'services'    => $services,
-			'ad_units'    => $ad_units,
+			'ad_units'    => \is_wp_error( $ad_units ) ? [] : $ad_units,
 			'suppression' => $configuration_manager->get_suppression_config(),
+			'error'       => $error,
 		);
 	}
 
@@ -542,8 +553,9 @@ class Advertising_Wizard extends Wizard {
 		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
 
 		// Verify GAM connection and run initial setup.
-		$gam_connection_status                   = $configuration_manager->get_gam_connection_status();
-		$services['google_ad_manager']['status'] = $gam_connection_status;
+		$gam_connection_status                               = $configuration_manager->get_gam_connection_status();
+		$services['google_ad_manager']['status']             = $gam_connection_status;
+		$services['google_ad_manager']['available_networks'] = $configuration_manager->get_gam_available_networks();
 		if ( true === $gam_connection_status['connected'] && ! isset( $gam_connection_status['error'] ) ) {
 			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
 			$gam_setup_results                             = $configuration_manager->setup_gam();
