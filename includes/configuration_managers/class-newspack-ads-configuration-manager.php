@@ -152,6 +152,17 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get GAM available networks.
+	 *
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function get_gam_available_networks() {
+		return $this->is_configured() ?
+			\Newspack_Ads_Model::get_gam_available_networks() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Get ad suppression config.
 	 *
 	 * @return bool | WP_Error Returns object, or error if the plugin is not active.

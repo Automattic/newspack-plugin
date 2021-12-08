@@ -1,50 +1,52 @@
 /**
- * News Revenue Hub Settings Screen
- */
-
-/**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { Grid, TextControl, withWizardScreen } from '../../../../components/src';
+import { Grid, TextControl, Wizard, Button } from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-/**
- * News Revenue Hub Settings Screen Component
- */
-class NRHSettings extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, onChange } = this.props;
-		const { nrh_organization_id, nrh_salesforce_campaign_id } = data;
-		return (
+const NRHSettings = () => {
+	const wizardData = Wizard.useWizardData();
+	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'platform_data', key ],
+			value,
+		} );
+	const onSave = () =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			payloadPath: [ 'platform_data' ],
+		} );
+
+	return (
+		<>
 			<Grid>
 				<TextControl
 					label={ __( 'NRH Organization ID (required)', 'newspack' ) }
-					value={ nrh_organization_id || '' }
-					onChange={ _nrh_organization_id =>
-						onChange( { ...data, nrh_organization_id: _nrh_organization_id } )
-					}
+					value={ wizardData.platform_data?.nrh_organization_id || '' }
+					onChange={ changeHandler( 'nrh_organization_id' ) }
 				/>
 				<TextControl
 					label={ __( 'NRH Salesforce Campaign ID', 'newspack' ) }
-					value={ nrh_salesforce_campaign_id || '' }
-					onChange={ _nrh_salesforce_campaign_id =>
-						onChange( {
-							...data,
-							nrh_salesforce_campaign_id: _nrh_salesforce_campaign_id,
-						} )
-					}
+					value={ wizardData.platform_data?.nrh_salesforce_campaign_id || '' }
+					onChange={ changeHandler( 'nrh_salesforce_campaign_id' ) }
 				/>
 			</Grid>
-		);
-	}
-}
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ onSave }>
+					{ __( 'Update' ) }
+				</Button>
+			</div>
+		</>
+	);
+};
 
-export default withWizardScreen( NRHSettings );
+export default NRHSettings;
