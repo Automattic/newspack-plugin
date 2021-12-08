@@ -1,3 +1,17 @@
+# [1.68.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.67.1...v1.68.0-alpha.1) (2021-12-08)
+
+
+### Bug Fixes
+
+* shared relative path ([1339b09](https://github.com/Automattic/newspack-plugin/commit/1339b095396ad032ff9a7871ca0f6771f2e955dc))
+
+
+### Features
+
+* **ads:** handle multiple GAM accounts ([#1334](https://github.com/Automattic/newspack-plugin/issues/1334)) ([5db31ea](https://github.com/Automattic/newspack-plugin/commit/5db31ea6b1d6197c399bd307eadbf76bf9d9d558))
+* update badge and notice design ([#1340](https://github.com/Automattic/newspack-plugin/issues/1340)) ([ad5c82e](https://github.com/Automattic/newspack-plugin/commit/ad5c82ef611892c53583ecea365a5439f8775d20))
+* use newspack manager plugin for authentication ([#1247](https://github.com/Automattic/newspack-plugin/issues/1247)) ([5a01d87](https://github.com/Automattic/newspack-plugin/commit/5a01d871caaa4f3eabe7a443bd360adb60c117e9))
+
 ## [1.67.1](https://github.com/Automattic/newspack-plugin/compare/v1.67.0...v1.67.1) (2021-12-01)
 
 
