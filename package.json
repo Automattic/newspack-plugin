@@ -33,11 +33,11 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-jest": "^25.3.0",
-    "eslint-plugin-jsdoc": "^37.0.3",
+    "eslint-plugin-jsdoc": "^37.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.27.1",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.1",
+    "jest": "^27.4.3",
     "jest-environment-jsdom": "^27.4.3",
     "lint-staged": "^12.1.2",
     "lodash": "^4.17.21",
@@ -55,7 +55,7 @@
     "stylelint": "^13.3.1",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-prettier": "^1.2.0",
-    "webpack": "^5.64.4",
+    "webpack": "^5.65.0",
     "webpack-cli": "^4.7.2"
   },
   "rtlcssConfig": {
@@ -134,12 +134,12 @@
     "js-cookie": "^3.0.1",
     "moment": "^2.29.1",
     "moment-range": "^3.1.1",
-    "qs": "^6.9.3",
+    "qs": "^6.10.2",
     "react": "^17.0.2",
     "react-daterange-picker": "^2.0.1",
     "react-dropzone": "^11.4.2",
     "react-google-charts": "^3.0.15",
-    "react-rte": "^0.16.1"
+    "react-rte": "^0.16.4"
   },
   "release": {
     "branches": [
