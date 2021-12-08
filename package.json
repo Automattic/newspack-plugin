@@ -17,14 +17,12 @@
     "@commitlint/config-conventional": "^15.0.0",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
-    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@wordpress/browserslist-config": "^4.1.0",
     "@wordpress/eslint-plugin": "^9.3.0",
     "@wordpress/stylelint-config": "^19.1.0",
     "autoprefixer": "^10.4.0",
-    "babel-plugin-jsx-remove-data-test-id": "^3.0.0",
     "classnames": "^2.3.1",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
@@ -36,11 +34,9 @@
     "eslint-plugin-jsdoc": "^37.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.27.1",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.3",
-    "jest-environment-jsdom": "^27.4.3",
     "lint-staged": "^12.1.2",
     "lodash": "^4.17.21",
+    "newspack-scripts": "^1.0.2",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.4",
     "postcss-cli": "^9.0.1",
@@ -77,23 +73,6 @@
   "lint-staged": {
     "*.scss": "npm run lint:scss:staged"
   },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "<rootDir>/assets/setupTests.js"
-    ],
-    "testMatch": [
-      "<rootDir>/**/*test.js?(x)",
-      "!**/.eslintrc.*"
-    ],
-    "transform": {
-      "^.+\\.js?$": "babel-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(scss|css)$": "identity-obj-proxy"
-    },
-    "verbose": false,
-    "testEnvironment": "jsdom"
-  },
   "scripts": {
     "cm": "git-cz",
     "semantic-release": "semantic-release",
@@ -102,7 +81,7 @@
     "clean": "rm -rf dist/",
     "dev": "calypso-build --watch",
     "start": "npm run dev",
-    "test": "jest",
+    "test": "newspack-scripts test",
     "lint": "npm-run-all --parallel lint:*",
     "lint:js": "eslint --ext .js,.jsx assets",
     "lint:js:staged": "eslint --ext .js,.jsx",
