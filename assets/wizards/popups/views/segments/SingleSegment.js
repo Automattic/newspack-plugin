@@ -122,28 +122,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	return (
 		<Fragment>
-			<div className="newspack-campaigns-wizard-segments__header">
-				<TextControl
-					placeholder={ __( 'Untitled Segment', 'newspack' ) }
-					value={ name }
-					onChange={ setName }
-					label={ __( 'Title', 'newspack' ) }
-					hideLabelFromVision={ true }
-				/>
-				<div className="newspack-buttons-card">
-					<Button
-						disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
-						isPrimary
-						isSmall
-						onClick={ saveSegment }
-					>
-						{ __( 'Save', 'newspack' ) }
-					</Button>
-					<Button isSecondary isSmall href="#/segments">
-						{ __( 'Cancel', 'newspack' ) }
-					</Button>
-				</div>
-			</div>
+			<TextControl
+				placeholder={ __( 'Untitled Segment', 'newspack' ) }
+				value={ name }
+				onChange={ setName }
+				label={ __( 'Title', 'newspack' ) }
+				className={ 'newspack-campaigns-wizard-segments__title' }
+			/>
+
 			{ reach.total > 0 && (
 				<Notice
 					isInfo
@@ -156,9 +142,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					}
 				/>
 			) }
+
 			<SettingsCard
 				title={ __( 'Reader Engagement', 'newspack' ) }
 				description={ __( 'Target readers based on their browsing behavior', 'newspack' ) }
+				noBorder
 			>
 				<SettingsSection
 					title={ __( 'Articles read', 'newspack' ) }
@@ -207,6 +195,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				title={ __( 'Reader Activity', 'newspack' ) }
 				description={ __( 'Target readers based on their actions', 'newspack' ) }
 				columns={ 2 }
+				noBorder
 			>
 				<SettingsSection title={ __( 'Newsletter', 'newspack' ) }>
 					<SelectControl
@@ -271,6 +260,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					'newspack'
 				) }
 				columns={ 2 }
+				noBorder
 			>
 				<SettingsSection
 					title={ __( 'Sources to match', 'newspack' ) }
@@ -301,6 +291,18 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					/>
 				</SettingsSection>
 			</SettingsCard>
+			<div className="newspack-buttons-card">
+				<Button
+					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
+					isPrimary
+					onClick={ saveSegment }
+				>
+					{ __( 'Save', 'newspack' ) }
+				</Button>
+				<Button isSecondary href="#/segments">
+					{ __( 'Cancel', 'newspack' ) }
+				</Button>
+			</div>
 		</Fragment>
 	);
 };

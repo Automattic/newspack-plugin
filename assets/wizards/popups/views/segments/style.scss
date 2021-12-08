@@ -13,32 +13,23 @@
 			margin-left: -4px;
 		}
 	}
-	&__header {
-		align-items: center;
-		display: flex;
-		justify-content: center;
-		margin: 32px 0 -16px;
 
-		> * {
-			margin: 0;
-		}
+	&__title {
+		padding-bottom: 32px;
 
-		.newspack-text-control {
-			flex: 1 1 auto;
-
-			input[type='text'] {
-				border-color: $gray-200;
-				color: $gray-900;
-				font-size: 17px;
-				font-weight: bold;
-				min-height: 36px;
-				padding-bottom: 5px;
-				padding-top: 5px;
-			}
+		input[type='text'] {
+			color: $gray-900;
+			font-size: 17px;
+			font-weight: bold;
 		}
 	}
+
 	&__recorded-visitors {
-		margin: 32px 0 -24px;
+		margin: -48px 0 0;
+
+		+ .newspack-card {
+			margin-top: 64px;
+		}
 	}
 }
 
