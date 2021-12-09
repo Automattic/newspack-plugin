@@ -1,3 +1,16 @@
+# [1.68.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.68.0-alpha.1...v1.68.0-alpha.2) (2021-12-09)
+
+
+### Bug Fixes
+
+* **campaigns:** duplicating a prompt needs both original and parent prompt IDs ([#1326](https://github.com/Automattic/newspack-plugin/issues/1326)) ([59eaa07](https://github.com/Automattic/newspack-plugin/commit/59eaa07143463d4d538156462d058357f88fcb2e))
+* use access token instead of default token ([#1348](https://github.com/Automattic/newspack-plugin/issues/1348)) ([16ee208](https://github.com/Automattic/newspack-plugin/commit/16ee20809e5a0644be7b069fadd59605182082b0))
+
+
+### Features
+
+* reorganise Add New Segment wizard  ([#1350](https://github.com/Automattic/newspack-plugin/issues/1350)) ([0c35572](https://github.com/Automattic/newspack-plugin/commit/0c35572b41a3ddc7e3e6affd7a41133fd8454fa2))
+
 # [1.68.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.67.1...v1.68.0-alpha.1) (2021-12-08)
 
 
