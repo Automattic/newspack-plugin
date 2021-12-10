@@ -1,3 +1,10 @@
+# [1.68.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.68.0-alpha.2...v1.68.0-alpha.3) (2021-12-10)
+
+
+### Features
+
+* **ads:** placement bidders ([#1285](https://github.com/Automattic/newspack-plugin/issues/1285)) ([cae1251](https://github.com/Automattic/newspack-plugin/commit/cae12510fb691f55cabd05f43aeac66527865ce0))
+
 # [1.68.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.68.0-alpha.1...v1.68.0-alpha.2) (2021-12-09)
 
 
