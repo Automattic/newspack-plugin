@@ -20,7 +20,6 @@
     "@semantic-release/git": "^10.0.1",
     "@testing-library/react": "^12.1.2",
     "@wordpress/browserslist-config": "^4.1.0",
-    "@wordpress/stylelint-config": "^19.1.0",
     "classnames": "^2.3.1",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
@@ -28,16 +27,14 @@
     "eslint": "^7.32.0",
     "lint-staged": "^12.1.2",
     "lodash": "^4.17.21",
-    "newspack-scripts": "^1.3.0",
+    "newspack-scripts": "^1.4.5",
     "npm-run-all": "^4.1.5",
-    "prettier": "npm:wp-prettier@2.2.1-beta-1",
+    "prettier": "npm:wp-prettier@^2.2.1-beta-1",
     "react-router-dom": "^5.3.0",
     "recursive-copy": "^2.0.13",
     "semantic-release": "^18.0.1",
     "semantic-release-version-bump": "^1.4.1",
-    "stylelint": "^13.3.1",
-    "stylelint-config-prettier": "^9.0.3",
-    "stylelint-prettier": "^1.2.0"
+    "stylelint": "^13.3.1"
   },
   "browserslist": [
     "extends @wordpress/browserslist-config"
@@ -56,11 +53,12 @@
     "lint:js": "eslint --ext .js,.jsx assets",
     "lint:js:staged": "eslint --ext .js,.jsx",
     "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
-    "lint:scss": "stylelint '**/*.scss' --syntax scss",
+    "lint:scss": "stylelint '**/*.scss' --syntax scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
     "format:scss": "prettier --write '**/*.scss'",
-    "lint:scss:staged": "stylelint --syntax scss",
+    "lint:scss:staged": "stylelint --syntax scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
     "release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
-    "release": "npm run build && npm run semantic-release"
+    "release": "npm run build && npm run semantic-release",
+    "postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
   },
   "dependencies": {
     "@wordpress/api-fetch": "^5.2.6",
