@@ -20,6 +20,7 @@ import { settings } from '@wordpress/icons';
  */
 import {
 	ActionCard,
+	CheckboxControl,
 	Modal,
 	Card,
 	Notice,
@@ -212,6 +213,24 @@ const Placements = ( { adUnits } ) => {
 								</>
 							);
 						} ) }
+					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
+						<CheckboxControl
+							label={ __( 'Stick to top', 'newspack' ) }
+							checked={ !! placement.data?.stick_to_top }
+							onChange={ value => {
+								setPlacements( {
+									...placements,
+									[ editingPlacement ]: {
+										...placements[ editingPlacement ],
+										data: {
+											...placements[ editingPlacement ].data,
+											stick_to_top: value,
+										},
+									},
+								} );
+							} }
+						/>
+					) }
 					<Card buttonsCard noBorder className="justify-end">
 						<Button
 							isSecondary
