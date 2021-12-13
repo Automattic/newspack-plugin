@@ -46,7 +46,6 @@
     "cm": "git-cz",
     "semantic-release": "semantic-release",
     "build": "newspack-scripts build",
-    "clean": "rm -rf dist/",
     "start": "newspack-scripts start",
     "test": "newspack-scripts test",
     "lint": "npm-run-all --parallel lint:*",
