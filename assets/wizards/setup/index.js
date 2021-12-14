@@ -21,6 +21,7 @@ const ROUTES = [
 		path: '/',
 		label: __( 'Welcome', 'newspack' ),
 		render: Welcome,
+		isHiddenInNav: true,
 	},
 	{
 		path: '/settings',
@@ -61,7 +62,8 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 	const sharedProps = {
 		wizardApiFetch,
 		setError,
-		routes,
+		disableUpcomingInTabbedNavigation: true,
+		tabbedNavigation: routes,
 	};
 
 	return (

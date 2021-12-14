@@ -1,15 +1,7 @@
-/**
- * With Wizard Screen
- */
-
 @import '~@wordpress/base-styles/colors';
 @import '../../../shared/scss/colors';
 
 .newspack-wizard {
-	&__header {
-		background: white;
-	}
-
 	&__title {
 		align-items: center;
 		border-bottom: 1px solid $gray-300;
@@ -127,19 +119,6 @@
 		small {
 			font-size: 12px;
 			line-height: 16px;
-		}
-
-		// Thematic Break
-
-		hr {
-			background: $gray-300;
-			border: 0;
-			height: 1px;
-			margin: 48px 0;
-
-			@media screen and ( min-width: 744px ) {
-				margin: 64px 0;
-			}
 		}
 
 		// Links

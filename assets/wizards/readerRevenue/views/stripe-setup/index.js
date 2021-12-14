@@ -1,14 +1,11 @@
 /**
- * Stripe Setup Screen
- */
-
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { Fragment, useState } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * External dependencies
@@ -28,20 +25,31 @@ import {
 	SelectControl,
 	Notice,
 	Settings,
-	withWizardScreen,
+	Wizard,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';
+import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const { SettingsCard } = Settings;
 
-export const StripeKeysSettings = ( { data, onChange } ) => {
+export const StripeKeysSettings = () => {
+	const wizardData = Wizard.useWizardData();
 	const {
 		testMode = false,
 		publishableKey = '',
 		secretKey = '',
 		testPublishableKey = '',
 		testSecretKey = '',
-	} = data;
+	} = wizardData.stripe_data || {};
+
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'stripe_data', key ],
+			value,
+		} );
+
 	return (
 		<Fragment>
 			<Card noBorder>
@@ -55,7 +63,7 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 				<CheckboxControl
 					label={ __( 'Use Stripe in test mode' ) }
 					checked={ testMode }
-					onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
+					onChange={ changeHandler( 'testMode' ) }
 					tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
 				/>
 			</Card>
@@ -66,15 +74,13 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 							type="password"
 							value={ testPublishableKey }
 							label={ __( 'Test Publishable Key' ) }
-							onChange={ _testPublishableKey =>
-								onChange( { ...data, testPublishableKey: _testPublishableKey } )
-							}
+							onChange={ changeHandler( 'testPublishableKey' ) }
 						/>
 						<TextControl
 							type="password"
 							value={ testSecretKey }
 							label={ __( 'Test Secret Key' ) }
-							onChange={ _testSecretKey => onChange( { ...data, testSecretKey: _testSecretKey } ) }
+							onChange={ changeHandler( 'testSecretKey' ) }
 						/>
 					</Fragment>
 				) : (
@@ -83,15 +89,13 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 							type="password"
 							value={ publishableKey }
 							label={ __( 'Publishable Key' ) }
-							onChange={ _publishableKey =>
-								onChange( { ...data, publishableKey: _publishableKey } )
-							}
+							onChange={ changeHandler( 'publishableKey' ) }
 						/>
 						<TextControl
 							type="password"
 							value={ secretKey }
 							label={ __( 'Secret Key' ) }
-							onChange={ _secretKey => onChange( { ...data, secretKey: _secretKey } ) }
+							onChange={ changeHandler( 'secretKey' ) }
 						/>
 					</Fragment>
 				) }
@@ -100,7 +104,14 @@ export const StripeKeysSettings = ( { data, onChange } ) => {
 	);
 };
 
-const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyFields } ) => {
+const StripeSetup = () => {
+	const {
+		stripe_data: data = {},
+		platform_data,
+		is_ssl,
+		currency_fields = [],
+	} = Wizard.useWizardData( {} );
+
 	const [ isLoading, setIsLoading ] = useState( false );
 	const createWebhooks = () => {
 		setIsLoading( true );
@@ -110,9 +121,28 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 			window.location.reload();
 		} );
 	};
+
+	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
+
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'stripe_data', key ],
+			value,
+		} );
+
+	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const onSave = () =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			section: 'stripe',
+			payloadPath: [ 'stripe_data' ],
+		} );
+
 	return (
 		<Fragment>
-			{ data.isSSL === false && (
+			{ is_ssl === false && (
 				<Notice
 					isWarning
 					noticeText={
@@ -140,12 +170,12 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 								) }
 							/>
 						) }
-						<StripeKeysSettings data={ data } onChange={ onChange } />
+						<StripeKeysSettings />
 						<SelectControl
 							label={ __( 'Which currency does your business use?', 'newspack' ) }
 							value={ data.currency }
-							options={ currencyFields }
-							onChange={ _currency => onChange( { ...data, currency: _currency } ) }
+							options={ currency_fields }
+							onChange={ changeHandler( 'currency' ) }
 						/>
 					</SettingsCard>
 					<SettingsCard
@@ -158,7 +188,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 					>
 						<NewsletterSettings
 							listId={ data.newsletter_list_id }
-							onChange={ listId => onChange( { ...data, newsletter_list_id: listId } ) }
+							onChange={ changeHandler( 'newsletter_list_id' ) }
 						/>
 					</SettingsCard>
 					<SettingsCard
@@ -171,7 +201,7 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 					>
 						<div>
 							{ data.webhooks?.errors ? (
-								<Notice isError noticeText={ values( data.webhooks.errors ).join( ', ' ) } />
+								<Notice isError noticeText={ values( data.webhooks?.errors ).join( ', ' ) } />
 							) : (
 								<>
 									{ data.webhooks.length ? (
@@ -199,11 +229,11 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 						<ToggleControl
 							label={ __( 'Enable Stripe' ) }
 							checked={ data.enabled }
-							onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
+							onChange={ changeHandler( 'enabled' ) }
 						/>
 					</Grid>
 					{ data.enabled ? (
-						<StripeKeysSettings data={ data } onChange={ onChange } />
+						<StripeKeysSettings />
 					) : (
 						<Grid>
 							<p className="newspack-payment-setup-screen__info">
@@ -216,13 +246,13 @@ const StripeSetup = ( { data, onChange, displayStripeSettingsOnly, currencyField
 					) }
 				</>
 			) }
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ onSave }>
+					{ __( 'Save Settings' ) }
+				</Button>
+			</div>
 		</Fragment>
 	);
 };
 
-StripeSetup.defaultProps = {
-	data: {},
-	onChange: () => null,
-};
-
-export default withWizardScreen( StripeSetup );
+export default StripeSetup;

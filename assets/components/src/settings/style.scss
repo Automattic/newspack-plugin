@@ -75,4 +75,29 @@
 			}
 		}
 	}
+
+	&__no-border {
+		&.newspack-card.newspack-action-card {
+			border: 0;
+
+			.newspack-action-card__region-top,
+			.newspack-action-card__region-children {
+				padding-left: 0;
+				padding-right: 0;
+				padding-top: 0;
+			}
+
+			.newspack-action-card__region-children {
+				padding-bottom: 0;
+			}
+
+			.newspack-action-card__notification {
+				padding-bottom: 16px;
+			}
+
+			& + & {
+				margin-top: 64px;
+			}
+		}
+	}
 }

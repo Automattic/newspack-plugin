@@ -30,7 +30,7 @@ class AdvertisingWizard extends Component {
 		super( ...arguments );
 		this.state = {
 			advertisingData: {
-				adUnits: [],
+				adUnits: {},
 				services: {
 					google_ad_manager: {
 						status: {},
