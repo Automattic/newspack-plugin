@@ -1,3 +1,21 @@
+# [1.68.0](https://github.com/Automattic/newspack-plugin/compare/v1.67.1...v1.68.0) (2021-12-14)
+
+
+### Bug Fixes
+
+* **campaigns:** duplicating a prompt needs both original and parent prompt IDs ([#1326](https://github.com/Automattic/newspack-plugin/issues/1326)) ([59eaa07](https://github.com/Automattic/newspack-plugin/commit/59eaa07143463d4d538156462d058357f88fcb2e))
+* shared relative path ([1339b09](https://github.com/Automattic/newspack-plugin/commit/1339b095396ad032ff9a7871ca0f6771f2e955dc))
+* use access token instead of default token ([#1348](https://github.com/Automattic/newspack-plugin/issues/1348)) ([16ee208](https://github.com/Automattic/newspack-plugin/commit/16ee20809e5a0644be7b069fadd59605182082b0))
+
+
+### Features
+
+* **ads:** handle multiple GAM accounts ([#1334](https://github.com/Automattic/newspack-plugin/issues/1334)) ([5db31ea](https://github.com/Automattic/newspack-plugin/commit/5db31ea6b1d6197c399bd307eadbf76bf9d9d558))
+* **ads:** placement bidders ([#1285](https://github.com/Automattic/newspack-plugin/issues/1285)) ([cae1251](https://github.com/Automattic/newspack-plugin/commit/cae12510fb691f55cabd05f43aeac66527865ce0))
+* reorganise Add New Segment wizard  ([#1350](https://github.com/Automattic/newspack-plugin/issues/1350)) ([0c35572](https://github.com/Automattic/newspack-plugin/commit/0c35572b41a3ddc7e3e6affd7a41133fd8454fa2))
+* update badge and notice design ([#1340](https://github.com/Automattic/newspack-plugin/issues/1340)) ([ad5c82e](https://github.com/Automattic/newspack-plugin/commit/ad5c82ef611892c53583ecea365a5439f8775d20))
+* use newspack manager plugin for authentication ([#1247](https://github.com/Automattic/newspack-plugin/issues/1247)) ([5a01d87](https://github.com/Automattic/newspack-plugin/commit/5a01d871caaa4f3eabe7a443bd360adb60c117e9))
+
 # [1.68.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.68.0-alpha.2...v1.68.0-alpha.3) (2021-12-10)
 
 
