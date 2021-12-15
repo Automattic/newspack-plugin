@@ -185,7 +185,7 @@ class PopupsWizard extends Component {
 	 * Duplicate a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to duplicate.
-	 * @param {string} title Title to give to the duplicated prompt.
+	 * @param {string} title   Title to give to the duplicated prompt.
 	 */
 	duplicatePopup = ( popupId, title ) => {
 		const { setError, wizardApiFetch } = this.props;
