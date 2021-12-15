@@ -12,97 +12,114 @@ import classnames from 'classnames';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import {
 	ActionCard,
-	Grid,
+	Modal,
+	Card,
 	Notice,
 	SectionHeader,
-	SelectControl,
+	Button,
 	withWizardScreen,
 } from '../../../../components/src';
-
-/**
- * Get select options from object of ad units.
- *
- * @param {Object} adUnits Object containing ad untis.
- * @return {Array} Ad unit options for select control.
- */
-const getAdUnitsForSelect = adUnits => {
-	return [
-		{
-			label: __( 'Select an Ad Unit', 'newspack' ),
-			value: '',
-		},
-		...Object.values( adUnits ).map( adUnit => {
-			return {
-				label: adUnit.name,
-				value: adUnit.id,
-			};
-		} ),
-	];
-};
+import PlacementControl from '../../components/placement-control';
 
 /**
  * Advertising Placements management screen.
  */
 const Placements = ( { adUnits } ) => {
+	const [ initialized, setInitialized ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
+	const [ editingPlacement, setEditingPlacement ] = useState( null );
 	const [ placements, setPlacements ] = useState( {} );
-	const placementsApiFetch = options => {
-		setInFlight( true );
-		apiFetch( options )
-			.then( data => {
-				setPlacements( data );
-				setError( null );
-			} )
-			.catch( err => {
-				setError( err );
-			} )
-			.finally( () => {
-				setInFlight( false );
-			} );
+	const [ bidders, setBidders ] = useState( {} );
+	const [ biddersError, setBiddersError ] = useState( null );
+
+	const placementsApiFetch = async ( options, quiet = false ) => {
+		if ( ! quiet ) setInFlight( true );
+		try {
+			const data = await apiFetch( options );
+			setPlacements( data );
+			setError( null );
+		} catch ( err ) {
+			setError( err );
+		} finally {
+			if ( ! quiet ) setInFlight( false );
+		}
 	};
-	const fetchPlacements = () => {
-		placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
-	};
-	const handleToggle = placement => value => {
-		placementsApiFetch( {
+	const handlePlacementToggle = placement => async value => {
+		await placementsApiFetch( {
 			path: `/newspack-ads/v1/placements/${ placement }`,
 			method: value ? 'POST' : 'DELETE',
 		} );
+		if ( value ) {
+			setEditingPlacement( placement );
+		}
 	};
-	const handleAdUnitChange = ( placement, hook ) => value => {
-		placementsApiFetch( {
-			path: `/newspack-ads/v1/placements/${ placement }`,
-			method: 'POST',
-			data: { ad_unit: value, hook },
-		} );
-	};
-	const adUnitControl = ( placementKey, hookKey = '' ) => {
-		const placement = placements[ placementKey ];
-		const controlProps = {
-			disabled: inFlight,
-			onChange: handleAdUnitChange( placementKey, hookKey ),
-			value: placement?.ad_unit,
-			options: getAdUnitsForSelect( adUnits ),
-			label: __( 'Ad Unit', 'newspack' ),
+	const handlePlacementChange = ( placementKey, hookKey ) => value => {
+		const placementData = placements[ placementKey ]?.data;
+		let data = {
+			...placementData,
+			...value,
 		};
 		if ( hookKey ) {
-			const hook = placement.hooks[ hookKey ];
-			controlProps.value = placement[ `ad_unit_${ hookKey }` ];
-			controlProps.label = __( 'Ad Unit', 'newspack' ) + ' - ' + hook.name;
+			data = {
+				...placementData,
+				hooks: {
+					...placementData.hooks,
+					[ hookKey ]: value,
+				},
+			};
 		}
-		return <SelectControl { ...controlProps } />;
+		setPlacements( {
+			...placements,
+			[ placementKey ]: {
+				...placements[ placementKey ],
+				data,
+			},
+		} );
 	};
+	const updatePlacement = async placementKey => {
+		await placementsApiFetch( {
+			path: `/newspack-ads/v1/placements/${ placementKey }`,
+			method: 'POST',
+			data: placements[ placementKey ].data,
+		} );
+	};
+	const isEnabled = placementKey => {
+		return placements[ placementKey ].data?.enabled;
+	};
+
+	// Fetch initial placements and bidders.
 	useEffect( () => {
-		fetchPlacements();
+		const init = async () => {
+			await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+			try {
+				const data = await apiFetch( { path: '/newspack-ads/v1/bidders' } );
+				setBidders( data );
+			} catch ( err ) {
+				setBiddersError( err );
+			}
+			setInitialized( true );
+		};
+		init();
 	}, [] );
+
+	// Silently refetch placements data when exiting edit modal.
+	useEffect( () => {
+		if ( ! editingPlacement && initialized ) {
+			placementsApiFetch( { path: '/newspack-ads/v1/placements' }, true );
+		}
+	}, [ editingPlacement ] );
+
+	const placement = editingPlacement ? placements[ editingPlacement ] : null;
+
 	return (
 		<Fragment>
 			<SectionHeader
@@ -121,64 +138,103 @@ const Placements = ( { adUnits } ) => {
 					</>
 				) }
 			/>
-			{ error && <Notice isError noticeText={ error.message } /> }
 			<div
 				className={ classnames( {
 					'newspack-wizard-ads-placements': true,
 					'newspack-wizard-section__is-loading': inFlight && ! Object.keys( placements ).length,
 				} ) }
 			>
-				{ Object.keys( placements )
-					.filter( key => !! placements[ key ].enabled )
-					.map( key => {
-						const placement = placements[ key ];
-						return (
-							<ActionCard
-								key={ key }
-								isMedium
-								disabled={ inFlight }
-								title={ placement.name }
-								description={ placement.description }
-								toggleOnChange={ handleToggle( key ) }
-								toggleChecked={ placement.enabled }
-								hasGreyHeader={ placement.enabled }
-							>
-								<Grid columns={ 2 } gutter={ 32 }>
-									{ placement.enabled && placement.hook_name && (
-										<>
-											{ adUnitControl( key ) }
-											<div />
-										</>
-									) }
-									{ placement.hooks && (
-										<>
-											{ Object.keys( placement.hooks ).map( hookKey => {
-												const hook = placement.hooks[ hookKey ];
-												return (
-													<Fragment key={ hook.name }>{ adUnitControl( key, hookKey ) }</Fragment>
-												);
-											} ) }
-										</>
-									) }
-								</Grid>
-							</ActionCard>
-						);
-					} ) }
-				{ Object.keys( placements )
-					.filter( key => ! placements[ key ].enabled )
-					.map( key => {
-						const placement = placements[ key ];
-						return (
-							<ActionCard
-								key={ key }
-								isSmall
-								disabled={ inFlight }
-								title={ placement.name }
-								toggleOnChange={ handleToggle( key ) }
-							/>
-						);
-					} ) }
+				{ Object.keys( placements ).map( key => {
+					return (
+						<ActionCard
+							key={ key }
+							isSmall
+							disabled={ inFlight }
+							title={ placements[ key ].name }
+							description={ placements[ key ].description }
+							toggleOnChange={ handlePlacementToggle( key ) }
+							toggleChecked={ isEnabled( key ) }
+							hasGreyHeader={ ! isEnabled( key ) }
+							actionText={
+								isEnabled( key ) ? (
+									<Button
+										isQuaternary
+										isSmall
+										disabled={ inFlight }
+										onClick={ () => setEditingPlacement( key ) }
+										icon={ settings }
+										label={ __( 'Placement settings', 'newspack' ) }
+										tooltipPosition="bottom center"
+									/>
+								) : null
+							}
+						/>
+					);
+				} ) }
 			</div>
+			{ editingPlacement && placement && (
+				<Modal
+					title={ sprintf(
+						// translators: %s is the name of the placement
+						__( '%s placement settings', 'newspack' ),
+						placement.name
+					) }
+					onRequestClose={ () => setEditingPlacement( null ) }
+				>
+					{ error && <Notice isError noticeText={ error.message } /> }
+					{ biddersError && <Notice isWarning noticeText={ biddersError.message } /> }
+					{ isEnabled( editingPlacement ) && placement.hook_name && (
+						<PlacementControl
+							adUnits={ adUnits }
+							bidders={ bidders }
+							value={ placement.data }
+							disabled={ inFlight }
+							onChange={ handlePlacementChange( editingPlacement ) }
+						/>
+					) }
+					{ placement.hooks &&
+						Object.keys( placement.hooks ).map( hookKey => {
+							const hook = {
+								hookKey,
+								...placement.hooks[ hookKey ],
+							};
+							return (
+								<>
+									<h2>{ hook.name }</h2>
+									<PlacementControl
+										key={ hookKey }
+										adUnits={ adUnits }
+										bidders={ bidders }
+										value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
+										disabled={ inFlight }
+										onChange={ handlePlacementChange( editingPlacement, hookKey ) }
+									/>
+								</>
+							);
+						} ) }
+					<Card buttonsCard noBorder className="justify-end">
+						<Button
+							isSecondary
+							disabled={ inFlight }
+							onClick={ () => {
+								setEditingPlacement( null );
+							} }
+						>
+							{ __( 'Cancel', 'newspack' ) }
+						</Button>
+						<Button
+							isPrimary
+							disabled={ inFlight }
+							onClick={ async () => {
+								await updatePlacement( editingPlacement );
+								setEditingPlacement( null );
+							} }
+						>
+							{ __( 'Save', 'newspack' ) }
+						</Button>
+					</Card>
+				</Modal>
+			) }
 		</Fragment>
 	);
 };
