@@ -1,3 +1,15 @@
+# [1.69.0](https://github.com/Automattic/newspack-plugin/compare/v1.68.0...v1.69.0) (2021-12-15)
+
+
+### Bug Fixes
+
+* use new shortened preview query keys form Campaigns ([#1366](https://github.com/Automattic/newspack-plugin/issues/1366)) ([8baca00](https://github.com/Automattic/newspack-plugin/commit/8baca00b5a35db62cc600256681099dac66cc0a2))
+
+
+### Features
+
+* **ads:** stick to top placements ([#1365](https://github.com/Automattic/newspack-plugin/issues/1365)) ([90fbf3d](https://github.com/Automattic/newspack-plugin/commit/90fbf3d3ce8dda9972a56c6ae679f4f8e278ab49))
+
 # [1.69.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.68.0...v1.69.0-alpha.1) (2021-12-15)
 
 
