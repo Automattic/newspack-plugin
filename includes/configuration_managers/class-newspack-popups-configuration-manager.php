@@ -306,6 +306,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get abbreviated query keys for preview requests.
+	 */
+	public function preview_query_keys() {
+		return $this->is_configured() ?
+			\Newspack_Popups::PREVIEW_QUERY_KEYS :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.

@@ -474,6 +474,7 @@ class Popups_Wizard extends Wizard {
 		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
 		$overlay_placements                    = $newspack_popups_configuration_manager->get_overlay_placements();
 		$overlay_sizes                         = $newspack_popups_configuration_manager->get_overlay_sizes();
+		$preview_query_keys                    = $newspack_popups_configuration_manager->preview_query_keys();
 
 		\wp_localize_script(
 			'newspack-popups-wizard',
@@ -485,6 +486,7 @@ class Popups_Wizard extends Wizard {
 				'custom_placements'  => $custom_placements,
 				'overlay_placements' => $overlay_placements,
 				'overlay_sizes'      => $overlay_sizes,
+				'preview_query_keys' => $preview_query_keys,
 			]
 		);
 
