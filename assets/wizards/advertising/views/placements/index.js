@@ -6,6 +6,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { set } from 'lodash/fp';
 
 /**
  * WordPress dependencies
@@ -218,16 +219,9 @@ const Placements = ( { adUnits } ) => {
 							label={ __( 'Stick to top', 'newspack' ) }
 							checked={ !! placement.data?.stick_to_top }
 							onChange={ value => {
-								setPlacements( {
-									...placements,
-									[ editingPlacement ]: {
-										...placements[ editingPlacement ],
-										data: {
-											...placements[ editingPlacement ].data,
-											stick_to_top: value,
-										},
-									},
-								} );
+								setPlacements(
+									set( [ editingPlacement, 'data', 'stick_to_top' ], value, placements )
+								);
 							} }
 						/>
 					) }
