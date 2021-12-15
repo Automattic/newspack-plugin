@@ -14,8 +14,6 @@
     "@babel/plugin-transform-runtime": "^7.16.4",
     "@babel/preset-env": "^7.16.4",
     "@rushstack/eslint-patch": "^1.1.0",
-    "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/git": "^10.0.1",
     "@testing-library/react": "^12.1.2",
     "@wordpress/browserslist-config": "^4.1.0",
     "classnames": "^2.3.1",
@@ -23,12 +21,10 @@
     "eslint": "^7.32.0",
     "lint-staged": "^12.1.2",
     "lodash": "^4.17.21",
-    "newspack-scripts": "^1.5.1",
+    "newspack-scripts": "^1.6.1",
     "prettier": "npm:wp-prettier@^2.2.1-beta-1",
     "react-router-dom": "^5.3.0",
     "recursive-copy": "^2.0.13",
-    "semantic-release": "^18.0.1",
-    "semantic-release-version-bump": "^1.4.1",
     "stylelint": "^13.3.1"
   },
   "browserslist": [
@@ -39,7 +35,7 @@
   },
   "scripts": {
     "cm": "newspack-scripts commit",
-    "semantic-release": "semantic-release",
+    "semantic-release": "newspack-scripts release --files=newspack.php",
     "build": "newspack-scripts build",
     "start": "newspack-scripts start",
     "test": "newspack-scripts test",
@@ -81,57 +77,5 @@
     "react-dropzone": "^11.4.2",
     "react-google-charts": "^3.0.15",
     "react-rte": "^0.16.4"
-  },
-  "release": {
-    "branches": [
-      "release",
-      {
-        "name": "alpha",
-        "prerelease": "alpha"
-      }
-    ],
-    "prepare": [
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      [
-        "semantic-release-version-bump",
-        {
-          "files": "newspack.php",
-          "callback": "npm run release:archive"
-        }
-      ],
-      {
-        "path": "@semantic-release/git",
-        "assets": [
-          "newspack.php",
-          "package.json",
-          "package-lock.json",
-          "CHANGELOG.md"
-        ],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-      }
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      "semantic-release-version-bump",
-      [
-        "@semantic-release/github",
-        {
-          "assets": [
-            {
-              "path": "./release/newspack-plugin.zip",
-              "label": "newspack-plugin.zip"
-            }
-          ]
-        }
-      ]
-    ]
   }
 }
