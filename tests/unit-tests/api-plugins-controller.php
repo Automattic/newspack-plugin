@@ -34,9 +34,7 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->administrator = $this->factory->user->create( [ 'role' => 'administrator' ] );
 
 		// Delete any lingering managed plugins.
-		foreach ( Plugin_Manager::get_managed_plugins() as $slug => $plugin ) {
-			Plugin_Manager::uninstall( $slug );
-		}
+		Plugin_Manager::uninstall( array_keys( Plugin_Manager::get_managed_plugins() ) );
 	}
 
 	/**
@@ -199,11 +197,11 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 	public function test_install_uninstall_authorized() {
 		wp_set_current_user( $this->administrator );
 
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/install' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/jetpack/install' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'Name'   => 'AMP',
+			'Name'   => 'Jetpack',
 			'Status' => 'inactive',
 		];
 		$response_data = $response->get_data();
@@ -211,15 +209,15 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Installing the plugin again should fail.
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/install' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/jetpack/install' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 500, $response->get_status() );
 
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/uninstall' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/jetpack/uninstall' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'Name'   => 'AMP',
+			'Name'   => 'Jetpack',
 			'Status' => 'uninstalled',
 		];
 		$response_data = $response->get_data();
@@ -227,7 +225,7 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Uninstalling the plugin again should fail.
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/uninstall' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/jetpack/uninstall' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 500, $response->get_status() );
 
