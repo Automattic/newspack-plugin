@@ -16,6 +16,7 @@ import './style.scss';
 
 const Footer = ( { simple } ) => {
 	const componentsDemo = window && window.newspack_urls && window.newspack_urls.components_demo;
+	const support = window && window.newspack_urls && window.newspack_urls.support;
 	const setupWizard = window && window.newspack_urls && window.newspack_urls.setup_wizard;
 	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
 	const pluginVersion = window && window.newspack_urls && window.newspack_urls.plugin_version;
@@ -34,7 +35,7 @@ const Footer = ( { simple } ) => {
 		},
 		{
 			label: __( 'Documentation', 'newspack' ),
-			url: 'https://newspack.pub/support/',
+			url: support,
 			external: true,
 		},
 	];

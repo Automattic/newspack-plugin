@@ -44,7 +44,6 @@ const Main = ( {
 	wizardApiFetch,
 	setError,
 	renderPrimaryButton,
-	buttonText,
 	isPartOfSetup = true,
 	onSave = () => {},
 } ) => {
@@ -373,7 +372,7 @@ const Main = ( {
 			<div className="newspack-buttons-card">
 				{ renderPrimaryButton( {
 					onClick: () => saveSettings().then( onSave ),
-					children: buttonText || __( 'Save', 'newspack' ),
+					children: __( 'Finish', 'newspack' ) || __( 'Save', 'newspack' ),
 				} ) }
 			</div>
 		</Card>
