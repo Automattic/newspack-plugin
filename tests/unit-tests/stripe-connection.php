@@ -21,6 +21,8 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			[
 				'usedPublishableKey' => '',
 				'usedSecretKey'      => '',
+				'fee_multiplier'     => '2.9',
+				'fee_static'         => '0.3',
 			]
 		);
 		self::assertEquals(
