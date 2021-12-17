@@ -192,6 +192,31 @@ const StripeSetup = () => {
 						/>
 					</SettingsCard>
 					<SettingsCard
+						title={ __( 'Fee', 'newspack' ) }
+						description={ __(
+							'If you have a non-default or negotiated fee with Stripe, update its parameters here.',
+							'newspack'
+						) }
+						columns={ 1 }
+					>
+						<Grid noMargin>
+							<TextControl
+								type="number"
+								step="0.1"
+								value={ data.fee_multiplier }
+								label={ __( 'Fee multiplier' ) }
+								onChange={ changeHandler( 'fee_multiplier' ) }
+							/>
+							<TextControl
+								type="number"
+								step="0.1"
+								value={ data.fee_static }
+								label={ __( 'Fee static portion' ) }
+								onChange={ changeHandler( 'fee_static' ) }
+							/>
+						</Grid>
+					</SettingsCard>
+					<SettingsCard
 						title={ __( 'Webhooks', 'newspack' ) }
 						description={ __(
 							'These need to be configured to allow Stripe to communicate with the site.',

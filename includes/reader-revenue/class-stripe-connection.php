@@ -108,6 +108,14 @@ class Stripe_Connection {
 			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 			$wc_configuration_manager->update_wc_stripe_settings( $updated_stripe_data );
 		}
+		if ( isset( $updated_stripe_data['fee_multiplier'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_multiplier', $updated_stripe_data['fee_multiplier'] );
+			unset( $updated_stripe_data['fee_multiplier'] );
+		}
+		if ( isset( $updated_stripe_data['fee_static'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_static', $updated_stripe_data['fee_static'] );
+			unset( $updated_stripe_data['fee_static'] );
+		}
 		// Save it in options table.
 		return update_option( self::STRIPE_DATA_OPTION_NAME, $updated_stripe_data );
 	}
@@ -374,6 +382,9 @@ class Stripe_Connection {
 		}
 		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
 		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
+		$stripe_data['fee_multiplier']     = get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' );
+		$stripe_data['fee_static']         = get_option( 'newspack_blocks_donate_fee_static', '0.3' );
+
 		return $stripe_data;
 	}
 

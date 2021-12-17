@@ -171,6 +171,21 @@ class Reader_Revenue_Wizard extends Wizard {
 					'newsletter_list_id' => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
+					'fee_multiplier'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => function ( $value ) {
+							if ( (float) $value > 10 ) {
+								return new WP_Error(
+									'newspack_invalid_param',
+									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
+								);
+							};
+							return true;
+						},
+					],
+					'fee_static'         => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
 				],
 			]
 		);
