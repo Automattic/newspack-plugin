@@ -6,6 +6,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { set } from 'lodash/fp';
 
 /**
  * WordPress dependencies
@@ -20,6 +21,7 @@ import { settings } from '@wordpress/icons';
  */
 import {
 	ActionCard,
+	CheckboxControl,
 	Modal,
 	Card,
 	Notice,
@@ -212,6 +214,17 @@ const Placements = ( { adUnits } ) => {
 								</>
 							);
 						} ) }
+					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
+						<CheckboxControl
+							label={ __( 'Stick to top', 'newspack' ) }
+							checked={ !! placement.data?.stick_to_top }
+							onChange={ value => {
+								setPlacements(
+									set( [ editingPlacement, 'data', 'stick_to_top' ], value, placements )
+								);
+							} }
+						/>
+					) }
 					<Card buttonsCard noBorder className="justify-end">
 						<Button
 							isSecondary

@@ -208,25 +208,26 @@ class PopupsWizard extends Component {
 
 	previewUrlForPopup = ( { options, id } ) => {
 		const { placement, trigger_type: triggerType } = options;
+		const previewQueryKeys = window.newspack_popups_wizard_data?.preview_query_keys || {};
+		const abbreviatedKeys = {};
+		Object.keys( options ).forEach( key => {
+			if ( previewQueryKeys.hasOwnProperty( key ) ) {
+				abbreviatedKeys[ previewQueryKeys[ key ] ] = options[ key ];
+			}
+		} );
 
 		let previewURL = '/';
-		if (
-			'archives' === placement &&
-			window &&
-			window.newspack_popups_wizard_data &&
-			window.newspack_popups_wizard_data.preview_archive
-		) {
+		if ( 'archives' === placement && window.newspack_popups_wizard_data?.preview_archive ) {
 			previewURL = window.newspack_popups_wizard_data.preview_archive;
 		} else if (
 			( 'inline' === placement || 'scroll' === triggerType ) &&
 			window &&
-			window.newspack_popups_wizard_data &&
-			window.newspack_popups_wizard_data.preview_post
+			window.newspack_popups_wizard_data?.preview_post
 		) {
-			previewURL = window.newspack_popups_wizard_data.preview_post;
+			previewURL = window.newspack_popups_wizard_data?.preview_post;
 		}
 
-		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
+		return `${ previewURL }?${ stringify( { ...abbreviatedKeys, pid: id } ) }`;
 	};
 
 	updateAfterAPI = ( { campaigns, prompts, segments, settings, duplicated = null } ) =>
