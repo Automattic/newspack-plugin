@@ -176,40 +176,26 @@ svg {
 		}
 	}
 
-	// Welcome Screen
+	// Blue Screen
 	.newspack-wizard__blue & {
 		background: $primary-500;
 
-		&::before,
-		&::after {
-			left: 50%;
-			position: absolute;
-			transform: translate( -50% );
-		}
-
 		&::before {
-			border-radius: 4px;
+			animation: loading-quiet 1.25s ease-in-out infinite;
 			background: white;
-			height: 192px;
-			max-width: 584px;
-			top: 120px;
-			width: calc( 100% - ( 32px * 2 ) );
-
-			@media screen and ( min-width: 744px ) {
-				width: calc( 100% - ( 64px * 2 ) );
-			}
+			border-radius: 0;
+			box-shadow: 0;
+			height: 8px;
+			left: 0;
+			margin: 0;
+			position: absolute;
+			right: 100%;
+			top: 0;
+			width: auto;
 		}
 
 		&::after {
-			box-shadow: inset -130px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
-			margin: 0;
-			max-width: 512px;
-			top: 156px;
-			width: calc( 100% - ( 64px * 2 ) );
-
-			@media screen and ( min-width: 600px ) {
-				box-shadow: inset -260px 0 0 0 white, 0 64px 0 0 $gray-700, 0 96px 0 0 $gray-700;
-			}
+			display: none;
 		}
 	}
 
