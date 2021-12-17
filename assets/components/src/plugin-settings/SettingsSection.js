@@ -11,6 +11,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -49,15 +50,8 @@ const getControlType = setting => {
 	}
 };
 
-const SettingsSection = ( {
-	active,
-	title,
-	description,
-	fields,
-	disabled,
-	onChange,
-	onUpdate,
-} ) => {
+const SettingsSection = props => {
+	const { sectionKey, active, title, description, fields, disabled, onChange, onUpdate } = props;
 	const isSingleLined = index => {
 		const total = fields.length;
 		const hasSingleLinedField = fields.length % 3 !== 0 && fields.length % 2 !== 0;
@@ -84,6 +78,16 @@ const SettingsSection = ( {
 			onChange( setting.key, value );
 		},
 	} );
+	const beforeControls = applyFilters(
+		`newspack.settingSection.${ sectionKey }.beforeControls`,
+		null,
+		props
+	);
+	const afterControls = applyFilters(
+		`newspack.settingSection.${ sectionKey }.afterControls`,
+		null,
+		props
+	);
 	return (
 		<ActionCard
 			isMedium
@@ -96,22 +100,32 @@ const SettingsSection = ( {
 		>
 			{ ( active || active === null ) && (
 				<Fragment>
+					{ beforeControls }
 					<Grid columns={ fields.length % 3 === 0 ? 3 : 2 } gutter={ 32 }>
 						{ fields.map( ( setting, index ) => {
 							const Control = getControlComponent( setting ); // eslint-disable-line @wordpress/no-unused-vars-before-return, no-unused-vars
-							return <Control key={ setting.key } { ...getControlProps( setting, index ) } />;
+							return applyFilters(
+								`newspack.settingsSection.${ sectionKey }.control`,
+								<Control key={ setting.key } { ...getControlProps( setting, index ) } />,
+								{ sectionKey, setting, index, onChange }
+							);
 						} ) }
 					</Grid>
+					{ afterControls }
 					<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>
-						<Button
-							isPrimary
-							disabled={ disabled }
-							onClick={ () => {
-								onUpdate();
-							} }
-						>
-							{ __( 'Save settings', 'newspack' ) }
-						</Button>
+						{ applyFilters(
+							`newspack.settingsSection.${ sectionKey }.buttons`,
+							<Button
+								isPrimary
+								disabled={ disabled }
+								onClick={ () => {
+									onUpdate();
+								} }
+							>
+								{ __( 'Save settings', 'newspack' ) }
+							</Button>,
+							props
+						) }
 					</div>
 				</Fragment>
 			) }
