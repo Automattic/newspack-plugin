@@ -46,11 +46,10 @@ const INTEGRATIONS = {
 			fetchJetpackMailchimpStatus()
 				.then( mailchimp => ( { mailchimp } ) )
 				.catch( mailchimp => ( { mailchimp } ) ),
-		isOptional: true,
 	},
 };
 
-const intergationConnectButton = integration => {
+const integrationConnectButton = integration => {
 	if ( integration.pluginSlug ) {
 		return (
 			<Handoff plugin={ integration.pluginSlug } editLink={ integration.editLink } compact isLink>
@@ -65,12 +64,12 @@ const intergationConnectButton = integration => {
 			</Button>
 		);
 	}
-	if ( ! integration.error?.code === 'unavailable_site_id' ) {
+	if ( integration.error?.code === 'unavailable_site_id' ) {
 		return <span className="i">{ __( 'Connect Jetpack in order to configure Mailchimp.' ) }</span>;
 	}
 };
 
-const Integrations = ( { setError, updateRoute } ) => {
+const Integrations = ( { setError } ) => {
 	const [ integrations, setIntegrations ] = hooks.useObjectState( INTEGRATIONS );
 	const integrationsArray = Object.values( integrations );
 	useEffect( () => {
@@ -79,14 +78,6 @@ const Integrations = ( { setError, updateRoute } ) => {
 			setIntegrations( update );
 		} );
 	}, [] );
-
-	const canProceed =
-		integrationsArray.filter(
-			integration => integration.status !== 'active' && ! integration.isOptional
-		).length === 0;
-	useEffect( () => {
-		updateRoute( { canProceed } );
-	}, [ canProceed ] );
 
 	return (
 		<>
@@ -102,9 +93,8 @@ const Integrations = ( { setError, updateRoute } ) => {
 						key={ integration.name }
 						title={ integration.name }
 						description={ integration.description }
-						actionText={ isInactive ? intergationConnectButton( integration ) : null }
+						actionText={ isInactive ? integrationConnectButton( integration ) : null }
 						checkbox={ isInactive || isLoading ? 'unchecked' : 'checked' }
-						badge={ integration.isOptional ? null : __( 'Required', 'newspack' ) }
 						isMedium
 					/>
 				);
