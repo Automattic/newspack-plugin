@@ -16,7 +16,7 @@
     "@wordpress/browserslist-config": "^4.1.0",
     "eslint": "^7.32.0",
     "lint-staged": "^12.1.2",
-    "newspack-scripts": "^1.7.0",
+    "newspack-scripts": "^2.0.0",
     "prettier": "npm:wp-prettier@^2.2.1-beta-1",
     "stylelint": "^13.3.1"
   },
@@ -30,7 +30,8 @@
     "cm": "newspack-scripts commit",
     "semantic-release": "newspack-scripts release --files=newspack.php",
     "build": "newspack-scripts build",
-    "start": "newspack-scripts start",
+    "start": "npm ci && newspack-scripts watch",
+    "watch": "newspack-scripts watch",
     "test": "newspack-scripts test",
     "lint": "npm run lint:scss && npm run lint:js",
     "lint:js": "eslint --ext .js,.jsx assets",
