@@ -88,11 +88,17 @@ class OAuth {
 	private static function get_proxy_url( $type ) {
 		switch ( $type ) {
 			case 'google':
+				if ( defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY_OVERRIDE' ) ) {
+					return NEWSPACK_GOOGLE_OAUTH_PROXY_OVERRIDE;
+				}
 				if ( defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
 					return NEWSPACK_GOOGLE_OAUTH_PROXY;
 				}
 				break;
 			case 'fivetran':
+				if ( defined( 'NEWSPACK_FIVETRAN_PROXY_OVERRIDE' ) ) {
+					return NEWSPACK_FIVETRAN_PROXY_OVERRIDE;
+				}
 				if ( defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
 					return NEWSPACK_FIVETRAN_PROXY;
 				}
