@@ -1,3 +1,15 @@
+# [1.70.0](https://github.com/Automattic/newspack-plugin/compare/v1.69.0...v1.70.0) (2021-12-20)
+
+
+### Bug Fixes
+
+* **oauth:** google token refresh ([078f18e](https://github.com/Automattic/newspack-plugin/commit/078f18e377f7fc646b5ca0a5247c53e7b4e8c3e7))
+
+
+### Features
+
+* **stripe:** handle card update; prepare apple pay integration ([#1305](https://github.com/Automattic/newspack-plugin/issues/1305)) ([3e6f523](https://github.com/Automattic/newspack-plugin/commit/3e6f5237df1469ae0ebaaeb65aeb835168954511))
+
 # [1.70.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.69.0...v1.70.0-alpha.1) (2021-12-20)
 
 
