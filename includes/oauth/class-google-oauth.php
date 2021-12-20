@@ -344,6 +344,7 @@ class Google_OAuth {
 			// Refresh the access token.
 			try {
 				$url    = OAuth::authenticate_proxy_url(
+					'google',
 					'/wp-json/newspack-oauth-proxy/v1/refresh-token',
 					[
 						'refresh_token' => $auth_data['refresh_token'],
