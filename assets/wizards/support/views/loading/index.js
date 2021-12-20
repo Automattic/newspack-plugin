@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Waiting } from '../../../../components/src';
+import { Waiting } from '../../../../components/src';
 import './style.scss';
 
 /**
@@ -23,4 +23,4 @@ class Loading extends Component {
 		);
 	}
 }
-export default withWizardScreen( Loading );
+export default Loading;

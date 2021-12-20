@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { withWizardScreen } from '../../../../components/src';
 import withWPCOMAuth from '../../components/withWPCOMAuth';
 import './style.scss';
 
@@ -75,4 +74,4 @@ class Chat extends Component {
 	}
 }
 
-export default withWizardScreen( withWPCOMAuth( Chat ) );
+export default withWPCOMAuth( Chat );
