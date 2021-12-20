@@ -730,7 +730,7 @@ class Plugin_Manager {
 	/**
 	 * Uninstall a plugin.
 	 *
-	 * @param string $plugin The plugin slug (e.g. 'newspack') or path to the plugin file. e.g. ('newspack/newspack.php').
+	 * @param string|array $plugin The plugin slug (e.g. 'newspack') or path to the plugin file. e.g. ('newspack/newspack.php'), or an array thereof.
 	 * @return bool True on success. False on failure.
 	 */
 	public static function uninstall( $plugin ) {
@@ -738,25 +738,35 @@ class Plugin_Manager {
 			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'Plugins cannot be uninstalled.', 'newspack' ) );
 		}
 
-		$installed_plugins = self::get_installed_plugins();
-		if ( ! in_array( $plugin, $installed_plugins ) && ! isset( $installed_plugins[ $plugin ] ) ) {
-			return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'The plugin is not installed.', 'newspack' ) );
+		$plugins_to_uninstall = [];
+		$installed_plugins    = self::get_installed_plugins();
+
+		if ( ! is_array( $plugin ) ) {
+			$plugin = [ $plugin ];
 		}
 
-		if ( isset( $installed_plugins[ $plugin ] ) ) {
-			$plugin_file = $installed_plugins[ $plugin ];
-		} else {
-			$plugin_file = $plugin;
-		}
+		foreach ( $plugin as $plugin_slug ) {
+			if ( ! in_array( $plugin_slug, $installed_plugins ) && ! isset( $installed_plugins[ $plugin_slug ] ) ) {
+				return new WP_Error( 'newspack_plugin_failed_uninstall', __( 'The plugin is not installed.', 'newspack' ) );
+			}
 
-		// Deactivate plugin before uninstalling.
-		self::deactivate( $plugin_file );
+			if ( isset( $installed_plugins[ $plugin_slug ] ) ) {
+				$plugin_file = $installed_plugins[ $plugin_slug ];
+			} else {
+				$plugin_file = $plugin_slug;
+			}
+
+			// Deactivate plugin before uninstalling.
+			self::deactivate( $plugin_file );
+
+			$plugins_to_uninstall[] = $plugin_file;
+		}
 
 		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
-		$success = (bool) delete_plugins( [ $plugin_file ] );
+		$success = (bool) delete_plugins( $plugins_to_uninstall );
 		if ( $success ) {
 			wp_clean_plugins_cache();
 			return true;
