@@ -58,8 +58,11 @@ class OAuth {
 	 */
 	public static function authenticate_proxy_url( $type, $path = '', $query_args = [] ) {
 		if ( ! self::is_proxy_configured( $type ) ) {
+			Logger::log( "$type proxy type is not configured." );
 			return false;
 		}
+		$proxy_url = self::get_proxy_url( $type );
+		Logger::log( "Using $type proxy: $proxy_url" );
 		return add_query_arg(
 			array_merge(
 				[
@@ -67,7 +70,7 @@ class OAuth {
 				],
 				$query_args
 			),
-			self::get_proxy_url( $type ) . $path
+			$proxy_url . $path
 		);
 	}
 

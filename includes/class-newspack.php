@@ -75,6 +75,8 @@ final class Newspack {
 	 * e.g. include_once NEWSPACK_ABSPATH . 'includes/foo.php';
 	 */
 	private function includes() {
+		include_once NEWSPACK_ABSPATH . 'includes/class-logger.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/util.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-theme-manager.php';
