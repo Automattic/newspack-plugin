@@ -27,11 +27,9 @@ const Dashboard = ( { items } ) => {
 				/>
 			) }
 			<div className="newspack-wizard__header">
-				<div className="newspack-wizard__header__inner">
-					<div className="newspack-wizard__title">
-						<NewspackIcon size={ 36 } />
-						<h1>{ __( 'Dashboard', 'newspack' ) }</h1>
-					</div>
+				<div className="newspack-wizard__title">
+					<NewspackIcon size={ 36 } />
+					<h1>{ __( 'Dashboard', 'newspack' ) }</h1>
 				</div>
 			</div>
 

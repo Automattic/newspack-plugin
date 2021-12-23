@@ -84,25 +84,23 @@ const Wizard = ( {
 							noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
 						/>
 					) }
-					<div className="bg-white">
-						<div className="newspack-wizard__header__inner">
-							<div className="newspack-wizard__title">
-								<Button
-									isLink
-									href={ newspack_urls.dashboard }
-									label={ __( 'Return to Dashboard', 'newspack' ) }
-									showTooltip={ true }
-									icon={ category }
-									iconSize={ 36 }
-								>
-									<NewspackIcon size={ 36 } />
-								</Button>
-								{ headerText && <h1>{ headerText }</h1> }
-								{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
-							</div>
-							{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
+					<div className="newspack-wizard__header">
+						<div className="newspack-wizard__title">
+							<Button
+								isLink
+								href={ newspack_urls.dashboard }
+								label={ __( 'Return to Dashboard', 'newspack' ) }
+								showTooltip={ true }
+								icon={ category }
+								iconSize={ 36 }
+							>
+								<NewspackIcon size={ 36 } />
+							</Button>
+							{ headerText && <h1>{ headerText }</h1> }
+							{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
 						</div>
 					</div>
+					{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
 					<Switch>
 						{ displayedSections.map( ( section, index ) => {
 							const SectionComponent = section.render;

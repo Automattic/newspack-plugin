@@ -93,20 +93,18 @@ class ComponentsDemo extends Component {
 					/>
 				) }
 				<div className="newspack-wizard__header">
-					<div className="newspack-wizard__header__inner">
-						<div className="newspack-wizard__title">
-							<Button
-								isLink
-								href={ newspack_urls.dashboard }
-								label={ __( 'Return to Dashboard', 'newspack' ) }
-								showTooltip={ true }
-								icon={ home }
-								iconSize={ 36 }
-							>
-								<NewspackIcon size={ 36 } />
-							</Button>
-							<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
-						</div>
+					<div className="newspack-wizard__title">
+						<Button
+							isLink
+							href={ newspack_urls.dashboard }
+							label={ __( 'Return to Dashboard', 'newspack' ) }
+							showTooltip={ true }
+							icon={ home }
+							iconSize={ 36 }
+						>
+							<NewspackIcon size={ 36 } />
+						</Button>
+						<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
 					</div>
 				</div>
 				<div className="newspack-wizard newspack-wizard__content">

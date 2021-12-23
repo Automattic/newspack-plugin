@@ -66,29 +66,28 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 					/>
 				) }
 				<div className="newspack-wizard__header">
-					<div className="newspack-wizard__header__inner">
-						<div className="newspack-wizard__title">
-							<Button
-								isLink
-								href={ newspack_urls.dashboard }
-								label={ __( 'Return to Dashboard', 'newspack' ) }
-								showTooltip={ true }
-								icon={ category }
-								iconSize={ 36 }
-							>
-								<NewspackIcon size={ 36 } />
-							</Button>
-							{ headerText && <h1>{ headerText }</h1> }
-							{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
-						</div>
-						{ tabbedNavigation && (
-							<TabbedNavigation
-								disableUpcoming={ disableUpcomingInTabbedNavigation }
-								items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
-							/>
-						) }
+					<div className="newspack-wizard__title">
+						<Button
+							isLink
+							href={ newspack_urls.dashboard }
+							label={ __( 'Return to Dashboard', 'newspack' ) }
+							showTooltip={ true }
+							icon={ category }
+							iconSize={ 36 }
+						>
+							<NewspackIcon size={ 36 } />
+						</Button>
+						{ headerText && <h1>{ headerText }</h1> }
+						{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
 					</div>
 				</div>
+
+				{ tabbedNavigation && (
+					<TabbedNavigation
+						disableUpcoming={ disableUpcomingInTabbedNavigation }
+						items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
+					/>
+				) }
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
 					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }

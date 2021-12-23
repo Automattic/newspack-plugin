@@ -78,8 +78,16 @@
 		max-width: 1208px;
 		padding: 0 16px;
 
+		@media screen and ( max-width: 743px ) {
+			padding-top: 0 !important;
+		}
+
 		@media screen and ( min-width: 744px ) {
 			padding: 32px 84px;
+		}
+
+		@media screen and ( min-width: 744px ) and ( max-width: 782px ) {
+			padding-top: 32px !important;
 		}
 
 		// Typography

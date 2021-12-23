@@ -6,6 +6,9 @@
 @import '../../../shared/scss/colors';
 
 .newspack-tabbed-navigation {
+	background: white;
+	width: 100%;
+
 	ul {
 		box-shadow: 0 -1px 0 inset $gray-300;
 		display: flex;
@@ -70,6 +73,15 @@
 			&:hover {
 				color: inherit;
 			}
+		}
+	}
+
+	// Is Fixed
+	&.is-fixed {
+		@media screen and ( min-width: 783px ) {
+			position: fixed;
+			top: 32px;
+			z-index: 3;
 		}
 	}
 }
