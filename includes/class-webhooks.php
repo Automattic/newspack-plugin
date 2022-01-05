@@ -35,7 +35,7 @@ class Webhooks {
 		$this->salesforce_settings = Salesforce::get_salesforce_settings();
 
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		add_filter( 'woocommerce_subscriptions_is_duplicate_site', [ $this, 'check_duplicate_site_status' ] );
+		add_filter( 'woocommerce_subscriptions_is_duplicate_site', [ $this, 'check_duplicate_site_status' ], 999 );
 	}
 
 	/**
