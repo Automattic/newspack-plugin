@@ -50,9 +50,9 @@ class AdvertisingWizard extends Component {
 		this.fetchAdvertisingData();
 	};
 
-	updateWithAPI = requestConfig =>
-		this.props
-			.wizardApiFetch( requestConfig )
+	updateWithAPI = requestConfig => {
+		const fetchPromise = this.props.wizardApiFetch( requestConfig );
+		fetchPromise
 			.then(
 				response =>
 					new Promise( resolve => {
@@ -74,6 +74,8 @@ class AdvertisingWizard extends Component {
 					} )
 			)
 			.catch( this.props.setError );
+		return fetchPromise;
+	};
 
 	fetchAdvertisingData = ( quiet = false ) =>
 		this.updateWithAPI( { path: '/newspack/v1/wizard/advertising', quiet } );
