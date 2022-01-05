@@ -21,19 +21,43 @@ class Webhooks {
 	protected $capability = 'manage_options';
 
 	/**
+	 * If this site is a duplicate (staging or dev clone) site,
+	 * don't handle webhooks which communicate with external services.
+	 *
+	 * @var boolean
+	 */
+	protected $is_duplicate_site = false;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->salesforce_settings = Salesforce::get_salesforce_settings();
 
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_filter( 'woocommerce_subscriptions_is_duplicate_site', [ $this, 'check_duplicate_site_status' ] );
+	}
+
+	/**
+	 * Uses WooCommerce Subscription's check to determine whether this site is a duplicate/clone site.
+	 * https://github.com/woocommerce/-unused-woocommerce-subscriptions/blob/master/woocommerce-subscriptions.php#L1099
+	 *
+	 * @param boolean $is_duplicate True if the site is a duplicate site, false if the site is the production site.
+	 *
+	 * @return boolean The filtered value.
+	 */
+	public function check_duplicate_site_status( $is_duplicate ) {
+		if ( $is_duplicate ) {
+			$this->is_duplicate_site = true;
+		}
+
+		return $is_duplicate;
 	}
 
 	/**
 	 * Register the endpoints needed to handle webhooks.
 	 */
 	public function register_api_endpoints() {
-
 		// Handle WooCommerce webhook to sync with Salesforce.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -55,6 +79,14 @@ class Webhooks {
 	public function api_sync_salesforce( $request ) {
 		$args          = $request->get_params();
 		$order_details = Salesforce::parse_wc_order_data( $args );
+
+		// Bail early if we're not on a production site.
+		if ( $this->is_duplicate_site ) {
+			return new \WP_Error(
+				'newspack_salesforce_duplicate_site',
+				__( 'This site is a staging or development clone. Third-party syncs will not be processed.', 'newspack' )
+			);
+		}
 
 		if ( empty( $order_details ) ) {
 			return new \WP_Error(

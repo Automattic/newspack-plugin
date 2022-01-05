@@ -149,6 +149,11 @@ class Salesforce {
 		$contact = [];
 		$orders  = [];
 
+		// Only process if the data is coming from a valid order.
+		if ( ! isset( $data['id'] ) || 'shop_order' !== get_post_type( $data['id'] ) ) {
+			return false;
+		}
+
 		// We need billing and transaction info from the order before we can do anything.
 		if ( empty( $data['billing'] ) || empty( $data['line_items'] ) ) {
 			return false;
