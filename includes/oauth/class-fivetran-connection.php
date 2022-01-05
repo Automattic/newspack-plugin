@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Main class.
  */
 class Fivetran_Connection {
+	const NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META = '_newspack_fivetran_tos_consent';
+
 	/**
 	 * Constructor.
 	 *
@@ -72,20 +74,39 @@ class Fivetran_Connection {
 				],
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/oauth/fivetran-tos',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_post_fivetran_tos' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'has_accepted' => [
+						'required'          => true,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
+				],
+			]
+		);
 	}
 
 	/**
 	 * Get Fivetran connections status.
 	 */
 	public static function api_get_fivetran_connection_status() {
-		$url      = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
-		$response = self::process_proxy_response( \wp_safe_remote_get( $url ) );
-		if ( is_wp_error( $response ) ) {
+		$url                 = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
+		$connections_stauses = self::process_proxy_response( \wp_safe_remote_get( $url ) );
+		if ( is_wp_error( $connections_stauses ) ) {
 			return new WP_Error(
 				'newspack_connections_fivetran',
-				$response->get_error_message()
+				$connections_stauses->get_error_message()
 			);
 		}
+		$response = [
+			'connections_stauses' => $connections_stauses,
+			'has_accepted_tos'    => (bool) get_user_meta( get_current_user_id(), self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META, true ),
+		];
 		return $response;
 	}
 
@@ -163,6 +184,23 @@ class Fivetran_Connection {
 			return \rest_ensure_response( $response );
 		}
 		\rest_ensure_response( [] );
+	}
+
+	/**
+	 * Update the user's consent for the TOS.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public static function api_post_fivetran_tos( $request ) {
+		update_user_meta(
+			get_current_user_id(),
+			self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META,
+			sanitize_meta(
+				self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META,
+				$request->get_param( 'has_accepted' ),
+				'user'
+			)
+		);
 	}
 
 	/**
