@@ -123,6 +123,7 @@ workflows:
               only:
                 - release
                 - alpha
+                - /^hotfix\/.*/
       - post_release:
           requires:
             - release
