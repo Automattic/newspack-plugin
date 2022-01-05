@@ -15,7 +15,7 @@
     "@testing-library/react": "^12.1.2",
     "@wordpress/browserslist-config": "^4.1.0",
     "eslint": "^7.32.0",
-    "lint-staged": "^12.1.2",
+    "lint-staged": "^12.1.5",
     "newspack-scripts": "^2.0.0",
     "prettier": "npm:wp-prettier@^2.2.1-beta-1",
     "stylelint": "^13.3.1"
@@ -48,7 +48,7 @@
     "@babel/plugin-transform-runtime": "^7.16.4",
     "@babel/preset-env": "^7.16.4",
     "classnames": "^2.3.1",
-    "date-fns": "^2.27.0",
+    "date-fns": "^2.28.0",
     "deep-map-keys": "^2.0.1",
     "happychat-client": "^0.1.0",
     "human-number": "^1.0.5",
