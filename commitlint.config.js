@@ -1,1 +1,1 @@
-module.exports = { extends: [ '@commitlint/config-conventional' ] };
+module.exports = { extends: [ './node_modules/newspack-scripts/config/commitlint.config.js' ] };
