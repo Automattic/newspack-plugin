@@ -50,6 +50,10 @@ const getControlType = setting => {
 	}
 };
 
+const createFilter = ( sectionKey, name, props ) => {
+	return applyFilters( `newspack.settingSection.${ sectionKey }.${ name }`, null, props );
+};
+
 const SettingsSection = props => {
 	const { sectionKey, active, title, description, fields, disabled, onChange, onUpdate } = props;
 	const isSingleLined = index => {
@@ -78,16 +82,6 @@ const SettingsSection = props => {
 			onChange( setting.key, value );
 		},
 	} );
-	const beforeControls = applyFilters(
-		`newspack.settingSection.${ sectionKey }.beforeControls`,
-		null,
-		props
-	);
-	const afterControls = applyFilters(
-		`newspack.settingSection.${ sectionKey }.afterControls`,
-		null,
-		props
-	);
 	return (
 		<ActionCard
 			isMedium
@@ -100,7 +94,7 @@ const SettingsSection = props => {
 		>
 			{ ( active || active === null ) && (
 				<Fragment>
-					{ beforeControls }
+					{ createFilter( sectionKey, 'beforeControls', props ) }
 					<Grid columns={ fields.length % 3 === 0 ? 3 : 2 } gutter={ 32 }>
 						{ fields.map( ( setting, index ) => {
 							const Control = getControlComponent( setting ); // eslint-disable-line @wordpress/no-unused-vars-before-return, no-unused-vars
@@ -111,7 +105,7 @@ const SettingsSection = props => {
 							);
 						} ) }
 					</Grid>
-					{ afterControls }
+					{ createFilter( sectionKey, 'afterControls', props ) }
 					<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>
 						{ applyFilters(
 							`newspack.settingsSection.${ sectionKey }.buttons`,
@@ -127,6 +121,7 @@ const SettingsSection = props => {
 							props
 						) }
 					</div>
+					{ createFilter( sectionKey, 'afterButtons', props ) }
 				</Fragment>
 			) }
 		</ActionCard>
