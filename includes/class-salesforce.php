@@ -308,80 +308,76 @@ class Salesforce {
 	 * Parse WooCommerce order data to send in an update or create request to Salesforce.
 	 * Ensures that the data only contains valid Salesforce field names.
 	 *
-	 * @param $array $data Raw data to parse.
+	 * @param $array|WC_Order $order Raw order data or WC_Order object to parse.
 	 * @return @array|bool Parsed data, or false.
 	 */
-	private static function parse_wc_order_data( $data ) {
-		$contact = [];
-		$orders  = [];
-
-		// We need billing and transaction info from the order before we can do anything.
-		if ( empty( $data['billing'] ) || empty( $data['line_items'] ) ) {
-			return false;
-		}
-
-		$billing          = $data['billing'];
-		$transactions     = $data['line_items'];
-		$transaction_date = $data['date_created_gmt'];
-
-		// Parse billing contact info from WooCommerce.
-		if ( ! empty( $billing['email'] ) ) {
-			$contact['Email'] = $billing['email'];
-		}
-		if ( ! empty( $billing['first_name'] ) ) {
-			$contact['FirstName'] = $billing['first_name'];
-		}
-		if ( ! empty( $billing['last_name'] ) ) {
-			$contact['LastName'] = $billing['last_name'];
-		}
-		if ( ! empty( $billing['phone'] ) ) {
-			$contact['HomePhone'] = $billing['phone'];
-		}
-		if ( ! empty( $billing['address_1'] ) ) {
-			$contact['MailingStreet'] = $billing['address_1'];
-		}
-		if ( ! empty( $billing['address_2'] ) ) {
-			$contact['MailingStreet'] .= "\n" . $billing['address_2'];
-		}
-		if ( ! empty( $billing['city'] ) ) {
-			$contact['MailingCity'] = $billing['city'];
-		}
-		if ( ! empty( $billing['state'] ) ) {
-			$contact['MailingState'] = $billing['state'];
-		}
-		if ( ! empty( $billing['postcode'] ) ) {
-			$contact['MailingPostalCode'] = $billing['postcode'];
-		}
-		if ( ! empty( $billing['country'] ) ) {
-			$contact['MailingCountry'] = $billing['country'];
+	private static function parse_wc_order_data( $order ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_no_woocommerce',
+				__( 'WooCommerce must be installed and active.', 'newspack' )
+			);
 		}
 
 		$lead_source = '';
 
-		foreach ( $data['meta_data'] as $meta_field ) {
-			if ( in_array( $meta_field['key'], array_keys( Donations::DONATION_ORDER_META_KEYS ) ) ) {
-				$meta_label = Donations::DONATION_ORDER_META_KEYS[ $meta_field['key'] ]['label'];
-				$meta_value = ! empty( $meta_field['value'] ) ? $meta_field['value'] : 'none';
+		// Convert raw order data to a WC_Order instance.
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			// Raw order data from a webhook may contain extra transaction metadata that we can include in the payload.
+			if ( isset( $data['meta_data'] ) ) {
+				foreach ( $data['meta_data'] as $meta_field ) {
+					if ( in_array( $meta_field['key'], array_keys( Donations::DONATION_ORDER_META_KEYS ) ) ) {
+						$meta_label = Donations::DONATION_ORDER_META_KEYS[ $meta_field['key'] ]['label'];
+						$meta_value = ! empty( $meta_field['value'] ) ? $meta_field['value'] : 'none';
 
-				if ( ! empty( $lead_source ) ) {
-					$lead_source .= '; ';
+						if ( ! empty( $lead_source ) ) {
+							$lead_source .= '; ';
+						}
+
+						$lead_source .= $meta_label . ': ' . $meta_value;
+					}
 				}
+			}
 
-				$lead_source .= $meta_label . ': ' . $meta_value;
+			if ( isset( $order['id'] ) ) {
+				$order = \wc_get_order( $order['id'] );
+			} else {
+				return new \WP_Error(
+					'newspack_salesforce_order_error',
+					__( 'Valid Order ID required.', 'newspack' )
+				);
 			}
 		}
 
-		if ( is_array( $transactions ) ) {
-			foreach ( $transactions as $transaction ) {
-				$orders[] = [
-					'Amount'      => $transaction['total'],
-					'CloseDate'   => $transaction_date,
-					'Description' => 'WooCommerce Order Number: ' . $data['id'],
-					'Name'        => $transaction['name'],
-					'StageName'   => 'Closed Won',
-					'LeadSource'  => $lead_source,
-				];
+		$contact = [];
+		$orders  = [];
+
+		// Parse billing contact info from WooCommerce.
+		$contact['Email']             = $order->get_billing_email();
+		$contact['FirstName']         = $order->get_billing_first_name();
+		$contact['LastName']          = $order->get_billing_last_name();
+		$contact['HomePhone']         = $order->get_billing_phone();
+		$contact['MailingStreet']     = $order->get_billing_address_1();
+		$contact['MailingStreet']    .= "\n" . $order->get_billing_address_2();
+		$contact['MailingCity']       = $order->get_billing_city();
+		$contact['MailingState']      = $order->get_billing_state();
+		$contact['MailingPostalCode'] = $order->get_billing_postcode();
+		$contact['MailingCountry']    = $order->get_billing_country();
+
+		foreach ( $order->get_items() as $item_id => $item ) {
+			$item_data = [
+				'Amount'      => $item->get_total(),
+				'CloseDate'   => $order->get_date_created()->date( 'Y-m-d' ),
+				'Description' => 'WooCommerce Order Number: ' . $order->get_id(),
+				'Name'        => $item->get_name(),
+				'StageName'   => 'Closed Won',
+			];
+
+			if ( ! empty( $lead_source ) ) {
+				$item_data['LeadSource'] = $lead_source;
 			}
+
+			$orders[] = $item_data;
 		}
 
 		return [
