@@ -188,7 +188,7 @@ class Salesforce {
 	}
 
 	/**
-	 * Helper to build a request to the Salesforce SOAP API.
+	 * Helper to build a request to the Salesforce REST API.
 	 * Automatically fetches a refresh token if the access token has expired.
 	 *
 	 * @param string $endpoint API endpoint, including query params if any. Will add / prefix if not already prefixed.
