@@ -72,6 +72,9 @@ class AMP_Enhancements {
 	 * @param object    $error The AMP sanitisation error.
 	 */
 	public static function amp_validation_error_sanitized( $is_sanitized, $error ) {
+		if ( isset( $_GET['newspack-disallow-amp-kept'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			return true;
+		}
 		if ( false === self::should_use_amp_plus() ) {
 			return $is_sanitized;
 		}
