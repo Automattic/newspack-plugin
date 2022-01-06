@@ -29,11 +29,138 @@ class Salesforce {
 	];
 
 	/**
+	 * Add hooks.
+	 */
+	public static function init() {
+		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+	}
+
+	/**
+	 * Register the endpoints needed to handle Salesforce sync webhooks.
+	 */
+	public static function register_api_endpoints() {
+		// Handle WooCommerce webhook to sync with Salesforce.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/salesforce/sync',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * Webhook callback handler for syncing data to Salesforce.
+	 *
+	 * @param WP_REST_Request $request Request containing webhook.
+	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
+	 */
+	public static function api_sync_salesforce( $request ) {
+		$args          = $request->get_params();
+		$order_details = self::parse_wc_order_data( $args );
+
+		if ( empty( $order_details ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_invalid_order',
+				__( 'No valid WooCommerce order data.', 'newspack' )
+			);
+		}
+
+		$contact       = $order_details['contact'];
+		$orders        = $order_details['orders'];
+		$opportunities = [];
+
+		if ( empty( $contact ) || empty( $orders ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_invalid_contact_or_transaction',
+				__( 'No valid transaction or contact data.', 'newspack' )
+			);
+		}
+
+		if ( empty( $contact['Email'] ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_invalid_contact_email',
+				__( 'No valid contact email address.', 'newspack' )
+			);
+		}
+
+		$contacts = self::get_contacts_by_email( $contact['Email'] );
+
+		if ( empty( $contacts ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_invalid_salesforce_lookup',
+				__( 'Could not communicate with Salesforce.', 'newspack' )
+			);
+		}
+
+		if ( $contacts->totalSize > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$contact_id       = $contacts->records[0]->Id;
+			$contact_response = self::update_contact( $contact_id, $contact );
+		} else {
+			// Create new contact.
+			$contact_response = self::create_contact( $contact );
+
+			if ( is_wp_error( $contact_response ) ) {
+				return new \WP_Error(
+					'newspack_salesforce_contact_failure',
+					$contact_response->get_error_message()
+				);
+			}
+
+			$contact_id = $contact_response->id;
+		}
+
+		if ( empty( $contact_id ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_sync_failure',
+				__( 'Could not create or update Salesforce data.', 'newspack' )
+			);
+		}
+
+		// Sync WooCommerce orders to Salesforce opportunities.
+		if ( is_array( $orders ) ) {
+			$is_npsp = self::has_field( 'npsp__Primary_Contact__c', 'Opportunity' );
+
+			foreach ( $orders as $order ) {
+				// Add the NPSP "Primary Contact" field if the Salesforce instance supports it.
+				if ( $is_npsp ) {
+					$order['npsp__Primary_Contact__c'] = $contact_id;
+				}
+
+				$opportunity_response = self::create_opportunity( $order );
+
+				if ( is_wp_error( $opportunity_response ) ) {
+					return new \WP_Error(
+						'newspack_salesforce_opportunity_failure',
+						$opportunity_response->get_error_message()
+					);
+				}
+
+				$opportunity_id = $opportunity_response->id;
+
+				if ( ! empty( $opportunity_id ) ) {
+					$opportunities[] = $opportunity_response;
+					self::create_opportunity_contact_role( $opportunity_id, $contact_id );
+				}
+			}
+		}
+
+		return \rest_ensure_response(
+			[
+				'contact'       => $contact_response,
+				'opportunities' => $opportunities,
+			]
+		);
+	}
+
+	/**
 	 * Get the Salesforce settings.
 	 *
 	 * @return Array of Salesforce settings.
 	 */
-	public static function get_salesforce_settings() {
+	private static function get_salesforce_settings() {
 		$settings = self::DEFAULT_SETTINGS;
 
 		$client_id = get_option( self::SALESFORCE_CLIENT_ID, 0 );
@@ -184,7 +311,7 @@ class Salesforce {
 	 * @param $array $data Raw data to parse.
 	 * @return @array|bool Parsed data, or false.
 	 */
-	public static function parse_wc_order_data( $data ) {
+	private static function parse_wc_order_data( $data ) {
 		$contact = [];
 		$orders  = [];
 
@@ -269,7 +396,7 @@ class Salesforce {
 	 * @param string $email Email address of the contact.
 	 * @return array Array of found records with matching email attributes.
 	 */
-	public static function get_contacts_by_email( $email ) {
+	private static function get_contacts_by_email( $email ) {
 		$query    = [
 			'q' => "SELECT Id, FirstName, LastName, Description FROM Contact WHERE Email = '" . $email . "'",
 		];
@@ -290,7 +417,7 @@ class Salesforce {
 	 * @param array $data Attributes and values to update in Salesforce.
 	 * @return int Response code of the update request.
 	 */
-	public static function update_contact( $id, $data ) {
+	private static function update_contact( $id, $data ) {
 		$endpoint = '/services/data/v48.0/sobjects/Contact/' . $id;
 		return self::build_request( $endpoint, 'PATCH', $data );
 	}
@@ -301,7 +428,7 @@ class Salesforce {
 	 * @param array $data Data to use in creating the new contact. Keys must be valid Salesforce field names.
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
-	public static function create_contact( $data ) {
+	private static function create_contact( $data ) {
 		$endpoint = '/services/data/v48.0/sobjects/Contact/';
 		$response = self::build_request( $endpoint, 'POST', $data );
 
@@ -319,7 +446,7 @@ class Salesforce {
 	 * @param string $sobject_name Name of the Salesforce sObject type to look up.
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
-	public static function describe_sobject( $sobject_name = null ) {
+	private static function describe_sobject( $sobject_name = null ) {
 		$endpoint = '/services/data/v48.0/sobjects/' . $sobject_name . '/describe';
 		$response = self::build_request( $endpoint );
 
@@ -337,7 +464,7 @@ class Salesforce {
 	 * @param string $sobject_name Name of the Salesforce sObject to check for the field.
 	 * @return boolean Whether or not the field exists.
 	 */
-	public static function has_field( $field_name = null, $sobject_name = null ) {
+	private static function has_field( $field_name = null, $sobject_name = null ) {
 		$has_field = false;
 
 		if ( empty( $field_name ) || empty( $sobject_name ) ) {
@@ -369,7 +496,7 @@ class Salesforce {
 	 * @param array $data Data to use in creating the new opportunity. Keys must be valid Salesforce field names.
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
-	public static function create_opportunity( $data ) {
+	private static function create_opportunity( $data ) {
 		$endpoint = '/services/data/v48.0/sobjects/Opportunity/';
 		$response = self::build_request( $endpoint, 'POST', $data );
 
@@ -388,7 +515,7 @@ class Salesforce {
 	 * @param string $contact_id Unique ID for the contact to link.
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
-	public static function create_opportunity_contact_role( $opportunity_id, $contact_id ) {
+	private static function create_opportunity_contact_role( $opportunity_id, $contact_id ) {
 		$endpoint = '/services/data/v48.0/sobjects/OpportunityContactRole/';
 		$data     = [
 			'ContactId'     => $contact_id,
@@ -455,3 +582,5 @@ class Salesforce {
 		}
 	}
 }
+
+Salesforce::init();
