@@ -160,7 +160,7 @@ class Salesforce {
 	 *
 	 * @return Array of Salesforce settings.
 	 */
-	private static function get_salesforce_settings() {
+	public static function get_salesforce_settings() {
 		$settings = self::DEFAULT_SETTINGS;
 
 		$client_id = get_option( self::SALESFORCE_CLIENT_ID, 0 );
