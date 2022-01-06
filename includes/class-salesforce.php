@@ -61,12 +61,51 @@ class Salesforce {
 	}
 
 	/**
+	 * Helper to build a request to the Salesforce SOAP API.
+	 * Automatically fetches a refresh token if the access token has expired.
+	 *
+	 * @param string $endpoint API endpoint, including query params if any. Will add / prefix if not already prefixed.
+	 * @param string $method API method (e.g. GET, POST, PATCH, etc.).
+	 * @param array  $data Any data to send as the request body, in the form of an associative array.
+	 *
+	 * @return array|WP_Error Request response, or WP_Error.
+	 */
+	private static function build_request( $endpoint, $method = 'GET', $data = false ) {
+		$salesforce_settings = self::get_salesforce_settings();
+		$endpoint            = '/' === substr( $endpoint, 0, 1 ) ? $endpoint : '/' . $endpoint;
+		$url                 = $salesforce_settings['instance_url'] . $endpoint;
+		$request             = [
+			'method'  => $method,
+			'headers' => [
+				'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+				'Content-Type'  => 'application/json',
+			],
+			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+		];
+
+		if ( $data ) {
+			$request['body'] = wp_json_encode( $data );
+		}
+
+		// Make request to the Salesforce SOAP API.
+		$response = wp_safe_remote_request( $url, $request );
+
+		// If our access token has expired, let's get a refresh token and retry.
+		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+			$request['headers']['Authorization'] = 'Bearer ' . self::refresh_salesforce_token();
+			$response                            = wp_safe_remote_request( $url, $request );
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Set the Salesforce settings.
 	 *
 	 * @param array $args Array of settings info.
 	 * @return array Updated settings.
 	 */
-	public static function set_salesforce_settings( $args ) {
+	private static function set_salesforce_settings( $args ) {
 		$defaults = self::DEFAULT_SETTINGS;
 		$update   = wp_parse_args( $args, $defaults );
 
@@ -111,7 +150,7 @@ class Salesforce {
 	 *
 	 * @return void
 	 */
-	public static function create_webhook() {
+	private static function create_webhook() {
 		$webhook = new \WC_Webhook();
 		$webhook->set_name( 'Sync Salesforce on order checkout' );
 		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
@@ -130,7 +169,7 @@ class Salesforce {
 	 * @param string $webhook_id ID for the webhook to delete.
 	 * @return void
 	 */
-	public static function delete_webhook( $webhook_id ) {
+	private static function delete_webhook( $webhook_id ) {
 		update_option( self::SALESFORCE_WEBHOOK_ID, '' );
 		$webhook = wc_get_webhook( $webhook_id );
 		if ( null !== $webhook ) {
@@ -231,35 +270,14 @@ class Salesforce {
 	 * @return array Array of found records with matching email attributes.
 	 */
 	public static function get_contacts_by_email( $email ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$query               = [
+		$query    = [
 			'q' => "SELECT Id, FirstName, LastName, Description FROM Contact WHERE Email = '" . $email . "'",
 		];
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/query?' . http_build_query( $query );
+		$endpoint = 'services/data/v48.0/query?' . http_build_query( $query );
+		$response = self::build_request( $endpoint );
 
-		// Look up contacts with a matching email address via Salesforce API, using cached access_token.
-		$response = wp_safe_remote_get(
-			$url,
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
-				],
-				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			]
-		);
-
-		// If our access token has expired, refresh it and re-send the request.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$access_token = self::refresh_salesforce_token();
-			$response     = wp_safe_remote_get(
-				$url,
-				[
-					'headers' => [
-						'Authorization' => 'Bearer ' . $access_token,
-					],
-					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-				]
-			);
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
 
 		return json_decode( $response['body'] );
@@ -273,41 +291,8 @@ class Salesforce {
 	 * @return int Response code of the update request.
 	 */
 	public static function update_contact( $id, $data ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Contact/' . $id;
-
-		// Update contact record via Salesforce API, using cached access_token.
-		$response = wp_safe_remote_request(
-			$url,
-			[
-				'method'  => 'PATCH',
-				'headers' => [
-					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
-					'Content-Type'  => 'application/json',
-				],
-				'body'    => wp_json_encode( $data ),
-				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			]
-		);
-
-		// If our access token has expired, refresh it and re-send the request.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$access_token = self::refresh_salesforce_token();
-			$response     = wp_safe_remote_request(
-				$url,
-				[
-					'method'  => 'PATCH',
-					'headers' => [
-						'Authorization' => 'Bearer ' . $access_token,
-						'Content-Type'  => 'application/json',
-					],
-					'body'    => wp_json_encode( $data ),
-					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-				]
-			);
-		}
-
-		return $response;
+		$endpoint = '/services/data/v48.0/sobjects/Contact/' . $id;
+		return self::build_request( $endpoint, 'PATCH', $data );
 	}
 
 	/**
@@ -317,43 +302,11 @@ class Salesforce {
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function create_contact( $data ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Contact/';
-
-		// Create contact record via Salesforce API, using cached access_token.
-		$response = wp_safe_remote_post(
-			$url,
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
-					'Content-Type'  => 'application/json',
-				],
-				'body'    => wp_json_encode( $data ),
-				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			]
-		);
-
-		// If our access token has expired, refresh it and re-send the request.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$access_token = self::refresh_salesforce_token();
-			$response     = wp_safe_remote_post(
-				$url,
-				[
-					'headers' => [
-						'Authorization' => 'Bearer ' . $access_token,
-						'Content-Type'  => 'application/json',
-					],
-					'body'    => wp_json_encode( $data ),
-					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-				]
-			);
-		}
+		$endpoint = '/services/data/v48.0/sobjects/Contact/';
+		$response = self::build_request( $endpoint, 'POST', $data );
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_contact_failure',
-				$response->get_error_message()
-			);
+			return $response;
 		}
 
 		return json_decode( $response['body'] );
@@ -367,46 +320,11 @@ class Salesforce {
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function describe_sobject( $sobject_name = null ) {
-		if ( empty( $sobject_name ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_sobject_describe_failure',
-				__( 'No sObject type given.', 'newspack' )
-			);
-		}
-
-		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/' . $sobject_name . '/describe';
-
-		// Describe sObject record via Salesforce API, using cached access_token.
-		$response = wp_safe_remote_get(
-			$url,
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
-					'timeout'       => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-				],
-			]
-		);
-
-		// If our access token has expired, refresh it and re-send the request.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$access_token = self::refresh_salesforce_token();
-			$response     = wp_safe_remote_get(
-				$url,
-				[
-					'headers' => [
-						'Authorization' => 'Bearer ' . $access_token,
-						'timeout'       => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-					],
-				]
-			);
-		}
+		$endpoint = '/services/data/v48.0/sobjects/' . $sobject_name . '/describe';
+		$response = self::build_request( $endpoint );
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_sobject_describe_failure',
-				$response->get_error_message()
-			);
+			return $response;
 		}
 
 		return json_decode( $response['body'] );
@@ -452,43 +370,11 @@ class Salesforce {
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function create_opportunity( $data ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/Opportunity/';
-
-		// Create opportunity record via Salesforce API, using cached access_token.
-		$response = wp_safe_remote_post(
-			$url,
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
-					'Content-Type'  => 'application/json',
-				],
-				'body'    => wp_json_encode( $data ),
-				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			]
-		);
-
-		// If our access token has expired, refresh it and re-send the request.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$access_token = self::refresh_salesforce_token();
-			$response     = wp_safe_remote_post(
-				$url,
-				[
-					'headers' => [
-						'Authorization' => 'Bearer ' . $access_token,
-						'Content-Type'  => 'application/json',
-					],
-					'body'    => wp_json_encode( $data ),
-					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-				]
-			);
-		}
+		$endpoint = '/services/data/v48.0/sobjects/Opportunity/';
+		$response = self::build_request( $endpoint, 'POST', $data );
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_opportunity_failure',
-				$response->get_error_message()
-			);
+			return $response;
 		}
 
 		return json_decode( $response['body'] );
@@ -503,49 +389,17 @@ class Salesforce {
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	public static function create_opportunity_contact_role( $opportunity_id, $contact_id ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$url                 = $salesforce_settings['instance_url'] . '/services/data/v48.0/sobjects/OpportunityContactRole/';
-		$data                = [
+		$endpoint = '/services/data/v48.0/sobjects/OpportunityContactRole/';
+		$data     = [
 			'ContactId'     => $contact_id,
 			'IsPrimary'     => true,
 			'OpportunityId' => $opportunity_id,
 			'Role'          => 'Hard Credit',
 		];
-
-		// Create opportunity contact role record via Salesforce API, using cached access_token.
-		$response = wp_safe_remote_post(
-			$url,
-			[
-				'headers' => [
-					'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
-					'Content-Type'  => 'application/json',
-				],
-				'body'    => wp_json_encode( $data ),
-				'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-			]
-		);
-
-		// If our access token has expired, refresh it and re-send the request.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$access_token = self::refresh_salesforce_token();
-			$response     = wp_safe_remote_post(
-				$url,
-				[
-					'headers' => [
-						'Authorization' => 'Bearer ' . $access_token,
-						'Content-Type'  => 'application/json',
-					],
-					'body'    => wp_json_encode( $data ),
-					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-				]
-			);
-		}
+		$response = self::build_request( $endpoint, 'POST', $data );
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_opportunity_contact_role_failure',
-				$response->get_error_message()
-			);
+			return $response;
 		}
 
 		return json_decode( $response['body'] );
@@ -557,7 +411,7 @@ class Salesforce {
 	 * @throws \Exception Error message.
 	 * @return string The new access token.
 	 */
-	public static function refresh_salesforce_token() {
+	private static function refresh_salesforce_token() {
 		$salesforce_settings = self::get_salesforce_settings();
 
 		// Must have a valid API key and secret.
