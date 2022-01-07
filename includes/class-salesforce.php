@@ -726,8 +726,7 @@ class Salesforce {
 	/**
 	 * Add an action to the WooCommerce order admin page to manually sync orders to Salesforce.
 	 *
-	 * @param array    $actions Associative array of order actions.
-	 * @param WC_Order $order Order object being edited.
+	 * @param array $actions Associative array of order actions.
 	 *
 	 * @return array Filtered array of order actions.
 	 */
