@@ -33,7 +33,8 @@ class Salesforce {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
-		add_filter( 'woocommerce_order_actions', [ __CLASS__, 'wc_order_manual_sync' ], 10, 2 );
+		add_action( 'woocommerce_order_actions_start', [ __CLASS__, 'wc_order_show_sync_status' ] );
+		add_filter( 'woocommerce_order_actions', [ __CLASS__, 'wc_order_manual_sync' ] );
 		add_action( 'woocommerce_order_action_newspack_sync_order_to_salesforce', [ __CLASS__, 'wc_order_manual_sync_action' ] );
 	}
 
@@ -60,8 +61,24 @@ class Salesforce {
 	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
 	 */
 	public static function api_sync_salesforce( $request ) {
-		$args = $request->get_params();
-		return \rest_ensure_response( self::sync_salesforce( $args ) );
+		$args     = $request->get_params();
+		$response = self::sync_salesforce( $args );
+		$order_id = isset( $args['id'] ) ? $args['id'] : 0;
+		$order    = \wc_get_order( $order_id );
+
+		if ( is_wp_error( $response ) && order && class_exists( 'WooCommerce' ) ) {
+			$order->add_order_note(
+				sprintf(
+					// Translators: Note added to order when sync is unsuccessful.
+					__( 'Error syncing order to Salesforce. %s' ),
+					$response->get_error_message()
+				)
+			);
+		} else {
+			$order->add_order_note( __( 'Order successfully synced to Salesforce.', 'newspack' ) );
+		}
+
+		return \rest_ensure_response( $response );
 	}
 
 	/**
@@ -136,18 +153,18 @@ class Salesforce {
 		if ( is_array( $orders ) ) {
 			$is_npsp = self::has_field( 'npsp__Primary_Contact__c', 'Opportunity' );
 
-			foreach ( $orders as $order ) {
+			foreach ( $orders as $order_item ) {
 				// Add the NPSP "Primary Contact" field if the Salesforce instance supports it.
 				if ( $is_npsp ) {
-					$order['npsp__Primary_Contact__c'] = $contact_id;
+					$order_item['npsp__Primary_Contact__c'] = $contact_id;
 				}
 
-				$existing_opportunity = self::get_opportunity_by_order_id( $order );
+				$existing_opportunity = self::get_opportunity_by_order_id( $order_item );
 
 				if ( $existing_opportunity ) {
-					$opportunity_response = self::update_opportunity( $existing_opportunity, $order );
+					$opportunity_response = self::update_opportunity( $existing_opportunity, $order_item );
 				} else {
-					$opportunity_response = self::create_opportunity( $order );
+					$opportunity_response = self::create_opportunity( $order_item );
 				}
 
 				if ( is_wp_error( $opportunity_response ) ) {
@@ -205,6 +222,17 @@ class Salesforce {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Helper function to determine whether the site has been previously connected to Salesforce via OAuth.
+	 * This helper doesn't check whether the connection is still valid, it just checks that we have the necessary credentials for a connection.
+	 *
+	 * @return boolean True if we have credentials, false otherwise.
+	 */
+	private static function is_connected() {
+		$settings = self::get_salesforce_settings();
+		return ! empty( $settings['client_id'] ) && ! empty( $settings['client_secret'] ) && ! empty( $settings['refresh_token'] );
 	}
 
 	/**
@@ -662,6 +690,40 @@ class Salesforce {
 	}
 
 	/**
+	 * Use WC order actions metabox to display the sync status of this order.
+	 *
+	 * @param int $order_id ID of the order being edited.
+	 */
+	public static function wc_order_show_sync_status( $order_id ) {
+		if ( ! self::is_connected() ) {
+			return;
+		}
+
+		$settings = self::get_salesforce_settings();
+		$base_url = $settings['instance_url'];
+		$order    = \wc_get_order( $order_id );
+
+		if ( ! $order ) {
+			return;
+		}
+
+		$order_details = self::parse_wc_order_data( $order );
+		$synced_id     = self::get_opportunity_by_order_id( reset( $order_details['orders'] ) );
+		?>
+		<li class="wide" style="padding-bottom: 1em">
+			<h4 style="margin-bottom: 0.5em;margin-top: 0"><?php echo esc_html__( 'Salesforce sync status', 'newspack' ); ?></h4>
+		<?php if ( $synced_id ) : ?>
+			<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( $base_url . '/lightning/r/Opportunity/' . $synced_id . '/view' ); ?>">
+				<mark class="order-status status-completed"><span><?php echo esc_html__( 'Synced', 'newspack' ); ?></span></mark>
+			</a>
+		<?php else : ?>
+			<mark class="order-status status-failed"><span><?php echo esc_html__( 'Not synced', 'newspack' ); ?></span></mark>
+		<?php endif; ?>
+		</li>
+		<?php
+	}
+
+	/**
 	 * Add an action to the WooCommerce order admin page to manually sync orders to Salesforce.
 	 *
 	 * @param array    $actions Associative array of order actions.
@@ -669,11 +731,8 @@ class Salesforce {
 	 *
 	 * @return array Filtered array of order actions.
 	 */
-	public static function wc_order_manual_sync( $actions, $order ) {
-		$settings     = self::get_salesforce_settings();
-		$is_connected = ! empty( $settings['client_id'] ) && ! empty( $settings['client_secret'] ) && ! empty( $settings['refresh_token'] );
-
-		if ( $is_connected ) {
+	public static function wc_order_manual_sync( $actions ) {
+		if ( self::is_connected() ) {
 			$actions['newspack_sync_order_to_salesforce'] = __( 'Sync order to Salesforce', 'newspack' );
 		}
 
@@ -686,7 +745,20 @@ class Salesforce {
 	 * @param WC_Order $order Order being edited in the WP dashboard.
 	 */
 	public static function wc_order_manual_sync_action( $order ) {
-		self::sync_salesforce( $order );
+		$response = self::sync_salesforce( $order );
+
+		// Add a note on sync failure.
+		if ( is_wp_error( $response ) && class_exists( 'WooCommerce' ) ) {
+			$order->add_order_note(
+				sprintf(
+					// Translators: Note added to order when sync is unsuccessful.
+					__( 'Error syncing order to Salesforce. %s' ),
+					$response->get_error_message()
+				)
+			);
+		} else {
+			$order->add_order_note( __( 'Order successfully synced to Salesforce.', 'newspack' ) );
+		}
 	}
 }
 
