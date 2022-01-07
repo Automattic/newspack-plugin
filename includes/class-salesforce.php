@@ -344,8 +344,9 @@ class Salesforce {
 		// Convert raw order data to a WC_Order instance.
 		if ( ! is_a( $order, 'WC_Order' ) ) {
 			// Raw order data from a webhook may contain extra transaction metadata that we can include in the payload.
-			if ( isset( $data['meta_data'] ) ) {
-				foreach ( $data['meta_data'] as $meta_field ) {
+			// Let's extract that before converting the data to a WC_Order object.
+			if ( isset( $order['meta_data'] ) ) {
+				foreach ( $order['meta_data'] as $meta_field ) {
 					if ( in_array( $meta_field['key'], array_keys( Donations::DONATION_ORDER_META_KEYS ) ) ) {
 						$meta_label = Donations::DONATION_ORDER_META_KEYS[ $meta_field['key'] ]['label'];
 						$meta_value = ! empty( $meta_field['value'] ) ? $meta_field['value'] : 'none';
