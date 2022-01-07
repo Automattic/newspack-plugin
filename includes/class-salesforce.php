@@ -33,6 +33,8 @@ class Salesforce {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+		add_filter( 'woocommerce_order_actions', [ __CLASS__, 'wc_order_manual_sync' ], 10, 2 );
+		add_action( 'woocommerce_order_action_newspack_sync_order_to_salesforce', [ __CLASS__, 'wc_order_manual_sync_action' ] );
 	}
 
 	/**
@@ -58,8 +60,19 @@ class Salesforce {
 	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
 	 */
 	public static function api_sync_salesforce( $request ) {
-		$args          = $request->get_params();
-		$order_details = self::parse_wc_order_data( $args );
+		$args = $request->get_params();
+		return \rest_ensure_response( self::sync_salesforce( $args ) );
+	}
+
+	/**
+	 * Given raw order data or an WC_Order instance, sync the data to Salesforce.
+	 *
+	 * @param array|WC_Order $order Raw order data or WC_Order instance to sync.
+	 *
+	 * @return array|WP_Error Array containing synced contact and opportunity data, or WP_Error.
+	 */
+	private static function sync_salesforce( $order ) {
+		$order_details = self::parse_wc_order_data( $order );
 
 		if ( empty( $order_details ) ) {
 			return new \WP_Error(
@@ -129,7 +142,13 @@ class Salesforce {
 					$order['npsp__Primary_Contact__c'] = $contact_id;
 				}
 
-				$opportunity_response = self::create_opportunity( $order );
+				$existing_opportunity = self::get_opportunity_by_order_id( $order );
+
+				if ( $existing_opportunity ) {
+					$opportunity_response = self::update_opportunity( $existing_opportunity, $order );
+				} else {
+					$opportunity_response = self::create_opportunity( $order );
+				}
 
 				if ( is_wp_error( $opportunity_response ) ) {
 					return new \WP_Error(
@@ -138,21 +157,22 @@ class Salesforce {
 					);
 				}
 
-				$opportunity_id = $opportunity_response->id;
-
+				$opportunity_id = isset( $opportunity_response->id ) ? $opportunity_response->id : $existing_opportunity;
 				if ( ! empty( $opportunity_id ) ) {
 					$opportunities[] = $opportunity_response;
-					self::create_opportunity_contact_role( $opportunity_id, $contact_id );
+
+					// We only want to create an Opportunity Contact Role if creating a new Opportunity, or changing the customer's email address.
+					if ( ! $existing_opportunity || 0 === $contacts->totalSize ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						self::create_opportunity_contact_role( $opportunity_id, $contact_id );
+					}
 				}
 			}
 		}
 
-		return \rest_ensure_response(
-			[
-				'contact'       => $contact_response,
-				'opportunities' => $opportunities,
-			]
-		);
+		return [
+			'contact'       => $contact_response,
+			'opportunities' => $opportunities,
+		];
 	}
 
 	/**
@@ -353,12 +373,17 @@ class Salesforce {
 		$orders  = [];
 
 		// Parse billing contact info from WooCommerce.
-		$contact['Email']             = $order->get_billing_email();
-		$contact['FirstName']         = $order->get_billing_first_name();
-		$contact['LastName']          = $order->get_billing_last_name();
-		$contact['HomePhone']         = $order->get_billing_phone();
-		$contact['MailingStreet']     = $order->get_billing_address_1();
-		$contact['MailingStreet']    .= "\n" . $order->get_billing_address_2();
+		$contact['Email']         = $order->get_billing_email();
+		$contact['FirstName']     = $order->get_billing_first_name();
+		$contact['LastName']      = $order->get_billing_last_name();
+		$contact['HomePhone']     = $order->get_billing_phone();
+		$contact['MailingStreet'] = $order->get_billing_address_1();
+
+		$billing_address_2 = $order->get_billing_address_2();
+		if ( ! empty( $billing_address_2 ) ) {
+			$contact['MailingStreet'] .= "\n" . $billing_address_2;
+		}
+
 		$contact['MailingCity']       = $order->get_billing_city();
 		$contact['MailingState']      = $order->get_billing_state();
 		$contact['MailingPostalCode'] = $order->get_billing_postcode();
@@ -404,6 +429,50 @@ class Salesforce {
 		}
 
 		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * Given a parsed order object, look up existing Opportunities in Salesforce with a matching order ID.
+	 *
+	 * Because we store the order IDs in the Description field, which isn't queryable in SOQL,
+	 * we need to get all opportunities that might match and then iterate through the results
+	 * to find the one with a matching ID in the Description field, if any.
+	 *
+	 * @param array $order_item Order data as parsed by the parse_wc_order_data method.
+	 *
+	 * @return string|boolean Matching opportunity ID, or false if none.
+	 */
+	private static function get_opportunity_by_order_id( $order_item ) {
+		$name        = $order_item['Name'];
+		$amount      = $order_item['Amount'];
+		$description = $order_item['Description'];
+		$query       = [
+			'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount",
+		];
+		$endpoint    = 'services/data/v48.0/query?' . http_build_query( $query );
+		$response    = self::build_request( $endpoint );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$results = json_decode( $response['body'] );
+		if ( 0 === $results->totalSize ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return false;
+		}
+
+		$matching_id = array_reduce(
+			$results->records,
+			function( $acc, $result ) use ( $description ) {
+				if ( $description === $result->Description ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$acc = $result->Id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+				return $acc;
+			},
+			false
+		);
+
+		return $matching_id;
 	}
 
 	/**
@@ -484,6 +553,19 @@ class Salesforce {
 		}
 
 		return $has_field;
+	}
+
+	/**
+	 * Update an existing Opportunity record by Id with the given data.
+	 * Only the CloseDate and primary contact (if email is changed) will be updated.
+	 *
+	 * @param array $id Unique ID of the record to update in Salesforce.
+	 * @param array $data Attributes and values to update in Salesforce.
+	 * @return int Response code of the update request.
+	 */
+	private static function update_opportunity( $id, $data ) {
+		$endpoint = '/services/data/v48.0/sobjects/Opportunity/' . $id;
+		return self::build_request( $endpoint, 'PATCH', $data );
 	}
 
 	/**
@@ -576,6 +658,34 @@ class Salesforce {
 
 			return $response_body->access_token;
 		}
+	}
+
+	/**
+	 * Add an action to the WooCommerce order admin page to manually sync orders to Salesforce.
+	 *
+	 * @param array    $actions Associative array of order actions.
+	 * @param WC_Order $order Order object being edited.
+	 *
+	 * @return array Filtered array of order actions.
+	 */
+	public static function wc_order_manual_sync( $actions, $order ) {
+		$settings     = self::get_salesforce_settings();
+		$is_connected = ! empty( $settings['client_id'] ) && ! empty( $settings['client_secret'] ) && ! empty( $settings['refresh_token'] );
+
+		if ( $is_connected ) {
+			$actions['newspack_sync_order_to_salesforce'] = __( 'Sync order to Salesforce', 'newspack' );
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Handler to manually sync an order from the WC order admin screen.
+	 *
+	 * @param WC_Order $order Order being edited in the WP dashboard.
+	 */
+	public static function wc_order_manual_sync_action( $order ) {
+		self::sync_salesforce( $order );
 	}
 }
 
