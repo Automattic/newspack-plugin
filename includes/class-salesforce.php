@@ -397,7 +397,7 @@ class Salesforce {
 		$query    = [
 			'q' => "SELECT Id, FirstName, LastName, Description FROM Contact WHERE Email = '" . $email . "'",
 		];
-		$endpoint = 'services/data/v48.0/query?' . http_build_query( $query );
+		$endpoint = '/services/data/v48.0/query?' . http_build_query( $query );
 		$response = self::build_request( $endpoint );
 
 		if ( is_wp_error( $response ) ) {
