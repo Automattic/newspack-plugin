@@ -346,8 +346,7 @@ class Setup_Wizard extends Wizard {
 		$theme_mods['footer_logo_size'] = get_theme_mod( 'footer_logo_size', 'medium' );
 		$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', false );
 		if ( false === $theme_mods['footer_copyright'] ) {
-			set_theme_mod( 'footer_copyright', get_option( 'blogdescription', '' ) );
-			$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright' );
+			$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', '' );
 		}
 
 		$theme_mods['header_text']            = get_theme_mod( 'header_text', '' );
