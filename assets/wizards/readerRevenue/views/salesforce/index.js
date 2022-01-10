@@ -50,7 +50,7 @@ const Salesforce = () => {
 		try {
 			// Get the tokens.
 			const response = await wizardApiFetch( {
-				path: '/newspack/v1/wizard/salesforce/tokens',
+				path: '/newspack/salesforce/v1/tokens',
 				method: 'POST',
 				data: {
 					code: authorizationCode,
@@ -86,7 +86,7 @@ const Salesforce = () => {
 	 */
 	const checkConnectionStatus = async () => {
 		const response = await wizardApiFetch( {
-			path: '/newspack/v1/wizard/salesforce/connection-status',
+			path: '/newspack/salesforce/v1/connection-status',
 			method: 'POST',
 			isQuietFetch: true,
 		} );
@@ -151,7 +151,7 @@ const Salesforce = () => {
 
 			// Validate credentials before redirecting.
 			const valid = await wizardApiFetch( {
-				path: '/newspack/v1/wizard/salesforce/validate',
+				path: '/newspack/salesforce/v1/validate',
 				method: 'POST',
 				data: {
 					client_id,

@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Handles Salesforce functionality.
  */
 class Salesforce {
+	const SALESFORCE_API_NAMESPACE = 'newspack/salesforce/v1';
 	const SALESFORCE_CLIENT_ID     = 'newspack_salesforce_client_id';
 	const SALESFORCE_CLIENT_SECRET = 'newspack_salesforce_client_secret';
 	const SALESFORCE_ACCESS_TOKEN  = 'newspack_salesforce_access_token';
@@ -36,19 +37,219 @@ class Salesforce {
 	}
 
 	/**
-	 * Register the endpoints needed to handle Salesforce sync webhooks.
+	 * Register the endpoints needed to handle Salesforce functionality.
 	 */
 	public static function register_api_endpoints() {
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/connection-status',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_check_salesforce_connection_status' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Validate Salesforce client_id and client_secret credentials.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/validate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_validate_salesforce_creds' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Get access and refresh tokens from Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/tokens',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_get_salesforce_tokens' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'client_id'     => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'client_secret' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'redirect_uri'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
 		// Handle WooCommerce webhook to sync with Salesforce.
 		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/salesforce/sync',
+			self::SALESFORCE_API_NAMESPACE,
+			'/sync',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
 				'permission_callback' => '__return_true',
 			]
 		);
+	}
+
+	/**
+	 * Check capabilities for using API.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function api_permissions_check() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * API endpoint for checking validity of a Salesforce refresh token.
+	 *
+	 * @throws \Exception Error message.
+	 * @return WP_REST_Response with the active status.
+	 */
+	public static function api_check_salesforce_connection_status() {
+		$settings = self::get_salesforce_settings();
+
+		// Check if the webhook is configured.
+		$webhook_id = get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
+		$webhook    = wc_get_webhook( $webhook_id );
+		if ( null == $webhook ) {
+			return \rest_ensure_response(
+				[
+					'error' => __(
+						'Webhook is not configured. Please try resetting your Salesforce connection and reconnecting.',
+						'newspack'
+					),
+				]
+			);
+		}
+
+		// Must have a valid API key and secret.
+		if (
+			empty( $settings['client_id'] ) ||
+			empty( $settings['client_secret'] ) ||
+			empty( $settings['refresh_token'] )
+		) {
+			return \rest_ensure_response(
+				[
+					'error' => __(
+						'Invalid Consumer Key, Secret, or Refresh Token.',
+						'newspack'
+					),
+				]
+			);
+		}
+
+		// Hit Salesforce OAuth endpoint to introspect refresh token.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/introspect?' . http_build_query(
+				array(
+					'client_id'     => $settings['client_id'],
+					'client_secret' => $settings['client_secret'],
+					'token'         => $settings['refresh_token'],
+				)
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		if ( true !== $response_body->active ) {
+			return \rest_ensure_response(
+				[
+					'error' => __(
+						'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.',
+						'newspack'
+					),
+				]
+			);
+		}
+
+		return \rest_ensure_response( $response_body );
+	}
+
+	/**
+	 * API endpoint for validating Salesforce client id/secret credentials.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public static function api_validate_salesforce_creds( $request ) {
+		$args  = $request->get_params();
+		$valid = false;
+
+		// Must have a valid API key and secret.
+		if ( ! empty( $args['client_id'] ) && ! empty( $args['client_secret'] ) ) {
+			$url = 'https://login.salesforce.com/services/oauth2/authorize?response_type=code&' . http_build_query(
+				[
+					'client_id'     => $args['client_id'],
+					'client_secret' => $args['client_secret'],
+					'redirect_uri'  => $args['redirect_uri'],
+				]
+			);
+
+			$response = wp_safe_remote_get( $url );
+			$valid    = wp_remote_retrieve_response_code( $response ) === 200;
+		}
+
+		return \rest_ensure_response( $valid );
+	}
+
+	/**
+	 * API endpoint for getting Salesforce API tokens.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @throws \Exception Error message.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public static function api_get_salesforce_tokens( $request ) {
+		$args     = $request->get_params();
+		$settings = self::get_salesforce_settings();
+
+		// Must have a valid API key and secret.
+		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
+			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+		}
+
+		// Hit Salesforce OAuth endpoint to request API tokens.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
+				array(
+					'client_id'     => $settings['client_id'],
+					'client_secret' => $settings['client_secret'],
+					'code'          => $args['code'],
+					'redirect_uri'  => $args['redirect_uri'],
+					'grant_type'    => 'authorization_code',
+					'format'        => 'json',
+				)
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		if ( ! empty( $response_body->access_token ) && ! empty( $response_body->refresh_token ) ) {
+			$update_args = wp_parse_args( $response_body, $settings );
+
+			// Save tokens.
+			$update_response = self::set_salesforce_settings( $update_args );
+			if ( is_wp_error( $update_response ) ) {
+				return \rest_ensure_response( $update_response );
+			}
+
+			return \rest_ensure_response( $update_args );
+		}
 	}
 
 	/**
@@ -198,13 +399,13 @@ class Salesforce {
 	 * @return array|WP_Error Request response, or WP_Error.
 	 */
 	private static function build_request( $endpoint, $method = 'GET', $data = false ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$endpoint            = '/' === substr( $endpoint, 0, 1 ) ? $endpoint : '/' . $endpoint;
-		$url                 = $salesforce_settings['instance_url'] . $endpoint;
-		$request             = [
+		$settings = self::get_salesforce_settings();
+		$endpoint = '/' === substr( $endpoint, 0, 1 ) ? $endpoint : '/' . $endpoint;
+		$url      = $settings['instance_url'] . $endpoint;
+		$request  = [
 			'method'  => $method,
 			'headers' => [
-				'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+				'Authorization' => 'Bearer ' . $settings['access_token'],
 				'Content-Type'  => 'application/json',
 			],
 			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
@@ -232,7 +433,7 @@ class Salesforce {
 	 * @param array $args Array of settings info.
 	 * @return array Updated settings.
 	 */
-	private static function set_salesforce_settings( $args ) {
+	public static function set_salesforce_settings( $args ) {
 		$defaults = self::DEFAULT_SETTINGS;
 		$update   = wp_parse_args( $args, $defaults );
 
@@ -536,15 +737,15 @@ class Salesforce {
 	 * @return string The new access token.
 	 */
 	private static function refresh_salesforce_token() {
-		$salesforce_settings = self::get_salesforce_settings();
+		$settings = self::get_salesforce_settings();
 
 		// Must have a valid API key and secret.
-		if ( empty( $salesforce_settings['client_id'] ) || empty( $salesforce_settings['client_secret'] ) ) {
+		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
 			throw new \Exception( 'Invalid Consumer Key or Secret.' );
 		}
 
 		// Must have a valid refresh token.
-		if ( empty( $salesforce_settings['refresh_token'] ) ) {
+		if ( empty( $settings['refresh_token'] ) ) {
 			throw new \Exception( 'Invalid refresh token.' );
 		}
 
@@ -552,9 +753,9 @@ class Salesforce {
 		$salesforce_response = wp_safe_remote_post(
 			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
 				[
-					'client_id'     => $salesforce_settings['client_id'],
-					'client_secret' => $salesforce_settings['client_secret'],
-					'refresh_token' => $salesforce_settings['refresh_token'],
+					'client_id'     => $settings['client_id'],
+					'client_secret' => $settings['client_secret'],
+					'refresh_token' => $settings['refresh_token'],
 					'grant_type'    => 'refresh_token',
 					'format'        => 'json',
 				]
