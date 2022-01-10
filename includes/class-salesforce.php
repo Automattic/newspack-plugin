@@ -33,6 +33,7 @@ class Salesforce {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'register_admin_scripts' ] );
 		add_action( 'woocommerce_order_actions_start', [ __CLASS__, 'wc_order_show_sync_status' ] );
 		add_filter( 'woocommerce_order_actions', [ __CLASS__, 'wc_order_manual_sync' ] );
 		add_action( 'woocommerce_order_action_newspack_sync_order_to_salesforce', [ __CLASS__, 'wc_order_manual_sync_action' ] );
@@ -50,6 +51,46 @@ class Salesforce {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
 				'permission_callback' => '__return_true',
+			]
+		);
+
+		// Fetch order sync status.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/salesforce/order',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_order_status' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * Register admin scripts for Salesforce functionality.
+	 */
+	public static function register_admin_scripts() {
+		if ( 'shop_order' !== get_post_type() ) {
+			return;
+		}
+
+		$settings = self::get_salesforce_settings();
+
+		wp_enqueue_script(
+			'newspack-salesforce-sync-status',
+			Newspack::plugin_url() . '/dist/other-scripts/salesforce.js',
+			[ 'wp-i18n' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/salesforce.js' ),
+			true
+		);
+
+		wp_localize_script(
+			'newspack-salesforce-sync-status',
+			'newspack_salesforce_data',
+			[
+				'base_url'       => get_rest_url(),
+				'order_id'       => get_the_id(),
+				'salesforce_url' => $settings['instance_url'],
 			]
 		);
 	}
@@ -79,6 +120,24 @@ class Salesforce {
 		}
 
 		return \rest_ensure_response( $response );
+	}
+
+	/**
+	 * API request handler for fetching sync status for a given order.
+	 *
+	 * @param WP_REST_Request $request Request containing webhook.
+	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
+	 */
+	public static function api_get_order_status( $request ) {
+		$order_id       = $request->get_param( 'orderId' );
+		$order_details  = self::parse_wc_order_data( \wc_get_order( $order_id ) );
+		$opportunity_id = self::get_opportunity_by_order_id( reset( $order_details['orders'] ) );
+
+		if ( is_wp_error( $opportunity_id ) ) {
+			return false;
+		}
+
+		return \rest_ensure_response( $opportunity_id );
 	}
 
 	/**
@@ -698,27 +757,10 @@ class Salesforce {
 		if ( ! self::is_connected() ) {
 			return;
 		}
-
-		$settings = self::get_salesforce_settings();
-		$base_url = $settings['instance_url'];
-		$order    = \wc_get_order( $order_id );
-
-		if ( ! $order ) {
-			return;
-		}
-
-		$order_details = self::parse_wc_order_data( $order );
-		$synced_id     = self::get_opportunity_by_order_id( reset( $order_details['orders'] ) );
 		?>
 		<li class="wide" style="padding-bottom: 1em">
 			<h4 style="margin-bottom: 0.5em;margin-top: 0"><?php echo esc_html__( 'Salesforce sync status', 'newspack' ); ?></h4>
-		<?php if ( $synced_id ) : ?>
-			<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( $base_url . '/lightning/r/Opportunity/' . $synced_id . '/view' ); ?>">
-				<mark class="order-status status-completed"><span><?php echo esc_html__( 'Synced', 'newspack' ); ?></span></mark>
-			</a>
-		<?php else : ?>
-			<mark class="order-status status-failed"><span><?php echo esc_html__( 'Not synced', 'newspack' ); ?></span></mark>
-		<?php endif; ?>
+			<mark id="newspack-salesforce-sync-status" class="order-status"><span><?php echo esc_html__( 'Fetching…', 'newspack' ); ?></span></mark>
 		</li>
 		<?php
 	}
