@@ -54,11 +54,12 @@ class OAuth {
 	 *
 	 * @param string $type 'google' or 'fivetran' for now.
 	 * @param string $path Path to append to base URL.
-	 * @param object $query_args Query params.
+	 * @param array  $query_args Query params.
+	 * @throws \Exception If trying to authenticate a non-existent proxy.
 	 */
-	public static function authenticate_proxy_url( $type, $path = '', $query_args = [] ) {
+	public static function authenticate_proxy_url( string $type, string $path = '', array $query_args = [] ) {
 		if ( ! self::is_proxy_configured( $type ) ) {
-			return false;
+			throw new \Exception( "Unknown proxy type: $type" );
 		}
 		return add_query_arg(
 			array_merge(
