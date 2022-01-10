@@ -78,8 +78,12 @@ const SettingsSection = props => {
 			onChange( setting.key, value );
 		},
 	} );
-	const createFilter = name => {
-		return applyFilters( `newspack.settingSection.${ sectionKey }.${ name }`, null, props );
+	const createFilter = ( name, defaultComponent = null ) => {
+		return applyFilters(
+			`newspack.settingSection.${ sectionKey }.${ name }`,
+			defaultComponent,
+			props
+		);
 	};
 	return (
 		<ActionCard
@@ -106,8 +110,8 @@ const SettingsSection = props => {
 					</Grid>
 					{ createFilter( 'afterControls' ) }
 					<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>
-						{ applyFilters(
-							`newspack.settingsSection.${ sectionKey }.buttons`,
+						{ createFilter(
+							'buttons',
 							<Button
 								isPrimary
 								disabled={ disabled }
@@ -116,8 +120,7 @@ const SettingsSection = props => {
 								} }
 							>
 								{ __( 'Save settings', 'newspack' ) }
-							</Button>,
-							props
+							</Button>
 						) }
 					</div>
 					{ createFilter( 'afterButtons' ) }
