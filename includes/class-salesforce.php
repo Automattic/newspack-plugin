@@ -496,7 +496,7 @@ class Salesforce {
 		$order_id = isset( $args['id'] ) ? $args['id'] : 0;
 		$order    = \wc_get_order( $order_id );
 
-		if ( is_wp_error( $response ) && order && class_exists( 'WooCommerce' ) ) {
+		if ( is_wp_error( $response ) ) {
 			$order->add_order_note(
 				sprintf(
 					// Translators: Note added to order when sync is unsuccessful.
