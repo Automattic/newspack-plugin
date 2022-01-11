@@ -1201,7 +1201,7 @@ class Salesforce {
 		$response = self::sync_salesforce( $order );
 
 		// Add a note on sync failure.
-		if ( is_wp_error( $response ) && class_exists( 'WooCommerce' ) ) {
+		if ( is_wp_error( $response ) ) {
 			$order->add_order_note(
 				sprintf(
 					// Translators: Note added to order when sync is unsuccessful.
