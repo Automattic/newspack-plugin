@@ -110,6 +110,17 @@ class Salesforce {
 			]
 		);
 
+		// Fetch order sync status.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/order',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_order_status' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+
 		// Handle WooCommerce webhook to sync with Salesforce.
 		register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
@@ -175,17 +186,6 @@ class Salesforce {
 			esc_html__( 'Invalid webhook request.', 'newspack' ),
 			[
 				'status' => 403,
-			]
-		);
-
-		// Fetch order sync status.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/salesforce/order',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ __CLASS__, 'api_get_order_status' ],
-				'permission_callback' => '__return_true',
 			]
 		);
 	}
