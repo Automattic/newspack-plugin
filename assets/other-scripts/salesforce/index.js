@@ -15,10 +15,13 @@ const { __ } = wp.i18n;
 	} = newspack_salesforce_data;
 
 	if ( statusMarker ) {
-		fetch( `${ baseUrl }newspack/v1/salesforce/order?orderId=${ orderId }` )
+		fetch( `${ baseUrl }newspack/salesforce/v1/order?orderId=${ orderId }` )
 			.then( response => response.json() )
 			.then( opportunityId => {
-				if ( opportunityId ) {
+				if ( false === opportunityId ) {
+					statusMarker.classList.add( 'status-failed' );
+					statusMarkerLabel.textContent = __( 'Not synced', 'newspack' );
+				} else if ( 'string' === typeof opportunityId ) {
 					const anchor = document.createElement( 'a' );
 					statusMarker.classList.add( 'status-completed' );
 					anchor.href = `${ salesforceUrl }/lightning/r/Opportunity/${ opportunityId }/view`;
@@ -28,13 +31,12 @@ const { __ } = wp.i18n;
 					statusMarkerLabel.textContent = '';
 					statusMarkerLabel.appendChild( anchor );
 				} else {
-					statusMarker.classList.add( 'status-failed' );
-					statusMarkerLabel.textContent = __( 'Not synced', 'newspack' );
+					throw __( 'Error fetching status', 'newspack' );
 				}
 			} )
-			.catch( () => {
+			.catch( e => {
 				statusMarker.classList.add( 'status-failed' );
-				statusMarkerLabel.textContent = __( 'Error fetching status', 'newspack' );
+				statusMarkerLabel.textContent = e || __( 'Error fetching status', 'newspack' );
 			} );
 	}
 } )();
