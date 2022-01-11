@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Handles Salesforce functionality.
  */
 class Salesforce {
+	const SALESFORCE_API_NAMESPACE = 'newspack/salesforce/v1';
 	const SALESFORCE_CLIENT_ID     = 'newspack_salesforce_client_id';
 	const SALESFORCE_CLIENT_SECRET = 'newspack_salesforce_client_secret';
 	const SALESFORCE_ACCESS_TOKEN  = 'newspack_salesforce_access_token';
@@ -40,17 +41,140 @@ class Salesforce {
 	}
 
 	/**
-	 * Register the endpoints needed to handle Salesforce sync webhooks.
+	 * Register the endpoints needed to handle Salesforce functionality.
 	 */
 	public static function register_api_endpoints() {
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/settings',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_settings' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/settings',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_update_settings' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/connection-status',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_check_salesforce_connection_status' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Validate Salesforce client_id and client_secret credentials.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/validate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_validate_salesforce_creds' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Get access and refresh tokens from Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/tokens',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_get_salesforce_tokens' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'client_id'     => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'client_secret' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'redirect_uri'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
 		// Handle WooCommerce webhook to sync with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/sync',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
+				'permission_callback' => [ __CLASS__, 'api_validate_webhook' ],
+			]
+		);
+
+		// Legacy namespace handler.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/salesforce/sync',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ __CLASS__, 'api_validate_webhook' ],
+			]
+		);
+	}
+
+	/**
+	 * Check capabilities for using API.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function api_permissions_check() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Check validity of webhook requester before processing the webhook callback handler.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function api_validate_webhook( $request ) {
+		$is_valid   = false;
+		$webhook_id = $request->get_header( 'X-WC-Webhook-ID' );
+
+		if ( $webhook_id ) {
+			$is_valid = (int) get_option( self::SALESFORCE_WEBHOOK_ID, 0 ) === (int) $webhook_id;
+		}
+
+		if ( $is_valid ) {
+			return true;
+		}
+
+		return new \WP_Error(
+			'newspack_rest_forbidden',
+			esc_html__( 'Invalid webhook request.', 'newspack' ),
+			[
+				'status' => 403,
 			]
 		);
 
@@ -93,6 +217,271 @@ class Salesforce {
 				'salesforce_url' => $settings['instance_url'],
 			]
 		);
+	}
+
+	/**
+	 * Get settings list.
+	 *
+	 * @return WP_REST_Response containing the settings list.
+	 */
+	public static function api_get_settings() {
+		return \rest_ensure_response( self::get_settings_list( true ) );
+	}
+
+	/**
+	 * Get settings list.
+	 *
+	 * @param boolean $assoc If true, return settings as an associative array keyed by setting key, otherwise return as a flat array.
+	 *
+	 * return array Array of settings.
+	 */
+	private static function get_settings_list( $assoc = false ) {
+		$settings      = self::get_salesforce_settings();
+		$client_key    = $settings['client_id'];
+		$client_secret = $settings['client_secret'];
+		$settings_list = [
+			[
+				'description' => __( 'Connected App Settings', 'newspack' ),
+				'help'        => __( 'Settings for your Salesforce connected app.', 'newspack' ),
+				'section'     => 'salesforce',
+				'key'         => 'active',
+				'type'        => 'boolean',
+				'default'     => true,
+				'public'      => false,
+				'value'       => null,
+			],
+			[
+				'description' => __( 'Consumer Key', 'newspack' ),
+				'help'        => __( 'The connected app’s Consumer Key.', 'newspack' ),
+				'section'     => 'salesforce',
+				'key'         => self::SALESFORCE_CLIENT_ID,
+				'type'        => 'string',
+				'default'     => true,
+				'public'      => false,
+				'value'       => $client_key,
+			],
+			[
+				'description' => __( 'Consumer Secret', 'newspack' ),
+				'help'        => __( 'The connected app’s Consumer Secret.', 'newspack' ),
+				'section'     => 'salesforce',
+				'key'         => self::SALESFORCE_CLIENT_SECRET,
+				'type'        => 'password',
+				'default'     => true,
+				'public'      => false,
+				'value'       => $client_secret,
+			],
+		];
+
+		if ( $assoc ) {
+			$settings_list = array_reduce(
+				$settings_list,
+				function ( $carry, $item ) {
+					$carry[ $item['section'] ][] = $item;
+					return $carry;
+				},
+				[]
+			);
+		}
+
+		return $settings_list;
+	}
+
+	/**
+	 * Update settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response containing the settings list.
+	 */
+	public static function api_update_settings( $request ) {
+		$data          = $request['settings'];
+		$client_id     = $data[ self::SALESFORCE_CLIENT_ID ];
+		$client_secret = $data[ self::SALESFORCE_CLIENT_SECRET ];
+
+		// If saving with empty values, reset the connection.
+		if ( empty( $client_id ) && empty( $client_secret ) ) {
+			self::set_salesforce_settings(
+				[
+					'access_token'  => '',
+					'client_id'     => '',
+					'client_secret' => '',
+					'refresh_token' => '',
+				]
+			);
+			return \rest_ensure_response( self::get_settings_list( true ) );
+		}
+
+		// Validate and save client ID and secret.
+		$valid_credentials = self::validate_salesforce_creds( $client_id, $client_secret );
+		if ( $valid_credentials ) {
+			self::set_salesforce_settings(
+				[
+					'client_id'     => $client_id,
+					'client_secret' => $client_secret,
+				]
+			);
+			return \rest_ensure_response( self::get_settings_list( true ) );
+		} else {
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_credentials',
+					__( 'Could not validate credentials with Salesforce. Please verify your consumer key and secret and try again.', 'newspack' )
+				)
+			);
+		}
+	}
+
+	/**
+	 * API endpoint for checking validity of a Salesforce refresh token.
+	 *
+	 * @throws \Exception Error message.
+	 * @return WP_REST_Response with the active status.
+	 */
+	public static function api_check_salesforce_connection_status() {
+		$settings = self::get_salesforce_settings();
+
+		// Check if the webhook is configured.
+		$webhook_id = get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
+		$webhook    = wc_get_webhook( $webhook_id );
+		if ( null == $webhook ) {
+			return \rest_ensure_response(
+				[
+					'error' => __(
+						'Webhook is not configured. Please try resetting your Salesforce connection and reconnecting.',
+						'newspack'
+					),
+				]
+			);
+		}
+
+		// Must have a valid API key and secret.
+		if (
+			empty( $settings['client_id'] ) ||
+			empty( $settings['client_secret'] ) ||
+			empty( $settings['refresh_token'] )
+		) {
+			return \rest_ensure_response(
+				[
+					'error' => __(
+						'Invalid Consumer Key, Secret, or Refresh Token.',
+						'newspack'
+					),
+				]
+			);
+		}
+
+		// Hit Salesforce OAuth endpoint to introspect refresh token.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/introspect?' . http_build_query(
+				array(
+					'client_id'     => $settings['client_id'],
+					'client_secret' => $settings['client_secret'],
+					'token'         => $settings['refresh_token'],
+				)
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		if ( true !== $response_body->active ) {
+			return \rest_ensure_response(
+				[
+					'error' => __(
+						'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.',
+						'newspack'
+					),
+				]
+			);
+		}
+
+		return \rest_ensure_response( $response_body );
+	}
+
+	/**
+	 * API endpoint for validating Salesforce client id/secret credentials.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public static function api_validate_salesforce_creds( $request ) {
+		$client_id     = $request->get_param( 'client_id' );
+		$client_secret = $request->get_param( 'client_secret' );
+		$valid         = self::validate_salesforce_creds( $client_id, $client_secret );
+
+		return \rest_ensure_response( $valid );
+	}
+
+	/**
+	 * Validate consumer key and secret credentials.
+	 *
+	 * @param string $client_id Consumer Key.
+	 * @param string $client_secret Consumer Secret.
+	 *
+	 * @return boolean True if valid, otherwise false.
+	 */
+	private static function validate_salesforce_creds( $client_id, $client_secret ) {
+		$valid = false;
+
+		// Must have a valid API key and secret.
+		if ( ! empty( $client_id ) && ! empty( $client_secret ) ) {
+			$url = 'https://login.salesforce.com/services/oauth2/authorize?response_type=code&' . http_build_query(
+				[
+					'client_id'     => $client_id,
+					'client_secret' => $client_secret,
+					'redirect_uri'  => self::get_redirect_url(),
+				]
+			);
+
+			$response = wp_safe_remote_get( $url );
+			$valid    = wp_remote_retrieve_response_code( $response ) === 200;
+		}
+
+		return $valid;
+	}
+
+	/**
+	 * API endpoint for getting Salesforce API tokens.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @throws \Exception Error message.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public static function api_get_salesforce_tokens( $request ) {
+		$args     = $request->get_params();
+		$settings = self::get_salesforce_settings();
+
+		// Must have a valid API key and secret.
+		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
+			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+		}
+
+		// Hit Salesforce OAuth endpoint to request API tokens.
+		$salesforce_response = wp_safe_remote_post(
+			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
+				array(
+					'client_id'     => $settings['client_id'],
+					'client_secret' => $settings['client_secret'],
+					'code'          => $args['code'],
+					'redirect_uri'  => $args['redirect_uri'],
+					'grant_type'    => 'authorization_code',
+					'format'        => 'json',
+				)
+			)
+		);
+
+		$response_body = json_decode( $salesforce_response['body'] );
+
+		if ( ! empty( $response_body->access_token ) && ! empty( $response_body->refresh_token ) ) {
+			$update_args = wp_parse_args( $response_body, $settings );
+
+			// Save tokens.
+			$update_response = self::set_salesforce_settings( $update_args );
+			if ( is_wp_error( $update_response ) ) {
+				return \rest_ensure_response( $update_response );
+			}
+
+			return \rest_ensure_response( $update_args );
+		}
 	}
 
 	/**
@@ -151,9 +540,11 @@ class Salesforce {
 		$order_details = self::parse_wc_order_data( $order );
 
 		if ( empty( $order_details ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_order',
-				__( 'No valid WooCommerce order data.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_order',
+					__( 'No valid WooCommerce order data.', 'newspack' )
+				)
 			);
 		}
 
@@ -162,25 +553,31 @@ class Salesforce {
 		$opportunities = [];
 
 		if ( empty( $contact ) || empty( $orders ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_contact_or_transaction',
-				__( 'No valid transaction or contact data.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_contact_or_transaction',
+					__( 'No valid transaction or contact data.', 'newspack' )
+				)
 			);
 		}
 
 		if ( empty( $contact['Email'] ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_contact_email',
-				__( 'No valid contact email address.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_contact_email',
+					__( 'No valid contact email address.', 'newspack' )
+				)
 			);
 		}
 
 		$contacts = self::get_contacts_by_email( $contact['Email'] );
 
 		if ( empty( $contacts ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_salesforce_lookup',
-				__( 'Could not communicate with Salesforce.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_salesforce_lookup',
+					__( 'Could not communicate with Salesforce.', 'newspack' )
+				)
 			);
 		}
 
@@ -192,9 +589,11 @@ class Salesforce {
 			$contact_response = self::create_contact( $contact );
 
 			if ( is_wp_error( $contact_response ) ) {
-				return new \WP_Error(
-					'newspack_salesforce_contact_failure',
-					$contact_response->get_error_message()
+				return \rest_ensure_response(
+					new \WP_Error(
+						'newspack_salesforce_contact_failure',
+						$contact_response->get_error_message()
+					)
 				);
 			}
 
@@ -202,9 +601,11 @@ class Salesforce {
 		}
 
 		if ( empty( $contact_id ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_sync_failure',
-				__( 'Could not create or update Salesforce data.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_sync_failure',
+					__( 'Could not create or update Salesforce data.', 'newspack' )
+				)
 			);
 		}
 
@@ -227,9 +628,11 @@ class Salesforce {
 				}
 
 				if ( is_wp_error( $opportunity_response ) ) {
-					return new \WP_Error(
-						'newspack_salesforce_opportunity_failure',
-						$opportunity_response->get_error_message()
+					return \rest_ensure_response(
+						new \WP_Error(
+							'newspack_salesforce_opportunity_failure',
+							$opportunity_response->get_error_message()
+						)
 					);
 				}
 
@@ -249,6 +652,15 @@ class Salesforce {
 			'contact'       => $contact_response,
 			'opportunities' => $opportunities,
 		];
+	}
+
+	/**
+	 * Get the redirect URL for the Salesforce OAuth flow.
+	 *
+	 * @return string Redirect URL.
+	 */
+	public static function get_redirect_url() {
+		return get_admin_url( null, 'admin.php?page=newspack-reader-revenue-wizard#/salesforce' );
 	}
 
 	/**
@@ -305,13 +717,13 @@ class Salesforce {
 	 * @return array|WP_Error Request response, or WP_Error.
 	 */
 	private static function build_request( $endpoint, $method = 'GET', $data = false ) {
-		$salesforce_settings = self::get_salesforce_settings();
-		$endpoint            = '/' === substr( $endpoint, 0, 1 ) ? $endpoint : '/' . $endpoint;
-		$url                 = $salesforce_settings['instance_url'] . $endpoint;
-		$request             = [
+		$settings = self::get_salesforce_settings();
+		$endpoint = '/' === substr( $endpoint, 0, 1 ) ? $endpoint : '/' . $endpoint;
+		$url      = $settings['instance_url'] . $endpoint;
+		$request  = [
 			'method'  => $method,
 			'headers' => [
-				'Authorization' => 'Bearer ' . $salesforce_settings['access_token'],
+				'Authorization' => 'Bearer ' . $settings['access_token'],
 				'Content-Type'  => 'application/json',
 			],
 			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
@@ -339,7 +751,7 @@ class Salesforce {
 	 * @param array $args Array of settings info.
 	 * @return array Updated settings.
 	 */
-	private static function set_salesforce_settings( $args ) {
+	public static function set_salesforce_settings( $args ) {
 		$defaults = self::DEFAULT_SETTINGS;
 		$update   = wp_parse_args( $args, $defaults );
 
@@ -388,7 +800,7 @@ class Salesforce {
 		$webhook = new \WC_Webhook();
 		$webhook->set_name( 'Sync Salesforce on order checkout' );
 		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
-		$webhook->set_delivery_url( NEWSPACK_API_URL . '/salesforce/sync' );
+		$webhook->set_delivery_url( get_rest_url( null, '/' . self::SALESFORCE_API_NAMESPACE . '/sync' ) );
 		$webhook->set_status( 'active' );
 		$webhook->set_user_id( get_current_user_id() );
 		$webhook->save();
@@ -705,15 +1117,15 @@ class Salesforce {
 	 * @return string The new access token.
 	 */
 	private static function refresh_salesforce_token() {
-		$salesforce_settings = self::get_salesforce_settings();
+		$settings = self::get_salesforce_settings();
 
 		// Must have a valid API key and secret.
-		if ( empty( $salesforce_settings['client_id'] ) || empty( $salesforce_settings['client_secret'] ) ) {
+		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
 			throw new \Exception( 'Invalid Consumer Key or Secret.' );
 		}
 
 		// Must have a valid refresh token.
-		if ( empty( $salesforce_settings['refresh_token'] ) ) {
+		if ( empty( $settings['refresh_token'] ) ) {
 			throw new \Exception( 'Invalid refresh token.' );
 		}
 
@@ -721,9 +1133,9 @@ class Salesforce {
 		$salesforce_response = wp_safe_remote_post(
 			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
 				[
-					'client_id'     => $salesforce_settings['client_id'],
-					'client_secret' => $salesforce_settings['client_secret'],
-					'refresh_token' => $salesforce_settings['refresh_token'],
+					'client_id'     => $settings['client_id'],
+					'client_secret' => $settings['client_secret'],
+					'refresh_token' => $settings['refresh_token'],
 					'grant_type'    => 'refresh_token',
 					'format'        => 'json',
 				]
