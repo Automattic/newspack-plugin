@@ -113,7 +113,18 @@ class Salesforce {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ __CLASS__, 'api_validate_webhook' ],
+			]
+		);
+
+		// Legacy namespace handler.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/salesforce/sync',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_sync_salesforce' ],
+				'permission_callback' => [ __CLASS__, 'api_validate_webhook' ],
 			]
 		);
 	}
@@ -134,6 +145,34 @@ class Salesforce {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Check validity of webhook requester before processing the webhook callback handler.
+	 *
+	 * @param WP_REST_Request $request API request object.
+	 *
+	 * @return bool}WP_Error
+	 */
+	public static function api_validate_webhook( $request ) {
+		$is_valid   = false;
+		$webhook_id = $request->get_header( 'X-WC-Webhook-ID' );
+
+		if ( $webhook_id ) {
+			$is_valid = (int) get_option( self::SALESFORCE_WEBHOOK_ID, 0 ) === (int) $webhook_id;
+		}
+
+		if ( $is_valid ) {
+			return true;
+		}
+
+		return new \WP_Error(
+			'newspack_rest_forbidden',
+			esc_html__( 'Invalid webhook request.', 'newspack' ),
+			[
+				'status' => 403,
+			]
+		);
 	}
 
 	/**
@@ -654,7 +693,7 @@ class Salesforce {
 		$webhook = new \WC_Webhook();
 		$webhook->set_name( 'Sync Salesforce on order checkout' );
 		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
-		$webhook->set_delivery_url( NEWSPACK_API_URL . '/salesforce/sync' );
+		$webhook->set_delivery_url( get_rest_url( null, '/' . self::SALESFORCE_API_NAMESPACE . '/sync' ) );
 		$webhook->set_status( 'active' );
 		$webhook->set_user_id( get_current_user_id() );
 		$webhook->save();
