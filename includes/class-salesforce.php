@@ -239,9 +239,11 @@ class Salesforce {
 			);
 			return \rest_ensure_response( self::get_settings_list( true ) );
 		} else {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_credentials',
-				__( 'Could not validate credentials with Salesforce. Please verify your consumer key and secret and try again.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_credentials',
+					__( 'Could not validate credentials with Salesforce. Please verify your consumer key and secret and try again.', 'newspack' )
+				)
 			);
 		}
 	}
@@ -410,9 +412,11 @@ class Salesforce {
 		$order_details = self::parse_wc_order_data( $args );
 
 		if ( empty( $order_details ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_order',
-				__( 'No valid WooCommerce order data.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_order',
+					__( 'No valid WooCommerce order data.', 'newspack' )
+				)
 			);
 		}
 
@@ -421,25 +425,31 @@ class Salesforce {
 		$opportunities = [];
 
 		if ( empty( $contact ) || empty( $orders ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_contact_or_transaction',
-				__( 'No valid transaction or contact data.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_contact_or_transaction',
+					__( 'No valid transaction or contact data.', 'newspack' )
+				)
 			);
 		}
 
 		if ( empty( $contact['Email'] ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_contact_email',
-				__( 'No valid contact email address.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_contact_email',
+					__( 'No valid contact email address.', 'newspack' )
+				)
 			);
 		}
 
 		$contacts = self::get_contacts_by_email( $contact['Email'] );
 
 		if ( empty( $contacts ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_invalid_salesforce_lookup',
-				__( 'Could not communicate with Salesforce.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_salesforce_lookup',
+					__( 'Could not communicate with Salesforce.', 'newspack' )
+				)
 			);
 		}
 
@@ -451,9 +461,11 @@ class Salesforce {
 			$contact_response = self::create_contact( $contact );
 
 			if ( is_wp_error( $contact_response ) ) {
-				return new \WP_Error(
-					'newspack_salesforce_contact_failure',
-					$contact_response->get_error_message()
+				return \rest_ensure_response(
+					new \WP_Error(
+						'newspack_salesforce_contact_failure',
+						$contact_response->get_error_message()
+					)
 				);
 			}
 
@@ -461,9 +473,11 @@ class Salesforce {
 		}
 
 		if ( empty( $contact_id ) ) {
-			return new \WP_Error(
-				'newspack_salesforce_sync_failure',
-				__( 'Could not create or update Salesforce data.', 'newspack' )
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_sync_failure',
+					__( 'Could not create or update Salesforce data.', 'newspack' )
+				)
 			);
 		}
 
@@ -480,9 +494,11 @@ class Salesforce {
 				$opportunity_response = self::create_opportunity( $order );
 
 				if ( is_wp_error( $opportunity_response ) ) {
-					return new \WP_Error(
-						'newspack_salesforce_opportunity_failure',
-						$opportunity_response->get_error_message()
+					return \rest_ensure_response(
+						new \WP_Error(
+							'newspack_salesforce_opportunity_failure',
+							$opportunity_response->get_error_message()
+						)
 					);
 				}
 
