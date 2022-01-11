@@ -152,7 +152,7 @@ class Salesforce {
 	 *
 	 * @param WP_REST_Request $request API request object.
 	 *
-	 * @return bool}WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function api_validate_webhook( $request ) {
 		$is_valid   = false;
@@ -203,7 +203,7 @@ class Salesforce {
 				'key'         => 'active',
 				'type'        => 'boolean',
 				'default'     => true,
-				'public'      => true,
+				'public'      => false,
 				'value'       => null,
 			],
 			[
@@ -213,7 +213,7 @@ class Salesforce {
 				'key'         => self::SALESFORCE_CLIENT_ID,
 				'type'        => 'string',
 				'default'     => true,
-				'public'      => true,
+				'public'      => false,
 				'value'       => $client_key,
 			],
 			[
@@ -223,7 +223,7 @@ class Salesforce {
 				'key'         => self::SALESFORCE_CLIENT_SECRET,
 				'type'        => 'password',
 				'default'     => true,
-				'public'      => true,
+				'public'      => false,
 				'value'       => $client_secret,
 			],
 		];
