@@ -43,6 +43,28 @@ class Salesforce {
 		// Check validity of refresh token with Salesforce.
 		register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
+			'/settings',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_settings' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/settings',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_update_settings' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
+
+		// Check validity of refresh token with Salesforce.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
 			'/connection-status',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -112,6 +134,116 @@ class Salesforce {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Get settings list.
+	 *
+	 * @return WP_REST_Response containing the settings list.
+	 */
+	public static function api_get_settings() {
+		return \rest_ensure_response( self::get_settings_list( true ) );
+	}
+
+	/**
+	 * Get settings list.
+	 *
+	 * @param boolean $assoc If true, return settings as an associative array keyed by setting key, otherwise return as a flat array.
+	 *
+	 * return array Array of settings.
+	 */
+	private static function get_settings_list( $assoc = false ) {
+		$settings      = self::get_salesforce_settings();
+		$client_key    = $settings['client_id'];
+		$client_secret = $settings['client_secret'];
+		$settings_list = [
+			[
+				'description' => __( 'Connected App Settings', 'newspack' ),
+				'help'        => __( 'Settings for your Salesforce connected app.', 'newspack' ),
+				'section'     => 'salesforce',
+				'key'         => 'active',
+				'type'        => 'boolean',
+				'default'     => true,
+				'public'      => true,
+				'value'       => null,
+			],
+			[
+				'description' => __( 'Consumer Key', 'newspack' ),
+				'help'        => __( 'The connected app’s Consumer Key.', 'newspack' ),
+				'section'     => 'salesforce',
+				'key'         => self::SALESFORCE_CLIENT_ID,
+				'type'        => 'string',
+				'default'     => true,
+				'public'      => true,
+				'value'       => $client_key,
+			],
+			[
+				'description' => __( 'Consumer Secret', 'newspack' ),
+				'help'        => __( 'The connected app’s Consumer Secret.', 'newspack' ),
+				'section'     => 'salesforce',
+				'key'         => self::SALESFORCE_CLIENT_SECRET,
+				'type'        => 'password',
+				'default'     => true,
+				'public'      => true,
+				'value'       => $client_secret,
+			],
+		];
+
+		if ( $assoc ) {
+			$settings_list = array_reduce(
+				$settings_list,
+				function ( $carry, $item ) {
+					$carry[ $item['section'] ][] = $item;
+					return $carry;
+				},
+				[]
+			);
+		}
+
+		return $settings_list;
+	}
+
+	/**
+	 * Update settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response containing the settings list.
+	 */
+	public static function api_update_settings( $request ) {
+		$data          = $request['settings'];
+		$client_id     = $data[ self::SALESFORCE_CLIENT_ID ];
+		$client_secret = $data[ self::SALESFORCE_CLIENT_SECRET ];
+
+		// If saving with empty values, reset the connection.
+		if ( empty( $client_id ) && empty( $client_secret ) ) {
+			self::set_salesforce_settings(
+				[
+					'access_token'  => '',
+					'client_id'     => '',
+					'client_secret' => '',
+					'refresh_token' => '',
+				]
+			);
+			return \rest_ensure_response( self::get_settings_list( true ) );
+		}
+
+		// Validate and save client ID and secret.
+		$valid_credentials = self::validate_salesforce_creds( $client_id, $client_secret );
+		if ( $valid_credentials ) {
+			self::set_salesforce_settings(
+				[
+					'client_id'     => $client_id,
+					'client_secret' => $client_secret,
+				]
+			);
+			return \rest_ensure_response( self::get_settings_list( true ) );
+		} else {
+			return new \WP_Error(
+				'newspack_salesforce_invalid_credentials',
+				__( 'Could not validate credentials with Salesforce. Please verify your consumer key and secret and try again.', 'newspack' )
+			);
+		}
 	}
 
 	/**
@@ -187,16 +319,31 @@ class Salesforce {
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public static function api_validate_salesforce_creds( $request ) {
-		$args  = $request->get_params();
+		$client_id     = $request->get_param( 'client_id' );
+		$client_secret = $request->get_param( 'client_secret' );
+		$valid         = self::validate_salesforce_creds( $client_id, $client_secret );
+
+		return \rest_ensure_response( $valid );
+	}
+
+	/**
+	 * Validate consumer key and secret credentials.
+	 *
+	 * @param string $client_id Consumer Key.
+	 * @param string $client_secret Consumer Secret.
+	 *
+	 * @return boolean True if valid, otherwise false.
+	 */
+	private static function validate_salesforce_creds( $client_id, $client_secret ) {
 		$valid = false;
 
 		// Must have a valid API key and secret.
-		if ( ! empty( $args['client_id'] ) && ! empty( $args['client_secret'] ) ) {
+		if ( ! empty( $client_id ) && ! empty( $client_secret ) ) {
 			$url = 'https://login.salesforce.com/services/oauth2/authorize?response_type=code&' . http_build_query(
 				[
-					'client_id'     => $args['client_id'],
-					'client_secret' => $args['client_secret'],
-					'redirect_uri'  => $args['redirect_uri'],
+					'client_id'     => $client_id,
+					'client_secret' => $client_secret,
+					'redirect_uri'  => self::get_redirect_url(),
 				]
 			);
 
@@ -204,7 +351,7 @@ class Salesforce {
 			$valid    = wp_remote_retrieve_response_code( $response ) === 200;
 		}
 
-		return \rest_ensure_response( $valid );
+		return $valid;
 	}
 
 	/**
@@ -354,6 +501,15 @@ class Salesforce {
 				'opportunities' => $opportunities,
 			]
 		);
+	}
+
+	/**
+	 * Get the redirect URL for the Salesforce OAuth flow.
+	 *
+	 * @return string Redirect URL.
+	 */
+	public static function get_redirect_url() {
+		return get_admin_url( null, 'admin.php?page=newspack-reader-revenue-wizard#/salesforce' );
 	}
 
 	/**
