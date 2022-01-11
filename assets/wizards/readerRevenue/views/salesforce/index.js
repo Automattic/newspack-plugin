@@ -156,7 +156,7 @@ const Salesforce = () => {
 						) }
 
 						{ __(
-							'Establish a connection to sync WooCommerce order data to Salesforce. To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the full URL (',
+							'Establish a connection to sync WooCommerce order data to Salesforce. To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the full URL for this page (',
 							'newspack'
 						) }
 
@@ -172,7 +172,7 @@ const Salesforce = () => {
 						</ClipboardButton>
 
 						{ __(
-							') for this page into the “Callback URL” field in the Connected App’s settings. ',
+							') into the “Callback URL” field in the Connected App’s settings. ',
 							'newspack'
 						) }
 
