@@ -51,8 +51,8 @@ class AdvertisingWizard extends Component {
 	};
 
 	updateWithAPI = requestConfig => {
-		const fetchPromise = this.props.wizardApiFetch( requestConfig );
-		fetchPromise
+		return this.props
+			.wizardApiFetch( requestConfig )
 			.then(
 				response =>
 					new Promise( resolve => {
@@ -73,8 +73,10 @@ class AdvertisingWizard extends Component {
 						);
 					} )
 			)
-			.catch( this.props.setError );
-		return fetchPromise;
+			.catch( err => {
+				this.props.setError( err );
+				throw err;
+			} );
 	};
 
 	fetchAdvertisingData = ( quiet = false ) =>
@@ -241,9 +243,11 @@ class AdvertisingWizard extends Component {
 									wizardApiFetch={ wizardApiFetch }
 									onChange={ this.onAdUnitChange }
 									onSave={ id =>
-										this.saveAdUnit( id ).then( () => {
-											routeProps.history.push( '/google_ad_manager' );
-										} )
+										this.saveAdUnit( id )
+											.then( () => {
+												routeProps.history.push( '/google_ad_manager' );
+											} )
+											.catch( () => {} )
 									}
 								/>
 							) }
