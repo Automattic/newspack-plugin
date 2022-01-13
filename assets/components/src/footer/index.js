@@ -21,7 +21,7 @@ const Footer = ( { simple } ) => {
 		setup_wizard: setupWizard = false,
 		reset_url: resetUrl = false,
 		plugin_version: pluginVersion = { label: 'Newspack' },
-		remove_starter_content: removeStarterContent = false
+		remove_starter_content: removeStarterContent = false,
 	} = window.newspack_urls || {};
 
 	const footerElements = [
