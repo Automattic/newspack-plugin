@@ -519,8 +519,7 @@ class Salesforce {
 	 */
 	public static function api_get_order_status( $request ) {
 		$order_id       = $request->get_param( 'orderId' );
-		$order_details  = self::parse_wc_order_data( \wc_get_order( $order_id ) );
-		$opportunity_id = self::get_opportunity_by_order_id( reset( $order_details['orders'] ) );
+		$opportunity_id = self::get_opportunity_by_order_id( $order_id );
 
 		if ( is_wp_error( $opportunity_id ) ) {
 			return false;
@@ -537,6 +536,7 @@ class Salesforce {
 	 * @return array|WP_Error Array containing synced contact and opportunity data, or WP_Error.
 	 */
 	private static function sync_salesforce( $order ) {
+		$order_id      = is_a( $order, 'WC_Order' ) ? $order->get_id() : $order['id'];
 		$order_details = self::parse_wc_order_data( $order );
 
 		if ( empty( $order_details ) ) {
@@ -619,8 +619,7 @@ class Salesforce {
 					$order_item['npsp__Primary_Contact__c'] = $contact_id;
 				}
 
-				$existing_opportunity = self::get_opportunity_by_order_id( $order_item );
-
+				$existing_opportunity = self::get_opportunity_by_order_id( $order_id, $order_item );
 				if ( $existing_opportunity ) {
 					$opportunity_response = self::update_opportunity( $existing_opportunity, $order_item );
 				} else {
@@ -638,7 +637,7 @@ class Salesforce {
 
 				$opportunity_id = isset( $opportunity_response->id ) ? $opportunity_response->id : $existing_opportunity;
 				if ( ! empty( $opportunity_id ) ) {
-					$opportunities[] = $opportunity_response;
+					$opportunities[] = $opportunity_id;
 
 					// We only want to create an Opportunity Contact Role if creating a new Opportunity, or changing the customer's email address.
 					if ( ! $existing_opportunity || 0 === $contacts->totalSize ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -648,8 +647,11 @@ class Salesforce {
 			}
 		}
 
+		// Save synced opportunity IDs to order as post meta.
+		self::save_opportunity_ids( $order_id, $response['opportunities'] );
+
 		return [
-			'contact'       => $contact_response,
+			'contact'       => $contact_id,
 			'opportunities' => $opportunities,
 		];
 	}
@@ -938,18 +940,36 @@ class Salesforce {
 	 * we need to get all opportunities that might match and then iterate through the results
 	 * to find the one with a matching ID in the Description field, if any.
 	 *
-	 * @param array $order_item Order data as parsed by the parse_wc_order_data method.
+	 * @param int        $order_id Order ID to look up.
+	 * @param array|null $order_item Order data as parsed by the parse_wc_order_data method.
+	 *                               Will use the order's first line item if not passed.
 	 *
 	 * @return string|boolean Matching opportunity ID, or false if none.
 	 */
-	private static function get_opportunity_by_order_id( $order_item ) {
+	private static function get_opportunity_by_order_id( $order_id, $order_item = null ) {
+		if ( null === $order_item ) {
+			$order_details = self::parse_wc_order_data( \wc_get_order( $order_id ) );
+			$order_item    = reset( $order_details['orders'] );
+		}
+
+		// If the order has opportunity IDs saved in post meta, query using those IDs.
+		// Otherwise, we'll have to query by matching order details.
+		$opportunities   = get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
+		$opportunities   = array_map(
+			function( $opportunity_id ) {
+				return "'$opportunity_id'";
+			},
+			$opportunities
+		);
+		$opportunity_ids = is_array( $opportunities ) && ! empty( $opportunities ) ? implode( ',', $opportunities ) : false;
+
 		$name        = $order_item['Name'];
 		$amount      = $order_item['Amount'];
 		$description = $order_item['Description'];
 		$close_date  = $order_item['CloseDate'];
-		$query       = [
-			'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount AND CloseDate = $close_date",
-		];
+		$query       = $opportunity_ids ?
+			[ 'q' => "SELECT Id, Description FROM Opportunity WHERE Id IN ($opportunity_ids)" ] :
+			[ 'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount AND CloseDate = $close_date" ];
 		$endpoint    = 'services/data/v48.0/query?' . http_build_query( $query );
 		$response    = self::build_request( $endpoint );
 
@@ -1213,6 +1233,16 @@ class Salesforce {
 		} else {
 			$order->add_order_note( __( 'Order successfully synced to Salesforce.', 'newspack' ) );
 		}
+	}
+
+	/**
+	 * Save the synced opportunity IDs as post meta on the given order.
+	 *
+	 * @param int   $order_id Order ID.
+	 * @param array $opportunities Array of Opportunity IDs from Salesforce.
+	 */
+	private static function save_opportunity_ids( $order_id, $opportunities ) {
+		update_post_meta( $order_id, 'newspack_salesforce_opportunities', $opportunities );
 	}
 }
 
