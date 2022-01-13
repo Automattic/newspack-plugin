@@ -26,9 +26,9 @@ const Completed = () => {
 		<>
 			<Card noBorder>
 				<SectionHeader
-					title={ __( 'You're ready to go!', 'newspack' ) }
+					title={ __( 'You’re ready to go!', 'newspack' ) }
 					description={ __(
-						'While you're off to a great start, there's plenty more you can do:',
+						'While youre off to a great start, there’s plenty more you can do:',
 						'newspack'
 					) }
 					heading={ 1 }
@@ -70,7 +70,7 @@ const Completed = () => {
 					<ActionCard
 						title={ __( 'Update your homepage', 'newspack' ) }
 						description={ __(
-							'We've created the basics, now it's time to update the content.',
+							'We’ve created the basics, now it’s time to update the content.',
 							'newspack'
 						) }
 					>
@@ -83,10 +83,7 @@ const Completed = () => {
 
 					<ActionCard
 						title={ __( 'View your site', 'newspack' ) }
-						description={ __(
-							'Preview what you've created so far. It looks great!',
-							'newspack'
-						) }
+						description={ __( 'Preview what you’ve created so far. It looks great!', 'newspack' ) }
 					>
 						<div className="flex flex-row-reverse">
 							<Button isPrimary isSmall href={ newspack_urls.site }>
