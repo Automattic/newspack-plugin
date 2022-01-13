@@ -6,6 +6,11 @@ import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * External dependencies
+ */
+import { omit } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import {
@@ -57,13 +62,16 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 		wizardApiFetch( params ).catch( setError );
 	};
 
+	const isDisplayingHomepageLayoutPicker = isPartOfSetup && homepagePatterns.length > 0;
+
 	const updateSettings = response => {
 		updateMods( response.theme_mods );
 		updateThemeSlug( response.theme );
 		updateHomepagePatterns( response.homepage_patterns );
+		const { font_header: headerFont, font_body: bodyFont } = response.theme_mods;
 		if (
-			isFontInOptions( response.theme_mods.font_header ) === false ||
-			isFontInOptions( response.theme_mods.font_body ) === false
+			( headerFont && ! isFontInOptions( headerFont ) ) ||
+			( bodyFont && ! isFontInOptions( bodyFont ) )
 		) {
 			updateTypographyOptionsType( TYPOGRAPHY_OPTIONS[ 1 ].value );
 		}
@@ -81,7 +89,10 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
 			data: {
-				theme_mods: mods,
+				theme_mods: omit(
+					mods,
+					isDisplayingHomepageLayoutPicker ? [] : [ 'homepage_pattern_index' ]
+				),
 				theme: themeSlug,
 			},
 			quiet: true,
@@ -134,7 +145,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 				description={ __( 'Select the theme for your site', 'newspack' ) }
 			/>
 			<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
-			{ isPartOfSetup && homepagePatterns.length > 0 ? (
+			{ isDisplayingHomepageLayoutPicker ? (
 				<>
 					<SectionHeader
 						title={ __( 'Homepage', 'newspack' ) }

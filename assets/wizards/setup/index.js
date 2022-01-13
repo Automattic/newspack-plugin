@@ -3,7 +3,7 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Fragment, render, createElement, useState } from '@wordpress/element';
+import { Fragment, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -32,7 +32,6 @@ const ROUTES = [
 		path: '/integrations',
 		label: __( 'Integrations', 'newspack' ),
 		render: Integrations,
-		canProceed: false,
 	},
 	{
 		path: '/services',
@@ -53,20 +52,18 @@ const ROUTES = [
 ];
 
 const SetupWizard = ( { wizardApiFetch, setError } ) => {
-	const [ routes, setRoutes ] = useState( ROUTES );
-
 	const sharedProps = {
 		wizardApiFetch,
 		setError,
 		disableUpcomingInTabbedNavigation: true,
-		tabbedNavigation: routes,
+		tabbedNavigation: ROUTES,
 	};
 
 	return (
 		<Fragment>
 			<HashRouter hashType="slash">
-				{ routes.map( ( route, index ) => {
-					const nextRoute = routes[ index + 1 ]?.path;
+				{ ROUTES.map( ( route, index ) => {
+					const nextRoute = ROUTES[ index + 1 ]?.path;
 					const buttonAction = nextRoute
 						? {
 								href: '#' + nextRoute,
@@ -84,12 +81,6 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 									subHeaderText: route.subHeaderText,
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
-									buttonDisabled: route.canProceed === false,
-									updateRoute: update => {
-										setRoutes( _routes =>
-											_routes.map( ( r, i ) => ( i === index ? { ...r, ...update } : r ) )
-										);
-									},
 								} )
 							}
 						/>

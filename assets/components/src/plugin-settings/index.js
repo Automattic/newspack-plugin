@@ -27,11 +27,15 @@ class PluginSettings extends Component {
 	}
 
 	fetchSettings = () => {
-		const { pluginSlug } = this.props;
+		const { afterFetch, pluginSlug } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( { path: `/${ pluginSlug }/v1/settings` } )
 			.then( settings => {
 				this.setState( { settings, error: null } );
+
+				if ( 'function' === typeof afterFetch ) {
+					afterFetch( settings );
+				}
 			} )
 			.catch( error => {
 				this.setState( { error } );
@@ -70,7 +74,7 @@ class PluginSettings extends Component {
 	};
 
 	handleSectionUpdate = sectionKey => data => {
-		const { pluginSlug } = this.props;
+		const { afterUpdate, pluginSlug } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( {
 			path: `/${ pluginSlug }/v1/settings`,
@@ -82,6 +86,10 @@ class PluginSettings extends Component {
 		} )
 			.then( settings => {
 				this.setState( { settings, error: null } );
+
+				if ( 'function' === typeof afterUpdate ) {
+					afterUpdate( settings );
+				}
 			} )
 			.catch( error => {
 				this.setState( { error } );

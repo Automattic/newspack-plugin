@@ -67,9 +67,10 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 	 * Google OAuth flow.
 	 */
 	public function test_google_oauth() {
+		self::expectException( Exception::class );
 		self::assertFalse(
 			OAuth::authenticate_proxy_url( 'google', '/wp-json/newspack-google' ),
-			'Proxy URL is false until configured.'
+			'Proxy URL getting throws until configured.'
 		);
 
 		self::set_api_key();
@@ -155,9 +156,10 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 	 * Fivetran OAuth flow.
 	 */
 	public function test_fivetran_oauth() {
+		self::expectException( Exception::class );
 		self::assertFalse(
 			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
-			'Proxy URL is false until configured.'
+			'Proxy URL getting throws until configured.'
 		);
 		self::set_api_key();
 		if ( ! defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {

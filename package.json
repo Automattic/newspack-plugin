@@ -11,65 +11,14 @@
     "npm": "8"
   },
   "devDependencies": {
-    "@automattic/calypso-build": "^10.0.0",
-    "@babel/core": "^7.15.0",
-    "@commitlint/cli": "^15.0.0",
-    "@commitlint/config-conventional": "^15.0.0",
-    "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "@testing-library/jest-dom": "^5.16.1",
+    "@rushstack/eslint-patch": "^1.1.0",
     "@testing-library/react": "^12.1.2",
-    "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@wordpress/browserslist-config": "^4.1.0",
-    "@wordpress/eslint-plugin": "^9.3.0",
-    "@wordpress/stylelint-config": "^19.1.0",
-    "autoprefixer": "^10.4.0",
-    "babel-plugin-jsx-remove-data-test-id": "^3.0.0",
-    "classnames": "^2.3.1",
-    "commitizen": "^4.2.4",
-    "cz-conventional-changelog": "^3.3.0",
-    "deep-map-keys": "^2.0.1",
     "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-jest": "^25.3.0",
-    "eslint-plugin-jsdoc": "^37.2.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.27.1",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.4",
-    "jest-environment-jsdom": "^27.4.4",
-    "lint-staged": "^12.1.2",
-    "lodash": "^4.17.21",
-    "npm-run-all": "^4.1.5",
-    "postcss": "^8.4.5",
-    "postcss-cli": "^9.1.0",
-    "postcss-focus-within": "^5.0.1",
-    "prettier": "npm:wp-prettier@2.2.1-beta-1",
-    "react-router-dom": "^5.3.0",
-    "recursive-copy": "^2.0.13",
-    "rtlcss": "^3.5.0",
-    "sass": "^1.45.0",
-    "semantic-release": "^18.0.1",
-    "semantic-release-version-bump": "^1.4.1",
-    "stylelint": "^13.3.1",
-    "stylelint-config-prettier": "^9.0.3",
-    "stylelint-prettier": "^1.2.0",
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.7.2"
-  },
-  "rtlcssConfig": {
-    "options": {
-      "autoRename": false,
-      "autoRenameStrict": false,
-      "blacklist": {},
-      "clean": true,
-      "greedy": false,
-      "processUrls": false,
-      "stringMap": []
-    },
-    "plugins": [],
-    "map": false
+    "lint-staged": "^12.1.7",
+    "newspack-scripts": "^3.0.0",
+    "prettier": "npm:wp-prettier@^2.2.1-beta-1",
+    "stylelint": "^13.3.1"
   },
   "browserslist": [
     "extends @wordpress/browserslist-config"
@@ -77,125 +26,43 @@
   "lint-staged": {
     "*.scss": "npm run lint:scss:staged"
   },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "<rootDir>/assets/setupTests.js"
-    ],
-    "testMatch": [
-      "<rootDir>/**/*test.js?(x)",
-      "!**/.eslintrc.*"
-    ],
-    "transform": {
-      "^.+\\.js?$": "babel-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(scss|css)$": "identity-obj-proxy"
-    },
-    "verbose": false,
-    "testEnvironment": "jsdom"
-  },
   "scripts": {
-    "cm": "git-cz",
-    "semantic-release": "semantic-release",
-    "build:js": "calypso-build",
-    "build": "run-p \"build:*\"",
-    "clean": "rm -rf dist/",
-    "dev": "calypso-build --watch",
-    "start": "npm run dev",
-    "test": "jest",
-    "lint": "npm-run-all --parallel lint:*",
+    "cm": "newspack-scripts commit",
+    "semantic-release": "newspack-scripts release --files=newspack.php",
+    "build": "newspack-scripts build",
+    "start": "npm ci && newspack-scripts watch",
+    "watch": "newspack-scripts watch",
+    "test": "newspack-scripts test",
+    "lint": "npm run lint:scss && npm run lint:js",
     "lint:js": "eslint --ext .js,.jsx assets",
     "lint:js:staged": "eslint --ext .js,.jsx",
     "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
-    "lint:scss": "stylelint '**/*.scss' --syntax scss",
+    "lint:scss": "stylelint '**/*.scss' --syntax scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
     "format:scss": "prettier --write '**/*.scss'",
-    "lint:scss:staged": "stylelint --syntax scss",
+    "lint:scss:staged": "stylelint --syntax scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
     "release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
-    "release": "npm run build && npm run semantic-release"
+    "release": "npm run build && npm run semantic-release",
+    "postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
   },
   "dependencies": {
-    "@wordpress/api-fetch": "^5.2.6",
-    "@wordpress/base-styles": "^4.0.4",
-    "@wordpress/components": "^19.1.4",
-    "@wordpress/compose": "^5.0.6",
-    "@wordpress/data": "^6.1.4",
-    "@wordpress/date": "^4.2.1",
-    "@wordpress/edit-post": "^5.0.16",
-    "@wordpress/element": "^4.0.4",
-    "@wordpress/html-entities": "^3.2.1",
-    "@wordpress/i18n": "^4.2.4",
-    "@wordpress/icons": "^6.1.1",
-    "@wordpress/keycodes": "^3.2.2",
-    "@wordpress/plugins": "^4.0.6",
-    "@wordpress/url": "^3.2.2",
-    "date-fns": "^2.27.0",
+    "@babel/plugin-transform-runtime": "^7.16.4",
+    "@babel/preset-env": "^7.16.4",
+    "classnames": "^2.3.1",
+    "date-fns": "^2.28.0",
+    "deep-map-keys": "^2.0.1",
     "happychat-client": "^0.1.0",
     "human-number": "^1.0.5",
     "js-cookie": "^3.0.1",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "moment-range": "^3.1.1",
     "qs": "^6.10.2",
     "react": "^17.0.2",
     "react-daterange-picker": "^2.0.1",
-    "react-dropzone": "^11.4.2",
+    "react-dropzone": "^11.5.1",
     "react-google-charts": "^3.0.15",
-    "react-rte": "^0.16.4"
-  },
-  "release": {
-    "branches": [
-      "release",
-      {
-        "name": "alpha",
-        "prerelease": "alpha"
-      }
-    ],
-    "prepare": [
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      [
-        "semantic-release-version-bump",
-        {
-          "files": "newspack.php",
-          "callback": "npm run release:archive"
-        }
-      ],
-      {
-        "path": "@semantic-release/git",
-        "assets": [
-          "newspack.php",
-          "package.json",
-          "package-lock.json",
-          "CHANGELOG.md"
-        ],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-      }
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      "semantic-release-version-bump",
-      [
-        "@semantic-release/github",
-        {
-          "assets": [
-            {
-              "path": "./release/newspack-plugin.zip",
-              "label": "newspack-plugin.zip"
-            }
-          ]
-        }
-      ]
-    ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "react-router-dom": "^5.3.0",
+    "react-rte": "^0.16.4",
+    "recursive-copy": "^2.0.13"
   }
 }
