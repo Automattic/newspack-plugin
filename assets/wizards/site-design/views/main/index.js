@@ -40,19 +40,22 @@ const TYPOGRAPHY_OPTIONS = [
 	{ value: 'custom', label: __( 'Custom', 'newspack' ) },
 ];
 
-const Main = ( {
-	wizardApiFetch,
-	setError,
-	renderPrimaryButton,
-	isPartOfSetup = true,
-	onSave = () => {},
-} ) => {
+const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = true } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
 	const [ homepagePatterns, updateHomepagePatterns ] = useState( [] );
 	const [ mods, updateMods ] = hooks.useObjectState();
 	const [ typographyOptionsType, updateTypographyOptionsType ] = useState(
 		TYPOGRAPHY_OPTIONS[ 0 ].value
 	);
+
+	const finishSetup = () => {
+		const params = {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
+			method: 'POST',
+			quiet: true,
+		};
+		wizardApiFetch( params ).catch( setError );
+	};
 
 	const updateSettings = response => {
 		updateMods( response.theme_mods );
@@ -370,10 +373,17 @@ const Main = ( {
 				</div>
 			) }
 			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( {
-					onClick: () => saveSettings().then( onSave ),
-					children: __( 'Finish', 'newspack' ) || __( 'Save', 'newspack' ),
-				} ) }
+				{ renderPrimaryButton(
+					isPartOfSetup
+						? {
+								onClick: () => saveSettings().then( finishSetup ),
+								children: __( 'Finish', 'newspack' ),
+						  }
+						: {
+								onClick: () => saveSettings(),
+								children: __( 'Save', 'newspack' ),
+						  }
+				) }
 			</div>
 		</Card>
 	);

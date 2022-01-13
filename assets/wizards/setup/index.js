@@ -54,16 +54,6 @@ const ROUTES = [
 
 const SetupWizard = ( { wizardApiFetch, setError } ) => {
 	const [ routes, setRoutes ] = useState( ROUTES );
-	const finishSetup = () => {
-		const params = {
-			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
-			method: 'POST',
-			quiet: true,
-		};
-		wizardApiFetch( params )
-			.then( () => ( window.location = newspack_urls.dashboard ) )
-			.catch( setError );
-	};
 
 	const sharedProps = {
 		wizardApiFetch,
@@ -95,7 +85,6 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
 									buttonDisabled: route.canProceed === false,
-									onSave: nextRoute ? null : finishSetup,
 									updateRoute: update => {
 										setRoutes( _routes =>
 											_routes.map( ( r, i ) => ( i === index ? { ...r, ...update } : r ) )
