@@ -70,7 +70,7 @@ const Completed = () => {
 					<ActionCard
 						title={ __( 'Update your homepage', 'newspack' ) }
 						description={ __(
-							"We've created the basics, now it's time for you to update the content.",
+							'We've created the basics, now it's time to update the content.',
 							'newspack'
 						) }
 					>
