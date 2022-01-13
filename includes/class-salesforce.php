@@ -946,8 +946,9 @@ class Salesforce {
 		$name        = $order_item['Name'];
 		$amount      = $order_item['Amount'];
 		$description = $order_item['Description'];
+		$close_date  = $order_item['CloseDate'];
 		$query       = [
-			'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount",
+			'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount AND CloseDate = $close_date",
 		];
 		$endpoint    = 'services/data/v48.0/query?' . http_build_query( $query );
 		$response    = self::build_request( $endpoint );
