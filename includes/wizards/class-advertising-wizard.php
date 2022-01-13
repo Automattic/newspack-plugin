@@ -477,6 +477,10 @@ class Advertising_Wizard extends Wizard {
 			? $configuration_manager->add_ad_unit( $args )
 			: $configuration_manager->update_ad_unit( $args );
 
+		if ( \is_wp_error( $adunit ) ) {
+			return \rest_ensure_response( $adunit );
+		}
+
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
