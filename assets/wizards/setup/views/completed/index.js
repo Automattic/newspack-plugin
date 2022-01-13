@@ -28,7 +28,7 @@ const Completed = () => {
 				<SectionHeader
 					title={ __( 'You're ready to go!', 'newspack' ) }
 					description={ __(
-						"While you're off to a great start, there's plenty more you can do",
+						'While you're off to a great start, there's plenty more you can do:',
 						'newspack'
 					) }
 					heading={ 1 }
