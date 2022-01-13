@@ -84,7 +84,7 @@ const Completed = () => {
 					<ActionCard
 						title={ __( 'View your site', 'newspack' ) }
 						description={ __(
-							"Why don't you take a look at what you've created so far. It looks great!",
+							'Preview what you've created so far. It looks great!',
 							'newspack'
 						) }
 					>
