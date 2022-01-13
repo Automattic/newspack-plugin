@@ -15,13 +15,15 @@ import { PatronsLogo } from '../';
 import './style.scss';
 
 const Footer = ( { simple } ) => {
-	const componentsDemo = window && window.newspack_urls && window.newspack_urls.components_demo;
-	const support = window && window.newspack_urls && window.newspack_urls.support;
-	const setupWizard = window && window.newspack_urls && window.newspack_urls.setup_wizard;
-	const resetUrl = window && window.newspack_urls && window.newspack_urls.reset_url;
-	const pluginVersion = window && window.newspack_urls && window.newspack_urls.plugin_version;
-	const removeStarterContent =
-		window && window.newspack_urls && window.newspack_urls.remove_starter_content;
+	const {
+		components_demo: componentsDemo = false,
+		support = false,
+		setup_wizard: setupWizard = false,
+		reset_url: resetUrl = false,
+		plugin_version: pluginVersion = { label: 'Newspack' },
+		remove_starter_content: removeStarterContent = false
+	} = window.newspack_urls || {};
+
 	const footerElements = [
 		{
 			label: pluginVersion.label,
