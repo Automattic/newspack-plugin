@@ -6,12 +6,27 @@
 	margin: 64px 0 32px;
 
 	&--no-margin,
-	h2 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		margin: 0 !important;
+	}
+
+	&--is-centered {
+		text-align: center;
 	}
 
 	&:not( #{&}--no-margin ) + *:not( #{&} ) {
 		margin-top: -16px !important;
+	}
+
+	&#{&}--is-white {
+		> * {
+			color: white;
+		}
 	}
 
 	.newspack-wizard__content &:first-child {
