@@ -65,7 +65,9 @@ const integrationConnectButton = integration => {
 		);
 	}
 	if ( integration.error?.code === 'unavailable_site_id' ) {
-		return <span className="i newspack-error">{ __( 'Jetpack connection required' ) }</span>;
+		return (
+			<span className="i newspack-error">{ __( 'Jetpack connection required', 'newspack' ) }</span>
+		);
 	}
 };
 
