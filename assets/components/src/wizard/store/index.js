@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { set, get } from 'lodash';
+import { set, get, isEmpty } from 'lodash';
 
 /**
  * WordPress dependencies.
@@ -70,7 +70,9 @@ const actions = {
 			data: get( wizardState, payloadPath ),
 			isQuietFetch: true,
 		} );
-		return actions.setAPIDataForWizard( { slug, data: updatedData } );
+		if ( ! isEmpty( updatedData ) ) {
+			return actions.setAPIDataForWizard( { slug, data: updatedData } );
+		}
 	},
 	*wizardApiFetch( fetchConfig ) {
 		// Just a proxy to fetchFromAPI, but it has to be a generator.

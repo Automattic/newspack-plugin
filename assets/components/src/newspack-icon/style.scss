@@ -9,9 +9,18 @@
 	fill: white;
 	padding: 12px;
 
+	&--white {
+		background: white;
+		fill: $primary-500;
+	}
+
 	&--simple {
 		background: none;
 		fill: $primary-500;
 		padding: 0;
+	}
+
+	&#{&}--simple#{&}--white {
+		fill: white;
 	}
 }

@@ -41,6 +41,8 @@ const getControlType = setting => {
 		case 'string':
 		case 'text':
 			return 'text';
+		case 'password':
+			return 'password';
 		case 'boolean':
 		case 'checkbox':
 			return 'checkbox';

@@ -122,7 +122,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-pwa.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-starter-content.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
-		include_once NEWSPACK_ABSPATH . 'includes/class-webhooks.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-image-credits.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
