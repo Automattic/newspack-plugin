@@ -9,7 +9,7 @@
 	},
 	"require"    : {
 		"composer/installers": "~2.0",
-		"joshtronic/php-loremipsum": "^1.0",
+		"joshtronic/php-loremipsum": "^2.0",
 		"google/auth": "^1.15",
 		"stripe/stripe-php": "^7.87"
 	},
