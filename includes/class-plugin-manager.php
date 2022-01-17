@@ -403,7 +403,7 @@ class Plugin_Manager {
 				'Name'        => 'AutomateWoo',
 				'Description' => esc_html__( 'Convert and retain customers with automated marketing that does the hard work for you.', 'newspack' ),
 				'Author'      => 'WooCommerce',
-				'PluginURI'   => 'https://woocommerce.com/products/woocommerce-subscriptions/',
+				'PluginURI'   => 'https://woocommerce.com/products/automatewoo/',
 				'AuthorURI'   => 'https://woocommerce.com/',
 			],
 			'automatewoo-refer-a-friend'    => [
