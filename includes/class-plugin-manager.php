@@ -77,7 +77,7 @@ class Plugin_Manager {
 					'class_name' => 'Site_Kit_Configuration_Manager',
 				],
 			],
-			'gravityforms'   => [
+			'gravityforms'                  => [
 				'Name'        => esc_html__( 'Gravity Forms', 'newspack' ),
 				'Description' => esc_html__( 'Create custom web forms to capture leads, collect payments, automate your workflows, and build your business online.', 'newspack' ),
 				'Author'      => 'Rocketgenius',
