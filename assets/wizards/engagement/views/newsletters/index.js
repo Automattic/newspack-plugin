@@ -28,8 +28,6 @@ import {
 } from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
-const stripHTML = ( string = '' ) => string.replace( /(<([^>]+)>)/gi, '' );
-
 export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true } ) => {
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
 	const performConfigUpdate = update => {
