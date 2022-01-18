@@ -77,6 +77,13 @@ class Plugin_Manager {
 					'class_name' => 'Site_Kit_Configuration_Manager',
 				],
 			],
+			'gravityforms'   => [
+				'Name'        => esc_html__( 'Gravity Forms', 'newspack' ),
+				'Description' => esc_html__( 'Create custom web forms to capture leads, collect payments, automate your workflows, and build your business online.', 'newspack' ),
+				'Author'      => 'Rocketgenius',
+				'PluginURI'   => 'https://www.gravityforms.com/',
+				'AuthorURI'   => 'https://rocketgenius.com/',
+			],
 			'jetpack'                       => [
 				'Name'        => __( 'Jetpack', 'newspack' ),
 				'Description' => esc_html__( 'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.', 'newspack' ),
