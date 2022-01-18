@@ -80,9 +80,7 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 										<TextControl key={ setting.key } { ...getSettingProps( setting.key ) } />
 										{ setting.help && setting.helpURL && (
 											<p>
-												<ExternalLink href={ setting.helpURL }>
-													{ setting.help }
-												</ExternalLink>
+												<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
 											</p>
 										) }
 									</Grid>
