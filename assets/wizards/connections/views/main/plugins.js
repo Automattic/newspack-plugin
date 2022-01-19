@@ -16,7 +16,6 @@ const PLUGINS = {
 		pluginSlug: 'jetpack',
 		editLink: 'admin.php?page=jetpack#/settings',
 		name: 'Jetpack',
-		description: __( 'The ideal plugin for security, performance, and more', 'newspack' ),
 		fetchStatus: () =>
 			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
 				jetpack: { status: result.Configured ? result.Status : 'inactive' },
@@ -24,7 +23,6 @@ const PLUGINS = {
 	},
 	mailchimp: {
 		name: 'Mailchimp',
-		description: __( 'Allow users to sign up to your mailing list', 'newspack' ),
 		badge: __( 'Jetpack Block', 'newspack' ),
 		indent: true,
 		fetchStatus: () =>
@@ -36,7 +34,6 @@ const PLUGINS = {
 		pluginSlug: 'google-site-kit',
 		editLink: 'admin.php?page=googlesitekit-splash',
 		name: __( 'Site Kit by Google', 'newspack' ),
-		description: __( 'Deploy, manage, and get insights from critical Google tools', 'newspack' ),
 		fetchStatus: () =>
 			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
 				'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
