@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Welcome, Settings, Services, Integrations, Design, Completed } from './views/';
+import { Welcome, Settings, Services, Design, Completed } from './views/';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
@@ -27,11 +27,6 @@ const ROUTES = [
 		path: '/settings',
 		label: __( 'Settings', 'newspack' ),
 		render: Settings,
-	},
-	{
-		path: '/integrations',
-		label: __( 'Integrations', 'newspack' ),
-		render: Integrations,
 	},
 	{
 		path: '/services',
