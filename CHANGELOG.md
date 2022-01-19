@@ -1,3 +1,16 @@
+# [1.71.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.70.0...v1.71.0-alpha.1) (2022-01-06)
+
+
+### Bug Fixes
+
+* change how we check post validity when preventing page deletion ([#1407](https://github.com/Automattic/newspack-plugin/issues/1407)) ([1d86ac6](https://github.com/Automattic/newspack-plugin/commit/1d86ac61e8f77ae16887cc86671d0f842db6bd45))
+* setup wizard fixes ([#1316](https://github.com/Automattic/newspack-plugin/issues/1316)) ([03de101](https://github.com/Automattic/newspack-plugin/commit/03de101eb2ac34915fad3ac5c20d6856b38f88a8))
+
+
+### Features
+
+* **reader-revenue/stripe:** allow setting custom fee parameters ([#1376](https://github.com/Automattic/newspack-plugin/issues/1376)) ([e1f97fc](https://github.com/Automattic/newspack-plugin/commit/e1f97fc8aea58dd519d673ba8e8c8b704defa85c))
+
 # [1.70.0](https://github.com/Automattic/newspack-plugin/compare/v1.69.0...v1.70.0) (2021-12-20)
 
 
