@@ -78,30 +78,26 @@ class EngagementWizard extends Component {
 
 		const tabbed_navigation = [
 			{
-				label: __( 'Newsletters' ),
+				label: __( 'Newsletters', 'newspack' ),
 				path: '/newsletters',
 				exact: true,
 			},
 			{
-				label: __( 'Social' ),
+				label: __( 'Commenting', 'newspack' ),
+				path: '/commenting',
+			},
+			{
+				label: __( 'Social', 'newspack' ),
 				path: '/social',
 				exact: true,
 			},
 			{
-				label: __( 'Commenting' ),
-				path: '/commenting',
-			},
-			{
-				label: __( 'Recirculation' ),
+				label: __( 'Recirculation', 'newspack' ),
 				path: '/recirculation',
 			},
 		];
-		const subheader = __(
-			'Newsletters, social, commenting, recirculation, user-generated content'
-		);
 		const props = {
 			headerText: __( 'Engagement', 'newspack' ),
-			subHeaderText: subheader,
 			tabbedNavigation: tabbed_navigation,
 		};
 		return (
@@ -109,15 +105,42 @@ class EngagementWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route path="/newsletters" render={ () => <Newsletters { ...props } /> } />
-						<Route path="/social" exact render={ () => <Social { ...props } /> } />
-						<Route path="/commenting" exact render={ () => <Commenting { ...props } /> } />
+						<Route
+							path="/newsletters"
+							render={ () => (
+								<Newsletters
+									subHeaderText={ __( 'Configure your newsletter settings', 'newspack' ) }
+									{ ...props }
+								/>
+							) }
+						/>
+						<Route
+							path="/social"
+							exact
+							render={ () => (
+								<Social
+									subHeaderText={ __( 'Share your content to social media', 'newspack' ) }
+									{ ...props }
+								/>
+							) }
+						/>
+						<Route
+							path="/commenting"
+							exact
+							render={ () => (
+								<Commenting
+									subHeaderText={ __( 'Set up the commenting system for your site', 'newspack' ) }
+									{ ...props }
+								/>
+							) }
+						/>
 						<Route
 							path="/recirculation"
 							exact
 							render={ () => (
 								<RelatedContent
 									{ ...props }
+									subHeaderText={ __( 'Engage visitors with related content', 'newspack' ) }
 									relatedPostsEnabled={ relatedPostsEnabled }
 									relatedPostsError={ relatedPostsError }
 									buttonAction={ () => this.updatedRelatedContentSettings() }

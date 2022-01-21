@@ -186,13 +186,13 @@ const AdUnits = ( {
 										<Button
 											href={ editLink }
 											icon={ pencil }
-											label={ __( 'Edit the ad unit', 'newspack' ) }
+											label={ __( 'Edit Ad Unit', 'newspack' ) }
 											{ ...buttonProps }
 										/>
 										<Button
 											onClick={ () => onDelete( adUnit.id ) }
 											icon={ trash }
-											label={ __( 'Archive the ad unit', 'newspack' ) }
+											label={ __( 'Delete Ad Unit', 'newspack' ) }
 											{ ...buttonProps }
 										/>
 									</div>
@@ -203,7 +203,6 @@ const AdUnits = ( {
 			</Card>
 			{ can_use_service_account && connection_mode !== 'oauth' && (
 				<ServiceAccountConnection
-					className="mt3"
 					updateWithAPI={ updateWithAPI }
 					isConnected={ serviceData.status.connected }
 				/>

@@ -178,7 +178,7 @@ class PluginInstaller extends Component {
 		} );
 
 		return (
-			<div>
+			<>
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
 					<div className="newspack-plugin-installer_is-waiting">
 						<Waiting isLeft />
@@ -248,7 +248,7 @@ class PluginInstaller extends Component {
 						</Button>
 					</div>
 				) }
-			</div>
+			</>
 		);
 	}
 }

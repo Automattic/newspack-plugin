@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Notice, Button, ButtonCard } from '../../../../components/src';
+import { Button, ButtonCard, Grid, Notice, SectionHeader } from '../../../../components/src';
 
 const ServiceAccountConnection = ( { updateWithAPI, isConnected, ...props } ) => {
 	const credentialsInputFile = useRef( null );
@@ -48,17 +48,24 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected, ...props } ) =>
 	};
 
 	return (
-		<div { ...props }>
-			<h2>{ __( 'Service Account connection', 'newspack' ) }</h2>
+		<>
+			<SectionHeader title={ __( 'Service Account connection', 'newspack' ) } />
 			{ isConnected ? (
-				<div className="mb3">
-					<Button onClick={ () => credentialsInputFile.current.click() } isSecondary>
-						{ __( 'Update Service Account credentials', 'newspack' ) }
-					</Button>
-					<Button className="ml3" onClick={ removeGAMCredentials } isDestructive>
-						{ __( 'Remove Service Account credentials', 'newspack' ) }
-					</Button>
-				</div>
+				<Grid>
+					<ButtonCard
+						isSmall
+						onClick={ () => credentialsInputFile.current.click() }
+						title={ __( 'Update Service Account credentials', 'newspack' ) }
+						chevron
+					/>
+					<ButtonCard
+						isSmall
+						onClick={ removeGAMCredentials }
+						isDestructive
+						title={ __( 'Remove Service Account credentials', 'newspack' ) }
+						chevron
+					/>
+				</Grid>
 			) : (
 				<ButtonCard
 					onClick={ () => credentialsInputFile.current.click() }
@@ -80,7 +87,7 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected, ...props } ) =>
 				style={ { display: 'none' } }
 				onChange={ handleCredentialsFile }
 			/>
-		</div>
+		</>
 	);
 };
 

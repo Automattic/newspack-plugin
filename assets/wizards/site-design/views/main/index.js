@@ -240,7 +240,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 			</Grid>
 			<SectionHeader
 				title={ __( 'Header', 'newspack' ) }
-				description={ __( 'Customize the header and add your logo', 'newspack' ) }
+				description={ __( 'Update the header and add your logo', 'newspack' ) }
 				className="newspack-design__header"
 			/>
 			<Grid gutter={ 32 }>
