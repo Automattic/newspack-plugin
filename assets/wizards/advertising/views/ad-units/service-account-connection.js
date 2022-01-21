@@ -7,9 +7,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button, ButtonCard, Grid, Notice, SectionHeader } from '../../../../components/src';
+import { ButtonCard, Grid, Notice, SectionHeader } from '../../../../components/src';
 
-const ServiceAccountConnection = ( { updateWithAPI, isConnected, ...props } ) => {
+const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 	const credentialsInputFile = useRef( null );
 	const [ fileError, setFileError ] = useState( '' );
 

@@ -14,7 +14,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	ActionCard,
 	Button,
-	Card,
 	Grid,
 	PluginInstaller,
 	Notice,
