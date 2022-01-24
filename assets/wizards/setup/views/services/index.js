@@ -68,8 +68,6 @@ const Services = ( { renderPrimaryButton } ) => {
 			data: mapValues( services, property( 'configuration' ) ),
 		} );
 
-	const adManagerActive = services[ 'google-ad-manager' ].configuration.is_service_enabled;
-
 	return (
 		<>
 			<SectionHeader
