@@ -35,8 +35,6 @@ class AdvertisingWizard extends Component {
 					google_ad_manager: {
 						status: {},
 					},
-					google_adsense: {},
-					wordads: {},
 				},
 				suppression: false,
 			},

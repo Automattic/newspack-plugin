@@ -517,9 +517,6 @@ class Setup_Wizard extends Wizard {
 			case 'newsletters':
 				$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 				return $newsletters_configuration_manager->is_esp_set_up();
-			case 'google-ad-sense':
-				$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-				return $ads_configuration_manager->is_service_enabled( 'google_adsense' );
 			case 'google-ad-manager':
 				$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 				return $ads_configuration_manager->is_service_enabled( 'google_ad_manager' );
@@ -537,7 +534,6 @@ class Setup_Wizard extends Wizard {
 		$response = [
 			'reader-revenue'    => [ 'configuration' => [ 'is_service_enabled' => $this->check_service_enabled( 'reader-revenue' ) ] ],
 			'newsletters'       => [ 'configuration' => [ 'is_service_enabled' => $this->check_service_enabled( 'newsletters' ) ] ],
-			'google-ad-sense'   => [ 'configuration' => [ 'is_service_enabled' => $this->check_service_enabled( 'google-ad-sense' ) ] ],
 			'google-ad-manager' => [ 'configuration' => [ 'is_service_enabled' => $this->check_service_enabled( 'google-ad-manager' ) ] ],
 		];
 		return rest_ensure_response( $response );
@@ -564,12 +560,6 @@ class Setup_Wizard extends Wizard {
 				$stripe_settings            = $request['reader-revenue']['stripe_data'];
 				$stripe_settings['enabled'] = true;
 				$rr_wizard->update_stripe_settings( $stripe_settings );
-			}
-		}
-		if ( true === $request['google-ad-sense']['is_service_enabled'] ) {
-			$sitekit_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-			if ( $request['google-ad-sense']['is_service_enabled'] ) {
-				$sitekit_configuration_manager->activate_module( 'adsense' );
 			}
 		}
 		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
