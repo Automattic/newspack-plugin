@@ -17,13 +17,6 @@ const Commenting = () => {
 				actionText={ __( 'Configure' ) }
 				handoff="wordpress-settings-discussion"
 			/>
-			<PluginToggle
-				plugins={ {
-					'disqus-comment-system': true,
-					'newspack-disqus-amp': true,
-					'talk-wp-plugin': true,
-				} }
-			/>
 		</>
 	);
 };
