@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38df25054ec4a8d681316122b6e36760",
+    "content-hash": "32c81292815a5f5a6ddbba0b9edbb34b",
     "packages": [
         {
             "name": "composer/installers",
@@ -587,23 +587,23 @@
         },
         {
             "name": "joshtronic/php-loremipsum",
-            "version": "1.0.6",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/joshtronic/php-loremipsum.git",
-                "reference": "f0ec43a045b9bfa5e68cac01805e6312a9e9c7e6"
+                "reference": "6d7f8cff6a092a53d66b5237edbe97d398b14f88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joshtronic/php-loremipsum/zipball/f0ec43a045b9bfa5e68cac01805e6312a9e9c7e6",
-                "reference": "f0ec43a045b9bfa5e68cac01805e6312a9e9c7e6",
+                "url": "https://api.github.com/repos/joshtronic/php-loremipsum/zipball/6d7f8cff6a092a53d66b5237edbe97d398b14f88",
+                "reference": "6d7f8cff6a092a53d66b5237edbe97d398b14f88",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3"
             },
             "require-dev": {
-                "phpunit/phpunit": ">=4"
+                "phpunit/phpunit": "^4.8.36 || ^9.0"
             },
             "type": "library",
             "autoload": {
@@ -631,9 +631,9 @@
             ],
             "support": {
                 "issues": "https://github.com/joshtronic/php-loremipsum/issues",
-                "source": "https://github.com/joshtronic/php-loremipsum/tree/1.0.6"
+                "source": "https://github.com/joshtronic/php-loremipsum/tree/2.1.0"
             },
-            "time": "2020-06-02T03:25:24+00:00"
+            "time": "2022-01-23T23:27:44+00:00"
         },
         {
             "name": "psr/cache",
