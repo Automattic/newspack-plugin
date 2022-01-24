@@ -73,7 +73,10 @@ class AdvertisingWizard extends Component {
 						);
 					} )
 			)
-			.catch( this.props.setError );
+			.catch( err => {
+				this.props.setError( err );
+				throw err;
+			} );
 
 	fetchAdvertisingData = ( quiet = false ) =>
 		this.updateWithAPI( { path: '/newspack/v1/wizard/advertising', quiet } );
@@ -239,9 +242,11 @@ class AdvertisingWizard extends Component {
 									wizardApiFetch={ wizardApiFetch }
 									onChange={ this.onAdUnitChange }
 									onSave={ id =>
-										this.saveAdUnit( id ).then( () => {
-											routeProps.history.push( '/google_ad_manager' );
-										} )
+										this.saveAdUnit( id )
+											.then( () => {
+												routeProps.history.push( '/google_ad_manager' );
+											} )
+											.catch( () => {} )
 									}
 								/>
 							) }

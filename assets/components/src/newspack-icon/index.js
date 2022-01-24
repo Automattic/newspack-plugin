@@ -23,8 +23,13 @@ class NewspackIcon extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, simple, size } = this.props;
-		const classes = classnames( 'newspack-icon', simple && 'newspack-icon--simple', className );
+		const { className, simple, size, white } = this.props;
+		const classes = classnames(
+			'newspack-icon',
+			simple && 'newspack-icon--simple',
+			white && 'newspack-icon--white',
+			className
+		);
 		return (
 			<SVG
 				xmlns="http://www.w3.org/2000/svg"

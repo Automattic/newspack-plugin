@@ -26,8 +26,10 @@ class Card extends Component {
 			buttonsCard,
 			className,
 			headerActions,
+			isNarrow,
 			isMedium,
 			isSmall,
+			isWhite,
 			noBorder,
 			...otherProps
 		} = this.props;
@@ -37,7 +39,9 @@ class Card extends Component {
 			buttonsCard && 'newspack-card__buttons-card',
 			headerActions && 'newspack-card__header-actions',
 			isMedium && 'newspack-card__is-medium',
+			isNarrow && 'newspack-card__is-narrow',
 			isSmall && 'newspack-card__is-small',
+			isWhite && 'newspack-card__is-white',
 			noBorder && 'newspack-card__no-border'
 		);
 		return <div className={ classes } { ...otherProps } />;

@@ -18,7 +18,7 @@ import './style.scss';
 /**
  * External dependencies
  */
-import { debounce, find } from 'lodash';
+import { debounce, find, filter } from 'lodash';
 import classnames from 'classnames';
 
 /**
@@ -94,6 +94,20 @@ class CategoryAutocomplete extends Component {
 		onChange( allValues );
 	};
 
+	getAvailableSuggestions = () => {
+		const { value } = this.props;
+		const { suggestions } = this.state;
+		const selectedIds = value.reduce( ( acc, item ) => {
+			acc.push( item.id );
+			return acc;
+		}, [] );
+		const availableSuggestions = filter(
+			suggestions,
+			( { id } ) => selectedIds.indexOf( id ) === -1
+		);
+		return availableSuggestions.map( v => v.name );
+	};
+
 	/**
 	 * Render the component.
 	 */
@@ -107,21 +121,24 @@ class CategoryAutocomplete extends Component {
 			label,
 			value,
 		} = this.props;
-		const { suggestions, allCategories } = this.state;
+		const { allCategories } = this.state;
 		const classes = classnames( 'newspack-category-autocomplete', className );
 		return (
 			<div className={ classes }>
 				<FormTokenField
 					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
 					value={ value.reduce( ( acc, item ) => {
-						const category =
+						const categoryOrItem =
 							typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
-						if ( category ) {
-							acc.push( { id: category.term_id || category.id, value: category.name } );
+						if ( categoryOrItem ) {
+							acc.push( {
+								id: categoryOrItem.term_id || categoryOrItem.id,
+								value: categoryOrItem.value || categoryOrItem.name,
+							} );
 						}
 						return acc;
 					}, [] ) }
-					suggestions={ Object.keys( suggestions ) }
+					suggestions={ this.getAvailableSuggestions() }
 					onChange={ this.handleOnChange }
 					label={ label }
 					disabled={ disabled }
