@@ -293,6 +293,7 @@ class Plugin_Manager {
 				'Author'      => '10up',
 				'AuthorURI'   => esc_url( 'https://10up.com' ),
 				'PluginURI'   => esc_url( 'https://distributorplugin.com/' ),
+				'Download'    => esc_url( 'https://github.com/10up/distributor/archive/stable.zip' ),
 			],
 		];
 
