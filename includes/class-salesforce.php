@@ -334,7 +334,7 @@ class Salesforce {
 	/**
 	 * API endpoint for checking validity of a Salesforce refresh token.
 	 *
-	 * @throws \Exception Error message.
+	 * @throws \WP_Error Error message.
 	 * @return WP_REST_Response with the active status.
 	 */
 	public static function api_check_salesforce_connection_status() {
@@ -443,7 +443,7 @@ class Salesforce {
 	 * API endpoint for getting Salesforce API tokens.
 	 *
 	 * @param WP_REST_Request $request Request containing settings.
-	 * @throws \Exception Error message.
+	 * @throws \WP_Error Error message.
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public static function api_get_salesforce_tokens( $request ) {
@@ -452,7 +452,10 @@ class Salesforce {
 
 		// Must have a valid API key and secret.
 		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
-			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+			throw new \WP_Error(
+				'newspack_salesforce_invalid_credentials',
+				__( 'Invalid Consumer Key or Secret.', 'newspack' )
+			);
 		}
 
 		// Hit Salesforce OAuth endpoint to request API tokens.
@@ -471,7 +474,16 @@ class Salesforce {
 
 		$response_body = json_decode( $salesforce_response['body'] );
 
-		if ( ! empty( $response_body->access_token ) && ! empty( $response_body->refresh_token ) ) {
+		// If we're not issued an access or refresh token, the connection is broken and the user needs to reconnect.
+		if ( empty( $response_body->access_token ) || empty( $response_body->refresh_token ) ) {
+			self::set_salesforce_settings( [ 'refresh_token' => '' ] );
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_connection',
+					__( 'Could not verify the Salesforce connected app. Please check your Consumer Key and Secret and try connecting again.', 'newspack' )
+				)
+			);
+		} else {
 			$update_args = wp_parse_args( $response_body, $settings );
 
 			// Save tokens.
@@ -1134,7 +1146,7 @@ class Salesforce {
 	/**
 	 * Get a new Salesforce token using a valid refresh token.
 	 *
-	 * @throws \Exception Error message.
+	 * @throws \WP_Error Error message.
 	 * @return string The new access token.
 	 */
 	private static function refresh_salesforce_token() {
@@ -1142,12 +1154,18 @@ class Salesforce {
 
 		// Must have a valid API key and secret.
 		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
-			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+			throw new \WP_Error(
+				'newspack_salesforce_invalid_credentials',
+				__( 'Invalid Consumer Key or Secret.', 'newspack' )
+			);
 		}
 
 		// Must have a valid refresh token.
 		if ( empty( $settings['refresh_token'] ) ) {
-			throw new \Exception( 'Invalid refresh token.' );
+			throw new \WP_Error(
+				'newspack_salesforce_invalid_connection',
+				__( 'Invalid refresh token.', 'newspack' )
+			);
 		}
 
 		// Hit Salesforce OAuth endpoint to request API tokens.
