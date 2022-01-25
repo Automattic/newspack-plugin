@@ -45,20 +45,22 @@ const TYPOGRAPHY_OPTIONS = [
 	{ value: 'custom', label: __( 'Custom', 'newspack' ) },
 ];
 
-const Main = ( {
-	wizardApiFetch,
-	setError,
-	renderPrimaryButton,
-	buttonText,
-	isPartOfSetup = true,
-	onSave = () => {},
-} ) => {
+const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = true } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
 	const [ homepagePatterns, updateHomepagePatterns ] = useState( [] );
 	const [ mods, updateMods ] = hooks.useObjectState();
 	const [ typographyOptionsType, updateTypographyOptionsType ] = useState(
 		TYPOGRAPHY_OPTIONS[ 0 ].value
 	);
+
+	const finishSetup = () => {
+		const params = {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
+			method: 'POST',
+			quiet: true,
+		};
+		wizardApiFetch( params ).catch( setError );
+	};
 
 	const isDisplayingHomepageLayoutPicker = isPartOfSetup && homepagePatterns.length > 0;
 
@@ -238,7 +240,7 @@ const Main = ( {
 			</Grid>
 			<SectionHeader
 				title={ __( 'Header', 'newspack' ) }
-				description={ __( 'Customize the header and add your logo', 'newspack' ) }
+				description={ __( 'Update the header and add your logo', 'newspack' ) }
 				className="newspack-design__header"
 			/>
 			<Grid gutter={ 32 }>
@@ -382,10 +384,17 @@ const Main = ( {
 				</div>
 			) }
 			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( {
-					onClick: () => saveSettings().then( onSave ),
-					children: buttonText || __( 'Save', 'newspack' ),
-				} ) }
+				{ renderPrimaryButton(
+					isPartOfSetup
+						? {
+								onClick: () => saveSettings().then( finishSetup ),
+								children: __( 'Finish', 'newspack' ),
+						  }
+						: {
+								onClick: () => saveSettings(),
+								children: __( 'Save', 'newspack' ),
+						  }
+				) }
 			</div>
 		</Card>
 	);

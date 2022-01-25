@@ -74,7 +74,7 @@ class Advertising_Wizard extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return \esc_html__( 'Monetize your content through advertising', 'newspack' );
+		return \esc_html__( 'Monetize your content through ads', 'newspack' );
 	}
 
 	/**
@@ -476,6 +476,10 @@ class Advertising_Wizard extends Wizard {
 		$adunit = ( 0 === $args['id'] )
 			? $configuration_manager->add_ad_unit( $args )
 			: $configuration_manager->update_ad_unit( $args );
+
+		if ( \is_wp_error( $adunit ) ) {
+			return \rest_ensure_response( $adunit );
+		}
 
 		return \rest_ensure_response( $this->retrieve_data() );
 	}

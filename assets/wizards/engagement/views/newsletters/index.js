@@ -28,7 +28,7 @@ import {
 } from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
-export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true } ) => {
+export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true } ) => {
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
 	const performConfigUpdate = update => {
 		updateConfig( update );
@@ -46,6 +46,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
+		placeholder: config.settings[ key ]?.placeholder,
 		options:
 			config.settings[ key ]?.options?.map( option => ( {
 				value: option.value,
@@ -54,28 +55,6 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 		onChange: value => performConfigUpdate( { settings: { [ key ]: { value } } } ),
 	} );
 
-	const renderMailchimpSettings = () => (
-		<>
-			<SectionHeader
-				title={ __( 'Mailchimp', 'newspack' ) }
-				description={ () => (
-					<>
-						{ __( 'Configure Mailchimp and enter your API key', 'newspack' ) }
-						{ ' – ' }
-						<ExternalLink href="https://mailchimp.com/help/about-api-keys/#Find_or_generate_your_API_key">
-							{ __( 'learn how', 'newspack' ) }
-						</ExternalLink>
-					</>
-				) }
-			/>
-			<Grid gutter={ 32 } columns={ 2 }>
-				<TextControl
-					label={ __( 'Application ID', 'newspack' ) }
-					{ ...getSettingProps( 'newspack_mailchimp_api_key' ) }
-				/>
-			</Grid>
-		</>
-	);
 	const renderProviderSettings = () => {
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
@@ -83,6 +62,9 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 				{ values( config.settings )
 					.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
 					.map( setting => {
+						if ( isOnboarding && ! setting.onboarding ) {
+							return null;
+						}
 						switch ( setting.type ) {
 							case 'select':
 								return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
@@ -91,7 +73,16 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 									<CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />
 								);
 							default:
-								return <TextControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
+								return (
+									<Grid columns={ 1 } gutter={ '0' }>
+										<TextControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+										{ setting.help && setting.helpURL && (
+											<p>
+												<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
+											</p>
+										) }
+									</Grid>
+								);
 						}
 					} ) }
 			</Grid>
@@ -107,11 +98,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 					onStatus={ ( { complete } ) => complete && fetchConfiguration() }
 				/>
 			) }
-			{ config.configured === true && (
-				<Fragment>
-					{ mailchimpOnly ? renderMailchimpSettings() : renderProviderSettings() }
-				</Fragment>
-			) }
+			{ config.configured === true && renderProviderSettings() }
 		</div>
 	);
 };
@@ -171,7 +158,7 @@ const Newsletters = () => {
 			) }
 			<SectionHeader title={ __( 'Authoring', 'newspack' ) } />
 			<NewspackNewsletters
-				mailchimpOnly={ false }
+				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 			/>
 			<div className="newspack-buttons-card">

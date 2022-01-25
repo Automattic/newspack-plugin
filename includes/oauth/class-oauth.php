@@ -59,8 +59,11 @@ class OAuth {
 	 */
 	public static function authenticate_proxy_url( string $type, string $path = '', array $query_args = [] ) {
 		if ( ! self::is_proxy_configured( $type ) ) {
+			Logger::log( "$type proxy type is not configured." );
 			throw new \Exception( "Unknown proxy type: $type" );
 		}
+		$proxy_url = self::get_proxy_url( $type );
+		Logger::log( "Using $type proxy: $proxy_url" );
 		return add_query_arg(
 			array_merge(
 				[
@@ -68,7 +71,7 @@ class OAuth {
 				],
 				$query_args
 			),
-			self::get_proxy_url( $type ) . $path
+			$proxy_url . $path
 		);
 	}
 
@@ -89,11 +92,17 @@ class OAuth {
 	private static function get_proxy_url( $type ) {
 		switch ( $type ) {
 			case 'google':
+				if ( defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY_OVERRIDE' ) ) {
+					return NEWSPACK_GOOGLE_OAUTH_PROXY_OVERRIDE;
+				}
 				if ( defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
 					return NEWSPACK_GOOGLE_OAUTH_PROXY;
 				}
 				break;
 			case 'fivetran':
+				if ( defined( 'NEWSPACK_FIVETRAN_PROXY_OVERRIDE' ) ) {
+					return NEWSPACK_FIVETRAN_PROXY_OVERRIDE;
+				}
 				if ( defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
 					return NEWSPACK_FIVETRAN_PROXY;
 				}

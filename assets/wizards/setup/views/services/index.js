@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCard, SectionHeader, hooks } from '../../../../components/src';
+import { withWizardScreen, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
 import { NewspackNewsletters } from '../../../engagement/views/newsletters';
 import './style.scss';
@@ -31,7 +31,7 @@ const SERVICES_LIST = {
 	newsletters: {
 		label: __( 'Newsletters', 'newspack' ),
 		description: __(
-			'Create email newsletters and send them to your Mailchimp mail lists, all without leaving your website',
+			'Create email newsletters and send them to your mail lists, all without leaving your website',
 			'newspack'
 		),
 		Component: NewspackNewsletters,
@@ -83,10 +83,6 @@ const Services = ( { renderPrimaryButton } ) => {
 
 	return (
 		<>
-			<SectionHeader
-				title={ __( 'Extra Features', 'newspack' ) }
-				description={ __( 'Activate and configure the features that you need', 'newspack' ) }
-			/>
 			{ values( services ).map( ( service, i ) => {
 				const serviceSlug = slugs[ i ];
 				const ServiceComponent = service.Component;

@@ -98,8 +98,7 @@ const FivetranConnection = ( { setError } ) => {
 	};
 
 	return (
-		<div>
-			<h1>{ __( 'Fivetran', 'newspack' ) }</h1>
+		<>
 			{ CONNECTORS.map( item => {
 				const setupState = get( connections, [ item.service, 'setup_state' ] );
 				const syncState = get( connections, [ item.service, 'sync_state' ] );
@@ -113,28 +112,27 @@ const FivetranConnection = ( { setError } ) => {
 					isConnected: setupState === 'connected',
 				};
 				return (
-					<div key={ item.service }>
-						<ActionCard
-							title={ item.label }
-							description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
-							actionText={
-								<Button
-									disabled={ inFlight || ! hasFetched }
-									onClick={ () => createConnection( item ) }
-									isLink
-								>
-									{ status.isConnected
-										? __( 'Re-connect', 'newspack' )
-										: __( 'Connect', 'newspack' ) }
-								</Button>
-							}
-							checkbox={ status.isConnected ? 'checked' : 'unchecked' }
-							isMedium
-						/>
-					</div>
+					<ActionCard
+						key={ item.service }
+						title={ item.label }
+						description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
+						actionText={
+							<Button
+								disabled={ inFlight || ! hasFetched }
+								onClick={ () => createConnection( item ) }
+								isLink
+							>
+								{ status.isConnected
+									? __( 'Re-connect', 'newspack' )
+									: __( 'Connect', 'newspack' ) }
+							</Button>
+						}
+						checkbox={ status.isConnected ? 'checked' : 'unchecked' }
+						isMedium
+					/>
 				);
 			} ) }
-		</div>
+		</>
 	);
 };
 

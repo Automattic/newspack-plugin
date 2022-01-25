@@ -20,11 +20,13 @@ import {
 	Button,
 	ButtonCard,
 	Card,
+	Grid,
 	NewspackIcon,
 	ProgressBar,
 	withWizardScreen,
 	CheckboxControl,
 	Notice,
+	SectionHeader,
 	TextControl,
 	GlobalNotices,
 } from '../../../../components/src';
@@ -72,14 +74,15 @@ const Welcome = ( { buttonAction } ) => {
 		( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
 
 	useEffect( () => {
-		document.body.classList.add( 'newspack_page_newspack-setup-wizard__welcome' );
+		document.body.classList.add( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
 
 		apiFetch( { path: '/newspack/v1/wizard/newspack-setup-wizard/initial-check/' } ).then( res => {
 			setSoftwareInfo( res.plugins );
 			setIsSSL( res.is_ssl );
 		} );
 
-		return () => document.body.classList.remove( 'newspack_page_newspack-setup-wizard__welcome' );
+		return () =>
+			document.body.classList.remove( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
 	}, [] );
 
 	const increment = () => setInstallationProgress( progress => progress + 1 );
@@ -186,15 +189,6 @@ const Welcome = ( { buttonAction } ) => {
 		if ( hasErrors ) {
 			return __( 'Installation error', 'newspack' );
 		}
-		if ( isInit ) {
-			return (
-				<>
-					{ __( 'Welcome to Newspack,', 'newspack' ) }
-					<br />
-					{ __( 'the platform for News', 'newspack' ) }
-				</>
-			);
-		}
 		if ( isDone ) {
 			return __( 'Installation complete', 'newspack' );
 		}
@@ -231,7 +225,11 @@ const Welcome = ( { buttonAction } ) => {
 			return <Icon className="newspack--error" icon={ info } />;
 		}
 		if ( isDone ) {
-			return <Icon className="newspack--success" icon={ check } />;
+			return (
+				<span className="newspack-checkbox-icon newspack-checkbox-icon--checked">
+					<Icon icon={ check } />
+				</span>
+			);
 		}
 	};
 
@@ -261,15 +259,36 @@ const Welcome = ( { buttonAction } ) => {
 
 	return (
 		<>
+			{ isInit && (
+				<Grid columns={ 1 } gutter={ 8 }>
+					<NewspackIcon simple size={ 36 } white />
+					<SectionHeader
+						title={ () => (
+							<>
+								{ __( 'Welcome to Newspack,', 'newspack' ) }
+								<br />
+								{ __( 'the platform for news', 'newspack' ) }
+							</>
+						) }
+						heading={ 1 }
+						centered
+						isWhite
+						noMargin
+					/>
+				</Grid>
+			) }
+
 			<Card
-				isMedium
+				isNarrow
+				isWhite
 				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
 			>
-				<h1 className={ isInit && 'welcome-grid' }>
-					{ getHeadingIcon() }
-					{ getHeadingText() }
-					{ isInit && <NewspackIcon simple size={ 64 } /> }
-				</h1>
+				{ ! isInit && (
+					<h1>
+						{ getHeadingIcon() }
+						{ getHeadingText() }
+					</h1>
+				) }
 
 				{ errors.length === 0 && installationProgress > 0 ? (
 					<ProgressBar completed={ installationProgress } total={ total } />

@@ -72,8 +72,8 @@ const ReaderRevenueWizard = () => {
 	}
 	return (
 		<Wizard
-			headerText={ __( 'Reader revenue', 'newspack' ) }
-			subHeaderText={ __( 'Generate revenue from your customers.', 'newspack' ) }
+			headerText={ __( 'Reader Revenue', 'newspack' ) }
+			subHeaderText={ __( 'Generate revenue from your customers', 'newspack' ) }
 			sections={ sections }
 			apiSlug={ READER_REVENUE_WIZARD_SLUG }
 			renderAboveSections={ () =>

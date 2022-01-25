@@ -15,6 +15,7 @@
 	&__expander {
 		padding: 11px 3px;
 		justify-content: space-between;
+		text-transform: uppercase;
 		&,
 		> div {
 			display: flex;
@@ -31,7 +32,7 @@
 			box-shadow: inset 0 0 0 2px $primary-500;
 		}
 		&--expanded:focus {
-			border-bottom-color: white;
+			border-bottom-color: $gray-300;
 			box-shadow: inset 2px 2px 0 0 $primary-500, inset -2px 2px 0 0 $primary-500;
 
 			+ .components-color-picker {
@@ -80,7 +81,7 @@
 		border: 1px solid $gray-300;
 		border-radius: 3px;
 		&--expanded {
-			border-bottom-color: white;
+			border-bottom-color: $gray-300;
 			border-bottom-left-radius: 0;
 			border-bottom-right-radius: 0;
 		}
@@ -89,10 +90,118 @@
 		padding: 8px;
 		position: relative;
 		z-index: 1;
-		padding-top: 0;
 		border-top: none;
 		border-top-left-radius: 0;
 		border-top-right-radius: 0;
+		width: 100%;
+
+		.react-colorful,
+		.react-colorful__hue {
+			padding: 0;
+			width: 100%;
+		}
+
+		.react-colorful {
+			&__saturation {
+				margin-bottom: 8px;
+			}
+
+			+ div {
+				padding: 0;
+
+				> .components-h-stack > .components-flex:not( .components-input-control ) {
+					visibility: hidden;
+				}
+
+				.components-button.has-icon {
+					height: 36px;
+					width: 36px;
+
+					&.is-pressed {
+						margin-bottom: 8px;
+					}
+				}
+			}
+		}
+
+		.components-truncate {
+			color: inherit;
+		}
+
+		.components-spacer {
+			margin: 0;
+			padding: 0;
+		}
+
+		.components-h-stack {
+			> div {
+				width: auto;
+			}
+		}
+
+		.components-range-control {
+			&__wrapper {
+				color: $primary-500;
+			}
+
+			&__track {
+				+ span {
+					background: $primary-500;
+
+					span {
+						background: inherit;
+					}
+				}
+			}
+		}
+
+		.components-button:hover,
+		.components-button[aria-expanded='true'] {
+			color: $primary-500;
+		}
+
+		.components-button:focus:not( :disabled ) {
+			box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) $primary-500;
+		}
+
+		.components-input-control,
+		.components-select-control {
+			&__container {
+				color: $gray-700;
+				font-size: 14px;
+				line-height: 24px;
+			}
+
+			&__input {
+				color: inherit !important;
+				font-size: inherit !important;
+				height: 36px !important;
+				line-height: inherit !important;
+
+				&:focus + [class*='backdrop'] {
+					border-color: $primary-500 !important;
+					box-shadow: inset 0 0 0 2px $primary-500 !important;
+				}
+			}
+
+			&__prefix {
+				align-items: center;
+				color: $gray-900;
+				display: flex;
+				font-size: inherit;
+				line-height: inherit;
+				margin-left: 8px;
+			}
+
+			&__backdrop {
+				border-color: $gray-300 !important;
+				box-shadow: none !important;
+			}
+		}
+
+		.components-input-control {
+			width: 100%;
+		}
 	}
 
 	// Overrides of @wordpress/components component

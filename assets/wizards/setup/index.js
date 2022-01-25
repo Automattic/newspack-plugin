@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Welcome, Settings, Services, Integrations, Design } from './views/';
+import { Welcome, Settings, Services, Design, Completed } from './views/';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
@@ -26,37 +26,30 @@ const ROUTES = [
 	{
 		path: '/settings',
 		label: __( 'Settings', 'newspack' ),
+		subHeaderText: __( 'Share a few details so we can start setting up your site', 'newspack' ),
 		render: Settings,
-	},
-	{
-		path: '/integrations',
-		label: __( 'Integrations', 'newspack' ),
-		render: Integrations,
 	},
 	{
 		path: '/services',
 		label: __( 'Services', 'newspack' ),
+		subHeaderText: __( 'Activate and configure the services that you need', 'newspack' ),
 		render: Services,
 	},
 	{
 		path: '/design',
 		label: __( 'Design', 'newspack' ),
+		subHeaderText: __( 'Customize the look and feel of your site', 'newspack' ),
 		render: Design,
+	},
+	{
+		path: '/completed',
+		label: __( 'Completed', 'newspack' ),
+		render: Completed,
+		isHiddenInNav: true,
 	},
 ];
 
 const SetupWizard = ( { wizardApiFetch, setError } ) => {
-	const finishSetup = () => {
-		const params = {
-			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
-			method: 'POST',
-			quiet: true,
-		};
-		wizardApiFetch( params )
-			.then( () => ( window.location = newspack_urls.dashboard ) )
-			.catch( setError );
-	};
-
 	const sharedProps = {
 		wizardApiFetch,
 		setError,
@@ -86,7 +79,6 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 									subHeaderText: route.subHeaderText,
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
-									onSave: nextRoute ? null : finishSetup,
 								} )
 							}
 						/>

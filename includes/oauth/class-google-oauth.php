@@ -334,11 +334,13 @@ class Google_OAuth {
 	public static function get_oauth2_credentials() {
 		$auth_data = self::get_google_auth_saved_data();
 		if ( ! isset( $auth_data['access_token'] ) ) {
+			Logger::log( 'Access token is not set, OAuth credentials will not be returned.' );
 			return false;
 		}
 		$is_expired = time() > $auth_data['expires_at'];
 
 		if ( $is_expired && isset( $auth_data['refresh_token'] ) ) {
+			Logger::log( 'Refreshing the token…' );
 			// Refresh the access token.
 			try {
 				$url    = OAuth::authenticate_proxy_url(
@@ -351,18 +353,24 @@ class Google_OAuth {
 				);
 				$result = wp_safe_remote_get( $url );
 				if ( is_wp_error( $result ) ) {
+					Logger::log( 'Token refresh resulted in error: ' . $result->get_error_message() );
 					return false;
 				}
 				if ( 200 !== $result['response']['code'] ) {
+					Logger::log( 'Token refresh response is not 200: ' . $result['response']['code'] );
 					return false;
 				}
 				$response_body = json_decode( $result['body'] );
 
 				if ( isset( $response_body->access_token ) ) {
+					Logger::log( 'Refreshed the token.' );
 					self::save_auth_credentials( $response_body );
 					$auth_data = self::get_google_auth_saved_data();
+				} else {
+					Logger::log( 'Access token missing from the response.' );
 				}
 			} catch ( \Exception $e ) {
+				Logger::log( 'Token refreshing failed due to error: ' . $e->getMessage() );
 				return false;
 			}
 		}

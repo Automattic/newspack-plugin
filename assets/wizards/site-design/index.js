@@ -84,7 +84,7 @@ class SiteDesignWizard extends Component {
 								return (
 									<Main
 										headerText={ __( 'Site Design', 'newspack' ) }
-										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
+										subHeaderText={ __( 'Customize the look and feel of your site', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
 										wizardApiFetch={ wizardApiFetch }
 										setError={ setError }
