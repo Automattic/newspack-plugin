@@ -14,7 +14,6 @@ import { category } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import { Footer, Notice, Button, NewspackIcon, TabbedNavigation, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
