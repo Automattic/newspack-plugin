@@ -30,7 +30,7 @@ import { formatDate } from './utils';
 const { HashRouter, Redirect, Route, Switch } = Router;
 
 const headerText = __( 'Campaigns', 'newspack' );
-const subHeaderText = __( 'Reach your readers with configurable campaigns.', 'newspack' );
+const subHeaderText = __( 'Reach your readers with configurable campaigns', 'newspack' );
 
 const tabbedNavigation = [
 	{

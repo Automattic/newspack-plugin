@@ -26,16 +26,19 @@ const ROUTES = [
 	{
 		path: '/settings',
 		label: __( 'Settings', 'newspack' ),
+		subHeaderText: __( 'Share a few details so we can start setting up your site', 'newspack' ),
 		render: Settings,
 	},
 	{
 		path: '/services',
 		label: __( 'Services', 'newspack' ),
+		subHeaderText: __( 'Activate and configure the services that you need', 'newspack' ),
 		render: Services,
 	},
 	{
 		path: '/design',
 		label: __( 'Design', 'newspack' ),
+		subHeaderText: __( 'Customize the look and feel of your site', 'newspack' ),
 		render: Design,
 	},
 	{

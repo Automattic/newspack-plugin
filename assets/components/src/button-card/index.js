@@ -29,6 +29,7 @@ class ButtonCard extends Component {
 			desc,
 			grouped,
 			icon,
+			isDestructive,
 			isPressed,
 			isSmall,
 			title,
@@ -40,6 +41,7 @@ class ButtonCard extends Component {
 			chevron && 'has-chevron',
 			grouped && 'grouped',
 			icon && 'has-icon',
+			isDestructive && 'is-destructive',
 			isPressed && 'is-pressed',
 			isSmall && 'is-small'
 		);
