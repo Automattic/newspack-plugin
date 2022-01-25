@@ -3,12 +3,14 @@
 /**
  * WordPress dependencies.
  */
+import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Waiting, Notice } from '../../../../components/src';
+import { Notice, SectionHeader, Waiting } from '../../../../components/src';
+import Plugins from './plugins';
 import WPCOMAuth from './wpcom';
 import GoogleAuth, { handleGoogleRedirect } from './google';
 import Mailchimp from './mailchimp';
@@ -30,11 +32,17 @@ const Main = () => {
 	return (
 		<>
 			{ error && <Notice isError noticeText={ error } /> }
+			<SectionHeader title={ __( 'Plugins', 'newspack' ) } />
+			<Plugins />
+			<SectionHeader title={ __( 'APIs', 'newspack' ) } />
 			{ newspack_connections_data.can_connect_wpcom && <WPCOMAuth /> }
 			{ newspack_connections_data.can_connect_google && <GoogleAuth setError={ setError } /> }
 			<Mailchimp setError={ setError } />
 			{ newspack_connections_data.can_connect_fivetran && (
-				<FivetranConnection setError={ setError } />
+				<>
+					<SectionHeader title="Fivetran" />
+					<FivetranConnection setError={ setError } />
+				</>
 			) }
 		</>
 	);

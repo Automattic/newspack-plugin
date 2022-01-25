@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PluginToggle, withWizardScreen } from '../../../../components/src';
+import { PluginToggle } from '../../../../components/src';
 
 /**
  * Syndication Intro screen.
@@ -43,4 +43,4 @@ class Intro extends Component {
 	}
 }
 
-export default withWizardScreen( Intro );
+export default Intro;

@@ -12,14 +12,14 @@ import { Button, ActionCard } from '../../../../components/src';
 const WPCOMAuth = ( { shouldAuthenticate, isInFlight, disconnectURL, authURL } ) => (
 	<ActionCard
 		title={ __( 'WordPress.com', 'newspack' ) }
-		description={
+		description={ `${ __( 'Status:', 'newspack' ) } ${
 			// eslint-disable-next-line no-nested-ternary
 			isInFlight
 				? __( 'Loading…', 'newspack' )
 				: shouldAuthenticate
 				? __( 'Not connected', 'newspack' )
 				: __( 'Connected', 'newspack' )
-		}
+		}` }
 		checkbox={ shouldAuthenticate ? 'unchecked' : 'checked' }
 		actionText={
 			<Button
