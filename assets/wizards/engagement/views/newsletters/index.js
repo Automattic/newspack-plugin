@@ -28,6 +28,8 @@ import {
 } from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
+const stripHTML = ( string = '' ) => string.replace( /(<([^>]+)>)/gi, '' );
+
 export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true } ) => {
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
 	const performConfigUpdate = update => {
@@ -45,7 +47,7 @@ export const NewspackNewsletters = ( { className, onUpdate, mailchimpOnly = true
 	const getSettingProps = key => ( {
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
-		label: config.settings[ key ]?.description,
+		label: stripHTML( config.settings[ key ]?.description ),
 		options:
 			config.settings[ key ]?.options?.map( option => ( {
 				value: option.value,
