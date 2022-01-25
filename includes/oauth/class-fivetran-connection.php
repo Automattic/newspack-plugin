@@ -201,6 +201,7 @@ class Fivetran_Connection {
 				'user'
 			)
 		);
+		return rest_ensure_response( [] );
 	}
 
 	/**
