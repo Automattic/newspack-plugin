@@ -1,3 +1,25 @@
+# [1.72.0](https://github.com/Automattic/newspack-plugin/compare/v1.71.0...v1.72.0) (2022-01-25)
+
+
+### Bug Fixes
+
+* **ads:** ad unit error handling ([#1424](https://github.com/Automattic/newspack-plugin/issues/1424)) ([a1ef5f6](https://github.com/Automattic/newspack-plugin/commit/a1ef5f6f2a680c4729093632d26f5fea75604cc1))
+* campaigns, categories autocomplete UI ([89a26b2](https://github.com/Automattic/newspack-plugin/commit/89a26b2ef6e78cb6c7ffbdfc700c73759a131cae)), closes [#1126](https://github.com/Automattic/newspack-plugin/issues/1126)
+* color picker ([#1438](https://github.com/Automattic/newspack-plugin/issues/1438)) ([beea9a3](https://github.com/Automattic/newspack-plugin/commit/beea9a36411453d0647bbeb729a01e57c60f9939))
+* **engagement-wizard:** strip HTML from setting labels ([a181374](https://github.com/Automattic/newspack-plugin/commit/a181374be8bc46dc2831823145a391c9d4665fcc))
+* modal header ([#1439](https://github.com/Automattic/newspack-plugin/issues/1439)) ([91c90fe](https://github.com/Automattic/newspack-plugin/commit/91c90fee07f1961b5977601bfb30decb61688467))
+* restore accidentally-deleted rest route ([#1443](https://github.com/Automattic/newspack-plugin/issues/1443)) ([472c8ff](https://github.com/Automattic/newspack-plugin/commit/472c8ffb7404020e1afd1da47a48cb3ac05b3637))
+* timeouts due to use of get_post when checking whether to allow deletion ([#1442](https://github.com/Automattic/newspack-plugin/issues/1442)) ([4c3c932](https://github.com/Automattic/newspack-plugin/commit/4c3c9326669a14e4e342ed7bbecf50d8ef3d4e9d))
+
+
+### Features
+
+* add a completion screen to the onboarding ([#1377](https://github.com/Automattic/newspack-plugin/issues/1377)) ([8e3ca01](https://github.com/Automattic/newspack-plugin/commit/8e3ca01d176ab14985ab1aeee80935ef1cadd0b8))
+* allow oauth proxy overrides ([#1389](https://github.com/Automattic/newspack-plugin/issues/1389)) ([603e96d](https://github.com/Automattic/newspack-plugin/commit/603e96d182fd9c285b2791009e420f35c7feb0c1))
+* **amp:** enable disallowing explicitly kept scripts, for debugging ([302abcc](https://github.com/Automattic/newspack-plugin/commit/302abcc100d1adad57b37e5697824b261e32f27a))
+* remove setting footer copyright to site tagline by default ([7cba0b6](https://github.com/Automattic/newspack-plugin/commit/7cba0b63bcf91623d31a8167e72ccb10b846d80e)), closes [#1148](https://github.com/Automattic/newspack-plugin/issues/1148)
+* update plugin list ([#1451](https://github.com/Automattic/newspack-plugin/issues/1451)) ([e3e6a68](https://github.com/Automattic/newspack-plugin/commit/e3e6a6856a704d1a6d3f4e0af529fe7ad07b6cf7))
+
 # [1.72.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.71.0...v1.72.0-alpha.1) (2022-01-24)
 
 
