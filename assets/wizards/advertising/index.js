@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Settings, Placements, Services, Suppression } from './views';
+import { AdUnit, AdUnits, Settings, Placements, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -136,12 +136,12 @@ class AdvertisingWizard extends Component {
 		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
-				label: __( 'Ad Providers', 'newspack' ),
+				label: __( 'Google Ad Manager', 'newspack' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Placements', 'newspack' ),
+				label: __( 'Ad Placements', 'newspack' ),
 				path: '/placements',
 			},
 			{
@@ -162,14 +162,25 @@ class AdvertisingWizard extends Component {
 							path="/"
 							exact
 							render={ () => (
-								<Services
-									headerText={ __( 'Advertising', 'newspack' ) }
+								<AdUnits
+									headerText="Advertising"
 									subHeaderText={ __(
-										'Enable and configure the ad providers you’d like to use',
+										'Configure the Google Ad Manager Ad Units for your site',
 										'newspack'
 									) }
-									services={ services }
-									toggleService={ ( service, value ) => this.toggleService( service, value ) }
+									adUnits={ adUnits }
+									service={ 'google_ad_manager' }
+									serviceData={ services.google_ad_manager }
+									onDelete={ id => this.deleteAdUnit( id ) }
+									buttonText={ __( 'Add New Ad Unit', 'newspack' ) }
+									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
+									wizardApiFetch={ wizardApiFetch }
+									fetchAdvertisingData={ this.fetchAdvertisingData }
+									updateWithAPI={ this.updateWithAPI }
+									updateAdUnit={ adUnit => {
+										this.onAdUnitChange( adUnit );
+										this.saveAdUnit( adUnit.id );
+									} }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -198,34 +209,6 @@ class AdvertisingWizard extends Component {
 										'newspack'
 									) }
 									tabbedNavigation={ tabs }
-								/>
-							) }
-						/>
-						<Route
-							path="/google_ad_manager"
-							exact
-							render={ () => (
-								<AdUnits
-									headerText="Google Ad Manager"
-									subHeaderText={ __(
-										'Monetize your content through Google Ad Manager',
-										'newspack'
-									) }
-									adUnits={ adUnits }
-									service={ 'google_ad_manager' }
-									serviceData={ services.google_ad_manager }
-									onDelete={ id => this.deleteAdUnit( id ) }
-									buttonText={ __( 'Add New Ad Unit', 'newspack' ) }
-									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
-									secondaryButtonText={ __( 'Back to Ad Providers', 'newspack' ) }
-									secondaryButtonAction="#/"
-									wizardApiFetch={ wizardApiFetch }
-									fetchAdvertisingData={ this.fetchAdvertisingData }
-									updateWithAPI={ this.updateWithAPI }
-									updateAdUnit={ adUnit => {
-										this.onAdUnitChange( adUnit );
-										this.saveAdUnit( adUnit.id );
-									} }
 								/>
 							) }
 						/>
