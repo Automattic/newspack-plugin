@@ -27,8 +27,6 @@ const getControlComponent = setting => {
 		case 'checkbox':
 		case 'boolean':
 			return CheckboxControl;
-		case 'select':
-			return SelectControl;
 		default:
 			return TextControl;
 	}
@@ -48,8 +46,6 @@ const getControlType = setting => {
 		case 'boolean':
 		case 'checkbox':
 			return 'checkbox';
-		case 'select':
-			return 'select';
 		default:
 			return null;
 	}
