@@ -30,12 +30,11 @@ class Intro extends Component {
 							actionText: __( 'Manage', 'newspack' ),
 						},
 						'publish-to-apple-news': {
-							name: 'Apple News',
+							name: __( 'Apple News', 'newspack' ),
 						},
-						'fb-instant-articles': {
-							name: 'Facebook Instant Articles',
+						'distributor-stable': {
+							name: __( 'Distributor', 'newspack' ),
 						},
-						'distributor-stable': true,
 					} }
 				/>
 			</Fragment>
