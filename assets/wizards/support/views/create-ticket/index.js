@@ -12,7 +12,7 @@ import RichTextEditor from 'react-rte';
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
 import { useDispatch } from '@wordpress/data';
 
@@ -156,9 +156,10 @@ const CreateTicket = () => {
 				<form onSubmit={ handleSubmit }>
 					{ ! newspack_support_data.IS_PRE_LAUNCH && (
 						<Notice
-							noticeText={ __(
-								'Please visit our <a href="https://newspack.blog/support/">support docs</a> first.',
-								'newspack'
+							noticeText={ sprintf(
+								// Translators: %s: Newspack Support URL.
+								__( 'Please visit our <a href=%s>support docs</a> first.', 'newspack' ),
+								newspack_urls.support
 							) }
 							rawHTML
 						/>

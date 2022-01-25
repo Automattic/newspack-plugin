@@ -37,9 +37,9 @@ const getAdUnitsForSelect = adUnits => {
 /**
  * Whether any `sizesToCheck` size exists in `sizes`.
  *
- * @param {Array} sizes Array of sizes.
+ * @param {Array} sizes        Array of sizes.
  * @param {Array} sizesToCheck Array of sizes to check.
- * @return {Boolean} Whether any size was found.
+ * @return {boolean} Whether any size was found.
  */
 const hasAnySize = ( sizes, sizesToCheck ) => {
 	return sizesToCheck.some( sizeToCheck => {
