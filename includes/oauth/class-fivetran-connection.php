@@ -36,27 +36,6 @@ class Fivetran_Connection {
 			NEWSPACK_API_NAMESPACE,
 			'/oauth/fivetran',
 			[
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'api_modify_connector' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'connector_id'  => [
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'paused'        => [
-						'sanitize_callback' => 'rest_sanitize_boolean',
-					],
-					'schema_status' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/oauth/fivetran',
-			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_fivetran_connection_status' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -152,41 +131,6 @@ class Fivetran_Connection {
 			]
 		);
 		$response = self::process_proxy_response( \wp_safe_remote_post( $url, [ 'timeout' => 30 ] ) ); // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-		return \rest_ensure_response( $response );
-	}
-
-	/**
-	 * Modify a Fivetran connector.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 */
-	public static function api_modify_connector( $request ) {
-		$payload  = [
-			'paused'        => $request->get_param( 'paused' ),
-			'schema_status' => $request->get_param( 'schema_status' ),
-		];
-		$url      = OAuth::authenticate_proxy_url(
-			'fivetran',
-			'/wp-json/newspack-fivetran/v1/connector',
-			[
-				'connector_id' => $request->get_param( 'connector_id' ),
-			]
-		);
-		$response = self::process_proxy_response(
-			\wp_safe_remote_post(
-				$url,
-				[
-					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-					'headers' => [
-						'Content-Type' => 'application/json',
-					],
-					'body'    => wp_json_encode( $payload ),
-				]
-			)
-		);
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
