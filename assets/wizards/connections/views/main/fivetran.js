@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -108,9 +109,10 @@ const FivetranConnection = ( { setError } ) => {
 				<a href="https://newspack.pub/terms-of-service/">
 					{ __( 'Newspack Terms of Service', 'newspack' ) }
 				</a>
-				.
+				:
 			</div>
 			<CheckboxControl
+				className={ classnames( 'mt1', { 'o-50': hasAcceptedTOS === null } ) }
 				checked={ hasAcceptedTOS }
 				disabled={ hasAcceptedTOS === null }
 				onChange={ has_accepted => {
