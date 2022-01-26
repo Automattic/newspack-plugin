@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PluginToggle, withWizardScreen } from '../../../../components/src';
+import { PluginToggle } from '../../../../components/src';
 
 /**
  * Syndication Intro screen.
@@ -30,12 +30,11 @@ class Intro extends Component {
 							actionText: __( 'Manage', 'newspack' ),
 						},
 						'publish-to-apple-news': {
-							name: 'Apple News',
+							name: __( 'Apple News', 'newspack' ),
 						},
-						'fb-instant-articles': {
-							name: 'Facebook Instant Articles',
+						'distributor-stable': {
+							name: __( 'Distributor', 'newspack' ),
 						},
-						'distributor-stable': true,
 					} }
 				/>
 			</Fragment>
@@ -43,4 +42,4 @@ class Intro extends Component {
 	}
 }
 
-export default withWizardScreen( Intro );
+export default Intro;

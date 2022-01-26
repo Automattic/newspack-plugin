@@ -102,8 +102,7 @@ const FivetranConnection = ( { setError } ) => {
 	};
 
 	return (
-		<div>
-			<h1>{ __( 'Fivetran', 'newspack' ) }</h1>
+		<>
 			<div>
 				{ __( 'In order to use the this features, you must read and accept', 'newspack' ) }{ ' ' }
 				<a href="https://newspack.pub/terms-of-service/">
@@ -139,28 +138,27 @@ const FivetranConnection = ( { setError } ) => {
 					isConnected: setupState === 'connected',
 				};
 				return (
-					<div key={ item.service }>
-						<ActionCard
-							title={ item.label }
-							description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
-							actionText={
-								<Button
-									disabled={ inFlight || ! hasFetched || ! hasAcceptedTOS }
-									onClick={ () => createConnection( item ) }
-									isLink
-								>
-									{ status.isConnected
-										? __( 'Re-connect', 'newspack' )
-										: __( 'Connect', 'newspack' ) }
-								</Button>
-							}
-							checkbox={ status.isConnected ? 'checked' : 'unchecked' }
-							isMedium
-						/>
-					</div>
+					<ActionCard
+						key={ item.service }
+						title={ item.label }
+						description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
+						actionText={
+							<Button
+								disabled={ inFlight || ! hasFetched || ! hasAcceptedTOS }
+								onClick={ () => createConnection( item ) }
+								isLink
+							>
+								{ status.isConnected
+									? __( 'Re-connect', 'newspack' )
+									: __( 'Connect', 'newspack' ) }
+							</Button>
+						}
+						checkbox={ status.isConnected ? 'checked' : 'unchecked' }
+						isMedium
+					/>
 				);
 			} ) }
-		</div>
+		</>
 	);
 };
 

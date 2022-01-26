@@ -105,7 +105,12 @@ class ComponentsDemo extends Component {
 							>
 								<NewspackIcon size={ 36 } />
 							</Button>
-							<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
+							<div>
+								<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
+								<span>
+									{ __( 'Simple components used for composing the UI of Newspack', 'newspack' ) }
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -650,7 +655,7 @@ class ComponentsDemo extends Component {
 						<ButtonCard
 							href="admin.php?page=newspack-site-design-wizard"
 							title={ __( 'Site Design', 'newspack' ) }
-							desc={ __( 'Branding, color, typography, layouts', 'newspack' ) }
+							desc={ __( 'Customize the look and feel of your site', 'newspack' ) }
 							icon={ typography }
 							chevron
 						/>

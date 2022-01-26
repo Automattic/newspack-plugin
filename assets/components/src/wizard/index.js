@@ -97,8 +97,10 @@ const Wizard = ( {
 								>
 									<NewspackIcon size={ 36 } />
 								</Button>
-								{ headerText && <h1>{ headerText }</h1> }
-								{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
+								<div>
+									{ headerText && <h1>{ headerText }</h1> }
+									{ subHeaderText && <span>{ subHeaderText }</span> }
+								</div>
 							</div>
 							{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
 						</div>

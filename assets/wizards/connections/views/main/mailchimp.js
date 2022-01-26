@@ -109,7 +109,7 @@ const Mailchimp = ( { setError } ) => {
 		<>
 			<ActionCard
 				title="Mailchimp"
-				description={ getDescription() }
+				description={ `${ __( 'Status:', 'newspack' ) } ${ getDescription() }` }
 				checkbox={ isConnected ? 'checked' : 'unchecked' }
 				actionText={
 					<Button

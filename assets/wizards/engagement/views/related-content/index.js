@@ -35,9 +35,10 @@ class RelatedContent extends Component {
 				{ relatedPostsError && <Notice noticeText={ relatedPostsError } isError /> }
 
 				<ActionCard
-					title={ __( 'Jetpack Related Posts', 'newspack' ) }
+					title={ __( 'Related Posts', 'newspack' ) }
+					badge="Jetpack"
 					description={ __(
-						'Keep your visitors engaged with related content at the bottom of each post.',
+						'Automatically add related content at the bottom of each post.',
 						'newspack'
 					) }
 					actionText={ __( 'Configure' ) }

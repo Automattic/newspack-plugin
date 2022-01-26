@@ -21,9 +21,6 @@ const Services = ( { services, toggleService } ) => {
 
 	return (
 		<>
-			<p>
-				{ __( 'Please enable and configure the ad providers you’d like to use to get started.' ) }
-			</p>
 			<ActionCard
 				title={ __( 'WordAds from WordPress.com' ) }
 				badge={ __( 'Jetpack Premium' ) }
