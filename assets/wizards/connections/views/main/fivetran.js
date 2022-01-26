@@ -4,19 +4,17 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
 import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import { CheckboxControl, ActionCard, Button, Wizard } from '../../../../components/src';
+import { CheckboxControl, ActionCard, Button } from '../../../../components/src';
 
 /**
  * External dependencies
  */
-import { parse, stringify } from 'qs';
-import { get, values, find } from 'lodash';
+import { get } from 'lodash';
 
 const CONNECTORS = [
 	{
@@ -67,46 +65,22 @@ const getConnectionStatus = ( item, connections ) => {
 	};
 };
 
-const FivetranConnection = ( { setError, setIsResolvingAuth, isResolvingAuth } ) => {
+const FivetranConnection = ( { setError } ) => {
 	const [ connections, setConnections ] = useState();
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ hasAcceptedTOS, setHasAcceptedTOS ] = useState( null );
 
-	const { wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
-
 	const handleError = err => setError( err.message || __( 'Something went wrong.', 'newspack' ) );
 
 	const hasConnections = connections !== undefined;
-	const isDisabled = isResolvingAuth || inFlight || ! hasConnections || ! hasAcceptedTOS;
+	const isDisabled = inFlight || ! hasConnections || ! hasAcceptedTOS;
 
 	useEffect( () => {
-		const params = parse( window.location.search.replace( /^\?/, '' ) );
-		if ( params.id ) {
-			// Block UI. The `id` param means the user has landed here after a redirect from Fivetran.
-			setIsResolvingAuth( true );
-		}
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
 			.then( response => {
 				setConnections( response.connections_stauses );
 				setHasAcceptedTOS( response.has_accepted_tos );
-
-				if ( params.id ) {
-					const newConnector = find( values( response.connections_stauses ), [ 'id', params.id ] );
-					const removeIdParamFromURLAndReload = () => {
-						params.id = undefined;
-						window.location.search = stringify( params );
-					};
-					if ( newConnector && newConnector.sync_state === 'paused' ) {
-						// Set up the new connector.
-						wizardApiFetch( {
-							path: '/newspack/v1/oauth/fivetran?connector_id=' + newConnector.id,
-							method: 'POST',
-							data: { paused: false, schema_status: 'blocked_on_capture' },
-						} ).then( removeIdParamFromURLAndReload );
-					}
-					removeIdParamFromURLAndReload();
-				}
 			} )
 			.catch( handleError )
 			.finally( () => setInFlight( false ) );
