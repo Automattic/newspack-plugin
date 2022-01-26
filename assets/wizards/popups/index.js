@@ -30,7 +30,7 @@ import { formatDate } from './utils';
 const { HashRouter, Redirect, Route, Switch } = Router;
 
 const headerText = __( 'Campaigns', 'newspack' );
-const subHeaderText = __( 'Reach your readers with configurable campaigns.', 'newspack' );
+const subHeaderText = __( 'Reach your readers with configurable campaigns', 'newspack' );
 
 const tabbedNavigation = [
 	{
@@ -185,7 +185,7 @@ class PopupsWizard extends Component {
 	 * Duplicate a popup.
 	 *
 	 * @param {number} popupId ID of the Popup to duplicate.
-	 * @param {string} title Title to give to the duplicated prompt.
+	 * @param {string} title   Title to give to the duplicated prompt.
 	 */
 	duplicatePopup = ( popupId, title ) => {
 		const { setError, wizardApiFetch } = this.props;
@@ -208,25 +208,26 @@ class PopupsWizard extends Component {
 
 	previewUrlForPopup = ( { options, id } ) => {
 		const { placement, trigger_type: triggerType } = options;
+		const previewQueryKeys = window.newspack_popups_wizard_data?.preview_query_keys || {};
+		const abbreviatedKeys = {};
+		Object.keys( options ).forEach( key => {
+			if ( previewQueryKeys.hasOwnProperty( key ) ) {
+				abbreviatedKeys[ previewQueryKeys[ key ] ] = options[ key ];
+			}
+		} );
 
 		let previewURL = '/';
-		if (
-			'archives' === placement &&
-			window &&
-			window.newspack_popups_wizard_data &&
-			window.newspack_popups_wizard_data.preview_archive
-		) {
+		if ( 'archives' === placement && window.newspack_popups_wizard_data?.preview_archive ) {
 			previewURL = window.newspack_popups_wizard_data.preview_archive;
 		} else if (
 			( 'inline' === placement || 'scroll' === triggerType ) &&
 			window &&
-			window.newspack_popups_wizard_data &&
-			window.newspack_popups_wizard_data.preview_post
+			window.newspack_popups_wizard_data?.preview_post
 		) {
-			previewURL = window.newspack_popups_wizard_data.preview_post;
+			previewURL = window.newspack_popups_wizard_data?.preview_post;
 		}
 
-		return `${ previewURL }?${ stringify( { ...options, newspack_popups_preview_id: id } ) }`;
+		return `${ previewURL }?${ stringify( { ...abbreviatedKeys, pid: id } ) }`;
 	};
 
 	updateAfterAPI = ( { campaigns, prompts, segments, settings, duplicated = null } ) =>

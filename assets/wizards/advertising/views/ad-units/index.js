@@ -7,8 +7,8 @@
  */
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import { trash, pencil } from '@wordpress/icons';
+import { ExternalLink, Path, SVG } from '@wordpress/components';
+import { pencil } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -16,12 +16,24 @@ import { trash, pencil } from '@wordpress/icons';
 import {
 	ActionCard,
 	TextControl,
+	SelectControl,
 	Button,
 	Card,
 	Notice,
 	withWizardScreen,
 } from '../../../../components/src';
 import ServiceAccountConnection from './service-account-connection';
+
+export const archive = (
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+		<Path d="m15.976 14.139-3.988 3.418L8 14.14 8.976 13l2.274 1.949V10.5h1.5v4.429L15 13l.976 1.139Z" />
+		<Path
+			clipRule="evenodd"
+			d="M4 9.232A2 2 0 0 1 3 7.5V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1.5a2 2 0 0 1-1 1.732V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9.232ZM5 5.5h14a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5Zm.5 4V18a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V9.5h-13Z"
+			fillRule="evenodd"
+		/>
+	</SVG>
+);
 
 /**
  * Advertising management screen.
@@ -40,15 +52,23 @@ const AdUnits = ( {
 		? `${ __( 'Google Ad Manager Error', 'newspack' ) }: ${ serviceData.status.error }`
 		: false;
 
-	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
-	const saveNetworkCode = async () => {
+	const updateNetworkCode = async ( value, isGam ) => {
 		await wizardApiFetch( {
 			path: '/newspack/v1/wizard/advertising/network_code/',
 			method: 'POST',
-			data: { network_code: networkCode },
+			data: { network_code: value, is_gam: isGam },
 			quiet: true,
 		} );
 		fetchAdvertisingData( true );
+	};
+
+	const updateGAMNetworkCode = async value => {
+		updateNetworkCode( value, true );
+	};
+
+	const [ networkCode, setNetworkCode ] = useState( serviceData.status.network_code );
+	const updateLegacyNetworkCode = async () => {
+		updateNetworkCode( networkCode, false );
 	};
 
 	useEffect( () => {
@@ -60,6 +80,17 @@ const AdUnits = ( {
 
 	return (
 		<>
+			{ ! isLegacy && networkCode && (
+				<SelectControl
+					label={ __( 'Connected GAM network code', 'newspack' ) }
+					value={ networkCode }
+					options={ serviceData.available_networks.map( network => ( {
+						label: `${ network.name } (${ network.code })`,
+						value: network.code,
+					} ) ) }
+					onChange={ updateGAMNetworkCode }
+				/>
+			) }
 			{ false === serviceData.status?.is_network_code_matched && (
 				<Notice
 					noticeText={ __(
@@ -101,18 +132,12 @@ const AdUnits = ( {
 							withMargin={ false }
 						/>
 						<span className="pl3">
-							<Button onClick={ saveNetworkCode } isPrimary>
+							<Button onClick={ updateLegacyNetworkCode } isPrimary>
 								{ __( 'Save', 'newspack' ) }
 							</Button>
 						</span>
 					</div>
 				</>
-			) }
-			{ ! isLegacy && networkCode && (
-				<div>
-					<strong>{ __( 'Connected GAM network code:', 'newspack' ) } </strong>
-					<code>{ networkCode }</code>
-				</div>
 			) }
 			<p>
 				{ __(
@@ -172,13 +197,13 @@ const AdUnits = ( {
 										<Button
 											href={ editLink }
 											icon={ pencil }
-											label={ __( 'Edit the ad unit', 'newspack' ) }
+											label={ __( 'Edit Ad Unit', 'newspack' ) }
 											{ ...buttonProps }
 										/>
 										<Button
 											onClick={ () => onDelete( adUnit.id ) }
-											icon={ trash }
-											label={ __( 'Archive the ad unit', 'newspack' ) }
+											icon={ archive }
+											label={ __( 'Archive Ad Unit', 'newspack' ) }
 											{ ...buttonProps }
 										/>
 									</div>
@@ -189,7 +214,6 @@ const AdUnits = ( {
 			</Card>
 			{ can_use_service_account && connection_mode !== 'oauth' && (
 				<ServiceAccountConnection
-					className="mt3"
 					updateWithAPI={ updateWithAPI }
 					isConnected={ serviceData.status.connected }
 				/>

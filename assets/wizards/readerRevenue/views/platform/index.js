@@ -1,35 +1,29 @@
 /**
- * Platform Selection Screen
- */
-
-/**
  * WordPress dependencies
  */
+import { useDispatch } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { Grid, PluginInstaller, SelectControl, withWizardScreen } from '../../../../components/src';
-import Router from '../../../../components/src/proxied-imports/router';
+import { Grid, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
 import { NEWSPACK, NRH, STRIPE } from '../../constants';
-
-const { withRouter } = Router;
 
 /**
  * Platform Selection  Screen Component
  */
-const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
-	const { platform } = data;
+const Platform = () => {
+	const wizardData = Wizard.useWizardData();
+	const { saveWizardSettings, updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	return (
 		<Fragment>
 			<Grid>
 				<SelectControl
 					label={ __( 'Select Reader Revenue Platform', 'newspack' ) }
-					value={ platform }
+					value={ wizardData.platform_data?.platform }
 					options={ [
-						{ label: __( '-- Select Your Platform --', 'newspack' ), value: '' },
 						{
 							label: __( 'Newspack', 'newspack' ),
 							value: NEWSPACK,
@@ -41,20 +35,22 @@ const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
 						{
 							label: __( 'Stripe', 'newspack' ),
 							value: STRIPE,
-							disabled: data.stripeData.can_use_stripe_platform === false,
+							disabled: wizardData.stripe_data?.can_use_stripe_platform === false,
 						},
 					] }
-					onChange={ _platform => {
-						if ( _platform.length ) {
-							onChange( {
-								...data,
-								platform: _platform,
-							} );
-						}
+					onChange={ value => {
+						saveWizardSettings( {
+							slug: 'newspack-reader-revenue-wizard',
+							payloadPath: [ 'platform_data' ],
+							updatePayload: {
+								path: [ 'platform_data', 'platform' ],
+								value,
+							},
+						} );
 					} }
 				/>
 			</Grid>
-			{ NEWSPACK === platform && ! pluginStatus && (
+			{ NEWSPACK === wizardData.platform_data?.platform && ! wizardData.plugin_status && (
 				<PluginInstaller
 					plugins={ [
 						'woocommerce',
@@ -64,7 +60,11 @@ const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
 					] }
 					onStatus={ ( { complete } ) => {
 						if ( complete ) {
-							onReady();
+							updateWizardSettings( {
+								slug: 'newspack-reader-revenue-wizard',
+								path: [ 'plugin_status' ],
+								value: true,
+							} );
 						}
 					} }
 					withoutFooterButton={ true }
@@ -74,4 +74,4 @@ const Platform = ( { data, onChange, onReady, pluginStatus } ) => {
 	);
 };
 
-export default withWizardScreen( withRouter( Platform ) );
+export default Platform;

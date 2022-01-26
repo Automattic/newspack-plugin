@@ -330,11 +330,14 @@ class Setup_Wizard extends Wizard {
 			$theme_mods['secondary_color_hex'] = get_theme_mod( 'secondary_color_hex', newspack_get_secondary_color() );
 		}
 
+		// Set custom header color to primary, if not set.
 		if ( ! isset( $theme_mods['header_color_hex'] ) ) {
 			set_theme_mod( 'header_color_hex', $theme_mods['primary_color_hex'] );
 			$theme_mods['header_color_hex'] = get_theme_mod( 'header_color_hex' );
 		}
-		// Set custom header color to primary, if not set.
+		if ( ! isset( $theme_mods['homepage_pattern_index'] ) ) {
+			$theme_mods['homepage_pattern_index'] = 0;
+		}
 
 		$theme_mods['accent_allcaps'] = get_theme_mod( 'accent_allcaps', true );
 
@@ -343,8 +346,7 @@ class Setup_Wizard extends Wizard {
 		$theme_mods['footer_logo_size'] = get_theme_mod( 'footer_logo_size', 'medium' );
 		$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', false );
 		if ( false === $theme_mods['footer_copyright'] ) {
-			set_theme_mod( 'footer_copyright', get_option( 'blogdescription', '' ) );
-			$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright' );
+			$theme_mods['footer_copyright'] = get_theme_mod( 'footer_copyright', '' );
 		}
 
 		$theme_mods['header_text']            = get_theme_mod( 'header_text', '' );

@@ -14,7 +14,7 @@ import { values } from 'lodash';
 /**
  * Internal dependencies
  */
-import { PluginInstaller, ActionCard, Notice, withWizardScreen } from '../../../../components/src';
+import { PluginInstaller, ActionCard, Notice } from '../../../../components/src';
 
 const EMAILS = values( newspack_reader_revenue.emails );
 
@@ -76,4 +76,4 @@ const Emails = () => {
 	);
 };
 
-export default withWizardScreen( Emails );
+export default Emails;

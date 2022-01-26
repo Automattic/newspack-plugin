@@ -1,10 +1,7 @@
-/* global newspack_connections_data */
-
 /**
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
 import withWPCOMAuth from '../../../support/components/withWPCOMAuth';
 
 /**
@@ -12,50 +9,30 @@ import withWPCOMAuth from '../../../support/components/withWPCOMAuth';
  */
 import { Button, ActionCard } from '../../../../components/src';
 
-const WPCOMAuth = ( {
-	onStatusChange,
-	shouldAuthenticate,
-	isInFlight,
-	disconnectURL,
-	authURL,
-} ) => {
-	const canUseWPCOM = newspack_connections_data.can_connect_wpcom;
-
-	useEffect( () => {
-		if ( ! isInFlight ) {
-			onStatusChange( shouldAuthenticate === false );
+const WPCOMAuth = ( { shouldAuthenticate, isInFlight, disconnectURL, authURL } ) => (
+	<ActionCard
+		title={ __( 'WordPress.com', 'newspack' ) }
+		description={ `${ __( 'Status:', 'newspack' ) } ${
+			// eslint-disable-next-line no-nested-ternary
+			isInFlight
+				? __( 'Loading…', 'newspack' )
+				: shouldAuthenticate
+				? __( 'Not connected', 'newspack' )
+				: __( 'Connected', 'newspack' )
+		}` }
+		checkbox={ shouldAuthenticate ? 'unchecked' : 'checked' }
+		actionText={
+			<Button
+				isLink
+				isDestructive={ ! isInFlight && ! shouldAuthenticate }
+				href={ shouldAuthenticate ? authURL : disconnectURL }
+				disabled={ isInFlight }
+			>
+				{ shouldAuthenticate ? __( 'Connect', 'newspack' ) : __( 'Disconnect', 'newspack' ) }
+			</Button>
 		}
-	}, [ shouldAuthenticate, isInFlight ] );
-
-	if ( ! canUseWPCOM ) {
-		return null;
-	}
-
-	return (
-		<ActionCard
-			title={ __( 'WordPress.com', 'newspack' ) }
-			description={
-				// eslint-disable-next-line no-nested-ternary
-				isInFlight
-					? __( 'Loading…', 'newspack' )
-					: shouldAuthenticate
-					? __( 'Not connected', 'newspack' )
-					: __( 'Connected', 'newspack' )
-			}
-			checkbox={ shouldAuthenticate ? 'unchecked' : 'checked' }
-			actionText={
-				<Button
-					isLink
-					isDestructive={ ! isInFlight && ! shouldAuthenticate }
-					href={ shouldAuthenticate ? authURL : disconnectURL }
-					disabled={ isInFlight }
-				>
-					{ shouldAuthenticate ? __( 'Connect', 'newspack' ) : __( 'Disconnect', 'newspack' ) }
-				</Button>
-			}
-			isMedium
-		/>
-	);
-};
+		isMedium
+	/>
+);
 
 export default withWPCOMAuth( null, WPCOMAuth );

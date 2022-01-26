@@ -1,5 +1,3 @@
-/* global newspack_connections_data */
-
 /**
  * External dependencies.
  */
@@ -50,18 +48,38 @@ export const handleGoogleRedirect = ( { setError } ) => {
 	return Promise.resolve();
 };
 
-const GoogleOAuth = ( { setError, canBeConnected } ) => {
+const GoogleOAuth = ( { setError } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
-	const canUseOauth = newspack_connections_data.can_connect_google;
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
 
+	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
+
+	useEffect( () => {
+		if ( isConnected && ! userBasicInfo.has_refresh_token ) {
+			setError( [
+				__( 'Missing Google refresh token. Please', 'newspack' ),
+				' ',
+				<a
+					key="link"
+					target="_blank"
+					rel="noreferrer"
+					href="https://myaccount.google.com/permissions"
+				>
+					{ __( 'revoke credentials', 'newspack' ) }
+				</a>,
+				' ',
+				__( 'and authorise the site again.', 'newspack' ),
+			] );
+		}
+	}, [ isConnected ] );
+
 	useEffect( () => {
 		const params = getURLParams();
-		if ( canUseOauth && ! params.access_token ) {
+		if ( ! params.access_token ) {
 			setInFlight( true );
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
 				.then( setAuthState )
@@ -69,12 +87,6 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 				.finally( () => setInFlight( false ) );
 		}
 	}, [] );
-
-	if ( ! canUseOauth ) {
-		return null;
-	}
-
-	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
 	// Redirect user to Google auth screen.
 	const goToAuthPage = () => {
@@ -105,25 +117,25 @@ const GoogleOAuth = ( { setError, canBeConnected } ) => {
 			return __( 'Loading…', 'newspack' );
 		}
 		if ( isConnected ) {
-			// Translators: user connection status message.
-			return sprintf( __( 'Connected as %s', 'newspack' ), userBasicInfo.email );
-		}
-		if ( ! canBeConnected ) {
-			return __( 'First connect to WordPress.com', 'newspack' );
+			return sprintf(
+				// Translators: connected user's email address.
+				__( 'Connected as %s', 'newspack' ),
+				userBasicInfo.email
+			);
 		}
 		return __( 'Not connected', 'newspack' );
 	};
 	return (
 		<ActionCard
 			title={ __( 'Google', 'newspack' ) }
-			description={ getDescription() }
+			description={ `${ __( 'Status:', 'newspack' ) } ${ getDescription() }` }
 			checkbox={ isConnected ? 'checked' : 'unchecked' }
 			actionText={
 				<Button
 					isLink
 					isDestructive={ isConnected }
 					onClick={ isConnected ? disconnect : goToAuthPage }
-					disabled={ inFlight || ( ! isConnected && ! canBeConnected ) }
+					disabled={ inFlight }
 				>
 					{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }
 				</Button>

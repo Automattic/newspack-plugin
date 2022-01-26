@@ -30,3 +30,4 @@ Thumbs.db
 
 # Tests
 codecov/
+coverage/

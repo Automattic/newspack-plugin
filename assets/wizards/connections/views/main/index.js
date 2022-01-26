@@ -1,12 +1,16 @@
+/* global newspack_connections_data */
+
 /**
  * WordPress dependencies.
  */
+import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Waiting, Notice } from '../../../../components/src';
+import { Notice, SectionHeader, Waiting } from '../../../../components/src';
+import Plugins from './plugins';
 import WPCOMAuth from './wpcom';
 import GoogleAuth, { handleGoogleRedirect } from './google';
 import Mailchimp from './mailchimp';
@@ -15,7 +19,6 @@ import FivetranConnection from './fivetran';
 const Main = () => {
 	const [ error, setError ] = useState();
 	const [ isResolvingAuth, setIsResolvingAuth ] = useState( true );
-	const [ isWPCOMConnected, setIsWPCOMConnected ] = useState();
 	useEffect( () => {
 		handleGoogleRedirect( { setError } ).finally( () => {
 			setIsResolvingAuth( false );
@@ -29,10 +32,18 @@ const Main = () => {
 	return (
 		<>
 			{ error && <Notice isError noticeText={ error } /> }
-			<WPCOMAuth onStatusChange={ setIsWPCOMConnected } />
-			<GoogleAuth setError={ setError } canBeConnected={ isWPCOMConnected === true } />
+			<SectionHeader title={ __( 'Plugins', 'newspack' ) } />
+			<Plugins />
+			<SectionHeader title={ __( 'APIs', 'newspack' ) } />
+			{ newspack_connections_data.can_connect_wpcom && <WPCOMAuth /> }
+			{ newspack_connections_data.can_connect_google && <GoogleAuth setError={ setError } /> }
 			<Mailchimp setError={ setError } />
-			<FivetranConnection setError={ setError } wpComStatus={ isWPCOMConnected } />
+			{ newspack_connections_data.can_connect_fivetran && (
+				<>
+					<SectionHeader title="Fivetran" />
+					<FivetranConnection setError={ setError } />
+				</>
+			) }
 		</>
 	);
 };

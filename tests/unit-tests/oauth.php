@@ -5,6 +5,7 @@
  * @package Newspack\Tests
  */
 
+use Newspack\OAuth;
 use Newspack\WPCOM_OAuth;
 use Newspack\Google_OAuth;
 use Newspack\Google_Services_Connection;
@@ -13,15 +14,40 @@ use Newspack\Google_Services_Connection;
  * Tests OAuth features.
  */
 class Newspack_Test_OAuth extends WP_UnitTestCase {
-	public function setUp() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-		$user_id = $this->factory->user->create( [ 'role' => 'testsistrator' ] );
+	private function login_admin_user() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
+	}
+
+	private static function set_api_key() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+		if ( ! defined( 'NEWSPACK_MANAGER_API_KEY_OPTION_NAME' ) ) {
+			define( 'NEWSPACK_MANAGER_API_KEY_OPTION_NAME', 'newspack-manager-api-key-option-name' );
+		}
+		update_option( NEWSPACK_MANAGER_API_KEY_OPTION_NAME, '123abc' );
+	}
+
+	/**
+	 * Base class for all things OAuth.
+	 */
+	public static function test_oauth_base() {
+		self::assertFalse(
+			OAuth::get_proxy_api_key(),
+			'Proxy API key is false until configured.'
+		);
+		self::set_api_key();
+		self::assertEquals(
+			'123abc',
+			OAuth::get_proxy_api_key(),
+			'Proxy API key is as expected after configured.'
+		);
 	}
 
 	/**
 	 * WPCOM OAuth.
 	 */
 	public function test_wpcom_oauth() {
+		self::set_api_key();
+		self::login_admin_user();
 		$token      = 'abc123';
 		$expires_in = 1399;
 		WPCOM_OAuth::api_save_wpcom_access_token(
@@ -38,9 +64,20 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Google OAuth (via WPCOM proxy) flow.
+	 * Google OAuth flow.
 	 */
 	public function test_google_oauth() {
+		self::expectException( Exception::class );
+		self::assertFalse(
+			OAuth::authenticate_proxy_url( 'google', '/wp-json/newspack-google' ),
+			'Proxy URL getting throws until configured.'
+		);
+
+		self::set_api_key();
+		if ( ! defined( 'NEWSPACK_GOOGLE_OAUTH_PROXY' ) ) {
+			define( 'NEWSPACK_GOOGLE_OAUTH_PROXY', 'http://dummy.proxy' );
+		}
+
 		/**
 		 * First step is redirecting the user to the OAuth consent screen.
 		 * The final URL will be constructed by the WPCOM endpoint.
@@ -75,8 +112,7 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			'The auth data is not readable for just anyone.'
 		);
 
-		$administrator_user = $this->factory->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $administrator_user );
+		self::login_admin_user();
 
 		self::assertEquals(
 			[
@@ -113,6 +149,26 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			Google_Services_Connection::get_oauth2_credentials(),
 			false,
 			'OAuth2 object getter return false after credentials are removed.'
+		);
+	}
+
+	/**
+	 * Fivetran OAuth flow.
+	 */
+	public function test_fivetran_oauth() {
+		self::expectException( Exception::class );
+		self::assertFalse(
+			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
+			'Proxy URL getting throws until configured.'
+		);
+		self::set_api_key();
+		if ( ! defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
+			define( 'NEWSPACK_FIVETRAN_PROXY', 'http://dummy.proxy' );
+		}
+		self::assertEquals(
+			'http://dummy.proxy/wp-json/newspack-fivetran?api_key=123abc',
+			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
+			'Proxy URL is as expected after proxy is configured.'
 		);
 	}
 }

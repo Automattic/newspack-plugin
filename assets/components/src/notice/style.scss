@@ -25,7 +25,7 @@
 	}
 
 	&__is-error {
-		background: lighten( $alert-red, 54% );
+		background: lighten( $alert-red, 51% );
 
 		> svg {
 			fill: $alert-red;
@@ -34,7 +34,7 @@
 	}
 
 	&__is-help {
-		background: $primary-000;
+		background: $primary-050;
 
 		> svg {
 			fill: $primary-500;
@@ -42,7 +42,7 @@
 	}
 
 	&__is-success {
-		background: lighten( $alert-green, 47% );
+		background: lighten( $alert-green, 42% );
 
 		> svg {
 			fill: $alert-green;
@@ -50,7 +50,7 @@
 	}
 
 	&__is-warning {
-		background: lighten( $alert-yellow, 36% );
+		background: lighten( $alert-yellow, 30% );
 
 		> svg {
 			fill: $alert-yellow;
@@ -58,9 +58,23 @@
 		}
 	}
 
-	&__content {
+	& &__content {
 		> div > * {
 			margin: 0 !important;
+		}
+
+		a {
+			color: inherit;
+
+			&:active,
+			&:focus,
+			&:hover {
+				color: inherit;
+			}
+
+			&:focus {
+				outline-color: currentColor;
+			}
 		}
 	}
 

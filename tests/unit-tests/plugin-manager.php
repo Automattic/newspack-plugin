@@ -34,6 +34,20 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	protected $plugin_url = 'https://downloads.wordpress.org/plugin/amp.1.2.0.zip';
 
 	/**
+	 * Reset the global state when running each test. This helps avoid issues stemming from redefined constants.
+	 *
+	 * @var boolean
+	 */
+    protected $preserveGlobalState = false; // phpcs:ignore
+
+	/**
+	 * Run each test in a separate process. This helps avoid issues stemming from redefined constants.
+	 *
+	 * @var boolean
+	 */
+    protected $runTestInSeparateProcess = true; // phpcs:ignore
+
+	/**
 	 * Compatibility checks and clean up.
 	 */
 	public function setUp() {
@@ -175,6 +189,11 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 
 		// If the plugin is already installed, installing it by slug should fail.
 		$this->assertTrue( is_wp_error( Plugin_manager::install( $this->plugin_slug ) ) );
+
+		// The following test can't be performend until the core bug referenced below is resolved.
+		if ( defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+			return $this->markTestSkipped( 'Cannot call delete_plugin more than once due to a core error. See: https://core.trac.wordpress.org/ticket/44884' );
+		}
 
 		// Uninstall by slug.
 		$this->assertTrue( Plugin_Manager::uninstall( $this->plugin_slug ) );

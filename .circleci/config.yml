@@ -74,7 +74,7 @@ jobs:
           name: Run Tests
           command: |
             composer install
-            composer global require "phpunit/phpunit=5.7.*"
+            composer global require "phpunit/phpunit=7.5.*"
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 5.8.1
             phpunit
@@ -95,19 +95,14 @@ jobs:
           name: Release new version
           command: npm run release
 
-  # Reset alpha branch after a release
   post_release:
     docker:
       - image: cimg/php:7.4-browsers
     steps:
-      - checkout
+      - checkout_with_workspace
       - run:
-          name: Set tip of alpha branch on top of release and force-push it to remote
-          command: |
-            git pull origin release
-            git checkout alpha
-            git reset --hard release --
-            git push "https://$GITHUB_TOKEN@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git" --force
+          name: Perform post-release chores
+          command: ./node_modules/newspack-scripts/post-release.sh
 
 workflows:
   version: 2
@@ -128,6 +123,7 @@ workflows:
               only:
                 - release
                 - alpha
+                - /^hotfix\/.*/
       - post_release:
           requires:
             - release

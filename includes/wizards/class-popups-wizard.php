@@ -125,13 +125,16 @@ class Popups_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/(?P<id>\d+)/duplicate',
+			'/wizard/' . $this->slug . '/(?P<original_id>\d+)/(?P<id>\d+)/duplicate',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_duplicate_title' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'id' => [
+					'original_id' => [
+						'sanitize_callback' => 'absint',
+					],
+					'id'          => [
 						'sanitize_callback' => 'absint',
 					],
 				],
@@ -471,6 +474,7 @@ class Popups_Wizard extends Wizard {
 		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
 		$overlay_placements                    = $newspack_popups_configuration_manager->get_overlay_placements();
 		$overlay_sizes                         = $newspack_popups_configuration_manager->get_overlay_sizes();
+		$preview_query_keys                    = $newspack_popups_configuration_manager->preview_query_keys();
 
 		\wp_localize_script(
 			'newspack-popups-wizard',
@@ -482,6 +486,7 @@ class Popups_Wizard extends Wizard {
 				'custom_placements'  => $custom_placements,
 				'overlay_placements' => $overlay_placements,
 				'overlay_sizes'      => $overlay_sizes,
+				'preview_query_keys' => $preview_query_keys,
 			]
 		);
 
@@ -633,7 +638,7 @@ class Popups_Wizard extends Wizard {
 	 */
 	public function api_get_duplicate_title( $request ) {
 		$cm            = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$default_title = $cm->get_duplicate_title( $request['id'] );
+		$default_title = $cm->get_duplicate_title( $request['original_id'], $request['id'] );
 		return $default_title;
 	}
 

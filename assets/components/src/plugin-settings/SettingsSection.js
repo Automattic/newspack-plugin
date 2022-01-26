@@ -3,6 +3,11 @@
  */
 
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
@@ -12,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ActionCard, Grid, Button, TextControl, CheckboxControl, SelectControl } from '../';
+import './style.scss';
 
 const getControlComponent = setting => {
 	if ( Array.isArray( setting.options ) && setting.options.length ) {
@@ -35,6 +41,11 @@ const getControlType = setting => {
 		case 'string':
 		case 'text':
 			return 'text';
+		case 'password':
+			return 'password';
+		case 'boolean':
+		case 'checkbox':
+			return 'checkbox';
 		default:
 			return null;
 	}
@@ -49,7 +60,13 @@ const SettingsSection = ( {
 	onChange,
 	onUpdate,
 } ) => {
-	const getControlProps = setting => ( {
+	const isSingleLined = index => {
+		const total = fields.length;
+		const hasSingleLinedField = fields.length % 3 !== 0 && fields.length % 2 !== 0;
+		const isLast = index === total - 1;
+		return hasSingleLinedField && isLast;
+	};
+	const getControlProps = ( setting, index ) => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
 		type: getControlType( setting ),
@@ -62,6 +79,9 @@ const SettingsSection = ( {
 			} ) ) || null,
 		value: setting.value,
 		checked: setting.type === 'boolean' ? !! setting.value : null,
+		className: classnames( {
+			'padded-checkbox': setting.type === 'boolean' && ! isSingleLined( index ),
+		} ),
 		onChange: value => {
 			onChange( setting.key, value );
 		},
@@ -79,9 +99,9 @@ const SettingsSection = ( {
 			{ ( active || active === null ) && (
 				<Fragment>
 					<Grid columns={ fields.length % 3 === 0 ? 3 : 2 } gutter={ 32 }>
-						{ fields.map( setting => {
+						{ fields.map( ( setting, index ) => {
 							const Control = getControlComponent( setting ); // eslint-disable-line @wordpress/no-unused-vars-before-return, no-unused-vars
-							return <Control key={ setting.key } { ...getControlProps( setting ) } />;
+							return <Control key={ setting.key } { ...getControlProps( setting, index ) } />;
 						} ) }
 					</Grid>
 					<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>

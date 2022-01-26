@@ -81,7 +81,7 @@ class Patches {
 		$post_id            = $args[0]; // First item is usually the post ID.
 
 		// If $post_id isn't a valid post, bail early.
-		if ( false === get_post_status( $post_id ) ) {
+		if ( false === get_post_type( $post_id ) ) {
 			return $caps;
 		}
 

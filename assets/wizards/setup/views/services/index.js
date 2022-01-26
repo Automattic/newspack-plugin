@@ -31,7 +31,7 @@ const SERVICES_LIST = {
 	newsletters: {
 		label: __( 'Newsletters', 'newspack' ),
 		description: __(
-			'Create email newsletters and send them to your Mailchimp mail lists, all without leaving your website',
+			'Create email newsletters and send them to your mail lists, all without leaving your website',
 			'newspack'
 		),
 		Component: NewspackNewsletters,

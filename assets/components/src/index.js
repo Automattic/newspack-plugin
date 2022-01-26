@@ -5,7 +5,6 @@ export { default as Button } from './button';
 export { default as ButtonCard } from './button-card';
 export { default as ButtonGroup } from './button-group';
 export { default as Card } from './card';
-export { default as PreviewBox } from './preview-box';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as CheckboxControl } from './checkbox-control';
 export { default as ColorPicker } from './color-picker';
@@ -40,10 +39,12 @@ export { default as ToggleControl } from './toggle-control';
 export { default as ToggleGroup } from './toggle-group';
 export { default as Waiting } from './waiting';
 export { default as WebPreview } from './web-preview';
+export { default as Wizard } from './wizard';
 export { default as withWizard } from './with-wizard';
 export { default as withWizardScreen } from './with-wizard-screen';
-export { default as WizardPagination } from './wizard-pagination';
 
 export { default as Router } from './proxied-imports/router';
 export { default as hooks } from './hooks';
 export { default as utils } from './utils';
+
+import './style.scss';

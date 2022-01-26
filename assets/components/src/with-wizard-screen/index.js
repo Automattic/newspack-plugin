@@ -7,7 +7,7 @@ import { category } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Button, Handoff, NewspackIcon, Notice, TabbedNavigation, WizardPagination } from '../';
+import { Button, Handoff, NewspackIcon, Notice, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -31,8 +31,8 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			tabbedNavigation,
 			secondaryButtonText,
 			secondaryButtonAction,
-			routes,
 			renderAboveContent,
+			disableUpcomingInTabbedNavigation,
 		} = props;
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
@@ -78,16 +78,18 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 							>
 								<NewspackIcon size={ 36 } />
 							</Button>
-							{ headerText && <h1>{ headerText }</h1> }
-							{ subHeaderText && <p className="screen-reader-text">{ subHeaderText }</p> }
+							<div>
+								{ headerText && <h1>{ headerText }</h1> }
+								{ subHeaderText && <span>{ subHeaderText }</span> }
+							</div>
 						</div>
 						{ tabbedNavigation && (
-							<>
-								<TabbedNavigation items={ tabbedNavigation } />
-							</>
+							<TabbedNavigation
+								disableUpcoming={ disableUpcomingInTabbedNavigation }
+								items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
+							/>
 						) }
 					</div>
-					{ routes && <WizardPagination routes={ routes } /> }
 				</div>
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>

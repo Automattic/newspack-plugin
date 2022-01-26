@@ -6,6 +6,11 @@ import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * External dependencies
+ */
+import { omit } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import {
@@ -21,7 +26,7 @@ import {
 	SectionHeader,
 	ImageUpload,
 	hooks,
-	Button,
+	ButtonCard,
 	Grid,
 	WebPreview,
 } from '../../../../components/src';
@@ -40,14 +45,7 @@ const TYPOGRAPHY_OPTIONS = [
 	{ value: 'custom', label: __( 'Custom', 'newspack' ) },
 ];
 
-const Main = ( {
-	wizardApiFetch,
-	setError,
-	renderPrimaryButton,
-	buttonText,
-	isPartOfSetup = true,
-	onSave = () => {},
-} ) => {
+const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = true } ) => {
 	const [ themeSlug, updateThemeSlug ] = useState();
 	const [ homepagePatterns, updateHomepagePatterns ] = useState( [] );
 	const [ mods, updateMods ] = hooks.useObjectState();
@@ -55,13 +53,25 @@ const Main = ( {
 		TYPOGRAPHY_OPTIONS[ 0 ].value
 	);
 
+	const finishSetup = () => {
+		const params = {
+			path: `/newspack/v1/wizard/newspack-setup-wizard/complete`,
+			method: 'POST',
+			quiet: true,
+		};
+		wizardApiFetch( params ).catch( setError );
+	};
+
+	const isDisplayingHomepageLayoutPicker = isPartOfSetup && homepagePatterns.length > 0;
+
 	const updateSettings = response => {
 		updateMods( response.theme_mods );
 		updateThemeSlug( response.theme );
 		updateHomepagePatterns( response.homepage_patterns );
+		const { font_header: headerFont, font_body: bodyFont } = response.theme_mods;
 		if (
-			isFontInOptions( response.theme_mods.font_header ) === false ||
-			isFontInOptions( response.theme_mods.font_body ) === false
+			( headerFont && ! isFontInOptions( headerFont ) ) ||
+			( bodyFont && ! isFontInOptions( bodyFont ) )
 		) {
 			updateTypographyOptionsType( TYPOGRAPHY_OPTIONS[ 1 ].value );
 		}
@@ -79,7 +89,10 @@ const Main = ( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
 			data: {
-				theme_mods: mods,
+				theme_mods: omit(
+					mods,
+					isDisplayingHomepageLayoutPicker ? [] : [ 'homepage_pattern_index' ]
+				),
 				theme: themeSlug,
 			},
 			quiet: true,
@@ -129,14 +142,14 @@ const Main = ( {
 		<Card noBorder className="newspack-design">
 			<SectionHeader
 				title={ __( 'Theme', 'newspack' ) }
-				description={ __( 'Activate a theme you like to get started', 'newspack' ) }
+				description={ __( 'Select the theme for your site', 'newspack' ) }
 			/>
 			<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
-			{ isPartOfSetup && homepagePatterns.length > 0 ? (
+			{ isDisplayingHomepageLayoutPicker ? (
 				<>
 					<SectionHeader
 						title={ __( 'Homepage', 'newspack' ) }
-						description={ __( 'Pick a homepage layout', 'newspack' ) }
+						description={ __( 'Select a homepage layout', 'newspack' ) }
 						className="newspack-design__header"
 					/>
 					<Grid columns={ 6 } gutter={ 16 }>
@@ -155,7 +168,7 @@ const Main = ( {
 			) : null }
 			<SectionHeader
 				title={ __( 'Colors', 'newspack' ) }
-				description={ __( 'Choose your primary and secondary colors', 'newspack' ) }
+				description={ __( 'Pick your primary and secondary colors', 'newspack' ) }
 			/>
 			<Grid gutter={ 32 }>
 				{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
@@ -227,7 +240,7 @@ const Main = ( {
 			</Grid>
 			<SectionHeader
 				title={ __( 'Header', 'newspack' ) }
-				description={ __( 'Customize the header and add your logo', 'newspack' ) }
+				description={ __( 'Update the header and add your logo', 'newspack' ) }
 				className="newspack-design__header"
 			/>
 			<Grid gutter={ 32 }>
@@ -359,18 +372,29 @@ const Main = ( {
 					<WebPreview
 						url="/?newspack_design_preview"
 						renderButton={ ( { showPreview } ) => (
-							<Button onClick={ () => saveSettings().then( showPreview ) } isSecondary>
-								{ __( 'Preview Site', 'newspack' ) }
-							</Button>
+							<ButtonCard
+								onClick={ () => saveSettings().then( showPreview ) }
+								title={ __( 'Preview', 'newspack' ) }
+								desc={ __( 'See how your site looks like', 'newspack' ) }
+								chevron
+								isSmall
+							/>
 						) }
 					/>
 				</div>
 			) }
 			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( {
-					onClick: () => saveSettings().then( onSave ),
-					children: buttonText || __( 'Save', 'newspack' ),
-				} ) }
+				{ renderPrimaryButton(
+					isPartOfSetup
+						? {
+								onClick: () => saveSettings().then( finishSetup ),
+								children: __( 'Finish', 'newspack' ),
+						  }
+						: {
+								onClick: () => saveSettings(),
+								children: __( 'Save', 'newspack' ),
+						  }
+				) }
 			</div>
 		</Card>
 	);
