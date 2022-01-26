@@ -168,11 +168,14 @@ class AdvertisingWizard extends Component {
 										'Configure the Google Ad Manager Ad Units for your site',
 										'newspack'
 									) }
+									toggleService={ this.toggleService }
 									adUnits={ adUnits }
 									service={ 'google_ad_manager' }
 									serviceData={ services.google_ad_manager }
 									onDelete={ id => this.deleteAdUnit( id ) }
-									buttonText={ __( 'Add New Ad Unit', 'newspack' ) }
+									buttonText={
+										services.google_ad_manager.enabled ? __( 'Add New Ad Unit', 'newspack' ) : null
+									}
 									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
 									wizardApiFetch={ wizardApiFetch }
 									fetchAdvertisingData={ this.fetchAdvertisingData }

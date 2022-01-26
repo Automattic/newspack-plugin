@@ -46,6 +46,7 @@ const AdUnits = ( {
 	updateWithAPI,
 	service,
 	serviceData,
+	toggleService,
 	fetchAdvertisingData,
 } ) => {
 	const gamErrorMessage = serviceData?.status?.error
@@ -80,7 +81,34 @@ const AdUnits = ( {
 
 	return (
 		<>
-			{ ! isLegacy && networkCode && (
+			<ActionCard
+				title={ __( 'Google Ad Manager' ) }
+				description={ __(
+					'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements.'
+				) }
+				toggle
+				toggleChecked={ serviceData && serviceData.enabled }
+				toggleOnChange={ value => toggleService( 'google_ad_manager', value ) }
+				titleLink={ serviceData ? '#/google_ad_manager' : null }
+				href={ serviceData && '#/google_ad_manager' }
+				notification={
+					serviceData.status.error
+						? [ serviceData.status.error ]
+						: serviceData.created_targeting_keys?.length > 0 && [
+								__( 'Created custom targeting keys:' ) + '\u00A0',
+								serviceData.created_targeting_keys.join( ', ' ) + '. \u00A0',
+								// eslint-disable-next-line react/jsx-indent
+								<ExternalLink
+									href={ `https://admanager.google.com/${ serviceData.network_code }#inventory/custom_targeting/list` }
+									key="google-ad-manager-custom-targeting-link"
+								>
+									{ __( 'Visit your GAM dashboard' ) }
+								</ExternalLink>,
+						  ]
+				}
+				notificationLevel={ serviceData.created_targeting_keys?.length ? 'success' : 'error' }
+			/>
+			{ ! isLegacy && networkCode && serviceData.enabled && (
 				<SelectControl
 					label={ __( 'Connected GAM network code', 'newspack' ) }
 					value={ networkCode }
@@ -116,7 +144,7 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
-			{ isLegacy && (
+			{ isLegacy && serviceData.enabled && (
 				<>
 					{ ( can_use_service_account || can_use_oauth ) && (
 						<Notice
@@ -139,84 +167,88 @@ const AdUnits = ( {
 					</div>
 				</>
 			) }
-			<p>
-				{ __(
-					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
-					'newspack'
-				) }
-				<br />
-				{ __(
-					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
-					'newspack'
-				) }
-			</p>
-			<Card noBorder>
-				{ Object.values( adUnits )
-					.filter( adUnit => adUnit.id !== 0 )
-					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
-					.sort( a => ( a.is_legacy ? 1 : -1 ) )
-					.map( adUnit => {
-						const editLink = `#${ service }/${ adUnit.id }`;
-						const buttonProps = {
-							isQuaternary: true,
-							isSmall: true,
-							tooltipPosition: 'bottom center',
-						};
-						return (
-							<ActionCard
-								key={ adUnit.id }
-								title={ adUnit.name }
-								isSmall
-								titleLink={ editLink }
-								className="mv0"
-								{ ...( adUnit.is_legacy
-									? {}
-									: {
-											toggleChecked: adUnit.status === 'ACTIVE',
-											toggleOnChange: value => {
-												adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
-												updateAdUnit( adUnit );
-											},
-									  } ) }
-								description={ () => (
-									<span>
-										{ adUnit.is_legacy ? (
-											<>
-												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
-											</>
-										) : null }
-										{ __( 'Sizes:', 'newspack' ) }{ ' ' }
-										{ adUnit.sizes.map( ( size, i ) => (
-											<code key={ i }>{ size.join( 'x' ) }</code>
-										) ) }
-										{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
-									</span>
-								) }
-								actionText={
-									<div className="flex items-center">
-										<Button
-											href={ editLink }
-											icon={ pencil }
-											label={ __( 'Edit Ad Unit', 'newspack' ) }
-											{ ...buttonProps }
-										/>
-										<Button
-											onClick={ () => onDelete( adUnit.id ) }
-											icon={ archive }
-											label={ __( 'Archive Ad Unit', 'newspack' ) }
-											{ ...buttonProps }
-										/>
-									</div>
-								}
-							/>
-						);
-					} ) }
-			</Card>
-			{ can_use_service_account && connection_mode !== 'oauth' && (
-				<ServiceAccountConnection
-					updateWithAPI={ updateWithAPI }
-					isConnected={ serviceData.status.connected }
-				/>
+			{ serviceData.enabled && (
+				<>
+					<p>
+						{ __(
+							'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
+							'newspack'
+						) }
+						<br />
+						{ __(
+							'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
+							'newspack'
+						) }
+					</p>
+					<Card noBorder>
+						{ Object.values( adUnits )
+							.filter( adUnit => adUnit.id !== 0 )
+							.sort( ( a, b ) => b.name.localeCompare( a.name ) )
+							.sort( a => ( a.is_legacy ? 1 : -1 ) )
+							.map( adUnit => {
+								const editLink = `#${ service }/${ adUnit.id }`;
+								const buttonProps = {
+									isQuaternary: true,
+									isSmall: true,
+									tooltipPosition: 'bottom center',
+								};
+								return (
+									<ActionCard
+										key={ adUnit.id }
+										title={ adUnit.name }
+										isSmall
+										titleLink={ editLink }
+										className="mv0"
+										{ ...( adUnit.is_legacy
+											? {}
+											: {
+													toggleChecked: adUnit.status === 'ACTIVE',
+													toggleOnChange: value => {
+														adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
+														updateAdUnit( adUnit );
+													},
+											  } ) }
+										description={ () => (
+											<span>
+												{ adUnit.is_legacy ? (
+													<>
+														<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
+													</>
+												) : null }
+												{ __( 'Sizes:', 'newspack' ) }{ ' ' }
+												{ adUnit.sizes.map( ( size, i ) => (
+													<code key={ i }>{ size.join( 'x' ) }</code>
+												) ) }
+												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
+											</span>
+										) }
+										actionText={
+											<div className="flex items-center">
+												<Button
+													href={ editLink }
+													icon={ pencil }
+													label={ __( 'Edit Ad Unit', 'newspack' ) }
+													{ ...buttonProps }
+												/>
+												<Button
+													onClick={ () => onDelete( adUnit.id ) }
+													icon={ archive }
+													label={ __( 'Archive Ad Unit', 'newspack' ) }
+													{ ...buttonProps }
+												/>
+											</div>
+										}
+									/>
+								);
+							} ) }
+					</Card>
+					{ can_use_service_account && connection_mode !== 'oauth' && (
+						<ServiceAccountConnection
+							updateWithAPI={ updateWithAPI }
+							isConnected={ serviceData.status.connected }
+						/>
+					) }
+				</>
 			) }
 		</>
 	);
