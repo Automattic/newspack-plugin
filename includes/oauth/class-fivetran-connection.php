@@ -40,12 +40,15 @@ class Fivetran_Connection {
 				'callback'            => [ $this, 'api_modify_connector' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'connector_id' => [
+					'connector_id'  => [
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'paused'       => [
+					'paused'        => [
 						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
+					'schema_status' => [
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -96,7 +99,14 @@ class Fivetran_Connection {
 	 */
 	public static function api_get_fivetran_connection_status() {
 		$url                 = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
-		$connections_stauses = self::process_proxy_response( \wp_safe_remote_get( $url ) );
+		$connections_stauses = self::process_proxy_response(
+			\wp_safe_remote_get(
+				$url,
+				[
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+				]
+			)
+		);
 		if ( is_wp_error( $connections_stauses ) ) {
 			return new WP_Error(
 				'newspack_connections_fivetran',
@@ -154,36 +164,33 @@ class Fivetran_Connection {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public static function api_modify_connector( $request ) {
-		$payload = [];
-		if ( null !== $request->get_param( 'paused' ) ) {
-			$payload['paused'] = $request->get_param( 'paused' );
-		}
-		if ( ! empty( $payload ) ) {
-			$url      = OAuth::authenticate_proxy_url(
-				'fivetran',
-				'/wp-json/newspack-fivetran/v1/connector',
+		$payload  = [
+			'paused'        => $request->get_param( 'paused' ),
+			'schema_status' => $request->get_param( 'schema_status' ),
+		];
+		$url      = OAuth::authenticate_proxy_url(
+			'fivetran',
+			'/wp-json/newspack-fivetran/v1/connector',
+			[
+				'connector_id' => $request->get_param( 'connector_id' ),
+			]
+		);
+		$response = self::process_proxy_response(
+			\wp_safe_remote_post(
+				$url,
 				[
-					'connector_id' => $request->get_param( 'connector_id' ),
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+					'headers' => [
+						'Content-Type' => 'application/json',
+					],
+					'body'    => wp_json_encode( $payload ),
 				]
-			);
-			$response = self::process_proxy_response(
-				\wp_safe_remote_post(
-					$url,
-					[
-						'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-						'headers' => [
-							'Content-Type' => 'application/json',
-						],
-						'body'    => wp_json_encode( $payload ),
-					]
-				)
-			);
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-			return \rest_ensure_response( $response );
+			)
+		);
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
-		\rest_ensure_response( [] );
+		return \rest_ensure_response( $response );
 	}
 
 	/**
@@ -217,8 +224,10 @@ class Fivetran_Connection {
 		if ( 400 <= $result['response']['code'] ) {
 			$error_body   = json_decode( $result['body'] );
 			$error_prefix = __( 'Fivetran proxy error', 'newspack' );
-			if ( property_exists( $error_body, 'message' ) ) {
+			if ( null !== $error_body && property_exists( $error_body, 'message' ) ) {
 				$error_message = $error_prefix . ': ' . $error_body->message;
+			} elseif ( null !== $error_body && property_exists( $error_body, 'data' ) ) {
+				$error_message = $error_prefix . ': ' . wp_json_encode( $error_body->data );
 			} else {
 				$error_message = $error_prefix;
 			}
