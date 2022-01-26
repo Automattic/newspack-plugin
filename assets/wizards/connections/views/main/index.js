@@ -41,7 +41,11 @@ const Main = () => {
 			{ newspack_connections_data.can_connect_fivetran && (
 				<>
 					<SectionHeader title="Fivetran" />
-					<FivetranConnection setError={ setError } />
+					<FivetranConnection
+						isResolvingAuth={ isResolvingAuth }
+						setIsResolvingAuth={ setIsResolvingAuth }
+						setError={ setError }
+					/>
 				</>
 			) }
 		</>
