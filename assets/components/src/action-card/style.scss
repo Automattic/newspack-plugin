@@ -160,6 +160,27 @@
 		}
 	}
 
+	// Indent
+
+	&.newspack-card--indent {
+		margin-left: 56px;
+		position: relative;
+
+		&::before {
+			border: 0 solid $gray-300;
+			border-left-width: 1px;
+			border-bottom-width: 1px;
+			border-radius: 0 0 0 3px;
+			bottom: 50%;
+			content: '';
+			display: block;
+			left: -28px;
+			position: absolute;
+			right: 100%;
+			top: -17px;
+		}
+	}
+
 	// Typography
 
 	h2,

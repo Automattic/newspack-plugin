@@ -30,10 +30,35 @@ class Salesforce {
 	];
 
 	/**
+	 * If this site is a duplicate (staging or dev clone) site,
+	 * don't handle webhooks which communicate with external services.
+	 *
+	 * @var boolean
+	 */
+	protected static $is_duplicate_site = false;
+
+	/**
 	 * Add hooks.
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+		add_filter( 'woocommerce_subscriptions_is_duplicate_site', [ __CLASS__, 'check_duplicate_site_status' ], 999 );
+	}
+
+	/**
+	 * Uses WooCommerce Subscription's check to determine whether this site is a duplicate/clone site.
+	 * https://github.com/woocommerce/woocommerce-subscriptions/blob/master/woocommerce-subscriptions.php#L1132
+	 *
+	 * @param boolean $is_duplicate True if the site is a duplicate site, false if the site is the production site.
+	 *
+	 * @return boolean The filtered value.
+	 */
+	public static function check_duplicate_site_status( $is_duplicate ) {
+		if ( $is_duplicate ) {
+			self::$is_duplicate_site = true;
+		}
+
+		return $is_duplicate;
 	}
 
 	/**
@@ -447,6 +472,14 @@ class Salesforce {
 	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
 	 */
 	public static function api_sync_salesforce( $request ) {
+		// Bail early if we're not on a production site.
+		if ( self::$is_duplicate_site ) {
+			return new \WP_Error(
+				'newspack_salesforce_duplicate_site',
+				__( 'This site is a staging or development clone. Third-party syncs will not be processed.', 'newspack' )
+			);
+		}
+
 		$args          = $request->get_params();
 		$order_details = self::parse_wc_order_data( $args );
 

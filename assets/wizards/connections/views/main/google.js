@@ -128,7 +128,7 @@ const GoogleOAuth = ( { setError } ) => {
 	return (
 		<ActionCard
 			title={ __( 'Google', 'newspack' ) }
-			description={ getDescription() }
+			description={ `${ __( 'Status:', 'newspack' ) } ${ getDescription() }` }
 			checkbox={ isConnected ? 'checked' : 'unchecked' }
 			actionText={
 				<Button
