@@ -21,6 +21,7 @@ class Patches {
 		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
+		add_action( 'template_redirect', [ __CLASS__, 'maybe_display_author_page' ] );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
@@ -155,6 +156,75 @@ class Patches {
 		}
 
 		return $caps;
+	}
+
+	/**
+	 * Mimic the "Page not found" document title for 404 pages.
+	 *
+	 * @param string $title Page title.
+	 * @param string $sep Document title separator character. Default '-'.
+	 * @param string $seplocation Location of the separator (left or right). Default 'left'.
+	 *
+	 * @return string Filtered page title.
+	 */
+	public static function set_page_not_found_title( $title, $sep = '-', $seplocation = '' ) {
+		$title_parts = [
+			__( 'Page not found', 'newspack' ),
+			$sep,
+			get_bloginfo( 'name' ),
+		];
+
+		if ( 'right' === $seplocation ) {
+			$title_parts = array_reverse( $title_parts );
+		}
+
+		return implode( ' ', $title_parts );
+	}
+
+	/**
+	 * Force author pages for non-valid author roles to 404.
+	 * Prevents author pages for users like subscribers and donors from being publicly accessible.
+	 */
+	public static function maybe_display_author_page() {
+		if ( ! is_author() ) {
+			return;
+		}
+
+		$queried_object = get_queried_object();
+		$user_roles     = isset( $queried_object->roles ) ? $queried_object->roles : null;
+
+		if ( is_array( $user_roles ) ) {
+			/**
+			 * Filter to add/remove the default user roles that are allowed to have public author archives.
+			 *
+			 * @param array $allowed_user_roles Array of WP user roles that can have author archives,
+			 */
+			$allowed_user_roles = apply_filters(
+				'newspack_user_roles_with_author_archives',
+				[
+					'administrator',
+					'editor',
+					'author',
+					'contributor',
+				]
+			);
+
+			// Sometimes, authors who leave a publication are set to be subscribers. We still want those authors to have archives.
+			$has_no_posts = function_exists( 'wpcom_vip_count_user_posts' ) ?
+				wpcom_vip_count_user_posts( $queried_object->ID ) :
+				count_user_posts( $queried_object->ID ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.count_user_posts_count_user_posts
+
+			if ( 0 === $has_no_posts && 0 === count( array_intersect( $user_roles, $allowed_user_roles ) ) ) {
+				// Replace document title with 'Page not found'.
+				add_filter( 'wp_title', [ __CLASS__, 'set_page_not_found_title' ], 10, 3 );
+				add_filter( 'wpseo_title', [ __CLASS__, 'set_page_not_found_title' ] );
+
+				status_header( 404 );
+				nocache_headers();
+				include get_query_template( '404' );
+				die();
+			}
+		}
 	}
 }
 Patches::init();
