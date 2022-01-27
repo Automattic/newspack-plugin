@@ -21,7 +21,7 @@ class Patches {
 		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
-		add_action( 'template_redirect', [ __CLASS__, 'maybe_display_author_page' ] );
+		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
@@ -184,16 +184,23 @@ class Patches {
 	/**
 	 * Force author pages for non-valid author roles to 404.
 	 * Prevents author pages for users like subscribers and donors from being publicly accessible.
+	 *
+	 * @param WP_Query $query The WP query object.
 	 */
-	public static function maybe_display_author_page() {
-		if ( ! is_author() ) {
+	public static function maybe_display_author_page( $query ) {
+		if ( $query->is_admin() || ! $query->is_main_query() || ! $query->is_author() ) {
 			return;
 		}
 
-		$queried_object = get_queried_object();
-		$user_roles     = isset( $queried_object->roles ) ? $queried_object->roles : null;
+		$author_name = $query->query_vars['author_name'];
+		$user        = get_user_by( 'login', $author_name );
 
-		if ( is_array( $user_roles ) ) {
+		// For CAP guest authors, $user will be false.
+		if ( ! $user || ! isset( $user->roles ) ) {
+			return;
+		}
+
+		if ( is_array( $user->roles ) ) {
 			/**
 			 * Filter to add/remove the default user roles that are allowed to have public author archives.
 			 *
@@ -210,19 +217,12 @@ class Patches {
 			);
 
 			// Sometimes, authors who leave a publication are set to be subscribers. We still want those authors to have archives.
-			$has_no_posts = function_exists( 'wpcom_vip_count_user_posts' ) ?
-				wpcom_vip_count_user_posts( $queried_object->ID ) :
-				count_user_posts( $queried_object->ID ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.count_user_posts_count_user_posts
+			$has_no_posts = function_exists( '\wpcom_vip_count_user_posts' ) ?
+				0 === (int) \wpcom_vip_count_user_posts( $user->ID, 'post', true ) :
+				0 === (int) count_user_posts( $user->ID, 'post', true ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.count_user_posts_count_user_posts
 
-			if ( 0 === $has_no_posts && 0 === count( array_intersect( $user_roles, $allowed_user_roles ) ) ) {
-				// Replace document title with 'Page not found'.
-				add_filter( 'wp_title', [ __CLASS__, 'set_page_not_found_title' ], 10, 3 );
-				add_filter( 'wpseo_title', [ __CLASS__, 'set_page_not_found_title' ] );
-
-				status_header( 404 );
-				nocache_headers();
-				include get_query_template( '404' );
-				die();
+			if ( $has_no_posts && 0 === count( array_intersect( $user->roles, $allowed_user_roles ) ) ) {
+				$query->set_404();
 			}
 		}
 	}
