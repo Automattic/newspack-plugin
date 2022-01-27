@@ -1,3 +1,10 @@
+# [1.73.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.73.0-alpha.1...v1.73.0-alpha.2) (2022-01-27)
+
+
+### Bug Fixes
+
+* force new release ([665559b](https://github.com/Automattic/newspack-plugin/commit/665559b2e431b22b10103bd0bd1734d8e1339d69))
+
 ## [1.72.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.0...v1.72.1-hotfix.1) (2022-01-27)
 
 
