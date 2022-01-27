@@ -159,29 +159,6 @@ class Patches {
 	}
 
 	/**
-	 * Mimic the "Page not found" document title for 404 pages.
-	 *
-	 * @param string $title Page title.
-	 * @param string $sep Document title separator character. Default '-'.
-	 * @param string $seplocation Location of the separator (left or right). Default 'left'.
-	 *
-	 * @return string Filtered page title.
-	 */
-	public static function set_page_not_found_title( $title, $sep = '-', $seplocation = '' ) {
-		$title_parts = [
-			__( 'Page not found', 'newspack' ),
-			$sep,
-			get_bloginfo( 'name' ),
-		];
-
-		if ( 'right' === $seplocation ) {
-			$title_parts = array_reverse( $title_parts );
-		}
-
-		return implode( ' ', $title_parts );
-	}
-
-	/**
 	 * Force author pages for non-valid author roles to 404.
 	 * Prevents author pages for users like subscribers and donors from being publicly accessible.
 	 *
