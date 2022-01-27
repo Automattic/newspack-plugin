@@ -1,3 +1,10 @@
+## [1.72.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.0...v1.72.1-hotfix.1) (2022-01-27)
+
+
+### Bug Fixes
+
+* disable author archive pages for non-staff users ([3ec9fc7](https://github.com/Automattic/newspack-plugin/commit/3ec9fc77fe12d6539560b4939dc9d3897f048935))
+
 # [1.72.0](https://github.com/Automattic/newspack-plugin/compare/v1.71.0...v1.72.0) (2022-01-25)
 
 
