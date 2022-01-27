@@ -47,7 +47,7 @@ class Salesforce {
 
 	/**
 	 * Uses WooCommerce Subscription's check to determine whether this site is a duplicate/clone site.
-	 * https://github.com/woocommerce/-unused-woocommerce-subscriptions/blob/master/woocommerce-subscriptions.php#L1099
+	 * https://github.com/woocommerce/woocommerce-subscriptions/blob/master/woocommerce-subscriptions.php#L1132
 	 *
 	 * @param boolean $is_duplicate True if the site is a duplicate site, false if the site is the production site.
 	 *
