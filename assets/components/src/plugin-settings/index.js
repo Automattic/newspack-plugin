@@ -177,6 +177,7 @@ class PluginSettings extends Component {
 						<SettingsSection
 							key={ sectionKey }
 							disabled={ inFlight }
+							sectionKey={ sectionKey }
 							title={ this.getSectionTitle( sectionKey ) }
 							description={ this.getSectionDescription( sectionKey ) }
 							active={ this.isSectionActive( sectionKey ) }
