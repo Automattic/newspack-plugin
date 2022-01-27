@@ -1,3 +1,15 @@
+# [1.73.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.0...v1.73.0-alpha.1) (2022-01-27)
+
+
+### Features
+
+* **connections-fivetran:** add TOS acceptance ([#1423](https://github.com/Automattic/newspack-plugin/issues/1423)) ([27334d9](https://github.com/Automattic/newspack-plugin/commit/27334d92921251aae0d8be81c1c1bef611f6ffce))
+* display all ESPs during the onboarding ([#1449](https://github.com/Automattic/newspack-plugin/issues/1449)) ([40cb86f](https://github.com/Automattic/newspack-plugin/commit/40cb86fc71ff168d0b2139ce7f99ab8426da7a19))
+* remove integrations from onboarding and add them to connections wizard ([#1453](https://github.com/Automattic/newspack-plugin/issues/1453)) ([053675b](https://github.com/Automattic/newspack-plugin/commit/053675bd70f8dc764f9671d87687863254180dd0))
+* **salesforce:** check duplicate site status and disable syncs if clone ([#1425](https://github.com/Automattic/newspack-plugin/issues/1425)) ([2197c93](https://github.com/Automattic/newspack-plugin/commit/2197c9338fcc375f5b37e7fd307d32d6e3468c96))
+* settings section hooks ([#1378](https://github.com/Automattic/newspack-plugin/issues/1378)) ([0a26533](https://github.com/Automattic/newspack-plugin/commit/0a26533be5361729ddfd649196822ec23b72abe9))
+* update wizard overall design and reinstate sub-header text ([#1457](https://github.com/Automattic/newspack-plugin/issues/1457)) ([29271ab](https://github.com/Automattic/newspack-plugin/commit/29271ab9f802e9ff7591a8cd4e58e34f21fbcfa3))
+
 # [1.72.0](https://github.com/Automattic/newspack-plugin/compare/v1.71.0...v1.72.0) (2022-01-25)
 
 
