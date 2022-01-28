@@ -20,8 +20,11 @@ import { __ } from '@wordpress/i18n';
 import { ActionCard, Grid, Button, TextControl, CheckboxControl, SelectControl } from '../';
 import './style.scss';
 
+const isSelectControl = setting => {
+	return Array.isArray( setting.options ) && setting.options.length;
+};
 const getControlComponent = setting => {
-	if ( Array.isArray( setting.options ) && setting.options.length ) {
+	if ( isSelectControl( setting ) ) {
 		return SelectControl;
 	}
 	switch ( setting.type ) {
@@ -72,6 +75,7 @@ const SettingsSection = props => {
 				label: option.name,
 			} ) ) || null,
 		value: setting.value,
+		multiple: isSelectControl( setting ) && setting.multiple ? true : null,
 		checked: setting.type === 'boolean' ? !! setting.value : null,
 		className: classnames( {
 			'padded-checkbox': setting.type === 'boolean' && ! isSingleLined( index ),
