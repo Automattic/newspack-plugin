@@ -44,14 +44,14 @@ const getConnectionStatus = ( item, connections ) => {
 	const setupState = get( connections, [ item.service, 'setup_state' ] );
 	const syncState = get( connections, [ item.service, 'sync_state' ] );
 	const schemaStatus = get( connections, [ item.service, 'schema_status' ] );
-	const isInitialSyncBeforeSetup = 'blocked_on_capture' === schemaStatus;
+	const isPending = ( schemaStatus && 'ready' !== schemaStatus ) || 'paused' === syncState;
 	let label = '-';
 	if ( setupState ) {
 		if ( 'ready' === schemaStatus ) {
 			label = `${ setupState }, ${ syncState }`;
-		} else if ( isInitialSyncBeforeSetup ) {
+		} else if ( isPending ) {
 			label = `${ setupState }, ${ syncState }. ${ __(
-				'Initial sync is in progress – please check back in a while for the setup to complete.',
+				'Sync is in progress – please check back in a while.',
 				'newspack'
 			) }`;
 		}
@@ -61,7 +61,7 @@ const getConnectionStatus = ( item, connections ) => {
 	return {
 		label,
 		isConnected: setupState === 'connected',
-		isInitialSyncBeforeSetup,
+		isPending,
 	};
 };
 
@@ -131,7 +131,7 @@ const FivetranConnection = ( { setError } ) => {
 						key={ item.service }
 						title={ item.label }
 						description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
-						isPending={ status.isInitialSyncBeforeSetup }
+						isPending={ status.isPending }
 						actionText={
 							<Button disabled={ isDisabled } onClick={ () => createConnection( item ) } isLink>
 								{ status.isConnected
