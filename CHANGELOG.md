@@ -1,3 +1,17 @@
+# [1.73.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.1...v1.73.0-hotfix.1) (2022-01-31)
+
+
+### Features
+
+* settings section hooks ([#1378](https://github.com/Automattic/newspack-plugin/issues/1378)) ([dea6f6f](https://github.com/Automattic/newspack-plugin/commit/dea6f6f85facd964ffe409c47f87b17b4036250b))
+
+## [1.72.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.0...v1.72.1) (2022-01-27)
+
+
+### Bug Fixes
+
+* force new release ([665559b](https://github.com/Automattic/newspack-plugin/commit/665559b2e431b22b10103bd0bd1734d8e1339d69))
+
 ## [1.72.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.0...v1.72.1-hotfix.1) (2022-01-27)
 
 
