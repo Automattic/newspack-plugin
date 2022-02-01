@@ -11,13 +11,14 @@ import { MoneyInput } from '../../components/';
 import { Card, Grid, Button, Notice, ToggleControl, Wizard } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-export const DontationAmounts = ( { data = {} } ) => {
+export const DontationAmounts = () => {
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const {
 		suggestedAmounts = [ 0, 0, 0 ],
 		suggestedAmountUntiered = 0,
 		currencySymbol = '$',
 		tiered = false,
-	} = data;
+	} = wizardData.donation_data || {};
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = path => value =>
 		updateWizardSettings( {
@@ -73,7 +74,7 @@ export const DontationAmounts = ( { data = {} } ) => {
 };
 
 const Donation = () => {
-	const wizardData = Wizard.useWizardData();
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSave = () =>
@@ -108,7 +109,7 @@ const Donation = () => {
 					</Card>
 				) }
 				<Card noBorder>
-					<DontationAmounts data={ wizardData.donation_data } />
+					<DontationAmounts />
 				</Card>
 			</Grid>
 			<div className="newspack-buttons-card">

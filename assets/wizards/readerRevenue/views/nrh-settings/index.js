@@ -11,7 +11,7 @@ import { Grid, TextControl, Wizard, Button } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const NRHSettings = () => {
-	const wizardData = Wizard.useWizardData();
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	const changeHandler = key => value =>
