@@ -89,6 +89,7 @@ class Stripe_Connection {
 			'testPublishableKey' => '',
 			'testSecretKey'      => '',
 			'currency'           => 'USD',
+			'location_code'      => 'US',
 			'newsletter_list_id' => '',
 		];
 	}

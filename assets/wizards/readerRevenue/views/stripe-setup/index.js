@@ -110,6 +110,7 @@ const StripeSetup = () => {
 		platform_data,
 		is_ssl,
 		currency_fields = [],
+		country_state_fields = [],
 	} = Wizard.useWizardData( {} );
 
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -176,6 +177,12 @@ const StripeSetup = () => {
 							value={ data.currency }
 							options={ currency_fields }
 							onChange={ changeHandler( 'currency' ) }
+						/>
+						<SelectControl
+							label={ __( 'Where is your business based?' ) }
+							value={ data.location_code }
+							options={ country_state_fields }
+							onChange={ changeHandler( 'location_code' ) }
 						/>
 					</SettingsCard>
 					<SettingsCard
