@@ -966,13 +966,16 @@ class Salesforce {
 
 		// If the order has opportunity IDs saved in post meta, query using those IDs.
 		// Otherwise, we'll have to query by matching order details.
-		$opportunities   = get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
-		$opportunities   = array_map(
-			function( $opportunity_id ) {
-				return "'$opportunity_id'";
-			},
-			$opportunities
-		);
+		$opportunities = get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
+		if ( is_array( $opportunities ) ) {
+			$opportunities = array_map(
+				function( $opportunity_id ) {
+					return "'$opportunity_id'";
+				},
+				$opportunities
+			);
+		}
+
 		$opportunity_ids = is_array( $opportunities ) && ! empty( $opportunities ) ? implode( ',', $opportunities ) : false;
 
 		$name        = $order_item['Name'];
