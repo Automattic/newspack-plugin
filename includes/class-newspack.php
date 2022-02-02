@@ -211,6 +211,8 @@ final class Newspack {
 	/**
 	 * Load block editor JS for post types that need a custom back button link.
 	 * Lets us programmatically relink the editor's full-screen close button to the page of our choice.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function enqueue_block_editor_assets() {
 		$post_type_mapping = [];
