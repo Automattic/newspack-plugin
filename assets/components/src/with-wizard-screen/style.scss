@@ -55,8 +55,9 @@
 			&:not( .newspack-icon ) {
 				background: $primary-500;
 				left: 50%;
-				margin: -18px 0 0 -18px !important;
+				margin: -28px 0 0 -28px !important;
 				opacity: 0;
+				padding: 10px;
 				position: absolute;
 				top: 50%;
 				transition: opacity 125ms ease-in-out;
