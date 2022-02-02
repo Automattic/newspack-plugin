@@ -117,7 +117,7 @@ class Salesforce {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_get_order_status' ],
-				'permission_callback' => '__return_true',
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
 
@@ -199,11 +199,12 @@ class Salesforce {
 		}
 
 		$settings = self::get_salesforce_settings();
+		Newspack::load_common_assets();
 
 		wp_enqueue_script(
 			'newspack-salesforce-sync-status',
 			Newspack::plugin_url() . '/dist/other-scripts/salesforce.js',
-			[ 'wp-i18n' ],
+			[],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/salesforce.js' ),
 			true
 		);
@@ -215,6 +216,7 @@ class Salesforce {
 				'base_url'       => get_rest_url(),
 				'order_id'       => get_the_id(),
 				'salesforce_url' => $settings['instance_url'],
+				'nonce'          => wp_create_nonce( 'wp_rest' ),
 			]
 		);
 	}

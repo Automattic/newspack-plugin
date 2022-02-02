@@ -3,7 +3,7 @@
 /**
  * WordPress imports.
  */
-const { __ } = wp.i18n;
+import { __ } from '@wordpress/i18n';
 
 ( function () {
 	const statusMarker = document.getElementById( 'newspack-salesforce-sync-status' );
@@ -12,10 +12,15 @@ const { __ } = wp.i18n;
 		base_url: baseUrl,
 		order_id: orderId,
 		salesforce_url: salesforceUrl,
+		nonce,
 	} = newspack_salesforce_data;
 
 	if ( statusMarker ) {
-		fetch( `${ baseUrl }newspack/salesforce/v1/order?orderId=${ orderId }` )
+		fetch( `${ baseUrl }newspack/salesforce/v1/order?orderId=${ orderId }`, {
+			headers: {
+				'X-WP-Nonce': nonce,
+			},
+		} )
 			.then( response => response.json() )
 			.then( opportunityId => {
 				if ( false === opportunityId ) {
