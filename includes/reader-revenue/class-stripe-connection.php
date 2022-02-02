@@ -81,6 +81,10 @@ class Stripe_Connection {
 	 * Get Stripe data blueprint.
 	 */
 	public static function get_default_stripe_data() {
+		// The instance might've used WooCommerce. Read WC's saved settings to
+		// provide more sensible defaults.
+		$wc_country  = get_option( 'woocommerce_default_country', false );
+		$wc_currency = get_option( 'woocommerce_currency', false );
 		return [
 			'enabled'            => false,
 			'testMode'           => false,
@@ -88,8 +92,8 @@ class Stripe_Connection {
 			'secretKey'          => '',
 			'testPublishableKey' => '',
 			'testSecretKey'      => '',
-			'currency'           => 'USD',
-			'location_code'      => 'US',
+			'currency'           => $wc_currency ? $wc_currency : 'USD',
+			'location_code'      => $wc_country ? $wc_country : 'US',
 			'newsletter_list_id' => '',
 		];
 	}
