@@ -11,7 +11,7 @@ import { MoneyInput } from '../../components/';
 import { Card, Grid, Button, Notice, ToggleControl, Wizard } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-export const DontationAmounts = () => {
+export const DonationAmounts = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const {
 		suggestedAmounts = [ 0, 0, 0 ],
@@ -109,7 +109,7 @@ const Donation = () => {
 					</Card>
 				) }
 				<Card noBorder>
-					<DontationAmounts />
+					<DonationAmounts />
 				</Card>
 			</Grid>
 			<div className="newspack-buttons-card">
