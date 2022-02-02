@@ -752,7 +752,13 @@ class Salesforce {
 
 		// If our access token has expired, let's get a refresh token and retry.
 		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
-			$request['headers']['Authorization'] = 'Bearer ' . self::refresh_salesforce_token();
+			$token = self::refresh_salesforce_token();
+
+			if ( is_wp_error( $token ) ) {
+				return $token;
+			}
+
+			$request['headers']['Authorization'] = 'Bearer ' . $token;
 			$response                            = wp_safe_remote_request( $url, $request );
 		}
 
