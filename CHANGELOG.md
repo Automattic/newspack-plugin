@@ -1,4 +1,4 @@
-# [1.73.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.73.0-alpha.2...v1.73.0-alpha.3) (2022-01-31)
+# [1.73.0](https://github.com/Automattic/newspack-plugin/compare/v1.72.1...v1.73.0) (2022-01-31)
 
 
 ### Features
