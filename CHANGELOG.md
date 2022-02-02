@@ -1,3 +1,34 @@
+# [1.74.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.73.0...v1.74.0-hotfix.1) (2022-02-02)
+
+
+### Bug Fixes
+
+* get_salesforce_settings method must be public, not private ([7b8e7b0](https://github.com/Automattic/newspack-plugin/commit/7b8e7b0c1585e5891228349f691d08d82a3221fe))
+* handle error when trying to fetch a refresh token ([cf4b10a](https://github.com/Automattic/newspack-plugin/commit/cf4b10a57c7409717571cb09f6eb6f9a79ab4d2c))
+* handle errors in order admin JS ([5df6992](https://github.com/Automattic/newspack-plugin/commit/5df699267cb73f72af4e7ffb67d15aa67c1ec91f))
+* handle legacy API namespace for webhook handler ([395b52b](https://github.com/Automattic/newspack-plugin/commit/395b52b8527e2ec3872e191f6e45c9e1b1ed31cc))
+* rename unused $data variable ([87963f0](https://github.com/Automattic/newspack-plugin/commit/87963f0c113c9aed720edce950c7f5fa92326ea0))
+* salesforce settings should not be public ([bcde8d4](https://github.com/Automattic/newspack-plugin/commit/bcde8d419304118ec9c93ca87a3d100749651dca))
+* **salesforce:** handle orders that lack newspack_salesforce_opportunities meta ([d5dec93](https://github.com/Automattic/newspack-plugin/commit/d5dec93a32ae6727978172e13fc9f1bbd4c8dc2d))
+* update namespace of order status endpoint ([0f7d8d6](https://github.com/Automattic/newspack-plugin/commit/0f7d8d6d25c3f54015b9a6d8596fe02a9981d9a1))
+* use \rest_ensure_response() to return WP_Errors for API requests ([6d4574c](https://github.com/Automattic/newspack-plugin/commit/6d4574c4722437928a79ce7ae35c4fae678fe3a1))
+
+
+### Features
+
+* add afterFetch/afterUpdate callbacks; allow password input ([93ab2f1](https://github.com/Automattic/newspack-plugin/commit/93ab2f1bfd639d563443b46ae666cec09f4f6201))
+* add WC order action to manually sync orders to Salesforce ([6cdc4db](https://github.com/Automattic/newspack-plugin/commit/6cdc4db10563128340e802cf67de7ecc8ee842b8))
+* display all ESPs during the onboarding ([#1449](https://github.com/Automattic/newspack-plugin/issues/1449)) ([40cb86f](https://github.com/Automattic/newspack-plugin/commit/40cb86fc71ff168d0b2139ce7f99ab8426da7a19))
+* remove integrations from onboarding and add them to connections wizard ([#1453](https://github.com/Automattic/newspack-plugin/issues/1453)) ([053675b](https://github.com/Automattic/newspack-plugin/commit/053675bd70f8dc764f9671d87687863254180dd0))
+* show Salesforce sync status in Order admin page ([86690fe](https://github.com/Automattic/newspack-plugin/commit/86690fe91eae6e9ab47fed94b96f49c6766efce4))
+* update wizard overall design and reinstate sub-header text ([#1457](https://github.com/Automattic/newspack-plugin/issues/1457)) ([29271ab](https://github.com/Automattic/newspack-plugin/commit/29271ab9f802e9ff7591a8cd4e58e34f21fbcfa3))
+
+
+### Performance Improvements
+
+* look up synced opportunities by opportunity ID, if available ([8fe10b8](https://github.com/Automattic/newspack-plugin/commit/8fe10b81b9620c90cb3150a9dfc04708ae3a294f))
+* narrow Opportunity query results by CloseDate ([b9f0319](https://github.com/Automattic/newspack-plugin/commit/b9f031967d7b588b292413124374e9f47c840805))
+
 # [1.73.0](https://github.com/Automattic/newspack-plugin/compare/v1.72.1...v1.73.0) (2022-01-31)
 
 
