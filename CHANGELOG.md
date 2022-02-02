@@ -1,3 +1,10 @@
+# [1.74.0](https://github.com/Automattic/newspack-plugin/compare/v1.73.0...v1.74.0) (2022-02-02)
+
+
+### Features
+
+* **salesforce:** ability to manually sync WC orders to salesforce ([#1485](https://github.com/Automattic/newspack-plugin/issues/1485)) ([be8a062](https://github.com/Automattic/newspack-plugin/commit/be8a0626c6a09fc869caadeee2b8db3e776f1e3a))
+
 # [1.73.0](https://github.com/Automattic/newspack-plugin/compare/v1.72.1...v1.73.0) (2022-01-31)
 
 
