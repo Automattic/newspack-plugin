@@ -2134,7 +2134,7 @@ msgid "Advertising"
 msgstr ""
 
 #: includes/wizards/class-advertising-wizard.php:89
-msgid "Monetize your content through advertising"
+msgid "Monetize your content through ads"
 msgstr ""
 
 #: includes/wizards/class-advertising-wizard.php:98
@@ -2230,15 +2230,15 @@ msgid "2 minutes"
 msgstr ""
 
 #: includes/wizards/class-dashboard.php:61
-msgid "Branding, color, typography, layouts"
+msgid "Customize the look and feel of your site"
 msgstr ""
 
 #: includes/wizards/class-dashboard.php:67
-msgid "Membership, paywall, subscriptions"
+msgid "Generate revenue from your customers"
 msgstr ""
 
 #: includes/wizards/class-dashboard.php:73
-msgid "Content monetization"
+msgid "Monetize your content through ads"
 msgstr ""
 
 #: includes/wizards/class-dashboard.php:79
@@ -2250,7 +2250,7 @@ msgid "Track traffic and activity"
 msgstr ""
 
 #: includes/wizards/class-dashboard.php:91
-msgid "Search engine and social optimization"
+msgid "Configure basic SEO settings"
 msgstr ""
 
 #: includes/wizards/class-dashboard.php:97
@@ -2279,7 +2279,7 @@ msgid "Engagement"
 msgstr ""
 
 #: includes/wizards/class-engagement-wizard.php:66
-msgid "Newsletters, social, commenting, UGC"
+msgid "Newsletters, commenting, social, recirculation"
 msgstr ""
 
 #: includes/wizards/class-engagement-wizard.php:147
@@ -2327,7 +2327,7 @@ msgid "SEO"
 msgstr ""
 
 #: includes/wizards/class-seo-wizard.php:59
-msgid "Search engine and social optimization."
+msgid "Configure basic SEO settings."
 msgstr ""
 
 #: includes/wizards/class-setup-wizard.php:68
@@ -2339,7 +2339,7 @@ msgid "Site Design"
 msgstr ""
 
 #: includes/wizards/class-site-design-wizard.php:50
-msgid "Branding, color, typography, layouts."
+msgid "Customize the look and feel of your site."
 msgstr ""
 
 #: includes/wizards/class-site-design-wizard.php:59

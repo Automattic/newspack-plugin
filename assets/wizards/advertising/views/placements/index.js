@@ -25,7 +25,6 @@ import {
 	Modal,
 	Card,
 	Notice,
-	SectionHeader,
 	Button,
 	withWizardScreen,
 } from '../../../../components/src';
@@ -124,22 +123,6 @@ const Placements = ( { adUnits } ) => {
 
 	return (
 		<Fragment>
-			<SectionHeader
-				title={ __( 'Ad Placements', 'newspack' ) }
-				description={ () => (
-					<>
-						{ __(
-							'Define global advertising placements to serve ad units on your site',
-							'newspack'
-						) }
-						<br />
-						{ __(
-							'Enable the individual pre-defined ad placements to select which ads to serve',
-							'newspack'
-						) }
-					</>
-				) }
-			/>
 			<div
 				className={ classnames( {
 					'newspack-wizard-ads-placements': true,

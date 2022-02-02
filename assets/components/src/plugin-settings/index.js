@@ -166,10 +166,10 @@ class PluginSettings extends Component {
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
-				<SectionHeader title={ title } description={ description } />
+				{ title && <SectionHeader title={ title } description={ description } /> }
 				{ error && <Notice isError noticeText={ error.message } /> }
 				<div
-					className={ classnames( {
+					className={ classnames( 'newspack-plugin-settings', {
 						'newspack-wizard-section__is-loading': inFlight && ! Object.keys( settings ).length,
 					} ) }
 				>
