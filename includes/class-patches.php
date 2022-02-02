@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Automattic\Jetpack\Search\Helper as JetpackSearchHelper;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -25,6 +27,60 @@ class Patches {
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
+
+		// Jetpack Modules AMP Plus.
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jetpack_modules_amp_plus' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'inject_jetpack_search_options_amp_plus' ] );
+	}
+
+	/**
+	 * Enable AMP Plus for Jetpack Modules.
+	 */
+	public static function jetpack_modules_amp_plus() {
+		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
+			return false;
+		}
+		$modules_scripts_handles = [
+			'jetpack-instant-search', // Jetpack Instant Search.
+			'jp-tracks',              // Tracks analytics library.
+			'wp-i18n',                // Jetpack Instant Search dependency.
+		];
+		add_filter(
+			'script_loader_tag',
+			function( $tag, $handle, $src ) use ( $modules_scripts_handles ) {
+				if ( in_array( $handle, $modules_scripts_handles, true ) ) {
+					return '<script data-amp-plus-allowed async src="' . $src . '"></script>';
+				}
+				return $tag;
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Reinject Jetpack Instant Search options with AMP Plus enabled.
+	 *
+	 * Jetpack uses `wp_add_inline_script()`, which does not allow for custom tag
+	 * attributes, so we have to inject it ourselves.
+	 * See https://github.com/Automattic/jetpack/blob/ced14b36bcdb8219775342dcdb5c69952f485c75/projects/packages/search/src/instant-search/class-instant-search.php#L102-L109.
+	 */
+	public static function inject_jetpack_search_options_amp_plus() {
+		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
+			return;
+		}
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return;
+		}
+		if ( ! \Jetpack::is_module_active( 'search' ) ) {
+			return;
+		}
+		$options = JetpackSearchHelper::generate_initial_javascript_state();
+		?>
+		<script type="text/javascript" data-amp-plus-allowed>
+			var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("<?php echo rawurlencode( wp_json_encode( $options ) ); ?>"));
+		</script>
+		<?php
 	}
 
 	/**
