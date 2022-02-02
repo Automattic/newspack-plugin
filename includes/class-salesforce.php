@@ -117,7 +117,9 @@ class Salesforce {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_get_order_status' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'permission_callback' => function() {
+					return current_user_can( 'edit_others_shop_orders' );
+				},
 			]
 		);
 
