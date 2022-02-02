@@ -74,8 +74,8 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 								);
 							default:
 								return (
-									<Grid columns={ 1 } gutter={ '0' }>
-										<TextControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+									<Grid columns={ 1 } gutter={ '0' } key={ setting.key }>
+										<TextControl { ...getSettingProps( setting.key ) } />
 										{ setting.help && setting.helpURL && (
 											<p>
 												<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
