@@ -34,6 +34,10 @@ class Salesforce {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'register_admin_scripts' ] );
+		add_action( 'woocommerce_order_actions_start', [ __CLASS__, 'wc_order_show_sync_status' ] );
+		add_filter( 'woocommerce_order_actions', [ __CLASS__, 'wc_order_manual_sync' ] );
+		add_action( 'woocommerce_order_action_newspack_sync_order_to_salesforce', [ __CLASS__, 'wc_order_manual_sync_action' ] );
 	}
 
 	/**
@@ -106,6 +110,17 @@ class Salesforce {
 			]
 		);
 
+		// Fetch order sync status.
+		register_rest_route(
+			self::SALESFORCE_API_NAMESPACE,
+			'/order',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_order_status' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+
 		// Handle WooCommerce webhook to sync with Salesforce.
 		register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
@@ -171,6 +186,35 @@ class Salesforce {
 			esc_html__( 'Invalid webhook request.', 'newspack' ),
 			[
 				'status' => 403,
+			]
+		);
+	}
+
+	/**
+	 * Register admin scripts for Salesforce functionality.
+	 */
+	public static function register_admin_scripts() {
+		if ( 'shop_order' !== get_post_type() ) {
+			return;
+		}
+
+		$settings = self::get_salesforce_settings();
+
+		wp_enqueue_script(
+			'newspack-salesforce-sync-status',
+			Newspack::plugin_url() . '/dist/other-scripts/salesforce.js',
+			[ 'wp-i18n' ],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/salesforce.js' ),
+			true
+		);
+
+		wp_localize_script(
+			'newspack-salesforce-sync-status',
+			'newspack_salesforce_data',
+			[
+				'base_url'       => get_rest_url(),
+				'order_id'       => get_the_id(),
+				'salesforce_url' => $settings['instance_url'],
 			]
 		);
 	}
@@ -290,7 +334,7 @@ class Salesforce {
 	/**
 	 * API endpoint for checking validity of a Salesforce refresh token.
 	 *
-	 * @throws \Exception Error message.
+	 * @throws \WP_Error Error message.
 	 * @return WP_REST_Response with the active status.
 	 */
 	public static function api_check_salesforce_connection_status() {
@@ -399,7 +443,7 @@ class Salesforce {
 	 * API endpoint for getting Salesforce API tokens.
 	 *
 	 * @param WP_REST_Request $request Request containing settings.
-	 * @throws \Exception Error message.
+	 * @throws \WP_Error Error message.
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public static function api_get_salesforce_tokens( $request ) {
@@ -408,7 +452,10 @@ class Salesforce {
 
 		// Must have a valid API key and secret.
 		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
-			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+			throw new \WP_Error(
+				'newspack_salesforce_invalid_credentials',
+				__( 'Invalid Consumer Key or Secret.', 'newspack' )
+			);
 		}
 
 		// Hit Salesforce OAuth endpoint to request API tokens.
@@ -427,7 +474,16 @@ class Salesforce {
 
 		$response_body = json_decode( $salesforce_response['body'] );
 
-		if ( ! empty( $response_body->access_token ) && ! empty( $response_body->refresh_token ) ) {
+		// If we're not issued an access or refresh token, the connection is broken and the user needs to reconnect.
+		if ( empty( $response_body->access_token ) || empty( $response_body->refresh_token ) ) {
+			self::set_salesforce_settings( [ 'refresh_token' => '' ] );
+			return \rest_ensure_response(
+				new \WP_Error(
+					'newspack_salesforce_invalid_connection',
+					__( 'Could not verify the Salesforce connected app. Please check your Consumer Key and Secret and try connecting again.', 'newspack' )
+				)
+			);
+		} else {
 			$update_args = wp_parse_args( $response_body, $settings );
 
 			// Save tokens.
@@ -447,8 +503,53 @@ class Salesforce {
 	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
 	 */
 	public static function api_sync_salesforce( $request ) {
-		$args          = $request->get_params();
-		$order_details = self::parse_wc_order_data( $args );
+		$args     = $request->get_params();
+		$response = self::sync_salesforce( $args );
+		$order_id = isset( $args['id'] ) ? $args['id'] : 0;
+		$order    = \wc_get_order( $order_id );
+
+		if ( is_wp_error( $response ) ) {
+			$order->add_order_note(
+				sprintf(
+					// Translators: Note added to order when sync is unsuccessful.
+					__( 'Error syncing order to Salesforce. %s' ),
+					$response->get_error_message()
+				)
+			);
+		} else {
+			$order->add_order_note( __( 'Order successfully synced to Salesforce.', 'newspack' ) );
+		}
+
+		return \rest_ensure_response( $response );
+	}
+
+	/**
+	 * API request handler for fetching sync status for a given order.
+	 *
+	 * @param WP_REST_Request $request Request containing webhook.
+	 * @return WP_REST_Response|WP_Error The response from Salesforce, or WP_Error.
+	 */
+	public static function api_get_order_status( $request ) {
+		$order_id       = $request->get_param( 'orderId' );
+		$opportunity_id = self::get_opportunity_by_order_id( $order_id );
+
+		if ( is_wp_error( $opportunity_id ) ) {
+			return false;
+		}
+
+		return \rest_ensure_response( $opportunity_id );
+	}
+
+	/**
+	 * Given raw order data or an WC_Order instance, sync the data to Salesforce.
+	 *
+	 * @param array|WC_Order $order Raw order data or WC_Order instance to sync.
+	 *
+	 * @return array|WP_Error Array containing synced contact and opportunity data, or WP_Error.
+	 */
+	private static function sync_salesforce( $order ) {
+		$order_id      = is_a( $order, 'WC_Order' ) ? $order->get_id() : $order['id'];
+		$order_details = self::parse_wc_order_data( $order );
 
 		if ( empty( $order_details ) ) {
 			return \rest_ensure_response(
@@ -524,13 +625,18 @@ class Salesforce {
 		if ( is_array( $orders ) ) {
 			$is_npsp = self::has_field( 'npsp__Primary_Contact__c', 'Opportunity' );
 
-			foreach ( $orders as $order ) {
+			foreach ( $orders as $order_item ) {
 				// Add the NPSP "Primary Contact" field if the Salesforce instance supports it.
 				if ( $is_npsp ) {
-					$order['npsp__Primary_Contact__c'] = $contact_id;
+					$order_item['npsp__Primary_Contact__c'] = $contact_id;
 				}
 
-				$opportunity_response = self::create_opportunity( $order );
+				$existing_opportunity = self::get_opportunity_by_order_id( $order_id, $order_item );
+				if ( $existing_opportunity ) {
+					$opportunity_response = self::update_opportunity( $existing_opportunity, $order_item );
+				} else {
+					$opportunity_response = self::create_opportunity( $order_item );
+				}
 
 				if ( is_wp_error( $opportunity_response ) ) {
 					return \rest_ensure_response(
@@ -541,21 +647,25 @@ class Salesforce {
 					);
 				}
 
-				$opportunity_id = $opportunity_response->id;
-
+				$opportunity_id = isset( $opportunity_response->id ) ? $opportunity_response->id : $existing_opportunity;
 				if ( ! empty( $opportunity_id ) ) {
-					$opportunities[] = $opportunity_response;
-					self::create_opportunity_contact_role( $opportunity_id, $contact_id );
+					$opportunities[] = $opportunity_id;
+
+					// We only want to create an Opportunity Contact Role if creating a new Opportunity, or changing the customer's email address.
+					if ( ! $existing_opportunity || 0 === $contacts->totalSize ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						self::create_opportunity_contact_role( $opportunity_id, $contact_id );
+					}
 				}
 			}
 		}
 
-		return \rest_ensure_response(
-			[
-				'contact'       => $contact_response,
-				'opportunities' => $opportunities,
-			]
-		);
+		// Save synced opportunity IDs to order as post meta.
+		self::save_opportunity_ids( $order_id, $response['opportunities'] );
+
+		return [
+			'contact'       => $contact_id,
+			'opportunities' => $opportunities,
+		];
 	}
 
 	/**
@@ -597,6 +707,17 @@ class Salesforce {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Helper function to determine whether the site has been previously connected to Salesforce via OAuth.
+	 * This helper doesn't check whether the connection is still valid, it just checks that we have the necessary credentials for a connection.
+	 *
+	 * @return boolean True if we have credentials, false otherwise.
+	 */
+	private static function is_connected() {
+		$settings = self::get_salesforce_settings();
+		return ! empty( $settings['client_id'] ) && ! empty( $settings['client_secret'] ) && ! empty( $settings['refresh_token'] );
 	}
 
 	/**
@@ -766,12 +887,17 @@ class Salesforce {
 		$orders  = [];
 
 		// Parse billing contact info from WooCommerce.
-		$contact['Email']             = $order->get_billing_email();
-		$contact['FirstName']         = $order->get_billing_first_name();
-		$contact['LastName']          = $order->get_billing_last_name();
-		$contact['HomePhone']         = $order->get_billing_phone();
-		$contact['MailingStreet']     = $order->get_billing_address_1();
-		$contact['MailingStreet']    .= "\n" . $order->get_billing_address_2();
+		$contact['Email']         = $order->get_billing_email();
+		$contact['FirstName']     = $order->get_billing_first_name();
+		$contact['LastName']      = $order->get_billing_last_name();
+		$contact['HomePhone']     = $order->get_billing_phone();
+		$contact['MailingStreet'] = $order->get_billing_address_1();
+
+		$billing_address_2 = $order->get_billing_address_2();
+		if ( ! empty( $billing_address_2 ) ) {
+			$contact['MailingStreet'] .= "\n" . $billing_address_2;
+		}
+
 		$contact['MailingCity']       = $order->get_billing_city();
 		$contact['MailingState']      = $order->get_billing_state();
 		$contact['MailingPostalCode'] = $order->get_billing_postcode();
@@ -817,6 +943,69 @@ class Salesforce {
 		}
 
 		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * Given a parsed order object, look up existing Opportunities in Salesforce with a matching order ID.
+	 *
+	 * Because we store the order IDs in the Description field, which isn't queryable in SOQL,
+	 * we need to get all opportunities that might match and then iterate through the results
+	 * to find the one with a matching ID in the Description field, if any.
+	 *
+	 * @param int        $order_id Order ID to look up.
+	 * @param array|null $order_item Order data as parsed by the parse_wc_order_data method.
+	 *                               Will use the order's first line item if not passed.
+	 *
+	 * @return string|boolean Matching opportunity ID, or false if none.
+	 */
+	private static function get_opportunity_by_order_id( $order_id, $order_item = null ) {
+		if ( null === $order_item ) {
+			$order_details = self::parse_wc_order_data( \wc_get_order( $order_id ) );
+			$order_item    = reset( $order_details['orders'] );
+		}
+
+		// If the order has opportunity IDs saved in post meta, query using those IDs.
+		// Otherwise, we'll have to query by matching order details.
+		$opportunities   = get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
+		$opportunities   = array_map(
+			function( $opportunity_id ) {
+				return "'$opportunity_id'";
+			},
+			$opportunities
+		);
+		$opportunity_ids = is_array( $opportunities ) && ! empty( $opportunities ) ? implode( ',', $opportunities ) : false;
+
+		$name        = $order_item['Name'];
+		$amount      = $order_item['Amount'];
+		$description = $order_item['Description'];
+		$close_date  = $order_item['CloseDate'];
+		$query       = $opportunity_ids ?
+			[ 'q' => "SELECT Id, Description FROM Opportunity WHERE Id IN ($opportunity_ids)" ] :
+			[ 'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount AND CloseDate = $close_date" ];
+		$endpoint    = 'services/data/v48.0/query?' . http_build_query( $query );
+		$response    = self::build_request( $endpoint );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$results = json_decode( $response['body'] );
+		if ( 0 === $results->totalSize ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return false;
+		}
+
+		$matching_id = array_reduce(
+			$results->records,
+			function( $acc, $result ) use ( $description ) {
+				if ( $description === $result->Description ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$acc = $result->Id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+				return $acc;
+			},
+			false
+		);
+
+		return $matching_id;
 	}
 
 	/**
@@ -900,6 +1089,19 @@ class Salesforce {
 	}
 
 	/**
+	 * Update an existing Opportunity record by Id with the given data.
+	 * Only the CloseDate and primary contact (if email is changed) will be updated.
+	 *
+	 * @param array $id Unique ID of the record to update in Salesforce.
+	 * @param array $data Attributes and values to update in Salesforce.
+	 * @return int Response code of the update request.
+	 */
+	private static function update_opportunity( $id, $data ) {
+		$endpoint = '/services/data/v48.0/sobjects/Opportunity/' . $id;
+		return self::build_request( $endpoint, 'PATCH', $data );
+	}
+
+	/**
 	 * Create a new opportunity record in Salesforce.
 	 *
 	 * @param array $data Data to use in creating the new opportunity. Keys must be valid Salesforce field names.
@@ -944,7 +1146,7 @@ class Salesforce {
 	/**
 	 * Get a new Salesforce token using a valid refresh token.
 	 *
-	 * @throws \Exception Error message.
+	 * @throws \WP_Error Error message.
 	 * @return string The new access token.
 	 */
 	private static function refresh_salesforce_token() {
@@ -952,12 +1154,18 @@ class Salesforce {
 
 		// Must have a valid API key and secret.
 		if ( empty( $settings['client_id'] ) || empty( $settings['client_secret'] ) ) {
-			throw new \Exception( 'Invalid Consumer Key or Secret.' );
+			throw new \WP_Error(
+				'newspack_salesforce_invalid_credentials',
+				__( 'Invalid Consumer Key or Secret.', 'newspack' )
+			);
 		}
 
 		// Must have a valid refresh token.
 		if ( empty( $settings['refresh_token'] ) ) {
-			throw new \Exception( 'Invalid refresh token.' );
+			throw new \WP_Error(
+				'newspack_salesforce_invalid_connection',
+				__( 'Invalid refresh token.', 'newspack' )
+			);
 		}
 
 		// Hit Salesforce OAuth endpoint to request API tokens.
@@ -989,6 +1197,70 @@ class Salesforce {
 
 			return $response_body->access_token;
 		}
+	}
+
+	/**
+	 * Use WC order actions metabox to display the sync status of this order.
+	 *
+	 * @param int $order_id ID of the order being edited.
+	 */
+	public static function wc_order_show_sync_status( $order_id ) {
+		if ( ! self::is_connected() ) {
+			return;
+		}
+		?>
+		<li class="wide" style="padding-bottom: 1em">
+			<h4 style="margin-bottom: 0.5em;margin-top: 0"><?php echo esc_html__( 'Salesforce sync status', 'newspack' ); ?></h4>
+			<mark id="newspack-salesforce-sync-status" class="order-status"><span><?php echo esc_html__( 'Fetching…', 'newspack' ); ?></span></mark>
+		</li>
+		<?php
+	}
+
+	/**
+	 * Add an action to the WooCommerce order admin page to manually sync orders to Salesforce.
+	 *
+	 * @param array $actions Associative array of order actions.
+	 *
+	 * @return array Filtered array of order actions.
+	 */
+	public static function wc_order_manual_sync( $actions ) {
+		if ( self::is_connected() ) {
+			$actions['newspack_sync_order_to_salesforce'] = __( 'Sync order to Salesforce', 'newspack' );
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Handler to manually sync an order from the WC order admin screen.
+	 *
+	 * @param WC_Order $order Order being edited in the WP dashboard.
+	 */
+	public static function wc_order_manual_sync_action( $order ) {
+		$response = self::sync_salesforce( $order );
+
+		// Add a note on sync failure.
+		if ( is_wp_error( $response ) ) {
+			$order->add_order_note(
+				sprintf(
+					// Translators: Note added to order when sync is unsuccessful.
+					__( 'Error syncing order to Salesforce. %s' ),
+					$response->get_error_message()
+				)
+			);
+		} else {
+			$order->add_order_note( __( 'Order successfully synced to Salesforce.', 'newspack' ) );
+		}
+	}
+
+	/**
+	 * Save the synced opportunity IDs as post meta on the given order.
+	 *
+	 * @param int   $order_id Order ID.
+	 * @param array $opportunities Array of Opportunity IDs from Salesforce.
+	 */
+	private static function save_opportunity_ids( $order_id, $opportunities ) {
+		update_post_meta( $order_id, 'newspack_salesforce_opportunities', $opportunities );
 	}
 }
 
