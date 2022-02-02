@@ -81,10 +81,22 @@ class Stripe_Connection {
 	 * Get Stripe data blueprint.
 	 */
 	public static function get_default_stripe_data() {
+		$location_code = 'US';
+		$currency      = 'USD';
+
 		// The instance might've used WooCommerce. Read WC's saved settings to
 		// provide more sensible defaults.
-		$wc_country  = get_option( 'woocommerce_default_country', false );
-		$wc_currency = get_option( 'woocommerce_currency', false );
+		$wc_country          = get_option( 'woocommerce_default_country', false );
+		$valid_country_codes = wp_list_pluck( newspack_get_countries(), 'value' );
+		if ( in_array( $wc_country, $valid_country_codes ) ) {
+			$location_code = $wc_country;
+		}
+		$wc_currency      = get_option( 'woocommerce_currency', false );
+		$valid_currencies = wp_list_pluck( newspack_get_currencies_options(), 'value' );
+		if ( in_array( $wc_currency, $valid_currencies ) ) {
+			$currency = $wc_currency;
+		}
+
 		return [
 			'enabled'            => false,
 			'testMode'           => false,
@@ -92,8 +104,8 @@ class Stripe_Connection {
 			'secretKey'          => '',
 			'testPublishableKey' => '',
 			'testSecretKey'      => '',
-			'currency'           => $wc_currency ? $wc_currency : 'USD',
-			'location_code'      => $wc_country ? $wc_country : 'US',
+			'currency'           => $currency,
+			'location_code'      => $location_code,
 			'newsletter_list_id' => '',
 		];
 	}
