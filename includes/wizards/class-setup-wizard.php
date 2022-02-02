@@ -17,6 +17,8 @@ define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
  * Setup Newspack.
  */
 class Setup_Wizard extends Wizard {
+	const SERVICE_ENABLED_OPTION_PREFIX = 'newspack_service_enabled_';
+
 	/**
 	 * The slug of this wizard.
 	 *
@@ -510,22 +512,7 @@ class Setup_Wizard extends Wizard {
 	 * @return bool True if the service is enabled.
 	 */
 	private function check_service_enabled( $service_name ) {
-		switch ( $service_name ) {
-			case 'reader-revenue':
-				$rr_wizard = new Reader_Revenue_Wizard();
-				return isset( $rr_wizard->fetch_all_data()['plugin_status'] ) && true === $rr_wizard->fetch_all_data()['plugin_status'];
-			case 'newsletters':
-				$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-				return $newsletters_configuration_manager->is_esp_set_up();
-			case 'google-ad-sense':
-				$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-				return $ads_configuration_manager->is_service_enabled( 'google_adsense' );
-			case 'google-ad-manager':
-				$ads_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
-				return $ads_configuration_manager->is_service_enabled( 'google_ad_manager' );
-			default:
-				return false;
-		}
+		return get_option( self::SERVICE_ENABLED_OPTION_PREFIX . $service_name, false );
 	}
 
 	/**
@@ -575,6 +562,13 @@ class Setup_Wizard extends Wizard {
 		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
 			$service = 'google_ad_manager';
 			update_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
+		}
+
+		$available_services = [ 'newsletters', 'reader-revenue', 'google-ad-sense', 'google-ad-manager' ];
+		foreach ( $available_services as $service_name ) {
+			if ( isset( $request[ $service_name ] ) ) {
+				update_option( self::SERVICE_ENABLED_OPTION_PREFIX . $service_name, $request[ $service_name ]['is_service_enabled'] );
+			}
 		}
 
 		return rest_ensure_response( [] );
