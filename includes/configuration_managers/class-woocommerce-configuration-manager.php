@@ -54,8 +54,12 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		if ( ! function_exists( 'WC' ) ) {
 			return [];
 		}
-		$countries     = WC()->countries->get_countries();
-		$states        = WC()->countries->get_states();
+		$wc_countries = WC()->countries;
+		if ( null == $wc_countries ) {
+			return [];
+		}
+		$countries     = $wc_countries->get_countries();
+		$states        = $wc_countries->get_states();
 		$location_info = [];
 		foreach ( $countries as $country_code => $country ) {
 			if ( ! empty( $states[ $country_code ] ) ) {
