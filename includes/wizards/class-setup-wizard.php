@@ -19,6 +19,16 @@ define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
 class Setup_Wizard extends Wizard {
 	const SERVICE_ENABLED_OPTION_PREFIX = 'newspack_service_enabled_';
 
+	const SERVICE_ENDPOINT_SCHEMA_BASE = [
+		'type'       => 'object',
+		'properties' => [
+			'is_service_enabled' => [
+				'type'     => 'boolean',
+				'required' => true,
+			],
+		],
+	];
+
 	/**
 	 * The slug of this wizard.
 	 *
@@ -179,6 +189,12 @@ class Setup_Wizard extends Wizard {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_services' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'reader-revenue'    => self::SERVICE_ENDPOINT_SCHEMA_BASE,
+					'newsletters'       => self::SERVICE_ENDPOINT_SCHEMA_BASE,
+					'google-ad-sense'   => self::SERVICE_ENDPOINT_SCHEMA_BASE,
+					'google-ad-manager' => self::SERVICE_ENDPOINT_SCHEMA_BASE,
+				],
 			]
 		);
 	}
@@ -512,7 +528,7 @@ class Setup_Wizard extends Wizard {
 	 * @return bool True if the service is enabled.
 	 */
 	private function check_service_enabled( $service_name ) {
-		return get_option( self::SERVICE_ENABLED_OPTION_PREFIX . $service_name, false );
+		return (bool) get_option( self::SERVICE_ENABLED_OPTION_PREFIX . $service_name, false );
 	}
 
 	/**
