@@ -46,6 +46,7 @@ class Patches {
 			'jetpack-instant-search', // Jetpack Instant Search.
 			'jp-tracks',              // Tracks analytics library.
 			'wp-i18n',                // Jetpack Instant Search dependency.
+			'wp-jp-i18n-loader',      // Jetpack i18n dependency.
 			'jetpack-search-widget',  // Jetpack Search widget.
 		];
 		add_filter(
