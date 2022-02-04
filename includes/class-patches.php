@@ -105,8 +105,8 @@ class Patches {
 				if ( ! widgets.length ) {
 					return;
 				}
-				var isSearch      = <?php echo (int) is_search(); ?>,
-					searchQuery     = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' );
+				var isSearch  = <?php echo (int) is_search(); ?>,
+					searchQuery = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' );
 
 				for( var i = 0, len = widgets.length; i < len; i++ ) {
 					var container     = widgets[ i ],
