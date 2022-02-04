@@ -92,6 +92,9 @@ class Patches {
 	 * See https://github.com/Automattic/jetpack/blob/4ef58afbaba5396902194e5af699c9fe3e520318/projects/packages/search/src/widgets/class-search-widget.php#L531-L544.
 	 */
 	public static function jetpack_search_maybe_render_sort_js() {
+		if ( ! class_exists( 'Automattic\\Jetpack\\Search\\Options' ) ) {
+			return;
+		}
 		if ( JetpackSearchOptions::is_instant_enabled() ) {
 			return;
 		}
