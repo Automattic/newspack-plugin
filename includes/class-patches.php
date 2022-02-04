@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Automattic\Jetpack\Search\Helper as JetpackSearchHelper;
+use Automattic\Jetpack\Search\Options as JetpackSearchOptions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -31,6 +32,7 @@ class Patches {
 		// Jetpack Modules AMP Plus.
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jetpack_modules_amp_plus' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_jetpack_search_options_amp_plus' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'jetpack_search_maybe_render_sort_js' ] );
 	}
 
 	/**
@@ -44,6 +46,7 @@ class Patches {
 			'jetpack-instant-search', // Jetpack Instant Search.
 			'jp-tracks',              // Tracks analytics library.
 			'wp-i18n',                // Jetpack Instant Search dependency.
+			'jetpack-search-widget',  // Jetpack Search widget.
 		];
 		add_filter(
 			'script_loader_tag',
@@ -79,6 +82,61 @@ class Patches {
 		?>
 		<script type="text/javascript" data-amp-plus-allowed>
 			var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("<?php echo rawurlencode( wp_json_encode( $options ) ); ?>"));
+		</script>
+		<?php
+	}
+
+	/**
+	 * Renders JavaScript for the sorting controls on the frontend for Jetpack Search Widget.
+	 *
+	 * See https://github.com/Automattic/jetpack/blob/4ef58afbaba5396902194e5af699c9fe3e520318/projects/packages/search/src/widgets/class-search-widget.php#L531-L544.
+	 */
+	public static function jetpack_search_maybe_render_sort_js() {
+		if ( JetpackSearchOptions::is_instant_enabled() ) {
+			return;
+		}
+		?>
+		<script type="text/javascript" data-amp-plus-allowed>
+			var newspackJetpackSearchModuleSorting = function() {
+				var widgets = document.querySelectorAll( '.widget.jetpack-filters.widget_search');
+				if ( ! widgets.length ) {
+					return;
+				}
+				var isSearch      = <?php echo (int) is_search(); ?>,
+					searchQuery     = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' );
+
+				for( var i = 0, len = widgets.length; i < len; i++ ) {
+					var container     = widgets[ i ],
+						form            = container.querySelector( '.jetpack-search-form form' ),
+						orderBy         = form.querySelector( 'input[name=orderby]' ),
+						order           = form.querySelector( 'input[name=order]' ),
+						searchInput     = form.querySelector( 'input[name="s"]' ),
+						sortSelectInput = container.querySelector( '.jetpack-search-sort' );
+
+					var initialValues = sortSelectInput.options[ sortSelectInput.selectedIndex ].value.split( '|' );
+					orderBy.value = initialValues[0];
+					order.value = initialValues[1];
+
+					// Some themes don't set the search query, which results in the query being lost
+					// when doing a sort selection. So, if the query isn't set, let's set it now. This approach
+					// is chosen over running a regex over HTML for every search query performed.
+					if ( isSearch && ! searchInput.value ) {
+						searchInput.value = searchQuery;
+					}
+
+					sortSelectInput.addEventListener( 'change', function( event ) {
+						var values  = event.target.value.split( '|' );
+						orderBy.value = values[0];
+						order.value = values[1];
+						form.submit();
+					} );
+				}
+			}
+			if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
+				newspackJetpackSearchModuleSorting();
+			} else {
+				document.addEventListener( 'DOMContentLoaded', newspackJetpackSearchModuleSorting );
+			}
 		</script>
 		<?php
 	}
