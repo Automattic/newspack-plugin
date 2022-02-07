@@ -22,57 +22,38 @@ class Patches {
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
+		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
-
-		// Jetpack Modules AMP Plus.
-		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
 	}
 
+
 	/**
-	 * Allow Jetpack modules scripts to be loaded in AMP Plus mode.
+	 * Add async/defer support to `wp_script_add_data()`
 	 *
-	 * @param bool|null $is_sanitized If null, the error will be handled. If false, rejected.
-	 * @param object    $error        The AMP sanitisation error.
+	 * See https://github.com/WordPress/WordPress/blob/bab3bdf2df4ea57766793932719665a14c810698/wp-content/themes/twentytwenty/classes/class-twentytwenty-script-loader.php.
 	 *
-	 * @return bool Whether the error should be rejected.
+	 * @link https://core.trac.wordpress.org/ticket/12009
+	 *
+	 * @param string $tag The script tag.
+	 * @param string $handle The script handle.
+	 *
+	 * @return @string Script HTML string.
 	 */
-	public static function jetpack_modules_amp_plus( $is_sanitized, $error ) {
-		$ids   = [
-			'jp-tracks',              // Tracks analytics library.
-			'jetpack-instant-search', // Jetpack Instant Search.
-			'jetpack-search-widget',  // Jetpack Search widget.
-		];
-		$texts = [
-			'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
-			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
-		];
-		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
-			$has_any_id = array_reduce(
-				$ids,
-				function( $carry, $id ) use ( $error ) {
-					return $carry || 0 === strpos( $error['node_attributes']['id'], $id ); // Match starting position so it includes `-after` and `-before` as well.
-				},
-				false
-			);
-			if ( $has_any_id ) {
-				$is_sanitized = false;
+	public static function add_async_defer_support( $tag, $handle ) {
+		foreach ( array( 'async', 'defer' ) as $attr ) {
+			if ( ! wp_scripts()->get_data( $handle, $attr ) ) {
+				continue;
 			}
-		}
-		if ( isset( $error, $error['text'] ) ) {
-			$has_any_text = array_reduce(
-				$texts,
-				function( $carry, $text ) use ( $error ) {
-					return $carry || false !== strpos( $error['text'], $text );
-				},
-				false
-			);
-			if ( $has_any_text ) {
-				$is_sanitized = false;
+			// Prevent adding attribute when already added in #12009.
+			if ( ! preg_match( ":\s$attr(=|>|\s):", $tag ) ) {
+				$tag = preg_replace( ':(?=></script>):', " $attr", $tag, 1 );
 			}
+			// Only allow async or defer, not both.
+			break;
 		}
-		return $is_sanitized;
+		return $tag;
 	}
 	
 	/**
