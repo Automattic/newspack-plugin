@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable import/no-nodejs-modules,no-console */
+/* eslint-disable import/no-nodejs-modules,no-console,@typescript-eslint/no-var-requires */
 
 // find all the packages
 const path = require( 'path' );
