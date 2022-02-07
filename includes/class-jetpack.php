@@ -52,10 +52,6 @@ class Jetpack {
 	 * @return bool Whether the error should be rejected.
 	 */
 	public static function jetpack_modules_amp_plus( $is_sanitized, $error ) {
-		$texts = [
-			'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
-			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
-		];
 		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
 			$has_any_id = array_reduce(
 				self::$scripts_handles,
@@ -68,6 +64,11 @@ class Jetpack {
 				$is_sanitized = false;
 			}
 		}
+		// Match inline scripts by script text since they don't have IDs.
+		$texts = [
+			'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
+			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
+		];
 		if ( isset( $error, $error['text'] ) ) {
 			$has_any_text = array_reduce(
 				$texts,
