@@ -228,7 +228,7 @@ class Setup_Wizard extends Wizard {
 		return rest_ensure_response(
 			[
 				'plugins' => $plugin_info,
-				'is_ssl'  => is_ssl(),
+				'is_ssl'  => is_ssl() || Starter_Content::is_e2e(),
 			]
 		);
 	}
