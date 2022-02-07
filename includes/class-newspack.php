@@ -42,12 +42,12 @@ final class Newspack {
 		$this->includes();
 		add_action( 'admin_init', [ $this, 'admin_redirects' ] );
 		add_action( 'current_screen', [ $this, 'restrict_user_access' ] );
+		add_action( 'current_screen', [ $this, 'wizard_redirect' ] );
 		add_action( 'admin_menu', [ $this, 'handle_resets' ], 1 );
 		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
 		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_editor_assets' ] );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
 
 		// Disable the block-based widget editing altogether until further notice.
@@ -209,44 +209,6 @@ final class Newspack {
 	}
 
 	/**
-	 * Load block editor JS for post types that need a custom back button link.
-	 * Lets us programmatically relink the editor's full-screen close button to the page of our choice.
-	 *
-	 * @codeCoverageIgnore
-	 */
-	public function enqueue_block_editor_assets() {
-		$post_type_mapping = [];
-
-		// Map custom post types to their wizard screen URLs.
-		if ( class_exists( '\Newspack_Popups' ) ) {
-			$post_type_mapping[ \Newspack_Popups::NEWSPACK_POPUPS_CPT ] = esc_url( admin_url( 'admin.php?page=newspack-popups-wizard' ) );
-		}
-
-		$current_post_type = get_post_type();
-		if ( in_array( $current_post_type, array_keys( $post_type_mapping ), true ) ) {
-			self::load_common_assets();
-			$handle = 'newspack-editor';
-			\wp_register_script(
-				$handle,
-				self::plugin_url() . '/dist/other-scripts/editor.js',
-				[],
-				filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/editor.js' ),
-				true
-			);
-
-			\wp_localize_script(
-				$handle,
-				'newspack_editor_data',
-				[
-					'editor_wizard' => $post_type_mapping[ $current_post_type ],
-				]
-			);
-
-			wp_enqueue_script( $handle );
-		}
-	}
-
-	/**
 	 * Activation Hook
 	 */
 	public function activation_hook() {
@@ -279,6 +241,33 @@ final class Newspack {
 				exit;
 			}
 			remove_menu_page( 'plugins.php' );
+		}
+	}
+
+	/**
+	 * Redirect "hidden" admin screens to the corresponding wizard screen.
+	 *
+	 * @param WP_Screen $current_screen Current WP_Screen object.
+	 */
+	public function wizard_redirect( $current_screen ) {
+		$post_type_mapping = [];
+
+		// Map custom post types to their wizard screen URLs.
+		if ( class_exists( '\Newspack_Popups' ) ) {
+			$post_type_mapping[ \Newspack_Popups::NEWSPACK_POPUPS_CPT ] = [
+				'base' => 'edit',
+				'url'  => esc_url( admin_url( 'admin.php?page=newspack-popups-wizard' ) ),
+			];
+		}
+
+		$current_screen_base = $current_screen->base;
+		$current_post_type   = $current_screen->post_type;
+		if (
+			in_array( $current_post_type, array_keys( $post_type_mapping ), true ) &&
+			$post_type_mapping[ $current_post_type ]['base'] === $current_screen_base
+		) {
+			wp_safe_redirect( $post_type_mapping[ $current_post_type ]['url'] );
+			exit;
 		}
 	}
 
