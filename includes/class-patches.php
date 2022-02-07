@@ -7,9 +7,6 @@
 
 namespace Newspack;
 
-use Automattic\Jetpack\Search\Helper as JetpackSearchHelper;
-use Automattic\Jetpack\Search\Options as JetpackSearchOptions;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
