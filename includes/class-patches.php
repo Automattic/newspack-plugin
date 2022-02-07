@@ -30,120 +30,54 @@ class Patches {
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
 
 		// Jetpack Modules AMP Plus.
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jetpack_modules_amp_plus' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'inject_jetpack_search_options_amp_plus' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'jetpack_search_maybe_render_sort_js' ] );
+		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
 	}
 
 	/**
-	 * Enable AMP Plus for Jetpack Modules.
+	 * Allow Jetpack modules scripts to be loaded in AMP Plus mode.
+	 *
+	 * @param bool|null $is_sanitized If null, the error will be handled. If false, rejected.
+	 * @param object    $error        The AMP sanitisation error.
+	 *
+	 * @return bool Whether the error should be rejected.
 	 */
-	public static function jetpack_modules_amp_plus() {
-		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
-			return false;
-		}
-		$modules_scripts_handles = [
-			'jetpack-instant-search', // Jetpack Instant Search.
+	public static function jetpack_modules_amp_plus( $is_sanitized, $error ) {
+		$ids   = [
 			'jp-tracks',              // Tracks analytics library.
-			'wp-i18n',                // Jetpack Instant Search dependency.
+			'jetpack-instant-search', // Jetpack Instant Search.
 			'jetpack-search-widget',  // Jetpack Search widget.
 		];
-		add_filter(
-			'script_loader_tag',
-			function( $tag, $handle, $src ) use ( $modules_scripts_handles ) {
-				if ( in_array( $handle, $modules_scripts_handles, true ) ) {
-					return '<script data-amp-plus-allowed async src="' . $src . '"></script>';
-				}
-				return $tag;
-			},
-			10,
-			3
-		);
-	}
-
-	/**
-	 * Reinject Jetpack Instant Search options with AMP Plus enabled.
-	 *
-	 * Jetpack uses `wp_add_inline_script()`, which does not allow for custom tag
-	 * attributes, so we have to inject it ourselves.
-	 * See https://github.com/Automattic/jetpack/blob/ced14b36bcdb8219775342dcdb5c69952f485c75/projects/packages/search/src/instant-search/class-instant-search.php#L102-L109.
-	 */
-	public static function inject_jetpack_search_options_amp_plus() {
-		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
-			return;
-		}
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return;
-		}
-		if ( ! \Jetpack::is_module_active( 'search' ) ) {
-			return;
-		}
-		$options = JetpackSearchHelper::generate_initial_javascript_state();
-		?>
-		<script type="text/javascript" data-amp-plus-allowed>
-			var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("<?php echo rawurlencode( wp_json_encode( $options ) ); ?>"));
-		</script>
-		<?php
-	}
-
-	/**
-	 * Renders JavaScript for the sorting controls on the frontend for Jetpack Search Widget.
-	 *
-	 * See https://github.com/Automattic/jetpack/blob/4ef58afbaba5396902194e5af699c9fe3e520318/projects/packages/search/src/widgets/class-search-widget.php#L531-L544.
-	 */
-	public static function jetpack_search_maybe_render_sort_js() {
-		if ( ! class_exists( 'Automattic\\Jetpack\\Search\\Options' ) ) {
-			return;
-		}
-		if ( JetpackSearchOptions::is_instant_enabled() ) {
-			return;
-		}
-		?>
-		<script type="text/javascript" data-amp-plus-allowed>
-			var newspackJetpackSearchModuleSorting = function() {
-				var widgets = document.querySelectorAll( '.widget.jetpack-filters.widget_search');
-				if ( ! widgets.length ) {
-					return;
-				}
-				var isSearch  = <?php echo (int) is_search(); ?>,
-					searchQuery = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' );
-
-				for( var i = 0, len = widgets.length; i < len; i++ ) {
-					var container     = widgets[ i ],
-						form            = container.querySelector( '.jetpack-search-form form' ),
-						orderBy         = form.querySelector( 'input[name=orderby]' ),
-						order           = form.querySelector( 'input[name=order]' ),
-						searchInput     = form.querySelector( 'input[name="s"]' ),
-						sortSelectInput = container.querySelector( '.jetpack-search-sort' );
-
-					var initialValues = sortSelectInput.options[ sortSelectInput.selectedIndex ].value.split( '|' );
-					orderBy.value = initialValues[0];
-					order.value = initialValues[1];
-
-					// Some themes don't set the search query, which results in the query being lost
-					// when doing a sort selection. So, if the query isn't set, let's set it now. This approach
-					// is chosen over running a regex over HTML for every search query performed.
-					if ( isSearch && ! searchInput.value ) {
-						searchInput.value = searchQuery;
-					}
-
-					sortSelectInput.addEventListener( 'change', function( event ) {
-						var values  = event.target.value.split( '|' );
-						orderBy.value = values[0];
-						order.value = values[1];
-						form.submit();
-					} );
-				}
+		$texts = [
+			'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
+			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
+		];
+		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
+			$has_any_id = array_reduce(
+				$ids,
+				function( $carry, $id ) use ( $error ) {
+					return $carry || 0 === strpos( $error['node_attributes']['id'], $id ); // Match starting position so it includes `-after` and `-before` as well.
+				},
+				false
+			);
+			if ( $has_any_id ) {
+				$is_sanitized = false;
 			}
-			if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
-				newspackJetpackSearchModuleSorting();
-			} else {
-				document.addEventListener( 'DOMContentLoaded', newspackJetpackSearchModuleSorting );
+		}
+		if ( isset( $error, $error['text'] ) ) {
+			$has_any_text = array_reduce(
+				$texts,
+				function( $carry, $text ) use ( $error ) {
+					return $carry || false !== strpos( $error['text'], $text );
+				},
+				false
+			);
+			if ( $has_any_text ) {
+				$is_sanitized = false;
 			}
-		</script>
-		<?php
+		}
+		return $is_sanitized;
 	}
-
+	
 	/**
 	 * Use the Co-Author in Slack preview metadata instead of the regular post author if needed.
 	 *

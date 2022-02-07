@@ -88,7 +88,7 @@ class AMP_Enhancements {
 		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['data-amp-plus-allowed'] ) ) {
 			return false;
 		}
-		return $is_sanitized;
+		return apply_filters( 'newspack_amp_plus_sanitized', $is_sanitized, $error );
 	}
 }
 AMP_Enhancements::init();
