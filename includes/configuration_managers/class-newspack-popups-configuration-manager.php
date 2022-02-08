@@ -127,11 +127,11 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Set plugin settings.
+	 * Update plugin settings section.
 	 *
 	 * @param object $options options.
 	 */
-	public function set_settings( $options ) {
+	public function update_settings_section( $options ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Settings::update_section( $options ) :
 			$this->unconfigured_error();
