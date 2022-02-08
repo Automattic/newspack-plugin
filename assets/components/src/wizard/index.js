@@ -101,9 +101,11 @@ const Wizard = ( {
 									{ subHeaderText && <span>{ subHeaderText }</span> }
 								</div>
 							</div>
-							{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
 						</div>
 					</div>
+
+					{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
+
 					<Switch>
 						{ displayedSections.map( ( section, index ) => {
 							const SectionComponent = section.render;
