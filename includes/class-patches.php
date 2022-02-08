@@ -22,7 +22,6 @@ class Patches {
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
-		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
