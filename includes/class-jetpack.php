@@ -53,14 +53,14 @@ class Jetpack {
 	 */
 	public static function jetpack_modules_amp_plus( $is_sanitized, $error ) {
 		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
-			$has_any_id = array_reduce(
+			$script_has_matching_id = array_reduce(
 				self::$scripts_handles,
 				function( $carry, $id ) use ( $error ) {
 					return $carry || 0 === strpos( $error['node_attributes']['id'], $id ); // Match starting position so it includes `-js`, `-after` and `-before` scripts.
 				},
 				false
 			);
-			if ( $has_any_id ) {
+			if ( $script_has_matching_id ) {
 				$is_sanitized = false;
 			}
 		}
@@ -70,14 +70,14 @@ class Jetpack {
 			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
 		];
 		if ( isset( $error, $error['text'] ) ) {
-			$has_any_text = array_reduce(
+			$script_has_matching_text = array_reduce(
 				$texts,
 				function( $carry, $text ) use ( $error ) {
 					return $carry || false !== strpos( $error['text'], $text );
 				},
 				false
 			);
-			if ( $has_any_text ) {
+			if ( $script_has_matching_text ) {
 				$is_sanitized = false;
 			}
 		}
