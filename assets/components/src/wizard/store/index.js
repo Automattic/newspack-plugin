@@ -101,19 +101,24 @@ const store = createReduxStore( WIZARD_STORE_NAMESPACE, {
 			return apiFetch( action.payload )
 				.catch( error => {
 					dispatch( WIZARD_STORE_NAMESPACE ).setError( error );
+					return { error };
 				} )
-				.finally( () => {
+				.finally( result => {
 					dispatch( WIZARD_STORE_NAMESPACE ).finishLoadingData();
+					return result;
 				} );
 		},
 	},
 
 	resolvers: {
 		*getWizardAPIData( slug ) {
-			const data = yield actions.fetchFromAPI( {
-				path: `/newspack/v1/wizard/${ slug }`,
-			} );
-			return actions.setAPIDataForWizard( { slug, data } );
+			if ( slug ) {
+				const data = yield actions.fetchFromAPI( {
+					path: `/newspack/v1/wizard/${ slug }`,
+				} );
+				return actions.setAPIDataForWizard( { slug, data } );
+			}
+			return actions.finishLoadingData();
 		},
 	},
 } );

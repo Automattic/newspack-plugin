@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button } from '../../../../components/src';
+import { CheckboxControl, ActionCard, Button } from '../../../../components/src';
 
 /**
  * External dependencies
@@ -71,6 +71,7 @@ const CONNECTORS = [
 const FivetranConnection = ( { setError } ) => {
 	const [ connections, setConnections ] = useState();
 	const [ inFlight, setInFlight ] = useState( false );
+	const [ hasAcceptedTOS, setHasAcceptedTOS ] = useState( null );
 
 	const hasFetched = connections !== undefined;
 
@@ -79,7 +80,10 @@ const FivetranConnection = ( { setError } ) => {
 	useEffect( () => {
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
-			.then( setConnections )
+			.then( response => {
+				setConnections( response.connections_stauses );
+				setHasAcceptedTOS( response.has_accepted_tos );
+			} )
 			.catch( handleError )
 			.finally( () => setInFlight( false ) );
 	}, [] );
@@ -98,8 +102,29 @@ const FivetranConnection = ( { setError } ) => {
 	};
 
 	return (
-		<div>
-			<h1>{ __( 'Fivetran', 'newspack' ) }</h1>
+		<>
+			<div>
+				{ __( 'In order to use the this features, you must read and accept', 'newspack' ) }{ ' ' }
+				<a href="https://newspack.pub/terms-of-service/">
+					{ __( 'Newspack Terms of Service', 'newspack' ) }
+				</a>
+				.
+			</div>
+			<CheckboxControl
+				checked={ hasAcceptedTOS }
+				disabled={ hasAcceptedTOS === null }
+				onChange={ has_accepted => {
+					apiFetch( {
+						path: `/newspack/v1/oauth/fivetran-tos`,
+						method: 'POST',
+						data: {
+							has_accepted,
+						},
+					} );
+					setHasAcceptedTOS( has_accepted );
+				} }
+				label={ __( "I've read and accept Newspack Terms of Service", 'newspack' ) }
+			/>
 			{ CONNECTORS.map( item => {
 				const setupState = get( connections, [ item.service, 'setup_state' ] );
 				const syncState = get( connections, [ item.service, 'sync_state' ] );
@@ -113,28 +138,27 @@ const FivetranConnection = ( { setError } ) => {
 					isConnected: setupState === 'connected',
 				};
 				return (
-					<div key={ item.service }>
-						<ActionCard
-							title={ item.label }
-							description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
-							actionText={
-								<Button
-									disabled={ inFlight || ! hasFetched }
-									onClick={ () => createConnection( item ) }
-									isLink
-								>
-									{ status.isConnected
-										? __( 'Re-connect', 'newspack' )
-										: __( 'Connect', 'newspack' ) }
-								</Button>
-							}
-							checkbox={ status.isConnected ? 'checked' : 'unchecked' }
-							isMedium
-						/>
-					</div>
+					<ActionCard
+						key={ item.service }
+						title={ item.label }
+						description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
+						actionText={
+							<Button
+								disabled={ inFlight || ! hasFetched || ! hasAcceptedTOS }
+								onClick={ () => createConnection( item ) }
+								isLink
+							>
+								{ status.isConnected
+									? __( 'Re-connect', 'newspack' )
+									: __( 'Connect', 'newspack' ) }
+							</Button>
+						}
+						checkbox={ status.isConnected ? 'checked' : 'unchecked' }
+						isMedium
+					/>
 				);
 			} ) }
-		</div>
+		</>
 	);
 };
 

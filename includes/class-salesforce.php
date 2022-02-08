@@ -30,6 +30,14 @@ class Salesforce {
 	];
 
 	/**
+	 * If this site is a duplicate (staging or dev clone) site,
+	 * don't handle webhooks which communicate with external services.
+	 *
+	 * @var boolean
+	 */
+	protected static $is_duplicate_site = false;
+
+	/**
 	 * Add hooks.
 	 */
 	public static function init() {

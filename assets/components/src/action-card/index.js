@@ -48,6 +48,7 @@ class ActionCard extends Component {
 			secondaryActionText,
 			image,
 			imageLink,
+			indent,
 			isSmall,
 			isMedium,
 			simple,
@@ -65,6 +66,7 @@ class ActionCard extends Component {
 			simple && 'newspack-card--is-clickable',
 			hasGreyHeader && 'newspack-card--has-grey-header',
 			hasChildren && 'newspack-card--has-children',
+			indent && 'newspack-card--indent',
 			isSmall && 'is-small',
 			isMedium && 'is-medium',
 			className
