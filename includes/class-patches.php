@@ -198,7 +198,7 @@ class Patches {
 		}
 
 		$author_name = $query->query_vars['author_name'];
-		$user        = get_user_by( 'login', $author_name );
+		$user        = get_user_by( 'slug', $author_name );
 
 		// For CAP guest authors, $user will be false.
 		if ( ! $user || ! isset( $user->roles ) ) {
