@@ -72,7 +72,7 @@ const SettingsSection = props => {
 		options:
 			setting.options?.map( option => ( {
 				value: option.value,
-				label: option.name,
+				label: option.name || option.label,
 			} ) ) || null,
 		value: setting.value,
 		multiple: isSelectControl( setting ) && setting.multiple ? true : null,
