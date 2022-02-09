@@ -1,3 +1,10 @@
+## [1.75.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.0...v1.75.1) (2022-02-09)
+
+
+### Bug Fixes
+
+* lookup user by queried slug, not by login ([f18709c](https://github.com/Automattic/newspack-plugin/commit/f18709cc9564b810185e88f10bbe7ad3462b2580))
+
 # [1.75.0](https://github.com/Automattic/newspack-plugin/compare/v1.74.0...v1.75.0) (2022-02-08)
 
 
