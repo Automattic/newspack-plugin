@@ -1,3 +1,40 @@
+# [1.72.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.71.0...v1.72.0-hotfix.1) (2022-02-09)
+
+
+### Bug Fixes
+
+* **ads:** ad unit error handling ([#1424](https://github.com/Automattic/newspack-plugin/issues/1424)) ([a1ef5f6](https://github.com/Automattic/newspack-plugin/commit/a1ef5f6f2a680c4729093632d26f5fea75604cc1))
+* campaigns, categories autocomplete UI ([89a26b2](https://github.com/Automattic/newspack-plugin/commit/89a26b2ef6e78cb6c7ffbdfc700c73759a131cae)), closes [#1126](https://github.com/Automattic/newspack-plugin/issues/1126)
+* color picker ([#1438](https://github.com/Automattic/newspack-plugin/issues/1438)) ([beea9a3](https://github.com/Automattic/newspack-plugin/commit/beea9a36411453d0647bbeb729a01e57c60f9939))
+* **donations:** filter saved settings ([f09a19d](https://github.com/Automattic/newspack-plugin/commit/f09a19d11817b042c5639600d5088920d809f946)), closes [#1392](https://github.com/Automattic/newspack-plugin/issues/1392)
+* **engagement-wizard:** strip HTML from setting labels ([a181374](https://github.com/Automattic/newspack-plugin/commit/a181374be8bc46dc2831823145a391c9d4665fcc))
+* lookup user by queried slug, not by login ([93c87ae](https://github.com/Automattic/newspack-plugin/commit/93c87ae126159c1fea487b7cb8fefb3ec6beefdb))
+* modal header ([#1439](https://github.com/Automattic/newspack-plugin/issues/1439)) ([91c90fe](https://github.com/Automattic/newspack-plugin/commit/91c90fee07f1961b5977601bfb30decb61688467))
+* restore accidentally-deleted rest route ([#1443](https://github.com/Automattic/newspack-plugin/issues/1443)) ([472c8ff](https://github.com/Automattic/newspack-plugin/commit/472c8ffb7404020e1afd1da47a48cb3ac05b3637))
+* **setup-wizard:** donation data ([#1481](https://github.com/Automattic/newspack-plugin/issues/1481)) ([14618d1](https://github.com/Automattic/newspack-plugin/commit/14618d1f36f12bd37bf1bd6667bd9606cf6df945))
+* **stripe:** prevent webhook processing if platform is not Stripe ([3a8cfa7](https://github.com/Automattic/newspack-plugin/commit/3a8cfa794806ee7d7b61ab4481587f51e631f60f))
+* timeouts due to use of get_post when checking whether to allow deletion ([#1442](https://github.com/Automattic/newspack-plugin/issues/1442)) ([4c3c932](https://github.com/Automattic/newspack-plugin/commit/4c3c9326669a14e4e342ed7bbecf50d8ef3d4e9d))
+* tooltip position in header and remove duplicated css ([#1467](https://github.com/Automattic/newspack-plugin/issues/1467)) ([a869a8e](https://github.com/Automattic/newspack-plugin/commit/a869a8e8a14cb66e690dd6b9fd9db108345b288c))
+
+
+### Features
+
+* add a completion screen to the onboarding ([#1377](https://github.com/Automattic/newspack-plugin/issues/1377)) ([8e3ca01](https://github.com/Automattic/newspack-plugin/commit/8e3ca01d176ab14985ab1aeee80935ef1cadd0b8))
+* allow oauth proxy overrides ([#1389](https://github.com/Automattic/newspack-plugin/issues/1389)) ([603e96d](https://github.com/Automattic/newspack-plugin/commit/603e96d182fd9c285b2791009e420f35c7feb0c1))
+* **amp:** enable disallowing explicitly kept scripts, for debugging ([302abcc](https://github.com/Automattic/newspack-plugin/commit/302abcc100d1adad57b37e5697824b261e32f27a))
+* **block-editor:** utility to relink the editor close button to a wizard screen ([#1482](https://github.com/Automattic/newspack-plugin/issues/1482)) ([870f630](https://github.com/Automattic/newspack-plugin/commit/870f6308f60806935ac86f5f0c40e8195388cffe)), closes [#1205](https://github.com/Automattic/newspack-plugin/issues/1205)
+* **connections-fivetran:** add TOS acceptance ([#1423](https://github.com/Automattic/newspack-plugin/issues/1423)) ([27334d9](https://github.com/Automattic/newspack-plugin/commit/27334d92921251aae0d8be81c1c1bef611f6ffce))
+* display all ESPs during the onboarding ([#1449](https://github.com/Automattic/newspack-plugin/issues/1449)) ([40cb86f](https://github.com/Automattic/newspack-plugin/commit/40cb86fc71ff168d0b2139ce7f99ab8426da7a19))
+* enable AMP Plus for Jetpack Instant Search ([#1486](https://github.com/Automattic/newspack-plugin/issues/1486)) ([e62c5ba](https://github.com/Automattic/newspack-plugin/commit/e62c5ba0710017a4dd788954804545edb8d4383f))
+* remove integrations from onboarding and add them to connections wizard ([#1453](https://github.com/Automattic/newspack-plugin/issues/1453)) ([053675b](https://github.com/Automattic/newspack-plugin/commit/053675bd70f8dc764f9671d87687863254180dd0))
+* remove setting footer copyright to site tagline by default ([7cba0b6](https://github.com/Automattic/newspack-plugin/commit/7cba0b63bcf91623d31a8167e72ccb10b846d80e)), closes [#1148](https://github.com/Automattic/newspack-plugin/issues/1148)
+* **salesforce:** check duplicate site status and disable syncs if clone ([#1425](https://github.com/Automattic/newspack-plugin/issues/1425)) ([2197c93](https://github.com/Automattic/newspack-plugin/commit/2197c9338fcc375f5b37e7fd307d32d6e3468c96))
+* settings section hooks ([#1378](https://github.com/Automattic/newspack-plugin/issues/1378)) ([0a26533](https://github.com/Automattic/newspack-plugin/commit/0a26533be5361729ddfd649196822ec23b72abe9))
+* support multiple control for plugin settings ([#1475](https://github.com/Automattic/newspack-plugin/issues/1475)) ([e00064c](https://github.com/Automattic/newspack-plugin/commit/e00064c3940b20b7bc580d5593da758aebcac05a))
+* update plugin list ([#1451](https://github.com/Automattic/newspack-plugin/issues/1451)) ([e3e6a68](https://github.com/Automattic/newspack-plugin/commit/e3e6a6856a704d1a6d3f4e0af529fe7ad07b6cf7))
+* update wizard overall design and reinstate sub-header text ([#1457](https://github.com/Automattic/newspack-plugin/issues/1457)) ([29271ab](https://github.com/Automattic/newspack-plugin/commit/29271ab9f802e9ff7591a8cd4e58e34f21fbcfa3))
+* use PluginSettings components for Campaigns wizard ([#1450](https://github.com/Automattic/newspack-plugin/issues/1450)) ([fe8e8aa](https://github.com/Automattic/newspack-plugin/commit/fe8e8aac524fd6d741cfc105968a3b13a7224757))
+
 # [1.75.0](https://github.com/Automattic/newspack-plugin/compare/v1.74.0...v1.75.0) (2022-02-08)
 
 
