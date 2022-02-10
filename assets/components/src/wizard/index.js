@@ -14,7 +14,6 @@ import { category } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import { Footer, Notice, Button, NewspackIcon, TabbedNavigation, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
@@ -102,9 +101,11 @@ const Wizard = ( {
 									{ subHeaderText && <span>{ subHeaderText }</span> }
 								</div>
 							</div>
-							{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
 						</div>
 					</div>
+
+					{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
+
 					<Switch>
 						{ displayedSections.map( ( section, index ) => {
 							const SectionComponent = section.render;

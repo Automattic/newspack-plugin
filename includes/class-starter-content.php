@@ -236,6 +236,6 @@ class Starter_Content {
 	 * @return bool E2E testing environment?
 	 */
 	public static function is_e2e() {
-		return defined( 'WP_NEWSPACK_DETERMINISTIC_STARTER_CONTENT' ) && WP_NEWSPACK_DETERMINISTIC_STARTER_CONTENT;
+		return defined( 'WP_NEWSPACK_IS_E2E' ) && WP_NEWSPACK_IS_E2E;
 	}
 }
