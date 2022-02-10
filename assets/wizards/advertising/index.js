@@ -217,10 +217,6 @@ class AdvertisingWizard extends Component {
 									service={ 'google_ad_manager' }
 									serviceData={ services.google_ad_manager }
 									onDelete={ id => this.deleteAdUnit( id ) }
-									buttonText={ __( 'Add New Ad Unit', 'newspack' ) }
-									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
-									secondaryButtonText={ __( 'Back to Ad Providers', 'newspack' ) }
-									secondaryButtonAction="#/"
 									wizardApiFetch={ wizardApiFetch }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
 									updateWithAPI={ this.updateWithAPI }
