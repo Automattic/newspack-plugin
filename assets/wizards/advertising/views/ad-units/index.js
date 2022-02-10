@@ -33,7 +33,6 @@ const CREATE_AD_ID_PARAM = 'create';
 const AdUnits = ( {
 	adUnits,
 	onDelete,
-	updateAdUnit,
 	wizardApiFetch,
 	updateWithAPI,
 	service,
@@ -168,15 +167,6 @@ const AdUnits = ( {
 								title={ adUnit.name }
 								isSmall
 								titleLink={ editLink }
-								{ ...( adUnit.is_legacy
-									? {}
-									: {
-											toggleChecked: adUnit.status === 'ACTIVE',
-											toggleOnChange: value => {
-												adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
-												updateAdUnit( adUnit );
-											},
-									  } ) }
 								description={ () => (
 									<span>
 										{ adUnit.is_legacy ? (
