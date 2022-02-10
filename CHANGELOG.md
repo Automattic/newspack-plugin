@@ -1,3 +1,17 @@
+## [1.75.2](https://github.com/Automattic/newspack-plugin/compare/v1.75.1...v1.75.2) (2022-02-10)
+
+
+### Bug Fixes
+
+* **woocommerce:** disable publicize sharing for WooCommerce product post types ([6cf0060](https://github.com/Automattic/newspack-plugin/commit/6cf006092d0097a7fd7a7adf5aa375fe8151bbaf))
+
+## [1.75.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.1...v1.75.2-hotfix.1) (2022-02-10)
+
+
+### Bug Fixes
+
+* **woocommerce:** disable publicize sharing for WooCommerce product post types ([6cf0060](https://github.com/Automattic/newspack-plugin/commit/6cf006092d0097a7fd7a7adf5aa375fe8151bbaf))
+
 ## [1.75.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.0...v1.75.1) (2022-02-09)
 
 
