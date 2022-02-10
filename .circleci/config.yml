@@ -30,6 +30,9 @@ jobs:
           name: Install rsync
           command: sudo apt-get update && sudo apt-get install rsync
       - run:
+          name: Install PHP packages
+          command: composer install --no-dev --no-scripts
+      - run:
           name: Build plugin files
           command: npm run build && npm run release:archive
       - store_artifacts:
