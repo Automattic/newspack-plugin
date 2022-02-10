@@ -25,6 +25,9 @@ class Patches {
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
+
+		// Disable Publicize automated sharing for WooCommerce products.
+		add_action( 'init', [ __CLASS__, 'disable_publicize_for_products' ] );
 	}
 
 
@@ -230,6 +233,13 @@ class Patches {
 				$query->set_404();
 			}
 		}
+	}
+
+	/**
+	 * Disable automated social media sharing of WooCommerce products via Publicize.
+	 */
+	public static function disable_publicize_for_products() {
+		remove_post_type_support( 'product', 'publicize' );
 	}
 }
 Patches::init();
