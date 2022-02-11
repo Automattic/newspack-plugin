@@ -1,3 +1,10 @@
+# [1.76.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.76.0-alpha.2...v1.76.0-alpha.3) (2022-02-11)
+
+
+### Bug Fixes
+
+* **setup-wizard:** hide navigation on welcome screen (see [#1509](https://github.com/Automattic/newspack-plugin/issues/1509)) ([183757b](https://github.com/Automattic/newspack-plugin/commit/183757b903823d5c12382523df20699cadc3ee6c))
+
 # [1.76.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.76.0-alpha.1...v1.76.0-alpha.2) (2022-02-10)
 
 
