@@ -21,6 +21,23 @@ jobs:
           paths:
             - project
 
+  build-distributable:
+    docker:
+      - image: cimg/php:7.4-browsers
+    steps:
+      - checkout_with_workspace
+      - run:
+          name: Install rsync
+          command: sudo apt-get update && sudo apt-get install rsync
+      - run:
+          name: Install PHP packages
+          command: composer install --no-dev --no-scripts
+      - run:
+          name: Build plugin files
+          command: npm run build && npm run release:archive
+      - store_artifacts:
+          path: release/newspack-plugin.zip
+
   # JS & SCSS Jobs
   lint-js-scss:
     docker:
@@ -119,6 +136,13 @@ workflows:
       - test-js:
           requires:
             - build
+      - build-distributable:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
       - release:
           requires:
             - build
