@@ -77,8 +77,8 @@ class Fivetran_Connection {
 	 * Get Fivetran connections status.
 	 */
 	public static function api_get_fivetran_connection_status() {
-		$url                 = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
-		$connections_stauses = self::process_proxy_response(
+		$url                  = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
+		$connections_statuses = self::process_proxy_response(
 			\wp_safe_remote_get(
 				$url,
 				[
@@ -86,15 +86,15 @@ class Fivetran_Connection {
 				]
 			)
 		);
-		if ( is_wp_error( $connections_stauses ) ) {
+		if ( is_wp_error( $connections_statuses ) ) {
 			return new WP_Error(
 				'newspack_connections_fivetran',
-				$connections_stauses->get_error_message()
+				$connections_statuses->get_error_message()
 			);
 		}
 		$response = [
-			'connections_stauses' => $connections_stauses,
-			'has_accepted_tos'    => (bool) get_user_meta( get_current_user_id(), self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META, true ),
+			'connections_statuses' => $connections_statuses,
+			'has_accepted_tos'     => (bool) get_user_meta( get_current_user_id(), self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META, true ),
 		];
 		return $response;
 	}
