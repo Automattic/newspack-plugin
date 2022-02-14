@@ -1,3 +1,13 @@
+# [1.76.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0-hotfix.1) (2022-02-14)
+
+
+### Features
+
+* **fivetran-connection:** initial schema changes handling ([664d93c](https://github.com/Automattic/newspack-plugin/commit/664d93cb601fec5c207639327313f5c882118a67))
+* remove initial handling of connectors ([6ab5755](https://github.com/Automattic/newspack-plugin/commit/6ab5755c6ae069c12c1355606c4f98d786dde5b3))
+* tweak TOS checkbox ([8a6d365](https://github.com/Automattic/newspack-plugin/commit/8a6d3653de540e86a6a358ddee9340d4585cb245))
+* UI tweak ([63cf883](https://github.com/Automattic/newspack-plugin/commit/63cf8830ff3756bd5eb059e52a06b4a959641606))
+
 ## [1.75.2](https://github.com/Automattic/newspack-plugin/compare/v1.75.1...v1.75.2) (2022-02-10)
 
 
