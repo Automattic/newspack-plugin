@@ -79,7 +79,7 @@ const FivetranConnection = ( { setError } ) => {
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
 			.then( response => {
-				setConnections( response.connections_stauses );
+				setConnections( response.connections_statuses );
 				setHasAcceptedTOS( response.has_accepted_tos );
 			} )
 			.catch( handleError )
