@@ -1,16 +1,19 @@
-# [1.76.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.76.0-alpha.2...v1.76.0-alpha.3) (2022-02-11)
+# [1.76.0](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0) (2022-02-15)
 
 
-### Bug Fixes
+### Features
 
-* **setup-wizard:** hide navigation on welcome screen (see [#1509](https://github.com/Automattic/newspack-plugin/issues/1509)) ([183757b](https://github.com/Automattic/newspack-plugin/commit/183757b903823d5c12382523df20699cadc3ee6c))
+* **fivetran-connection:** initial schema changes handling ([#1515](https://github.com/Automattic/newspack-plugin/issues/1515)) ([adcd904](https://github.com/Automattic/newspack-plugin/commit/adcd9041c31e42ba52d69614aa8eec28503cf10e))
 
-# [1.76.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.76.0-alpha.1...v1.76.0-alpha.2) (2022-02-10)
+# [1.76.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0-hotfix.1) (2022-02-14)
 
 
-### Bug Fixes
+### Features
 
-* **woocommerce:** disable publicize sharing for WooCommerce product post types ([6cf0060](https://github.com/Automattic/newspack-plugin/commit/6cf006092d0097a7fd7a7adf5aa375fe8151bbaf))
+* **fivetran-connection:** initial schema changes handling ([664d93c](https://github.com/Automattic/newspack-plugin/commit/664d93cb601fec5c207639327313f5c882118a67))
+* remove initial handling of connectors ([6ab5755](https://github.com/Automattic/newspack-plugin/commit/6ab5755c6ae069c12c1355606c4f98d786dde5b3))
+* tweak TOS checkbox ([8a6d365](https://github.com/Automattic/newspack-plugin/commit/8a6d3653de540e86a6a358ddee9340d4585cb245))
+* UI tweak ([63cf883](https://github.com/Automattic/newspack-plugin/commit/63cf8830ff3756bd5eb059e52a06b4a959641606))
 
 ## [1.75.2](https://github.com/Automattic/newspack-plugin/compare/v1.75.1...v1.75.2) (2022-02-10)
 
