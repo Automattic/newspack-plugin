@@ -1,3 +1,10 @@
+# [1.76.0](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0) (2022-02-15)
+
+
+### Features
+
+* **fivetran-connection:** initial schema changes handling ([#1515](https://github.com/Automattic/newspack-plugin/issues/1515)) ([adcd904](https://github.com/Automattic/newspack-plugin/commit/adcd9041c31e42ba52d69614aa8eec28503cf10e))
+
 # [1.76.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0-hotfix.1) (2022-02-14)
 
 
