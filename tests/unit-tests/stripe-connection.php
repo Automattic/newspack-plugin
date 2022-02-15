@@ -76,6 +76,24 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			Stripe_Connection::get_stripe_data()['currency'],
 			'Currency can be updated.'
 		);
+
+		self::assertEquals(
+			'US',
+			Stripe_Connection::get_stripe_data()['location_code'],
+			'Location code is US by default.'
+		);
+		update_option( 'woocommerce_default_country', 'FR' );
+		self::assertEquals(
+			'FR',
+			Stripe_Connection::get_stripe_data()['location_code'],
+			'Location code is assumed from WC\'s settings.'
+		);
+		update_option( 'woocommerce_default_country', 'BR:SP' );
+		self::assertEquals(
+			'BR',
+			Stripe_Connection::get_stripe_data()['location_code'],
+			'Location code is assumed from WC\'s settings, when a regional code was set.'
+		);
 	}
 
 	/**

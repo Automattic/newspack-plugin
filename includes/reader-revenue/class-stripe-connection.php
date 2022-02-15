@@ -86,9 +86,12 @@ class Stripe_Connection {
 
 		// The instance might've used WooCommerce. Read WC's saved settings to
 		// provide more sensible defaults.
-		$wc_country          = get_option( 'woocommerce_default_country', false );
+		$wc_country = get_option( 'woocommerce_default_country', false );
+		if ( $wc_country ) {
+			$wc_country = explode( ':', $wc_country )[0];
+		}
 		$valid_country_codes = wp_list_pluck( newspack_get_countries(), 'value' );
-		if ( in_array( $wc_country, $valid_country_codes ) ) {
+		if ( $wc_country && in_array( $wc_country, $valid_country_codes ) ) {
 			$location_code = $wc_country;
 		}
 		$wc_currency      = get_option( 'woocommerce_currency', false );
