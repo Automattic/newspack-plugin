@@ -613,7 +613,7 @@ class Stripe_Connection {
 			}
 			return $customer;
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'newspack_plugin_stripe', __( 'Customer creation failed.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'newspack_plugin_stripe', $e->getMessage() || __( 'Customer creation failed.', 'newspack' ) );
 		}
 	}
 
