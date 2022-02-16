@@ -613,7 +613,7 @@ class Stripe_Connection {
 			}
 			return $customer;
 		} catch ( \Throwable $e ) {
-			return null;
+			return new \WP_Error( 'newspack_plugin_stripe', __( 'Customer creation failed.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -648,6 +648,10 @@ class Stripe_Connection {
 					'metadata' => $client_metadata,
 				]
 			);
+			if ( is_wp_error( $customer ) ) {
+				$response['error'] = $customer->get_error_message();
+				return $response;
+			}
 			if ( $customer['default_source'] !== $token_data['card']['id'] ) {
 				// A different card was used, update the customer's card to avoid
 				// charging the previously used card.
