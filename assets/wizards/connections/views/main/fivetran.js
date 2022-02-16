@@ -44,7 +44,8 @@ const getConnectionStatus = ( item, connections ) => {
 	const setupState = get( connections, [ item.service, 'setup_state' ] );
 	const syncState = get( connections, [ item.service, 'sync_state' ] );
 	const schemaStatus = get( connections, [ item.service, 'schema_status' ] );
-	const isPending = ( schemaStatus && 'ready' !== schemaStatus ) || 'paused' === syncState;
+	const savedData = get( connections, [ item.service, 'saved_data' ] );
+	let isPending = ( schemaStatus && 'ready' !== schemaStatus ) || 'paused' === syncState;
 	let label = '-';
 	if ( setupState ) {
 		if ( 'ready' === schemaStatus ) {
@@ -56,7 +57,12 @@ const getConnectionStatus = ( item, connections ) => {
 			) }`;
 		}
 	} else if ( hasConnections ) {
-		label = __( 'Not connected', 'newspack' );
+		if ( savedData && savedData.created ) {
+			label = __( 'Connection initiated', 'newspack' );
+			isPending = true;
+		} else {
+			label = __( 'Not connected', 'newspack' );
+		}
 	}
 	return {
 		label,
