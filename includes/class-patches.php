@@ -25,8 +25,39 @@ class Patches {
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
+
+		// Disable Publicize automated sharing for WooCommerce products.
+		add_action( 'init', [ __CLASS__, 'disable_publicize_for_products' ] );
 	}
 
+
+	/**
+	 * Add async/defer support to `wp_script_add_data()`
+	 *
+	 * See https://github.com/WordPress/WordPress/blob/bab3bdf2df4ea57766793932719665a14c810698/wp-content/themes/twentytwenty/classes/class-twentytwenty-script-loader.php.
+	 *
+	 * @link https://core.trac.wordpress.org/ticket/12009
+	 *
+	 * @param string $tag The script tag.
+	 * @param string $handle The script handle.
+	 *
+	 * @return @string Script HTML string.
+	 */
+	public static function add_async_defer_support( $tag, $handle ) {
+		foreach ( array( 'async', 'defer' ) as $attr ) {
+			if ( ! wp_scripts()->get_data( $handle, $attr ) ) {
+				continue;
+			}
+			// Prevent adding attribute when already added in #12009.
+			if ( ! preg_match( ":\s$attr(=|>|\s):", $tag ) ) {
+				$tag = preg_replace( ':(?=></script>):', " $attr", $tag, 1 );
+			}
+			// Only allow async or defer, not both.
+			break;
+		}
+		return $tag;
+	}
+	
 	/**
 	 * Use the Co-Author in Slack preview metadata instead of the regular post author if needed.
 	 *
@@ -170,7 +201,7 @@ class Patches {
 		}
 
 		$author_name = $query->query_vars['author_name'];
-		$user        = get_user_by( 'login', $author_name );
+		$user        = get_user_by( 'slug', $author_name );
 
 		// For CAP guest authors, $user will be false.
 		if ( ! $user || ! isset( $user->roles ) ) {
@@ -202,6 +233,13 @@ class Patches {
 				$query->set_404();
 			}
 		}
+	}
+
+	/**
+	 * Disable automated social media sharing of WooCommerce products via Publicize.
+	 */
+	public static function disable_publicize_for_products() {
+		remove_post_type_support( 'product', 'publicize' );
 	}
 }
 Patches::init();

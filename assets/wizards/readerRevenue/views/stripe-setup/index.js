@@ -33,7 +33,7 @@ import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
 const { SettingsCard } = Settings;
 
 export const StripeKeysSettings = () => {
-	const wizardData = Wizard.useWizardData();
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const {
 		testMode = false,
 		publishableKey = '',
@@ -111,7 +111,7 @@ const StripeSetup = () => {
 		is_ssl,
 		currency_fields = [],
 		country_state_fields = [],
-	} = Wizard.useWizardData( {} );
+	} = Wizard.useWizardData( 'reader-revenue' );
 
 	const [ isLoading, setIsLoading ] = useState( false );
 	const createWebhooks = () => {

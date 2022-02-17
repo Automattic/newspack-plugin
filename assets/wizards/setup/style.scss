@@ -8,6 +8,59 @@
 	}
 }
 
+// Welcome Screen
+
+.newspack-wizard__welcome {
+	.newspack-wizard__header,
+	.newspack-tabbed-navigation {
+		display: none;
+	}
+
+	.newspack-icon {
+		margin: 0 auto;
+	}
+
+	.newspack-card {
+		&.loading {
+			cursor: wait;
+		}
+
+		&__footer {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+
+			&:empty {
+				margin-top: -32px;
+			}
+
+			.newspack-checkbox-control {
+				margin: 12px 16px 12px 0;
+			}
+
+			.newspack-button {
+				margin-left: auto;
+			}
+		}
+
+		h1 {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+
+			.newspack--error,
+			.newspack-checkbox-icon {
+				margin-right: 8px;
+			}
+		}
+	}
+
+	.newspack-buttons-card {
+		margin: 0;
+	}
+}
+
 .newspack-site-profile {
 	display: flex;
 	flex-wrap: wrap;

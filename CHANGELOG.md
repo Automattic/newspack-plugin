@@ -1,3 +1,67 @@
+# [1.76.0](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0) (2022-02-15)
+
+
+### Features
+
+* **fivetran-connection:** initial schema changes handling ([#1515](https://github.com/Automattic/newspack-plugin/issues/1515)) ([adcd904](https://github.com/Automattic/newspack-plugin/commit/adcd9041c31e42ba52d69614aa8eec28503cf10e))
+
+# [1.76.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0-hotfix.1) (2022-02-14)
+
+
+### Features
+
+* **fivetran-connection:** initial schema changes handling ([664d93c](https://github.com/Automattic/newspack-plugin/commit/664d93cb601fec5c207639327313f5c882118a67))
+* remove initial handling of connectors ([6ab5755](https://github.com/Automattic/newspack-plugin/commit/6ab5755c6ae069c12c1355606c4f98d786dde5b3))
+* tweak TOS checkbox ([8a6d365](https://github.com/Automattic/newspack-plugin/commit/8a6d3653de540e86a6a358ddee9340d4585cb245))
+* UI tweak ([63cf883](https://github.com/Automattic/newspack-plugin/commit/63cf8830ff3756bd5eb059e52a06b4a959641606))
+
+## [1.75.2](https://github.com/Automattic/newspack-plugin/compare/v1.75.1...v1.75.2) (2022-02-10)
+
+
+### Bug Fixes
+
+* **woocommerce:** disable publicize sharing for WooCommerce product post types ([6cf0060](https://github.com/Automattic/newspack-plugin/commit/6cf006092d0097a7fd7a7adf5aa375fe8151bbaf))
+
+## [1.75.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.1...v1.75.2-hotfix.1) (2022-02-10)
+
+
+### Bug Fixes
+
+* **woocommerce:** disable publicize sharing for WooCommerce product post types ([6cf0060](https://github.com/Automattic/newspack-plugin/commit/6cf006092d0097a7fd7a7adf5aa375fe8151bbaf))
+
+## [1.75.1](https://github.com/Automattic/newspack-plugin/compare/v1.75.0...v1.75.1) (2022-02-09)
+
+
+### Bug Fixes
+
+* lookup user by queried slug, not by login ([f18709c](https://github.com/Automattic/newspack-plugin/commit/f18709cc9564b810185e88f10bbe7ad3462b2580))
+
+# [1.75.0](https://github.com/Automattic/newspack-plugin/compare/v1.74.0...v1.75.0) (2022-02-08)
+
+
+### Features
+
+* **connections-fivetran:** add TOS acceptance ([#1423](https://github.com/Automattic/newspack-plugin/issues/1423)) ([27334d9](https://github.com/Automattic/newspack-plugin/commit/27334d92921251aae0d8be81c1c1bef611f6ffce))
+* display all ESPs during the onboarding ([#1449](https://github.com/Automattic/newspack-plugin/issues/1449)) ([40cb86f](https://github.com/Automattic/newspack-plugin/commit/40cb86fc71ff168d0b2139ce7f99ab8426da7a19))
+* remove integrations from onboarding and add them to connections wizard ([#1453](https://github.com/Automattic/newspack-plugin/issues/1453)) ([053675b](https://github.com/Automattic/newspack-plugin/commit/053675bd70f8dc764f9671d87687863254180dd0))
+* **salesforce:** check duplicate site status and disable syncs if clone ([#1425](https://github.com/Automattic/newspack-plugin/issues/1425)) ([2197c93](https://github.com/Automattic/newspack-plugin/commit/2197c9338fcc375f5b37e7fd307d32d6e3468c96))
+* settings section hooks ([#1378](https://github.com/Automattic/newspack-plugin/issues/1378)) ([0a26533](https://github.com/Automattic/newspack-plugin/commit/0a26533be5361729ddfd649196822ec23b72abe9))
+* update wizard overall design and reinstate sub-header text ([#1457](https://github.com/Automattic/newspack-plugin/issues/1457)) ([29271ab](https://github.com/Automattic/newspack-plugin/commit/29271ab9f802e9ff7591a8cd4e58e34f21fbcfa3))
+
+# [1.74.0](https://github.com/Automattic/newspack-plugin/compare/v1.73.0...v1.74.0) (2022-02-02)
+
+
+### Features
+
+* **salesforce:** ability to manually sync WC orders to salesforce ([#1485](https://github.com/Automattic/newspack-plugin/issues/1485)) ([be8a062](https://github.com/Automattic/newspack-plugin/commit/be8a0626c6a09fc869caadeee2b8db3e776f1e3a))
+
+# [1.73.0](https://github.com/Automattic/newspack-plugin/compare/v1.72.1...v1.73.0) (2022-01-31)
+
+
+### Features
+
+* settings section hooks ([#1480](https://github.com/Automattic/newspack-plugin/issues/1480)) ([61efdc4](https://github.com/Automattic/newspack-plugin/commit/61efdc4146a1f3841699bb72cc379c8c2642cd81))
+
 # [1.73.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.72.1...v1.73.0-hotfix.1) (2022-01-31)
 
 

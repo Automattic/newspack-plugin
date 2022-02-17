@@ -83,14 +83,15 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 								{ subHeaderText && <span>{ subHeaderText }</span> }
 							</div>
 						</div>
-						{ tabbedNavigation && (
-							<TabbedNavigation
-								disableUpcoming={ disableUpcomingInTabbedNavigation }
-								items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
-							/>
-						) }
 					</div>
 				</div>
+
+				{ tabbedNavigation && (
+					<TabbedNavigation
+						disableUpcoming={ disableUpcomingInTabbedNavigation }
+						items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
+					/>
+				) }
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
 					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }
