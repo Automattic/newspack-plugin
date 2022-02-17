@@ -186,6 +186,9 @@ class Reader_Revenue_Wizard extends Wizard {
 					'fee_static'         => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
+					'location_code'      => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
 				],
 			]
 		);
