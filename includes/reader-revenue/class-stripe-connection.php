@@ -600,10 +600,6 @@ class Stripe_Connection {
 			}
 
 			if ( null === $customer ) {
-				// Set source only if creating a customer.
-				if ( isset( $data['source'] ) ) {
-					$customer_data_payload['source'] = $data['source'];
-				}
 				$customer = $stripe->customers->create( $customer_data_payload );
 			} else {
 				$customer = $stripe->customers->update(
@@ -644,7 +640,6 @@ class Stripe_Connection {
 				[
 					'email'    => $email_address,
 					'name'     => $full_name,
-					'source'   => $token_data['id'],
 					'metadata' => $client_metadata,
 				]
 			);
