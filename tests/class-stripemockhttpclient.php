@@ -55,7 +55,7 @@ class StripeMockHTTPClient {
 	 */
 	public function request( $method, $path, $headers, $params ) {
 		$endpoint = str_replace( 'https://api.stripe.com', '', $path );
-		$response = [];
+		$response = [ 'status' => 'success' ];
 		switch ( $endpoint ) {
 			case '/v1/webhook_endpoints':
 				switch ( $method ) {
