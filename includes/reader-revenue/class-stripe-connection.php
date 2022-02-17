@@ -5,6 +5,8 @@
  * @package Newspack
  */
 
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
 namespace Newspack;
 
 use Stripe\Stripe;
@@ -150,7 +152,7 @@ class Stripe_Connection {
 	public static function list_webhooks() {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->webhookEndpoints->all()['data']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $stripe->webhookEndpoints->all()['data'];
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch webhooks.', 'newspack' ), $e->getMessage() );
 		}
@@ -164,7 +166,7 @@ class Stripe_Connection {
 	private static function get_customer_by_id( $customer_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->customers->retrieve( $customer_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $stripe->customers->retrieve( $customer_id, [] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
 		}
@@ -193,7 +195,7 @@ class Stripe_Connection {
 	private static function get_invoice( $invoice_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->invoices->retrieve( $invoice_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $stripe->invoices->retrieve( $invoice_id, [] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
 		}
@@ -263,7 +265,7 @@ class Stripe_Connection {
 		}
 		try {
 			$sig_header = sanitize_text_field( $_SERVER['HTTP_STRIPE_SIGNATURE'] );
-			$payload    = @file_get_contents( 'php://input' ); // phpcs:disable WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile, WordPress.PHP.NoSilencedErrors.Discouraged
+			$payload    = @file_get_contents( 'php://input' ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile, WordPress.PHP.NoSilencedErrors.Discouraged
 			$event      = \Stripe\Webhook::constructEvent(
 				$payload,
 				$sig_header,
@@ -385,7 +387,7 @@ class Stripe_Connection {
 	public static function create_webhooks() {
 		$stripe = self::get_stripe_client();
 		try {
-			$webhook = $stripe->webhookEndpoints->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$webhook = $stripe->webhookEndpoints->create(
 				[
 					'url'            => get_rest_url( null, NEWSPACK_API_NAMESPACE . '/stripe/webhook' ),
 					'enabled_events' => [
@@ -652,7 +654,7 @@ class Stripe_Connection {
 			// Attach the Payment Method ID to the customer.
 			// A new payment method is created for each one-time or first-in-recurring
 			// transaction, because the payment methods are not stored on WP.
-			$stripe->paymentMethods->attach(
+			$stripe->paymentMethods->attach( // phpcs:ignore
 				$payment_method_id,
 				[ 'customer' => $customer['id'] ]
 			);
@@ -739,7 +741,7 @@ class Stripe_Connection {
 			'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
 			'customer'             => $config['customer'],
 		];
-		return $stripe->paymentIntents->create( $intent_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return $stripe->paymentIntents->create( $intent_data );
 	}
 
 	/**
@@ -775,7 +777,7 @@ class Stripe_Connection {
 			$stripe       = self::get_stripe_client();
 			$site_domain  = self::get_site_domain();
 			$found_domain = array_filter(
-				$stripe->applePayDomains->all()['data'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$stripe->applePayDomains->all()['data'],
 				function( $item ) use ( $site_domain ) {
 					return $site_domain === $item->domain_name && true === $item->livemode;
 				}
@@ -804,7 +806,7 @@ class Stripe_Connection {
 			if ( $stripe ) {
 				$site_domain = self::get_site_domain();
 				if ( ! self::is_apple_pay_domain_registered() ) {
-					$stripe->applePayDomains->create( [ 'domain_name' => $site_domain ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$stripe->applePayDomains->create( [ 'domain_name' => $site_domain ] );
 				}
 			}
 		} catch ( \Exception $e ) {
