@@ -628,13 +628,14 @@ class Stripe_Connection {
 		try {
 			$stripe = self::get_stripe_client();
 
-			$amount_raw       = $config['amount'];
-			$frequency        = $config['frequency'];
-			$email_address    = $config['email_address'];
-			$full_name        = $config['full_name'];
-			$token_data       = $config['token_data'];
-			$client_metadata  = $config['client_metadata'];
-			$payment_metadata = $config['payment_metadata'];
+			$amount_raw        = $config['amount'];
+			$frequency         = $config['frequency'];
+			$email_address     = $config['email_address'];
+			$full_name         = $config['full_name'];
+			$token_data        = $config['token_data'];
+			$client_metadata   = $config['client_metadata'];
+			$payment_metadata  = $config['payment_metadata'];
+			$payment_method_id = $config['payment_method_id'];
 
 			$customer = self::upsert_customer(
 				[
@@ -647,23 +648,23 @@ class Stripe_Connection {
 				$response['error'] = $customer->get_error_message();
 				return $response;
 			}
-			if ( $customer['default_source'] !== $token_data['card']['id'] ) {
-				// A different card was used, update the customer's card to avoid
-				// charging the previously used card.
-				// This does not work well when the card is an Apple Pay "card" –
-				// $token_data['card']['id'] will be different for each transaction.
-				try {
-					$new_source = $stripe->customers->createSource(
-						$customer['id'],
-						[ 'source' => $token_data['id'] ]
-					);
-					$stripe->customers->update(
-						$customer['id'],
-						[ 'default_source' => $new_source['id'] ]
-					);
-				} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-				}
-			}
+
+			// Attach the Payment Method ID to the customer.
+			// A new payment method is created for each one-time or first-in-recurring
+			// transaction, because the payment methods are not stored on WP.
+			$stripe->paymentMethods->attach(
+				$payment_method_id,
+				[ 'customer' => $customer['id'] ]
+			);
+			// Set the payment method as the default for customer's transactions.
+			$stripe->customers->update(
+				$customer['id'],
+				[
+					'invoice_settings' => [
+						'default_payment_method' => $payment_method_id,
+					],
+				]
+			);
 
 			if ( 'once' === $frequency ) {
 				// Create a Payment Intent on Stripe.
