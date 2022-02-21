@@ -17,8 +17,8 @@ import { Notice, SelectControl, TextControl } from '../../../../components/src';
 /**
  * Get select options from object of ad units.
  *
- * @param {Array} provider List of providers.
- * @return {Array} Ad unit options for select control.
+ * @param {Array} providers List of providers.
+ * @return {Array} Providers options for select control.
  */
 const getProvidersForSelect = providers => {
 	return [
