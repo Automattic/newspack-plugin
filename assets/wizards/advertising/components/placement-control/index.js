@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -16,19 +17,43 @@ import { Notice, SelectControl, TextControl } from '../../../../components/src';
 /**
  * Get select options from object of ad units.
  *
- * @param {Object} adUnits Object containing ad untis.
+ * @param {Array} provider List of providers.
  * @return {Array} Ad unit options for select control.
  */
-const getAdUnitsForSelect = adUnits => {
+const getProvidersForSelect = providers => {
+	return [
+		{
+			label: __( 'Select a provider', 'newspack' ),
+			value: '',
+		},
+		...providers.map( unit => {
+			return {
+				label: unit.name,
+				value: unit.id,
+			};
+		} ),
+	];
+};
+
+/**
+ * Get select options from object of ad units.
+ *
+ * @param {Object} provider Provider object.
+ * @return {Array} Ad unit options for select control.
+ */
+const getProviderUnitsForSelect = provider => {
+	if ( ! provider?.units ) {
+		return [];
+	}
 	return [
 		{
 			label: __( 'Select an Ad Unit', 'newspack' ),
 			value: '',
 		},
-		...Object.values( adUnits ).map( adUnit => {
+		...provider.units.map( unit => {
 			return {
-				label: adUnit.name,
-				value: adUnit.id,
+				label: unit.name,
+				value: unit.value,
 			};
 		} ),
 	];
@@ -57,7 +82,21 @@ const PlacementControl = ( {
 	onChange,
 	...props
 } ) => {
+	const [ error, setError ] = useState( null );
+	const [ inFlight, setInFlight ] = useState( false );
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
+	const [ providers, setProviders ] = useState( [] );
+
+	useEffect( async () => {
+		setInFlight( true );
+		try {
+			const data = await apiFetch( { path: '/newspack-ads/v1/providers' } );
+			setProviders( data );
+		} catch ( err ) {
+			setError( err );
+		}
+		setInFlight( false );
+	}, [] );
 
 	useEffect( () => {
 		const errors = {};
@@ -80,54 +119,71 @@ const PlacementControl = ( {
 		setBiddersErrors( errors );
 	}, [ adUnits, value.ad_unit ] );
 
+	if ( error ) {
+		return <Notice isError noticeText={ error.message } />;
+	}
+
+	const placementProvider = providers.find(
+		provider => provider.id === ( value.provider || 'gam' )
+	);
+
 	return (
 		<Fragment>
 			<SelectControl
+				label={ __( 'Provider', 'newspack' ) }
+				value={ value.provider || 'gam' }
+				options={ getProvidersForSelect( providers ) }
+				onChange={ provider => onChange( { ...value, provider } ) }
+				disabled={ inFlight || disabled }
+			/>
+			<SelectControl
 				label={ __( 'Ad Unit', 'newspack' ) }
 				value={ value.ad_unit }
-				options={ getAdUnitsForSelect( adUnits ) }
+				options={ getProviderUnitsForSelect( placementProvider ) }
 				onChange={ data => {
 					onChange( {
 						...value,
 						ad_unit: data,
 					} );
 				} }
-				disabled={ disabled }
+				disabled={ inFlight || disabled }
 				{ ...props }
 			/>
-			{ Object.keys( bidders ).map( bidderKey => {
-				const bidder = bidders[ bidderKey ];
-				// Translators: Bidder name.
-				const bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
-				return (
-					<TextControl
-						key={ bidderKey }
-						value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
-						label={ bidderLabel }
-						disabled={ biddersErrors[ bidderKey ] || disabled }
-						onChange={ data => {
-							onChange( {
-								...value,
-								bidders_ids: {
-									...value.bidders_ids,
-									[ bidderKey ]: data,
-								},
-							} );
-						} }
-						{ ...props }
-					/>
-				);
-			} ) }
-			{ Object.keys( biddersErrors ).map( bidderKey => {
-				if ( biddersErrors[ bidderKey ] ) {
+			{ placementProvider?.id === 'gam' &&
+				Object.keys( bidders ).map( bidderKey => {
+					const bidder = bidders[ bidderKey ];
+					// Translators: Bidder name.
+					const bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
 					return (
-						<Notice key={ bidderKey } isWarning>
-							{ biddersErrors[ bidderKey ] }
-						</Notice>
+						<TextControl
+							key={ bidderKey }
+							value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
+							label={ bidderLabel }
+							disabled={ inFlight || biddersErrors[ bidderKey ] || disabled }
+							onChange={ data => {
+								onChange( {
+									...value,
+									bidders_ids: {
+										...value.bidders_ids,
+										[ bidderKey ]: data,
+									},
+								} );
+							} }
+							{ ...props }
+						/>
 					);
-				}
-				return null;
-			} ) }
+				} ) }
+			{ placementProvider?.id === 'gam' &&
+				Object.keys( biddersErrors ).map( bidderKey => {
+					if ( biddersErrors[ bidderKey ] ) {
+						return (
+							<Notice key={ bidderKey } isWarning>
+								{ biddersErrors[ bidderKey ] }
+							</Notice>
+						);
+					}
+					return null;
+				} ) }
 		</Fragment>
 	);
 };
