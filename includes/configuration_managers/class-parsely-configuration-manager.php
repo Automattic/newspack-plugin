@@ -34,7 +34,7 @@ class Parsely_Configuration_Manager extends Configuration_Manager {
 			return $active;
 		}
 
-		if ( ! class_exists( 'Parsely' ) ) {
+		if ( ! is_plugin_active( 'wp-parsely/wp-parsely.php' ) ) {
 			return new \WP_Error(
 				'newspack_missing_required_plugin',
 				esc_html__( 'Parse.ly plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),

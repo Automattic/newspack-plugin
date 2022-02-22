@@ -1,12 +1,12 @@
 /**
  * Internal dependencies
  */
-import { values, mapValues, property } from 'lodash';
+import { values, mapValues, property, isEmpty } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { useEffect, Fragment } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
@@ -25,10 +25,12 @@ import {
 	Button,
 	Grid,
 	hooks,
+	Waiting,
 } from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
 export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true } ) => {
+	const [ error, setError ] = useState();
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
 	const performConfigUpdate = update => {
 		updateConfig( update );
@@ -39,7 +41,9 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 	const fetchConfiguration = () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
-		} ).then( performConfigUpdate );
+		} )
+			.then( performConfigUpdate )
+			.catch( setError );
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
@@ -74,8 +78,8 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 								);
 							default:
 								return (
-									<Grid columns={ 1 } gutter={ '0' }>
-										<TextControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+									<Grid columns={ 1 } gutter={ '0' } key={ setting.key }>
+										<TextControl { ...getSettingProps( setting.key ) } />
 										{ setting.help && setting.helpURL && (
 											<p>
 												<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
@@ -88,6 +92,19 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 			</Grid>
 		);
 	};
+	if ( ! error && isEmpty( config ) ) {
+		return (
+			<div className="flex justify-around mt4">
+				<Waiting />
+			</div>
+		);
+	}
+
+	if ( error ) {
+		return (
+			<Notice noticeText={ error.message || __( 'Something went wrong.', 'newspack' ) } isError />
+		);
+	}
 
 	return (
 		<div className={ className }>

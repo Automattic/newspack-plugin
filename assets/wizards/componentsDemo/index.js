@@ -37,6 +37,7 @@ import {
 	ToggleGroup,
 	WebPreview,
 	AutocompleteWithSuggestions,
+	PluginSettings,
 } from '../../components/src';
 
 class ComponentsDemo extends Component {
@@ -693,6 +694,70 @@ class ComponentsDemo extends Component {
 							chevron
 							isSmall
 							grouped
+						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Plugin Settings Section', 'newspack' ) }</h2>
+						<PluginSettings.Section
+							sectionKey="example"
+							title={ __( 'Example plugin settings', 'newspack' ) }
+							description={ __( 'Example plugin settings description', 'newspack' ) }
+							active={ true }
+							fields={ [
+								{
+									key: 'example_field',
+									type: 'string',
+									description: 'Example Text Field',
+									help: 'Example text field help text',
+									value: 'Example Value',
+								},
+								{
+									key: 'example_checkbox_field',
+									type: 'boolean',
+									description: 'Example checkbox Field',
+									help: 'Example checkbox field help text',
+									value: false,
+								},
+								{
+									key: 'example_options_field',
+									type: 'string',
+									description: 'Example options field',
+									help: 'Example options field help text',
+									options: [
+										{
+											value: 'example_value_1',
+											name: 'Example Value 1',
+										},
+										{
+											value: 'example_value_2',
+											name: 'Example Value 2',
+										},
+									],
+								},
+								{
+									key: 'example_multi_options_field',
+									type: 'string',
+									description: 'Example multiple options field',
+									help: 'Example multiple options field help text',
+									multiple: true,
+									options: [
+										{
+											value: 'example_value_1',
+											name: 'Example Value 1',
+										},
+										{
+											value: 'example_value_2',
+											name: 'Example Value 2',
+										},
+									],
+								},
+							] }
+							onUpdate={ data => {
+								console.log( 'Plugin Settings Section Updated', data );
+							} }
+							onChange={ ( key, val ) => {
+								console.log( 'Plugin Settings Section Changed', { key, val } );
+							} }
 						/>
 					</Card>
 				</div>

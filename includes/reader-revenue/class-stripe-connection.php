@@ -236,6 +236,9 @@ class Stripe_Connection {
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	public static function receive_webhook( $request ) {
+		if ( ! Donations::is_platform_stripe() ) {
+			return;
+		}
 		// Verify the webhook signature (https://stripe.com/docs/webhooks/signatures).
 		$webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME, false );
 		if ( false === $webhook || ! isset( $webhook['secret'], $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ) {
