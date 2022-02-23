@@ -31,6 +31,22 @@
 			margin-top: 64px;
 		}
 	}
+
+	&__welcome {
+		text-align: center;
+
+		h2 {
+			margin: 0 auto;
+		}
+
+		.buttons {
+			width: 100%;
+		}
+	}
+
+	&__buttons a {
+		margin-right: 8px;
+	}
 }
 
 .newspack-campaigns__draggable {

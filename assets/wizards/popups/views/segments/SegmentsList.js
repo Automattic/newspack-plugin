@@ -31,6 +31,16 @@ const AddNewSegmentLink = () => (
 	</NavLink>
 );
 
+const GenerateDefaultSegmentsLink = ( { defaultsCreated, onClick } ) => (
+	<Button isSecondary isSmall onClick={ onClick }>
+		{ sprintf(
+			// Translators: button label for generating or resetting the default segments.
+			__( '%s Default Segments', 'newspack' ),
+			defaultsCreated ? __( 'Reset', 'newspack' ) : __( 'Generate', 'newspack' )
+		) }
+	</Button>
+);
+
 const SegmentActionCard = ( {
 	inFlight,
 	segment,
@@ -364,7 +374,13 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 					{ error && <Notice noticeText={ error } isError /> }
 					<Card headerActions noBorder>
 						<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
-						<AddNewSegmentLink />
+						<div className="newspack-campaigns-wizard-segments__buttons">
+							<AddNewSegmentLink />
+							<GenerateDefaultSegmentsLink
+								defaultsCreated={ defaultSegments || defaultsCreated }
+								onClick={ () => setShowDefaultModal( true ) }
+							/>
+						</div>
 					</Card>
 					<div
 						className={
@@ -391,16 +407,29 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				</>
 			) : (
 				<>
-					<Card headerActions noBorder>
-						<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
-						<AddNewSegmentLink />
+					<Card>
+						<Card
+							buttonsCard
+							noBorder
+							isNarrow
+							className="newspack-campaigns-wizard-segments__welcome"
+						>
+							<h2>{ __( 'Ready to create your first segment?', 'newspack' ) }</h2>
+							<p>
+								{ __(
+									'Target specific groups of readers based on their interactions with your site. Audience segments allow you to target readers by engagement, activity, and more.',
+									'newspack'
+								) }
+							</p>
+							<div className="buttons">
+								<AddNewSegmentLink />
+								<GenerateDefaultSegmentsLink
+									defaultsCreated={ defaultSegments || defaultsCreated }
+									onClick={ () => setShowDefaultModal( true ) }
+								/>
+							</div>
+						</Card>
 					</Card>
-					<p>
-						{ __(
-							'Create audience segments to target visitors by engagement, activity, and more.',
-							'newspack'
-						) }
-					</p>
 				</>
 			) }
 			{ showDefaultModal && (
@@ -434,15 +463,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 					</Card>
 				</Modal>
 			) }
-			<Button isPrimary onClick={ () => setShowDefaultModal( true ) }>
-				{ sprintf(
-					// Translators: button label for generating or resetting the default segments.
-					__( '%s default segments', 'newspack' ),
-					defaultSegments || defaultsCreated
-						? __( 'Reset', 'newspack' )
-						: __( 'Generate', 'newspack' )
-				) }
-			</Button>
 		</>
 	);
 };
