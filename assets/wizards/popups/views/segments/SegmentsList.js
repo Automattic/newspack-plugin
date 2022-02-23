@@ -270,6 +270,27 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 	const ref = useRef();
 	const { default_segments: defaultSegments } = window.newspack_popups_wizard_data || {};
 
+	useEffect( () => {
+		if ( ! defaultSegments ) {
+			setInFlight( true );
+			wizardApiFetch( {
+				path: '/newspack/v1/wizard/newspack-popups-wizard/segmentation-defaults',
+				quiet: true,
+			} )
+				.then( _defaultSegments => {
+					if ( _defaultSegments ) {
+						setDefaultsCreated( true );
+					}
+				} )
+				.catch( e => {
+					setError( e.message || __( 'Error getting default segments. Please try again.' ) );
+				} )
+				.finally( () => {
+					setInFlight( false );
+				} );
+		}
+	}, [] );
+
 	const deleteSegment = segment => {
 		setInFlight( true );
 		setError( null );
@@ -318,6 +339,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 		} )
 			.then( _segments => {
 				setSegments( _segments );
+				setDefaultsCreated( true );
 			} )
 			.catch( e => {
 				setError( e.message || __( 'Error creating default segments. Please try again.' ) );
@@ -325,7 +347,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			.finally( () => {
 				setInFlight( false );
 				setShowDefaultModal( false );
-				setDefaultsCreated( true );
 			} );
 	};
 

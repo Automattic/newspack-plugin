@@ -204,7 +204,7 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Create or update default segments.
 	 */
-	public function create_default_segmetns() {
+	public function create_default_segments() {
 		return $this->is_configured() ?
 			\Newspack_Popups_Segmentation::create_default_segments() :
 			$this->unconfigured_error();

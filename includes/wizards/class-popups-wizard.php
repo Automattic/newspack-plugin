@@ -289,6 +289,16 @@ class Popups_Wizard extends Wizard {
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/segmentation-defaults',
 			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_default_segments' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/segmentation-defaults',
+			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_create_default_segments' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -866,13 +876,24 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get default segments.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_get_default_segments() {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$response                              = $newspack_popups_configuration_manager->get_default_segments();
+		return $response;
+	}
+
+	/**
 	 * Generate default segments. If they've already been generated, rebuild them with default parameters.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function api_create_default_segments() {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$response                              = $newspack_popups_configuration_manager->create_default_segmetns();
+		$response                              = $newspack_popups_configuration_manager->create_default_segments();
 		return $response;
 	}
 
