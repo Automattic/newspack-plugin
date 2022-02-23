@@ -285,7 +285,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			setInFlight( true );
 			wizardApiFetch( {
 				path: '/newspack/v1/wizard/newspack-popups-wizard/segmentation-defaults',
-				quiet: true,
 			} )
 				.then( _defaultSegments => {
 					if ( _defaultSegments ) {
