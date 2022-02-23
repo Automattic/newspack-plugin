@@ -46,7 +46,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const history = useHistory();
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
-
 	const isSegmentValid =
 		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG ); // Segment has a name. // Segment differs from the default config.
 

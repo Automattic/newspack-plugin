@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Draggable, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpress/icons';
@@ -10,7 +10,15 @@ import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpre
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	Card,
+	Modal,
+	Notice,
+	Popover,
+	Router,
+} from '../../../../components/src';
 import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
@@ -255,9 +263,13 @@ const SegmentActionCard = ( {
 const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) => {
 	const [ dropTargetIndex, setDropTargetIndex ] = useState( null );
 	const [ sortedSegments, setSortedSegments ] = useState( null );
+	const [ showDefaultModal, setShowDefaultModal ] = useState( false );
+	const [ defaultsCreated, setDefaultsCreated ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const ref = useRef();
+	const { default_segments: defaultSegments } = window.newspack_popups_wizard_data || {};
+
 	const deleteSegment = segment => {
 		setInFlight( true );
 		setError( null );
@@ -296,6 +308,26 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				setSegments( segments );
 			} );
 	};
+	const generateDefaultSegments = () => {
+		setInFlight( true );
+		setError( null );
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-popups-wizard/segmentation-defaults',
+			method: 'POST',
+			quiet: true,
+		} )
+			.then( _segments => {
+				setSegments( _segments );
+			} )
+			.catch( e => {
+				setError( e.message || __( 'Error creating default segments. Please try again.' ) );
+			} )
+			.finally( () => {
+				setInFlight( false );
+				setShowDefaultModal( false );
+				setDefaultsCreated( true );
+			} );
+	};
 
 	if ( segments === null ) {
 		return null;
@@ -304,47 +336,93 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 	// Optimistically update the order of the list while the sort request is pending.
 	const segmentsToShow = sortedSegments || segments;
 
-	return segments.length ? (
-		<Fragment>
-			{ error && <Notice noticeText={ error } isError /> }
-			<Card headerActions noBorder>
-				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
-				<AddNewSegmentLink />
-			</Card>
-			<div
-				className={ 'newspack-campaigns-wizard-segments__list' + ( inFlight ? ' is-loading' : '' ) }
-				ref={ ref }
-			>
-				{ segmentsToShow.map( ( segment, index ) => (
-					<SegmentActionCard
-						deleteSegment={ deleteSegment }
-						key={ segment.id }
-						inFlight={ inFlight || isLoading > 0 }
-						segment={ segment }
-						segments={ segments }
-						sortSegments={ sortSegments }
-						index={ index }
-						wrapperRef={ ref }
-						dropTargetIndex={ dropTargetIndex }
-						setDropTargetIndex={ setDropTargetIndex }
-						totalSegments={ segments.length }
-					/>
-				) ) }
-			</div>
-		</Fragment>
-	) : (
-		<Fragment>
-			<Card headerActions noBorder>
-				<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
-				<AddNewSegmentLink />
-			</Card>
-			<p>
-				{ __(
-					'Create audience segments to target visitors by engagement, activity, and more.',
-					'newspack'
+	return (
+		<>
+			{ segments.length ? (
+				<>
+					{ error && <Notice noticeText={ error } isError /> }
+					<Card headerActions noBorder>
+						<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
+						<AddNewSegmentLink />
+					</Card>
+					<div
+						className={
+							'newspack-campaigns-wizard-segments__list' + ( inFlight ? ' is-loading' : '' )
+						}
+						ref={ ref }
+					>
+						{ segmentsToShow.map( ( segment, index ) => (
+							<SegmentActionCard
+								deleteSegment={ deleteSegment }
+								key={ segment.id }
+								inFlight={ inFlight || isLoading > 0 }
+								segment={ segment }
+								segments={ segments }
+								sortSegments={ sortSegments }
+								index={ index }
+								wrapperRef={ ref }
+								dropTargetIndex={ dropTargetIndex }
+								setDropTargetIndex={ setDropTargetIndex }
+								totalSegments={ segments.length }
+							/>
+						) ) }
+					</div>
+				</>
+			) : (
+				<>
+					<Card headerActions noBorder>
+						<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
+						<AddNewSegmentLink />
+					</Card>
+					<p>
+						{ __(
+							'Create audience segments to target visitors by engagement, activity, and more.',
+							'newspack'
+						) }
+					</p>
+				</>
+			) }
+			{ showDefaultModal && (
+				<Modal
+					title={ __( 'Default segments', 'newspack' ) }
+					onRequestClose={ () => setShowDefaultModal( false ) }
+				>
+					<p>
+						{ sprintf(
+							// Translators: help message before generating default segments.
+							__(
+								'This will %1$s set of default segments that represent a basic engagement funnel.%2$s Proceed?',
+								'newspack'
+							),
+							defaultSegments ? __( 'regenerate the', 'newspack' ) : __( 'generate a', 'newspack' ),
+							defaultSegments
+								? __(
+										' Any changes you’ve made to the default segments will be ovewritten.',
+										'newspack'
+								  )
+								: ''
+						) }
+					</p>
+					<Card buttonsCard noBorder className="justify-end">
+						<Button isSecondary onClick={ () => setShowDefaultModal( false ) }>
+							{ __( 'Cancel', 'newspack' ) }
+						</Button>
+						<Button isPrimary onClick={ () => generateDefaultSegments() }>
+							{ __( 'OK', 'newspack' ) }
+						</Button>
+					</Card>
+				</Modal>
+			) }
+			<Button isPrimary onClick={ () => setShowDefaultModal( true ) }>
+				{ sprintf(
+					// Translators: button label for generating or resetting the default segments.
+					__( '%s default segments', 'newspack' ),
+					defaultSegments || defaultsCreated
+						? __( 'Reset', 'newspack' )
+						: __( 'Generate', 'newspack' )
 				) }
-			</p>
-		</Fragment>
+			</Button>
+		</>
 	);
 };
 

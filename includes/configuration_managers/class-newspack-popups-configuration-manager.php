@@ -193,6 +193,24 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get segment IDs of default segments.
+	 */
+	public function get_default_segments() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::get_default_segments() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Create or update default segments.
+	 */
+	public function create_default_segmetns() {
+		return $this->is_configured() ?
+			\Newspack_Popups_Segmentation::create_default_segments() :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Activate campaign group.
 	 *
 	 * @param int $id Campaign group ID.

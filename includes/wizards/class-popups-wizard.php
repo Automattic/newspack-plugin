@@ -285,6 +285,16 @@ class Popups_Wizard extends Wizard {
 			]
 		);
 
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/segmentation-defaults',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_create_default_segments' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 		// Register newspack/v1/popups-analytics/report endpoint.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -475,6 +485,7 @@ class Popups_Wizard extends Wizard {
 		$overlay_placements                    = $newspack_popups_configuration_manager->get_overlay_placements();
 		$overlay_sizes                         = $newspack_popups_configuration_manager->get_overlay_sizes();
 		$preview_query_keys                    = $newspack_popups_configuration_manager->preview_query_keys();
+		$default_segments                      = $newspack_popups_configuration_manager->get_default_segments();
 
 		\wp_localize_script(
 			'newspack-popups-wizard',
@@ -487,6 +498,7 @@ class Popups_Wizard extends Wizard {
 				'overlay_placements' => $overlay_placements,
 				'overlay_sizes'      => $overlay_sizes,
 				'preview_query_keys' => $preview_query_keys,
+				'default_segments'   => $default_segments,
 			]
 		);
 
@@ -850,6 +862,17 @@ class Popups_Wizard extends Wizard {
 	public function api_sort_segments( $request ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$response                              = $newspack_popups_configuration_manager->sort_segments( $request['segmentIds'] );
+		return $response;
+	}
+
+	/**
+	 * Generate default segments. If they've already been generated, rebuild them with default parameters.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_create_default_segments() {
+		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$response                              = $newspack_popups_configuration_manager->create_default_segmetns();
 		return $response;
 	}
 
