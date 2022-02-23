@@ -91,6 +91,14 @@ const SettingsSection = props => {
 			props
 		);
 	};
+	let columns;
+	if ( fields.length % 3 === 0 ) {
+		columns = 3;
+	} else if ( fields.length % 2 === 0 ) {
+		columns = 2;
+	} else {
+		columns = 1;
+	}
 	return (
 		<ActionCard
 			isMedium
@@ -98,13 +106,29 @@ const SettingsSection = props => {
 			title={ title }
 			description={ description }
 			toggleChecked={ active }
-			hasGreyHeader={ true }
+			hasGreyHeader={ active }
 			toggleOnChange={ active !== null ? value => onUpdate( { active: value } ) : null }
+			actionContent={
+				active &&
+				createFilter(
+					'buttons',
+					<Button
+						isPrimary
+						isSmall
+						disabled={ disabled }
+						onClick={ () => {
+							onUpdate();
+						} }
+					>
+						{ __( 'Save Settings', 'newspack' ) }
+					</Button>
+				)
+			}
 		>
 			{ ( active || active === null ) && (
 				<Fragment>
 					{ createFilter( 'beforeControls' ) }
-					<Grid columns={ fields.length % 3 === 0 ? 3 : 2 } gutter={ 32 }>
+					<Grid columns={ columns } gutter={ 32 }>
 						{ fields.map( ( setting, index ) => {
 							const Control = getControlComponent( setting ); // eslint-disable-line @wordpress/no-unused-vars-before-return, no-unused-vars
 							return applyFilters(
@@ -114,22 +138,6 @@ const SettingsSection = props => {
 							);
 						} ) }
 					</Grid>
-					{ createFilter( 'afterControls' ) }
-					<div className="newspack-buttons-card" style={ { margin: '32px 0 0' } }>
-						{ createFilter(
-							'buttons',
-							<Button
-								isPrimary
-								disabled={ disabled }
-								onClick={ () => {
-									onUpdate();
-								} }
-							>
-								{ __( 'Save settings', 'newspack' ) }
-							</Button>
-						) }
-					</div>
-					{ createFilter( 'afterButtons' ) }
 				</Fragment>
 			) }
 		</ActionCard>
