@@ -1,3 +1,10 @@
+## [1.77.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.77.0...v1.77.1-hotfix.1) (2022-02-23)
+
+
+### Bug Fixes
+
+* **reader-revenue:** return saved settings ([1a81dae](https://github.com/Automattic/newspack-plugin/commit/1a81daec62d5db062751fa41e4257581e1aade57))
+
 # [1.77.0](https://github.com/Automattic/newspack-plugin/compare/v1.76.0...v1.77.0) (2022-02-22)
 
 
