@@ -372,14 +372,14 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				<>
 					{ error && <Notice noticeText={ error } isError /> }
 					<Card headerActions noBorder>
-						<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
-						<div className="newspack-campaigns-wizard-segments__buttons">
+						<h2>{ __( 'Audience Segments', 'newspack' ) }</h2>
+						<Card noBorder buttonsCard>
 							<AddNewSegmentLink />
 							<GenerateDefaultSegmentsLink
 								defaultsCreated={ defaultSegments || defaultsCreated }
 								onClick={ () => setShowDefaultModal( true ) }
 							/>
-						</div>
+						</Card>
 					</Card>
 					<div
 						className={
@@ -406,13 +406,8 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				</>
 			) : (
 				<>
-					<Card>
-						<Card
-							buttonsCard
-							noBorder
-							isNarrow
-							className="newspack-campaigns-wizard-segments__welcome"
-						>
+					<Card isLarge>
+						<Card noBorder isNarrow className="tc">
 							<h2>{ __( 'Ready to create your first segment?', 'newspack' ) }</h2>
 							<p>
 								{ __(
@@ -420,27 +415,28 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 									'newspack'
 								) }
 							</p>
-							<div className="buttons">
+							<Card noBorder buttonsCard className="justify-center">
 								<AddNewSegmentLink />
 								<GenerateDefaultSegmentsLink
 									defaultsCreated={ defaultSegments || defaultsCreated }
 									onClick={ () => setShowDefaultModal( true ) }
 								/>
-							</div>
+							</Card>
 						</Card>
 					</Card>
 				</>
 			) }
 			{ showDefaultModal && (
 				<Modal
-					title={ __( 'Default segments', 'newspack' ) }
+					title={ __( 'Default Segments', 'newspack-popups' ) }
 					onRequestClose={ () => setShowDefaultModal( false ) }
+					isNarrow
 				>
 					<p>
 						{ sprintf(
 							// Translators: help message before generating default segments.
 							__(
-								'This will %1$s set of default segments that represent a basic engagement funnel.%2$s Proceed?',
+								'This will %1$s set of default segments that represent a basic engagement funnel.%2$s',
 								'newspack'
 							),
 							defaultSegments ? __( 'regenerate the', 'newspack' ) : __( 'generate a', 'newspack' ),
@@ -453,11 +449,11 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 						) }
 					</p>
 					<Card buttonsCard noBorder className="justify-end">
-						<Button isSecondary onClick={ () => setShowDefaultModal( false ) }>
+						<Button isSecondary isSmall onClick={ () => setShowDefaultModal( false ) }>
 							{ __( 'Cancel', 'newspack' ) }
 						</Button>
-						<Button isPrimary onClick={ () => generateDefaultSegments() }>
-							{ __( 'OK', 'newspack' ) }
+						<Button isPrimary isSmall onClick={ () => generateDefaultSegments() }>
+							{ __( 'Continue', 'newspack' ) }
 						</Button>
 					</Card>
 				</Modal>

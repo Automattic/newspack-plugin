@@ -41,6 +41,10 @@
 			margin-bottom: 0 !important;
 			margin-top: 0 !important;
 		}
+
+		.newspack-card__buttons-card {
+			margin-bottom: -16px !important;
+		}
 	}
 
 	// Is Narrow
@@ -87,6 +91,22 @@
 
 		> *:last-child {
 			margin-bottom: 0 !important;
+		}
+	}
+
+	// Is Large
+
+	&__is-large {
+		@media screen and ( min-width: 744px ) {
+			padding: 96px;
+
+			> *:first-child {
+				margin-top: 0 !important;
+			}
+
+			> *:last-child {
+				margin-bottom: 0 !important;
+			}
 		}
 	}
 
