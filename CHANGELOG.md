@@ -1,3 +1,10 @@
+# [1.78.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.1...v1.78.0-alpha.2) (2022-02-24)
+
+
+### Bug Fixes
+
+* **jetpack:** modules scripts behind constant ([#1527](https://github.com/Automattic/newspack-plugin/issues/1527)) ([951d4d3](https://github.com/Automattic/newspack-plugin/commit/951d4d35c1605cb5dc0ad8758fee1ea1b606f546))
+
 ## [1.77.2](https://github.com/Automattic/newspack-plugin/compare/v1.77.1...v1.77.2) (2022-02-24)
 
 
