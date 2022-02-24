@@ -3,11 +3,6 @@
  */
 
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
@@ -56,14 +51,18 @@ const getControlType = setting => {
 };
 
 const SettingsSection = props => {
-	const { sectionKey, active, title, description, fields, disabled, onChange, onUpdate } = props;
-	const isSingleLined = index => {
-		const total = fields.length;
-		const hasSingleLinedField = fields.length % 3 !== 0 && fields.length % 2 !== 0;
-		const isLast = index === total - 1;
-		return hasSingleLinedField && isLast;
-	};
-	const getControlProps = ( setting, index ) => ( {
+	const {
+		sectionKey,
+		active,
+		title,
+		description,
+		fields,
+		disabled,
+		onChange,
+		onUpdate,
+		hasGreyHeader,
+	} = props;
+	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
 		type: getControlType( setting ),
@@ -77,9 +76,6 @@ const SettingsSection = props => {
 		value: setting.value,
 		multiple: isSelectControl( setting ) && setting.multiple ? true : null,
 		checked: setting.type === 'boolean' ? !! setting.value : null,
-		className: classnames( {
-			'padded-checkbox': setting.type === 'boolean' && ! isSingleLined( index ),
-		} ),
 		onChange: value => {
 			onChange( setting.key, value );
 		},
@@ -106,10 +102,10 @@ const SettingsSection = props => {
 			title={ title }
 			description={ description }
 			toggleChecked={ active }
-			hasGreyHeader={ active }
+			hasGreyHeader={ active || hasGreyHeader }
 			toggleOnChange={ active !== null ? value => onUpdate( { active: value } ) : null }
 			actionContent={
-				active &&
+				( active || hasGreyHeader ) &&
 				createFilter(
 					'buttons',
 					<Button
@@ -129,12 +125,12 @@ const SettingsSection = props => {
 				<Fragment>
 					{ createFilter( 'beforeControls' ) }
 					<Grid columns={ columns } gutter={ 32 }>
-						{ fields.map( ( setting, index ) => {
+						{ fields.map( setting => {
 							const Control = getControlComponent( setting ); // eslint-disable-line @wordpress/no-unused-vars-before-return, no-unused-vars
 							return applyFilters(
 								`newspack.settingsSection.${ sectionKey }.control`,
-								<Control key={ setting.key } { ...getControlProps( setting, index ) } />,
-								{ sectionKey, setting, index, onChange }
+								<Control key={ setting.key } { ...getControlProps( setting ) } />,
+								{ sectionKey, setting, onChange }
 							);
 						} ) }
 					</Grid>
