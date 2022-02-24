@@ -491,6 +491,7 @@ class Popups_Wizard extends Wizard {
 		}
 
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		$is_api_configured                     = $newspack_popups_configuration_manager->is_api_configured();
 		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
 		$overlay_placements                    = $newspack_popups_configuration_manager->get_overlay_placements();
 		$overlay_sizes                         = $newspack_popups_configuration_manager->get_overlay_sizes();
@@ -501,6 +502,7 @@ class Popups_Wizard extends Wizard {
 			'newspack-popups-wizard',
 			'newspack_popups_wizard_data',
 			[
+				'is_api_configured'  => $is_api_configured,
 				'preview_post'       => $preview_post,
 				'preview_archive'    => $preview_archive,
 				'frontend_url'       => get_site_url(),

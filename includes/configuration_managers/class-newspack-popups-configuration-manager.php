@@ -31,7 +31,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Whether Newspack Popups is installed and activated.
 	 */
 	public function is_configured() {
-		return class_exists( 'Newspack_Popups_Model' );
+		return $this->is_api_configured() && class_exists( 'Newspack_Popups_Model' );
+	}
+
+
+	/**
+	 * Check whether the required configuration file exists.
+	 *
+	 * @return bool True if the file exists, otherwise false.
+	 */
+	public function is_api_configured() {
+		return class_exists( 'Newspack_Popups' ) && \Newspack_Popups::is_api_configured();
 	}
 
 	/**
@@ -347,6 +357,17 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 * @return WP_Error
 	 */
 	private function unconfigured_error() {
+		if ( class_exists( 'Newspack_Popups' ) && ! $this->is_api_configured() ) {
+			return new \WP_Error(
+				'newspack_popups_missing_config_file',
+				__( 'Missing the required config file. Please create it to access this feature.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
+
+		}
 		return new \WP_Error(
 			'newspack_missing_required_plugin',
 			esc_html__( 'The Newspack Popups plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),

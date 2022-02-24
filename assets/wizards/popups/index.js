@@ -69,6 +69,21 @@ class PopupsWizard extends Component {
 			inFlight: false,
 		};
 	}
+
+	componentDidMount = () => {
+		const { setError } = this.props;
+		const { is_api_configured: isApiConfigured } = window.newspack_popups_wizard_data || {};
+
+		if ( ! isApiConfigured ) {
+			setError( {
+				message: __(
+					'Missing the required config file. Please create it to access this feature.',
+					'newspack'
+				),
+			} );
+		}
+	};
+
 	onWizardReady = () => {
 		this.refetch( { isInitial: true } );
 	};
@@ -264,6 +279,7 @@ class PopupsWizard extends Component {
 			duplicated,
 			promptsAnalyticsData,
 		} = this.state;
+
 		return (
 			<WebPreview
 				url={ previewUrl }
