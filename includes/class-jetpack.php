@@ -33,6 +33,20 @@ class Jetpack {
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
 	}
 
+	/**
+	 * Whether Jetpack modules scripts should be rendered in AMP Plus.
+	 *
+	 * @return @bool Whether to render scripts.
+	 */
+	private static function should_amp_plus_modules() {
+		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
+			return false;
+		}
+		if ( ! defined( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES' ) || true !== NEWSPACK_AMP_PLUS_JETPACK_MODULES ) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Make Jetpack scripts async.
@@ -52,6 +66,9 @@ class Jetpack {
 	 * @return bool Whether the error should be rejected.
 	 */
 	public static function jetpack_modules_amp_plus( $is_sanitized, $error ) {
+		if ( ! self::should_amp_plus_modules() ) {
+			return $is_sanitized;
+		}
 		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
 			$script_has_matching_id = array_reduce(
 				self::$scripts_handles,
