@@ -160,16 +160,6 @@ class Starter_Content {
 	}
 
 	/**
-	 * Set theme style.
-	 *
-	 * @param string $style Style id.
-	 */
-	public static function set_theme( $style ) {
-		Theme_Manager::install_activate_theme( $style );
-		return self::get_theme();
-	}
-
-	/**
 	 * Get theme style.
 	 *
 	 * @return string Style id.
