@@ -428,7 +428,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			) }
 			{ showDefaultModal && (
 				<Modal
-					title={ __( 'Default Segments', 'newspack-popups' ) }
+					title={ __( 'Default Segments', 'newspack' ) }
 					onRequestClose={ () => setShowDefaultModal( false ) }
 					isNarrow
 				>
