@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
