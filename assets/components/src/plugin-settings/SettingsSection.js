@@ -51,17 +51,7 @@ const getControlType = setting => {
 };
 
 const SettingsSection = props => {
-	const {
-		sectionKey,
-		active,
-		title,
-		description,
-		fields,
-		disabled,
-		onChange,
-		onUpdate,
-		hasGreyHeader = true,
-	} = props;
+	const { sectionKey, active, title, description, fields, disabled, onChange, onUpdate } = props;
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
@@ -100,7 +90,7 @@ const SettingsSection = props => {
 			title={ title }
 			description={ description }
 			toggleChecked={ active }
-			hasGreyHeader={ hasGreyHeader }
+			hasGreyHeader={ active || null === active }
 			toggleOnChange={ active !== null ? value => onUpdate( { active: value } ) : null }
 			actionContent={
 				( active || null === active ) &&
