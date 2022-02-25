@@ -21,11 +21,11 @@ import { settings } from '@wordpress/icons';
  */
 import {
 	ActionCard,
-	CheckboxControl,
-	Modal,
-	Card,
-	Notice,
 	Button,
+	Card,
+	Modal,
+	Notice,
+	ToggleControl,
 	withWizardScreen,
 } from '../../../../components/src';
 import PlacementControl from '../../components/placement-control';
@@ -139,7 +139,6 @@ const Placements = ( { adUnits } ) => {
 							description={ placements[ key ].description }
 							toggleOnChange={ handlePlacementToggle( key ) }
 							toggleChecked={ isEnabled( key ) }
-							hasGreyHeader={ ! isEnabled( key ) }
 							actionText={
 								isEnabled( key ) ? (
 									<Button
@@ -184,22 +183,21 @@ const Placements = ( { adUnits } ) => {
 								...placement.hooks[ hookKey ],
 							};
 							return (
-								<>
-									<h2>{ hook.name }</h2>
+								<Card noBorder key={ hookKey }>
 									<PlacementControl
-										key={ hookKey }
+										label={ hook.name + ' ' + __( 'Ad Unit', 'newspack' ) }
 										adUnits={ adUnits }
 										bidders={ bidders }
 										value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
 										disabled={ inFlight }
 										onChange={ handlePlacementChange( editingPlacement, hookKey ) }
 									/>
-								</>
+								</Card>
 							);
 						} ) }
 					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
-						<CheckboxControl
-							label={ __( 'Stick to top', 'newspack' ) }
+						<ToggleControl
+							label={ __( 'Stick to Top', 'newspack' ) }
 							checked={ !! placement.data?.stick_to_top }
 							onChange={ value => {
 								setPlacements(
