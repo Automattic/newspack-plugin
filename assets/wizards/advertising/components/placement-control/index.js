@@ -12,7 +12,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Notice, SelectControl, TextControl } from '../../../../components/src';
+import { Grid, Notice, SelectControl, TextControl } from '../../../../components/src';
 
 /**
  * Get select options from object of ad units.
@@ -130,26 +130,28 @@ const PlacementControl = ( {
 
 	return (
 		<Fragment>
-			<SelectControl
-				label={ __( 'Provider', 'newspack' ) }
-				value={ value.provider || 'gam' }
-				options={ getProvidersForSelect( providers ) }
-				onChange={ provider => onChange( { ...value, provider } ) }
-				disabled={ inFlight || disabled }
-			/>
-			<SelectControl
-				label={ label }
-				value={ value.ad_unit }
-				options={ getProviderUnitsForSelect( placementProvider ) }
-				onChange={ data => {
-					onChange( {
-						...value,
-						ad_unit: data,
-					} );
-				} }
-				disabled={ inFlight || disabled }
-				{ ...props }
-			/>
+			<Grid columns={ 2 } gutter={ 32 }>
+				<SelectControl
+					label={ __( 'Provider', 'newspack' ) }
+					value={ value.provider }
+					options={ getProvidersForSelect( providers ) }
+					onChange={ provider => onChange( { ...value, provider } ) }
+					disabled={ inFlight || disabled }
+				/>
+				<SelectControl
+					label={ label }
+					value={ value.ad_unit }
+					options={ getProviderUnitsForSelect( placementProvider ) }
+					onChange={ data => {
+						onChange( {
+							...value,
+							ad_unit: data,
+						} );
+					} }
+					disabled={ inFlight || disabled }
+					{ ...props }
+				/>
+			</Grid>
 			{ placementProvider?.id === 'gam' &&
 				Object.keys( bidders ).map( bidderKey => {
 					const bidder = bidders[ bidderKey ];
