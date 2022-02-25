@@ -168,7 +168,7 @@ class PluginSettings extends Component {
 	 * Render.
 	 */
 	render() {
-		const { title, description } = this.props;
+		const { title, description, hasGreyHeader } = this.props;
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
@@ -190,6 +190,7 @@ class PluginSettings extends Component {
 							fields={ this.getSectionFields( sectionKey ) }
 							onChange={ this.handleSettingChange( sectionKey ) }
 							onUpdate={ this.handleSectionUpdate( sectionKey ) }
+							hasGreyHeader={ hasGreyHeader }
 						/>
 					) ) }
 				</div>

@@ -1,3 +1,73 @@
+## [1.77.2](https://github.com/Automattic/newspack-plugin/compare/v1.77.1...v1.77.2) (2022-02-24)
+
+
+### Bug Fixes
+
+* **jetpack:** modules scripts behind constant ([#1527](https://github.com/Automattic/newspack-plugin/issues/1527)) ([951d4d3](https://github.com/Automattic/newspack-plugin/commit/951d4d35c1605cb5dc0ad8758fee1ea1b606f546))
+
+## [1.77.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.77.1...v1.77.2-hotfix.1) (2022-02-24)
+
+
+### Bug Fixes
+
+* **jetpack:** modules scripts behind constant ([53e088b](https://github.com/Automattic/newspack-plugin/commit/53e088b1c601c8197c41e9c2b8c65ae4ee7675f2))
+
+## [1.77.1](https://github.com/Automattic/newspack-plugin/compare/v1.77.0...v1.77.1) (2022-02-23)
+
+
+### Bug Fixes
+
+* **reader-revenue:** return saved settings ([#1526](https://github.com/Automattic/newspack-plugin/issues/1526)) ([04e8efa](https://github.com/Automattic/newspack-plugin/commit/04e8efa88fc8b6049cc520b0cbc9811985ab0f37))
+
+## [1.77.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.77.0...v1.77.1-hotfix.1) (2022-02-23)
+
+
+### Bug Fixes
+
+* **reader-revenue:** return saved settings ([1a81dae](https://github.com/Automattic/newspack-plugin/commit/1a81daec62d5db062751fa41e4257581e1aade57))
+
+# [1.77.0](https://github.com/Automattic/newspack-plugin/compare/v1.76.0...v1.77.0) (2022-02-22)
+
+
+### Bug Fixes
+
+* **donations:** filter saved settings ([f09a19d](https://github.com/Automattic/newspack-plugin/commit/f09a19d11817b042c5639600d5088920d809f946)), closes [#1392](https://github.com/Automattic/newspack-plugin/issues/1392)
+* **parsely:** configuring Parse.ly ([9815511](https://github.com/Automattic/newspack-plugin/commit/9815511fd6db34d4b9e41c4a6f5b3fa0dc4abf7d))
+* **setup-wizard:** donation data ([#1481](https://github.com/Automattic/newspack-plugin/issues/1481)) ([14618d1](https://github.com/Automattic/newspack-plugin/commit/14618d1f36f12bd37bf1bd6667bd9606cf6df945))
+* **setup-wizard:** hide navigation on welcome screen (see [#1509](https://github.com/Automattic/newspack-plugin/issues/1509)) ([183757b](https://github.com/Automattic/newspack-plugin/commit/183757b903823d5c12382523df20699cadc3ee6c))
+* **stripe:** prevent webhook processing if platform is not Stripe ([3a8cfa7](https://github.com/Automattic/newspack-plugin/commit/3a8cfa794806ee7d7b61ab4481587f51e631f60f))
+* tooltip position in header and remove duplicated css ([#1467](https://github.com/Automattic/newspack-plugin/issues/1467)) ([a869a8e](https://github.com/Automattic/newspack-plugin/commit/a869a8e8a14cb66e690dd6b9fd9db108345b288c))
+
+
+### Features
+
+* add sticky position to tabbednavigation ([#1496](https://github.com/Automattic/newspack-plugin/issues/1496)) ([67da609](https://github.com/Automattic/newspack-plugin/commit/67da60984907723ef0ec4b715c5046b2b0996ece))
+* **block-editor:** utility to relink the editor close button to a wizard screen ([#1482](https://github.com/Automattic/newspack-plugin/issues/1482)) ([870f630](https://github.com/Automattic/newspack-plugin/commit/870f6308f60806935ac86f5f0c40e8195388cffe)), closes [#1205](https://github.com/Automattic/newspack-plugin/issues/1205)
+* enable AMP Plus for Jetpack Instant Search ([#1486](https://github.com/Automattic/newspack-plugin/issues/1486)) ([e62c5ba](https://github.com/Automattic/newspack-plugin/commit/e62c5ba0710017a4dd788954804545edb8d4383f))
+* support multiple control for plugin settings ([#1475](https://github.com/Automattic/newspack-plugin/issues/1475)) ([e00064c](https://github.com/Automattic/newspack-plugin/commit/e00064c3940b20b7bc580d5593da758aebcac05a))
+* use PluginSettings components for Campaigns wizard ([#1450](https://github.com/Automattic/newspack-plugin/issues/1450)) ([fe8e8aa](https://github.com/Automattic/newspack-plugin/commit/fe8e8aac524fd6d741cfc105968a3b13a7224757))
+
+# [1.77.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.76.0...v1.77.0-alpha.1) (2022-02-15)
+
+
+### Bug Fixes
+
+* **donations:** filter saved settings ([f09a19d](https://github.com/Automattic/newspack-plugin/commit/f09a19d11817b042c5639600d5088920d809f946)), closes [#1392](https://github.com/Automattic/newspack-plugin/issues/1392)
+* **parsely:** configuring Parse.ly ([9815511](https://github.com/Automattic/newspack-plugin/commit/9815511fd6db34d4b9e41c4a6f5b3fa0dc4abf7d))
+* **setup-wizard:** donation data ([#1481](https://github.com/Automattic/newspack-plugin/issues/1481)) ([14618d1](https://github.com/Automattic/newspack-plugin/commit/14618d1f36f12bd37bf1bd6667bd9606cf6df945))
+* **setup-wizard:** hide navigation on welcome screen (see [#1509](https://github.com/Automattic/newspack-plugin/issues/1509)) ([183757b](https://github.com/Automattic/newspack-plugin/commit/183757b903823d5c12382523df20699cadc3ee6c))
+* **stripe:** prevent webhook processing if platform is not Stripe ([3a8cfa7](https://github.com/Automattic/newspack-plugin/commit/3a8cfa794806ee7d7b61ab4481587f51e631f60f))
+* tooltip position in header and remove duplicated css ([#1467](https://github.com/Automattic/newspack-plugin/issues/1467)) ([a869a8e](https://github.com/Automattic/newspack-plugin/commit/a869a8e8a14cb66e690dd6b9fd9db108345b288c))
+
+
+### Features
+
+* add sticky position to tabbednavigation ([#1496](https://github.com/Automattic/newspack-plugin/issues/1496)) ([67da609](https://github.com/Automattic/newspack-plugin/commit/67da60984907723ef0ec4b715c5046b2b0996ece))
+* **block-editor:** utility to relink the editor close button to a wizard screen ([#1482](https://github.com/Automattic/newspack-plugin/issues/1482)) ([870f630](https://github.com/Automattic/newspack-plugin/commit/870f6308f60806935ac86f5f0c40e8195388cffe)), closes [#1205](https://github.com/Automattic/newspack-plugin/issues/1205)
+* enable AMP Plus for Jetpack Instant Search ([#1486](https://github.com/Automattic/newspack-plugin/issues/1486)) ([e62c5ba](https://github.com/Automattic/newspack-plugin/commit/e62c5ba0710017a4dd788954804545edb8d4383f))
+* support multiple control for plugin settings ([#1475](https://github.com/Automattic/newspack-plugin/issues/1475)) ([e00064c](https://github.com/Automattic/newspack-plugin/commit/e00064c3940b20b7bc580d5593da758aebcac05a))
+* use PluginSettings components for Campaigns wizard ([#1450](https://github.com/Automattic/newspack-plugin/issues/1450)) ([fe8e8aa](https://github.com/Automattic/newspack-plugin/commit/fe8e8aac524fd6d741cfc105968a3b13a7224757))
+
 # [1.76.0](https://github.com/Automattic/newspack-plugin/compare/v1.75.2...v1.76.0) (2022-02-15)
 
 

@@ -243,7 +243,7 @@ class Donations {
 			$saved_settings = get_option( self::DONATION_NON_WC_SETTINGS_OPTION, [] );
 			$defaults       = self::get_donation_default_settings( true );
 			// Get only the saved settings matching keys from default settings.
-			$valid_saved_settings       = array_intersect_key( $defaults, $saved_settings );
+			$valid_saved_settings       = array_intersect_key( $saved_settings, $defaults );
 			$settings                   = wp_parse_args( $valid_saved_settings, $defaults );
 			$settings['currencySymbol'] = $currency_symbol;
 			return $settings;

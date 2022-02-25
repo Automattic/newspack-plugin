@@ -75,6 +75,7 @@ const hasAnySize = ( sizes, sizesToCheck ) => {
 };
 
 const PlacementControl = ( {
+	label = __( 'Ad Unit', 'newspack' ),
 	adUnits = {},
 	bidders = {},
 	value = {},
@@ -137,7 +138,7 @@ const PlacementControl = ( {
 				disabled={ inFlight || disabled }
 			/>
 			<SelectControl
-				label={ __( 'Ad Unit', 'newspack' ) }
+				label={ label }
 				value={ value.ad_unit }
 				options={ getProviderUnitsForSelect( placementProvider ) }
 				onChange={ data => {
