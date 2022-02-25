@@ -60,7 +60,7 @@ const SettingsSection = props => {
 		disabled,
 		onChange,
 		onUpdate,
-		hasGreyHeader,
+		hasGreyHeader = true,
 	} = props;
 	const getControlProps = setting => ( {
 		disabled,
@@ -87,12 +87,10 @@ const SettingsSection = props => {
 			props
 		);
 	};
-	let columns;
+	let columns = 2;
 	if ( fields.length % 3 === 0 ) {
 		columns = 3;
-	} else if ( fields.length % 2 === 0 ) {
-		columns = 2;
-	} else {
+	} else if ( fields.length === 1 ) {
 		columns = 1;
 	}
 	return (
@@ -102,10 +100,10 @@ const SettingsSection = props => {
 			title={ title }
 			description={ description }
 			toggleChecked={ active }
-			hasGreyHeader={ active || hasGreyHeader }
+			hasGreyHeader={ hasGreyHeader }
 			toggleOnChange={ active !== null ? value => onUpdate( { active: value } ) : null }
 			actionContent={
-				( active || hasGreyHeader ) &&
+				( active || null === active ) &&
 				createFilter(
 					'buttons',
 					<Button
