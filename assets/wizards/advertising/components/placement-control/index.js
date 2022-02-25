@@ -76,39 +76,27 @@ const hasAnySize = ( sizes, sizesToCheck ) => {
 
 const PlacementControl = ( {
 	label = __( 'Ad Unit', 'newspack' ),
-	adUnits = {},
+	providers = [],
 	bidders = {},
 	value = {},
 	disabled = false,
 	onChange,
 	...props
 } ) => {
-	const [ error, setError ] = useState( null );
-	const [ inFlight, setInFlight ] = useState( false );
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
-	const [ providers, setProviders ] = useState( [] );
 
-	useEffect( async () => {
-		setInFlight( true );
-		try {
-			const data = await apiFetch( { path: '/newspack-ads/v1/providers' } );
-			setProviders( data );
-		} catch ( err ) {
-			setError( err );
-		}
-		setInFlight( false );
-	}, [] );
+	const placementProvider = providers.find(
+		provider => provider.id === ( value.provider || 'gam' )
+	);
 
 	useEffect( () => {
 		const errors = {};
 		Object.keys( bidders ).forEach( bidderKey => {
 			const bidder = bidders[ bidderKey ];
-			const supported =
-				value.ad_unit &&
-				adUnits[ value.ad_unit ] &&
-				hasAnySize( bidder.ad_sizes, adUnits[ value.ad_unit ].sizes );
+			const unit = placementProvider.units.find( u => u.value === value.ad_unit );
+			const supported = value.ad_unit && unit && hasAnySize( bidder.ad_sizes, unit.sizes );
 			errors[ bidderKey ] =
-				! value.ad_unit || ! adUnits[ value.ad_unit ] || supported
+				! value.ad_unit || ! unit || supported
 					? null
 					: sprintf(
 							// Translators: Ad bidder name.
@@ -118,15 +106,7 @@ const PlacementControl = ( {
 					  );
 		} );
 		setBiddersErrors( errors );
-	}, [ adUnits, value.ad_unit ] );
-
-	if ( error ) {
-		return <Notice isError noticeText={ error.message } />;
-	}
-
-	const placementProvider = providers.find(
-		provider => provider.id === ( value.provider || 'gam' )
-	);
+	}, [ providers, value.ad_unit ] );
 
 	return (
 		<Fragment>
@@ -136,7 +116,7 @@ const PlacementControl = ( {
 					value={ value.provider }
 					options={ getProvidersForSelect( providers ) }
 					onChange={ provider => onChange( { ...value, provider } ) }
-					disabled={ inFlight || disabled }
+					disabled={ disabled }
 				/>
 				<SelectControl
 					label={ label }
@@ -148,7 +128,7 @@ const PlacementControl = ( {
 							ad_unit: data,
 						} );
 					} }
-					disabled={ inFlight || disabled }
+					disabled={ disabled }
 					{ ...props }
 				/>
 			</Grid>
@@ -162,7 +142,7 @@ const PlacementControl = ( {
 							key={ bidderKey }
 							value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
 							label={ bidderLabel }
-							disabled={ inFlight || biddersErrors[ bidderKey ] || disabled }
+							disabled={ biddersErrors[ bidderKey ] || disabled }
 							onChange={ data => {
 								onChange( {
 									...value,
