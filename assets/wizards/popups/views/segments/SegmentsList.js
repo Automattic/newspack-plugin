@@ -374,11 +374,11 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 					<Card headerActions noBorder>
 						<h2>{ __( 'Audience Segments', 'newspack' ) }</h2>
 						<Card noBorder buttonsCard>
-							<AddNewSegmentLink />
 							<GenerateDefaultSegmentsLink
 								defaultsCreated={ defaultSegments || defaultsCreated }
 								onClick={ () => setShowDefaultModal( true ) }
 							/>
+							<AddNewSegmentLink />
 						</Card>
 					</Card>
 					<div

@@ -37,7 +37,14 @@
 	margin: 16px 0;
 
 	&.is-dragging {
-		display: none;
+		.newspack-card {
+			border-color: $gray-100;
+			background: $gray-100;
+
+			> * {
+				visibility: hidden;
+			}
+		}
 	}
 
 	&.is-drop-target::before,
@@ -45,7 +52,7 @@
 		background-color: $primary-500;
 		content: '';
 		display: block;
-		height: 2px;
+		height: 4px;
 		margin-bottom: 16px;
 		margin-top: 16px;
 		width: 100%;
@@ -113,9 +120,9 @@
 		}
 
 		.newspack-action-card__region-top {
-			padding: 8px 16px 8px 0 !important;
 			flex: 1;
 			order: 2;
+			padding: 8px 16px 8px 0 !important;
 		}
 	}
 }
