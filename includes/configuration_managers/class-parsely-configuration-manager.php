@@ -74,13 +74,23 @@ class Parsely_Configuration_Manager extends Configuration_Manager {
 		// The Site ID field is confusingly stored in the 'apikey' field and is the site's domain.
 		// This is the only non-default field we need to auto-populate.
 		if ( empty( $parsely_settings['apikey'] ) ) {
-			$site_url                   = get_site_url();
-			$site_host                  = wp_parse_url( $site_url, PHP_URL_HOST );
-			$parsely_settings['apikey'] = sanitize_text_field( $site_host );
+			$parsely_settings['apikey'] = $this->get_api_key();
 			update_option( 'parsely', $parsely_settings );
 		}
 
 		$this->set_newspack_has_configured( true );
 		return true;
+	}
+
+	/**
+	 * Get the appropriate API key for Parse.ly.
+	 * On Newspack-hosted sites, this will be the host without 'http(s)' or 'www' or slashes.
+	 *
+	 * @return string API key.
+	 */
+	public function get_parsely_api_key() {
+		$site_url  = get_site_url();
+		$site_host = wp_parse_url( $site_url, PHP_URL_HOST );
+		return sanitize_text_field( str_replace( 'www.', '', $site_host ) );
 	}
 }
