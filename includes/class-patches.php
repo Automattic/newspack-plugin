@@ -31,9 +31,6 @@ class Patches {
 
 		// Disable Publicize automated sharing for WooCommerce products.
 		add_action( 'init', [ __CLASS__, 'disable_publicize_for_products' ] );
-
-		// Fix an issue when running The Events Calendar where all posts block items have same date.
-		add_action( 'tribe_events_views_v2_after_make_view', [ __CLASS__, 'remove_tec_extra_excerpt_filtering' ], 1 );
 	}
 
 	/**
@@ -289,19 +286,6 @@ class Patches {
 	 */
 	public static function disable_publicize_for_products() {
 		remove_post_type_support( 'product', 'publicize' );
-	}
-
-	/**
-	 * The 'action_include_filters_excerpt' hooked on this action to modify the 'Read More' text by The Events Calendar
-	 * causes issues because of the weird `avoiding_filter_loop` usage in the call stack. It introduces a race condition that
-	 * messes up the query that the posts block uses by resetting the query early, and WP will think the current posts block item is
-	 * the parent Page that the posts block is embedded on.
-	 *
-	 * @see https://github.com/the-events-calendar/the-events-calendar/blob/0b8caed6049ee6c16bb3d1e06ea9026d995f636e/src/Tribe/Views/V2/Hooks.php#L92
-	 * @see https://github.com/the-events-calendar/the-events-calendar/blob/77910c9de7f5640064d4eef4eb4841a523f27719/src/Tribe/Views/V2/Template/Excerpt.php#L71-L73
-	 */
-	public static function remove_tec_extra_excerpt_filtering() {
-		remove_all_actions( 'tribe_events_views_v2_after_make_view' );
 	}
 }
 Patches::init();
