@@ -1,9 +1,9 @@
-# [1.78.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.1...v1.78.0-alpha.2) (2022-02-24)
+## [1.77.3](https://github.com/Automattic/newspack-plugin/compare/v1.77.2...v1.77.3) (2022-03-01)
 
 
 ### Bug Fixes
 
-* **jetpack:** modules scripts behind constant ([#1527](https://github.com/Automattic/newspack-plugin/issues/1527)) ([951d4d3](https://github.com/Automattic/newspack-plugin/commit/951d4d35c1605cb5dc0ad8758fee1ea1b606f546))
+* **analytics:** avoid Site Kit crash due to conflict with HandoffBanner ([#1537](https://github.com/Automattic/newspack-plugin/issues/1537)) ([68d3947](https://github.com/Automattic/newspack-plugin/commit/68d394727c66d22c2daf3480d163132f8dd2d66c))
 
 ## [1.77.2](https://github.com/Automattic/newspack-plugin/compare/v1.77.1...v1.77.2) (2022-02-24)
 
