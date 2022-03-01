@@ -76,11 +76,6 @@ abstract class Starter_Content_Provider {
 				wp_delete_post( $post_id['post_id'], true );
 			}
 		}
-
-		$homepage_id = $wpdb->get_row( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s;", self::$starter_homepage_meta ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		if ( ! empty( $homepage_id ) ) {
-			wp_delete_post( $homepage_id['post_id'], true );
-		}
 	}
 
 	/**
