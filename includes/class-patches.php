@@ -294,7 +294,7 @@ class Patches {
 	/**
 	 * The 'action_include_filters_excerpt' hooked on this action to modify the 'Read More' text by The Events Calendar
 	 * causes issues because of the weird `avoiding_filter_loop` usage in the call stack. It introduces a race condition that
-	 * messes up the query that the posts block uses by resetting the query early, and WP will think the current posts block item is 
+	 * messes up the query that the posts block uses by resetting the query early, and WP will think the current posts block item is
 	 * the parent Page that the posts block is embedded on.
 	 *
 	 * @see https://github.com/the-events-calendar/the-events-calendar/blob/0b8caed6049ee6c16bb3d1e06ea9026d995f636e/src/Tribe/Views/V2/Hooks.php#L92
