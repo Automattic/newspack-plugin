@@ -74,7 +74,7 @@ class Parsely_Configuration_Manager extends Configuration_Manager {
 		// The Site ID field is confusingly stored in the 'apikey' field and is the site's domain.
 		// This is the only non-default field we need to auto-populate.
 		if ( empty( $parsely_settings['apikey'] ) ) {
-			$parsely_settings['apikey'] = $this->get_api_key();
+			$parsely_settings['apikey'] = $this->get_parsely_api_key();
 			update_option( 'parsely', $parsely_settings );
 		}
 
