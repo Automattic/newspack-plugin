@@ -247,7 +247,7 @@ class Patches {
 	 * @param WP_Query $query Query to alter.
 	 */
 	public static function restrict_media_library_access( $query ) {
-		$current_screen  = get_current_screen();
+		global $current_screen;
 		$current_user_id = get_current_user_id();
 
 		// If not in a dashboard page or there's no user to check permissions for.
