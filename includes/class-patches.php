@@ -22,7 +22,7 @@ class Patches {
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
-		add_action( 'pre_get_posts', [ __CLASS__, 'restrict_media_library_access' ] );
+		add_action( 'pre_get_posts', [ __CLASS__, 'restrict_others_posts' ] );
 		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'restrict_media_library_access_ajax' ] );
 		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
@@ -241,29 +241,53 @@ class Patches {
 	}
 
 	/**
-	 * Restrict non-privileged users from seeing media library items not uploaded by them.
-	 * Affects the legacy (non-AJAX) media library list page.
+	 * Restrict non-privileged users from seeing posts not owned by them.
+	 * Affects all admin post lists and the legacy (non-AJAX) media library list page.
 	 *
 	 * @param WP_Query $query Query to alter.
 	 */
-	public static function restrict_media_library_access( $query ) {
+	public static function restrict_others_posts( $query ) {
 		global $current_screen;
 		$current_user_id = get_current_user_id();
 
 		// If not in a dashboard page or there's no user to check permissions for.
-		if ( ! $current_screen || ! $current_user_id ) {
+		if ( ! $current_screen || ! $current_user_id || ! $query->is_main_query() ) {
 			return;
 		}
 
-		// If not in the media library or not querying attachments.
-		if ( 'upload' !== $current_screen->id || 'attachment' !== $query->get( 'post_type' ) ) {
-			return;
-		}
+		$is_media_library = 'upload' === $current_screen->id && 'attachment' === $query->get( 'post_type' );
+		$is_posts_list    = 'edit' === $current_screen->base;
 
-		// If the user can't edit others' posts, only allow them to view their own media items.
-		if ( ! current_user_can( 'edit_others_posts' ) ) {
+		// If the user can't edit others' posts, only allow them to view their own posts.
+		if ( ( $is_media_library || $is_posts_list ) && ! current_user_can( 'edit_others_posts' ) ) {
 			$query->set( 'author', $current_user_id ); // phpcs:ignore WordPressVIPMinimum.Hooks.PreGetPosts.PreGetPosts
+			add_filter( 'wp_count_posts', [ __CLASS__, 'fix_post_counts' ], 10, 2 );
 		}
+	}
+
+	/**
+	 * Updates the post counts shown alongside each status in admin post lists.
+	 *
+	 * @param object $counts Post counts keyed by status.
+	 * @param string $type Post type.
+	 *
+	 * @return object Filtered $counts object.
+	 */
+	public static function fix_post_counts( $counts, $type ) {
+		$current_user_id = get_current_user_id();
+		foreach ( (array) $counts as $status => $count ) {
+			if ( 0 < $count ) {
+				$args = [
+					'author'      => $current_user_id,
+					'post_status' => $status,
+					'post_type'   => $type,
+				];
+
+				$results         = new \WP_Query( $args );
+				$counts->$status = $results->found_posts;
+			}
+		}
+		return $counts;
 	}
 
 	/**
