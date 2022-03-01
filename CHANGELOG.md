@@ -1,3 +1,10 @@
+## [1.77.3](https://github.com/Automattic/newspack-plugin/compare/v1.77.2...v1.77.3) (2022-03-01)
+
+
+### Bug Fixes
+
+* **analytics:** avoid Site Kit crash due to conflict with HandoffBanner ([#1537](https://github.com/Automattic/newspack-plugin/issues/1537)) ([68d3947](https://github.com/Automattic/newspack-plugin/commit/68d394727c66d22c2daf3480d163132f8dd2d66c))
+
 ## [1.77.2](https://github.com/Automattic/newspack-plugin/compare/v1.77.1...v1.77.2) (2022-02-24)
 
 
