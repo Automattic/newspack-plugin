@@ -22,6 +22,8 @@ class Patches {
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
+		add_action( 'pre_get_posts', [ __CLASS__, 'restrict_media_library_access' ] );
+		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'restrict_media_library_access_ajax' ] );
 		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
@@ -239,6 +241,50 @@ class Patches {
 	}
 
 	/**
+	 * Restrict non-privileged users from seeing media library items not uploaded by them.
+	 * Affects the legacy (non-AJAX) media library list page.
+	 *
+	 * @param WP_Query $query Query to alter.
+	 */
+	public static function restrict_media_library_access( $query ) {
+		$current_screen  = get_current_screen();
+		$current_user_id = get_current_user_id();
+
+		// If not in a dashboard page or there's no user to check permissions for.
+		if ( ! $current_screen || ! $current_user_id ) {
+			return;
+		}
+
+		// If not in the media library or not querying attachments.
+		if ( 'upload' !== $current_screen->id || 'attachment' !== $query->get( 'post_type' ) ) {
+			return;
+		}
+
+		// If the user can't edit others' posts, only allow them to view their own media items.
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			$query->set( 'author', $current_user_id ); // phpcs:ignore WordPressVIPMinimum.Hooks.PreGetPosts.PreGetPosts
+		}
+	}
+
+	/**
+	 * Restrict non-privileged users from seeing media library items not uploaded by them.
+	 * Affects media library AJAX requests.
+	 *
+	 * @param array $query_args Query args for the AJAX request.
+	 *
+	 * @return array Filtered query args.
+	 */
+	public static function restrict_media_library_access_ajax( $query_args ) {
+		$current_user_id = get_current_user_id();
+
+		if ( $current_user_id && ! current_user_can( 'edit_others_posts' ) ) {
+			$query_args['author'] = $current_user_id;
+		}
+
+		return $query_args;
+	}
+
+	/**
 	 * Disable automated social media sharing of WooCommerce products via Publicize.
 	 */
 	public static function disable_publicize_for_products() {
@@ -248,7 +294,7 @@ class Patches {
 	/**
 	 * The 'action_include_filters_excerpt' hooked on this action to modify the 'Read More' text by The Events Calendar
 	 * causes issues because of the weird `avoiding_filter_loop` usage in the call stack. It introduces a race condition that
-	 * messes up the query that the posts block uses by resetting the query early, and WP will think the current posts block item is 
+	 * messes up the query that the posts block uses by resetting the query early, and WP will think the current posts block item is
 	 * the parent Page that the posts block is embedded on.
 	 *
 	 * @see https://github.com/the-events-calendar/the-events-calendar/blob/0b8caed6049ee6c16bb3d1e06ea9026d995f636e/src/Tribe/Views/V2/Hooks.php#L92
