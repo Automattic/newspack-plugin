@@ -25,10 +25,38 @@ class GravityForms {
 	];
 
 	/**
+	 * Classnames used by GF polls plugin are used.
+	 *
+	 * @var string[]
+	 */
+	private static $gf_polls_classnames = [
+		'gpoll_value_selected',
+		'gpoll_button',
+		'gpoll_bar',
+		'gpoll_bar_juice',
+		'gpoll_bar_count',
+		'gpoll_wrapper',
+		'gpoll_ratio_box',
+		'gpoll_ratio_label',
+		'gpoll_field_label',
+		'gpoll_choice_label',
+		'gpoll_container',
+		'gpoll_field',
+		'gpoll_field_number',
+		'gfield',
+		'blue',
+		'green',
+		'red',
+		'orange',
+	];
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'filter_scripts_for_amp_plus' ], 10, 2 );
+
+		add_filter( 'the_content', [ __CLASS__, 'handle_gf_polls_blocks' ] );
 
 		// The following code makes GravityForms work nicely with AMP.
 		// It's not enough for forms which have conditional logic – these need JS. For this,
@@ -375,6 +403,7 @@ TEMPLATE;
 		if ( AMP_Enhancements::is_script_id_matching_strings(
 			[
 				'gform_',
+				'gpoll_', // GravityForms Polls (gravityformspolls) plugin.
 				'jquery-core-js',
 				'regenerator-runtime-js',
 			],
@@ -395,6 +424,21 @@ TEMPLATE;
 		}
 
 		return $is_sanitized;
+	}
+
+	/**
+	 * When the post has a GravityForms Poll block, append a hidden div with all the
+	 * classes used by GF's Polls plugin, so the CSS is not stripped off by AMP.
+	 * The stripping happens because these classes are added by JS, which will be
+	 * loaded via AMP Plus (if enabled).
+	 *
+	 * @param string $content The post content.
+	 */
+	public static function handle_gf_polls_blocks( $content ) {
+		if ( ! self::should_disable_scripts() && has_block( 'gravityforms/polls' ) ) {
+			return $content . '<div style="display:none;" class="' . implode( ' ', self::$gf_polls_classnames ) . '"></div>';
+		}
+		return $content;
 	}
 
 	/**
