@@ -128,6 +128,9 @@ const Placements = () => {
 
 	return (
 		<Fragment>
+			{ ! inFlight && ! providers.length && (
+				<Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack' ) } />
+			) }
 			<div
 				className={ classnames( {
 					'newspack-wizard-ads-placements': true,
@@ -139,7 +142,7 @@ const Placements = () => {
 						<ActionCard
 							key={ key }
 							isSmall
-							disabled={ inFlight }
+							disabled={ inFlight || ! providers.length }
 							title={ placements[ key ].name }
 							description={ placements[ key ].description }
 							toggleOnChange={ handlePlacementToggle( key ) }
@@ -149,7 +152,7 @@ const Placements = () => {
 									<Button
 										isQuaternary
 										isSmall
-										disabled={ inFlight }
+										disabled={ inFlight || ! providers.length }
 										onClick={ () => setEditingPlacement( key ) }
 										icon={ settings }
 										label={ __( 'Placement settings', 'newspack' ) }

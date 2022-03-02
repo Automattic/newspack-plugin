@@ -86,13 +86,13 @@ const PlacementControl = ( {
 
 	// Default provider is GAM or first index if GAM is not active.
 	const placementProvider =
-		providers.find( provider => provider.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
+		providers.find( provider => provider?.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
 
 	useEffect( () => {
 		const errors = {};
 		Object.keys( bidders ).forEach( bidderKey => {
 			const bidder = bidders[ bidderKey ];
-			const unit = placementProvider.units.find( u => u.value === value.ad_unit );
+			const unit = placementProvider?.units.find( u => u.value === value.ad_unit );
 			const supported = value.ad_unit && unit && hasAnySize( bidder.ad_sizes, unit.sizes );
 			errors[ bidderKey ] =
 				! value.ad_unit || ! unit || supported
@@ -107,12 +107,16 @@ const PlacementControl = ( {
 		setBiddersErrors( errors );
 	}, [ providers, value.ad_unit ] );
 
+	if ( ! providers.length ) {
+		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack' ) } />;
+	}
+
 	return (
 		<Fragment>
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SelectControl
 					label={ __( 'Provider', 'newspack' ) }
-					value={ value.provider }
+					value={ placementProvider?.id }
 					options={ getProvidersForSelect( providers ) }
 					onChange={ provider => onChange( { ...value, provider } ) }
 					disabled={ disabled }
