@@ -1,0 +1,422 @@
+<?php
+/**
+ * Gravity Forms integration class.
+ *
+ * @package Newspack
+ */
+
+namespace Newspack;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Main class.
+ */
+class GravityForms {
+	/**
+	 * AJAX call result payload.
+	 *
+	 * @var array
+	 */
+	private static $ajax_result_payload = [
+		'status'       => 'success',
+		'confirmation' => '',
+		'errors'       => [],
+	];
+
+	/**
+	 * Initialize hooks and filters.
+	 */
+	public static function init() {
+		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'filter_scripts_for_amp_plus' ], 10, 2 );
+
+		// The following code makes GravityForms work nicely with AMP.
+		// It's not enough for forms which have conditional logic – these need JS. For this,
+		// AMP Plus is used to allow GF's JS to be sent to the client.
+		//
+		// Adapted from: https://gist.github.com/swissspidy/86e3a50ec5c0f7d46ec4de43824e23a0 .
+		// By Pascal Birchler (https://pascalbirchler.com).
+		add_filter( 'gform_form_args', [ __CLASS__, 'gform_form_args' ] );
+		add_filter( 'gform_field_content', [ __CLASS__, 'gform_field_content' ], 10, 2 );
+		add_filter( 'gform_submit_button', [ __CLASS__, 'gform_submit_button' ], 10, 2 );
+		add_filter( 'gform_pre_render', [ __CLASS__, 'gform_pre_render' ], 10, 2 );
+		add_filter( 'gform_footer_init_scripts_filter', [ __CLASS__, 'gform_footer_init_scripts_filter' ] );
+		add_filter( 'widget_display_callback', [ __CLASS__, 'widget_display_callback' ], 10, 3 );
+		add_filter( 'gform_get_form_filter', [ __CLASS__, 'gform_get_form_filter' ], 10, 2 );
+		add_action( 'gform_enqueue_scripts', [ __CLASS__, 'gform_enqueue_scripts' ], 100 );
+		add_action( 'gform_form_tag', [ __CLASS__, 'gform_form_tag' ], 100 );
+		add_action( 'wp_ajax_gravity_form_submission', [ __CLASS__, 'send_ajax_result' ] );
+		add_action( 'wp_ajax_nopriv_gravity_form_submission', [ __CLASS__, 'send_ajax_result' ] );
+		add_filter( 'gform_confirmation', [ __CLASS__, 'gform_confirmation' ], 10, 3 );
+		add_action( 'gform_post_process', [ __CLASS__, 'gform_post_process' ] );
+		add_filter( 'gform_validation', [ __CLASS__, 'gform_validation' ] );
+		add_filter( 'gform_suppress_confirmation_redirect', [ __CLASS__, 'gform_suppress_confirmation_redirect' ] );
+	}
+
+	/**
+	 * Filter arguments.
+	 *
+	 * @param array $args Arguments.
+	 */
+	public static function gform_form_args( array $args ) {
+		if ( ! is_amp_endpoint() ) {
+			return $args;
+		}
+		$args['ajax']           = false;
+		$args['enableHoneypot'] = '0';
+		return $args;
+	}
+
+	/**
+	 * Filters form content.
+	 *
+	 * @param string $content Content.
+	 * @param object $field Field.
+	 */
+	public static function gform_field_content( $content, $field ) {
+		if ( ! is_amp_endpoint() ) {
+			return $content;
+		}
+
+		if ( $field->isRequired ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return str_replace( 'aria-required=', 'required=', $content );
+		}
+
+		$attr = esc_attr( sprintf( 'change:AMP.setState({gravityForm_%1$s_1: {field_%2$s: event.value}})', $field->formId, $field->id ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		$content = preg_replace( '/(onchange=\'([^\']*)\')/', '', $content );
+		$content = str_replace( '<input', '<input on="' . $attr . '"', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Filters form submit button.
+	 *
+	 * @param string $content Content.
+	 * @param array  $form Form.
+	 */
+	public static function gform_submit_button( $content, $form ) {
+		if ( ! is_amp_endpoint() ) {
+			return $content;
+		}
+
+		$content = preg_replace( '/(onclick=\'([^\']*)\')/', '', $content );
+		$content = preg_replace( '/(onkeypress=\'([^\']*)\')/', '', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Filter fields from the form.
+	 *
+	 * @param array $form Form.
+	 */
+	public static function gform_pre_render( $form ) {
+		if ( ! is_amp_endpoint() ) {
+			return $form;
+		}
+
+		if ( isset( $form['enableHoneypot'] ) && '1' === $form['enableHoneypot'] ) {
+			// Remove randomly generated honeypot fields.
+			array_pop( $form['fields'] );
+		}
+
+		return $form;
+	}
+
+	/**
+	 * Filter form's footer script.
+	 *
+	 * @param string $content Script content.
+	 */
+	public static function gform_footer_init_scripts_filter( $content ) {
+		if ( self::should_disable_scripts() ) {
+			return '';
+		}
+		return $content;
+	}
+
+	/**
+	 * Filter form widget callback.
+	 *
+	 * @param array  $instance The widget instance.
+	 * @param object $widget Widget.
+	 * @param array  $args Arguments.
+	 */
+	public static function widget_display_callback( $instance, $widget, $args ) {
+		if ( ! $widget instanceof GFWidget ) {
+			return $instance;
+		}
+
+		if ( ! isset( $instance['title'] ) ) {
+			$instance['title'] = '';
+		}
+
+		if ( self::should_disable_scripts() ) {
+			$instance['disable_scripts'] = true;
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * Filter form messages template.
+	 *
+	 * @param string $content Content.
+	 * @param array  $form Form.
+	 */
+	public static function gform_get_form_filter( $content, $form ) {
+		if ( ! is_amp_endpoint() ) {
+			return $content;
+		}
+
+		wp_dequeue_script( 'jquery' );
+
+		$error_message        = __( 'There is a mistake in the form!', 'newspack' );
+		$confirmation_message = __( 'Form successfully submitted.', 'newspack' );
+		$submitting           = __( 'Submitting...', 'newspack' );
+		$try_again_later      = __( 'Something went wrong. Try again later?', 'newspack' );
+
+		// phpcs:disable WordPressVIPMinimum.Security.Mustache.OutputNotation
+		$amp_html = <<<TEMPLATE
+<div verify-error>
+	<template type="amp-mustache">
+		$error_message
+		{{#verifyErrors}}{{message}}{{/verifyErrors}}
+	</template>
+</div>
+<div submitting>
+	<template type="amp-mustache">
+		$submitting
+	</template>
+</div>
+<div submit-success>
+<template type="amp-mustache">
+	{{#confirmation}}
+		{{{confirmation}}}
+	{{/confirmation}}
+	{{^confirmation}}
+		$confirmation_message
+	{{/confirmation}}
+</template>
+</div>
+<div submit-error>
+	<template type="amp-mustache">
+		{{#errors}}
+            <p>{{#label}}{{label}}: {{/label}}{{message}}</p>
+        {{/errors}}
+        {{^errors}}
+            <p>$try_again_later</p>
+        {{/errors}}
+	</template>
+</div>
+TEMPLATE;
+		// phpcs:enable WordPressVIPMinimum.Security.Mustache.OutputNotation
+
+		$content = str_replace( '</form>', $amp_html . '</form>', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Scripts enqueueing filter.
+	 */
+	public static function gform_enqueue_scripts() {
+		if ( ! self::should_disable_scripts() ) {
+			return;
+		}
+
+		wp_dequeue_script( 'gform_gravityforms' );
+		wp_dequeue_script( 'gform_placeholder' );
+		wp_dequeue_script( 'gform_json' );
+		wp_dequeue_script( 'jquery' );
+	}
+
+	/**
+	 * Filter the form element.
+	 *
+	 * @param string $content Content.
+	 */
+	public static function gform_form_tag( $content ) {
+		if ( ! is_amp_endpoint() ) {
+			return $content;
+		}
+
+		$ajax_url = add_query_arg( 'action', 'gravity_form_submission', admin_url( 'admin-ajax.php' ) );
+
+		$content = preg_replace( '/(action=\'([^\']*)\')/', '', $content );
+		$content = str_replace( '>', 'target="_top">', $content );
+		$content = str_replace( '>', 'action-xhr="' . $ajax_url . '">', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Filter form confirmation.
+	 *
+	 * @param array $confirmation Confirmation.
+	 * @param array $form Form.
+	 * @param array $lead Lead.
+	 */
+	public static function gform_confirmation( $confirmation, $form, $lead ) {
+		if ( ! self::is_ajax_form_submission() ) {
+			return $confirmation;
+		}
+
+		$is_verify_request = isset( $_POST['__amp_form_verify'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( $is_verify_request ) {
+			\GFFormsModel::delete_entry( $lead['id'] );
+			return $confirmation;
+		}
+
+		if ( \is_array( $confirmation ) && isset( $confirmation['redirect'] ) ) {
+			header( 'AMP-Redirect-To: ' . $confirmation['redirect'] );
+			header( 'AMP-Access-Control-Allow-Source-Origin: ' . home_url() );
+			header( 'Access-Control-Expose-Headers: AMP-Redirect-To, AMP-Access-Control-Allow-Source-Origin' );
+		}
+
+		return $confirmation;
+	}
+
+	/**
+	 * Send a result as JSON.
+	 */
+	public static function send_ajax_result() {
+		wp_send_json( self::$ajax_result_payload, 'success' === self::$ajax_result_payload['status'] ? 200 : 400 );
+	}
+
+	/**
+	 * Process AJAX reponse.
+	 *
+	 * @param array $form Form.
+	 */
+	public static function gform_post_process( $form ) {
+		if ( ! self::is_ajax_form_submission() ) {
+			return;
+		}
+
+		$submission_info = \GFFormDisplay::$submission[ $form['id'] ];
+
+		self::$ajax_result_payload['confirmation'] = $submission_info['confirmation_message'];
+	}
+
+	/**
+	 * Process validation result.
+	 *
+	 * @param array $validation_result Validation result.
+	 */
+	public static function gform_validation( $validation_result ) {
+		if ( ! self::is_ajax_form_submission() ) {
+			return $validation_result;
+		}
+
+		if ( ! $validation_result['is_valid'] ) {
+			self::$ajax_result_payload['status'] = 'error';
+		}
+
+		$is_form_empty = \GFFormDisplay::is_form_empty( $validation_result['form'] );
+
+		foreach ( $validation_result['form']['fields'] as $field ) {
+			if ( $is_form_empty ) {
+				self::$ajax_result_payload['errors'][] = [
+					'label'   => __( 'Error', 'amp-gf' ),
+					'message' => $field->validation_message,
+				];
+
+				break;
+			}
+
+			if ( $field->failed_validation ) {
+				self::$ajax_result_payload['errors'][] = [
+					'label'   => $field->label,
+					'message' => $field->validation_message,
+				];
+			}
+		}
+
+		return $validation_result;
+	}
+
+	/**
+	 * Suppress confirmation redirect if using AJAX.
+	 *
+	 * @param bool $suppress Whether to suppress.
+	 */
+	public static function gform_suppress_confirmation_redirect( $suppress ) {
+		return self::is_ajax_form_submission() ? true : $suppress;
+	}
+
+	/**
+	 * Determines whether we're in the middle of an Ajax form submission.
+	 *
+	 * @return bool
+	 */
+	private static function is_ajax_form_submission() {
+		return wp_doing_ajax() && isset( $_REQUEST['action'] ) && 'gravity_form_submission' === $_REQUEST['action']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Allow Gravity Forms scripts to be loaded in AMP Plus mode.
+	 *
+	 * @param bool|null $is_sanitized If null, the error will be handled. If false, rejected.
+	 * @param object    $error        The AMP sanitisation error.
+	 *
+	 * @return bool Whether the error should be rejected.
+	 */
+	public static function filter_scripts_for_amp_plus( $is_sanitized, $error ) {
+		if ( ! is_plugin_active( 'gravityforms/gravityforms.php' ) ) {
+			return $is_sanitized;
+		}
+		if ( ! self::is_amp_plus_handling_enabled() ) {
+			return $is_sanitized;
+		}
+
+		if ( AMP_Enhancements::is_script_id_matching_strings(
+			[
+				'gform_',
+				'jquery-core-js',
+				'regenerator-runtime-js',
+			],
+			$error
+		) ) {
+			$is_sanitized = false;
+		}
+
+		if ( isset( $error, $error['element_attributes'], $error['element_attributes']['action-xhr'] ) ) {
+			if ( false !== strpos( $error['element_attributes']['action-xhr'], 'gravity_form' ) ) {
+				$is_sanitized = false;
+			}
+		}
+
+		// Match inline scripts by script text since they don't have IDs.
+		if ( AMP_Enhancements::is_script_body_matching_strings( [ 'gform' ], $error ) ) {
+			$is_sanitized = false;
+		}
+
+		return $is_sanitized;
+	}
+
+	/**
+	 * Whether front-end scripts should be disabled.
+	 */
+	public static function should_disable_scripts() {
+		if ( self::is_amp_plus_handling_enabled() && AMP_Enhancements::should_use_amp_plus() ) {
+			return false;
+		}
+		return is_amp_endpoint();
+	}
+
+	/**
+	 * Whether Gravity Forms should be handled in AMP Plus.
+	 *
+	 * @return @bool Whether to use this feature.
+	 */
+	private static function is_amp_plus_handling_enabled() {
+		if ( defined( 'NEWSPACK_AMP_PLUS_GRAVITYFORMS' ) ) {
+			return true === NEWSPACK_AMP_PLUS_GRAVITYFORMS;
+		}
+		return false;
+	}
+}
+GravityForms::init();
