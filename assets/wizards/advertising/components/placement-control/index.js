@@ -84,9 +84,9 @@ const PlacementControl = ( {
 } ) => {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 
-	const placementProvider = providers.find(
-		provider => provider.id === ( value.provider || 'gam' )
-	);
+	// Default provider is GAM or first index if GAM is not active.
+	const placementProvider =
+		providers.find( provider => provider.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
 
 	useEffect( () => {
 		const errors = {};
