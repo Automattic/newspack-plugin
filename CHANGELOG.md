@@ -1,3 +1,10 @@
+# [1.78.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.3...v1.78.0-alpha.4) (2022-03-03)
+
+
+### Bug Fixes
+
+* stripe data setting ([ceec544](https://github.com/Automattic/newspack-plugin/commit/ceec544cc1f4dd7b56014863c83e82f978f4884e))
+
 # [1.78.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.2...v1.78.0-alpha.3) (2022-03-01)
 
 
