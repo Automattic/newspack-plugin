@@ -185,7 +185,6 @@ class AdvertisingWizard extends Component {
 										'Define global advertising placements to serve ad units on your site',
 										'newspack'
 									) }
-									adUnits={ adUnits }
 									tabbedNavigation={ tabs }
 								/>
 							) }
