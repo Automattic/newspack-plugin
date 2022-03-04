@@ -51,15 +51,27 @@ class PluginToggle extends Component {
 				pluginInfo: { ...pluginInfo, [ plugin ]: { ...pluginInfo[ plugin ], inFlight: action } },
 			},
 			() => {
-				apiFetch( params ).then( response => {
-					const { shouldRefreshAfterUpdate } = plugins[ plugin ];
-					this.setState(
-						( { pluginInfo: currentPluginInfo } ) => ( {
-							pluginInfo: { ...currentPluginInfo, [ plugin ]: response },
-						} ),
-						() => shouldRefreshAfterUpdate && location.reload()
-					);
-				} );
+				apiFetch( params )
+					.then( response => {
+						const { shouldRefreshAfterUpdate } = plugins[ plugin ];
+						this.setState(
+							( { pluginInfo: currentPluginInfo } ) => ( {
+								pluginInfo: { ...currentPluginInfo, [ plugin ]: response },
+							} ),
+							() => shouldRefreshAfterUpdate && location.reload()
+						);
+					} )
+					.catch( e => {
+						this.setState( {
+							pluginInfo: {
+								...pluginInfo,
+								[ plugin ]: {
+									...pluginInfo[ plugin ],
+									error: e.message || __( 'There was an error managing this plugin.', 'newspack' ),
+								},
+							},
+						} );
+					} );
 			}
 		);
 	};
@@ -74,6 +86,7 @@ class PluginToggle extends Component {
 			const { name, description, href, slug, editPath } = plugin;
 			const pluginStatus = this.isPluginInstalledAndActive( plugin );
 			const handoff = ! href && pluginStatus && editPath ? slug : null;
+			const error = this.errorForPlugin( plugin );
 			return (
 				<ActionCard
 					key={ index }
@@ -86,6 +99,9 @@ class PluginToggle extends Component {
 					toggle
 					toggleChecked={ this.isPluginInstalledAndActive( plugin ) }
 					toggleOnChange={ value => this.managePlugin( slug, value ) }
+					notification={ error }
+					notificationHTML={ error }
+					notificationLevel="error"
 				/>
 			);
 		} );
@@ -158,6 +174,16 @@ class PluginToggle extends Component {
 		if ( href || editPath ) {
 			return actionText ? actionText : __( 'Configure', 'newspack' );
 		}
+	};
+
+	/**
+	 * Get error message for this plugin.
+	 */
+	errorForPlugin = plugin => {
+		const { slug } = plugin;
+		const { pluginInfo } = this.state;
+
+		return pluginInfo[ slug ]?.error || null;
 	};
 
 	/**

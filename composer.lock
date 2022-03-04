@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38df25054ec4a8d681316122b6e36760",
+    "content-hash": "32c81292815a5f5a6ddbba0b9edbb34b",
     "packages": [
         {
             "name": "composer/installers",
@@ -587,23 +587,23 @@
         },
         {
             "name": "joshtronic/php-loremipsum",
-            "version": "1.0.6",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/joshtronic/php-loremipsum.git",
-                "reference": "f0ec43a045b9bfa5e68cac01805e6312a9e9c7e6"
+                "reference": "6d7f8cff6a092a53d66b5237edbe97d398b14f88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joshtronic/php-loremipsum/zipball/f0ec43a045b9bfa5e68cac01805e6312a9e9c7e6",
-                "reference": "f0ec43a045b9bfa5e68cac01805e6312a9e9c7e6",
+                "url": "https://api.github.com/repos/joshtronic/php-loremipsum/zipball/6d7f8cff6a092a53d66b5237edbe97d398b14f88",
+                "reference": "6d7f8cff6a092a53d66b5237edbe97d398b14f88",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3"
             },
             "require-dev": {
-                "phpunit/phpunit": ">=4"
+                "phpunit/phpunit": "^4.8.36 || ^9.0"
             },
             "type": "library",
             "autoload": {
@@ -631,9 +631,9 @@
             ],
             "support": {
                 "issues": "https://github.com/joshtronic/php-loremipsum/issues",
-                "source": "https://github.com/joshtronic/php-loremipsum/tree/1.0.6"
+                "source": "https://github.com/joshtronic/php-loremipsum/tree/2.1.0"
             },
-            "time": "2020-06-02T03:25:24+00:00"
+            "time": "2022-01-23T23:27:44+00:00"
         },
         {
             "name": "psr/cache",
@@ -890,16 +890,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.111.0",
+            "version": "v7.114.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "374647b1079203ed7278ad4b58afc0fae3faaab9"
+                "reference": "63be231686c6874befb5b3a47fb8effb4c30b78b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/374647b1079203ed7278ad4b58afc0fae3faaab9",
-                "reference": "374647b1079203ed7278ad4b58afc0fae3faaab9",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/63be231686c6874befb5b3a47fb8effb4c30b78b",
+                "reference": "63be231686c6874befb5b3a47fb8effb4c30b78b",
                 "shasum": ""
             },
             "require": {
@@ -944,9 +944,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.111.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.114.0"
             },
-            "time": "2022-01-20T17:30:55+00:00"
+            "time": "2022-02-15T22:48:31+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -1144,27 +1144,27 @@
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
-            "version": "v0.7.1",
+            "version": "v0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
-                "reference": "fe390591e0241955f22eb9ba327d137e501c771c"
+                "reference": "1c968e542d8843d7cd71de3c5c9c3ff3ad71a1db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/fe390591e0241955f22eb9ba327d137e501c771c",
-                "reference": "fe390591e0241955f22eb9ba327d137e501c771c",
+                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/1c968e542d8843d7cd71de3c5c9c3ff3ad71a1db",
+                "reference": "1c968e542d8843d7cd71de3c5c9c3ff3ad71a1db",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^1.0 || ^2.0",
                 "php": ">=5.3",
-                "squizlabs/php_codesniffer": "^2.0 || ^3.0 || ^4.0"
+                "squizlabs/php_codesniffer": "^2.0 || ^3.1.0 || ^4.0"
             },
             "require-dev": {
                 "composer/composer": "*",
-                "phpcompatibility/php-compatibility": "^9.0",
-                "sensiolabs/security-checker": "^4.1.0"
+                "php-parallel-lint/php-parallel-lint": "^1.3.1",
+                "phpcompatibility/php-compatibility": "^9.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -1185,6 +1185,10 @@
                     "email": "franck.nijhof@dealerdirect.com",
                     "homepage": "http://www.frenck.nl",
                     "role": "Developer / IT Manager"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer/graphs/contributors"
                 }
             ],
             "description": "PHP_CodeSniffer Standards Composer Installer Plugin",
@@ -1196,6 +1200,7 @@
                 "codesniffer",
                 "composer",
                 "installer",
+                "phpcbf",
                 "phpcs",
                 "plugin",
                 "qa",
@@ -1210,7 +1215,7 @@
                 "issues": "https://github.com/dealerdirect/phpcodesniffer-composer-installer/issues",
                 "source": "https://github.com/dealerdirect/phpcodesniffer-composer-installer"
             },
-            "time": "2020-12-07T18:04:37+00:00"
+            "time": "2022-02-04T12:51:07+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",

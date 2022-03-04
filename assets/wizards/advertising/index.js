@@ -197,7 +197,6 @@ class AdvertisingWizard extends Component {
 										'Define global advertising placements to serve ad units on your site',
 										'newspack'
 									) }
-									adUnits={ adUnits }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -212,6 +211,26 @@ class AdvertisingWizard extends Component {
 										'newspack'
 									) }
 									tabbedNavigation={ tabs }
+								/>
+							) }
+						/>
+						<Route
+							path="/google_ad_manager"
+							exact
+							render={ () => (
+								<AdUnits
+									headerText="Google Ad Manager"
+									subHeaderText={ __(
+										'Monetize your content through Google Ad Manager',
+										'newspack'
+									) }
+									adUnits={ adUnits }
+									service={ 'google_ad_manager' }
+									serviceData={ services.google_ad_manager }
+									onDelete={ id => this.deleteAdUnit( id ) }
+									wizardApiFetch={ wizardApiFetch }
+									fetchAdvertisingData={ this.fetchAdvertisingData }
+									updateWithAPI={ this.updateWithAPI }
 								/>
 							) }
 						/>

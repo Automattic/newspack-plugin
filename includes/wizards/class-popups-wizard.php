@@ -201,7 +201,7 @@ class Popups_Wizard extends Wizard {
 			'/wizard/' . $this->slug . '/settings',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_set_plugin_settings' ],
+				'callback'            => [ $this, 'api_update_settings_section' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'option_name'  => [
@@ -749,9 +749,9 @@ class Popups_Wizard extends Wizard {
 	 *
 	 * @param array $options options.
 	 */
-	public static function api_set_plugin_settings( $options ) {
+	public static function api_update_settings_section( $options ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		return $newspack_popups_configuration_manager->set_settings( $options );
+		return $newspack_popups_configuration_manager->update_settings_section( $options );
 	}
 
 	/**

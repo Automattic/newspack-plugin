@@ -6,6 +6,19 @@
 @import '../../../shared/scss/colors';
 
 .newspack-tabbed-navigation {
+	background: white;
+	width: 100%;
+
+	@media only screen and ( min-width: 600px ) {
+		position: sticky;
+		top: 46px;
+		z-index: 3;
+	}
+
+	@media only screen and ( min-width: 783px ) {
+		top: 32px;
+	}
+
 	ul {
 		box-shadow: 0 -1px 0 inset $gray-300;
 		display: flex;

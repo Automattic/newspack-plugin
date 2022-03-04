@@ -19,7 +19,7 @@ import * as Views from './views';
 import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, STRIPE } from './constants';
 
 const ReaderRevenueWizard = () => {
-	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData();
+	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData( 'reader-revenue' );
 	const usedPlatform = platform_data?.platform;
 	const platformSection = {
 		label: __( 'Platform', 'newspack' ),

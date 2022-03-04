@@ -76,6 +76,24 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			Stripe_Connection::get_stripe_data()['currency'],
 			'Currency can be updated.'
 		);
+
+		self::assertEquals(
+			'US',
+			Stripe_Connection::get_stripe_data()['location_code'],
+			'Location code is US by default.'
+		);
+		update_option( 'woocommerce_default_country', 'FR' );
+		self::assertEquals(
+			'FR',
+			Stripe_Connection::get_stripe_data()['location_code'],
+			'Location code is assumed from WC\'s settings.'
+		);
+		update_option( 'woocommerce_default_country', 'BR:SP' );
+		self::assertEquals(
+			'BR',
+			Stripe_Connection::get_stripe_data()['location_code'],
+			'Location code is assumed from WC\'s settings, when a regional code was set.'
+		);
 	}
 
 	/**
@@ -96,16 +114,17 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 	public static function test_stripe_handle_donation() {
 		self::configure_stripe_as_platform();
 		$donation_config = [
-			'amount'           => 100,
-			'frequency'        => 'once',
-			'email_address'    => 'foo@bar.baz',
-			'full_name'        => 'Boo Bar',
-			'token_data'       => [
+			'amount'            => 100,
+			'frequency'         => 'once',
+			'email_address'     => 'foo@bar.baz',
+			'full_name'         => 'Boo Bar',
+			'token_data'        => [
 				'id'   => 'tok_123',
 				'card' => [ 'id' => 'card_number_one' ],
 			],
-			'client_metadata'  => [],
-			'payment_metadata' => [],
+			'client_metadata'   => [],
+			'payment_metadata'  => [],
+			'payment_method_id' => 'pm_123',
 		];
 		$response        = Stripe_Connection::handle_donation( $donation_config );
 		self::assertEquals(

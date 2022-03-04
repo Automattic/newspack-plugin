@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCard, hooks } from '../../../../components/src';
+import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
 import { NewspackNewsletters } from '../../../engagement/views/newsletters';
 import './style.scss';
@@ -51,6 +51,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
+	const readerRevenueWizardData = Wizard.useWizardData( 'reader-revenue' );
 
 	useEffect( () => {
 		apiFetch( {
@@ -61,12 +62,19 @@ const Services = ( { renderPrimaryButton } ) => {
 		} );
 	}, [] );
 
-	const saveSettings = async () =>
-		apiFetch( {
+	const saveSettings = async () => {
+		const data = mapValues( services, property( 'configuration' ) );
+		// Add Reader Revenue Wizard data straight from the Wizard.
+		data[ 'reader-revenue' ] = {
+			...data[ 'reader-revenue' ],
+			...readerRevenueWizardData,
+		};
+		return apiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/services',
 			method: 'POST',
-			data: mapValues( services, property( 'configuration' ) ),
+			data,
 		} );
+	};
 
 	return (
 		<>

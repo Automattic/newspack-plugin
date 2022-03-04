@@ -11,24 +11,48 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Notice, SelectControl, TextControl } from '../../../../components/src';
+import { Grid, Notice, SelectControl, TextControl } from '../../../../components/src';
 
 /**
  * Get select options from object of ad units.
  *
- * @param {Object} adUnits Object containing ad untis.
+ * @param {Array} providers List of providers.
+ * @return {Array} Providers options for select control.
+ */
+const getProvidersForSelect = providers => {
+	return [
+		{
+			label: __( 'Select a provider', 'newspack' ),
+			value: '',
+		},
+		...providers.map( unit => {
+			return {
+				label: unit.name,
+				value: unit.id,
+			};
+		} ),
+	];
+};
+
+/**
+ * Get select options from object of ad units.
+ *
+ * @param {Object} provider Provider object.
  * @return {Array} Ad unit options for select control.
  */
-const getAdUnitsForSelect = adUnits => {
+const getProviderUnitsForSelect = provider => {
+	if ( ! provider?.units ) {
+		return [];
+	}
 	return [
 		{
 			label: __( 'Select an Ad Unit', 'newspack' ),
 			value: '',
 		},
-		...Object.values( adUnits ).map( adUnit => {
+		...provider.units.map( unit => {
 			return {
-				label: adUnit.name,
-				value: adUnit.id,
+				label: unit.name,
+				value: unit.value,
 			};
 		} ),
 	];
@@ -50,7 +74,8 @@ const hasAnySize = ( sizes, sizesToCheck ) => {
 };
 
 const PlacementControl = ( {
-	adUnits = {},
+	label = __( 'Ad Unit', 'newspack' ),
+	providers = [],
 	bidders = {},
 	value = {},
 	disabled = false,
@@ -59,16 +84,18 @@ const PlacementControl = ( {
 } ) => {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 
+	// Default provider is GAM or first index if GAM is not active.
+	const placementProvider =
+		providers.find( provider => provider?.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
+
 	useEffect( () => {
 		const errors = {};
 		Object.keys( bidders ).forEach( bidderKey => {
 			const bidder = bidders[ bidderKey ];
-			const supported =
-				value.ad_unit &&
-				adUnits[ value.ad_unit ] &&
-				hasAnySize( bidder.ad_sizes, adUnits[ value.ad_unit ].sizes );
+			const unit = placementProvider?.units.find( u => u.value === value.ad_unit );
+			const supported = value.ad_unit && unit && hasAnySize( bidder.ad_sizes, unit.sizes );
 			errors[ bidderKey ] =
-				! value.ad_unit || ! adUnits[ value.ad_unit ] || supported
+				! value.ad_unit || ! unit || supported
 					? null
 					: sprintf(
 							// Translators: Ad bidder name.
@@ -78,56 +105,71 @@ const PlacementControl = ( {
 					  );
 		} );
 		setBiddersErrors( errors );
-	}, [ adUnits, value.ad_unit ] );
+	}, [ providers, value.ad_unit ] );
+
+	if ( ! providers.length ) {
+		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack' ) } />;
+	}
 
 	return (
 		<Fragment>
-			<SelectControl
-				label={ __( 'Ad Unit', 'newspack' ) }
-				value={ value.ad_unit }
-				options={ getAdUnitsForSelect( adUnits ) }
-				onChange={ data => {
-					onChange( {
-						...value,
-						ad_unit: data,
-					} );
-				} }
-				disabled={ disabled }
-				{ ...props }
-			/>
-			{ Object.keys( bidders ).map( bidderKey => {
-				const bidder = bidders[ bidderKey ];
-				// Translators: Bidder name.
-				const bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
-				return (
-					<TextControl
-						key={ bidderKey }
-						value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
-						label={ bidderLabel }
-						disabled={ biddersErrors[ bidderKey ] || disabled }
-						onChange={ data => {
-							onChange( {
-								...value,
-								bidders_ids: {
-									...value.bidders_ids,
-									[ bidderKey ]: data,
-								},
-							} );
-						} }
-						{ ...props }
-					/>
-				);
-			} ) }
-			{ Object.keys( biddersErrors ).map( bidderKey => {
-				if ( biddersErrors[ bidderKey ] ) {
+			<Grid columns={ 2 } gutter={ 32 }>
+				<SelectControl
+					label={ __( 'Provider', 'newspack' ) }
+					value={ placementProvider?.id }
+					options={ getProvidersForSelect( providers ) }
+					onChange={ provider => onChange( { ...value, provider } ) }
+					disabled={ disabled }
+				/>
+				<SelectControl
+					label={ label }
+					value={ value.ad_unit }
+					options={ getProviderUnitsForSelect( placementProvider ) }
+					onChange={ data => {
+						onChange( {
+							...value,
+							ad_unit: data,
+						} );
+					} }
+					disabled={ disabled }
+					{ ...props }
+				/>
+			</Grid>
+			{ placementProvider?.id === 'gam' &&
+				Object.keys( bidders ).map( bidderKey => {
+					const bidder = bidders[ bidderKey ];
+					// Translators: Bidder name.
+					const bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
 					return (
-						<Notice key={ bidderKey } isWarning>
-							{ biddersErrors[ bidderKey ] }
-						</Notice>
+						<TextControl
+							key={ bidderKey }
+							value={ value.bidders_ids ? value.bidders_ids[ bidderKey ] : null }
+							label={ bidderLabel }
+							disabled={ biddersErrors[ bidderKey ] || disabled }
+							onChange={ data => {
+								onChange( {
+									...value,
+									bidders_ids: {
+										...value.bidders_ids,
+										[ bidderKey ]: data,
+									},
+								} );
+							} }
+							{ ...props }
+						/>
 					);
-				}
-				return null;
-			} ) }
+				} ) }
+			{ placementProvider?.id === 'gam' &&
+				Object.keys( biddersErrors ).map( bidderKey => {
+					if ( biddersErrors[ bidderKey ] ) {
+						return (
+							<Notice key={ bidderKey } isWarning>
+								{ biddersErrors[ bidderKey ] }
+							</Notice>
+						);
+					}
+					return null;
+				} ) }
 		</Fragment>
 	);
 };

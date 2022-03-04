@@ -4,46 +4,17 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Button } from '../../../../components/src';
+import { CheckboxControl, ActionCard, Button } from '../../../../components/src';
 
 /**
  * External dependencies
  */
-import { parse, stringify } from 'qs';
-import { get, values, find } from 'lodash';
-
-export const handleFivetranRedirect = (
-	response,
-	{ wizardApiFetch, startLoading, doneLoading }
-) => {
-	const params = parse( window.location.search.replace( /^\?/, '' ) );
-	// 'id' param will be appended by the redirect from a Fivetran connect card.
-	if ( params.id ) {
-		startLoading();
-		const newConnector = find( values( response.fivetran ), [ 'id', params.id ] );
-		const removeIdParamFromURL = () => {
-			// Remove the 'id' param.
-			params.id = undefined;
-			window.location.search = stringify( params );
-		};
-		if ( newConnector ) {
-			if ( newConnector.sync_state === 'paused' ) {
-				wizardApiFetch( {
-					path: '/newspack/v1/oauth/fivetran?connector_id=' + newConnector.id,
-					method: 'POST',
-					data: { paused: false },
-				} ).then( removeIdParamFromURL );
-			} else {
-				removeIdParamFromURL();
-			}
-		}
-		doneLoading();
-	}
-};
+import { get } from 'lodash';
 
 const CONNECTORS = [
 	{
@@ -68,18 +39,49 @@ const CONNECTORS = [
 	},
 ];
 
+const getConnectionStatus = ( item, connections ) => {
+	const hasConnections = connections !== undefined;
+	const setupState = get( connections, [ item.service, 'setup_state' ] );
+	const syncState = get( connections, [ item.service, 'sync_state' ] );
+	const schemaStatus = get( connections, [ item.service, 'schema_status' ] );
+	const isPending = ( schemaStatus && 'ready' !== schemaStatus ) || 'paused' === syncState;
+	let label = '-';
+	if ( setupState ) {
+		if ( 'ready' === schemaStatus ) {
+			label = `${ setupState }, ${ syncState }`;
+		} else if ( isPending ) {
+			label = `${ setupState }, ${ syncState }. ${ __(
+				'Sync is in progress – please check back in a while.',
+				'newspack'
+			) }`;
+		}
+	} else if ( hasConnections ) {
+		label = __( 'Not connected', 'newspack' );
+	}
+	return {
+		label,
+		isConnected: setupState === 'connected',
+		isPending,
+	};
+};
+
 const FivetranConnection = ( { setError } ) => {
 	const [ connections, setConnections ] = useState();
 	const [ inFlight, setInFlight ] = useState( false );
-
-	const hasFetched = connections !== undefined;
+	const [ hasAcceptedTOS, setHasAcceptedTOS ] = useState( null );
 
 	const handleError = err => setError( err.message || __( 'Something went wrong.', 'newspack' ) );
+
+	const hasConnections = connections !== undefined;
+	const isDisabled = inFlight || ! hasConnections || ! hasAcceptedTOS;
 
 	useEffect( () => {
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/oauth/fivetran' } )
-			.then( setConnections )
+			.then( response => {
+				setConnections( response.connections_statuses );
+				setHasAcceptedTOS( response.has_accepted_tos );
+			} )
 			.catch( handleError )
 			.finally( () => setInFlight( false ) );
 	}, [] );
@@ -99,29 +101,39 @@ const FivetranConnection = ( { setError } ) => {
 
 	return (
 		<>
+			<div>
+				{ __( 'In order to use the this features, you must read and accept', 'newspack' ) }{ ' ' }
+				<a href="https://newspack.pub/terms-of-service/">
+					{ __( 'Newspack Terms of Service', 'newspack' ) }
+				</a>
+				:
+			</div>
+			<CheckboxControl
+				className={ classnames( 'mt1', { 'o-50': hasAcceptedTOS === null } ) }
+				checked={ hasAcceptedTOS }
+				disabled={ hasAcceptedTOS === null }
+				onChange={ has_accepted => {
+					apiFetch( {
+						path: `/newspack/v1/oauth/fivetran-tos`,
+						method: 'POST',
+						data: {
+							has_accepted,
+						},
+					} );
+					setHasAcceptedTOS( has_accepted );
+				} }
+				label={ __( "I've read and accept Newspack Terms of Service", 'newspack' ) }
+			/>
 			{ CONNECTORS.map( item => {
-				const setupState = get( connections, [ item.service, 'setup_state' ] );
-				const syncState = get( connections, [ item.service, 'sync_state' ] );
-				const status = {
-					// eslint-disable-next-line no-nested-ternary
-					label: setupState
-						? `${ setupState }, ${ syncState }`
-						: hasFetched
-						? __( 'Not connected', 'newspack' )
-						: '-',
-					isConnected: setupState === 'connected',
-				};
+				const status = getConnectionStatus( item, connections );
 				return (
 					<ActionCard
 						key={ item.service }
 						title={ item.label }
 						description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
+						isPending={ status.isPending }
 						actionText={
-							<Button
-								disabled={ inFlight || ! hasFetched }
-								onClick={ () => createConnection( item ) }
-								isLink
-							>
+							<Button disabled={ isDisabled } onClick={ () => createConnection( item ) } isLink>
 								{ status.isConnected
 									? __( 'Re-connect', 'newspack' )
 									: __( 'Connect', 'newspack' ) }

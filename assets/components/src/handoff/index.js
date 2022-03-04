@@ -84,13 +84,13 @@ class Handoff extends Component {
 			children,
 			compact,
 			useModal,
-			// eslint-disable-next-line no-unused-vars
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 			modalTitle: _modalTitle,
-			// eslint-disable-next-line no-unused-vars
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 			modalBody: _modalBody,
-			// eslint-disable-next-line no-unused-vars
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 			onReady,
-			// eslint-disable-next-line no-unused-vars
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 			editLink,
 			...otherProps
 		} = this.props;

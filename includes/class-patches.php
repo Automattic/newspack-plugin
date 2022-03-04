@@ -21,9 +21,41 @@ class Patches {
 		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
+		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
+		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
 		add_filter( 'woocommerce_background_image_regeneration', '__return_false' );
+
+		// Disable Publicize automated sharing for WooCommerce products.
+		add_action( 'init', [ __CLASS__, 'disable_publicize_for_products' ] );
+	}
+
+	/**
+	 * Add async/defer support to `wp_script_add_data()`
+	 *
+	 * See https://github.com/WordPress/WordPress/blob/bab3bdf2df4ea57766793932719665a14c810698/wp-content/themes/twentytwenty/classes/class-twentytwenty-script-loader.php.
+	 *
+	 * @link https://core.trac.wordpress.org/ticket/12009
+	 *
+	 * @param string $tag The script tag.
+	 * @param string $handle The script handle.
+	 *
+	 * @return @string Script HTML string.
+	 */
+	public static function add_async_defer_support( $tag, $handle ) {
+		foreach ( array( 'async', 'defer' ) as $attr ) {
+			if ( ! wp_scripts()->get_data( $handle, $attr ) ) {
+				continue;
+			}
+			// Prevent adding attribute when already added in #12009.
+			if ( ! preg_match( ":\s$attr(=|>|\s):", $tag ) ) {
+				$tag = preg_replace( ':(?=></script>):', " $attr", $tag, 1 );
+			}
+			// Only allow async or defer, not both.
+			break;
+		}
+		return $tag;
 	}
 
 	/**
@@ -155,6 +187,59 @@ class Patches {
 		}
 
 		return $caps;
+	}
+
+	/**
+	 * Force author pages for non-valid author roles to 404.
+	 * Prevents author pages for users like subscribers and donors from being publicly accessible.
+	 *
+	 * @param WP_Query $query The WP query object.
+	 */
+	public static function maybe_display_author_page( $query ) {
+		if ( $query->is_admin() || ! $query->is_main_query() || ! $query->is_author() ) {
+			return;
+		}
+
+		$author_name = $query->query_vars['author_name'];
+		$user        = get_user_by( 'slug', $author_name );
+
+		// For CAP guest authors, $user will be false.
+		if ( ! $user || ! isset( $user->roles ) ) {
+			return;
+		}
+
+		if ( is_array( $user->roles ) ) {
+			/**
+			 * Filter to add/remove the default user roles that are allowed to have public author archives.
+			 *
+			 * @param array $allowed_user_roles Array of WP user roles that can have author archives,
+			 */
+			$allowed_user_roles = apply_filters(
+				'newspack_user_roles_with_author_archives',
+				[
+					'administrator',
+					'editor',
+					'author',
+					'contributor',
+				]
+			);
+
+			// Sometimes, authors who leave a publication are set to be subscribers. We still want those authors to have archives.
+			$has_no_posts = function_exists( '\wpcom_vip_count_user_posts' ) ?
+				0 === (int) \wpcom_vip_count_user_posts( $user->ID, 'post', true ) :
+				0 === (int) count_user_posts( $user->ID, 'post', true ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.count_user_posts_count_user_posts
+
+			if ( $has_no_posts && 0 === count( array_intersect( $user->roles, $allowed_user_roles ) ) ) {
+				$query->set_404();
+			}
+		}
+	}
+
+	/**
+	 * Disable automated social media sharing of WooCommerce products via Publicize.
+	 */
+	public static function disable_publicize_for_products() {
+		remove_post_type_support( 'product', 'publicize' );
 	}
 }
 Patches::init();

@@ -27,9 +27,13 @@ class PluginSettings extends Component {
 	}
 
 	fetchSettings = () => {
-		const { afterFetch, pluginSlug } = this.props;
+		const { afterFetch, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
-		apiFetch( { path: `/${ pluginSlug }/v1/settings` } )
+		apiFetch( {
+			path: isWizard
+				? `/newspack/v1/wizard/${ pluginSlug }/settings`
+				: `/${ pluginSlug }/v1/settings`,
+		} )
 			.then( settings => {
 				this.setState( { settings, error: null } );
 
@@ -74,10 +78,12 @@ class PluginSettings extends Component {
 	};
 
 	handleSectionUpdate = sectionKey => data => {
-		const { afterUpdate, pluginSlug } = this.props;
+		const { afterUpdate, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: `/${ pluginSlug }/v1/settings`,
+			path: isWizard
+				? `/newspack/v1/wizard/${ pluginSlug }/settings`
+				: `/${ pluginSlug }/v1/settings`,
 			method: 'POST',
 			data: {
 				section: sectionKey,
@@ -162,7 +168,7 @@ class PluginSettings extends Component {
 	 * Render.
 	 */
 	render() {
-		const { title, description } = this.props;
+		const { title, description, hasGreyHeader } = this.props;
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
@@ -177,12 +183,14 @@ class PluginSettings extends Component {
 						<SettingsSection
 							key={ sectionKey }
 							disabled={ inFlight }
+							sectionKey={ sectionKey }
 							title={ this.getSectionTitle( sectionKey ) }
 							description={ this.getSectionDescription( sectionKey ) }
 							active={ this.isSectionActive( sectionKey ) }
 							fields={ this.getSectionFields( sectionKey ) }
 							onChange={ this.handleSettingChange( sectionKey ) }
 							onUpdate={ this.handleSectionUpdate( sectionKey ) }
+							hasGreyHeader={ hasGreyHeader }
 						/>
 					) ) }
 				</div>
