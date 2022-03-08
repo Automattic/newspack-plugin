@@ -81,7 +81,7 @@ class Patches {
 	 * Add a menu link in WP Admin to easily edit and manage reusable blocks.
 	 */
 	public static function add_reusable_blocks_menu_link() {
-		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'read', 'edit.php?post_type=wp_block', '', 2 );
+		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'edit_posts', 'edit.php?post_type=wp_block', '', 2 );
 	}
 
 	/**
