@@ -5,6 +5,8 @@
  * @package Newspack
  */
 
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
 namespace Newspack;
 
 use Stripe\Stripe;
@@ -81,6 +83,25 @@ class Stripe_Connection {
 	 * Get Stripe data blueprint.
 	 */
 	public static function get_default_stripe_data() {
+		$location_code = 'US';
+		$currency      = 'USD';
+
+		// The instance might've used WooCommerce. Read WC's saved settings to
+		// provide more sensible defaults.
+		$wc_country = get_option( 'woocommerce_default_country', false );
+		if ( $wc_country ) {
+			$wc_country = explode( ':', $wc_country )[0];
+		}
+		$valid_country_codes = wp_list_pluck( newspack_get_countries(), 'value' );
+		if ( $wc_country && in_array( $wc_country, $valid_country_codes ) ) {
+			$location_code = $wc_country;
+		}
+		$wc_currency      = get_option( 'woocommerce_currency', false );
+		$valid_currencies = wp_list_pluck( newspack_get_currencies_options(), 'value' );
+		if ( $wc_currency && in_array( $wc_currency, $valid_currencies ) ) {
+			$currency = $wc_currency;
+		}
+
 		return [
 			'enabled'            => false,
 			'testMode'           => false,
@@ -88,7 +109,8 @@ class Stripe_Connection {
 			'secretKey'          => '',
 			'testPublishableKey' => '',
 			'testSecretKey'      => '',
-			'currency'           => 'USD',
+			'currency'           => $currency,
+			'location_code'      => $location_code,
 			'newsletter_list_id' => '',
 		];
 	}
@@ -130,7 +152,7 @@ class Stripe_Connection {
 	public static function list_webhooks() {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->webhookEndpoints->all()['data']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $stripe->webhookEndpoints->all()['data'];
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch webhooks.', 'newspack' ), $e->getMessage() );
 		}
@@ -144,7 +166,7 @@ class Stripe_Connection {
 	private static function get_customer_by_id( $customer_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->customers->retrieve( $customer_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $stripe->customers->retrieve( $customer_id, [] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
 		}
@@ -173,7 +195,7 @@ class Stripe_Connection {
 	private static function get_invoice( $invoice_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->invoices->retrieve( $invoice_id, [] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $stripe->invoices->retrieve( $invoice_id, [] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
 		}
@@ -246,7 +268,7 @@ class Stripe_Connection {
 		}
 		try {
 			$sig_header = sanitize_text_field( $_SERVER['HTTP_STRIPE_SIGNATURE'] );
-			$payload    = @file_get_contents( 'php://input' ); // phpcs:disable WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile, WordPress.PHP.NoSilencedErrors.Discouraged
+			$payload    = @file_get_contents( 'php://input' ); // phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile, WordPress.PHP.NoSilencedErrors.Discouraged
 			$event      = \Stripe\Webhook::constructEvent(
 				$payload,
 				$sig_header,
@@ -368,7 +390,7 @@ class Stripe_Connection {
 	public static function create_webhooks() {
 		$stripe = self::get_stripe_client();
 		try {
-			$webhook = $stripe->webhookEndpoints->create( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$webhook = $stripe->webhookEndpoints->create(
 				[
 					'url'            => get_rest_url( null, NEWSPACK_API_NAMESPACE . '/stripe/webhook' ),
 					'enabled_events' => [
@@ -400,7 +422,18 @@ class Stripe_Connection {
 			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 			$stripe_data              = $wc_configuration_manager->stripe_data();
 		} else {
-			$stripe_data = array_merge( $stripe_data, get_option( self::STRIPE_DATA_OPTION_NAME, [] ) );
+			// Filter out empty values, which are not booleans.
+			$saved_stripe_data = array_filter(
+				get_option( self::STRIPE_DATA_OPTION_NAME, [] ),
+				function ( $value ) {
+					if ( 'boolean' === gettype( $value ) ) {
+						return true;
+					} else {
+						return ! empty( $value );
+					}
+				}
+			);
+			$stripe_data       = array_merge( $stripe_data, $saved_stripe_data );
 		}
 		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
 		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
@@ -583,10 +616,6 @@ class Stripe_Connection {
 			}
 
 			if ( null === $customer ) {
-				// Set source only if creating a customer.
-				if ( isset( $data['source'] ) ) {
-					$customer_data_payload['source'] = $data['source'];
-				}
 				$customer = $stripe->customers->create( $customer_data_payload );
 			} else {
 				$customer = $stripe->customers->update(
@@ -596,7 +625,7 @@ class Stripe_Connection {
 			}
 			return $customer;
 		} catch ( \Throwable $e ) {
-			return null;
+			return new \WP_Error( 'newspack_plugin_stripe', $e->getMessage() ?? __( 'Customer creation failed.', 'newspack' ) );
 		}
 	}
 
@@ -615,39 +644,43 @@ class Stripe_Connection {
 		try {
 			$stripe = self::get_stripe_client();
 
-			$amount_raw       = $config['amount'];
-			$frequency        = $config['frequency'];
-			$email_address    = $config['email_address'];
-			$full_name        = $config['full_name'];
-			$token_data       = $config['token_data'];
-			$client_metadata  = $config['client_metadata'];
-			$payment_metadata = $config['payment_metadata'];
+			$amount_raw        = $config['amount'];
+			$frequency         = $config['frequency'];
+			$email_address     = $config['email_address'];
+			$full_name         = $config['full_name'];
+			$token_data        = $config['token_data'];
+			$client_metadata   = $config['client_metadata'];
+			$payment_metadata  = $config['payment_metadata'];
+			$payment_method_id = $config['payment_method_id'];
 
 			$customer = self::upsert_customer(
 				[
 					'email'    => $email_address,
 					'name'     => $full_name,
-					'source'   => $token_data['id'],
 					'metadata' => $client_metadata,
 				]
 			);
-			if ( $customer['default_source'] !== $token_data['card']['id'] ) {
-				// A different card was used, update the customer's card to avoid
-				// charging the previously used card.
-				// This does not work well when the card is an Apple Pay "card" –
-				// $token_data['card']['id'] will be different for each transaction.
-				try {
-					$new_source = $stripe->customers->createSource(
-						$customer['id'],
-						[ 'source' => $token_data['id'] ]
-					);
-					$stripe->customers->update(
-						$customer['id'],
-						[ 'default_source' => $new_source['id'] ]
-					);
-				} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-				}
+			if ( is_wp_error( $customer ) ) {
+				$response['error'] = $customer->get_error_message();
+				return $response;
 			}
+
+			// Attach the Payment Method ID to the customer.
+			// A new payment method is created for each one-time or first-in-recurring
+			// transaction, because the payment methods are not stored on WP.
+			$stripe->paymentMethods->attach( // phpcs:ignore
+				$payment_method_id,
+				[ 'customer' => $customer['id'] ]
+			);
+			// Set the payment method as the default for customer's transactions.
+			$stripe->customers->update(
+				$customer['id'],
+				[
+					'invoice_settings' => [
+						'default_payment_method' => $payment_method_id,
+					],
+				]
+			);
 
 			if ( 'once' === $frequency ) {
 				// Create a Payment Intent on Stripe.
@@ -722,7 +755,7 @@ class Stripe_Connection {
 			'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
 			'customer'             => $config['customer'],
 		];
-		return $stripe->paymentIntents->create( $intent_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return $stripe->paymentIntents->create( $intent_data );
 	}
 
 	/**
@@ -758,7 +791,7 @@ class Stripe_Connection {
 			$stripe       = self::get_stripe_client();
 			$site_domain  = self::get_site_domain();
 			$found_domain = array_filter(
-				$stripe->applePayDomains->all()['data'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$stripe->applePayDomains->all()['data'],
 				function( $item ) use ( $site_domain ) {
 					return $site_domain === $item->domain_name && true === $item->livemode;
 				}
@@ -787,7 +820,7 @@ class Stripe_Connection {
 			if ( $stripe ) {
 				$site_domain = self::get_site_domain();
 				if ( ! self::is_apple_pay_domain_registered() ) {
-					$stripe->applePayDomains->create( [ 'domain_name' => $site_domain ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$stripe->applePayDomains->create( [ 'domain_name' => $site_domain ] );
 				}
 			}
 		} catch ( \Exception $e ) {
