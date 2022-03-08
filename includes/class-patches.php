@@ -22,8 +22,6 @@ class Patches {
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
-		add_action( 'pre_get_posts', [ __CLASS__, 'restrict_others_posts' ] );
-		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'restrict_media_library_access_ajax' ] );
 		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
@@ -31,10 +29,6 @@ class Patches {
 
 		// Disable Publicize automated sharing for WooCommerce products.
 		add_action( 'init', [ __CLASS__, 'disable_publicize_for_products' ] );
-
-		// Fix an issue when running The Events Calendar where all posts block items have same date.
-		add_action( 'tribe_events_views_v2_after_make_view', [ __CLASS__, 'remove_tec_extra_excerpt_filtering' ], 1 );
-	}
 
 	/**
 	 * Add async/defer support to `wp_script_add_data()`

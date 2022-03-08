@@ -1,3 +1,33 @@
+# [1.78.0](https://github.com/Automattic/newspack-plugin/compare/v1.77.3...v1.78.0) (2022-03-08)
+
+
+### Bug Fixes
+
+* initial theme mods setting ([#1500](https://github.com/Automattic/newspack-plugin/issues/1500)) ([2d3de6b](https://github.com/Automattic/newspack-plugin/commit/2d3de6bb674d3617d74661a456ac236fa2b45625)), closes [#1093](https://github.com/Automattic/newspack-plugin/issues/1093)
+* remove animation fill mode for modals ([#1517](https://github.com/Automattic/newspack-plugin/issues/1517)) ([a5c0459](https://github.com/Automattic/newspack-plugin/commit/a5c04593e3ddeaca40d7a41969d1a1ad5c68cbf8))
+* **setup-wizard:** hide navigation on welcome screen ([a6fad4e](https://github.com/Automattic/newspack-plugin/commit/a6fad4e5b5da065a02dfe83bb89cf00a908b16b7))
+* stripe data setting ([ceec544](https://github.com/Automattic/newspack-plugin/commit/ceec544cc1f4dd7b56014863c83e82f978f4884e))
+
+
+### Features
+
+* **ad-units:** move edit/archive links to popover ([#1505](https://github.com/Automattic/newspack-plugin/issues/1505)) ([5177fe6](https://github.com/Automattic/newspack-plugin/commit/5177fe65bbc8fa382244b1f4e0d78e462623a5ff))
+* **stripe:** donate flow; location code ([#1483](https://github.com/Automattic/newspack-plugin/issues/1483)) ([8cd28f9](https://github.com/Automattic/newspack-plugin/commit/8cd28f923f572ac34d6e1b96c0f821a9f432e09a))
+
+# [1.78.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.3...v1.78.0-alpha.4) (2022-03-03)
+
+
+### Bug Fixes
+
+* stripe data setting ([ceec544](https://github.com/Automattic/newspack-plugin/commit/ceec544cc1f4dd7b56014863c83e82f978f4884e))
+
+# [1.78.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.2...v1.78.0-alpha.3) (2022-03-01)
+
+
+### Bug Fixes
+
+* **analytics:** avoid Site Kit crash due to conflict with HandoffBanner ([#1537](https://github.com/Automattic/newspack-plugin/issues/1537)) ([68d3947](https://github.com/Automattic/newspack-plugin/commit/68d394727c66d22c2daf3480d163132f8dd2d66c))
+
 ## [1.77.3](https://github.com/Automattic/newspack-plugin/compare/v1.77.2...v1.77.3) (2022-03-01)
 
 
