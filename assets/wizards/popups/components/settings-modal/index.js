@@ -1,7 +1,8 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -28,6 +29,9 @@ const { SettingsCard } = Settings;
 
 const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup } ) => {
 	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
+	const [ showAdvanced, setShowAdvanced ] = useState( false );
+
+	console.log( promptConfig );
 
 	const handleSave = () => {
 		updatePopup( promptConfig ).then( onClose );
@@ -155,6 +159,44 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 							'newspack'
 						) }
 					/>
+					<Button isLink onClick={ () => setShowAdvanced( ! showAdvanced ) }>
+						{ sprintf(
+							// Translators: whether to show or hide advanced settings fields.
+							__( '%s Advanced Settings', 'newspack_popups_taxonomy' ),
+							showAdvanced ? __( 'Hide', 'newspack' ) : __( 'Show', 'newspack' )
+						) }
+					</Button>
+					{ showAdvanced && (
+						<>
+							<CategoryAutocomplete
+								label={ __( 'Category Exclusions', 'newspack ' ) }
+								disabled={ disabled }
+								hideHelpFromVision
+								value={ promptConfig.options?.excluded_categories || [] }
+								onChange={ tokens =>
+									setPromptConfig( {
+										options: { excluded_categories: tokens.map( token => token.id ) },
+									} )
+								}
+								description={ __(
+									'Prompt will not appear on posts with the specified categories.',
+									'newspack'
+								) }
+							/>
+							<CategoryAutocomplete
+								label={ __( 'Tag Exclusions', 'newspack ' ) }
+								disabled={ disabled }
+								hideHelpFromVision
+								taxonomy="tags"
+								value={ promptConfig.options?.excluded_tags || [] }
+								onChange={ tokens => setPromptConfig( { options: { excluded_tags: tokens } } ) }
+								description={ __(
+									'Prompt will not appear on posts with the specified tags.',
+									'newspack'
+								) }
+							/>
+						</>
+					) }
 				</SettingsCard>
 			</Grid>
 
