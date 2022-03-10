@@ -31,8 +31,6 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
 
-	console.log( promptConfig );
-
 	const handleSave = () => {
 		updatePopup( promptConfig ).then( onClose );
 	};
