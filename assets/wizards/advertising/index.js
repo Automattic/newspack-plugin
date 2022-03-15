@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Settings, Placements, Suppression } from './views';
+import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -136,12 +136,12 @@ class AdvertisingWizard extends Component {
 		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
-				label: __( 'Google Ad Manager', 'newspack' ),
+				label: __( 'Providers', 'newspack' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Ad Placements', 'newspack' ),
+				label: __( 'Placements', 'newspack' ),
 				path: '/placements',
 			},
 			{
@@ -162,28 +162,11 @@ class AdvertisingWizard extends Component {
 							path="/"
 							exact
 							render={ () => (
-								<AdUnits
+								<Providers
 									headerText="Advertising"
-									subHeaderText={ __(
-										'Configure the Google Ad Manager Ad Units for your site',
-										'newspack'
-									) }
+									subHeaderText={ __( 'Manage ad providers and its settings.', 'newspack' ) }
+									services={ services }
 									toggleService={ this.toggleService }
-									adUnits={ adUnits }
-									service={ 'google_ad_manager' }
-									serviceData={ services.google_ad_manager }
-									onDelete={ id => this.deleteAdUnit( id ) }
-									buttonText={
-										services.google_ad_manager.enabled ? __( 'Add New Ad Unit', 'newspack' ) : null
-									}
-									buttonAction={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
-									wizardApiFetch={ wizardApiFetch }
-									fetchAdvertisingData={ this.fetchAdvertisingData }
-									updateWithAPI={ this.updateWithAPI }
-									updateAdUnit={ adUnit => {
-										this.onAdUnitChange( adUnit );
-										this.saveAdUnit( adUnit.id );
-									} }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -231,6 +214,7 @@ class AdvertisingWizard extends Component {
 									wizardApiFetch={ wizardApiFetch }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
 									updateWithAPI={ this.updateWithAPI }
+									tabbedNavigation={ tabs }
 								/>
 							) }
 						/>
@@ -260,6 +244,7 @@ class AdvertisingWizard extends Component {
 											} )
 											.catch( () => {} )
 									}
+									tabbedNavigation={ tabs }
 								/>
 							) }
 						/>
@@ -279,6 +264,7 @@ class AdvertisingWizard extends Component {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
+										tabbedNavigation={ tabs }
 									/>
 								);
 							} }
