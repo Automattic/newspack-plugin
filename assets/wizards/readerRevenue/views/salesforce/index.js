@@ -116,7 +116,6 @@ const Salesforce = () => {
 	return (
 		<>
 			<PluginSettings
-				hasGreyHeader
 				afterUpdate={ settings => {
 					let clientId, clientSecret;
 					( settings?.salesforce || [] ).forEach( setting => {

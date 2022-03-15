@@ -22,6 +22,8 @@ class Patches {
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
+		add_action( 'pre_get_posts', [ __CLASS__, 'restrict_others_posts' ] );
+		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'restrict_media_library_access_ajax' ] );
 		add_filter( 'script_loader_tag', [ __CLASS__, 'add_async_defer_support' ], 10, 2 );
 
 		// Disable WooCommerce image regeneration to prevent regenerating thousands of images.
@@ -29,6 +31,9 @@ class Patches {
 
 		// Disable Publicize automated sharing for WooCommerce products.
 		add_action( 'init', [ __CLASS__, 'disable_publicize_for_products' ] );
+
+		// Fix an issue when running The Events Calendar where all posts block items have same date.
+		add_action( 'tribe_events_views_v2_after_make_view', [ __CLASS__, 'remove_tec_extra_excerpt_filtering' ], 1 );
 	}
 
 	/**
@@ -76,7 +81,7 @@ class Patches {
 	 * Add a menu link in WP Admin to easily edit and manage reusable blocks.
 	 */
 	public static function add_reusable_blocks_menu_link() {
-		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'read', 'edit.php?post_type=wp_block', '', 2 );
+		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'edit_posts', 'edit.php?post_type=wp_block', '', 2 );
 	}
 
 	/**
@@ -236,10 +241,91 @@ class Patches {
 	}
 
 	/**
+	 * Restrict non-privileged users from seeing posts not owned by them.
+	 * Affects all admin post lists and the legacy (non-AJAX) media library list page.
+	 *
+	 * @param WP_Query $query Query to alter.
+	 */
+	public static function restrict_others_posts( $query ) {
+		global $current_screen;
+		$current_user_id = get_current_user_id();
+
+		// If not in a dashboard page or there's no user to check permissions for.
+		if ( ! $current_screen || ! $current_user_id || ! $query->is_main_query() ) {
+			return;
+		}
+
+		$is_media_library = 'upload' === $current_screen->id && 'attachment' === $query->get( 'post_type' );
+		$is_posts_list    = 'edit' === $current_screen->base;
+
+		// If the user can't edit others' posts, only allow them to view their own posts.
+		if ( ( $is_media_library || $is_posts_list ) && ! current_user_can( 'edit_others_posts' ) ) {
+			$query->set( 'author', $current_user_id ); // phpcs:ignore WordPressVIPMinimum.Hooks.PreGetPosts.PreGetPosts
+			add_filter( 'wp_count_posts', [ __CLASS__, 'fix_post_counts' ], 10, 2 );
+		}
+	}
+
+	/**
+	 * Updates the post counts shown alongside each status in admin post lists.
+	 *
+	 * @param object $counts Post counts keyed by status.
+	 * @param string $type Post type.
+	 *
+	 * @return object Filtered $counts object.
+	 */
+	public static function fix_post_counts( $counts, $type ) {
+		$current_user_id = get_current_user_id();
+		foreach ( (array) $counts as $status => $count ) {
+			if ( 0 < $count ) {
+				$args = [
+					'author'      => $current_user_id,
+					'post_status' => $status,
+					'post_type'   => $type,
+				];
+
+				$results         = new \WP_Query( $args );
+				$counts->$status = $results->found_posts;
+			}
+		}
+		return $counts;
+	}
+
+	/**
+	 * Restrict non-privileged users from seeing media library items not uploaded by them.
+	 * Affects media library AJAX requests.
+	 *
+	 * @param array $query_args Query args for the AJAX request.
+	 *
+	 * @return array Filtered query args.
+	 */
+	public static function restrict_media_library_access_ajax( $query_args ) {
+		$current_user_id = get_current_user_id();
+
+		if ( $current_user_id && ! current_user_can( 'edit_others_posts' ) ) {
+			$query_args['author'] = $current_user_id;
+		}
+
+		return $query_args;
+	}
+
+	/**
 	 * Disable automated social media sharing of WooCommerce products via Publicize.
 	 */
 	public static function disable_publicize_for_products() {
 		remove_post_type_support( 'product', 'publicize' );
+	}
+
+	/**
+	 * The 'action_include_filters_excerpt' hooked on this action to modify the 'Read More' text by The Events Calendar
+	 * causes issues because of the weird `avoiding_filter_loop` usage in the call stack. It introduces a race condition that
+	 * messes up the query that the posts block uses by resetting the query early, and WP will think the current posts block item is
+	 * the parent Page that the posts block is embedded on.
+	 *
+	 * @see https://github.com/the-events-calendar/the-events-calendar/blob/0b8caed6049ee6c16bb3d1e06ea9026d995f636e/src/Tribe/Views/V2/Hooks.php#L92
+	 * @see https://github.com/the-events-calendar/the-events-calendar/blob/77910c9de7f5640064d4eef4eb4841a523f27719/src/Tribe/Views/V2/Template/Excerpt.php#L71-L73
+	 */
+	public static function remove_tec_extra_excerpt_filtering() {
+		remove_all_actions( 'tribe_events_views_v2_after_make_view' );
 	}
 }
 Patches::init();
