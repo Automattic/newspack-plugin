@@ -32,6 +32,8 @@ const DEFAULT_CONFIG = {
 	is_donor: false,
 	is_not_subscribed: false,
 	is_not_donor: false,
+	is_logged_in: false,
+	is_not_logged_in: false,
 	favorite_categories: [],
 	referrers: '',
 	referrers_not: '',
@@ -194,7 +196,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			<SettingsCard
 				title={ __( 'Reader Activity', 'newspack' ) }
 				description={ __( 'Target readers based on their actions', 'newspack' ) }
-				columns={ 2 }
+				columns={ 3 }
 				noBorder
 			>
 				<SettingsSection title={ __( 'Newsletter', 'newspack' ) }>
@@ -248,6 +250,31 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							{ value: 0, label: __( 'Donors and non-donors', 'newspack' ) },
 							{ value: 1, label: __( 'Donors', 'newspack' ) },
 							{ value: 2, label: __( 'Non-donors', 'newspack' ) },
+						] }
+					/>
+				</SettingsSection>
+				<SettingsSection title={ __( 'Login State', 'newspack' ) }>
+					<SelectControl
+						onChange={ value => {
+							value = parseInt( value );
+							if ( value === 0 ) {
+								updateSegmentConfig( {
+									is_logged_in: false,
+									is_not_logged_in: false,
+								} );
+							} else {
+								updateSegmentConfig( {
+									is_logged_in: value === 1,
+									is_not_logged_in: value === 2,
+								} );
+							}
+						} }
+						// eslint-disable-next-line no-nested-ternary
+						value={ segmentConfig.is_logged_in ? 1 : segmentConfig.is_not_logged_in ? 2 : 0 }
+						options={ [
+							{ value: 0, label: __( 'Logged-in and non-logged-in users', 'newspack' ) },
+							{ value: 1, label: __( 'Logged-in users', 'newspack' ) },
+							{ value: 2, label: __( 'Non-logged-in users', 'newspack' ) },
 						] }
 					/>
 				</SettingsSection>
