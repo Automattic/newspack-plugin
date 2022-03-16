@@ -21,14 +21,6 @@ const Providers = ( { services, toggleService } ) => {
 
 	return (
 		<>
-			<PluginToggle
-				plugins={ {
-					broadstreet: {
-						actionText: __( 'Configure' ),
-						href: '/wp-admin/admin.php?page=Broadstreet',
-					},
-				} }
-			/>
 			<ActionCard
 				title={ __( 'Google Ad Manager' ) }
 				description={ __(
@@ -56,6 +48,14 @@ const Providers = ( { services, toggleService } ) => {
 						  ]
 				}
 				notificationLevel={ google_ad_manager.created_targeting_keys?.length ? 'success' : 'error' }
+			/>
+			<PluginToggle
+				plugins={ {
+					broadstreet: {
+						actionText: __( 'Configure' ),
+						href: '/wp-admin/admin.php?page=Broadstreet',
+					},
+				} }
 			/>
 		</>
 	);
