@@ -253,7 +253,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						] }
 					/>
 				</SettingsSection>
-				<SettingsSection title={ __( 'Login State', 'newspack' ) }>
+				<SettingsSection title={ __( 'User Account', 'newspack' ) }>
 					<SelectControl
 						onChange={ value => {
 							value = parseInt( value );
@@ -272,9 +272,9 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						// eslint-disable-next-line no-nested-ternary
 						value={ segmentConfig.is_logged_in ? 1 : segmentConfig.is_not_logged_in ? 2 : 0 }
 						options={ [
-							{ value: 0, label: __( 'Logged-in and non-logged-in users', 'newspack' ) },
-							{ value: 1, label: __( 'Logged-in users', 'newspack' ) },
-							{ value: 2, label: __( 'Non-logged-in users', 'newspack' ) },
+							{ value: 0, label: __( 'All users', 'newspack' ) },
+							{ value: 1, label: __( 'Has user account', 'newspack' ) },
+							{ value: 2, label: __( 'Does not have user account', 'newspack' ) },
 						] }
 					/>
 				</SettingsSection>
