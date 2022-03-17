@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
+import { Spinner } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -28,6 +29,7 @@ class CategoryAutocomplete extends Component {
 	state = {
 		suggestions: {},
 		allCategories: {},
+		isLoading: false,
 	};
 
 	/**
@@ -39,12 +41,15 @@ class CategoryAutocomplete extends Component {
 	}
 
 	componentDidMount() {
+		this.setState( { isLoading: true } );
 		apiFetch( {
 			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
 				per_page: -1,
 				_fields: 'id,name',
 			} ),
-		} ).then( categories => this.setState( { allCategories: categories } ) );
+		} )
+			.then( categories => this.setState( { allCategories: categories } ) )
+			.finally( () => this.setState( { isLoading: false } ) );
 	}
 
 	/**
@@ -60,6 +65,7 @@ class CategoryAutocomplete extends Component {
 	 * @param {string} search The typed text to search for.
 	 */
 	updateSuggestions( search ) {
+		this.setState( { isLoading: true } );
 		apiFetch( {
 			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
 				search,
@@ -68,14 +74,16 @@ class CategoryAutocomplete extends Component {
 				orderby: 'count',
 				order: 'desc',
 			} ),
-		} ).then( categories => {
-			this.setState( {
-				suggestions: categories.reduce(
-					( accumulator, category ) => ( { ...accumulator, [ category.name ]: category } ),
-					{}
-				),
-			} );
-		} );
+		} )
+			.then( categories => {
+				this.setState( {
+					suggestions: categories.reduce(
+						( accumulator, category ) => ( { ...accumulator, [ category.name ]: category } ),
+						{}
+					),
+				} );
+			} )
+			.finally( () => this.setState( { isLoading: false } ) );
 	}
 
 	/**
@@ -121,7 +129,7 @@ class CategoryAutocomplete extends Component {
 			label,
 			value,
 		} = this.props;
-		const { allCategories } = this.state;
+		const { allCategories, isLoading } = this.state;
 		const classes = classnames( 'newspack-category-autocomplete', className );
 		return (
 			<div className={ classes }>
@@ -146,6 +154,11 @@ class CategoryAutocomplete extends Component {
 					hideHelpFromVision={ hideHelpFromVision }
 					hideLabelFromVision={ hideLabelFromVision }
 				/>
+				{ isLoading ? (
+					<span className="newspack-category-autocomplete__suggestions-spinner">
+						<Spinner />
+					</span>
+				) : null }
 			</div>
 		);
 	}
