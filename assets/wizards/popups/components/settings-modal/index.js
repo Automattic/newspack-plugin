@@ -29,7 +29,11 @@ const { SettingsCard } = Settings;
 
 const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup } ) => {
 	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
-	const [ showAdvanced, setShowAdvanced ] = useState( false );
+	const { excluded_categories: excludedCategories = [], excluded_tags: excludedTags = [] } =
+		promptConfig.options || {};
+	const [ showAdvanced, setShowAdvanced ] = useState(
+		0 < excludedCategories.length || 0 < excludedTags.length || false
+	);
 
 	const handleSave = () => {
 		updatePopup( promptConfig ).then( onClose );
@@ -170,7 +174,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								label={ __( 'Category Exclusions', 'newspack ' ) }
 								disabled={ disabled }
 								hideHelpFromVision
-								value={ promptConfig.options?.excluded_categories || [] }
+								value={ excludedCategories || [] }
 								onChange={ tokens =>
 									setPromptConfig( {
 										options: { excluded_categories: tokens.map( token => token.id ) },
@@ -186,7 +190,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								disabled={ disabled }
 								hideHelpFromVision
 								taxonomy="tags"
-								value={ promptConfig.options?.excluded_tags || [] }
+								value={ excludedTags || [] }
 								onChange={ tokens => setPromptConfig( { options: { excluded_tags: tokens } } ) }
 								description={ __(
 									'Prompt will not appear on posts with the specified tags.',
