@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Settings, Placements, Services, Suppression } from './views';
+import { AdUnit, AdUnits, Settings, Placements, Services, AddOns, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -135,6 +135,7 @@ class AdvertisingWizard extends Component {
 	render() {
 		const { advertisingData } = this.state;
 		const { pluginRequirements, wizardApiFetch } = this.props;
+		console.log( { pluginRequirements } );
 		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
@@ -153,6 +154,10 @@ class AdvertisingWizard extends Component {
 			{
 				label: __( 'Suppression', 'newspack' ),
 				path: '/suppression',
+			},
+			{
+				label: __( 'Add-Ons', 'newspack' ),
+				path: '/addons',
 			},
 		];
 		return (
@@ -283,6 +288,16 @@ class AdvertisingWizard extends Component {
 									tabbedNavigation={ tabs }
 									config={ advertisingData.suppression }
 									onChange={ config => this.updateAdSuppression( config ) }
+								/>
+							) }
+						/>
+						<Route
+							path="/addons"
+							render={ () => (
+								<AddOns
+									headerText={ __( 'Advertising', 'newspack' ) }
+									subHeaderText={ __( 'Add-ons for enhanced advertising', 'newspack' ) }
+									tabbedNavigation={ tabs }
 								/>
 							) }
 						/>

@@ -5,20 +5,23 @@
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { PluginSettings, withWizardScreen } from '../../../../components/src';
+import AdRefreshControlSettings from '../../components/ad-refresh-control';
 
 /**
  * Advertising management screen.
  */
-class Settings extends Component {
-	render() {
-		return <PluginSettings pluginSlug="newspack-ads" title={ null } />;
-	}
+function Settings() {
+	return (
+		<PluginSettings pluginSlug="newspack-ads" title={ null }>
+			<AdRefreshControlSettings />
+		</PluginSettings>
+	);
 }
 
 export default withWizardScreen( Settings );

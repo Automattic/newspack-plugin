@@ -26,31 +26,32 @@ class PluginSettings extends Component {
 		};
 	}
 
-	fetchSettings = () => {
+	fetchSettings = async () => {
 		const { afterFetch, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
-		apiFetch( {
-			path: isWizard
-				? `/newspack/v1/wizard/${ pluginSlug }/settings`
-				: `/${ pluginSlug }/v1/settings`,
-		} )
-			.then( settings => {
-				this.setState( { settings, error: null } );
-
-				if ( 'function' === typeof afterFetch ) {
-					afterFetch( settings );
-				}
-			} )
-			.catch( error => {
-				this.setState( { error } );
-			} )
-			.finally( () => {
-				this.setState( { inFlight: false } );
+		let settings;
+		try {
+			settings = await apiFetch( {
+				path: isWizard
+					? `/newspack/v1/wizard/${ pluginSlug }/settings`
+					: `/${ pluginSlug }/v1/settings`,
 			} );
+			this.setState( { settings, error: null } );
+			if ( 'function' === typeof afterFetch ) {
+				afterFetch( settings );
+			}
+		} catch ( error ) {
+			this.setState( { error } );
+		}
+		this.setState( { inFlight: false } );
+		return settings;
 	};
 
-	componentDidMount() {
-		this.fetchSettings();
+	async componentDidMount() {
+		const settings = await this.fetchSettings();
+		if ( 'function' === typeof this.props.onReady ) {
+			this.props.onReady( settings );
+		}
 	}
 
 	getSettingsValues = sectionKey => {
@@ -168,7 +169,7 @@ class PluginSettings extends Component {
 	 * Render.
 	 */
 	render() {
-		const { title, description, hasGreyHeader } = this.props;
+		const { title, description, hasGreyHeader, children } = this.props;
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
@@ -193,6 +194,7 @@ class PluginSettings extends Component {
 							hasGreyHeader={ hasGreyHeader }
 						/>
 					) ) }
+					{ children }
 				</div>
 			</Fragment>
 		);
