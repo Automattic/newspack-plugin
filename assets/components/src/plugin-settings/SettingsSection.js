@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Grid, Button, TextControl, CheckboxControl, SelectControl } from '../';
+import { ActionCard, Grid, Button, TextControl, CheckboxControl, SelectControl, Notice } from '../';
 import './style.scss';
 
 const isSelectControl = setting => {
@@ -51,7 +51,17 @@ const getControlType = setting => {
 };
 
 const SettingsSection = props => {
-	const { sectionKey, active, title, description, fields, disabled, onChange, onUpdate } = props;
+	const {
+		error,
+		sectionKey,
+		active,
+		title,
+		description,
+		fields,
+		disabled,
+		onChange,
+		onUpdate,
+	} = props;
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
@@ -111,6 +121,7 @@ const SettingsSection = props => {
 		>
 			{ ( active || active === null ) && (
 				<Fragment>
+					{ error && error.message ? <Notice noticeText={ error.message } isError /> : null }
 					{ createFilter( 'beforeControls' ) }
 					<Grid columns={ columns } gutter={ 32 }>
 						{ fields.map( setting => {
