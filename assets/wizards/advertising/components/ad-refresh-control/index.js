@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -22,7 +23,6 @@ const fields = [
 			"The percentage of the ad slot which must be visible in the viewport in order to be considered eligible for being refreshed. It's recommended you do not lower this below 50 or you risk third-party viewability tracking platforms flagging your ad impressions as not having been viewed before refreshing.",
 			'newspack'
 		),
-		value: 70,
 	},
 	{
 		key: 'refresh_interval',
@@ -32,7 +32,6 @@ const fields = [
 			'The number of seconds that must pass between an ad crossing the viewability threshold and the the ad refreshing. The plugin enforces a minimum of 30 in order to avoid your site being flagged for abusing ad refreshes by advertisers. This value may however be overridden via the avc_refresh_interval_value filter hook.',
 			'newspack'
 		),
-		value: 30,
 	},
 	{
 		key: 'maximum_refreshes',
@@ -42,10 +41,9 @@ const fields = [
 			'The number of times each ad slot is allowed to be refreshed. If this is set to 4 then an ad slot could have a total of 5 impressions by combining the initial loading of the ad with the 4 times it can refresh.',
 			'newspack'
 		),
-		value: 10,
 	},
 	{
-		key: 'adverstiser_ids',
+		key: 'advertiser_ids',
 		type: 'string',
 		description: __( 'Excluded Advertiser IDs', 'newspack' ),
 		help: __(
@@ -54,7 +52,7 @@ const fields = [
 		),
 	},
 	{
-		key: 'line_items_ids',
+		key: 'line_item_ids',
 		type: 'string',
 		description: __( 'Line Items IDs to Exclude', 'newspack' ),
 		help: __(
@@ -84,11 +82,53 @@ const fields = [
 
 export default function AdRefreshControlSettings() {
 	const [ inFlight, setInFlight ] = useState( false );
+	const [ error, setError ] = useState( null );
+	const [ settings, setSettings ] = useState( null );
 	useEffect( async () => {
 		setInFlight( true );
+		try {
+			setSettings( await apiFetch( { path: '/newspack-ads/v1/ad-refresh-control' } ) );
+		} catch ( err ) {
+			setSettings( null );
+		}
+		setInFlight( false );
 	}, [] );
+	const handleChange = ( key, value ) => {
+		setSettings( {
+			...settings,
+			[ key ]: value,
+		} );
+	};
+	const handleUpdate = async data => {
+		setError( null );
+		setInFlight( true );
+		try {
+			const result = await apiFetch( {
+				path: '/newspack-ads/v1/ad-refresh-control',
+				method: 'POST',
+				data: {
+					...settings,
+					...data,
+				},
+			} );
+			setSettings( result );
+		} catch ( err ) {
+			setError( err );
+		}
+		setInFlight( false );
+	};
+	if ( ! settings ) {
+		return null;
+	}
+	// Apply value to fields.
+	fields.forEach( field => {
+		if ( settings[ field.key ] ) {
+			field.value = settings[ field.key ];
+		}
+	} );
 	return (
 		<PluginSettings.Section
+			error={ error }
 			disabled={ inFlight }
 			sectionKey="ad-refresh-control"
 			title={ __( 'Ad Refresh Control', 'newspack' ) }
@@ -96,14 +136,10 @@ export default function AdRefreshControlSettings() {
 				'Enable Active View refresh for Google Ad Manager ads without needing to modify any code.',
 				'newspack'
 			) }
-			active={ true }
+			active={ ! settings.disable_refresh }
 			fields={ fields }
-			onUpdate={ data => {
-				console.log( 'Plugin Settings Section Updated', data );
-			} }
-			onChange={ ( key, val ) => {
-				console.log( 'Plugin Settings Section Changed', { key, val } );
-			} }
+			onUpdate={ handleUpdate }
+			onChange={ handleChange }
 		/>
 	);
 }

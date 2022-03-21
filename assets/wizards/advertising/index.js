@@ -135,7 +135,6 @@ class AdvertisingWizard extends Component {
 	render() {
 		const { advertisingData } = this.state;
 		const { pluginRequirements, wizardApiFetch } = this.props;
-		console.log( { pluginRequirements } );
 		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
