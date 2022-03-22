@@ -40,14 +40,8 @@ class Advertising_Wizard extends Wizard {
 	 * @var array
 	 */
 	protected $services = array(
-		'wordads'           => array(
-			'label' => 'WordAds',
-		),
 		'google_ad_manager' => array(
 			'label' => 'Google Ad Manager',
-		),
-		'google_adsense'    => array(
-			'label' => 'Ad Sense',
 		),
 	);
 
@@ -384,18 +378,7 @@ class Advertising_Wizard extends Wizard {
 	 */
 	public function api_enable_service( $request ) {
 		$service = $request['service'];
-		if ( 'wordads' === $service ) {
-			$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
-			$jetpack_manager->activate_wordads();
-		} else {
-			update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
-		}
-
-		if ( 'google_adsense' === $service ) {
-			$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-			$sitekit_manager->activate_module( 'adsense' );
-		}
-
+		update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -407,18 +390,7 @@ class Advertising_Wizard extends Wizard {
 	 */
 	public function api_disable_service( $request ) {
 		$service = $request['service'];
-		if ( 'wordads' === $service ) {
-			$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
-			$jetpack_manager->deactivate_wordads();
-		} else {
-			update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, false );
-		}
-
-		if ( 'google_adsense' === $service ) {
-			$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-			$sitekit_manager->deactivate_module( 'adsense' );
-		}
-
+		update_option( self::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, false );
 		return \rest_ensure_response( $this->retrieve_data() );
 	}
 
@@ -545,16 +517,6 @@ class Advertising_Wizard extends Wizard {
 				'enabled' => $configuration_manager->is_service_enabled( $service ),
 			);
 		}
-		/* Check availability of WordAds based on current Jetpack plan */
-		$jetpack_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
-
-		$services['wordads']['enabled'] = $jetpack_manager->is_wordads_enabled();
-		if ( ! $jetpack_manager->is_wordads_available_at_plan_level() ) {
-			$services['wordads']['upgrade_required'] = true;
-		}
-		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-
-		$services['google_adsense']['enabled'] = $sitekit_manager->is_module_active( 'adsense' );
 
 		// Verify GAM connection and run initial setup.
 		$gam_connection_status                               = $configuration_manager->get_gam_connection_status();

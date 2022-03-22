@@ -311,6 +311,14 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/ad-refresh-control/' ),
 				'Download'    => esc_url( 'wporg' ),
 			],
+			'broadstreet'                   => [
+				'Name'        => esc_html__( 'Broadstreet', 'newspack' ),
+				'Description' => esc_html__( 'Integrate Broadstreet’s business directory and ad-serving features into your site.', 'newspack' ),
+				'Author'      => 'Broadstreet',
+				'AuthorURI'   => esc_url( 'https://broadstreetads.com/' ),
+				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/broadstreet/' ),
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [
