@@ -74,7 +74,7 @@ const AdUnits = ( {
 		<>
 			<Card noBorder>
 				<Button isLink href="#/" icon={ arrowLeft }>
-					{ __( 'Back to Ad Providers', 'newspack' ) }
+					{ __( 'Back', 'newspack' ) }
 				</Button>
 			</Card>
 
