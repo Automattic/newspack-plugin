@@ -700,7 +700,9 @@ class Donations {
 		$page_id = wp_insert_post( $page_args );
 		if ( is_numeric( $page_id ) ) {
 			self::set_donation_page( $page_id );
+			update_post_meta( $page_id, '_wp_page_template', 'single-feature.php' );
 		}
+
 		return $page_id;
 	}
 
