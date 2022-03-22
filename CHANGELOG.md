@@ -1,3 +1,24 @@
+# [1.79.0](https://github.com/Automattic/newspack-plugin/compare/v1.78.0...v1.79.0) (2022-03-22)
+
+
+### Bug Fixes
+
+* a bad merge after the last post-release job ([c269195](https://github.com/Automattic/newspack-plugin/commit/c269195bc5ae8904711b22feece0f3aca4523e2b))
+* **design:** header defaults in line with the theme ([6c63d1a](https://github.com/Automattic/newspack-plugin/commit/6c63d1a7269d5cc2126733ab98a6a4529cc814f3))
+* fix TEC posts block date issues ([#1518](https://github.com/Automattic/newspack-plugin/issues/1518)) ([1c4c501](https://github.com/Automattic/newspack-plugin/commit/1c4c501f7b94d96e73b0b03cdd3ab14301aa6f69))
+* logic for PluginSettings styles and functionality ([#1533](https://github.com/Automattic/newspack-plugin/issues/1533)) ([b05ba72](https://github.com/Automattic/newspack-plugin/commit/b05ba72da7288417e295c9714cc7e0f31ffb9391))
+* remove 'www' from parse.ly api key generation ([#1542](https://github.com/Automattic/newspack-plugin/issues/1542)) ([7831868](https://github.com/Automattic/newspack-plugin/commit/78318689ffc669cf85266b9cce5daf83f5a75714))
+* reusable Blocks menu item minimum capability ([#1549](https://github.com/Automattic/newspack-plugin/issues/1549)) ([ec142b7](https://github.com/Automattic/newspack-plugin/commit/ec142b7fe7d4db1419e17ea40e96e3c4d11c074d))
+* **starter-content:** prevent starter homepage deletion ([a82f22a](https://github.com/Automattic/newspack-plugin/commit/a82f22af3b54213547b9c8669ecfaa3315deaa77)), closes [#1538](https://github.com/Automattic/newspack-plugin/issues/1538)
+* stripe data setting ([0851592](https://github.com/Automattic/newspack-plugin/commit/085159247475f56ab7fa529b57c8fedaffcf1b04))
+
+
+### Features
+
+* **ads:** placement providers ([#1521](https://github.com/Automattic/newspack-plugin/issues/1521)) ([2d60688](https://github.com/Automattic/newspack-plugin/commit/2d60688b072536d2d3f0c9cc7fe6b96869d54840))
+* restrict access to others' posts for non-admin/editor users ([#1541](https://github.com/Automattic/newspack-plugin/issues/1541)) ([dee8fe8](https://github.com/Automattic/newspack-plugin/commit/dee8fe8b39e247f5c9d89c917c7ef4677cbd316c)), closes [#1518](https://github.com/Automattic/newspack-plugin/issues/1518)
+* update plugin-settings ([#1525](https://github.com/Automattic/newspack-plugin/issues/1525)) ([a3649c8](https://github.com/Automattic/newspack-plugin/commit/a3649c8629c6a6ae81421bf7f4137a62e4036756))
+
 # [1.79.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.78.0...v1.79.0-alpha.1) (2022-03-15)
 
 
