@@ -154,8 +154,8 @@ class Starter_Content {
 				set_theme_mod( 'logo_size', 0 );
 			}
 		}
-		set_theme_mod( 'header_solid_background', true );
-		set_theme_mod( 'header_simplified', true );
+		set_theme_mod( 'header_solid_background', false );
+		set_theme_mod( 'header_simplified', false );
 		return true;
 	}
 
