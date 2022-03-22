@@ -24,7 +24,7 @@ const Providers = ( { services, toggleService } ) => {
 			<ActionCard
 				title={ __( 'Google Ad Manager' ) }
 				description={ __(
-					'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements.'
+					'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.'
 				) }
 				actionText={ google_ad_manager && google_ad_manager.enabled && __( 'Configure' ) }
 				toggle
