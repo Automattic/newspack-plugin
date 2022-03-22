@@ -297,7 +297,7 @@ class Plugin_Manager {
 			],
 			'broadstreet'                   => [
 				'Name'        => esc_html__( 'Broadstreet', 'newspack' ),
-				'Description' => esc_html__( 'Integrate Broadstreet business directory and adserving power into your site.', 'newspack' ),
+				'Description' => esc_html__( 'Integrate Broadstreet’s business directory and ad-serving features into your site.', 'newspack' ),
 				'Author'      => 'Broadstreet',
 				'AuthorURI'   => esc_url( 'https://broadstreetads.com/' ),
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/broadstreet/' ),
