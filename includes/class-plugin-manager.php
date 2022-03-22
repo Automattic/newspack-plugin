@@ -295,6 +295,14 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://distributorplugin.com/' ),
 				'Download'    => esc_url( 'https://github.com/10up/distributor/archive/stable.zip' ),
 			],
+			'broadstreet'                   => [
+				'Name'        => esc_html__( 'Broadstreet', 'newspack' ),
+				'Description' => esc_html__( 'Integrate Broadstreet’s business directory and ad-serving features into your site.', 'newspack' ),
+				'Author'      => 'Broadstreet',
+				'AuthorURI'   => esc_url( 'https://broadstreetads.com/' ),
+				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/broadstreet/' ),
+				'Download'    => 'wporg',
+			],
 		];
 
 		$default_info = [

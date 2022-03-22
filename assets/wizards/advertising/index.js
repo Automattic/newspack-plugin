@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Settings, Placements, Services, Suppression } from './views';
+import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression } from './views';
 import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -35,8 +35,6 @@ class AdvertisingWizard extends Component {
 					google_ad_manager: {
 						status: {},
 					},
-					google_adsense: {},
-					wordads: {},
 				},
 				suppression: false,
 			},
@@ -138,7 +136,7 @@ class AdvertisingWizard extends Component {
 		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
-				label: __( 'Ad Providers', 'newspack' ),
+				label: __( 'Providers', 'newspack' ),
 				path: '/',
 				exact: true,
 			},
@@ -164,14 +162,11 @@ class AdvertisingWizard extends Component {
 							path="/"
 							exact
 							render={ () => (
-								<Services
-									headerText={ __( 'Advertising', 'newspack' ) }
-									subHeaderText={ __(
-										'Enable and configure the ad providers you’d like to use',
-										'newspack'
-									) }
+								<Providers
+									headerText="Advertising"
+									subHeaderText={ __( 'Manage ad providers and their settings.', 'newspack' ) }
 									services={ services }
-									toggleService={ ( service, value ) => this.toggleService( service, value ) }
+									toggleService={ this.toggleService }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -219,6 +214,7 @@ class AdvertisingWizard extends Component {
 									wizardApiFetch={ wizardApiFetch }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
 									updateWithAPI={ this.updateWithAPI }
+									tabbedNavigation={ tabs }
 								/>
 							) }
 						/>
@@ -248,6 +244,7 @@ class AdvertisingWizard extends Component {
 											} )
 											.catch( () => {} )
 									}
+									tabbedNavigation={ tabs }
 								/>
 							) }
 						/>
@@ -267,6 +264,7 @@ class AdvertisingWizard extends Component {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
+										tabbedNavigation={ tabs }
 									/>
 								);
 							} }
