@@ -37,7 +37,6 @@ const AdUnits = ( {
 	updateWithAPI,
 	service,
 	serviceData,
-	toggleService,
 	fetchAdvertisingData,
 } ) => {
 	const gamErrorMessage = serviceData?.status?.error
