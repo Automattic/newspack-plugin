@@ -164,7 +164,7 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<Providers
 									headerText="Advertising"
-									subHeaderText={ __( 'Manage ad providers and its settings.', 'newspack' ) }
+									subHeaderText={ __( 'Manage ad providers and their settings.', 'newspack' ) }
 									services={ services }
 									toggleService={ this.toggleService }
 									tabbedNavigation={ tabs }
