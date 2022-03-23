@@ -342,9 +342,9 @@ class Advertising_Wizard extends Wizard {
 	public function api_update_network_code( $request ) {
 		// Update GAM or legacy network code.
 		if ( $request['is_gam'] ) {
-			update_option( \Newspack_Ads_Model::OPTION_NAME_GAM_NETWORK_CODE, $request['network_code'] );
+			update_option( \Newspack_Ads\Model::OPTION_NAME_GAM_NETWORK_CODE, $request['network_code'] );
 		} else {
-			update_option( \Newspack_Ads_Model::OPTION_NAME_LEGACY_NETWORK_CODE, $request['network_code'] );
+			update_option( \Newspack_Ads\Model::OPTION_NAME_LEGACY_NETWORK_CODE, $request['network_code'] );
 		}
 		return \rest_ensure_response( [] );
 	}
