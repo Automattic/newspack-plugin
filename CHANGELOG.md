@@ -1,3 +1,10 @@
+## [1.79.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.79.0...v1.79.1-hotfix.1) (2022-03-23)
+
+
+### Bug Fixes
+
+* **jetpack:** ensure instant search display filters ([8744151](https://github.com/Automattic/newspack-plugin/commit/874415166242199d851dc079812880df20457ea9))
+
 # [1.79.0](https://github.com/Automattic/newspack-plugin/compare/v1.78.0...v1.79.0) (2022-03-22)
 
 
