@@ -9,7 +9,7 @@ namespace Newspack;
 
 use \WP_Error;
 
-use Newspack_Ads\Model;
+use Newspack_Ads\Providers\GAM_Model;
 use Newspack_Ads\Providers\GAM_API;
 
 defined( 'ABSPATH' ) || exit;
@@ -34,7 +34,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Whether Newspack Ads is installed and activated.
 	 */
 	public function is_configured() {
-		return class_exists( '\Newspack_Ads\Model' );
+		return class_exists( '\Newspack_Ads\Providers\GAM_Model' );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function setup_gam() {
 		return $this->is_configured() ?
-			Model::setup_gam() :
+			GAM_Model::setup_gam() :
 			$this->unconfigured_error();
 	}
 
@@ -79,7 +79,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_ad_units() {
 		return $this->is_configured() ?
-			Model::get_ad_units() :
+			GAM_Model::get_ad_units() :
 			$this->unconfigured_error();
 	}
 
@@ -92,7 +92,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_ad_unit_for_display( $id, $placement = null ) {
 		return $this->is_configured() ?
-			Model::get_ad_unit_for_display( $id, $placement ) :
+			GAM_Model::get_ad_unit_for_display( $id, $placement ) :
 			$this->unconfigured_error();
 	}
 
@@ -104,7 +104,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function add_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
-			Model::add_ad_unit( $ad_unit ) :
+			GAM_Model::add_ad_unit( $ad_unit ) :
 			$this->unconfigured_error();
 	}
 
@@ -116,7 +116,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function update_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
-			Model::update_ad_unit( $ad_unit ) :
+			GAM_Model::update_ad_unit( $ad_unit ) :
 			$this->unconfigured_error();
 	}
 
@@ -128,7 +128,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function delete_ad_unit( $id ) {
 		return $this->is_configured() ?
-			Model::delete_ad_unit( $id ) :
+			GAM_Model::delete_ad_unit( $id ) :
 			$this->unconfigured_error();
 	}
 
@@ -139,7 +139,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function is_gam_connected() {
 		return $this->is_configured() ?
-			Model::is_gam_connected() :
+			GAM_Model::is_gam_connected() :
 			$this->unconfigured_error();
 	}
 
@@ -150,7 +150,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_gam_connection_status() {
 		return $this->is_configured() ?
-			Model::get_gam_connection_status() :
+			GAM_Model::get_gam_connection_status() :
 			$this->unconfigured_error();
 	}
 
@@ -161,7 +161,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_gam_available_networks() {
 		return $this->is_configured() ?
-			Model::get_gam_available_networks() :
+			GAM_Model::get_gam_available_networks() :
 			$this->unconfigured_error();
 	}
 
@@ -172,7 +172,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_suppression_config() {
 		return $this->is_configured() ?
-			Model::get_suppression_config() :
+			GAM_Model::get_suppression_config() :
 			$this->unconfigured_error();
 	}
 
@@ -184,7 +184,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function update_suppression_config( $config ) {
 		return $this->is_configured() ?
-			Model::update_suppression_config( $config ) :
+			GAM_Model::update_suppression_config( $config ) :
 			$this->unconfigured_error();
 	}
 
