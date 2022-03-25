@@ -519,16 +519,20 @@ class Advertising_Wizard extends Wizard {
 		}
 
 		// Verify GAM connection and run initial setup.
-		$gam_connection_status                               = $configuration_manager->get_gam_connection_status();
-		$services['google_ad_manager']['status']             = $gam_connection_status;
-		$services['google_ad_manager']['available_networks'] = $configuration_manager->get_gam_available_networks();
-		if ( true === $gam_connection_status['connected'] && ! isset( $gam_connection_status['error'] ) ) {
-			$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
-			$gam_setup_results                             = $configuration_manager->setup_gam();
-			if ( ! \is_wp_error( $gam_setup_results ) ) {
-				$services['google_ad_manager']['created_targeting_keys'] = $gam_setup_results['created_targeting_keys'];
-			} else {
-				$services['google_ad_manager']['status']['error'] = $gam_setup_results->get_error_message();
+		$gam_connection_status = $configuration_manager->get_gam_connection_status();
+		if ( \is_wp_error( $gam_connection_status ) ) {
+			$services['google_ad_manager']['status']['error'] = $gam_connection_status->get_error_message();
+		} else {
+			$services['google_ad_manager']['status']             = $gam_connection_status;
+			$services['google_ad_manager']['available_networks'] = $configuration_manager->get_gam_available_networks();
+			if ( true === $gam_connection_status['connected'] && ! isset( $gam_connection_status['error'] ) ) {
+				$services['google_ad_manager']['network_code'] = $gam_connection_status['network_code'];
+				$gam_setup_results                             = $configuration_manager->setup_gam();
+				if ( ! \is_wp_error( $gam_setup_results ) ) {
+					$services['google_ad_manager']['created_targeting_keys'] = $gam_setup_results['created_targeting_keys'];
+				} else {
+					$services['google_ad_manager']['status']['error'] = $gam_setup_results->get_error_message();
+				}
 			}
 		}
 
