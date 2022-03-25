@@ -26,32 +26,30 @@ class PluginSettings extends Component {
 		};
 	}
 
-	fetchSettings = async () => {
+	fetchSettings = () => {
 		const { afterFetch, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
-		let settings;
-		try {
-			settings = await apiFetch( {
-				path: isWizard
-					? `/newspack/v1/wizard/${ pluginSlug }/settings`
-					: `/${ pluginSlug }/v1/settings`,
+		apiFetch( {
+			path: isWizard
+				? `/newspack/v1/wizard/${ pluginSlug }/settings`
+				: `/${ pluginSlug }/v1/settings`,
+		} )
+			.then( settings => {
+				this.setState( { settings, error: null } );
+				if ( 'function' === typeof afterFetch ) {
+					afterFetch( settings );
+				}
+			} )
+			.catch( error => {
+				this.setState( { error } );
+			} )
+			.finally( () => {
+				this.setState( { inFlight: false } );
 			} );
-			this.setState( { settings, error: null } );
-			if ( 'function' === typeof afterFetch ) {
-				afterFetch( settings );
-			}
-		} catch ( error ) {
-			this.setState( { error } );
-		}
-		this.setState( { inFlight: false } );
-		return settings;
 	};
 
-	async componentDidMount() {
-		const settings = await this.fetchSettings();
-		if ( 'function' === typeof this.props.onReady ) {
-			this.props.onReady( settings );
-		}
+	componentDidMount() {
+		this.fetchSettings();
 	}
 
 	getSettingsValues = sectionKey => {
