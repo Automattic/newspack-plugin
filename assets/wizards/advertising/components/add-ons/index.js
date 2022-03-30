@@ -17,11 +17,11 @@ export default function AddOns() {
 		<PluginToggle
 			plugins={ {
 				'super-cool-ad-inserter': {
-					actionText: __( 'Configure' ),
+					actionText: __( 'Configure', 'newspack' ),
 					href: '#/settings',
 				},
 				'ad-refresh-control': {
-					actionText: __( 'Configure' ),
+					actionText: __( 'Configure', 'newspack' ),
 					href: '#/settings',
 				},
 			} }
