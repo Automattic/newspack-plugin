@@ -8,8 +8,4 @@
 import { withWizardScreen } from '../../../../components/src';
 import AddOns from '../../components/add-ons';
 
-function AddOnsView() {
-	return <AddOns />;
-}
-
-export default withWizardScreen( AddOnsView );
+export default withWizardScreen( AddOns );
