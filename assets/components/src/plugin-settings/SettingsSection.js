@@ -121,7 +121,7 @@ const SettingsSection = props => {
 		>
 			{ ( active || active === null ) && (
 				<Fragment>
-					{ error && error.message ? <Notice noticeText={ error.message } isError /> : null }
+					{ error?.message && <Notice noticeText={ error.message } isError /> }
 					{ createFilter( 'beforeControls' ) }
 					<Grid columns={ columns } gutter={ 32 }>
 						{ fields.map( setting => {
