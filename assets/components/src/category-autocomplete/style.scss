@@ -5,6 +5,8 @@
 @import '../../../shared/scss/colors';
 
 .newspack-category-autocomplete {
+	position: relative;
+
 	.components-form-token-field__help {
 		display: none;
 	}
@@ -34,5 +36,12 @@
 
 	.newspack-grid & .newspack-form-token-field {
 		margin: 0;
+	}
+
+	// Loading state spinner
+	&__suggestions-spinner {
+		bottom: 0.5em;
+		position: absolute;
+		right: 0;
 	}
 }

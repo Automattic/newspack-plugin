@@ -175,6 +175,8 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		is_not_donor = false,
 		is_not_subscribed = false,
 		is_subscribed = false,
+		is_logged_in = false,
+		is_not_logged_in = false,
 		max_posts = 0,
 		max_session_posts = 0,
 		min_posts = 0,
@@ -218,6 +220,12 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	}
 	if ( is_not_subscribed ) {
 		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
+	}
+	if ( is_logged_in ) {
+		descriptionMessages.push( __( 'Is logged in', 'newspack' ) );
+	}
+	if ( is_not_logged_in ) {
+		descriptionMessages.push( __( 'Is not logged in', 'newspack' ) );
 	}
 
 	// Messages for referrer sources.
