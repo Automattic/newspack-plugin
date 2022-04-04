@@ -301,7 +301,7 @@ class Plugin_Manager {
 				'Author'      => esc_html__( 'INN Labs, Automattic', 'newspack' ),
 				'AuthorURI'   => esc_url( 'https://automattic.com' ),
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/super-cool-ad-inserter/' ),
-				'Download'    => esc_url( 'wporg' ),
+				'Download'    => 'wporg',
 			],
 			'ad-refresh-control'            => [
 				'Name'        => esc_html__( 'Ad Refresh Control', 'newspack' ),
@@ -309,7 +309,7 @@ class Plugin_Manager {
 				'Author'      => esc_html__( 'Gary Thayer, David Green, 10up', 'newspack' ),
 				'AuthorURI'   => esc_url( 'https://10up.com' ),
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/ad-refresh-control/' ),
-				'Download'    => esc_url( 'wporg' ),
+				'Download'    => 'wporg',
 			],
 			'broadstreet'                   => [
 				'Name'        => esc_html__( 'Broadstreet', 'newspack' ),
