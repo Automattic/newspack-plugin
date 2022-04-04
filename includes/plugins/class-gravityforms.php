@@ -14,6 +14,13 @@ defined( 'ABSPATH' ) || exit;
  */
 class GravityForms {
 	/**
+	 * Has custom CSS been enqueued already?
+	 *
+	 * @var bool
+	 */
+	private static $has_enqueued_css = false;
+
+	/**
 	 * AJAX call result payload.
 	 *
 	 * @var array
@@ -261,6 +268,19 @@ TEMPLATE;
 	 * Scripts enqueueing filter.
 	 */
 	public static function gform_enqueue_scripts() {
+		if ( false === self::$has_enqueued_css ) {
+			$inline_css = '
+				.gform_body,
+				.gform_footer { transition: opacity 200ms; }
+				.amp-form-submitting .gform_body,
+				.amp-form-submitting .gform_footer { opacity: 0.5; }
+				.amp-form-submit-success .gform_body,
+				.amp-form-submit-success .gform_footer { display: none; }
+			';
+			wp_add_inline_style( 'gform_basic', $inline_css );
+			self::$has_enqueued_css = true;
+		}
+
 		if ( ! self::should_disable_scripts() ) {
 			return;
 		}
