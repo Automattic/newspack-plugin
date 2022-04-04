@@ -249,11 +249,11 @@ class GravityForms {
 <div submit-error>
 	<template type="amp-mustache">
 		{{#errors}}
-            <p>{{#label}}{{label}}: {{/label}}{{message}}</p>
-        {{/errors}}
-        {{^errors}}
-            <p>$try_again_later</p>
-        {{/errors}}
+			<p>{{#label}}{{label}}: {{/label}}{{message}}</p>
+		{{/errors}}
+		{{^errors}}
+			<p>$try_again_later</p>
+		{{/errors}}
 	</template>
 </div>
 TEMPLATE;
@@ -459,8 +459,8 @@ TEMPLATE;
 	/**
 	 * When the post has a GravityForms Poll block, append a hidden div with all the
 	 * classes used by GF's Polls plugin, so the CSS is not stripped off by AMP.
-	 * The stripping happens because these classes are added by JS, which will be
-	 * loaded via AMP Plus (if enabled).
+	 * The stripping happens because these classes are added by JS (not initially in the document),
+	 * which will be loaded via AMP Plus (if enabled).
 	 *
 	 * @param string $content The post content.
 	 */
