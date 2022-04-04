@@ -1,3 +1,89 @@
+## [1.79.1](https://github.com/Automattic/newspack-plugin/compare/v1.79.0...v1.79.1) (2022-03-24)
+
+
+### Bug Fixes
+
+* **jetpack:** ensure instant search display filters ([#1572](https://github.com/Automattic/newspack-plugin/issues/1572)) ([a9320d7](https://github.com/Automattic/newspack-plugin/commit/a9320d76c06bf1687234df063825468b48af447a))
+
+## [1.79.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.79.0...v1.79.1-hotfix.1) (2022-03-23)
+
+
+### Bug Fixes
+
+* **jetpack:** ensure instant search display filters ([8744151](https://github.com/Automattic/newspack-plugin/commit/874415166242199d851dc079812880df20457ea9))
+
+# [1.79.0](https://github.com/Automattic/newspack-plugin/compare/v1.78.0...v1.79.0) (2022-03-22)
+
+
+### Bug Fixes
+
+* a bad merge after the last post-release job ([c269195](https://github.com/Automattic/newspack-plugin/commit/c269195bc5ae8904711b22feece0f3aca4523e2b))
+* **design:** header defaults in line with the theme ([6c63d1a](https://github.com/Automattic/newspack-plugin/commit/6c63d1a7269d5cc2126733ab98a6a4529cc814f3))
+* fix TEC posts block date issues ([#1518](https://github.com/Automattic/newspack-plugin/issues/1518)) ([1c4c501](https://github.com/Automattic/newspack-plugin/commit/1c4c501f7b94d96e73b0b03cdd3ab14301aa6f69))
+* logic for PluginSettings styles and functionality ([#1533](https://github.com/Automattic/newspack-plugin/issues/1533)) ([b05ba72](https://github.com/Automattic/newspack-plugin/commit/b05ba72da7288417e295c9714cc7e0f31ffb9391))
+* remove 'www' from parse.ly api key generation ([#1542](https://github.com/Automattic/newspack-plugin/issues/1542)) ([7831868](https://github.com/Automattic/newspack-plugin/commit/78318689ffc669cf85266b9cce5daf83f5a75714))
+* reusable Blocks menu item minimum capability ([#1549](https://github.com/Automattic/newspack-plugin/issues/1549)) ([ec142b7](https://github.com/Automattic/newspack-plugin/commit/ec142b7fe7d4db1419e17ea40e96e3c4d11c074d))
+* **starter-content:** prevent starter homepage deletion ([a82f22a](https://github.com/Automattic/newspack-plugin/commit/a82f22af3b54213547b9c8669ecfaa3315deaa77)), closes [#1538](https://github.com/Automattic/newspack-plugin/issues/1538)
+* stripe data setting ([0851592](https://github.com/Automattic/newspack-plugin/commit/085159247475f56ab7fa529b57c8fedaffcf1b04))
+
+
+### Features
+
+* **ads:** placement providers ([#1521](https://github.com/Automattic/newspack-plugin/issues/1521)) ([2d60688](https://github.com/Automattic/newspack-plugin/commit/2d60688b072536d2d3f0c9cc7fe6b96869d54840))
+* restrict access to others' posts for non-admin/editor users ([#1541](https://github.com/Automattic/newspack-plugin/issues/1541)) ([dee8fe8](https://github.com/Automattic/newspack-plugin/commit/dee8fe8b39e247f5c9d89c917c7ef4677cbd316c)), closes [#1518](https://github.com/Automattic/newspack-plugin/issues/1518)
+* update plugin-settings ([#1525](https://github.com/Automattic/newspack-plugin/issues/1525)) ([a3649c8](https://github.com/Automattic/newspack-plugin/commit/a3649c8629c6a6ae81421bf7f4137a62e4036756))
+
+# [1.79.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.78.0...v1.79.0-alpha.1) (2022-03-15)
+
+
+### Bug Fixes
+
+* a bad merge after the last post-release job ([c269195](https://github.com/Automattic/newspack-plugin/commit/c269195bc5ae8904711b22feece0f3aca4523e2b))
+* **design:** header defaults in line with the theme ([6c63d1a](https://github.com/Automattic/newspack-plugin/commit/6c63d1a7269d5cc2126733ab98a6a4529cc814f3))
+* fix TEC posts block date issues ([#1518](https://github.com/Automattic/newspack-plugin/issues/1518)) ([1c4c501](https://github.com/Automattic/newspack-plugin/commit/1c4c501f7b94d96e73b0b03cdd3ab14301aa6f69))
+* logic for PluginSettings styles and functionality ([#1533](https://github.com/Automattic/newspack-plugin/issues/1533)) ([b05ba72](https://github.com/Automattic/newspack-plugin/commit/b05ba72da7288417e295c9714cc7e0f31ffb9391))
+* remove 'www' from parse.ly api key generation ([#1542](https://github.com/Automattic/newspack-plugin/issues/1542)) ([7831868](https://github.com/Automattic/newspack-plugin/commit/78318689ffc669cf85266b9cce5daf83f5a75714))
+* reusable Blocks menu item minimum capability ([#1549](https://github.com/Automattic/newspack-plugin/issues/1549)) ([ec142b7](https://github.com/Automattic/newspack-plugin/commit/ec142b7fe7d4db1419e17ea40e96e3c4d11c074d))
+* **starter-content:** prevent starter homepage deletion ([a82f22a](https://github.com/Automattic/newspack-plugin/commit/a82f22af3b54213547b9c8669ecfaa3315deaa77)), closes [#1538](https://github.com/Automattic/newspack-plugin/issues/1538)
+* stripe data setting ([0851592](https://github.com/Automattic/newspack-plugin/commit/085159247475f56ab7fa529b57c8fedaffcf1b04))
+
+
+### Features
+
+* **ads:** placement providers ([#1521](https://github.com/Automattic/newspack-plugin/issues/1521)) ([2d60688](https://github.com/Automattic/newspack-plugin/commit/2d60688b072536d2d3f0c9cc7fe6b96869d54840))
+* restrict access to others' posts for non-admin/editor users ([#1541](https://github.com/Automattic/newspack-plugin/issues/1541)) ([dee8fe8](https://github.com/Automattic/newspack-plugin/commit/dee8fe8b39e247f5c9d89c917c7ef4677cbd316c)), closes [#1518](https://github.com/Automattic/newspack-plugin/issues/1518)
+* update plugin-settings ([#1525](https://github.com/Automattic/newspack-plugin/issues/1525)) ([a3649c8](https://github.com/Automattic/newspack-plugin/commit/a3649c8629c6a6ae81421bf7f4137a62e4036756))
+
+# [1.78.0](https://github.com/Automattic/newspack-plugin/compare/v1.77.3...v1.78.0) (2022-03-08)
+
+
+### Bug Fixes
+
+* initial theme mods setting ([#1500](https://github.com/Automattic/newspack-plugin/issues/1500)) ([2d3de6b](https://github.com/Automattic/newspack-plugin/commit/2d3de6bb674d3617d74661a456ac236fa2b45625)), closes [#1093](https://github.com/Automattic/newspack-plugin/issues/1093)
+* remove animation fill mode for modals ([#1517](https://github.com/Automattic/newspack-plugin/issues/1517)) ([a5c0459](https://github.com/Automattic/newspack-plugin/commit/a5c04593e3ddeaca40d7a41969d1a1ad5c68cbf8))
+* **setup-wizard:** hide navigation on welcome screen ([a6fad4e](https://github.com/Automattic/newspack-plugin/commit/a6fad4e5b5da065a02dfe83bb89cf00a908b16b7))
+* stripe data setting ([ceec544](https://github.com/Automattic/newspack-plugin/commit/ceec544cc1f4dd7b56014863c83e82f978f4884e))
+
+
+### Features
+
+* **ad-units:** move edit/archive links to popover ([#1505](https://github.com/Automattic/newspack-plugin/issues/1505)) ([5177fe6](https://github.com/Automattic/newspack-plugin/commit/5177fe65bbc8fa382244b1f4e0d78e462623a5ff))
+* **stripe:** donate flow; location code ([#1483](https://github.com/Automattic/newspack-plugin/issues/1483)) ([8cd28f9](https://github.com/Automattic/newspack-plugin/commit/8cd28f923f572ac34d6e1b96c0f821a9f432e09a))
+
+# [1.78.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.3...v1.78.0-alpha.4) (2022-03-03)
+
+
+### Bug Fixes
+
+* stripe data setting ([ceec544](https://github.com/Automattic/newspack-plugin/commit/ceec544cc1f4dd7b56014863c83e82f978f4884e))
+
+# [1.78.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.78.0-alpha.2...v1.78.0-alpha.3) (2022-03-01)
+
+
+### Bug Fixes
+
+* **analytics:** avoid Site Kit crash due to conflict with HandoffBanner ([#1537](https://github.com/Automattic/newspack-plugin/issues/1537)) ([68d3947](https://github.com/Automattic/newspack-plugin/commit/68d394727c66d22c2daf3480d163132f8dd2d66c))
+
 ## [1.77.3](https://github.com/Automattic/newspack-plugin/compare/v1.77.2...v1.77.3) (2022-03-01)
 
 

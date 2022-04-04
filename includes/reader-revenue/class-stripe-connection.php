@@ -98,7 +98,7 @@ class Stripe_Connection {
 		}
 		$wc_currency      = get_option( 'woocommerce_currency', false );
 		$valid_currencies = wp_list_pluck( newspack_get_currencies_options(), 'value' );
-		if ( in_array( $wc_currency, $valid_currencies ) ) {
+		if ( $wc_currency && in_array( $wc_currency, $valid_currencies ) ) {
 			$currency = $wc_currency;
 		}
 
@@ -422,7 +422,18 @@ class Stripe_Connection {
 			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 			$stripe_data              = $wc_configuration_manager->stripe_data();
 		} else {
-			$stripe_data = array_merge( $stripe_data, get_option( self::STRIPE_DATA_OPTION_NAME, [] ) );
+			// Filter out empty values, which are not booleans.
+			$saved_stripe_data = array_filter(
+				get_option( self::STRIPE_DATA_OPTION_NAME, [] ),
+				function ( $value ) {
+					if ( 'boolean' === gettype( $value ) ) {
+						return true;
+					} else {
+						return ! empty( $value );
+					}
+				}
+			);
+			$stripe_data       = array_merge( $stripe_data, $saved_stripe_data );
 		}
 		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
 		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];

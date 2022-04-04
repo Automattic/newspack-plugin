@@ -31,6 +31,7 @@ class Jetpack {
 	public static function init() {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jetpack_async_scripts' ], 20 );
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
+		add_action( 'wp_head', [ __CLASS__, 'fix_instant_search_sidebar_display' ], 10 );
 	}
 
 	/**
@@ -81,6 +82,22 @@ class Jetpack {
 			$is_sanitized = false;
 		}
 		return $is_sanitized;
+	}
+
+	/**
+	 * Fix Instant Search Sidebar Display for AMP Plus
+	 */
+	public static function fix_instant_search_sidebar_display() {
+		if ( ! self::should_amp_plus_modules() ) {
+			return;
+		}
+		?>
+		<style>
+			.jetpack-instant-search__widget-area {
+				display: block !important;
+			}
+		</style>
+		<?php
 	}
 }
 Jetpack::init();
