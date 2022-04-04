@@ -1,3 +1,10 @@
+# [1.80.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.80.0-alpha.1...v1.80.0-alpha.2) (2022-04-04)
+
+
+### Bug Fixes
+
+* **ads:** add-ons download methods ([#1585](https://github.com/Automattic/newspack-plugin/issues/1585)) ([e93dbcb](https://github.com/Automattic/newspack-plugin/commit/e93dbcbfa4f7fa4b85d14aa9c09c164c58bcccb1))
+
 # [1.80.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.79.1...v1.80.0-alpha.1) (2022-03-31)
 
 
