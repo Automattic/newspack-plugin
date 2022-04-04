@@ -465,7 +465,7 @@ TEMPLATE;
 	 * @param string $content The post content.
 	 */
 	public static function handle_gf_polls_blocks( $content ) {
-		if ( ! self::should_disable_scripts() && has_block( 'gravityforms/polls' ) ) {
+		if ( ! self::should_disable_scripts() && ( has_block( 'gravityforms/polls' ) || has_block( 'gravityforms/form' ) ) ) {
 			return $content . '<div style="display:none;" class="' . implode( ' ', self::$gf_polls_classnames ) . '"></div>';
 		}
 		return $content;
