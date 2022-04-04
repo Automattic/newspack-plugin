@@ -63,7 +63,7 @@ class GravityForms {
 	public static function init() {
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'filter_scripts_for_amp_plus' ], 10, 2 );
 
-		add_filter( 'the_content', [ __CLASS__, 'handle_gf_polls_blocks' ] );
+		add_filter( 'the_content', [ __CLASS__, 'ensure_gf_styles_are_not_stripped' ] );
 
 		// The following code makes GravityForms work nicely with AMP.
 		// It's not enough for forms which have conditional logic – these need JS. For this,
@@ -440,15 +440,14 @@ TEMPLATE;
 	}
 
 	/**
-	 * When the post has a GravityForms Poll block, append a hidden div with all the
-	 * classes used by GF's Polls plugin, so the CSS is not stripped off by AMP.
-	 * The stripping happens because these classes are added by JS (not initially in the document),
-	 * which will be loaded via AMP Plus (if enabled).
+	 * Append a hidden div with all the classes used by GF's Polls plugin, so the CSS is not stripped off by AMP.
+	 * The stripping happens because these classes are added by JS (not initially in the document).
+	 * There are no conditions, since a poll can be placed anywhere on the site (e.g. in a prompt, sidebar, etc).
 	 *
 	 * @param string $content The post content.
 	 */
-	public static function handle_gf_polls_blocks( $content ) {
-		if ( ! self::should_disable_scripts() && ( has_block( 'gravityforms/polls' ) || has_block( 'gravityforms/form' ) ) ) {
+	public static function ensure_gf_styles_are_not_stripped( $content ) {
+		if ( self::is_amp_endpoint() && is_plugin_active( 'gravityforms/gravityforms.php' ) && is_plugin_active( 'gravityformspolls/polls.php' ) ) {
 			return $content . '<div style="display:none;" class="' . implode( ' ', self::$gf_polls_classnames ) . '"></div>';
 		}
 		return $content;
@@ -456,6 +455,8 @@ TEMPLATE;
 
 	/**
 	 * Whether front-end scripts should be disabled.
+	 * If using AMP Plus, the front-end scripts should be loaded. Otherwise,
+	 * 'vanilla' AMP should handle the interactions.
 	 */
 	public static function should_disable_scripts() {
 		if ( self::is_amp_plus_handling_enabled() && AMP_Enhancements::should_use_amp_plus() ) {
