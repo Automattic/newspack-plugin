@@ -74,7 +74,6 @@ class GravityForms {
 		add_filter( 'gform_form_args', [ __CLASS__, 'gform_form_args' ] );
 		add_filter( 'gform_field_content', [ __CLASS__, 'gform_field_content' ], 10, 2 );
 		add_filter( 'gform_submit_button', [ __CLASS__, 'gform_submit_button' ], 10, 2 );
-		add_filter( 'gform_pre_render', [ __CLASS__, 'gform_pre_render' ], 10, 2 );
 		add_filter( 'gform_footer_init_scripts_filter', [ __CLASS__, 'gform_footer_init_scripts_filter' ] );
 		add_filter( 'widget_display_callback', [ __CLASS__, 'widget_display_callback' ], 10, 3 );
 		add_filter( 'gform_get_form_filter', [ __CLASS__, 'gform_get_form_filter' ], 10, 2 );
@@ -107,8 +106,7 @@ class GravityForms {
 		if ( ! self::is_amp_endpoint() ) {
 			return $args;
 		}
-		$args['ajax']           = false;
-		$args['enableHoneypot'] = '0';
+		$args['ajax'] = false;
 		return $args;
 	}
 
@@ -150,24 +148,6 @@ class GravityForms {
 		$content = preg_replace( '/(onkeypress=\'([^\']*)\')/', '', $content );
 
 		return $content;
-	}
-
-	/**
-	 * Filter fields from the form.
-	 *
-	 * @param array $form Form.
-	 */
-	public static function gform_pre_render( $form ) {
-		if ( ! self::is_amp_endpoint() ) {
-			return $form;
-		}
-
-		if ( isset( $form['enableHoneypot'] ) && '1' === $form['enableHoneypot'] ) {
-			// Remove randomly generated honeypot fields.
-			array_pop( $form['fields'] );
-		}
-
-		return $form;
 	}
 
 	/**
