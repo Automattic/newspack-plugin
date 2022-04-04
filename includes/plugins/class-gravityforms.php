@@ -218,10 +218,10 @@ class GravityForms {
 
 		wp_dequeue_script( 'jquery' );
 
-		$error_message        = __( 'There is a mistake in the form!', 'newspack' );
-		$confirmation_message = __( 'Form successfully submitted.', 'newspack' );
-		$submitting           = __( 'Submitting...', 'newspack' );
-		$try_again_later      = __( 'Something went wrong. Try again later?', 'newspack' );
+		$error_message        = apply_filters( 'newspack_gf_message_error', __( 'There is a mistake in the form!', 'newspack' ) );
+		$confirmation_message = apply_filters( 'newspack_gf_message_confirmation', __( 'Form successfully submitted.', 'newspack' ) );
+		$submitting           = apply_filters( 'newspack_gf_message_submitting', __( 'Submitting…', 'newspack' ) );
+		$try_again_later      = apply_filters( 'newspack_gf_message_try_again_later', __( 'Something went wrong. Please try again later.', 'newspack' ) );
 
 		// phpcs:disable WordPressVIPMinimum.Security.Mustache.OutputNotation
 		$amp_html = <<<TEMPLATE
