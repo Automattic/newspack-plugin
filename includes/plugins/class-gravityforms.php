@@ -82,12 +82,22 @@ class GravityForms {
 	}
 
 	/**
+	 * Is this an AMP endpoint?
+	 */
+	public static function is_amp_endpoint() {
+		if ( function_exists( 'is_amp_endpoint' ) ) {
+			return is_amp_endpoint();
+		}
+		return false;
+	}
+
+	/**
 	 * Filter arguments.
 	 *
 	 * @param array $args Arguments.
 	 */
 	public static function gform_form_args( array $args ) {
-		if ( ! is_amp_endpoint() ) {
+		if ( ! self::is_amp_endpoint() ) {
 			return $args;
 		}
 		$args['ajax']           = false;
@@ -102,7 +112,7 @@ class GravityForms {
 	 * @param object $field Field.
 	 */
 	public static function gform_field_content( $content, $field ) {
-		if ( ! is_amp_endpoint() ) {
+		if ( ! self::is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -125,7 +135,7 @@ class GravityForms {
 	 * @param array  $form Form.
 	 */
 	public static function gform_submit_button( $content, $form ) {
-		if ( ! is_amp_endpoint() ) {
+		if ( ! self::is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -141,7 +151,7 @@ class GravityForms {
 	 * @param array $form Form.
 	 */
 	public static function gform_pre_render( $form ) {
-		if ( ! is_amp_endpoint() ) {
+		if ( ! self::is_amp_endpoint() ) {
 			return $form;
 		}
 
@@ -195,7 +205,7 @@ class GravityForms {
 	 * @param array  $form Form.
 	 */
 	public static function gform_get_form_filter( $content, $form ) {
-		if ( ! is_amp_endpoint() ) {
+		if ( ! self::is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -267,7 +277,7 @@ TEMPLATE;
 	 * @param string $content Content.
 	 */
 	public static function gform_form_tag( $content ) {
-		if ( ! is_amp_endpoint() ) {
+		if ( ! self::is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -448,7 +458,7 @@ TEMPLATE;
 		if ( self::is_amp_plus_handling_enabled() && AMP_Enhancements::should_use_amp_plus() ) {
 			return false;
 		}
-		return is_amp_endpoint();
+		return self::is_amp_endpoint();
 	}
 
 	/**
