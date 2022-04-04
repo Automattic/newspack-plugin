@@ -111,6 +111,20 @@ class AMP_Enhancements {
 	}
 
 	/**
+	 * Check if an attribute is matching a string.
+	 *
+	 * @param attribute $attribute Attribute to look for.
+	 * @param string    $string String to look for.
+	 * @param array     $amp_error AMP error.
+	 */
+	public static function is_error_attribute_matching_string( $attribute, $string, $amp_error ) {
+		if ( ! isset( $amp_error, $amp_error['element_attributes'], $amp_error['element_attributes'][ $attribute ] ) ) {
+			return false;
+		}
+		return false !== strpos( $amp_error['element_attributes'][ $attribute ], $string );
+	}
+
+	/**
 	 * Check if a script id is matching any of the provided strings.
 	 *
 	 * @param string[] $strings Strings to look for.

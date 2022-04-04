@@ -422,10 +422,13 @@ TEMPLATE;
 			$is_sanitized = false;
 		}
 
-		if ( isset( $error, $error['element_attributes'], $error['element_attributes']['action-xhr'] ) ) {
-			if ( false !== strpos( $error['element_attributes']['action-xhr'], 'gravity_form' ) ) {
-				$is_sanitized = false;
-			}
+		// Match sanitized element attributes.
+		if (
+			AMP_Enhancements::is_error_attribute_matching_string( 'action-xhr', 'gravity_form', $error ) ||
+			AMP_Enhancements::is_error_attribute_matching_string( 'class', 'gfield', $error ) ||
+			AMP_Enhancements::is_error_attribute_matching_string( 'onchange', 'gform', $error )
+		) {
+			$is_sanitized = false;
 		}
 
 		// Match inline scripts by script text since they don't have IDs.
