@@ -1,3 +1,10 @@
+# [1.80.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.80.0-alpha.2...v1.80.0-alpha.3) (2022-04-05)
+
+
+### Bug Fixes
+
+* **ads:** clearing ad refresh control input ([#1587](https://github.com/Automattic/newspack-plugin/issues/1587)) ([8e6723f](https://github.com/Automattic/newspack-plugin/commit/8e6723fcc2584fd07131736b98ead9bebfed959e))
+
 # [1.80.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.80.0-alpha.1...v1.80.0-alpha.2) (2022-04-04)
 
 
