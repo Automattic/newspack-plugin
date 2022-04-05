@@ -6,7 +6,6 @@
  */
 
 use Newspack\OAuth;
-use Newspack\WPCOM_OAuth;
 use Newspack\Google_OAuth;
 use Newspack\Google_Services_Connection;
 
@@ -39,27 +38,6 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			'123abc',
 			OAuth::get_proxy_api_key(),
 			'Proxy API key is as expected after configured.'
-		);
-	}
-
-	/**
-	 * WPCOM OAuth.
-	 */
-	public function test_wpcom_oauth() {
-		self::set_api_key();
-		self::login_admin_user();
-		$token      = 'abc123';
-		$expires_in = 1399;
-		WPCOM_OAuth::api_save_wpcom_access_token(
-			[
-				'access_token' => $token,
-				'expires_in'   => $expires_in,
-			]
-		);
-		self::assertEquals(
-			WPCOM_OAuth::get_access_token(),
-			$token,
-			'The token is saved.'
 		);
 	}
 
