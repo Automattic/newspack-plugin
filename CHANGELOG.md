@@ -1,3 +1,21 @@
+# [1.80.0](https://github.com/Automattic/newspack-plugin/compare/v1.79.1...v1.80.0) (2022-04-05)
+
+
+### Bug Fixes
+
+* **ads:** add-ons download methods ([#1585](https://github.com/Automattic/newspack-plugin/issues/1585)) ([e93dbcb](https://github.com/Automattic/newspack-plugin/commit/e93dbcbfa4f7fa4b85d14aa9c09c164c58bcccb1))
+* **ads:** clearing ad refresh control input ([#1587](https://github.com/Automattic/newspack-plugin/issues/1587)) ([8e6723f](https://github.com/Automattic/newspack-plugin/commit/8e6723fcc2584fd07131736b98ead9bebfed959e))
+* handle gam connection error ([#1573](https://github.com/Automattic/newspack-plugin/issues/1573)) ([574eeb3](https://github.com/Automattic/newspack-plugin/commit/574eeb372aac7dff98f1e304693b89834f28006f))
+
+
+### Features
+
+* **ads:** Add-Ons and Ad Refresh Control integration ([#1564](https://github.com/Automattic/newspack-plugin/issues/1564)) ([2964da6](https://github.com/Automattic/newspack-plugin/commit/2964da6ec7c1745efc65658d3fdc3b6106292210))
+* **ads:** integrate Broadstreet into the providers wizard ([#1465](https://github.com/Automattic/newspack-plugin/issues/1465)) ([93edf0f](https://github.com/Automattic/newspack-plugin/commit/93edf0ff3911d943d7572dd17e1f9001d598875d))
+* allow segmentation by user login status ([#1563](https://github.com/Automattic/newspack-plugin/issues/1563)) ([4fd7ee9](https://github.com/Automattic/newspack-plugin/commit/4fd7ee922534576ac033215561de896b8f5a0944))
+* **donations:** remove sidebar for default donations page ([bf10c27](https://github.com/Automattic/newspack-plugin/commit/bf10c27631e8dd6f410552fd89af4268fdbcd435))
+* **popups:** add category/tag exclusion fields to campaigns wizard UI ([#1553](https://github.com/Automattic/newspack-plugin/issues/1553)) ([6b80fb8](https://github.com/Automattic/newspack-plugin/commit/6b80fb8840f12dee93faf020e13abb0a9d7794b6))
+
 # [1.80.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.80.0-alpha.2...v1.80.0-alpha.3) (2022-04-05)
 
 
