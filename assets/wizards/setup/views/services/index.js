@@ -37,16 +37,6 @@ const SERVICES_LIST = {
 		Component: NewspackNewsletters,
 		configuration: { is_service_enabled: false },
 	},
-	'google-ad-sense': {
-		label: __( 'Google AdSense', 'newspack' ),
-		description: __(
-			'A simple way to place adverts on your news site automatically based on where they best perform',
-			'newspack'
-		),
-		href: 'admin.php?page=googlesitekit-splash',
-		actionText: __( 'Configure', 'newspack' ),
-		configuration: { is_service_enabled: false },
-	},
 	'google-ad-manager': {
 		label: __( 'Google Ad Manager', 'newspack' ),
 		description: __(
@@ -86,9 +76,6 @@ const Services = ( { renderPrimaryButton } ) => {
 		} );
 	};
 
-	const adManagerActive = services[ 'google-ad-manager' ].configuration.is_service_enabled;
-	const adSenseActive = services[ 'google-ad-sense' ].configuration.is_service_enabled;
-
 	return (
 		<>
 			{ values( services ).map( ( service, i ) => {
@@ -108,11 +95,7 @@ const Services = ( { renderPrimaryButton } ) => {
 								[ serviceSlug ]: { configuration: { is_service_enabled } },
 							} )
 						}
-						disabled={
-							isLoading ||
-							( serviceSlug === 'google-ad-manager' && adSenseActive ) ||
-							( serviceSlug === 'google-ad-sense' && adManagerActive )
-						}
+						disabled={ isLoading }
 						href={ service.configuration.is_service_enabled && service.href }
 						actionText={ service.configuration.is_service_enabled && service.actionText }
 					>

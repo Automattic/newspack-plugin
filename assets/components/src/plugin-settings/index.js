@@ -36,7 +36,6 @@ class PluginSettings extends Component {
 		} )
 			.then( settings => {
 				this.setState( { settings, error: null } );
-
 				if ( 'function' === typeof afterFetch ) {
 					afterFetch( settings );
 				}
@@ -168,7 +167,7 @@ class PluginSettings extends Component {
 	 * Render.
 	 */
 	render() {
-		const { title, description, hasGreyHeader } = this.props;
+		const { title, description, hasGreyHeader, children } = this.props;
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
@@ -193,6 +192,7 @@ class PluginSettings extends Component {
 							hasGreyHeader={ hasGreyHeader }
 						/>
 					) ) }
+					{ children }
 				</div>
 			</Fragment>
 		);

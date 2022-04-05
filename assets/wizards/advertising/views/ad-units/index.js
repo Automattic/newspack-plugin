@@ -73,7 +73,7 @@ const AdUnits = ( {
 		<>
 			<Card noBorder>
 				<Button isLink href="#/" icon={ arrowLeft }>
-					{ __( 'Back to Ad Providers', 'newspack' ) }
+					{ __( 'Back', 'newspack' ) }
 				</Button>
 			</Card>
 
@@ -113,7 +113,7 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
-			{ isLegacy && (
+			{ isLegacy && serviceData.enabled && (
 				<>
 					{ ( can_use_service_account || can_use_oauth ) && (
 						<Notice
