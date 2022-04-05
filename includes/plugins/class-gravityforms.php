@@ -64,6 +64,7 @@ class GravityForms {
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'filter_scripts_for_amp_plus' ], 10, 2 );
 
 		add_filter( 'the_content', [ __CLASS__, 'ensure_gf_styles_are_not_stripped' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'add_custom_css' ] );
 
 		// The following code makes GravityForms work nicely with AMP.
 		// It's not enough for forms which have conditional logic – these need JS. For this,
@@ -245,9 +246,9 @@ TEMPLATE;
 	}
 
 	/**
-	 * Scripts enqueueing filter.
+	 * Add CSS for making the form body disappear after a submission.
 	 */
-	public static function gform_enqueue_scripts() {
+	public static function add_custom_css() {
 		if ( false === self::$has_enqueued_css ) {
 			$inline_css = '
 				.gform_body,
@@ -260,7 +261,12 @@ TEMPLATE;
 			wp_add_inline_style( 'gform_basic', $inline_css );
 			self::$has_enqueued_css = true;
 		}
+	}
 
+	/**
+	 * Dequeue GF scripts if needed.
+	 */
+	public static function gform_enqueue_scripts() {
 		if ( ! self::should_disable_scripts() ) {
 			return;
 		}
