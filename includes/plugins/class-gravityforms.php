@@ -112,18 +112,18 @@ class GravityForms {
 	}
 
 	/**
-	 * Filters form content.
+	 * Filters form content for 'vanilla' AMP handling.
 	 *
 	 * @param string $content Content.
 	 * @param object $field Field.
 	 */
 	public static function gform_field_content( $content, $field ) {
-		if ( ! self::is_amp_endpoint() ) {
+		if ( ! self::should_disable_scripts() ) {
 			return $content;
 		}
 
 		if ( $field->isRequired ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			return str_replace( 'aria-required=', 'required=', $content );
+			$content = str_replace( 'aria-required=', 'required=', $content );
 		}
 
 		$attr = esc_attr( sprintf( 'change:AMP.setState({gravityForm_%1$s_1: {field_%2$s: event.value}})', $field->formId, $field->id ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -135,13 +135,13 @@ class GravityForms {
 	}
 
 	/**
-	 * Filters form submit button.
+	 * Filters form submit button for 'vanilla' AMP handling.
 	 *
 	 * @param string $content Content.
 	 * @param array  $form Form.
 	 */
 	public static function gform_submit_button( $content, $form ) {
-		if ( ! self::is_amp_endpoint() ) {
+		if ( ! self::should_disable_scripts() ) {
 			return $content;
 		}
 
