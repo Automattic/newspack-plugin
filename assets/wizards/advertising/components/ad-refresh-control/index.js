@@ -122,7 +122,7 @@ export default function AdRefreshControlSettings() {
 	}
 	// Apply value to fields.
 	fields.forEach( field => {
-		if ( settings[ field.key ] ) {
+		if ( settings.hasOwnProperty( field.key ) ) {
 			field.value = settings[ field.key ];
 		}
 	} );
