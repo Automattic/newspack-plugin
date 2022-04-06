@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, ActionCard, hooks } from '../../../../components/src';
+import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
 import { NewspackNewsletters } from '../../../engagement/views/newsletters';
 import './style.scss';
@@ -37,16 +37,6 @@ const SERVICES_LIST = {
 		Component: NewspackNewsletters,
 		configuration: { is_service_enabled: false },
 	},
-	'google-ad-sense': {
-		label: __( 'Google AdSense', 'newspack' ),
-		description: __(
-			'A simple way to place adverts on your news site automatically based on where they best perform',
-			'newspack'
-		),
-		href: 'admin.php?page=googlesitekit-splash',
-		actionText: __( 'Configure', 'newspack' ),
-		configuration: { is_service_enabled: false },
-	},
 	'google-ad-manager': {
 		label: __( 'Google Ad Manager', 'newspack' ),
 		description: __(
@@ -61,6 +51,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
+	const readerRevenueWizardData = Wizard.useWizardData( 'reader-revenue' );
 
 	useEffect( () => {
 		apiFetch( {
@@ -71,15 +62,19 @@ const Services = ( { renderPrimaryButton } ) => {
 		} );
 	}, [] );
 
-	const saveSettings = async () =>
-		apiFetch( {
+	const saveSettings = async () => {
+		const data = mapValues( services, property( 'configuration' ) );
+		// Add Reader Revenue Wizard data straight from the Wizard.
+		data[ 'reader-revenue' ] = {
+			...data[ 'reader-revenue' ],
+			...readerRevenueWizardData,
+		};
+		return apiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/services',
 			method: 'POST',
-			data: mapValues( services, property( 'configuration' ) ),
+			data,
 		} );
-
-	const adManagerActive = services[ 'google-ad-manager' ].configuration.is_service_enabled;
-	const adSenseActive = services[ 'google-ad-sense' ].configuration.is_service_enabled;
+	};
 
 	return (
 		<>
@@ -100,11 +95,7 @@ const Services = ( { renderPrimaryButton } ) => {
 								[ serviceSlug ]: { configuration: { is_service_enabled } },
 							} )
 						}
-						disabled={
-							isLoading ||
-							( serviceSlug === 'google-ad-manager' && adSenseActive ) ||
-							( serviceSlug === 'google-ad-sense' && adManagerActive )
-						}
+						disabled={ isLoading }
 						href={ service.configuration.is_service_enabled && service.href }
 						actionText={ service.configuration.is_service_enabled && service.actionText }
 					>

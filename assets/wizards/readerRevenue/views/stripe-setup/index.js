@@ -33,7 +33,7 @@ import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
 const { SettingsCard } = Settings;
 
 export const StripeKeysSettings = () => {
-	const wizardData = Wizard.useWizardData();
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const {
 		testMode = false,
 		publishableKey = '',
@@ -110,7 +110,8 @@ const StripeSetup = () => {
 		platform_data,
 		is_ssl,
 		currency_fields = [],
-	} = Wizard.useWizardData( {} );
+		country_state_fields = [],
+	} = Wizard.useWizardData( 'reader-revenue' );
 
 	const [ isLoading, setIsLoading ] = useState( false );
 	const createWebhooks = () => {
@@ -176,6 +177,12 @@ const StripeSetup = () => {
 							value={ data.currency }
 							options={ currency_fields }
 							onChange={ changeHandler( 'currency' ) }
+						/>
+						<SelectControl
+							label={ __( 'Where is your business based?' ) }
+							value={ data.location_code }
+							options={ country_state_fields }
+							onChange={ changeHandler( 'location_code' ) }
 						/>
 					</SettingsCard>
 					<SettingsCard

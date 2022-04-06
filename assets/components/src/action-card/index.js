@@ -59,6 +59,7 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 			hasGreyHeader,
+			isPending,
 		} = this.props;
 		const hasChildren = notification || children;
 		const classes = classnames(
@@ -104,7 +105,8 @@ class ActionCard extends Component {
 								className={ classnames(
 									'newspack-checkbox-icon',
 									'is-primary',
-									'checked' === checkbox && 'newspack-checkbox-icon--checked'
+									'checked' === checkbox && 'newspack-checkbox-icon--checked',
+									isPending && 'newspack-checkbox-icon--pending'
 								) }
 							>
 								{ 'checked' === checkbox && <Icon icon={ check } /> }

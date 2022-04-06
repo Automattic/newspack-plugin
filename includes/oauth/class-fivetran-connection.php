@@ -36,24 +36,6 @@ class Fivetran_Connection {
 			NEWSPACK_API_NAMESPACE,
 			'/oauth/fivetran',
 			[
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'api_modify_connector' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'connector_id' => [
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'paused'       => [
-						'sanitize_callback' => 'rest_sanitize_boolean',
-					],
-				],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/oauth/fivetran',
-			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_fivetran_connection_status' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
@@ -95,17 +77,24 @@ class Fivetran_Connection {
 	 * Get Fivetran connections status.
 	 */
 	public static function api_get_fivetran_connection_status() {
-		$url                 = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
-		$connections_stauses = self::process_proxy_response( \wp_safe_remote_get( $url ) );
-		if ( is_wp_error( $connections_stauses ) ) {
+		$url                  = OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran/v1/connections-status' );
+		$connections_statuses = self::process_proxy_response(
+			\wp_safe_remote_get(
+				$url,
+				[
+					'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+				]
+			)
+		);
+		if ( is_wp_error( $connections_statuses ) ) {
 			return new WP_Error(
 				'newspack_connections_fivetran',
-				$connections_stauses->get_error_message()
+				$connections_statuses->get_error_message()
 			);
 		}
 		$response = [
-			'connections_stauses' => $connections_stauses,
-			'has_accepted_tos'    => (bool) get_user_meta( get_current_user_id(), self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META, true ),
+			'connections_statuses' => $connections_statuses,
+			'has_accepted_tos'     => (bool) get_user_meta( get_current_user_id(), self::NEWSPACK_FIVETRAN_TOS_CONSENT_USER_META, true ),
 		];
 		return $response;
 	}
@@ -122,9 +111,9 @@ class Fivetran_Connection {
 		// For Google Ad Manager (aka double_click_publishers) - if Newspack Ads knows the network code, let's use it.
 		if (
 			'double_click_publishers' === $service &&
-			method_exists( 'Newspack_Ads_Model', 'get_active_network_code' )
+			method_exists( 'Newspack_Ads\Providers\GAM_Model', 'get_active_network_code' )
 		) {
-			$network_code = \Newspack_Ads_Model::get_active_network_code();
+			$network_code = \Newspack_Ads\Providers\GAM_Model::get_active_network_code();
 			if ( ! empty( $network_code ) ) {
 				$service_data['double_click_publishers'] = [
 					'network_code' => $network_code,
@@ -146,44 +135,6 @@ class Fivetran_Connection {
 			return $response;
 		}
 		return \rest_ensure_response( $response );
-	}
-
-	/**
-	 * Modify a Fivetran connector.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 */
-	public static function api_modify_connector( $request ) {
-		$payload = [];
-		if ( null !== $request->get_param( 'paused' ) ) {
-			$payload['paused'] = $request->get_param( 'paused' );
-		}
-		if ( ! empty( $payload ) ) {
-			$url      = OAuth::authenticate_proxy_url(
-				'fivetran',
-				'/wp-json/newspack-fivetran/v1/connector',
-				[
-					'connector_id' => $request->get_param( 'connector_id' ),
-				]
-			);
-			$response = self::process_proxy_response(
-				\wp_safe_remote_post(
-					$url,
-					[
-						'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
-						'headers' => [
-							'Content-Type' => 'application/json',
-						],
-						'body'    => wp_json_encode( $payload ),
-					]
-				)
-			);
-			if ( is_wp_error( $response ) ) {
-				return $response;
-			}
-			return \rest_ensure_response( $response );
-		}
-		\rest_ensure_response( [] );
 	}
 
 	/**
@@ -217,8 +168,10 @@ class Fivetran_Connection {
 		if ( 400 <= $result['response']['code'] ) {
 			$error_body   = json_decode( $result['body'] );
 			$error_prefix = __( 'Fivetran proxy error', 'newspack' );
-			if ( property_exists( $error_body, 'message' ) ) {
+			if ( null !== $error_body && property_exists( $error_body, 'message' ) ) {
 				$error_message = $error_prefix . ': ' . $error_body->message;
+			} elseif ( null !== $error_body && property_exists( $error_body, 'data' ) ) {
+				$error_message = $error_prefix . ': ' . wp_json_encode( $error_body->data );
 			} else {
 				$error_message = $error_prefix;
 			}

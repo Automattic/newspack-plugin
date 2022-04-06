@@ -7,33 +7,25 @@
  */
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, Path, SVG } from '@wordpress/components';
-import { pencil } from '@wordpress/icons';
+import { ExternalLink } from '@wordpress/components';
+import { arrowLeft } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import {
 	ActionCard,
-	TextControl,
-	SelectControl,
 	Button,
 	Card,
 	Notice,
+	SelectControl,
+	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
 import ServiceAccountConnection from './service-account-connection';
+import OptionsPopover from './options-popover';
 
-export const archive = (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path d="m15.976 14.139-3.988 3.418L8 14.14 8.976 13l2.274 1.949V10.5h1.5v4.429L15 13l.976 1.139Z" />
-		<Path
-			clipRule="evenodd"
-			d="M4 9.232A2 2 0 0 1 3 7.5V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1.5a2 2 0 0 1-1 1.732V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9.232ZM5 5.5h14a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5Zm.5 4V18a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V9.5h-13Z"
-			fillRule="evenodd"
-		/>
-	</SVG>
-);
+const CREATE_AD_ID_PARAM = 'create';
 
 /**
  * Advertising management screen.
@@ -41,7 +33,6 @@ export const archive = (
 const AdUnits = ( {
 	adUnits,
 	onDelete,
-	updateAdUnit,
 	wizardApiFetch,
 	updateWithAPI,
 	service,
@@ -80,6 +71,12 @@ const AdUnits = ( {
 
 	return (
 		<>
+			<Card noBorder>
+				<Button isLink href="#/" icon={ arrowLeft }>
+					{ __( 'Back', 'newspack' ) }
+				</Button>
+			</Card>
+
 			{ ! isLegacy && networkCode && (
 				<SelectControl
 					label={ __( 'Connected GAM network code', 'newspack' ) }
@@ -116,7 +113,7 @@ const AdUnits = ( {
 					isSuccess
 				/>
 			) }
-			{ isLegacy && (
+			{ isLegacy && serviceData.enabled && (
 				<>
 					{ ( can_use_service_account || can_use_oauth ) && (
 						<Notice
@@ -150,6 +147,13 @@ const AdUnits = ( {
 					'newspack'
 				) }
 			</p>
+			<Card headerActions noBorder>
+				<div className="flex justify-end w-100">
+					<Button isPrimary isSmall href={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }>
+						{ __( 'Add New Ad Unit', 'newspack' ) }
+					</Button>
+				</div>
+			</Card>
 			<Card noBorder>
 				{ Object.values( adUnits )
 					.filter( adUnit => adUnit.id !== 0 )
@@ -157,27 +161,12 @@ const AdUnits = ( {
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
 					.map( adUnit => {
 						const editLink = `#${ service }/${ adUnit.id }`;
-						const buttonProps = {
-							isQuaternary: true,
-							isSmall: true,
-							tooltipPosition: 'bottom center',
-						};
 						return (
 							<ActionCard
 								key={ adUnit.id }
 								title={ adUnit.name }
 								isSmall
 								titleLink={ editLink }
-								className="mv0"
-								{ ...( adUnit.is_legacy
-									? {}
-									: {
-											toggleChecked: adUnit.status === 'ACTIVE',
-											toggleOnChange: value => {
-												adUnit.status = value ? 'ACTIVE' : 'INACTIVE';
-												updateAdUnit( adUnit );
-											},
-									  } ) }
 								description={ () => (
 									<span>
 										{ adUnit.is_legacy ? (
@@ -193,20 +182,10 @@ const AdUnits = ( {
 									</span>
 								) }
 								actionText={
-									<div className="flex items-center">
-										<Button
-											href={ editLink }
-											icon={ pencil }
-											label={ __( 'Edit Ad Unit', 'newspack' ) }
-											{ ...buttonProps }
-										/>
-										<Button
-											onClick={ () => onDelete( adUnit.id ) }
-											icon={ archive }
-											label={ __( 'Archive Ad Unit', 'newspack' ) }
-											{ ...buttonProps }
-										/>
-									</div>
+									<OptionsPopover
+										deleteLink={ () => onDelete( adUnit.id ) }
+										editLink={ editLink }
+									/>
 								}
 							/>
 						);

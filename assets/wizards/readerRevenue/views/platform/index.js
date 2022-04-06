@@ -15,7 +15,7 @@ import { NEWSPACK, NRH, STRIPE } from '../../constants';
  * Platform Selection  Screen Component
  */
 const Platform = () => {
-	const wizardData = Wizard.useWizardData();
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const { saveWizardSettings, updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	return (
 		<Fragment>

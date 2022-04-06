@@ -23,23 +23,23 @@
 			padding: 0;
 		}
 
-		div {
+		> div {
 			align-items: baseline;
 			color: $gray-700;
 			display: flex;
 			font-size: 14px;
 			line-height: 24px;
 			padding: 0 24px;
-		}
 
-		span {
-			border-left: 1px solid $gray-300;
-			display: none;
-			margin-left: 8px;
-			padding-left: 8px;
+			span {
+				border-left: 1px solid $gray-300;
+				display: none;
+				margin-left: 8px;
+				padding-left: 8px;
 
-			@media screen and ( min-width: 744px ) {
-				display: block;
+				@media screen and ( min-width: 744px ) {
+					display: block;
+				}
 			}
 		}
 
@@ -55,8 +55,9 @@
 			&:not( .newspack-icon ) {
 				background: $primary-500;
 				left: 50%;
-				margin: -18px 0 0 -18px !important;
+				margin: -28px 0 0 -28px !important;
 				opacity: 0;
+				padding: 10px;
 				position: absolute;
 				top: 50%;
 				transition: opacity 125ms ease-in-out;

@@ -1,5 +1,5 @@
-.newspack-checkbox-control.padded-checkbox {
-	@media screen and ( min-width: 744px ) {
-		padding-top: 24px;
+.newspack-action-card__region-children {
+	> .newspack-grid {
+		margin: 32px 0 0 !important;
 	}
 }

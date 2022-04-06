@@ -21,7 +21,7 @@ import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 const Salesforce = () => {
 	const { salesforce_redirect_url: redirectUrl } = window?.newspack_reader_revenue || {};
 	const [ hasCopied, setHasCopied ] = useState( false );
-	const { salesforce_settings: salesforceData = {} } = Wizard.useWizardData( {} );
+	const { salesforce_settings: salesforceData = {} } = Wizard.useWizardData( 'reader-revenue' );
 	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );
 	const [ error, setError ] = useState( null );
 

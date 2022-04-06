@@ -49,6 +49,10 @@
 			color: $gray-600;
 			cursor: not-allowed;
 		}
+
+		&::placeholder {
+			opacity: 0.5;
+		}
 	}
 
 	// Multiple Textarea Controls

@@ -154,19 +154,9 @@ class Starter_Content {
 				set_theme_mod( 'logo_size', 0 );
 			}
 		}
-		set_theme_mod( 'header_solid_background', true );
-		set_theme_mod( 'header_simplified', true );
+		set_theme_mod( 'header_solid_background', false );
+		set_theme_mod( 'header_simplified', false );
 		return true;
-	}
-
-	/**
-	 * Set theme style.
-	 *
-	 * @param string $style Style id.
-	 */
-	public static function set_theme( $style ) {
-		Theme_Manager::install_activate_theme( $style );
-		return self::get_theme();
 	}
 
 	/**
@@ -236,6 +226,6 @@ class Starter_Content {
 	 * @return bool E2E testing environment?
 	 */
 	public static function is_e2e() {
-		return defined( 'WP_NEWSPACK_DETERMINISTIC_STARTER_CONTENT' ) && WP_NEWSPACK_DETERMINISTIC_STARTER_CONTENT;
+		return defined( 'WP_NEWSPACK_IS_E2E' ) && WP_NEWSPACK_IS_E2E;
 	}
 }

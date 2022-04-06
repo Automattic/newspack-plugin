@@ -11,7 +11,7 @@ import { SelectControl, TextControl, Wizard, Button } from '../../../../componen
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const LocationSetup = () => {
-	const wizardData = Wizard.useWizardData();
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	const changeHandler = key => value =>
