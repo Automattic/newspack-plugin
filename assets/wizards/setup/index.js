@@ -50,13 +50,6 @@ const ROUTES = [
 ];
 
 const SetupWizard = ( { wizardApiFetch, setError } ) => {
-	const sharedProps = {
-		wizardApiFetch,
-		setError,
-		disableUpcomingInTabbedNavigation: true,
-		tabbedNavigation: ROUTES,
-	};
-
 	return (
 		<Fragment>
 			<HashRouter hashType="slash">
@@ -74,7 +67,10 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 							exact={ route.path === '/' }
 							render={ () =>
 								route.render( {
-									...sharedProps,
+									wizardApiFetch,
+									setError,
+									disableUpcomingInTabbedNavigation: true,
+									tabbedNavigation: ROUTES,
 									headerText: route.label,
 									subHeaderText: route.subHeaderText,
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
