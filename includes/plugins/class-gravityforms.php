@@ -256,7 +256,7 @@ TEMPLATE;
 				.amp-form-submitting .gform_body,
 				.amp-form-submitting .gform_footer { opacity: 0.5; }
 				.amp-form-submit-success .gform_body,
-				.amp-form-submit-success .gform_footer { display: none; }
+				.amp-form-submit-success .gform_footer { display: none !important; }
 			';
 			wp_add_inline_style( 'gform_basic', $inline_css );
 			self::$has_enqueued_css = true;
