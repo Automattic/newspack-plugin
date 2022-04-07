@@ -8,14 +8,17 @@
 	}
 }
 
-// Welcome Screen
-
-.newspack-wizard__welcome {
+.newspack-wizard__welcome,
+.newspack-wizard__completed {
 	.newspack-wizard__header,
 	.newspack-tabbed-navigation {
 		display: none;
 	}
+}
 
+// Welcome Screen
+
+.newspack-wizard__welcome {
 	.newspack-icon {
 		margin: 0 auto;
 	}
