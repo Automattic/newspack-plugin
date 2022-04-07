@@ -20,6 +20,7 @@ class Salesforce {
 	const SALESFORCE_REFRESH_TOKEN = 'newspack_salesforce_refresh_token';
 	const SALESFORCE_INSTANCE_URL  = 'newspack_salesforce_instance_url';
 	const SALESFORCE_WEBHOOK_ID    = 'newspack_salesforce_webhook_id';
+	const SALESFORCE_CRON_HOOK     = 'newspack_salesforce_failed_sync_checker';
 	const DEFAULT_SETTINGS         = [
 		'client_id'     => '',
 		'client_secret' => '',
@@ -28,6 +29,7 @@ class Salesforce {
 		'instance_url'  => '',
 		'webhook_id'    => '',
 	];
+	const LEGACY_CUTOFF_DATE       = '2022-05-01'; // Date marking the cutoff after which orders are synced to Salesforce with order ID in the name.
 
 	/**
 	 * If this site is a duplicate (staging or dev clone) site,
@@ -38,6 +40,13 @@ class Salesforce {
 	protected static $is_duplicate_site = false;
 
 	/**
+	 * Whether the WP CLI sync script is running as a dry-run.
+	 *
+	 * @var $is_dry_run
+	 */
+	public static $is_dry_run = false;
+
+	/**
 	 * Add hooks.
 	 */
 	public static function init() {
@@ -46,6 +55,9 @@ class Salesforce {
 		add_action( 'woocommerce_order_actions_start', [ __CLASS__, 'wc_order_show_sync_status' ] );
 		add_filter( 'woocommerce_order_actions', [ __CLASS__, 'wc_order_manual_sync' ] );
 		add_action( 'woocommerce_order_action_newspack_sync_order_to_salesforce', [ __CLASS__, 'wc_order_manual_sync_action' ] );
+		add_action( 'init', [ __CLASS__, 'add_cli_command' ] );
+		// add_action( 'admin_init', [ __CLASS__, 'cron_init' ] );
+		// add_action( self::SALESFORCE_CRON_HOOK, [ __CLASS__, 'check_failed_order_syncs' ] );
 	}
 
 	/**
@@ -53,7 +65,7 @@ class Salesforce {
 	 */
 	public static function register_api_endpoints() {
 		// Check validity of refresh token with Salesforce.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/settings',
 			[
@@ -64,7 +76,7 @@ class Salesforce {
 		);
 
 		// Check validity of refresh token with Salesforce.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/settings',
 			[
@@ -75,7 +87,7 @@ class Salesforce {
 		);
 
 		// Check validity of refresh token with Salesforce.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/connection-status',
 			[
@@ -86,7 +98,7 @@ class Salesforce {
 		);
 
 		// Validate Salesforce client_id and client_secret credentials.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/validate',
 			[
@@ -97,7 +109,7 @@ class Salesforce {
 		);
 
 		// Get access and refresh tokens from Salesforce.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/tokens',
 			[
@@ -119,7 +131,7 @@ class Salesforce {
 		);
 
 		// Fetch order sync status.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/order',
 			[
@@ -132,7 +144,7 @@ class Salesforce {
 		);
 
 		// Handle WooCommerce webhook to sync with Salesforce.
-		register_rest_route(
+		\register_rest_route(
 			self::SALESFORCE_API_NAMESPACE,
 			'/sync',
 			[
@@ -143,7 +155,7 @@ class Salesforce {
 		);
 
 		// Legacy namespace handler.
-		register_rest_route(
+		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/salesforce/sync',
 			[
@@ -184,7 +196,7 @@ class Salesforce {
 		$webhook_id = $request->get_header( 'X-WC-Webhook-ID' );
 
 		if ( $webhook_id ) {
-			$is_valid = (int) get_option( self::SALESFORCE_WEBHOOK_ID, 0 ) === (int) $webhook_id;
+			$is_valid = (int) \get_option( self::SALESFORCE_WEBHOOK_ID, 0 ) === (int) $webhook_id;
 		}
 
 		if ( $is_valid ) {
@@ -204,7 +216,7 @@ class Salesforce {
 	 * Register admin scripts for Salesforce functionality.
 	 */
 	public static function register_admin_scripts() {
-		if ( 'shop_order' !== get_post_type() ) {
+		if ( 'shop_order' !== \get_post_type() ) {
 			return;
 		}
 
@@ -352,8 +364,8 @@ class Salesforce {
 		$settings = self::get_salesforce_settings();
 
 		// Check if the webhook is configured.
-		$webhook_id = get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
-		$webhook    = wc_get_webhook( $webhook_id );
+		$webhook_id = \get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
+		$webhook    = \wc_get_webhook( $webhook_id );
 		if ( null == $webhook ) {
 			return \rest_ensure_response(
 				[
@@ -382,13 +394,13 @@ class Salesforce {
 		}
 
 		// Hit Salesforce OAuth endpoint to introspect refresh token.
-		$salesforce_response = wp_safe_remote_post(
+		$salesforce_response = \wp_safe_remote_post(
 			'https://login.salesforce.com/services/oauth2/introspect?' . http_build_query(
-				array(
+				[
 					'client_id'     => $settings['client_id'],
 					'client_secret' => $settings['client_secret'],
 					'token'         => $settings['refresh_token'],
-				)
+				]
 			)
 		);
 
@@ -443,8 +455,8 @@ class Salesforce {
 				]
 			);
 
-			$response = wp_safe_remote_get( $url );
-			$valid    = wp_remote_retrieve_response_code( $response ) === 200;
+			$response = \wp_safe_remote_get( $url );
+			$valid    = \wp_remote_retrieve_response_code( $response ) === 200;
 		}
 
 		return $valid;
@@ -471,16 +483,16 @@ class Salesforce {
 		}
 
 		// Hit Salesforce OAuth endpoint to request API tokens.
-		$salesforce_response = wp_safe_remote_post(
+		$salesforce_response = \wp_safe_remote_post(
 			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
-				array(
+				[
 					'client_id'     => $settings['client_id'],
 					'client_secret' => $settings['client_secret'],
 					'code'          => $args['code'],
 					'redirect_uri'  => $args['redirect_uri'],
 					'grant_type'    => 'authorization_code',
 					'format'        => 'json',
-				)
+				]
 			)
 		);
 
@@ -496,11 +508,11 @@ class Salesforce {
 				)
 			);
 		} else {
-			$update_args = wp_parse_args( $response_body, $settings );
+			$update_args = \wp_parse_args( $response_body, $settings );
 
 			// Save tokens.
 			$update_response = self::set_salesforce_settings( $update_args );
-			if ( is_wp_error( $update_response ) ) {
+			if ( \is_wp_error( $update_response ) ) {
 				return \rest_ensure_response( $update_response );
 			}
 
@@ -520,7 +532,7 @@ class Salesforce {
 		$order_id = isset( $args['id'] ) ? $args['id'] : 0;
 		$order    = \wc_get_order( $order_id );
 
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			$order->add_order_note(
 				sprintf(
 					// Translators: Note added to order when sync is unsuccessful.
@@ -545,11 +557,35 @@ class Salesforce {
 		$order_id       = $request->get_param( 'orderId' );
 		$opportunity_id = self::get_opportunity_by_order_id( $order_id );
 
-		if ( is_wp_error( $opportunity_id ) ) {
+		if ( \is_wp_error( $opportunity_id ) ) {
 			return false;
 		}
 
 		return \rest_ensure_response( $opportunity_id );
+	}
+
+	/**
+	 * Check if the given order should be synced in legacy fashion or not.
+	 * Legacy sync means the Opportunity name does not contain the order ID.
+	 * All orders synced prior to April 6, 2022 are legacy.
+	 *
+	 * @param int $order_id ID of the order to check.
+	 *
+	 * @return boolean True if the order was synced to Salesforce without order ID in the Name field.
+	 */
+	private static function is_legacy_order_sync( $order_id ) {
+		$order = \wc_get_order( $order_id );
+		if ( ! $order ) {
+			return false;
+		}
+
+		$legacy_cutoff_date = strtotime( self::LEGACY_CUTOFF_DATE );
+		$order_date         = $order->get_date_created();
+		if ( ! $order_date ) {
+			return false;
+		}
+
+		return $order_date->getTimestamp() > $legacy_cutoff_date;
 	}
 
 	/**
@@ -594,35 +630,21 @@ class Salesforce {
 			);
 		}
 
-		$contacts = self::get_contacts_by_email( $contact['Email'] );
-
-		if ( empty( $contacts ) ) {
+		// Create new contact.
+		$contact_response = self::upsert_items( 'Contact', [ $contact ] );
+		if ( \is_wp_error( $contact_response ) ) {
 			return \rest_ensure_response(
 				new \WP_Error(
-					'newspack_salesforce_invalid_salesforce_lookup',
-					__( 'Could not communicate with Salesforce.', 'newspack' )
+					'newspack_salesforce_contact_failure',
+					$contact_response->get_error_message()
 				)
 			);
 		}
 
-		if ( $contacts->totalSize > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$contact_id       = $contacts->records[0]->Id;
-			$contact_response = self::update_contact( $contact_id, $contact );
-		} else {
-			// Create new contact.
-			$contact_response = self::create_contact( $contact );
-
-			if ( is_wp_error( $contact_response ) ) {
-				return \rest_ensure_response(
-					new \WP_Error(
-						'newspack_salesforce_contact_failure',
-						$contact_response->get_error_message()
-					)
-				);
-			}
-
-			$contact_id = $contact_response->id;
-		}
+		// We're upserting a single contact, so we only need the first result.
+		$contact_response = $contact_response[0];
+		$contact_id       = isset( $contact_response->id ) ? $contact_response->id : null;
+		$existing_contact = ! boolval( $contact_response->created );
 
 		if ( empty( $contact_id ) ) {
 			return \rest_ensure_response(
@@ -643,14 +665,28 @@ class Salesforce {
 					$order_item['npsp__Primary_Contact__c'] = $contact_id;
 				}
 
-				$existing_opportunity = self::get_opportunity_by_order_id( $order_id, $order_item );
-				if ( $existing_opportunity ) {
-					$opportunity_response = self::update_opportunity( $existing_opportunity, $order_item );
+				$existing_opportunity = null;
+
+				// We can use the new Salesforce API's upsert functionality, but only if the item wasn't synced in legacy fashion.
+				if ( ! self::is_legacy_order_sync( $order_id ) ) {
+					$opportunity_response = self::upsert_items( 'Opportunity', [ $order_item ] );
+
+					// We only upserted a single opportunity, so we only need to get the first item from the response.
+					if ( isset( $opportunity_response[0] ) ) {
+						$opportunity_response = $opportunity_response[0];
+						$existing_opportunity = ! boolval( $opportunity_response->created ); // Response will have 'created' => true if newly created.
+					}
 				} else {
-					$opportunity_response = self::create_opportunity( $order_item );
+					// If the order Name field lacks the order ID, it was synced in the legacy way. Look up by Description.
+					$existing_opportunity = self::get_opportunity_by_order_id( $order_id, $order_item );
+					if ( $existing_opportunity ) {
+						$opportunity_response = self::update_opportunity( $existing_opportunity, $order_item );
+					} else {
+						$opportunity_response = self::create_opportunity( $order_item );
+					}
 				}
 
-				if ( is_wp_error( $opportunity_response ) ) {
+				if ( \is_wp_error( $opportunity_response ) ) {
 					return \rest_ensure_response(
 						new \WP_Error(
 							'newspack_salesforce_opportunity_failure',
@@ -659,12 +695,12 @@ class Salesforce {
 					);
 				}
 
-				$opportunity_id = isset( $opportunity_response->id ) ? $opportunity_response->id : $existing_opportunity;
+				$opportunity_id = isset( $opportunity_response->id ) ? $opportunity_response->id : null;
 				if ( ! empty( $opportunity_id ) ) {
 					$opportunities[] = $opportunity_id;
 
 					// We only want to create an Opportunity Contact Role if creating a new Opportunity, or changing the customer's email address.
-					if ( ! $existing_opportunity || 0 === $contacts->totalSize ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					if ( ! $existing_opportunity || ! $existing_contact ) {
 						self::create_opportunity_contact_role( $opportunity_id, $contact_id );
 					}
 				}
@@ -672,7 +708,7 @@ class Salesforce {
 		}
 
 		// Save synced opportunity IDs to order as post meta.
-		self::save_opportunity_ids( $order_id, $response['opportunities'] );
+		self::save_opportunity_ids( $order_id, $opportunities );
 
 		return [
 			'contact'       => $contact_id,
@@ -686,7 +722,7 @@ class Salesforce {
 	 * @return string Redirect URL.
 	 */
 	public static function get_redirect_url() {
-		return get_admin_url( null, 'admin.php?page=newspack-reader-revenue-wizard#/salesforce' );
+		return \get_admin_url( null, 'admin.php?page=newspack-reader-revenue-wizard#/salesforce' );
 	}
 
 	/**
@@ -697,23 +733,23 @@ class Salesforce {
 	public static function get_salesforce_settings() {
 		$settings = self::DEFAULT_SETTINGS;
 
-		$client_id = get_option( self::SALESFORCE_CLIENT_ID, 0 );
+		$client_id = \get_option( self::SALESFORCE_CLIENT_ID, 0 );
 		if ( ! empty( $client_id ) ) {
 			$settings['client_id'] = $client_id;
 		}
-		$client_secret = get_option( self::SALESFORCE_CLIENT_SECRET, 0 );
+		$client_secret = \get_option( self::SALESFORCE_CLIENT_SECRET, 0 );
 		if ( ! empty( $client_secret ) ) {
 			$settings['client_secret'] = $client_secret;
 		}
-		$access_token = get_option( self::SALESFORCE_ACCESS_TOKEN, 0 );
+		$access_token = \get_option( self::SALESFORCE_ACCESS_TOKEN, 0 );
 		if ( ! empty( $access_token ) ) {
 			$settings['access_token'] = $access_token;
 		}
-		$refresh_token = get_option( self::SALESFORCE_REFRESH_TOKEN, 0 );
+		$refresh_token = \get_option( self::SALESFORCE_REFRESH_TOKEN, 0 );
 		if ( ! empty( $refresh_token ) ) {
 			$settings['refresh_token'] = $refresh_token;
 		}
-		$instance_url = get_option( self::SALESFORCE_INSTANCE_URL, 0 );
+		$instance_url = \get_option( self::SALESFORCE_INSTANCE_URL, 0 );
 		if ( ! empty( $instance_url ) ) {
 			$settings['instance_url'] = $instance_url;
 		}
@@ -745,7 +781,8 @@ class Salesforce {
 	private static function build_request( $endpoint, $method = 'GET', $data = false ) {
 		$settings = self::get_salesforce_settings();
 		$endpoint = '/' === substr( $endpoint, 0, 1 ) ? $endpoint : '/' . $endpoint;
-		$url      = $settings['instance_url'] . $endpoint;
+		$base_url = '/services/data/v54.0'; // The version number may be updated to target different Salesforce API versions.
+		$url      = $settings['instance_url'] . $base_url . $endpoint;
 		$request  = [
 			'method'  => $method,
 			'headers' => [
@@ -760,18 +797,42 @@ class Salesforce {
 		}
 
 		// Make request to the Salesforce SOAP API.
-		$response = wp_safe_remote_request( $url, $request );
+		$response = \wp_safe_remote_request( $url, $request );
 
 		// If our access token has expired, let's get a refresh token and retry.
-		if ( wp_remote_retrieve_response_code( $response ) === 401 ) {
+		if ( \wp_remote_retrieve_response_code( $response ) === 401 ) {
 			$token = self::refresh_salesforce_token();
 
-			if ( is_wp_error( $token ) ) {
+			if ( \is_wp_error( $token ) ) {
 				return $token;
 			}
 
 			$request['headers']['Authorization'] = 'Bearer ' . $token;
-			$response                            = wp_safe_remote_request( $url, $request );
+			$response                            = \wp_safe_remote_request( $url, $request );
+		}
+
+		if (
+			! $response ||
+			! isset( $response['body'] ) ||
+			! isset( $response['response'] ) ||
+			200 !== intval( $response['response']['code'] )
+		) {
+			$message = '';
+			if ( isset( $response['response'] ) && isset( $response['response']['message'] ) ) {
+				$message = $response['response']['message'];
+			}
+			if ( isset( $response['body'] ) ) {
+				$body    = json_decode( $response['body'] );
+				$message = isset( $body[0]->message ) ? $body[0]->message : $message;
+			}
+			return new \WP_Error(
+				'newspack_salesforce_api_error',
+				sprintf(
+					// Translators: error message from Salesforce API.
+					__( 'Error from Salesforce API. %s' ),
+					$message
+				)
+			);
 		}
 
 		return $response;
@@ -785,7 +846,7 @@ class Salesforce {
 	 */
 	public static function set_salesforce_settings( $args ) {
 		$defaults = self::DEFAULT_SETTINGS;
-		$update   = wp_parse_args( $args, $defaults );
+		$update   = \wp_parse_args( $args, $defaults );
 
 		if ( array_key_exists( 'client_id', $args ) ) {
 			update_option( self::SALESFORCE_CLIENT_ID, $update['client_id'] );
@@ -808,7 +869,7 @@ class Salesforce {
 		}
 
 		// Get webhook id.
-		$webhook_id = get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
+		$webhook_id = \get_option( self::SALESFORCE_WEBHOOK_ID, 0 );
 
 		// If we're establishing a new connection and don't have an existing webhook, create a new one.
 		if ( empty( $webhook_id ) && ! empty( $args['refresh_token'] ) ) {
@@ -838,7 +899,7 @@ class Salesforce {
 		$webhook->save();
 		$webhook_id = $webhook->get_id();
 
-		update_option( self::SALESFORCE_WEBHOOK_ID, $webhook_id );
+		\update_option( self::SALESFORCE_WEBHOOK_ID, $webhook_id );
 	}
 
 	/**
@@ -848,7 +909,7 @@ class Salesforce {
 	 * @return void
 	 */
 	private static function delete_webhook( $webhook_id ) {
-		update_option( self::SALESFORCE_WEBHOOK_ID, '' );
+		\update_option( self::SALESFORCE_WEBHOOK_ID, '' );
 		$webhook = wc_get_webhook( $webhook_id );
 		if ( null !== $webhook ) {
 			$webhook->delete( true );
@@ -921,12 +982,19 @@ class Salesforce {
 		$contact['MailingPostalCode'] = $order->get_billing_postcode();
 		$contact['MailingCountry']    = $order->get_billing_country();
 
+		/**
+		 * Orders should be synced to Salesforce with the order ID in the name, for easy lookup.
+		 * However, this wasn't the case in earlier iterations of the sync feature.
+		 */
+		$order_id    = $order->get_id();
+		$name_suffix = self::is_legacy_order_sync( $order_id ) ? ' ' . $order_id : '';
+
 		foreach ( $order->get_items() as $item_id => $item ) {
 			$item_data = [
 				'Amount'      => $item->get_total(),
 				'CloseDate'   => $order->get_date_created()->date( 'Y-m-d' ),
-				'Description' => 'WooCommerce Order Number: ' . $order->get_id(),
-				'Name'        => $item->get_name(),
+				'Description' => 'WooCommerce Order Number: ' . $order_id,
+				'Name'        => $item->get_name() . $name_suffix,
 				'StageName'   => 'Closed Won',
 			];
 
@@ -941,26 +1009,6 @@ class Salesforce {
 			'contact' => $contact,
 			'orders'  => $orders,
 		];
-	}
-
-	/**
-	 * Look up existing Contact records by email address.
-	 *
-	 * @param string $email Email address of the contact.
-	 * @return array Array of found records with matching email attributes.
-	 */
-	private static function get_contacts_by_email( $email ) {
-		$query    = [
-			'q' => "SELECT Id, FirstName, LastName, Description FROM Contact WHERE Email = '" . $email . "'",
-		];
-		$endpoint = '/services/data/v48.0/query?' . http_build_query( $query );
-		$response = self::build_request( $endpoint );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return json_decode( $response['body'] );
 	}
 
 	/**
@@ -984,7 +1032,7 @@ class Salesforce {
 
 		// If the order has opportunity IDs saved in post meta, query using those IDs.
 		// Otherwise, we'll have to query by matching order details.
-		$opportunities = get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
+		$opportunities = \get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
 		if ( is_array( $opportunities ) ) {
 			$opportunities = array_map(
 				function( $opportunity_id ) {
@@ -1003,10 +1051,10 @@ class Salesforce {
 		$query       = $opportunity_ids ?
 			[ 'q' => "SELECT Id, Description FROM Opportunity WHERE Id IN ($opportunity_ids)" ] :
 			[ 'q' => "SELECT Id, Description FROM Opportunity WHERE Name = '$name' AND Amount = $amount AND CloseDate = $close_date" ];
-		$endpoint    = 'services/data/v48.0/query?' . http_build_query( $query );
+		$endpoint    = '/query?' . http_build_query( $query );
 		$response    = self::build_request( $endpoint );
 
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
 
@@ -1030,35 +1078,6 @@ class Salesforce {
 	}
 
 	/**
-	 * Update an existing Contact record by Id with the given data.
-	 *
-	 * @param array $id Unique ID of the record to update in Salesforce.
-	 * @param array $data Attributes and values to update in Salesforce.
-	 * @return int Response code of the update request.
-	 */
-	private static function update_contact( $id, $data ) {
-		$endpoint = '/services/data/v48.0/sobjects/Contact/' . $id;
-		return self::build_request( $endpoint, 'PATCH', $data );
-	}
-
-	/**
-	 * Create a new contact record in Salesforce.
-	 *
-	 * @param array $data Data to use in creating the new contact. Keys must be valid Salesforce field names.
-	 * @return array|WP_Error Response from Salesforce API.
-	 */
-	private static function create_contact( $data ) {
-		$endpoint = '/services/data/v48.0/sobjects/Contact/';
-		$response = self::build_request( $endpoint, 'POST', $data );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return json_decode( $response['body'] );
-	}
-
-	/**
 	 * Get available fields for sObject type in Salesforce.
 	 * This will let us know whether the Salesforce instance has certain fields that can be set.
 	 *
@@ -1066,10 +1085,10 @@ class Salesforce {
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	private static function describe_sobject( $sobject_name = null ) {
-		$endpoint = '/services/data/v48.0/sobjects/' . $sobject_name . '/describe';
+		$endpoint = '/sobjects/' . $sobject_name . '/describe';
 		$response = self::build_request( $endpoint );
 
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
 
@@ -1091,7 +1110,7 @@ class Salesforce {
 		}
 		$sobject = self::describe_sobject( $sobject_name );
 
-		if ( is_wp_error( $sobject ) || ! is_array( $sobject->fields ) ) {
+		if ( \is_wp_error( $sobject ) || ! is_array( $sobject->fields ) ) {
 			return $has_field;
 		}
 
@@ -1110,6 +1129,52 @@ class Salesforce {
 	}
 
 	/**
+	 * Upsert (create or update) one or more records in Salesforce.
+	 * This function assumes that the orders have been synced to Salesforce
+	 * with the WooCommerce order ID in the opportunity record's name.
+	 *
+	 * Endpoint to upsert (create or update) up to 200 records with lookup by field:
+	 * https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections_upsert.htm
+	 *
+	 * @param string $sobject The type of record to upsert: Contact or Opportunity.
+	 * @param array  $data Array of opportunities data to use to upsert new opportunities. Keys must be valid Salesforce field names.
+	 * @return array|WP_Error Response from Salesforce API.
+	 */
+	private static function upsert_items( $sobject = null, $data = [] ) {
+		$sobjects = [ 'Contact', 'Opportunity' ];
+		if ( ! in_array( $sobject, $sobjects, true ) ) {
+			return new \WP_Error(
+				'newspack_salesforce_invalid_sobject',
+				__( 'sObject type must be one of: Opportunity or Contact.', 'newspack' )
+			);
+		}
+
+		$upsert_args = [
+			'allOrNone' => false,
+			'records'   => array_map(
+				function ( $item ) use ( $sobject ) {
+					$item['attributes'] = [
+						'type' => $sobject,
+					];
+					return $item;
+				},
+				$data
+			),
+		];
+
+		$field    = 'Contact' === $sobject ? 'Email' : 'Name'; // Set the field to look up by.
+		$endpoint = "/composite/sobjects/$sobject/$field";
+		$response = self::build_request( $endpoint, 'PATCH', $upsert_args );
+
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return json_decode( $response['body'] );
+	}
+
+	/**
+	 * LEGACY FUNCTION. For new code, use the upsert_opportunities function instead.
 	 * Update an existing Opportunity record by Id with the given data.
 	 * Only the CloseDate and primary contact (if email is changed) will be updated.
 	 *
@@ -1118,21 +1183,28 @@ class Salesforce {
 	 * @return int Response code of the update request.
 	 */
 	private static function update_opportunity( $id, $data ) {
-		$endpoint = '/services/data/v48.0/sobjects/Opportunity/' . $id;
-		return self::build_request( $endpoint, 'PATCH', $data );
+		$endpoint = '/sobjects/Opportunity/' . $id;
+		$response = self::build_request( $endpoint, 'PATCH', $data );
+
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return json_decode( $response['body'] );
 	}
 
 	/**
+	 * LEGACY FUNCTION. For new code, use the upsert_opportunities function instead.
 	 * Create a new opportunity record in Salesforce.
 	 *
 	 * @param array $data Data to use in creating the new opportunity. Keys must be valid Salesforce field names.
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	private static function create_opportunity( $data ) {
-		$endpoint = '/services/data/v48.0/sobjects/Opportunity/';
+		$endpoint = '/sobjects/Opportunity/';
 		$response = self::build_request( $endpoint, 'POST', $data );
 
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
 
@@ -1148,7 +1220,7 @@ class Salesforce {
 	 * @return array|WP_Error Response from Salesforce API.
 	 */
 	private static function create_opportunity_contact_role( $opportunity_id, $contact_id ) {
-		$endpoint = '/services/data/v48.0/sobjects/OpportunityContactRole/';
+		$endpoint = '/sobjects/OpportunityContactRole/';
 		$data     = [
 			'ContactId'     => $contact_id,
 			'IsPrimary'     => true,
@@ -1157,7 +1229,22 @@ class Salesforce {
 		];
 		$response = self::build_request( $endpoint, 'POST', $data );
 
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return json_decode( $response['body'] );
+	}
+
+	private static function create_opportunity_contact_roles( $opportunity_contact_roles ) {
+		$endpoint = '/composite/tree/OpportunityContactRole/';
+		$data     = [ 'records' => $opportunity_contact_roles ];
+		$response = self::build_request( $endpoint, 'POST', $data );
+		$response = self::build_request( $endpoint, 'POST', $data );
+		error_log( $endpoint );
+		error_log( print_r( $data, true ) );
+
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
 
@@ -1189,7 +1276,7 @@ class Salesforce {
 		}
 
 		// Hit Salesforce OAuth endpoint to request API tokens.
-		$salesforce_response = wp_safe_remote_post(
+		$salesforce_response = \wp_safe_remote_post(
 			'https://login.salesforce.com/services/oauth2/token?' . http_build_query(
 				[
 					'client_id'     => $settings['client_id'],
@@ -1260,7 +1347,7 @@ class Salesforce {
 		$response = self::sync_salesforce( $order );
 
 		// Add a note on sync failure.
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			$order->add_order_note(
 				sprintf(
 					// Translators: Note added to order when sync is unsuccessful.
@@ -1281,6 +1368,330 @@ class Salesforce {
 	 */
 	private static function save_opportunity_ids( $order_id, $opportunities ) {
 		update_post_meta( $order_id, 'newspack_salesforce_opportunities', $opportunities );
+	}
+
+	/**
+	 * Get the UNIX timestamp for the next occurrence of midnight in the site's local timezone.
+	 */
+	private static function get_next_midnight() {
+		$timezone = \get_option( 'timezone_string', 'UTC' );
+
+		// Guard against 'Unknown or bad timezone' PHP error.
+		if ( empty( trim( $timezone ) ) ) {
+			$timezone = 'UTC';
+		}
+
+		$next_midnight = new \DateTime( 'tomorrow', new \DateTimeZone( $timezone ) );
+		return $next_midnight->getTimestamp();
+	}
+
+
+	/**
+	 * Register the WP CLI command.
+	 */
+	public static function add_cli_command() {
+		if ( ! class_exists( 'WP_CLI' ) ) {
+			return;
+		}
+
+		\WP_CLI::add_command(
+			'newspack salesforce sync',
+			[ __CLASS__, 'run_cli_command' ],
+			[
+				'shortdesc' => 'Sync all unsynced WooCommerce orders to Salesforce.',
+				'synopsis'  => [
+					[
+						'type'        => 'flag',
+						'name'        => 'dry-run',
+						'description' => 'Whether to do a dry run.',
+						'optional'    => true,
+						'repeating'   => false,
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Run the 'newspack-listings import' WP CLI command.
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
+	 */
+	public static function run_cli_command( $args, $assoc_args ) {
+		// If a dry run, we won't persist any data.
+		self::$is_dry_run = isset( $assoc_args['dry-run'] ) ? true : false;
+
+		if ( self::$is_dry_run ) {
+			\WP_CLI::log( "\n===================\n=     Dry Run     =\n===================\n" );
+		}
+
+		if ( ! self::is_connected() ) {
+		} else {
+			self::check_failed_order_syncs( true );
+		}
+	}
+
+	/**
+	 * Set up the cron job. Will run once daily and check for failed order syncs, and attempt to resync them.
+	 */
+	public static function cron_init() {
+		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
+
+		if ( ! wp_next_scheduled( self::SALESFORCE_CRON_HOOK ) ) {
+			\wp_schedule_event( self::get_next_midnight(), 'daily', self::SALESFORCE_CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Clear the cron job when this plugin is deactivated.
+	 */
+	public static function cron_deactivate() {
+		\wp_clear_scheduled_hook( self::SALESFORCE_CRON_HOOK );
+	}
+
+	/**
+	 * Check for failed or unsynced orders and attempt to resync.
+	 * In order to limit the number of requests, we'll try to create Contact and Opportunity
+	 * records in batches of 200, then create batches of OpportunityContactRoles to tie them
+	 * together after they're created. Otherwise, the Salesforce API has a limit of 1000
+	 * requests per 24-hour period.
+	 * https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_api.htm
+	 *
+	 * @param boolean $is_cli True if the command is being executed via WP CLI.
+	 *                        Otherwise, it's probably being run by cron job.
+	 */
+	public static function check_failed_order_syncs( $is_cli = false ) {
+		// Start with first page of 100 results, then we'll see if there are more pages to iterate through.
+		$current_page = 1;
+		$query_args   = [
+			'fields'         => 'ids',
+			'post_type'      => 'shop_order',
+			'post_status'    => 'wc-completed',
+			'posts_per_page' => 100,
+			'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'key'     => 'newspack_salesforce_opportunities',
+				'compare' => 'NOT EXISTS',
+				'value'   => 'WP bug #23268', // See https://core.trac.wordpress.org/ticket/23268 for details on the fake value string required when using 'NOT EXISTS'.
+			],
+		];
+
+		// Get query results.
+		$results         = new \WP_Query( $query_args );
+		$number_of_pages = $results->max_num_pages;
+		$total_count     = $results->found_posts;
+		$total_results   = [];
+
+		if ( 0 === $total_count ) {
+			if ( $is_cli ) {
+				\WP_CLI::log(
+					__( 'No unsynced orders found.', 'newspack' )
+				);
+			}
+			return;
+		}
+
+		if ( $is_cli ) {
+			\WP_CLI::log(
+				sprintf(
+					// Translators: help message for WP CLI showing number of total orders to be synced.
+					_n( 'Processing %d unsynced order...', 'Processing %d unsynced orders...', $total_count, 'newspack' ),
+					$total_count
+				)
+			);
+		}
+
+		$total_results = array_merge( $total_results, $results->posts );
+
+		// If there were more than 1 page of results, repeat with subsequent pages until all posts are processed.
+		if ( $current_page < $number_of_pages ) {
+			while ( $current_page < $number_of_pages ) {
+				$current_page        ++;
+				$query_args['paged'] = $current_page;
+				$results             = new \WP_Query( $query_args );
+				$total_results       = array_merge( $total_results, $results->posts );
+			}
+		}
+
+		$contacts_data = [];
+		$orders_data   = [];
+
+		// Keep count of the number of items updated.
+		$contacts_count = 0;
+		$orders_count   = 0;
+
+		foreach ( $total_results as $order_id ) {
+			$order = \wc_get_order( $order_id );
+			$order = $order ? self::parse_wc_order_data( $order ) : null;
+			if ( $order && isset( $order['contact'] ) ) {
+				$contact_data             = $order['contact'];
+				$contact_data['order_id'] = $order_id; // So we can later link up to the Opportunity via an OpportunityContactRole.
+				$contacts_data[]          = $contact_data;
+			}
+			if ( $order && isset( $order['orders'] ) ) {
+				$order_data  = array_map(
+					function( $o ) use ( $order_id ) {
+						$o['order_id'] = $order_id;
+						return $o;
+					},
+					$order['orders']
+				);
+				$orders_data = array_values(
+					array_merge( $orders_data, $order_data )
+				);
+			}
+		}
+
+		/**
+		 * Salesforce API has a limit of creating 200 items per request.
+		 * Successfully created records are returned with their IDs in the order
+		 * in which they were received, so we can assume that the numeric index
+		 * of each record ID in the response matches that of the request body.
+		 * This is how we'll associate Contacts with Opportunities.
+		 *
+		 * See: https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_composite_sobject_tree_flat.htm.
+		 */
+		$batched_contacts = array_chunk( $contacts_data, 200 );
+		$batched_orders   = array_chunk( $orders_data, 200 );
+
+		/**
+		 * Sync customers to Contact records.
+		 */
+		$contact_index = 0;
+		foreach ( $batched_contacts as $batch ) {
+			$contacts_to_sync = [];
+			foreach ( $batch as $contact_to_sync ) {
+				// Remove temporary order ID reference.
+				unset( $contact_to_sync['order_id'] );
+				$contacts_to_sync[] = $contact_to_sync;
+			}
+
+			/**
+			 * Endpoint to upsert (create or update) up to 200 Contacts with lookup by Email field:
+			 * https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections_upsert.htm
+			 */
+			$response = self::upsert_items( 'Contact', $contacts_to_sync );
+			if ( \is_wp_error( $response ) ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						// Translators: error message logged to debug.log if running via cron or command line if running via CLI.
+						__( 'Error syncing contacts. %s' ),
+						$response->get_error_message()
+					)
+				);
+			} else {
+				foreach ( $response as $synced_contact ) {
+					if ( ! empty( $synced_contact->id ) && ! empty( $synced_contact->success ) ) {
+						$contacts_count ++;
+						$contacts_data[ $contact_index ]['ContactId'] = $synced_contact->id;
+					} else {
+						error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							sprintf(
+								// Translators: error message logged to debug.log if running via cron or command line if running via CLI.
+								__( 'Error syncing contact %1$s. %2$s' ),
+								$contacts_data[ $contact_index ]['Email'],
+								isset( $synced_contact->errors ) ? \wp_json_encode( $synced_contact->errors ) : ''
+							)
+						);
+					}
+					$contact_index ++;
+				}
+			}
+		}
+
+		/**
+		 * Sync orders to Opportunity records.
+		 */
+		$order_index = 0;
+		foreach ( $batched_orders as $batch ) {
+			$orders_to_sync = [];
+			foreach ( $batch as $order_to_sync ) {
+				// Remove temporary order ID reference.
+				unset( $order_to_sync['order_id'] );
+				$orders_to_sync[] = $order_to_sync;
+			}
+
+			$response = self::upsert_items( 'Opportunity', $orders_to_sync );
+			if ( \is_wp_error( $response ) ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						// Translators: error message logged to debug.log if running via cron or command line if running via CLI.
+						__( 'Error syncing orders. %s' ),
+						$response->get_error_message()
+					)
+				);
+			} else {
+				foreach ( $response as $synced_order ) {
+					if ( ! empty( $synced_order->id ) && ! empty( $synced_order->success ) ) {
+						$orders_count ++;
+						$orders_data[ $order_index ]['OpportunityId'] = $synced_order->id;
+						if ( ! boolval( $synced_order->created ) ) {
+							$orders_data[ $order_index ]['updated'] = true;
+						}
+					} else {
+						error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							sprintf(
+								// Translators: error message logged to debug.log if running via cron or command line if running via CLI.
+								__( 'Error syncing order %1$s. %2$s' ),
+								$orders_data[ $order_index ]['order_id'],
+								isset( $synced_order->errors ) ? \wp_json_encode( $synced_order->errors ) : ''
+							)
+						);
+					}
+					$order_index ++;
+				}
+			}
+		}
+
+		/**
+		 * Create OpportunityContactRoles to link upserted Contacts and Opportunities.
+		 */
+		$opportunity_contact_roles = [];
+		$contact_role_index        = 0;
+		foreach ( $orders_data as $order ) {
+			if ( isset( $order['OpportunityId'] ) ) {
+				$contact_index = array_search( $order['order_id'], array_column( $contacts_data, 'order_id' ) );
+				if ( ! empty( $contacts_data[ $contact_index ] ) && isset( $contacts_data[ $contact_index ]['ContactId'] ) ) {
+					$opportunity_contact_roles[] = [
+						'attributes'    => [
+							'referenceId' => $order['order_id'],
+							'type'        => 'OpportunityContactRole',
+						],
+						'ContactId'     => $contacts_data[ $contact_index ]['ContactId'],
+						'IsPrimary'     => true,
+						'OpportunityId' => $order['OpportunityId'],
+						'Role'          => 'Hard Credit',
+					];
+				}
+			}
+
+			$contact_role_index ++;
+		}
+		$batched_opportunity_contact_roles = array_chunk( $opportunity_contact_roles, 200 );
+		foreach ( $batched_opportunity_contact_roles as $opportunity_contact_roles_to_sync ) {
+			$response = self::create_opportunity_contact_roles( $opportunity_contact_roles );
+			if ( \is_wp_error( $response ) ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						// Translators: error message logged to debug.log if running via cron or command line if running via CLI.
+						__( 'Error syncing contact roles. %s' ),
+						$response->get_error_message()
+					)
+				);
+			}
+			error_log( print_r( $response, true ) );
+		}
+
+		if ( $is_cli ) {
+			\WP_CLI::success(
+				sprintf(
+					// Translators: WP CLI success message.
+					__( 'Synced %1$d contact(s) and %2$d order(s).', 'newspack' ),
+					$contacts_count,
+					$orders_count
+				)
+			);
+		}
 	}
 }
 
