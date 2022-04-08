@@ -1,3 +1,10 @@
+## [1.80.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.80.0...v1.80.1-hotfix.1) (2022-04-08)
+
+
+### Bug Fixes
+
+* **popups:** analytics popups report label regex ([56e72f2](https://github.com/Automattic/newspack-plugin/commit/56e72f223cf3c211bac7cb94f37f35d7822136db))
+
 # [1.80.0](https://github.com/Automattic/newspack-plugin/compare/v1.79.1...v1.80.0) (2022-04-05)
 
 
