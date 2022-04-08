@@ -202,7 +202,7 @@ class Popups_Analytics_Utils {
 		$label         = str_replace( 'Newspack Announcement: ', '', $row['dimensions'][2] );
 		// Extract post id from the label.
 		preg_match(
-			'/\(([0-9]*)\)$/',
+			'/\(([0-9]*)\)/',
 			$label,
 			$id_matches
 		);
@@ -225,7 +225,7 @@ class Popups_Analytics_Utils {
 	 * @param string $name Encoded event name.
 	 */
 	private static function decode_item( $name ) {
-		preg_match( '/(\d*)(\d$)/', $name, $matches );
+		preg_match( '/(\d*)(\d)/', $name, $matches );
 		if ( count( $matches ) === 3 ) {
 			return [
 				'post_id'    => $matches[1],
