@@ -206,7 +206,7 @@ class Popups_Analytics_Utils {
 			$label,
 			$id_matches
 		);
-		$post_id      = isset( $id_matches[1] ) ? $id_matches[1] : '';
+		$post_id      = array_pop( $id_matches ) ?? '';
 		$label_object = [
 			// Remove post id in parens.
 			'label' => str_replace( " ($post_id)", '', $label ),
