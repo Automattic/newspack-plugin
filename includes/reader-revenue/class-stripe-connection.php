@@ -396,6 +396,7 @@ class Stripe_Connection {
 					$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
 					$wc_transaction_payload = [
 						'email'              => $customer['email'],
+						'name'               => $customer['name'],
 						'stripe_id'          => $payment['id'],
 						'stripe_customer_id' => $customer['id'],
 						'stripe_fee'         => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),

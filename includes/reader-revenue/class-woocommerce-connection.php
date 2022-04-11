@@ -41,6 +41,7 @@ class WooCommerce_Connection {
 		$order->set_currency( $order_data['currency'] );
 		$order->set_date_created( $order_data['date'] );
 		$order->set_billing_email( $order_data['email'] );
+		$order->set_billing_first_name( $order_data['name'] );
 
 		// Add notes to order.
 		if ( 'once' === $frequency ) {
