@@ -78,7 +78,7 @@ class WooCommerce_Connection {
 	 * @param object $order_data Order data.
 	 */
 	public static function create_transaction( $order_data ) {
-		Logger::log( 'Creating order' );
+		Logger::log( 'Creating an order' );
 
 		$order     = wc_create_order( [ 'status' => 'completed' ] );
 		$frequency = $order_data['frequency'];
