@@ -1,3 +1,15 @@
+# [1.81.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.81.0-alpha.2...v1.81.0-alpha.3) (2022-04-11)
+
+
+### Bug Fixes
+
+* **stripe:** newsletters wizard typo ([#1594](https://github.com/Automattic/newspack-plugin/issues/1594)) ([391f1c1](https://github.com/Automattic/newspack-plugin/commit/391f1c110207fdb39420500a1aa40e035d85c531))
+
+
+### Features
+
+* **stripe-donations:** update WooCommerce on successful donation ([#1593](https://github.com/Automattic/newspack-plugin/issues/1593)) ([6f440c3](https://github.com/Automattic/newspack-plugin/commit/6f440c313fa6d58114a0e428ae193db339ea428c))
+
 # [1.81.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.81.0-alpha.1...v1.81.0-alpha.2) (2022-04-11)
 
 
