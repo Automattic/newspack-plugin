@@ -193,6 +193,20 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 					],
 				],
 			],
+			[
+				'dimensions' => [
+					$yesterday->format( 'Ymd' ),
+					'Seen',
+					'Inline: Donate form (955) - Everyone',
+				],
+				'metrics'    => [
+					[
+						'values' => [
+							'3',
+						],
+					],
+				],
+			],
 		];
 
 		$expected_report             = [
@@ -207,7 +221,7 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 			],
 			[
 				$yesterday->format( 'M j' ),
-				4,
+				7,
 			],
 		];
 		$expected_report_actions     = [
@@ -221,9 +235,13 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				'label' => 'Inline: Newsletter form',
 				'value' => '954',
 			],
+			[
+				'label' => 'Inline: Donate form - Everyone',
+				'value' => '955',
+			],
 		];
 		$expected_report_key_metrics = [
-			'seen'             => 4,
+			'seen'             => 7,
 			'form_submissions' => -1,
 			'link_clicks'      => -1,
 		];
@@ -267,6 +285,9 @@ class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 				'report_by_id'   => [
 					'954' => [
 						'seen' => 4,
+					],
+					'955' => [
+						'seen' => 3,
 					],
 				],
 				'actions'        => $expected_report_actions,
