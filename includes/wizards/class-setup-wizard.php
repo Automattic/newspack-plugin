@@ -35,12 +35,13 @@ class Setup_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $slug = 'newspack-setup-wizard';
+
 	/**
 	 * The capability required to access this wizard.
 	 *
 	 * @var string
 	 */
-	protected $capability = 'install_plugins';
+	protected $capability = 'manage_options';
 
 	/**
 	 * An array of theme mods that are media library IDs.
