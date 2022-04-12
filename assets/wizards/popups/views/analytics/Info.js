@@ -52,7 +52,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 				{ [
 					{
 						label: __( 'Seen', 'newspack' ),
-						value: humanNumber( seen, limitDecimals ),
+						value: 10000 < seen ? humanNumber( seen, limitDecimals ) : seen.toLocaleString(),
 						withSeparator: true,
 					},
 					{
