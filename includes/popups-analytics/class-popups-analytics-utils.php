@@ -163,7 +163,7 @@ class Popups_Analytics_Utils {
 			$date_range->setStartDate( $options['start_date'] );
 			$date_range->setEndDate( $options['end_date'] );
 			$options['date_range'] = $date_range;
-
+			return [];
 			try {
 				$rows   = [];
 				$report = self::create_ga_report_result( $analytics, $options );

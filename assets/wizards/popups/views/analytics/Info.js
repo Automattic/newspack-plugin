@@ -37,6 +37,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 
 	const notApplicable = __( 'n/a', 'newspack' );
 	const limitDecimals = n => ( 1000000 <= seen ? Math.round( n * 100 ) / 100 : Math.round( n ) );
+	const formatNumber = n => ( 10000 < n ? humanNumber( n, limitDecimals ) : n.toLocaleString() );
 	return (
 		<div className="newspack-campaigns-wizard-analytics__info">
 			<h2>
@@ -52,7 +53,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 				{ [
 					{
 						label: __( 'Seen', 'newspack' ),
-						value: 10000 < seen ? humanNumber( seen, limitDecimals ) : seen.toLocaleString(),
+						value: formatNumber( seen ),
 						withSeparator: true,
 					},
 					{
@@ -61,7 +62,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 					},
 					{
 						label: __( 'Form Submissions', 'newspack' ),
-						value: hasConversionRate ? form_submissions : notApplicable,
+						value: hasConversionRate ? formatNumber( form_submissions ) : notApplicable,
 						withSeparator: true,
 					},
 					{
@@ -70,7 +71,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 					},
 					{
 						label: __( 'Link Clicks', 'newspack' ),
-						value: hasClickThroughRate ? link_clicks : notApplicable,
+						value: hasClickThroughRate ? formatNumber( link_clicks ) : notApplicable,
 					},
 				].map( ( section, i ) => (
 					<div
