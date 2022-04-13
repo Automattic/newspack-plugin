@@ -106,7 +106,9 @@ class CategoryAutocomplete extends Component {
 		const { value } = this.props;
 		const { suggestions } = this.state;
 		const selectedIds = value.reduce( ( acc, item ) => {
-			acc.push( item.id );
+			if ( item?.id ) {
+				acc.push( item.id );
+			}
 			return acc;
 		}, [] );
 		const availableSuggestions = filter(
