@@ -24,6 +24,22 @@
 		margin-right: 4px;
 	}
 
+	&__is-debug {
+		background: $primary-700;
+		bottom: 16px;
+		box-shadow: 0 0 8px 4px rgba( black, 0.08 );
+		color: white;
+		font-weight: bold;
+		margin: 0 16px;
+		position: fixed;
+		text-transform: uppercase;
+		z-index: 9997;
+
+		> svg {
+			fill: white;
+		}
+	}
+
 	&__is-error {
 		background: lighten( $alert-red, 51% );
 
