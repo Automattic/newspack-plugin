@@ -96,9 +96,9 @@ class CategoryAutocomplete extends Component {
 		const { suggestions } = this.state;
 		// Categories that are already will be objects, while new additions will be strings (the name).
 		// allValues nomalizes the array so that they are all objects.
-		const allValues = tokens.map( token =>
-			typeof token === 'string' ? suggestions[ token ] : token
-		);
+		const allValues = tokens
+			.filter( token => 'undefined' !== typeof token ) // Ensure each token is a valid value.
+			.map( token => ( 'string' === typeof token ? suggestions[ token ] : token ) );
 		onChange( allValues );
 	};
 

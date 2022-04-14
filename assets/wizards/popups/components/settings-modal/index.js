@@ -175,18 +175,15 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								disabled={ disabled }
 								hideHelpFromVision
 								value={ excludedCategories || [] }
-								onChange={ tokens => {
-									return setPromptConfig( {
+								onChange={ tokens =>
+									setPromptConfig( {
 										options: {
-											excluded_categories: tokens.reduce( ( acc, token ) => {
-												if ( token?.id ) {
-													acc.push( token.id );
-												}
-												return acc;
-											}, [] ),
+											excluded_categories: tokens
+												.filter( token => token?.id )
+												.map( token => token.id ),
 										},
-									} );
-								} }
+									} )
+								}
 								description={ __(
 									'Prompt will not appear on posts with the specified categories.',
 									'newspack'
@@ -198,18 +195,13 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								hideHelpFromVision
 								taxonomy="tags"
 								value={ excludedTags || [] }
-								onChange={ tokens => {
-									return setPromptConfig( {
+								onChange={ tokens =>
+									setPromptConfig( {
 										options: {
-											excluded_tags: tokens.reduce( ( acc, token ) => {
-												if ( token?.id ) {
-													acc.push( token.id );
-												}
-												return acc;
-											}, [] ),
+											excluded_tags: tokens.filter( token => token?.id ).map( token => token.id ),
 										},
-									} );
-								} }
+									} )
+								}
 								description={ __(
 									'Prompt will not appear on posts with the specified tags.',
 									'newspack'
