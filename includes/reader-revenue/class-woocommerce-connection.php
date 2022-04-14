@@ -69,6 +69,7 @@ class WooCommerce_Connection {
 			// Log the new user in.
 			wp_set_current_user( $user_id, $user_login );
 			wp_set_auth_cookie( $user_id );
+			return $user_id;
 		}
 	}
 
