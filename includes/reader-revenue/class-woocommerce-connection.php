@@ -61,7 +61,7 @@ class WooCommerce_Connection {
 		if ( $should_create_account ) {
 			Logger::log( 'This order will result in a membership, creating account for user.' );
 			$user_login = sanitize_title( $full_name );
-			$user_id    = wc_create_new_customer( $email_address, $user_login );
+			$user_id    = wc_create_new_customer( $email_address, $user_login, '', [ 'display_name' => $full_name ] );
 			if ( is_wp_error( $user_id ) ) {
 				return $user_id;
 			}
