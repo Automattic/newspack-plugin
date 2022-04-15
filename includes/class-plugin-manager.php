@@ -396,6 +396,8 @@ class Plugin_Manager {
 			'republication-tracker-tool',
 			'the-events-calendar',
 			'wordpress-seo-premium',
+			'gravityformspolls',
+			'gravityformsmailchimp',
 		];
 	}
 
