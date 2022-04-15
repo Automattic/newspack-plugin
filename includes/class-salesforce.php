@@ -215,7 +215,7 @@ class Salesforce {
 			'newspack-salesforce-sync-status',
 			Newspack::plugin_url() . '/dist/other-scripts/salesforce.js',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/other-scripts/salesforce.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 
