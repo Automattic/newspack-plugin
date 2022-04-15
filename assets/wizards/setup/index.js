@@ -53,7 +53,7 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 	return (
 		<Fragment>
 			{ newspack_aux_data.has_completed_setup && (
-				<Notice isWarning>
+				<Notice isWarning className="ma0">
 					{ __(
 						'Heads up! The setup has already been completed. No need to run it again.',
 						'newspack'
