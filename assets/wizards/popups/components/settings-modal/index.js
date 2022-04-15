@@ -178,9 +178,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								onChange={ tokens =>
 									setPromptConfig( {
 										options: {
-											excluded_categories: tokens
-												.filter( token => token?.id )
-												.map( token => token.id ),
+											excluded_categories: tokens.map( token => token.id ),
 										},
 									} )
 								}
@@ -198,7 +196,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								onChange={ tokens =>
 									setPromptConfig( {
 										options: {
-											excluded_tags: tokens.filter( token => token?.id ).map( token => token.id ),
+											excluded_tags: tokens.map( token => token.id ),
 										},
 									} )
 								}

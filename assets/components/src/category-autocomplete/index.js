@@ -98,7 +98,8 @@ class CategoryAutocomplete extends Component {
 		// allValues nomalizes the array so that they are all objects.
 		const allValues = tokens
 			.filter( token => 'undefined' !== typeof token ) // Ensure each token is a valid value.
-			.map( token => ( 'string' === typeof token ? suggestions[ token ] : token ) );
+			.map( token => ( 'string' === typeof token ? suggestions[ token ] : token ) )
+			.filter( Boolean );
 		onChange( allValues );
 	};
 
