@@ -1,3 +1,40 @@
+# [1.81.0](https://github.com/Automattic/newspack-plugin/compare/v1.80.1...v1.81.0) (2022-04-18)
+
+
+### Bug Fixes
+
+* enable block-based widgets ([#1550](https://github.com/Automattic/newspack-plugin/issues/1550)) ([270c2ea](https://github.com/Automattic/newspack-plugin/commit/270c2ea2336d26dcdb643e1b4d28483a82655af4))
+* **setup-wizard:** hide header on completed step ([#1591](https://github.com/Automattic/newspack-plugin/issues/1591)) ([9e6fbc7](https://github.com/Automattic/newspack-plugin/commit/9e6fbc7de8d720a7742e080787dde436cd34b2c4))
+* **stripe:** newsletters wizard typo ([#1594](https://github.com/Automattic/newspack-plugin/issues/1594)) ([391f1c1](https://github.com/Automattic/newspack-plugin/commit/391f1c110207fdb39420500a1aa40e035d85c531))
+
+
+### Features
+
+* remove support wizard ([fccc3b8](https://github.com/Automattic/newspack-plugin/commit/fccc3b8f2f1b2a1c50619ed37a9e846c620e5045))
+* **stripe-donations:** update WooCommerce on successful donation ([#1593](https://github.com/Automattic/newspack-plugin/issues/1593)) ([6f440c3](https://github.com/Automattic/newspack-plugin/commit/6f440c313fa6d58114a0e428ae193db339ea428c))
+
+# [1.81.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.81.0-alpha.2...v1.81.0-alpha.3) (2022-04-11)
+
+
+### Bug Fixes
+
+* **stripe:** newsletters wizard typo ([#1594](https://github.com/Automattic/newspack-plugin/issues/1594)) ([391f1c1](https://github.com/Automattic/newspack-plugin/commit/391f1c110207fdb39420500a1aa40e035d85c531))
+
+
+### Features
+
+* **stripe-donations:** update WooCommerce on successful donation ([#1593](https://github.com/Automattic/newspack-plugin/issues/1593)) ([6f440c3](https://github.com/Automattic/newspack-plugin/commit/6f440c313fa6d58114a0e428ae193db339ea428c))
+
+# [1.81.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.81.0-alpha.1...v1.81.0-alpha.2) (2022-04-11)
+
+
+### Bug Fixes
+
+* incorrect regex pattern ([d885517](https://github.com/Automattic/newspack-plugin/commit/d885517895156c8dc79f37de3f867c4e30862d76))
+* look for post ID as the last regex match ([2bfc1bd](https://github.com/Automattic/newspack-plugin/commit/2bfc1bd1bdaf05f7c8c011d59245b528e9b702d9))
+* **popups:** analytics popups report label regex ([56e72f2](https://github.com/Automattic/newspack-plugin/commit/56e72f223cf3c211bac7cb94f37f35d7822136db))
+* update regex to look for end-of-line OR hyphen separator ([111b63a](https://github.com/Automattic/newspack-plugin/commit/111b63a9319ed3a78dc10479e30daf83df54d2e3))
+
 ## [1.80.1](https://github.com/Automattic/newspack-plugin/compare/v1.80.0...v1.80.1) (2022-04-11)
 
 
