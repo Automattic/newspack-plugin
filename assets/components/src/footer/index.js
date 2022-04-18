@@ -22,6 +22,7 @@ const Footer = ( { simple } ) => {
 		reset_url: resetUrl = false,
 		plugin_version: pluginVersion = { label: 'Newspack' },
 		remove_starter_content: removeStarterContent = false,
+		support_email: supportEmail,
 	} = window.newspack_urls || {};
 
 	const footerElements = [
@@ -63,6 +64,12 @@ const Footer = ( { simple } ) => {
 		footerElements.push( {
 			label: __( 'Remove Starter Content', 'newspack' ),
 			url: removeStarterContent,
+		} );
+	}
+	if ( supportEmail ) {
+		footerElements.push( {
+			label: __( 'Contact Support', 'newspack' ),
+			url: `mailto:${ supportEmail }`,
 		} );
 	}
 	return (

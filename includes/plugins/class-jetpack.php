@@ -40,13 +40,10 @@ class Jetpack {
 	 * @return @bool Whether to render scripts.
 	 */
 	private static function should_amp_plus_modules() {
-		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
-			return false;
+		if ( defined( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES' ) ) {
+			return true === NEWSPACK_AMP_PLUS_JETPACK_MODULES;
 		}
-		if ( ! defined( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES' ) || true !== NEWSPACK_AMP_PLUS_JETPACK_MODULES ) {
-			return false;
-		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -70,34 +67,19 @@ class Jetpack {
 		if ( ! self::should_amp_plus_modules() ) {
 			return $is_sanitized;
 		}
-		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
-			$script_has_matching_id = array_reduce(
-				self::$scripts_handles,
-				function( $carry, $id ) use ( $error ) {
-					return $carry || 0 === strpos( $error['node_attributes']['id'], $id ); // Match starting position so it includes `-js`, `-after` and `-before` scripts.
-				},
-				false
-			);
-			if ( $script_has_matching_id ) {
-				$is_sanitized = false;
-			}
+		if ( AMP_Enhancements::is_script_id_matching_strings( self::$scripts_handles, $error ) ) {
+			$is_sanitized = false;
 		}
+
 		// Match inline scripts by script text since they don't have IDs.
-		$texts = [
-			'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
-			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
-		];
-		if ( isset( $error, $error['text'] ) ) {
-			$script_has_matching_text = array_reduce(
-				$texts,
-				function( $carry, $text ) use ( $error ) {
-					return $carry || false !== strpos( $error['text'], $text );
-				},
-				false
-			);
-			if ( $script_has_matching_text ) {
-				$is_sanitized = false;
-			}
+		if ( AMP_Enhancements::is_script_body_matching_strings(
+			[
+				'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
+				'JetpackInstantSearchOptions', // Jetpack Instant Search options.
+			],
+			$error
+		) ) {
+			$is_sanitized = false;
 		}
 		return $is_sanitized;
 	}
