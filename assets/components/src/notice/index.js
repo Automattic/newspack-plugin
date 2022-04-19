@@ -7,6 +7,7 @@
  */
 import { Component, RawHTML } from '@wordpress/element';
 import { Icon, check, help, info } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
@@ -25,6 +26,7 @@ class Notice extends Component {
 	render() {
 		const {
 			className,
+			debugMode,
 			isError,
 			isHelp,
 			isSuccess,
@@ -37,6 +39,7 @@ class Notice extends Component {
 		const classes = classnames(
 			'newspack-notice',
 			className,
+			debugMode && 'newspack-notice__is-debug',
 			isError && 'newspack-notice__is-error',
 			isHelp && 'newspack-notice__is-help',
 			isSuccess && 'newspack-notice__is-success',
@@ -55,6 +58,7 @@ class Notice extends Component {
 				{ <Icon icon={ noticeIcon } /> }
 				<div className="newspack-notice__content">
 					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
+					{ debugMode && __( 'Debug Mode', 'newspack' ) }
 					{ children || null }
 				</div>
 			</div>

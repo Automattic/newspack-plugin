@@ -34,9 +34,9 @@ const NewslettersSettings = ( { listId, onChange } ) => {
 			<Notice
 				noticeText={
 					<span>
-						{ __( 'You can configure Newsletters in', 'newspack' ) }{ ' ' }
+						{ __( 'You can configure Newsletters in the', 'newspack' ) }{ ' ' }
 						<a href="/wp-admin/admin.php?page=newspack-engagement-wizard#/newsletters">
-							{ __( 'Enagement Wizard', 'newspack' ) }
+							{ __( 'Engagement Wizard', 'newspack' ) }
 						</a>
 						.
 					</span>
