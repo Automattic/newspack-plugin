@@ -16,6 +16,25 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Connection {
 	/**
+	 * Initialize.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public static function init() {
+		add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
+	}
+
+	/**
+	 * Hide WooCommerce's setup task list. Newspack does the setup behind the scenes.
+	 */
+	public static function disable_woocommerce_setup() {
+		if ( class_exists( '\Automattic\WooCommerce\Admin\Features\OnboardingTasks\TaskLists' ) ) {
+			$task_list = \Automattic\WooCommerce\Admin\Features\OnboardingTasks\TaskLists::get_list( 'setup' );
+			$task_list->hide();
+		}
+	}
+
+	/**
 	 * Get WC's Order Item related to a donation frequency.
 	 *
 	 * @param string $frequency Donation frequency.
@@ -138,3 +157,5 @@ class WooCommerce_Connection {
 		return $order->get_id();
 	}
 }
+
+WooCommerce_Connection::init();
