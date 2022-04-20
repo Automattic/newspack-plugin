@@ -20,9 +20,7 @@ import {
 	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
-import AdUnitSizeControl, {
-	DEFAULT_SIZES as adUnitSizes,
-} from '../../components/ad-unit-size-control';
+import AdUnitSizeControl, { getSizes } from '../../components/ad-unit-size-control';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -55,7 +53,12 @@ class AdUnit extends Component {
 	}
 
 	getNextAvailableSize() {
-		return adUnitSizes.find( size => ! this.getSizeOptions().includes( size ) ) || [];
+		const sizes = getSizes();
+		const options = this.getSizeOptions().map( size => size.toString() );
+		const index = sizes
+			.map( size => size.toString() )
+			.findIndex( size => ! options.includes( size ) );
+		return sizes[ index ] || [ 0, 0 ];
 	}
 
 	/**
