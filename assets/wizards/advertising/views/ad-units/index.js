@@ -174,11 +174,15 @@ const AdUnits = ( {
 												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
 											</>
 										) : null }
-										{ __( 'Sizes:', 'newspack' ) }{ ' ' }
-										{ adUnit.sizes.map( ( size, i ) => (
-											<code key={ i }>{ size.join( 'x' ) }</code>
-										) ) }
-										{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
+										{ adUnit.sizes?.length || adUnit.fluid ? (
+											<>
+												{ __( 'Sizes:', 'newspack' ) }{ ' ' }
+												{ adUnit.sizes.map( ( size, i ) => (
+													<code key={ i }>{ Array.isArray( size ) ? size.join( 'x' ) : size }</code>
+												) ) }
+												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
+											</>
+										) : null }
 									</span>
 								) }
 								actionText={

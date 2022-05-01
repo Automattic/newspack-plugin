@@ -76,13 +76,7 @@ const Wizard = ( {
 				) }
 			>
 				<HashRouter hashType="slash">
-					{ newspack_aux_data.is_debug_mode && (
-						<Notice
-							isWarning
-							className="newspack-wizard__above-header"
-							noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
-						/>
-					) }
+					{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
 					<div className="bg-white">
 						<div className="newspack-wizard__header__inner">
 							<div className="newspack-wizard__title">

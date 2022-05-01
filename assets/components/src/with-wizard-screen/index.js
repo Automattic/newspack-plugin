@@ -58,13 +58,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			);
 		return (
 			<>
-				{ newspack_aux_data.is_debug_mode && (
-					<Notice
-						isWarning
-						className="newspack-wizard__above-header"
-						noticeText={ __( 'Newspack is in debug mode.', 'newspack' ) }
-					/>
-				) }
+				{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
 				<div className="newspack-wizard__header">
 					<div className="newspack-wizard__header__inner">
 						<div className="newspack-wizard__title">

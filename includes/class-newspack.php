@@ -49,13 +49,6 @@ final class Newspack {
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
-
-		// Disable the block-based widget editing altogether until further notice.
-		// See https://github.com/Automattic/newspack-plugin/issues/1124.
-		// Disables the block editor from managing widgets in the Gutenberg plugin.
-		add_filter( 'gutenberg_use_widgets_block_editor', '__return_false' );
-		// Disables the block editor from managing widgets.
-		add_filter( 'use_widgets_block_editor', '__return_false' );
 	}
 
 	/**
@@ -86,6 +79,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-analytics.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-stripe-connection.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-woocommerce-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-reader-revenue-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-oauth.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-oauth.php';
@@ -123,6 +117,10 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-image-credits.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-jetpack.php';
+
+		// Integrations w/ third-party plugins.
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-jetpack.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-gravityforms.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 
@@ -292,7 +290,7 @@ final class Newspack {
 			'newspack_commons',
 			self::plugin_url() . '/dist/commons.js',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 		wp_enqueue_script( 'newspack_commons' );
@@ -301,7 +299,7 @@ final class Newspack {
 			'newspack-commons',
 			self::plugin_url() . '/dist/commons.css',
 			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.css' )
+			NEWSPACK_PLUGIN_VERSION
 		);
 		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-commons' );
