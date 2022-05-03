@@ -20,29 +20,44 @@ import { __ } from '@wordpress/i18n';
  */
 import { SelectControl, TextControl } from '../../../../components/src';
 
+const IAB_SIZES = window.newspack_ads_wizard.iab_sizes;
+
 /**
- * Interactive Advertising Bureau's standard ad sizes.
+ * Get the list of sizes.
+ *
+ * @return {Array} List of sizes.
  */
-export const DEFAULT_SIZES = [
-	[ 970, 250 ],
-	[ 970, 90 ],
-	[ 728, 90 ],
-	[ 300, 600 ],
-	[ 300, 250 ],
-	[ 300, 1050 ],
-	[ 160, 600 ],
-	[ 320, 50 ],
-	[ 320, 100 ],
-	[ 120, 60 ],
-	'fluid',
-];
+export function getSizes() {
+	return [
+		...Object.keys( IAB_SIZES ).map( sizeString => sizeString.split( 'x' ).map( Number ) ),
+		'fluid',
+	];
+}
+
+/**
+ * Get size label from IAB standard sizes. Returns {width}x{height} if label is
+ * not found.
+ *
+ * @param {Array|string} size Size array or string.
+ * @return {string} Size label.
+ */
+export function getSizeLabel( size ) {
+	if ( Array.isArray( size ) ) {
+		size = size.join( 'x' );
+	}
+	const label = IAB_SIZES[ size ];
+	if ( label ) {
+		return `${ label } (${ size })`;
+	}
+	return size;
+}
 
 /**
  * Ad Unit Size Control.
  */
 const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 	const [ isCustom, setIsCustom ] = useState( false );
-	const options = DEFAULT_SIZES.filter(
+	const options = getSizes().filter(
 		size =>
 			JSON.stringify( value ) === JSON.stringify( size ) ||
 			! selectedOptions.find(
@@ -51,14 +66,7 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 	);
 	const sizeIndex = isCustom
 		? -1
-		: options.findIndex( size => {
-				if ( typeof value === 'string' ) {
-					return value === size;
-				} else if ( Array.isArray( value ) ) {
-					return size[ 0 ] === value[ 0 ] && size[ 1 ] === value[ 1 ];
-				}
-				return false;
-		  } );
+		: options.findIndex( size => JSON.stringify( size ) === JSON.stringify( value ) );
 	return (
 		<>
 			<SelectControl
@@ -66,7 +74,7 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 				value={ sizeIndex }
 				options={ [
 					...options.map( ( size, index ) => ( {
-						label: Array.isArray( size ) ? `${ size[ 0 ] } x ${ size[ 1 ] }` : startCase( size ),
+						label: Array.isArray( size ) ? getSizeLabel( size ) : startCase( size ),
 						value: index,
 					} ) ),
 					{ label: __( 'Custom', 'newspack' ), value: -1 },
