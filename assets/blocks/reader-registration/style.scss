@@ -1,0 +1,14 @@
+.newspack-reader-registration-block form {
+	width: 100%;
+	display: flex;
+	box-shadow: 0 0 0 1px rgba( 0, 0, 0, 0.1 );
+	align-items: center;
+	margin: 0;
+	input[type='email'] {
+		border: 0;
+		flex: 1 1 100%;
+	}
+	input[type='submit'] {
+		border: 0;
+	}
+}

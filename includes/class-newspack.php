@@ -87,6 +87,10 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
 
+		/* Reader Activation */
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-blocks.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';

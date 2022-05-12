@@ -2,6 +2,7 @@
  **** WARNING: No ES6 modules here. Not transpiled! ****
  */
 /* eslint-disable import/no-nodejs-modules */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 /**
  * External dependencies
@@ -43,21 +44,11 @@ otherScripts.forEach( function ( script ) {
 const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
-		entry: wizardsScriptFiles,
+		entry: {
+			...wizardsScriptFiles,
+			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
+		},
 	}
 );
-
-// overwrite Calypso's optimisation
-webpackConfig.optimization = {
-	splitChunks: {
-		cacheGroups: {
-			commons: {
-				name: 'commons',
-				chunks: 'initial',
-				minChunks: 2,
-			},
-		},
-	},
-};
 
 module.exports = webpackConfig;
