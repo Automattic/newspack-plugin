@@ -27,7 +27,7 @@ final class Reader_Activation {
 	 * Clear the auth intention cookie.
 	 */
 	public static function clear_auth_intention_cookie() {
-    setcookie( self::AUTH_INTENTION_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+		setcookie( self::AUTH_INTENTION_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
 	}
 
 	/**
