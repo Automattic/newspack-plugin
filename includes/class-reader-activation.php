@@ -266,6 +266,7 @@ final class Reader_Activation {
 			return;
 		}
 		$expire = time() - self::get_magic_link_token_expiration_period();
+		$client = self::get_client_hashed_ip();
 		foreach ( $tokens as $index => $token_data ) {
 			/**
 			 * Clear expired tokens.
@@ -276,10 +277,10 @@ final class Reader_Activation {
 				/**
 				 * Verify token for authentication.
 				 */
-				$client = self::get_client_hashed_ip();
 				if ( $token_data['token'] === $token && $token_data['client'] === $client ) {
 					unset( $tokens[ $index ] );
 					self::authenticate( $user->ID );
+					break;
 				}
 			}
 		}
