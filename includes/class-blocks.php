@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader Activation Blocks.
+ * Newspack Blocks.
  *
  * @package Newspack
  */
@@ -10,7 +10,7 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reader Activation Blocks Class.
+ * Newspack Blocks Class.
  */
 final class Blocks {
 	/**
@@ -53,16 +53,16 @@ final class Blocks {
 	 * @param array[] $attrs Block attributes.
 	 */
 	public static function render_registration_block( $attrs ) {
-		ob_start();
 		if ( \is_user_logged_in() || Reader_Activation::get_auth_intention() ) {
 			return;
 		}
+		ob_start();
 		?>
 		<div class="newspack-reader-registration-block">
 			<form method="POST">
 				<?php \wp_nonce_field( 'newspack_reader_registration', 'newspack_registration' ); ?>
 				<input type="email" name="newspack_reg_email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-				<button><?php echo \esc_html( $attrs['button_label'] ); ?></button>
+				<input type="submit" value="<?php echo \esc_attr( $attrs['button_label'] ); ?>" />
 			</form>
 		</div>
 		<?php
@@ -100,7 +100,7 @@ final class Blocks {
 	public static function enqueue_scripts() {
 		\wp_enqueue_style(
 			'newspack-reader-activation-blocks',
-			\Newspack::plugin_url() . '/dist/blocks.css',
+			Newspack::plugin_url() . '/dist/blocks.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
