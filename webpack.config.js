@@ -51,4 +51,17 @@ const webpackConfig = getBaseWebpackConfig(
 	}
 );
 
+// overwrite Calypso's optimisation
+webpackConfig.optimization = {
+	splitChunks: {
+		cacheGroups: {
+			commons: {
+				name: 'commons',
+				chunks: 'initial',
+				minChunks: 2,
+			},
+		},
+	},
+};
+
 module.exports = webpackConfig;

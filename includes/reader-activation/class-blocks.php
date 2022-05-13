@@ -5,9 +5,7 @@
  * @package Newspack
  */
 
-namespace Newspack\Reader_Activation;
-
-use Newspack\Reader_Activation;
+namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -78,7 +76,7 @@ final class Blocks {
 		if ( ! isset( $_POST['newspack_registration'] ) || ! isset( $_POST['newspack_reg_email'] ) || empty( $_POST['newspack_reg_email'] ) ) {
 			return;
 		}
-	
+
 		if ( ! \wp_verify_nonce( $_POST['newspack_registration'], 'newspack_reader_registration' ) ) { // phpcs:ignore
 			return;
 		}
@@ -102,9 +100,9 @@ final class Blocks {
 	public static function enqueue_scripts() {
 		\wp_enqueue_style(
 			'newspack-reader-activation-blocks',
-			\plugins_url( '../../dist/blocks.css', __FILE__ ),
+			\Newspack::plugin_url() . '/dist/blocks.css',
 			[],
-			filemtime( NEWSPACK_NEWSLETTERS_PLUGIN_FILE . 'dist/blocks.css' )
+			NEWSPACK_PLUGIN_VERSION
 		);
 	}
 
@@ -112,18 +110,20 @@ final class Blocks {
 	 * Enqueue blocks scripts and styles for editor.
 	 */
 	public static function enqueue_block_editor_assets() {
+		Newspack::load_common_assets();
+
 		\wp_enqueue_script(
 			'newspack-reader-activation-blocks',
-			\plugins_url( '../../dist/blocks.js', __FILE__ ),
+			Newspack::plugin_url() . '/dist/blocks.js',
 			[],
-			filemtime( NEWSPACK_NEWSLETTERS_PLUGIN_FILE . 'dist/blocks.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 		\wp_enqueue_style(
 			'newspack-reader-activation-blocks',
-			\plugins_url( '../../dist/blocks.css', __FILE__ ),
+			Newspack::plugin_url() . '/dist/blocks.css',
 			[],
-			filemtime( NEWSPACK_NEWSLETTERS_PLUGIN_FILE . 'dist/blocks.css' )
+			NEWSPACK_PLUGIN_VERSION
 		);
 	}
 }
