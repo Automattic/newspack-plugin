@@ -21,6 +21,22 @@ final class Reader_Activation {
 	 */
 	public static function init() {
 		add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+		add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
+	}
+
+	/**
+	 * Add auth intention email to login form defaults.
+	 *
+	 * @param array $defaults Login form defaults.
+	 *
+	 * @return array
+	 */
+	public static function add_auth_intention_to_login_form( $defaults ) {
+		$email = self::get_auth_intention();
+		if ( ! empty( $email ) ) {
+			$defaults['value_username'] = $email;
+		}
+		return $defaults;
 	}
 
 	/**
