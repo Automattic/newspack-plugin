@@ -20,9 +20,32 @@ final class Reader_Activation {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+		add_filter( 'wp_new_user_notification_email', [ __CLASS__, 'get_reader_registration_email' ], 10, 3 );
 		add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 		add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
 	}
+
+	/**
+	 * Get reader registration notification email.
+	 *
+	 * TODO: Use page with MJML rendering to format email.
+	 * See \Newspack\Reader_Revenue_Emails for reference.
+	 *
+	 * @param array   $wp_new_user_notification_email {
+	 *     Used to build wp_mail().
+	 *
+	 *     @type string $to      The intended recipient - New user email address.
+	 *     @type string $subject The subject of the email.
+	 *     @type string $message The body of the email.
+	 *     @type string $headers The headers of the email.
+	 * }
+	 * @param WP_User $user     User object for new user.
+	 * @param string  $blogname The site title.
+	 */
+	public static function get_reader_registration_email( $wp_new_user_notification_email, $user, $blogname ) {
+		return $wp_new_user_notification_email;
+	}
+
 
 	/**
 	 * Add auth intention email to login form defaults.
@@ -93,7 +116,9 @@ final class Reader_Activation {
 		}
 		$user_id = false;
 		if ( ! $existing_user ) {
-			$user_id = \wp_create_user( $email, \wp_generate_password(), $email );
+			$random_password = \wp_generate_password( 12, false );
+			$user_id         = \wp_create_user( $email, $random_password, $email );
+			\wp_new_user_notification( $user_id, null, 'user' );
 			if ( $authenticate ) {
 				\wp_clear_auth_cookie();
 				\wp_set_current_user( $user_id );
