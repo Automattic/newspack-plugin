@@ -60,8 +60,8 @@ final class Blocks {
 		?>
 		<div class="newspack-reader-registration-block">
 			<form method="POST">
-				<?php \wp_nonce_field( 'newspack_reader_registration', 'newspack_registration' ); ?>
-				<input type="email" name="newspack_reg_email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+				<?php \wp_nonce_field( 'newspack_reader_registration', 'newspack_reader_registration' ); ?>
+				<input type="email" name="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 				<input type="submit" value="<?php echo \esc_attr( $attrs['button_label'] ); ?>" />
 			</form>
 		</div>
@@ -73,16 +73,25 @@ final class Blocks {
 	 * Process registration form.
 	 */
 	public static function process_registration_form() {
-		if ( ! isset( $_POST['newspack_registration'] ) || ! isset( $_POST['newspack_reg_email'] ) || empty( $_POST['newspack_reg_email'] ) ) {
+
+		if ( ! isset( $_POST['newspack_reader_registration'] ) || ! \wp_verify_nonce( $_POST['newspack_reader_registration'], 'newspack_reader_registration' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return;
 		}
 
-		if ( ! \wp_verify_nonce( $_POST['newspack_registration'], 'newspack_reader_registration' ) ) { // phpcs:ignore
+		if ( ! isset( $_POST['email'] ) || empty( $_POST['email'] ) ) {
 			return;
 		}
 
-		$email  = \sanitize_email( $_POST['newspack_reg_email'] );
+		$email  = \sanitize_email( $_POST['email'] );
 		$result = Reader_Activation::register_reader( $email );
+
+		/**
+		 * Fires after a reader is registered through the Reader Registration Block.
+		 *
+		 * @param string               $email  Email address of the reader.
+		 * @param int|string|\WP_Error $result The created user ID in case of registration, the user email if user already exists, or a WP_Error object.
+		 */
+		do_action( 'newspack_reader_registration_form_processed', $email, $result );
 
 		if ( \wp_is_json_request() ) {
 			if ( ! \is_wp_error( $result ) ) {
