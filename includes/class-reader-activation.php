@@ -441,7 +441,13 @@ final class Reader_Activation {
 		$user_id = false;
 		if ( ! $existing_user ) {
 			$random_password = \wp_generate_password( 12, false );
-			$user_id         = \wp_create_user( $email, $random_password, $email );
+
+			/** Create WooCommerce Customer if possible. */
+			if ( function_exists( '\wc_create_new_customer' ) ) {
+				$user_id = \wc_create_new_customer( $email, $email, $random_password );
+			} else {
+				$user_id = \wp_create_user( $email, $random_password, $email );
+			}
 
 			/** Add default reader related meta. */
 			\update_user_meta( $user_id, self::READER, true );
