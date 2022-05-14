@@ -16,6 +16,13 @@ final class Reader_Activation {
 
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 
+	const MAGIC_LINK_ACTION = 'np_magic_link';
+
+	/**
+	 * Reader user meta keys.
+	 */
+	const READER            = 'np_reader';
+	const EMAIL_VERIFIED    = 'np_reader_email_verified';
 	const MAGIC_LINK_TOKENS = 'np_magic_link_tokens';
 
 	/**
@@ -26,6 +33,7 @@ final class Reader_Activation {
 		\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 		\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'process_magic_link_request' ] );
+		\add_action( 'resetpass_form', [ __CLASS__, 'verify_reader_email' ] );
 	}
 
 	/**
@@ -128,6 +136,30 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Verify email address of a reader given the user.
+	 *
+	 * @param \WP_User $user User object.
+	 *
+	 * @return bool Whether the email address was verified.
+	 */
+	public static function verify_reader_email( $user ) {
+		if ( ! $user ) {
+			return false;
+		}
+		$reader = \get_user_meta( $user->ID, self::READER, true );
+		// Should not verify reader email if user is not a reader.
+		if ( ! $reader ) {
+			return false;
+		}
+		$verified = \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+		if ( $verified ) {
+			return true;
+		}
+		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+		return true;
+	}
+
+	/**
 	 * Generate magic link token.
 	 *
 	 * @param \WP_User $user User to generate the magic link token for.
@@ -146,6 +178,7 @@ final class Reader_Activation {
 		if ( empty( $tokens ) ) {
 			$tokens = [];
 		}
+
 		/**
 		 * Clear expired tokens.
 		 */
@@ -158,14 +191,15 @@ final class Reader_Activation {
 			}
 			$tokens = array_values( $tokens );
 		}
+
 		/**
 		 * Generate the new token.
 		 */
+		$token      = sha1( \wp_generate_password() );
 		$token_data = [
-			'token'  => sha1( \wp_generate_password() ),
+			'token'  => $token,
 			'client' => self::get_client_hashed_ip(),
 			'time'   => $now,
-			'nonce'  => \wp_create_nonce( self::MAGIC_LINK_TOKENS ),
 		];
 		$tokens[]   = $token_data;
 		\update_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, $tokens );
@@ -184,9 +218,9 @@ final class Reader_Activation {
 		$token_data = self::generate_magic_link_token( $user );
 		return \add_query_arg(
 			[
-				'nonce' => $token_data['nonce'],
-				'uid'   => $user->ID,
-				'token' => $token_data['token'],
+				'action' => self::MAGIC_LINK_ACTION,
+				'uid'    => $user->ID,
+				'token'  => $token_data['token'],
 			],
 			! empty( $url ) ? $url : \home_url()
 		);
@@ -205,6 +239,7 @@ final class Reader_Activation {
 			/* translators: %s is the site name */
 			'subject' => __( '[%s] Your authentication magic link', 'newspack' ),
 			'message' => $message,
+			'headers' => '',
 		];
 		/**
 		 * Filters the magic link email.
@@ -220,7 +255,8 @@ final class Reader_Activation {
 		 * @param \WP_User $user User to send the magic link to.
 		 * @param string   $magic_link Magic link url.
 		 */
-		$args = \apply_filters( 'newspack_magic_link_email', $args, $user, $magic_link );
+		$args     = \apply_filters( 'newspack_magic_link_email', $args, $user, $magic_link );
+		$blogname = \wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		\wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 			$args['to'],
 			\wp_specialchars_decode( sprintf( $args['subject'], $blogname ) ),
@@ -236,58 +272,87 @@ final class Reader_Activation {
 	 */
 	private static function authenticate( $user_id ) {
 		$user = \get_user_by( 'id', $user_id );
+		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID );
 		\do_action( 'wp_login', $user->user_login, $user );
 	}
 
 	/**
+	 * Verify and authenticate current session using magic link token.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $token   Token to verify.
+	 *
+	 * @return bool|WP_Error Whether the user has been authenticated or WP_Error.
+	 */
+	private static function validate_magic_link_token( $user_id, $token ) {
+		$errors = new \WP_Error();
+		$user   = \get_user_by( 'id', $user_id );
+		if ( ! $user ) {
+			$errors->add( 'newspack_reader_invalid_user', __( 'User not found.', 'newspack' ) );
+		} else {
+			$auth_intention = self::get_auth_intention();
+			if ( $user->user_email !== $auth_intention ) {
+				$errors->add( 'newspack_reader_invalid_request', __( 'Invalid authentication intent.', 'newspack' ) );
+			}
+			$tokens = \get_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, true );
+			if ( empty( $tokens ) || empty( $token ) ) {
+				$errors->add( 'newspack_reader_invalid_token', __( 'Invalid token.', 'newspack' ) );
+			}
+		}
+		$authenticated = false;
+		if ( ! $errors->has_errors() ) {
+			$client = self::get_client_hashed_ip();
+			$expire = time() - self::get_magic_link_token_expiration_period();
+			foreach ( $tokens as $index => $token_data ) {
+				/**
+				 * Clear expired tokens.
+				 */
+				if ( $token_data['time'] < $expire ) {
+					unset( $tokens[ $index ] );
+				} else {
+					/**
+					 * Verify token for authentication.
+					 */
+					if ( $token_data['token'] === $token && $token_data['client'] === $client ) {
+						unset( $tokens[ $index ] );
+						self::verify_reader_email( $user );
+						self::authenticate( $user->ID );
+						$authenticated = true;
+						break;
+					}
+				}
+			}
+			if ( ! $authenticated ) {
+				$errors->add( 'newspack_reader_invalid_token', __( 'Invalid token.', 'newspack' ) );
+			}
+			$tokens = array_values( $tokens );
+			\update_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, $tokens );
+		}
+		return $errors->has_errors() ? $errors : $authenticated;
+	}
+
+	/**
 	 * Process magic link token from request.
 	 */
 	public static function process_magic_link_request() {
-		if ( ! isset( $_GET['nonce'] ) || ! \wp_verify_nonce( $_GET['nonce'], self::MAGIC_LINK_TOKENS ) ) { // phpcs:ignore
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['action'] ) || self::MAGIC_LINK_ACTION !== $_GET['action'] ) {
 			return;
 		}
 		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['uid'] ) ) {
-			return;
+			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
 		}
-		$uid   = \absint( \wp_unslash( $_GET['uid'] ) );
-		$token = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
-		$user  = \get_user_by( 'id', $uid );
-		if ( ! $user ) {
-			return;
+		$user_id       = \absint( \wp_unslash( $_GET['uid'] ) );
+		$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
+		$authenticated = self::validate_magic_link_token( $user_id, $token );
+		if ( \is_wp_error( $authenticated ) ) {
+			\wp_die( \esc_html__( 'We were not able to authenticate through the magic link. Please, try again with a different link.', 'newspack' ) );
 		}
-		$auth_intention = self::get_auth_intention();
-		if ( $user->user_email !== $auth_intention ) {
-			return;
-		}
-		$tokens = \get_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, true );
-		if ( empty( $tokens ) ) {
-			return;
-		}
-		$expire = time() - self::get_magic_link_token_expiration_period();
-		$client = self::get_client_hashed_ip();
-		foreach ( $tokens as $index => $token_data ) {
-			/**
-			 * Clear expired tokens.
-			 */
-			if ( $token_data['time'] < $expire ) {
-				unset( $tokens[ $index ] );
-			} else {
-				/**
-				 * Verify token for authentication.
-				 */
-				if ( $token_data['token'] === $token && $token_data['client'] === $client ) {
-					unset( $tokens[ $index ] );
-					self::authenticate( $user->ID );
-					break;
-				}
-			}
-		}
-		$tokens = array_values( $tokens );
-		\update_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, $tokens );
-		\wp_safe_redirect( \remove_query_arg( [ 'nonce', 'uid', 'token' ] ) );
+		\wp_safe_redirect( \remove_query_arg( [ 'action', 'uid', 'token' ] ) );
 		exit;
+		// phpcs:enable
 	}
 
 	/**
@@ -315,10 +380,16 @@ final class Reader_Activation {
 		if ( ! $existing_user ) {
 			$random_password = \wp_generate_password( 12, false );
 			$user_id         = \wp_create_user( $email, $random_password, $email );
+
+			// Add default reader related meta.
+			\update_user_meta( $user_id, self::READER, true );
+			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
+
 			if ( $authenticate ) {
 				self::authenticate( $user_id );
 			}
 		}
+
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
@@ -328,6 +399,7 @@ final class Reader_Activation {
 		 * @param false|\WP_User $existing_user The existing user object.
 		 */
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user );
+
 		/**
 		 * Notify user of registration or magic link in case of existing user.
 		 */
