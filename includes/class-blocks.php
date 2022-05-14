@@ -61,7 +61,7 @@ final class Blocks {
 		<div class="newspack-reader-registration-block">
 			<form method="POST">
 				<?php \wp_nonce_field( 'newspack_reader_registration', 'newspack_reader_registration' ); ?>
-				<input type="email" name="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+				<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 				<input type="submit" value="<?php echo \esc_attr( $attrs['button_label'] ); ?>" />
 			</form>
 		</div>
