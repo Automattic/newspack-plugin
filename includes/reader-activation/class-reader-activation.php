@@ -1,0 +1,230 @@
+<?php
+/**
+ * Reader Activation.
+ *
+ * @package Newspack
+ */
+
+namespace Newspack;
+
+use Newspack\Reader_Activation\Magic_Links;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Reader Activation Class.
+ */
+final class Reader_Activation {
+
+	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
+
+	/**
+	 * Reader user meta keys.
+	 */
+	const READER         = 'np_reader';
+	const EMAIL_VERIFIED = 'np_reader_email_verified';
+
+	/**
+	 * Initialize hooks.
+	 */
+	public static function init() {
+		\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+		\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
+		\add_action( 'resetpass_form', [ __CLASS__, 'verify_reader_email' ] );
+	}
+
+	/**
+	 * Add auth intention email to login form defaults.
+	 *
+	 * @param array $defaults Login form defaults.
+	 *
+	 * @return array
+	 */
+	public static function add_auth_intention_to_login_form( $defaults ) {
+		$email = self::get_auth_intention();
+		if ( ! empty( $email ) ) {
+			$defaults['value_username'] = $email;
+		}
+		return $defaults;
+	}
+
+	/**
+	 * Clear the auth intention cookie.
+	 */
+	public static function clear_auth_intention_cookie() {
+		setcookie( self::AUTH_INTENTION_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+	}
+
+	/**
+	 * Set the auth intention cookie.
+	 *
+	 * @param string $email Email address.
+	 */
+	public static function set_auth_intention_cookie( $email ) {
+		/**
+		 * Filters the duration of the auth intention cookie expiration period.
+		 *
+		 * @param int    $length Duration of the expiration period in seconds.
+		 * @param string $email  Email address.
+		 */
+		$expire = time() + \apply_filters( 'newspack_auth_intention_expiration', 30 * DAY_IN_SECONDS, $email );
+		setcookie( self::AUTH_INTENTION_COOKIE, $email, $expire, COOKIEPATH, COOKIE_DOMAIN, true ); // phpcs:ignore
+	}
+
+	/**
+	 * Get the auth intention.
+	 *
+	 * @return string|null Email address or null if not set.
+	 */
+	public static function get_auth_intention() {
+		return isset( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ) ? $_COOKIE[ self::AUTH_INTENTION_COOKIE ] : null; // phpcs:ignore
+	}
+
+	/**
+	 * Whether the user is a reader.
+	 *
+	 * @param \WP_User $user User object.
+	 *
+	 * @return bool Whether the user is a reader.
+	 */
+	public static function is_user_reader( $user ) {
+		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
+		if ( false === $is_reader ) {
+			/**
+			 * Filters the roles that can determine if a user is a reader.
+			 *
+			 * @param string[] $roles Array of user roles.
+			 */
+			$reader_roles = apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
+			$data         = \get_userdata( $user->ID );
+			$is_reader    = ! empty( array_intersect( $reader_roles, $data->roles ) );
+		}
+		/**
+		 * Filters whether the user is a reader.
+		 *
+		 * @param bool     $is_reader Whether the user is a reader.
+		 * @param \WP_User $user      User object.
+		 */
+		return apply_filters( 'newspack_is_user_reader', $is_reader, $user );
+	}
+
+	/**
+	 * Verify email address of a reader given the user.
+	 *
+	 * @param \WP_User $user User object.
+	 *
+	 * @return bool Whether the email address was verified.
+	 */
+	public static function verify_reader_email( $user ) {
+		if ( ! $user ) {
+			return false;
+		}
+		/** Should not verify email if user is not a reader. */
+		if ( ! self::is_user_reader( $user ) ) {
+			return false;
+		}
+		$verified = \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+		if ( $verified ) {
+			return true;
+		}
+		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+		return true;
+	}
+
+	/**
+	 * Authenticate a reader session given its user ID.
+	 *
+	 * Warning: this method will only verify if the user is a reader in order to
+	 * authenticate. It will not check for any credentials.
+	 *
+	 * @param int  $user_id      User ID.
+	 * @param bool $verify_email Whether to verify the email address.
+	 *
+	 * @return \WP_User|\WP_Error The authenticated reader or WP_Error if authentication failed.
+	 */
+	public static function authenticate_reader( $user_id, $verify_email = false ) {
+		$user_id = absint( $user_id );
+		if ( empty( $user_id ) ) {
+			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
+		}
+		$user = \get_user_by( 'id', $user_id );
+		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
+		}
+		if ( true === $verify_email ) {
+			self::verify_reader_email( $user );
+		}
+		\wp_clear_auth_cookie();
+		\wp_set_current_user( $user->ID );
+		\wp_set_auth_cookie( $user->ID );
+		\do_action( 'wp_login', $user->user_login, $user );
+		return $user;
+	}
+
+	/**
+	 * Register a reader given its email.
+	 *
+	 * Due to authentication or auth intention, this method should be used
+	 * preferably on POST or API requests to avoid issues with caching.
+	 *
+	 * @param string $email        Email address.
+	 * @param bool   $authenticate Whether to authenticate. Default to true.
+	 * @param bool   $notify       Whether to send email notification to the reader. Default to true.
+	 *
+	 * @return int|string|\WP_Error The created user ID in case of registration, the user email if user already exists, or a WP_Error object.
+	 */
+	public static function register_reader( $email, $authenticate = true, $notify = true ) {
+		if ( empty( $email ) ) {
+			return new \WP_Error( 'newspack_reader_empty_email', __( 'Please enter an email address.', 'newspack' ) );
+		}
+
+		self::set_auth_intention_cookie( $email );
+		$existing_user = \get_user_by( 'email', $email );
+		if ( \is_wp_error( $existing_user ) ) {
+			return $existing_user;
+		}
+
+		$user_id = false;
+		if ( ! $existing_user ) {
+			$random_password = \wp_generate_password( 12, false );
+
+			/** Create WooCommerce Customer if possible. */
+			if ( function_exists( '\wc_create_new_customer' ) ) {
+				$user_id = \wc_create_new_customer( $email, $email, $random_password );
+			} else {
+				$user_id = \wp_create_user( $email, $random_password, $email );
+			}
+
+			/** Add default reader related meta. */
+			\update_user_meta( $user_id, self::READER, true );
+			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
+
+			if ( $authenticate ) {
+				self::authenticate_reader( $user_id );
+			}
+		}
+
+		/**
+		 * Action after registering and authenticating a reader.
+		 *
+		 * @param string         $email         Email address.
+		 * @param bool           $authenticate  Whether to authenticate.
+		 * @param false|int      $user_id       The created user id.
+		 * @param false|\WP_User $existing_user The existing user object.
+		 */
+		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user );
+
+		/**
+		 * Notify user of registration or magic link in case of existing user.
+		 */
+		if ( $notify ) {
+			if ( $user_id ) {
+				\wp_new_user_notification( $user_id, null, 'user' );
+			} elseif ( $existing_user ) {
+				Magic_Links::send_email( $existing_user );
+			}
+		}
+		return $user_id ?? $email;
+	}
+}
+Reader_Activation::init();

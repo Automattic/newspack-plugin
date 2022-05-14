@@ -86,7 +86,9 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-services-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
-		include_once NEWSPACK_ABSPATH . 'includes/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-magic-links.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-blocks.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';

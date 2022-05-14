@@ -108,7 +108,7 @@ final class Blocks {
 	 */
 	public static function enqueue_scripts() {
 		\wp_enqueue_style(
-			'newspack-reader-activation-blocks',
+			'newspack-blocks',
 			Newspack::plugin_url() . '/dist/blocks.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
@@ -122,14 +122,14 @@ final class Blocks {
 		Newspack::load_common_assets();
 
 		\wp_enqueue_script(
-			'newspack-reader-activation-blocks',
+			'newspack-blocks',
 			Newspack::plugin_url() . '/dist/blocks.js',
 			[],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 		\wp_enqueue_style(
-			'newspack-reader-activation-blocks',
+			'newspack-blocks',
 			Newspack::plugin_url() . '/dist/blocks.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
