@@ -153,7 +153,24 @@ final class Reader_Activation {
 	 * @return bool Whether the user is a reader.
 	 */
 	public static function is_user_reader( $user ) {
-		return (bool) \get_user_meta( $user->ID, self::READER, true );
+		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
+		if ( false === $is_reader ) {
+			/**
+			 * Filters the roles that can determine if a user is a reader.
+			 *
+			 * @param string[] $roles Array of user roles.
+			 */
+			$reader_roles = apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
+			$data         = \get_userdata( $user->ID );
+			$is_reader    = ! empty( array_intersect( $reader_roles, $data->roles ) );
+		}
+		/**
+		 * Filters whether the user is a reader.
+		 *
+		 * @param bool     $is_reader Whether the user is a reader.
+		 * @param \WP_User $user      User object.
+		 */
+		return apply_filters( 'newspack_is_user_reader', $is_reader, $user );
 	}
 
 	/**
