@@ -234,7 +234,7 @@ final class Reader_Activation {
 		$token  = sha1( \wp_generate_password() );
 		$client = self::get_client_hashed_ip();
 		if ( empty( $client ) ) {
-			return new \WP_Error( 'newspack_magic_link_token_error', 'Could not generate magic link token.' );
+			return new \WP_Error( 'newspack_magic_link_invalid_client', __( 'Invalid client.', 'newspack' ) );
 		}
 		$token_data = [
 			'token'  => $token,
