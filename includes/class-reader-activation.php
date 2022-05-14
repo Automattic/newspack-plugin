@@ -184,7 +184,7 @@ final class Reader_Activation {
 	 *
 	 * @param \WP_User $user User to generate the magic link token for.
 	 *
-	 * @return array {
+	 * @return array|\WP_Error {
 	 *   Magic link token data.
 	 *
 	 *   @type string $token   The token.
@@ -192,7 +192,10 @@ final class Reader_Activation {
 	 *   @type string $time    Token creation time.
 	 * }
 	 */
-	public static function generate_magic_link_token( $user ) {
+	private static function generate_magic_link_token( $user ) {
+		if ( ! self::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'User is not a reader.', 'newspack' ) );
+		}
 		$now    = time();
 		$tokens = \get_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, true );
 		if ( empty( $tokens ) ) {
@@ -211,10 +214,14 @@ final class Reader_Activation {
 		}
 
 		/** Generate the new token. */
-		$token      = sha1( \wp_generate_password() );
+		$token  = sha1( \wp_generate_password() );
+		$client = self::get_client_hashed_ip();
+		if ( empty( $client ) ) {
+			return new \WP_Error( 'newspack_magic_link_token_error', 'Could not generate magic link token.' );
+		}
 		$token_data = [
 			'token'  => $token,
-			'client' => self::get_client_hashed_ip(),
+			'client' => $client,
 			'time'   => $now,
 		];
 		$tokens[]   = $token_data;
@@ -228,10 +235,13 @@ final class Reader_Activation {
 	 * @param \WP_User $user User to generate the magic link for.
 	 * @param string   $url  Destination url. Default is home_url().
 	 *
-	 * @return string Magic link url.
+	 * @return string|\WP_Error Magic link url or WP_Error if token generation failed.
 	 */
-	public static function generate_magic_link_url( $user, $url = '' ) {
+	private static function generate_magic_link_url( $user, $url = '' ) {
 		$token_data = self::generate_magic_link_token( $user );
+		if ( \is_wp_error( $token_data ) ) {
+			return $token_data;
+		}
 		return \add_query_arg(
 			[
 				'action' => self::MAGIC_LINK_ACTION,
@@ -246,11 +256,16 @@ final class Reader_Activation {
 	 * Send magic link email to reader.
 	 *
 	 * @param \WP_User $user User to send the magic link to.
+	 *
+	 * @return bool|\WP_Error Whether the email was sent or WP_Error if sending failed.
 	 */
-	public static function send_magic_link_email( $user ) {
+	private static function send_magic_link_email( $user ) {
 		$magic_link_url = self::generate_magic_link_url( $user );
-		$message        = 'Continue by clicking the link: ' . $magic_link_url;
-		$args           = [
+		if ( \is_wp_error( $magic_link_url ) ) {
+			return $magic_link_url;
+		}
+		$message = 'Continue by clicking the link: ' . $magic_link_url;
+		$args    = [
 			'to'      => $user->user_email,
 			/* translators: %s is the site name */
 			'subject' => __( '[%s] Your authentication magic link', 'newspack' ),
@@ -273,7 +288,7 @@ final class Reader_Activation {
 		 */
 		$args     = \apply_filters( 'newspack_magic_link_email', $args, $user, $magic_link );
 		$blogname = \wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-		\wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
+		return \wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 			$args['to'],
 			\wp_specialchars_decode( sprintf( $args['subject'], $blogname ) ),
 			$args['message'],
@@ -300,7 +315,7 @@ final class Reader_Activation {
 	 * @param int    $user_id User ID.
 	 * @param string $token   Token to verify.
 	 *
-	 * @return bool|WP_Error Whether the user has been authenticated or WP_Error.
+	 * @return bool|\WP_Error Whether the user has been authenticated or WP_Error.
 	 */
 	private static function validate_magic_link_token( $user_id, $token ) {
 		$errors = new \WP_Error();
