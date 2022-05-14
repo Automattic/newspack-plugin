@@ -45,8 +45,7 @@ final class Magic_Links {
 	 * Get the hashed client IP address.
 	 *
 	 * The HTTP_X_FORWARDED_FOR header is user-controlled and REMOTE_ADDR can be
-	 * spoofed. This is not meant to ever be used as the sole security measure for
-	 * a token validation.
+	 * spoofed. This is not meant to guarantee that an exposed token is secured.
 	 *
 	 * It is meant to associate a generated magic link token to its client to
 	 * prevent nonmalicious authentication by a 3rd party from forwarded magic
