@@ -22,10 +22,10 @@ final class Reader_Activation {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		add_filter( 'wp_new_user_notification_email', [ __CLASS__, 'get_reader_registration_email' ], 10, 3 );
-		add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
-		add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'process_magic_link_request' ] );
+		\add_filter( 'wp_new_user_notification_email', [ __CLASS__, 'get_reader_registration_email' ], 10, 3 );
+		\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+		\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'process_magic_link_request' ] );
 	}
 
 	/**
@@ -182,13 +182,13 @@ final class Reader_Activation {
 	 */
 	public static function generate_magic_link_url( $user, $url = '' ) {
 		$token_data = self::generate_magic_link_token( $user );
-		return add_query_arg(
+		return \add_query_arg(
 			[
 				'nonce' => $token_data['nonce'],
 				'uid'   => $user->ID,
 				'token' => $token_data['token'],
 			],
-			! empty( $url ) ? $url : home_url()
+			! empty( $url ) ? $url : \home_url()
 		);
 	}
 
@@ -223,7 +223,7 @@ final class Reader_Activation {
 		$args = \apply_filters( 'newspack_magic_link_email', $args, $user, $magic_link );
 		\wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 			$args['to'],
-			wp_specialchars_decode( sprintf( $args['subject'], $blogname ) ),
+			\wp_specialchars_decode( sprintf( $args['subject'], $blogname ) ),
 			$args['message'],
 			$args['headers']
 		);

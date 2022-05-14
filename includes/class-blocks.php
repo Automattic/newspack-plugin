@@ -91,7 +91,7 @@ final class Blocks {
 		 * @param string               $email  Email address of the reader.
 		 * @param int|string|\WP_Error $result The created user ID in case of registration, the user email if user already exists, or a WP_Error object.
 		 */
-		do_action( 'newspack_reader_registration_form_processed', $email, $result );
+		\do_action( 'newspack_reader_registration_form_processed', $email, $result );
 
 		if ( \wp_is_json_request() ) {
 			if ( ! \is_wp_error( $result ) ) {
