@@ -108,17 +108,27 @@ final class Reader_Activation {
 	/**
 	 * Get the hashed client IP address.
 	 *
+	 * The HTTP_X_FORWARDED_FOR header is user-controlled and REMOTE_ADDR can be
+	 * spoofed. This is not meant to ever be used as the sole security measure for
+	 * a token validation.
+	 *
+	 * It is meant to associate a generated magic link token to its client to
+	 * prevent nonmalicious authentication by a 3rd party from forwarded magic
+	 * link emails.
+	 *
 	 * @return string|null Hashed IP address or null if not detected.
 	 */
 	private static function get_client_hashed_ip() {
+		// phpcs:disable
 		$hashed_ip = null;
-		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { // phpcs:ignore
-			$hashed_ip = sha1( $_SERVER['REMOTE_ADDR'] ); // phpcs:ignore
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
+			$hashed_ip = sha1( $_SERVER['REMOTE_ADDR'] );
 		}
-		if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) { // phpcs:ignore
-			$hashed_ip = sha1( $_SERVER['HTTP_X_FORWARDED_FOR'] ); // phpcs:ignore
+		if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+			$hashed_ip = sha1( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 		}
 		return $hashed_ip;
+		// phpcs:enable
 	}
 
 	/**
@@ -132,7 +142,18 @@ final class Reader_Activation {
 		 *
 		 * @param int    $length Duration of the expiration period in seconds.
 		 */
-		return \apply_filters( 'newspack_magic_link_token_expiration', 2 * DAY_IN_SECONDS );
+		return \apply_filters( 'newspack_magic_link_token_expiration', 30 * MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Whether the user is a reader.
+	 *
+	 * @param \WP_User $user User object.
+	 *
+	 * @return bool Whether the user is a reader.
+	 */
+	public static function is_user_reader( $user ) {
+		return (bool) \get_user_meta( $user->ID, self::READER, true );
 	}
 
 	/**
@@ -146,9 +167,8 @@ final class Reader_Activation {
 		if ( ! $user ) {
 			return false;
 		}
-		$reader = \get_user_meta( $user->ID, self::READER, true );
-		// Should not verify reader email if user is not a reader.
-		if ( ! $reader ) {
+		/** Should not verify email if user is not a reader. */
+		if ( ! self::is_user_reader( $user ) ) {
 			return false;
 		}
 		$verified = \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
@@ -179,9 +199,7 @@ final class Reader_Activation {
 			$tokens = [];
 		}
 
-		/**
-		 * Clear expired tokens.
-		 */
+		/** Clear expired tokens. */
 		$expire = $now - self::get_magic_link_token_expiration_period();
 		if ( ! empty( $tokens ) ) {
 			foreach ( $tokens as $index => $token_data ) {
@@ -192,9 +210,7 @@ final class Reader_Activation {
 			$tokens = array_values( $tokens );
 		}
 
-		/**
-		 * Generate the new token.
-		 */
+		/** Generate the new token. */
 		$token      = sha1( \wp_generate_password() );
 		$token_data = [
 			'token'  => $token,
@@ -289,32 +305,34 @@ final class Reader_Activation {
 	private static function validate_magic_link_token( $user_id, $token ) {
 		$errors = new \WP_Error();
 		$user   = \get_user_by( 'id', $user_id );
+
 		if ( ! $user ) {
-			$errors->add( 'newspack_reader_invalid_user', __( 'User not found.', 'newspack' ) );
+			$errors->add( 'invalid_user', __( 'User not found.', 'newspack' ) );
+		} elseif ( ! self::is_user_reader( $user ) ) {
+			$errors->add( 'invalid_user_type', __( 'Not allowed for this user', 'newspack' ) );
 		} else {
 			$auth_intention = self::get_auth_intention();
 			if ( $user->user_email !== $auth_intention ) {
-				$errors->add( 'newspack_reader_invalid_request', __( 'Invalid authentication intent.', 'newspack' ) );
+				$errors->add( 'invalid_auth_intention', __( 'Invalid client.', 'newspack' ) );
 			}
 			$tokens = \get_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, true );
 			if ( empty( $tokens ) || empty( $token ) ) {
-				$errors->add( 'newspack_reader_invalid_token', __( 'Invalid token.', 'newspack' ) );
+				$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack' ) );
 			}
 		}
+
 		$authenticated = false;
+
 		if ( ! $errors->has_errors() ) {
 			$client = self::get_client_hashed_ip();
 			$expire = time() - self::get_magic_link_token_expiration_period();
+
 			foreach ( $tokens as $index => $token_data ) {
-				/**
-				 * Clear expired tokens.
-				 */
+				/** Clear expired tokens. */
 				if ( $token_data['time'] < $expire ) {
 					unset( $tokens[ $index ] );
 				} else {
-					/**
-					 * Verify token for authentication.
-					 */
+					/** Verify token for authentication. */
 					if ( $token_data['token'] === $token && $token_data['client'] === $client ) {
 						unset( $tokens[ $index ] );
 						self::verify_reader_email( $user );
@@ -324,12 +342,15 @@ final class Reader_Activation {
 					}
 				}
 			}
+
 			if ( ! $authenticated ) {
-				$errors->add( 'newspack_reader_invalid_token', __( 'Invalid token.', 'newspack' ) );
+				$errors->add( 'expired_token', __( 'Token has expired.', 'newspack' ) );
 			}
+
 			$tokens = array_values( $tokens );
 			\update_user_meta( $user->ID, self::MAGIC_LINK_TOKENS, $tokens );
 		}
+
 		return $errors->has_errors() ? $errors : $authenticated;
 	}
 
@@ -337,22 +358,29 @@ final class Reader_Activation {
 	 * Process magic link token from request.
 	 */
 	public static function process_magic_link_request() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		/**
+		 * The use of a secret token is enough for CSRF protection.
+		 * phpcs:disable WordPress.Security.NonceVerification.Recommended
+		 */
 		if ( ! isset( $_GET['action'] ) || self::MAGIC_LINK_ACTION !== $_GET['action'] ) {
 			return;
 		}
 		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['uid'] ) ) {
 			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
 		}
+
 		$user_id       = \absint( \wp_unslash( $_GET['uid'] ) );
 		$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
 		$authenticated = self::validate_magic_link_token( $user_id, $token );
+
 		if ( \is_wp_error( $authenticated ) ) {
-			\wp_die( \esc_html__( 'We were not able to authenticate through the magic link. Please, try again with a different link.', 'newspack' ) );
+			/** STO: Do not expose specific error messages to the user. */
+			\wp_die( \esc_html__( 'We were not able to authenticate through the magic link. Please, request a new link.', 'newspack' ) );
 		}
+
 		\wp_safe_redirect( \remove_query_arg( [ 'action', 'uid', 'token' ] ) );
 		exit;
-		// phpcs:enable
+		// phpcs:enable 
 	}
 
 	/**
@@ -371,17 +399,19 @@ final class Reader_Activation {
 		if ( empty( $email ) ) {
 			return new \WP_Error( 'newspack_reader_empty_email', __( 'Please enter an email address.', 'newspack' ) );
 		}
+
 		self::set_auth_intention_cookie( $email );
 		$existing_user = \get_user_by( 'email', $email );
 		if ( \is_wp_error( $existing_user ) ) {
 			return $existing_user;
 		}
+
 		$user_id = false;
 		if ( ! $existing_user ) {
 			$random_password = \wp_generate_password( 12, false );
 			$user_id         = \wp_create_user( $email, $random_password, $email );
 
-			// Add default reader related meta.
+			/** Add default reader related meta. */
 			\update_user_meta( $user_id, self::READER, true );
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
 
