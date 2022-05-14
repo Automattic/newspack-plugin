@@ -314,16 +314,26 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Authenticate a session given a user ID.
+	 * Authenticate a reader session given its user ID.
 	 *
 	 * @param int $user_id User ID.
+	 *
+	 * @return \WP_User|\WP_Error The authenticated reader or WP_Error if authentication failed.
 	 */
-	private static function authenticate( $user_id ) {
+	private static function authenticate_reader( $user_id ) {
+		$user_id = absint( $user_id );
+		if ( empty( $user_id ) ) {
+			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
+		}
 		$user = \get_user_by( 'id', $user_id );
+		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
+		}
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID );
 		\do_action( 'wp_login', $user->user_login, $user );
+		return $user;
 	}
 
 	/**
@@ -368,7 +378,7 @@ final class Reader_Activation {
 					if ( $token_data['token'] === $token && $token_data['client'] === $client ) {
 						unset( $tokens[ $index ] );
 						self::verify_reader_email( $user );
-						self::authenticate( $user->ID );
+						self::authenticate_reader( $user->ID );
 						$authenticated = true;
 						break;
 					}
@@ -454,7 +464,7 @@ final class Reader_Activation {
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
 
 			if ( $authenticate ) {
-				self::authenticate( $user_id );
+				self::authenticate_reader( $user_id );
 			}
 		}
 
