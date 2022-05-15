@@ -62,7 +62,7 @@ final class Emails {
 	 * @param WP_User $user       User object for new user.
 	 * @param string  $magic_link The magic link url.
 	 */
-	public static function get_magic_link_email( $args, $user, $magic_link ) {
+	public static function get_reader_magic_link_email( $args, $user, $magic_link ) {
 		if ( Reader_Activation::is_user_reader( $user ) ) { // phpcs:ignore
 			/**
 			 * TODO: Use page with MJML rendering to format email.

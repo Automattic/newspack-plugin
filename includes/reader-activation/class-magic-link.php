@@ -42,33 +42,33 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Get the hashed client IP address.
+	 * Get the session client hash.
 	 *
 	 * Meant to associate a generated magic link token to its client to prevent
 	 * nonmalicious authentication by a 3rd party from eventual accidentally
 	 * forwarded magic link emails.
 	 *
-	 * The HTTP_X_FORWARDED_FOR header is user-controlled and REMOTE_ADDR can be
-	 * spoofed. This is not meant to guarantee security over an exposed token.
+	 * This is not meant to guarantee security over an exposed token.
 	 *
-	 * @return string|null Hashed IP address or null if not detected.
+	 * @return string|null Client hash or null if unable to generate one.
 	 */
-	private static function get_client_ip_hash() {
-		$ip_hash = null;
+	private static function get_client_hash() {
+		$hash_args = [];
 		// phpcs:disable
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
-			$ip_hash = sha1( $_SERVER['REMOTE_ADDR'] );
+			$hash_args['ip'] = $_SERVER['REMOTE_ADDR'];
 		}
-		if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip_hash = sha1( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) { 
+			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
 		}
 		// phpcs:enable
 		/**
-		 * Filters the hashed client IP address for the current session.
+		 * Filters the client hash arguments for the current session.
 		 *
-		 * @param string $ip_hash Hashed IP address.
+		 * @param string[] $hash_args Client hash arguments.
 		 */
-		return \apply_filters( 'newspack_magic_link_client_ip_hash', $ip_hash );
+		$hash_args = \apply_filters( 'newspack_magic_link_client_hash_args', $hash_args );
+		return ! empty( $hash_args ) ? sha1( implode( '', $hash_args ) ) : null;
 	}
 
 	/**
@@ -109,7 +109,7 @@ final class Magic_Link {
 
 		/** Generate the new token. */
 		$token  = sha1( \wp_generate_password() );
-		$client = self::get_client_ip_hash();
+		$client = self::get_client_hash();
 		if ( empty( $client ) ) {
 			return new \WP_Error( 'newspack_magic_link_invalid_client', __( 'Invalid client.', 'newspack' ) );
 		}
@@ -214,14 +214,14 @@ final class Magic_Link {
 	 * immediate use.
 	 *
 	 * @param int    $user_id User ID.
-	 * @param string $client  Client.
+	 * @param string $client  Client hash.
 	 * @param string $token   Token to verify.
 	 *
 	 * @return array|\WP_Error {
 	 *   Token data.
 	 *
 	 *   @type string $token  The token.
-	 *   @type string $client Origin IP hash.
+	 *   @type string $client Client hash.
 	 *   @type string $time   Token creation time.
 	 * }
 	 */
@@ -287,7 +287,7 @@ final class Magic_Link {
 			return false;
 		}
 
-		$client     = self::get_client_ip_hash();
+		$client     = self::get_client_hash();
 		$token_data = self::validate_token( $user_id, $client, $token );
 
 		if ( \is_wp_error( $token_data ) ) {
