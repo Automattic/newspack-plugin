@@ -44,16 +44,16 @@ final class Magic_Links {
 	/**
 	 * Get the hashed client IP address.
 	 *
+	 * Meant to associate a generated magic link token to its client to prevent
+	 * nonmalicious authentication by a 3rd party from eventual accidentally
+	 * forwarded magic link emails.
+	 *
 	 * The HTTP_X_FORWARDED_FOR header is user-controlled and REMOTE_ADDR can be
 	 * spoofed. This is not meant to guarantee that an exposed token is secured.
 	 *
-	 * It is meant to associate a generated magic link token to its client to
-	 * prevent nonmalicious authentication by a 3rd party from forwarded magic
-	 * link emails.
-	 *
 	 * @return string|null Hashed IP address or null if not detected.
 	 */
-	private static function get_client_hashed_ip() {
+	private static function get_client_ip_hash() {
 		// phpcs:disable
 		$hashed_ip = null;
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
@@ -74,9 +74,9 @@ final class Magic_Links {
 	 * @return array|\WP_Error {
 	 *   Magic link token data.
 	 *
-	 *   @type string $token   The token.
-	 *   @type string $ip_hash Origin IP hash.
-	 *   @type string $time    Token creation time.
+	 *   @type string $token  The token.
+	 *   @type string $client Origin IP hash.
+	 *   @type string $time   Token creation time.
 	 * }
 	 */
 	private static function generate_token( $user ) {
@@ -89,9 +89,11 @@ final class Magic_Links {
 			$tokens = [];
 		}
 
-		/** Clear expired tokens. */
 		$expire = $now - self::get_token_expiration_period();
 		if ( ! empty( $tokens ) ) {
+			/** Limit consecutive tokens to 5. */
+			$tokens = array_slice( $tokens, -4, 4 );
+			/** Clear expired tokens. */
 			foreach ( $tokens as $index => $token_data ) {
 				if ( $token_data['time'] < $expire ) {
 					unset( $tokens[ $index ] );
@@ -102,7 +104,7 @@ final class Magic_Links {
 
 		/** Generate the new token. */
 		$token  = sha1( \wp_generate_password() );
-		$client = self::get_client_hashed_ip();
+		$client = self::get_client_ip_hash();
 		if ( empty( $client ) ) {
 			return new \WP_Error( 'newspack_magic_link_invalid_client', __( 'Invalid client.', 'newspack' ) );
 		}
@@ -281,7 +283,7 @@ final class Magic_Links {
 			return false;
 		}
 
-		$client     = self::get_client_hashed_ip();
+		$client     = self::get_client_ip_hash();
 		$token_data = self::validate_token( $user_id, $client, $token );
 
 		if ( \is_wp_error( $token_data ) ) {
