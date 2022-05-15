@@ -77,8 +77,7 @@ final class Magic_Link {
 			if ( true === $reset_cookie || ! isset( $_COOKIE[ self::COOKIE ] ) ) {
 				$cookie_value = \wp_generate_password( 32, false );
 				setcookie( self::COOKIE, $cookie_value, time() + self::get_token_expiration_period(), COOKIEPATH, COOKIE_DOMAIN, true );
-			}
-			if ( ! empty( $_COOKIE[ self::COOKIE ] ) ) {
+			} elseif ( ! empty( $_COOKIE[ self::COOKIE ] ) ) {
 				$cookie_value = \sanitize_text_field( $_COOKIE[ self::COOKIE ] );
 			}
 			if ( ! empty( $cookie_value ) ) {
