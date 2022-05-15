@@ -67,16 +67,23 @@ final class Magic_Link {
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) { 
 			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
 		}
-		$cookie_value = '';
-		if ( true === $reset_cookie || ! isset( $_COOKIE[ self::COOKIE ] ) ) {
-			$cookie_value = \wp_generate_password( 32, false );
-			setcookie( self::COOKIE, $cookie_value, time() + self::get_token_expiration_period(), COOKIEPATH, COOKIE_DOMAIN, true );
-		}
-		if ( ! empty( $_COOKIE[ self::COOKIE ] ) ) {
-			$cookie_value = \sanitize_text_field( $_COOKIE[ self::COOKIE ] );
-		}
-		if ( ! empty( $cookie_value ) ) {
-			$hash_args['cookie'] = $cookie_value;
+		/**
+		 * Filters whether to use a cookie as a client hash argument.
+		 *
+		 * @param bool $use_cookie Whether to use a cookie as a client hash argument.
+		 */
+		if ( true === apply_filters( 'newspack_magic_link_use_cookie', true ) ) {
+			$cookie_value = '';
+			if ( true === $reset_cookie || ! isset( $_COOKIE[ self::COOKIE ] ) ) {
+				$cookie_value = \wp_generate_password( 32, false );
+				setcookie( self::COOKIE, $cookie_value, time() + self::get_token_expiration_period(), COOKIEPATH, COOKIE_DOMAIN, true );
+			}
+			if ( ! empty( $_COOKIE[ self::COOKIE ] ) ) {
+				$cookie_value = \sanitize_text_field( $_COOKIE[ self::COOKIE ] );
+			}
+			if ( ! empty( $cookie_value ) ) {
+				$hash_args['cookie'] = $cookie_value;
+			}
 		}
 		// phpcs:enable
 		/**
