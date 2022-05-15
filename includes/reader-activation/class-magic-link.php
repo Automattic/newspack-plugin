@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Newspack Reader Activation Magic Links class.
  */
-final class Magic_Links {
+final class Magic_Link {
 
 	const FORM_ACTION = 'np_magic_link';
 
@@ -49,21 +49,26 @@ final class Magic_Links {
 	 * forwarded magic link emails.
 	 *
 	 * The HTTP_X_FORWARDED_FOR header is user-controlled and REMOTE_ADDR can be
-	 * spoofed. This is not meant to guarantee that an exposed token is secured.
+	 * spoofed. This is not meant to guarantee security over an exposed token.
 	 *
 	 * @return string|null Hashed IP address or null if not detected.
 	 */
 	private static function get_client_ip_hash() {
+		$ip_hash = null;
 		// phpcs:disable
-		$hashed_ip = null;
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
-			$hashed_ip = sha1( $_SERVER['REMOTE_ADDR'] );
+			$ip_hash = sha1( $_SERVER['REMOTE_ADDR'] );
 		}
 		if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$hashed_ip = sha1( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+			$ip_hash = sha1( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 		}
-		return $hashed_ip;
 		// phpcs:enable
+		/**
+		 * Filters the hashed client IP address for the current session.
+		 *
+		 * @param string $ip_hash Hashed IP address.
+		 */
+		return \apply_filters( 'newspack_magic_link_client_ip_hash', $ip_hash );
 	}
 
 	/**
@@ -160,15 +165,14 @@ final class Magic_Links {
 		$switched_locale = \switch_to_locale( \get_user_locale( $user ) );
 
 		/* translators: %s: Site title. */
-		$message = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
-		/* translators: %s: Magic link url. */
-		$message .= __( 'To continue your navigation, authenticate by visiting the following address:', 'newspack' ) . "\r\n\r\n";
+		$message  = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
+		$message .= __( 'Authenticate your account by visiting the following address:', 'newspack' ) . "\r\n\r\n";
 		$message .= $magic_link_url . "\r\n";
 
 		$args = [
 			'to'      => $user->user_email,
-			/* translators: %s is the site name */
-			'subject' => __( '[%s] Your authentication magic link', 'newspack' ),
+			/* translators: %s Site title. */
+			'subject' => __( '[%s] Authentication link', 'newspack' ),
 			'message' => $message,
 			'headers' => '',
 		];
@@ -311,11 +315,7 @@ final class Magic_Links {
 	 * Process magic link token from request.
 	 */
 	public static function process_token_request() {
-		/**
-		 * Nonce verification not required due the use of a secret token, which is
-		 * enough for CSRF protection.
-		 * phpcs:disable WordPress.Security.NonceVerification.Recommended
-		 */
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::FORM_ACTION !== $_GET['action'] ) {
 			return;
 		}
@@ -328,8 +328,8 @@ final class Magic_Links {
 		$authenticated = self::authenticate( $user_id, $token );
 
 		if ( \is_wp_error( $authenticated ) ) {
-			/** Do not expose specific error messages to the user. */
-			\wp_die( \esc_html__( 'We were not able to authenticate through the magic link. Please, request a new link.', 'newspack' ) );
+			/** Do not disclose error messages. */
+			\wp_die( \esc_html__( 'We were not able to authenticate through this link.', 'newspack' ) );
 		}
 
 		\wp_safe_redirect( \remove_query_arg( [ 'action', 'uid', 'token' ] ) );
@@ -337,4 +337,4 @@ final class Magic_Links {
 		// phpcs:enable 
 	}
 }
-Magic_Links::init();
+Magic_Link::init();

@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use Newspack\Reader_Activation\Magic_Links;
+use Newspack\Reader_Activation\Magic_Link;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -77,7 +77,16 @@ final class Reader_Activation {
 	 * @return string|null Email address or null if not set.
 	 */
 	public static function get_auth_intention() {
-		return isset( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ) ? $_COOKIE[ self::AUTH_INTENTION_COOKIE ] : null; // phpcs:ignore
+		$auth_intention = null;
+		if ( isset( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ) ) {
+			$auth_intention = \sanitize_email( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ); // phpcs:ignore
+		}
+		/**
+		 * Filters the session auth intention email address.
+		 *
+		 * @param string|null $auth_intention Email address or null if not set.
+		 */
+		return apply_filters( 'newspack_auth_intention', $auth_intention );
 	}
 
 	/**
@@ -221,7 +230,7 @@ final class Reader_Activation {
 			if ( $user_id ) {
 				\wp_new_user_notification( $user_id, null, 'user' );
 			} elseif ( $existing_user ) {
-				Magic_Links::send_email( $existing_user );
+				Magic_Link::send_email( $existing_user );
 			}
 		}
 		return $user_id ?? $email;
