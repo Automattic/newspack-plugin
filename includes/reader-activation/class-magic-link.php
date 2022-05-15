@@ -18,12 +18,15 @@ final class Magic_Link {
 
 	const FORM_ACTION = 'np_magic_link';
 
-	const TOKENS = 'np_magic_link_tokens';
+	const USER_META = 'np_magic_link_tokens';
+
+	const COOKIE = 'np_magic_link';
 
 	/**
 	 * Initialize hooks.
 	 */
-	public static function init() {
+	public static function init() { 
+		\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_cookie' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'process_token_request' ] );
 	}
 
@@ -42,17 +45,20 @@ final class Magic_Link {
 	}
 
 	/**
+	 * Clear magic link cookie.
+	 */
+	public static function clear_cookie() {
+		setcookie( self::COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+	}
+
+	/**
 	 * Get the session client hash.
 	 *
-	 * Meant to associate a generated magic link token to its client to prevent
-	 * nonmalicious authentication by a 3rd party from eventual accidentally
-	 * forwarded magic link emails.
-	 *
-	 * This is not meant to guarantee security over an exposed token.
+	 * @param bool $reset_cookie Whether to reset the cookie.
 	 *
 	 * @return string|null Client hash or null if unable to generate one.
 	 */
-	private static function get_client_hash() {
+	private static function get_client_hash( $reset_cookie = false ) {
 		$hash_args = [];
 		// phpcs:disable
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
@@ -60,6 +66,17 @@ final class Magic_Link {
 		}
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) { 
 			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
+		}
+		$cookie_value = '';
+		if ( true === $reset_cookie || ! isset( $_COOKIE[ self::COOKIE ] ) ) {
+			$cookie_value = \wp_generate_password( 32, false );
+			setcookie( self::COOKIE, $cookie_value, time() + self::get_token_expiration_period(), COOKIEPATH, COOKIE_DOMAIN, true );
+		}
+		if ( ! empty( $_COOKIE[ self::COOKIE ] ) ) {
+			$cookie_value = \sanitize_text_field( $_COOKIE[ self::COOKIE ] );
+		}
+		if ( ! empty( $cookie_value ) ) {
+			$hash_args['cookie'] = $cookie_value;
 		}
 		// phpcs:enable
 		/**
@@ -89,7 +106,7 @@ final class Magic_Link {
 			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'User is not a reader.', 'newspack' ) );
 		}
 		$now    = time();
-		$tokens = \get_user_meta( $user->ID, self::TOKENS, true );
+		$tokens = \get_user_meta( $user->ID, self::USER_META, true );
 		if ( empty( $tokens ) ) {
 			$tokens = [];
 		}
@@ -109,7 +126,7 @@ final class Magic_Link {
 
 		/** Generate the new token. */
 		$token  = sha1( \wp_generate_password() );
-		$client = self::get_client_hash();
+		$client = self::get_client_hash( true );
 		if ( empty( $client ) ) {
 			return new \WP_Error( 'newspack_magic_link_invalid_client', __( 'Invalid client.', 'newspack' ) );
 		}
@@ -119,7 +136,7 @@ final class Magic_Link {
 			'time'   => $now,
 		];
 		$tokens[]   = $token_data;
-		\update_user_meta( $user->ID, self::TOKENS, $tokens );
+		\update_user_meta( $user->ID, self::USER_META, $tokens );
 		return $token_data;
 	}
 
@@ -238,7 +255,7 @@ final class Magic_Link {
 			if ( $user->user_email !== $auth_intention ) {
 				$errors->add( 'invalid_auth_intention', __( 'Invalid client.', 'newspack' ) );
 			}
-			$tokens = \get_user_meta( $user->ID, self::TOKENS, true );
+			$tokens = \get_user_meta( $user->ID, self::USER_META, true );
 			if ( empty( $tokens ) || empty( $token ) ) {
 				$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack' ) );
 			}
@@ -250,25 +267,28 @@ final class Magic_Link {
 			$expire = time() - self::get_token_expiration_period();
 
 			foreach ( $tokens as $index => $token_data ) {
-				/** Clear expired tokens. */
 				if ( $token_data['time'] < $expire ) {
 					unset( $tokens[ $index ] );
-				} else {
-					/** Verify token for authentication. */
-					if ( $token_data['token'] === $token && $token_data['client'] === $client ) {
-						$valid_token = $token_data;
-						unset( $tokens[ $index ] );
-						break;
+
+				} elseif ( $token_data['token'] === $token ) {
+					$valid_token = $token_data;
+
+					if ( $token_data['client'] !== $client ) {
+						$errors->add( 'invalid_client', __( 'Invalid client.', 'newspack' ) );
 					}
+
+					unset( $tokens[ $index ] );
+					break;
 				}
 			}
 
 			if ( empty( $valid_token ) ) {
 				$errors->add( 'expired_token', __( 'Token has expired.', 'newspack' ) );
 			}
+			self::clear_cookie();
 
 			$tokens = array_values( $tokens );
-			\update_user_meta( $user->ID, self::TOKENS, $tokens );
+			\update_user_meta( $user->ID, self::USER_META, $tokens );
 		}
 
 		return $errors->has_errors() ? $errors : $valid_token;
