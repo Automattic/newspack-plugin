@@ -24,9 +24,18 @@ final class Blocks {
 	}
 
 	/**
-	 * Register blocks.
+	 * Register Blocks.
 	 */
 	public static function register_blocks() {
+		if ( Reader_Activation::is_enabled() ) {
+			self::register_reader_registration_block();
+		}
+	}
+
+	/**
+	 * Register reader registration block.
+	 */
+	private static function register_reader_registration_block() {
 		\register_block_type(
 			'newspack/reader-registration',
 			[
@@ -127,6 +136,13 @@ final class Blocks {
 			[],
 			NEWSPACK_PLUGIN_VERSION,
 			true
+		);
+		\wp_localize_script(
+			'newspack-blocks',
+			'newspack_blocks',
+			[
+				'reader_registration_enabled' => Reader_Activation::is_enabled(),
+			]
 		);
 		\wp_enqueue_style(
 			'newspack-blocks',

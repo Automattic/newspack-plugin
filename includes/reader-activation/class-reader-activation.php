@@ -28,9 +28,26 @@ final class Reader_Activation {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
-		\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
-		\add_action( 'resetpass_form', [ __CLASS__, 'verify_reader_email' ] );
+		if ( self::is_enabled() ) {
+			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ] );
+			\add_action( 'resetpass_form', [ __CLASS__, 'verify_reader_email' ] );
+		}
+	}
+
+	/**
+	 * Whether reader activation is enabled.
+	 *
+	 * @return bool True if reader activation is enabled.
+	 */
+	public static function is_enabled() {
+		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
+		/**
+		 * Filters whether reader activation is enabled.
+		 *
+		 * @param bool $is_enabled Whether reader activation is enabled.
+		 */
+		return apply_filters( 'newspack_reader_activation_enabled', $is_enabled );
 	}
 
 	/**
@@ -60,7 +77,7 @@ final class Reader_Activation {
 	 *
 	 * @param string $email Email address.
 	 */
-	public static function set_auth_intention_cookie( $email ) {
+	public static function set_auth_intention( $email ) {
 		/**
 		 * Filters the duration of the auth intention cookie expiration period.
 		 *
@@ -105,8 +122,8 @@ final class Reader_Activation {
 			 * @param string[] $roles Array of user roles.
 			 */
 			$reader_roles = apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
-			$data         = \get_userdata( $user->ID );
-			$is_reader    = ! empty( array_intersect( $reader_roles, $data->roles ) );
+			$user_data    = \get_userdata( $user->ID );
+			$is_reader    = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
 		}
 		/**
 		 * Filters whether the user is a reader.
@@ -177,31 +194,76 @@ final class Reader_Activation {
 	 * preferably on POST or API requests to avoid issues with caching.
 	 *
 	 * @param string $email        Email address.
-	 * @param bool   $authenticate Whether to authenticate. Default to true.
+	 * @param string $display_name Reader display name to be used on account creation.
+	 * @param bool   $authenticate Whether to attempt authentication. Default to true.
 	 * @param bool   $notify       Whether to send email notification to the reader. Default to true.
 	 *
-	 * @return int|string|\WP_Error The created user ID in case of registration, the user email if user already exists, or a WP_Error object.
+	 * @return int|false|\WP_Error The created user ID in case of registration, false if the user already exists, or a WP_Error object.
 	 */
-	public static function register_reader( $email, $authenticate = true, $notify = true ) {
-		if ( empty( $email ) ) {
-			return new \WP_Error( 'newspack_reader_empty_email', __( 'Please enter an email address.', 'newspack' ) );
+	public static function register_reader( $email, $display_name = '', $authenticate = true, $notify = true ) {
+		if ( ! self::is_enabled() ) {
+			return new \WP_Error( 'newspack_register_reader_disabled', __( 'Registration is disabled.', 'newspack' ) );
 		}
 
-		self::set_auth_intention_cookie( $email );
+		if ( \is_user_logged_in() ) {
+			return new \WP_Error( 'newspack_register_reader_logged_in', __( 'Cannot register while logged in.', 'newspack' ) );
+		}
+
+		$email = \sanitize_email( $email );
+
+		if ( empty( $email ) ) {
+			return new \WP_Error( 'newspack_register_reader_empty_email', __( 'Please enter a valid email address.', 'newspack' ) );
+		}
+
+		self::set_auth_intention( $email );
+
 		$existing_user = \get_user_by( 'email', $email );
 		if ( \is_wp_error( $existing_user ) ) {
 			return $existing_user;
 		}
 
 		$user_id = false;
-		if ( ! $existing_user ) {
-			$random_password = \wp_generate_password( 12, false );
 
-			/** Create WooCommerce Customer if possible. */
+		if ( $existing_user ) {
+			/**
+			 * Send magic link to existing reader.
+			 */
+			if ( $notify ) {
+				Magic_Link::send_email( $existing_user );
+			}       
+		} else {
+			/**
+			 * Create new reader.
+			 */
+			if ( empty( $display_name ) ) {
+				$display_name = explode( '@', $email, 2 )[0];
+			}
+
+			$random_password = \wp_generate_password();
+
 			if ( function_exists( '\wc_create_new_customer' ) ) {
-				$user_id = \wc_create_new_customer( $email, $email, $random_password );
+				/**
+				 * Create WooCommerce Customer if possible.
+				 *
+				 * Email notification for WooCommerce is handled by the plugin.
+				 */
+				$user_id = \wc_create_new_customer( $email, $email, $random_password, [ 'display_name' => $display_name ] );
 			} else {
-				$user_id = \wp_create_user( $email, $random_password, $email );
+				$user_id = \wp_insert_user(
+					[
+						'email'        => $email,
+						'user_login'   => $email,
+						'user_pass'    => $random_password,
+						'display_name' => $display_name,
+					] 
+				);
+				if ( $notify ) {
+					\wp_new_user_notification( $user_id, null, 'user' );
+				}
+			}
+
+			if ( \is_wp_error( $user_id ) ) {
+				return $user_id;
 			}
 
 			/** Add default reader related meta. */
@@ -223,17 +285,7 @@ final class Reader_Activation {
 		 */
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user );
 
-		/**
-		 * Notify user of registration or magic link in case of existing user.
-		 */
-		if ( $notify ) {
-			if ( $user_id ) {
-				\wp_new_user_notification( $user_id, null, 'user' );
-			} elseif ( $existing_user ) {
-				Magic_Link::send_email( $existing_user );
-			}
-		}
-		return $user_id ?? $email;
+		return $user_id;
 	}
 }
 Reader_Activation::init();

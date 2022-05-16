@@ -1,6 +1,10 @@
+/* globals newspack_blocks */
+
 /**
  * Internal dependencies
  */
 import registerReaderRegistrationBlock from './reader-registration';
 
-registerReaderRegistrationBlock();
+if ( newspack_blocks?.enabled ) {
+	registerReaderRegistrationBlock();
+}

@@ -25,9 +25,11 @@ final class Magic_Link {
 	/**
 	 * Initialize hooks.
 	 */
-	public static function init() { 
-		\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_cookie' ] );
-		\add_action( 'template_redirect', [ __CLASS__, 'process_token_request' ] );
+	public static function init() {
+		if ( Reader_Activation::is_enabled() ) {
+			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_cookie' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'process_token_request' ] );
+		}
 	}
 
 	/**
@@ -177,6 +179,14 @@ final class Magic_Link {
 	 * @return bool|\WP_Error Whether the email was sent or WP_Error if sending failed.
 	 */
 	public static function send_email( $user ) {
+		if ( ! Reader_Activation::is_enabled() ) {
+			return new \WP_Error( 'newspack_magic_link_disabled', __( 'Magic links are disabled.', 'newspack' ) );
+		}
+
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'User is not a reader.', 'newspack' ) );
+		}
+
 		$magic_link_url = self::generate_url( $user );
 
 		if ( \is_wp_error( $magic_link_url ) ) {
@@ -341,6 +351,9 @@ final class Magic_Link {
 	 * Process magic link token from request.
 	 */
 	public static function process_token_request() {
+		if ( ! Reader_Activation::is_enabled() ) {
+			return;
+		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::FORM_ACTION !== $_GET['action'] ) {
 			return;

@@ -20,8 +20,10 @@ final class Emails {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_filter( 'wp_new_user_notification_email', [ __CLASS__, 'get_reader_registration_email' ], 20, 3 );
-		\add_filter( 'newspack_magic_link_email', [ __CLASS__, 'get_reader_magic_link_email' ], 20, 3 );
+		if ( Reader_Activation::is_enabled() ) {
+			\add_filter( 'wp_new_user_notification_email', [ __CLASS__, 'get_reader_registration_email' ], 20, 3 );
+			\add_filter( 'newspack_magic_link_email', [ __CLASS__, 'get_reader_magic_link_email' ], 20, 3 );
+		}
 	}
 
 	/**
