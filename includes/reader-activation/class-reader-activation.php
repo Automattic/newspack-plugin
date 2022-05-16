@@ -42,12 +42,13 @@ final class Reader_Activation {
 	 */
 	public static function is_enabled() {
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
+
 		/**
 		 * Filters whether reader activation is enabled.
 		 *
 		 * @param bool $is_enabled Whether reader activation is enabled.
 		 */
-		return apply_filters( 'newspack_reader_activation_enabled', $is_enabled );
+		return \apply_filters( 'newspack_reader_activation_enabled', $is_enabled );
 	}
 
 	/**
@@ -103,7 +104,7 @@ final class Reader_Activation {
 		 *
 		 * @param string|null $auth_intention Email address or null if not set.
 		 */
-		return apply_filters( 'newspack_auth_intention', $auth_intention );
+		return \apply_filters( 'newspack_auth_intention', $auth_intention );
 	}
 
 	/**
@@ -115,23 +116,27 @@ final class Reader_Activation {
 	 */
 	public static function is_user_reader( $user ) {
 		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
+
 		if ( false === $is_reader ) {
 			/**
 			 * Filters the roles that can determine if a user is a reader.
 			 *
 			 * @param string[] $roles Array of user roles.
 			 */
-			$reader_roles = apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
-			$user_data    = \get_userdata( $user->ID );
-			$is_reader    = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
+			$reader_roles = \apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
+			if ( ! empty( $reader_roles ) ) {
+				$user_data = \get_userdata( $user->ID );
+				$is_reader = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
+			}
 		}
+
 		/**
 		 * Filters whether the user is a reader.
 		 *
 		 * @param bool     $is_reader Whether the user is a reader.
 		 * @param \WP_User $user      User object.
 		 */
-		return apply_filters( 'newspack_is_user_reader', $is_reader, $user );
+		return \apply_filters( 'newspack_is_user_reader', $is_reader, $user );
 	}
 
 	/**
@@ -145,15 +150,19 @@ final class Reader_Activation {
 		if ( ! $user ) {
 			return false;
 		}
+
 		/** Should not verify email if user is not a reader. */
 		if ( ! self::is_user_reader( $user ) ) {
 			return false;
 		}
+
 		$verified = \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 		if ( $verified ) {
 			return true;
 		}
+
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+
 		return true;
 	}
 
@@ -168,22 +177,26 @@ final class Reader_Activation {
 	 *
 	 * @return \WP_User|\WP_Error The authenticated reader or WP_Error if authentication failed.
 	 */
-	public static function authenticate_reader( $user_id, $verify_email = false ) {
-		$user_id = absint( $user_id );
+	private static function set_current_reader( $user_id, $verify_email = false ) {
+		$user_id = \absint( $user_id );
 		if ( empty( $user_id ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
 		}
+
 		$user = \get_user_by( 'id', $user_id );
 		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
 		}
+
 		if ( true === $verify_email ) {
 			self::verify_reader_email( $user );
 		}
+
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID );
 		\do_action( 'wp_login', $user->user_login, $user );
+
 		return $user;
 	}
 
@@ -195,7 +208,7 @@ final class Reader_Activation {
 	 *
 	 * @param string $email        Email address.
 	 * @param string $display_name Reader display name to be used on account creation.
-	 * @param bool   $authenticate Whether to attempt authentication. Default to true.
+	 * @param bool   $authenticate Whether to authenticate after registering. Default to true.
 	 * @param bool   $notify       Whether to send email notification to the reader. Default to true.
 	 *
 	 * @return int|false|\WP_Error The created user ID in case of registration, false if the user already exists, or a WP_Error object.
@@ -271,7 +284,7 @@ final class Reader_Activation {
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
 
 			if ( $authenticate ) {
-				self::authenticate_reader( $user_id );
+				self::set_current_reader( $user_id );
 			}
 		}
 
@@ -279,7 +292,7 @@ final class Reader_Activation {
 		 * Action after registering and authenticating a reader.
 		 *
 		 * @param string         $email         Email address.
-		 * @param bool           $authenticate  Whether to authenticate.
+		 * @param bool           $authenticate  Whether to authenticate after registering.
 		 * @param false|int      $user_id       The created user id.
 		 * @param false|\WP_User $existing_user The existing user object.
 		 */

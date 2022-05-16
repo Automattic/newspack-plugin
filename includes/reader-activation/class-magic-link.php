@@ -62,6 +62,7 @@ final class Magic_Link {
 	 */
 	private static function get_client_hash( $reset_cookie = false ) {
 		$hash_args = [];
+
 		// phpcs:disable
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
 			$hash_args['ip'] = $_SERVER['REMOTE_ADDR'];
@@ -69,6 +70,7 @@ final class Magic_Link {
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) { 
 			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
 		}
+
 		/**
 		 * Filters whether to use a cookie as a client hash argument.
 		 *
@@ -87,12 +89,14 @@ final class Magic_Link {
 			}
 		}
 		// phpcs:enable
+
 		/**
 		 * Filters the client hash arguments for the current session.
 		 *
 		 * @param string[] $hash_args Client hash arguments.
 		 */
 		$hash_args = \apply_filters( 'newspack_magic_link_client_hash_args', $hash_args );
+
 		return ! empty( $hash_args ) ? sha1( implode( '', $hash_args ) ) : null;
 	}
 
