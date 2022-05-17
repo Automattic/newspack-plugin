@@ -102,7 +102,6 @@ class WooCommerce_Connection {
 	public static function create_transaction( $order_data ) {
 		Logger::log( 'Creating an order' );
 
-		$order     = wc_create_order( [ 'status' => 'completed' ] );
 		$frequency = $order_data['frequency'];
 
 		$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
@@ -110,6 +109,7 @@ class WooCommerce_Connection {
 			return new WP_Error( 'newspack_woocommerce', __( 'Missing donation product.', 'newspack' ) );
 		}
 
+		$order = wc_create_order();
 		$order->add_item( $item );
 		$order->calculate_totals();
 		$order->set_currency( $order_data['currency'] );
@@ -148,6 +148,7 @@ class WooCommerce_Connection {
 		}
 
 		$order->set_created_via( 'newspack-stripe' );
+		$order->set_status( 'completed' );
 		$order->save();
 
 		if ( class_exists( 'WC_Memberships_Membership_Plans' ) ) {
