@@ -70,7 +70,8 @@ final class Reader_Activation {
 	 * Clear the auth intention cookie.
 	 */
 	public static function clear_auth_intention_cookie() {
-		setcookie( self::AUTH_INTENTION_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_INTENTION_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -86,7 +87,8 @@ final class Reader_Activation {
 		 * @param string $email  Email address.
 		 */
 		$expire = time() + \apply_filters( 'newspack_auth_intention_expiration', 30 * DAY_IN_SECONDS, $email );
-		setcookie( self::AUTH_INTENTION_COOKIE, $email, $expire, COOKIEPATH, COOKIE_DOMAIN, true ); // phpcs:ignore
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_INTENTION_COOKIE, $email, $expire, COOKIEPATH, COOKIE_DOMAIN, true );
 	}
 
 	/**
@@ -97,7 +99,8 @@ final class Reader_Activation {
 	public static function get_auth_intention() {
 		$auth_intention = null;
 		if ( isset( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ) ) {
-			$auth_intention = \sanitize_email( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ); // phpcs:ignore
+			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			$auth_intention = \sanitize_email( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] );
 		}
 		/**
 		 * Filters the session auth intention email address.

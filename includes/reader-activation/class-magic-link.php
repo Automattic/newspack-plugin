@@ -50,7 +50,8 @@ final class Magic_Link {
 	 * Clear magic link cookie.
 	 */
 	public static function clear_cookie() {
-		setcookie( self::COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN ); // phpcs:ignore
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 	}
 
 	/**
@@ -63,11 +64,13 @@ final class Magic_Link {
 	private static function get_client_hash( $reset_cookie = false ) {
 		$hash_args = [];
 
-		// phpcs:disable
-		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) { 
-			$hash_args['ip'] = $_SERVER['REMOTE_ADDR'];
+		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+			$hash_args['ip'] = \wp_unslash( $_SERVER['REMOTE_ADDR'] );
 		}
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) { 
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
 			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
 		}
 
@@ -80,15 +83,16 @@ final class Magic_Link {
 			$cookie_value = '';
 			if ( true === $reset_cookie || ! isset( $_COOKIE[ self::COOKIE ] ) ) {
 				$cookie_value = \wp_generate_password( 32, false );
+				// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 				setcookie( self::COOKIE, $cookie_value, time() + self::get_token_expiration_period(), COOKIEPATH, COOKIE_DOMAIN, true );
 			} elseif ( ! empty( $_COOKIE[ self::COOKIE ] ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 				$cookie_value = \sanitize_text_field( $_COOKIE[ self::COOKIE ] );
 			}
 			if ( ! empty( $cookie_value ) ) {
 				$hash_args['cookie'] = $cookie_value;
 			}
 		}
-		// phpcs:enable
 
 		/**
 		 * Filters the client hash arguments for the current session.
@@ -230,7 +234,8 @@ final class Magic_Link {
 		 */
 		$args = \apply_filters( 'newspack_magic_link_email', $args, $user, $magic_link );
 
-		$sent = \wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
+		$sent = \wp_mail(
 			$args['to'],
 			\wp_specialchars_decode( sprintf( $args['subject'], $blogname ) ),
 			$args['message'],
@@ -358,6 +363,9 @@ final class Magic_Link {
 		if ( ! Reader_Activation::is_enabled() ) {
 			return;
 		}
+		if ( \is_user_logged_in() ) {
+			return;
+		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::FORM_ACTION !== $_GET['action'] ) {
 			return;
@@ -366,8 +374,10 @@ final class Magic_Link {
 			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
 		}
 
-		$user_id       = \absint( \wp_unslash( $_GET['uid'] ) );
-		$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
+		$user_id = \absint( \wp_unslash( $_GET['uid'] ) );
+		$token   = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
+		// phpcs:enable
+
 		$authenticated = self::authenticate( $user_id, $token );
 
 		if ( \is_wp_error( $authenticated ) ) {
@@ -377,7 +387,6 @@ final class Magic_Link {
 
 		\wp_safe_redirect( \remove_query_arg( [ 'action', 'uid', 'token' ] ) );
 		exit;
-		// phpcs:enable 
 	}
 }
 Magic_Link::init();
