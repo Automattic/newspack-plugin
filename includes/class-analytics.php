@@ -867,11 +867,8 @@ class Analytics {
 					{
 						"vars": {
 							"GA4_MEASUREMENT_ID": "<?php echo esc_attr( $ga4_measurement_id ); ?>",
-							"GA4_ENDPOINT_HOSTNAME": "www.google-analytics.com",
 							"DEFAULT_PAGEVIEW_ENABLED": true,
-							"GOOGLE_CONSENT_ENABLED": false,
-							"WEBVITALS_TRACKING": false,
-							"PERFORMANCE_TIMING_TRACKING": false
+							"GOOGLE_CONSENT_ENABLED": false
 						}
 					}
 				</script>

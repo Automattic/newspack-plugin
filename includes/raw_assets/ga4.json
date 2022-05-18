@@ -23,48 +23,6 @@
       "enabled": "${DEFAULT_PAGEVIEW_ENABLED}",
       "on": "visible",
       "request": "ga4Dc"
-    },
-    "webVitals": {
-      "enabled": "${WEBVITALS_TRACKING}",
-      "on": "timer",
-      "timerSpec": {
-        "interval": 5,
-        "maxTimerLength": 4.99,
-        "immediate": false
-      },
-      "request": "ga4Event",
-      "vars": {
-        "ga4_event_name": "web_vitals"
-      },
-      "extraUrlParams": {
-        "event__num_first_contenful_paint": "FIRST_CONTENTFUL_PAINT",
-        "event__num_first_viewport_ready": "FIRST_VIEWPORT_READY",
-        "event__num_make_body_visible": "MAKE_BODY_VISIBLE",
-        "event__num_largest_contentful_paint": "LARGEST_CONTENTFUL_PAINT",
-        "event__num_cumulative_layout_shift": "CUMULATIVE_LAYOUT_SHIFT"
-      }
-    },
-    "performanceTiming": {
-      "enabled": "${PERFORMANCE_TIMING_TRACKING}",
-      "on": "visible",
-      "request": "ga4Event",
-      "sampleSpec": {
-        "sampleOn": "${clientId}",
-        "threshold": 100
-      },
-      "vars": {
-        "ga4_event_name": "performance_timing"
-      },
-      "extraUrlParams": {
-        "event__num_page_load_time": "${pageLoadTime}",
-        "event__num_domain_lookup_time": "${domainLookupTime}",
-        "event__num_tcp_connect_time": "${tcpConnectTime}",
-        "event__num_redirect_time": "${redirectTime}",
-        "event__num_server_response_time": "${serverResponseTime}",
-        "event__num_page_download_time": "${pageDownloadTime}",
-        "event__num_content_download_time": "${contentLoadTime}",
-        "event__num_dom_interactive_time": "${domInteractiveTime}"
-      }
     }
   },
   "vars": {
@@ -85,7 +43,7 @@
     "event__str_": "ep.",
     "event__num_": "epn."
   },
-  "requestOrigin": "https://${GA4_ENDPOINT_HOSTNAME}",
+  "requestOrigin": "https://www.google-analytics.com",
   "requests": {
     "ga4IsFirstVisit": "$IF($EQUALS($CALC(SESSION_COUNT,$CALC(${timestamp},SESSION_TIMESTAMP, subtract), add),0),_fv,__nfv)",
     "ga4IsSessionStart": "$IF($EQUALS($CALC(${timestamp},SESSION_TIMESTAMP, subtract),-1),_ss,__nss)",
