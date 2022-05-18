@@ -1,3 +1,10 @@
+## [1.82.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.82.0...v1.82.1-alpha.1) (2022-05-05)
+
+
+### Bug Fixes
+
+* **woocommerce:** ensure task list exists before hiding ([#1636](https://github.com/Automattic/newspack-plugin/issues/1636)) ([06df216](https://github.com/Automattic/newspack-plugin/commit/06df2160f5d529ef0b6b392c5e394d08deba4b8d))
+
 # [1.82.0](https://github.com/Automattic/newspack-plugin/compare/v1.81.0...v1.82.0) (2022-05-03)
 
 
