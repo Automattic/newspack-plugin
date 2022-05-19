@@ -51,6 +51,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_User', get_user_by( 'email', self::$reader_email ) );
 		$this->assertInstanceOf( 'WP_User', get_user_by( 'id', $user_id ) );
 		$this->assertTrue( (bool) get_user_meta( $user_id, Reader_Activation::READER, true ) );
+		wp_delete_user( $user_id );
 	}
 
 	/**
@@ -63,16 +64,17 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$verified = Reader_Activation::verify_reader_email( get_user_by( 'id', $user_id ) );
 		$this->assertTrue( $verified );
 		$this->assertTrue( Reader_Activation::is_reader_verified( $user ) );
+		wp_delete_user( $user_id );
 	}
 
 	/**
 	 * Test that registering an existing reader returns the inserted email.
 	 */
 	public function test_register_existing_reader() {
-		self::register_sample_reader();
-		// Reregister the same reader.
-		$email = self::register_sample_reader();
+		$user_id = self::register_sample_reader();
+		$email   = self::register_sample_reader(); // Reregister the same email.
 		$this->assertEquals( $email, self::$reader_email );
+		wp_delete_user( $user_id );
 	}
 
 	/**
@@ -91,5 +93,8 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 
 		$reader_id = self::register_sample_reader();
 		$this->assertTrue( Reader_Activation::is_user_reader( get_user_by( 'id', $reader_id ) ) );
+
+		wp_delete_user( $user_id );
+		wp_delete_user( $reader_id );
 	}
 }
