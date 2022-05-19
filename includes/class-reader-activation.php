@@ -80,6 +80,15 @@ final class Reader_Activation {
 	 */
 	public static function set_auth_intention( $email ) {
 		/**
+		 * Allows preventing auth cookies from actually being sent to the client.
+		 *
+		 * @param bool $send Whether to send auth cookies to the client.
+		 */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		/**
 		 * Filters the duration of the auth intention cookie expiration period.
 		 *
 		 * @param int    $length Duration of the expiration period in seconds.
