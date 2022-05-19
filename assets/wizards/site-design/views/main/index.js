@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
@@ -140,11 +140,15 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 
 	return (
 		<Card noBorder className="newspack-design">
-			<SectionHeader
-				title={ __( 'Theme', 'newspack' ) }
-				description={ __( 'Select the theme for your site', 'newspack' ) }
-			/>
-			<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
+			{ ! isPartOfSetup && (
+				<Fragment>
+					<SectionHeader
+						title={ __( 'Theme', 'newspack' ) }
+						description={ __( 'Select the theme for your site', 'newspack' ) }
+					/>
+					<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
+				</Fragment>
+			) }
 			{ isDisplayingHomepageLayoutPicker ? (
 				<>
 					<SectionHeader
