@@ -178,6 +178,26 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Check if current reader has its email verified.
+	 *
+	 * @param \WP_User $user User object.
+	 *
+	 * @return bool|null Whether the email address is verified, null if invalid user.
+	 */
+	public static function is_reader_verified( $user ) {
+		if ( ! $user ) {
+			return null;
+		}
+
+		/** Should not verify email if user is not a reader. */
+		if ( ! self::is_user_reader( $user ) ) {
+			return null;
+		}
+
+		return (bool) \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+	}
+
+	/**
 	 * Authenticate a reader session given its user ID.
 	 *
 	 * Warning: this method will only verify if the user is a reader in order to

@@ -50,7 +50,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertIsInt( $user_id );
 		$this->assertInstanceOf( 'WP_User', get_user_by( 'email', self::$reader_email ) );
 		$this->assertInstanceOf( 'WP_User', get_user_by( 'id', $user_id ) );
-		$this->assertTrue( get_user_meta( $user_id, Reader_Activation::READER, true ) );
+		$this->assertTrue( (bool) get_user_meta( $user_id, Reader_Activation::READER, true ) );
 	}
 
 	/**
@@ -58,10 +58,11 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	 */
 	public function test_verify_reader_email() {
 		$user_id = self::register_sample_reader();
-		$this->assertFalse( get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) );
+		$user    = get_user_by( 'id', $user_id );
+		$this->assertFalse( Reader_Activation::is_reader_verified( $user ) );
 		$verified = Reader_Activation::verify_reader_email( get_user_by( 'id', $user_id ) );
 		$this->assertTrue( $verified );
-		$this->assertTrue( get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) );
+		$this->assertTrue( Reader_Activation::is_reader_verified( $user ) );
 	}
 
 	/**
