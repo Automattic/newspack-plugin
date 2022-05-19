@@ -47,9 +47,9 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	 */
 	public function test_register_reader() {
 		$user_id = self::register_sample_reader();
-		$this->assertNotEmpty( $user_id );
-		$this->assertNotEmpty( get_user_by( 'email', self::$reader_email ) );
-		$this->assertNotEmpty( get_user_by( 'ID', $user_id ) );
+		$this->assertIsInt( $user_id );
+		$this->assertInstanceOf( 'WP_User', get_user_by( 'email', self::$reader_email ) );
+		$this->assertInstanceOf( 'WP_User', get_user_by( 'ID', $user_id ) );
 		$this->assertTrue( get_user_meta( $user_id, Reader_Activation::READER, true ) );
 	}
 
@@ -71,11 +71,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		self::register_sample_reader();
 		// Reregister the same reader.
 		$email = self::register_sample_reader();
-		$this->assertEquals(
-			$email,
-			self::$reader_email,
-			'Returned value from registering existing reader is its email'
-		);
+		$this->assertEquals( $email, self::$reader_email );
 	}
 
 	/**
