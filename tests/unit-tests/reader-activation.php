@@ -40,7 +40,6 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		if ( ! defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) ) {
 			define( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION', true );
 		}
-		self::$reader_id = self::register_sample_reader();
 	}
 
 	/**
@@ -51,38 +50,54 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that registering a reader creates a user with reader meta.
+	 * Test that registering a reader creates and authenticates a user with reader
+	 * meta.
 	 */
 	public function test_register_reader() {
-		$this->assertIsInt( self::$reader_id );
+		$user_id = self::register_sample_reader();
+		$this->assertIsInt( $user_id );
 		$this->assertInstanceOf( 'WP_User', get_user_by( 'email', self::$reader_email ) );
-		$this->assertInstanceOf( 'WP_User', get_user_by( 'id', self::$reader_id ) );
-		$this->assertTrue( (bool) get_user_meta( self::$reader_id, Reader_Activation::READER, true ) );
+		$this->assertInstanceOf( 'WP_User', get_user_by( 'id', $user_id ) );
+		$this->assertTrue( (bool) get_user_meta( $user_id, Reader_Activation::READER, true ) );
+		$this->assertTrue( is_user_logged_in() );
+		$this->assertEquals( $user_id, get_current_user_id() );
+		wp_delete_user( $user_id );
 	}
 
 	/**
 	 * Test that verifying a reader register the proper meta.
 	 */
 	public function test_verify_reader_email() {
-		$user = get_user_by( 'id', self::$reader_id );
+		$user_id = self::register_sample_reader();
+		$user    = get_user_by( 'id', $user_id );
 		$this->assertFalse( Reader_Activation::is_reader_verified( $user ) );
 		$verified = Reader_Activation::verify_reader_email( $user );
 		$this->assertTrue( $verified );
 		$this->assertTrue( Reader_Activation::is_reader_verified( $user ) );
+		wp_delete_user( $user_id ); // Clean up.
 	}
 
 	/**
-	 * Test that registering an existing reader returns the inserted email.
+	 * Test that registering an existing reader returns false and does not
+	 * authenticate.
 	 */
 	public function test_register_existing_reader() {
-		$email = self::register_sample_reader(); // Reregister the same email.
-		$this->assertEquals( $email, self::$reader_email );
+		$user_id = self::register_sample_reader();
+		wp_logout();
+		$result = self::register_sample_reader(); // Reregister the same email.
+		$this->assertFalse( $result );
+		$this->assertFalse( is_user_logged_in() );
+		wp_delete_user( $user_id ); // Clean up.
 	}
 
 	/**
 	 * Test method that validates if user is a reader.
 	 */
 	public function test_is_user_reader() {
+		$reader_id = self::register_sample_reader();
+		$this->assertTrue( Reader_Activation::is_user_reader( get_user_by( 'id', $reader_id ) ) );
+		wp_delete_user( $reader_id ); // Clean up.
+
 		$user_id = wp_insert_user(
 			[
 				'user_login' => 'sample-admin',
@@ -92,7 +107,6 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			]
 		);
 		$this->assertFalse( Reader_Activation::is_user_reader( get_user_by( 'id', $user_id ) ) );
-
-		$this->assertTrue( Reader_Activation::is_user_reader( get_user_by( 'id', self::$reader_id ) ) );
+		wp_delete_user( $user_id ); // Clean up.
 	}
 }
