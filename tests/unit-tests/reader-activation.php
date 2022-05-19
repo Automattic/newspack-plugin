@@ -58,7 +58,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	 */
 	public function test_verify_reader_email() {
 		$user_id = self::register_sample_reader();
-		$this->assertEmpty( get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) );
+		$this->assertFalse( get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) );
 		$verified = verify_reader_email( get_user_by( 'ID', $user_id ) );
 		$this->assertTrue( $verified );
 		$this->assertTrue( get_user_meta( $user_id, Reader_Activation::EMAIL_VERIFIED, true ) );
@@ -76,7 +76,6 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			self::$reader_email,
 			'Returned value from registering existing reader is its email'
 		);
-		$this->assertEquals( $reader_email, $email );
 	}
 
 	/**
