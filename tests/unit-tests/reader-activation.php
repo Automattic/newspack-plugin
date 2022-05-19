@@ -11,14 +11,6 @@ use Newspack\Reader_Activation;
  * Tests the Reader Activation functionality.
  */
 class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
-
-	/**
-	 * Test reader ID.
-	 *
-	 * @var string
-	 */
-	private static $reader_id = null;
-
 	/**
 	 * Test reader email.
 	 *
@@ -61,7 +53,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertTrue( (bool) get_user_meta( $user_id, Reader_Activation::READER, true ) );
 		$this->assertTrue( is_user_logged_in() );
 		$this->assertEquals( $user_id, get_current_user_id() );
-		wp_delete_user( $user_id );
+		wp_delete_user( $user_id ); // Clean up.
 	}
 
 	/**
