@@ -268,11 +268,11 @@ final class Reader_Activation {
 			} else {
 				$user_id = \wp_insert_user(
 					[
-						'email'        => $email,
 						'user_login'   => $email,
+						'user_email'   => $email,
 						'user_pass'    => $random_password,
 						'display_name' => $display_name,
-					] 
+					]
 				);
 				if ( $notify ) {
 					\wp_new_user_notification( $user_id, null, 'user' );
