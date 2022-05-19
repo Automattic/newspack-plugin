@@ -43,8 +43,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that registering a reader creates and authenticates a user with reader
-	 * meta.
+	 * Test that registering a reader creates a user with reader meta.
 	 */
 	public function test_register_reader() {
 		$user_id = self::register_sample_reader();
@@ -52,8 +51,6 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertNotEmpty( get_user_by( 'email', self::$reader_email ) );
 		$this->assertNotEmpty( get_user_by( 'ID', $user_id ) );
 		$this->assertTrue( get_user_meta( $user_id, Reader_Activation::READER, true ) );
-		$auth_cookie = wp_parse_auth_cookie();
-		$this->assertEquals( $reader_email, $auth_cookie['username'] );
 	}
 
 	/**
@@ -68,7 +65,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that registering an existing reader creates auth intention.
+	 * Test that registering an existing reader returns the inserted email.
 	 */
 	public function test_register_existing_reader() {
 		self::register_sample_reader();
@@ -79,8 +76,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			self::$reader_email,
 			'Returned value from registering existing reader is its email'
 		);
-		$this->assertFalse( is_user_logged_in() );
-		$this->assertEquals( $reader_email, self::get_auth_intention() );
+		$this->assertEquals( $reader_email, $email );
 	}
 
 	/**
@@ -95,7 +91,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 				'role'       => 'administrator',
 			]
 		);
-		$this->assertFalse( Reader_Activation::is_user_reader( $reader_id ) );
+		$this->assertFalse( Reader_Activation::is_user_reader( $user_id ) );
 
 		$reader_id = self::register_sample_reader();
 		$this->assertTrue( Reader_Activation::is_user_reader( $reader_id ) );
