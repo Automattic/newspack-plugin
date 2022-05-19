@@ -689,6 +689,26 @@ class Stripe_Connection {
 			$payment_metadata  = $config['payment_metadata'];
 			$payment_method_id = $config['payment_method_id'];
 
+			if ( \is_user_logged_in() ) {
+				$user_id = \get_current_user_id();
+			} elseif ( Reader_Activation::is_enabled() ) {
+				$user_id = Reader_Activation::register_reader( $email_address, $full_name, true, false );
+				if ( \is_wp_error( $user_id ) ) {
+					return $user_id;
+				}
+				/**
+				 * If the returned value is not the created user ID, do not tie donation
+				 * to the existing reader.
+				 */
+				if ( ! absint( $user_id ) ) {
+					$user_id = null;
+				}
+			}
+
+			if ( ! empty( $user_id ) ) {
+				$client_metadata['userId'] = $user_id;
+			}
+
 			$customer = self::upsert_customer(
 				[
 					'email'    => $email_address,
