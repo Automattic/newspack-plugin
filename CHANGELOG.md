@@ -1,3 +1,10 @@
+## [1.82.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.82.1...v1.82.2-hotfix.1) (2022-05-23)
+
+
+### Bug Fixes
+
+* **rss-feeds:** skip Jetpack lazy loading on RSS feeds ([58c64bf](https://github.com/Automattic/newspack-plugin/commit/58c64bfc1e73654e135fcc162e2ea5a12e290599))
+
 ## [1.82.1](https://github.com/Automattic/newspack-plugin/compare/v1.82.0...v1.82.1) (2022-05-18)
 
 
