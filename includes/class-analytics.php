@@ -844,7 +844,7 @@ class Analytics {
 	 * Add GA4 analytics support to AMP pages.
 	 */
 	public static function insert_ga4_analytics() {
-		if ( function_exists( 'is_amp_endpoint' ) && ! is_amp_endpoint() ) {
+		if ( ! function_exists( 'is_amp_endpoint' ) || ! is_amp_endpoint() ) {
 			return;
 		}
 		$sitekit_ga4_settings = false;
