@@ -28,6 +28,7 @@ final class Reader_Activation {
 	public static function init() {
 		if ( self::is_enabled() ) {
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'verify_reader_email' ] );
 		}
@@ -69,6 +70,11 @@ final class Reader_Activation {
 	 * Clear the auth intention cookie.
 	 */
 	public static function clear_auth_intention_cookie() {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 		setcookie( self::AUTH_INTENTION_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 	}
@@ -78,12 +84,8 @@ final class Reader_Activation {
 	 *
 	 * @param string $email Email address.
 	 */
-	public static function set_auth_intention( $email ) {
-		/**
-		 * Allows preventing auth cookies from actually being sent to the client.
-		 *
-		 * @param bool $send Whether to send auth cookies to the client.
-		 */
+	public static function set_auth_intention_cookie( $email ) {
+		/** This filter is documented in wp-includes/pluggable.php */
 		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
 			return;
 		}
@@ -105,17 +107,17 @@ final class Reader_Activation {
 	 * @return string|null Email address or null if not set.
 	 */
 	public static function get_auth_intention() {
-		$auth_intention = null;
+		$email_address = null;
 		if ( isset( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ) ) {
 			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
-			$auth_intention = \sanitize_email( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] );
+			$email_address = \sanitize_email( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] );
 		}
 		/**
 		 * Filters the session auth intention email address.
 		 *
-		 * @param string|null $auth_intention Email address or null if not set.
+		 * @param string|null $email_address Email address or null if not set.
 		 */
-		return \apply_filters( 'newspack_auth_intention', $auth_intention );
+		return \apply_filters( 'newspack_auth_intention', $email_address );
 	}
 
 	/**
@@ -259,7 +261,7 @@ final class Reader_Activation {
 			return new \WP_Error( 'newspack_register_reader_empty_email', __( 'Please enter a valid email address.', 'newspack' ) );
 		}
 
-		self::set_auth_intention( $email );
+		self::set_auth_intention_cookie( $email );
 
 		$existing_user = \get_user_by( 'email', $email );
 		if ( \is_wp_error( $existing_user ) ) {
