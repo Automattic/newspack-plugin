@@ -242,11 +242,10 @@ final class Reader_Activation {
 	 * @param string $email        Email address.
 	 * @param string $display_name Reader display name to be used on account creation.
 	 * @param bool   $authenticate Whether to authenticate after registering. Default to true.
-	 * @param bool   $notify       Whether to send email notification to the reader. Default to true.
 	 *
 	 * @return int|false|\WP_Error The created user ID in case of registration, false if the user already exists, or a WP_Error object.
 	 */
-	public static function register_reader( $email, $display_name = '', $authenticate = true, $notify = true ) {
+	public static function register_reader( $email, $display_name = '', $authenticate = true ) {
 		if ( ! self::is_enabled() ) {
 			return new \WP_Error( 'newspack_register_reader_disabled', __( 'Registration is disabled.', 'newspack' ) );
 		}
@@ -296,9 +295,7 @@ final class Reader_Activation {
 						'display_name' => $display_name,
 					]
 				);
-				if ( $notify ) {
-					\wp_new_user_notification( $user_id, null, 'user' );
-				}
+				\wp_new_user_notification( $user_id, null, 'user' );
 			}
 
 			if ( \is_wp_error( $user_id ) ) {
