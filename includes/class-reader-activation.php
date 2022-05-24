@@ -30,7 +30,8 @@ final class Reader_Activation {
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
-			\add_action( 'resetpass_form', [ __CLASS__, 'verify_reader_email' ] );
+			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 		}
 	}
 
@@ -159,7 +160,7 @@ final class Reader_Activation {
 	 *
 	 * @return bool Whether the email address was verified.
 	 */
-	public static function verify_reader_email( $user ) {
+	public static function set_reader_verified( $user ) {
 		if ( ! $user ) {
 			return false;
 		}
@@ -222,7 +223,7 @@ final class Reader_Activation {
 		}
 
 		if ( true === $verify_email ) {
-			self::verify_reader_email( $user );
+			self::set_reader_verified( $user );
 		}
 
 		\wp_clear_auth_cookie();
