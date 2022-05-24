@@ -63,7 +63,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$user_id = self::register_sample_reader();
 		$user    = get_user_by( 'id', $user_id );
 		$this->assertFalse( Reader_Activation::is_reader_verified( $user ) );
-		$verified = Reader_Activation::verify_reader_email( $user );
+		$verified = Reader_Activation::set_reader_verified( $user );
 		$this->assertTrue( $verified );
 		$this->assertTrue( Reader_Activation::is_reader_verified( $user ) );
 		wp_delete_user( $user_id ); // Clean up.
