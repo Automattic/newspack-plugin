@@ -206,12 +206,11 @@ final class Reader_Activation {
 	 * Warning: this method will only verify if the user is a reader in order to
 	 * authenticate. It will not check for any credentials.
 	 *
-	 * @param int  $user_id      User ID.
-	 * @param bool $verify_email Whether to verify the email address.
+	 * @param int $user_id User ID.
 	 *
 	 * @return \WP_User|\WP_Error The authenticated reader or WP_Error if authentication failed.
 	 */
-	private static function set_current_reader( $user_id, $verify_email = false ) {
+	private static function set_current_reader( $user_id ) {
 		$user_id = \absint( $user_id );
 		if ( empty( $user_id ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
@@ -220,10 +219,6 @@ final class Reader_Activation {
 		$user = \get_user_by( 'id', $user_id );
 		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
-		}
-
-		if ( true === $verify_email ) {
-			self::set_reader_verified( $user );
 		}
 
 		\wp_clear_auth_cookie();
