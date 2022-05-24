@@ -1,3 +1,10 @@
+# [1.83.0](https://github.com/Automattic/newspack-plugin/compare/v1.82.2...v1.83.0) (2022-05-24)
+
+
+### Features
+
+* **amp:** add support for GA4 ([#1653](https://github.com/Automattic/newspack-plugin/issues/1653)) ([2beb990](https://github.com/Automattic/newspack-plugin/commit/2beb990d793710b6001526b5ce40c6405ca5edc8))
+
 ## [1.82.2](https://github.com/Automattic/newspack-plugin/compare/v1.82.1...v1.82.2) (2022-05-23)
 
 
