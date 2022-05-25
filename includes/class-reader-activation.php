@@ -223,7 +223,7 @@ final class Reader_Activation {
 
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
-		\wp_set_auth_cookie( $user->ID );
+		\wp_set_auth_cookie( $user->ID, true );
 		\do_action( 'wp_login', $user->user_login, $user );
 
 		return $user;
