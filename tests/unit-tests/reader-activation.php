@@ -90,7 +90,8 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$this->assertTrue( Reader_Activation::is_user_reader( get_user_by( 'id', $reader_id ) ) );
 		wp_delete_user( $reader_id ); // Clean up.
 
-		$user_id = wp_insert_user(
+		// Admin should not be a reader.
+		$admin_id = wp_insert_user(
 			[
 				'user_login' => 'sample-admin',
 				'user_pass'  => wp_generate_password(),
@@ -99,6 +100,17 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			]
 		);
 		$this->assertFalse( Reader_Activation::is_user_reader( get_user_by( 'id', $user_id ) ) );
-		wp_delete_user( $user_id ); // Clean up.
+		wp_delete_user( $admin_id ); // Clean up.
+
+		// Subsriber should be a reader.
+		$subscriber_id = wp_insert_user(
+			[
+				'user_login' => 'sample-subscriber',
+				'user_pass'  => wp_generate_password(),
+				'user_email' => 'subscriber@test.com',
+			]
+		);
+		$this->assertTrue( Reader_Activation::is_user_reader( get_user_by( 'id', $subscriber_id ) ) );
+		wp_delete_user( $subscriber_id ); // Clean up.
 	}
 }
