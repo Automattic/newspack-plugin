@@ -99,7 +99,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 				'role'       => 'administrator',
 			]
 		);
-		$this->assertFalse( Reader_Activation::is_user_reader( get_user_by( 'id', $user_id ) ) );
+		$this->assertFalse( Reader_Activation::is_user_reader( get_user_by( 'id', $admin_id ) ) );
 		wp_delete_user( $admin_id ); // Clean up.
 
 		// Subsriber should be a reader.
