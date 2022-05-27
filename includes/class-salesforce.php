@@ -857,6 +857,11 @@ class Salesforce {
 	 * @return void
 	 */
 	private static function create_webhook() {
+		// Failsafe in case WC isn't active.
+		if ( ! class_exists( 'WC_Webhook' ) ) {
+			return;
+		}
+
 		$webhook = new \WC_Webhook();
 		$webhook->set_name( 'Sync Salesforce on order checkout' );
 		$webhook->set_topic( 'order.created' ); // Trigger on checkout.
