@@ -55,16 +55,25 @@ class Salesforce {
 	 * doesn't exist, create it.
 	 */
 	public static function platform_check() {
-		$platform   = Donations::get_platform_slug();
-		$webhook_id = self::get_webhook();
+		$is_newspack = self::platform_is_newspack();
+		$webhook_id  = self::get_webhook();
 
-		if ( 'wc' !== $platform && $webhook_id ) {
+		if ( ! $is_newspack && $webhook_id ) {
 			self::delete_webhook( $webhook_id );
 		}
 
-		if ( 'wc' === $platform && ! $webhook_id ) {
+		if ( $is_newspack && ! $webhook_id ) {
 			self::create_webhook();
 		}
+	}
+
+	/**
+	 * Check whether Newspack is the currently active Reader Revenue platform.
+	 *
+	 * @return boolean True if Newspack is the active platform.
+	 */
+	public static function platform_is_newspack() {
+		return 'wc' === Donations::get_platform_slug();
 	}
 
 	/**
@@ -223,7 +232,7 @@ class Salesforce {
 	 * Register admin scripts for Salesforce functionality.
 	 */
 	public static function register_admin_scripts() {
-		if ( 'shop_order' !== get_post_type() ) {
+		if ( 'shop_order' !== get_post_type() || ! self::platform_is_newspack() ) {
 			return;
 		}
 
@@ -1258,7 +1267,7 @@ class Salesforce {
 	 * @param int $order_id ID of the order being edited.
 	 */
 	public static function wc_order_show_sync_status( $order_id ) {
-		if ( ! self::is_connected() ) {
+		if ( ! self::is_connected() || ! self::platform_is_newspack() ) {
 			return;
 		}
 		?>
