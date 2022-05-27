@@ -159,6 +159,7 @@ const AdUnits = ( {
 					.filter( adUnit => adUnit.id !== 0 )
 					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
+					.sort( a => ( a.is_default ? 1 : -1 ) )
 					.map( adUnit => {
 						const editLink = `#${ service }/${ adUnit.id }`;
 						return (
@@ -166,30 +167,45 @@ const AdUnits = ( {
 								key={ adUnit.id }
 								title={ adUnit.name }
 								isSmall
-								titleLink={ editLink }
+								titleLink={ ! adUnit.is_default && editLink }
 								description={ () => (
 									<span>
-										{ adUnit.is_legacy ? (
+										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
+												<i>{ __( 'Code:', 'newspack' ) }</i> <code>{ adUnit.code }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
 											<>
-												{ __( 'Sizes:', 'newspack' ) }{ ' ' }
+												{ ' ' }
+												| { __( 'Sizes:', 'newspack' ) }{ ' ' }
 												{ adUnit.sizes.map( ( size, i ) => (
 													<code key={ i }>{ Array.isArray( size ) ? size.join( 'x' ) : size }</code>
 												) ) }
 												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
 											</>
 										) : null }
+										{ adUnit.is_legacy ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Legacy ad unit.', 'newspack' ) }</i>
+											</>
+										) : null }
+										{ adUnit.is_default ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Default ad unit.', 'newspack' ) }</i>
+											</>
+										) : null }
 									</span>
 								) }
 								actionText={
-									<OptionsPopover
-										deleteLink={ () => onDelete( adUnit.id ) }
-										editLink={ editLink }
-									/>
+									! adUnit.is_default && (
+										<OptionsPopover
+											deleteLink={ () => onDelete( adUnit.id ) }
+											editLink={ editLink }
+										/>
+									)
 								}
 							/>
 						);
