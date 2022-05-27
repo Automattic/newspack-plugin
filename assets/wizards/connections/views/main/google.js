@@ -48,13 +48,21 @@ export const handleGoogleRedirect = ( { setError } ) => {
 	return Promise.resolve();
 };
 
-const GoogleOAuth = ( { setError } ) => {
+const GoogleOAuth = ( { setError, onInit } ) => {
+	const [ initialized, setInitialized ] = useState( false );
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
 
 	const [ inFlight, setInFlight ] = useState( false );
-	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
+	const [ localError, setLocalError ] = useState( null );
+	const handleError = res => {
+		const message = res.message || __( 'Something went wrong.', 'newspack' );
+		setLocalError( message );
+		if ( typeof setError === 'function' ) {
+			setError( message );
+		}
+	};
 
 	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
@@ -80,11 +88,21 @@ const GoogleOAuth = ( { setError } ) => {
 	useEffect( () => {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
+			let error = null;
 			setInFlight( true );
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
 				.then( setAuthState )
-				.catch( handleError )
-				.finally( () => setInFlight( false ) );
+				.catch( err => {
+					error = err;
+					handleError( err );
+				} )
+				.finally( () => {
+					setInitialized( true );
+					setInFlight( false );
+					if ( typeof onInit === 'function' ) {
+						onInit( error );
+					}
+				} );
 		}
 	}, [] );
 
@@ -107,12 +125,15 @@ const GoogleOAuth = ( { setError } ) => {
 		} )
 			.then( () => {
 				setAuthState( {} );
-				setInFlight( false );
 			} )
-			.catch( handleError );
+			.catch( handleError )
+			.finally( () => setInFlight( false ) );
 	};
 
 	const getDescription = () => {
+		if ( localError ) {
+			return localError;
+		}
 		if ( inFlight ) {
 			return __( 'Loading…', 'newspack' );
 		}
@@ -125,6 +146,11 @@ const GoogleOAuth = ( { setError } ) => {
 		}
 		return __( 'Not connected', 'newspack' );
 	};
+
+	if ( ! initialized ) {
+		return null;
+	}
+
 	return (
 		<ActionCard
 			title={ __( 'Google', 'newspack' ) }

@@ -16,6 +16,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
 import { NewspackNewsletters } from '../../../engagement/views/newsletters';
+import AdsOnboarding from '../../../advertising/views/onboarding';
 import './style.scss';
 
 const SERVICES_LIST = {
@@ -43,6 +44,7 @@ const SERVICES_LIST = {
 			'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements',
 			'newspack'
 		),
+		Component: AdsOnboarding,
 		configuration: { is_service_enabled: false },
 	},
 };

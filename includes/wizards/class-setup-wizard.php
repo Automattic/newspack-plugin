@@ -576,6 +576,7 @@ class Setup_Wizard extends Wizard {
 		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
 			$service = 'google_ad_manager';
 			update_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
+			Plugin_Manager::activate( 'newspack-ads' );
 		}
 
 		$available_services = [ 'newsletters', 'reader-revenue', 'google-ad-sense', 'google-ad-manager' ];
