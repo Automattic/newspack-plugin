@@ -332,7 +332,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 		if ( 0 < conflictingPrompts.length ) {
 			return (
 				<>
-					<h4 className="newspack-notice__heading">
+					<strong>
 						{ sprintf(
 							// Translators: %s: 'Conflicts' or 'Conflict' depending on number of conflicts.
 							__( '%s detected:', 'newspack' ),
@@ -340,7 +340,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 								? __( 'Conflicts', 'newspack' )
 								: __( 'Conflict', 'newspack' )
 						) }
-					</h4>
+					</strong>
 					<ul>
 						{ conflictingPrompts.map( conflictingPrompt => (
 							<li key={ conflictingPrompt.id }>

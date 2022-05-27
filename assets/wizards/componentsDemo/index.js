@@ -18,26 +18,25 @@ import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
  */
 import {
 	ActionCard,
-	ColorPicker,
-	ImageUpload,
-	CheckboxControl,
-	Card,
+	AutocompleteWithSuggestions,
 	Button,
 	ButtonCard,
+	Card,
+	ColorPicker,
+	Footer,
+	Grid,
 	Handoff,
+	ImageUpload,
+	Modal,
 	NewspackIcon,
 	Notice,
-	Footer,
-	TextControl,
 	PluginInstaller,
+	PluginSettings,
 	PluginToggle,
 	ProgressBar,
 	SelectControl,
-	Modal,
-	ToggleGroup,
+	Waiting,
 	WebPreview,
-	AutocompleteWithSuggestions,
-	PluginSettings,
 } from '../../components/src';
 
 class ComponentsDemo extends Component {
@@ -49,17 +48,12 @@ class ComponentsDemo extends Component {
 		this.state = {
 			selectedPostForAutocompleteWithSuggestions: [],
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
-			inputTextValue1: __( 'Input value', 'newspack' ),
-			inputTextValue2: '',
-			inputTextValue3: '',
-			inputNumValue: 0,
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
 			selectValue3: '',
 			selectValues: [],
 			modalShown: false,
-			toggleGroupChecked: false,
 			color1: '#3366ff',
 		};
 	}
@@ -71,16 +65,11 @@ class ComponentsDemo extends Component {
 		const {
 			selectedPostForAutocompleteWithSuggestions,
 			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
-			inputTextValue1,
-			inputTextValue2,
-			inputTextValue3,
-			inputNumValue,
 			selectValue1,
 			selectValue2,
 			selectValue3,
 			modalShown,
 			actionCardToggleChecked,
-			toggleGroupChecked,
 			color1,
 		} = this.state;
 
@@ -101,7 +90,7 @@ class ComponentsDemo extends Component {
 								<NewspackIcon size={ 36 } />
 							</Button>
 							<div>
-								<h1>{ __( 'Components Demo', 'newspack' ) }</h1>
+								<h2>{ __( 'Components Demo', 'newspack' ) }</h2>
 								<span>
 									{ __( 'Simple components used for composing the UI of Newspack', 'newspack' ) }
 								</span>
@@ -167,7 +156,7 @@ class ComponentsDemo extends Component {
 							<WebPreview
 								url="//newspack.pub/"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
-								isPrimary
+								variant="primary"
 							/>
 							<WebPreview
 								url="//newspack.pub/"
@@ -180,22 +169,29 @@ class ComponentsDemo extends Component {
 						</Card>
 					</Card>
 					<Card>
+						<h2>{ __( 'Waiting', 'newspack' ) }</h2>
+						<Card buttonsCard noBorder>
+							<Grid columns={ 1 } gutter={ 16 } className="w-100">
+								<Waiting />
+								<div className="flex items-center">
+									<Waiting isLeft />
+									{ __( 'Spinner on the left', 'newspack' ) }
+								</div>
+								<div className="flex items-center">
+									<Waiting isRight />
+									{ __( 'Spinner on the right', 'newspack' ) }
+								</div>
+								<Waiting isCenter />
+							</Grid>
+						</Card>
+					</Card>
+					<Card>
 						<h2>{ __( 'Color picker', 'newspack' ) }</h2>
 						<ColorPicker
 							label={ __( 'Color Picker', 'newspack' ) }
 							color={ color1 }
 							onChange={ color => this.setState( { color1: color } ) }
 						/>
-					</Card>
-					<Card>
-						<ToggleGroup
-							title={ __( 'Example Toggle Group', 'newspack' ) }
-							description={ __( 'This is the description of a toggle group.', 'newspack' ) }
-							checked={ toggleGroupChecked }
-							onChange={ checked => this.setState( { toggleGroupChecked: checked } ) }
-						>
-							<p>{ __( 'This is the content of the toggle group', 'newspack' ) }</p>
-						</ToggleGroup>
 					</Card>
 					<Card>
 						<h2>{ __( 'Handoff Buttons', 'newspack' ) }</h2>
@@ -289,25 +285,6 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 					</Card>
-					<PluginInstaller
-						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-						onStatus={ ( { complete, pluginInfo } ) => {
-							console.log(
-								complete ? 'All plugins installed successfully' : 'Plugin installation incomplete',
-								pluginInfo
-							);
-						} }
-					/>
-					<PluginInstaller
-						plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-						isSmall
-						onStatus={ ( { complete, pluginInfo } ) => {
-							console.log(
-								complete ? 'All plugins installed successfully' : 'Plugin installation incomplete',
-								pluginInfo
-							);
-						} }
-					/>
 					<ActionCard
 						title={ __( 'Example One', 'newspack' ) }
 						description={ __( 'Has an action button.', 'newspack' ) }
@@ -458,29 +435,6 @@ class ComponentsDemo extends Component {
 						editLink="admin.php?page=jetpack#/settings"
 					/>
 					<Card>
-						<h2>{ __( 'Checkboxes', 'newspack' ) }</h2>
-						<CheckboxControl
-							label={ __( 'Checkbox is tested?' ) }
-							onChange={ function () {
-								console.log( "Yep, it's tested" );
-							} }
-						/>
-						<CheckboxControl
-							label={ __( 'Checkbox w/Tooltip', 'newspack' ) }
-							onChange={ function () {
-								console.log( "Yep, it's tested" );
-							} }
-							tooltip={ __( 'This is the tooltip text', 'newspack' ) }
-						/>
-						<CheckboxControl
-							label={ __( 'Checkbox w/Help', 'newspack' ) }
-							onChange={ function () {
-								console.log( "Yep, it's tested" );
-							} }
-							help={ __( 'This is the help text', 'newspack' ) }
-						/>
-					</Card>
-					<Card>
 						<h2>{ __( 'Image Uploader', 'newspack' ) }</h2>
 						<ImageUpload
 							image={ this.state.image }
@@ -489,32 +443,6 @@ class ComponentsDemo extends Component {
 								console.log( 'Image:' );
 								console.log( image );
 							} }
-						/>
-					</Card>
-					<Card>
-						<h2>{ __( 'Text Inputs', 'newspack' ) }</h2>
-						<TextControl
-							label={ __( 'Text Input with value', 'newspack' ) }
-							value={ inputTextValue1 }
-							onChange={ value => this.setState( { inputTextValue1: value } ) }
-						/>
-						<TextControl
-							label={ __( 'Text Input empty', 'newspack' ) }
-							value={ inputTextValue2 }
-							onChange={ value => this.setState( { inputTextValue2: value } ) }
-						/>
-						<TextControl
-							type="number"
-							label={ __( 'Number Input', 'newspack' ) }
-							value={ inputNumValue }
-							onChange={ value => this.setState( { inputNumValue: value } ) }
-						/>
-						<TextControl label={ __( 'Text Input disabled', 'newspack' ) } disabled />
-						<TextControl
-							label={ __( 'Small', 'newspack' ) }
-							value={ inputTextValue3 }
-							isSmall
-							onChange={ value => this.setState( { inputTextValue3: value } ) }
 						/>
 					</Card>
 					<Card>
@@ -531,119 +459,128 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<h2>{ __( 'Select dropdowns', 'newspack' ) }</h2>
-						<SelectControl
-							label={ __( 'Label for Select with a preselection', 'newspack' ) }
-							value={ selectValue1 }
-							options={ [
-								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
-								{ value: '1st', label: __( 'First', 'newspack' ) },
-								{ value: '2nd', label: __( 'Second', 'newspack' ) },
-								{ value: '3rd', label: __( 'Third', 'newspack' ) },
-							] }
-							onChange={ value => this.setState( { selectValue1: value } ) }
-						/>
-						<SelectControl
-							label={ __( 'Label for Select with no preselection', 'newspack' ) }
-							value={ selectValue2 }
-							options={ [
-								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
-								{ value: '1st', label: __( 'First', 'newspack' ) },
-								{ value: '2nd', label: __( 'Second', 'newspack' ) },
-								{ value: '3rd', label: __( 'Third', 'newspack' ) },
-							] }
-							onChange={ value => this.setState( { selectValue2: value } ) }
-						/>
-						<SelectControl
-							label={ __( 'Label for disabled Select', 'newspack' ) }
-							disabled
-							options={ [
-								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
-								{ value: '1st', label: __( 'First', 'newspack' ) },
-								{ value: '2nd', label: __( 'Second', 'newspack' ) },
-								{ value: '3rd', label: __( 'Third', 'newspack' ) },
-							] }
-						/>
-						<SelectControl
-							label={ __( 'Small', 'newspack' ) }
-							value={ selectValue3 }
-							isSmall
-							options={ [
-								{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
-								{ value: '1st', label: __( 'First', 'newspack' ) },
-								{ value: '2nd', label: __( 'Second', 'newspack' ) },
-								{ value: '3rd', label: __( 'Third', 'newspack' ) },
-							] }
-							onChange={ value => this.setState( { selectValue3: value } ) }
-						/>
-						<SelectControl
-							multiple
-							label={ __( 'Multi-select', 'newspack' ) }
-							value={ this.state.selectValues }
-							options={ [
-								{ value: '1st', label: __( 'First', 'newspack' ) },
-								{ value: '2nd', label: __( 'Second', 'newspack' ) },
-								{ value: '3rd', label: __( 'Third', 'newspack' ) },
-								{ value: '4th', label: __( 'Fourth', 'newspack' ) },
-								{ value: '5th', label: __( 'Fifth', 'newspack' ) },
-								{ value: '6th', label: __( 'Sixth', 'newspack' ) },
-								{ value: '7th', label: __( 'Seventh', 'newspack' ) },
-							] }
-							onChange={ selectValues => this.setState( { selectValues } ) }
-						/>
-						<Notice
-							noticeText={
-								<>
-									{ __( 'Selected:', 'newspack' ) }{ ' ' }
-									{ this.state.selectValues.length > 0
-										? this.state.selectValues.join( ', ' )
-										: __( 'none', 'newspack' ) }
-								</>
-							}
-						/>
+						<Grid columns={ 1 } gutter={ 16 }>
+							<SelectControl
+								label={ __( 'Label for Select with a preselection', 'newspack' ) }
+								value={ selectValue1 }
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+								onChange={ value => this.setState( { selectValue1: value } ) }
+							/>
+							<SelectControl
+								label={ __( 'Label for Select with no preselection', 'newspack' ) }
+								value={ selectValue2 }
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+								onChange={ value => this.setState( { selectValue2: value } ) }
+							/>
+							<SelectControl
+								label={ __( 'Label for disabled Select', 'newspack' ) }
+								disabled
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+							/>
+							<SelectControl
+								label={ __( 'Small', 'newspack' ) }
+								value={ selectValue3 }
+								isSmall
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+								onChange={ value => this.setState( { selectValue3: value } ) }
+							/>
+							<SelectControl
+								multiple
+								label={ __( 'Multi-select', 'newspack' ) }
+								value={ this.state.selectValues }
+								options={ [
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+									{ value: '4th', label: __( 'Fourth', 'newspack' ) },
+									{ value: '5th', label: __( 'Fifth', 'newspack' ) },
+									{ value: '6th', label: __( 'Sixth', 'newspack' ) },
+									{ value: '7th', label: __( 'Seventh', 'newspack' ) },
+								] }
+								onChange={ selectValues => this.setState( { selectValues } ) }
+							/>
+							<Notice
+								noticeText={
+									<>
+										{ __( 'Selected:', 'newspack' ) }{ ' ' }
+										{ this.state.selectValues.length > 0
+											? this.state.selectValues.join( ', ' )
+											: __( 'none', 'newspack' ) }
+									</>
+								}
+							/>
+						</Grid>
 					</Card>
 					<Card>
 						<h2>{ __( 'Buttons', 'newspack' ) }</h2>
-						<h3>{ __( 'Default', 'newspack' ) }</h3>
-						<Card buttonsCard noBorder>
-							<Button isPrimary>isPrimary</Button>
-							<Button isSecondary>isSecondary</Button>
-							<Button isTertiary>isTertiary</Button>
-							<Button isQuaternary>isQuaternary</Button>
-							<Button isLink>isLink</Button>
-						</Card>
-						<h3>{ __( 'Disabled', 'newspack' ) }</h3>
-						<Card buttonsCard noBorder>
-							<Button isPrimary disabled>
-								isPrimary
-							</Button>
-							<Button isSecondary disabled>
-								isSecondary
-							</Button>
-							<Button isTertiary disabled>
-								isTertiary
-							</Button>
-							<Button isQuaternary disabled>
-								isQuaternary
-							</Button>
-							<Button isLink disabled>
-								isLink
-							</Button>
-						</Card>
-						<h3>{ __( 'Small', 'newspack' ) }</h3>
-						<Card buttonsCard noBorder>
-							<Button isPrimary isSmall>
-								isPrimary
-							</Button>
-							<Button isSecondary isSmall>
-								isSecondary
-							</Button>
-							<Button isTertiary isSmall>
-								isTertiary
-							</Button>
-							<Button isQuaternary isSmall>
-								isQuaternary
-							</Button>
-						</Card>
+						<Grid columns={ 1 } gutter={ 16 }>
+							<p>
+								<strong>{ __( 'Default', 'newspack' ) }</strong>
+							</p>
+							<Card buttonsCard noBorder>
+								<Button variant="primary">Primary</Button>
+								<Button variant="secondary">Secondary</Button>
+								<Button variant="tertiary">Tertiary</Button>
+								<Button>Default</Button>
+								<Button isLink>isLink</Button>
+							</Card>
+							<p>
+								<strong>{ __( 'Disabled', 'newspack' ) }</strong>
+							</p>
+							<Card buttonsCard noBorder>
+								<Button variant="primary" disabled>
+									Primary
+								</Button>
+								<Button variant="secondary" disabled>
+									Secondary
+								</Button>
+								<Button variant="tertiary" disabled>
+									Tertiary
+								</Button>
+								<Button disabled>Default</Button>
+								<Button isLink disabled>
+									isLink
+								</Button>
+							</Card>
+							<p>
+								<strong>{ __( 'Small', 'newspack' ) }</strong>
+							</p>
+							<Card buttonsCard noBorder>
+								<Button variant="primary" isSmall>
+									isPrimary
+								</Button>
+								<Button variant="secondary" isSmall>
+									isSecondary
+								</Button>
+								<Button variant="tertiary" isSmall>
+									isTertiary
+								</Button>
+								<Button isSmall>Default</Button>
+								<Button isLink isSmall>
+									isLink
+								</Button>
+							</Card>
+						</Grid>
 					</Card>
 					<Card>
 						<h2>ButtonCard</h2>

@@ -43,30 +43,32 @@ export default function GroupedSelectControl( {
 			help={ help }
 			className={ classnames( className, 'components-select-control' ) }
 		>
-			<select
-				id={ id }
-				className="components-select-control__input"
-				onChange={ onChangeValue }
-				aria-describedby={ !! help ? `${ id }__help` : undefined }
-				{ ...props }
-			>
-				<option value="">{ __( '-- Select --', 'newspack' ) }</option>
-				{ optgroups.map( ( { label: optgroupLabel, options }, optgroupIndex ) => (
-					<optgroup label={ optgroupLabel } key={ optgroupIndex }>
-						{ options.map( ( option, optionIndex ) => (
-							<option
-								key={ `${ option.label }-${ option.value }-${ optionIndex }` }
-								value={ option.value }
-								disabled={ option.disabled }
-							>
-								{ option.label }
-							</option>
-						) ) }
-					</optgroup>
-				) ) }
-			</select>
-			<div className="components-select-control__arrow-wrapper">
-				<Icon icon={ chevronDown } size={ 18 } />
+			<div className="relative">
+				<select
+					id={ id }
+					className="components-select-control__input"
+					onChange={ onChangeValue }
+					aria-describedby={ !! help ? `${ id }__help` : undefined }
+					{ ...props }
+				>
+					<option value="">{ __( '-- Select --', 'newspack' ) }</option>
+					{ optgroups.map( ( { label: optgroupLabel, options }, optgroupIndex ) => (
+						<optgroup label={ optgroupLabel } key={ optgroupIndex }>
+							{ options.map( ( option, optionIndex ) => (
+								<option
+									key={ `${ option.label }-${ option.value }-${ optionIndex }` }
+									value={ option.value }
+									disabled={ option.disabled }
+								>
+									{ option.label }
+								</option>
+							) ) }
+						</optgroup>
+					) ) }
+				</select>
+				<div className="components-select-control__arrow-wrapper">
+					<Icon icon={ chevronDown } size={ 18 } />
+				</div>
 			</div>
 		</BaseControl>
 	);

@@ -6,41 +6,47 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-web-preview {
-	&--open {
-		overflow: hidden;
+	// Color
+	--wp-admin-theme-color: #{$primary-500};
+	--wp-admin-theme-color--rgb: #{$primary-500--rgb};
+	--wp-admin-theme-color-darker-10: #{$primary-600};
+	--wp-admin-theme-color-darker-10--rgb: #{$primary-600--rgb};
+	--wp-admin-theme-color-darker-20: #{$primary-700};
+	--wp-admin-theme-color-darker-20--rgb: #{$primary-700--rgb};
+
+	background: rgba( black, 0.7 );
+	box-sizing: border-box;
+	height: 100%;
+	left: 0;
+	margin: 0;
+	max-width: 100%;
+	padding: 32px;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 99999;
+
+	&.phone iframe {
+		max-width: 380px;
 	}
 
-	&__container {
-		background: rgba( black, 0.7 );
-		box-sizing: border-box;
-		height: 100%;
-		left: 0;
-		margin: 0;
-		max-width: 100%;
-		padding: 32px;
-		position: fixed;
-		top: 0;
-		width: 100%;
-		z-index: 99999;
+	&.tablet iframe {
+		max-width: 768px;
+	}
 
-		&.phone iframe {
-			max-width: 380px;
-		}
+	&.is-loaded iframe {
+		opacity: 1;
+	}
 
-		&.tablet iframe {
-			max-width: 768px;
-		}
-
-		&.newspack-web-preview__is-loaded iframe {
-			opacity: 1;
-		}
+	&--open {
+		overflow: hidden;
 	}
 
 	&__interior {
 		animation: appear-animation 125ms ease-in-out;
 		animation-fill-mode: forwards;
 		background: white;
-		border-radius: 3px;
+		border-radius: 2px;
 		overflow: hidden;
 		height: 100%;
 		width: 100%;
@@ -48,7 +54,7 @@
 
 	&__content {
 		background: $gray-100;
-		height: calc( 100% - 37px );
+		height: calc( 100% - 49px );
 		-webkit-overflow-scrolling: touch;
 		overflow-x: hidden;
 		width: 100%;
@@ -81,6 +87,7 @@
 	&__toolbar {
 		border-bottom: 1px solid $gray-300;
 		display: flex;
+		padding: 6px;
 
 		&-left {
 			flex: 0 0 auto;

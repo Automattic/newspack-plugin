@@ -149,7 +149,7 @@ const AdUnits = ( {
 			</p>
 			<Card headerActions noBorder>
 				<div className="flex justify-end w-100">
-					<Button isPrimary isSmall href={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }>
+					<Button variant="primary" href={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }>
 						{ __( 'Add New Ad Unit', 'newspack' ) }
 					</Button>
 				</div>

@@ -5,6 +5,7 @@
 /**
  * Internal dependencies
  */
+import { Grid } from '..';
 import './style.scss';
 
 /**
@@ -32,12 +33,12 @@ const SectionHeader = ( {
 	const HeadingTag = `h${ heading }`;
 
 	return (
-		<div className={ classes }>
+		<Grid columns={ 1 } gutter={ 8 } className={ classes }>
 			{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
 			{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
-			{ typeof description === 'string' && <span>{ description }</span> }
-			{ typeof description === 'function' && <span>{ description() }</span> }
-		</div>
+			{ typeof description === 'string' && <p>{ description }</p> }
+			{ typeof description === 'function' && <p>{ description() }</p> }
+		</Grid>
 	);
 };
 

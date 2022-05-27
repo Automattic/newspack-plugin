@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Fragment, useState } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 
@@ -16,15 +16,13 @@ import { values } from 'lodash';
  * Internal dependencies
  */
 import {
-	Card,
-	CheckboxControl,
-	Grid,
 	Button,
-	TextControl,
-	ToggleControl,
-	SelectControl,
+	Card,
+	Grid,
 	Notice,
 	Settings,
+	SelectControl,
+	TextControl,
 	Wizard,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';

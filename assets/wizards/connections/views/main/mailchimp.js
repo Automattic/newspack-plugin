@@ -126,7 +126,7 @@ const Mailchimp = ( { setError } ) => {
 			{ isModalOpen && (
 				<Modal title={ __( 'Add Mailchimp API Key', 'newspack' ) } onRequestClose={ closeModal }>
 					<div ref={ modalTextRef }>
-						<Grid columns={ 1 } gutter="0">
+						<Grid columns={ 1 } gutter={ 8 }>
 							<TextControl
 								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
 								label={ __( 'Mailchimp API Key', 'newspack' ) }
@@ -140,11 +140,11 @@ const Mailchimp = ( { setError } ) => {
 									}
 								} }
 							/>
-							<Card noBorder>
+							<p>
 								<ExternalLink href="https://mailchimp.com/help/about-api-keys/#Find_or_generate_your_API_key">
 									{ __( 'Find or generate your API key', 'newspack' ) }
 								</ExternalLink>
-							</Card>
+							</p>
 						</Grid>
 					</div>
 					<Card buttonsCard noBorder className="justify-end">

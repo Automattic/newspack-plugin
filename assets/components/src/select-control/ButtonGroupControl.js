@@ -7,22 +7,30 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Icon } from '@wordpress/icons';
-import { BaseControl } from '@wordpress/components';
+import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Button, ButtonGroup, hooks } from '..';
+import { hooks } from '..';
 
-const ButtonGroupControl = ( { buttonOptions, onChange, value, label, className } ) => {
+const ButtonGroupControl = ( {
+	buttonOptions,
+	className,
+	hideLabelFromVision,
+	label,
+	onChange,
+	value,
+} ) => {
 	const id = hooks.useUniqueId( 'button-group' );
 	return (
 		<BaseControl
 			label={ label }
+			hideLabelFromVision={ hideLabelFromVision }
 			id={ id.current }
 			className={ classnames( className, 'components-select-control' ) }
 		>
-			<ButtonGroup noMargin>
+			<ButtonGroup>
 				{ buttonOptions.map( option => {
 					const isSelected = value === option.value;
 					let Label = () => option.label;
@@ -33,8 +41,7 @@ const ButtonGroupControl = ( { buttonOptions, onChange, value, label, className 
 					return (
 						<Button
 							key={ option.value }
-							isSecondary={ ! isSelected }
-							isPressed={ isSelected }
+							variant={ isSelected ? 'primary' : null }
 							onClick={ () => onChange( option.value ) }
 						>
 							<Label />

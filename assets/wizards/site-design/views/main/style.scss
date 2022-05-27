@@ -12,7 +12,7 @@
 		z-index: 1;
 
 		&::before {
-			border-radius: 3px;
+			border-radius: 2px;
 			box-shadow: 0 0 8px 4px rgba( black, 0.08 );
 			bottom: 0;
 			content: '';
@@ -36,8 +36,8 @@
 	&__footer {
 		&__logo {
 			.newspack-image-upload__image {
-				border-color: rgba( black, 0.125 );
-				height: 88px;
+				border-color: rgba( black, 0.54 );
+				height: 98px;
 			}
 		}
 	}
@@ -45,21 +45,6 @@
 	&__header {
 		&__style-size {
 			grid-template-columns: repeat( 2, min-content );
-		}
-	}
-
-	.newspack-radio-control {
-		.components-base-control__field {
-			display: flex;
-			flex-wrap: wrap;
-
-			.components-radio-control__option {
-				margin: 0;
-
-				&:first-of-type {
-					margin-right: 32px;
-				}
-			}
 		}
 	}
 }

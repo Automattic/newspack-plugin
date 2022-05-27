@@ -9,7 +9,7 @@ import cookies from 'js-cookie';
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState, Fragment } from '@wordpress/element';
-import { header, layout, plus } from '@wordpress/icons';
+import { header, layout } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -29,7 +29,6 @@ import {
 	iconOverlayBottom,
 	iconOverlayCenter,
 	iconOverlayTop,
-	iconPreview,
 	postList,
 	blockTable,
 } from './icons';
@@ -127,8 +126,8 @@ const SegmentGroup = props => {
 						onClose={ removeCIDCookie }
 						renderButton={ ( { showPreview } ) => (
 							<Button
-								isQuaternary
 								isSmall
+								variant="tertiary"
 								onClick={ () => {
 									removeCIDCookie();
 									if ( newspack_aux_data.popups_cookie_name ) {
@@ -139,22 +138,20 @@ const SegmentGroup = props => {
 
 									showPreview();
 								} }
-								icon={ iconPreview }
-								label={ __( 'Preview Segment', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
+							>
+								{ __( 'Preview Segment', 'newspack' ) }
+							</Button>
 						) }
 					/>
 					{ 'unassigned' !== campaignId && (
 						<Fragment>
 							<Button
 								isSmall
-								isQuaternary
+								variant="secondary"
 								onClick={ () => setModalVisible( ! modalVisible ) }
-								icon={ plus }
-								label={ __( 'Add New Prompt', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
+							>
+								{ __( 'Add New Prompt', 'newspack' ) }
+							</Button>
 							{ modalVisible && (
 								<Modal
 									title={ __( 'Add New Prompt', 'newspack' ) }
