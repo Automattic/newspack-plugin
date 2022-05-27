@@ -59,7 +59,7 @@ final class Reader_Activation {
 	 * @return array
 	 */
 	public static function add_auth_intention_to_login_form( $defaults ) {
-		$email = self::get_auth_intention();
+		$email = self::get_auth_intention_value();
 		if ( ! empty( $email ) ) {
 			$defaults['label_username'] = __( 'Email address', 'newspack' );
 			$defaults['value_username'] = $email;
@@ -103,11 +103,11 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Get the auth intention.
+	 * Get the auth intention value.
 	 *
 	 * @return string|null Email address or null if not set.
 	 */
-	public static function get_auth_intention() {
+	public static function get_auth_intention_value() {
 		$email_address = null;
 		if ( isset( $_COOKIE[ self::AUTH_INTENTION_COOKIE ] ) ) {
 			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
