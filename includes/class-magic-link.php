@@ -142,7 +142,7 @@ final class Magic_Link {
 			/** Add an extra 5 minutes to the client secret cookie expiration. */
 			$expiration = time() + self::get_token_expiration_period() + ( 5 * MINUTE_IN_SECONDS );
 
-		  // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 			setcookie( self::COOKIE, $secret, $expiration, COOKIEPATH, COOKIE_DOMAIN, true );
 		}
 
