@@ -224,7 +224,7 @@ final class Magic_Link {
 	 *   Magic link token data.
 	 *
 	 *   @type string $token  The token.
-	 *   @type string $client Origin IP hash.
+	 *   @type string $client Client hash.
 	 *   @type string $time   Token creation time.
 	 * }
 	 */
