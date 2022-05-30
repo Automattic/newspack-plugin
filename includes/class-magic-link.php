@@ -643,32 +643,32 @@ final class Magic_Link {
 
 		/** Add notice if admin action was successful. */
 		if ( isset( $_GET['update'] ) && in_array( $_GET['update'], $actions, true ) ) {
-			$update = \sanitize_text_field( \wp_unslash( $_GET['update'] ) );
-			\add_action(
-				'admin_notices',
-				function() use ( $actions, $update ) {
-					$message = '';
-					switch ( $update ) {
-						case $actions['send']:
-							$message = __( 'Magic link sent.', 'newspack' );
-							break;
-						case $actions['clear']:
-							$message = __( 'All magic link tokens were removed.', 'newspack' );
-							break;
-						case $actions['disable']:
-							$message = __( 'Magic links are now disabled.', 'newspack' );
-							break;
-						case $actions['enable']:
-							$message = __( 'Magic links are now enabled.', 'newspack' );
-							break;
-					}
-					if ( ! empty( $message ) ) {
+			$update  = \sanitize_text_field( \wp_unslash( $_GET['update'] ) );
+			$message = '';
+			switch ( $update ) {
+				case $actions['send']:
+					$message = __( 'Magic link sent.', 'newspack' );
+					break;
+				case $actions['clear']:
+					$message = __( 'All magic link tokens were removed.', 'newspack' );
+					break;
+				case $actions['disable']:
+					$message = __( 'Magic links are now disabled.', 'newspack' );
+					break;
+				case $actions['enable']:
+					$message = __( 'Magic links are now enabled.', 'newspack' );
+					break;
+			}
+			if ( ! empty( $message ) ) {
+				\add_action(
+					'admin_notices',
+					function() use ( $message ) {
 						?>
 						<div id="message" class="updated notice is-dismissible"><p><?php echo \esc_html( $message ); ?></p></div>
 						<?php
 					}
-				}
-			);
+				);
+			}
 		}
 
 		if ( ! isset( $_GET['action'] ) || ! in_array( $_GET['action'], $actions, true ) ) {
