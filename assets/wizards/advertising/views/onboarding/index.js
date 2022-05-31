@@ -2,17 +2,55 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useState, Fragment } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { Card } from '../../../../components/src';
+import { Card, ButtonCard, Notice, TextControl } from '../../../../components/src';
 import GoogleOAuth from '../../../connections/views/main/google';
-import ServiceAccountConnection from '../ad-units/service-account-connection';
 
-export default function AdsOnboarding() {
+export default function AdsOnboarding( { onUpdate } ) {
+	const credentialsInputFile = useRef( null );
+	const [ fileError, setFileError ] = useState( '' );
+	const [ networkCode, setNetworkCode ] = useState( '' );
+	const [ isConnected, setIsConnected ] = useState( false );
 	const [ useOAuth, setUseOAuth ] = useState( null );
+
+	const updateGAMCredentials = credentials =>
+		apiFetch( {
+			path: '/newspack/v1/wizard/advertising/credentials',
+			method: 'post',
+			data: { credentials, onboarding: true },
+		} ).then( () => setIsConnected( true ) );
+
+	const handleCredentialsFile = event => {
+		if ( event.target.files.length && event.target.files[ 0 ] ) {
+			const reader = new FileReader();
+			reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
+			reader.onload = function ( ev ) {
+				let credentials;
+				try {
+					credentials = JSON.parse( ev.target.result );
+				} catch ( error ) {
+					setFileError( __( 'Invalid JSON file', 'newspack' ) );
+					return;
+				}
+				updateGAMCredentials( credentials );
+			};
+			reader.onerror = function () {
+				setFileError( __( 'Unable to read file', 'newspack' ) );
+			};
+		}
+	};
+
+	useEffect( () => {
+		if ( typeof onUpdate === 'function' ) {
+			onUpdate( { networkCode } );
+		}
+	}, [ networkCode ] );
+
 	return (
 		<Card noBorder>
 			<div className="ads-onboarding">
@@ -31,13 +69,43 @@ export default function AdsOnboarding() {
 				) }
 				{ false === useOAuth && (
 					<Fragment>
-						<p>
-							{ __(
-								'Upload a service account credential file or enter your GAM network code:',
-								'newspack'
-							) }
-						</p>
-						<ServiceAccountConnection />
+						{ isConnected ? (
+							<Notice isSuccess noticeText={ __( "We're all set here!", 'newspack' ) } />
+						) : (
+							<Fragment>
+								<p>
+									{ __(
+										'Enter your Google Ad Manager network code and service account credentials for a full integration:',
+										'newspack'
+									) }
+								</p>
+								<TextControl
+									isWide
+									label={ __( 'Network code', 'newspack' ) }
+									value={ networkCode }
+									onChange={ setNetworkCode }
+								/>
+								<ButtonCard
+									onClick={ () => credentialsInputFile.current.click() }
+									title={ __( 'Upload credentials', 'newspack' ) }
+									desc={ [
+										__(
+											'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
+											'newspack'
+										),
+										fileError && <Notice noticeText={ fileError } isError />,
+									] }
+									chevron
+								/>
+								<input
+									type="file"
+									accept=".json"
+									ref={ credentialsInputFile }
+									style={ { display: 'none' } }
+									onChange={ handleCredentialsFile }
+								/>
+							</Fragment>
+						) }
 					</Fragment>
 				) }
 			</div>
