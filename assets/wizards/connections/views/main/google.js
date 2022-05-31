@@ -19,35 +19,6 @@ const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );
 };
 
-export const handleGoogleRedirect = ( { setError } ) => {
-	const params = getURLParams();
-	if ( params.access_token ) {
-		return apiFetch( {
-			path: '/newspack/v1/oauth/google/finish',
-			method: 'POST',
-			data: {
-				access_token: params.access_token,
-				refresh_token: params.refresh_token,
-				csrf_token: params.csrf_token,
-				expires_at: params.expires_at,
-			},
-		} )
-			.then( () => {
-				params.access_token = undefined;
-				params.refresh_token = undefined;
-				params.csrf_token = undefined;
-				params.expires_at = undefined;
-				window.location.search = qs.stringify( params );
-			} )
-			.catch( e => {
-				setError(
-					e.message || __( 'Something went wrong during authentication with Google.', 'newspack' )
-				);
-			} );
-	}
-	return Promise.resolve();
-};
-
 const GoogleOAuth = ( { setError, onInit } ) => {
 	const [ initialized, setInitialized ] = useState( false );
 	const [ authState, setAuthState ] = useState( {} );
@@ -85,7 +56,7 @@ const GoogleOAuth = ( { setError, onInit } ) => {
 		}
 	}, [ isConnected ] );
 
-	useEffect( () => {
+	const getCurrentAuth = () => {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
 			let error = null;
@@ -104,16 +75,28 @@ const GoogleOAuth = ( { setError, onInit } ) => {
 					}
 				} );
 		}
-	}, [] );
+	};
 
-	// Redirect user to Google auth screen.
-	const goToAuthPage = () => {
+	useEffect( getCurrentAuth, [] );
+
+	const openAuth = () => {
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/oauth/google/start',
 		} )
-			.then( url => ( window.location = url ) )
-			.catch( handleError );
+			.then( url => {
+				const authWindow = window.open( url, 'newspack_google_oauth', 'width=500,height=600' );
+				const interval = setInterval( () => {
+					if ( authWindow.closed ) {
+						clearInterval( interval );
+						getCurrentAuth();
+					}
+				}, 500 );
+			} )
+			.catch( err => {
+				handleError( err );
+				setInFlight( false );
+			} );
 	};
 
 	// Redirect user to Google auth screen.
@@ -160,7 +143,7 @@ const GoogleOAuth = ( { setError, onInit } ) => {
 				<Button
 					isLink
 					isDestructive={ isConnected }
-					onClick={ isConnected ? disconnect : goToAuthPage }
+					onClick={ isConnected ? disconnect : openAuth }
 					disabled={ inFlight }
 				>
 					{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }
