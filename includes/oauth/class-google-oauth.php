@@ -64,30 +64,6 @@ class Google_OAuth {
 				'permission_callback' => [ __CLASS__, 'permissions_check' ],
 			]
 		);
-		// Save Google OAuth2 details.
-		\register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/oauth/google/finish',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ __CLASS__, 'api_google_auth_save_details' ],
-				'permission_callback' => [ __CLASS__, 'permissions_check' ],
-				'args'                => [
-					'access_token'  => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'refresh_token' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'csrf_token'    => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'expires_at'    => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
-			]
-		);
 		// Revoke Google OAuth2 details.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
