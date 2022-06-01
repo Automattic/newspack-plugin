@@ -88,6 +88,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';
