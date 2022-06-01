@@ -19,7 +19,7 @@ const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );
 };
 
-const GoogleOAuth = ( { setError, onInit } ) => {
+const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 	const [ initialized, setInitialized ] = useState( false );
 	const [ authState, setAuthState ] = useState( {} );
 
@@ -62,7 +62,12 @@ const GoogleOAuth = ( { setError, onInit } ) => {
 			let error = null;
 			setInFlight( true );
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
-				.then( setAuthState )
+				.then( data => {
+					setAuthState( data );
+					if ( data?.user_basic_info && typeof onSuccess === 'function' ) {
+						onSuccess( data );
+					}
+				} )
 				.catch( err => {
 					error = err;
 					handleError( err );

@@ -17,11 +17,6 @@ import FivetranConnection from './fivetran';
 
 const Main = () => {
 	const [ error, setError ] = useState();
-	const [ isResolvingAuth, setIsResolvingAuth ] = useState( true );
-
-	if ( isResolvingAuth ) {
-		return <Waiting isCenter />;
-	}
 
 	return (
 		<>
@@ -34,11 +29,7 @@ const Main = () => {
 			{ newspack_connections_data.can_connect_fivetran && (
 				<>
 					<SectionHeader title="Fivetran" />
-					<FivetranConnection
-						isResolvingAuth={ isResolvingAuth }
-						setIsResolvingAuth={ setIsResolvingAuth }
-						setError={ setError }
-					/>
+					<FivetranConnection setError={ setError } />
 				</>
 			) }
 		</>

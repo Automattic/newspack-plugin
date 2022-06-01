@@ -11,19 +11,29 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
 import { Card, ButtonCard, Notice, TextControl } from '../../../../components/src';
 import GoogleOAuth from '../../../connections/views/main/google';
 
-export default function AdsOnboarding( { onUpdate } ) {
+export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 	const credentialsInputFile = useRef( null );
 	const [ fileError, setFileError ] = useState( '' );
+	const [ inFlight, setInFlight ] = useState( false );
 	const [ networkCode, setNetworkCode ] = useState( '' );
 	const [ isConnected, setIsConnected ] = useState( false );
 	const [ useOAuth, setUseOAuth ] = useState( null );
 
-	const updateGAMCredentials = credentials =>
+	const updateGAMCredentials = credentials => {
+		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/advertising/credentials',
 			method: 'post',
 			data: { credentials, onboarding: true },
-		} ).then( () => setIsConnected( true ) );
+		} )
+			.then( () => {
+				setIsConnected( true );
+				if ( typeof onSuccess === 'function' ) onSuccess();
+			} )
+			.finally( () => {
+				setInFlight( false );
+			} );
+	};
 
 	const handleCredentialsFile = event => {
 		if ( event.target.files.length && event.target.files[ 0 ] ) {
@@ -64,7 +74,7 @@ export default function AdsOnboarding( { onUpdate } ) {
 								) }
 							</p>
 						) }
-						<GoogleOAuth onInit={ err => setUseOAuth( ! err ) } />
+						<GoogleOAuth onInit={ err => setUseOAuth( ! err ) } onSuccess={ onSuccess } />
 					</Fragment>
 				) }
 				{ false === useOAuth && (
@@ -80,12 +90,15 @@ export default function AdsOnboarding( { onUpdate } ) {
 									) }
 								</p>
 								<TextControl
+									disabled={ inFlight }
 									isWide
+									name="network_code"
 									label={ __( 'Network code', 'newspack' ) }
 									value={ networkCode }
 									onChange={ setNetworkCode }
 								/>
 								<ButtonCard
+									disabled={ inFlight }
 									onClick={ () => credentialsInputFile.current.click() }
 									title={ __( 'Upload credentials', 'newspack' ) }
 									desc={ [
@@ -97,6 +110,16 @@ export default function AdsOnboarding( { onUpdate } ) {
 									] }
 									chevron
 								/>
+								<p>
+									<a
+										href="https://support.google.com/admanager/answer/6078734"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{ __( 'How to get a service account user for API access', 'newspack' ) }
+									</a>
+									.
+								</p>
 								<input
 									type="file"
 									accept=".json"
