@@ -120,6 +120,7 @@ final class Newspack {
 		// Integrations w/ third-party plugins.
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-jetpack.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-gravityforms.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 

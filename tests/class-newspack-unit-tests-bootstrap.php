@@ -107,4 +107,6 @@ class Newspack_Unit_Tests_Bootstrap {
 	}
 }
 
+define( 'IS_TEST_ENV', 1 );
+
 Newspack_Unit_Tests_Bootstrap::instance();
