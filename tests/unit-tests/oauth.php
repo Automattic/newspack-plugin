@@ -44,7 +44,7 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 	/**
 	 * Google OAuth flow.
 	 */
-	public function test_google_oauth() {
+	public function test_oauth_google() {
 		self::expectException( Exception::class );
 		self::assertFalse(
 			OAuth::authenticate_proxy_url( 'google', '/wp-json/newspack-google' ),
@@ -85,7 +85,7 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 		Google_OAuth::api_google_auth_save_details( $proxy_response );
 
 		self::assertEquals(
-			false,
+			[],
 			Google_OAuth::get_google_auth_saved_data(),
 			'The auth data is not readable for just anyone.'
 		);
@@ -133,7 +133,7 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 	/**
 	 * Fivetran OAuth flow.
 	 */
-	public function test_fivetran_oauth() {
+	public function test_oauth_fivetran() {
 		self::expectException( Exception::class );
 		self::assertFalse(
 			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
