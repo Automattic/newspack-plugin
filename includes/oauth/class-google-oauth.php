@@ -384,6 +384,8 @@ class Google_OAuth {
 		$oauth_object->setAccessToken( $auth_data['access_token'] );
 		if ( isset( $auth_data['refresh_token'] ) ) {
 			$oauth_object->setRefreshToken( $auth_data['refresh_token'] );
+		} else {
+			Logger::log( 'Refresh token missing in the credentials – the authorisation will have to be refreshed in an hour.' );
 		}
 		return $oauth_object;
 	}
