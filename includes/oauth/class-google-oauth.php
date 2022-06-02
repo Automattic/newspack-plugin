@@ -174,7 +174,6 @@ class Google_OAuth {
 	 * OAuth callback.
 	 */
 	public static function oauth_callback() {
-		Logger::log( 'Attempting to save credentials.' );
 		if ( ! isset( $_GET[ self::AUTH_CALLBACK ] ) ) {
 			return;
 		}
@@ -188,6 +187,8 @@ class Google_OAuth {
 			wp_die( esc_html__( 'Invalid request', 'newspack' ) );
 			return;
 		}
+
+		Logger::log( 'Attempting to save credentials.' );
 
 		$auth_save_data = [
 			'csrf_token'   => sanitize_text_field( $_REQUEST['csrf_token'] ),
