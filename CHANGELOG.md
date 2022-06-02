@@ -1,3 +1,10 @@
+## [1.83.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.1...v1.83.2-hotfix.1) (2022-06-02)
+
+
+### Bug Fixes
+
+* **ads:** handle units from disconnected gam ([a7236d7](https://github.com/Automattic/newspack-plugin/commit/a7236d7e194ce52168c29ab8387c10e3f0d2be7a))
+
 ## [1.83.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.0...v1.83.1) (2022-05-30)
 
 
