@@ -70,11 +70,11 @@ const AdUnits = ( {
 	const isLegacy = 'legacy' === connection_mode;
 
 	const isDisconnectedGAM = adUnit => {
-		return isLegacy && ! adUnit.is_legacy;
+		return ! adUnit.is_default && ! adUnit.is_legacy && isLegacy;
 	};
 
 	const canEdit = adUnit => {
-		return ! isDisconnectedGAM( adUnit );
+		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
 	};
 
 	return (
@@ -183,11 +183,6 @@ const AdUnits = ( {
 												<i>{ __( 'Code:', 'newspack' ) }</i> <code>{ adUnit.code }</code>
 											</>
 										) : null }
-										{ isDisconnectedGAM( adUnit ) ? (
-											<>
-												<i>{ __( 'Disconnected from GAM.', 'newspack' ) }</i> |{ ' ' }
-											</>
-										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
 											<>
 												{ ' ' }
@@ -208,6 +203,12 @@ const AdUnits = ( {
 											<>
 												{ ' ' }
 												| <i>{ __( 'Default ad unit.', 'newspack' ) }</i>
+											</>
+										) : null }
+										{ isDisconnectedGAM( adUnit ) ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Disconnected from GAM.', 'newspack' ) }</i>
 											</>
 										) : null }
 									</span>
