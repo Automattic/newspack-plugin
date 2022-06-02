@@ -126,7 +126,7 @@ final class Magic_Link {
 
 		/** Fetch cookie if available. */
 		if ( empty( $secret ) && isset( $_COOKIE[ self::COOKIE ] ) ) {
-		  // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 			$secret = \sanitize_text_field( \wp_unslash( $_COOKIE[ self::COOKIE ] ) );
 		}
 
