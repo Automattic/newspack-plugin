@@ -135,10 +135,6 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 		return __( 'Not connected', 'newspack' );
 	};
 
-	if ( ! initialized ) {
-		return null;
-	}
-
 	return (
 		<ActionCard
 			title={ __( 'Google', 'newspack' ) }
