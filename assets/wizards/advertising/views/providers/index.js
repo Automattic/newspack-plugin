@@ -46,6 +46,32 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		} );
 	};
 
+	let notifications = [];
+
+	if ( google_ad_manager.enabled && google_ad_manager.status.error ) {
+		notifications = notifications.concat( [ google_ad_manager.status.error, '\u00A0' ] );
+	} else if ( google_ad_manager?.created_targeting_keys?.length > 0 ) {
+		notifications = notifications.concat( [
+			__( 'Created custom targeting keys:' ) + '\u00A0',
+			google_ad_manager.created_targeting_keys.join( ', ' ) + '. \u00A0',
+			// eslint-disable-next-line react/jsx-indent
+			<ExternalLink
+				href={ `https://admanager.google.com/${ google_ad_manager.network_code }#inventory/custom_targeting/list` }
+				key="google-ad-manager-custom-targeting-link"
+			>
+				{ __( 'Visit your GAM dashboard' ) }
+			</ExternalLink>,
+		] );
+	}
+
+	if ( google_ad_manager.enabled && ! google_ad_manager.status.connected ) {
+		notifications.push(
+			<Button isLink onClick={ () => setIsOnboarding( true ) }>
+				{ __( 'Click here to connect your account.', 'newspack' ) }
+			</Button>
+		);
+	}
+
 	return (
 		<>
 			<ActionCard
@@ -69,21 +95,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 				} }
 				titleLink={ google_ad_manager?.enabled ? '#/google_ad_manager' : null }
 				href={ google_ad_manager?.enabled && '#/google_ad_manager' }
-				notification={
-					google_ad_manager.enabled && google_ad_manager.status.error
-						? [ google_ad_manager.status.error ]
-						: google_ad_manager.created_targeting_keys?.length > 0 && [
-								__( 'Created custom targeting keys:' ) + '\u00A0',
-								google_ad_manager.created_targeting_keys.join( ', ' ) + '. \u00A0',
-								// eslint-disable-next-line react/jsx-indent
-								<ExternalLink
-									href={ `https://admanager.google.com/${ google_ad_manager.network_code }#inventory/custom_targeting/list` }
-									key="google-ad-manager-custom-targeting-link"
-								>
-									{ __( 'Visit your GAM dashboard' ) }
-								</ExternalLink>,
-						  ]
-				}
+				notification={ notifications }
 				notificationLevel={ google_ad_manager.created_targeting_keys?.length ? 'success' : 'error' }
 			/>
 			<PluginToggle
