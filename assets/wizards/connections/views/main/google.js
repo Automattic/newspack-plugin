@@ -85,12 +85,17 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 	useEffect( getCurrentAuth, [] );
 
 	const openAuth = () => {
+		const authWindow = window.open(
+			'about:blank',
+			'newspack_google_oauth',
+			'width=500,height=600'
+		);
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/oauth/google/start',
 		} )
 			.then( url => {
-				const authWindow = window.open( url, 'newspack_google_oauth', 'width=500,height=600' );
+				authWindow.location = url;
 				const interval = setInterval( () => {
 					if ( authWindow.closed ) {
 						clearInterval( interval );
@@ -99,6 +104,7 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 				}, 500 );
 			} )
 			.catch( err => {
+				authWindow.close();
 				handleError( err );
 				setInFlight( false );
 			} );
