@@ -215,7 +215,7 @@ class Google_OAuth {
 
 		Logger::log( 'Credentials saved.' );
 
-		/** Add success notice in case request is not a popup. */
+		/** Add success notice in case window is not closed automatically. */
 		add_action(
 			'admin_notices',
 			function() {
