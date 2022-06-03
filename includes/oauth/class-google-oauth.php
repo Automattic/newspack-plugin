@@ -130,7 +130,13 @@ class Google_OAuth {
 
 		if ( $tokens['csrf_token'] !== $saved_csrf_token ) {
 			Logger::log( 'Failed saving credentials - CSRF token mismatch.' );
-			return new \WP_Error( 'newspack_google_oauth', __( 'Session token mismatch.', 'newspack' ) );
+			return new \WP_Error(
+				'newspack_google_oauth',
+				__( 'Session token mismatch.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
 		}
 
 		$auth                 = self::get_google_auth_saved_data();
@@ -207,8 +213,14 @@ class Google_OAuth {
 		];
 		if ( isset( $request['refresh_token'] ) ) {
 			$auth_save_data['refresh_token'] = $request['refresh_token'];
+		} else {
+			Logger::log( 'Missing refresh token – credentials will expire after an hour an will have to be manually refreshed.' );
 		}
-		if ( self::save_auth_credentials( $auth_save_data ) ) {
+		$auth_save_result = self::save_auth_credentials( $auth_save_data );
+		if ( is_wp_error( $auth_save_result ) ) {
+			return $auth_save_result;
+		}
+		if ( $auth_save_result ) {
 			Logger::log( 'Credentials saved.' );
 			return \rest_ensure_response( [ 'status' => 'ok' ] );
 		} else {
@@ -338,6 +350,10 @@ class Google_OAuth {
 	 */
 	public static function get_oauth2_credentials() {
 		$auth_data = self::get_google_auth_saved_data();
+		if ( empty( $auth_data ) ) {
+			Logger::log( 'No credentials saved, OAuth credentials will not be returned.' );
+			return false;
+		}
 		if ( ! isset( $auth_data['access_token'] ) ) {
 			Logger::log( 'Access token is not set, OAuth credentials will not be returned.' );
 			return false;
@@ -369,6 +385,10 @@ class Google_OAuth {
 
 				if ( isset( $response_body->access_token ) ) {
 					Logger::log( 'Refreshed the token.' );
+					$auth_save_result = self::save_auth_credentials( $response_body );
+					if ( is_wp_error( $auth_save_result ) ) {
+						return $auth_save_result;
+					}
 					self::save_auth_credentials( $response_body );
 					$auth_data = self::get_google_auth_saved_data();
 				} else {
