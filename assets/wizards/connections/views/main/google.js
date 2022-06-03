@@ -95,16 +95,21 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 			path: '/newspack/v1/oauth/google/start',
 		} )
 			.then( url => {
-				authWindow.location = url;
-				const interval = setInterval( () => {
-					if ( authWindow.closed ) {
-						clearInterval( interval );
-						getCurrentAuth();
-					}
-				}, 500 );
+				/** authWindow can be 'null' due to browser's popup blocker. */
+				if ( authWindow ) {
+					authWindow.location = url;
+					const interval = setInterval( () => {
+						if ( authWindow?.closed ) {
+							clearInterval( interval );
+							getCurrentAuth();
+						}
+					}, 500 );
+				}
 			} )
 			.catch( err => {
-				authWindow.close();
+				if ( authWindow ) {
+					authWindow.close();
+				}
 				handleError( err );
 				setInFlight( false );
 			} );
