@@ -103,7 +103,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 									title={ __( 'Upload credentials', 'newspack' ) }
 									desc={ [
 										__(
-											'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
+											'Upload your Service Account credentials file to connect your GAM account.',
 											'newspack'
 										),
 										fileError && <Notice noticeText={ fileError } isError />,
