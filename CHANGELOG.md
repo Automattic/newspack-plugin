@@ -1,3 +1,10 @@
+# [1.84.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.84.0-alpha.2...v1.84.0-alpha.3) (2022-06-03)
+
+
+### Bug Fixes
+
+* **ads:** resolve conflicts from hotfix merge ([#1685](https://github.com/Automattic/newspack-plugin/issues/1685)) ([8ce12cd](https://github.com/Automattic/newspack-plugin/commit/8ce12cd3b898fd89ed51331c6d2ef298bbab7f05))
+
 # [1.84.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.84.0-alpha.1...v1.84.0-alpha.2) (2022-06-02)
 
 
