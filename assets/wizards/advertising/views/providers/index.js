@@ -110,7 +110,11 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 						<Button isSecondary disabled={ inFlight } onClick={ () => setIsOnboarding( false ) }>
 							{ __( 'Cancel', 'newspack' ) }
 						</Button>
-						<Button isPrimary disabled={ inFlight } onClick={ () => updateGAMNetworkCode() }>
+						<Button
+							isPrimary
+							disabled={ inFlight || ! networkCode }
+							onClick={ () => updateGAMNetworkCode() }
+						>
 							{ __( 'Save', 'newspack' ) }
 						</Button>
 					</Card>
