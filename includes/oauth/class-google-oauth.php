@@ -387,7 +387,8 @@ class Google_OAuth {
 					Logger::log( 'Refreshed the token.' );
 					$auth_save_result = self::save_auth_credentials( $response_body );
 					if ( is_wp_error( $auth_save_result ) ) {
-						return $auth_save_result;
+						Logger::log( 'Credentials saving resulted in an error: ' . $auth_save_result->get_error_message() );
+						return false;
 					}
 					$auth_data = self::get_google_auth_saved_data();
 				} else {
