@@ -77,7 +77,6 @@ class Google_OAuth {
 					],
 					'refresh_token' => [
 						'sanitize_callback' => 'sanitize_text_field',
-						'required'          => true,
 					],
 					'csrf_token'    => [
 						'sanitize_callback' => 'sanitize_text_field',
@@ -153,10 +152,12 @@ class Google_OAuth {
 			);
 		}
 
-		$auth                  = self::get_google_auth_saved_data();
-		$auth['access_token']  = $tokens['access_token'];
-		$auth['expires_at']    = $tokens['expires_at'];
-		$auth['refresh_token'] = $tokens['refresh_token'];
+		$auth                 = self::get_google_auth_saved_data();
+		$auth['access_token'] = $tokens['access_token'];
+		$auth['expires_at']   = $tokens['expires_at'];
+		if ( $tokens['refresh_token'] ) {
+			$auth['refresh_token'] = $tokens['refresh_token'];
+		}
 		self::remove_credentials();
 		Logger::log( 'Saving credentials to WP option ' . self::AUTH_DATA_META_NAME );
 		return add_option( self::AUTH_DATA_META_NAME, $auth );
@@ -218,12 +219,14 @@ class Google_OAuth {
 	 */
 	public static function api_google_auth_save_details( $request ) {
 		Logger::log( 'Attempting to save credentials…' );
-		$auth_save_data   = [
-			'access_token'  => $request['access_token'],
-			'refresh_token' => $request['refresh_token'],
-			'csrf_token'    => $request['csrf_token'],
-			'expires_at'    => $request['expires_at'],
+		$auth_save_data = [
+			'access_token' => $request['access_token'],
+			'csrf_token'   => $request['csrf_token'],
+			'expires_at'   => $request['expires_at'],
 		];
+		if ( isset( $request['refresh_token'] ) ) {
+			$auth_save_data['refresh_token'] = $request['refresh_token'];
+		}
 		$auth_save_result = self::save_auth_credentials( $auth_save_data );
 		if ( is_wp_error( $auth_save_result ) ) {
 			return $auth_save_result;
