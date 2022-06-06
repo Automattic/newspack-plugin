@@ -389,7 +389,6 @@ class Google_OAuth {
 					if ( is_wp_error( $auth_save_result ) ) {
 						return $auth_save_result;
 					}
-					self::save_auth_credentials( $response_body );
 					$auth_data = self::get_google_auth_saved_data();
 				} else {
 					Logger::log( 'Access token missing from the response.' );
