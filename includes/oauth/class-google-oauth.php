@@ -73,15 +73,19 @@ class Google_OAuth {
 				'args'                => [
 					'access_token'  => [
 						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
 					],
 					'refresh_token' => [
 						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
 					],
 					'csrf_token'    => [
 						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
 					],
 					'expires_at'    => [
 						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
 					],
 				],
 			]
@@ -138,13 +142,21 @@ class Google_OAuth {
 				]
 			);
 		}
-
-		$auth                 = self::get_google_auth_saved_data();
-		$auth['access_token'] = $tokens['access_token'];
-		$auth['expires_at']   = $tokens['expires_at'];
-		if ( isset( $tokens['refresh_token'] ) ) {
-			$auth['refresh_token'] = $tokens['refresh_token'];
+		if ( ! isset( $tokens['access_token'], $tokens['expires_at'], $tokens['refresh_token'] ) ) {
+			Logger::log( 'Failed saving credentials - missing data.' );
+			return new \WP_Error(
+				'newspack_google_oauth',
+				__( 'Missing data.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
 		}
+
+		$auth                  = self::get_google_auth_saved_data();
+		$auth['access_token']  = $tokens['access_token'];
+		$auth['expires_at']    = $tokens['expires_at'];
+		$auth['refresh_token'] = $tokens['refresh_token'];
 		self::remove_credentials();
 		Logger::log( 'Saving credentials to WP option ' . self::AUTH_DATA_META_NAME );
 		return add_option( self::AUTH_DATA_META_NAME, $auth );
@@ -206,16 +218,12 @@ class Google_OAuth {
 	 */
 	public static function api_google_auth_save_details( $request ) {
 		Logger::log( 'Attempting to save credentials…' );
-		$auth_save_data = [
-			'access_token' => $request['access_token'],
-			'csrf_token'   => $request['csrf_token'],
-			'expires_at'   => $request['expires_at'],
+		$auth_save_data   = [
+			'access_token'  => $request['access_token'],
+			'refresh_token' => $request['refresh_token'],
+			'csrf_token'    => $request['csrf_token'],
+			'expires_at'    => $request['expires_at'],
 		];
-		if ( isset( $request['refresh_token'] ) ) {
-			$auth_save_data['refresh_token'] = $request['refresh_token'];
-		} else {
-			Logger::log( 'Missing refresh token – credentials will expire after an hour an will have to be manually refreshed.' );
-		}
 		$auth_save_result = self::save_auth_credentials( $auth_save_data );
 		if ( is_wp_error( $auth_save_result ) ) {
 			return $auth_save_result;
@@ -237,15 +245,10 @@ class Google_OAuth {
 	public static function api_google_auth_revoke() {
 		Logger::log( 'Revoking credentials…' );
 		$auth_data = self::get_google_auth_saved_data();
-		if ( ! isset( $auth_data['access_token'] ) ) {
+		if ( ! isset( $auth_data['refresh_token'] ) ) {
 			return new \WP_Error( 'newspack_google_oauth', __( 'Missing token for user.', 'newspack' ) );
 		}
-		if ( isset( $auth_data['refresh_token'] ) ) {
-			$token = $auth_data['refresh_token'];
-		} else {
-			$token = $auth_data['access_token'];
-		}
-
+		$token  = $auth_data['refresh_token'];
 		$result = \wp_safe_remote_post(
 			add_query_arg( [ 'token' => $token ], 'https://oauth2.googleapis.com/revoke' )
 		);
