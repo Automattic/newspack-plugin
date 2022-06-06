@@ -276,11 +276,8 @@ class Google_OAuth {
 		if ( is_wp_error( $user_info_data ) ) {
 			return $user_info_data;
 		}
-		return \rest_ensure_response(
-			[
-				'user_basic_info' => $user_info_data,
-			]
-		);
+		$response['user_basic_info'] = $user_info_data;
+		return \rest_ensure_response( $response );
 	}
 
 	/**
