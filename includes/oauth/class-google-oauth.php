@@ -155,7 +155,7 @@ class Google_OAuth {
 		$auth                 = self::get_google_auth_saved_data();
 		$auth['access_token'] = $tokens['access_token'];
 		$auth['expires_at']   = $tokens['expires_at'];
-		if ( $tokens['refresh_token'] ) {
+		if ( isset( $tokens['refresh_token'] ) ) {
 			$auth['refresh_token'] = $tokens['refresh_token'];
 		}
 		self::remove_credentials();
