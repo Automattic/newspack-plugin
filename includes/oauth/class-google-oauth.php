@@ -141,7 +141,7 @@ class Google_OAuth {
 				]
 			);
 		}
-		if ( ! isset( $tokens['access_token'], $tokens['expires_at'], $tokens['refresh_token'] ) ) {
+		if ( ! isset( $tokens['access_token'], $tokens['expires_at'] ) ) {
 			Logger::log( 'Failed saving credentials - missing data.' );
 			return new \WP_Error(
 				'newspack_google_oauth',
