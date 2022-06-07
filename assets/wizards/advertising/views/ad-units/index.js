@@ -69,6 +69,14 @@ const AdUnits = ( {
 	const { can_use_service_account, can_use_oauth, connection_mode } = serviceData.status;
 	const isLegacy = 'legacy' === connection_mode;
 
+	const isDisconnectedGAM = adUnit => {
+		return ! adUnit.is_default && ! adUnit.is_legacy && isLegacy;
+	};
+
+	const canEdit = adUnit => {
+		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
+	};
+
 	return (
 		<>
 			<Card noBorder>
@@ -167,7 +175,7 @@ const AdUnits = ( {
 								key={ adUnit.id }
 								title={ adUnit.name }
 								isSmall
-								titleLink={ ! adUnit.is_default && editLink }
+								titleLink={ canEdit( adUnit ) && editLink }
 								description={ () => (
 									<span>
 										{ adUnit.code ? (
@@ -197,10 +205,16 @@ const AdUnits = ( {
 												| <i>{ __( 'Default ad unit.', 'newspack' ) }</i>
 											</>
 										) : null }
+										{ isDisconnectedGAM( adUnit ) ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Disconnected from GAM.', 'newspack' ) }</i>
+											</>
+										) : null }
 									</span>
 								) }
 								actionText={
-									! adUnit.is_default && (
+									canEdit( adUnit ) && (
 										<OptionsPopover
 											deleteLink={ () => onDelete( adUnit.id ) }
 											editLink={ editLink }
