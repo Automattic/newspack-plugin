@@ -16,7 +16,7 @@
     "@wordpress/browserslist-config": "^4.1.2",
     "eslint": "^7.32.0",
     "lint-staged": "^12.4.1",
-    "newspack-scripts": "^3.3.0",
+    "newspack-scripts": "^3.3.2",
     "prettier": "npm:wp-prettier@^2.2.1-beta-1",
     "stylelint": "^13.3.1"
   },
