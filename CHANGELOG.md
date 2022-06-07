@@ -1,3 +1,10 @@
+# [1.84.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.84.0-alpha.3...v1.84.0-alpha.4) (2022-06-07)
+
+
+### Bug Fixes
+
+* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([d2bfd9f](https://github.com/Automattic/newspack-plugin/commit/d2bfd9f163fe06b439009f8f2a885ea013c489af))
+
 ## [1.83.3](https://github.com/Automattic/newspack-plugin/compare/v1.83.2...v1.83.3) (2022-06-07)
 
 
