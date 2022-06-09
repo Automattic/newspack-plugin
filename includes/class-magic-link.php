@@ -163,7 +163,7 @@ final class Magic_Link {
 			return null;
 		}
 
-		/** Don't return client hash if it's not self-served. */
+		/** Return client hash only if it's self-served. */
 		if ( \is_user_logged_in() && \get_current_user_id() !== $user->ID ) {
 			return null;
 		}
