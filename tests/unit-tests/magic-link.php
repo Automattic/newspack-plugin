@@ -47,7 +47,13 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 
 		// Create a secondary sample reader.
 		if ( empty( self::$secondary_user_id ) ) {
-			self::$secondary_user_id = Reader_Activation::register_reader( 'secondary@test.com', 'Secondary Reader' );
+			self::$secondary_user_id = wp_insert_user(
+				[
+					'user_login' => 'secondary-user',
+					'user_pass'  => wp_generate_password(),
+					'user_email' => 'secondary@test.com',
+				]
+			);
 		}
 
 		// Create sample admin.
@@ -172,6 +178,17 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$validation   = Magic_Link::validate_token( self::$user_id, $token_data['client'], $random_token );
 		$this->assertTrue( is_wp_error( $validation ) );
 		$this->assertEquals( 'invalid_token', $validation->get_error_code() );
+	}
+
+	/**
+	 * Test invalid client hash.
+	 */
+	public function test_invalid_client_hash() {
+		$token_data         = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$random_client_hash = wp_generate_password( 32 );
+		$validation         = Magic_Link::validate_token( self::$user_id, $random_client_hash, $token_data['token'] );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_client', $validation->get_error_code() );
 	}
 
 	/**
