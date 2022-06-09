@@ -673,16 +673,16 @@ final class Magic_Link {
 			$message = '';
 			switch ( $update ) {
 				case $actions['send']:
-					$message = __( 'Magic link sent.', 'newspack' );
+					$message = __( 'Authentication link sent.', 'newspack' );
 					break;
 				case $actions['clear']:
-					$message = __( 'All magic link tokens were removed.', 'newspack' );
+					$message = __( 'All authentication link tokens were removed.', 'newspack' );
 					break;
 				case $actions['disable']:
-					$message = __( 'Magic links are now disabled.', 'newspack' );
+					$message = __( 'Authentication links are now disabled.', 'newspack' );
 					break;
 				case $actions['enable']:
-					$message = __( 'Magic links are now enabled.', 'newspack' );
+					$message = __( 'Authentication links are now enabled.', 'newspack' );
 					break;
 			}
 			if ( ! empty( $message ) ) {
@@ -764,21 +764,21 @@ final class Magic_Link {
 		$disabled = (bool) \get_user_meta( $user->ID, self::DISABLED_META, true );
 		?>
 		<div class="newspack-magic-link-management">
-			<h2><?php _e( 'Magic Link Management', 'newspack' ); ?></h2>
+			<h2><?php _e( 'Passwordless Authentication Management', 'newspack' ); ?></h2>
 			<table class="form-table" role="presentation">
 				<tr id="newspack-magic-link-support">
-					<th><label><?php _e( 'Magic Link Support', 'newspack' ); ?></label></th>
+					<th><label><?php _e( 'Authentication Link Support', 'newspack' ); ?></label></th>
 					<td>
 						<?php if ( $disabled ) : ?>
-							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'enable', $user->ID ) ); ?>"><?php _e( 'Enable Magic Links' ); ?></a>
+							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'enable', $user->ID ) ); ?>"><?php _e( 'Enable Authentication Links' ); ?></a>
 						<?php else : ?>
-							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'disable', $user->ID ) ); ?>"><?php _e( 'Disable Magic Links' ); ?></a>
+							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'disable', $user->ID ) ); ?>"><?php _e( 'Disable Authentication Links' ); ?></a>
 						<?php endif; ?>
 						<p class="description">
 								<?php
 								printf(
 									/* translators: %1$s: Disabled or enabled. %2$s: User's display name. */
-									\esc_html__( 'Magic link authentication is currently %1$s for %2$s.', 'newspack' ),
+									\esc_html__( 'Authentication links support is currently %1$s for %2$s.', 'newspack' ),
 									$disabled ? \esc_html__( 'disabled', 'newspack' ) : \esc_html__( 'enabled', 'newspack' ),
 									\esc_html( $user->display_name )
 								);
@@ -788,9 +788,9 @@ final class Magic_Link {
 				</tr>
 				<?php if ( ! $disabled ) : ?>
 					<tr id="newspack-magic-link-send">
-						<th><label><?php _e( 'Send Magic Link', 'newspack' ); ?></label></th>
+						<th><label><?php _e( 'Send Authentication Link', 'newspack' ); ?></label></th>
 						<td>
-							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'send', $user->ID ) ); ?>"><?php _e( 'Send Magic Link' ); ?></a>
+							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'send', $user->ID ) ); ?>"><?php _e( 'Send Authentication Link' ); ?></a>
 							<p class="description">
 								<?php
 								printf(
@@ -811,7 +811,7 @@ final class Magic_Link {
 								<?php
 								printf(
 									/* translators: %s: User's display name. */
-									\esc_html__( 'Clear all existing magic link tokens for %s.', 'newspack' ),
+									\esc_html__( 'Clear all existing authentication link tokens for %s.', 'newspack' ),
 									\esc_html( $user->display_name )
 								);
 								?>
