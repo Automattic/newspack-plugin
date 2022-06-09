@@ -24,8 +24,9 @@ final class Magic_Link {
 	const TOKENS_META   = 'np_magic_link_tokens';
 	const DISABLED_META = 'np_magic_link_disabled';
 
-	const AUTH_ACTION = 'np_auth_link';
-	const COOKIE      = 'np_auth_link';
+	const AUTH_ACTION        = 'np_auth_link';
+	const AUTH_ACTION_RESULT = 'np_auth_link_result';
+	const COOKIE             = 'np_auth_link';
 
 	/**
 	 * Current session secret.
@@ -506,6 +507,29 @@ final class Magic_Link {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET[ self::AUTH_ACTION_RESULT ] ) && 0 === absint( $_GET[ self::AUTH_ACTION_RESULT ] ) ) {
+			add_action(
+				'before_header',
+				function () {
+					?>
+					<style>
+						.newspack-magic-link-error {
+							text-align: center;
+							padding: 1em;
+							font-size: 0.7em;
+							border-bottom: 1px solid var( --wc-red );
+						}
+					</style>
+					<div class="newspack-magic-link-error">
+						<?php esc_html_e( 'We were not able to authenticate your account through this link. Please generate a new one.', 'newspack' ); ?>
+					</div>
+					<?php
+				},
+				1
+			);
+		}
+
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::AUTH_ACTION !== $_GET['action'] ) {
 			return;
@@ -520,12 +544,12 @@ final class Magic_Link {
 
 		$authenticated = self::authenticate( $user_id, $token );
 
-		if ( \is_wp_error( $authenticated ) ) {
-			/** Do not disclose error messages. */
-			\wp_die( \esc_html__( 'We were not able to authenticate through this link.', 'newspack' ) );
-		}
-
-		\wp_safe_redirect( \remove_query_arg( [ 'action', 'uid', 'token' ] ) );
+		\wp_safe_redirect(
+			\add_query_arg(
+				[ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ],
+				\remove_query_arg( [ 'action', 'uid', 'token' ] )
+			)
+		);
 		exit;
 	}
 
