@@ -1,3 +1,45 @@
+## [1.83.3](https://github.com/Automattic/newspack-plugin/compare/v1.83.2...v1.83.3) (2022-06-07)
+
+
+### Bug Fixes
+
+* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([d2bfd9f](https://github.com/Automattic/newspack-plugin/commit/d2bfd9f163fe06b439009f8f2a885ea013c489af))
+
+## [1.83.3-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.2...v1.83.3-hotfix.1) (2022-06-07)
+
+
+### Bug Fixes
+
+* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([d2bfd9f](https://github.com/Automattic/newspack-plugin/commit/d2bfd9f163fe06b439009f8f2a885ea013c489af))
+
+## [1.83.2](https://github.com/Automattic/newspack-plugin/compare/v1.83.1...v1.83.2) (2022-06-02)
+
+
+### Bug Fixes
+
+* **ads:** handle units from disconnected gam ([#1684](https://github.com/Automattic/newspack-plugin/issues/1684)) ([62ffa2b](https://github.com/Automattic/newspack-plugin/commit/62ffa2b5fd1cdea802ff4421d0c68c3c36c09d81))
+
+## [1.83.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.1...v1.83.2-hotfix.1) (2022-06-02)
+
+
+### Bug Fixes
+
+* **ads:** handle units from disconnected gam ([a7236d7](https://github.com/Automattic/newspack-plugin/commit/a7236d7e194ce52168c29ab8387c10e3f0d2be7a))
+
+## [1.83.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.0...v1.83.1) (2022-05-30)
+
+
+### Bug Fixes
+
+* force alpha release ([34971d8](https://github.com/Automattic/newspack-plugin/commit/34971d807e19641388ebbf65216ce0a9e7fede92))
+
+## [1.83.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.0...v1.83.1-alpha.1) (2022-05-27)
+
+
+### Bug Fixes
+
+* force alpha release ([34971d8](https://github.com/Automattic/newspack-plugin/commit/34971d807e19641388ebbf65216ce0a9e7fede92))
+
 # [1.83.0](https://github.com/Automattic/newspack-plugin/compare/v1.82.2...v1.83.0) (2022-05-24)
 
 

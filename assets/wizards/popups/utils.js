@@ -94,7 +94,7 @@ export const placementsForPopups = prompt => {
 const frequencyMap = {
 	once: __( 'Once', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Until dismissed', 'newspack' ),
+	always: __( 'Every page view', 'newspack' ),
 };
 
 export const frequenciesForPopup = popup => {
