@@ -417,34 +417,36 @@ final class Magic_Link {
 
 		$valid_token = false;
 
-		if ( ! $errors->has_errors() ) {
-			$expire = time() - self::get_token_expiration_period();
-
-			foreach ( $tokens as $index => $token_data ) {
-				if ( $token_data['time'] < $expire ) {
-					unset( $tokens[ $index ] );
-
-				} elseif ( $token_data['token'] === $token ) {
-					$valid_token = $token_data;
-
-					/** If token data has a client hash, it must be equal to the user's. */
-					if ( ! empty( $token_data['client'] ) && $token_data['client'] !== $client ) {
-						$errors->add( 'invalid_client', __( 'Invalid client.', 'newspack' ) );
-					}
-
-					unset( $tokens[ $index ] );
-					break;
-				}
-			}
-
-			if ( empty( $valid_token ) ) {
-				$errors->add( 'expired_token', __( 'Token has expired.', 'newspack' ) );
-			}
-			self::clear_client_secret_cookie();
-
-			$tokens = array_values( $tokens );
-			\update_user_meta( $user->ID, self::TOKENS_META, $tokens );
+		if ( $errors->has_errors() ) {
+			return $errors;
 		}
+
+		$expire = time() - self::get_token_expiration_period();
+
+		foreach ( $tokens as $index => $token_data ) {
+			if ( $token_data['time'] < $expire ) {
+				unset( $tokens[ $index ] );
+
+			} elseif ( $token_data['token'] === $token ) {
+				$valid_token = $token_data;
+
+				/** If token data has a client hash, it must be equal to the user's. */
+				if ( ! empty( $token_data['client'] ) && $token_data['client'] !== $client ) {
+					$errors->add( 'invalid_client', __( 'Invalid client.', 'newspack' ) );
+				}
+
+				unset( $tokens[ $index ] );
+				break;
+			}
+		}
+
+		if ( empty( $valid_token ) ) {
+			$errors->add( 'expired_token', __( 'Token has expired.', 'newspack' ) );
+		}
+		self::clear_client_secret_cookie();
+
+		$tokens = array_values( $tokens );
+		\update_user_meta( $user->ID, self::TOKENS_META, $tokens );
 
 		return $errors->has_errors() ? $errors : $valid_token;
 	}
