@@ -150,7 +150,7 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Get client hash for the current session.
+	 * Get client hash for the current session, if self-served.
 	 *
 	 * @param \WP_User $user         User the client hash is being generated for.
 	 * @param bool     $reset_secret Whether to reset the stored client secret.
