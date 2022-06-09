@@ -214,7 +214,7 @@ final class Magic_Link {
 		 */
 		do_action( 'newspack_magic_link_user_tokens_cleared', $user );
 	}
-	
+
 	/**
 	 * Generate magic link token.
 	 *
@@ -384,7 +384,7 @@ final class Magic_Link {
 
 	/**
 	 * Verify and returns the valid token given a user, token and client.
-	 * 
+	 *
 	 * This method cleans up expired tokens and returns the token data for
 	 * immediate use.
 	 *
@@ -723,7 +723,7 @@ final class Magic_Link {
 
 	/**
 	 * Magic link management for the user profile editor page.
-	 * 
+	 *
 	 * @param WP_User $user The current WP_User object.
 	 */
 	public static function edit_user_profile( $user ) {
