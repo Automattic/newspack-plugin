@@ -254,7 +254,7 @@ final class Magic_Link {
 		}
 
 		/** Generate the new token. */
-		$token       = \wp_hash( \wp_generate_password() );
+		$token       = \wp_generate_password( 60, false, false );
 		$client_hash = self::get_client_hash( $user, true );
 		$token_data  = [
 			'token'  => $token,
