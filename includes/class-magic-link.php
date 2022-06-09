@@ -183,7 +183,7 @@ final class Magic_Link {
 		/**
 		 * Filters whether to use a locally stored secret as a client hash argument.
 		 *
-		 * @param bool $use_cookie Whether to use a locally stored secret as a client hash argument.
+		 * @param bool $use_secret Whether to use a locally stored secret as a client hash argument.
 		 */
 		if ( true === \apply_filters( 'newspack_magic_link_use_secret', true ) ) {
 			$hash_args['secret'] = self::get_client_secret( $reset_secret );
@@ -253,14 +253,14 @@ final class Magic_Link {
 		}
 
 		/** Generate the new token. */
-		$token      = \wp_hash( \wp_generate_password() );
-		$client     = self::get_client_hash( $user, true );
-		$token_data = [
+		$token       = \wp_hash( \wp_generate_password() );
+		$client_hash = self::get_client_hash( $user, true );
+		$token_data  = [
 			'token'  => $token,
-			'client' => ! empty( $client ) ? $client : '',
+			'client' => ! empty( $client_hash ) ? $client_hash : '',
 			'time'   => $now,
 		];
-		$tokens[]   = $token_data;
+		$tokens[]    = $token_data;
 		\update_user_meta( $user->ID, self::TOKENS_META, $tokens );
 		return $token_data;
 	}
@@ -468,8 +468,8 @@ final class Magic_Link {
 			return new \WP_Error( 'invalid_user', __( 'User not found.', 'newspack' ) );
 		}
 
-		$client     = self::get_client_hash( $user );
-		$token_data = self::validate_token( $user_id, $client, $token );
+		$client_hash = self::get_client_hash( $user );
+		$token_data  = self::validate_token( $user_id, $client_hash, $token );
 
 		if ( \is_wp_error( $token_data ) ) {
 			return $token_data;
