@@ -284,7 +284,7 @@ final class Magic_Link {
 		return \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'uid'    => $user->ID,
+				'email'  => $user->user_email,
 				'token'  => $token_data['token'],
 			],
 			! empty( $url ) ? $url : \home_url()
@@ -534,20 +534,33 @@ final class Magic_Link {
 		if ( ! isset( $_GET['action'] ) || self::AUTH_ACTION !== $_GET['action'] ) {
 			return;
 		}
-		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['uid'] ) ) {
-			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
+
+		$errored = false;
+		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['email'] ) ) {
+			$errored = true;
 		}
 
-		$user_id = \absint( \wp_unslash( $_GET['uid'] ) );
-		$token   = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
+		$email = \sanitize_email( $_GET['email'] );
+		if ( $email ) {
+			$user = \get_user_by( 'email', $email );
+			if ( ! $user ) {
+				$errored = true;
+			}
+		} else {
+			$errored = true;
+		}
+		$token = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
 		// phpcs:enable
 
-		$authenticated = self::authenticate( $user_id, $token );
+		$authenticated = false;
+		if ( ! $errored ) {
+			$authenticated = self::authenticate( $user->ID, $token );
+		}
 
 		\wp_safe_redirect(
 			\add_query_arg(
 				[ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ],
-				\remove_query_arg( [ 'action', 'uid', 'token' ] )
+				\remove_query_arg( [ 'action', 'email', 'token' ] )
 			)
 		);
 		exit;
