@@ -441,7 +441,7 @@ final class Magic_Link {
 		}
 
 		if ( empty( $valid_token ) ) {
-			$errors->add( 'expired_token', __( 'Token has expired.', 'newspack' ) );
+			$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack' ) );
 		}
 		self::clear_client_secret_cookie();
 

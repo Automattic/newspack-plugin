@@ -20,6 +20,13 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	private static $user_id = null;
 
 	/**
+	 * Secondary reader user id.
+	 *
+	 * @var int
+	 */
+	private static $secondary_user_id = null;
+
+	/**
 	 * Admin user id.
 	 *
 	 * @var int
@@ -36,6 +43,11 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		// Create sample reader.
 		if ( empty( self::$user_id ) ) {
 			self::$user_id = Reader_Activation::register_reader( 'reader@test.com', 'Test Reader' );
+		}
+
+		// Create a secondary sample reader.
+		if ( empty( self::$secondary_user_id ) ) {
+			self::$secondary_user_id = Reader_Activation::register_reader( 'secondary@test.com', 'Secondary Reader' );
 		}
 
 		// Create sample admin.
@@ -62,7 +74,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	 *   @type string $time   Token creation time.
 	 * }
 	 */
-	public function assertToken( $token_data ) {
+	public function assertTokenIsValid( $token_data ) {
 		$this->assertFalse( is_wp_error( $token_data ) );
 		$this->assertIsString( $token_data['token'] );
 		$this->assertIsString( $token_data['client'] );
@@ -74,7 +86,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	 */
 	public function test_generate_token() {
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
-		$this->assertToken( $token_data );
+		$this->assertTokenIsValid( $token_data );
 	}
 
 	/**
@@ -82,7 +94,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	 */
 	public function test_validate_token() {
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
-		$this->assertToken( Magic_Link::validate_token( self::$user_id, $token_data['client'], $token_data['token'] ) );
+		$this->assertTokenIsValid( Magic_Link::validate_token( self::$user_id, $token_data['client'], $token_data['token'] ) );
 	}
 
 	/**
@@ -93,12 +105,12 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 
 		// First use should be valid.
 		$first_validation = Magic_Link::validate_token( self::$user_id, $token_data['client'], $token_data['token'] );
-		$this->assertToken( $first_validation );
+		$this->assertTokenIsValid( $first_validation );
 
-		// Second use should error with "expired_token", since it was deleted by previous use.
+		// Second use should error with "invalid_token", since it was deleted by previous use.
 		$second_validation = Magic_Link::validate_token( self::$user_id, $token_data['client'], $token_data['token'] );
 		$this->assertTrue( is_wp_error( $second_validation ) );
-		$this->assertEquals( 'expired_token', $second_validation->get_error_code() );
+		$this->assertEquals( 'invalid_token', $second_validation->get_error_code() );
 	}
 
 	/**
@@ -139,5 +151,40 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		wp_set_current_user( self::$admin_id );
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
 		$this->assertEmpty( $token_data['client'] );
+	}
+
+	/**
+	 * Test that valid token with different user ID.
+	 */
+	public function test_validate_token_with_different_user_id() {
+		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$validation = Magic_Link::validate_token( self::$secondary_user_id, $token_data['client'], $token_data['token'] );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_token', $validation->get_error_code() );
+	}
+
+	/**
+	 * Test invalid token.
+	 */
+	public function test_invalid_token() {
+		$token_data   = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$random_token = wp_generate_password( 32 );
+		$validation   = Magic_Link::validate_token( self::$user_id, $token_data['client'], $random_token );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_token', $validation->get_error_code() );
+	}
+
+	/**
+	 * Test that an expired token is invalid.
+	 */
+	public function test_expired_token() {
+		// Filter the token expiration time to be 0 seconds.
+		add_filter( 'newspack_magic_link_token_expiration', '__return_zero' );
+		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		// Sleep for 1 second to ensure the token is expired.
+		sleep( 1 );
+		$validation = Magic_Link::validate_token( self::$user_id, $token_data['client'], $token_data['token'] );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_token', $validation->get_error_code() );
 	}
 }
