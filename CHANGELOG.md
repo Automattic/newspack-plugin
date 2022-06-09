@@ -1,3 +1,179 @@
+## [1.83.3](https://github.com/Automattic/newspack-plugin/compare/v1.83.2...v1.83.3) (2022-06-07)
+
+
+### Bug Fixes
+
+* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([d2bfd9f](https://github.com/Automattic/newspack-plugin/commit/d2bfd9f163fe06b439009f8f2a885ea013c489af))
+
+## [1.83.3-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.2...v1.83.3-hotfix.1) (2022-06-07)
+
+
+### Bug Fixes
+
+* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([d2bfd9f](https://github.com/Automattic/newspack-plugin/commit/d2bfd9f163fe06b439009f8f2a885ea013c489af))
+
+## [1.83.2](https://github.com/Automattic/newspack-plugin/compare/v1.83.1...v1.83.2) (2022-06-02)
+
+
+### Bug Fixes
+
+* **ads:** handle units from disconnected gam ([#1684](https://github.com/Automattic/newspack-plugin/issues/1684)) ([62ffa2b](https://github.com/Automattic/newspack-plugin/commit/62ffa2b5fd1cdea802ff4421d0c68c3c36c09d81))
+
+## [1.83.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.1...v1.83.2-hotfix.1) (2022-06-02)
+
+
+### Bug Fixes
+
+* **ads:** handle units from disconnected gam ([a7236d7](https://github.com/Automattic/newspack-plugin/commit/a7236d7e194ce52168c29ab8387c10e3f0d2be7a))
+
+## [1.83.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.0...v1.83.1) (2022-05-30)
+
+
+### Bug Fixes
+
+* force alpha release ([34971d8](https://github.com/Automattic/newspack-plugin/commit/34971d807e19641388ebbf65216ce0a9e7fede92))
+
+## [1.83.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.83.0...v1.83.1-alpha.1) (2022-05-27)
+
+
+### Bug Fixes
+
+* force alpha release ([34971d8](https://github.com/Automattic/newspack-plugin/commit/34971d807e19641388ebbf65216ce0a9e7fede92))
+
+# [1.83.0](https://github.com/Automattic/newspack-plugin/compare/v1.82.2...v1.83.0) (2022-05-24)
+
+
+### Features
+
+* **amp:** add support for GA4 ([#1653](https://github.com/Automattic/newspack-plugin/issues/1653)) ([2beb990](https://github.com/Automattic/newspack-plugin/commit/2beb990d793710b6001526b5ce40c6405ca5edc8))
+
+## [1.82.2](https://github.com/Automattic/newspack-plugin/compare/v1.82.1...v1.82.2) (2022-05-23)
+
+
+### Bug Fixes
+
+* **rss-feeds:** skip Jetpack lazy loading on RSS feeds ([58c64bf](https://github.com/Automattic/newspack-plugin/commit/58c64bfc1e73654e135fcc162e2ea5a12e290599))
+
+## [1.82.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.82.1...v1.82.2-hotfix.1) (2022-05-23)
+
+
+### Bug Fixes
+
+* **rss-feeds:** skip Jetpack lazy loading on RSS feeds ([58c64bf](https://github.com/Automattic/newspack-plugin/commit/58c64bfc1e73654e135fcc162e2ea5a12e290599))
+
+## [1.82.1](https://github.com/Automattic/newspack-plugin/compare/v1.82.0...v1.82.1) (2022-05-18)
+
+
+### Bug Fixes
+
+* **ads:** check plugin before using method ([#1651](https://github.com/Automattic/newspack-plugin/issues/1651)) ([c694059](https://github.com/Automattic/newspack-plugin/commit/c6940594dc4fe181b5956b9bfc1be24f4c6354ed))
+* **woocommerce:** ensure task list exists before hiding ([#1636](https://github.com/Automattic/newspack-plugin/issues/1636)) ([06df216](https://github.com/Automattic/newspack-plugin/commit/06df2160f5d529ef0b6b392c5e394d08deba4b8d))
+
+## [1.82.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.82.0...v1.82.1-alpha.1) (2022-05-05)
+
+
+### Bug Fixes
+
+* **woocommerce:** ensure task list exists before hiding ([#1636](https://github.com/Automattic/newspack-plugin/issues/1636)) ([06df216](https://github.com/Automattic/newspack-plugin/commit/06df2160f5d529ef0b6b392c5e394d08deba4b8d))
+
+# [1.82.0](https://github.com/Automattic/newspack-plugin/compare/v1.81.0...v1.82.0) (2022-05-03)
+
+
+### Bug Fixes
+
+* **ads:** update refresh control help text ([#1601](https://github.com/Automattic/newspack-plugin/issues/1601)) ([fc70afc](https://github.com/Automattic/newspack-plugin/commit/fc70afc1f93fd59819f5d71569f64c764446ffdf))
+* crashes with autocomplete inputs in Campaigns wizard and CategoryAutocomplete ([#1609](https://github.com/Automattic/newspack-plugin/issues/1609)) ([101d1d6](https://github.com/Automattic/newspack-plugin/commit/101d1d68497a0a0a843900531667e4ac42467d32))
+* handle Yoast Premium as a replacement for Yoast ([#1614](https://github.com/Automattic/newspack-plugin/issues/1614)) ([9a503c0](https://github.com/Automattic/newspack-plugin/commit/9a503c06a9445b35f0c3af00c997ef5a1236356c)), closes [#298](https://github.com/Automattic/newspack-plugin/issues/298)
+* **popups:** improve formatting of human-readable numbers ([#1603](https://github.com/Automattic/newspack-plugin/issues/1603)) ([3106f18](https://github.com/Automattic/newspack-plugin/commit/3106f180afb365d6dca55eb76bca2442d64ff51c))
+* relax capabilities required to interact with Newspack ([04eb0be](https://github.com/Automattic/newspack-plugin/commit/04eb0be8fedbda216a07da9c2fe64a42bc9c0a73)), closes [#543](https://github.com/Automattic/newspack-plugin/issues/543)
+* **salesforce:** a PHP warning on sync completion due to incorrect variable ([#1616](https://github.com/Automattic/newspack-plugin/issues/1616)) ([492a439](https://github.com/Automattic/newspack-plugin/commit/492a43955678af3421d919d952dd0105d0797591))
+
+
+### Features
+
+* **ads:** use ad sizes from plugin ([#1577](https://github.com/Automattic/newspack-plugin/issues/1577)) ([d238b08](https://github.com/Automattic/newspack-plugin/commit/d238b080da89441883fb5a0f7f4ec78a52a76e70))
+* **donations-stripe:** integrate w/ woocommerce-memberships ([#1599](https://github.com/Automattic/newspack-plugin/issues/1599)) ([807e224](https://github.com/Automattic/newspack-plugin/commit/807e22484660df3182c62339928f3e0444862342))
+* **setup:** notice on Setup wizard after setup completed ([#1610](https://github.com/Automattic/newspack-plugin/issues/1610)) ([22d6b1c](https://github.com/Automattic/newspack-plugin/commit/22d6b1c943a530195220d0fb0b9f322ff09daf10)), closes [#1561](https://github.com/Automattic/newspack-plugin/issues/1561)
+* **starter-content:** add excerpt & subtitle ([36c4452](https://github.com/Automattic/newspack-plugin/commit/36c44521ace54dc39b2bf6ad4dcfc0d874112cc6)), closes [#514](https://github.com/Automattic/newspack-plugin/issues/514)
+* update debug mode notice style and position ([#1605](https://github.com/Automattic/newspack-plugin/issues/1605)) ([b28075c](https://github.com/Automattic/newspack-plugin/commit/b28075cb504af1da3b37a487eca1316eb7bae629))
+* **woocommerce:** hide setup task list ([#1615](https://github.com/Automattic/newspack-plugin/issues/1615)) ([78854e8](https://github.com/Automattic/newspack-plugin/commit/78854e8015bfb5ca023e2a216e7b0a3b27b74375)), closes [#1156](https://github.com/Automattic/newspack-plugin/issues/1156)
+
+# [1.82.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.81.0...v1.82.0-alpha.1) (2022-05-02)
+
+
+### Bug Fixes
+
+* **ads:** update refresh control help text ([#1601](https://github.com/Automattic/newspack-plugin/issues/1601)) ([fc70afc](https://github.com/Automattic/newspack-plugin/commit/fc70afc1f93fd59819f5d71569f64c764446ffdf))
+* crashes with autocomplete inputs in Campaigns wizard and CategoryAutocomplete ([#1609](https://github.com/Automattic/newspack-plugin/issues/1609)) ([101d1d6](https://github.com/Automattic/newspack-plugin/commit/101d1d68497a0a0a843900531667e4ac42467d32))
+* handle Yoast Premium as a replacement for Yoast ([#1614](https://github.com/Automattic/newspack-plugin/issues/1614)) ([9a503c0](https://github.com/Automattic/newspack-plugin/commit/9a503c06a9445b35f0c3af00c997ef5a1236356c)), closes [#298](https://github.com/Automattic/newspack-plugin/issues/298)
+* **popups:** improve formatting of human-readable numbers ([#1603](https://github.com/Automattic/newspack-plugin/issues/1603)) ([3106f18](https://github.com/Automattic/newspack-plugin/commit/3106f180afb365d6dca55eb76bca2442d64ff51c))
+* relax capabilities required to interact with Newspack ([04eb0be](https://github.com/Automattic/newspack-plugin/commit/04eb0be8fedbda216a07da9c2fe64a42bc9c0a73)), closes [#543](https://github.com/Automattic/newspack-plugin/issues/543)
+* **salesforce:** a PHP warning on sync completion due to incorrect variable ([#1616](https://github.com/Automattic/newspack-plugin/issues/1616)) ([492a439](https://github.com/Automattic/newspack-plugin/commit/492a43955678af3421d919d952dd0105d0797591))
+
+
+### Features
+
+* **ads:** use ad sizes from plugin ([#1577](https://github.com/Automattic/newspack-plugin/issues/1577)) ([d238b08](https://github.com/Automattic/newspack-plugin/commit/d238b080da89441883fb5a0f7f4ec78a52a76e70))
+* **donations-stripe:** integrate w/ woocommerce-memberships ([#1599](https://github.com/Automattic/newspack-plugin/issues/1599)) ([807e224](https://github.com/Automattic/newspack-plugin/commit/807e22484660df3182c62339928f3e0444862342))
+* **setup:** notice on Setup wizard after setup completed ([#1610](https://github.com/Automattic/newspack-plugin/issues/1610)) ([22d6b1c](https://github.com/Automattic/newspack-plugin/commit/22d6b1c943a530195220d0fb0b9f322ff09daf10)), closes [#1561](https://github.com/Automattic/newspack-plugin/issues/1561)
+* **starter-content:** add excerpt & subtitle ([36c4452](https://github.com/Automattic/newspack-plugin/commit/36c44521ace54dc39b2bf6ad4dcfc0d874112cc6)), closes [#514](https://github.com/Automattic/newspack-plugin/issues/514)
+* update debug mode notice style and position ([#1605](https://github.com/Automattic/newspack-plugin/issues/1605)) ([b28075c](https://github.com/Automattic/newspack-plugin/commit/b28075cb504af1da3b37a487eca1316eb7bae629))
+* **woocommerce:** hide setup task list ([#1615](https://github.com/Automattic/newspack-plugin/issues/1615)) ([78854e8](https://github.com/Automattic/newspack-plugin/commit/78854e8015bfb5ca023e2a216e7b0a3b27b74375)), closes [#1156](https://github.com/Automattic/newspack-plugin/issues/1156)
+
+# [1.81.0](https://github.com/Automattic/newspack-plugin/compare/v1.80.1...v1.81.0) (2022-04-18)
+
+
+### Bug Fixes
+
+* enable block-based widgets ([#1550](https://github.com/Automattic/newspack-plugin/issues/1550)) ([270c2ea](https://github.com/Automattic/newspack-plugin/commit/270c2ea2336d26dcdb643e1b4d28483a82655af4))
+* **setup-wizard:** hide header on completed step ([#1591](https://github.com/Automattic/newspack-plugin/issues/1591)) ([9e6fbc7](https://github.com/Automattic/newspack-plugin/commit/9e6fbc7de8d720a7742e080787dde436cd34b2c4))
+* **stripe:** newsletters wizard typo ([#1594](https://github.com/Automattic/newspack-plugin/issues/1594)) ([391f1c1](https://github.com/Automattic/newspack-plugin/commit/391f1c110207fdb39420500a1aa40e035d85c531))
+
+
+### Features
+
+* remove support wizard ([fccc3b8](https://github.com/Automattic/newspack-plugin/commit/fccc3b8f2f1b2a1c50619ed37a9e846c620e5045))
+* **stripe-donations:** update WooCommerce on successful donation ([#1593](https://github.com/Automattic/newspack-plugin/issues/1593)) ([6f440c3](https://github.com/Automattic/newspack-plugin/commit/6f440c313fa6d58114a0e428ae193db339ea428c))
+
+# [1.81.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.81.0-alpha.2...v1.81.0-alpha.3) (2022-04-11)
+
+
+### Bug Fixes
+
+* **stripe:** newsletters wizard typo ([#1594](https://github.com/Automattic/newspack-plugin/issues/1594)) ([391f1c1](https://github.com/Automattic/newspack-plugin/commit/391f1c110207fdb39420500a1aa40e035d85c531))
+
+
+### Features
+
+* **stripe-donations:** update WooCommerce on successful donation ([#1593](https://github.com/Automattic/newspack-plugin/issues/1593)) ([6f440c3](https://github.com/Automattic/newspack-plugin/commit/6f440c313fa6d58114a0e428ae193db339ea428c))
+
+# [1.81.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.81.0-alpha.1...v1.81.0-alpha.2) (2022-04-11)
+
+
+### Bug Fixes
+
+* incorrect regex pattern ([d885517](https://github.com/Automattic/newspack-plugin/commit/d885517895156c8dc79f37de3f867c4e30862d76))
+* look for post ID as the last regex match ([2bfc1bd](https://github.com/Automattic/newspack-plugin/commit/2bfc1bd1bdaf05f7c8c011d59245b528e9b702d9))
+* **popups:** analytics popups report label regex ([56e72f2](https://github.com/Automattic/newspack-plugin/commit/56e72f223cf3c211bac7cb94f37f35d7822136db))
+* update regex to look for end-of-line OR hyphen separator ([111b63a](https://github.com/Automattic/newspack-plugin/commit/111b63a9319ed3a78dc10479e30daf83df54d2e3))
+
+## [1.80.1](https://github.com/Automattic/newspack-plugin/compare/v1.80.0...v1.80.1) (2022-04-11)
+
+
+### Bug Fixes
+
+* incorrect regex pattern ([d885517](https://github.com/Automattic/newspack-plugin/commit/d885517895156c8dc79f37de3f867c4e30862d76))
+* look for post ID as the last regex match ([2bfc1bd](https://github.com/Automattic/newspack-plugin/commit/2bfc1bd1bdaf05f7c8c011d59245b528e9b702d9))
+* **popups:** analytics popups report label regex ([56e72f2](https://github.com/Automattic/newspack-plugin/commit/56e72f223cf3c211bac7cb94f37f35d7822136db))
+* update regex to look for end-of-line OR hyphen separator ([111b63a](https://github.com/Automattic/newspack-plugin/commit/111b63a9319ed3a78dc10479e30daf83df54d2e3))
+
+## [1.80.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.80.0...v1.80.1-hotfix.1) (2022-04-08)
+
+
+### Bug Fixes
+
+* **popups:** analytics popups report label regex ([56e72f2](https://github.com/Automattic/newspack-plugin/commit/56e72f223cf3c211bac7cb94f37f35d7822136db))
+
 # [1.80.0](https://github.com/Automattic/newspack-plugin/compare/v1.79.1...v1.80.0) (2022-04-05)
 
 

@@ -32,6 +32,20 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jetpack_async_scripts' ], 20 );
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
 		add_action( 'wp_head', [ __CLASS__, 'fix_instant_search_sidebar_display' ], 10 );
+		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', [ __CLASS__, 'skip_lazy_loading_on_feeds' ], 10 );
+	}
+
+	/**
+	 * Skip image lazy-loading on RSS feeds.
+	 *
+	 * @param bool $skip_lazy_loading Whether to skip lazy-loading.
+	 * @return @bool Whether to skip lazy-loading.
+	 */
+	public static function skip_lazy_loading_on_feeds( $skip_lazy_loading ) {
+		if ( is_feed() ) {
+			return true;
+		}
+		return $skip_lazy_loading;
 	}
 
 	/**
@@ -40,13 +54,10 @@ class Jetpack {
 	 * @return @bool Whether to render scripts.
 	 */
 	private static function should_amp_plus_modules() {
-		if ( ! AMP_Enhancements::should_use_amp_plus() ) {
-			return false;
+		if ( defined( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES' ) ) {
+			return true === NEWSPACK_AMP_PLUS_JETPACK_MODULES;
 		}
-		if ( ! defined( 'NEWSPACK_AMP_PLUS_JETPACK_MODULES' ) || true !== NEWSPACK_AMP_PLUS_JETPACK_MODULES ) {
-			return false;
-		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -70,34 +81,19 @@ class Jetpack {
 		if ( ! self::should_amp_plus_modules() ) {
 			return $is_sanitized;
 		}
-		if ( isset( $error, $error['node_attributes'], $error['node_attributes']['id'] ) ) {
-			$script_has_matching_id = array_reduce(
-				self::$scripts_handles,
-				function( $carry, $id ) use ( $error ) {
-					return $carry || 0 === strpos( $error['node_attributes']['id'], $id ); // Match starting position so it includes `-js`, `-after` and `-before` scripts.
-				},
-				false
-			);
-			if ( $script_has_matching_id ) {
-				$is_sanitized = false;
-			}
+		if ( AMP_Enhancements::is_script_id_matching_strings( self::$scripts_handles, $error ) ) {
+			$is_sanitized = false;
 		}
+
 		// Match inline scripts by script text since they don't have IDs.
-		$texts = [
-			'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
-			'JetpackInstantSearchOptions', // Jetpack Instant Search options.
-		];
-		if ( isset( $error, $error['text'] ) ) {
-			$script_has_matching_text = array_reduce(
-				$texts,
-				function( $carry, $text ) use ( $error ) {
-					return $carry || false !== strpos( $error['text'], $text );
-				},
-				false
-			);
-			if ( $script_has_matching_text ) {
-				$is_sanitized = false;
-			}
+		if ( AMP_Enhancements::is_script_body_matching_strings(
+			[
+				'jetpackSearchModuleSorting',  // Jetpack Search module sorting.
+				'JetpackInstantSearchOptions', // Jetpack Instant Search options.
+			],
+			$error
+		) ) {
+			$is_sanitized = false;
 		}
 		return $is_sanitized;
 	}

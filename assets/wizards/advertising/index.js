@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression, AddOns } from './views';
-import { DEFAULT_SIZES as adUnitSizes } from './components/ad-unit-size-control';
+import { getSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -233,7 +233,7 @@ class AdvertisingWizard extends Component {
 											id: 0,
 											name: '',
 											code: '',
-											sizes: [ adUnitSizes[ 0 ] ],
+											sizes: [ getSizes()[ 0 ] ],
 											fluid: false,
 										}
 									}

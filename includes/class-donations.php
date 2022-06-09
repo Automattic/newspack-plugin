@@ -153,6 +153,20 @@ class Donations {
 	}
 
 	/**
+	 * Get donation product ID.
+	 *
+	 * @param string $frequency Donation frequency of the requested product.
+	 */
+	public static function get_donation_product( $frequency ) {
+		$is_donation_product_valid = self::validate_donation_product();
+		if ( is_wp_error( $is_donation_product_valid ) ) {
+			self::create_donation_product( $args );
+		}
+		$product_ids = self::get_donation_product_child_products_ids();
+		return isset( $product_ids[ $frequency ] ) ? $product_ids[ $frequency ] : false;
+	}
+
+	/**
 	 * Check if the donation product is valid.
 	 */
 	private static function validate_donation_product() {

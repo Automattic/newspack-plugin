@@ -69,6 +69,14 @@ const AdUnits = ( {
 	const { can_use_service_account, can_use_oauth, connection_mode } = serviceData.status;
 	const isLegacy = 'legacy' === connection_mode;
 
+	const isDisconnectedGAM = adUnit => {
+		return ! adUnit.is_default && ! adUnit.is_legacy && isLegacy;
+	};
+
+	const canEdit = adUnit => {
+		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
+	};
+
 	return (
 		<>
 			<Card noBorder>
@@ -159,6 +167,7 @@ const AdUnits = ( {
 					.filter( adUnit => adUnit.id !== 0 )
 					.sort( ( a, b ) => b.name.localeCompare( a.name ) )
 					.sort( a => ( a.is_legacy ? 1 : -1 ) )
+					.sort( a => ( a.is_default ? 1 : -1 ) )
 					.map( adUnit => {
 						const editLink = `#${ service }/${ adUnit.id }`;
 						return (
@@ -166,26 +175,51 @@ const AdUnits = ( {
 								key={ adUnit.id }
 								title={ adUnit.name }
 								isSmall
-								titleLink={ editLink }
+								titleLink={ canEdit( adUnit ) && editLink }
 								description={ () => (
 									<span>
-										{ adUnit.is_legacy ? (
+										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Legacy ad unit.', 'newspack' ) }</i> |{ ' ' }
+												<i>{ __( 'Code:', 'newspack' ) }</i> <code>{ adUnit.code }</code>
 											</>
 										) : null }
-										{ __( 'Sizes:', 'newspack' ) }{ ' ' }
-										{ adUnit.sizes.map( ( size, i ) => (
-											<code key={ i }>{ size.join( 'x' ) }</code>
-										) ) }
-										{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
+										{ adUnit.sizes?.length || adUnit.fluid ? (
+											<>
+												{ ' ' }
+												| { __( 'Sizes:', 'newspack' ) }{ ' ' }
+												{ adUnit.sizes.map( ( size, i ) => (
+													<code key={ i }>{ Array.isArray( size ) ? size.join( 'x' ) : size }</code>
+												) ) }
+												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
+											</>
+										) : null }
+										{ adUnit.is_legacy ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Legacy ad unit.', 'newspack' ) }</i>
+											</>
+										) : null }
+										{ adUnit.is_default ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Default ad unit.', 'newspack' ) }</i>
+											</>
+										) : null }
+										{ isDisconnectedGAM( adUnit ) ? (
+											<>
+												{ ' ' }
+												| <i>{ __( 'Disconnected from GAM.', 'newspack' ) }</i>
+											</>
+										) : null }
 									</span>
 								) }
 								actionText={
-									<OptionsPopover
-										deleteLink={ () => onDelete( adUnit.id ) }
-										editLink={ editLink }
-									/>
+									canEdit( adUnit ) && (
+										<OptionsPopover
+											deleteLink={ () => onDelete( adUnit.id ) }
+											editLink={ editLink }
+										/>
+									)
 								}
 							/>
 						);

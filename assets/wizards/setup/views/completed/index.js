@@ -23,8 +23,10 @@ import {
 
 const Completed = () => {
 	useEffect( () => {
-		document.body.classList.add( 'newspack-wizard__blue' );
+		document.body.classList.add( 'newspack-wizard__completed', 'newspack-wizard__blue' );
 		document.querySelector( '.newspack-wizard__header' ).remove();
+		return () =>
+			document.body.classList.remove( 'newspack-wizard__completed', 'newspack-wizard__blue' );
 	}, [] );
 
 	const cardClasses = classnames( 'flex', 'flex-column', 'justify-between' );

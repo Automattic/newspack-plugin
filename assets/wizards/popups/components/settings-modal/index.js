@@ -177,7 +177,9 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								value={ excludedCategories || [] }
 								onChange={ tokens =>
 									setPromptConfig( {
-										options: { excluded_categories: tokens.map( token => token.id ) },
+										options: {
+											excluded_categories: tokens.map( token => token.id ),
+										},
 									} )
 								}
 								description={ __(
@@ -191,7 +193,13 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 								hideHelpFromVision
 								taxonomy="tags"
 								value={ excludedTags || [] }
-								onChange={ tokens => setPromptConfig( { options: { excluded_tags: tokens } } ) }
+								onChange={ tokens =>
+									setPromptConfig( {
+										options: {
+											excluded_tags: tokens.map( token => token.id ),
+										},
+									} )
+								}
 								description={ __(
 									'Prompt will not appear on posts with the specified tags.',
 									'newspack'
