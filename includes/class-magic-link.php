@@ -640,14 +640,14 @@ final class Magic_Link {
 	 * @return string Admin URL to perform an admin action.
 	 */
 	private static function get_admin_action_url( $action, $user_id ) {
-		if ( ! is_admin() ) {
+		if ( ! \is_admin() ) {
 			return '';
 		}
 		if ( ! isset( self::ADMIN_ACTIONS[ $action ] ) ) {
 			return '';
 		}
 		$admin_action = self::ADMIN_ACTIONS[ $action ];
-		return add_query_arg(
+		return \add_query_arg(
 			[
 				'action'   => $admin_action,
 				'uid'      => $user_id,
