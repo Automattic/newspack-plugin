@@ -28,6 +28,8 @@ const Intro = () => {
 							path: [ 'module_enabled_rss' ],
 							value,
 						},
+					} ).then( () => {
+						window.location.reload( true );
 					} );
 				} }
 			/>
