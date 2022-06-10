@@ -114,27 +114,27 @@ class RSS {
 	 */
 	public static function register_feed_cpt() {
 		$labels = array(
-			'name'               => _x( 'RSS Feeds', 'post type general name', 'newspack-rss-enhancements' ),
-			'singular_name'      => _x( 'RSS Feed', 'post type singular name', 'newspack-rss-enhancements' ),
-			'menu_name'          => _x( 'RSS Feeds', 'admin menu', 'newspack-rss-enhancements' ),
-			'name_admin_bar'     => _x( 'RSS Feed', 'add new on admin bar', 'newspack-rss-enhancements' ),
-			'add_new'            => _x( 'Add New', 'rss feed', 'newspack-rss-enhancements' ),
-			'add_new_item'       => __( 'Add New RSS Feed', 'newspack-rss-enhancements' ),
-			'new_item'           => __( 'New RSS Feed', 'newspack-rss-enhancements' ),
-			'edit_item'          => __( 'Edit RSS Feed', 'newspack-rss-enhancements' ),
-			'view_item'          => __( 'View RSS Feed', 'newspack-rss-enhancements' ),
-			'all_items'          => __( 'All RSS Feeds', 'newspack-rss-enhancements' ),
-			'search_items'       => __( 'Search RSS Feeds', 'newspack-rss-enhancements' ),
-			'parent_item_colon'  => __( 'Parent RSS Feeds:', 'newspack-rss-enhancements' ),
-			'not_found'          => __( 'No RSS feeds found.', 'newspack-rss-enhancements' ),
-			'not_found_in_trash' => __( 'No RSS seeds found in Trash.', 'newspack-rss-enhancements' ),
-			'item_published'     => __( 'RSS Feed published', 'newspack-rss-enhancements' ),
-			'item_updated'       => __( 'RSS Feed updated', 'newspack-rss-enhancements' ),
+			'name'               => _x( 'RSS Feeds', 'post type general name', 'newspack-plugin' ),
+			'singular_name'      => _x( 'RSS Feed', 'post type singular name', 'newspack-plugin' ),
+			'menu_name'          => _x( 'RSS Feeds', 'admin menu', 'newspack-plugin' ),
+			'name_admin_bar'     => _x( 'RSS Feed', 'add new on admin bar', 'newspack-plugin' ),
+			'add_new'            => _x( 'Add New', 'rss feed', 'newspack-plugin' ),
+			'add_new_item'       => __( 'Add New RSS Feed', 'newspack-plugin' ),
+			'new_item'           => __( 'New RSS Feed', 'newspack-plugin' ),
+			'edit_item'          => __( 'Edit RSS Feed', 'newspack-plugin' ),
+			'view_item'          => __( 'View RSS Feed', 'newspack-plugin' ),
+			'all_items'          => __( 'All RSS Feeds', 'newspack-plugin' ),
+			'search_items'       => __( 'Search RSS Feeds', 'newspack-plugin' ),
+			'parent_item_colon'  => __( 'Parent RSS Feeds:', 'newspack-plugin' ),
+			'not_found'          => __( 'No RSS feeds found.', 'newspack-plugin' ),
+			'not_found_in_trash' => __( 'No RSS seeds found in Trash.', 'newspack-plugin' ),
+			'item_published'     => __( 'RSS Feed published', 'newspack-plugin' ),
+			'item_updated'       => __( 'RSS Feed updated', 'newspack-plugin' ),
 		);
 
 		$args = array(
 			'labels'               => $labels,
-			'description'          => __( 'RSS feeds customized for third-party services.', 'newspack-rss-enhancements' ),
+			'description'          => __( 'RSS feeds customized for third-party services.', 'newspack-plugin' ),
 			'public'               => true,
 			'exclude_from_search'  => true,
 			'publicly_queryable'   => false,
@@ -162,7 +162,7 @@ class RSS {
 	 * @return array Modified $columns.
 	 */
 	public static function columns_head( $columns ) {
-		$columns['feed_url'] = __( 'Feed URL', 'newspack-rss-enhancements' );
+		$columns['feed_url'] = __( 'Feed URL', 'newspack-plugin' );
 		return $columns;
 	}
 
@@ -191,19 +191,19 @@ class RSS {
 	public static function add_metaboxes( $feed_post ) {
 		add_meta_box(
 			'partner_rss_feed_url',
-			__( 'Feed URL', 'newspack-rss-enhancements' ),
+			__( 'Feed URL', 'newspack-plugin' ),
 			[ __CLASS__, 'render_url_metabox' ],
 			self::FEED_CPT
 		);
 		add_meta_box(
 			'partner_rss_feed_content_settings',
-			__( 'Content Settings', 'newspack-rss-enhancements' ),
+			__( 'Content Settings', 'newspack-plugin' ),
 			[ __CLASS__, 'render_content_settings_metabox' ],
 			self::FEED_CPT
 		);
 		add_meta_box(
 			'partner_rss_feed_technical_settings',
-			__( 'Technical Settings', 'newspack-rss-enhancements' ),
+			__( 'Technical Settings', 'newspack-plugin' ),
 			[ __CLASS__, 'render_technical_settings_metabox' ],
 			self::FEED_CPT
 		);
@@ -246,7 +246,7 @@ class RSS {
 		if ( 'publish' !== $feed_post->post_status ) {
 			?>
 			<h3>
-				<?php esc_html_e( 'A URL will be generated for this feed once published', 'newspack-rss-enhancements' ); ?>
+				<?php esc_html_e( 'A URL will be generated for this feed once published', 'newspack-plugin' ); ?>
 			</h3>
 			<?php
 			return;
@@ -275,28 +275,28 @@ class RSS {
 		?>
 		<table>
 			<tr>
-				<th><?php esc_html_e( 'Number of posts to display in feed:', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Number of posts to display in feed:', 'newspack-plugin' ); ?></th>
 				<td>
 					<input name="num_items_in_feed" type="number" min="1" value="<?php echo esc_attr( $settings['num_items_in_feed'] ); ?>" />
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Limit timeframe to last # of hours:', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Limit timeframe to last # of hours:', 'newspack-plugin' ); ?></th>
 				<td>
 					<input name="timeframe" type="number" value="<?php echo esc_attr( $settings['timeframe'] ); ?>" />
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Use post full content or excerpt:', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Use post full content or excerpt:', 'newspack-plugin' ); ?></th>
 				<td>
 					<select name="full_content">
-						<option value="1" <?php selected( $settings['full_content'] ); ?> ><?php esc_html_e( 'Full content', 'newspack-rss-enhancements' ); ?></option>
-						<option value="0" <?php selected( ! $settings['full_content'] ); ?> ><?php esc_html_e( 'Excerpt', 'newspack-rss-enhancements' ); ?></option>
+						<option value="1" <?php selected( $settings['full_content'] ); ?> ><?php esc_html_e( 'Full content', 'newspack-plugin' ); ?></option>
+						<option value="0" <?php selected( ! $settings['full_content'] ); ?> ><?php esc_html_e( 'Excerpt', 'newspack-plugin' ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Include only posts from these categories:', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Include only posts from these categories:', 'newspack-plugin' ); ?></th>
 				<td>
 					<select id="category_include" name="category_include[]" multiple="multiple" style="width:300px">
 						<?php foreach ( $categories as $category ) : ?>
@@ -306,7 +306,7 @@ class RSS {
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Exclude posts from these categories:', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Exclude posts from these categories:', 'newspack-plugin' ); ?></th>
 				<td>
 					<select id="category_exclude" name="category_exclude[]" multiple="multiple" style="width:300px">
 						<?php foreach ( $categories as $category ) : ?>
@@ -338,42 +338,42 @@ class RSS {
 
 		<table>
 			<tr>
-				<th><?php esc_html_e( 'Add post featured images in <image> tags', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Add post featured images in <image> tags', 'newspack-plugin' ); ?></th>
 				<td>
 					<input type="hidden" name="use_image_tags" value="0" />
 					<input type="checkbox" name="use_image_tags" value="1" <?php checked( $settings['use_image_tags'] ); ?>/>
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Add post featured images in <media:> tags', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Add post featured images in <media:> tags', 'newspack-plugin' ); ?></th>
 				<td>
 					<input type="hidden" name="use_media_tags" value="0" />
 					<input type="checkbox" name="use_media_tags" value="1" <?php checked( $settings['use_media_tags'] ); ?> />
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Add post updated time in <updated> tags', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Add post updated time in <updated> tags', 'newspack-plugin' ); ?></th>
 				<td>
 					<input type="hidden" name="use_updated_tags" value="0" />
 					<input type="checkbox" name="use_updated_tags" value="1" <?php checked( $settings['use_updated_tags'] ); ?> />
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Add categories and tags in <tags> element', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Add categories and tags in <tags> element', 'newspack-plugin' ); ?></th>
 				<td>
 					<input type="hidden" name="use_tags_tags" value="0" />
 					<input type="checkbox" name="use_tags_tags" value="1" <?php checked( $settings['use_tags_tags'] ); ?> />
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Add featured image at the top of feed content', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Add featured image at the top of feed content', 'newspack-plugin' ); ?></th>
 				<td>
 					<input type="hidden" name="content_featured_image" value="0" />
 					<input type="checkbox" name="content_featured_image" value="1" <?php checked( $settings['content_featured_image'] ); ?> />
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Add Yahoo namespace to RSS namespace: xmlns:media="http://search.yahoo.com/mrss/"', 'newspack-rss-enhancements' ); ?></th>
+				<th><?php esc_html_e( 'Add Yahoo namespace to RSS namespace: xmlns:media="http://search.yahoo.com/mrss/"', 'newspack-plugin' ); ?></th>
 				<td>
 					<input type="hidden" name="yahoo_namespace" value="0" />
 					<input type="checkbox" name="yahoo_namespace" value="1" <?php checked( $settings['yahoo_namespace'] ); ?> />
