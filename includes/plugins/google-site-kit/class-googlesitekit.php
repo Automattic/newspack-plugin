@@ -11,10 +11,6 @@ use Google\Site_Kit\Context;
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! defined( 'IS_TEST_ENV' ) ) {
-	require_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekitanalytics.php';
-}
-
 /**
  * Main class.
  */
@@ -100,6 +96,11 @@ class GoogleSiteKit {
 	 * Fetch data for the GA account data and set up GA4.
 	 */
 	public static function setup_sitekit_ga4() {
+		if ( ! class_exists( 'Google\Site_Kit\Core\Modules\Module' ) ) {
+			return;
+		}
+		require_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekitanalytics.php';
+
 		if ( ! self::is_user_connected() ) {
 			return;
 		}
