@@ -508,8 +508,8 @@ final class Magic_Link {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET[ self::AUTH_ACTION_RESULT ] ) && 0 === absint( $_GET[ self::AUTH_ACTION_RESULT ] ) ) {
-			add_action(
+		if ( isset( $_GET[ self::AUTH_ACTION_RESULT ] ) && 0 === \absint( $_GET[ self::AUTH_ACTION_RESULT ] ) ) {
+			\add_action(
 				'before_header',
 				function () {
 					?>
@@ -522,7 +522,7 @@ final class Magic_Link {
 						}
 					</style>
 					<div class="newspack-magic-link-error">
-						<?php esc_html_e( 'We were not able to authenticate your account through this link. Please generate a new one.', 'newspack' ); ?>
+						<?php \esc_html_e( 'We were not able to authenticate your account through this link. Please generate a new one.', 'newspack' ); ?>
 					</div>
 					<?php
 				},
