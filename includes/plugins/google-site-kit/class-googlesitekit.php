@@ -121,19 +121,24 @@ class GoogleSiteKit {
 		if ( false === $sitekit_ga_settings || ! isset( $sitekit_ga_settings['accountID'] ) ) {
 			return;
 		}
-		$account_id   = $sitekit_ga_settings['accountID'];
-		$newspack_ga  = new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
-		$ga4_settings = $newspack_ga->get_ga4_settings( $account_id );
-		if ( false === $ga4_settings ) {
-			return;
-		}
-		$ga4_settings['ownerID']    = get_current_user_id();
-		$ga4_settings['useSnippet'] = true;
+		$account_id = $sitekit_ga_settings['accountID'];
 
-		$sitekit_ga4_option_name = self::get_sitekit_ga4_settings_option_name();
-		Logger::log( 'Updating Site Kit GA4 settings option.' );
-		update_option( self::GA4_SETUP_DONE_OPTION_NAME, true, true );
-		update_option( $sitekit_ga4_option_name, $ga4_settings, true );
+		try {
+			$newspack_ga  = new GoogleSiteKitAnalytics( new Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE ) );
+			$ga4_settings = $newspack_ga->get_ga4_settings( $account_id );
+			if ( false === $ga4_settings ) {
+				return;
+			}
+			$ga4_settings['ownerID']    = get_current_user_id();
+			$ga4_settings['useSnippet'] = true;
+
+			$sitekit_ga4_option_name = self::get_sitekit_ga4_settings_option_name();
+			Logger::log( 'Updating Site Kit GA4 settings option.' );
+			update_option( self::GA4_SETUP_DONE_OPTION_NAME, true, true );
+			update_option( $sitekit_ga4_option_name, $ga4_settings, true );
+		} catch ( \Throwable $e ) {
+			Logger::log( 'Failed updating Site Kit GA4 settings option: ' . $e->getMessage() );
+		}
 	}
 }
 GoogleSiteKit::init();
