@@ -28,6 +28,10 @@
 		width: 360px;
 	}
 
+	@media screen and ( min-width: 960px ) {
+		max-height: calc( 100% - 128px );
+	}
+
 	// Links
 	a {
 		color: var( --wp-admin-theme-color );

@@ -125,6 +125,12 @@
 		}
 	}
 
+	.components-form-token-field {
+		&__input-container {
+			margin-bottom: 0;
+		}
+	}
+
 	// Cards
 	> .newspack-card {
 		> *:first-child {

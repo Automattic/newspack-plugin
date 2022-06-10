@@ -19,15 +19,18 @@
 
 	// Loading state spinner
 	&__suggestions-spinner {
-		bottom: 0;
 		position: absolute;
-		right: 0;
-		transform: translateY( 100% );
+		right: 1px;
+		top: calc( 1.4em + 8px );
 		z-index: 2;
+
+		[class*='--label-hidden'] + & {
+			top: 0;
+		}
 
 		.components-spinner {
 			display: block;
-			margin: 8px 0;
+			margin: 7px;
 		}
 	}
 }
