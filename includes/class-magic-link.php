@@ -530,30 +530,35 @@ final class Magic_Link {
 			);
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::AUTH_ACTION !== $_GET['action'] ) {
 			return;
 		}
 
 		$errored = false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['email'] ) ) {
 			$errored = true;
 		}
 
-		$email = \sanitize_email( $_GET['email'] );
-		if ( $email ) {
-			$user = \get_user_by( 'email', $email );
-			if ( ! $user ) {
+		if ( ! $errored ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$email = \sanitize_email( $_GET['email'] );
+			if ( $email ) {
+				$user = \get_user_by( 'email', $email );
+				if ( ! $user ) {
+					$errored = true;
+				}
+			} else {
 				$errored = true;
 			}
-		} else {
-			$errored = true;
 		}
-		$token = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
-		// phpcs:enable
 
 		$authenticated = false;
+
 		if ( ! $errored ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
 			$authenticated = self::authenticate( $user->ID, $token );
 		}
 
