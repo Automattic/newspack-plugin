@@ -1,0 +1,8 @@
+@import '~@wordpress/base-styles/colors';
+
+.newspack-card.newspack-action-card.newspack-settings__card {
+	.newspack-payment-setup-screen__api-keys-instruction {
+		color: $gray-700;
+		margin-top: -8px !important;
+	}
+}
