@@ -152,7 +152,7 @@ class ComponentsDemo extends Component {
 					</Card>
 					<Card>
 						<h2>{ __( 'Web Previews', 'newspack' ) }</h2>
-						<Card buttonsCard noBorder>
+						<Card buttonsCard noBorder className="items-center">
 							<WebPreview
 								url="//newspack.pub/"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
