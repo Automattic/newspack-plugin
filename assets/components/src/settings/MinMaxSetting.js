@@ -2,11 +2,12 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { CheckboxControl } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { CheckboxControl, TextControl } from '../';
+import { TextControl } from '../';
 
 const MinMaxSetting = ( {
 	min,

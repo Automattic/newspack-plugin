@@ -28,10 +28,10 @@ const HandoffBanner = ( {
 			<div className="newspack-handoff-banner">
 				<div className="newspack-handoff-banner__text">{ bodyText }</div>
 				<div className="newspack-handoff-banner__buttons">
-					<Button isPrimary isSmall onClick={ () => setVisibility( false ) }>
+					<Button variant="secondary" isSmall onClick={ () => setVisibility( false ) }>
 						{ dismissButtonText }
 					</Button>
-					<Button isSecondary isSmall href={ primaryButtonURL }>
+					<Button variant="primary" isSmall href={ primaryButtonURL }>
 						{ primaryButtonText }
 					</Button>
 				</div>

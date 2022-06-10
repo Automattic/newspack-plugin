@@ -6,26 +6,26 @@ import { values, mapValues, property, isEmpty } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { CheckboxControl, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import {
-	Notice,
-	TextControl,
-	CheckboxControl,
-	SelectControl,
-	PluginInstaller,
-	withWizardScreen,
-	SectionHeader,
 	Button,
+	Card,
 	Grid,
-	hooks,
+	Notice,
+	PluginInstaller,
+	SectionHeader,
+	SelectControl,
+	TextControl,
 	Waiting,
+	hooks,
+	withWizardScreen,
 } from '../../../../components/src';
 import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
@@ -62,7 +62,7 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 	const renderProviderSettings = () => {
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
-			<Grid gutter={ 32 } columns={ 1 }>
+			<Grid gutter={ 16 } columns={ 1 }>
 				{ values( config.settings )
 					.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
 					.map( setting => {
@@ -78,7 +78,7 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 								);
 							default:
 								return (
-									<Grid columns={ 1 } gutter={ '0' } key={ setting.key }>
+									<Grid columns={ 1 } gutter={ 8 } key={ setting.key }>
 										<TextControl { ...getSettingProps( setting.key ) } />
 										{ setting.help && setting.helpURL && (
 											<p>
@@ -137,9 +137,19 @@ const Newsletters = () => {
 		} );
 
 	return (
-		<Fragment>
+		<>
+			<Card headerActions noBorder>
+				<h2>{ __( 'Authoring', 'newspack' ) }</h2>
+				<Button variant="primary" onClick={ saveNewslettersData }>
+					{ __( 'Save Settings', 'newspack' ) }
+				</Button>
+			</Card>
+			<NewspackNewsletters
+				isOnboarding={ false }
+				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
+			/>
 			<SectionHeader
-				title={ __( 'Signup forms', 'newspack' ) }
+				title={ __( 'Signup Forms', 'newspack' ) }
 				description={ () => (
 					<>
 						{ __(
@@ -173,17 +183,7 @@ const Newsletters = () => {
 			{ error?.code === 'unavailable_site_id' && (
 				<Notice noticeText={ __( 'Connect Jetpack in order to configure Mailchimp.' ) } isWarning />
 			) }
-			<SectionHeader title={ __( 'Authoring', 'newspack' ) } />
-			<NewspackNewsletters
-				isOnboarding={ false }
-				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
-			/>
-			<div className="newspack-buttons-card">
-				<Button isPrimary onClick={ saveNewslettersData }>
-					{ __( 'Save', 'newspack' ) }
-				</Button>
-			</div>
-		</Fragment>
+		</>
 	);
 };
 

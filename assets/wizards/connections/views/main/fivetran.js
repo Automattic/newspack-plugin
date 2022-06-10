@@ -4,16 +4,17 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import classnames from 'classnames';
+import { Button, CheckboxControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { CheckboxControl, ActionCard, Button } from '../../../../components/src';
+import { ActionCard } from '../../../../components/src';
 
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { get } from 'lodash';
 
 const CONNECTORS = [

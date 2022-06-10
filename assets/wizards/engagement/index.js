@@ -144,7 +144,7 @@ class EngagementWizard extends Component {
 									relatedPostsEnabled={ relatedPostsEnabled }
 									relatedPostsError={ relatedPostsError }
 									buttonAction={ () => this.updatedRelatedContentSettings() }
-									buttonText={ __( 'Save', 'newspack' ) }
+									buttonText={ __( 'Save Settings', 'newspack' ) }
 									buttonDisabled={ ! relatedPostsEnabled || ! relatedPostsUpdated }
 									relatedPostsMaxAge={ relatedPostsMaxAge }
 									onChange={ value => {

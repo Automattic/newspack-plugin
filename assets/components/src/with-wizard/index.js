@@ -227,11 +227,11 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 												<NewspackIcon size={ 36 } />
 											</Button>
 											<div>
-												<h1>
+												<h2>
 													{ requiredPlugins.length > 1
 														? __( 'Required plugins', 'newspack' )
 														: __( 'Required plugin', 'newspack' ) }
-												</h1>
+												</h2>
 											</div>
 										</div>
 									</div>

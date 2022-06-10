@@ -46,7 +46,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 			<Button onClick={ () => onClose() } className="screen-reader-text">
 				{ __( 'Close Modal', 'newspack' ) }
 			</Button>
-			<Grid gutter={ 16 } columns={ 1 }>
+			<Grid gutter={ 64 } columns={ 1 }>
 				<SettingsCard
 					title={ __( 'Campaigns', 'newspack' ) }
 					description={ __(
@@ -55,6 +55,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 					) }
 					columns={ 1 }
 					className="newspack-settings__campaigns"
+					noBorder
 				>
 					<CategoryAutocomplete
 						disabled={ disabled }
@@ -71,6 +72,8 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 					description={ __( 'When and how should the prompt be displayed', 'newspack' ) }
 					columns={ isOverlay( prompt ) ? 3 : 2 }
 					className="newspack-settings__settings"
+					rowGap={ 16 }
+					noBorder
 				>
 					<SelectControl
 						label={ __( 'Frequency', 'newspack' ) }
@@ -116,60 +119,69 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 						</>
 					) }
 					className="newspack-settings__targeting"
+					columns={ 1 }
+					rowGap={ 16 }
+					noBorder
 				>
-					<FormTokenField
-						label={ __( 'Segment', 'newspack' ) }
-						disabled={ disabled }
-						hideHelpFromVision
-						value={ segments
-							.filter( ( { id } ) => assignedSegmentsIds.indexOf( id ) > -1 )
-							.map( segment => segment.name ) }
-						onChange={ _segments => {
-							const segmentsToAssign = segments
-								.filter( segment => -1 < _segments.indexOf( segment.name ) )
-								.map( segment => segment.id );
-							setPromptConfig( { options: { selected_segment_id: segmentsToAssign.join( ',' ) } } );
-						} }
-						suggestions={ segments
-							.filter( segment => -1 === assignedSegmentsIds.indexOf( segment.id ) )
-							.map( segment => segment.name ) }
-						description={ __(
-							'Prompt will only appear to reader belonging to the specified segments.',
-							'newspack'
-						) }
-					/>
-					<CategoryAutocomplete
-						label={ __( 'Post categories', 'newspack ' ) }
-						disabled={ disabled }
-						hideHelpFromVision
-						value={ promptConfig.categories || [] }
-						onChange={ tokens => setPromptConfig( { categories: tokens } ) }
-						description={ __(
-							'Prompt will only appear on posts with the specified categories.',
-							'newspack'
-						) }
-					/>
-					<CategoryAutocomplete
-						label={ __( 'Post tags', 'newspack ' ) }
-						disabled={ disabled }
-						hideHelpFromVision
-						taxonomy="tags"
-						value={ promptConfig.tags || [] }
-						onChange={ tokens => setPromptConfig( { tags: tokens } ) }
-						description={ __(
-							'Prompt will only appear on posts with the specified tags.',
-							'newspack'
-						) }
-					/>
-					<Button isLink onClick={ () => setShowAdvanced( ! showAdvanced ) }>
-						{ sprintf(
-							// Translators: whether to show or hide advanced settings fields.
-							__( '%s Advanced Settings', 'newspack_popups_taxonomy' ),
-							showAdvanced ? __( 'Hide', 'newspack' ) : __( 'Show', 'newspack' )
-						) }
-					</Button>
+					<Grid columns={ 3 } rowGap={ 16 }>
+						<FormTokenField
+							label={ __( 'Segment', 'newspack' ) }
+							disabled={ disabled }
+							hideHelpFromVision
+							value={ segments
+								.filter( ( { id } ) => assignedSegmentsIds.indexOf( id ) > -1 )
+								.map( segment => segment.name ) }
+							onChange={ _segments => {
+								const segmentsToAssign = segments
+									.filter( segment => -1 < _segments.indexOf( segment.name ) )
+									.map( segment => segment.id );
+								setPromptConfig( {
+									options: { selected_segment_id: segmentsToAssign.join( ',' ) },
+								} );
+							} }
+							suggestions={ segments
+								.filter( segment => -1 === assignedSegmentsIds.indexOf( segment.id ) )
+								.map( segment => segment.name ) }
+							description={ __(
+								'Prompt will only appear to reader belonging to the specified segments.',
+								'newspack'
+							) }
+						/>
+						<CategoryAutocomplete
+							label={ __( 'Post categories', 'newspack ' ) }
+							disabled={ disabled }
+							hideHelpFromVision
+							value={ promptConfig.categories || [] }
+							onChange={ tokens => setPromptConfig( { categories: tokens } ) }
+							description={ __(
+								'Prompt will only appear on posts with the specified categories.',
+								'newspack'
+							) }
+						/>
+						<CategoryAutocomplete
+							label={ __( 'Post tags', 'newspack ' ) }
+							disabled={ disabled }
+							hideHelpFromVision
+							taxonomy="tags"
+							value={ promptConfig.tags || [] }
+							onChange={ tokens => setPromptConfig( { tags: tokens } ) }
+							description={ __(
+								'Prompt will only appear on posts with the specified tags.',
+								'newspack'
+							) }
+						/>
+					</Grid>
+					<div>
+						<Button isLink onClick={ () => setShowAdvanced( ! showAdvanced ) }>
+							{ sprintf(
+								// Translators: whether to show or hide advanced settings fields.
+								__( '%s Advanced Settings', 'newspack_popups_taxonomy' ),
+								showAdvanced ? __( 'Hide', 'newspack' ) : __( 'Show', 'newspack' )
+							) }
+						</Button>
+					</div>
 					{ showAdvanced && (
-						<>
+						<Grid columns={ 3 } rowGap={ 16 }>
 							<CategoryAutocomplete
 								label={ __( 'Category Exclusions', 'newspack ' ) }
 								disabled={ disabled }
@@ -205,16 +217,16 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 									'newspack'
 								) }
 							/>
-						</>
+						</Grid>
 					) }
 				</SettingsCard>
 			</Grid>
 
 			<Card buttonsCard noBorder className="justify-end">
-				<Button onClick={ onClose } isSecondary>
+				<Button onClick={ onClose } variant="secondary">
 					{ __( 'Cancel', 'newspack' ) }
 				</Button>
-				<Button onClick={ handleSave } isPrimary>
+				<Button onClick={ handleSave } variant="primary">
 					{ __( 'Save', 'newspack' ) }
 				</Button>
 			</Card>

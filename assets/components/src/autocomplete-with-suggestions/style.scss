@@ -2,7 +2,6 @@
 * Styles for AutocompleteWithSuggestions component.
 */
 
-@import '../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
 .newspack-autocomplete-with-suggestions {
@@ -18,8 +17,9 @@
 	}
 
 	.components-spinner {
+		margin: 8px;
 		right: 0;
-		top: 2em;
+		top: calc( 1.4em + 8px );
 	}
 
 	.components-select-control__input {
@@ -27,7 +27,7 @@
 	}
 
 	.components-input-control__backdrop {
-		border-color: $gray-900 !important;
+		border-color: $gray-700 !important;
 	}
 
 	.newspack-autocomplete-with-suggestions__label,
@@ -39,7 +39,7 @@
 
 	&__suggestions-spinner {
 		background: $gray-100;
-		border: 1px solid $gray-900;
+		border: 1px solid $gray-700;
 		border-radius: 2px;
 		cursor: progress;
 		margin: 16px 0;
@@ -49,6 +49,7 @@
 			display: block;
 			margin: 0 auto;
 			position: relative;
+			right: auto;
 			top: 0;
 		}
 	}
@@ -59,11 +60,11 @@
 
 	.components-form-token-field {
 		&__input-container {
-			border-color: $gray-900;
+			border-color: $gray-700;
 		}
 
 		&__suggestions-list {
-			border-top-color: $gray-900;
+			border-top-color: $gray-700;
 			margin: 4px -4px -2px;
 		}
 
@@ -74,32 +75,30 @@
 
 	p.newspack-autocomplete-with-suggestions__label {
 		font-size: inherit;
-		margin-bottom: 4px;
+		margin: 0 0 8px;
 	}
 
 	&__selected-items {
-		border-bottom: 1px solid $gray-300;
+		border-bottom: 1px solid $gray-700;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
 		margin-bottom: 16px;
 		padding-bottom: 12px;
 
-		.newspack-autocomplete-with-suggestions__label {
-			font-weight: bold;
-
-			.components-button.is-link {
-				color: $alert-red;
-				font-weight: normal;
-			}
+		p.newspack-autocomplete-with-suggestions__label {
+			flex: 0 0 100%;
+			margin: 0;
 		}
 	}
 
 	&__selected-item-button.components-button.is-tertiary {
 		background-color: $gray-300;
 		border-radius: 2px;
-		color: #1e1e1e;
+		color: $gray-900;
 		font-size: 13px;
 		height: auto;
-		margin-bottom: 4px;
-		margin-right: 4px;
+		margin: 0;
 		padding-left: 8px;
 		padding-right: 8px;
 
@@ -117,7 +116,7 @@
 	&__search-suggestions,
 	&__search-suggestions-multiselect {
 		border-radius: 2px;
-		border: 1px solid $gray-900;
+		border: 1px solid $gray-700;
 		max-height: 178px;
 		overflow-x: visible;
 		overflow-y: auto;
@@ -151,7 +150,7 @@
 
 	&__search-suggestions {
 		border-radius: 2px;
-		border: 1px solid $gray-900;
+		border: 1px solid $gray-700;
 		padding: 0;
 
 		.components-button {

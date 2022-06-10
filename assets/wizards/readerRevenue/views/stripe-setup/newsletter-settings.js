@@ -4,11 +4,12 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import { SelectControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { SelectControl, Notice, Waiting } from '../../../../components/src';
+import { Notice, Waiting } from '../../../../components/src';
 
 const NewslettersSettings = ( { listId, onChange } ) => {
 	const [ newslettersLists, setNewsletterLists ] = useState( false );

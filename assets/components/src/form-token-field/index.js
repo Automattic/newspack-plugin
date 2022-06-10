@@ -42,7 +42,7 @@ class FormTokenField extends Component {
 				) }
 			>
 				<BaseComponent className={ classes } { ...otherProps } />
-				{ description && <div className="i">{ description }</div> }
+				{ description && <p className="newspack-form-token-field__help">{ description }</p> }
 			</div>
 		);
 	}

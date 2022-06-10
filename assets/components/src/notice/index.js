@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { Component, RawHTML } from '@wordpress/element';
-import { Icon, check, help, info } from '@wordpress/icons';
+import { Icon, bug, check, help, info } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -50,6 +50,8 @@ class Notice extends Component {
 			noticeIcon = help;
 		} else if ( isSuccess ) {
 			noticeIcon = check;
+		} else if ( debugMode ) {
+			noticeIcon = bug;
 		} else {
 			noticeIcon = info;
 		}

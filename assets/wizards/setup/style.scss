@@ -5,6 +5,7 @@
 .newspack-action-card.newspack--error-actioncard {
 	.newspack-action-card__secondary_button {
 		font-size: 12px;
+		line-height: 1.4;
 	}
 }
 
@@ -35,14 +36,10 @@
 			justify-content: flex-end;
 
 			&:empty {
-				margin-top: -32px;
+				display: none;
 			}
 
-			.newspack-checkbox-control {
-				margin: 12px 16px 12px 0;
-			}
-
-			.newspack-button {
+			.components-button {
 				margin-left: auto;
 			}
 		}
@@ -65,44 +62,10 @@
 }
 
 .newspack-site-profile {
-	display: flex;
-	flex-wrap: wrap;
-
-	> div {
-		&:nth-of-type( 2 ) {
-			flex: 1 1 auto;
-		}
-
-		&:last-of-type {
-			flex: 0 0 100%;
-		}
-	}
+	grid-template-columns: 1fr;
 
 	@media screen and ( min-width: 744px ) {
-		> div {
-			&:last-of-type {
-				display: grid;
-				grid-gap: 32px;
-				grid-template-columns: repeat( 2, 1fr );
-
-				> * {
-					margin: 0;
-				}
-			}
-		}
-	}
-
-	@media screen and ( min-width: 1128px ) {
-		display: grid;
-		grid-template-columns: 136px auto calc( ( 100% - 64px ) / 3 );
-
-		> div {
-			&:last-of-type {
-				display: grid;
-				grid-gap: 16px;
-				grid-template-columns: repeat( auto-fit, 100% );
-			}
-		}
+		grid-template-columns: 102px auto calc( ( 100% - 64px ) / 3 );
 	}
 }
 
