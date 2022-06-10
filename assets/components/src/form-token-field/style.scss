@@ -13,6 +13,14 @@
 		padding-top: 1px;
 	}
 
+	// Help
+
+	&__help {
+		color: $gray-700;
+		font-size: 12px;
+		margin: 8px 0 0 !important;
+	}
+
 	// Hidden Elements
 
 	&--label-hidden {
