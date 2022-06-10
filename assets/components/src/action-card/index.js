@@ -46,6 +46,7 @@ class ActionCard extends Component {
 			actionContent,
 			actionText,
 			secondaryActionText,
+			secondaryDestructive,
 			image,
 			imageLink,
 			indent,
@@ -168,6 +169,7 @@ class ActionCard extends Component {
 									isLink
 									onClick={ onSecondaryActionClick }
 									className="newspack-action-card__secondary_button"
+									isDestructive={ secondaryDestructive }
 								>
 									{ secondaryActionText }
 								</Button>

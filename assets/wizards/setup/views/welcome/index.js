@@ -241,6 +241,7 @@ const Welcome = ( { buttonAction } ) => {
 			actionText={ __( 'Retry', 'newspack' ) }
 			onClick={ install }
 			secondaryActionText={ __( 'Skip', 'newspack' ) }
+			secondaryDestructive
 			onSecondaryActionClick={ () => skipError( i ) }
 			className="newspack--error-actioncard"
 		/>

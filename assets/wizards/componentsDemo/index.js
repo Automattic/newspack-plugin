@@ -295,12 +295,10 @@ class ComponentsDemo extends Component {
 					/>
 					<ActionCard
 						title={ __( 'Example Two', 'newspack' ) }
-						description={ __(
-							'Has action button and secondary button (visible on hover).',
-							'newspack'
-						) }
+						description={ __( 'Has action button and secondary button.', 'newspack' ) }
 						actionText={ __( 'Edit', 'newspack' ) }
 						secondaryActionText={ __( 'Delete', 'newspack' ) }
+						secondaryDestructive
 						onClick={ () => {
 							console.log( 'Edit clicked' );
 						} }
@@ -349,6 +347,7 @@ class ComponentsDemo extends Component {
 						description={ __( 'Static text, secondary action button.', 'newspack' ) }
 						actionText={ __( 'Active', 'newspack' ) }
 						secondaryActionText={ __( 'Delete', 'newspack' ) }
+						secondaryDestructive
 						onSecondaryActionClick={ () => {
 							console.log( 'Delete clicked' );
 						} }
