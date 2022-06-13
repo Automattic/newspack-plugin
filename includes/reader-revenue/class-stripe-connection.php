@@ -30,6 +30,7 @@ class Stripe_Connection {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
 		add_action( 'init', [ __CLASS__, 'handle_merchant_id_file_request' ] );
 		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
+		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
 	}
 
 	/**
@@ -871,6 +872,18 @@ class Stripe_Connection {
 		} catch ( \Exception $e ) {
 			return;
 		}
+	}
+
+	/**
+	 * Disable WC's order complete email, if the email will be sent by this integration.
+	 *
+	 * @param bool $is_enabled True if enabled.
+	 */
+	public static function is_wc_complete_order_email_enabled( $is_enabled ) {
+		if ( Reader_Revenue_Emails::supports_emails() ) {
+			$is_enabled = false;
+		}
+		return $is_enabled;
 	}
 }
 
