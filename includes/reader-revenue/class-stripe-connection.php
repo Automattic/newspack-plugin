@@ -421,6 +421,13 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Get URL of the webhook for this site.
+	 */
+	public static function get_webhook_url() {
+		return get_rest_url( null, NEWSPACK_API_NAMESPACE . '/stripe/webhook' );
+	}
+
+	/**
 	 * Create Stripe webhooks.
 	 */
 	public static function create_webhooks() {
@@ -428,7 +435,7 @@ class Stripe_Connection {
 		try {
 			$webhook = $stripe->webhookEndpoints->create(
 				[
-					'url'            => get_rest_url( null, NEWSPACK_API_NAMESPACE . '/stripe/webhook' ),
+					'url'            => self::get_webhook_url(),
 					'enabled_events' => [
 						'charge.failed',
 						'charge.succeeded',

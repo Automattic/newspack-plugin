@@ -115,6 +115,11 @@ const StripeSetup = () => {
 		country_state_fields = [],
 	} = Wizard.useWizardData( 'reader-revenue' );
 
+	const hasWebhook =
+		data.webhook_url &&
+		Array.isArray( data.webhooks ) &&
+		data.webhooks.filter( webhook => webhook.url === data.webhook_url ).length > 0;
+
 	const [ isLoading, setIsLoading ] = useState( false );
 	const createWebhooks = () => {
 		setIsLoading( true );
@@ -257,8 +262,13 @@ const StripeSetup = () => {
 										<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
 									) }
 									<Card noBorder buttonsCard>
-										<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
-											{ __( 'Create Webhooks', 'newspack' ) }
+										<Button
+											isLink
+											disabled={ isLoading || hasWebhook }
+											onClick={ createWebhooks }
+											isSecondary
+										>
+											{ __( 'Create Webhook', 'newspack' ) }
 										</Button>
 									</Card>
 								</>
