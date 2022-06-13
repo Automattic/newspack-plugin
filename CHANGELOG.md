@@ -1,3 +1,19 @@
+# [1.84.0](https://github.com/Automattic/newspack-plugin/compare/v1.83.3...v1.84.0) (2022-06-13)
+
+
+### Bug Fixes
+
+* **ads:** resolve conflicts from hotfix merge ([#1685](https://github.com/Automattic/newspack-plugin/issues/1685)) ([8ce12cd](https://github.com/Automattic/newspack-plugin/commit/8ce12cd3b898fd89ed51331c6d2ef298bbab7f05))
+* **reader-revenue:** initial order state with total of 0 ([7c30b09](https://github.com/Automattic/newspack-plugin/commit/7c30b09351cc2292726404bd3b7db95652bf1bc2))
+
+
+### Features
+
+* **ads:** handle gam default ad units ([#1654](https://github.com/Automattic/newspack-plugin/issues/1654)) ([321b98e](https://github.com/Automattic/newspack-plugin/commit/321b98e426bb74e03299878accab04ac8dcb7e08))
+* **analytics:** automatically link GA4 with Site Kit ([#1698](https://github.com/Automattic/newspack-plugin/issues/1698)) ([266135f](https://github.com/Automattic/newspack-plugin/commit/266135fb9de7e88ec3ca097b29d7988b4f2f817c))
+* reader registration on donate ([#1655](https://github.com/Automattic/newspack-plugin/issues/1655)) ([5821b57](https://github.com/Automattic/newspack-plugin/commit/5821b5785910baa14d7fcd774fad1dd34392e1ba))
+* remove theme selection from setup wizard ([#1656](https://github.com/Automattic/newspack-plugin/issues/1656)) ([94e4580](https://github.com/Automattic/newspack-plugin/commit/94e4580042ddf8d55b93ca199a1cb4d64d678ca4))
+
 # [1.84.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v1.84.0-alpha.4...v1.84.0-alpha.5) (2022-06-10)
 
 
