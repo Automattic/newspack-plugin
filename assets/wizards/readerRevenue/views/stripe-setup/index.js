@@ -2,8 +2,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { useState } from '@wordpress/element';
+import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 
@@ -16,19 +16,18 @@ import { values } from 'lodash';
  * Internal dependencies
  */
 import {
-	Card,
-	CheckboxControl,
-	Grid,
 	Button,
-	TextControl,
-	ToggleControl,
-	SelectControl,
+	Card,
+	Grid,
 	Notice,
 	Settings,
+	SelectControl,
+	TextControl,
 	Wizard,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';
 import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import './style.scss';
 
 const { SettingsCard } = Settings;
 
@@ -51,8 +50,8 @@ export const StripeKeysSettings = () => {
 		} );
 
 	return (
-		<Fragment>
-			<Card noBorder>
+		<Grid columns={ 1 } gutter={ 16 }>
+			<Grid columns={ 1 } gutter={ 16 }>
 				<p className="newspack-payment-setup-screen__api-keys-instruction">
 					{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
 					{ ' – ' }
@@ -61,46 +60,49 @@ export const StripeKeysSettings = () => {
 					</ExternalLink>
 				</p>
 				<CheckboxControl
-					label={ __( 'Use Stripe in test mode' ) }
+					label={ __( 'Use Stripe in test mode', 'newspack' ) }
 					checked={ testMode }
 					onChange={ changeHandler( 'testMode' ) }
-					tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
+					help={ __(
+						'Test mode will not capture real payments. Use it for testing your purchase flow.',
+						'newspack'
+					) }
 				/>
-			</Card>
-			<Grid noMargin>
+			</Grid>
+			<Grid noMargin rowGap={ 16 }>
 				{ testMode ? (
-					<Fragment>
+					<>
 						<TextControl
 							type="password"
 							value={ testPublishableKey }
-							label={ __( 'Test Publishable Key' ) }
+							label={ __( 'Test Publishable Key', 'newspack' ) }
 							onChange={ changeHandler( 'testPublishableKey' ) }
 						/>
 						<TextControl
 							type="password"
 							value={ testSecretKey }
-							label={ __( 'Test Secret Key' ) }
+							label={ __( 'Test Secret Key', 'newspack' ) }
 							onChange={ changeHandler( 'testSecretKey' ) }
 						/>
-					</Fragment>
+					</>
 				) : (
-					<Fragment>
+					<>
 						<TextControl
 							type="password"
 							value={ publishableKey }
-							label={ __( 'Publishable Key' ) }
+							label={ __( 'Publishable Key', 'newspack' ) }
 							onChange={ changeHandler( 'publishableKey' ) }
 						/>
 						<TextControl
 							type="password"
 							value={ secretKey }
-							label={ __( 'Secret Key' ) }
+							label={ __( 'Secret Key', 'newspack' ) }
 							onChange={ changeHandler( 'secretKey' ) }
 						/>
-					</Fragment>
+					</>
 				) }
 			</Grid>
-		</Fragment>
+		</Grid>
 	);
 };
 
@@ -142,7 +144,7 @@ const StripeSetup = () => {
 		} );
 
 	return (
-		<Fragment>
+		<>
 			{ is_ssl === false && (
 				<Notice
 					isWarning
@@ -161,7 +163,7 @@ const StripeSetup = () => {
 					{ data.connection_error !== false && (
 						<Notice isError noticeText={ data.connection_error } />
 					) }
-					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 }>
+					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 } gutter={ 16 } noBorder>
 						{ data.can_use_stripe_platform === false && (
 							<Notice
 								isError
@@ -172,18 +174,20 @@ const StripeSetup = () => {
 							/>
 						) }
 						<StripeKeysSettings />
-						<SelectControl
-							label={ __( 'Which currency does your business use?', 'newspack' ) }
-							value={ data.currency }
-							options={ currency_fields }
-							onChange={ changeHandler( 'currency' ) }
-						/>
-						<SelectControl
-							label={ __( 'Where is your business based?' ) }
-							value={ data.location_code }
-							options={ country_state_fields }
-							onChange={ changeHandler( 'location_code' ) }
-						/>
+						<Grid rowGap={ 16 }>
+							<SelectControl
+								label={ __( 'Country', 'newspack' ) }
+								value={ data.location_code }
+								options={ country_state_fields }
+								onChange={ changeHandler( 'location_code' ) }
+							/>
+							<SelectControl
+								label={ __( 'Currency', 'newspack' ) }
+								value={ data.currency }
+								options={ currency_fields }
+								onChange={ changeHandler( 'currency' ) }
+							/>
+						</Grid>
 					</SettingsCard>
 					<SettingsCard
 						title={ __( 'Newsletters', 'newspack' ) }
@@ -192,6 +196,8 @@ const StripeSetup = () => {
 							'newspack'
 						) }
 						columns={ 1 }
+						gutter={ 16 }
+						noBorder
 					>
 						<NewsletterSettings
 							listId={ data.newsletter_list_id }
@@ -205,20 +211,21 @@ const StripeSetup = () => {
 							'newspack'
 						) }
 						columns={ 1 }
+						noBorder
 					>
-						<Grid noMargin>
+						<Grid noMargin rowGap={ 16 }>
 							<TextControl
 								type="number"
 								step="0.1"
 								value={ data.fee_multiplier }
-								label={ __( 'Fee multiplier' ) }
+								label={ __( 'Fee multiplier', 'newspack' ) }
 								onChange={ changeHandler( 'fee_multiplier' ) }
 							/>
 							<TextControl
 								type="number"
 								step="0.1"
 								value={ data.fee_static }
-								label={ __( 'Fee static portion' ) }
+								label={ __( 'Fee static portion', 'newspack' ) }
 								onChange={ changeHandler( 'fee_static' ) }
 							/>
 						</Grid>
@@ -230,8 +237,10 @@ const StripeSetup = () => {
 							'newspack'
 						) }
 						columns={ 1 }
+						gutter={ 16 }
+						noBorder
 					>
-						<div>
+						<>
 							{ data.webhooks?.errors ? (
 								<Notice isError noticeText={ values( data.webhooks?.errors ).join( ', ' ) } />
 							) : (
@@ -245,21 +254,23 @@ const StripeSetup = () => {
 											) ) }
 										</ul>
 									) : (
-										<div className="mb3">{ __( 'No webhooks defined.', 'newspack' ) }</div>
+										<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
 									) }
-									<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
-										{ __( 'Create webhooks', 'newspack' ) }
-									</Button>
+									<Card noBorder buttonsCard>
+										<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
+											{ __( 'Create Webhooks', 'newspack' ) }
+										</Button>
+									</Card>
 								</>
 							) }
-						</div>
+						</>
 					</SettingsCard>
 				</>
 			) : (
 				<>
 					<Grid>
 						<ToggleControl
-							label={ __( 'Enable Stripe' ) }
+							label={ __( 'Enable Stripe', 'newspack' ) }
 							checked={ data.enabled }
 							onChange={ changeHandler( 'enabled' ) }
 						/>
@@ -269,9 +280,9 @@ const StripeSetup = () => {
 					) : (
 						<Grid>
 							<p className="newspack-payment-setup-screen__info">
-								{ __( 'Other gateways can be enabled and set up in the ' ) }
+								{ __( 'Other gateways can be enabled and set up in the ', 'newspack' ) }
 								<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-									{ __( 'WooCommerce payment gateway settings' ) }
+									{ __( 'WooCommerce payment gateway settings', 'newspack' ) }
 								</ExternalLink>
 							</p>
 						</Grid>
@@ -280,10 +291,10 @@ const StripeSetup = () => {
 			) }
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ onSave }>
-					{ __( 'Save Settings' ) }
+					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</div>
-		</Fragment>
+		</>
 	);
 };
 

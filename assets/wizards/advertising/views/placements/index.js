@@ -15,6 +15,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { settings } from '@wordpress/icons';
+import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -25,7 +26,6 @@ import {
 	Card,
 	Modal,
 	Notice,
-	ToggleControl,
 	withWizardScreen,
 } from '../../../../components/src';
 import PlacementControl from '../../components/placement-control';
@@ -150,8 +150,6 @@ const Placements = () => {
 							actionText={
 								isEnabled( key ) ? (
 									<Button
-										isQuaternary
-										isSmall
 										disabled={ inFlight || ! providers.length }
 										onClick={ () => setEditingPlacement( key ) }
 										icon={ settings }

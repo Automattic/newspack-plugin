@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { Fragment, useEffect, useState } from '@wordpress/element';
+import { RadioControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -10,11 +11,8 @@ import { __ } from '@wordpress/i18n';
 import {
 	Grid,
 	ImageUpload,
-	RadioControl,
 	SectionHeader,
 	TextControl,
-	ToggleControl,
-	ToggleGroup,
 	withWizardScreen,
 } from '../../../../components/src';
 import './style.scss';
@@ -50,20 +48,20 @@ const ThemeSettings = props => {
 			/>
 			<Grid gutter={ 32 }>
 				<Grid columns={ 1 } gutter={ 16 }>
-					<ToggleGroup
-						title={ __( 'Author bio', 'newspack' ) }
-						description={ __( 'Display an author bio under individual posts.', 'newspack' ) }
+					<ToggleControl
+						label={ __( 'Author Bio', 'newspack' ) }
+						help={ __( 'Display an author bio under individual posts.', 'newspack' ) }
 						checked={ authorBio }
 						onChange={ value => setThemeMods( { show_author_bio: value } ) }
-					>
+					/>
+					{ authorBio && (
 						<ToggleControl
-							isDark
-							label={ __( 'Author email', 'newspack' ) }
+							label={ __( 'Author Email', 'newspack' ) }
 							help={ __( 'Display the author email with bio on individual posts.', 'newspack' ) }
 							checked={ authorEmail }
 							onChange={ value => setThemeMods( { show_author_email: value } ) }
 						/>
-					</ToggleGroup>
+					) }
 				</Grid>
 				<Grid columns={ 1 } gutter={ 16 }>
 					{ authorBio && (
@@ -86,7 +84,8 @@ const ThemeSettings = props => {
 				description={ __( 'Set a default featured image position for new posts.', 'newspack' ) }
 			/>
 			<RadioControl
-				label={ __( 'Default position', 'newspack' ) }
+				label={ __( 'Default Position', 'newspack' ) }
+				hideLabelFromVision
 				selected={ featuredImageDefault || 'large' }
 				options={ [
 					{ label: __( 'Large', 'newspack' ), value: 'large' },

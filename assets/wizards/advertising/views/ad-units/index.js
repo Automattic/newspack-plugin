@@ -66,7 +66,7 @@ const AdUnits = ( {
 		setNetworkCode( serviceData.status.network_code );
 	}, [ serviceData.status.network_code ] );
 
-	const { can_use_service_account, can_use_oauth, connection_mode } = serviceData.status;
+	const { connection_mode } = serviceData.status;
 	const isLegacy = 'legacy' === connection_mode;
 
 	const isDisconnectedGAM = adUnit => {
@@ -123,12 +123,10 @@ const AdUnits = ( {
 			) }
 			{ isLegacy && serviceData.enabled && (
 				<>
-					{ ( can_use_service_account || can_use_oauth ) && (
-						<Notice
-							noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
-							isWarning
-						/>
-					) }
+					<Notice
+						noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
+						isWarning
+					/>
 					<div className="flex items-end">
 						<TextControl
 							label={ __( 'Network Code', 'newspack' ) }
@@ -157,7 +155,7 @@ const AdUnits = ( {
 			</p>
 			<Card headerActions noBorder>
 				<div className="flex justify-end w-100">
-					<Button isPrimary isSmall href={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }>
+					<Button variant="primary" href={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }>
 						{ __( 'Add New Ad Unit', 'newspack' ) }
 					</Button>
 				</div>
@@ -225,10 +223,10 @@ const AdUnits = ( {
 						);
 					} ) }
 			</Card>
-			{ can_use_service_account && connection_mode !== 'oauth' && (
+			{ ( connection_mode === 'service_account' || isLegacy ) && (
 				<ServiceAccountConnection
 					updateWithAPI={ updateWithAPI }
-					isConnected={ serviceData.status.connected }
+					isConnected={ connection_mode === 'service_account' && serviceData.status.connected }
 				/>
 			) }
 		</>

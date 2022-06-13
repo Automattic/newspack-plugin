@@ -190,7 +190,7 @@ const AutocompleteWithSuggestions = ( {
 					{ selectedMessage }
 					{ 1 < selections.length && _x( ' – ', 'separator character', 'newspack' ) }
 					{ 1 < selections.length && (
-						<Button onClick={ () => onChange( [] ) } isLink>
+						<Button onClick={ () => onChange( [] ) } isLink isDestructive>
 							{ __( 'Clear all', 'newspack' ) }
 						</Button>
 					) }

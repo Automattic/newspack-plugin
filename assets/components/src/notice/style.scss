@@ -6,14 +6,11 @@
 @import '../../../shared/scss/colors';
 
 .newspack-notice {
-	align-items: flex-start;
+	align-items: center;
 	background: $gray-100;
-	border-radius: 3px;
 	color: $gray-900;
 	display: flex;
-	font-size: 14px;
 	justify-content: flex-start;
-	line-height: 24px;
 	margin: 32px 0;
 	padding: 6px 8px;
 
@@ -26,6 +23,7 @@
 
 	&__is-debug {
 		background: $primary-700;
+		border-radius: 2px;
 		bottom: 16px;
 		box-shadow: 0 0 8px 4px rgba( black, 0.08 );
 		color: white;
@@ -89,7 +87,7 @@
 			}
 
 			&:focus {
-				outline-color: currentColor;
+				box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) currentColor;
 			}
 		}
 	}

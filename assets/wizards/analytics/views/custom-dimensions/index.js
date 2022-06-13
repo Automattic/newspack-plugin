@@ -3,7 +3,7 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	Button,
-	Card,
+	Grid,
 	Notice,
 	SectionHeader,
 	SelectControl,
@@ -82,7 +82,7 @@ class CustomDimensions extends Component {
 				{ error ? (
 					<Notice noticeText={ error } isError rawHTML />
 				) : (
-					<Fragment>
+					<>
 						<table>
 							<thead>
 								<tr>
@@ -98,9 +98,7 @@ class CustomDimensions extends Component {
 							<tbody>
 								{ customDimensions.map( dimension => (
 									<tr key={ dimension.id }>
-										<td>
-											<strong>{ dimension.name }</strong>
-										</td>
+										<td>{ dimension.name }</td>
 										<td>
 											<code>{ dimension.id }</code>
 										</td>
@@ -116,9 +114,9 @@ class CustomDimensions extends Component {
 								) ) }
 							</tbody>
 						</table>
-						<Card isMedium>
-							<h2>{ __( 'Create new custom dimension', 'newspack' ) }</h2>
-							<div className="newspack__analytics-configuration__form">
+						<SectionHeader title={ __( 'Create new custom dimension', 'newspack' ) } />
+						<Grid columns={ 1 } gutter={ 16 }>
+							<Grid rowGap={ 16 }>
 								<TextControl
 									value={ newDimensionName }
 									onChange={ val => this.setState( { newDimensionName: val } ) }
@@ -130,16 +128,18 @@ class CustomDimensions extends Component {
 									label={ __( 'Scope', 'newspack' ) }
 									options={ SCOPES_OPTIONS }
 								/>
+							</Grid>
+							<div className="flex justify-end">
 								<Button
 									onClick={ this.handleCustomDimensionCreation }
 									disabled={ newDimensionName.length === 0 }
-									isPrimary
+									variant="primary"
 								>
-									{ __( 'Create', 'newspack' ) }
+									{ __( 'Save', 'newspack' ) }
 								</Button>
 							</div>
-						</Card>
-					</Fragment>
+						</Grid>
+					</>
 				) }
 			</div>
 		);

@@ -14,13 +14,13 @@ import { moreVertical } from '@wordpress/icons';
  * Internal dependencies
  */
 import {
-	withWizardScreen,
 	Button,
 	Card,
 	CustomSelectControl,
 	Modal,
 	Router,
 	TextControl,
+	withWizardScreen,
 } from '../../../../components/src';
 import CampaignManagementPopover from '../../components/campaign-management-popover';
 import SegmentGroup from '../../components/segment-group';
@@ -229,8 +229,6 @@ const Campaigns = props => {
 					{ campaignData && (
 						<div className="newspack-campaigns__campaign-group__filter-group-actions__button">
 							<Button
-								isQuaternary
-								isSmall
 								className={ popoverVisible && 'popover-active' }
 								onClick={ () => setPopoverVisible( ! popoverVisible ) }
 								icon={ moreVertical }
@@ -266,7 +264,6 @@ const Campaigns = props => {
 				<div className="newspack-campaigns__campaign-group__add-new-button">
 					<Button
 						isPrimary
-						isSmall
 						onClick={ () => {
 							setModalVisible( ! modalVisible );
 							setCampaignName( '' );
@@ -299,7 +296,7 @@ const Campaigns = props => {
 							</div>
 							<Card buttonsCard noBorder className="justify-end">
 								<Button
-									isSecondary
+									variant="secondary"
 									onClick={ () => {
 										setModalVisible( false );
 									} }
@@ -307,7 +304,7 @@ const Campaigns = props => {
 									{ __( 'Cancel', 'newspack' ) }
 								</Button>
 								<Button
-									isPrimary
+									variant="primary"
 									disabled={ ! campaignName }
 									onClick={ () => submitModal( campaignName ) }
 								>

@@ -107,7 +107,7 @@ class SiteDesignWizard extends Component {
 										setThemeMods={ this.setThemeMods }
 										buttonText={ __( 'Save', 'newspack' ) }
 										buttonAction={ this.updateThemeMods }
-										secondaryButtonText={ __( 'Advanced settings', 'newspack' ) }
+										secondaryButtonText={ __( 'Advanced Settings', 'newspack' ) }
 										secondaryButtonAction="/wp-admin/customize.php"
 									/>
 								);

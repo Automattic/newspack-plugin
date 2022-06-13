@@ -28,11 +28,12 @@
 
 		.newspack-settings__section {
 			&__title {
+				align-items: center;
 				display: flex;
 				margin: 0;
 
-				h3 {
-					margin: 0;
+				span {
+					line-height: 24px;
 				}
 			}
 			&__content {
@@ -42,7 +43,7 @@
 					align-items: center;
 					justify-content: space-between;
 					flex-wrap: wrap;
-					> * {
+					> *:not( [class*='help'] ):not( [class*='label'] ) {
 						margin: 0;
 					}
 				}
@@ -58,8 +59,10 @@
 			}
 		}
 		.newspack-settings__min-max {
+			gap: 8px;
+
 			.newspack-checkbox-control {
-				flex: 0 0 64px;
+				flex: 0 0 auto;
 			}
 
 			.newspack-text-control {

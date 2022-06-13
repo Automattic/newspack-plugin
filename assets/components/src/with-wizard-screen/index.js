@@ -73,7 +73,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 								<NewspackIcon size={ 36 } />
 							</Button>
 							<div>
-								{ headerText && <h1>{ headerText }</h1> }
+								{ headerText && <h2>{ headerText }</h2> }
 								{ subHeaderText && <span>{ subHeaderText }</span> }
 							</div>
 						</div>
