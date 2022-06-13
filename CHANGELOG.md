@@ -1,3 +1,17 @@
+# [1.84.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v1.84.0-alpha.4...v1.84.0-alpha.5) (2022-06-10)
+
+
+### Features
+
+* **analytics:** automatically link GA4 with Site Kit ([#1698](https://github.com/Automattic/newspack-plugin/issues/1698)) ([266135f](https://github.com/Automattic/newspack-plugin/commit/266135fb9de7e88ec3ca097b29d7988b4f2f817c))
+
+# [1.84.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.84.0-alpha.3...v1.84.0-alpha.4) (2022-06-07)
+
+
+### Bug Fixes
+
+* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([d2bfd9f](https://github.com/Automattic/newspack-plugin/commit/d2bfd9f163fe06b439009f8f2a885ea013c489af))
+
 ## [1.83.3](https://github.com/Automattic/newspack-plugin/compare/v1.83.2...v1.83.3) (2022-06-07)
 
 

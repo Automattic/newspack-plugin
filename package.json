@@ -1,6 +1,6 @@
 {
   "name": "newspack",
-  "version": "1.83.3",
+  "version": "1.84.0-alpha.5",
   "description": "The Newspack plugin. https://newspack.pub",
   "bugs": {
     "url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -45,12 +45,12 @@
     "postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
   },
   "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.17.10",
-    "@babel/preset-env": "^7.17.10",
+    "@babel/plugin-transform-runtime": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
     "classnames": "^2.3.1",
     "date-fns": "^2.28.0",
     "deep-map-keys": "^2.0.1",
-    "human-number": "^1.0.10",
+    "human-number": "^1.0.11",
     "js-cookie": "^3.0.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.3",
@@ -59,7 +59,7 @@
     "react": "^17.0.2",
     "react-daterange-picker": "^2.0.1",
     "react-google-charts": "^4.0.0",
-    "react-router-dom": "^5.3.1",
+    "react-router-dom": "^5.3.3",
     "recursive-copy": "^2.0.14"
   }
 }
