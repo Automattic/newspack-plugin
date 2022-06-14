@@ -138,15 +138,6 @@ class Dashboard extends Wizard {
 	}
 
 	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '1 day', 'newspack' );
-	}
-
-	/**
 	 * Add an admin page for the wizard to live on.
 	 */
 	public function add_page() {

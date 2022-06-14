@@ -74,15 +74,6 @@ class Advertising_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
-	}
-
-	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
