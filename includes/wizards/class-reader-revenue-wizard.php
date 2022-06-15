@@ -41,15 +41,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Generate revenue from your customers.', 'newspack' );
-	}
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
