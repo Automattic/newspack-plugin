@@ -179,7 +179,6 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://www.parsely.com/' ),
 				'AuthorURI'   => esc_url( 'https://www.parsely.com/' ),
 				'Download'    => 'wporg',
-				'AlwaysOn'    => true,
 			],
 			'password-protected'            => [
 				'Name'        => esc_html__( 'Password Protected', 'newspack' ),
@@ -353,7 +352,7 @@ class Plugin_Manager {
 	 *
 	 * @param string $plugin_slug Plugin slug.
 	 */
-	public static function get_managed_plugin_status( $plugin_slug ) {
+	private static function get_managed_plugin_status( $plugin_slug ) {
 		if ( Newspack::is_debug_mode() ) {
 			return 'active';
 		}
