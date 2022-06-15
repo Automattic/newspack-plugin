@@ -18,7 +18,7 @@
 	},
 	"supports": {
 		"html": false,
-		"align": true
-	},
-	"style": "wp-block-newspack-reader-registration"
+		"align": true,
+		"multiple": false
+	}
 }

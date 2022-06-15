@@ -27,12 +27,37 @@ final class Reader_Activation {
 	 */
 	public static function init() {
 		if ( self::is_enabled() ) {
+			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 		}
+	}
+
+	/**
+	 * Enqueue front-end scripts.
+	 */
+	public static function enqueue_scripts() {
+		\wp_register_script(
+			'newspack-reader-activation',
+			Newspack::plugin_url() . '/dist/reader-activation.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+		$reader_email = '';
+		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
+			$reader_email = \wp_get_current_user()->user_email;
+		}
+		wp_localize_script(
+			'newspack-reader-activation',
+			'newspack_reader_activation_data',
+			[
+				'reader_email' => $reader_email,
+			]
+		);
 	}
 
 	/**

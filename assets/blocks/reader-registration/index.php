@@ -7,6 +7,7 @@
 
 namespace Newspack\Blocks\ReaderRegistration;
 
+use Newspack;
 use Newspack\Reader_Activation;
 
 defined( 'ABSPATH' ) || exit;
@@ -27,6 +28,20 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
 
 /**
+ * Enqueue front-end scripts.
+ */
+function enqueue_scripts() {
+	wp_enqueue_script(
+		'newspack-reader-registration-block',
+		\Newspack\Newspack::plugin_url() . '/assets/blocks/reader-registration/view.js',
+		[ 'jquery', 'newspack-reader-activation' ],
+		NEWSPACK_PLUGIN_VERSION,
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
+
+/**
  * Render Registration Block.
  *
  * @param array[] $attrs Block attributes.
@@ -37,8 +52,8 @@ function render_block( $attrs ) {
 	}
 	ob_start();
 	?>
-	<div class="newspack-reader-registration">
-		<form method="POST">
+	<div class="newspack-reader-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
+		<form method="POST" target="_top">
 			<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 			<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 			<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
@@ -46,6 +61,32 @@ function render_block( $attrs ) {
 	</div>
 	<?php
 	return ob_get_clean();
+}
+
+/**
+ * Utility to assemble the class for a server-side rendered block.
+ *
+ * @param array $attrs Block attributes.
+ * @param array $extra Additional classes to be added to the class list.
+ *
+ * @return string Class list separated by spaces.
+ */
+function get_block_classes( $attrs = [], $extra = [] ) {
+	$classes = [];
+	if ( isset( $attrs['align'] ) && ! empty( $attrs['align'] ) ) {
+		$classes[] = 'align' . $attrs['align'];
+	}
+	if ( isset( $attrs['className'] ) ) {
+		array_push( $classes, $attrs['className'] );
+	}
+	if ( is_array( $extra ) && ! empty( $extra ) ) {
+		$classes = array_merge( $classes, $extra );
+	}
+	if ( ! empty( $attrs['hideControls'] ) ) {
+		$classes[] = 'hide-controls';
+	}
+
+	return implode( ' ', $classes );
 }
 
 /**
@@ -60,24 +101,24 @@ function process_form() {
 		return;
 	}
 
-	$email  = \sanitize_email( $_POST['email'] );
-	$result = Reader_Activation::register_reader( $email );
+	$email   = \sanitize_email( $_POST['email'] );
+	$user_id = Reader_Activation::register_reader( $email );
 
 	/**
 	 * Fires after a reader is registered through the Reader Registration Block.
 	 *
-	 * @param string               $email  Email address of the reader.
-	 * @param int|string|\WP_Error $result The created user ID in case of registration, the user email if user already exists, or a WP_Error object.
+	 * @param string              $email   Email address of the reader.
+	 * @param int|false|\WP_Error $user_id The created user ID in case of registration, false if not created or a WP_Error object.
 	 */
-	\do_action( 'newspack_reader_registration_form_processed', $email, $result );
+	\do_action( 'newspack_reader_registration_form_processed', $email, $user_id );
 
 	if ( \wp_is_json_request() ) {
-		if ( ! \is_wp_error( $result ) ) {
+		if ( ! \is_wp_error( $user_id ) ) {
 			$message = __( 'Thank you for registering!', 'newspack' );
 		} else {
-			$message = $result->get_error_message();
+			$message = $user_id->get_error_message();
 		}
-		\wp_send_json( compact( 'message' ), \is_wp_error( $result ) ? 400 : 200 );
+		\wp_send_json( compact( 'message', 'email' ), \is_wp_error( $user_id ) ? 400 : 200 );
 	}
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );

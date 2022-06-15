@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { TextControl, PanelBody } from '@wordpress/components';
-import { InspectorControls } from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -16,6 +16,7 @@ export default function ReaderRegistrationEdit( {
 } ) {
 	const defaultPlaceholder = __( 'Enter your email address', 'newspack' );
 	const defaultLabel = __( 'Register', 'newspack' );
+	const blockProps = useBlockProps();
 	return (
 		<>
 			<InspectorControls>
@@ -34,15 +35,13 @@ export default function ReaderRegistrationEdit( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div className="newspack-reader-registration">
-				<form
-					onSubmit={ ev => {
-						ev.preventDefault();
-					} }
-				>
-					<input type="email" placeholder={ placeholder || defaultPlaceholder } />
-					<button>{ label || defaultLabel }</button>
-				</form>
+			<div { ...blockProps }>
+				<div className="newspack-reader-registration">
+					<form onSubmit={ ev => ev.preventDefault() }>
+						<input type="email" placeholder={ placeholder || defaultPlaceholder } />
+						<input type="submit" value={ label || defaultLabel } />
+					</form>
+				</div>
 			</div>
 		</>
 	);
