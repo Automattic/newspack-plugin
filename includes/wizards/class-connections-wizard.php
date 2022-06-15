@@ -42,6 +42,15 @@ class Connections_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get the description of this wizard.
+	 *
+	 * @return string The wizard description.
+	 */
+	public function get_description() {
+		return \esc_html__( 'Connections to third-party services.', 'newspack' );
+	}
+
+	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {

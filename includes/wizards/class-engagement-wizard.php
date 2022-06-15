@@ -58,6 +58,15 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get the description of this wizard.
+	 *
+	 * @return string The wizard description.
+	 */
+	public function get_description() {
+		return \esc_html__( 'Newsletters, commenting, social, recirculation', 'newspack' );
+	}
+
+	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
