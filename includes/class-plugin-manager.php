@@ -28,6 +28,7 @@ class Plugin_Manager {
 		'wordpress-seo',
 		'google-site-kit',
 		'newspack-blocks',
+		'wp-parsely',
 	];
 
 	/**
@@ -178,6 +179,7 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://www.parsely.com/' ),
 				'AuthorURI'   => esc_url( 'https://www.parsely.com/' ),
 				'Download'    => 'wporg',
+				'AlwaysOn'    => true,
 			],
 			'password-protected'            => [
 				'Name'        => esc_html__( 'Password Protected', 'newspack' ),
@@ -351,7 +353,7 @@ class Plugin_Manager {
 	 *
 	 * @param string $plugin_slug Plugin slug.
 	 */
-	private static function get_managed_plugin_status( $plugin_slug ) {
+	public static function get_managed_plugin_status( $plugin_slug ) {
 		if ( Newspack::is_debug_mode() ) {
 			return 'active';
 		}
