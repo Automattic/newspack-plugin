@@ -241,7 +241,9 @@ const AutocompleteWithSuggestions = ( {
 		if ( multiSelect ) {
 			const selections = selectedPost ? [ ...selectedItems, selectedPost ] : [ ...selectedItems ];
 			const isSelected = !! selections.find(
-				_selection => parseInt( _selection.value ) === parseInt( suggestion.value )
+				_selection =>
+					parseInt( _selection.value ) === parseInt( suggestion.value ) &&
+					_selection.label === suggestion.label
 			);
 			return (
 				<CheckboxControl
