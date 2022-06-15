@@ -1,4 +1,4 @@
-/** globals newspack_reader_activation */
+/** globals newspack_reader_activation_data */
 
 /**
  * Reader Activation Frontend Library.
