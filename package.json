@@ -16,9 +16,10 @@
     "@wordpress/browserslist-config": "^4.1.2",
     "eslint": "^7.32.0",
     "lint-staged": "^13.0.1",
-    "newspack-scripts": "^3.3.2",
-    "prettier": "npm:wp-prettier@^2.2.1-beta-1",
-    "stylelint": "^13.3.1"
+    "newspack-scripts": "^4.0.0",
+    "postcss-scss": "^4.0.4",
+    "prettier": "npm:wp-prettier@^2.6.2-beta-1",
+    "stylelint": "^14.9.1"
   },
   "browserslist": [
     "extends @wordpress/browserslist-config"
@@ -37,9 +38,9 @@
     "lint:js": "eslint --ext .js,.jsx assets",
     "lint:js:staged": "eslint --ext .js,.jsx",
     "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
-    "lint:scss": "stylelint '**/*.scss' --syntax scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
+    "lint:scss": "stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
     "format:scss": "prettier --write '**/*.scss'",
-    "lint:scss:staged": "stylelint --syntax scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
+    "lint:scss:staged": "stylelint --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
     "release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
     "release": "npm run build && npm run semantic-release",
     "postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"

@@ -2,7 +2,7 @@
 * Styles for AutocompleteWithSuggestions component.
 */
 
-@import '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors';
 
 .newspack-autocomplete-with-suggestions {
 	width: 100%;
@@ -27,19 +27,19 @@
 	}
 
 	.components-input-control__backdrop {
-		border-color: $gray-700 !important;
+		border-color: colors.$gray-700 !important;
 	}
 
 	.newspack-autocomplete-with-suggestions__label,
 	.components-form-token-field__label,
 	.components-input-control__label,
 	.components-checkbox-control__label {
-		color: $gray-900 !important;
+		color: colors.$gray-900 !important;
 	}
 
 	&__suggestions-spinner {
-		background: $gray-100;
-		border: 1px solid $gray-700;
+		background: colors.$gray-100;
+		border: 1px solid colors.$gray-700;
 		border-radius: 2px;
 		cursor: progress;
 		margin: 16px 0;
@@ -60,11 +60,11 @@
 
 	.components-form-token-field {
 		&__input-container {
-			border-color: $gray-700;
+			border-color: colors.$gray-700;
 		}
 
 		&__suggestions-list {
-			border-top-color: $gray-700;
+			border-top-color: colors.$gray-700;
 			margin: 4px -4px -2px;
 		}
 
@@ -79,7 +79,7 @@
 	}
 
 	&__selected-items {
-		border-bottom: 1px solid $gray-700;
+		border-bottom: 1px solid colors.$gray-700;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px;
@@ -93,9 +93,9 @@
 	}
 
 	&__selected-item-button.components-button.is-tertiary {
-		background-color: $gray-300;
+		background-color: colors.$gray-300;
 		border-radius: 2px;
-		color: $gray-900;
+		color: colors.$gray-900;
 		font-size: 13px;
 		height: auto;
 		margin: 0;
@@ -116,7 +116,7 @@
 	&__search-suggestions,
 	&__search-suggestions-multiselect {
 		border-radius: 2px;
-		border: 1px solid $gray-700;
+		border: 1px solid colors.$gray-700;
 		max-height: 178px;
 		overflow-x: visible;
 		overflow-y: auto;
@@ -128,14 +128,14 @@
 			margin: auto;
 
 			&.is-link {
-				color: $gray-900;
+				color: colors.$gray-900;
 				padding: 8px;
 				text-decoration: none;
 				width: 100%;
 
 				&:active:not( :disabled ),
 				&:hover:not( :disabled ) {
-					background: $gray-900;
+					background: colors.$gray-900;
 					background: var( --wp-admin-theme-color );
 					color: white;
 				}
@@ -150,7 +150,7 @@
 
 	&__search-suggestions {
 		border-radius: 2px;
-		border: 1px solid $gray-700;
+		border: 1px solid colors.$gray-700;
 		padding: 0;
 
 		.components-button {
@@ -158,7 +158,7 @@
 
 			&:focus:not( :disabled ) {
 				border-radius: 0;
-				box-shadow: inset 0 0 0 1.5px $gray-900;
+				box-shadow: inset 0 0 0 1.5px colors.$gray-900;
 				box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color );
 			}
 

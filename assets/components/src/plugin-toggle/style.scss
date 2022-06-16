@@ -2,7 +2,7 @@
  * Plugin Toggle
  */
 
-@import '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors';
 
 .newspack-action-card {
 	&.in-flight,
@@ -11,7 +11,7 @@
 
 		.newspack-action-card__region-right {
 			.newspack-button {
-				color: $gray-700;
+				color: colors.$gray-700;
 				pointer-events: none;
 				text-decoration: none;
 			}

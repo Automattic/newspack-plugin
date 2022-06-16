@@ -69,12 +69,8 @@ class EngagementWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const {
-			relatedPostsEnabled,
-			relatedPostsError,
-			relatedPostsMaxAge,
-			relatedPostsUpdated,
-		} = this.state;
+		const { relatedPostsEnabled, relatedPostsError, relatedPostsMaxAge, relatedPostsUpdated } =
+			this.state;
 
 		const tabbed_navigation = [
 			{

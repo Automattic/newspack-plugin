@@ -2,7 +2,7 @@
  * Money Input
  */
 
-@import '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors';
 
 .newspack-donations-wizard__money-input-container {
 	margin: 32px 0;
@@ -18,10 +18,10 @@
 	margin: 8px 0 0;
 
 	.currency {
-		border: 1px solid $gray-700;
+		border: 1px solid colors.$gray-700;
 		border-right: 0;
 		align-items: center;
-		background: $gray-100;
+		background: colors.$gray-100;
 		border-radius: 2px 0 0 2px;
 		display: flex;
 		flex: 0 0 14px;

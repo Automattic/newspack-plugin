@@ -2,8 +2,8 @@
  * Progress Bar
  */
 
-@import '../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
+@use '../../../shared/scss/colors' as scss-colors;
+@use '~@wordpress/base-styles/colors';
 
 .newspack-progress-bar {
 	margin: 32px 0;
@@ -26,7 +26,7 @@
 	}
 
 	&__container {
-		background-color: $gray-100;
+		background-color: colors.$gray-100;
 		border-radius: 4px;
 		height: 8px;
 		overflow: hidden;
@@ -35,7 +35,7 @@
 	}
 
 	&__bar {
-		background-color: $primary-500;
+		background-color: scss-colors.$primary-500;
 		height: 8px;
 		transition: width 125ms ease-in-out;
 	}

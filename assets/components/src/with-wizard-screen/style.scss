@@ -2,19 +2,19 @@
  * With Wizard Screen
  */
 
-@import '~@wordpress/base-styles/colors';
-@import '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors';
+@use '../../../shared/scss/colors' as scss-colors;
 
 .newspack-wizard {
 	// Color
-	--wp-admin-theme-color: #{$primary-500};
-	--wp-admin-theme-color--rgb: #{$primary-500--rgb};
-	--wp-admin-theme-color-darker-10: #{$primary-600};
-	--wp-admin-theme-color-darker-10--rgb: #{$primary-600--rgb};
-	--wp-admin-theme-color-darker-20: #{$primary-700};
-	--wp-admin-theme-color-darker-20--rgb: #{$primary-700--rgb};
+	--wp-admin-theme-color: #{scss-colors.$primary-500};
+	--wp-admin-theme-color--rgb: #{scss-colors.$primary-500--rgb};
+	--wp-admin-theme-color-darker-10: #{scss-colors.$primary-600};
+	--wp-admin-theme-color-darker-10--rgb: #{scss-colors.$primary-600--rgb};
+	--wp-admin-theme-color-darker-20: #{scss-colors.$primary-700};
+	--wp-admin-theme-color-darker-20--rgb: #{scss-colors.$primary-700--rgb};
 
-	color: $gray-900;
+	color: colors.$gray-900;
 
 	// Headings
 	h1,
@@ -49,7 +49,7 @@
 
 	&__title {
 		align-items: center;
-		border-bottom: 1px solid $gray-300;
+		border-bottom: 1px solid colors.$gray-300;
 		display: flex;
 
 		h2 {
@@ -63,7 +63,7 @@
 			padding: 0 24px;
 
 			span {
-				color: $gray-700;
+				color: colors.$gray-700;
 				display: none;
 				margin-left: 8px;
 
@@ -83,7 +83,7 @@
 			}
 
 			&:not( .newspack-icon ) {
-				background: $primary-500;
+				background: scss-colors.$primary-500;
 				left: 50%;
 				margin: -28px 0 0 -28px !important;
 				opacity: 0;
@@ -145,7 +145,7 @@
 		// Thematic Break
 
 		hr {
-			background: $gray-300;
+			background: colors.$gray-300;
 			border: 0;
 			height: 1px;
 			margin: 48px 0;

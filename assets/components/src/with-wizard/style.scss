@@ -2,8 +2,8 @@
  * With Wizard
  */
 
-@import '~@wordpress/base-styles/colors';
-@import '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors';
+@use '../../../shared/scss/colors' as scss-colors;
 
 // Reset Padding of the Admin Page
 
@@ -32,11 +32,11 @@ body[class*='admin_page_newspack-'] {
 
 svg {
 	&.newspack--error {
-		fill: $alert-red;
+		fill: colors.$alert-red;
 		transform: rotate( 180deg );
 	}
 	&.newspack--success {
-		fill: $alert-green;
+		fill: colors.$alert-green;
 	}
 }
 
@@ -44,12 +44,12 @@ svg {
 
 .newspack-wizard__blue {
 	#wpwrap {
-		background: $primary-500;
+		background: scss-colors.$primary-500;
 	}
 
 	.newspack-footer {
-		background: $primary-500;
-		border-color: $primary-500;
+		background: scss-colors.$primary-500;
+		border-color: scss-colors.$primary-500;
 		justify-content: center;
 
 		&__logo {
@@ -95,38 +95,39 @@ svg {
 	}
 
 	&::before {
-		background: $primary-500;
-		box-shadow: 24px 0 0 white, 69px 0 0 -15px $gray-900, 99px 0 0 -15px $gray-900,
-			129px 0 0 -15px $gray-900, 159px 0 0 -15px $gray-900, 189px 0 0 -15px $gray-900;
+		background: scss-colors.$primary-500;
+		box-shadow: 24px 0 0 white, 69px 0 0 -15px colors.$gray-900, 99px 0 0 -15px colors.$gray-900,
+			129px 0 0 -15px colors.$gray-900, 159px 0 0 -15px colors.$gray-900,
+			189px 0 0 -15px colors.$gray-900;
 		height: 60px;
 		width: 60px;
 	}
 
 	&::after {
-		background: $gray-900;
-		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
-			0 96px 0 0 $gray-700;
+		background: colors.$gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 colors.$gray-700, 40vw 96px 0 0 white,
+			0 96px 0 0 colors.$gray-700;
 		height: 24px;
 		margin: 68px auto 0;
 		max-width: 1040px;
 		width: calc( 100% - ( 32px * 2 ) );
 
 		@media screen and ( min-width: 744px ) {
-			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $gray-700, 200px 96px 0 0 white,
-				0 96px 0 0 $gray-700;
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 colors.$gray-700, 200px 96px 0 0 white,
+				0 96px 0 0 colors.$gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 512px 96px 0 0 white,
-				0 96px 0 0 $gray-700;
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 colors.$gray-700, 512px 96px 0 0 white,
+				0 96px 0 0 colors.$gray-700;
 			width: calc( 100% - ( 64px * 2 ) );
 		}
 	}
 
 	// Blue Screen
 	.newspack-wizard__blue & {
-		background: $primary-500;
+		background: scss-colors.$primary-500;
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
@@ -182,7 +183,7 @@ svg {
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
-			background: $primary-500;
+			background: scss-colors.$primary-500;
 			height: 8px;
 			right: 100%;
 			z-index: 9999;
@@ -210,22 +211,22 @@ svg {
 		animation: loading 2s ease-in-out infinite;
 		content: '';
 		display: block;
-		background: $gray-900;
-		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 $gray-700, 40vw 96px 0 0 white,
-			0 96px 0 0 $gray-700;
+		background: colors.$gray-900;
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 colors.$gray-700, 40vw 96px 0 0 white,
+			0 96px 0 0 colors.$gray-700;
 		height: 24px;
 		margin: 0 auto;
 		max-width: 1040px;
 		width: 100%;
 
 		@media screen and ( min-width: 744px ) {
-			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 $gray-700, 200px 96px 0 0 white,
-				0 96px 0 0 $gray-700;
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 colors.$gray-700, 200px 96px 0 0 white,
+				0 96px 0 0 colors.$gray-700;
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 $gray-700, 520px 96px 0 0 white,
-				0 96px 0 0 $gray-700;
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 colors.$gray-700, 520px 96px 0 0 white,
+				0 96px 0 0 colors.$gray-700;
 		}
 	}
 }

@@ -2,12 +2,12 @@
  * Dashboard
  */
 
-@import '~@wordpress/base-styles/colors';
-@import '../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors';
+@use '../../shared/scss/colors' as scss-colors;
 
 .newspack-dashboard-card {
 	align-items: center;
-	border-color: $gray-300;
+	border-color: colors.$gray-300;
 	display: grid;
 	grid-gap: 16px;
 	grid-template-columns: 48px auto;
@@ -20,6 +20,6 @@
 	}
 
 	svg {
-		fill: $primary-500;
+		fill: scss-colors.$primary-500;
 	}
 }

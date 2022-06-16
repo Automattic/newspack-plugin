@@ -2,11 +2,12 @@
  * Action Card
  */
 
-@import '~@wordpress/base-styles/colors';
+@use 'sass:color';
+@use '~@wordpress/base-styles/colors';
 
 .newspack-card.newspack-action-card {
 	padding: 0;
-	border-color: $gray-300;
+	border-color: colors.$gray-300;
 
 	// Clickable
 
@@ -25,7 +26,7 @@
 	&.newspack-card__is-secondary,
 	&.newspack-card__is-supported,
 	&.newspack-card__is-unsupported {
-		box-shadow: inset 4px 0 0 $gray-100;
+		box-shadow: inset 4px 0 0 colors.$gray-100;
 
 		.newspack-action-card__region-top {
 			padding-left: 28px;
@@ -37,15 +38,15 @@
 	}
 
 	&.newspack-card__is-secondary {
-		box-shadow: inset 4px 0 0 $alert-yellow;
+		box-shadow: inset 4px 0 0 colors.$alert-yellow;
 	}
 
 	&.newspack-card__is-supported {
-		box-shadow: inset 4px 0 0 $alert-green;
+		box-shadow: inset 4px 0 0 colors.$alert-green;
 	}
 
 	&.newspack-card__is-unsupported {
-		box-shadow: inset 4px 0 0 $alert-red;
+		box-shadow: inset 4px 0 0 colors.$alert-red;
 	}
 
 	// Small
@@ -83,18 +84,18 @@
 		}
 
 		&.mv0 {
-			border-left-color: $gray-300;
+			border-left-color: colors.$gray-300;
 			border-radius: 0;
-			border-right-color: $gray-300;
+			border-right-color: colors.$gray-300;
 
 			&:first-of-type {
-				border-top-color: $gray-300;
+				border-top-color: colors.$gray-300;
 				border-top-left-radius: 3px;
 				border-top-right-radius: 3px;
 			}
 
 			&:last-of-type {
-				border-bottom-color: $gray-300;
+				border-bottom-color: colors.$gray-300;
 				border-bottom-left-radius: 3px;
 				border-bottom-right-radius: 3px;
 			}
@@ -152,7 +153,7 @@
 
 		&.newspack-card--has-children {
 			.newspack-action-card__region-top {
-				border-bottom: 1px solid $gray-300;
+				border-bottom: 1px solid colors.$gray-300;
 			}
 		}
 
@@ -162,7 +163,7 @@
 
 		.newspack-action-card__region-center {
 			p {
-				color: darken( $gray-700, 0.75% );
+				color: color.adjust( colors.$gray-700, $lightness: -0.75% );
 			}
 		}
 	}
@@ -174,7 +175,7 @@
 		position: relative;
 
 		&::before {
-			border: 0 solid $gray-300;
+			border: 0 solid colors.$gray-300;
 			border-left-width: 1px;
 			border-bottom-width: 1px;
 			border-radius: 0 0 0 2px;
@@ -304,7 +305,7 @@
 		}
 
 		p {
-			color: $gray-700;
+			color: colors.$gray-700;
 		}
 	}
 
@@ -369,9 +370,9 @@
 	// Badge
 
 	.newspack-action-card__badge {
-		background: $gray-100;
+		background: colors.$gray-100;
 		border-radius: 2px;
-		color: $gray-900;
+		color: colors.$gray-900;
 		display: block;
 		flex: 0 0 auto;
 		font-size: 10px;
@@ -401,6 +402,6 @@
 
 .newspack-card {
 	.newspack-card.newspack-action-card {
-		border: 1px solid $gray-200;
+		border: 1px solid colors.$gray-200;
 	}
 }
