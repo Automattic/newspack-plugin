@@ -1,16 +1,16 @@
 /**
  * Internal dependencies.
  */
-import { Card, InfoButton } from '../';
+import { Grid, InfoButton } from '../';
 
 const SettingSection = ( { title, description, children } ) => (
-	<Card isSmall noBorder className="newspack-settings__section">
+	<Grid columns={ 1 } gutter={ 8 } className="newspack-settings__section">
 		<div className="newspack-settings__section__title">
-			<h3>{ title }</h3>
+			<span>{ title }</span>
 			{ description && <InfoButton text={ description } /> }
 		</div>
 		<div className="newspack-settings__section__content">{ children }</div>
-	</Card>
+	</Grid>
 );
 
 export default SettingSection;

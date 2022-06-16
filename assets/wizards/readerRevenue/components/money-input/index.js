@@ -24,15 +24,19 @@ class MoneyInput extends Component {
 		const { currencySymbol, label, value, onChange } = this.props;
 
 		return (
-			<div className="newspack-donations-wizard__money-input">
-				<span className="currency">{ currencySymbol }</span>
-				<TextControl
-					type="number"
-					step="0.01"
-					label={ label }
-					value={ value }
-					onChange={ onChange }
-				/>
+			<div className="newspack-donations-wizard__money-input-container">
+				<p className="input-label">{ label }</p>
+				<div className="newspack-donations-wizard__money-input">
+					<div className="currency">{ currencySymbol }</div>
+					<TextControl
+						type="number"
+						step="0.01"
+						label={ label }
+						hideLabelFromVision
+						value={ value }
+						onChange={ onChange }
+					/>
+				</div>
 			</div>
 		);
 	}

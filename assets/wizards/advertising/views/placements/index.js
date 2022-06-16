@@ -15,6 +15,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { settings } from '@wordpress/icons';
+import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -25,7 +26,6 @@ import {
 	Card,
 	Modal,
 	Notice,
-	ToggleControl,
 	withWizardScreen,
 } from '../../../../components/src';
 import PlacementControl from '../../components/placement-control';
@@ -150,8 +150,6 @@ const Placements = () => {
 							actionText={
 								isEnabled( key ) ? (
 									<Button
-										isQuaternary
-										isSmall
 										disabled={ inFlight || ! providers.length }
 										onClick={ () => setEditingPlacement( key ) }
 										icon={ settings }
@@ -203,6 +201,19 @@ const Placements = () => {
 								</Card>
 							);
 						} ) }
+					<ToggleControl
+						label={ __( 'Use fixed height', 'newspack' ) }
+						help={ __(
+							'Avoid content layout shift by using the ad unit height as fixed height for this placement. This is recommended if an ad is guaranteed to be shown across all devices.',
+							'newspack'
+						) }
+						checked={ !! placement.data?.fixed_height }
+						onChange={ value => {
+							setPlacements(
+								set( [ editingPlacement, 'data', 'fixed_height' ], value, placements )
+							);
+						} }
+					/>
 					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
 						<ToggleControl
 							label={ __( 'Stick to Top', 'newspack' ) }

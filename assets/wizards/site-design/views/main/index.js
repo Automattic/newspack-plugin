@@ -1,9 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { alignCenter, alignLeft } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { TextareaControl, ToggleControl } from '@wordpress/components';
 
 /**
  * External dependencies
@@ -14,21 +15,18 @@ import { omit } from 'lodash';
  * Internal dependencies
  */
 import {
-	withWizardScreen,
+	ButtonCard,
 	Card,
 	ColorPicker,
-	TextControl,
-	TextareaControl,
+	Grid,
+	ImageUpload,
+	SectionHeader,
 	SelectControl,
 	StyleCard,
-	ToggleControl,
-	RadioControl,
-	SectionHeader,
-	ImageUpload,
-	hooks,
-	ButtonCard,
-	Grid,
+	TextControl,
 	WebPreview,
+	hooks,
+	withWizardScreen,
 } from '../../../../components/src';
 import ThemeSelection from '../../components/theme-selection';
 import {
@@ -104,7 +102,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 		const isHeadings = type === 'headings';
 		const label = isHeadings ? __( 'Headings', 'newspack' ) : __( 'Body', 'newspack' );
 		return (
-			<Card noBorder>
+			<Grid columns={ 1 } gutter={ 16 }>
 				<TextareaControl
 					label={ label + ' - ' + __( 'Font provider import code or URL', 'newspack' ) }
 					placeholder={
@@ -134,20 +132,20 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 					value={ isHeadings ? mods.font_header_stack : mods.font_body_stack }
 					onChange={ updateMods( isHeadings ? 'font_header_stack' : 'font_body_stack' ) }
 				/>
-			</Card>
+			</Grid>
 		);
 	};
 
 	return (
 		<Card noBorder className="newspack-design">
 			{ ! isPartOfSetup && (
-				<Fragment>
+				<>
 					<SectionHeader
 						title={ __( 'Theme', 'newspack' ) }
 						description={ __( 'Select the theme for your site', 'newspack' ) }
 					/>
 					<ThemeSelection theme={ themeSlug } updateTheme={ updateThemeSlug } />
-				</Fragment>
+				</>
 			) }
 			{ isDisplayingHomepageLayoutPicker ? (
 				<>
@@ -196,10 +194,12 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 				description={ __( 'Define the font pairing to use throughout your site', 'newspack' ) }
 			/>
 			<Grid columns={ 1 } gutter={ 16 }>
-				<RadioControl
-					options={ TYPOGRAPHY_OPTIONS }
-					selected={ typographyOptionsType }
+				<SelectControl
+					label={ __( 'Typography Options', 'newspack' ) }
+					hideLabelFromVision
+					value={ typographyOptionsType ? typographyOptionsType : 'curated' }
 					onChange={ updateTypographyOptionsType }
+					buttonOptions={ TYPOGRAPHY_OPTIONS }
 				/>
 				<Grid gutter={ 32 }>
 					{ typographyOptionsType === 'curated' ? (
@@ -307,7 +307,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 					{ mods.custom_logo && (
 						<SelectControl
 							className="icon-only"
-							label={ __( 'Size', 'newspack' ) }
+							label={ __( 'Logo Size', 'newspack' ) }
 							value={ parseLogoSize( mods.logo_size ) }
 							onChange={ updateMods( 'logo_size' ) }
 							buttonOptions={ LOGO_SIZE_OPTIONS }
@@ -346,7 +346,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 					<ImageUpload
 						className="newspack-design__footer__logo"
 						label={ __( 'Alternative Logo', 'newspack' ) }
-						info={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
+						help={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
 						style={ {
 							...( mods.footer_color === 'custom' && mods.footer_color_hex
 								? { backgroundColor: mods.footer_color_hex }

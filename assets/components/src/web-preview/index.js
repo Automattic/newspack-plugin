@@ -4,11 +4,12 @@
 import { Component, createRef, Fragment, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { closeSmall, desktop, mobile, tablet } from '@wordpress/icons';
+import { Button, ButtonGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { Button, ButtonGroup, Waiting } from '../';
+import { Waiting } from '../';
 import './style.scss';
 
 /**
@@ -68,11 +69,7 @@ class WebPreview extends Component {
 			return null;
 		}
 
-		const classes = classnames(
-			'newspack-web-preview__container',
-			device,
-			loaded && 'newspack-web-preview__is-loaded'
-		);
+		const classes = classnames( 'newspack-web-preview', device, loaded && 'is-loaded' );
 		beforeLoad();
 		return createPortal(
 			<div className={ classes }>
@@ -82,24 +79,21 @@ class WebPreview extends Component {
 							<ButtonGroup>
 								<Button
 									onClick={ () => this.setState( { device: 'desktop' } ) }
-									isSmall
-									className={ classnames( 'is-desktop', 'desktop' === device && 'is-selected' ) }
+									variant={ 'desktop' === device && 'primary' }
 									icon={ desktop }
-									label={ __( 'Preview desktop size', 'newspack' ) }
+									label={ __( 'Preview Desktop Size', 'newspack' ) }
 								/>
 								<Button
 									onClick={ () => this.setState( { device: 'tablet' } ) }
-									isSmall
-									className={ classnames( 'is-tablet', 'tablet' === device && 'is-selected' ) }
+									variant={ 'tablet' === device && 'primary' }
 									icon={ tablet }
-									label={ __( 'Preview tablet size', 'newspack' ) }
+									label={ __( 'Preview Tablet Size', 'newspack' ) }
 								/>
 								<Button
 									onClick={ () => this.setState( { device: 'phone' } ) }
-									isSmall
-									className={ classnames( 'is-phone', 'phone' === device && 'is-selected' ) }
+									variant={ 'phone' === device && 'primary' }
 									icon={ mobile }
-									label={ __( 'Preview phone size', 'newspack' ) }
+									label={ __( 'Preview Phone Size', 'newspack' ) }
 								/>
 							</ButtonGroup>
 						</div>
@@ -109,9 +103,8 @@ class WebPreview extends Component {
 									onClose();
 									this.setState( { isPreviewVisible: false, loaded: false } );
 								} }
-								isSmall
 								icon={ closeSmall }
-								label={ __( 'Close preview', 'newspack' ) }
+								label={ __( 'Close Preview', 'newspack' ) }
 							/>
 						</div>
 					</div>
@@ -148,12 +141,7 @@ class WebPreview extends Component {
 	render() {
 		const {
 			label,
-			isPrimary,
-			isSecondary,
-			isTertiary,
-			isQuaternary,
-			isLink,
-			isSmall,
+			variant,
 			/**
 			 * Inversion of control - let the caller render
 			 * the button that will trigger the modal
@@ -166,16 +154,7 @@ class WebPreview extends Component {
 				{ renderButton ? (
 					renderButton( { showPreview: this.showPreview } )
 				) : (
-					<Button
-						isPrimary={ isPrimary }
-						isSecondary={ isSecondary }
-						isTertiary={ isTertiary }
-						isQuaternary={ isQuaternary }
-						isLink={ isLink }
-						isSmall={ isSmall }
-						onClick={ this.showPreview }
-						tabIndex="0"
-					>
+					<Button variant={ variant } onClick={ this.showPreview } tabIndex="0">
 						{ label }
 					</Button>
 				) }

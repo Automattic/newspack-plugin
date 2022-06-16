@@ -58,8 +58,8 @@ const Completed = () => {
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>
-							<Button isPrimary isSmall href={ newspack_urls.dashboard }>
-								{ __( 'Go to Dashboard', 'newspack' ) }
+							<Button variant="primary" href={ newspack_urls.dashboard }>
+								{ __( 'Go to the Dashboard', 'newspack' ) }
 							</Button>
 						</div>
 					</ActionCard>
@@ -73,7 +73,7 @@ const Completed = () => {
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>
-							<Button isPrimary isSmall href={ newspack_urls.support }>
+							<Button variant="primary" href={ newspack_urls.support }>
 								{ __( 'Read Documentation', 'newspack' ) }
 							</Button>
 						</div>
@@ -88,7 +88,7 @@ const Completed = () => {
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>
-							<Button isPrimary isSmall href={ newspack_urls.homepage }>
+							<Button variant="primary" href={ newspack_urls.homepage }>
 								{ __( 'Edit Homepage', 'newspack' ) }
 							</Button>
 						</div>
@@ -100,7 +100,7 @@ const Completed = () => {
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>
-							<Button isPrimary isSmall href={ newspack_urls.site }>
+							<Button variant="primary" href={ newspack_urls.site }>
 								{ __( 'Visit Site', 'newspack' ) }
 							</Button>
 						</div>

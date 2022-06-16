@@ -16,7 +16,8 @@
 	.newspack-grid {
 		&__thead,
 		&__tbody {
-			grid-template-columns: repeat( 3, calc( 33.33% - 24px ) ) 48px;
+			align-items: center;
+			grid-template-columns: repeat( 3, calc( 33.33% - 24px ) ) 36px;
 		}
 
 		.newspack-button.has-icon:not( .has-text ) {
