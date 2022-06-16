@@ -25,7 +25,6 @@ class Plugin_Manager {
 		'jetpack',
 		'amp',
 		'pwa',
-		'wordpress-seo',
 		'google-site-kit',
 		'newspack-blocks',
 		'wp-parsely',
