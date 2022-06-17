@@ -1,45 +1,50 @@
 /**
- * Syndication Intro View
- */
-
-/**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { PluginToggle } from '../../../../components/src';
+import { PluginToggle, ActionCard, Wizard } from '../../../../components/src';
 
-/**
- * Syndication Intro screen.
- */
-class Intro extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		return (
-			<Fragment>
-				<PluginToggle
-					plugins={ {
-						'newspack-rss-enhancements': {
-							name: __( 'RSS Enhancements', 'newspack' ),
-							actionText: __( 'Manage', 'newspack' ),
+const Intro = () => {
+	const settingsData = Wizard.useWizardData( 'settings' );
+	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	return (
+		<>
+			<ActionCard
+				title={ __( 'RSS Enhancements', 'newspack' ) }
+				description={ __(
+					'Create and manage customized RSS feeds for syndication partners',
+					'newspack'
+				) }
+				toggleChecked={ Boolean( settingsData.module_enabled_rss ) }
+				toggleOnChange={ value => {
+					saveWizardSettings( {
+						slug: 'newspack-settings-wizard',
+						updatePayload: {
+							path: [ 'module_enabled_rss' ],
+							value,
 						},
-						'publish-to-apple-news': {
-							name: __( 'Apple News', 'newspack' ),
-						},
-						'distributor-stable': {
-							name: __( 'Distributor', 'newspack' ),
-						},
-					} }
-				/>
-			</Fragment>
-		);
-	}
-}
+					} ).then( () => {
+						window.location.reload( true );
+					} );
+				} }
+			/>
+			<PluginToggle
+				plugins={ {
+					'publish-to-apple-news': {
+						name: __( 'Apple News', 'newspack' ),
+					},
+					'distributor-stable': {
+						name: __( 'Distributor', 'newspack' ),
+					},
+				} }
+			/>
+		</>
+	);
+};
 
 export default Intro;

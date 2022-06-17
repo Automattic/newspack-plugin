@@ -7,11 +7,12 @@
  */
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Button, WebPreview } from '../';
+import { WebPreview } from '../';
 import './style.scss';
 
 /**
@@ -55,7 +56,7 @@ class StyleCard extends Component {
 							</span>
 						) : (
 							<Button
-								isLink
+								variant="link"
 								onClick={ onClick }
 								aria-label={ ariaLabel ? ariaLabel : __( 'Select', 'newspack' ) + ' ' + cardTitle }
 								tabIndex="0"
@@ -63,7 +64,9 @@ class StyleCard extends Component {
 								{ __( 'Select', 'newspack' ) }
 							</Button>
 						) }
-						{ url && <WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } isLink /> }
+						{ url && (
+							<WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } variant="link" />
+						) }
 					</div>
 				</div>
 				{ cardTitle && <div className="newspack-style-card__title">{ cardTitle }</div> }

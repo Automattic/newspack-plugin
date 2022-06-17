@@ -150,15 +150,6 @@ class Plugin_Manager {
 				'AuthorURI'   => esc_url( 'https://automattic.com' ),
 				'Download'    => 'https://github.com/Automattic/newspack-popups/releases/latest/download/newspack-popups.zip',
 			],
-			'newspack-rss-enhancements'     => [
-				'Name'        => esc_html__( 'Newspack RSS Enhancements', 'newspack' ),
-				'Description' => esc_html__( 'Create and manage customized RSS feeds for syndication partners', 'newspack' ),
-				'Author'      => esc_html__( 'Automattic', 'newspack' ),
-				'PluginURI'   => esc_url( 'https://newspack.pub' ),
-				'AuthorURI'   => esc_url( 'https://automattic.com' ),
-				'Download'    => 'https://github.com/Automattic/newspack-rss-enhancements/releases/latest/download/newspack-rss-enhancements.zip',
-				'EditPath'    => 'edit.php?post_type=partner_rss_feed',
-			],
 			'newspack-sponsors'             => [
 				'Name'        => esc_html__( 'Newspack Sponsors', 'newspack' ),
 				'Description' => esc_html__( 'Sponsored and underwritten content for Newspack sites.', 'newspack' ),

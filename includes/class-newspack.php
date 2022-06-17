@@ -88,6 +88,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';
@@ -97,6 +99,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 
 		/* Unified Wizards */
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
@@ -121,6 +124,7 @@ final class Newspack {
 		// Integrations w/ third-party plugins.
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-jetpack.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-gravityforms.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 

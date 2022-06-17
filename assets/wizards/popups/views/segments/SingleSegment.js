@@ -13,10 +13,10 @@ import {
 	Button,
 	CategoryAutocomplete,
 	Notice,
-	SelectControl,
 	Router,
-	TextControl,
+	SelectControl,
 	Settings,
+	TextControl,
 	hooks,
 } from '../../../../components/src';
 
@@ -201,6 +201,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			>
 				<SettingsSection title={ __( 'Newsletter', 'newspack' ) }>
 					<SelectControl
+						isWide
 						data-testid="subscriber-select"
 						onChange={ value => {
 							value = parseInt( value );
@@ -230,6 +231,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
 				>
 					<SelectControl
+						isWide
 						onChange={ value => {
 							value = parseInt( value );
 							if ( value === 0 ) {
@@ -255,6 +257,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				</SettingsSection>
 				<SettingsSection title={ __( 'User Account', 'newspack' ) }>
 					<SelectControl
+						isWide
 						onChange={ value => {
 							value = parseInt( value );
 							if ( value === 0 ) {
@@ -294,8 +297,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					description={ __( 'Segment based on traffic source.', 'newspack' ) }
 				>
 					<TextControl
-						data-testid="referrers-input"
 						isWide
+						data-testid="referrers-input"
 						placeholder={ __( 'google.com, facebook.com', 'newspack' ) }
 						help={ __( 'A comma-separated list of domains.', 'newspack' ) }
 						value={ segmentConfig.referrers }

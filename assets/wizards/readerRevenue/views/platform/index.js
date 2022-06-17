@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Grid, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
+import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
 import { NEWSPACK, NRH, STRIPE } from '../../constants';
 
 /**
@@ -19,7 +19,7 @@ const Platform = () => {
 	const { saveWizardSettings, updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	return (
 		<Fragment>
-			<Grid>
+			<Card noBorder>
 				<SelectControl
 					label={ __( 'Select Reader Revenue Platform', 'newspack' ) }
 					value={ wizardData.platform_data?.platform }
@@ -49,7 +49,7 @@ const Platform = () => {
 						} );
 					} }
 				/>
-			</Grid>
+			</Card>
 			{ NEWSPACK === wizardData.platform_data?.platform && ! wizardData.plugin_status && (
 				<PluginInstaller
 					plugins={ [

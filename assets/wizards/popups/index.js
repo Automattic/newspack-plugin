@@ -421,6 +421,6 @@ class PopupsWizard extends Component {
 }
 
 render(
-	createElement( withWizard( PopupsWizard, [ 'jetpack', 'newspack-popups' ] ) ),
+	createElement( withWizard( PopupsWizard, [ 'newspack-popups' ] ) ),
 	document.getElementById( 'newspack-popups-wizard' )
 );

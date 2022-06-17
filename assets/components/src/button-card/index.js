@@ -11,6 +11,7 @@ import { Icon, chevronRight } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { Grid } from '../';
 import './style.scss';
 
 /**
@@ -49,10 +50,10 @@ class ButtonCard extends Component {
 		return (
 			<a className={ classes } { ...otherProps }>
 				{ icon && <Icon icon={ icon } height={ 48 } width={ 48 } /> }
-				<div>
-					{ title && <div className="title">{ title }</div> }
-					{ desc && <div className="desc">{ desc }</div> }
-				</div>
+				<Grid noMargin columns={ 1 } gutter={ 8 }>
+					{ title && <h3>{ title }</h3> }
+					{ desc && <p>{ desc }</p> }
+				</Grid>
 				{ chevron && <Icon icon={ chevronRight } height={ 24 } width={ 24 } /> }
 			</a>
 		);

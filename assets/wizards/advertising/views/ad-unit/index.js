@@ -110,8 +110,7 @@ class AdUnit extends Component {
 							: __( 'Ad Unit Size', 'newspack' ) }
 					</h2>
 					<Button
-						isSecondary
-						isSmall
+						variant="secondary"
 						onClick={ () =>
 							this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] )
 						}
@@ -131,9 +130,9 @@ class AdUnit extends Component {
 				) }
 
 				<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__thead">
-					<strong>{ __( 'Size', 'newspack' ) }</strong>
-					<strong>{ __( 'Width', 'newspack' ) }</strong>
-					<strong>{ __( 'Height', 'newspack' ) }</strong>
+					<span>{ __( 'Size', 'newspack' ) }</span>
+					<span>{ __( 'Width', 'newspack' ) }</span>
+					<span>{ __( 'Height', 'newspack' ) }</span>
 					<span className="screen-reader-text">{ __( 'Action', 'newspack' ) }</span>
 				</Grid>
 
@@ -159,7 +158,6 @@ class AdUnit extends Component {
 							} }
 						/>
 						<Button
-							isQuaternary
 							onClick={ () => {
 								if ( size === 'fluid' ) {
 									this.handleOnChange( 'fluid', false );
@@ -179,12 +177,12 @@ class AdUnit extends Component {
 				<div className="newspack-buttons-card">
 					<Button
 						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) || isInvalidSize }
-						isPrimary
+						variant="primary"
 						onClick={ () => onSave( id ) }
 					>
 						{ __( 'Save', 'newspack' ) }
 					</Button>
-					<Button isSecondary href={ `#/${ service }` }>
+					<Button variant="secondary" href={ `#/${ service }` }>
 						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>

@@ -59,7 +59,6 @@ class RelatedContent extends Component {
 								placeholder={ __( 'Maximum age of related content, in months' ) }
 								type="number"
 								value={ relatedPostsMaxAge || 0 }
-								isWide
 							/>
 						</Card>
 					</Grid>

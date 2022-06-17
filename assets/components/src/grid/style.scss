@@ -118,6 +118,19 @@
 		margin-top: 0 !important;
 	}
 
+	.components-base-control {
+		&__field,
+		&__help {
+			margin-bottom: 0;
+		}
+	}
+
+	.components-form-token-field {
+		&__input-container {
+			margin-bottom: 0;
+		}
+	}
+
 	// Cards
 	> .newspack-card {
 		> *:first-child {
@@ -131,7 +144,7 @@
 
 	// Table-like
 	&__thead {
-		background: $gray-100;
+		background: rgba( black, 0.025 );
 		border-bottom: 1px solid $gray-300;
 		border-top: 1px solid $gray-300;
 		color: $gray-900;
