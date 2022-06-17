@@ -30,7 +30,6 @@ class MoneyInput extends Component {
 					<div className="currency">{ currencySymbol }</div>
 					<TextControl
 						type="number"
-						step="0.01"
 						label={ label }
 						hideLabelFromVision
 						value={ value }

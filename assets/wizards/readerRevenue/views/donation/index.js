@@ -12,15 +12,38 @@ import { MoneyInput } from '../../components/';
 import { Button, Card, Grid, Notice, SectionHeader, Wizard } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
+const settingsFrequencies = [
+	{
+		tieredLabel: __( 'One-time donation tiers' ),
+		staticLabel: __( 'Suggested one-time donation amount' ),
+		key: 'once',
+	},
+	{
+		tieredLabel: __( 'Monthly donation tiers' ),
+		staticLabel: __( 'Suggested donation amount per month' ),
+		key: 'month',
+	},
+	{
+		tieredLabel: __( 'Annual donation tiers' ),
+		staticLabel: __( 'Suggested donation amount per year' ),
+		key: 'year',
+	},
+];
+
 export const DonationAmounts = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const {
-		suggestedAmounts = [ 0, 0, 0 ],
-		suggestedAmountUntiered = 0,
-		currencySymbol = '$',
-		tiered = false,
+		suggestedAmountsByFrequency,
+		suggestedAmountsUntieredByFrequency,
+		currencySymbol,
+		tiered,
 	} = wizardData.donation_data || {};
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+
+	if ( ! wizardData.donation_data ) {
+		return null;
+	}
+
 	const changeHandler = path => value =>
 		updateWizardSettings( {
 			slug: 'newspack-reader-revenue-wizard',
@@ -33,46 +56,54 @@ export const DonationAmounts = () => {
 			<SectionHeader
 				title={ __( 'Suggested Donations', 'newspack' ) }
 				description={ __(
-					'Set suggested monthly donation amounts. The one-time and annual suggested donation amount will be adjusted according to the monthly amount.',
+					'Set suggested donation amounts. These will be the default settings for the Donate block.',
 					'newspack'
 				) }
 			/>
-			<Grid columns={ 1 } gutter={ 16 }>
-				<ToggleControl
-					label={ __( 'Set exact monthly donation tiers' ) }
-					checked={ tiered }
-					onChange={ changeHandler( [ 'tiered' ] ) }
-				/>
-				{ tiered ? (
-					<Grid columns={ 3 } rowGap={ 16 }>
-						<MoneyInput
-							currencySymbol={ currencySymbol }
-							label={ __( 'Low-tier' ) }
-							value={ suggestedAmounts[ 0 ] }
-							onChange={ changeHandler( [ 'suggestedAmounts', 0 ] ) }
-						/>
-						<MoneyInput
-							currencySymbol={ currencySymbol }
-							label={ __( 'Mid-tier' ) }
-							value={ suggestedAmounts[ 1 ] }
-							onChange={ changeHandler( [ 'suggestedAmounts', 1 ] ) }
-						/>
-						<MoneyInput
-							currencySymbol={ currencySymbol }
-							label={ __( 'High-tier' ) }
-							value={ suggestedAmounts[ 2 ] }
-							onChange={ changeHandler( [ 'suggestedAmounts', 2 ] ) }
-						/>
+			<ToggleControl
+				label={ __( 'Tiered', 'newspack' ) }
+				checked={ tiered }
+				onChange={ changeHandler( [ 'tiered' ] ) }
+			/>
+			{ tiered ? (
+				settingsFrequencies.map( section => (
+					<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
+						<b>{ section.tieredLabel }</b>
+						<Grid columns={ 3 } rowGap={ 16 }>
+							<MoneyInput
+								currencySymbol={ currencySymbol }
+								label={ __( 'Low-tier' ) }
+								value={ suggestedAmountsByFrequency[ section.key ][ 0 ] }
+								onChange={ changeHandler( [ 'suggestedAmountsByFrequency', section.key, 0 ] ) }
+							/>
+							<MoneyInput
+								currencySymbol={ currencySymbol }
+								label={ __( 'Mid-tier' ) }
+								value={ suggestedAmountsByFrequency[ section.key ][ 1 ] }
+								onChange={ changeHandler( [ 'suggestedAmountsByFrequency', section.key, 1 ] ) }
+							/>
+							<MoneyInput
+								currencySymbol={ currencySymbol }
+								label={ __( 'High-tier' ) }
+								value={ suggestedAmountsByFrequency[ section.key ][ 2 ] }
+								onChange={ changeHandler( [ 'suggestedAmountsByFrequency', section.key, 2 ] ) }
+							/>
+						</Grid>
 					</Grid>
-				) : (
-					<MoneyInput
-						currencySymbol={ currencySymbol }
-						label={ __( 'Suggested donation amount per month' ) }
-						value={ suggestedAmountUntiered }
-						onChange={ changeHandler( [ 'suggestedAmountUntiered' ] ) }
-					/>
-				) }
-			</Grid>
+				) )
+			) : (
+				<Grid columns={ 3 } gutter={ 16 }>
+					{ settingsFrequencies.map( section => (
+						<MoneyInput
+							currencySymbol={ currencySymbol }
+							label={ section.staticLabel }
+							value={ suggestedAmountsUntieredByFrequency[ section.key ] }
+							onChange={ changeHandler( [ 'suggestedAmountsUntieredByFrequency', section.key ] ) }
+							key={ section.key }
+						/>
+					) ) }
+				</Grid>
+			) }
 		</>
 	);
 };

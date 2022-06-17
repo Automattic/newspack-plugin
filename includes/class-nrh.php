@@ -129,7 +129,6 @@ class NRH {
 				'once'  => 'once',
 				'month' => 'monthly',
 				'year'  => 'yearly',
-
 			];
 
 			$selected_frequency = isset( $attributes['defaultFrequency'] ) ? $attributes['defaultFrequency'] : 'month';

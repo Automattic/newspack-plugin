@@ -119,14 +119,20 @@ class Donations {
 	protected static function get_donation_default_settings( $suggest_donations = false ) {
 		$platform = self::get_platform_slug();
 		return [
-			'name'                    => __( 'Donate', 'newspack' ),
-			'suggestedAmounts'        => $suggest_donations ? [ 7, 15.00, 30.00 ] : [],
-			'suggestedAmountUntiered' => $suggest_donations ? 15.00 : 0,
-			'tiered'                  => false,
-			'image'                   => false,
-			'created'                 => 'wc' !== $platform,
-			'platform'                => $platform,
-			'products'                => [
+			'name'                                => __( 'Donate', 'newspack' ),
+			'suggestedAmountsByFrequency'         => [
+				'once'  => $suggest_donations ? [ 9, 20, 90 ] : [],
+				'month' => $suggest_donations ? [ 7, 15, 30 ] : [],
+				'year'  => $suggest_donations ? [ 84, 180, 360 ] : [],
+			],
+			'suggestedAmountsUntieredByFrequency' => [
+				'once'  => $suggest_donations ? 20 : 0,
+				'month' => $suggest_donations ? 15 : 0,
+				'year'  => $suggest_donations ? 180 : 0,
+			],
+			'tiered'                              => false,
+			'platform'                            => $platform,
+			'products'                            => [
 				'once'  => false,
 				'month' => false,
 				'year'  => false,
@@ -251,16 +257,27 @@ class Donations {
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
-		$currency_symbol = html_entity_decode( self::get_currency_symbol() );
+		$settings                   = self::get_donation_default_settings( true );
+		$settings['currencySymbol'] = html_entity_decode( self::get_currency_symbol() );
 
 		if ( ! self::is_platform_wc() ) {
 			$saved_settings = get_option( self::DONATION_NON_WC_SETTINGS_OPTION, [] );
-			$defaults       = self::get_donation_default_settings( true );
+			// Migrate legacy settings, which stored only monthly amounts.
+			if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
+				$saved_settings['suggestedAmountsUntieredByFrequency']['month'] = $saved_settings['suggestedAmountUntiered'];
+			}
+			if ( isset( $saved_settings['suggestedAmounts'] ) ) {
+				$saved_settings['suggestedAmountsByFrequency']['month'] = $saved_settings['suggestedAmounts'];
+			}
+			// Ensure amounts are numbers.
+			foreach ( $saved_settings['suggestedAmountsUntieredByFrequency'] as $frequency => $amount ) {
+				$saved_settings['suggestedAmountsUntieredByFrequency'][ $frequency ] = floatval( $amount );
+			}
+			foreach ( $saved_settings['suggestedAmountsByFrequency'] as $frequency => $amounts ) {
+				$saved_settings['suggestedAmountsByFrequency'][ $frequency ] = array_map( 'floatval', $amounts );
+			}
 			// Get only the saved settings matching keys from default settings.
-			$valid_saved_settings       = array_intersect_key( $saved_settings, $defaults );
-			$settings                   = wp_parse_args( $valid_saved_settings, $defaults );
-			$settings['currencySymbol'] = $currency_symbol;
-			return $settings;
+			return wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
 		}
 
 		$ready = self::is_woocommerce_suite_active();
@@ -268,22 +285,12 @@ class Donations {
 			return $ready;
 		}
 
-		$settings                   = self::get_donation_default_settings( true );
-		$settings['currencySymbol'] = $currency_symbol;
-
 		$is_donation_product_valid = self::validate_donation_product();
 		if ( is_wp_error( $is_donation_product_valid ) ) {
 			return $is_donation_product_valid;
 		}
 
 		$product = self::get_parent_donation_product();
-
-		$settings['created'] = true;
-		$settings['name']    = $product->get_name();
-		$settings['image']   = [
-			'id'  => $product->get_image_id(),
-			'url' => $product->get_image_id() ? current( wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' ) ) : wc_placeholder_img_src( 'woocommerce_thumbnail' ),
-		];
 
 		$suggested_amounts = $product->get_meta( self::DONATION_SUGGESTED_AMOUNT_META, true );
 		if ( is_array( $suggested_amounts ) ) {
@@ -311,8 +318,9 @@ class Donations {
 	 */
 	public static function set_donation_settings( $args ) {
 		$defaults = self::get_donation_default_settings();
-		// Filter incoming object, so that is contains only valid keys.
-		$args = array_intersect_key( $args, $defaults );
+		// Filter incoming object with array_intersect_key, so that is contains only valid keys.
+		$args = wp_parse_args( array_intersect_key( $args, $defaults ), $defaults );
+
 		if ( ! self::is_platform_wc() ) {
 			update_option( self::DONATION_NON_WC_SETTINGS_OPTION, $args );
 			return self::get_donation_settings();
@@ -323,8 +331,7 @@ class Donations {
 			return $ready;
 		}
 
-		$defaults = self::get_donation_default_settings();
-		$args     = wp_parse_args( $args, $defaults );
+		$settings['name'] = $product->get_name();
 
 		// Re-create the product if the data is corrupted.
 		$is_donation_product_valid = self::validate_donation_product();
@@ -500,7 +507,7 @@ class Donations {
 	 */
 	public static function remove_donations_from_cart() {
 		$donation_settings = self::get_donation_settings();
-		if ( ! $donation_settings['created'] || is_wp_error( self::is_woocommerce_suite_active() ) ) {
+		if ( ! self::is_platform_wc() || is_wp_error( self::is_woocommerce_suite_active() ) ) {
 			return;
 		}
 
@@ -561,7 +568,7 @@ class Donations {
 		}
 
 		$donation_settings = self::get_donation_settings();
-		if ( is_wp_error( $donation_settings ) || ! $donation_settings['created'] ) {
+		if ( is_wp_error( $donation_settings ) || ! self::is_platform_wc() ) {
 			return;
 		}
 
