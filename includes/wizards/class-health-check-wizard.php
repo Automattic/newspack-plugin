@@ -51,15 +51,6 @@ class Health_Check_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Verify and improve the health of the site.', 'newspack' );
-	}
-
-	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {

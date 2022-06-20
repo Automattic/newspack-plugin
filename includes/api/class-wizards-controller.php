@@ -91,7 +91,6 @@ class Wizards_Controller extends WP_REST_Controller {
 		$response = [
 			'name'        => $wizard->get_name(),
 			'url'         => $wizard->get_url(),
-			'description' => $wizard->get_description(),
 			'completed'   => $wizard->is_completed(),
 		];
 
