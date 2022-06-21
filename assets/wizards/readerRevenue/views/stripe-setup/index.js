@@ -262,6 +262,9 @@ const StripeSetup = () => {
 										<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
 									) }
 									<Card noBorder buttonsCard>
+										{ hasWebhook && (
+											<p>{ __( 'Webhooks have already been created.', 'newspack' ) }</p>
+										) }
 										<Button
 											isLink
 											disabled={ isLoading || hasWebhook }
