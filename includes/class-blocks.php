@@ -18,20 +18,7 @@ final class Blocks {
 	 */
 	public static function init() {
 		require_once NEWSPACK_ABSPATH . '/assets/blocks/reader-registration/index.php';
-		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-	}
-
-	/**
-	 * Enqueue front-end scripts.
-	 */
-	public static function enqueue_scripts() {
-		\wp_enqueue_style(
-			'newspack-blocks',
-			Newspack::plugin_url() . '/dist/blocks.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
 	}
 
 	/**

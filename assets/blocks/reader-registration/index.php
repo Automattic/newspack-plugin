@@ -28,13 +28,32 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
 
 /**
+ * Enqueue block editor assets.
+ */
+function enqueue_block_editor_assets() {
+	\wp_enqueue_style(
+		'newspack-reader-registration-block',
+		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.css',
+		[],
+		NEWSPACK_PLUGIN_VERSION
+	);
+}
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\enqueue_block_editor_assets' );
+
+/**
  * Enqueue front-end scripts.
  */
 function enqueue_scripts() {
+	\wp_enqueue_style(
+		'newspack-reader-registration-block',
+		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.css',
+		[],
+		NEWSPACK_PLUGIN_VERSION
+	);
 	wp_enqueue_script(
 		'newspack-reader-registration-block',
-		\Newspack\Newspack::plugin_url() . '/assets/blocks/reader-registration/view.js',
-		[ 'jquery', 'newspack-reader-activation' ],
+		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.js',
+		[ 'wp-polyfill', 'newspack-reader-activation' ],
 		NEWSPACK_PLUGIN_VERSION,
 		true
 	);

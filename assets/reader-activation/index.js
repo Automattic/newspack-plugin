@@ -15,14 +15,20 @@ const EVENTS = {
 /**
  * Data.
  */
-const events = Object.values( EVENTS );
+function getCookie( name ) {
+	const value = `; ${ document.cookie }`;
+	const parts = value.split( `; ${ name }=` );
+	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
+}
+const data = window.newspack_reader_activation_data;
 const store = {
-	reader: window.newspack_reader_activation_data?.reader_email || null,
+	reader: data?.reader_email || getCookie( data.intention_cookie ) || null,
 };
 
 /**
  * Events.
  */
+const events = Object.values( EVENTS );
 function getEventName( event ) {
 	return `${ EVENT_PREFIX }-${ event }`;
 }

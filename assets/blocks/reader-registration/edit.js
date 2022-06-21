@@ -5,11 +5,6 @@ import { __ } from '@wordpress/i18n';
 import { TextControl, PanelBody } from '@wordpress/components';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 
-/**
- * Internal dependencies
- */
-import './style.scss';
-
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: { placeholder, label },
