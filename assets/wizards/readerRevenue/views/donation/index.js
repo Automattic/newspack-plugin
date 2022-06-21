@@ -32,12 +32,7 @@ const settingsFrequencies = [
 
 export const DonationAmounts = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' );
-	const {
-		suggestedAmountsByFrequency,
-		suggestedAmountsUntieredByFrequency,
-		currencySymbol,
-		tiered,
-	} = wizardData.donation_data || {};
+	const { amounts, currencySymbol, tiered } = wizardData.donation_data || {};
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data ) {
@@ -73,20 +68,20 @@ export const DonationAmounts = () => {
 							<MoneyInput
 								currencySymbol={ currencySymbol }
 								label={ __( 'Low-tier' ) }
-								value={ suggestedAmountsByFrequency[ section.key ][ 0 ] }
-								onChange={ changeHandler( [ 'suggestedAmountsByFrequency', section.key, 0 ] ) }
+								value={ amounts[ section.key ][ 0 ] }
+								onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
 							/>
 							<MoneyInput
 								currencySymbol={ currencySymbol }
 								label={ __( 'Mid-tier' ) }
-								value={ suggestedAmountsByFrequency[ section.key ][ 1 ] }
-								onChange={ changeHandler( [ 'suggestedAmountsByFrequency', section.key, 1 ] ) }
+								value={ amounts[ section.key ][ 1 ] }
+								onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
 							/>
 							<MoneyInput
 								currencySymbol={ currencySymbol }
 								label={ __( 'High-tier' ) }
-								value={ suggestedAmountsByFrequency[ section.key ][ 2 ] }
-								onChange={ changeHandler( [ 'suggestedAmountsByFrequency', section.key, 2 ] ) }
+								value={ amounts[ section.key ][ 2 ] }
+								onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
 							/>
 						</Grid>
 					</Grid>
@@ -97,8 +92,8 @@ export const DonationAmounts = () => {
 						<MoneyInput
 							currencySymbol={ currencySymbol }
 							label={ section.staticLabel }
-							value={ suggestedAmountsUntieredByFrequency[ section.key ] }
-							onChange={ changeHandler( [ 'suggestedAmountsUntieredByFrequency', section.key ] ) }
+							value={ amounts[ section.key ][ 3 ] }
+							onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
 							key={ section.key }
 						/>
 					) ) }

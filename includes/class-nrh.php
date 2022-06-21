@@ -114,7 +114,7 @@ class NRH {
 	public static function render_nrh_donate_block( $html, $attributes ) {
 		$settings = Donations::get_donation_settings();
 		if ( isset( $attributes['manual'] ) && true === $attributes['manual'] ) {
-			$settings['suggestedAmounts']        = $attributes['suggestedAmounts'];
+			$settings['amounts']                 = $attributes['amounts'];
 			$settings['suggestedAmountUntiered'] = $attributes['suggestedAmountUntiered'];
 			$settings['tiered']                  = $attributes['tiered'];
 		}
@@ -132,7 +132,7 @@ class NRH {
 			];
 
 			$selected_frequency = isset( $attributes['defaultFrequency'] ) ? $attributes['defaultFrequency'] : 'month';
-			$suggested_amounts  = $settings['suggestedAmounts'];
+			$suggested_amounts  = $settings['amounts'];
 
 			$campaign = isset( $attributes['campaign'] ) ? $attributes['campaign'] : false;
 
@@ -428,7 +428,7 @@ class NRH {
 												<?php echo esc_html__( 'Other', 'newspack-blocks' ); ?>
 											</label>
 											<label
-												class='other-donate-label odl'
+												class='odl'
 												for='newspack-tier-<?php echo esc_attr( $frequency_slug . '-' . $uid ); ?>-other-input'
 											>
 												<?php echo esc_html__( 'Donation amount', 'newspack-blocks' ); ?>

@@ -119,20 +119,20 @@ class Donations {
 	protected static function get_donation_default_settings( $suggest_donations = false ) {
 		$platform = self::get_platform_slug();
 		return [
-			'name'                                => __( 'Donate', 'newspack' ),
-			'suggestedAmountsByFrequency'         => [
-				'once'  => $suggest_donations ? [ 9, 20, 90 ] : [],
-				'month' => $suggest_donations ? [ 7, 15, 30 ] : [],
-				'year'  => $suggest_donations ? [ 84, 180, 360 ] : [],
+			'name'                => __( 'Donate', 'newspack' ),
+			'amounts'             => [
+				'once'  => $suggest_donations ? [ 9, 20, 90, 20 ] : [],
+				'month' => $suggest_donations ? [ 7, 15, 30, 15 ] : [],
+				'year'  => $suggest_donations ? [ 84, 180, 360, 180 ] : [],
 			],
-			'suggestedAmountsUntieredByFrequency' => [
-				'once'  => $suggest_donations ? 20 : 0,
-				'month' => $suggest_donations ? 15 : 0,
-				'year'  => $suggest_donations ? 180 : 0,
+			'tiered'              => false,
+			'disabledFrequencies' => [
+				'once'  => false, 
+				'month' => false,
+				'year'  => false,
 			],
-			'tiered'                              => false,
-			'platform'                            => $platform,
-			'products'                            => [
+			'platform'            => $platform,
+			'products'            => [
 				'once'  => false,
 				'month' => false,
 				'year'  => false,
@@ -263,19 +263,18 @@ class Donations {
 		if ( ! self::is_platform_wc() ) {
 			$saved_settings = get_option( self::DONATION_NON_WC_SETTINGS_OPTION, [] );
 			// Migrate legacy settings, which stored only monthly amounts.
-			if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
-				$saved_settings['suggestedAmountsUntieredByFrequency']['month'] = $saved_settings['suggestedAmountUntiered'];
-			}
 			if ( isset( $saved_settings['suggestedAmounts'] ) ) {
-				$saved_settings['suggestedAmountsByFrequency']['month'] = $saved_settings['suggestedAmounts'];
+				$settings['amounts']['month'][0] = $saved_settings['suggestedAmounts'][0];
+				$settings['amounts']['month'][1] = $saved_settings['suggestedAmounts'][1];
+				$settings['amounts']['month'][2] = $saved_settings['suggestedAmounts'][2];
+			}
+			if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
+				$settings['amounts']['month'][3] = $saved_settings['suggestedAmountUntiered'];
 			}
 			// Ensure amounts are numbers.
-			foreach ( $saved_settings['suggestedAmountsUntieredByFrequency'] as $frequency => $amount ) {
-				$saved_settings['suggestedAmountsUntieredByFrequency'][ $frequency ] = floatval( $amount );
-			}
-			foreach ( $saved_settings['suggestedAmountsByFrequency'] as $frequency => $amounts ) {
-				$saved_settings['suggestedAmountsByFrequency'][ $frequency ] = array_map( 'floatval', $amounts );
-			}
+			foreach ( $saved_settings['amounts'] as $frequency => $amounts ) {
+				$saved_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
+			}       
 			// Get only the saved settings matching keys from default settings.
 			return wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
 		}
@@ -296,7 +295,7 @@ class Donations {
 		if ( is_array( $suggested_amounts ) ) {
 			$suggested_amounts = array_map( 'wc_format_decimal', $suggested_amounts );
 			sort( $suggested_amounts, SORT_NUMERIC );
-			$settings['suggestedAmounts'] = $suggested_amounts;
+			$settings['amounts'] = $suggested_amounts;
 		}
 
 		$untiered_suggested_amount = $product->get_meta( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, true );
@@ -359,7 +358,7 @@ class Donations {
 		if ( ! $parent_product ) {
 			$parent_product = new \WC_Product_Grouped();
 			$parent_product->set_name( $args['name'] );
-			$suggested_amounts = array_map( 'wc_format_decimal', $args['suggestedAmounts'] );
+			$suggested_amounts = array_map( 'wc_format_decimal', $args['amounts'] );
 			sort( $suggested_amounts, SORT_NUMERIC );
 			$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
 			$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
@@ -370,7 +369,7 @@ class Donations {
 			$parent_product->set_sold_individually( true );
 		}
 
-		$default_price = $args['tiered'] ? wc_format_decimal( $args['suggestedAmounts'][ floor( count( $args['suggestedAmounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
+		$default_price = $args['tiered'] ? wc_format_decimal( $args['amounts'][ floor( count( $args['amounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
 
 		$child_products_ids = self::get_donation_product_child_products_ids();
 
@@ -460,7 +459,7 @@ class Donations {
 
 		$parent_product = \wc_get_product( $product_id );
 		$parent_product->set_name( $args['name'] );
-		$suggested_amounts = array_map( 'wc_format_decimal', $args['suggestedAmounts'] );
+		$suggested_amounts = array_map( 'wc_format_decimal', $args['amounts'] );
 		sort( $suggested_amounts, SORT_NUMERIC );
 		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
 		$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
@@ -468,7 +467,7 @@ class Donations {
 		$parent_product->set_status( 'publish' );
 		$parent_product->save();
 
-		$default_price = $args['tiered'] ? wc_format_decimal( $args['suggestedAmounts'][ floor( count( $args['suggestedAmounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
+		$default_price = $args['tiered'] ? wc_format_decimal( $args['amounts'][ floor( count( $args['amounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
 
 		foreach ( $parent_product->get_children() as $child_id ) {
 			$child_product = \wc_get_product( $child_id );
