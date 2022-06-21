@@ -880,7 +880,7 @@ class Stripe_Connection {
 	 * @param bool $is_enabled True if enabled.
 	 */
 	public static function is_wc_complete_order_email_enabled( $is_enabled ) {
-		if ( Reader_Revenue_Emails::supports_emails() ) {
+		if ( Donations::is_platform_stripe() && Reader_Revenue_Emails::supports_emails() ) {
 			$is_enabled = false;
 		}
 		return $is_enabled;
