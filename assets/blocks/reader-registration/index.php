@@ -44,19 +44,22 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\enqueue_block_edit
  * Enqueue front-end scripts.
  */
 function enqueue_scripts() {
+	$handle = 'newspack-reader-registration-block';
 	\wp_enqueue_style(
-		'newspack-reader-registration-block',
+		$handle,
 		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.css',
 		[],
 		NEWSPACK_PLUGIN_VERSION
 	);
-	wp_enqueue_script(
-		'newspack-reader-registration-block',
+	\wp_enqueue_script(
+		$handle,
 		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.js',
 		[ 'wp-polyfill', 'newspack-reader-activation' ],
 		NEWSPACK_PLUGIN_VERSION,
 		true
 	);
+	\wp_script_add_data( $handle, 'async', true );
+	\wp_script_add_data( $handle, 'amp-plus', true );
 }
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 
@@ -72,7 +75,7 @@ function render_block( $attrs ) {
 	ob_start();
 	?>
 	<div class="newspack-reader-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
-		<form method="POST" target="_top">
+		<form>
 			<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 			<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 			<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
@@ -112,15 +115,15 @@ function get_block_classes( $attrs = [], $extra = [] ) {
  * Process registration form.
  */
 function process_form() {
-	if ( ! isset( $_POST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_POST[ FORM_ACTION ] ), FORM_ACTION ) ) {
+	if ( ! isset( $_REQUEST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST[ FORM_ACTION ] ), FORM_ACTION ) ) {
 		return;
 	}
 
-	if ( ! isset( $_POST['email'] ) || empty( $_POST['email'] ) ) {
+	if ( ! isset( $_REQUEST['email'] ) || empty( $_REQUEST['email'] ) ) {
 		return;
 	}
 
-	$email   = \sanitize_email( $_POST['email'] );
+	$email   = \sanitize_email( $_REQUEST['email'] );
 	$user_id = Reader_Activation::register_reader( $email );
 
 	/**

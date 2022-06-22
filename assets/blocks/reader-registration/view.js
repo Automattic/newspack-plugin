@@ -6,6 +6,12 @@ import './style.scss';
 ( function ( readerActivation ) {
 	[ ...document.querySelectorAll( '.newspack-reader-registration' ) ].forEach( container => {
 		const form = container.querySelector( 'form' );
+		if ( ! form ) {
+			return;
+		}
+		readerActivation.on( 'reader', () => {
+			form.style.display = 'none';
+		} );
 		form.addEventListener( 'submit', ev => {
 			ev.preventDefault();
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {

@@ -40,8 +40,9 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
+		$handle = 'newspack-reader-activation';
 		\wp_register_script(
-			'newspack-reader-activation',
+			$handle,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
 			[],
 			NEWSPACK_PLUGIN_VERSION,
@@ -52,13 +53,15 @@ final class Reader_Activation {
 			$reader_email = \wp_get_current_user()->user_email;
 		}
 		wp_localize_script(
-			'newspack-reader-activation',
+			$handle,
 			'newspack_reader_activation_data',
 			[
 				'intention_cookie' => self::AUTH_INTENTION_COOKIE,
 				'reader_email'     => $reader_email,
 			]
 		);
+		\wp_script_add_data( $handle, 'async', true );
+		\wp_script_add_data( $handle, 'amp-plus', true );
 	}
 
 	/**
