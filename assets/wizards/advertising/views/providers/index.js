@@ -66,7 +66,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 
 	if ( google_ad_manager.enabled && ! google_ad_manager.status.connected ) {
 		notifications.push(
-			<Button isLink onClick={ () => setIsOnboarding( true ) }>
+			<Button key="gam-connect-account" isLink onClick={ () => setIsOnboarding( true ) }>
 				{ __( 'Click here to connect your account.', 'newspack' ) }
 			</Button>
 		);
@@ -95,7 +95,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 				} }
 				titleLink={ google_ad_manager?.enabled ? '#/google_ad_manager' : null }
 				href={ google_ad_manager?.enabled && '#/google_ad_manager' }
-				notification={ notifications }
+				notification={ notifications.length ? notifications : null }
 				notificationLevel={ google_ad_manager.created_targeting_keys?.length ? 'success' : 'error' }
 			/>
 			<PluginToggle
