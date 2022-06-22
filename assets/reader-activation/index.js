@@ -13,40 +13,79 @@ const EVENTS = {
 };
 
 /**
- * Data.
+ * Initialize data.
+ */
+
+/**
+ * Get a cookie value given its name.
+ *
+ * @param {string} name Cookie name.
+ *
+ * @return {string} Cookie value or empty string if not found.
  */
 function getCookie( name ) {
+	if ( ! name ) {
+		return '';
+	}
 	const value = `; ${ document.cookie }`;
 	const parts = value.split( `; ${ name }=` );
 	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
 }
 const data = window.newspack_reader_activation_data;
 const store = {
-	reader: data?.reader_email || getCookie( data.intention_cookie ) || null,
+	reader: data?.reader_email || getCookie( data?.intention_cookie ) || null,
 };
 
 /**
- * Events.
+ * Handling events.
  */
 const events = Object.values( EVENTS );
-function getEventName( event ) {
-	return `${ EVENT_PREFIX }-${ event }`;
+
+/**
+ * Get the full event name given its local name.
+ *
+ * @param {string} localEventName Local event name.
+ *
+ * @return {string} Full event name.
+ */
+function getEventName( localEventName ) {
+	return `${ EVENT_PREFIX }-${ localEventName }`;
 }
-export function on( eventName, callback ) {
-	if ( events.includes( eventName ) ) {
-		eventName = getEventName( eventName );
-		window.addEventListener( eventName, callback );
+
+/**
+ * Attach an event listener given a local event name.
+ *
+ * @param {string}   event    Local event name.
+ * @param {Function} callback Callback.
+ */
+export function on( event, callback ) {
+	if ( events.includes( event ) ) {
+		event = getEventName( event );
+		window.addEventListener( event, callback );
 	}
 }
-export function off( eventName, callback ) {
-	if ( events.includes( eventName ) ) {
-		eventName = getEventName( eventName );
-		window.removeEventListener( eventName, callback );
+
+/**
+ * Detach an event listener given a local event name.
+ *
+ * @param {string}   event    Local event name.
+ * @param {Function} callback Callback.
+ */
+export function off( event, callback ) {
+	if ( events.includes( event ) ) {
+		event = getEventName( event );
+		window.removeEventListener( event, callback );
 	}
 }
 
 /**
  * Reader functions.
+ */
+
+/**
+ * Set the current reader email.
+ *
+ * @param {string} email Email.
  */
 export function setReader( email ) {
 	store.reader = null;
@@ -58,6 +97,12 @@ export function setReader( email ) {
 	const event = new CustomEvent( getEventName( EVENTS.reader ), { detail: store.reader } );
 	window.dispatchEvent( event );
 }
+
+/**
+ * Get the current reader email.
+ *
+ * @return {string} Email.
+ */
 export function getReader() {
 	return store.reader;
 }
