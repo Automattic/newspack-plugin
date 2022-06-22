@@ -10,6 +10,7 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
  */
 import { Card, ButtonCard, Notice, TextControl } from '../../../../components/src';
 import GoogleOAuth from '../../../connections/views/main/google';
+import { handleJSONFile } from '../utils';
 
 export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 	const credentialsInputFile = useRef( null );
@@ -37,21 +38,9 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 
 	const handleCredentialsFile = event => {
 		if ( event.target.files.length && event.target.files[ 0 ] ) {
-			const reader = new FileReader();
-			reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
-			reader.onload = function ( ev ) {
-				let credentials;
-				try {
-					credentials = JSON.parse( ev.target.result );
-				} catch ( error ) {
-					setFileError( __( 'Invalid JSON file', 'newspack' ) );
-					return;
-				}
-				updateGAMCredentials( credentials );
-			};
-			reader.onerror = function () {
-				setFileError( __( 'Unable to read file', 'newspack' ) );
-			};
+			handleJSONFile( event.target.files[ 0 ] )
+				.then( credentials => updateGAMCredentials( credentials ) )
+				.catch( err => setFileError( err ) );
 		}
 	};
 
