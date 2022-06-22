@@ -6,16 +6,13 @@
 .newspack-buttons-card {
 	display: flex;
 	flex-direction: row-reverse;
+	gap: 16px;
 	justify-content: flex-start;
 	align-items: center;
 	margin: 64px 0 32px;
 
 	&:empty {
 		display: none;
-	}
-
-	.newspack-button {
-		margin-left: 16px;
 	}
 }
 

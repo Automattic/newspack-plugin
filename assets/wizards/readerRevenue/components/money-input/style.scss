@@ -4,21 +4,32 @@
 
 @import '~@wordpress/base-styles/colors';
 
-.newspack-donations-wizard__money-input {
-	align-items: flex-end;
-	display: flex;
+.newspack-donations-wizard__money-input-container {
 	margin: 32px 0;
 
+	p {
+		margin: 0 0 8px;
+	}
+}
+
+.newspack-donations-wizard__money-input {
+	align-items: stretch;
+	display: flex;
+	margin: 8px 0 0;
+
 	.currency {
-		background: $gray-300;
-		border-radius: 3px 0 0 3px;
-		color: $gray-900;
-		display: block;
-		flex: 0 0 48px;
-		font-weight: bold;
-		height: 48px;
-		line-height: 48px;
+		border: 1px solid $gray-700;
+		border-right: 0;
+		align-items: center;
+		background: $gray-100;
+		border-radius: 2px 0 0 2px;
+		display: flex;
+		flex: 0 0 14px;
+		height: auto;
+		justify-content: center;
+		line-height: 1;
 		margin: 0;
+		padding: 0 8px;
 		text-align: center;
 	}
 
@@ -30,12 +41,8 @@
 			max-width: 100%;
 		}
 
-		label {
-			margin-left: -48px;
-		}
-
 		input[type='number'] {
-			border-radius: 0 3px 3px 0;
+			border-radius: 0 2px 2px 0;
 		}
 	}
 }

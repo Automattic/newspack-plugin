@@ -9,7 +9,7 @@ import { find } from 'lodash';
  * WordPress dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { CheckboxControl, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 
@@ -21,13 +21,12 @@ import {
 	Button,
 	Card,
 	Grid,
-	Notice,
-	TextControl,
-	SelectControl,
-	SectionHeader,
-	CheckboxControl,
-	withWizardScreen,
 	Modal,
+	Notice,
+	SectionHeader,
+	SelectControl,
+	TextControl,
+	withWizardScreen,
 } from '../../../../components/src';
 import { NEWSPACK_SUPPORT_URL } from '../../../../components/src/consts';
 
@@ -147,7 +146,7 @@ class CustomEvents extends Component {
 						description={ __( 'Collect and analyze specific user interactions', 'newspack' ) }
 						noMargin
 					/>
-					<Button onClick={ this.setEditModal( 'new' ) } isPrimary isSmall>
+					<Button onClick={ this.setEditModal( 'new' ) } variant="primary">
 						{ __( 'Add New Custom Event', 'newspack' ) }
 					</Button>
 				</div>
@@ -201,7 +200,7 @@ class CustomEvents extends Component {
 											<code>{ event.on }</code>
 										</td>
 										<td>
-											<Button isSmall isLink onClick={ this.setEditModal( event.id ) }>
+											<Button variant="link" onClick={ this.setEditModal( event.id ) }>
 												{ __( 'Edit', 'newspack' ) }
 											</Button>
 										</td>
@@ -214,14 +213,13 @@ class CustomEvents extends Component {
 							<Modal
 								title={
 									isCreatingEvent
-										? __( 'New custom event', 'newspack' )
-										: __( 'Editing custom event', 'newspack' )
+										? __( 'Add New Custom Event', 'newspack' )
+										: __( 'Editing Custom Event', 'newspack' )
 								}
 								onRequestClose={ this.setEditModal( null ) }
-								isWide
 							>
-								<div>
-									<Grid gutter={ 32 }>
+								<>
+									<Grid gutter={ 32 } rowGap={ 16 }>
 										<TextControl
 											disabled={ isLoading }
 											value={ editedEvent.event_name }
@@ -297,10 +295,10 @@ class CustomEvents extends Component {
 											disabled={ ! validateEvent( editedEvent ) || isLoading }
 											isPrimary
 										>
-											{ isCreatingEvent ? __( 'Add', 'newspack' ) : __( 'Update', 'newspack' ) }
+											{ isCreatingEvent ? __( 'Save', 'newspack' ) : __( 'Update', 'newspack' ) }
 										</Button>
 									</Card>
-								</div>
+								</>
 							</Modal>
 						) }
 					</Fragment>
@@ -308,18 +306,20 @@ class CustomEvents extends Component {
 				<ActionCard
 					isMedium
 					title={ __( 'News Tagging Guide custom events', 'newspack' ) }
-					description={ [
-						__(
-							'Free tool that helps you make the most of Google Analytics by capturing better data.',
-							'newspack'
-						) + '\u00A0',
-						<ExternalLink
-							href="https://newsinitiative.withgoogle.com/training/datatools/ntg"
-							key="info-link"
-						>
-							{ __( 'More info', 'newspack' ) }
-						</ExternalLink>,
-					] }
+					description={ () => (
+						<>
+							{ __(
+								'Free tool that helps you make the most of Google Analytics by capturing better data.',
+								'newspack'
+							) }{ ' ' }
+							<ExternalLink
+								href="https://newsinitiative.withgoogle.com/training/datatools/ntg"
+								key="info-link"
+							>
+								{ __( 'More info', 'newspack' ) }
+							</ExternalLink>
+						</>
+					) }
 					toggle
 					disabled={ this.state.ntgEventsStatus.enabled === undefined }
 					toggleChecked={ this.state.ntgEventsStatus.enabled }

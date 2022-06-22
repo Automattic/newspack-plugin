@@ -2,6 +2,8 @@
  * Section Header
  */
 
+@import '~@wordpress/base-styles/colors';
+
 .newspack-section-header {
 	margin: 64px 0 32px;
 
@@ -27,6 +29,10 @@
 		> * {
 			color: white;
 		}
+	}
+
+	p {
+		color: $gray-700;
 	}
 
 	.newspack-wizard__content &:first-child {

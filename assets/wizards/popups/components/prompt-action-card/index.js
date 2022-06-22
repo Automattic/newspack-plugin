@@ -16,9 +16,9 @@ import { moreVertical, settings } from '@wordpress/icons';
  */
 import {
 	ActionCard,
-	InfoButton,
 	Button,
 	Card,
+	InfoButton,
 	Modal,
 	Notice,
 	TextControl,
@@ -140,8 +140,6 @@ const PromptActionCard = props => {
 						/>
 						<div className="newspack-popups-wizard__buttons">
 							<Button
-								isQuaternary
-								isSmall
 								className={ isSettingsModalVisible && 'popover-active' }
 								onClick={ () => setIsSettingsModalVisible( ! isSettingsModalVisible ) }
 								icon={ settings }
@@ -149,8 +147,6 @@ const PromptActionCard = props => {
 								tooltipPosition="bottom center"
 							/>
 							<Button
-								isQuaternary
-								isSmall
 								className={ popoverVisibility && 'popover-active' }
 								onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 								icon={ moreVertical }

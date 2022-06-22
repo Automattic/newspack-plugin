@@ -22,8 +22,6 @@ const OptionsPopover = props => {
 	return (
 		<>
 			<Button
-				isQuaternary
-				isSmall
 				className={ isVisible && 'popover-active' }
 				onClick={ toggleVisible }
 				icon={ moreVertical }

@@ -36,10 +36,9 @@ class TextControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, required, isSmall, isWide, withMargin = true, ...otherProps } = this.props;
+		const { className, required, isWide, withMargin = true, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-text-control',
-			{ 'newspack-text-control--small': isSmall },
 			{ 'newspack-text-control--wide': isWide },
 			{ 'newspack-text-control--with-margin': withMargin },
 			className

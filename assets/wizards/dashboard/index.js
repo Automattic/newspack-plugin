@@ -6,7 +6,6 @@ import '../../shared/js/public-path';
  * WordPress dependencies.
  */
 import { Fragment, render } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.

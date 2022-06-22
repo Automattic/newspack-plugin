@@ -23,8 +23,6 @@
 		box-shadow: 0 -1px 0 inset $gray-300;
 		display: flex;
 		flex-wrap: wrap;
-		font-size: 14px;
-		line-height: 24px;
 		margin: 0;
 	}
 
@@ -35,53 +33,54 @@
 		@media screen and ( min-width: 600px ) {
 			width: auto;
 		}
-	}
 
-	a {
-		border-bottom: 4px solid transparent;
-		color: $gray-900;
-		display: block;
-		font-weight: bold;
-		padding: 12px 16px 8px;
-		text-decoration: none;
-
-		&:active,
-		&:focus,
-		&:hover {
-			color: $primary-500;
-			outline: none;
-		}
-
-		&:focus {
-			box-shadow: none;
-		}
-
-		&:focus-visible {
-			outline: 3px solid;
-			outline-offset: -3px;
-		}
-
-		&.selected {
-			border-bottom-width: 0;
-			border-left: 4px solid $primary-500;
-			padding-bottom: 12px;
+		a {
+			align-items: center;
+			color: $gray-900;
+			display: flex;
+			font-weight: bold;
+			height: 48px;
+			padding: 12px 15px;
+			text-decoration: none;
 
 			@media screen and ( min-width: 600px ) {
-				border-bottom-width: 4px;
-				border-color: $primary-500;
-				border-left-width: 0;
+				border-bottom: 4px solid transparent;
 				padding-bottom: 8px;
-				padding-left: 16px;
 			}
-		}
 
-		&.disabled {
-			cursor: not-allowed;
-			opacity: 0.3;
-			pointer-events: none;
-
+			&:active,
+			&:focus,
 			&:hover {
-				color: inherit;
+				color: var( --wp-admin-theme-color );
+				outline: none;
+			}
+
+			&:focus {
+				box-shadow: none;
+			}
+
+			&:focus-visible {
+				outline: 2px solid;
+				outline-offset: -2px;
+			}
+
+			&.selected {
+				box-shadow: inset 0 0 0 2px white, inset 0 0 0 4px var( --wp-admin-theme-color );
+
+				@media screen and ( min-width: 600px ) {
+					border-color: var( --wp-admin-theme-color );
+					box-shadow: none;
+				}
+			}
+
+			&.disabled {
+				cursor: not-allowed;
+				opacity: 0.3;
+				pointer-events: none;
+
+				&:hover {
+					color: inherit;
+				}
 			}
 		}
 	}
