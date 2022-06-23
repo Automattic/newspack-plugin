@@ -141,6 +141,15 @@ function process_form() {
 			$message = $user_id->get_error_message();
 		}
 		\wp_send_json( compact( 'message', 'email' ), \is_wp_error( $user_id ) ? 400 : 200 );
+		exit;
+	} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+		\wp_safe_redirect(
+			\add_query_arg(
+				[ 'newspack_reader' => is_wp_error( $user_id ) ? '0' : '1' ],
+				\remove_query_arg( [ '_wp_http_referer', 'newspack_reader_registration', 'email' ] )
+			)
+		);
+		exit;
 	}
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );

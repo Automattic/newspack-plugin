@@ -4,6 +4,9 @@
 import './style.scss';
 
 ( function ( readerActivation ) {
+	if ( ! readerActivation ) {
+		return;
+	}
 	[ ...document.querySelectorAll( '.newspack-reader-registration' ) ].forEach( container => {
 		const form = container.querySelector( 'form' );
 		if ( ! form ) {
