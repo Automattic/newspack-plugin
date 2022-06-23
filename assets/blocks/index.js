@@ -12,6 +12,8 @@ import * as readerRegistration from './reader-registration';
 
 export const blocks = [ readerRegistration ];
 
+const readerActivationBlocks = [ 'newspack/reader-registration' ];
+
 /**
  * Function to register an individual block.
  *
@@ -22,7 +24,14 @@ const registerBlock = block => {
 	if ( ! block ) {
 		return;
 	}
+
 	const { metadata, settings, name } = block;
+
+	/** Do not register reader activation blocks if it's disabled. */
+	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
+		return;
+	}
+
 	registerBlockType( { name, ...metadata }, settings );
 };
 
