@@ -15,6 +15,13 @@ defined( 'ABSPATH' ) || exit;
 const FORM_ACTION = 'newspack_reader_registration';
 
 /**
+ * Do not register block hooks if Reader Activation is not enabled.
+ */
+if ( ! Reader_Activation::is_enabled() ) {
+	return;
+}
+
+/**
  * Register block from metadata.
  */
 function register_block() {
@@ -26,19 +33,6 @@ function register_block() {
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
-
-/**
- * Enqueue block editor assets.
- */
-function enqueue_block_editor_assets() {
-	\wp_enqueue_style(
-		'newspack-reader-registration-block',
-		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.css',
-		[],
-		NEWSPACK_PLUGIN_VERSION
-	);
-}
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\enqueue_block_editor_assets' );
 
 /**
  * Enqueue front-end scripts.
