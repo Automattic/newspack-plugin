@@ -52,12 +52,12 @@ final class Reader_Activation {
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
 			$reader_email = \wp_get_current_user()->user_email;
 		}
-		wp_localize_script(
+		\wp_localize_script(
 			$handle,
 			'newspack_reader_activation_data',
 			[
-				'intention_cookie' => self::AUTH_INTENTION_COOKIE,
-				'reader_email'     => $reader_email,
+				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+				'reader_email'          => $reader_email,
 			]
 		);
 		\wp_script_add_data( $handle, 'async', true );

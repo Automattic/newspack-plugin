@@ -32,7 +32,7 @@ function getCookie( name ) {
 	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
 }
 const data = window.newspack_reader_activation_data;
-const initialEmail = data?.reader_email || getCookie( data?.intention_cookie );
+const initialEmail = data?.reader_email || getCookie( data?.auth_intention_cookie );
 const store = {
 	reader: initialEmail ? { email: initialEmail } : null,
 };
