@@ -16,12 +16,16 @@ import './style.scss';
 		} );
 		form.addEventListener( 'submit', ev => {
 			ev.preventDefault();
+			const body = new FormData( form );
+			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
+				return;
+			}
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',
 				},
-				body: new FormData( form ),
+				body,
 			} ).then( res => {
 				res.json().then( ( { message, email } ) => {
 					const messageNode = document.createElement( 'p' );
