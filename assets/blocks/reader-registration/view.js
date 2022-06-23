@@ -9,8 +9,10 @@ import './style.scss';
 		if ( ! form ) {
 			return;
 		}
-		readerActivation.on( 'reader', () => {
-			form.style.display = 'none';
+		readerActivation.on( 'reader', ( { detail: { email } } ) => {
+			if ( email ) {
+				form.style.display = 'none';
+			}
 		} );
 		form.addEventListener( 'submit', ev => {
 			ev.preventDefault();

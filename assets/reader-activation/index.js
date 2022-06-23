@@ -32,8 +32,9 @@ function getCookie( name ) {
 	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
 }
 const data = window.newspack_reader_activation_data;
+const initialEmail = data?.reader_email || getCookie( data?.intention_cookie );
 const store = {
-	reader: data?.reader_email || getCookie( data?.intention_cookie ) || null,
+	reader: initialEmail ? { email: initialEmail } : null,
 };
 
 /**
@@ -109,4 +110,5 @@ export function getReader() {
 
 const readerActivation = { on, off, setReader, getReader };
 window.newspackReaderActivation = readerActivation;
+
 export default readerActivation;
