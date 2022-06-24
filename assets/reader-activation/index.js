@@ -15,6 +15,7 @@ const EVENTS = {
 /**
  * Initialize data.
  */
+const store = {};
 
 /**
  * Get a cookie value given its name.
@@ -31,11 +32,17 @@ function getCookie( name ) {
 	const parts = value.split( `; ${ name }=` );
 	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
 }
-const data = window.newspack_reader_activation_data;
-const initialEmail = data?.reader_email || getCookie( data?.auth_intention_cookie );
-const store = {
-	reader: initialEmail ? { email: initialEmail } : null,
-};
+
+/**
+ * Initialize store data.
+ */
+function init() {
+	const data = window.newspack_reader_activation_data;
+	const initialEmail = data?.reader_email || getCookie( data?.auth_intention_cookie );
+	store.reader = initialEmail ? { email: initialEmail } : null;
+}
+
+init();
 
 /**
  * Handling events.
@@ -47,10 +54,27 @@ const events = Object.values( EVENTS );
  *
  * @param {string} localEventName Local event name.
  *
- * @return {string} Full event name.
+ * @return {string} Full event name or empty string if event name is not valid.
  */
 function getEventName( localEventName ) {
+	if ( ! events.includes( localEventName ) ) {
+		return '';
+	}
 	return `${ EVENT_PREFIX }-${ localEventName }`;
+}
+
+/**
+ * Emit a reader activation event.
+ *
+ * @param {string} event Local event name.
+ * @param {*}      data  Data to be emitted.
+ */
+function emit( event, data ) {
+	event = getEventName( event );
+	if ( ! event ) {
+		throw 'Invalid event';
+	}
+	window.dispatchEvent( new CustomEvent( event, { detail: data } ) );
 }
 
 /**
@@ -94,9 +118,7 @@ export function setReader( email ) {
 		return;
 	}
 	store.reader = { email };
-	/** Emit reader event. */
-	const event = new CustomEvent( getEventName( EVENTS.reader ), { detail: store.reader } );
-	window.dispatchEvent( event );
+	emit( EVENTS.reader, store.reader );
 }
 
 /**
