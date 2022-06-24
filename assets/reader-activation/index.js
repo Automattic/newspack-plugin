@@ -84,10 +84,11 @@ function emit( event, data ) {
  * @param {Function} callback Callback.
  */
 export function on( event, callback ) {
-	if ( events.includes( event ) ) {
-		event = getEventName( event );
-		window.addEventListener( event, callback );
+	event = getEventName( event );
+	if ( ! event ) {
+		throw 'Invalid event';
 	}
+	window.addEventListener( event, callback );
 }
 
 /**
@@ -97,10 +98,11 @@ export function on( event, callback ) {
  * @param {Function} callback Callback.
  */
 export function off( event, callback ) {
-	if ( events.includes( event ) ) {
-		event = getEventName( event );
-		window.removeEventListener( event, callback );
+	event = getEventName( event );
+	if ( ! event ) {
+		throw 'Invalid event';
 	}
+	window.removeEventListener( event, callback );
 }
 
 /**
