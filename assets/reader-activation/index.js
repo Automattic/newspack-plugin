@@ -108,7 +108,7 @@ export function off( event, callback ) {
  */
 
 /**
- * Set the current reader email.
+ * Set the current reader.
  *
  * @param {string} email Email.
  */
@@ -122,9 +122,9 @@ export function setReader( email ) {
 }
 
 /**
- * Get the current reader email.
+ * Get the current reader.
  *
- * @return {string} Email.
+ * @return {Object} Reader data.
  */
 export function getReader() {
 	return store.reader;
