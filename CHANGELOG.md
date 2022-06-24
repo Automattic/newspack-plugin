@@ -1,20 +1,9 @@
-# [1.85.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.84.0...v1.85.0-alpha.1) (2022-06-16)
+## [1.84.1](https://github.com/Automattic/newspack-plugin/compare/v1.84.0...v1.84.1) (2022-06-24)
 
 
 ### Bug Fixes
 
-* **ads:** always allow service account credentials ([#1694](https://github.com/Automattic/newspack-plugin/issues/1694)) ([5f1c55d](https://github.com/Automattic/newspack-plugin/commit/5f1c55df776cc1016dedc1f60c1d716f9c5776c7))
-* compare both IDs and labels for autocomplete selections ([#1679](https://github.com/Automattic/newspack-plugin/issues/1679)) ([cfec9b3](https://github.com/Automattic/newspack-plugin/commit/cfec9b30b00da9b6b6be9498b5461d2d1359f642))
-* deactivate Salesforce syncing if RR platform is not Newspack ([#1669](https://github.com/Automattic/newspack-plugin/issues/1669)) ([32b4768](https://github.com/Automattic/newspack-plugin/commit/32b476837e14c1616dd1a879046c30b8c0e17808))
-* oauth error handling ([#1687](https://github.com/Automattic/newspack-plugin/issues/1687)) ([902061c](https://github.com/Automattic/newspack-plugin/commit/902061c842ed621ec6e6090f87801edfb33ba389))
-
-
-### Features
-
-* **ads:** fixed height support for placements ([#1697](https://github.com/Automattic/newspack-plugin/issues/1697)) ([f71bb37](https://github.com/Automattic/newspack-plugin/commit/f71bb375e294dc50dda786f0aaef73822163e5d3))
-* refactor protected pages handling, and make donation page protected ([#1686](https://github.com/Automattic/newspack-plugin/issues/1686)) ([2b2abf8](https://github.com/Automattic/newspack-plugin/commit/2b2abf8c5d53535d0acb54c888fa74ec3d02ec09))
-* **rss:** add RSS Enhancements plugin to the core ([#1688](https://github.com/Automattic/newspack-plugin/issues/1688)) ([c38bfd6](https://github.com/Automattic/newspack-plugin/commit/c38bfd6864ba66e28e76c56a43c6a9d1f558c15a))
-* simplify components and use Gutenberg's ([#1676](https://github.com/Automattic/newspack-plugin/issues/1676)) ([39a2474](https://github.com/Automattic/newspack-plugin/commit/39a247459b4151901799093e8bcd311d4f97abe7))
+* set HTTPS transport mode to "beacon" for non-AMP GA ([e350d84](https://github.com/Automattic/newspack-plugin/commit/e350d84afdee385edc5a460c52bf87340d64dfa1))
 
 # [1.84.0](https://github.com/Automattic/newspack-plugin/compare/v1.83.3...v1.84.0) (2022-06-13)
 
