@@ -40,6 +40,7 @@ class Analytics {
 	 */
 	public function __construct() {
 		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'read_amp_analytics_config' ] );
+		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'set_extra_analytics_config_options' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ], 99 ); // This has to be run after the filter above steals the analytics config.
 
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'handle_custom_dimensions_reporting' ] );
@@ -458,6 +459,30 @@ class Analytics {
 		}
 		self::$amp_analytics_config_base = $config;
 		return $config;
+	}
+
+	/**
+	 * Filter the Google Analytics config options via Site Kit.
+	 * Allows us to update or set additional config options for GA.
+	 *
+	 * @param array $gtag_opt gtag config options.
+	 *
+	 * @return array Filtered config options.
+	 */
+	public static function set_extra_analytics_config_options( $gtag_opt ) {
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+			return $gtag_opt;
+		}
+
+		if ( ! self::can_use_site_kits_analytics() ) {
+			return $gtag_opt;
+		}
+
+		// Set transport type to 'beacon' to allow async requests to complete after a new page is loaded.
+		// See: https://developers.google.com/analytics/devguides/collection/gtagjs/sending-data#specify_different_transport_mechanisms.
+		$gtag_opt['transport_type'] = 'beacon';
+
+		return $gtag_opt;
 	}
 
 	/**
