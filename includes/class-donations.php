@@ -272,12 +272,13 @@ class Donations {
 			if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
 				$settings['amounts']['month'][3] = $saved_settings['suggestedAmountUntiered'];
 			}
+			$parsed_settings = wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
 			// Ensure amounts are numbers.
-			foreach ( $saved_settings['amounts'] as $frequency => $amounts ) {
-				$saved_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
+			foreach ( $parsed_settings['amounts'] as $frequency => $amounts ) {
+				$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
 			}       
 			// Get only the saved settings matching keys from default settings.
-			return wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
+			return $parsed_settings;
 		}
 
 		$ready = self::is_woocommerce_suite_active();
