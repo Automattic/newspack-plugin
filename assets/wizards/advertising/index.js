@@ -171,6 +171,7 @@ class AdvertisingWizard extends Component {
 									subHeaderText={ __( 'Manage ad providers and their settings.', 'newspack' ) }
 									services={ services }
 									toggleService={ this.toggleService }
+									fetchAdvertisingData={ this.fetchAdvertisingData }
 									tabbedNavigation={ tabs }
 								/>
 							) }
