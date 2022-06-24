@@ -126,6 +126,7 @@ class Donations {
 				'year'  => $suggest_donations ? [ 84, 180, 360, 180 ] : [],
 			],
 			'tiered'              => false,
+			'defaultFrequency'    => 'month',
 			'disabledFrequencies' => [
 				'once'  => false, 
 				'month' => false,

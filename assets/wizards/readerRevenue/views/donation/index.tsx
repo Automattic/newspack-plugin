@@ -12,30 +12,33 @@ import { MoneyInput } from '../../components';
 import { Button, Card, Grid, Notice, SectionHeader, Wizard } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-const settingsFrequencies = [
-	{
-		tieredLabel: __( 'One-time donation tiers' ),
+type FrequencySlug = 'once' | 'month' | 'year';
+
+const FREQUENCIES: {
+	[ Key in FrequencySlug as string ]: { tieredLabel: string; staticLabel: string };
+} = {
+	once: {
+		tieredLabel: __( 'One-time donations' ),
 		staticLabel: __( 'Suggested one-time donation amount' ),
-		key: 'once',
 	},
-	{
-		tieredLabel: __( 'Monthly donation tiers' ),
+	month: {
+		tieredLabel: __( 'Monthly donations' ),
 		staticLabel: __( 'Suggested donation amount per month' ),
-		key: 'month',
 	},
-	{
-		tieredLabel: __( 'Annual donation tiers' ),
+	year: {
+		tieredLabel: __( 'Annual donations' ),
 		staticLabel: __( 'Suggested donation amount per year' ),
-		key: 'year',
 	},
-];
+};
+const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
 type WizardData = {
 	donation_data: {
 		amounts: {
-			once: [ number, number, number, number ];
-			month: [ number, number, number, number ];
-			year: [ number, number, number, number ];
+			[ Key in FrequencySlug as string ]: [ number, number, number, number ];
+		};
+		disabledFrequencies: {
+			[ Key in FrequencySlug as string ]: boolean;
 		};
 		currencySymbol: string;
 		tiered: boolean;
@@ -48,7 +51,8 @@ type WizardData = {
 
 export const DonationAmounts = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
-	const { amounts, currencySymbol, tiered } = wizardData.donation_data || {};
+	const { amounts, currencySymbol, tiered, disabledFrequencies } = wizardData.donation_data || {};
+
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data ) {
@@ -61,6 +65,11 @@ export const DonationAmounts = () => {
 			path: [ 'donation_data', ...path ],
 			value,
 		} );
+
+	const availableFrequencies = FREQUENCY_SLUGS.map( slug => ( {
+		key: slug,
+		...FREQUENCIES[ slug ],
+	} ) );
 
 	return (
 		<>
@@ -77,34 +86,49 @@ export const DonationAmounts = () => {
 				onChange={ changeHandler( [ 'tiered' ] ) }
 			/>
 			{ tiered ? (
-				settingsFrequencies.map( section => (
-					<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
-						<b>{ section.tieredLabel }</b>
-						<Grid columns={ 3 } rowGap={ 16 }>
-							<MoneyInput
-								currencySymbol={ currencySymbol }
-								label={ __( 'Low-tier' ) }
-								value={ amounts[ section.key ][ 0 ] }
-								onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
+				availableFrequencies.map( section => {
+					const isFrequencyDisabled = disabledFrequencies[ section.key ];
+					const isOneFrequencyActive =
+						Object.values( disabledFrequencies ).filter( Boolean ).length ===
+						FREQUENCY_SLUGS.length - 1;
+					return (
+						<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
+							<ToggleControl
+								label={ section.tieredLabel }
+								checked={ ! isFrequencyDisabled }
+								disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
+								onChange={ () =>
+									changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled )
+								}
 							/>
-							<MoneyInput
-								currencySymbol={ currencySymbol }
-								label={ __( 'Mid-tier' ) }
-								value={ amounts[ section.key ][ 1 ] }
-								onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
-							/>
-							<MoneyInput
-								currencySymbol={ currencySymbol }
-								label={ __( 'High-tier' ) }
-								value={ amounts[ section.key ][ 2 ] }
-								onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
-							/>
+							{ ! isFrequencyDisabled && (
+								<div className="flex">
+									<MoneyInput
+										currencySymbol={ currencySymbol }
+										label={ __( 'Low-tier' ) }
+										value={ amounts[ section.key ][ 0 ] }
+										onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
+									/>
+									<MoneyInput
+										currencySymbol={ currencySymbol }
+										label={ __( 'Mid-tier' ) }
+										value={ amounts[ section.key ][ 1 ] }
+										onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
+									/>
+									<MoneyInput
+										currencySymbol={ currencySymbol }
+										label={ __( 'High-tier' ) }
+										value={ amounts[ section.key ][ 2 ] }
+										onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
+									/>
+								</div>
+							) }
 						</Grid>
-					</Grid>
-				) )
+					);
+				} )
 			) : (
 				<Grid columns={ 3 } gutter={ 16 }>
-					{ settingsFrequencies.map( section => (
+					{ availableFrequencies.map( section => (
 						<MoneyInput
 							currencySymbol={ currencySymbol }
 							label={ section.staticLabel }

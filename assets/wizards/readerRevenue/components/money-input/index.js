@@ -30,6 +30,7 @@ class MoneyInput extends Component {
 					<div className="currency">{ currencySymbol }</div>
 					<TextControl
 						type="number"
+						min="0"
 						label={ label }
 						hideLabelFromVision
 						value={ value }
