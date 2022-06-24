@@ -1,3 +1,10 @@
+## [1.84.1](https://github.com/Automattic/newspack-plugin/compare/v1.84.0...v1.84.1) (2022-06-24)
+
+
+### Bug Fixes
+
+* set HTTPS transport mode to "beacon" for non-AMP GA ([e350d84](https://github.com/Automattic/newspack-plugin/commit/e350d84afdee385edc5a460c52bf87340d64dfa1))
+
 # [1.84.0](https://github.com/Automattic/newspack-plugin/compare/v1.83.3...v1.84.0) (2022-06-13)
 
 
