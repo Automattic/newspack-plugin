@@ -8,7 +8,7 @@ import { ToggleControl } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import { MoneyInput } from '../../components/';
+import { MoneyInput } from '../../components';
 import { Button, Card, Grid, Notice, SectionHeader, Wizard } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
@@ -30,8 +30,24 @@ const settingsFrequencies = [
 	},
 ];
 
+type WizardData = {
+	donation_data: {
+		amounts: {
+			once: [ number, number, number, number ];
+			month: [ number, number, number, number ];
+			year: [ number, number, number, number ];
+		};
+		currencySymbol: string;
+		tiered: boolean;
+	};
+	donation_page: {
+		editUrl: string;
+		status: string;
+	};
+};
+
 export const DonationAmounts = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
 	const { amounts, currencySymbol, tiered } = wizardData.donation_data || {};
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
@@ -104,7 +120,7 @@ export const DonationAmounts = () => {
 };
 
 const Donation = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
 
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSave = () =>
