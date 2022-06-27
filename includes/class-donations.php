@@ -15,14 +15,11 @@ defined( 'ABSPATH' ) || exit;
  * Handles donations functionality.
  */
 class Donations {
-	const NEWSPACK_READER_REVENUE_PLATFORM        = 'newspack_reader_revenue_platform';
-	const DONATION_PRODUCT_ID_OPTION              = 'newspack_donation_product_id';
-	const DONATION_SUGGESTED_AMOUNT_META          = 'newspack_donation_suggested_amount';
-	const DONATION_UNTIERED_SUGGESTED_AMOUNT_META = 'newspack_donation_untiered_suggested_amount';
-	const DONATION_TIERED_META                    = 'newspack_donation_is_tiered';
-	const DONATION_PAGE_ID_OPTION                 = 'newspack_donation_page_id';
-	const DONATION_NON_WC_SETTINGS_OPTION         = 'newspack_donations_settings';
-	const DONATION_ORDER_META_KEYS                = [
+	const NEWSPACK_READER_REVENUE_PLATFORM = 'newspack_reader_revenue_platform';
+	const DONATION_PRODUCT_ID_OPTION       = 'newspack_donation_product_id';
+	const DONATION_PAGE_ID_OPTION          = 'newspack_donation_page_id';
+	const DONATION_SETTINGS_OPTION         = 'newspack_donations_settings';
+	const DONATION_ORDER_META_KEYS         = [
 		'referer_tags'       => [
 			'label' => 'Post Tags',
 		],
@@ -47,6 +44,13 @@ class Donations {
 	];
 
 	/**
+	 * Donation product WC name;
+	 *
+	 * @var string
+	 */
+	private static $donation_product_name = '';
+
+	/**
 	 * Cached status of the current request - is it a WC page.
 	 *
 	 * @var string
@@ -59,6 +63,7 @@ class Donations {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		self::$donation_product_name = __( 'Donate', 'newspack' );
 		if ( ! is_admin() ) {
 			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
 			add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
@@ -113,31 +118,23 @@ class Donations {
 	/**
 	 * Get the default donation settings.
 	 *
-	 * @param bool $suggest_donations Whether to include suggested default donation amounts (Default: false).
 	 * @return array Array of settings info.
 	 */
-	protected static function get_donation_default_settings( $suggest_donations = false ) {
-		$platform = self::get_platform_slug();
+	private static function get_donation_default_settings() {
 		return [
-			'name'                => __( 'Donate', 'newspack' ),
 			'amounts'             => [
-				'once'  => $suggest_donations ? [ 9, 20, 90, 20 ] : [],
-				'month' => $suggest_donations ? [ 7, 15, 30, 15 ] : [],
-				'year'  => $suggest_donations ? [ 84, 180, 360, 180 ] : [],
+				'once'  => [ 9, 20, 90, 20 ],
+				'month' => [ 7, 15, 30, 15 ],
+				'year'  => [ 84, 180, 360, 180 ],
 			],
 			'tiered'              => false,
 			'defaultFrequency'    => 'month',
 			'disabledFrequencies' => [
-				'once'  => false, 
-				'month' => false,
-				'year'  => false,
-			],
-			'platform'            => $platform,
-			'products'            => [
 				'once'  => false,
 				'month' => false,
 				'year'  => false,
 			],
+			'platform'            => self::get_platform_slug(),
 		];
 	}
 
@@ -167,7 +164,7 @@ class Donations {
 	public static function get_donation_product( $frequency ) {
 		$is_donation_product_valid = self::validate_donation_product();
 		if ( is_wp_error( $is_donation_product_valid ) ) {
-			self::create_donation_product( $args );
+			self::update_donation_product( $args );
 		}
 		$product_ids = self::get_donation_product_child_products_ids();
 		return isset( $product_ids[ $frequency ] ) ? $product_ids[ $frequency ] : false;
@@ -258,57 +255,39 @@ class Donations {
 	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
-		$settings                   = self::get_donation_default_settings( true );
+		$settings                   = self::get_donation_default_settings();
 		$settings['currencySymbol'] = html_entity_decode( self::get_currency_symbol() );
 
-		if ( ! self::is_platform_wc() ) {
-			$saved_settings = get_option( self::DONATION_NON_WC_SETTINGS_OPTION, [] );
-			// Migrate legacy settings, which stored only monthly amounts.
-			if ( isset( $saved_settings['suggestedAmounts'] ) ) {
-				$settings['amounts']['month'][0] = $saved_settings['suggestedAmounts'][0];
-				$settings['amounts']['month'][1] = $saved_settings['suggestedAmounts'][1];
-				$settings['amounts']['month'][2] = $saved_settings['suggestedAmounts'][2];
+		$saved_settings = get_option( self::DONATION_SETTINGS_OPTION, [] );
+		// Migrate legacy settings, which stored only monthly amounts.
+		if ( isset( $saved_settings['suggestedAmounts'] ) ) {
+			$settings['amounts']['month'][0] = $saved_settings['suggestedAmounts'][0];
+			$settings['amounts']['month'][1] = $saved_settings['suggestedAmounts'][1];
+			$settings['amounts']['month'][2] = $saved_settings['suggestedAmounts'][2];
+		}
+		if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
+			$settings['amounts']['month'][3] = $saved_settings['suggestedAmountUntiered'];
+		}
+		// Get only the saved settings matching keys from default settings.
+		$parsed_settings = wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
+		// Ensure amounts are numbers.
+		foreach ( $parsed_settings['amounts'] as $frequency => $amounts ) {
+			$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
+		}
+
+		if ( self::is_platform_wc() ) {
+			$ready = self::is_woocommerce_suite_active();
+			if ( is_wp_error( $ready ) ) {
+				return $ready;
 			}
-			if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
-				$settings['amounts']['month'][3] = $saved_settings['suggestedAmountUntiered'];
+
+			$is_donation_product_valid = self::validate_donation_product();
+			if ( is_wp_error( $is_donation_product_valid ) ) {
+				return $is_donation_product_valid;
 			}
-			$parsed_settings = wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
-			// Ensure amounts are numbers.
-			foreach ( $parsed_settings['amounts'] as $frequency => $amounts ) {
-				$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
-			}       
-			// Get only the saved settings matching keys from default settings.
-			return $parsed_settings;
 		}
 
-		$ready = self::is_woocommerce_suite_active();
-		if ( is_wp_error( $ready ) ) {
-			return $ready;
-		}
-
-		$is_donation_product_valid = self::validate_donation_product();
-		if ( is_wp_error( $is_donation_product_valid ) ) {
-			return $is_donation_product_valid;
-		}
-
-		$product = self::get_parent_donation_product();
-
-		$suggested_amounts = $product->get_meta( self::DONATION_SUGGESTED_AMOUNT_META, true );
-		if ( is_array( $suggested_amounts ) ) {
-			$suggested_amounts = array_map( 'wc_format_decimal', $suggested_amounts );
-			sort( $suggested_amounts, SORT_NUMERIC );
-			$settings['amounts'] = $suggested_amounts;
-		}
-
-		$untiered_suggested_amount = $product->get_meta( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, true );
-		if ( is_numeric( $untiered_suggested_amount ) ) {
-			$settings['suggestedAmountUntiered'] = wc_format_decimal( $untiered_suggested_amount );
-		}
-
-		$settings['tiered']   = (bool) $product->get_meta( self::DONATION_TIERED_META, true );
-		$settings['products'] = self::get_donation_product_child_products_ids();
-
-		return $settings;
+		return $parsed_settings;
 	}
 
 	/**
@@ -320,29 +299,17 @@ class Donations {
 	public static function set_donation_settings( $args ) {
 		$defaults = self::get_donation_default_settings();
 		// Filter incoming object with array_intersect_key, so that is contains only valid keys.
-		$args = wp_parse_args( array_intersect_key( $args, $defaults ), $defaults );
+		$configuration = wp_parse_args( array_intersect_key( $args, $defaults ), $defaults );
 
-		if ( ! self::is_platform_wc() ) {
-			update_option( self::DONATION_NON_WC_SETTINGS_OPTION, $args );
-			return self::get_donation_settings();
+		if ( self::is_platform_wc() ) {
+			$ready = self::is_woocommerce_suite_active();
+			if ( is_wp_error( $ready ) ) {
+				return $ready;
+			}
+			self::update_donation_product( $configuration );
 		}
 
-		$ready = self::is_woocommerce_suite_active();
-		if ( is_wp_error( $ready ) ) {
-			return $ready;
-		}
-
-		$settings['name'] = $product->get_name();
-
-		// Re-create the product if the data is corrupted.
-		$is_donation_product_valid = self::validate_donation_product();
-		if ( is_wp_error( $is_donation_product_valid ) ) {
-			self::create_donation_product( $args );
-			return self::get_donation_settings();
-		}
-
-		// Update the existing product.
-		self::update_donation_product( $args );
+		update_option( self::DONATION_SETTINGS_OPTION, $configuration );
 		return self::get_donation_settings();
 	}
 
@@ -351,91 +318,66 @@ class Donations {
 	 *
 	 * @param array $args Info that will be used to create the products.
 	 */
-	protected static function create_donation_product( $args ) {
-		$defaults = self::get_donation_default_settings();
-		$args     = wp_parse_args( $args, $defaults );
+	private static function update_donation_product( $args ) {
+		$defaults      = self::get_donation_default_settings();
+		$configuration = wp_parse_args( $args, $defaults );
+
+		$price_tier_index = $configuration['tiered'] ? 1 : 3;
 
 		// Parent product.
 		$parent_product = self::get_parent_donation_product();
 		if ( ! $parent_product ) {
 			$parent_product = new \WC_Product_Grouped();
-			$parent_product->set_name( $args['name'] );
-			$suggested_amounts = array_map( 'wc_format_decimal', $args['amounts'] );
-			sort( $suggested_amounts, SORT_NUMERIC );
-			$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
-			$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
-			$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
-			$parent_product->set_catalog_visibility( 'hidden' );
-			$parent_product->set_virtual( true );
-			$parent_product->set_downloadable( true );
-			$parent_product->set_sold_individually( true );
 		}
-
-		$default_price = $args['tiered'] ? wc_format_decimal( $args['amounts'][ floor( count( $args['amounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
+		$parent_product->set_name( self::$donation_product_name );
+		$parent_product->set_catalog_visibility( 'hidden' );
+		$parent_product->set_virtual( true );
+		$parent_product->set_downloadable( true );
+		$parent_product->set_sold_individually( true );
 
 		$child_products_ids = self::get_donation_product_child_products_ids();
 
-		// Monthly donation.
-		if ( false === $child_products_ids['month'] ) {
-			$monthly_product = new \WC_Product_Subscription();
+		// Child products.
+		foreach ( $child_products_ids as $frequency => $maybe_product_id ) {
+			$price        = $configuration['amounts'][ $frequency ][ $price_tier_index ];
+			$is_recurring = 'once' !== $frequency;
+
+			if ( false === $maybe_product_id ) {
+				$child_product = $is_recurring ? new \WC_Product_Subscription() : new \WC_Product_Simple();
+			} else {
+				$child_product = \wc_get_product( $maybe_product_id );
+			}
+
 			/* translators: %s: Product name */
-			$monthly_product->set_name( sprintf( __( '%s: Monthly', 'newspack' ), $args['name'] ) );
-			$monthly_product->set_regular_price( $default_price );
-			$monthly_product->update_meta_data( '_suggested_price', $default_price );
-			$monthly_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
-			$monthly_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-			$monthly_product->update_meta_data( '_nyp', 'yes' );
-			$monthly_product->update_meta_data( '_subscription_price', wc_format_decimal( $default_price ) );
-			$monthly_product->update_meta_data( '_subscription_period', 'month' );
-			$monthly_product->update_meta_data( '_subscription_period_interval', 1 );
-			$monthly_product->set_virtual( true );
-			$monthly_product->set_downloadable( true );
-			$monthly_product->set_catalog_visibility( 'hidden' );
-			$monthly_product->set_sold_individually( true );
-			$monthly_product->save();
+			$product_name = sprintf( __( '%s: One-Time', 'newspack' ), self::$donation_product_name );
+			if ( 'month' === $frequency ) {
+				/* translators: %s: Product name */
+				$product_name = sprintf( __( '%s: Monthly', 'newspack' ), self::$donation_product_name );
+			}
+			if ( 'year' === $frequency ) {
+				/* translators: %s: Product name */
+				$product_name = sprintf( __( '%s: Yearly', 'newspack' ), self::$donation_product_name );
+			}
 
-			$child_products_ids['month'] = $monthly_product->get_id();
-		}
+			if ( $is_recurring ) {
+				$child_product->update_meta_data( '_subscription_period', $frequency );
+				$child_product->update_meta_data( '_subscription_period_interval', 1 );
+				$child_product->update_meta_data( '_subscription_price', wc_format_decimal( $price ) );
+			}
 
-		// Yearly donation.
-		if ( false === $child_products_ids['year'] ) {
-			$yearly_product = new \WC_Product_Subscription();
-			/* translators: %s: Product name */
-			$yearly_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
-			$yearly_product->set_regular_price( 12 * $default_price );
-			$yearly_product->update_meta_data( '_suggested_price', 12 * $default_price );
-			$yearly_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
-			$yearly_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-			$yearly_product->update_meta_data( '_nyp', 'yes' );
-			$yearly_product->update_meta_data( '_subscription_price', wc_format_decimal( 12 * $default_price ) );
-			$yearly_product->update_meta_data( '_subscription_period', 'year' );
-			$yearly_product->update_meta_data( '_subscription_period_interval', 1 );
-			$yearly_product->set_virtual( true );
-			$yearly_product->set_downloadable( true );
-			$yearly_product->set_catalog_visibility( 'hidden' );
-			$yearly_product->set_sold_individually( true );
-			$yearly_product->save();
+			$child_product->set_name( $product_name );
+			$child_product->set_regular_price( $price );
+			$child_product->update_meta_data( '_suggested_price', $price );
+			$child_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
+			$child_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
+			$child_product->update_meta_data( '_nyp', 'yes' );
+			$child_product->set_virtual( true );
+			$child_product->set_downloadable( true );
+			$child_product->set_catalog_visibility( 'hidden' );
+			$child_product->set_sold_individually( true );
+			$child_product->save();
 
-			$child_products_ids['year'] = $yearly_product->get_id();
-		}
-
-		// One-time donation.
-		if ( false === $child_products_ids['once'] ) {
-			$once_product = new \WC_Product_Simple();
-			/* translators: %s: Product name */
-			$once_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
-			$once_product->set_regular_price( 12 * $default_price );
-			$once_product->update_meta_data( '_suggested_price', 12 * $default_price );
-			$once_product->update_meta_data( '_hide_nyp_minimum', 'yes' );
-			$once_product->update_meta_data( '_min_price', wc_format_decimal( 1.0 ) );
-			$once_product->update_meta_data( '_nyp', 'yes' );
-			$once_product->set_virtual( true );
-			$once_product->set_downloadable( true );
-			$once_product->set_catalog_visibility( 'hidden' );
-			$once_product->set_sold_individually( true );
-			$once_product->save();
-
-			$child_products_ids['once'] = $once_product->get_id();
+			$child_products_ids[ $frequency ] = $child_product->get_id();
 		}
 
 		$parent_product->set_children(
@@ -445,62 +387,9 @@ class Donations {
 				$child_products_ids['once'],
 			]
 		);
-		$parent_product->save();
-		update_option( self::DONATION_PRODUCT_ID_OPTION, $parent_product->get_id() );
-	}
-
-	/**
-	 * Update the donations products.
-	 *
-	 * @param string $args Donations settings.
-	 */
-	protected static function update_donation_product( $args ) {
-		$defaults   = self::get_donation_default_settings();
-		$args       = wp_parse_args( $args, $defaults );
-		$product_id = get_option( self::DONATION_PRODUCT_ID_OPTION, 0 );
-
-		$parent_product = \wc_get_product( $product_id );
-		$parent_product->set_name( $args['name'] );
-		$suggested_amounts = array_map( 'wc_format_decimal', $args['amounts'] );
-		sort( $suggested_amounts, SORT_NUMERIC );
-		$parent_product->update_meta_data( self::DONATION_SUGGESTED_AMOUNT_META, $suggested_amounts );
-		$parent_product->update_meta_data( self::DONATION_UNTIERED_SUGGESTED_AMOUNT_META, wc_format_decimal( $args['suggestedAmountUntiered'] ) );
-		$parent_product->update_meta_data( self::DONATION_TIERED_META, (bool) $args['tiered'] );
 		$parent_product->set_status( 'publish' );
 		$parent_product->save();
-
-		$default_price = $args['tiered'] ? wc_format_decimal( $args['amounts'][ floor( count( $args['amounts'] ) / 2 ) ] ) : wc_format_decimal( $args['suggestedAmountUntiered'] );
-
-		foreach ( $parent_product->get_children() as $child_id ) {
-			$child_product = \wc_get_product( $child_id );
-			if ( ! $child_product ) {
-				continue;
-			}
-
-			$yearly_price = 12 * $default_price;
-			$child_product->set_status( 'publish' );
-			$child_product->set_regular_price( $default_price );
-			$child_product->update_meta_data( '_suggested_price', $default_price );
-			if ( 'subscription' === $child_product->get_type() ) {
-				if ( 'year' === $child_product->get_meta( '_subscription_period', true ) ) {
-					/* translators: %s: Product name */
-					$child_product->set_name( sprintf( __( '%s: Yearly', 'newspack' ), $args['name'] ) );
-					$child_product->update_meta_data( '_subscription_price', \wc_format_decimal( $yearly_price ) );
-					$child_product->update_meta_data( '_suggested_price', \wc_format_decimal( $yearly_price ) );
-					$child_product->set_regular_price( $yearly_price );
-				} else {
-					/* translators: %s: Product name */
-					$child_product->set_name( sprintf( __( '%s: Monthly', 'newspack' ), $args['name'] ) );
-					$child_product->update_meta_data( '_subscription_price', wc_format_decimal( $default_price ) );
-				}
-			} else {
-				/* translators: %s: Product name */
-				$child_product->set_name( sprintf( __( '%s: One-Time', 'newspack' ), $args['name'] ) );
-				$child_product->set_regular_price( $yearly_price );
-				$child_product->update_meta_data( '_suggested_price', $yearly_price );
-			}
-			$child_product->save();
-		}
+		update_option( self::DONATION_PRODUCT_ID_OPTION, $parent_product->get_id() );
 	}
 
 	/**
@@ -512,8 +401,9 @@ class Donations {
 			return;
 		}
 
+		$products = self::get_donation_product_child_products_ids();
 		foreach ( \WC()->cart->get_cart() as $cart_key => $cart_item ) {
-			if ( ! empty( $cart_item['product_id'] ) && in_array( $cart_item['product_id'], $donation_settings['products'] ) ) {
+			if ( ! empty( $cart_item['product_id'] ) && in_array( $cart_item['product_id'], $products ) ) {
 				\WC()->cart->remove_cart_item( $cart_key );
 			}
 		}
@@ -629,8 +519,9 @@ class Donations {
 		}
 
 		if ( $is_wc ) {
+			$products = self::get_donation_product_child_products_ids();
 			// Add product to cart.
-			$product_id = $donation_settings['products'][ $donation_frequency ];
+			$product_id = $products[ $donation_frequency ];
 			if ( ! $product_id ) {
 				return;
 			}
