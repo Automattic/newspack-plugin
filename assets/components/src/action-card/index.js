@@ -6,13 +6,13 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
+import { Button, Card, Grid, Handoff, Notice, Waiting } from '../';
 import './style.scss';
 
 /**
@@ -46,6 +46,7 @@ class ActionCard extends Component {
 			actionContent,
 			actionText,
 			secondaryActionText,
+			secondaryDestructive,
 			image,
 			imageLink,
 			indent,
@@ -114,21 +115,25 @@ class ActionCard extends Component {
 						</div>
 					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h2>
-							<span className="newspack-action-card__title" { ...titleProps }>
-								{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
-							</span>
-							{ badges?.length &&
-								badges.map( ( badgeText, i ) => (
-									<span key={ `badge-${ i }` } className="newspack-action-card__badge">
-										{ badgeText }
-									</span>
-								) ) }
-						</h2>
-						<p>
-							{ typeof description === 'string' && description }
-							{ typeof description === 'function' && description() }
-						</p>
+						<Grid columns={ 1 } gutter={ 8 } noMargin>
+							<h2>
+								<span className="newspack-action-card__title" { ...titleProps }>
+									{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
+								</span>
+								{ badges?.length &&
+									badges.map( ( badgeText, i ) => (
+										<span key={ `badge-${ i }` } className="newspack-action-card__badge">
+											{ badgeText }
+										</span>
+									) ) }
+							</h2>
+							{ description && (
+								<p>
+									{ typeof description === 'string' && description }
+									{ typeof description === 'function' && description() }
+								</p>
+							) }
+						</Grid>
 					</div>
 					{ ( actionText || isDisplayingSecondaryAction || actionContent ) && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
@@ -164,6 +169,7 @@ class ActionCard extends Component {
 									isLink
 									onClick={ onSecondaryActionClick }
 									className="newspack-action-card__secondary_button"
+									isDestructive={ secondaryDestructive }
 								>
 									{ secondaryActionText }
 								</Button>

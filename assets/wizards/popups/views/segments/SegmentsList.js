@@ -17,9 +17,7 @@ const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
 	<NavLink to="segments/new">
-		<Button isPrimary isSmall>
-			{ __( 'Add New Segment', 'newspack' ) }
-		</Button>
+		<Button variant="primary">{ __( 'Add New Segment', 'newspack' ) }</Button>
 	</NavLink>
 );
 
@@ -187,7 +185,6 @@ const SegmentActionCard = ( {
 						actionText={
 							<>
 								<Button
-									isQuaternary
 									onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 									label={ __( 'More options', 'newspack' ) }
 									icon={ moreVertical }
@@ -231,14 +228,12 @@ const SegmentActionCard = ( {
 							<div className="movers">
 								<Button
 									icon={ chevronUp }
-									isLink
 									onClick={ moveUp }
 									disabled={ isFirstTarget }
 									label={ __( 'Move segment position up', 'newspack' ) }
 								/>
 								<Button
 									icon={ chevronDown }
-									isLink
 									onClick={ moveDown }
 									disabled={ isLastTarget }
 									label={ __( 'Move segment position down', 'newspack' ) }

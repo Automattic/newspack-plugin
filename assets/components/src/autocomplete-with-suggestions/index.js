@@ -190,7 +190,7 @@ const AutocompleteWithSuggestions = ( {
 					{ selectedMessage }
 					{ 1 < selections.length && _x( ' – ', 'separator character', 'newspack' ) }
 					{ 1 < selections.length && (
-						<Button onClick={ () => onChange( [] ) } isLink>
+						<Button onClick={ () => onChange( [] ) } isLink isDestructive>
 							{ __( 'Clear all', 'newspack' ) }
 						</Button>
 					) }
@@ -241,7 +241,9 @@ const AutocompleteWithSuggestions = ( {
 		if ( multiSelect ) {
 			const selections = selectedPost ? [ ...selectedItems, selectedPost ] : [ ...selectedItems ];
 			const isSelected = !! selections.find(
-				_selection => parseInt( _selection.value ) === parseInt( suggestion.value )
+				_selection =>
+					parseInt( _selection.value ) === parseInt( suggestion.value ) &&
+					_selection.label === suggestion.label
 			);
 			return (
 				<CheckboxControl

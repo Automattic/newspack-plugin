@@ -119,7 +119,7 @@ class Handoff extends Component {
 					</Button>
 				) }
 				{ Name && 'active' !== Status && (
-					<Button className={ classes } isSecondary disabled { ...otherProps }>
+					<Button className={ classes } variant="secondary" disabled { ...otherProps }>
 						{ Name + __( ' not installed', 'newspack' ) }
 					</Button>
 				) }
@@ -142,10 +142,10 @@ class Handoff extends Component {
 					>
 						<p>{ modalBody }</p>
 						<Card buttonsCard noBorder className="justify-end">
-							<Button isSecondary onClick={ () => this.setState( { showModal: false } ) }>
+							<Button variant="secondary" onClick={ () => this.setState( { showModal: false } ) }>
 								{ dismissModalButton }
 							</Button>
-							<Button isPrimary onClick={ () => this.goToPlugin( Slug ) }>
+							<Button variant="primary" onClick={ () => this.goToPlugin( Slug ) }>
 								{ primaryModalButton }
 							</Button>
 						</Card>

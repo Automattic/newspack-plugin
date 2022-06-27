@@ -2,7 +2,6 @@
  * Footer
  */
 
-@import '../../../shared/scss/colors';
 @import '~@wordpress/base-styles/colors';
 
 .newspack-footer {
@@ -45,17 +44,17 @@
 
 	li {
 		margin: 8px;
-	}
 
-	a {
-		align-items: flex-end;
-		color: inherit;
-		display: flex;
+		a {
+			align-items: flex-end;
+			color: inherit;
+			display: flex;
 
-		&:active,
-		&:focus,
-		&:hover {
-			color: $gray-900;
+			&:active,
+			&:focus,
+			&:hover {
+				color: $gray-900;
+			}
 		}
 	}
 

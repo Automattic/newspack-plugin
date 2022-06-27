@@ -8,11 +8,12 @@
 import { Fragment } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { CheckboxControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Grid, Button, TextControl, CheckboxControl, SelectControl, Notice } from '../';
+import { ActionCard, Button, Grid, Notice, SelectControl, TextControl } from '../';
 import './style.scss';
 
 const isSelectControl = setting => {
@@ -107,8 +108,7 @@ const SettingsSection = props => {
 				createFilter(
 					'buttons',
 					<Button
-						isPrimary
-						isSmall
+						variant="primary"
 						disabled={ disabled }
 						onClick={ () => {
 							onUpdate();

@@ -9,7 +9,6 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import {
-	Card,
 	Grid,
 	ImageUpload,
 	SectionHeader,
@@ -70,12 +69,8 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 			return (
 				<ImageUpload
 					label={ label }
-					style={ { width: '136px', height: '136px' } }
+					style={ { width: '102px', height: '102px' } }
 					image={ profileData[ key ] }
-					info={ __(
-						'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least 512 pixels wide and tall.',
-						'newspack'
-					) }
 					isCovering
 					onChange={ updateProfileData( key ) }
 				/>
@@ -98,24 +93,24 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 				title={ __( 'Site Profile', 'newspack' ) }
 				description={ __( 'Add and manage the basic information', 'newspack' ) }
 			/>
-			<Grid columns={ 3 } gutter={ 32 } className="newspack-site-profile">
+			<Grid columns={ 3 } gutter={ 32 } rowGap={ 16 } className="newspack-site-profile">
 				{ renderSetting( {
 					key: 'site_icon',
 					label: __( 'Site Icon', 'newspack' ),
 					type: 'image',
 				} ) }
-				<Card noBorder>
+				<Grid columns={ 1 } gutter={ 16 }>
 					{ renderSetting( { key: 'site_title', label: __( 'Site Title', 'newspack' ) } ) }
 					{ renderSetting( { key: 'tagline', label: __( 'Tagline', 'newspack' ) } ) }
-				</Card>
-				<Card noBorder>
+				</Grid>
+				<Grid columns={ 1 } gutter={ 16 }>
 					{ renderSetting( {
 						options: countries,
 						key: 'countrystate',
 						label: __( 'Country', 'newspack' ),
 					} ) }
 					{ renderSetting( { options: currencies, key: 'currency', label: __( 'Currency' ) } ) }
-				</Card>
+				</Grid>
 			</Grid>
 			<SectionHeader
 				title={ __( 'Social Accounts', 'newspack' ) }
