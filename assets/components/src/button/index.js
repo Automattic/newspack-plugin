@@ -16,7 +16,7 @@ import './style.scss';
 
 const { useHistory } = Router;
 
-const Button = ( { href = '', onClick = () => {}, ...otherProps } ) => {
+const Button = ( { href, onClick = () => {}, ...otherProps } ) => {
 	const history = useHistory();
 	const [ isAwaitingOnClick, setIsAwaitingOnClick ] = useState( false );
 

@@ -9,7 +9,15 @@ import { ToggleControl } from '@wordpress/components';
  * Internal dependencies.
  */
 import { MoneyInput } from '../../components';
-import { Button, Card, Grid, Notice, SectionHeader, Wizard } from '../../../../components/src';
+import {
+	Button,
+	Card,
+	Grid,
+	Notice,
+	SectionHeader,
+	Wizard,
+	ActionCard,
+} from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 type FrequencySlug = 'once' | 'month' | 'year';
@@ -33,16 +41,18 @@ const FREQUENCIES: {
 const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
 type WizardData = {
-	donation_data: {
-		amounts: {
-			[ Key in FrequencySlug as string ]: [ number, number, number, number ];
-		};
-		disabledFrequencies: {
-			[ Key in FrequencySlug as string ]: boolean;
-		};
-		currencySymbol: string;
-		tiered: boolean;
-	};
+	donation_data:
+		| { errors: { [ key: string ]: string[] } }
+		| {
+				amounts: {
+					[ Key in FrequencySlug as string ]: [ number, number, number, number ];
+				};
+				disabledFrequencies: {
+					[ Key in FrequencySlug as string ]: boolean;
+				};
+				currencySymbol: string;
+				tiered: boolean;
+		  };
 	donation_page: {
 		editUrl: string;
 		status: string;
@@ -51,13 +61,13 @@ type WizardData = {
 
 export const DonationAmounts = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
-	const { amounts, currencySymbol, tiered, disabledFrequencies } = wizardData.donation_data || {};
-
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
-	if ( ! wizardData.donation_data ) {
+	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
 		return null;
 	}
+
+	const { amounts, currencySymbol, tiered, disabledFrequencies } = wizardData.donation_data;
 
 	const changeHandler = path => value =>
 		updateWizardSettings( {
@@ -92,17 +102,17 @@ export const DonationAmounts = () => {
 						Object.values( disabledFrequencies ).filter( Boolean ).length ===
 						FREQUENCY_SLUGS.length - 1;
 					return (
-						<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
-							<ToggleControl
-								label={ section.tieredLabel }
-								checked={ ! isFrequencyDisabled }
-								disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
-								onChange={ () =>
-									changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled )
-								}
-							/>
+						<ActionCard
+							key={ section.key }
+							toggleChecked={ ! isFrequencyDisabled }
+							toggleOnChange={ () =>
+								changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled )
+							}
+							title={ section.tieredLabel }
+							disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
+						>
 							{ ! isFrequencyDisabled && (
-								<div className="flex">
+								<Grid columns={ 3 } gutter={ 16 }>
 									<MoneyInput
 										currencySymbol={ currencySymbol }
 										label={ __( 'Low-tier' ) }
@@ -121,9 +131,9 @@ export const DonationAmounts = () => {
 										value={ amounts[ section.key ][ 2 ] }
 										onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
 									/>
-								</div>
+								</Grid>
 							) }
-						</Grid>
+						</ActionCard>
 					);
 				} )
 			) : (
@@ -185,7 +195,7 @@ const Donation = () => {
 			) }
 			<DonationAmounts />
 			<div className="newspack-buttons-card">
-				<Button variant="primary" onClick={ onSave }>
+				<Button variant="primary" onClick={ onSave } href={ undefined }>
 					{ __( 'Save Settings' ) }
 				</Button>
 			</div>

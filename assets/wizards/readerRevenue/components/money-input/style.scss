@@ -8,9 +8,6 @@
 	p {
 		margin: 0 0 8px;
 	}
-	& + & {
-		margin-left: 18px;
-	}
 }
 
 .newspack-donations-wizard__money-input {
@@ -35,7 +32,7 @@
 	}
 
 	.newspack-text-control {
-		margin: 0;
+		margin: 0 !important;
 		width: 100%;
 
 		@media screen and ( min-width: 1128px ) {
@@ -44,6 +41,10 @@
 
 		input[type='number'] {
 			border-radius: 0 2px 2px 0;
+		}
+
+		.components-base-control__field {
+			margin-bottom: 0;
 		}
 	}
 }
