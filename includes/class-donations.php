@@ -259,20 +259,17 @@ class Donations {
 		$settings['currencySymbol'] = html_entity_decode( self::get_currency_symbol() );
 
 		$saved_settings = get_option( self::DONATION_SETTINGS_OPTION, [] );
+
+		$legacy_settings = [];
+
 		// Migrate legacy settings, which stored only monthly amounts.
-		if ( isset( $saved_settings['suggestedAmounts'] ) ) {
-			$settings['amounts']['month'][0] = $saved_settings['suggestedAmounts'][0];
-			$settings['amounts']['month'][1] = $saved_settings['suggestedAmounts'][1];
-			$settings['amounts']['month'][2] = $saved_settings['suggestedAmounts'][2];
-		}
-		if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
-			$settings['amounts']['month'][3] = $saved_settings['suggestedAmountUntiered'];
-		}
-		// Get only the saved settings matching keys from default settings.
-		$parsed_settings = wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
-		// Ensure amounts are numbers.
-		foreach ( $parsed_settings['amounts'] as $frequency => $amounts ) {
-			$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
+		if ( ! isset( $saved_settings['amounts'] ) ) {
+			if ( isset( $saved_settings['suggestedAmounts'] ) ) {
+				$legacy_settings['suggestedAmounts'] = $saved_settings['suggestedAmounts'];
+			}
+			if ( isset( $saved_settings['suggestedAmountUntiered'] ) ) {
+				$legacy_settings['suggestedAmountUntiered'] = $saved_settings['suggestedAmountUntiered'];
+			}
 		}
 
 		if ( self::is_platform_wc() ) {
@@ -285,6 +282,57 @@ class Donations {
 			if ( is_wp_error( $is_donation_product_valid ) ) {
 				return $is_donation_product_valid;
 			}
+
+			// Migrate legacy WC settings, stored as product meta.
+			$parent_product = self::get_parent_donation_product();
+			if ( $parent_product ) {
+				if ( ! isset( $saved_settings['amounts'] ) ) {
+					$suggested_amounts         = $parent_product->get_meta( 'newspack_donation_suggested_amount', true );
+					$untiered_suggested_amount = $parent_product->get_meta( 'newspack_donation_untiered_suggested_amount', true );
+					if ( $suggested_amounts ) {
+						$legacy_settings['suggestedAmounts'] = $suggested_amounts;
+					}
+					if ( $untiered_suggested_amount ) {
+						$legacy_settings['suggestedAmountUntiered'] = $untiered_suggested_amount;
+					}
+				}
+				if ( ! isset( $saved_settings['tiered'] ) ) {
+					$tiered = $parent_product->get_meta( 'newspack_donation_is_tiered', true );
+					if ( is_int( intval( $tiered ) ) ) {
+						$legacy_settings['tiered'] = $tiered;
+					}
+				}
+			}
+		}
+
+		if ( ! empty( $legacy_settings ) ) {
+			Logger::log( 'Migrating from legacy donation settings' );
+			if ( isset( $legacy_settings['suggestedAmounts'] ) && is_array( $legacy_settings['suggestedAmounts'] ) ) {
+				$saved_settings['amounts']['once'][0]  = $legacy_settings['suggestedAmounts'][0] * 12;
+				$saved_settings['amounts']['once'][1]  = $legacy_settings['suggestedAmounts'][1] * 12;
+				$saved_settings['amounts']['once'][2]  = $legacy_settings['suggestedAmounts'][2] * 12;
+				$saved_settings['amounts']['month'][0] = $legacy_settings['suggestedAmounts'][0];
+				$saved_settings['amounts']['month'][1] = $legacy_settings['suggestedAmounts'][1];
+				$saved_settings['amounts']['month'][2] = $legacy_settings['suggestedAmounts'][2];
+				$saved_settings['amounts']['year'][0]  = $legacy_settings['suggestedAmounts'][0] * 12;
+				$saved_settings['amounts']['year'][1]  = $legacy_settings['suggestedAmounts'][1] * 12;
+				$saved_settings['amounts']['year'][2]  = $legacy_settings['suggestedAmounts'][2] * 12;
+			}
+			if ( isset( $legacy_settings['suggestedAmountUntiered'] ) ) {
+				$saved_settings['amounts']['once'][3]  = $legacy_settings['suggestedAmountUntiered'] * 12;
+				$saved_settings['amounts']['month'][3] = $legacy_settings['suggestedAmountUntiered'];
+				$saved_settings['amounts']['year'][3]  = $legacy_settings['suggestedAmountUntiered'] * 12;
+			}
+			if ( isset( $legacy_settings['tiered'] ) ) {
+				$saved_settings['tiered'] = $legacy_settings['tiered'];
+			}
+		}
+
+		// Get only the saved settings matching keys from default settings.
+		$parsed_settings = wp_parse_args( array_intersect_key( $saved_settings, $settings ), $settings );
+		// Ensure amounts are numbers.
+		foreach ( $parsed_settings['amounts'] as $frequency => $amounts ) {
+			$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
 		}
 
 		return $parsed_settings;
