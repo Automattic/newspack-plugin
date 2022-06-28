@@ -34,10 +34,11 @@ class Plugin_Manager {
 	 * Get info about all the managed plugins and their status.
 	 *
 	 * @todo Define what the structure of this looks like better and load it up from a config or something.
+	 * @param boolean $debug_mode If debug mode, plugin will be assumed to be active.
 	 *
 	 * @return array of plugins info.
 	 */
-	public static function get_managed_plugins() {
+	public static function get_managed_plugins( $debug_mode = false ) {
 		$managed_plugins = [
 			'akismet'                       => [
 				'Name'        => esc_html__( 'Akismet Anti-Spam', 'newspack' ),
@@ -327,7 +328,7 @@ class Plugin_Manager {
 
 		// Add plugin status info and fill in defaults.
 		foreach ( $managed_plugins as $plugin_slug => $managed_plugin ) {
-			$status = self::get_managed_plugin_status( $plugin_slug );
+			$status = self::get_managed_plugin_status( $plugin_slug, $debug_mode );
 
 			if ( 'newspack-theme' === $plugin_slug ) {
 				if ( 'newspack-theme' === get_stylesheet() ) {
@@ -349,10 +350,11 @@ class Plugin_Manager {
 	/**
 	 * Determine a managed plugin status.
 	 *
-	 * @param string $plugin_slug Plugin slug.
+	 * @param string  $plugin_slug Plugin slug.
+	 * @param boolean $debug_mode If debug mode, plugin will be assumed to be active.
 	 */
-	private static function get_managed_plugin_status( $plugin_slug ) {
-		if ( Newspack::is_debug_mode() ) {
+	private static function get_managed_plugin_status( $plugin_slug, $debug_mode = false ) {
+		if ( $debug_mode ) {
 			return 'active';
 		}
 		$status            = 'uninstalled';

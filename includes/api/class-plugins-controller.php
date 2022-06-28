@@ -193,7 +193,7 @@ class Plugins_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) {
-		return rest_ensure_response( Plugin_Manager::get_managed_plugins() );
+		return rest_ensure_response( Plugin_Manager::get_managed_plugins( \Newspack::is_debug_mode() ) );
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Plugins_Controller extends WP_REST_Controller {
 			return $is_valid_plugin;
 		}
 
-		$managed_plugins = Plugin_Manager::get_managed_plugins();
+		$managed_plugins = Plugin_Manager::get_managed_plugins( \Newspack::is_debug_mode() );
 
 		$plugin = $managed_plugins[ $slug ];
 
