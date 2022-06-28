@@ -1,3 +1,11 @@
+## [1.85.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.85.0...v1.85.1-hotfix.1) (2022-06-28)
+
+
+### Bug Fixes
+
+* restrict debug mode behavior to wizard API requests ([3f9fcab](https://github.com/Automattic/newspack-plugin/commit/3f9fcabe58ab3b2d172df5806a5dad2b3ccd7456))
+* use create_term instead of insert_term to avoid fatal if term already exists ([e4f633e](https://github.com/Automattic/newspack-plugin/commit/e4f633e0c852068f80984076fe2545ae2a52f39d))
+
 # [1.85.0](https://github.com/Automattic/newspack-plugin/compare/v1.84.1...v1.85.0) (2022-06-27)
 
 
