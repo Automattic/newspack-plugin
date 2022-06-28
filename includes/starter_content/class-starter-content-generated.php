@@ -147,7 +147,8 @@ class Starter_Content_Generated extends Starter_Content_Provider {
 		self::remove_starter_categories();
 		$category_ids = array_map(
 			function( $category ) {
-				$created_category = wp_insert_term( $category, 'category', [ 'slug' => '_newspack_' . $category ] );
+				$created_category = wp_create_term( $category, 'category', [ 'slug' => '_newspack_' . $category ] );
+
 				return $created_category['term_id'];
 			},
 			self::$starter_categories
