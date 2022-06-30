@@ -193,7 +193,7 @@ final class Reader_Activation {
 	public static function auth_cookie_expiration( $length, $user_id, $remember ) {
 		if ( true === $remember ) {
 			$user = \get_user_by( 'id', $user_id );
-			if ( self::is_user_reader( $user ) ) {
+			if ( $user && self::is_user_reader( $user ) ) {
 				$length = YEAR_IN_SECONDS;
 			}
 		}
