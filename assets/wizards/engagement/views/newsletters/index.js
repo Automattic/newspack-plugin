@@ -209,12 +209,30 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 
 const Newsletters = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
+	const [ initialProvider, setInitialProvider ] = useState( '' );
+	const [ lockedLists, setLockedLists ] = useState( false );
+
+	useEffect( () => {
+		const provider = newslettersConfig?.newspack_newsletters_service_provider;
+		console.log( provider, initialProvider );
+		if ( initialProvider && provider !== initialProvider ) {
+			setLockedLists( true );
+		} else {
+			setLockedLists( false );
+		}
+		if ( ! initialProvider && provider ) {
+			setInitialProvider( provider );
+		}
+	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 
 	const saveNewslettersData = async () =>
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 			method: 'POST',
 			data: newslettersConfig,
+		} ).finally( () => {
+			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			setLockedLists( false );
 		} );
 
 	return (
@@ -229,7 +247,17 @@ const Newsletters = () => {
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 			/>
-			<SubscriptionLists />
+			{ lockedLists ? (
+				<Notice
+					noticeText={ __(
+						'Please save your settings before changing your subscription lists.',
+						'newspack'
+					) }
+					isWarning
+				/>
+			) : (
+				<SubscriptionLists />
+			) }
 		</>
 	);
 };
