@@ -12,6 +12,10 @@ import './style.scss';
 		if ( ! form ) {
 			return;
 		}
+		const messageContainer = container.querySelector(
+			'.newspack-newsletters-registration-response'
+		);
+		const submit = form.querySelector( 'input[type="submit"]' );
 		readerActivation.on( 'reader', ( { detail: { email } } ) => {
 			if ( email ) {
 				form.style.display = 'none';
@@ -23,6 +27,8 @@ import './style.scss';
 			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
 				return;
 			}
+			submit.disabled = true;
+			messageContainer.innerHTML = '';
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 				method: 'POST',
 				headers: {
@@ -30,13 +36,18 @@ import './style.scss';
 				},
 				body,
 			} ).then( res => {
-				res.json().then( ( { message, email } ) => {
+				submit.disabled = false;
+				res.json().then( ( { message, data } ) => {
 					const messageNode = document.createElement( 'p' );
 					messageNode.innerHTML = message;
 					messageNode.className = `message status-${ res.status }`;
-					container.replaceChild( messageNode, form );
-					if ( res.status === 200 && email ) {
-						readerActivation.setReader( email );
+					if ( res.status === 200 ) {
+						container.replaceChild( messageNode, form );
+						if ( data?.email ) {
+							readerActivation.setReader( data.email );
+						}
+					} else {
+						messageContainer.appendChild( messageNode );
 					}
 				} );
 			} );
