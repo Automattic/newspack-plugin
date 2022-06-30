@@ -32,6 +32,7 @@ final class Reader_Activation {
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 		}
 	}
 
@@ -178,6 +179,25 @@ final class Reader_Activation {
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 
 		return true;
+	}
+
+	/**
+	 * Set custom auth cookie expiration for readers.
+	 *
+	 * @param int  $length   Duration of the expiration period in seconds.
+	 * @param int  $user_id  User ID.
+	 * @param bool $remember Whether to remember the user login. Default false.
+	 *
+	 * @return int Duration of the expiration period in seconds.
+	 */
+	public static function auth_cookie_expiration( $length, $user_id, $remember ) {
+		if ( true === $remember ) {
+			$user = \get_user_by( 'id', $user_id );
+			if ( self::is_user_reader( $user ) ) {
+				$length = YEAR_IN_SECONDS;
+			}
+		}
+		return $length;
 	}
 
 	/**
