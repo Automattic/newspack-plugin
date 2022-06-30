@@ -83,11 +83,10 @@ function render_block( $attrs ) {
  * Utility to assemble the class for a server-side rendered block.
  *
  * @param array $attrs Block attributes.
- * @param array $extra Additional classes to be added to the class list.
  *
  * @return string Class list separated by spaces.
  */
-function get_block_classes( $attrs = [], $extra = [] ) {
+function get_block_classes( $attrs = [] ) {
 	$classes = [];
 	if ( isset( $attrs['align'] ) && ! empty( $attrs['align'] ) ) {
 		$classes[] = 'align' . $attrs['align'];
@@ -98,10 +97,6 @@ function get_block_classes( $attrs = [], $extra = [] ) {
 	if ( is_array( $extra ) && ! empty( $extra ) ) {
 		$classes = array_merge( $classes, $extra );
 	}
-	if ( ! empty( $attrs['hideControls'] ) ) {
-		$classes[] = 'hide-controls';
-	}
-
 	return implode( ' ', $classes );
 }
 
