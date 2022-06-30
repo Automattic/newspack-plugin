@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ButtonCard, Grid, Notice, SectionHeader } from '../../../../components/src';
+import { handleJSONFile } from '../../components/utils';
 
 const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 	const credentialsInputFile = useRef( null );
@@ -29,21 +30,9 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 
 	const handleCredentialsFile = event => {
 		if ( event.target.files.length && event.target.files[ 0 ] ) {
-			const reader = new FileReader();
-			reader.readAsText( event.target.files[ 0 ], 'UTF-8' );
-			reader.onload = function ( ev ) {
-				let credentials;
-				try {
-					credentials = JSON.parse( ev.target.result );
-				} catch ( error ) {
-					setFileError( __( 'Invalid JSON file', 'newspack' ) );
-					return;
-				}
-				updateGAMCredentials( credentials );
-			};
-			reader.onerror = function () {
-				setFileError( __( 'Unable to read file', 'newspack' ) );
-			};
+			handleJSONFile( event.target.files[ 0 ] )
+				.then( credentials => updateGAMCredentials( credentials ) )
+				.catch( err => setFileError( err ) );
 		}
 	};
 
