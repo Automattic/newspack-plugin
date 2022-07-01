@@ -34,6 +34,7 @@ final class Reader_Activation {
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
+			\add_action( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
 		}
 	}
 
@@ -63,6 +64,20 @@ final class Reader_Activation {
 		);
 		\wp_script_add_data( $handle, 'async', true );
 		\wp_script_add_data( $handle, 'amp-plus', true );
+
+		/**
+		 * Nav menu items script.
+		 */
+		$nav_handle = 'newspack-reader-activation-nav';
+		wp_enqueue_script(
+			$nav_handle,
+			Newspack::plugin_url() . '/dist/reader-activation-nav.js',
+			[ $handle ],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+		\wp_script_add_data( $nav_handle, 'async', true );
+		\wp_script_add_data( $nav_handle, 'amp-plus', true );
 	}
 
 	/**
@@ -227,6 +242,38 @@ final class Reader_Activation {
 			}
 		}
 		return $length;
+	}
+
+	/**
+	 * Setup nav menu items for reader account access.
+	 *
+	 * @param string   $items The HTML list content for the menu items.
+	 * @param stdClass $args  An object containing wp_nav_menu() arguments.
+	 *
+	 * @return string The HTML list content for the menu items.
+	 */
+	public static function nav_menu_items( $items, $args ) {
+
+		/** Do not alter items for authenticated non-readers */
+		if ( is_user_logged_in() && ! self::is_user_reader( wp_get_current_user() ) ) {
+			return $items;
+		}
+
+		/** Menu locations to add the account menu item */
+		$menu_locations = [ 'primary-menu' ];
+		if ( ! in_array( $args->theme_location, $menu_locations, true ) ) {
+			return $items;
+		}
+		$account_url = '';
+		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
+			$account_url = \wc_get_account_endpoint_url( 'dashboard' );
+		}
+		$classnames   = [ 'menu-item', 'newspack-reader-account-link' ];
+		$classnames[] = \is_user_logged_in() ? 'logged-in' : 'logged-out';
+		$items       .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
+		$items       .= '<a href="' . \esc_url_raw( $account_url ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
+		$items       .= '</li>';
+		return $items;
 	}
 
 	/**
