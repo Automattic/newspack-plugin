@@ -27,6 +27,7 @@ final class Reader_Activation {
 	 */
 	public static function init() {
 		if ( self::is_enabled() ) {
+			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
@@ -34,6 +35,34 @@ final class Reader_Activation {
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 		}
+	}
+
+	/**
+	 * Enqueue front-end scripts.
+	 */
+	public static function enqueue_scripts() {
+		$handle = 'newspack-reader-activation';
+		\wp_register_script(
+			$handle,
+			Newspack::plugin_url() . '/dist/reader-activation.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+		$reader_email = '';
+		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
+			$reader_email = \wp_get_current_user()->user_email;
+		}
+		\wp_localize_script(
+			$handle,
+			'newspack_reader_activation_data',
+			[
+				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+				'reader_email'          => $reader_email,
+			]
+		);
+		\wp_script_add_data( $handle, 'async', true );
+		\wp_script_add_data( $handle, 'amp-plus', true );
 	}
 
 	/**
