@@ -115,9 +115,6 @@ function get_block_classes( $attrs = [] ) {
 	if ( isset( $attrs['className'] ) ) {
 		array_push( $classes, $attrs['className'] );
 	}
-	if ( is_array( $extra ) && ! empty( $extra ) ) {
-		$classes = array_merge( $classes, $extra );
-	}
 	return implode( ' ', $classes );
 }
 
