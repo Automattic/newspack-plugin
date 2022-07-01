@@ -255,7 +255,7 @@ final class Reader_Activation {
 	public static function nav_menu_items( $items, $args ) {
 
 		/** Do not alter items for authenticated non-readers */
-		if ( is_user_logged_in() && ! self::is_user_reader( wp_get_current_user() ) ) {
+		if ( \is_user_logged_in() && ! self::is_user_reader( \wp_get_current_user() ) ) {
 			return $items;
 		}
 
