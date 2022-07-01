@@ -259,7 +259,11 @@ final class Reader_Activation {
 			return $items;
 		}
 
-		/** Menu locations to add the account menu item */
+		/**
+		 * Menu locations to add the account menu item
+		 *
+		 * TODO: Manage menu locations through Engagement wizard.
+		 */
 		$menu_locations = [ 'primary-menu' ];
 		if ( ! in_array( $args->theme_location, $menu_locations, true ) ) {
 			return $items;
@@ -268,11 +272,13 @@ final class Reader_Activation {
 		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
 			$account_url = \wc_get_account_endpoint_url( 'dashboard' );
 		}
-		$classnames   = [ 'menu-item', 'newspack-reader-account-link' ];
-		$classnames[] = \is_user_logged_in() ? 'logged-in' : 'logged-out';
-		$items       .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
-		$items       .= '<a href="' . \esc_url_raw( $account_url ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
-		$items       .= '</li>';
+		$classnames = [ 'menu-item', 'newspack-reader-account-link' ];
+		if ( \is_user_logged_in() ) {
+			$classnames[] = 'logged-in';
+		}
+		$items .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
+		$items .= '<a href="' . \esc_url_raw( $account_url ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
+		$items .= '</li>';
 		return $items;
 	}
 
