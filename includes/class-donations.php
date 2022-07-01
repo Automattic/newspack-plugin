@@ -506,11 +506,6 @@ class Donations {
 			return;
 		}
 
-		$donation_settings = self::get_donation_settings();
-		if ( is_wp_error( $donation_settings ) || ! self::is_platform_wc() ) {
-			return;
-		}
-
 		// Parse values from the form.
 		$donation_frequency = filter_input( INPUT_GET, 'donation_frequency', FILTER_SANITIZE_STRING );
 		if ( ! $donation_frequency ) {
