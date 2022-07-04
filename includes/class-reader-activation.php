@@ -23,6 +23,16 @@ final class Reader_Activation {
 	const EMAIL_VERIFIED = 'np_reader_email_verified';
 
 	/**
+	 * Auth form.
+	 */
+	const AUTH_FORM_ACTION  = 'reader-activation-auth-form';
+	const AUTH_FORM_OPTIONS = [
+		'auth',
+		'reset-pwd',
+		'auth-link',
+	];
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -34,7 +44,9 @@ final class Reader_Activation {
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
-			\add_action( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
+			\add_filter( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
+			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 		}
 	}
 
@@ -50,16 +62,16 @@ final class Reader_Activation {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		$reader_email = '';
+		$authenticated_email = '';
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
-			$reader_email = \wp_get_current_user()->user_email;
+			$authenticated_email = \wp_get_current_user()->user_email;
 		}
 		\wp_localize_script(
 			$handle,
 			'newspack_reader_activation_data',
 			[
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-				'reader_email'          => $reader_email,
+				'authenticated_email'   => $authenticated_email,
 			]
 		);
 		\wp_script_add_data( $handle, 'async', true );
@@ -68,16 +80,22 @@ final class Reader_Activation {
 		/**
 		 * Nav menu items script.
 		 */
-		$nav_handle = 'newspack-reader-activation-nav';
-		wp_enqueue_script(
-			$nav_handle,
-			Newspack::plugin_url() . '/dist/reader-activation-nav.js',
+		$auth_handle = 'newspack-reader-activation-auth';
+		\wp_enqueue_script(
+			$auth_handle,
+			Newspack::plugin_url() . '/dist/reader-activation-auth.js',
 			[ $handle ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		\wp_script_add_data( $nav_handle, 'async', true );
-		\wp_script_add_data( $nav_handle, 'amp-plus', true );
+		\wp_script_add_data( $auth_handle, 'async', true );
+		\wp_script_add_data( $auth_handle, 'amp-plus', true );
+		\wp_enqueue_style(
+			$auth_handle,
+			Newspack::plugin_url() . '/dist/reader-activation-auth.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
 	}
 
 	/**
@@ -247,39 +265,149 @@ final class Reader_Activation {
 	/**
 	 * Setup nav menu items for reader account access.
 	 *
-	 * @param string   $items The HTML list content for the menu items.
-	 * @param stdClass $args  An object containing wp_nav_menu() arguments.
+	 * @param string   $output The HTML for the menu items.
+	 * @param stdClass $args   An object containing wp_nav_menu() arguments.
 	 *
 	 * @return string The HTML list content for the menu items.
 	 */
-	public static function nav_menu_items( $items, $args ) {
+	public static function nav_menu_items( $output, $args ) {
 
 		/** Do not alter items for authenticated non-readers */
 		if ( \is_user_logged_in() && ! self::is_user_reader( \wp_get_current_user() ) ) {
-			return $items;
+			return $output;
+		}
+
+		$pre_items   = '';
+		$after_items = '';
+		if ( empty( $output ) ) {
+			$output      = '';
+			$pre_items   = '<ul>';
+			$after_items = '</ul>';
 		}
 
 		/**
-		 * Menu locations to add the account menu item
-		 *
-		 * TODO: Manage menu locations through Engagement wizard.
+		 * Menu locations to add the account menu items to.
 		 */
-		$menu_locations = [ 'primary-menu' ];
+		$menu_locations = [ 'social' ];
 		if ( ! in_array( $args->theme_location, $menu_locations, true ) ) {
-			return $items;
+			return $output;
 		}
 		$account_url = '';
 		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
 			$account_url = \wc_get_account_endpoint_url( 'dashboard' );
 		}
-		$classnames = [ 'menu-item', 'newspack-reader-account-link' ];
-		if ( \is_user_logged_in() ) {
-			$classnames[] = 'logged-in';
+		/** Do not render link for authenticated readers if account page doesn't exist. */
+		if ( empty( $account_url ) && is_user_logged_in() ) {
+			return $output;
 		}
-		$items .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
-		$items .= '<a href="' . \esc_url_raw( $account_url ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
-		$items .= '</li>';
-		return $items;
+		$classnames = [ 'menu-item', 'newspack-reader-account-link' ];
+		$item       = '';
+		$item      .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
+		$item      .= '<a href="' . \esc_url_raw( $account_url ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
+		$item      .= '</li>';
+		$output     = $item . $output;
+		return $pre_items . $output . $after_items;
+	}
+
+	/**
+	 * Renders reader authentication form
+	 */
+	public static function render_auth_form() {
+		if ( is_user_logged_in() ) {
+			return;
+		}
+		$element_id = sprintf( 'newspack-%s', self::AUTH_FORM_ACTION );
+		?>
+		<div id="<?php echo \esc_attr( $element_id ); ?>" hidden>
+			<div class="form-wrapper">
+				<button on="tap:<?php echo esc_attr( $element_id ); ?>.hide" class="form-close" aria-label="<?php esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+					</svg>
+				</button>
+				<form method="post">
+					<p class="auth-link-message">
+						<?php _e( "We've recently sent you an authentication link. Please, check your inbox for the link!", 'newspack' ); ?>
+					</p>
+					<?php wp_nonce_field( self::AUTH_FORM_ACTION, self::AUTH_FORM_ACTION ); ?>
+					<input type="hidden" name="redirect" value="" />
+					<p><input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" /></p>
+					<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
+					<div class="form-actions">
+						<input type="hidden" name="action" value="auth" />
+						<p><button type="submit"><?php \esc_html_e( 'Authenticate', 'newspack' ); ?></button></p>
+						<a href="#"><?php \esc_html_e( 'Send me an authentication link', 'newspack' ); ?></a>
+					</div>
+				</form>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Send the auth form response to the client, whether it's a JSON or POST request.
+	 *
+	 * @param array|WP_Error $data    The response to send to the client.
+	 * @param string         $message Optional custom message.
+	 */
+	private static function send_auth_form_response( $data = [], $message = '' ) {
+		$is_error = \is_wp_error( $data );
+		if ( empty( $message ) ) {
+			$message = $is_error ? $data->get_error_message() : __( 'You are authenticated!', 'newspack' );
+		}
+		if ( \wp_is_json_request() ) {
+			\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
+			exit;
+		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
+			\wp_safe_redirect(
+				\add_query_arg(
+					[
+						'message' => $message,
+					]
+				)
+			);
+			exit;
+		}
+	}
+
+	/**
+	 * Process reader authentication form.
+	 */
+	public static function process_auth_form() {
+		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_POST[ self::AUTH_FORM_ACTION ] ), self::AUTH_FORM_ACTION ) ) {
+			return;
+		}
+		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
+		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
+		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
+
+		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
+			return self::send_auth_form_response( new \WP_Error( 'invalid_action', __( 'Invalid action.', 'newspack' ) ) );
+		}
+
+		if ( empty( $email ) ) {
+			return self::send_auth_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
+		}
+
+		switch ( $action ) {
+			case 'auth':
+				if ( empty( $password ) ) {
+					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'You must enter a valid password.', 'newspack' ) ) );
+				}
+				$user = \get_user_by( 'email', $email );
+				if ( ! $user || ! self::is_user_reader( $user ) ) {
+					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid email or password.', 'newspack' ) ) );
+				}
+				$user = wp_authenticate( $user->user_login, $password );
+				if ( is_wp_error( $user ) ) {
+					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid email or password.', 'newspack' ) ) );
+				}
+				\wp_set_auth_cookie( $user->ID, true );
+				return self::send_auth_form_response();
+			case 'auth-link':
+				$result = self::register_reader( $email );
+				return self::send_auth_form_response( [], __( 'We have sent you an authentication link.', 'newspack' ) );
+		}
 	}
 
 	/**

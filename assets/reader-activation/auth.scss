@@ -1,0 +1,72 @@
+#newspack-reader-activation-auth-form {
+	display: none;
+	background: rgba( 0, 0, 0, 0.75 );
+	position: fixed;
+	width: 100% !important;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	justify-content: center;
+	align-items: center;
+	z-index: 99999;
+
+	.form-wrapper {
+		width: 100%;
+		max-width: 544px;
+		background: #fff;
+		position: relative;
+		form {
+			padding: 32px;
+			input[type='email'],
+			input[type='password'] {
+				width: 100%;
+			}
+		}
+	}
+
+	.form-actions {
+		display: flex;
+		justify-content: space-between;
+		flex-direction: row-reverse;
+		align-items: center;
+		a {
+			font-size: 0.8em;
+		}
+	}
+
+	.form-close {
+		align-items: center;
+		background: white;
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		color: inherit;
+		cursor: pointer;
+		display: flex;
+		font-size: inherit;
+		height: 36px;
+		justify-content: center;
+		margin: 0;
+		padding: 6px;
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: 36px;
+
+		svg {
+			fill: currentColor;
+			flex: 0 0 24px;
+		}
+
+		&:active,
+		&:hover {
+			opacity: 0.6;
+		}
+
+		&:focus {
+			outline: 1px solid;
+			outline-offset: -1px;
+		}
+	}
+}

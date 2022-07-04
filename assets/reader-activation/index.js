@@ -38,8 +38,9 @@ function getCookie( name ) {
  */
 function init() {
 	const data = window.newspack_reader_activation_data;
-	const initialEmail = data?.reader_email || getCookie( data?.auth_intention_cookie );
-	store.reader = initialEmail ? { email: initialEmail } : null;
+	const initialEmail = data?.authenticated_email || getCookie( data?.auth_intention_cookie );
+	const authenticated = !! data?.authenticated_email;
+	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
 }
 
 init();
@@ -132,7 +133,18 @@ export function getReader() {
 	return store.reader;
 }
 
-const readerActivation = { on, off, setReader, getReader };
+/**
+ * Whether the current reader has a valid email link attached to the session.
+ *
+ * @return {boolean} Whether the current reader has a valid email link attached to the session.
+ */
+export function hasAuthLink() {
+	const reader = getReader();
+	const emailLinkSecret = getCookie( 'np_auth_link' );
+	return !! ( reader?.email && emailLinkSecret );
+}
+
+const readerActivation = { on, off, setReader, getReader, hasAuthLink };
 window.newspackReaderActivation = readerActivation;
 
 export default readerActivation;
