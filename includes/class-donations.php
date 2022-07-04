@@ -288,14 +288,19 @@ class Donations {
 				$untiered_suggested_amount = $parent_product->get_meta( 'newspack_donation_untiered_suggested_amount', true );
 				if ( $suggested_amounts ) {
 					$legacy_settings['suggestedAmounts'] = $suggested_amounts;
+					$parent_product->delete_meta_data( 'newspack_donation_suggested_amount' );
 				}
 				if ( $untiered_suggested_amount ) {
 					$legacy_settings['suggestedAmountUntiered'] = $untiered_suggested_amount;
+					$parent_product->delete_meta_data( 'newspack_donation_untiered_suggested_amount' );
 				}
 				$tiered = $parent_product->get_meta( 'newspack_donation_is_tiered', true );
-				if ( is_int( intval( $tiered ) ) ) {
+
+				if ( ! empty( $tiered ) && is_int( intval( $tiered ) ) ) {
 					$legacy_settings['tiered'] = $tiered;
+					$parent_product->delete_meta_data( 'newspack_donation_is_tiered' );
 				}
+				$parent_product->save();
 			}
 		}
 
@@ -321,6 +326,11 @@ class Donations {
 			}
 			if ( ! isset( $saved_settings['tiered'] ) && isset( $legacy_settings['tiered'] ) ) {
 				$saved_settings['tiered'] = $legacy_settings['tiered'];
+			}
+
+			if ( ! self::is_platform_wc() ) {
+				// Save the migrated settings.
+				self::set_donation_settings( $saved_settings );
 			}
 		}
 
@@ -353,6 +363,7 @@ class Donations {
 			self::update_donation_product( $configuration );
 		}
 
+		Logger::log( 'Save donation settings' );
 		update_option( self::DONATION_SETTINGS_OPTION, $configuration );
 		return self::get_donation_settings();
 	}
