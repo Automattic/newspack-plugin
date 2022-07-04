@@ -5,8 +5,15 @@
 @import '~@wordpress/base-styles/colors';
 
 .newspack-donations-wizard__money-input-container {
+	margin-bottom: 10px;
 	p {
 		margin: 0 0 8px;
+	}
+	@media screen and ( min-width: 480px ) {
+		margin-bottom: 0;
+		& + & {
+			margin-left: 16px;
+		}
 	}
 }
 

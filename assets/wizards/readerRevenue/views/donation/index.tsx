@@ -12,7 +12,6 @@ import { MoneyInput } from '../../components';
 import {
 	Button,
 	Card,
-	Grid,
 	Notice,
 	SectionHeader,
 	Wizard,
@@ -112,7 +111,7 @@ export const DonationAmounts = () => {
 							disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
 						>
 							{ ! isFrequencyDisabled && (
-								<Grid columns={ 3 } gutter={ 16 }>
+								<div className="flex-ns">
 									<MoneyInput
 										currencySymbol={ currencySymbol }
 										label={ __( 'Low-tier' ) }
@@ -131,13 +130,13 @@ export const DonationAmounts = () => {
 										value={ amounts[ section.key ][ 2 ] }
 										onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
 									/>
-								</Grid>
+								</div>
 							) }
 						</ActionCard>
 					);
 				} )
 			) : (
-				<Grid columns={ 3 } gutter={ 16 }>
+				<div className="flex-ns">
 					{ availableFrequencies.map( section => (
 						<MoneyInput
 							currencySymbol={ currencySymbol }
@@ -147,7 +146,7 @@ export const DonationAmounts = () => {
 							key={ section.key }
 						/>
 					) ) }
-				</Grid>
+				</div>
 			) }
 		</>
 	);
