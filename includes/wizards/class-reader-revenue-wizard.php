@@ -201,6 +201,26 @@ class Reader_Revenue_Wizard extends Wizard {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_donation_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'amounts'             => [
+						'required' => true,
+					],
+					'tiered'              => [
+						'required'          => true,
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'defaultFrequency'    => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'disabledFrequencies' => [
+						'required' => true,
+					],
+					'platform'            => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
 			]
 		);
 
