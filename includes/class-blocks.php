@@ -17,7 +17,7 @@ final class Blocks {
 	 * Initialize Hooks.
 	 */
 	public static function init() {
-		require_once NEWSPACK_ABSPATH . '/assets/blocks/reader-registration/index.php';
+		require_once NEWSPACK_ABSPATH . 'assets/blocks/reader-registration/index.php';
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 	}
 
