@@ -172,13 +172,13 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 			{ error && (
 				<Notice noticeText={ error.message || __( 'Something went wrong.', 'newspack' ) } isError />
 			) }
-			{ lists.map( ( list, i ) => (
+			{ lists.map( ( list, index ) => (
 				<Card key={ list.id } isSmall>
 					<ToggleControl
 						label={ list.name }
 						checked={ list.active }
 						disabled={ inFlight }
-						onChange={ handleChange( i, 'active' ) }
+						onChange={ handleChange( index, 'active' ) }
 					/>
 					{ list.active && (
 						<>
@@ -186,13 +186,13 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 								label={ __( 'List title', 'newspack' ) }
 								value={ list.title }
 								disabled={ inFlight }
-								onChange={ handleChange( i, 'title' ) }
+								onChange={ handleChange( index, 'title' ) }
 							/>
 							<TextareaControl
 								label={ __( 'List description', 'newspack' ) }
 								value={ list.description }
 								disabled={ inFlight }
-								onChange={ handleChange( i, 'description' ) }
+								onChange={ handleChange( index, 'description' ) }
 							/>
 						</>
 					) }
