@@ -214,7 +214,6 @@ const Newsletters = () => {
 
 	useEffect( () => {
 		const provider = newslettersConfig?.newspack_newsletters_service_provider;
-		console.log( provider, initialProvider );
 		if ( initialProvider && provider !== initialProvider ) {
 			setLockedLists( true );
 		} else {
