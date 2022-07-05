@@ -115,12 +115,27 @@ export function off( event, callback ) {
  *
  * @param {string} email Email.
  */
-export function setReader( email ) {
-	store.reader = null;
+export function setReaderEmail( email ) {
 	if ( ! email ) {
 		return;
 	}
-	store.reader = { email };
+	if ( ! store.reader ) {
+		store.reader = {};
+	}
+	store.reader.email = email;
+	emit( EVENTS.reader, store.reader );
+}
+
+/**
+ * Set whether the current reader is authenticated.
+ *
+ * @param {boolean} authenticated Whether the current reader is authenticated. Default is true.
+ */
+export function setReaderAuthenticated( authenticated = true ) {
+	if ( ! store.reader?.email ) {
+		throw 'Reader email not set';
+	}
+	store.reader.authenticated = !! authenticated;
 	emit( EVENTS.reader, store.reader );
 }
 
@@ -144,7 +159,14 @@ export function hasAuthLink() {
 	return !! ( reader?.email && emailLinkSecret );
 }
 
-const readerActivation = { on, off, setReader, getReader, hasAuthLink };
+const readerActivation = {
+	on,
+	off,
+	setReaderEmail,
+	setReaderAuthenticated,
+	getReader,
+	hasAuthLink,
+};
 window.newspackReaderActivation = readerActivation;
 
 export default readerActivation;

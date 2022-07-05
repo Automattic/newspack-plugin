@@ -44,7 +44,7 @@ import './style.scss';
 					if ( res.status === 200 ) {
 						container.replaceChild( messageNode, form );
 						if ( data?.email ) {
-							readerActivation.setReader( data.email );
+							readerActivation.setReaderEmail( data.email );
 						}
 					} else {
 						messageContainer.appendChild( messageNode );

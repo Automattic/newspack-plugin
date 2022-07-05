@@ -11,6 +11,10 @@
 	align-items: center;
 	z-index: 99999;
 
+	&.visible {
+		display: flex;
+	}
+
 	.form-wrapper {
 		width: 100%;
 		max-width: 544px;

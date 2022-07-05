@@ -28,8 +28,8 @@ final class Reader_Activation {
 	const AUTH_FORM_ACTION  = 'reader-activation-auth-form';
 	const AUTH_FORM_OPTIONS = [
 		'auth',
-		'reset-pwd',
 		'auth-link',
+		'reset-pwd',
 	];
 
 	/**
@@ -303,7 +303,7 @@ final class Reader_Activation {
 		$classnames = [ 'menu-item', 'newspack-reader-account-link' ];
 		$item       = '';
 		$item      .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
-		$item      .= '<a href="' . \esc_url_raw( $account_url ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
+		$item      .= '<a href="' . \esc_url_raw( $account_url ?? '#' ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
 		$item      .= '</li>';
 		$output     = $item . $output;
 		return $pre_items . $output . $after_items;
@@ -317,8 +317,16 @@ final class Reader_Activation {
 			return;
 		}
 		$element_id = sprintf( 'newspack-%s', self::AUTH_FORM_ACTION );
+		$message    = '';
+		$classnames = [];
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['reader_authenticated'] ) && isset( $_GET['message'] ) ) {
+			$message      = \sanitize_text_field( $_GET['message'] );
+			$classnames[] = 'visible';
+		}
+		// phpcs:enable
 		?>
-		<div id="<?php echo \esc_attr( $element_id ); ?>" hidden>
+		<div id="<?php echo \esc_attr( $element_id ); ?>" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>">
 			<div class="form-wrapper">
 				<button on="tap:<?php echo esc_attr( $element_id ); ?>.hide" class="form-close" aria-label="<?php esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
@@ -338,6 +346,11 @@ final class Reader_Activation {
 						<p><button type="submit"><?php \esc_html_e( 'Authenticate', 'newspack' ); ?></button></p>
 						<a href="#"><?php \esc_html_e( 'Send me an authentication link', 'newspack' ); ?></a>
 					</div>
+					<div class="form-response">
+						<?php if ( ! empty( $message ) ) : ?>
+							<p><?php echo \esc_html( $message ); ?></p>
+						<?php endif; ?>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -347,10 +360,11 @@ final class Reader_Activation {
 	/**
 	 * Send the auth form response to the client, whether it's a JSON or POST request.
 	 *
-	 * @param array|WP_Error $data    The response to send to the client.
-	 * @param string         $message Optional custom message.
+	 * @param array|WP_Error $data         The response to send to the client.
+	 * @param string         $message      Optional custom message.
+	 * @param string         $redirect_url Optional custom redirect URL.
 	 */
-	private static function send_auth_form_response( $data = [], $message = '' ) {
+	private static function send_auth_form_response( $data = [], $message = false, $redirect_url = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
 			$message = $is_error ? $data->get_error_message() : __( 'You are authenticated!', 'newspack' );
@@ -362,8 +376,10 @@ final class Reader_Activation {
 			\wp_safe_redirect(
 				\add_query_arg(
 					[
-						'message' => $message,
-					]
+						'reader_authenticated' => $is_error ? '0' : '1',
+						'message'              => $message,
+					],
+					$redirect_url
 				)
 			);
 			exit;
@@ -380,9 +396,14 @@ final class Reader_Activation {
 		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
 		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
+		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'invalid_action', __( 'Invalid action.', 'newspack' ) ) );
+			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
+		}
+
+		if ( $redirect && false === strpos( $redirect, home_url(), 0 ) ) {
+			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
 		}
 
 		if ( empty( $email ) ) {
@@ -398,12 +419,12 @@ final class Reader_Activation {
 				if ( ! $user || ! self::is_user_reader( $user ) ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid email or password.', 'newspack' ) ) );
 				}
-				$user = wp_authenticate( $user->user_login, $password );
-				if ( is_wp_error( $user ) ) {
+				$user = \wp_authenticate( $user->user_login, $password );
+				if ( \is_wp_error( $user ) ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid email or password.', 'newspack' ) ) );
 				}
 				\wp_set_auth_cookie( $user->ID, true );
-				return self::send_auth_form_response();
+				return self::send_auth_form_response( [ 'email' => $email ], false, $redirect );
 			case 'auth-link':
 				$result = self::register_reader( $email );
 				return self::send_auth_form_response( [], __( 'We have sent you an authentication link.', 'newspack' ) );
