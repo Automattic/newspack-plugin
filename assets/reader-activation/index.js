@@ -131,7 +131,7 @@ export function setReaderEmail( email ) {
  *
  * @param {boolean} authenticated Whether the current reader is authenticated. Default is true.
  */
-export function setReaderAuthenticated( authenticated = true ) {
+export function setAuthenticated( authenticated = true ) {
 	if ( ! store.reader?.email ) {
 		throw 'Reader email not set';
 	}
@@ -163,7 +163,7 @@ const readerActivation = {
 	on,
 	off,
 	setReaderEmail,
-	setReaderAuthenticated,
+	setAuthenticated,
 	getReader,
 	hasAuthLink,
 };

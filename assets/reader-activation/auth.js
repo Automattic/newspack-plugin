@@ -1,9 +1,4 @@
 /**
- * WordPress dependencies.
- */
-import domReady from '@wordpress/dom-ready';
-
-/**
  * Internal dependencies.
  */
 import './auth.scss';
@@ -12,7 +7,7 @@ import './auth.scss';
 	if ( ! readerActivation ) {
 		return;
 	}
-	domReady( function () {
+	window.onload = function () {
 		const form = document.querySelector( '#newspack-reader-activation-auth-form' );
 		if ( ! form ) {
 			return;
@@ -87,7 +82,7 @@ import './auth.scss';
 								form.hidden = true;
 								if ( data?.email ) {
 									readerActivation.setReaderEmail( data.email );
-									readerActivation.setReaderAuthenticated();
+									readerActivation.setAuthenticated();
 								}
 							}
 						} else {
@@ -102,5 +97,5 @@ import './auth.scss';
 					submitButton.disabled = false;
 				} );
 		} );
-	} );
+	};
 } )( window.newspackReaderActivation );
