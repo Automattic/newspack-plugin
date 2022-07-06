@@ -125,7 +125,7 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 };
 
 export const SubscriptionLists = ( { onUpdate } ) => {
-	const [ error, setError ] = useState();
+	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ lists, setLists ] = useState( [] );
 	const updateConfig = data => {
@@ -135,6 +135,7 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 		}
 	};
 	const fetchLists = () => {
+		setError( false );
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack-newsletters/v1/lists',
@@ -144,6 +145,7 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 			.finally( () => setInFlight( false ) );
 	};
 	const saveLists = () => {
+		setError( false );
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack-newsletters/v1/lists',
@@ -160,7 +162,7 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 		updateConfig( newLists );
 	};
 	useEffect( fetchLists, [] );
-	if ( ! lists?.length ) {
+	if ( ! lists?.length && ! error ) {
 		return null;
 	}
 	return (
@@ -170,7 +172,10 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 				description={ __( 'Manage the lists available for subscription.', 'newspack' ) }
 			/>
 			{ error && (
-				<Notice noticeText={ error.message || __( 'Something went wrong.', 'newspack' ) } isError />
+				<Notice
+					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+					isError
+				/>
 			) }
 			{ lists.map( ( list, index ) => (
 				<Card key={ list.id } isSmall>
