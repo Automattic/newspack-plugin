@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "newspack/reader-registration",
+	"title": "Reader Registration",
+	"category": "newspack",
+	"description": "Register a reader with their email.",
+	"textdomain": "newspack",
+	"attributes": {
+		"placeholder": {
+			"type": "string",
+			"default": "Enter your email address"
+		},
+		"label": {
+			"type": "string",
+			"default": "Register"
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": true,
+		"multiple": false
+	}
+}
