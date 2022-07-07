@@ -58,11 +58,14 @@
 		left: 64px;
 		right: 64px;
 		text-align: center;
+		background: #fff;
 		@media screen and ( max-width: 744px ) {
-			left: 32px;
-			right: 32px;
+			position: fixed;
+			top: 5vw;
+			left: 5vw;
+			right: 5vw;
 		}
-		.message {
+		p.message {
 			display: block;
 			width: 100%;
 			margin: 0;
