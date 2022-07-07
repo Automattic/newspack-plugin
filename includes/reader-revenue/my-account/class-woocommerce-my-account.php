@@ -15,7 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's "My Account" page.
  */
 class WooCommerce_My_Account {
-	const BILLING_ENDPOINT = 'billing';
+	const BILLING_ENDPOINT             = 'billing';
+	const STRIPE_CUSTOMER_ID_USER_META = '_newspack_stripe_customer_id';
 
 	/**
 	 * Cached Stripe customer ID of the current user.
@@ -85,9 +86,15 @@ class WooCommerce_My_Account {
 		if ( self::$stripe_customer_id ) {
 			return self::$stripe_customer_id;
 		}
+		$user_id               = get_current_user_id();
+		$user_meta_customer_id = get_user_meta( $user_id, self::STRIPE_CUSTOMER_ID_USER_META, true );
+		if ( $user_meta_customer_id ) {
+			self::$stripe_customer_id = $user_meta_customer_id;
+			return $user_meta_customer_id;
+		}
 		$customer_orders     = wc_get_orders(
 			[
-				'customer_id' => get_current_user_id(),
+				'customer_id' => $user_id,
 				'created_via' => WooCommerce_Connection::CREATED_VIA_NAME,
 				'limit'       => -1,
 			]
@@ -100,11 +107,11 @@ class WooCommerce_My_Account {
 			}
 		}
 		array_unique( $stripe_customer_ids );
-		$stripe_customer_id = false;
 		if ( empty( $stripe_customer_ids ) ) {
 			self::$stripe_customer_id = false;
 		} else {
 			self::$stripe_customer_id = $stripe_customer_ids[0];
+			update_user_meta( $user_id, self::STRIPE_CUSTOMER_ID_USER_META, self::$stripe_customer_id );
 		}
 		return self::$stripe_customer_id;
 	}
