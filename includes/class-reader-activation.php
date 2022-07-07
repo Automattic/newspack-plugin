@@ -347,7 +347,7 @@ final class Reader_Activation {
 					</div>
 					<div class="form-actions action-item action-pwd">
 						<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
-						<a href="#" data-set-action="link"><?php \esc_html_e( 'Send me an authentication link', 'newspack' ); ?></a>
+						<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with an authentication link', 'newspack' ); ?></a>
 					</div>
 					<div class="form-actions action-item action-link">
 						<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
