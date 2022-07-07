@@ -69,8 +69,7 @@ final class Reader_Activation {
 			$handle,
 			'newspack_reader_activation_data',
 			[
-				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-				'authenticated_email'   => $authenticated_email,
+				'authenticated_email' => $authenticated_email,
 			]
 		);
 		\wp_script_add_data( $handle, 'async', true );
