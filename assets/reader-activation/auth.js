@@ -123,14 +123,17 @@ import './auth.scss';
 						messageNode.innerHTML = message;
 						messageNode.className = `message status-${ res.status }`;
 						if ( res.status === 200 ) {
-							if ( body.get( 'redirect' ) ) {
-								window.location = body.get( 'redirect' );
-							} else {
-								form.hidden = true;
-								if ( data?.email ) {
-									readerActivation.setReaderEmail( data.email );
-									readerActivation.setAuthenticated();
+							if ( data?.email ) {
+								readerActivation.setReaderEmail( data.email );
+							}
+							if ( data?.authenticated ) {
+								container.hidden = true;
+								readerActivation.setAuthenticated();
+								if ( body.get( 'redirect' ) ) {
+									window.location = body.get( 'redirect' );
 								}
+							} else {
+								form.replaceWith( messageNode );
 							}
 						} else {
 							messageContainer.appendChild( messageNode );

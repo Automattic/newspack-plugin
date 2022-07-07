@@ -20,7 +20,7 @@
 		max-width: 544px;
 		background: #fff;
 		position: relative;
-		form {
+		.form-content {
 			padding: 64px;
 			transition: opacity 0.2s ease-in-out;
 			p {
@@ -46,7 +46,7 @@
 	.form-response {
 		font-size: 0.8em;
 		position: absolute;
-		bottom: 32px;
+		bottom: 16px;
 	}
 
 	.form-close {
