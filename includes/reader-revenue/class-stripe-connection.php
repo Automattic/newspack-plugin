@@ -393,7 +393,7 @@ class Stripe_Connection {
 
 
 				// Add a transaction to WooCommerce.
-				if ( function_exists( 'WC' ) ) {
+				if ( Donations::is_woocommerce_suite_active() ) {
 					$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
 					$wc_transaction_payload = [
 						'email'              => $customer['email'],
