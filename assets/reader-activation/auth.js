@@ -45,29 +45,34 @@ import './auth.scss';
 		/**
 		 * Handle account links.
 		 */
+		function handleAccountLinkClick( ev ) {
+			const reader = readerActivation.getReader();
+			/** If logged in, bail and allow page redirection. */
+			if ( reader?.authenticated ) {
+				return;
+			}
+			ev.preventDefault();
+
+			if ( readerActivation.hasAuthLink() ) {
+				authLinkMessage.hidden = false;
+			} else {
+				authLinkMessage.hidden = true;
+			}
+
+			emailInput.value = reader?.email || '';
+			redirectInput.value = ev.target.getAttribute( 'href' );
+
+			container.hidden = false;
+			container.style.display = 'flex';
+
+			if ( emailInput.value ) {
+				passwordInput.focus();
+			} else {
+				emailInput.focus();
+			}
+		}
 		document.querySelectorAll( '.newspack-reader-account-link' ).forEach( menuItem => {
-			menuItem.querySelector( 'a' ).addEventListener( 'click', function ( ev ) {
-				const reader = readerActivation.getReader();
-				/** If logged in, bail and allow page redirection. */
-				if ( reader?.authenticated ) {
-					return;
-				}
-				ev.preventDefault();
-				if ( readerActivation.hasAuthLink() ) {
-					authLinkMessage.hidden = false;
-				} else {
-					authLinkMessage.hidden = true;
-				}
-				emailInput.value = reader?.email || '';
-				if ( emailInput.value ) {
-					passwordInput.focus();
-				} else {
-					emailInput.focus();
-				}
-				redirectInput.value = ev.target.getAttribute( 'href' );
-				container.hidden = false;
-				container.style.display = 'flex';
-			} );
+			menuItem.querySelector( 'a' ).addEventListener( 'click', handleAccountLinkClick );
 		} );
 
 		/**
