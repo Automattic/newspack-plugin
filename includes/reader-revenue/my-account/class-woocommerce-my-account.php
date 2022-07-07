@@ -32,9 +32,9 @@ class WooCommerce_My_Account {
 	 */
 	public static function init() {
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
-		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 1000, 2 );
 		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 	}
 
 	/**
@@ -62,20 +62,17 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Filter "My Account" dashboard template.
-	 *
-	 * @param string $template Template.
-	 * @param string $template_name Template name.
+	 * Redirect to "Account details" if accessing "My Account" directly.
 	 */
-	public static function wc_get_template( $template, $template_name ) {
-		if ( ! Donations::is_platform_stripe() ) {
-			return $template;
-		}
-		if ( 'myaccount/dashboard.php' === $template_name ) {
-			$dashboard_replacement_template_path = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-dashboard.php';
-			return $dashboard_replacement_template_path;
-		} else {
-			return $template;
+	public static function redirect_to_account_details() {
+		if ( Donations::is_platform_stripe() && function_exists( 'wc_get_page_permalink' ) ) {
+			global $wp;
+			$current_url               = home_url( $wp->request );
+			$my_account_page_permalink = wc_get_page_permalink( 'myaccount' );
+			if ( trailingslashit( $current_url ) === trailingslashit( $my_account_page_permalink ) ) {
+				wp_safe_redirect( '/my-account/edit-account/' );
+				exit;
+			}
 		}
 	}
 
