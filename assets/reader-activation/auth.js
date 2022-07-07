@@ -36,13 +36,20 @@ import './auth.scss';
 		authLinkMessage.hidden = true;
 
 		/**
+		 * Handle reader changes.
+		 */
+		readerActivation.on( 'reader', ( { email } ) => {
+			emailInput.value = email || '';
+		} );
+
+		/**
 		 * Handle account links.
 		 */
 		const accountLinks = [ ...document.querySelectorAll( '.newspack-reader-account-link' ) ];
 		accountLinks.forEach( menuItem => {
 			menuItem.querySelector( 'a' ).addEventListener( 'click', function ( ev ) {
 				const reader = readerActivation.getReader();
-				/** If logged in, allow page redirection. */
+				/** If logged in, bail and allow page redirection. */
 				if ( reader?.authenticated ) {
 					return;
 				}
@@ -52,16 +59,15 @@ import './auth.scss';
 				} else {
 					authLinkMessage.hidden = true;
 				}
-				container.hidden = false;
-				container.style.display = 'flex';
-				if ( emailInput ) {
-					emailInput.focus();
-					emailInput.value = reader?.email || '';
-				}
-				if ( passwordInput && emailInput.value ) {
+				emailInput.value = reader?.email || '';
+				if ( emailInput.value ) {
 					passwordInput.focus();
+				} else {
+					emailInput.focus();
 				}
 				redirectInput.value = ev.target.getAttribute( 'href' );
+				container.hidden = false;
+				container.style.display = 'flex';
 			} );
 		} );
 
@@ -77,13 +83,18 @@ import './auth.scss';
 				item.hidden = false;
 			} );
 		}
-
 		setFormAction( actionInput.value );
 
 		form.querySelectorAll( '[data-set-action]' ).forEach( item => {
 			item.addEventListener( 'click', function ( ev ) {
 				ev.preventDefault();
+				const action = ev.target.getAttribute( 'data-set-action' );
 				setFormAction( ev.target.getAttribute( 'data-set-action' ) );
+				if ( action === 'pwd' && emailInput.value ) {
+					passwordInput.focus();
+				} else {
+					emailInput.focus();
+				}
 			} );
 		} );
 

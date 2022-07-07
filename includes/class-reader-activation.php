@@ -335,8 +335,8 @@ final class Reader_Activation {
 				<form method="post" target="_top">
 					<input type="hidden" name="action" value="link" />
 					<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
-					<p class="action-item action-link auth-link-message">
-						<?php _e( "We've recently sent you an authentication link. Please, check your inbox for the link!", 'newspack' ); ?>
+					<p class="auth-link-message">
+						<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 					</p>
 					<p><?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?></p>
 					<?php wp_nonce_field( self::AUTH_FORM_ACTION, self::AUTH_FORM_ACTION ); ?>

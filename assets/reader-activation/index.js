@@ -34,18 +34,6 @@ function getCookie( name ) {
 }
 
 /**
- * Initialize store data.
- */
-function init() {
-	const data = window.newspack_reader_activation_data;
-	const initialEmail = data?.authenticated_email || getCookie( data?.auth_intention_cookie );
-	const authenticated = !! data?.authenticated_email;
-	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
-}
-
-init();
-
-/**
  * Handling events.
  */
 const events = Object.values( EVENTS );
@@ -158,6 +146,19 @@ export function hasAuthLink() {
 	const emailLinkSecret = getCookie( 'np_auth_link' );
 	return !! ( reader?.email && emailLinkSecret );
 }
+
+/**
+ * Initialize store data.
+ */
+function init() {
+	const data = window.newspack_reader_activation_data;
+	const initialEmail = data?.authenticated_email || getCookie( data?.auth_intention_cookie );
+	const authenticated = !! data?.authenticated_email;
+	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
+	emit( EVENTS.reader, store.reader );
+}
+
+init();
 
 const readerActivation = {
 	on,
