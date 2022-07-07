@@ -1,3 +1,10 @@
+# [1.86.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.86.0-alpha.1...v1.86.0-alpha.2) (2022-07-07)
+
+
+### Bug Fixes
+
+* **amp-plus:** handle complianz-gdpr plugin ([0f7ee8a](https://github.com/Automattic/newspack-plugin/commit/0f7ee8a545216f048646c7e16f0e11ff420029af))
+
 ## [1.85.1](https://github.com/Automattic/newspack-plugin/compare/v1.85.0...v1.85.1) (2022-07-07)
 
 
