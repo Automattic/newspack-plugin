@@ -15,7 +15,7 @@ import './auth.scss';
 
 		const initialForm = container.querySelector( 'form' );
 		let form;
-		/** Temporary way around AMP's enforced XHR strategy. */
+		/** Workaround AMP's enforced XHR strategy. */
 		if ( initialForm.getAttribute( 'action-xhr' ) ) {
 			initialForm.removeAttribute( 'action-xhr' );
 			form = initialForm.cloneNode( true );

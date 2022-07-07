@@ -46,6 +46,7 @@ final class Reader_Activation {
 			\add_filter( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
+			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 		}
 	}
 
@@ -335,7 +336,7 @@ final class Reader_Activation {
 					<form method="post" target="_top">
 						<input type="hidden" name="action" value="link" />
 						<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
-						<p class="action-item action-link auth-link-message">
+						<p class="auth-link-message">
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
 						<p class="action-item action-pwd">
