@@ -8,10 +8,22 @@ import './auth.scss';
 		return;
 	}
 	window.onload = function () {
-		const form = document.querySelector( '#newspack-reader-activation-auth-form' );
-		if ( ! form ) {
+		const container = document.querySelector( '#newspack-reader-activation-auth-form' );
+		if ( ! container ) {
 			return;
 		}
+
+		const initialForm = container.querySelector( 'form' );
+		let form;
+		/** Temporary way around AMP's enforced XHR strategy. */
+		if ( initialForm.getAttribute( 'action-xhr' ) ) {
+			initialForm.removeAttribute( 'action-xhr' );
+			form = initialForm.cloneNode( true );
+			initialForm.replaceWith( form );
+		} else {
+			form = initialForm;
+		}
+
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
 		const redirectInput = form.querySelector( 'input[name="redirect"]' );
@@ -39,8 +51,8 @@ import './auth.scss';
 				} else {
 					authLinkMessage.hidden = true;
 				}
-				form.hidden = false;
-				form.style.display = 'flex';
+				container.hidden = false;
+				container.style.display = 'flex';
 				if ( emailInput ) {
 					emailInput.focus();
 					emailInput.value = reader?.email || '';
@@ -63,6 +75,7 @@ import './auth.scss';
 			}
 			submitButton.disabled = true;
 			messageContainer.innerHTML = '';
+			form.style.opacity = 0.5;
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 				method: 'POST',
 				headers: {
@@ -94,6 +107,7 @@ import './auth.scss';
 					throw err;
 				} )
 				.finally( () => {
+					form.style.opacity = 1;
 					submitButton.disabled = false;
 				} );
 		} );

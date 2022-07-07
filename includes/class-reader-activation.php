@@ -313,7 +313,7 @@ final class Reader_Activation {
 	 * Renders reader authentication form
 	 */
 	public static function render_auth_form() {
-		if ( is_user_logged_in() ) {
+		if ( \is_user_logged_in() ) {
 			return;
 		}
 		$element_id = sprintf( 'newspack-%s', self::AUTH_FORM_ACTION );
@@ -333,17 +333,21 @@ final class Reader_Activation {
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
 					</svg>
 				</button>
-				<form method="post">
+				<form method="post" target="_top">
+					<input type="hidden" name="action" value="auth" />
+					<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
+					<p><?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?></p>
 					<p class="auth-link-message">
 						<?php _e( "We've recently sent you an authentication link. Please, check your inbox for the link!", 'newspack' ); ?>
 					</p>
 					<?php wp_nonce_field( self::AUTH_FORM_ACTION, self::AUTH_FORM_ACTION ); ?>
 					<input type="hidden" name="redirect" value="" />
 					<p><input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" /></p>
-					<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
-					<div class="form-actions">
-						<input type="hidden" name="action" value="auth" />
-						<p><button type="submit"><?php \esc_html_e( 'Authenticate', 'newspack' ); ?></button></p>
+					<div class="pwd-auth">
+						<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
+					</div>
+					<div class="form-actions pwd-auth">
+						<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
 						<a href="#"><?php \esc_html_e( 'Send me an authentication link', 'newspack' ); ?></a>
 					</div>
 					<div class="form-response">

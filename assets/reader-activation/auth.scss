@@ -21,7 +21,11 @@
 		background: #fff;
 		position: relative;
 		form {
-			padding: 32px;
+			padding: 64px;
+			transition: opacity 0.2s ease-in-out;
+			p {
+				margin: 0.5rem 0;
+			}
 			input[type='email'],
 			input[type='password'] {
 				width: 100%;
@@ -37,6 +41,12 @@
 		a {
 			font-size: 0.8em;
 		}
+	}
+
+	.form-response {
+		font-size: 0.8em;
+		position: absolute;
+		bottom: 32px;
 	}
 
 	.form-close {
