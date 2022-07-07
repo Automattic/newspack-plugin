@@ -30,15 +30,15 @@ import './auth.scss';
 		const redirectInput = form.querySelector( 'input[name="redirect"]' );
 		const submitButton = form.querySelector( '[type="submit"]' );
 
-		const messageContainer = form.querySelector( '.form-response' );
+		const messageContainer = container.querySelector( '.form-response' );
 
-		const authLinkMessage = form.querySelector( '.auth-link-message' );
+		const authLinkMessage = container.querySelector( '.auth-link-message' );
 		authLinkMessage.hidden = true;
 
 		/**
 		 * Handle reader changes.
 		 */
-		readerActivation.on( 'reader', ( { email } ) => {
+		readerActivation.on( 'reader', ( { detail: { email } } ) => {
 			emailInput.value = email || '';
 		} );
 
@@ -108,6 +108,7 @@ import './auth.scss';
 			submitButton.disabled = true;
 			messageContainer.innerHTML = '';
 			form.style.opacity = 0.5;
+			readerActivation.setReaderEmail( body.get( 'email' ) );
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 				method: 'POST',
 				headers: {

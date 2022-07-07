@@ -352,16 +352,16 @@ final class Reader_Activation {
 							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
 							<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with an authentication link', 'newspack' ); ?></a>
 						</div>
+						<div class="form-actions action-item action-link">
+							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
+							<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
+						</div>
+						<div class="form-response">
+							<?php if ( ! empty( $message ) ) : ?>
+								<p><?php echo \esc_html( $message ); ?></p>
+							<?php endif; ?>
+						</div>
 					</form>
-					<div class="form-actions action-item action-link">
-						<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
-						<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
-					</div>
-					<div class="form-response">
-						<?php if ( ! empty( $message ) ) : ?>
-							<p><?php echo \esc_html( $message ); ?></p>
-						<?php endif; ?>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -421,11 +421,12 @@ final class Reader_Activation {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 		}
 
+		self::set_auth_intention_cookie( $email );
+
 		$user = \get_user_by( 'email', $email );
 		if ( ! $user || ! self::is_user_reader( $user ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 		}
-		self::set_auth_intention_cookie( $email );
 
 		$payload = [
 			'email'         => $email,
