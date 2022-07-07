@@ -34,10 +34,10 @@
 	}
 
 	.form-actions {
-		display: flex;
-		justify-content: space-between;
-		flex-direction: row-reverse;
-		align-items: center;
+		button {
+			display: block;
+			width: 100%;
+		}
 		a {
 			font-size: 0.8em;
 		}

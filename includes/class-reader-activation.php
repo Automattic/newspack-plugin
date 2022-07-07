@@ -27,9 +27,8 @@ final class Reader_Activation {
 	 */
 	const AUTH_FORM_ACTION  = 'reader-activation-auth-form';
 	const AUTH_FORM_OPTIONS = [
-		'auth',
-		'auth-link',
-		'reset-pwd',
+		'pwd',
+		'link',
 	];
 
 	/**
@@ -334,21 +333,25 @@ final class Reader_Activation {
 					</svg>
 				</button>
 				<form method="post" target="_top">
-					<input type="hidden" name="action" value="auth" />
+					<input type="hidden" name="action" value="link" />
 					<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
-					<p><?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?></p>
-					<p class="auth-link-message">
+					<p class="action-item action-link auth-link-message">
 						<?php _e( "We've recently sent you an authentication link. Please, check your inbox for the link!", 'newspack' ); ?>
 					</p>
+					<p><?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?></p>
 					<?php wp_nonce_field( self::AUTH_FORM_ACTION, self::AUTH_FORM_ACTION ); ?>
 					<input type="hidden" name="redirect" value="" />
 					<p><input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" /></p>
-					<div class="pwd-auth">
+					<div class="action-item action-pwd">
 						<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
 					</div>
-					<div class="form-actions pwd-auth">
+					<div class="form-actions action-item action-pwd">
 						<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
-						<a href="#"><?php \esc_html_e( 'Send me an authentication link', 'newspack' ); ?></a>
+						<a href="#" data-set-action="link"><?php \esc_html_e( 'Send me an authentication link', 'newspack' ); ?></a>
+					</div>
+					<div class="form-actions action-item action-link">
+						<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
+						<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
 					</div>
 					<div class="form-response">
 						<?php if ( ! empty( $message ) ) : ?>
@@ -414,8 +417,13 @@ final class Reader_Activation {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 		}
 
+		$user = \get_user_by( 'email', $email );
+		if ( ! $user || ! self::is_user_reader( $user ) ) {
+			return self::send_auth_form_response( new \WP_Error( 'invalid_account', __( 'Invalid account.', 'newspack' ) ) );
+		}
+
 		switch ( $action ) {
-			case 'auth':
+			case 'pwd':
 				if ( empty( $password ) ) {
 					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'You must enter a valid password.', 'newspack' ) ) );
 				}
@@ -429,8 +437,9 @@ final class Reader_Activation {
 				}
 				\wp_set_auth_cookie( $user->ID, true );
 				return self::send_auth_form_response( [ 'email' => $email ], false, $redirect );
-			case 'auth-link':
-				$result = self::register_reader( $email );
+			case 'link':
+				self::set_auth_intention_cookie( $email );
+				Magic_Link::send_email( $user );
 				return self::send_auth_form_response( [], __( 'We have sent you an authentication link.', 'newspack' ) );
 		}
 	}

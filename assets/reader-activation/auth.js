@@ -24,6 +24,7 @@ import './auth.scss';
 			form = initialForm;
 		}
 
+		const actionInput = form.querySelector( 'input[name="action"]' );
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
 		const redirectInput = form.querySelector( 'input[name="redirect"]' );
@@ -61,6 +62,28 @@ import './auth.scss';
 					passwordInput.focus();
 				}
 				redirectInput.value = ev.target.getAttribute( 'href' );
+			} );
+		} );
+
+		/**
+		 * Handle auth form action selection.
+		 */
+		function setFormAction( action ) {
+			actionInput.value = action;
+			form.querySelectorAll( '.action-item ' ).forEach( item => {
+				item.hidden = true;
+			} );
+			form.querySelectorAll( '.action-' + action ).forEach( item => {
+				item.hidden = false;
+			} );
+		}
+
+		setFormAction( actionInput.value );
+
+		form.querySelectorAll( '[data-set-action]' ).forEach( item => {
+			item.addEventListener( 'click', function ( ev ) {
+				ev.preventDefault();
+				setFormAction( ev.target.getAttribute( 'data-set-action' ) );
 			} );
 		} );
 
