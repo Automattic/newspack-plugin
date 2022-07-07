@@ -699,9 +699,7 @@ class Stripe_Connection {
 
 			if ( ! isset( $client_metadata['userId'] ) && Reader_Activation::is_enabled() ) {
 				$user_id = Reader_Activation::register_reader( $email_address, $full_name, true, false );
-				if ( \is_wp_error( $user_id ) ) {
-					return $user_id;
-				} elseif ( false !== $user_id ) {
+				if ( ! \is_wp_error( $user_id ) && false !== $user_id ) {
 					$client_metadata['userId'] = $user_id;
 				}
 			}
