@@ -335,10 +335,12 @@ final class Reader_Activation {
 					<form method="post" target="_top">
 						<input type="hidden" name="action" value="link" />
 						<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
-						<p class="auth-link-message">
+						<p class="action-item action-link auth-link-message">
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
-						<p><?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?></p>
+						<p class="action-item action-pwd">
+							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+						</p>
 						<?php wp_nonce_field( self::AUTH_FORM_ACTION, self::AUTH_FORM_ACTION ); ?>
 						<input type="hidden" name="redirect" value="" />
 						<p><input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" /></p>
@@ -349,16 +351,16 @@ final class Reader_Activation {
 							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
 							<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with an authentication link', 'newspack' ); ?></a>
 						</div>
-						<div class="form-actions action-item action-link">
-							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
-							<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
-						</div>
-						<div class="form-response">
-							<?php if ( ! empty( $message ) ) : ?>
-								<p><?php echo \esc_html( $message ); ?></p>
-							<?php endif; ?>
-						</div>
 					</form>
+					<div class="form-actions action-item action-link">
+						<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
+						<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
+					</div>
+					<div class="form-response">
+						<?php if ( ! empty( $message ) ) : ?>
+							<p><?php echo \esc_html( $message ); ?></p>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
 		</div>

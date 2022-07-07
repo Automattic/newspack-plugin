@@ -45,8 +45,7 @@ import './auth.scss';
 		/**
 		 * Handle account links.
 		 */
-		const accountLinks = [ ...document.querySelectorAll( '.newspack-reader-account-link' ) ];
-		accountLinks.forEach( menuItem => {
+		document.querySelectorAll( '.newspack-reader-account-link' ).forEach( menuItem => {
 			menuItem.querySelector( 'a' ).addEventListener( 'click', function ( ev ) {
 				const reader = readerActivation.getReader();
 				/** If logged in, bail and allow page redirection. */
@@ -76,16 +75,15 @@ import './auth.scss';
 		 */
 		function setFormAction( action ) {
 			actionInput.value = action;
-			form.querySelectorAll( '.action-item ' ).forEach( item => {
+			container.querySelectorAll( '.action-item' ).forEach( item => {
 				item.hidden = true;
 			} );
-			form.querySelectorAll( '.action-' + action ).forEach( item => {
+			container.querySelectorAll( '.action-' + action ).forEach( item => {
 				item.hidden = false;
 			} );
 		}
 		setFormAction( actionInput.value );
-
-		form.querySelectorAll( '[data-set-action]' ).forEach( item => {
+		container.querySelectorAll( '[data-set-action]' ).forEach( item => {
 			item.addEventListener( 'click', function ( ev ) {
 				ev.preventDefault();
 				const action = ev.target.getAttribute( 'data-set-action' );
