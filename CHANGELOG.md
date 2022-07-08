@@ -1,9 +1,9 @@
-# [1.86.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.86.0-alpha.1...v1.86.0-alpha.2) (2022-07-07)
+## [1.85.2](https://github.com/Automattic/newspack-plugin/compare/v1.85.1...v1.85.2) (2022-07-08)
 
 
 ### Bug Fixes
 
-* **amp-plus:** handle complianz-gdpr plugin ([0f7ee8a](https://github.com/Automattic/newspack-plugin/commit/0f7ee8a545216f048646c7e16f0e11ff420029af))
+* **donations:** numbers formatting if NRH is the platform ([924d6b9](https://github.com/Automattic/newspack-plugin/commit/924d6b93a8bbb57bb4e499949f5a54be8ad79208)), closes [#1650](https://github.com/Automattic/newspack-plugin/issues/1650)
 
 ## [1.85.1](https://github.com/Automattic/newspack-plugin/compare/v1.85.0...v1.85.1) (2022-07-07)
 
