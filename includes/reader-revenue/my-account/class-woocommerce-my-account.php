@@ -146,6 +146,8 @@ class WooCommerce_My_Account {
 
 	/**
 	 * Remove first and last name from WC's required fields.
+	 *
+	 * @param array $required_fields Required fields.
 	 */
 	public static function remove_required_fields( $required_fields ) {
 		if ( ! Donations::is_platform_stripe() ) {
