@@ -31,7 +31,7 @@ else :
 	?>
 
 	<a href="<?php echo esc_url( $stripe_billing_portal_url ); ?>">
-		<?php echo esc_html__( 'Update payment details', 'newspack' ); ?>
+		<?php echo esc_html__( 'Update payment details, recurring payments, and view billing history', 'newspack' ); ?>
 	</a>
 
 	<?php
