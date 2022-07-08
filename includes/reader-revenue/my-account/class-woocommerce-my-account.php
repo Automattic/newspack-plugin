@@ -35,6 +35,7 @@ class WooCommerce_My_Account {
 		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
+		add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 	}
 
 	/**
@@ -141,6 +142,18 @@ class WooCommerce_My_Account {
 			Logger::log( 'Flushed rewrite rules to add billing endpoint' );
 			update_option( '_newspack_has_set_up_custom_billing_endpoint', true );
 		}
+	}
+
+	/**
+	 * Remove first and last name from WC's required fields.
+	 */
+	public static function remove_required_fields( $required_fields ) {
+		if ( ! Donations::is_platform_stripe() ) {
+			return $required_fields;
+		}
+		unset( $required_fields['account_first_name'] );
+		unset( $required_fields['account_last_name'] );
+		return $required_fields;
 	}
 }
 
