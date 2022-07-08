@@ -234,7 +234,7 @@ class Stripe_Connection {
 	 * @param string $customer_id Customer ID.
 	 * @param string $return_url Return URL.
 	 */
-	public static function get_customer_portal_url( $customer_id, $return_url = false ) {
+	public static function get_billing_portal_url( $customer_id, $return_url = false ) {
 		$stripe = self::get_stripe_client();
 		if ( false === $return_url ) {
 			global $wp;

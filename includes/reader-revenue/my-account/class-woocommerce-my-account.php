@@ -119,7 +119,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function render_billing_template() {
 		$stripe_customer_id        = self::get_current_user_stripe_id();
-		$stripe_billing_portal_url = Stripe_Connection::get_customer_portal_url( $stripe_customer_id );
+		$stripe_billing_portal_url = Stripe_Connection::get_billing_portal_url( $stripe_customer_id );
 		$error_message             = false;
 		if ( is_wp_error( $stripe_billing_portal_url ) ) {
 			$error_message = $stripe_billing_portal_url->get_error_message();
