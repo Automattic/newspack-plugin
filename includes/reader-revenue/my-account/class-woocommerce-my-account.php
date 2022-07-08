@@ -136,6 +136,11 @@ class WooCommerce_My_Account {
 			return;
 		}
 		add_rewrite_endpoint( self::BILLING_ENDPOINT, EP_PAGES );
+		if ( ! get_option( '_newspack_has_set_up_custom_billing_endpoint' ) ) {
+			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
+			Logger::log( 'Flushed rewrite rules to add billing endpoint' );
+			update_option( '_newspack_has_set_up_custom_billing_endpoint', true );
+		}
 	}
 }
 
