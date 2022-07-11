@@ -162,9 +162,12 @@ class Donations {
 	 * @param string $frequency Donation frequency of the requested product.
 	 */
 	public static function get_donation_product( $frequency ) {
+		if ( is_wp_error( self::is_woocommerce_suite_active() ) ) {
+			return false;
+		}
 		$is_donation_product_valid = self::validate_donation_product();
 		if ( is_wp_error( $is_donation_product_valid ) ) {
-			self::update_donation_product( $args );
+			self::update_donation_product();
 		}
 		$product_ids = self::get_donation_product_child_products_ids();
 		return isset( $product_ids[ $frequency ] ) ? $product_ids[ $frequency ] : false;
@@ -373,7 +376,7 @@ class Donations {
 	 *
 	 * @param array $args Info that will be used to create the products.
 	 */
-	private static function update_donation_product( $args ) {
+	private static function update_donation_product( $args = [] ) {
 		$defaults      = self::get_donation_default_settings();
 		$configuration = wp_parse_args( $args, $defaults );
 
