@@ -27,7 +27,6 @@ import './auth.scss';
 		const actionInput = form.querySelector( 'input[name="action"]' );
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
-		const redirectInput = form.querySelector( 'input[name="redirect"]' );
 		const submitButton = form.querySelector( '[type="submit"]' );
 
 		const messageContainer = container.querySelector( '.form-response' );
@@ -35,11 +34,23 @@ import './auth.scss';
 		const authLinkMessage = container.querySelector( '.auth-link-message' );
 		authLinkMessage.hidden = true;
 
+		const accountLinks = document.querySelectorAll( '.newspack-reader-account-link' );
+
 		/**
 		 * Handle reader changes.
 		 */
-		readerActivation.on( 'reader', ( { detail: { email } } ) => {
+		readerActivation.on( 'reader', ( { detail: { email, authenticated } } ) => {
 			emailInput.value = email || '';
+			if ( accountLinks?.length ) {
+				accountLinks.forEach( link => {
+					try {
+						const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
+						link.querySelector( 'a' ).innerHTML = authenticated
+							? labels.signedin
+							: labels.signedout;
+					} catch {}
+				} );
+			}
 		} );
 
 		/**
@@ -60,7 +71,6 @@ import './auth.scss';
 			}
 
 			emailInput.value = reader?.email || '';
-			redirectInput.value = ev.target.getAttribute( 'href' );
 
 			container.hidden = false;
 			container.style.display = 'flex';
@@ -71,7 +81,7 @@ import './auth.scss';
 				emailInput.focus();
 			}
 		}
-		document.querySelectorAll( '.newspack-reader-account-link' ).forEach( menuItem => {
+		accountLinks.forEach( menuItem => {
 			menuItem.querySelector( 'a' ).addEventListener( 'click', handleAccountLinkClick );
 		} );
 
@@ -80,6 +90,7 @@ import './auth.scss';
 		 */
 		function setFormAction( action ) {
 			actionInput.value = action;
+			messageContainer.innerHTML = '';
 			container.querySelectorAll( '.action-item' ).forEach( item => {
 				item.hidden = true;
 			} );

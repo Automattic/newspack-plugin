@@ -43,7 +43,7 @@ final class Reader_Activation {
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
-			\add_filter( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
+			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
@@ -262,6 +262,41 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Setup nav menu hooks.
+	 */
+	public static function setup_nav_menu() {
+		/** Always have location enabled for account link. */
+		\add_filter(
+			'has_nav_menu',
+			function( $has_nav_menu, $location ) {
+				if ( 'tertiary-menu' === $location ) {
+					$has_nav_menu = true;
+				}
+				return $has_nav_menu;
+			},
+			10,
+			2
+		);
+
+		/** Fallback location to always print nav menu args */
+		$self = new self();
+		\add_filter(
+			'wp_nav_menu_args',
+			function( $args ) use ( $self ) {
+				if ( 'tertiary-menu' === $args['theme_location'] ) {
+					$args['fallback_cb'] = function( $args ) use ( $self ) {
+						$self->nav_menu_items( '', $args, true );
+					};
+				}
+				return $args;
+			}
+		);
+
+		/** Add as menu item */
+		\add_filter( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
+	}
+
+	/**
 	 * Setup nav menu items for reader account access.
 	 *
 	 * @param string   $output The HTML for the menu items.
@@ -269,43 +304,52 @@ final class Reader_Activation {
 	 *
 	 * @return string The HTML list content for the menu items.
 	 */
-	public static function nav_menu_items( $output, $args ) {
+	public static function nav_menu_items( $output, $args = [], $echo = false ) {
+		$args = (object) $args;
 
 		/** Do not alter items for authenticated non-readers */
 		if ( \is_user_logged_in() && ! self::is_user_reader( \wp_get_current_user() ) ) {
 			return $output;
 		}
 
-		$pre_items   = '';
-		$after_items = '';
-		if ( empty( $output ) ) {
-			$output      = '';
-			$pre_items   = '<ul>';
-			$after_items = '</ul>';
-		}
-
 		/**
 		 * Menu locations to add the account menu items to.
 		 */
-		$menu_locations = [ 'social' ];
-		if ( ! in_array( $args->theme_location, $menu_locations, true ) ) {
+		$locations = [ 'tertiary-menu' ];
+		if ( ! in_array( $args->theme_location, $locations, true ) ) {
 			return $output;
 		}
+
 		$account_url = '';
 		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
 			$account_url = \wc_get_account_endpoint_url( 'dashboard' );
 		}
 		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) && is_user_logged_in() ) {
+		if ( empty( $account_url ) && \is_user_logged_in() ) {
 			return $output;
 		}
+
+		$labels     = [
+			'signedin'  => \__( 'Account', 'newspack' ),
+			'signedout' => \__( 'Sign In', 'newspack' ),
+		];
+		$label      = \is_user_logged_in() ? 'signedin' : 'signedout';
 		$classnames = [ 'menu-item', 'newspack-reader-account-link' ];
 		$item       = '';
-		$item      .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '">';
-		$item      .= '<a href="' . \esc_url_raw( $account_url ?? '#' ) . '">' . \esc_html__( 'My Account', 'newspack' ) . '</a>';
+		$item      .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '">';
+		$item      .= '<a href="' . \esc_url_raw( $account_url ?? '#' ) . '">' . \esc_html( $labels[ $label ] ) . '</a>';
 		$item      .= '</li>';
-		$output     = $item . $output;
-		return $pre_items . $output . $after_items;
+
+		if ( empty( $output ) ) {
+			$output = sprintf( $args->items_wrap ?? '<ul id="%1$s" class="%2$s">%3$s</ul>', $args->menu_id, $args->menu_class, $item );
+		} else {
+			$output = $output . $item;
+		}
+		if ( $echo ) {
+			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		} else {
+			return $output;
+		}
 	}
 
 	/**
@@ -334,6 +378,7 @@ final class Reader_Activation {
 				</button>
 				<div class="form-content">
 					<form method="post" target="_top">
+						<input type="hidden" name="<?php echo esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<input type="hidden" name="action" value="link" />
 						<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
 						<p class="auth-link-message">
@@ -342,7 +387,6 @@ final class Reader_Activation {
 						<p class="action-item action-pwd">
 							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
-						<?php wp_nonce_field( self::AUTH_FORM_ACTION, self::AUTH_FORM_ACTION ); ?>
 						<input type="hidden" name="redirect" value="" />
 						<p><input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" /></p>
 						<div class="action-item action-pwd">
@@ -350,11 +394,12 @@ final class Reader_Activation {
 						</div>
 						<div class="form-actions action-item action-pwd">
 							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
-							<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with an authentication link', 'newspack' ); ?></a>
+							<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
+							<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
 						</div>
 						<div class="form-actions action-item action-link">
 							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
-							<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
+							<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with your password', 'newspack' ); ?></a>
 						</div>
 						<div class="form-response">
 							<?php if ( ! empty( $message ) ) : ?>
@@ -401,13 +446,20 @@ final class Reader_Activation {
 	 * Process reader authentication form.
 	 */
 	public static function process_auth_form() {
-		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_POST[ self::AUTH_FORM_ACTION ] ), self::AUTH_FORM_ACTION ) ) {
+		if ( \is_user_logged_in() ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// Nonce not required for an authentication attempt.
+		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) ) {
 			return;
 		}
 		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
 		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
+		// phpcs:enable
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
