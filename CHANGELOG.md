@@ -1,3 +1,18 @@
+# [1.86.0](https://github.com/Automattic/newspack-plugin/compare/v1.85.2...v1.86.0) (2022-07-11)
+
+
+### Bug Fixes
+
+* **reader-revenue:** disable WC email if module will send email ([#1709](https://github.com/Automattic/newspack-plugin/issues/1709)) ([48e1613](https://github.com/Automattic/newspack-plugin/commit/48e16134c45bb0482cd59e224ec9a84fd20520f6)), closes [#1699](https://github.com/Automattic/newspack-plugin/issues/1699)
+
+
+### Features
+
+* ads onboarding ([#1678](https://github.com/Automattic/newspack-plugin/issues/1678)) ([80c0bf4](https://github.com/Automattic/newspack-plugin/commit/80c0bf4561071ca701cb2d74e8a5d370487c97d8))
+* disable deactivate and delete for required plugins ([#1712](https://github.com/Automattic/newspack-plugin/issues/1712)) ([75afee8](https://github.com/Automattic/newspack-plugin/commit/75afee8a437abbaeabc593f1e7f67ec326654049))
+* **experimental:** magic links ([#1668](https://github.com/Automattic/newspack-plugin/issues/1668)) ([02d9f82](https://github.com/Automattic/newspack-plugin/commit/02d9f82ea83296818439f53c5fe2a1ae52a0116c))
+* **reader-revenue:** prevent creating duplicate stripe webhooks ([#1710](https://github.com/Automattic/newspack-plugin/issues/1710)) ([586e693](https://github.com/Automattic/newspack-plugin/commit/586e69311a689406b4657a349c6bd5b59e943719))
+
 # [1.86.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.86.0-alpha.2...v1.86.0-alpha.3) (2022-07-08)
 
 
