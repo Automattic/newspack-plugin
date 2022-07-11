@@ -1,6 +1,6 @@
 {
   "name": "newspack",
-  "version": "1.85.2",
+  "version": "1.86.0-alpha.3",
   "description": "The Newspack plugin. https://newspack.pub",
   "bugs": {
     "url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -15,7 +15,7 @@
     "@testing-library/react": "^12.1.4",
     "@wordpress/browserslist-config": "^4.1.2",
     "eslint": "^7.32.0",
-    "lint-staged": "^13.0.1",
+    "lint-staged": "^13.0.3",
     "newspack-scripts": "^3.3.2",
     "prettier": "npm:wp-prettier@^2.2.1-beta-1",
     "stylelint": "^13.3.1"
@@ -56,7 +56,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "moment-range": "^3.1.1",
-    "qs": "^6.10.5",
+    "qs": "^6.11.0",
     "react": "^17.0.2",
     "react-daterange-picker": "^2.0.1",
     "react-google-charts": "^4.0.0",
