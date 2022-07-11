@@ -130,5 +130,6 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		// Admins cannot be readers.
 		$user->set_role( 'administrator' );
 		$this->assertFalse( Reader_Activation::is_user_reader( $user ) );
+		wp_delete_user( $reader_id ); // Clean up.
 	}
 }
