@@ -124,7 +124,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		// Editors cannot be readers.
 		$user->set_role( 'editor' );
 		$this->assertFalse( Reader_Activation::is_user_reader( $user ) );
-		// Editors can be readers.
+		// Authors can be readers.
 		$user->set_role( 'author' );
 		$this->assertTrue( Reader_Activation::is_user_reader( $user ) );
 		// Admins cannot be readers.
