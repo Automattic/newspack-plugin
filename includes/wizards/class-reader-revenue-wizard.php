@@ -184,23 +184,23 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_donation_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'image'               => [
-						'sanitize_callback' => 'absint',
-					],
-					'name'                => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'suggestedAmount'     => [
-						'sanitize_callback' => 'wc_format_decimal',
-					],
-					'suggestedAmountLow'  => [
-						'sanitize_callback' => 'wc_format_decimal',
-					],
-					'suggestedAmountHigh' => [
-						'sanitize_callback' => 'wc_format_decimal',
+					'amounts'             => [
+						'required' => true,
 					],
 					'tiered'              => [
+						'required'          => true,
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'defaultFrequency'    => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'disabledFrequencies' => [
+						'required' => true,
+					],
+					'platform'            => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -233,7 +233,7 @@ class Reader_Revenue_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/newspack-donations-wizard/donation/',
+			'/wizard/' . $this->slug . '/donations/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_donation_settings' ],
