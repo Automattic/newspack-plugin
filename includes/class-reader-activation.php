@@ -301,6 +301,7 @@ final class Reader_Activation {
 	 *
 	 * @param string   $output The HTML for the menu items.
 	 * @param stdClass $args   An object containing wp_nav_menu() arguments.
+	 * @param bool     $echo   Whether to echo the HTML or return it.
 	 *
 	 * @return string The HTML list content for the menu items.
 	 */
