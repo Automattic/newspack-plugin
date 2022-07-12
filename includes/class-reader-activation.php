@@ -297,7 +297,7 @@ final class Reader_Activation {
 			function( $args ) use ( $self ) {
 				if ( 'tertiary-menu' === $args['theme_location'] ) {
 					$args['fallback_cb'] = function( $args ) use ( $self ) {
-						$self->nav_menu_items( '', $args, true );
+						echo $self->nav_menu_items( '', $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					};
 				}
 				return $args;
@@ -325,11 +325,10 @@ final class Reader_Activation {
 	 *
 	 * @param string   $output The HTML for the menu items.
 	 * @param stdClass $args   An object containing wp_nav_menu() arguments.
-	 * @param bool     $echo   Whether to echo the HTML or return it.
 	 *
 	 * @return string The HTML list content for the menu items.
 	 */
-	public static function nav_menu_items( $output, $args = [], $echo = false ) {
+	public static function nav_menu_items( $output, $args = [] ) {
 		$args = (object) $args;
 
 		/** Do not alter items for authenticated non-readers */
@@ -360,11 +359,7 @@ final class Reader_Activation {
 		} else {
 			$output = $output . $item;
 		}
-		if ( $echo ) {
-			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		} else {
-			return $output;
-		}
+		return $output;
 	}
 
 	/**
