@@ -147,10 +147,12 @@ import './auth.scss';
 			} )
 				.then( res => {
 					res.json().then( ( { message, data } ) => {
-						const messageNode = document.createElement( 'p' );
-						messageNode.innerHTML = message;
+						const messageNode = document.createElement( 'div' );
+						messageNode.innerHTML = `<p>${ message }</p>`;
 						messageNode.className = `message status-${ res.status }`;
 						if ( res.status === 200 ) {
+							container.classList.remove( 'error' );
+							container.classList.add( 'success' );
 							if ( data?.email ) {
 								readerActivation.setReaderEmail( data.email );
 							}
@@ -160,9 +162,12 @@ import './auth.scss';
 									window.location = body.get( 'redirect' );
 								}
 							} else {
+								messageNode.prepend( container.querySelector( '.success-icon' ) );
 								form.replaceWith( messageNode );
 							}
 						} else {
+							container.classList.add( 'error' );
+							container.classList.remove( 'success' );
 							messageContainer.appendChild( messageNode );
 						}
 					} );

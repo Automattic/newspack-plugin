@@ -303,7 +303,7 @@ final class Reader_Activation {
 			function() use ( $self ) {
 				?>
 				<span class="mobile-account-link">
-					<?php echo $self->get_account_link(); // phpcs:ignore ?>
+					<?php echo $self->get_account_link(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</span>
 				<?php
 			}
@@ -425,14 +425,14 @@ final class Reader_Activation {
 		?>
 		<div id="<?php echo \esc_attr( $element_id ); ?>" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-primary-color="<?php echo \esc_attr( $primary_color ); ?>">
 			<div class="form-wrapper">
-				<button on="tap:<?php echo esc_attr( $element_id ); ?>.hide" class="form-close" aria-label="<?php esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
+				<button on="tap:<?php echo \esc_attr( $element_id ); ?>.hide" class="form-close" aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
 					</svg>
 				</button>
 				<div class="form-content">
 					<form method="post" target="_top">
-						<input type="hidden" name="<?php echo esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
+						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<input type="hidden" name="action" value="link" />
 						<div class="form-header">
 							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
@@ -466,8 +466,8 @@ final class Reader_Activation {
 						<div class="form-actions action-item action-link">
 							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
 							<p class="small">
-								<?php esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?><br/>
-								<a href="#" data-set-action="pwd"><?php esc_html_e( 'Sign in with a password instead', 'newspack' ); ?></a>.
+								<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?><br/>
+								<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password instead', 'newspack' ); ?></a>.
 							</p>
 						</div>
 						<div class="form-actions action-item action-register">
@@ -477,6 +477,9 @@ final class Reader_Activation {
 							</p>
 						</div>
 					</form>
+					<span class="success-icon">
+							<?php echo self::get_account_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</span>
 				</div>
 			</div>
 		</div>
@@ -572,7 +575,7 @@ final class Reader_Activation {
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( 'Check your email for an authentication link!', 'newspack' ), $redirect );
+				return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox", 'newspack' ), $redirect );
 			case 'register':
 				$user_id = self::register_reader( $email );
 				if ( false === $user_id ) {
