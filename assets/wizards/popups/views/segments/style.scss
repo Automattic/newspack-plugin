@@ -1,5 +1,5 @@
-@use '../../../../shared/scss/colors' as scss-colors;
-@use '~@wordpress/base-styles/colors';
+@use '../../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-campaigns-wizard-segments {
 	&__list {
@@ -40,7 +40,7 @@
 
 	&.is-drop-target::before,
 	&.drop-target-after::after {
-		background-color: scss-colors.$primary-500;
+		background-color: colors.$primary-500;
 		content: '';
 		display: block;
 		height: 2px;
@@ -80,7 +80,7 @@
 			margin: -4px 0;
 
 			.components-button {
-				color: colors.$gray-900;
+				color: wp-colors.$gray-900;
 				display: block;
 				height: 24px;
 				line-height: 24px;

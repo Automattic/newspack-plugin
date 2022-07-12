@@ -3,8 +3,7 @@
  */
 
 @use 'sass:color';
-@use '~@wordpress/base-styles/colors';
-@use '../../../../shared/scss/colors' as colors2;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-campaigns__segment-group {
 	&__select-control-group-header {
@@ -14,14 +13,14 @@
 		padding-left: 36px;
 	}
 	&__description {
-		color: color.adjust( colors.$gray-700, $lightness: -0.75% );
+		color: color.adjust( wp-colors.$gray-700, $lightness: -0.75% );
 		display: block;
 		font-size: 12px;
 		font-weight: normal;
 		line-height: 1.4;
 	}
 	&__card {
-		border-color: colors.$gray-300;
+		border-color: wp-colors.$gray-300;
 		overflow: hidden;
 
 		& > &__segment {
@@ -31,7 +30,7 @@
 		&__segment {
 			align-items: center;
 			background: rgba( black, 0.025 );
-			border-bottom: 1px solid colors.$gray-300;
+			border-bottom: 1px solid wp-colors.$gray-300;
 			display: flex;
 			justify-content: space-between;
 

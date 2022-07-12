@@ -2,7 +2,7 @@
  * Grid
  */
 
-@use '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-grid {
 	display: grid;
@@ -145,9 +145,9 @@
 	// Table-like
 	&__thead {
 		background: rgba( black, 0.025 );
-		border-bottom: 1px solid colors.$gray-300;
-		border-top: 1px solid colors.$gray-300;
-		color: colors.$gray-900;
+		border-bottom: 1px solid wp-colors.$gray-300;
+		border-top: 1px solid wp-colors.$gray-300;
+		color: wp-colors.$gray-900;
 
 		> *:not( .screen-reader-text ) {
 			padding: 8px;
@@ -155,7 +155,7 @@
 	}
 
 	&__tbody {
-		border-bottom: 1px solid colors.$gray-300;
+		border-bottom: 1px solid wp-colors.$gray-300;
 		padding: 8px 0;
 	}
 

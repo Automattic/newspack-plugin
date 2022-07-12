@@ -2,8 +2,7 @@
  * Tabbed Navigation
  */
 
-@use '~@wordpress/base-styles/colors';
-@use '../../../shared/scss/colors' as colors2;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-tabbed-navigation {
 	background: white;
@@ -20,7 +19,7 @@
 	}
 
 	ul {
-		box-shadow: 0 -1px 0 inset colors.$gray-300;
+		box-shadow: 0 -1px 0 inset wp-colors.$gray-300;
 		display: flex;
 		flex-wrap: wrap;
 		margin: 0;
@@ -36,7 +35,7 @@
 
 		a {
 			align-items: center;
-			color: colors.$gray-900;
+			color: wp-colors.$gray-900;
 			display: flex;
 			font-weight: bold;
 			height: 48px;

@@ -2,7 +2,7 @@
  * Info Button
  */
 
-@use '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-info-button {
 	display: inline-block;

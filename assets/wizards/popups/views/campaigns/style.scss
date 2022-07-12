@@ -2,8 +2,8 @@
  * Campaign group
  */
 
-@use '~@wordpress/base-styles/colors';
-@use '../../../../shared/scss/colors' as scss-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../../../../shared/scss/colors';
 
 .newspack-campaigns__campaign-group {
 	&__card {
@@ -14,8 +14,8 @@
 
 		&__segment {
 			align-items: center;
-			background: colors.$gray-100;
-			border-bottom: 1px solid colors.$gray-300;
+			background: wp-colors.$gray-100;
+			border-bottom: 1px solid wp-colors.$gray-300;
 			display: flex;
 			justify-content: space-between;
 		}
@@ -55,12 +55,12 @@
 				}
 
 				.newspack-button.is-link {
-					color: scss-colors.$primary-500;
+					color: colors.$primary-500;
 					padding: 0;
 					text-decoration: underline;
 
 					&:hover {
-						color: scss-colors.$primary-600;
+						color: colors.$primary-600;
 					}
 				}
 			}
@@ -70,7 +70,7 @@
 
 .newspack-card__buttons-prompt {
 	.newspack-button {
-		color: colors.$gray-900;
+		color: wp-colors.$gray-900;
 		display: flex;
 		flex-direction: column;
 		padding: 0 !important;
@@ -80,19 +80,19 @@
 		&:active,
 		&:focus,
 		&:hover {
-			color: scss-colors.$primary-500;
+			color: colors.$primary-500;
 
 			svg {
-				background: colors.$gray-100;
-				border-color: scss-colors.$primary-500;
+				background: wp-colors.$gray-100;
+				border-color: colors.$primary-500;
 			}
 		}
 
 		svg {
-			border: 1px solid colors.$gray-300;
+			border: 1px solid wp-colors.$gray-300;
 			border-radius: 2px;
 			display: block;
-			fill: scss-colors.$primary-500;
+			fill: colors.$primary-500;
 			margin: 0 0 8px;
 			padding: 23px;
 			transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out;

@@ -2,7 +2,7 @@
  * Autocomplete Token Field
  */
 
-@use '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-autocomplete-tokenfield {
 	position: relative;
@@ -27,7 +27,7 @@
 	}
 
 	.newspack-autocomplete-tokenfield__help {
-		color: colors.$gray-700;
+		color: wp-colors.$gray-700;
 		font-size: inherit;
 		margin-top: 0;
 	}

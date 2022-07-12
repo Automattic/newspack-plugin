@@ -2,7 +2,7 @@
  * Select Control
  */
 
-@use '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .components-select-control {
 	&__input {
@@ -47,7 +47,7 @@
 		&__input {
 			appearance: none;
 			background: transparent;
-			border: 1px solid colors.$gray-700;
+			border: 1px solid wp-colors.$gray-700;
 			border-radius: 2px;
 			box-shadow: none !important;
 			box-sizing: border-box;

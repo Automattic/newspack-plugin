@@ -2,8 +2,7 @@
  * Custom Select Control
  */
 
-@use '../../../shared/scss/colors' as colors2;
-@use '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-custom-select-control {
 	label {
@@ -12,9 +11,9 @@
 	}
 
 	.components-custom-select-control__button {
-		border-color: colors.$gray-700;
+		border-color: wp-colors.$gray-700;
 		border-radius: 2px;
-		color: colors.$gray-900;
+		color: wp-colors.$gray-900;
 		font-size: inherit;
 		min-height: 30px;
 		min-width: 100%;
@@ -24,7 +23,7 @@
 		&:focus,
 		&:hover,
 		&[aria-expanded='true'] {
-			color: colors.$gray-900;
+			color: wp-colors.$gray-900;
 		}
 
 		&:focus {
@@ -43,7 +42,7 @@
 	}
 
 	.components-custom-select-control__menu {
-		border-color: colors.$gray-700;
+		border-color: wp-colors.$gray-700;
 		border-radius: 2px;
 		box-shadow: 0 4px 8px rgba( black, 0.08 );
 		margin: 8px 0 0;
@@ -64,7 +63,7 @@
 		}
 
 		&.is-header {
-			background: colors.$gray-100;
+			background: wp-colors.$gray-100;
 			cursor: default;
 			font-weight: bold;
 			margin-left: 0;

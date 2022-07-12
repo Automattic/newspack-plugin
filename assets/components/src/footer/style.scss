@@ -2,15 +2,15 @@
  * Footer
  */
 
-@use '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-footer {
 	align-items: stretch;
 	background: white;
-	border: 0 solid colors.$gray-300;
+	border: 0 solid wp-colors.$gray-300;
 	border-width: 1px 0;
 	bottom: 0;
-	color: colors.$gray-700;
+	color: wp-colors.$gray-700;
 	display: flex;
 	flex-wrap: wrap;
 	font-size: 12px;
@@ -53,14 +53,14 @@
 			&:active,
 			&:focus,
 			&:hover {
-				color: colors.$gray-900;
+				color: wp-colors.$gray-900;
 			}
 		}
 	}
 
 	&__logo {
 		align-items: center;
-		background: colors.$gray-900;
+		background: wp-colors.$gray-900;
 		display: flex;
 		margin: 0 0 -1px;
 		padding: 16px;
