@@ -575,11 +575,11 @@ final class Reader_Activation {
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox", 'newspack' ), $redirect );
+				return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
 			case 'register':
 				$user_id = self::register_reader( $email );
 				if ( false === $user_id ) {
-					return self::send_auth_form_response( $payload, __( 'Check your email for an authentication link!', 'newspack' ), $redirect );
+					return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
 				}
 				if ( \is_wp_error( $user_id ) ) {
 					return self::send_auth_form_response(
