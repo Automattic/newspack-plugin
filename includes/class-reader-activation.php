@@ -25,8 +25,9 @@ final class Reader_Activation {
 	/**
 	 * Auth form.
 	 */
-	const AUTH_FORM_ACTION  = 'reader-activation-auth-form';
-	const AUTH_FORM_OPTIONS = [
+	const ACCOUNT_LINK_MENU_LOCATIONS = [ 'tertiary-menu' ];
+	const AUTH_FORM_ACTION            = 'reader-activation-auth-form';
+	const AUTH_FORM_OPTIONS           = [
 		'pwd',
 		'link',
 		'register',
@@ -282,7 +283,7 @@ final class Reader_Activation {
 		\add_filter(
 			'has_nav_menu',
 			function( $has_nav_menu, $location ) {
-				if ( 'tertiary-menu' === $location ) {
+				if ( in_array( $location, self::ACCOUNT_LINK_MENU_LOCATIONS, true ) ) {
 					$has_nav_menu = true;
 				}
 				return $has_nav_menu;
@@ -295,7 +296,7 @@ final class Reader_Activation {
 		\add_filter(
 			'wp_nav_menu_args',
 			function( $args ) use ( $self ) {
-				if ( 'tertiary-menu' === $args['theme_location'] ) {
+				if ( in_array( $args['theme_location'], self::ACCOUNT_LINK_MENU_LOCATIONS, true ) ) {
 					$args['fallback_cb'] = function( $args ) use ( $self ) {
 						echo $self->nav_menu_items( '', $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					};
@@ -339,8 +340,7 @@ final class Reader_Activation {
 		/**
 		 * Menu locations to add the account menu items to.
 		 */
-		$locations = [ 'tertiary-menu' ];
-		if ( ! in_array( $args->theme_location, $locations, true ) ) {
+		if ( ! in_array( $args->theme_location, self::ACCOUNT_LINK_MENU_LOCATIONS, true ) ) {
 			return $output;
 		}
 
