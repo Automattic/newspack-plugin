@@ -29,6 +29,7 @@ final class Reader_Activation {
 	const AUTH_FORM_OPTIONS = [
 		'pwd',
 		'link',
+		'register',
 	];
 
 	/**
@@ -265,6 +266,8 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
+		$self = new self();
+
 		/** Always have location enabled for account link. */
 		\add_filter(
 			'has_nav_menu',
@@ -279,7 +282,6 @@ final class Reader_Activation {
 		);
 
 		/** Fallback location to always print nav menu args */
-		$self = new self();
 		\add_filter(
 			'wp_nav_menu_args',
 			function( $args ) use ( $self ) {
@@ -294,6 +296,18 @@ final class Reader_Activation {
 
 		/** Add as menu item */
 		\add_filter( 'wp_nav_menu_items', [ __CLASS__, 'nav_menu_items' ], 20, 2 );
+
+		/** Add mobile icon */
+		\add_action(
+			'newspack_header_after_mobile_toggle',
+			function() use ( $self ) {
+				?>
+				<span class="mobile-account-link">
+					<?php echo $self->get_account_link(); // phpcs:ignore ?>
+				</span>
+				<?php
+			}
+		);
 	}
 
 	/**
@@ -321,28 +335,18 @@ final class Reader_Activation {
 			return $output;
 		}
 
-		$account_url = '';
-		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
-			$account_url = \wc_get_account_endpoint_url( 'dashboard' );
-		}
-		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) && \is_user_logged_in() ) {
+		$link = self::get_account_link();
+		if ( empty( $link ) ) {
 			return $output;
 		}
 
-		$labels     = [
-			'signedin'  => \__( 'Account', 'newspack' ),
-			'signedout' => \__( 'Sign In', 'newspack' ),
-		];
-		$label      = \is_user_logged_in() ? 'signedin' : 'signedout';
-		$classnames = [ 'menu-item', 'newspack-reader-account-link' ];
-		$item       = '';
-		$item      .= '<li class="' . \esc_attr( implode( ' ', $classnames ) ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '">';
-		$item      .= '<a href="' . \esc_url_raw( $account_url ?? '#' ) . '">' . \esc_html( $labels[ $label ] ) . '</a>';
-		$item      .= '</li>';
+		$item  = '<li class="menu-item">';
+		$item .= $link;
+		$item .= '</li>';
 
 		if ( empty( $output ) ) {
-			$output = sprintf( $args->items_wrap ?? '<ul id="%1$s" class="%2$s">%3$s</ul>', $args->menu_id, $args->menu_class, $item );
+			$menu_class = sprintf( '%s %s', $args->menu_class, 'newspack-reader-account-menu' );
+			$output     = sprintf( $args->items_wrap ?? '<ul id="%1$s" class="%2$s">%3$s</ul>', $args->menu_id, $menu_class, $item );
 		} else {
 			$output = $output . $item;
 		}
@@ -351,6 +355,54 @@ final class Reader_Activation {
 		} else {
 			return $output;
 		}
+	}
+
+	/**
+	 * Get the account icon SVG markup.
+	 *
+	 * @return string The account icon SVG markup.
+	 */
+	private static function get_account_icon() {
+		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z" /></svg>';
+	}
+
+	/**
+	 * Get account link.
+	 *
+	 * @return string Account link HTML or empty string.
+	 */
+	private static function get_account_link() {
+		$account_url = '';
+		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
+			$account_url = \wc_get_account_endpoint_url( 'dashboard' );
+		}
+
+		/** Do not render link for authenticated readers if account page doesn't exist. */
+		if ( empty( $account_url ) && \is_user_logged_in() ) {
+			return '';
+		}
+
+		$labels = [
+			'signedin'  => \__( 'Account', 'newspack' ),
+			'signedout' => \__( 'Sign In', 'newspack' ),
+		];
+		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
+
+		$link  = '<span class="newspack-reader-account-link" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '">';
+		$link .= '<a href="' . \esc_url_raw( $account_url ?? '#' ) . '">';
+		$link .= '<span class="newspack-reader-account-link-icon">';
+		$link .= self::get_account_icon();
+		$link .= '</span>';
+		$link .= '<span class="newspack-reader-account-link-label">' . \esc_html( $labels[ $label ] ) . '</span>';
+		$link .= '</a>';
+		$link .= '</span>';
+
+		/**
+		 * Filters the HTML for the reader account link.
+		 *
+		 * @param string $link HTML for the reader account link.
+		 */
+		return apply_filters( 'newspack_reader_account_link', $link );
 	}
 
 	/**
@@ -369,8 +421,9 @@ final class Reader_Activation {
 			$classnames[] = 'visible';
 		}
 		// phpcs:enable
+		$primary_color = \get_theme_mod( 'primary_color_hex', '#36f' );
 		?>
-		<div id="<?php echo \esc_attr( $element_id ); ?>" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>">
+		<div id="<?php echo \esc_attr( $element_id ); ?>" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-primary-color="<?php echo \esc_attr( $primary_color ); ?>">
 			<div class="form-wrapper">
 				<button on="tap:<?php echo esc_attr( $element_id ); ?>.hide" class="form-close" aria-label="<?php esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
@@ -381,7 +434,10 @@ final class Reader_Activation {
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<input type="hidden" name="action" value="link" />
-						<h2><?php _e( 'Welcome back', 'newspack' ); ?></h2>
+						<div class="form-header">
+							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
+							<a href="#" class="form-actions action-item action-pwd action-link register-link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
+						</div>
 						<p class="auth-link-message">
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
@@ -393,19 +449,32 @@ final class Reader_Activation {
 						<div class="action-item action-pwd">
 							<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
 						</div>
-						<div class="form-actions action-item action-pwd">
-							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
-							<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
-							<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
-						</div>
-						<div class="form-actions action-item action-link">
-							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
-							<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with your password', 'newspack' ); ?></a>
-						</div>
 						<div class="form-response">
 							<?php if ( ! empty( $message ) ) : ?>
 								<p><?php echo \esc_html( $message ); ?></p>
 							<?php endif; ?>
+						</div>
+						<div class="form-actions action-item action-pwd">
+							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
+							<p class="small">
+								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
+							</p>
+							<p class="small">
+								<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
+							</p>
+						</div>
+						<div class="form-actions action-item action-link">
+							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
+							<p class="small">
+								<?php esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?><br/>
+								<a href="#" data-set-action="pwd"><?php esc_html_e( 'Sign in with a password instead', 'newspack' ); ?></a>.
+							</p>
+						</div>
+						<div class="form-actions action-item action-register">
+							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
+							<p class="small">
+								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></a>
+							</p>
 						</div>
 					</form>
 				</div>
@@ -477,7 +546,7 @@ final class Reader_Activation {
 		self::set_auth_intention_cookie( $email );
 
 		$user = \get_user_by( 'email', $email );
-		if ( ! $user || ! self::is_user_reader( $user ) ) {
+		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 		}
 
@@ -504,6 +573,16 @@ final class Reader_Activation {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 				}
 				return self::send_auth_form_response( $payload, __( 'Check your email for an authentication link!', 'newspack' ), $redirect );
+			case 'register':
+				$user_id = self::register_reader( $email );
+				if ( false === $user_id ) {
+					return self::send_auth_form_response( $payload, __( 'Check your email for an authentication link!', 'newspack' ), $redirect );
+				}
+				if ( \is_wp_error( $user_id ) ) {
+					return self::send_auth_form_response( $payload, $user_id->get_error_message(), $redirect );
+				}
+				$payload['authenticated'] = (bool) absint( $user_id );
+				return self::send_auth_form_response( $payload, false, $redirect );
 		}
 	}
 

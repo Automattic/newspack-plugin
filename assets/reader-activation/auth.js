@@ -27,7 +27,15 @@ import './auth.scss';
 		const actionInput = form.querySelector( 'input[name="action"]' );
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
-		const submitButton = form.querySelector( '[type="submit"]' );
+		const submitButton = form.querySelectorAll( '[type="submit"]' );
+
+		/** Apply primary color */
+		const primaryColor = container.getAttribute( 'data-primary-color' );
+		if ( primaryColor ) {
+			submitButton.forEach( button => {
+				button.style.backgroundColor = primaryColor;
+			} );
+		}
 
 		const messageContainer = container.querySelector( '.form-response' );
 
@@ -45,11 +53,14 @@ import './auth.scss';
 				accountLinks.forEach( link => {
 					try {
 						const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
-						link.querySelector( 'a' ).innerHTML = authenticated
+						link.querySelector( '.newspack-reader-account-link-label' ).innerHTML = authenticated
 							? labels.signedin
 							: labels.signedout;
 					} catch {}
 				} );
+			}
+			if ( authenticated ) {
+				container.hidden = true;
 			}
 		} );
 
@@ -121,7 +132,9 @@ import './auth.scss';
 			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
 				return;
 			}
-			submitButton.disabled = true;
+			submitButton.forEach( button => {
+				button.disabled = true;
+			} );
 			messageContainer.innerHTML = '';
 			form.style.opacity = 0.5;
 			readerActivation.setReaderEmail( body.get( 'email' ) );
@@ -142,7 +155,6 @@ import './auth.scss';
 								readerActivation.setReaderEmail( data.email );
 							}
 							if ( data?.authenticated ) {
-								container.hidden = true;
 								readerActivation.setAuthenticated();
 								if ( body.get( 'redirect' ) ) {
 									window.location = body.get( 'redirect' );
@@ -160,7 +172,9 @@ import './auth.scss';
 				} )
 				.finally( () => {
 					form.style.opacity = 1;
-					submitButton.disabled = false;
+					submitButton.forEach( button => {
+						button.disabled = false;
+					} );
 				} );
 		} );
 	};
