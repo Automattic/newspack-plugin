@@ -169,7 +169,12 @@ const Donation = () => {
 				<>
 					<Card noBorder headerActions>
 						<h2>{ __( 'Donations Landing Page', 'newspack' ) }</h2>
-						<Button variant="secondary" isSmall href={ wizardData.donation_page.editUrl }>
+						<Button
+							variant="secondary"
+							isSmall
+							href={ wizardData.donation_page.editUrl }
+							onClick={ undefined }
+						>
 							{ __( 'Edit Page' ) }
 						</Button>
 					</Card>
