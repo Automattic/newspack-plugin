@@ -6,10 +6,15 @@ import { values, mapValues, property, isEmpty } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { CheckboxControl, ExternalLink } from '@wordpress/components';
+import {
+	CheckboxControl,
+	ToggleControl,
+	TextareaControl,
+	ExternalLink,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -27,7 +32,6 @@ import {
 	hooks,
 	withWizardScreen,
 } from '../../../../components/src';
-import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
 export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true } ) => {
 	const [ error, setError ] = useState();
@@ -120,20 +124,119 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 	);
 };
 
-const Newsletters = () => {
-	const [ { status, url, error, newslettersConfig }, updateConfiguration ] = hooks.useObjectState(
-		{}
+export const SubscriptionLists = ( { onUpdate } ) => {
+	const [ error, setError ] = useState( false );
+	const [ inFlight, setInFlight ] = useState( false );
+	const [ lists, setLists ] = useState( [] );
+	const updateConfig = data => {
+		setLists( data );
+		if ( typeof onUpdate === 'function' ) {
+			onUpdate( data );
+		}
+	};
+	const fetchLists = () => {
+		setError( false );
+		setInFlight( true );
+		apiFetch( {
+			path: '/newspack-newsletters/v1/lists',
+		} )
+			.then( updateConfig )
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
+	};
+	const saveLists = () => {
+		setError( false );
+		setInFlight( true );
+		apiFetch( {
+			path: '/newspack-newsletters/v1/lists',
+			method: 'post',
+			data: { lists },
+		} )
+			.then( updateConfig )
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
+	};
+	const handleChange = ( index, name ) => value => {
+		const newLists = [ ...lists ];
+		newLists[ index ][ name ] = value;
+		updateConfig( newLists );
+	};
+	useEffect( fetchLists, [] );
+	if ( ! lists?.length && ! error ) {
+		return null;
+	}
+	return (
+		<>
+			<SectionHeader
+				title={ __( 'Subscription Lists', 'newspack' ) }
+				description={ __( 'Manage the lists available for subscription.', 'newspack' ) }
+			/>
+			{ error && (
+				<Notice
+					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+					isError
+				/>
+			) }
+			{ lists.map( ( list, index ) => (
+				<Card key={ list.id } isSmall>
+					<ToggleControl
+						label={ list.name }
+						checked={ list.active }
+						disabled={ inFlight }
+						onChange={ handleChange( index, 'active' ) }
+					/>
+					{ list.active && (
+						<>
+							<TextControl
+								label={ __( 'List title', 'newspack' ) }
+								value={ list.title }
+								disabled={ inFlight }
+								onChange={ handleChange( index, 'title' ) }
+							/>
+							<TextareaControl
+								label={ __( 'List description', 'newspack' ) }
+								value={ list.description }
+								disabled={ inFlight }
+								onChange={ handleChange( index, 'description' ) }
+							/>
+						</>
+					) }
+				</Card>
+			) ) }
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ saveLists } disabled={ inFlight }>
+					{ __( 'Save Subscription Lists', 'newspack' ) }
+				</Button>
+			</div>
+		</>
 	);
+};
+
+const Newsletters = () => {
+	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
+	const [ initialProvider, setInitialProvider ] = useState( '' );
+	const [ lockedLists, setLockedLists ] = useState( false );
+
 	useEffect( () => {
-		fetchJetpackMailchimpStatus().then( updateConfiguration );
-	}, [] );
-	const isConnected = status === 'active';
+		const provider = newslettersConfig?.newspack_newsletters_service_provider;
+		if ( initialProvider && provider !== initialProvider ) {
+			setLockedLists( true );
+		} else {
+			setLockedLists( false );
+		}
+		if ( ! initialProvider && provider ) {
+			setInitialProvider( provider );
+		}
+	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 
 	const saveNewslettersData = async () =>
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 			method: 'POST',
 			data: newslettersConfig,
+		} ).finally( () => {
+			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			setLockedLists( false );
 		} );
 
 	return (
@@ -148,40 +251,16 @@ const Newsletters = () => {
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 			/>
-			<SectionHeader
-				title={ __( 'Signup Forms', 'newspack' ) }
-				description={ () => (
-					<>
-						{ __(
-							'Connects your site to Mailchimp and sets up a Mailchimp block you can use to get new subscribers for your newsletter',
-							'newspack'
-						) }
-						<br />
-						{ __(
-							'The Mailchimp connection to your site for this feature is managed through Jetpack and WordPress.com',
-							'newspack'
-						) }
-						<br />
-						{ url ? (
-							<ExternalLink href={ url }>
-								{ isConnected
-									? __( 'Manage your Mailchimp connection' )
-									: __( 'Set up Mailchimp' ) }
-							</ExternalLink>
-						) : null }
-					</>
-				) }
-			/>
-			{ isConnected && (
+			{ lockedLists ? (
 				<Notice
 					noticeText={ __(
-						'You can insert newsletter sign up forms in your content using the Mailchimp block.'
+						'Please save your settings before changing your subscription lists.',
+						'newspack'
 					) }
-					isSuccess
+					isWarning
 				/>
-			) }
-			{ error?.code === 'unavailable_site_id' && (
-				<Notice noticeText={ __( 'Connect Jetpack in order to configure Mailchimp.' ) } isWarning />
+			) : (
+				<SubscriptionLists />
 			) }
 		</>
 	);
@@ -190,7 +269,7 @@ const Newsletters = () => {
 export default withWizardScreen( () => (
 	<>
 		<Newsletters />
-		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />{ ' ' }
+		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />
 		<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
 	</>
 ) );

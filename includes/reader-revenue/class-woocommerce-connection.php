@@ -139,9 +139,9 @@ class WooCommerce_Connection {
 		}
 
 		// Metadata for woocommerce-gateway-stripe plugin.
-		$order->add_meta_data( '_payment_method', 'stripe' );
-		$order->add_meta_data( '_payment_method_title', __( 'Stripe via Newspack', 'newspack' ) );
-		$order->add_meta_data( '_transaction_id', $order_data['stripe_id'] );
+		$order->set_payment_method( 'stripe' );
+		$order->set_payment_method_title( __( 'Stripe via Newspack', 'newspack' ) );
+		$order->set_transaction_id( $order_data['stripe_id'] );
 		$order->add_meta_data( '_stripe_customer_id', $order_data['stripe_customer_id'] );
 		$order->add_meta_data( '_stripe_charge_captured', 'yes' );
 		$order->add_meta_data( '_stripe_fee', $order_data['stripe_fee'] );

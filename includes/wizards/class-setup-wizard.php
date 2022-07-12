@@ -72,22 +72,6 @@ class Setup_Wizard extends Wizard {
 	public function get_name() {
 		return esc_html__( 'Setup', 'newspack' );
 	}
-	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return esc_html__( 'Setup Newspack.', 'newspack' );
-	}
-	/**
-	 * Get the expected duration of this wizard.
-	 *
-	 * @return string The wizard length.
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
-	}
 
 	/**
 	 * Register the endpoints needed for the wizard screens.
@@ -576,6 +560,14 @@ class Setup_Wizard extends Wizard {
 		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
 			$service = 'google_ad_manager';
 			update_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
+			if ( isset( $request['google-ad-manager']['networkCode'] ) && ! empty( $request['google-ad-manager']['networkCode'] ) ) {
+				$network_code = $request['google-ad-manager']['networkCode'];
+				// Update legacy network code in case service account credentials are not set.
+				update_option( Advertising_Wizard::OPTION_NAME_LEGACY_NETWORK_CODE, $network_code );
+				// Update network code used by authenticated credentials. Ensures use of desired code in case the credentials are for multiple networks.
+				update_option( Advertising_Wizard::OPTION_NAME_GAM_NETWORK_CODE, $network_code );
+			}
+			Plugin_Manager::activate( 'newspack-ads' );
 		}
 
 		$available_services = [ 'newsletters', 'reader-revenue', 'google-ad-sense', 'google-ad-manager' ];
