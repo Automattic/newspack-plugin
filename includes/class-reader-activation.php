@@ -193,6 +193,7 @@ final class Reader_Activation {
 	 */
 	public static function is_user_reader( $user ) {
 		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
+		$user_data = \get_userdata( $user->ID );
 
 		if ( false === $is_reader ) {
 			/**
@@ -202,9 +203,18 @@ final class Reader_Activation {
 			 */
 			$reader_roles = \apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
 			if ( ! empty( $reader_roles ) ) {
-				$user_data = \get_userdata( $user->ID );
 				$is_reader = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
 			}
+		}
+
+		/**
+		 * Filters roles that restricts a user from being a reader.
+		 *
+		 * @param string[] $roles Array of user roles that restrict a user from being a reader.
+		 */
+		$restricted_roles = \apply_filters( 'newspack_reader_restricted_roles', [ 'administrator', 'editor' ] );
+		if ( ! empty( $restricted_roles ) && $is_reader && ! empty( array_intersect( $restricted_roles, $user_data->roles ) ) ) {
+			$is_reader = false;
 		}
 
 		/**
@@ -213,7 +223,7 @@ final class Reader_Activation {
 		 * @param bool     $is_reader Whether the user is a reader.
 		 * @param \WP_User $user      User object.
 		 */
-		return \apply_filters( 'newspack_is_user_reader', $is_reader, $user );
+		return (bool) \apply_filters( 'newspack_is_user_reader', $is_reader, $user );
 	}
 
 	/**
