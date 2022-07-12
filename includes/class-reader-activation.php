@@ -579,9 +579,11 @@ final class Reader_Activation {
 					return self::send_auth_form_response( $payload, __( 'Check your email for an authentication link!', 'newspack' ), $redirect );
 				}
 				if ( \is_wp_error( $user_id ) ) {
-					return self::send_auth_form_response( $payload, $user_id->get_error_message(), $redirect );
+					return self::send_auth_form_response(
+						new \WP_Error( 'unauthorized', __( 'Unable to register your account. Try a different email.', 'newspack' ) )
+					);
 				}
-				$payload['authenticated'] = (bool) absint( $user_id );
+				$payload['authenticated'] = \absint( $user_id ) ? 1 : 0;
 				return self::send_auth_form_response( $payload, false, $redirect );
 		}
 	}
