@@ -4,10 +4,11 @@
 import './auth.scss';
 
 ( function ( readerActivation ) {
-	if ( ! readerActivation ) {
-		return;
-	}
 	window.onload = function () {
+		if ( ! readerActivation ) {
+			return;
+		}
+
 		const container = document.querySelector( '#newspack-reader-activation-auth-form' );
 		if ( ! container ) {
 			return;
