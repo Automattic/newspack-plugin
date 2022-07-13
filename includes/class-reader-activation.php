@@ -340,8 +340,6 @@ final class Reader_Activation {
 			return new \WP_Error( 'newspack_register_reader_empty_email', __( 'Please enter a valid email address.', 'newspack' ) );
 		}
 
-		return new \WP_Error( 'not_implemented', __( 'Registration is not implemented yet.', 'newspack' ) );
-
 		self::set_auth_intention_cookie( $email );
 
 		$existing_user = \get_user_by( 'email', $email );
