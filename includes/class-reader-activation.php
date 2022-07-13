@@ -58,6 +58,7 @@ final class Reader_Activation {
 			'newspack_reader_activation_data',
 			[
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 				'reader_email'          => $reader_email,
 			]
 		);
