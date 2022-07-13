@@ -239,6 +239,14 @@ class Engagement_Wizard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
+
+		\wp_localize_script(
+			'newspack-engagement-wizard',
+			'newspack_engagement_wizard',
+			[
+				'has_reader_activation' => Reader_Activation::is_enabled(),
+			]
+		);
 	}
 
 	/**

@@ -1,3 +1,4 @@
+/* global newspack_engagement_wizard */
 import '../../shared/js/public-path';
 
 /**
@@ -15,7 +16,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Commenting, Newsletters, Social, RelatedContent } from './views';
+import { ReaderActivation, Commenting, Newsletters, Social, RelatedContent } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -76,6 +77,10 @@ class EngagementWizard extends Component {
 			relatedPostsUpdated,
 		} = this.state;
 
+		const defaultPath = newspack_engagement_wizard.has_reader_activation
+			? '/reader-activation'
+			: '/newsletters';
+
 		const tabbed_navigation = [
 			{
 				label: __( 'Newsletters', 'newspack' ),
@@ -96,6 +101,13 @@ class EngagementWizard extends Component {
 				path: '/recirculation',
 			},
 		];
+		if ( newspack_engagement_wizard.has_reader_activation ) {
+			tabbed_navigation.unshift( {
+				label: __( 'Reader Activation', 'newspack' ),
+				path: '/reader-activation',
+				exact: true,
+			} );
+		}
 		const props = {
 			headerText: __( 'Engagement', 'newspack' ),
 			tabbedNavigation: tabbed_navigation,
@@ -105,6 +117,15 @@ class EngagementWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
+						<Route
+							path="/reader-activation"
+							render={ () => (
+								<ReaderActivation
+									subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+									{ ...props }
+								/>
+							) }
+						/>
 						<Route
 							path="/newsletters"
 							render={ () => (
@@ -153,7 +174,7 @@ class EngagementWizard extends Component {
 								/>
 							) }
 						/>
-						<Redirect to="/newsletters" />
+						<Redirect to={ defaultPath } />
 					</Switch>
 				</HashRouter>
 			</Fragment>
