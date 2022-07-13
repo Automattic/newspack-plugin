@@ -127,7 +127,7 @@ function render_block( $attrs ) {
 										<span class="list-title">
 											<?php
 											if ( 1 === count( $available_lists ) ) {
-												echo $attr['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+												echo $attrs['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 											} else {
 												echo \esc_html( $list['title'] );
 											}
