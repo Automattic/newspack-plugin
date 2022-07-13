@@ -385,5 +385,13 @@ final class Reader_Activation {
 
 		return $user_id;
 	}
+
+	/**
+	 * Get value of the client ID bearing cookie.
+	 */
+	public static function get_client_id() {
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		return isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : false;
+	}
 }
 Reader_Activation::init();

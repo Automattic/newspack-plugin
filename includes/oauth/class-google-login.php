@@ -1,0 +1,170 @@
+<?php
+/**
+ * Newspack's Google Login handling.
+ *
+ * @package Newspack
+ */
+
+namespace Newspack;
+
+use \WP_Error;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Google Login flow.
+ */
+class Google_Login {
+	const EMAIL_TRANSIENT_PREFIX = 'newspack_google_email_';
+	const AUTH_CALLBACK          = 'newspack_google_login_callback';
+	const CSRF_TOKEN_NAMESPACE   = 'google_login';
+
+	const REQUIRED_SCOPES = [
+		'https://www.googleapis.com/auth/userinfo.email', // User's email address.
+	];
+
+	/**
+	 * Constructor.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function __construct() {
+		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'oauth_callback' ] );
+	}
+
+	/**
+	 * Register the endpoints.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public static function register_api_endpoints() {
+		// Get Google login status.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/login/google/register',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_google_login_register' ],
+				'permission_callback' => [ __CLASS__, 'api_check_if_oauth_configured' ],
+			]
+		);
+		// Start Google login flow.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/login/google',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_google_auth_get_url' ],
+				'permission_callback' => [ __CLASS__, 'api_check_if_oauth_configured' ],
+			]
+		);
+	}
+
+	/**
+	 * Check capabilities for using API.
+	 *
+	 * @codeCoverageIgnore
+	 * @return bool|WP_Error
+	 */
+	public static function api_check_if_oauth_configured() {
+		if ( ! Google_OAuth::is_oauth_configured() ) {
+			Logger::log( 'OAuth not configured.' );
+			return new \WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Start the Google OAuth2 flow by obtaining a URL to the Google consent screen.
+	 *
+	 * @return WP_REST_Response Response with the URL.
+	 */
+	public static function api_google_auth_get_url() {
+		return Google_OAuth::api_google_auth_get_url(
+			[
+				'csrf_token'     => OAuth::generate_csrf_token( self::CSRF_TOKEN_NAMESPACE ),
+				'scope'          => implode( ' ', self::REQUIRED_SCOPES ),
+				'redirect_after' => add_query_arg( self::AUTH_CALLBACK, wp_create_nonce( self::AUTH_CALLBACK ), get_home_url() ),
+			]
+		);
+	}
+
+	/**
+	 * OAuth callback.
+	 */
+	public static function oauth_callback() {
+		if ( ! isset( $_GET[ self::AUTH_CALLBACK ] ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( sanitize_text_field( $_GET[ self::AUTH_CALLBACK ] ), self::AUTH_CALLBACK ) ) {
+			wp_die( esc_html__( 'Invalid nonce.', 'newspack' ) );
+			return;
+		}
+
+		if ( ! isset( $_REQUEST['csrf_token'] ) || ! isset( $_REQUEST['access_token'] ) || ! isset( $_REQUEST['expires_at'] ) ) {
+			wp_die( esc_html__( 'Invalid request', 'newspack' ) );
+			return;
+		}
+
+		$user_email = Google_OAuth::validate_token_and_get_email_address( sanitize_text_field( $_REQUEST['access_token'] ), self::REQUIRED_SCOPES );
+		if ( is_wp_error( $user_email ) ) {
+			return $user_email;
+		}
+		Logger::log( 'Got user email from Google: ' . $user_email );
+
+		// Associate the email address with the client ID for later retrieval.
+		$client_id = Reader_Activation::get_client_id();
+		set_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id, $user_email, 20 );
+
+		/** Close window if it's a popup. */
+		?>
+		<script type="text/javascript" data-amp-plus-allowed>
+			if ( window.opener ) { window.close(); }
+		</script>
+		<?php
+	}
+
+	/**
+	 * Get Google authentication status.
+	 */
+	public static function api_google_login_register() {
+		$client_id = Reader_Activation::get_client_id();
+		$email     = get_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id );
+		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id ); // Burn after reading.
+		if ( $email ) {
+			$existing_user = \get_user_by( 'email', $email );
+			if ( $existing_user ) {
+				// Log the user in.
+				$result = Reader_Activation::set_current_reader( $existing_user->ID );
+			} else {
+				$result = Reader_Activation::register_reader( $email );
+				// At this point the user will be logged in.
+			}
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			return \rest_ensure_response(
+				[
+					'email'   => $email,
+					'message' => __(
+						'Thank you for registering!',
+						'newspack'
+					),
+				]
+			);
+		} else {
+			Logger::log( 'Missing email for client id ' . $client_id );
+			return new \WP_Error( 'newspack_google_login', __( 'Missing email address.', 'newspack' ) );
+		}
+	}
+}
+new Google_Login();

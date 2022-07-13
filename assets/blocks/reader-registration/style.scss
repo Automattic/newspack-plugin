@@ -1,3 +1,5 @@
+@use '~@wordpress/base-styles/colors' as wp-colors;
+
 .newspack-registration {
 	form {
 		width: 100%;
@@ -8,6 +10,51 @@
 			flex: 1 1 100%;
 			min-width: 250px;
 			margin-right: 1em;
+		}
+	}
+
+	&--success {
+		.newspack-registration__logins {
+			display: none;
+		}
+	}
+	&--in-progress {
+		opacity: 0.5;
+		button,
+		a,
+		input {
+			pointer-events: none;
+		}
+	}
+
+	&__logins {
+		margin-top: 10px;
+		&__separator {
+			display: flex;
+			margin-bottom: 10px;
+			div {
+				text-align: center;
+				&:nth-child( 2 ) {
+					padding: 0 0.8em;
+					font-size: 16px;
+				}
+				&:first-child,
+				&:last-child {
+					flex: 1;
+					border-top: 1px solid wp-colors.$gray-400;
+					transform: translateY( 0.7em );
+				}
+			}
+		}
+		button {
+			display: flex;
+			justify-content: center;
+			width: 100%;
+			background-color: wp-colors.$gray-100;
+			color: black;
+			span {
+				padding-left: 10px;
+			}
 		}
 	}
 }
