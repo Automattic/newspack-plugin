@@ -185,21 +185,21 @@ class Reader_Revenue_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'amounts'             => [
-						'required' => true,
+						'required' => false,
 					],
 					'tiered'              => [
-						'required'          => true,
+						'required'          => false,
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
 					'defaultFrequency'    => [
-						'required'          => true,
+						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 					'disabledFrequencies' => [
-						'required' => true,
+						'required' => false,
 					],
 					'platform'            => [
-						'required'          => true,
+						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
