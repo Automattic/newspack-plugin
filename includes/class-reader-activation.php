@@ -284,6 +284,7 @@ final class Reader_Activation {
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
 		\do_action( 'wp_login', $user->user_login, $user );
+		Logger::log( 'Logged in user ' . $user->ID );
 
 		return $user;
 	}
@@ -362,6 +363,8 @@ final class Reader_Activation {
 			/** Add default reader related meta. */
 			\update_user_meta( $user_id, self::READER, true );
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
+
+			Logger::log( 'Created new reader user with ID ' . $user_id );
 
 			if ( $authenticate ) {
 				self::set_current_reader( $user_id );

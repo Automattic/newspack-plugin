@@ -80,7 +80,7 @@ function render_block( $attrs ) {
 	// phpcs:enable
 	ob_start();
 	?>
-	<div class="newspack-reader-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
+	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
 			<p class="message"><?php echo \esc_html( $message ); ?></p>
 		<?php else : ?>
@@ -89,7 +89,7 @@ function render_block( $attrs ) {
 				<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 				<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 			</form>
-			<div class="newspack-newsletters-registration-response">
+			<div class="newspack-registration__response">
 				<?php if ( ! empty( $message ) ) : ?>
 					<p><?php echo \esc_html( $message ); ?></p>
 				<?php endif; ?>
