@@ -14,6 +14,23 @@
 		"label": {
 			"type": "string",
 			"default": "Register"
+		},
+		"newsletterSubscription": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayListDescription": {
+			"type": "boolean",
+			"default": true
+		},
+		"newsletterLabel": {
+			"type": "string",
+			"default": "Subscribe to our newsletter"
+		},
+		"lists": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "string" }
 		}
 	},
 	"supports": {

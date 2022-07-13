@@ -2,12 +2,62 @@
 	form {
 		width: 100%;
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
+		justify-content: flex-end;
 		margin: 0;
+		transition: opacity 200ms ease-in-out;
 		input[type='email'] {
-			flex: 1 1 100%;
-			min-width: 250px;
-			margin-right: 1em;
+			flex: 1 1 auto;
+			min-width: 200px;
+			border-radius: 2px;
+			margin: 0 0 1rem;
+		}
+		[type='submit'] {
+			margin: 0 0 1rem 1rem;
+		}
+	}
+
+	.newspack-newsletters-registration-response {
+		font-size: 0.8em;
+	}
+
+	&.error {
+		.message {
+			color: #d94f4f;
+		}
+	}
+
+	.newspack-newsletters-lists {
+		border: 1px solid #ccc;
+		padding: 0.5rem 0 0.5rem 1rem;
+		flex: 1 1 100%;
+		list-style: none;
+		margin: 0 0 1rem;
+		display: flex;
+		font-size: 0.8rem;
+		flex-wrap: wrap;
+		border-radius: 2px;
+		li {
+			flex: 1 1 33.3333%;
+			display: flex;
+			min-width: 200px;
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0.5rem 1rem 0.5rem 0;
+		}
+		.list-checkbox {
+			flex: 0 0 auto;
+			margin: 0 0.5rem 0 0;
+		}
+		.list-title {
+			display: block;
+		}
+		.list-description {
+			display: block;
+			font-size: 0.8rem;
+			color: #777;
+			margin: 0;
 		}
 	}
 }

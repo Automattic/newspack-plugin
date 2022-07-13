@@ -63,8 +63,21 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
  * @param array[] $attrs Block attributes.
  */
 function render_block( $attrs ) {
+	$block_id   = \wp_rand( 0, 99999 );
 	$registered = false;
 	$message    = '';
+
+	/** Setup list subscription */
+	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
+		$list_config     = \Newspack_Newsletters_Subscription::get_lists_config();
+		$lists           = array_keys( $list_config );
+		$list_map        = array_flip( $lists );
+		$available_lists = array_values( array_intersect( $lists, $attrs['lists'] ) );
+		if ( empty( $available_lists ) ) {
+			$available_lists = [ $lists[0] ];
+		}
+	}
+
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		\is_user_logged_in() ||
@@ -78,6 +91,7 @@ function render_block( $attrs ) {
 		$message = \sanitize_text_field( $_GET['message'] );
 	}
 	// phpcs:enable
+
 	ob_start();
 	?>
 	<div class="newspack-reader-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
@@ -86,12 +100,56 @@ function render_block( $attrs ) {
 		<?php else : ?>
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
+				<?php if ( isset( $available_lists ) && ! empty( $available_lists ) ) : ?>
+					<ul class="newspack-newsletters-lists">
+						<?php
+						foreach ( $available_lists as $list_id ) :
+							if ( ! isset( $list_config[ $list_id ] ) ) {
+								continue;
+							}
+							$list        = $list_config[ $list_id ];
+							$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $block_id, $list_id );
+							?>
+							<li>
+								<span class="list-checkbox">
+									<input
+										type="checkbox"
+										name="lists[]"
+										value="<?php echo \esc_attr( $list_id ); ?>"
+										id="<?php echo \esc_attr( $checkbox_id ); ?>"
+										<?php if ( isset( $list_map[ $list_id ] ) ) : ?>
+											checked
+										<?php endif; ?>
+									/>
+								</span>
+								<span class="list-details">
+									<label for="<?php echo \esc_attr( $checkbox_id ); ?>">
+										<span class="list-title">
+											<?php
+											if ( 1 === count( $available_lists ) ) {
+												echo $attr['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+											} else {
+												echo \esc_html( $list['title'] );
+											}
+											?>
+										</span>
+										<?php if ( $attrs['displayListDescription'] ) : ?>
+											<span class="list-description"><?php echo \esc_html( $list['description'] ); ?></span>
+										<?php endif; ?>
+									</label>
+								</span>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
 				<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 				<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 			</form>
 			<div class="newspack-newsletters-registration-response">
 				<?php if ( ! empty( $message ) ) : ?>
-					<p><?php echo \esc_html( $message ); ?></p>
+					<div class="message">
+						<p><?php echo \esc_html( $message ); ?></p>
+					</div>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
@@ -167,6 +225,17 @@ function process_form() {
 
 	$email   = \sanitize_email( $_REQUEST['email'] );
 	$user_id = Reader_Activation::register_reader( $email );
+
+	$lists = array_map( 'sanitize_text_field', isset( $_REQUEST['lists'] ) ? $_REQUEST['lists'] : [] );
+
+	if ( ! empty( $lists ) && method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+		\Newspack_Newsletters_Subscription::add_contact(
+			[
+				'email' => $email,
+			],
+			$lists
+		);
+	}
 
 	/**
 	 * Fires after a reader is registered through the Reader Registration Block.

@@ -34,6 +34,7 @@ final class Reader_Activation {
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
+			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 		}
 	}
 
@@ -240,6 +241,30 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Register a reader from newsletter signup.
+	 *
+	 * @param string $provider The provider name.
+	 * @param array  $contact  {
+	 *    Contact information.
+	 *
+	 *    @type string   $email    Contact email address.
+	 *    @type string   $name     Contact name. Optional.
+	 *    @type string[] $metadata Contact additional metadata. Optional.
+	 * }
+	 */
+	public static function register_newsletters_contact( $provider, $contact ) {
+		// Bail if already logged in.
+		if ( \is_user_logged_in() ) {
+			return;
+		}
+
+		self::register_reader(
+			$contact['email'],
+			isset( $contact['name'] ) ? $contact['name'] : ''
+		);
+	}
+
+	/**
 	 * Check if current reader has its email verified.
 	 *
 	 * @param \WP_User $user User object.
@@ -314,6 +339,8 @@ final class Reader_Activation {
 		if ( empty( $email ) ) {
 			return new \WP_Error( 'newspack_register_reader_empty_email', __( 'Please enter a valid email address.', 'newspack' ) );
 		}
+
+		return new \WP_Error( 'not_implemented', __( 'Registration is not implemented yet.', 'newspack' ) );
 
 		self::set_auth_intention_cookie( $email );
 
