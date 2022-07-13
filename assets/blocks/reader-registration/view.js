@@ -20,7 +20,7 @@ import './style.scss';
 			}
 		} );
 
-		const displayMessage = ( message, status, data ) => {
+		const endLoginFlow = ( message, status, data ) => {
 			const messageNode = document.createElement( 'p' );
 			messageNode.innerHTML = message;
 			messageNode.className = `message status-${ status }`;
@@ -50,7 +50,7 @@ import './style.scss';
 				body,
 			} ).then( res => {
 				submitElement.disabled = false;
-				res.json().then( ( { message, data } ) => displayMessage( message, res.status, data ) );
+				res.json().then( ( { message, data } ) => endLoginFlow( message, res.status, data ) );
 			} );
 		} );
 	} );

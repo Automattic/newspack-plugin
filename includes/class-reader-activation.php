@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 final class Reader_Activation {
 
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
+	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 
 	/**
 	 * Reader user meta keys.
@@ -41,9 +42,8 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		$handle = 'newspack-reader-activation';
 		\wp_register_script(
-			$handle,
+			self::SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
 			[],
 			NEWSPACK_PLUGIN_VERSION,
@@ -54,16 +54,17 @@ final class Reader_Activation {
 			$reader_email = \wp_get_current_user()->user_email;
 		}
 		\wp_localize_script(
-			$handle,
+			self::SCRIPT_HANDLE,
 			'newspack_reader_activation_data',
 			[
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+				'nonce'                 => wp_create_nonce( 'wp_rest' ),
 				'reader_email'          => $reader_email,
 			]
 		);
-		\wp_script_add_data( $handle, 'async', true );
-		\wp_script_add_data( $handle, 'amp-plus', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 	}
 
 	/**
