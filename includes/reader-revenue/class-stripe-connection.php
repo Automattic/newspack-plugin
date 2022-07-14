@@ -393,7 +393,7 @@ class Stripe_Connection {
 
 
 				// Add a transaction to WooCommerce.
-				if ( function_exists( 'WC' ) ) {
+				if ( Donations::is_woocommerce_suite_active() ) {
 					$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
 					$wc_transaction_payload = [
 						'email'              => $customer['email'],
@@ -699,9 +699,7 @@ class Stripe_Connection {
 
 			if ( ! isset( $client_metadata['userId'] ) && Reader_Activation::is_enabled() ) {
 				$user_id = Reader_Activation::register_reader( $email_address, $full_name, true, false );
-				if ( \is_wp_error( $user_id ) ) {
-					return $user_id;
-				} elseif ( false !== $user_id ) {
+				if ( ! \is_wp_error( $user_id ) && false !== $user_id ) {
 					$client_metadata['userId'] = $user_id;
 				}
 			}

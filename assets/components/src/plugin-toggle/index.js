@@ -117,9 +117,8 @@ class PluginToggle extends Component {
 					? Object.keys( pluginsFromAPI[ pluginSlug ] ).reduce(
 							( accumulator, key ) => ( {
 								...accumulator,
-								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]: pluginsFromAPI[ pluginSlug ][
-									key
-								],
+								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]:
+									pluginsFromAPI[ pluginSlug ][ key ],
 							} ),
 							{}
 					  )

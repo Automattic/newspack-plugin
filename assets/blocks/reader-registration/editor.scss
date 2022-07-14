@@ -1,0 +1,34 @@
+@use './style';
+
+.newspack-reader-registration {
+	form {
+		input[type='email'] {
+			background: #fff;
+			border: solid 1px #ccc;
+			box-sizing: border-box;
+			outline: none;
+			padding: 0.36rem 0.66rem;
+			-webkit-appearance: none;
+			outline-offset: 0;
+			border-radius: 0;
+		}
+		input[type='submit'] {
+			transition: background 150ms ease-in-out;
+			background: #555;
+			border: none;
+			border-radius: 5px;
+			box-sizing: border-box;
+			display: inline-block;
+			color: #fff;
+			font-family: -apple-system, blinkmacsystemfont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+				'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+			font-size: 0.8em;
+			font-weight: 700;
+			line-height: 1.2;
+			outline: none;
+			padding: 0.76rem 1rem;
+			text-decoration: none;
+			vertical-align: bottom;
+		}
+	}
+}
