@@ -94,14 +94,14 @@ function render_block( $attrs ) {
 
 	ob_start();
 	?>
-	<div class="newspack-reader-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
+	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
 			<p class="message"><?php echo \esc_html( $message ); ?></p>
 		<?php else : ?>
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<?php if ( isset( $available_lists ) && ! empty( $available_lists ) ) : ?>
-					<ul class="newspack-newsletters-lists">
+					<ul class="newspack-registration__lists">
 						<?php
 						foreach ( $available_lists as $list_id ) :
 							if ( ! isset( $list_config[ $list_id ] ) ) {
@@ -142,10 +142,12 @@ function render_block( $attrs ) {
 						<?php endforeach; ?>
 					</ul>
 				<?php endif; ?>
-				<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-				<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
+				<div class="newspack-registration__main">
+					<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+					<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
+				</div>
 			</form>
-			<div class="newspack-newsletters-registration-response">
+			<div class="newspack-registration__response">
 				<?php if ( ! empty( $message ) ) : ?>
 					<div class="message">
 						<p><?php echo \esc_html( $message ); ?></p>

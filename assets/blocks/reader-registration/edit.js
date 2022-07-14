@@ -19,13 +19,11 @@ import { RichText, useBlockProps, InspectorControls } from '@wordpress/block-edi
  */
 import './editor.scss';
 
-const getListCheckboxId = listId => {
-	return 'newspack-newsletters-list-checkbox-' + listId;
-};
-
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: {
+		title,
+		description,
 		placeholder,
 		label,
 		newsletterSubscription,
@@ -146,17 +144,17 @@ export default function ReaderRegistrationEdit( {
 				) }
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className="newspack-reader-registration">
+				<div className="newspack-registration">
 					<form onSubmit={ ev => ev.preventDefault() }>
 						{ lists.length ? (
-							<ul className="newspack-newsletters-lists">
+							<ul className="newspack-registration__lists">
 								{ lists.map( listId => (
 									<li key={ listId }>
 										<span className="list-checkbox">
-											<input id={ getListCheckboxId( listId ) } type="checkbox" checked readOnly />
+											<input type="checkbox" checked readOnly />
 										</span>
 										<span className="list-details">
-											<label htmlFor={ getListCheckboxId( listId ) }>
+											<span className="list-label">
 												<span className="list-title">
 													{ lists.length === 1 ? (
 														<RichText
@@ -174,21 +172,23 @@ export default function ReaderRegistrationEdit( {
 														{ listConfig[ listId ]?.description }
 													</span>
 												) }
-											</label>
+											</span>
 										</span>
 									</li>
 								) ) }
 							</ul>
 						) : null }
-						<input type="email" placeholder={ placeholder } />
-						<button type="submit">
-							<RichText
-								onChange={ value => setAttributes( { label: value } ) }
-								placeholder={ __( 'Register', 'newspack' ) }
-								value={ label }
-								tagName="span"
-							/>
-						</button>
+						<div className="newspack-registration__main">
+							<input type="email" placeholder={ placeholder } />
+							<button type="submit">
+								<RichText
+									onChange={ value => setAttributes( { label: value } ) }
+									placeholder={ __( 'Register', 'newspack' ) }
+									value={ label }
+									tagName="span"
+								/>
+							</button>
+						</div>
 					</form>
 				</div>
 			</div>
