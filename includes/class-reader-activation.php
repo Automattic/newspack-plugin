@@ -22,6 +22,7 @@ final class Reader_Activation {
 	 */
 	const READER         = 'np_reader';
 	const EMAIL_VERIFIED = 'np_reader_email_verified';
+	const LOGIN_METHOD   = 'np_reader_login_method';
 
 	/**
 	 * Initialize hooks.
@@ -384,6 +385,25 @@ final class Reader_Activation {
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user );
 
 		return $user_id;
+	}
+
+	/**
+	 * Note reader's login method.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $login_method Login method used.
+	 */
+	public static function save_user_login_method( $user_id, $login_method ) {
+		\add_user_meta( $user_id, self::LOGIN_METHOD, $login_method );
+	}
+
+	/**
+	 * Note current reader's login method.
+	 *
+	 * @param string $login_method Login method used.
+	 */
+	public static function save_current_user_login_method( $login_method ) {
+		self::save_user_login_method( \get_current_user_id(), $login_method );
 	}
 
 	/**

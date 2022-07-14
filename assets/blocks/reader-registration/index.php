@@ -201,9 +201,15 @@ function process_form() {
 		return send_form_response( $user_id );
 	}
 
+	$user_logged_in = false !== $user_id;
+
+	if ( $user_logged_in ) {
+		Reader_Activation::save_current_user_login_method( 'registration-block' );
+	}
+
 	return send_form_response(
 		[ 'email' => $email ],
-		false === $user_id ? __( 'Check your email for a confirmation link!', 'newspack' ) : __( 'Thank you for registering!', 'newspack' )
+		$user_logged_in ? __( 'Thank you for registering!', 'newspack' ) : __( 'Check your email for a confirmation link!', 'newspack' )
 	);
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );

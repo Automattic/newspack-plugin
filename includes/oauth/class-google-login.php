@@ -151,6 +151,7 @@ class Google_Login {
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
+			Reader_Activation::save_current_user_login_method( 'google' );
 
 			return \rest_ensure_response(
 				[
