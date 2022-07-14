@@ -246,14 +246,8 @@ class PopupsWizard extends Component {
 	};
 
 	render() {
-		const {
-			pluginRequirements,
-			setError,
-			isLoading,
-			wizardApiFetch,
-			startLoading,
-			doneLoading,
-		} = this.props;
+		const { pluginRequirements, setError, isLoading, wizardApiFetch, startLoading, doneLoading } =
+			this.props;
 		const {
 			campaigns,
 			inFlight,
