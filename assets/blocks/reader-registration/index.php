@@ -25,11 +25,26 @@ if ( ! Reader_Activation::is_enabled() ) {
  * Register block from metadata.
  */
 function register_block() {
-	register_block_type_from_metadata(
+	\register_block_type_from_metadata(
 		__DIR__ . '/block.json',
 		array(
 			'render_callback' => __NAMESPACE__ . '\\render_block',
 		)
+	);
+	\register_block_style(
+		'newspack/reader-registration',
+		[
+			'name'       => 'stacked',
+			'label'      => __( 'Stacked', 'newspack' ),
+			'is_default' => true,
+		]
+	);
+	\register_block_style(
+		'newspack/reader-registration',
+		[
+			'name'  => 'columns',
+			'label' => __( 'Columns (newsletter subscription)', 'newspack' ),
+		]
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\\register_block' );
@@ -101,46 +116,51 @@ function render_block( $attrs ) {
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<?php if ( isset( $available_lists ) && ! empty( $available_lists ) ) : ?>
-					<ul class="newspack-registration__lists">
-						<?php
-						foreach ( $available_lists as $list_id ) :
-							if ( ! isset( $list_config[ $list_id ] ) ) {
-								continue;
-							}
-							$list        = $list_config[ $list_id ];
-							$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $block_id, $list_id );
-							?>
-							<li>
-								<span class="list-checkbox">
-									<input
-										type="checkbox"
-										name="lists[]"
-										value="<?php echo \esc_attr( $list_id ); ?>"
-										id="<?php echo \esc_attr( $checkbox_id ); ?>"
-										<?php if ( isset( $list_map[ $list_id ] ) ) : ?>
-											checked
-										<?php endif; ?>
-									/>
-								</span>
-								<span class="list-details">
-									<label for="<?php echo \esc_attr( $checkbox_id ); ?>">
-										<span class="list-title">
-											<?php
-											if ( 1 === count( $available_lists ) ) {
-												echo $attrs['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-											} else {
-												echo \esc_html( $list['title'] );
-											}
-											?>
-										</span>
-										<?php if ( $attrs['displayListDescription'] ) : ?>
-											<span class="list-description"><?php echo \esc_html( $list['description'] ); ?></span>
-										<?php endif; ?>
-									</label>
-								</span>
-							</li>
-						<?php endforeach; ?>
-					</ul>
+					<div class="newspack-registration__lists">
+						<?php if ( ! empty( $attrs['newsletterTitle'] ) ) : ?>
+							<h3><?php echo \esc_html( $attrs['newsletterTitle'] ); ?></h3>
+						<?php endif; ?>
+						<ul>
+							<?php
+							foreach ( $available_lists as $list_id ) :
+								if ( ! isset( $list_config[ $list_id ] ) ) {
+									continue;
+								}
+								$list        = $list_config[ $list_id ];
+								$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $block_id, $list_id );
+								?>
+								<li>
+									<span class="list-checkbox">
+										<input
+											type="checkbox"
+											name="lists[]"
+											value="<?php echo \esc_attr( $list_id ); ?>"
+											id="<?php echo \esc_attr( $checkbox_id ); ?>"
+											<?php if ( isset( $list_map[ $list_id ] ) ) : ?>
+												checked
+											<?php endif; ?>
+										/>
+									</span>
+									<span class="list-details">
+										<label for="<?php echo \esc_attr( $checkbox_id ); ?>">
+											<span class="list-title">
+												<?php
+												if ( 1 === count( $available_lists ) ) {
+													echo $attrs['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+												} else {
+													echo \esc_html( $list['title'] );
+												}
+												?>
+											</span>
+											<?php if ( $attrs['displayListDescription'] ) : ?>
+												<span class="list-description"><?php echo \esc_html( $list['description'] ); ?></span>
+											<?php endif; ?>
+										</label>
+									</span>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
 				<?php endif; ?>
 				<div class="newspack-registration__main">
 					<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />

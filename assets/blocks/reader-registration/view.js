@@ -8,14 +8,12 @@ import './style.scss';
 		if ( ! readerActivation ) {
 			return;
 		}
-		[ ...document.querySelectorAll( '.newspack-reader-registration' ) ].forEach( container => {
+		[ ...document.querySelectorAll( '.newspack-registration' ) ].forEach( container => {
 			const form = container.querySelector( 'form' );
 			if ( ! form ) {
 				return;
 			}
-			const messageContainer = container.querySelector(
-				'.newspack-newsletters-registration-response'
-			);
+			const messageContainer = container.querySelector( '.newspack-registration__response' );
 			const submit = form.querySelector( 'input[type="submit"]' );
 			readerActivation.on( 'reader', ( { detail: { email } } ) => {
 				if ( email ) {

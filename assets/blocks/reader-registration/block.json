@@ -23,6 +23,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"newsletterTitle": {
+			"type": "string",
+			"default": "Newsletters"
+		},
 		"newsletterLabel": {
 			"type": "string",
 			"default": "Subscribe to our newsletter"

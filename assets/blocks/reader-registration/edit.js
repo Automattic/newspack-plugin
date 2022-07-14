@@ -22,14 +22,14 @@ import './editor.scss';
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: {
-		title,
-		description,
 		placeholder,
 		label,
 		newsletterSubscription,
 		displayListDescription,
+		newsletterTitle,
 		newsletterLabel,
 		lists,
+		className,
 	},
 } ) {
 	const blockProps = useBlockProps();
@@ -144,39 +144,47 @@ export default function ReaderRegistrationEdit( {
 				) }
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className="newspack-registration">
+				<div className={ `newspack-registration ${ className }` }>
 					<form onSubmit={ ev => ev.preventDefault() }>
-						{ lists.length ? (
-							<ul className="newspack-registration__lists">
-								{ lists.map( listId => (
-									<li key={ listId }>
-										<span className="list-checkbox">
-											<input type="checkbox" checked readOnly />
-										</span>
-										<span className="list-details">
-											<span className="list-label">
-												<span className="list-title">
-													{ lists.length === 1 ? (
-														<RichText
-															onChange={ value => setAttributes( { newsletterLabel: value } ) }
-															placeholder={ __( 'Subscribe to our newsletter', 'newspack' ) }
-															value={ newsletterLabel }
-															tagName="span"
-														/>
-													) : (
-														listConfig[ listId ]?.title
+						{ newsletterSubscription && lists.length ? (
+							<div className="newspack-registration__lists">
+								<RichText
+									onChange={ value => setAttributes( { newsletterTitle: value } ) }
+									placeholder={ __( 'Newsletters title…', 'newspack' ) }
+									value={ newsletterTitle }
+									tagName="h3"
+								/>
+								<ul>
+									{ lists.map( listId => (
+										<li key={ listId }>
+											<span className="list-checkbox">
+												<input type="checkbox" checked readOnly />
+											</span>
+											<span className="list-details">
+												<span className="list-label">
+													<span className="list-title">
+														{ lists.length === 1 ? (
+															<RichText
+																onChange={ value => setAttributes( { newsletterLabel: value } ) }
+																placeholder={ __( 'Subscribe to our newsletter', 'newspack' ) }
+																value={ newsletterLabel }
+																tagName="span"
+															/>
+														) : (
+															listConfig[ listId ]?.title
+														) }
+													</span>
+													{ displayListDescription && (
+														<span className="list-description">
+															{ listConfig[ listId ]?.description }
+														</span>
 													) }
 												</span>
-												{ displayListDescription && (
-													<span className="list-description">
-														{ listConfig[ listId ]?.description }
-													</span>
-												) }
 											</span>
-										</span>
-									</li>
-								) ) }
-							</ul>
+										</li>
+									) ) }
+								</ul>
+							</div>
 						) : null }
 						<div className="newspack-registration__main">
 							<input type="email" placeholder={ placeholder } />
