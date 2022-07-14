@@ -22,6 +22,8 @@ import './editor.scss';
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: {
+		title,
+		description,
 		placeholder,
 		label,
 		newsletterSubscription,
@@ -146,6 +148,20 @@ export default function ReaderRegistrationEdit( {
 			<div { ...blockProps }>
 				<div className={ `newspack-registration ${ className }` }>
 					<form onSubmit={ ev => ev.preventDefault() }>
+						<div className="newspack-registration__description">
+							<RichText
+								onChange={ value => setAttributes( { title: value } ) }
+								placeholder={ __( 'Title…', 'newspack' ) }
+								value={ title }
+								tagName="h2"
+							/>
+							<RichText
+								onChange={ value => setAttributes( { description: value } ) }
+								placeholder={ __( 'Description…', 'newspack' ) }
+								value={ description }
+								tagName="p"
+							/>
+						</div>
 						{ newsletterSubscription && lists.length ? (
 							<div className="newspack-registration__lists">
 								<RichText

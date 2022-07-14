@@ -1,13 +1,20 @@
 .newspack-registration {
-	&.is-style-columns {
-		.newspack-registration__main {
-			@media ( min-width: 782px ) {
-				flex: 1 1 40%;
+	@media ( min-width: 782px ) {
+		&.is-style-columns {
+			.newspack-registration__form-content {
+				display: grid;
 			}
-		}
-		.newspack-registration__lists {
-			@media ( min-width: 782px ) {
-				flex: 1 1 40%;
+			.newspack-registration__description {
+				grid-column: 1;
+				grid-row: 1;
+			}
+			.newspack-registration__main {
+				grid-column: 1;
+				grid-row: 2;
+			}
+			.newspack-registration__lists {
+				grid-column: 2;
+				grid-row: 1;
 				background: #f0f0f0;
 				border: 0;
 				padding: 4rem 2rem;
@@ -18,13 +25,13 @@
 			}
 		}
 	}
-	form {
+
+	&__form-content {
 		width: 100%;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		flex-direction: row-reverse;
 		column-gap: 2rem;
 		row-gap: 1rem;
 		margin: 0;

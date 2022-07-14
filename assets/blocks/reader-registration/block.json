@@ -7,6 +7,14 @@
 	"description": "Register a reader with their email.",
 	"textdomain": "newspack",
 	"attributes": {
+		"title": {
+			"type": "string",
+			"default": "Subscribe to our publication"
+		},
+		"description": {
+			"type": "string",
+			"default": ""
+		},
 		"placeholder": {
 			"type": "string",
 			"default": "Enter your email address"
