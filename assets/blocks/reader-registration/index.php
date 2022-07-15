@@ -96,7 +96,6 @@ function render_block( $attrs ) {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		\is_user_logged_in() ||
-		Reader_Activation::get_auth_intention_value() ||
 		( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
 	) {
 		$registered = true;
@@ -227,7 +226,7 @@ function send_form_response( $data, $message = '' ) {
 			FORM_ACTION,
 		];
 		if ( ! $is_error ) {
-			$args_to_remove = array_merge( $args_to_remove, [ 'email' ] );
+			$args_to_remove = array_merge( $args_to_remove, [ 'email', 'lists' ] );
 		}
 		\wp_safe_redirect(
 			\add_query_arg(
