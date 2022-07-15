@@ -109,15 +109,24 @@ class Google_Login {
 			return;
 		}
 
-		if ( ! isset( $_REQUEST['csrf_token'] ) || ! isset( $_REQUEST['access_token'] ) || ! isset( $_REQUEST['expires_at'] ) ) {
+		if ( ! isset( $_REQUEST['csrf_token'] ) || ! isset( $_REQUEST['access_token'] ) ) {
 			wp_die( esc_html__( 'Invalid request', 'newspack' ) );
 			return;
 		}
 
+		$saved_csrf_token = OAuth::retrieve_csrf_token( self::CSRF_TOKEN_NAMESPACE );
+
+		if ( $_REQUEST['csrf_token'] !== $saved_csrf_token ) {
+			Logger::log( 'Failed saving email - CSRF token mismatch.' );
+			\wp_die( \esc_html__( 'Authentication failed.', 'newspack' ) );
+		}
+
 		$user_email = Google_OAuth::validate_token_and_get_email_address( sanitize_text_field( $_REQUEST['access_token'] ), self::REQUIRED_SCOPES );
 		if ( is_wp_error( $user_email ) ) {
-			return $user_email;
+			Logger::log( 'Failed validating user: ' . $user_email->get_error_message() );
+			\wp_die( \esc_html__( 'Authentication failed.', 'newspack' ) );
 		}
+
 		Logger::log( 'Got user email from Google: ' . $user_email );
 
 		// Associate the email address with the client ID for later retrieval.
@@ -136,8 +145,10 @@ class Google_Login {
 	 * Get Google authentication status.
 	 */
 	public static function api_google_login_register() {
+		// Get unique identifier of the client.
 		$client_id = Reader_Activation::get_client_id();
-		$email     = get_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id );
+		// Retrieve the email address associated with the client ID when the user was authenticated.
+		$email = get_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id );
 		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id ); // Burn after reading.
 		if ( $email ) {
 			$existing_user = \get_user_by( 'email', $email );
