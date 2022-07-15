@@ -34,6 +34,19 @@ function getCookie( name ) {
 }
 
 /**
+ * Set a cookie.
+ *
+ * @param {string} name           Cookie name.
+ * @param {string} value          Cookie value.
+ * @param {number} expirationDays Expiration in days from now.
+ */
+function setCookie( name, value, expirationDays = 365 ) {
+	const date = new Date();
+	date.setTime( date.getTime() + expirationDays * 24 * 60 * 60 * 1000 );
+	document.cookie = `${ name }=${ value }; expires=${ date.toUTCString() }; path=/`;
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -134,5 +147,12 @@ export function getReader() {
 
 const readerActivation = { on, off, setReader, getReader };
 window.newspackReaderActivation = readerActivation;
+
+const clientIDCookieName = window.newspack_reader_activation_data.cid_cookie;
+if ( ! getCookie( clientIDCookieName ) ) {
+	// If entropy is an issue, https://www.npmjs.com/package/nanoid can be used.
+	const getShortStringId = () => Math.floor( Math.random() * 999999999 ).toString( 36 );
+	setCookie( clientIDCookieName, `${ getShortStringId() }${ getShortStringId() }` );
+}
 
 export default readerActivation;

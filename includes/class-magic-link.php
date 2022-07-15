@@ -379,6 +379,7 @@ final class Magic_Link {
 			$email['message'],
 			$email['headers']
 		);
+		Logger::log( 'Sending magic link to ' . $email['to'] );
 
 		return $sent;
 	}
