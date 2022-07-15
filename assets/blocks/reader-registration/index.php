@@ -116,19 +116,9 @@ function render_block( $attrs ) {
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<div class="newspack-registration__form-content">
-					<?php if ( ! empty( $attrs['title'] ) || ! empty( $attrs['description'] ) ) : ?>
-						<div class="newspack-registration__description">
-							<?php if ( ! empty( $attrs['title'] ) ) : ?>
-								<h2 class="newspack-registration__title"><?php echo \esc_html( $attrs['title'] ); ?></h2>
-							<?php endif; ?>
-							<?php if ( ! empty( $attrs['description'] ) ) : ?>
-								<p class="newspack-registration__description"><?php echo \esc_html( $attrs['description'] ); ?></p>
-							<?php endif; ?>
-						</div>
-					<?php endif; ?>
 					<?php if ( isset( $available_lists ) && ! empty( $available_lists ) ) : ?>
 						<div class="newspack-registration__lists">
-							<?php if ( ! empty( $attrs['newsletterTitle'] ) ) : ?>
+							<?php if ( 1 < count( $available_lists ) && ! empty( $attrs['newsletterTitle'] ) ) : ?>
 								<h3><?php echo \esc_html( $attrs['newsletterTitle'] ); ?></h3>
 							<?php endif; ?>
 							<ul>
@@ -174,8 +164,15 @@ function render_block( $attrs ) {
 						</div>
 					<?php endif; ?>
 					<div class="newspack-registration__main">
-						<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-						<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
+						<div class="newspack-registration__inputs">
+							<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+							<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
+						</div>
+						<div class="newspack-registration__privacy">
+							<p>
+								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</p>
+						</div>
 					</div>
 				</div>
 			</form>

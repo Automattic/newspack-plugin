@@ -2,25 +2,29 @@
 	@media ( min-width: 782px ) {
 		&.is-style-columns {
 			.newspack-registration__form-content {
-				display: grid;
+				border-top: 1px solid #f0f0f0;
 			}
-			.newspack-registration__description {
-				grid-column: 1;
-				grid-row: 1;
-			}
+
 			.newspack-registration__main {
-				grid-column: 1;
-				grid-row: 2;
+				flex: 1 1 40%;
+				padding: 2rem 2rem 2rem 0;
 			}
+
 			.newspack-registration__lists {
-				grid-column: 2;
-				grid-row: 1;
-				background: #f0f0f0;
+				flex: 1 1 40%;
 				border: 0;
-				padding: 4rem 2rem;
+				border-left: 1px solid #f0f0f0;
+				padding: 2rem 0 2rem 2rem;
+				h3 {
+					display: block;
+					margin: 0 0 1rem;
+				}
 				ul {
 					padding: 0;
 					border: 0;
+					li {
+						flex: 1 1 100%;
+					}
 				}
 			}
 		}
@@ -30,9 +34,9 @@
 		width: 100%;
 		display: flex;
 		flex-wrap: wrap;
-		align-items: center;
+		flex-direction: row-reverse;
+		align-items: flex-start;
 		justify-content: center;
-		column-gap: 2rem;
 		row-gap: 1rem;
 		margin: 0;
 		transition: opacity 200ms ease-in-out;
@@ -40,6 +44,9 @@
 
 	&__main {
 		flex: 1 1 100%;
+	}
+
+	&__inputs {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
@@ -48,10 +55,18 @@
 		input[type='email'] {
 			flex: 1 1 auto;
 			border-radius: 2px;
-			margin: 0 0 1rem;
+			margin: 0 0 0.5rem;
 		}
 		[type='submit'] {
-			margin: 0 0 1rem 1rem;
+			margin: 0 0 0.5rem 0.5rem;
+		}
+	}
+
+	&__privacy {
+		p {
+			color: #757575;
+			margin: 0;
+			font-size: 0.8em !important;
 		}
 	}
 
@@ -59,7 +74,7 @@
 		flex: 1 1 100%;
 		font-size: 0.8rem;
 		h3 {
-			margin: 0 0 1rem;
+			display: none;
 		}
 		ul {
 			list-style: none;

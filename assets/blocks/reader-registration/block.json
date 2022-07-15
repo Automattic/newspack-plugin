@@ -7,14 +7,6 @@
 	"description": "Register a reader with their email.",
 	"textdomain": "newspack",
 	"attributes": {
-		"title": {
-			"type": "string",
-			"default": "Subscribe to our publication"
-		},
-		"description": {
-			"type": "string",
-			"default": ""
-		},
 		"placeholder": {
 			"type": "string",
 			"default": "Enter your email address"
@@ -22,6 +14,10 @@
 		"label": {
 			"type": "string",
 			"default": "Register"
+		},
+		"privacyLabel": {
+			"type": "string",
+			"default": "By signing up you agree to our terms and conditions."
 		},
 		"newsletterSubscription": {
 			"type": "boolean",

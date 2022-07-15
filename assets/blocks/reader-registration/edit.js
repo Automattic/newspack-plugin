@@ -22,10 +22,9 @@ import './editor.scss';
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: {
-		title,
-		description,
 		placeholder,
 		label,
+		privacyLabel,
 		newsletterSubscription,
 		displayListDescription,
 		newsletterTitle,
@@ -148,70 +147,70 @@ export default function ReaderRegistrationEdit( {
 			<div { ...blockProps }>
 				<div className={ `newspack-registration ${ className }` }>
 					<form onSubmit={ ev => ev.preventDefault() }>
-						<div className="newspack-registration__description">
-							<RichText
-								onChange={ value => setAttributes( { title: value } ) }
-								placeholder={ __( 'Title…', 'newspack' ) }
-								value={ title }
-								tagName="h2"
-							/>
-							<RichText
-								onChange={ value => setAttributes( { description: value } ) }
-								placeholder={ __( 'Description…', 'newspack' ) }
-								value={ description }
-								tagName="p"
-							/>
-						</div>
-						{ newsletterSubscription && lists.length ? (
-							<div className="newspack-registration__lists">
-								<RichText
-									onChange={ value => setAttributes( { newsletterTitle: value } ) }
-									placeholder={ __( 'Newsletters title…', 'newspack' ) }
-									value={ newsletterTitle }
-									tagName="h3"
-								/>
-								<ul>
-									{ lists.map( listId => (
-										<li key={ listId }>
-											<span className="list-checkbox">
-												<input type="checkbox" checked readOnly />
-											</span>
-											<span className="list-details">
-												<span className="list-label">
-													<span className="list-title">
-														{ lists.length === 1 ? (
-															<RichText
-																onChange={ value => setAttributes( { newsletterLabel: value } ) }
-																placeholder={ __( 'Subscribe to our newsletter', 'newspack' ) }
-																value={ newsletterLabel }
-																tagName="span"
-															/>
-														) : (
-															listConfig[ listId ]?.title
+						<div className="newspack-registration__form-content">
+							{ newsletterSubscription && lists.length ? (
+								<div className="newspack-registration__lists">
+									{ lists?.length > 1 && (
+										<RichText
+											onChange={ value => setAttributes( { newsletterTitle: value } ) }
+											placeholder={ __( 'Newsletters title…', 'newspack' ) }
+											value={ newsletterTitle }
+											tagName="h3"
+										/>
+									) }
+									<ul>
+										{ lists.map( listId => (
+											<li key={ listId }>
+												<span className="list-checkbox">
+													<input type="checkbox" checked readOnly />
+												</span>
+												<span className="list-details">
+													<span className="list-label">
+														<span className="list-title">
+															{ lists.length === 1 ? (
+																<RichText
+																	onChange={ value => setAttributes( { newsletterLabel: value } ) }
+																	placeholder={ __( 'Subscribe to our newsletter', 'newspack' ) }
+																	value={ newsletterLabel }
+																	tagName="span"
+																/>
+															) : (
+																listConfig[ listId ]?.title
+															) }
+														</span>
+														{ displayListDescription && (
+															<span className="list-description">
+																{ listConfig[ listId ]?.description }
+															</span>
 														) }
 													</span>
-													{ displayListDescription && (
-														<span className="list-description">
-															{ listConfig[ listId ]?.description }
-														</span>
-													) }
 												</span>
-											</span>
-										</li>
-									) ) }
-								</ul>
+											</li>
+										) ) }
+									</ul>
+								</div>
+							) : null }
+							<div className="newspack-registration__main">
+								<div className="newspack-registration__inputs">
+									<input type="email" placeholder={ placeholder } />
+									<button type="submit">
+										<RichText
+											onChange={ value => setAttributes( { label: value } ) }
+											placeholder={ __( 'Register', 'newspack' ) }
+											value={ label }
+											tagName="span"
+										/>
+									</button>
+								</div>
+								<div className="newspack-registration__privacy">
+									<RichText
+										onChange={ value => setAttributes( { privacyLabel: value } ) }
+										placeholder={ __( 'Newsletters title…', 'newspack' ) }
+										value={ privacyLabel }
+										tagName="p"
+									/>
+								</div>
 							</div>
-						) : null }
-						<div className="newspack-registration__main">
-							<input type="email" placeholder={ placeholder } />
-							<button type="submit">
-								<RichText
-									onChange={ value => setAttributes( { label: value } ) }
-									placeholder={ __( 'Register', 'newspack' ) }
-									value={ label }
-									tagName="span"
-								/>
-							</button>
 						</div>
 					</form>
 				</div>
