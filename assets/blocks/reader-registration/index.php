@@ -130,7 +130,7 @@ function render_block( $attrs ) {
 									$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $block_id, $list_id );
 									?>
 									<li>
-										<span class="list-checkbox">
+										<span class="newspack-registration__lists__checkbox">
 											<input
 												type="checkbox"
 												name="lists[]"
@@ -141,9 +141,9 @@ function render_block( $attrs ) {
 												<?php endif; ?>
 											/>
 										</span>
-										<span class="list-details">
-											<label for="<?php echo \esc_attr( $checkbox_id ); ?>">
-												<span class="list-title">
+										<span class="newspack-registration__lists__details">
+											<label class="newspack-registration__lists__label" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+												<span class="newspack-registration__lists__title">
 													<?php
 													if ( 1 === count( $available_lists ) ) {
 														echo $attrs['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -153,7 +153,7 @@ function render_block( $attrs ) {
 													?>
 												</span>
 												<?php if ( $attrs['displayListDescription'] ) : ?>
-													<span class="list-description"><?php echo \esc_html( $list['description'] ); ?></span>
+													<span class="newspack-registration__lists__description"><?php echo \esc_html( $list['description'] ); ?></span>
 												<?php endif; ?>
 											</label>
 										</span>

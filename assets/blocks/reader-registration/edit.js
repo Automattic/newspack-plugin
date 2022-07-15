@@ -161,12 +161,12 @@ export default function ReaderRegistrationEdit( {
 									<ul>
 										{ lists.map( listId => (
 											<li key={ listId }>
-												<span className="list-checkbox">
+												<span className="newspack-registration__lists__checkbox">
 													<input type="checkbox" checked readOnly />
 												</span>
-												<span className="list-details">
-													<span className="list-label">
-														<span className="list-title">
+												<span className="newspack-registration__lists__details">
+													<span className="newspack-registration__lists__label">
+														<span className="newspack-registration__lists__title">
 															{ lists.length === 1 ? (
 																<RichText
 																	onChange={ value => setAttributes( { newsletterLabel: value } ) }
@@ -179,7 +179,7 @@ export default function ReaderRegistrationEdit( {
 															) }
 														</span>
 														{ displayListDescription && (
-															<span className="list-description">
+															<span className="newspack-registration__lists__description">
 																{ listConfig[ listId ]?.description }
 															</span>
 														) }

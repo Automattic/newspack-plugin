@@ -93,19 +93,22 @@
 				margin: 0;
 				padding: 0.5rem 1rem 0.5rem 0;
 			}
-			.list-checkbox {
-				flex: 0 0 auto;
-				margin: 0 0.5rem 0 0;
-			}
-			.list-title {
-				display: block;
-			}
-			.list-description {
-				display: block;
-				font-size: 0.8rem;
-				color: #777;
-				margin: 0;
-			}
+		}
+
+		&__checkbox {
+			flex: 0 0 auto;
+			margin: 0 0.5rem 0 0;
+		}
+
+		&__title {
+			display: block;
+		}
+
+		&__description {
+			display: block;
+			font-size: 0.8rem;
+			color: #777;
+			margin: 0;
 		}
 	}
 
