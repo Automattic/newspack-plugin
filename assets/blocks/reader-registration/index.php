@@ -61,10 +61,12 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
  * Render Registration Block.
  *
  * @param array[] $attrs Block attributes.
+ * @param string  $content Block content (inner blocks) – success state in this case.
  */
-function render_block( $attrs ) {
-	$registered = false;
-	$message    = '';
+function render_block( $attrs, $content ) {
+	$registered      = false;
+	$message         = '';
+	$success_message = __( 'Thank you for registering!', 'newspack' );
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		\is_user_logged_in() ||
@@ -72,17 +74,24 @@ function render_block( $attrs ) {
 		( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
 	) {
 		$registered = true;
-		$message    = __( 'Thank you for registering!', 'newspack' );
+		$message    = $success_message;
 	}
 	if ( isset( $_GET['newspack_reader'] ) && isset( $_GET['message'] ) ) {
 		$message = \sanitize_text_field( $_GET['message'] );
+	}
+
+	$success_markup = $content;
+	if ( empty( wp_strip_all_tags( $content ) ) ) {
+		$success_markup = $success_message;
 	}
 	// phpcs:enable
 	ob_start();
 	?>
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
-			<p class="message"><?php echo \esc_html( $message ); ?></p>
+			<div class="newspack-registration__success">
+				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
 		<?php else : ?>
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
@@ -93,6 +102,9 @@ function render_block( $attrs ) {
 				<?php if ( ! empty( $message ) ) : ?>
 					<p><?php echo \esc_html( $message ); ?></p>
 				<?php endif; ?>
+			</div>
+			<div class="newspack-registration__success newspack-registration--hidden">
+				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php endif; ?>
 	</div>

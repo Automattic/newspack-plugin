@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { box as icon } from '@wordpress/icons';
+import { useInnerBlocksProps, useBlockProps } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -16,4 +17,5 @@ export { metadata, name };
 export const settings = {
 	icon,
 	edit,
+	save: () => <div { ...useInnerBlocksProps.save( useBlockProps.save() ) } />,
 };
