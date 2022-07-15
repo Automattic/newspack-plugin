@@ -9,7 +9,7 @@ import './auth.scss';
 			return;
 		}
 
-		const container = document.querySelector( '#newspack-reader-activation-auth-form' );
+		const container = document.querySelector( '#newspack-reader-auth' );
 		if ( ! container ) {
 			return;
 		}
@@ -43,12 +43,12 @@ import './auth.scss';
 			} );
 		}
 
-		const messageContainer = container.querySelector( '.form-response' );
+		const messageContainer = container.querySelector( '.newspack-reader__auth-form__response' );
 
-		const authLinkMessage = container.querySelector( '.auth-link-message' );
+		const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 		authLinkMessage.hidden = true;
 
-		const accountLinks = document.querySelectorAll( '.newspack-reader-account-link' );
+		const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
 
 		/**
 		 * Handle reader changes.
@@ -108,13 +108,13 @@ import './auth.scss';
 		function setFormAction( action ) {
 			actionInput.value = action;
 			messageContainer.innerHTML = '';
-			container.querySelectorAll( '.action-item' ).forEach( item => {
+			container.querySelectorAll( '[data-action]' ).forEach( item => {
 				if ( 'none' !== item.style.display ) {
 					item.prevDisplay = item.style.display;
 				}
 				item.style.display = 'none';
 			} );
-			container.querySelectorAll( '.action-' + action ).forEach( item => {
+			container.querySelectorAll( '[data-action="' + action + '"]' ).forEach( item => {
 				item.style.display = item.prevDisplay;
 			} );
 			if ( action === 'pwd' && emailInput.value ) {
@@ -170,7 +170,9 @@ import './auth.scss';
 									window.location = body.get( 'redirect' );
 								}
 							} else {
-								messageNode.prepend( container.querySelector( '.success-icon' ) );
+								messageNode.prepend(
+									container.querySelector( '.newspack-reader__auth-form__success-icon' )
+								);
 								form.replaceWith( messageNode );
 							}
 						} else {

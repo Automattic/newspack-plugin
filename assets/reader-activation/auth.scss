@@ -1,102 +1,98 @@
-.newspack-reader-account-link a,
-.menu-item .newspack-reader-account-link a {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	span {
-		display: block;
-		svg {
-			display: block;
-		}
-	}
-	.newspack-reader-account-link-icon {
-		height: 0;
-		margin-top: -24px;
-	}
-	.newspack-reader-account-link-label {
-		margin-left: 0.2rem;
-		@media screen and ( max-width: 959px ) {
-			border: 0;
-			clip: rect( 1px, 1px, 1px, 1px );
-			clip-path: inset( 50% );
-			height: 1px;
-			margin: -1px;
-			overflow: hidden;
-			padding: 0;
-			position: absolute !important;
-			width: 1px;
-			word-wrap: normal !important;
-		}
-	}
-}
-
-ul.newspack-reader-account-menu,
-li.menu-item .newspack-reader-account-link {
-	@media screen and ( max-width: 959px ) {
-		display: none;
-	}
-}
-.mobile-account-link {
-	@media screen and ( min-width: 960px ) {
-		display: none;
-	}
-	margin-left: 5vw;
-}
-
-/**
- * Header solid background
- */
-.h-sb.h-sh {
-	.newspack-reader-account-link a {
-		color: #fff;
-	}
-}
-
-#newspack-reader-activation-auth-form {
-	display: none;
-	background: rgba( 0, 0, 0, 0.75 );
-	position: fixed;
-	width: 100% !important;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	justify-content: center;
-	align-items: center;
-	z-index: 999999;
-	font-size: 0.9em;
-
-	a {
-		color: #36f;
-		text-decoration: underline;
-	}
-
-	p {
-		margin: 0.5rem 0;
-	}
-
-	p.small {
-		margin: 0;
-		font-size: 0.8em;
+.newspack-reader {
+	/**
+	 * Account Link
+	 */
+	&__account-link {
 		a {
-			color: inherit;
+			display: flex !important;
+			justify-content: center;
+			align-items: center;
+			span {
+				display: block;
+				svg {
+					display: block;
+				}
+			}
+		}
+
+		&__mobile {
+			@media screen and ( min-width: 960px ) {
+				display: none;
+			}
+			margin-left: 5vw;
+		}
+
+		&__icon {
+			height: 0;
+			margin-top: -24px;
+		}
+
+		&__label {
+			margin-left: 0.2rem;
+			@media screen and ( max-width: 959px ) {
+				border: 0;
+				clip: rect( 1px, 1px, 1px, 1px );
+				clip-path: inset( 50% );
+				height: 1px;
+				margin: -1px;
+				overflow: hidden;
+				padding: 0;
+				position: absolute !important;
+				width: 1px;
+				word-wrap: normal !important;
+			}
 		}
 	}
 
-	@media screen and ( max-width: 744px ) {
-		align-items: flex-end;
-	}
+	/**
+	 * Sign-In/Register Form
+	 */
+	&__auth-form {
+		display: none;
+		background: rgba( 0, 0, 0, 0.75 );
+		position: fixed;
+		width: 100% !important;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		justify-content: center;
+		align-items: center;
+		z-index: 999999;
+		font-size: 0.9em;
 
-	&.visible {
-		display: flex;
-	}
+		&.visible {
+			display: flex;
+		}
 
-	.form-wrapper {
-		width: 100%;
-		max-width: 544px;
-		background: #fff;
-		position: relative;
-		.form-header {
+		@media screen and ( max-width: 744px ) {
+			align-items: flex-end;
+		}
+
+		a {
+			color: #36f;
+			text-decoration: underline;
+		}
+
+		p {
+			margin: 0.5rem 0;
+			&.small {
+				margin: 0;
+				font-size: 0.8em;
+				a {
+					color: inherit;
+				}
+			}
+		}
+
+		&__wrapper {
+			width: 100%;
+			max-width: 544px;
+			background: #fff;
+			position: relative;
+		}
+
+		&__header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
@@ -112,11 +108,17 @@ li.menu-item .newspack-reader-account-link {
 				justify-content: flex-start;
 			}
 		}
-		.form-content {
+
+		&__content {
 			padding: 64px;
-			> .success-icon {
+
+			/**
+			 * Hide placeholder success icon.
+			 */
+			> .newspack-reader__auth-form__success-icon {
 				display: none !important;
 			}
+
 			@media screen and ( max-width: 744px ) {
 				padding: 0 5vw 5vw 5vw;
 			}
@@ -128,25 +130,73 @@ li.menu-item .newspack-reader-account-link {
 				width: 100%;
 			}
 		}
-	}
 
-	.form-actions {
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		p:not( .small ) {
-			flex: 1 1 100%;
+		&__actions {
+			display: flex;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			p:not( .small ) {
+				flex: 1 1 100%;
+			}
+			button {
+				display: block;
+				width: 100%;
+			}
 		}
-		button {
-			display: block;
-			width: 100%;
+
+		&__response {
+			font-size: 0.8em;
+		}
+
+		&__success-icon {
+			display: flex;
+			margin: 0 auto 2rem;
+			border-radius: 100%;
+			width: 50px;
+			height: 50px;
+			justify-content: center;
+			align-items: center;
+			color: #fff;
+			background: #4ab866;
+		}
+
+		&__close {
+			align-items: center;
+			background: white;
+			border: none;
+			border-radius: 0;
+			box-shadow: none;
+			color: inherit;
+			cursor: pointer;
+			display: flex;
+			font-size: inherit;
+			height: 36px;
+			justify-content: center;
+			margin: 0;
+			padding: 6px;
+			position: absolute;
+			right: 0;
+			top: 0;
+			width: 36px;
+
+			svg {
+				fill: currentcolor;
+				flex: 0 0 24px;
+			}
+
+			&:active,
+			&:hover {
+				opacity: 0.6;
+			}
+
+			&:focus {
+				outline: 1px solid;
+				outline-offset: -1px;
+			}
 		}
 	}
-
-	.form-response {
-		font-size: 0.8em;
-	}
-
+}
+#newspack-reader-auth {
 	.message {
 		display: block;
 		width: 100%;
@@ -155,18 +205,6 @@ li.menu-item .newspack-reader-account-link {
 		p {
 			margin: 0;
 		}
-	}
-
-	.success-icon {
-		display: flex;
-		margin: 0 auto 2rem;
-		border-radius: 100%;
-		width: 50px;
-		height: 50px;
-		justify-content: center;
-		align-items: center;
-		color: #fff;
-		background: #4ab866;
 	}
 
 	&.success {
@@ -183,39 +221,23 @@ li.menu-item .newspack-reader-account-link {
 			color: #d94f4f;
 		}
 	}
+}
 
-	.form-close {
-		align-items: center;
-		background: white;
-		border: none;
-		border-radius: 0;
-		box-shadow: none;
-		color: inherit;
-		cursor: pointer;
-		display: flex;
-		font-size: inherit;
-		height: 36px;
-		justify-content: center;
-		margin: 0;
-		padding: 6px;
-		position: absolute;
-		right: 0;
-		top: 0;
-		width: 36px;
+/**
+ * Hide desktop account link on mobile.
+ */
+ul.newspack-reader__account-menu,
+li.menu-item .newspack-reader__account-link {
+	@media screen and ( max-width: 959px ) {
+		display: none;
+	}
+}
 
-		svg {
-			fill: currentcolor;
-			flex: 0 0 24px;
-		}
-
-		&:active,
-		&:hover {
-			opacity: 0.6;
-		}
-
-		&:focus {
-			outline: 1px solid;
-			outline-offset: -1px;
-		}
+/**
+ * Handle header with solid background.
+ */
+.h-sb.h-sh {
+	.newspack-reader__account-link a {
+		color: #fff;
 	}
 }
