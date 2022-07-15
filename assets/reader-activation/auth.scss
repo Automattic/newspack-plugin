@@ -129,6 +129,9 @@
 			input[type='password'] {
 				width: 100%;
 			}
+			[type='submit'] {
+				background-color: var( --newspack-primary-color );
+			}
 		}
 
 		&__actions {

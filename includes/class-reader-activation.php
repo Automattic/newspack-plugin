@@ -428,9 +428,8 @@ final class Reader_Activation {
 			$classnames[] = 'visible';
 		}
 		// phpcs:enable
-		$primary_color = \get_theme_mod( 'primary_color_hex', '#36f' );
 		?>
-		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-primary-color="<?php echo \esc_attr( $primary_color ); ?>">
+		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>">
 			<div class="newspack-reader__auth-form__wrapper">
 				<button class="newspack-reader__auth-form__close" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">

@@ -35,14 +35,6 @@ import './auth.scss';
 			container.style.display = 'none';
 		} );
 
-		/** Apply primary color */
-		const primaryColor = container.getAttribute( 'data-primary-color' );
-		if ( primaryColor ) {
-			submitButtons.forEach( button => {
-				button.style.backgroundColor = primaryColor;
-			} );
-		}
-
 		const messageContainer = container.querySelector( '.newspack-reader__auth-form__response' );
 
 		const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
