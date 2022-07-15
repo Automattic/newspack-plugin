@@ -2,8 +2,7 @@
  * Form Token Field
  */
 
-@import '../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-form-token-field {
 	width: 100%;
@@ -16,7 +15,7 @@
 	// Help
 
 	&__help {
-		color: $gray-700;
+		color: wp-colors.$gray-700;
 		font-size: 12px;
 		margin: 8px 0 0 !important;
 	}

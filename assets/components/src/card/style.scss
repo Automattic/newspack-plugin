@@ -2,12 +2,12 @@
  * Card
  */
 
-@import '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-card {
 	border-radius: 2px;
-	border: 1px solid $gray-300;
-	color: $gray-900;
+	border: 1px solid wp-colors.$gray-300;
+	color: wp-colors.$gray-900;
 	margin: 32px 0;
 	padding: 16px 48px;
 
@@ -109,15 +109,15 @@
 	}
 
 	code {
-		background: $gray-100;
-		color: $gray-900;
+		background: wp-colors.$gray-100;
+		color: wp-colors.$gray-900;
 		padding: 0 0.5em;
 	}
 
 	// Thematic Break
 
 	hr {
-		background: $gray-300;
+		background: wp-colors.$gray-300;
 		border: 0;
 		height: 1px;
 		margin: 48px 0;
@@ -130,7 +130,7 @@
 	// Separator
 
 	.sep {
-		background: $gray-300;
+		background: wp-colors.$gray-300;
 		height: 1px;
 		margin-left: 8px;
 		margin-right: 8px;
@@ -146,6 +146,6 @@
 	// Error
 
 	.newspack-error {
-		color: $alert-red;
+		color: wp-colors.$alert-red;
 	}
 }
