@@ -52,17 +52,8 @@ const getControlType = setting => {
 };
 
 const SettingsSection = props => {
-	const {
-		error,
-		sectionKey,
-		active,
-		title,
-		description,
-		fields,
-		disabled,
-		onChange,
-		onUpdate,
-	} = props;
+	const { error, sectionKey, active, title, description, fields, disabled, onChange, onUpdate } =
+		props;
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,

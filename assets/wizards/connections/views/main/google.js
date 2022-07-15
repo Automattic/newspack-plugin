@@ -20,7 +20,6 @@ const getURLParams = () => {
 };
 
 const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
-	const [ initialized, setInitialized ] = useState( false );
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
@@ -73,7 +72,6 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 					handleError( err );
 				} )
 				.finally( () => {
-					setInitialized( true );
 					setInFlight( false );
 					if ( typeof onInit === 'function' ) {
 						onInit( error );

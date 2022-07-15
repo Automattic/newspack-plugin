@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 final class Reader_Activation {
 
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
+	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 
 	/**
 	 * Reader user meta keys.
@@ -56,9 +57,8 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		$handle = 'newspack-reader-activation';
 		\wp_register_script(
-			$handle,
+			self::SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
 			[],
 			NEWSPACK_PLUGIN_VERSION,
@@ -69,14 +69,17 @@ final class Reader_Activation {
 			$authenticated_email = \wp_get_current_user()->user_email;
 		}
 		\wp_localize_script(
-			$handle,
+			self::SCRIPT_HANDLE,
 			'newspack_reader_activation_data',
 			[
-				'authenticated_email' => $authenticated_email,
+				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+				'nonce'                 => wp_create_nonce( 'wp_rest' ),
+				'authenticated_email'   => $authenticated_email,
 			]
 		);
-		\wp_script_add_data( $handle, 'async', true );
-		\wp_script_add_data( $handle, 'amp-plus', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
 		/**
 		 * Nav menu items script.
@@ -641,6 +644,7 @@ final class Reader_Activation {
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
 		\do_action( 'wp_login', $user->user_login, $user );
+		Logger::log( 'Logged in user ' . $user->ID );
 
 		return $user;
 	}
@@ -719,6 +723,8 @@ final class Reader_Activation {
 			/** Add default reader related meta. */
 			\update_user_meta( $user_id, self::READER, true );
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
+
+			Logger::log( 'Created new reader user with ID ' . $user_id );
 
 			if ( $authenticate ) {
 				self::set_current_reader( $user_id );
