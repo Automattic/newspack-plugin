@@ -43,6 +43,15 @@ li.menu-item .newspack-reader-account-link {
 	margin-left: 5vw;
 }
 
+/**
+ * Header solid background
+ */
+.h-sb.h-sh {
+	.newspack-reader-account-link a {
+		color: #fff;
+	}
+}
+
 #newspack-reader-activation-auth-form {
 	display: none;
 	background: rgba( 0, 0, 0, 0.75 );
