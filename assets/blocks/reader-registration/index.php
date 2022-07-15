@@ -66,7 +66,7 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 function render_block( $attrs, $content ) {
 	$registered      = false;
 	$message         = '';
-	$success_message = __( 'Thank you for registering!', 'newspack' );
+	$success_message = __( 'Thank you for registering! Check your email for a confirmation link.', 'newspack' );
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		\is_user_logged_in() ||
@@ -192,9 +192,6 @@ function process_form() {
 		return send_form_response( $user_id );
 	}
 
-	return send_form_response(
-		[ 'email' => $email ],
-		false === $user_id ? __( 'Check your email for a confirmation link!', 'newspack' ) : __( 'Thank you for registering!', 'newspack' )
-	);
+	return send_form_response( [ 'email' => $email ] );
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );
