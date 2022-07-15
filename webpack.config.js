@@ -48,7 +48,7 @@ const webpackConfig = getBaseWebpackConfig(
 			...wizardsScriptFiles,
 			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
 			'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
-			'reader-activation-auth': path.join( __dirname, 'assets', 'reader-activation', 'auth.js' ),
+			'reader-auth': path.join( __dirname, 'assets', 'reader-activation', 'auth.js' ),
 			'reader-registration-block': path.join(
 				__dirname,
 				'assets',

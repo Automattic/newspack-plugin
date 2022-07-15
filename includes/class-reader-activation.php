@@ -16,6 +16,7 @@ final class Reader_Activation {
 
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 	const SCRIPT_HANDLE         = 'newspack-reader-activation';
+	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
 
 	/**
 	 * Reader user meta keys.
@@ -84,19 +85,18 @@ final class Reader_Activation {
 		/**
 		 * Nav menu items script.
 		 */
-		$auth_handle = 'newspack-reader-activation-auth';
 		\wp_enqueue_script(
-			$auth_handle,
-			Newspack::plugin_url() . '/dist/reader-activation-auth.js',
-			[ $handle ],
+			self::AUTH_SCRIPT_HANDLE,
+			Newspack::plugin_url() . '/dist/reader-auth.js',
+			[ self::SCRIPT_HANDLE ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		\wp_script_add_data( $auth_handle, 'async', true );
-		\wp_script_add_data( $auth_handle, 'amp-plus', true );
+		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
+		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );
 		\wp_enqueue_style(
-			$auth_handle,
-			Newspack::plugin_url() . '/dist/reader-activation-auth.css',
+			self::AUTH_SCRIPT_HANDLE,
+			Newspack::plugin_url() . '/dist/reader-auth.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
@@ -433,7 +433,7 @@ final class Reader_Activation {
 		?>
 		<div id="<?php echo \esc_attr( $element_id ); ?>" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-primary-color="<?php echo \esc_attr( $primary_color ); ?>">
 			<div class="form-wrapper">
-				<button on="tap:<?php echo \esc_attr( $element_id ); ?>.hide" class="form-close" aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
+				<button class="form-close" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
 					</svg>

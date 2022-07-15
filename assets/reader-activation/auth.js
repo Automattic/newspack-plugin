@@ -28,12 +28,17 @@ import './auth.scss';
 		const actionInput = form.querySelector( 'input[name="action"]' );
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
-		const submitButton = form.querySelectorAll( '[type="submit"]' );
+		const submitButtons = form.querySelectorAll( '[type="submit"]' );
+
+		container.querySelector( 'button[data-close]' ).addEventListener( 'click', function ( ev ) {
+			ev.preventDefault();
+			container.style.display = 'none';
+		} );
 
 		/** Apply primary color */
 		const primaryColor = container.getAttribute( 'data-primary-color' );
 		if ( primaryColor ) {
-			submitButton.forEach( button => {
+			submitButtons.forEach( button => {
 				button.style.backgroundColor = primaryColor;
 			} );
 		}
@@ -61,7 +66,7 @@ import './auth.scss';
 				} );
 			}
 			if ( authenticated ) {
-				container.hidden = true;
+				container.style.display = 'none';
 			}
 		} );
 
@@ -77,9 +82,9 @@ import './auth.scss';
 			ev.preventDefault();
 
 			if ( readerActivation.hasAuthLink() ) {
-				authLinkMessage.hidden = false;
+				authLinkMessage.style.display = 'block';
 			} else {
-				authLinkMessage.hidden = true;
+				authLinkMessage.style.display = 'none';
 			}
 
 			emailInput.value = reader?.email || '';
@@ -87,7 +92,7 @@ import './auth.scss';
 			container.hidden = false;
 			container.style.display = 'flex';
 
-			if ( emailInput.value ) {
+			if ( emailInput.value && 'pwd' === actionInput.value ) {
 				passwordInput.focus();
 			} else {
 				emailInput.focus();
@@ -104,23 +109,25 @@ import './auth.scss';
 			actionInput.value = action;
 			messageContainer.innerHTML = '';
 			container.querySelectorAll( '.action-item' ).forEach( item => {
-				item.hidden = true;
+				if ( 'none' !== item.style.display ) {
+					item.prevDisplay = item.style.display;
+				}
+				item.style.display = 'none';
 			} );
 			container.querySelectorAll( '.action-' + action ).forEach( item => {
-				item.hidden = false;
+				item.style.display = item.prevDisplay;
 			} );
+			if ( action === 'pwd' && emailInput.value ) {
+				passwordInput.focus();
+			} else {
+				emailInput.focus();
+			}
 		}
 		setFormAction( actionInput.value );
 		container.querySelectorAll( '[data-set-action]' ).forEach( item => {
 			item.addEventListener( 'click', function ( ev ) {
 				ev.preventDefault();
-				const action = ev.target.getAttribute( 'data-set-action' );
 				setFormAction( ev.target.getAttribute( 'data-set-action' ) );
-				if ( action === 'pwd' && emailInput.value ) {
-					passwordInput.focus();
-				} else {
-					emailInput.focus();
-				}
 			} );
 		} );
 
@@ -133,7 +140,7 @@ import './auth.scss';
 			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
 				return;
 			}
-			submitButton.forEach( button => {
+			submitButtons.forEach( button => {
 				button.disabled = true;
 			} );
 			messageContainer.innerHTML = '';
@@ -178,7 +185,7 @@ import './auth.scss';
 				} )
 				.finally( () => {
 					form.style.opacity = 1;
-					submitButton.forEach( button => {
+					submitButtons.forEach( button => {
 						button.disabled = false;
 					} );
 				} );
