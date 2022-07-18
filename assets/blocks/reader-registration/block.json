@@ -9,15 +9,15 @@
 	"attributes": {
 		"placeholder": {
 			"type": "string",
-			"default": "Enter your email address"
+			"default": "Email Address"
 		},
 		"label": {
 			"type": "string",
-			"default": "Register"
+			"default": "Sign up"
 		},
 		"privacyLabel": {
 			"type": "string",
-			"default": "By signing up you agree to our terms and conditions."
+			"default": "By signing up, you agree to our Terms and Conditions."
 		},
 		"newsletterSubscription": {
 			"type": "boolean",
