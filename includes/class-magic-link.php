@@ -505,10 +505,6 @@ final class Magic_Link {
 			return;
 		}
 
-		if ( \is_user_logged_in() ) {
-			return;
-		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET[ self::AUTH_ACTION_RESULT ] ) && 0 === \absint( $_GET[ self::AUTH_ACTION_RESULT ] ) ) {
 			\add_action(
