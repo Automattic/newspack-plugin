@@ -1,8 +1,10 @@
+@use '~@wordpress/base-styles/colors' as wp-colors;
+
 .newspack-registration {
 	@media ( min-width: 782px ) {
 		&.is-style-columns {
 			.newspack-registration__form-content {
-				border-top: 1px solid #f0f0f0;
+				border-top: 1px solid wp-colors.$gray-200;
 			}
 
 			.newspack-registration__main {
@@ -13,7 +15,7 @@
 			.newspack-registration__lists {
 				flex: 1 1 40%;
 				border: 0;
-				border-left: 1px solid #f0f0f0;
+				border-left: 1px solid wp-colors.$gray-200;
 				padding: 2rem 0 2rem 2rem;
 				h3 {
 					display: block;
@@ -54,7 +56,6 @@
 		min-width: 250px;
 		input[type='email'] {
 			flex: 1 1 auto;
-			border-radius: 2px;
 			margin: 0 0 0.5rem;
 		}
 		[type='submit'] {
@@ -107,7 +108,7 @@
 		&__description {
 			display: block;
 			font-size: 0.8rem;
-			color: #777;
+			color: #757575;
 			margin: 0;
 		}
 	}
