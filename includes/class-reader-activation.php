@@ -337,6 +337,8 @@ final class Reader_Activation {
 				$display_name = explode( '@', $email, 2 )[0];
 			}
 
+			$user_login = \sanitize_user( $display_name, true );
+
 			$random_password = \wp_generate_password();
 
 			if ( function_exists( '\wc_create_new_customer' ) ) {
@@ -345,11 +347,11 @@ final class Reader_Activation {
 				 *
 				 * Email notification for WooCommerce is handled by the plugin.
 				 */
-				$user_id = \wc_create_new_customer( $email, $email, $random_password, [ 'display_name' => $display_name ] );
+				$user_id = \wc_create_new_customer( $email, $user_login, $random_password, [ 'display_name' => $display_name ] );
 			} else {
 				$user_id = \wp_insert_user(
 					[
-						'user_login'   => $email,
+						'user_login'   => $user_login,
 						'user_email'   => $email,
 						'user_pass'    => $random_password,
 						'display_name' => $display_name,
@@ -359,6 +361,7 @@ final class Reader_Activation {
 			}
 
 			if ( \is_wp_error( $user_id ) ) {
+				Logger::log( 'User registration failed: ' . $user_id->get_error_message() );
 				return $user_id;
 			}
 
