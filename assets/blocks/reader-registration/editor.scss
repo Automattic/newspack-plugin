@@ -31,4 +31,22 @@
 			vertical-align: bottom;
 		}
 	}
+	&__state-bar {
+		display: flex;
+		justify-content: space-between;
+		border: 1px solid black;
+		padding: 12px 15px;
+		margin-bottom: 14px;
+		font-size: 14px;
+		font-family: -apple-system, blinkmacsystemfont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+			'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+		> div {
+			display: flex;
+			align-items: center;
+			.components-base-control__field {
+				margin-bottom: 0;
+				margin-left: 12px;
+			}
+		}
+	}
 }

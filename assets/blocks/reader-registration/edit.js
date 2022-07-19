@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { TextControl, PanelBody, Button, ButtonGroup } from '@wordpress/components';
+import { TextControl, PanelBody, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
@@ -26,6 +26,7 @@ export default function ReaderRegistrationEdit( {
 } ) {
 	const blockProps = useBlockProps();
 	const [ variant, setVariant ] = useState( variantOptions[ 0 ].value );
+	const isInitial = variant === 'initial';
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
@@ -46,19 +47,6 @@ export default function ReaderRegistrationEdit( {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Edited state', 'newspack' ) }>
-					<ButtonGroup>
-						{ variantOptions.map( ( { label: buttonLabel, value }, i ) => (
-							<Button
-								key={ i }
-								onClick={ () => setVariant( value ) }
-								variant={ value === variant ? 'primary' : 'secondary' }
-							>
-								{ buttonLabel }
-							</Button>
-						) ) }
-					</ButtonGroup>{ ' ' }
-				</PanelBody>
 				<PanelBody title={ __( 'Form settings', 'newspack' ) }>
 					<TextControl
 						label={ __( 'Input placeholder', 'newspack' ) }
@@ -72,17 +60,28 @@ export default function ReaderRegistrationEdit( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			{ variant === 'initial' && (
-				<div { ...blockProps }>
+			<div { ...blockProps }>
+				<div className="newspack-registration__state-bar">
+					<span>{ __( 'Edited State', 'newspack' ) }</span>
+					<div>
+						<span>{ __( 'Initial', 'newspack' ) }</span>
+						<ToggleControl
+							checked={ ! isInitial }
+							onChange={ () => setVariant( isInitial ? 'success' : 'initial' ) }
+						/>
+						<span>{ __( 'Success', 'newspack' ) }</span>
+					</div>
+				</div>
+				{ variant === 'initial' && (
 					<div className="newspack-registration">
 						<form onSubmit={ ev => ev.preventDefault() }>
 							<input type="email" placeholder={ placeholder } />
 							<input type="submit" value={ label } />
 						</form>
 					</div>
-				</div>
-			) }
-			{ variant === 'success' && <div { ...innerBlocksProps } /> }
+				) }
+				{ variant === 'success' && <div { ...innerBlocksProps } /> }
+			</div>
 		</>
 	);
 }
