@@ -152,9 +152,11 @@ class Google_Login {
 		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id ); // Burn after reading.
 		if ( $email ) {
 			$existing_user = \get_user_by( 'email', $email );
+			$message       = __( 'Thank you for registering!', 'newspack' );
 			if ( $existing_user ) {
 				// Log the user in.
-				$result = Reader_Activation::set_current_reader( $existing_user->ID );
+				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
+				$message = __( 'Thank you for signing in!', 'newspack' );
 			} else {
 				$result = Reader_Activation::register_reader( $email );
 				// At this point the user will be logged in.
@@ -167,10 +169,7 @@ class Google_Login {
 			return \rest_ensure_response(
 				[
 					'email'   => $email,
-					'message' => __(
-						'Thank you for registering!',
-						'newspack'
-					),
+					'message' => $message,
 				]
 			);
 		} else {
