@@ -70,11 +70,6 @@ import './style.scss';
 		if ( googleLogin ) {
 			googleLogin.onclick = () => {
 				startLoginFlow();
-				const authWindow = window.open(
-					'about:blank',
-					'newspack_google_login',
-					'width=500,height=600'
-				);
 				const checkLoginStatus = () => {
 					fetch( '/wp-json/newspack/v1/login/google/register', {
 						headers: new Headers( {
@@ -85,18 +80,27 @@ import './style.scss';
 					} );
 				};
 				fetch( '/wp-json/newspack/v1/login/google' )
-					.then( res => res.json() )
-					.then( url => {
-						if ( authWindow ) {
-							authWindow.location = url;
-							const interval = setInterval( () => {
-								if ( authWindow.closed ) {
-									checkLoginStatus();
-									clearInterval( interval );
-								}
-							}, 500 );
+					.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
+					.then( ( { data, status } ) => {
+						if ( status !== 200 ) {
+							endLoginFlow( data.message, status );
 						} else {
-							endLoginFlow();
+							const authWindow = window.open(
+								'about:blank',
+								'newspack_google_login',
+								'width=500,height=600'
+							);
+							if ( authWindow ) {
+								authWindow.location = data;
+								const interval = setInterval( () => {
+									if ( authWindow.closed ) {
+										checkLoginStatus();
+										clearInterval( interval );
+									}
+								}, 500 );
+							} else {
+								endLoginFlow();
+							}
 						}
 					} );
 			};

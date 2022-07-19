@@ -87,13 +87,17 @@ class Google_Login {
 	 * @return WP_REST_Response Response with the URL.
 	 */
 	public static function api_google_auth_get_url() {
-		return Google_OAuth::api_google_auth_get_url(
+		$url = Google_OAuth::api_google_auth_get_url(
 			[
 				'csrf_token'     => OAuth::generate_csrf_token( self::CSRF_TOKEN_NAMESPACE ),
 				'scope'          => implode( ' ', self::REQUIRED_SCOPES ),
 				'redirect_after' => add_query_arg( self::AUTH_CALLBACK, wp_create_nonce( self::AUTH_CALLBACK ), get_home_url() ),
 			]
 		);
+		if ( is_wp_error( $url ) ) {
+			return $url;
+		}
+		return rest_ensure_response( $url );
 	}
 
 	/**
