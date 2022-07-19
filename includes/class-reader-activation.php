@@ -36,6 +36,13 @@ final class Reader_Activation {
 	];
 
 	/**
+	 * Whether the session is authenticating a newly registered reader
+	 *
+	 * @var bool
+	 */
+	private static $is_new_reader_auth = false;
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -272,6 +279,15 @@ final class Reader_Activation {
 			if ( $user && self::is_user_reader( $user ) ) {
 				$length = YEAR_IN_SECONDS;
 			}
+		}
+
+		/**
+		 * If the session is authenticating a newly registered reader we want the
+		 * auth cookie to be short lived since the email ownership has not yet been
+		 * verified.
+		 */
+		if ( true === self::$is_new_reader_auth ) {
+			$length = 24 * HOUR_IN_SECONDS;
 		}
 		return $length;
 	}
@@ -725,6 +741,7 @@ final class Reader_Activation {
 			Logger::log( 'Created new reader user with ID ' . $user_id );
 
 			if ( $authenticate ) {
+				self::$is_new_reader_auth = true;
 				self::set_current_reader( $user_id );
 			}
 		}
