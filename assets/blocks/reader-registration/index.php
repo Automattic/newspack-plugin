@@ -82,6 +82,16 @@ function render_block( $attrs ) {
 	$registered = false;
 	$message    = '';
 
+	/** Handle default attributes. */
+	$default_attrs = [
+		'style' => 'stacked',
+		'label' => __( 'Sign up', 'newspack' ),
+	];
+	$attrs         = \wp_parse_args( $attrs, $default_attrs );
+	if ( empty( $attrs['label'] ) ) {
+		$attrs['label'] = $default_attrs['label'];
+	}
+
 	/** Setup list subscription */
 	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
 		$list_config     = \Newspack_Newsletters_Subscription::get_lists_config();

@@ -182,7 +182,7 @@ export default function ReaderRegistrationEdit( {
 									<button type="submit">
 										<RichText
 											onChange={ value => setAttributes( { label: value } ) }
-											placeholder={ __( 'Register', 'newspack' ) }
+											placeholder={ __( 'Sign up', 'newspack' ) }
 											value={ label }
 											tagName="span"
 										/>
