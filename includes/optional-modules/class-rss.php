@@ -82,7 +82,7 @@ class RSS {
 			'use_tags_tags'          => false,
 			'full_content'           => true,
 			'num_items_in_feed'      => 10,
-			'offset'      			 => 0,
+			'offset'                 => 0,
 			'timeframe'              => false,
 			'content_featured_image' => false,
 			'suppress_yoast'         => false,
@@ -445,7 +445,7 @@ class RSS {
 		$num_items_in_feed             = filter_input( INPUT_POST, 'num_items_in_feed', FILTER_SANITIZE_NUMBER_INT );
 		$settings['num_items_in_feed'] = absint( $num_items_in_feed );
 
-		$offset                        = filter_input( INPUT_POST, 'offset', FILTER_SANITIZE_NUMBER_INT );
+		$offset             = filter_input( INPUT_POST, 'offset', FILTER_SANITIZE_NUMBER_INT );
 		$settings['offset'] = absint( $offset );
 
 		$timeframe             = filter_input( INPUT_POST, 'timeframe', FILTER_SANITIZE_NUMBER_INT );
