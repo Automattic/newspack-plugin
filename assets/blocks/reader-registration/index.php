@@ -88,7 +88,7 @@ function render_block( $attrs ) {
 		$lists           = array_keys( $list_config );
 		$list_map        = array_flip( $lists );
 		$available_lists = array_values( array_intersect( $lists, $attrs['lists'] ) );
-		if ( empty( $available_lists ) ) {
+		if ( empty( $available_lists ) && ! empty( $lists ) ) {
 			$available_lists = [ $lists[0] ];
 		}
 	}
