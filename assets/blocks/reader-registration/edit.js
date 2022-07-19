@@ -191,7 +191,7 @@ export default function ReaderRegistrationEdit( {
 								<div className="newspack-registration__privacy">
 									<RichText
 										onChange={ value => setAttributes( { privacyLabel: value } ) }
-										placeholder={ __( 'Newsletters title…', 'newspack' ) }
+										placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
 										value={ privacyLabel }
 										tagName="p"
 									/>
