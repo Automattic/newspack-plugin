@@ -25,7 +25,7 @@ import './style.scss';
 
 			const endLoginFlow = ( message, status, data ) => {
 				const messageNode = document.createElement( 'p' );
-				messageNode.innerHTML = message;
+				messageNode.textContent = message;
 				messageNode.className = `message status-${ status }`;
 
 				if ( status === 200 ) {
