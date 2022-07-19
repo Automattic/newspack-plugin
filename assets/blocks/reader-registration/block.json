@@ -40,6 +40,14 @@
 			"type": "array",
 			"default": [],
 			"items": { "type": "string" }
+		},
+		"haveAccountLabel": {
+			"type": "string",
+			"default": "Already have an account?"
+		},
+		"signInLabel": {
+			"type": "string",
+			"default": "Sign in"
 		}
 	},
 	"supports": {

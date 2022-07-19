@@ -84,12 +84,21 @@ function render_block( $attrs ) {
 
 	/** Handle default attributes. */
 	$default_attrs = [
-		'style' => 'stacked',
-		'label' => __( 'Sign up', 'newspack' ),
+		'style'            => 'stacked',
+		'label'            => __( 'Sign up', 'newspack' ),
+		'haveAccountLabel' => __( 'Already have an account?', 'newspack' ),
+		'signInLabel'      => __( 'Sign in', 'newspack' ),
 	];
 	$attrs         = \wp_parse_args( $attrs, $default_attrs );
-	if ( empty( $attrs['label'] ) ) {
-		$attrs['label'] = $default_attrs['label'];
+	foreach ( $default_attrs as $key => $value ) {
+		if ( empty( $attrs[ $key ] ) ) {
+			$attrs[ $key ] = $value;
+		}
+	}
+
+	$sign_in_url = \wp_login_url();
+	if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
+		$sign_in_url = \wc_get_account_endpoint_url( 'dashboard' );
 	}
 
 	/** Setup list subscription */
@@ -173,13 +182,21 @@ function render_block( $attrs ) {
 						</div>
 					<?php endif; ?>
 					<div class="newspack-registration__main">
-						<div class="newspack-registration__inputs">
-							<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-							<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
+						<div>
+							<div class="newspack-registration__inputs">
+								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
+							</div>
+							<div class="newspack-registration__privacy">
+								<p>
+									<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								</p>
+							</div>
 						</div>
-						<div class="newspack-registration__privacy">
+						<div class="newspack-registration__have-account">
 							<p>
-								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php echo \esc_html( $attrs['haveAccountLabel'] ); ?>
+								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo \esc_html( $attrs['signInLabel'] ); ?></a>
 							</p>
 						</div>
 					</div>

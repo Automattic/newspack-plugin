@@ -29,6 +29,8 @@ export default function ReaderRegistrationEdit( {
 		displayListDescription,
 		newsletterTitle,
 		newsletterLabel,
+		haveAccountLabel,
+		signInLabel,
 		lists,
 		className,
 	},
@@ -177,24 +179,44 @@ export default function ReaderRegistrationEdit( {
 								</div>
 							) : null }
 							<div className="newspack-registration__main">
-								<div className="newspack-registration__inputs">
-									<input type="email" placeholder={ placeholder } />
-									<button type="submit">
+								<div>
+									<div className="newspack-registration__inputs">
+										<input type="email" placeholder={ placeholder } />
+										<button type="submit">
+											<RichText
+												onChange={ value => setAttributes( { label: value } ) }
+												placeholder={ __( 'Sign up', 'newspack' ) }
+												value={ label }
+												tagName="span"
+											/>
+										</button>
+									</div>
+									<div className="newspack-registration__privacy">
 										<RichText
-											onChange={ value => setAttributes( { label: value } ) }
-											placeholder={ __( 'Sign up', 'newspack' ) }
-											value={ label }
-											tagName="span"
+											onChange={ value => setAttributes( { privacyLabel: value } ) }
+											placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
+											value={ privacyLabel }
+											tagName="p"
 										/>
-									</button>
+									</div>
 								</div>
-								<div className="newspack-registration__privacy">
-									<RichText
-										onChange={ value => setAttributes( { privacyLabel: value } ) }
-										placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
-										value={ privacyLabel }
-										tagName="p"
-									/>
+								<div className="newspack-registration__have-account">
+									<p>
+										<RichText
+											onChange={ value => setAttributes( { haveAccountLabel: value } ) }
+											placeholder={ __( 'Already have an account?', 'newspack' ) }
+											value={ haveAccountLabel }
+											tagName="span"
+										/>{ ' ' }
+										<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+											<RichText
+												onChange={ value => setAttributes( { signInLabel: value } ) }
+												placeholder={ __( 'Sign In', 'newspack' ) }
+												value={ signInLabel }
+												tagName="span"
+											/>
+										</a>
+									</p>
 								</div>
 							</div>
 						</div>
