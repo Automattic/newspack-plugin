@@ -41,6 +41,7 @@ import './auth.scss';
 		authLinkMessage.hidden = true;
 
 		const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
+		const triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
 
 		/**
 		 * Handle reader changes.
@@ -90,8 +91,8 @@ import './auth.scss';
 				emailInput.focus();
 			}
 		}
-		accountLinks.forEach( menuItem => {
-			menuItem.querySelector( 'a' ).addEventListener( 'click', handleAccountLinkClick );
+		triggerLinks.forEach( link => {
+			link.addEventListener( 'click', handleAccountLinkClick );
 		} );
 
 		/**
