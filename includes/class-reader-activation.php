@@ -337,7 +337,7 @@ final class Reader_Activation {
 				$display_name = explode( '@', $email, 2 )[0];
 			}
 
-			$user_login = \sanitize_user( $display_name, true );
+			$user_login = \sanitize_user( $email, true );
 
 			$random_password = \wp_generate_password();
 
