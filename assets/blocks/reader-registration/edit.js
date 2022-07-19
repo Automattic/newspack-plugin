@@ -68,12 +68,6 @@ export default function ReaderRegistrationEdit( {
 						disabled={ inFlight }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 					/>
-					<TextControl
-						label={ __( 'Button label', 'newspack' ) }
-						value={ label }
-						disabled={ inFlight }
-						onChange={ value => setAttributes( { label: value } ) }
-					/>
 				</PanelBody>
 				{ newspack_blocks.has_newsletters && (
 					<PanelBody title={ __( 'Newsletter Subscription', 'newspack' ) }>
@@ -94,14 +88,6 @@ export default function ReaderRegistrationEdit( {
 											{ __( 'You must enable lists for subscription.', 'newspack-newsletters' ) }
 										</Notice>
 									</div>
-								) }
-								{ lists.length === 1 && (
-									<TextControl
-										label={ __( 'Newsletter subscription label', 'newspack' ) }
-										value={ newsletterLabel }
-										disabled={ inFlight }
-										onChange={ value => setAttributes( { newsletterLabel: value } ) }
-									/>
 								) }
 								<ToggleControl
 									label={ __( 'Display list description', 'newspack-newsletters' ) }
