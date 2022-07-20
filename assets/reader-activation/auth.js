@@ -52,9 +52,8 @@ import './auth.scss';
 				accountLinks.forEach( link => {
 					try {
 						const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
-						link.querySelector( '.newspack-reader-account-link-label' ).innerHTML = authenticated
-							? labels.signedin
-							: labels.signedout;
+						link.querySelector( '.newspack-reader__account-link__label' ).textContent =
+							authenticated ? labels.signedin : labels.signedout;
 					} catch {}
 				} );
 			}
@@ -148,17 +147,16 @@ import './auth.scss';
 			} )
 				.then( res => {
 					res.json().then( ( { message, data } ) => {
+						const authenticated = !! data?.authenticated;
 						const messageNode = document.createElement( 'div' );
 						messageNode.innerHTML = `<p>${ message }</p>`;
 						messageNode.className = `message status-${ res.status }`;
 						if ( res.status === 200 ) {
 							container.classList.remove( 'error' );
 							container.classList.add( 'success' );
-							if ( data?.email ) {
-								readerActivation.setReaderEmail( data.email );
-							}
-							if ( data?.authenticated ) {
-								readerActivation.setAuthenticated();
+							readerActivation.setReaderEmail( data.email );
+							readerActivation.setAuthenticated( authenticated );
+							if ( authenticated ) {
 								if ( body.get( 'redirect' ) ) {
 									window.location = body.get( 'redirect' );
 								}
