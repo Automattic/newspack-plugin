@@ -86,6 +86,7 @@ function render_block( $attrs ) {
 	$default_attrs = [
 		'style'            => 'stacked',
 		'label'            => __( 'Sign up', 'newspack' ),
+		'newsletterLabel'  => __( 'Subscribe to our newsletter', 'newspack' ),
 		'haveAccountLabel' => __( 'Already have an account?', 'newspack' ),
 		'signInLabel'      => __( 'Sign in', 'newspack' ),
 	];
