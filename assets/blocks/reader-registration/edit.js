@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { TextControl, PanelBody, ToggleControl, Button } from '@wordpress/components';
+import { TextControl, PanelBody, Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
