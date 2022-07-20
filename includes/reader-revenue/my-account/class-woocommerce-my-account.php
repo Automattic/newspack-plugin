@@ -31,12 +31,26 @@ class WooCommerce_My_Account {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 		add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 	}
+
+	/**
+	 * Enqueue front-end scripts.
+	 */
+	public static function enqueue_scripts() {
+		\wp_enqueue_style(
+			'my-account',
+			\Newspack\Newspack::plugin_url() . '/dist/my-account.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+	}
+
 
 	/**
 	 * Filter "My Account" items, if Stripe is the donations platform.
