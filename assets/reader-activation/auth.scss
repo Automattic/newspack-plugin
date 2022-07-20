@@ -3,9 +3,9 @@
 	 * Account Link
 	 */
 	&__account-link {
-		display: flex !important;
-		justify-content: center;
-		align-items: center;
+		span {
+			display: inline-block;
+		}
 
 		&__mobile {
 			@media screen and ( min-width: 960px ) {
@@ -19,7 +19,7 @@
 			width: 24px;
 			svg {
 				position: absolute;
-				top: -12px;
+				top: -17px;
 				left: 0;
 			}
 		}
