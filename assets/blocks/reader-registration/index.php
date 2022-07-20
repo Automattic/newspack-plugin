@@ -308,7 +308,10 @@ function process_form() {
 	}
 
 	return send_form_response(
-		[ 'email' => $email ],
+		[
+			'email'         => $email,
+			'authenticated' => false !== $user_id,
+		],
 		false === $user_id ? __( 'Check your email for a confirmation link!', 'newspack' ) : __( 'Thank you for registering!', 'newspack' )
 	);
 }

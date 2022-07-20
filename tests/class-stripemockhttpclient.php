@@ -15,7 +15,6 @@ class StripeMockHTTPClient {
 	 * The database of the mock client.
 	 */ // phpcs:ignore Squiz.Commenting.VariableComment.MissingVar
 	public static $database = [ // phpcs:ignore Squiz.Commenting.VariableComment.Missing
-		'webhooks'  => [],
 		'products'  => [],
 		'customers' => [],
 	];
@@ -57,13 +56,6 @@ class StripeMockHTTPClient {
 		$endpoint = str_replace( 'https://api.stripe.com', '', $path );
 		$response = [ 'status' => 'success' ];
 		switch ( $endpoint ) {
-			case '/v1/webhook_endpoints':
-				switch ( $method ) {
-					case 'get':
-						$response = self::list_response( self::$database['webhooks'] );
-						break;
-				}
-				break;
 			case '/v1/products':
 				switch ( $method ) {
 					case 'get':

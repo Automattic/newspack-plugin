@@ -47,17 +47,6 @@ function setCookie( name, value, expirationDays = 365 ) {
 }
 
 /**
- * Initialize store data.
- */
-function init() {
-	const data = window.newspack_reader_activation_data;
-	const initialEmail = data?.reader_email || getCookie( data?.auth_intention_cookie );
-	store.reader = initialEmail ? { email: initialEmail } : null;
-}
-
-init();
-
-/**
  * Handling events.
  */
 const events = Object.values( EVENTS );
@@ -127,12 +116,27 @@ export function off( event, callback ) {
  *
  * @param {string} email Email.
  */
-export function setReader( email ) {
-	store.reader = null;
+export function setReaderEmail( email ) {
 	if ( ! email ) {
 		return;
 	}
-	store.reader = { email };
+	if ( ! store.reader ) {
+		store.reader = {};
+	}
+	store.reader.email = email;
+	emit( EVENTS.reader, store.reader );
+}
+
+/**
+ * Set whether the current reader is authenticated.
+ *
+ * @param {boolean} authenticated Whether the current reader is authenticated. Default is true.
+ */
+export function setAuthenticated( authenticated = true ) {
+	if ( ! store.reader?.email ) {
+		throw 'Reader email not set';
+	}
+	store.reader.authenticated = !! authenticated;
 	emit( EVENTS.reader, store.reader );
 }
 
@@ -145,7 +149,38 @@ export function getReader() {
 	return store.reader;
 }
 
-const readerActivation = { on, off, setReader, getReader };
+/**
+ * Whether the current reader has a valid email link attached to the session.
+ *
+ * @return {boolean} Whether the current reader has a valid email link attached to the session.
+ */
+export function hasAuthLink() {
+	const reader = getReader();
+	const emailLinkSecret = getCookie( 'np_auth_link' );
+	return !! ( reader?.email && emailLinkSecret );
+}
+
+/**
+ * Initialize store data.
+ */
+function init() {
+	const data = window.newspack_reader_activation_data;
+	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
+	const authenticated = !! data?.authenticated_email;
+	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
+	emit( EVENTS.reader, store.reader );
+}
+
+init();
+
+const readerActivation = {
+	on,
+	off,
+	setReaderEmail,
+	setAuthenticated,
+	getReader,
+	hasAuthLink,
+};
 window.newspackReaderActivation = readerActivation;
 
 const clientIDCookieName = window.newspack_reader_activation_data.cid_cookie;

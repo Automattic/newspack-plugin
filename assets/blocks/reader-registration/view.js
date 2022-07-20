@@ -25,19 +25,15 @@ import './style.scss';
 
 			const endLoginFlow = ( message, status, data ) => {
 				const messageNode = document.createElement( 'p' );
-				messageNode.textContent = message;
+				messageNode.innerHTML = message;
 				messageNode.className = `message status-${ status }`;
-
 				if ( status === 200 ) {
-					container.classList.remove( 'error' );
-					container.classList.add( 'success' );
 					container.replaceChild( messageNode, form );
 					if ( data?.email ) {
-						readerActivation.setReader( data.email );
+						readerActivation.setReaderEmail( data.email );
 					}
+					readerActivation.setAuthenticated( data?.authenticated );
 				} else {
-					container.classList.add( 'error' );
-					container.classList.remove( 'success' );
 					messageElement.appendChild( messageNode );
 				}
 			};
