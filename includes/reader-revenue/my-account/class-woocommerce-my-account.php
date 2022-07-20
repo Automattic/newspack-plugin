@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class WooCommerce_My_Account {
 	const BILLING_ENDPOINT             = 'billing';
 	const STRIPE_CUSTOMER_ID_USER_META = '_newspack_stripe_customer_id';
+	const RESET_PASSWORD_URL_PARAM     = 'reset-password';
 
 	/**
 	 * Cached Stripe customer ID of the current user.
@@ -34,7 +35,9 @@ class WooCommerce_My_Account {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
+		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 		add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 	}
@@ -74,6 +77,42 @@ class WooCommerce_My_Account {
 		}
 		$custom_endpoints = [ self::BILLING_ENDPOINT => __( 'Billing', 'newspack' ) ];
 		return array_slice( $items, 0, 1, true ) + $custom_endpoints + array_slice( $items, 1, null, true );
+	}
+
+	/**
+	 * Handle password reset requestl.
+	 */
+	public static function handle_password_reset_request() {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+		$nonce = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_STRING );
+
+		if ( $nonce ) {
+			$is_error = false;
+			if ( wp_verify_nonce( $nonce, self::RESET_PASSWORD_URL_PARAM ) ) {
+				$result  = retrieve_password( wp_get_current_user()->user_login );
+				$message = __( 'Password reset link sent!', 'newspack' );
+				if ( is_wp_error( $result ) ) {
+					Logger::log( 'Error resetting password: ' . $result->get_error_message() );
+					$message  = __( 'Something went wrong.', 'newspack' );
+					$is_error = true;
+				}
+			} else {
+				$message  = __( 'Something went wrong.', 'newspack' );
+				$is_error = true;
+			}
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'message'  => $message,
+						'is_error' => $is_error,
+					],
+					remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
+				)
+			);
+			exit;
+		}
 	}
 
 	/**
@@ -168,6 +207,21 @@ class WooCommerce_My_Account {
 			return $required_fields;
 		}
 		return [];
+	}
+
+	/**
+	 * Filter WC's template getting to remove Edit Account page's default rendering.
+	 *
+	 * @param string $template Template path.
+	 * @param string $template_name Template name.
+	 */
+	public static function wc_get_template( $template, $template_name ) {
+		if ( 'myaccount/form-edit-account.php' === $template_name ) {
+			global $newspack_reset_password_arg;
+			$newspack_reset_password_arg = self::RESET_PASSWORD_URL_PARAM;
+			return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
+		}
+		return $template;
 	}
 }
 
