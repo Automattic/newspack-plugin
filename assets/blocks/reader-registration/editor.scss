@@ -40,12 +40,15 @@
 		font-size: 14px;
 		font-family: -apple-system, blinkmacsystemfont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
 			'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-		> div {
-			display: flex;
-			align-items: center;
-			.components-base-control__field {
-				margin-bottom: 0;
-				margin-left: 12px;
+		button {
+			box-shadow: none !important;
+			color: #2f2f2f !important;
+			&[data-is-active='true'] {
+				background-color: #2f2f2f;
+				color: #fff !important;
+			}
+			:not( :first-child ) {
+				margin-left: 10px;
 			}
 		}
 	}

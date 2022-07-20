@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { TextControl, PanelBody, ToggleControl } from '@wordpress/components';
+import { TextControl, PanelBody, ToggleControl, Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
@@ -64,12 +64,20 @@ export default function ReaderRegistrationEdit( {
 				<div className="newspack-registration__state-bar">
 					<span>{ __( 'Edited State', 'newspack' ) }</span>
 					<div>
-						<span>{ __( 'Initial', 'newspack' ) }</span>
-						<ToggleControl
-							checked={ ! isInitial }
-							onChange={ () => setVariant( isInitial ? 'success' : 'initial' ) }
-						/>
-						<span>{ __( 'Success', 'newspack' ) }</span>
+						<Button
+							data-is-active={ isInitial }
+							variant="secondary"
+							onClick={ () => setVariant( 'initial' ) }
+						>
+							{ __( 'Initial', 'newspack' ) }
+						</Button>
+						<Button
+							data-is-active={ ! isInitial }
+							variant="secondary"
+							onClick={ () => setVariant( 'success' ) }
+						>
+							{ __( 'Success', 'newspack' ) }
+						</Button>
 					</div>
 				</div>
 				{ variant === 'initial' && (
