@@ -32,10 +32,13 @@ import './auth.scss';
 
 		container.querySelector( 'button[data-close]' ).addEventListener( 'click', function ( ev ) {
 			ev.preventDefault();
+			container.classList.remove( 'newspack-reader__auth-form__visible' );
 			container.style.display = 'none';
 		} );
 
-		const messageContainer = container.querySelector( '.newspack-reader__auth-form__response' );
+		const messageContentElement = container.querySelector(
+			'.newspack-reader__auth-form__response__content'
+		);
 
 		const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 		authLinkMessage.hidden = true;
@@ -99,7 +102,8 @@ import './auth.scss';
 		 */
 		function setFormAction( action ) {
 			actionInput.value = action;
-			messageContainer.innerHTML = '';
+			container.removeAttribute( 'data-form-status' );
+			messageContentElement.innerHTML = '';
 			container.querySelectorAll( '[data-action]' ).forEach( item => {
 				if ( 'none' !== item.style.display ) {
 					item.prevDisplay = item.style.display;
@@ -128,6 +132,7 @@ import './auth.scss';
 		 */
 		form.addEventListener( 'submit', function ( ev ) {
 			ev.preventDefault();
+			container.removeAttribute( 'data-form-status' );
 			const body = new FormData( ev.target );
 			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
 				return;
@@ -135,7 +140,7 @@ import './auth.scss';
 			submitButtons.forEach( button => {
 				button.disabled = true;
 			} );
-			messageContainer.innerHTML = '';
+			messageContentElement.innerHTML = '';
 			form.style.opacity = 0.5;
 			readerActivation.setReaderEmail( body.get( 'email' ) );
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
@@ -146,14 +151,13 @@ import './auth.scss';
 				body,
 			} )
 				.then( res => {
+					container.setAttribute( 'data-form-status', res.status );
 					res.json().then( ( { message, data } ) => {
 						const authenticated = !! data?.authenticated;
-						const messageNode = document.createElement( 'div' );
-						messageNode.innerHTML = `<p>${ message }</p>`;
-						messageNode.className = `message status-${ res.status }`;
+						const messageNode = document.createElement( 'p' );
+						messageNode.textContent = message;
+						messageContentElement.appendChild( messageNode );
 						if ( res.status === 200 ) {
-							container.classList.remove( 'error' );
-							container.classList.add( 'success' );
 							readerActivation.setReaderEmail( data.email );
 							readerActivation.setAuthenticated( authenticated );
 							if ( authenticated ) {
@@ -161,15 +165,8 @@ import './auth.scss';
 									window.location = body.get( 'redirect' );
 								}
 							} else {
-								messageNode.prepend(
-									container.querySelector( '.newspack-reader__auth-form__success-icon' )
-								);
-								form.replaceWith( messageNode );
+								form.replaceWith( messageContentElement.parentNode );
 							}
-						} else {
-							container.classList.add( 'error' );
-							container.classList.remove( 'success' );
-							messageContainer.appendChild( messageNode );
 						}
 					} );
 				} )

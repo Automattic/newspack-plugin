@@ -58,8 +58,53 @@
 		z-index: 999999;
 		font-size: 0.9em;
 
-		&.visible {
-			display: flex;
+		&__visible {
+			display: flex !important;
+		}
+
+		&[data-form-status='200'] {
+			.newspack-reader__auth-form {
+				&__response {
+					background: rgba( 74, 184, 102, 0.1 );
+					text-align: center;
+					padding: 2.5rem;
+					margin: 1rem 0;
+					font-size: 1em;
+					&__icon[data-form-status='200'] {
+						display: flex;
+						margin: 0 auto 2rem;
+						border-radius: 100%;
+						width: 50px;
+						height: 50px;
+						justify-content: center;
+						align-items: center;
+						color: #fff;
+						background: #4ab866;
+					}
+				}
+			}
+		}
+
+		&[data-form-status='400'] {
+			.newspack-reader__auth-form {
+				&__response {
+					width: 100%;
+					margin: 0;
+					padding: 0.5rem;
+					background: rgba( 217, 79, 79, 0.1 );
+					display: flex;
+					justify-content: center;
+					&__icon[data-form-status='400'] {
+						display: flex;
+						flex: 1 1 0;
+						color: #d94f4f;
+						margin: 0 0.25rem 0 0;
+					}
+					&__content {
+						flex: 1 1 100%;
+					}
+				}
+			}
 		}
 
 		@media screen and ( max-width: 744px ) {
@@ -109,13 +154,6 @@
 		&__content {
 			padding: 64px;
 
-			/**
-			 * Hide placeholder success icon.
-			 */
-			> .newspack-reader__auth-form__success-icon {
-				display: none !important;
-			}
-
 			@media screen and ( max-width: 744px ) {
 				padding: 0 5vw 5vw 5vw;
 			}
@@ -146,18 +184,14 @@
 
 		&__response {
 			font-size: 0.8em;
-		}
-
-		&__success-icon {
-			display: flex;
-			margin: 0 auto 2rem;
-			border-radius: 100%;
-			width: 50px;
-			height: 50px;
-			justify-content: center;
-			align-items: center;
-			color: #fff;
-			background: #4ab866;
+			&__content {
+				p {
+					margin: 0;
+				}
+			}
+			&__icon {
+				display: none;
+			}
 		}
 
 		&__close {
@@ -193,32 +227,6 @@
 				outline: 1px solid;
 				outline-offset: -1px;
 			}
-		}
-	}
-}
-#newspack-reader-auth {
-	.message {
-		display: block;
-		width: 100%;
-		margin: 0;
-		padding: 0.25rem 0;
-		p {
-			margin: 0;
-		}
-	}
-
-	&.success {
-		.message {
-			background: rgba( 74, 184, 102, 0.1 );
-			text-align: center;
-			padding: 2.5rem;
-			margin: 1rem 0;
-		}
-	}
-
-	&.error {
-		.message {
-			color: #d94f4f;
 		}
 	}
 }

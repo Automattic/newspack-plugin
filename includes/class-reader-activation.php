@@ -293,6 +293,22 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get a BEM formatted class name.
+	 *
+	 * @param string ...$parts The parts of the class name.
+	 *
+	 * @return string The BEM formatted class name.
+	 */
+	private static function get_element_class_name( ...$parts ) {
+		if ( is_array( $parts[0] ) ) {
+			$parts = $parts[0];
+		}
+		$parts = array_filter( $parts );
+		array_unshift( $parts, 'newspack-reader' );
+		return empty( $parts ) ? '' : implode( '__', $parts );
+	}
+
+	/**
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
@@ -332,7 +348,7 @@ final class Reader_Activation {
 			'newspack_header_after_mobile_toggle',
 			function() use ( $self ) {
 				?>
-				<span class="newspack-reader__account-link__mobile">
+				<span class="<?php echo \esc_attr( self::get_element_class_name( 'account-link', 'mobile' ) ); ?>">
 					<?php echo $self->get_account_link(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</span>
 				<?php
@@ -373,7 +389,7 @@ final class Reader_Activation {
 		$item .= '</li>';
 
 		if ( empty( $output ) ) {
-			$menu_class = sprintf( '%s %s', $args->menu_class, 'newspack-reader__account-menu' );
+			$menu_class = sprintf( '%s %s', $args->menu_class, self::get_element_class_name( 'account-menu' ) );
 			$output     = sprintf( $args->items_wrap ?? '<ul id="%1$s" class="%2$s">%3$s</ul>', $args->menu_id, $menu_class, $item );
 		} else {
 			$output = $output . $item;
@@ -406,17 +422,22 @@ final class Reader_Activation {
 			return '';
 		}
 
+		$class = function( ...$parts ) {
+			array_unshift( $parts, 'account-link' );
+			return self::get_element_class_name( $parts );
+		};
+
 		$labels = [
 			'signedin'  => \__( 'Account', 'newspack' ),
 			'signedout' => \__( 'Sign In', 'newspack' ),
 		];
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
 
-		$link .= '<a class="newspack-reader__account-link" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
-		$link .= '<span class="newspack-reader__account-link__icon">';
+		$link .= '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
+		$link .= '<span class="' . \esc_attr( $class( 'icon' ) ) . '">';
 		$link .= self::get_account_icon();
 		$link .= '</span>';
-		$link .= '<span class="newspack-reader__account-link__label">' . \esc_html( $labels[ $label ] ) . '</span>';
+		$link .= '<span class="' . \esc_attr( $class( 'label' ) ) . '">' . \esc_html( $labels[ $label ] ) . '</span>';
 		$link .= '</a>';
 
 		/**
@@ -434,47 +455,63 @@ final class Reader_Activation {
 		if ( \is_user_logged_in() ) {
 			return;
 		}
+		$class      = function( ...$parts ) {
+			array_unshift( $parts, 'auth-form' );
+			return self::get_element_class_name( $parts );
+		};
 		$message    = '';
-		$classnames = [ 'newspack-reader__auth-form' ];
+		$classnames = [ $class() ];
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['reader_authenticated'] ) && isset( $_GET['message'] ) ) {
 			$message      = \sanitize_text_field( $_GET['message'] );
-			$classnames[] = 'visible';
+			$classnames[] = $class( 'visible' );
 		}
 		// phpcs:enable
 		?>
 		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>">
-			<div class="newspack-reader__auth-form__wrapper">
-				<button class="newspack-reader__auth-form__close" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
+			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
+				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
 					</svg>
 				</button>
-				<div class="newspack-reader__auth-form__content">
+				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<input type="hidden" name="action" value="link" />
-						<div class="newspack-reader__auth-form__header">
+						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
-							<a href="#" class="form-actions action-item action-pwd action-link register-link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
+							<a href="#" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
-						<p class="action-item" data-action="pwd">
+						<p data-action="pwd">
 							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="" />
-						<p><input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" /></p>
+						<p>
+							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+						</p>
 						<div data-action="pwd">
 							<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
 						</div>
-						<div class="newspack-reader__auth-form__response">
-							<?php if ( ! empty( $message ) ) : ?>
-								<p><?php echo \esc_html( $message ); ?></p>
-							<?php endif; ?>
+						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
+							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="-2 -2 24 24" role="img" aria-hidden="true" focusable="false">
+									<path d="M10 2c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zm1.13 9.38l.35-6.46H8.52l.35 6.46h2.26zm-.09 3.36c.24-.23.37-.55.37-.96 0-.42-.12-.74-.36-.97s-.59-.35-1.06-.35-.82.12-1.07.35-.37.55-.37.97c0 .41.13.73.38.96.26.23.61.34 1.06.34s.8-.11 1.05-.34z" />
+								</svg>
+							</span>
+							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
+								<?php echo self::get_account_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</span>
+							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
+							</div>
 						</div>
-						<div class="newspack-reader__auth-form__actions" data-action="pwd">
+						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
 							<p class="small">
 								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
@@ -483,23 +520,20 @@ final class Reader_Activation {
 								<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
 							</p>
 						</div>
-						<div class="newspack-reader__auth-form__actions" data-action="link">
+						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
 							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
 							<p class="small">
 								<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?><br/>
 								<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password instead', 'newspack' ); ?></a>.
 							</p>
 						</div>
-						<div class="newspack-reader__auth-form__actions" data-action="register">
+						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="register">
 							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
 							<p class="small">
 								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></a>
 							</p>
 						</div>
 					</form>
-					<span class="newspack-reader__auth-form__success-icon">
-							<?php echo self::get_account_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						</span>
 				</div>
 			</div>
 		</div>
