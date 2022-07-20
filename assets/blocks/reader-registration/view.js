@@ -29,6 +29,7 @@ import './style.scss';
 				if ( data?.email ) {
 					readerActivation.setReaderEmail( data.email );
 				}
+				readerActivation.setAuthenticated( data?.authenticated );
 			} else {
 				messageElement.appendChild( messageNode );
 			}
