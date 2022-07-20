@@ -47,7 +47,7 @@ class WooCommerce_My_Account {
 		if ( ! Donations::is_platform_stripe() ) {
 			return $items;
 		}
-		$disabled_wc_menu_items = [ 'dashboard', 'downloads', 'members-area', 'subscriptions', 'edit-address', 'orders', 'payment-methods' ];
+		$disabled_wc_menu_items = apply_filters( 'newspack_my_account_disabled_pages', [ 'dashboard', 'downloads', 'members-area', 'subscriptions', 'edit-address', 'orders', 'payment-methods' ] );
 		foreach ( $disabled_wc_menu_items as $key ) {
 			if ( isset( $items[ $key ] ) ) {
 				unset( $items[ $key ] );
