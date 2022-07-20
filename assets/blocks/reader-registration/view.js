@@ -27,7 +27,7 @@ import './style.scss';
 			if ( status === 200 ) {
 				container.replaceChild( messageNode, form );
 				if ( data?.email ) {
-					readerActivation.setReader( data.email );
+					readerActivation.setReaderEmail( data.email );
 				}
 			} else {
 				messageElement.appendChild( messageNode );
