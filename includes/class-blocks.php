@@ -38,7 +38,9 @@ final class Blocks {
 			'newspack-blocks',
 			'newspack_blocks',
 			[
+				'has_newsletters'       => method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ),
 				'has_reader_activation' => Reader_Activation::is_enabled(),
+				'newsletters_url'       => Wizards::get_wizard( 'engagement' )->newsletters_settings_url(),
 			]
 		);
 		\wp_enqueue_style(

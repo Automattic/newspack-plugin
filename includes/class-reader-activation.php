@@ -58,6 +58,7 @@ final class Reader_Activation {
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
+			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 		}
 	}
 
@@ -651,6 +652,30 @@ final class Reader_Activation {
 				$payload['authenticated'] = \absint( $user_id ) ? 1 : 0;
 				return self::send_auth_form_response( $payload, false, $redirect );
 		}
+	}
+
+	/**
+	 * Register a reader from newsletter signup.
+	 *
+	 * @param string $provider The provider name.
+	 * @param array  $contact  {
+	 *    Contact information.
+	 *
+	 *    @type string   $email    Contact email address.
+	 *    @type string   $name     Contact name. Optional.
+	 *    @type string[] $metadata Contact additional metadata. Optional.
+	 * }
+	 */
+	public static function register_newsletters_contact( $provider, $contact ) {
+		// Bail if already logged in.
+		if ( \is_user_logged_in() ) {
+			return;
+		}
+
+		self::register_reader(
+			$contact['email'],
+			isset( $contact['name'] ) ? $contact['name'] : ''
+		);
 	}
 
 	/**
