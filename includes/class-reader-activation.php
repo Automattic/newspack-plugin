@@ -412,14 +412,12 @@ final class Reader_Activation {
 		];
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
 
-		$link  = '<span class="newspack-reader__account-link" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '">';
-		$link .= '<a href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
+		$link .= '<a class="newspack-reader__account-link" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="newspack-reader__account-link__icon">';
 		$link .= self::get_account_icon();
 		$link .= '</span>';
 		$link .= '<span class="newspack-reader__account-link__label">' . \esc_html( $labels[ $label ] ) . '</span>';
 		$link .= '</a>';
-		$link .= '</span>';
 
 		/**
 		 * Filters the HTML for the reader account link.

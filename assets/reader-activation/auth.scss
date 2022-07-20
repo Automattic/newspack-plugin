@@ -3,28 +3,25 @@
 	 * Account Link
 	 */
 	&__account-link {
-		a {
-			display: flex !important;
-			justify-content: center;
-			align-items: center;
-			span {
-				display: block;
-				svg {
-					display: block;
-				}
-			}
-		}
+		display: flex !important;
+		justify-content: center;
+		align-items: center;
 
 		&__mobile {
 			@media screen and ( min-width: 960px ) {
 				display: none;
 			}
-			margin-left: 5vw;
+			margin-left: 0.5rem;
 		}
 
 		&__icon {
-			height: 0;
-			margin-top: -24px;
+			position: relative;
+			width: 24px;
+			svg {
+				position: absolute;
+				top: -12px;
+				left: 0;
+			}
 		}
 
 		&__label {
@@ -232,7 +229,7 @@
 ul.newspack-reader__account-menu,
 li.menu-item .newspack-reader__account-link {
 	@media screen and ( max-width: 959px ) {
-		display: none;
+		display: none !important;
 	}
 }
 
