@@ -17,8 +17,8 @@ import './style.scss';
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'input[type="submit"]' );
 
-			readerActivation.on( 'reader', ( { detail: { email } } ) => {
-				if ( email ) {
+			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
+				if ( authenticated ) {
 					form.style.display = 'none';
 				}
 			} );
