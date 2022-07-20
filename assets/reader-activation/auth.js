@@ -110,9 +110,14 @@ import './auth.scss';
 				}
 				item.style.display = 'none';
 			} );
-			container.querySelectorAll( '[data-action="' + action + '"]' ).forEach( item => {
+			container.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
 				item.style.display = item.prevDisplay;
 			} );
+			try {
+				const labels = JSON.parse( container.getAttribute( 'data-labels' ) );
+				const label = 'register' === action ? labels.register : labels.signin;
+				container.querySelector( 'h2' ).textContent = label;
+			} catch {}
 			if ( action === 'pwd' && emailInput.value ) {
 				passwordInput.focus();
 			} else {

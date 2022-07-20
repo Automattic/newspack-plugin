@@ -455,10 +455,17 @@ final class Reader_Activation {
 		if ( \is_user_logged_in() ) {
 			return;
 		}
-		$class      = function( ...$parts ) {
+
+		$class = function( ...$parts ) {
 			array_unshift( $parts, 'auth-form' );
 			return self::get_element_class_name( $parts );
 		};
+
+		$labels = [
+			'signin'   => \__( 'Sign In', 'newspack' ),
+			'register' => \__( 'Sign Up', 'newspack' ),
+		];
+
 		$message    = '';
 		$classnames = [ $class() ];
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
@@ -468,7 +475,7 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 		?>
-		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>">
+		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
 				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
@@ -481,7 +488,8 @@ final class Reader_Activation {
 						<input type="hidden" name="action" value="link" />
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
-							<a href="#" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
+							<a href="#" data-action="pwd link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
+							<a href="#" data-action="register" data-set-action="link"><?php \esc_html_e( 'I already have an account', 'newspack' ); ?></a>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
