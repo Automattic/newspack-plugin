@@ -9,7 +9,6 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { ActionCard, Button, Handoff, hooks } from '../../../../components/src';
-import { fetchJetpackMailchimpStatus } from '../../../../utils';
 
 const PLUGINS = {
 	jetpack: {
@@ -20,15 +19,6 @@ const PLUGINS = {
 			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then( result => ( {
 				jetpack: { status: result.Configured ? result.Status : 'inactive' },
 			} ) ),
-	},
-	mailchimp: {
-		name: 'Mailchimp',
-		badge: __( 'Jetpack Block', 'newspack' ),
-		indent: true,
-		fetchStatus: () =>
-			fetchJetpackMailchimpStatus()
-				.then( mailchimp => ( { mailchimp } ) )
-				.catch( mailchimp => ( { mailchimp } ) ),
 	},
 	'google-site-kit': {
 		pluginSlug: 'google-site-kit',

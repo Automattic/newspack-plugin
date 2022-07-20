@@ -151,7 +151,7 @@ class WooCommerce_Connection {
 		$order->add_meta_data( '_stripe_currency', $order_data['currency'] );
 
 		if ( ! empty( $order_data['client_id'] ) ) {
-			$order->add_meta_data( 'newspack-cid', $order_data['client_id'] );
+			$order->add_meta_data( NEWSPACK_CLIENT_ID_COOKIE_NAME, $order_data['client_id'] );
 		}
 
 		$has_user_id = ! empty( $order_data['user_id'] );

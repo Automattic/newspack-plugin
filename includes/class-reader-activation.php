@@ -15,12 +15,20 @@ defined( 'ABSPATH' ) || exit;
 final class Reader_Activation {
 
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
+	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 
 	/**
 	 * Reader user meta keys.
 	 */
 	const READER         = 'np_reader';
 	const EMAIL_VERIFIED = 'np_reader_email_verified';
+
+	/**
+	 * Whether the session is authenticating a newly registered reader
+	 *
+	 * @var bool
+	 */
+	private static $is_new_reader_auth = false;
 
 	/**
 	 * Initialize hooks.
@@ -41,9 +49,8 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		$handle = 'newspack-reader-activation';
 		\wp_register_script(
-			$handle,
+			self::SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
 			[],
 			NEWSPACK_PLUGIN_VERSION,
@@ -54,15 +61,17 @@ final class Reader_Activation {
 			$reader_email = \wp_get_current_user()->user_email;
 		}
 		\wp_localize_script(
-			$handle,
+			self::SCRIPT_HANDLE,
 			'newspack_reader_activation_data',
 			[
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+				'nonce'                 => wp_create_nonce( 'wp_rest' ),
 				'reader_email'          => $reader_email,
 			]
 		);
-		\wp_script_add_data( $handle, 'async', true );
-		\wp_script_add_data( $handle, 'amp-plus', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 	}
 
 	/**
@@ -160,6 +169,7 @@ final class Reader_Activation {
 	 */
 	public static function is_user_reader( $user ) {
 		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
+		$user_data = \get_userdata( $user->ID );
 
 		if ( false === $is_reader ) {
 			/**
@@ -169,9 +179,18 @@ final class Reader_Activation {
 			 */
 			$reader_roles = \apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
 			if ( ! empty( $reader_roles ) ) {
-				$user_data = \get_userdata( $user->ID );
 				$is_reader = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
 			}
+		}
+
+		/**
+		 * Filters roles that restricts a user from being a reader.
+		 *
+		 * @param string[] $roles Array of user roles that restrict a user from being a reader.
+		 */
+		$restricted_roles = \apply_filters( 'newspack_reader_restricted_roles', [ 'administrator', 'editor' ] );
+		if ( ! empty( $restricted_roles ) && $is_reader && ! empty( array_intersect( $restricted_roles, $user_data->roles ) ) ) {
+			$is_reader = false;
 		}
 
 		/**
@@ -180,7 +199,7 @@ final class Reader_Activation {
 		 * @param bool     $is_reader Whether the user is a reader.
 		 * @param \WP_User $user      User object.
 		 */
-		return \apply_filters( 'newspack_is_user_reader', $is_reader, $user );
+		return (bool) \apply_filters( 'newspack_is_user_reader', $is_reader, $user );
 	}
 
 	/**
@@ -225,6 +244,15 @@ final class Reader_Activation {
 			if ( $user && self::is_user_reader( $user ) ) {
 				$length = YEAR_IN_SECONDS;
 			}
+		}
+
+		/**
+		 * If the session is authenticating a newly registered reader we want the
+		 * auth cookie to be short lived since the email ownership has not yet been
+		 * verified.
+		 */
+		if ( true === self::$is_new_reader_auth ) {
+			$length = 24 * HOUR_IN_SECONDS;
 		}
 		return $length;
 	}
@@ -274,6 +302,7 @@ final class Reader_Activation {
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
 		\do_action( 'wp_login', $user->user_login, $user );
+		Logger::log( 'Logged in user ' . $user->ID );
 
 		return $user;
 	}
@@ -324,6 +353,8 @@ final class Reader_Activation {
 				$display_name = explode( '@', $email, 2 )[0];
 			}
 
+			$user_login = \sanitize_user( $email, true );
+
 			$random_password = \wp_generate_password();
 
 			if ( function_exists( '\wc_create_new_customer' ) ) {
@@ -332,11 +363,11 @@ final class Reader_Activation {
 				 *
 				 * Email notification for WooCommerce is handled by the plugin.
 				 */
-				$user_id = \wc_create_new_customer( $email, $email, $random_password, [ 'display_name' => $display_name ] );
+				$user_id = \wc_create_new_customer( $email, $user_login, $random_password, [ 'display_name' => $display_name ] );
 			} else {
 				$user_id = \wp_insert_user(
 					[
-						'user_login'   => $email,
+						'user_login'   => $user_login,
 						'user_email'   => $email,
 						'user_pass'    => $random_password,
 						'display_name' => $display_name,
@@ -346,6 +377,7 @@ final class Reader_Activation {
 			}
 
 			if ( \is_wp_error( $user_id ) ) {
+				Logger::log( 'User registration failed: ' . $user_id->get_error_message() );
 				return $user_id;
 			}
 
@@ -353,7 +385,10 @@ final class Reader_Activation {
 			\update_user_meta( $user_id, self::READER, true );
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
 
+			Logger::log( 'Created new reader user with ID ' . $user_id );
+
 			if ( $authenticate ) {
+				self::$is_new_reader_auth = true;
 				self::set_current_reader( $user_id );
 			}
 		}

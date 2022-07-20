@@ -32,7 +32,7 @@ export default function ReaderRegistrationEdit( {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className="newspack-reader-registration">
+				<div className="newspack-registration">
 					<form onSubmit={ ev => ev.preventDefault() }>
 						<input type="email" placeholder={ placeholder } />
 						<input type="submit" value={ label } />

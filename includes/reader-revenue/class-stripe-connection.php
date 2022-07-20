@@ -41,14 +41,13 @@ class Stripe_Connection {
 	public static function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/stripe/create-webhooks/',
+			'/stripe/reset-webhooks/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ __CLASS__, 'create_webhooks' ],
+				'callback'            => [ __CLASS__, 'reset_webhooks' ],
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
-
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/stripe/webhook',
@@ -145,18 +144,6 @@ class Stripe_Connection {
 		}
 		// Save it in options table.
 		return update_option( self::STRIPE_DATA_OPTION_NAME, $updated_stripe_data );
-	}
-
-	/**
-	 * List Stripe webhooks.
-	 */
-	public static function list_webhooks() {
-		$stripe = self::get_stripe_client();
-		try {
-			return $stripe->webhookEndpoints->all()['data'];
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch webhooks.', 'newspack' ), $e->getMessage() );
-		}
 	}
 
 	/**
@@ -474,7 +461,7 @@ class Stripe_Connection {
 
 
 				// Add a transaction to WooCommerce.
-				if ( function_exists( 'WC' ) ) {
+				if ( Donations::is_woocommerce_suite_active() ) {
 					$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
 					$wc_transaction_payload = [
 						'email'              => $customer['email'],
@@ -510,31 +497,58 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Create Stripe webhooks.
+	 * Reset Stripe webhooks.
 	 */
-	public static function create_webhooks() {
-		$stripe = self::get_stripe_client();
-		try {
-			$webhook = $stripe->webhookEndpoints->create(
-				[
-					'url'            => self::get_webhook_url(),
-					'enabled_events' => [
-						'charge.failed',
-						'charge.succeeded',
-					],
-				]
-			);
-			update_option(
-				self::STRIPE_WEBHOOK_OPTION_NAME,
-				[
-					'id'     => $webhook->id,
-					'secret' => $webhook->secret,
-				]
-			);
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'newspack_plugin_stripe', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
+	public static function reset_webhooks() {
+		delete_option( self::STRIPE_WEBHOOK_OPTION_NAME );
+		return self::validate_webhooks();
+	}
+
+	/**
+	 * Create Stripe webhooks if they are missing. Otherwise, validate the webhhooks.
+	 */
+	public static function validate_webhooks() {
+		$stripe          = self::get_stripe_client();
+		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
+		if ( ! $created_webhook ) {
+			Logger::log( 'Creating Stripe webhooks…' );
+			try {
+				$webhook = $stripe->webhookEndpoints->create(
+					[
+						'url'            => self::get_webhook_url(),
+						'enabled_events' => [
+							'charge.failed',
+							'charge.succeeded',
+						],
+					]
+				);
+				update_option(
+					self::STRIPE_WEBHOOK_OPTION_NAME,
+					[
+						'id'     => $webhook->id,
+						'secret' => $webhook->secret,
+					]
+				);
+				return true;
+			} catch ( \Throwable $e ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
+			}
+		} elseif ( isset( $created_webhook['id'] ) ) {
+			try {
+				$webhook = $stripe->webhookEndpoints->retrieve( $created_webhook['id'] );
+			} catch ( \Throwable $e ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed:', 'newspack' ) . ' ' . $e->getMessage() );
+			}
+			if ( 'enabled' !== $webhook['status'] ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook is disabled.', 'newspack' ) );
+			}
+			if ( self::get_webhook_url() !== $webhook['url'] ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook has incorrect URL.', 'newspack' ) );
+			}
+			return true;
+		} else {
+			return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Invalid saved webhook.', 'newspack' ) );
 		}
-		return self::list_webhooks();
 	}
 
 	/**
@@ -780,9 +794,7 @@ class Stripe_Connection {
 
 			if ( ! isset( $client_metadata['userId'] ) && Reader_Activation::is_enabled() ) {
 				$user_id = Reader_Activation::register_reader( $email_address, $full_name, true, false );
-				if ( \is_wp_error( $user_id ) ) {
-					return $user_id;
-				} elseif ( false !== $user_id ) {
+				if ( ! \is_wp_error( $user_id ) && false !== $user_id ) {
 					$client_metadata['userId'] = $user_id;
 				}
 			}

@@ -62,6 +62,7 @@ final class Newspack {
 		}
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
+		define( 'NEWSPACK_CLIENT_ID_COOKIE_NAME', 'newspack-cid' );
 	}
 
 	/**
