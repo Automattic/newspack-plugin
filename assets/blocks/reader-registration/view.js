@@ -34,7 +34,7 @@ import './style.scss';
 				return;
 			}
 			const messageNode = document.createElement( 'p' );
-			messageNode.innerHTML = message;
+			messageNode.textContent = message;
 			messageNode.className = `message status-${ status }`;
 			if ( status === 200 ) {
 				container.replaceChild( messageNode, form );
