@@ -194,7 +194,7 @@ function render_block( $attrs ) {
 									</div>
 									<div></div>
 								</div>
-								<button id="newspack-google-login">
+								<button class="newspack-registration__logins__google">
 									<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 									<span>
 										<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>

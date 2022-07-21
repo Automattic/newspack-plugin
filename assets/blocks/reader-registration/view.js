@@ -95,9 +95,11 @@ function domReady( callback ) {
 					.finally( endLoginFlow );
 			} );
 
-			const googleLogin = container.querySelector( '#newspack-google-login' );
-			if ( googleLogin ) {
-				googleLogin.onclick = () => {
+			const googleLoginElement = container.querySelector(
+				'.newspack-registration__logins__google'
+			);
+			if ( googleLoginElement ) {
+				googleLoginElement.onclick = () => {
 					startLoginFlow();
 					const checkLoginStatus = () => {
 						fetch( '/wp-json/newspack/v1/login/google/register', {

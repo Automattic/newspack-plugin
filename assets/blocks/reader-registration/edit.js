@@ -198,7 +198,7 @@ export default function ReaderRegistrationEdit( {
 											<div>{ __( 'OR', 'newspack' ) }</div>
 											<div />
 										</div>
-										<button id="newspack-google-login">
+										<button className="newspack-registration__logins__google">
 											<span
 												dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
 											/>
