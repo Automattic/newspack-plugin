@@ -48,32 +48,31 @@ function domReady( callback ) {
 			const startLoginFlow = () => {
 				messageElement.innerHTML = '';
 				submitElement.disabled = true;
-				form.style.opacity = 0.5;
 				container.classList.add( 'newspack-registration--in-progress' );
 			};
 
 			const endLoginFlow = ( message, status, data ) => {
-				messageNode.innerHTML = '';
 				let messageNode;
 				if ( message ) {
-					messageNode = document.createElement( 'p' );
+					messageNode = document.createElement( 'div' );
 					messageNode.textContent = message;
-					messageNode.className = `message status-${ status }`;
 				}
-				if ( status === 200 ) {
-					container.classList.add( 'newspack-registration--success' );
+				const isSuccess = status === 200;
+				container.classList.add( `newspack-registration--${ isSuccess ? 'success' : 'error' }` );
+				if ( isSuccess ) {
 					if ( messageNode ) {
 						container.replaceChild( messageNode, form );
 					}
 					if ( data?.email ) {
 						readerActivation.setReaderEmail( data.email );
+						// Set authenticated only if email is set, otherwise an error will be thrown.
+						readerActivation.setAuthenticated( data?.authenticated );
 					}
-					readerActivation.setAuthenticated( data?.authenticated );
 				} else if ( messageNode ) {
 					messageElement.appendChild( messageNode );
 				}
 				submitElement.disabled = false;
-				form.style.opacity = 1;
+				container.classList.remove( 'newspack-registration--in-progress' );
 			};
 
 			form.addEventListener( 'submit', ev => {

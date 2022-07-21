@@ -50,22 +50,14 @@
 		min-width: 250px;
 		input[type='email'] {
 			flex: 1 1 auto;
-			margin: 0 0 0.5rem;
 		}
 		[type='submit'] {
-			margin: 0 0 0.5rem 0.5rem;
+			margin-left: 0.5rem;
 		}
 	}
 
-	&__privacy {
-		p {
-			color: #757575;
-			margin: 0;
-			font-size: 0.8em !important;
-		}
-	}
-
-	&__have-account {
+	&__help-text {
+		margin-top: 0.3rem;
 		p {
 			color: #757575;
 			margin: 0;
@@ -117,12 +109,13 @@
 	}
 
 	&__response {
+		margin-top: 0.5rem;
 		font-size: 0.8em;
 	}
 
-	&.error {
-		.message {
-			color: #d94f4f;
+	&--error {
+		.newspack-registration__response {
+			color: wp-colors.$alert-red;
 		}
 	}
 
@@ -141,10 +134,10 @@
 	}
 
 	&__logins {
-		margin-top: 10px;
+		margin-top: 0.5rem;
 		&__separator {
 			display: flex;
-			margin-bottom: 10px;
+			margin-bottom: 0.5rem;
 			div {
 				text-align: center;
 				&:nth-child( 2 ) {
@@ -162,6 +155,7 @@
 		button {
 			display: flex;
 			justify-content: center;
+			align-items: center;
 			width: 100%;
 			background-color: wp-colors.$gray-100;
 			color: black;

@@ -172,7 +172,10 @@ class Google_Login {
 
 			return \rest_ensure_response(
 				[
-					'email'   => $email,
+					'data'    => [
+						'email'         => $email,
+						'authenticated' => true,
+					],
 					'message' => $message,
 				]
 			);

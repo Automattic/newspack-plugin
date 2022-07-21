@@ -180,18 +180,38 @@ function render_block( $attrs ) {
 						</div>
 					<?php endif; ?>
 					<div class="newspack-registration__main">
-						<div>
-							<div class="newspack-registration__inputs">
-								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
-							</div>
-							<div class="newspack-registration__privacy">
-								<p>
-									<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-								</p>
-							</div>
+						<div class="newspack-registration__inputs">
+							<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+							<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 						</div>
-						<div class="newspack-registration__have-account">
+
+						<?php if ( Newspack\Google_OAuth::is_oauth_configured() ) : ?>
+							<div class="newspack-registration__logins">
+								<div class="newspack-registration__logins__separator">
+									<div></div>
+									<div>
+										<?php echo \esc_html__( 'OR', 'newspack' ); ?>
+									</div>
+									<div></div>
+								</div>
+								<button id="newspack-google-login">
+									<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+									<span>
+										<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
+									</span>
+								</button>
+							</div>
+						<?php endif; ?>
+						<div class="newspack-registration__response">
+							<?php if ( ! empty( $message ) ) : ?>
+								<p><?php echo \esc_html( $message ); ?></p>
+							<?php endif; ?>
+						</div>
+
+						<div class="newspack-registration__help-text">
+							<p>
+								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</p>
 							<p>
 								<?php echo \esc_html( $attrs['haveAccountLabel'] ); ?>
 								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo \esc_html( $attrs['signInLabel'] ); ?></a>
@@ -200,36 +220,12 @@ function render_block( $attrs ) {
 					</div>
 				</div>
 			</form>
-			<?php if ( Newspack\Google_OAuth::is_oauth_configured() ) : ?>
-				<div class="newspack-registration__logins">
-					<div class="newspack-registration__logins__separator">
-						<div></div>
-						<div>
-							<?php echo \esc_html__( 'OR', 'newspack' ); ?>
-						</div>
-						<div></div>
-					</div>
-					<button id="newspack-google-login">
-						<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<span>
-							<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
-						</span>
-					</button>
-				</div>
-			<?php endif; ?>
-			<div class="newspack-registration__response">
-				<?php if ( ! empty( $message ) ) : ?>
-					<div class="message">
-						<p><?php echo \esc_html( $message ); ?></p>
-					</div>
-				<?php endif; ?>
-			</div>
 		<?php endif; ?>
 	</div>
 	<?php
 		// Including a dummy element with used classes to prevent AMP stripping them.
 	?>
-	<div class="newspack-registration--in-progress newspack-registration--success"></div>
+	<div class="newspack-registration--in-progress newspack-registration--error newspack-registration--success"></div>
 	<?php
 	return ob_get_clean();
 }

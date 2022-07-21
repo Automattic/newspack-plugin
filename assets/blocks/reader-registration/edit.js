@@ -179,28 +179,43 @@ export default function ReaderRegistrationEdit( {
 								</div>
 							) : null }
 							<div className="newspack-registration__main">
-								<div>
-									<div className="newspack-registration__inputs">
-										<input type="email" placeholder={ placeholder } />
-										<button type="submit">
-											<RichText
-												onChange={ value => setAttributes( { label: value } ) }
-												placeholder={ __( 'Sign up', 'newspack' ) }
-												value={ label }
-												tagName="span"
+								<div className="newspack-registration__inputs">
+									<input type="email" placeholder={ placeholder } />
+									<button type="submit">
+										<RichText
+											onChange={ value => setAttributes( { label: value } ) }
+											placeholder={ __( 'Sign up', 'newspack' ) }
+											value={ label }
+											tagName="span"
+										/>
+									</button>
+								</div>
+
+								{ newspack_blocks.has_google_oauth && (
+									<div className="newspack-registration__logins">
+										<div className="newspack-registration__logins__separator">
+											<div />
+											<div>{ __( 'OR', 'newspack' ) }</div>
+											<div />
+										</div>
+										<button id="newspack-google-login">
+											<span
+												dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
 											/>
+											<span>{ __( 'Sign in with Google', 'newspack' ) }</span>
 										</button>
 									</div>
-									<div className="newspack-registration__privacy">
-										<RichText
-											onChange={ value => setAttributes( { privacyLabel: value } ) }
-											placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
-											value={ privacyLabel }
-											tagName="p"
-										/>
-									</div>
-								</div>
-								<div className="newspack-registration__have-account">
+								) }
+
+								<div className="newspack-registration__response" />
+
+								<div className="newspack-registration__help-text">
+									<RichText
+										onChange={ value => setAttributes( { privacyLabel: value } ) }
+										placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
+										value={ privacyLabel }
+										tagName="p"
+									/>
 									<p>
 										<RichText
 											onChange={ value => setAttributes( { haveAccountLabel: value } ) }
