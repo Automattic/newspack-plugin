@@ -462,7 +462,8 @@ final class Magic_Link {
 	 * @return bool|\WP_Error Whether the user was authenticated or WP_Error.
 	 */
 	private static function authenticate( $user_id, $token ) {
-		if ( \is_user_logged_in() ) {
+		/** Refresh reader session if same reader is already authenticated. */
+		if ( \is_user_logged_in() && \get_current_user_id() !== $user_id ) {
 			return false;
 		}
 
@@ -502,10 +503,6 @@ final class Magic_Link {
 	 */
 	public static function process_token_request() {
 		if ( ! Reader_Activation::is_enabled() ) {
-			return;
-		}
-
-		if ( \is_user_logged_in() ) {
 			return;
 		}
 
