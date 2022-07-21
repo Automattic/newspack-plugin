@@ -837,7 +837,7 @@ final class Reader_Activation {
 	 * @param string $login_method Login method used.
 	 */
 	public static function save_user_login_method( $user_id, $login_method ) {
-		\add_user_meta( $user_id, self::LOGIN_METHOD, $login_method );
+		\update_user_meta( $user_id, self::LOGIN_METHOD, $login_method );
 	}
 
 	/**
