@@ -138,9 +138,8 @@ class Google_Login {
 
 		Logger::log( 'Got user email from Google: ' . $user_email );
 
-		// Associate the email address with the client ID for later retrieval.
-		$client_id = Reader_Activation::get_client_id();
-		set_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id, $user_email, 20 );
+		// Associate the email address with the a unique ID for later retrieval.
+		set_transient( self::EMAIL_TRANSIENT_PREFIX . OAuth::get_unique_id(), $user_email, 20 );
 
 		/** Close window if it's a popup. */
 		?>
@@ -156,11 +155,10 @@ class Google_Login {
 	 * @param WP_REST_Request $request Request object.
 	 */
 	public static function api_google_login_register( $request ) {
-		// Get unique identifier of the client.
-		$client_id = Reader_Activation::get_client_id();
-		// Retrieve the email address associated with the client ID when the user was authenticated.
-		$email = get_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id );
-		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id ); // Burn after reading.
+		$uid = OAuth::get_unique_id();
+		// Retrieve the email address associated with the unique ID when the user was authenticated.
+		$email = get_transient( self::EMAIL_TRANSIENT_PREFIX . $uid );
+		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $uid ); // Burn after reading.
 		$metadata = [];
 		if ( $request->get_param( 'metadata' ) ) {
 			try {
@@ -195,7 +193,7 @@ class Google_Login {
 				]
 			);
 		} else {
-			Logger::log( 'Missing email for client id ' . $client_id );
+			Logger::log( 'Missing email for unique id ' . $uid );
 			return new \WP_Error( 'newspack_google_login', __( 'Missing email address.', 'newspack' ) );
 		}
 	}

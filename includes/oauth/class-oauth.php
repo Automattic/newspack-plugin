@@ -28,10 +28,13 @@ class OAuth {
 	/**
 	 * Get unique ID for user or client.
 	 */
-	private static function get_unique_id() {
-		$id = Reader_Activation::get_client_id();
+	public static function get_unique_id() {
+		$id = get_current_user_id();
 		if ( ! $id ) {
-			$id = get_current_user_id();
+			$id = Reader_Activation::get_client_id();
+		}
+		if ( ! $id ) {
+			$id = session_id(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_id
 		}
 		return $id;
 	}
