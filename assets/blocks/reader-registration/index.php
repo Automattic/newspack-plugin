@@ -295,19 +295,14 @@ function process_form() {
 		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 	}
 
-	$email   = \sanitize_email( $_REQUEST['email'] );
-	$user_id = Reader_Activation::register_reader( $email );
-
-	$lists = array_map( 'sanitize_text_field', isset( $_REQUEST['lists'] ) ? $_REQUEST['lists'] : [] );
-
-	if ( ! empty( $lists ) && method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-		\Newspack_Newsletters_Subscription::add_contact(
-			[
-				'email' => $email,
-			],
-			$lists
-		);
+	$metadata = [];
+	$lists    = array_map( 'sanitize_text_field', isset( $_REQUEST['lists'] ) ? $_REQUEST['lists'] : [] );
+	if ( ! empty( $lists ) ) {
+		$metadata['lists'] = $lists;
 	}
+
+	$email   = \sanitize_email( $_REQUEST['email'] );
+	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
 	/**
 	 * Fires after a reader is registered through the Reader Registration Block.

@@ -47,6 +47,11 @@ class Google_Login {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_google_login_register' ],
 				'permission_callback' => [ __CLASS__, 'api_check_if_oauth_configured' ],
+				'args'                => [
+					'metadata' => [
+						'required' => false,
+					],
+				],
 			]
 		);
 		// Start Google login flow.
@@ -147,13 +152,23 @@ class Google_Login {
 
 	/**
 	 * Get Google authentication status.
+	 *
+	 * @param WP_REST_Request $request Request object.
 	 */
-	public static function api_google_login_register() {
+	public static function api_google_login_register( $request ) {
 		// Get unique identifier of the client.
 		$client_id = Reader_Activation::get_client_id();
 		// Retrieve the email address associated with the client ID when the user was authenticated.
 		$email = get_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id );
 		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $client_id ); // Burn after reading.
+		$metadata = [];
+		if ( $request->get_param( 'metadata' ) ) {
+			try {
+				$metadata = json_decode( $request->get_param( 'metadata' ), true );
+			} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				// Fail silently.
+			}
+		}
 		if ( $email ) {
 			$existing_user = \get_user_by( 'email', $email );
 			$message       = __( 'Thank you for registering!', 'newspack' );
@@ -162,7 +177,7 @@ class Google_Login {
 				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
 				$message = __( 'Thank you for signing in!', 'newspack' );
 			} else {
-				$result = Reader_Activation::register_reader( $email );
+				$result = Reader_Activation::register_reader( $email, '', true, $metadata );
 				// At this point the user will be logged in.
 			}
 			if ( is_wp_error( $result ) ) {

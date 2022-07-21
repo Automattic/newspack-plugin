@@ -25,6 +25,18 @@ function domReady( callback ) {
 	document.addEventListener( 'DOMContentLoaded', callback );
 }
 
+const convertFormDataToObject = formData =>
+	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
+		if ( key.indexOf( '[]' ) > -1 ) {
+			key = key.replace( '[]', '' );
+			acc[ key ] = acc[ key ] || [];
+			acc[ key ].push( val );
+		} else {
+			acc[ key ] = val;
+		}
+		return acc;
+	}, {} );
+
 ( function ( readerActivation ) {
 	domReady( function () {
 		if ( ! readerActivation ) {
@@ -101,12 +113,17 @@ function domReady( callback ) {
 			if ( googleLoginElement ) {
 				googleLoginElement.addEventListener( 'click', () => {
 					startLoginFlow();
+
+					const metadata = convertFormDataToObject( new FormData( form ) );
 					const checkLoginStatus = () => {
-						fetch( '/wp-json/newspack/v1/login/google/register', {
-							headers: new Headers( {
-								'X-WP-Nonce': window.newspack_reader_activation_data.nonce,
-							} ),
-						} ).then( res => {
+						fetch(
+							`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`,
+							{
+								headers: new Headers( {
+									'X-WP-Nonce': window.newspack_reader_activation_data.nonce,
+								} ),
+							}
+						).then( res => {
 							res.json().then( ( { message, data } ) => endLoginFlow( message, res.status, data ) );
 						} );
 					};

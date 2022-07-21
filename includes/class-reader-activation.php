@@ -738,10 +738,11 @@ final class Reader_Activation {
 	 * @param string $email        Email address.
 	 * @param string $display_name Reader display name to be used on account creation.
 	 * @param bool   $authenticate Whether to authenticate after registering. Default to true.
+	 * @param object $metadata Any metadata to pass along to the action hook.
 	 *
 	 * @return int|false|\WP_Error The created user ID in case of registration, false if the user already exists, or a WP_Error object.
 	 */
-	public static function register_reader( $email, $display_name = '', $authenticate = true ) {
+	public static function register_reader( $email, $display_name = '', $authenticate = true, $metadata = false ) {
 		if ( ! self::is_enabled() ) {
 			return new \WP_Error( 'newspack_register_reader_disabled', __( 'Registration is disabled.', 'newspack' ) );
 		}
@@ -822,8 +823,9 @@ final class Reader_Activation {
 		 * @param bool           $authenticate  Whether to authenticate after registering.
 		 * @param false|int      $user_id       The created user id.
 		 * @param false|\WP_User $existing_user The existing user object.
+		 * @param false|any      $metadata Metadata.
 		 */
-		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user );
+		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user, $metadata );
 
 		return $user_id;
 	}
