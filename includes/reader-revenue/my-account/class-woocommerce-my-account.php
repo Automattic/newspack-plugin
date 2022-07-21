@@ -91,7 +91,7 @@ class WooCommerce_My_Account {
 		if ( $nonce ) {
 			$is_error = false;
 			if ( wp_verify_nonce( $nonce, self::RESET_PASSWORD_URL_PARAM ) ) {
-				$result  = retrieve_password( wp_get_current_user()->user_login );
+				$result  = retrieve_password( wp_get_current_user()->user_email );
 				$message = __( 'Password reset link sent!', 'newspack' );
 				if ( is_wp_error( $result ) ) {
 					Logger::log( 'Error resetting password: ' . $result->get_error_message() );
