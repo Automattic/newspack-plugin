@@ -84,7 +84,6 @@ final class Reader_Activation {
 			[
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
-				'nonce'                 => wp_create_nonce( 'wp_rest' ),
 				'authenticated_email'   => $authenticated_email,
 			]
 		);

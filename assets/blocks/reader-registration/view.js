@@ -117,12 +117,7 @@ const convertFormDataToObject = formData =>
 					const metadata = convertFormDataToObject( new FormData( form ) );
 					const checkLoginStatus = () => {
 						fetch(
-							`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`,
-							{
-								headers: new Headers( {
-									'X-WP-Nonce': window.newspack_reader_activation_data.nonce,
-								} ),
-							}
+							`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
 						).then( res => {
 							res.json().then( ( { message, data } ) => endLoginFlow( message, res.status, data ) );
 						} );
@@ -141,7 +136,7 @@ const convertFormDataToObject = formData =>
 									'width=500,height=600'
 								);
 								if ( authWindow ) {
-									authWindow.location = data;
+									authWindow.location = data.url;
 									const interval = setInterval( () => {
 										if ( authWindow.closed ) {
 											checkLoginStatus();
