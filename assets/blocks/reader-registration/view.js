@@ -99,7 +99,7 @@ function domReady( callback ) {
 				'.newspack-registration__logins__google'
 			);
 			if ( googleLoginElement ) {
-				googleLoginElement.onclick = () => {
+				googleLoginElement.addEventListener( 'click', () => {
 					startLoginFlow();
 					const checkLoginStatus = () => {
 						fetch( '/wp-json/newspack/v1/login/google/register', {
@@ -136,7 +136,7 @@ function domReady( callback ) {
 								}
 							}
 						} );
-				};
+				} );
 			}
 		} );
 	} );
