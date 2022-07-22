@@ -354,7 +354,7 @@ class Google_OAuth {
 	private static function authenticated_user_basic_information() {
 		$oauth2_credentials = self::get_oauth2_credentials();
 		if ( false === $oauth2_credentials ) {
-			return false;
+			return new \WP_Error( 'newspack_google_oauth', __( 'Invalid or missing Google credentials.', 'newspack' ) );
 		}
 
 		$access_token = $oauth2_credentials->getAccessToken();
