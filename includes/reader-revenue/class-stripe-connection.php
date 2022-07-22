@@ -350,7 +350,7 @@ class Stripe_Connection {
 						 * @param array       $donation_data Info about the transaction.
 						 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
 						 */
-						do_action( 'newspack_stripe_new_donation', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
+						do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
 					}
 				}
 
