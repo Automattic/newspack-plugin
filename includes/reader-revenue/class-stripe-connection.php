@@ -331,7 +331,7 @@ class Stripe_Connection {
 				}
 
 				// Update data in Campaigns plugin.
-				if ( isset( $customer['metadata']['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
+				if ( isset( $customer['metadata']['clientId'] ) ) {
 					$client_id = $customer['metadata']['clientId'];
 					if ( ! empty( $client_id ) ) {
 						$donation_data = [
