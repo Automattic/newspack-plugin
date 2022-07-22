@@ -60,7 +60,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
-			\add_filter( 'newspack_newsletters_add_contact_data', [ __CLASS__, 'newsletters_add_contact_data' ], 10, 2 );
+			\add_filter( 'newspack_newsletters_active_campaign_add_contact_data', [ __CLASS__, 'newsletters_active_campaign_add_contact_data' ], 10, 3 );
 			\add_filter(
 				'newspack_newsletters_active_campaign_metadata_prefix',
 				function() {
@@ -866,15 +866,24 @@ final class Reader_Activation {
 	/**
 	 * Modify metadata for newsletter contact creation.
 	 *
-	 * @param array $contact  Contact data.
-	 * @param array $list_ids List IDs.
+	 * @param array        $contact  Contact data.
+	 * @param string|false $list_id List ID.
+	 * @param array|false  $existing_contact Existing contact data, if available.
 	 */
-	public static function newsletters_add_contact_data( $contact, $list_ids ) {
+	public static function newsletters_active_campaign_add_contact_data( $contact, $list_id, $existing_contact ) {
 		$metadata = [
-			'Newsletter Selection' => implode( ',', $list_ids ),
+			'Newsletter Selection' => $list_id,
 		];
 		if ( is_user_logged_in() ) {
 			$metadata['Account'] = get_current_user_id();
+		}
+
+		if ( false === $existing_contact ) {
+			if ( false === $list_id ) {
+				$contact['metadata']['Registration Date'] = gmdate( 'm/d/Y' );
+			} else {
+				$contact['metadata']['Newsletter Signup Date'] = gmdate( 'm/d/Y' );
+			}
 		}
 
 		// Field names with special mapping, for Active Campaign.
