@@ -12,7 +12,7 @@
 			outline-offset: 0;
 			border-radius: 0;
 		}
-		input[type='submit'] {
+		[type='submit'] {
 			transition: background 150ms ease-in-out;
 			background: #555;
 			border: none;
@@ -34,6 +34,7 @@
 	&__state-bar {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
 		border: 1px solid black;
 		padding: 12px 15px;
 		margin-bottom: 14px;
