@@ -286,6 +286,7 @@ class Stripe_Connection {
 				$metadata          = $payment['metadata'];
 				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
+				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
 
 				$referer = '';
 				if ( isset( $metadata['referer'] ) ) {
@@ -313,47 +314,46 @@ class Stripe_Connection {
 				$stripe_data                        = self::get_stripe_data();
 				if ( ! empty( $stripe_data['newsletter_list_id'] ) && isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'] ) {
 					$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
-					$newsletters_configuration_manager->add_contact(
-						[
-							'email'    => $customer['email'],
-							'name'     => $customer['name'],
-							'metadata' => [
-								'donation_date'      => gmdate( 'Y-m-d', $payment['created'] ),
-								'donation_amount'    => $amount_normalised,
-								'donation_frequency' => $frequency,
-								'donation_recurring' => 'once' !== $frequency,
-							],
+
+					$contact = [
+						'email'    => $customer['email'],
+						'name'     => $customer['name'],
+						'metadata' => [
+							'donation_date'      => gmdate( 'Y-m-d', $payment['created'] ),
+							'donation_amount'    => $amount_normalised,
+							'donation_frequency' => $frequency,
+							'donation_recurring' => 'once' !== $frequency,
 						],
-						$stripe_data['newsletter_list_id']
-					);
+					];
+
+					if ( ! empty( $client_id ) ) {
+						$contact['client_id'] = $client_id;
+					}
+
+					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
+					$newsletters_configuration_manager->add_contact( $contact, $stripe_data['newsletter_list_id'] );
 					$was_customer_added_to_mailing_list = true;
 				}
 
 				// Update data in Campaigns plugin.
-				if ( isset( $customer['metadata']['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
-					$client_id = $customer['metadata']['clientId'];
-					if ( ! empty( $client_id ) ) {
-						$donation_data = [
-							'stripe_id'          => $payment['id'],
-							'stripe_customer_id' => $customer['id'],
-							'date'               => $payment['created'],
-							'amount'             => $amount_normalised,
-							'frequency'          => $frequency,
-						];
-						$client_update = [
-							'donation' => $donation_data,
-						];
-						if ( $was_customer_added_to_mailing_list ) {
-							$client_update['email_subscription'] = [
-								'email' => $customer['email'],
-							];
-						}
-						\Newspack_Popups_Segmentation::update_client_data(
-							$client_id,
-							$client_update
-						);
-					}
+				if ( ! empty( $client_id ) ) {
+					$donation_data = [
+						'stripe_id'          => $payment['id'],
+						'stripe_customer_id' => $customer['id'],
+						'date'               => $payment['created'],
+						'amount'             => $amount_normalised,
+						'frequency'          => $frequency,
+					];
+
+					/**
+					 * When a new Stripe transaction occurs that can be associated with a client ID,
+					 * fire an action with the client ID and the relevant donation info.
+					 *
+					 * @param string      $client_id Client ID.
+					 * @param array       $donation_data Info about the transaction.
+					 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
+					 */
+					do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
 				}
 
 				// Send custom event to GA.
