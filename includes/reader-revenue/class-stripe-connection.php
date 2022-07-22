@@ -341,18 +341,16 @@ class Stripe_Connection {
 							'amount'             => $amount_normalised,
 							'frequency'          => $frequency,
 						];
-						$client_update = [
-							'donation' => $donation_data,
-						];
-						if ( $was_customer_added_to_mailing_list ) {
-							$client_update['email_subscription'] = [
-								'email' => $customer['email'],
-							];
-						}
-						\Newspack_Popups_Segmentation::update_client_data(
-							$client_id,
-							$client_update
-						);
+
+						/**
+						 * When a new Stripe transaction occurs that can be associated with a client ID,
+						 * fire an action with the client ID and the relevant donation info.
+						 *
+						 * @param string      $client_id Client ID.
+						 * @param array       $donation_data Info about the transaction.
+						 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
+						 */
+						do_action( 'newspack_stripe_new_donation', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
 					}
 				}
 
