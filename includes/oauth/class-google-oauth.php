@@ -349,7 +349,7 @@ class Google_OAuth {
 	/**
 	 * Authenticated user's basic information.
 	 *
-	 * @return object|WP_Error Basic information, or error.
+	 * @return array|WP_Error Basic information, or error.
 	 */
 	private static function authenticated_user_basic_information() {
 		$oauth2_credentials = self::get_oauth2_credentials();
