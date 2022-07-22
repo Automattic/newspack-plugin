@@ -61,6 +61,12 @@ final class Reader_Activation {
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 			\add_filter( 'newspack_newsletters_add_contact_data', [ __CLASS__, 'newsletters_add_contact_data' ], 10, 2 );
+			\add_filter(
+				'newspack_newsletters_active_campaign_metadata_prefix',
+				function() {
+					return 'NP_';
+				}
+			);
 		}
 	}
 
