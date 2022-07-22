@@ -179,35 +179,35 @@ export default function ReaderRegistrationEdit( {
 								</div>
 							) : null }
 							<div className="newspack-registration__main">
-								<div className="newspack-registration__inputs">
-									<input type="email" placeholder={ placeholder } />
-									<button type="submit">
-										<RichText
-											onChange={ value => setAttributes( { label: value } ) }
-											placeholder={ __( 'Sign up', 'newspack' ) }
-											value={ label }
-											tagName="span"
-										/>
-									</button>
-								</div>
-
-								{ newspack_blocks.has_google_oauth && (
-									<div className="newspack-registration__logins">
-										<div className="newspack-registration__logins__separator">
-											<div />
-											<div>{ __( 'OR', 'newspack' ) }</div>
-											<div />
-										</div>
-										<button className="newspack-registration__logins__google">
-											<span
-												dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+								<div>
+									<div className="newspack-registration__inputs">
+										<input type="email" placeholder={ placeholder } />
+										<button type="submit">
+											<RichText
+												onChange={ value => setAttributes( { label: value } ) }
+												placeholder={ __( 'Sign up', 'newspack' ) }
+												value={ label }
+												tagName="span"
 											/>
-											<span>{ __( 'Sign in with Google', 'newspack' ) }</span>
 										</button>
 									</div>
-								) }
-
-								<div className="newspack-registration__response" />
+									{ newspack_blocks.has_google_oauth && (
+										<div className="newspack-registration__logins">
+											<div className="newspack-registration__logins__separator">
+												<div />
+												<div>{ __( 'OR', 'newspack' ) }</div>
+												<div />
+											</div>
+											<button className="newspack-registration__logins__google">
+												<span
+													dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+												/>
+												<span>{ __( 'Sign in with Google', 'newspack' ) }</span>
+											</button>
+										</div>
+									) }
+									<div className="newspack-registration__response" />
+								</div>
 
 								<div className="newspack-registration__help-text">
 									<RichText

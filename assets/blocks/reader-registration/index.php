@@ -180,32 +180,34 @@ function render_block( $attrs ) {
 						</div>
 					<?php endif; ?>
 					<div class="newspack-registration__main">
-						<div class="newspack-registration__inputs">
-							<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-							<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
-						</div>
-
-						<?php if ( Newspack\Google_OAuth::is_oauth_configured() ) : ?>
-							<div class="newspack-registration__logins">
-								<div class="newspack-registration__logins__separator">
-									<div></div>
-									<div>
-										<?php echo \esc_html__( 'OR', 'newspack' ); ?>
-									</div>
-									<div></div>
-								</div>
-								<button class="newspack-registration__logins__google">
-									<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-									<span>
-										<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
-									</span>
-								</button>
+						<div>
+							<div class="newspack-registration__inputs">
+								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
-						<?php endif; ?>
-						<div class="newspack-registration__response">
-							<?php if ( ! empty( $message ) ) : ?>
-								<p><?php echo \esc_html( $message ); ?></p>
+
+							<?php if ( Newspack\Google_OAuth::is_oauth_configured() ) : ?>
+								<div class="newspack-registration__logins">
+									<div class="newspack-registration__logins__separator">
+										<div></div>
+										<div>
+											<?php echo \esc_html__( 'OR', 'newspack' ); ?>
+										</div>
+										<div></div>
+									</div>
+									<button class="newspack-registration__logins__google">
+										<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+										<span>
+											<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
+										</span>
+									</button>
+								</div>
 							<?php endif; ?>
+							<div class="newspack-registration__response">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
+							</div>
 						</div>
 
 						<div class="newspack-registration__help-text">
