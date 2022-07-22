@@ -149,17 +149,15 @@ class Google_OAuth {
 		];
 	}
 
+
 	/**
-	 * Start the Google OAuth2 flow.
+	 * Get the URL for a redirection to Google consent page.
 	 *
 	 * @param array $auth_params OAuth proxy params.
 	 *
-	 * @return WP_REST_Response Response with the URL.
+	 * @return string|WP_Error URL or error.
 	 */
-	public static function api_google_auth_get_url( $auth_params = false ) {
-		if ( false === $auth_params ) {
-			$auth_params = self::get_google_auth_url_params();
-		}
+	public static function google_auth_get_url( $auth_params ) {
 		try {
 			$url    = OAuth::authenticate_proxy_url(
 				'google',
@@ -182,13 +180,27 @@ class Google_OAuth {
 				);
 			}
 			$response_body = json_decode( $result['body'] );
-			return \rest_ensure_response( $response_body->url );
+			return $response_body->url;
 		} catch ( \Exception $e ) {
 			return new WP_Error(
 				'newspack_google_oauth',
 				$e->getMessage()
 			);
 		}
+	}
+
+	/**
+	 * Start the Google OAuth2 flow.
+	 *
+	 * @return WP_REST_Response Response with the URL.
+	 */
+	public static function api_google_auth_get_url() {
+		$auth_params = self::get_google_auth_url_params();
+		$url         = self::google_auth_get_url( $auth_params );
+		if ( is_wp_error( $url ) ) {
+			return $url;
+		}
+		return rest_ensure_response( $url );
 	}
 
 	/**

@@ -136,7 +136,7 @@ const convertFormDataToObject = formData =>
 									'width=500,height=600'
 								);
 								if ( authWindow ) {
-									authWindow.location = data.url;
+									authWindow.location = data;
 									const interval = setInterval( () => {
 										if ( authWindow.closed ) {
 											checkLoginStatus();
