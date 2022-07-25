@@ -914,6 +914,9 @@ final class Reader_Activation {
 					// Move along.
 				}
 
+				// Capture current URL.
+				global $wp;
+				$metadata['NP_Signup page'] = home_url( add_query_arg( array(), $wp->request ) );
 				if ( isset( $contact['metadata'] ) ) {
 					$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
 				} else {
