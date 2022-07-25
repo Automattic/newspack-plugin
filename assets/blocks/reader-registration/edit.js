@@ -32,7 +32,7 @@ import {
  */
 import './editor.scss';
 
-const variantOptions = [
+const editedStateOptions = [
 	{ label: __( 'Initial', 'newspack' ), value: 'initial' },
 	{ label: __( 'Success', 'newspack' ), value: 'success' },
 ];
@@ -53,8 +53,8 @@ export default function ReaderRegistrationEdit( {
 	},
 } ) {
 	const blockProps = useBlockProps();
-	const [ variant, setVariant ] = useState( variantOptions[ 0 ].value );
-	const isInitial = variant === 'initial';
+	const [ editedState, setEditedState ] = useState( editedStateOptions[ 0 ].value );
+	const isInitial = editedState === 'initial';
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
@@ -173,21 +173,21 @@ export default function ReaderRegistrationEdit( {
 					<div>
 						<Button
 							data-is-active={ isInitial }
-							variant="secondary"
-							onClick={ () => setVariant( 'initial' ) }
+							editedState="secondary"
+							onClick={ () => setEditedState( 'initial' ) }
 						>
 							{ __( 'Initial', 'newspack' ) }
 						</Button>
 						<Button
 							data-is-active={ ! isInitial }
-							variant="secondary"
-							onClick={ () => setVariant( 'success' ) }
+							editedState="secondary"
+							onClick={ () => setEditedState( 'success' ) }
 						>
 							{ __( 'Success', 'newspack' ) }
 						</Button>
 					</div>
 				</div>
-				{ variant === 'initial' && (
+				{ editedState === 'initial' && (
 					<div className={ `newspack-registration ${ className }` }>
 						<form onSubmit={ ev => ev.preventDefault() }>
 							<div className="newspack-registration__form-content">
@@ -265,17 +265,14 @@ export default function ReaderRegistrationEdit( {
 											</div>
 										) }
 										<div className="newspack-registration__response" />
-
-										<div className="newspack-registration__privacy">
-											<RichText
-												onChange={ value => setAttributes( { privacyLabel: value } ) }
-												placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
-												value={ privacyLabel }
-												tagName="p"
-											/>
-										</div>
 									</div>
-									<div className="newspack-registration__have-account">
+									<div className="newspack-registration__help-text">
+										<RichText
+											onChange={ value => setAttributes( { privacyLabel: value } ) }
+											placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
+											value={ privacyLabel }
+											tagName="p"
+										/>
 										<p>
 											<RichText
 												onChange={ value => setAttributes( { haveAccountLabel: value } ) }
@@ -298,7 +295,7 @@ export default function ReaderRegistrationEdit( {
 						</form>
 					</div>
 				) }
-				{ variant === 'success' && <div { ...innerBlocksProps } /> }
+				{ editedState === 'success' && <div { ...innerBlocksProps } /> }
 			</div>
 		</>
 	);
