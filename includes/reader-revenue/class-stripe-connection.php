@@ -156,7 +156,88 @@ class Stripe_Connection {
 		try {
 			return $stripe->customers->retrieve( $customer_id, [] );
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get Stripe billing portal configuration used for this integration.
+	 * The configuration will disallow the customer to update their email,
+	 * because it has to stay in sync with WP.
+	 */
+	private static function get_billing_portal_configuration_id() {
+		$stripe = self::get_stripe_client();
+		try {
+			$all_configs = $stripe->billingPortal->configurations->all( [ 'active' => true ] );
+			$config_id   = false;
+			foreach ( $all_configs['data'] as $config ) {
+				if ( $config['metadata']['newspack_config'] ) {
+					$config_id = $config['id'];
+				}
+			}
+			if ( ! $config_id ) {
+				$new_config = $stripe->billingPortal->configurations->create(
+					[
+						'features'         => [
+							'customer_update'       => [
+								'allowed_updates' => [ 'tax_id' ],
+								'enabled'         => true,
+							],
+							'invoice_history'       => [
+								'enabled' => true,
+							],
+							'payment_method_update' => [
+								'enabled' => true,
+							],
+							'subscription_cancel'   => [
+								'cancellation_reason' => [
+									'enabled' => true,
+									'options' => [ 'too_expensive', 'unused', 'other' ],
+								],
+								'enabled'             => true,
+								'mode'                => 'at_period_end',
+								'proration_behavior'  => 'none',
+							],
+							'subscription_pause'    => [
+								'enabled' => true,
+							],
+						],
+						'business_profile' => [ 'headline' => '' ],
+						'metadata'         => [
+							'newspack_config' => true,
+						],
+					]
+				);
+				$config_id  = $new_config['id'];
+			}
+			return $config_id;
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not retrieve or create billing portal configuration.', 'newspack' ), $e->getMessage() );
+		}
+	}
+	/**
+	 * Get Stripe customer.
+	 *
+	 * @param string $customer_id Customer ID.
+	 * @param string $return_url Return URL.
+	 */
+	public static function get_billing_portal_url( $customer_id, $return_url = false ) {
+		$stripe = self::get_stripe_client();
+		if ( false === $return_url ) {
+			global $wp;
+			$return_url = home_url( add_query_arg( array(), $wp->request ) );
+		}
+		try {
+			$portal_data = $stripe->billingPortal->sessions->create(
+				[
+					'customer'      => $customer_id,
+					'return_url'    => $return_url,
+					'configuration' => self::get_billing_portal_configuration_id(),
+				]
+			);
+			return $portal_data['url'];
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not create billing portal session.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -185,7 +266,7 @@ class Stripe_Connection {
 		try {
 			return $stripe->invoices->retrieve( $invoice_id, [] );
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -199,7 +280,7 @@ class Stripe_Connection {
 		try {
 			return $stripe->balanceTransactions->retrieve( $transaction_id, [] );
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch balance transaction.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch balance transaction.', 'newspack' ), $e->getMessage() );
 		}
 	}
 

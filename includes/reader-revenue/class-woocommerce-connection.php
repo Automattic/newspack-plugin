@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's features.
  */
 class WooCommerce_Connection {
+	const CREATED_VIA_NAME = 'newspack-stripe';
+
 	/**
 	 * Initialize.
 	 *
@@ -165,7 +167,7 @@ class WooCommerce_Connection {
 			$order->set_customer_id( $order_data['user_id'] );
 		}
 
-		$order->set_created_via( 'newspack-stripe' );
+		$order->set_created_via( self::CREATED_VIA_NAME );
 		$order->set_status( 'completed' );
 		$order->save();
 
