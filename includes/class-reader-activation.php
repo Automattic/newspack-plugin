@@ -61,12 +61,6 @@ final class Reader_Activation {
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 			\add_filter( 'newspack_newsletters_active_campaign_add_contact_data', [ __CLASS__, 'newsletters_active_campaign_add_contact_data' ], 10, 3 );
-			\add_filter(
-				'newspack_newsletters_active_campaign_metadata_prefix',
-				function() {
-					return 'NP_';
-				}
-			);
 		}
 	}
 
@@ -872,7 +866,7 @@ final class Reader_Activation {
 	 */
 	public static function newsletters_active_campaign_add_contact_data( $contact, $list_id, $existing_contact ) {
 		$metadata = [
-			'Newsletter Selection' => $list_id,
+			'NP_Newsletter Selection' => $list_id,
 		];
 		if ( is_user_logged_in() ) {
 			$metadata['Account'] = get_current_user_id();
@@ -880,9 +874,9 @@ final class Reader_Activation {
 
 		if ( false === $existing_contact ) {
 			if ( false === $list_id ) {
-				$contact['metadata']['Registration Date'] = gmdate( 'm/d/Y' );
+				$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
 			} else {
-				$contact['metadata']['Newsletter Signup Date'] = gmdate( 'm/d/Y' );
+				$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
 			}
 		}
 
