@@ -886,10 +886,6 @@ final class Reader_Activation {
 			}
 		}
 
-		// Field names with special mapping, for Active Campaign.
-		$contact['_metadata_fields_active_campaign_map'] = [
-			'Account' => 'ACCT_NAME',
-		];
 
 		if ( isset( $contact['metadata'] ) ) {
 			$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
