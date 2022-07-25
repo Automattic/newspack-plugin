@@ -23,6 +23,7 @@ final class Reader_Activation {
 	 */
 	const READER         = 'np_reader';
 	const EMAIL_VERIFIED = 'np_reader_email_verified';
+	const LOGIN_METHOD   = 'np_reader_login_method';
 
 	/**
 	 * Auth form.
@@ -83,7 +84,6 @@ final class Reader_Activation {
 			[
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
-				'nonce'                 => wp_create_nonce( 'wp_rest' ),
 				'authenticated_email'   => $authenticated_email,
 			]
 		);
@@ -737,10 +737,11 @@ final class Reader_Activation {
 	 * @param string $email        Email address.
 	 * @param string $display_name Reader display name to be used on account creation.
 	 * @param bool   $authenticate Whether to authenticate after registering. Default to true.
+	 * @param array  $metadata     Any metadata to pass along to the action hook.
 	 *
 	 * @return int|false|\WP_Error The created user ID in case of registration, false if the user already exists, or a WP_Error object.
 	 */
-	public static function register_reader( $email, $display_name = '', $authenticate = true ) {
+	public static function register_reader( $email, $display_name = '', $authenticate = true, $metadata = [] ) {
 		if ( ! self::is_enabled() ) {
 			return new \WP_Error( 'newspack_register_reader_disabled', __( 'Registration is disabled.', 'newspack' ) );
 		}
@@ -821,10 +822,38 @@ final class Reader_Activation {
 		 * @param bool           $authenticate  Whether to authenticate after registering.
 		 * @param false|int      $user_id       The created user id.
 		 * @param false|\WP_User $existing_user The existing user object.
+		 * @param array          $metadata      Metadata.
 		 */
-		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user );
+		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user, $metadata );
 
 		return $user_id;
+	}
+
+	/**
+	 * Note reader's login method.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $login_method Login method used.
+	 */
+	public static function save_user_login_method( $user_id, $login_method ) {
+		\update_user_meta( $user_id, self::LOGIN_METHOD, $login_method );
+	}
+
+	/**
+	 * Note current reader's login method.
+	 *
+	 * @param string $login_method Login method used.
+	 */
+	public static function save_current_user_login_method( $login_method ) {
+		self::save_user_login_method( \get_current_user_id(), $login_method );
+	}
+
+	/**
+	 * Get value of the client ID bearing cookie.
+	 */
+	public static function get_client_id() {
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
+		return isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : false;
 	}
 }
 Reader_Activation::init();

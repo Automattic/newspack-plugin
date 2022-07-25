@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's features.
  */
 class WooCommerce_Connection {
+	const CREATED_VIA_NAME = 'newspack-stripe';
+
 	/**
 	 * Initialize.
 	 *
@@ -85,7 +87,9 @@ class WooCommerce_Connection {
 				if ( is_wp_error( $user_id ) ) {
 					return $user_id;
 				}
-				if ( ! absint( $user_id ) ) {
+				if ( absint( $user_id ) ) {
+					Reader_Activation::save_user_login_method( $user_id, 'woocommerce' );
+				} else {
 					$user_id = null;
 				}
 			} else {
@@ -149,7 +153,15 @@ class WooCommerce_Connection {
 		$order->add_meta_data( '_stripe_currency', $order_data['currency'] );
 
 		if ( ! empty( $order_data['client_id'] ) ) {
-			$order->add_meta_data( NEWSPACK_CLIENT_ID_COOKIE_NAME, $order_data['client_id'] );
+			/**
+			 * When a new order is created that can be associated with a client ID,
+			 * fire an action with the client ID and the relevant order info.
+			 *
+			 * @param WC_Order    $order Donation order.
+			 * @param string      $client_id Client ID.
+			 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
+			 */
+			do_action( 'newspack_new_donation_woocommerce', $order, $order_data['client_id'] );
 		}
 
 		$has_user_id = ! empty( $order_data['user_id'] );
@@ -157,7 +169,7 @@ class WooCommerce_Connection {
 			$order->set_customer_id( $order_data['user_id'] );
 		}
 
-		$order->set_created_via( 'newspack-stripe' );
+		$order->set_created_via( self::CREATED_VIA_NAME );
 		$order->set_status( 'completed' );
 		$order->save();
 

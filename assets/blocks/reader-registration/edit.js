@@ -248,6 +248,24 @@ export default function ReaderRegistrationEdit( {
 												/>
 											</button>
 										</div>
+
+										{ newspack_blocks.has_google_oauth && (
+											<div className="newspack-registration__logins">
+												<div className="newspack-registration__logins__separator">
+													<div />
+													<div>{ __( 'OR', 'newspack' ) }</div>
+													<div />
+												</div>
+												<button className="newspack-registration__logins__google">
+													<span
+														dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+													/>
+													<span>{ __( 'Sign in with Google', 'newspack' ) }</span>
+												</button>
+											</div>
+										) }
+										<div className="newspack-registration__response" />
+
 										<div className="newspack-registration__privacy">
 											<RichText
 												onChange={ value => setAttributes( { privacyLabel: value } ) }

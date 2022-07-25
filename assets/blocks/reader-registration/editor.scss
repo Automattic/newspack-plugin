@@ -66,4 +66,14 @@
 			gap: 4px;
 		}
 	}
+	&__logins {
+		button {
+			padding: 0.76rem 1rem;
+			border: none;
+			border-radius: 5px;
+			font-size: 0.8em;
+			font-family: sans-serif;
+			font-weight: 700;
+		}
+	}
 }

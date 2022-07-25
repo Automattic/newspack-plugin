@@ -136,7 +136,7 @@ export function setAuthenticated( authenticated = true ) {
 	if ( ! store.reader?.email ) {
 		throw 'Reader email not set';
 	}
-	store.reader.authenticated = !! authenticated;
+	store.reader.authenticated = Boolean( authenticated );
 	emit( EVENTS.reader, store.reader );
 }
 
