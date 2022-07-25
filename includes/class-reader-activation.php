@@ -60,6 +60,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
+			\add_filter( 'newspack_newsletters_add_contact_data', [ __CLASS__, 'newsletters_add_contact_data' ], 10, 2 );
 		}
 	}
 
@@ -854,6 +855,34 @@ final class Reader_Activation {
 	public static function get_client_id() {
 		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		return isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : false;
+	}
+
+	/**
+	 * Modify metadata for newsletter contact creation.
+	 *
+	 * @param array $contact  Contact data.
+	 * @param array $list_ids List IDs.
+	 */
+	public static function newsletters_add_contact_data( $contact, $list_ids ) {
+		$metadata = [
+			'Newsletter Selection' => implode( ',', $list_ids ),
+		];
+		if ( is_user_logged_in() ) {
+			$metadata['Account'] = get_current_user_id();
+		}
+
+		// Field names with special mapping, for Active Campaign.
+		$contact['_metadata_fields_active_campaign_map'] = [
+			'Account' => 'ACCT_NAME',
+		];
+
+		if ( isset( $contact['metadata'] ) ) {
+			$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
+		} else {
+			$contact['metadata'] = $metadata;
+		}
+
+		return $contact;
 	}
 }
 Reader_Activation::init();
