@@ -87,7 +87,9 @@ class WooCommerce_Connection {
 				if ( is_wp_error( $user_id ) ) {
 					return $user_id;
 				}
-				if ( ! absint( $user_id ) ) {
+				if ( absint( $user_id ) ) {
+					Reader_Activation::save_user_login_method( $user_id, 'woocommerce' );
+				} else {
 					$user_id = null;
 				}
 			} else {

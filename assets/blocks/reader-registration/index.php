@@ -185,13 +185,35 @@ function render_block( $attrs ) {
 								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
-							<div class="newspack-registration__privacy">
-								<p>
-									<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-								</p>
+
+							<?php if ( Newspack\Google_OAuth::is_oauth_configured() ) : ?>
+								<div class="newspack-registration__logins">
+									<div class="newspack-registration__logins__separator">
+										<div></div>
+										<div>
+											<?php echo \esc_html__( 'OR', 'newspack' ); ?>
+										</div>
+										<div></div>
+									</div>
+									<button class="newspack-registration__logins__google">
+										<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+										<span>
+											<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
+										</span>
+									</button>
+								</div>
+							<?php endif; ?>
+							<div class="newspack-registration__response">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
 							</div>
 						</div>
-						<div class="newspack-registration__have-account">
+
+						<div class="newspack-registration__help-text">
+							<p>
+								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</p>
 							<p>
 								<?php echo \esc_html( $attrs['haveAccountLabel'] ); ?>
 								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo \esc_html( $attrs['signInLabel'] ); ?></a>
@@ -200,15 +222,12 @@ function render_block( $attrs ) {
 					</div>
 				</div>
 			</form>
-			<div class="newspack-registration__response">
-				<?php if ( ! empty( $message ) ) : ?>
-					<div class="message">
-						<p><?php echo \esc_html( $message ); ?></p>
-					</div>
-				<?php endif; ?>
-			</div>
 		<?php endif; ?>
 	</div>
+	<?php
+		// Including a dummy element with used classes to prevent AMP stripping them.
+	?>
+	<div class="newspack-registration--in-progress newspack-registration--error newspack-registration--success"></div>
 	<?php
 	return ob_get_clean();
 }
@@ -278,19 +297,14 @@ function process_form() {
 		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 	}
 
-	$email   = \sanitize_email( $_REQUEST['email'] );
-	$user_id = Reader_Activation::register_reader( $email );
-
-	$lists = array_map( 'sanitize_text_field', isset( $_REQUEST['lists'] ) ? $_REQUEST['lists'] : [] );
-
-	if ( ! empty( $lists ) && method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-		\Newspack_Newsletters_Subscription::add_contact(
-			[
-				'email' => $email,
-			],
-			$lists
-		);
+	$metadata = [];
+	$lists    = array_map( 'sanitize_text_field', isset( $_REQUEST['lists'] ) ? $_REQUEST['lists'] : [] );
+	if ( ! empty( $lists ) ) {
+		$metadata['lists'] = $lists;
 	}
+
+	$email   = \sanitize_email( $_REQUEST['email'] );
+	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
 	/**
 	 * Fires after a reader is registered through the Reader Registration Block.
@@ -304,12 +318,18 @@ function process_form() {
 		return send_form_response( $user_id );
 	}
 
+	$user_logged_in = false !== $user_id;
+
+	if ( $user_logged_in ) {
+		Reader_Activation::save_current_user_login_method( 'registration-block' );
+	}
+
 	return send_form_response(
 		[
 			'email'         => $email,
-			'authenticated' => false !== $user_id,
+			'authenticated' => $user_logged_in,
 		],
-		false === $user_id ? __( 'Check your email for a confirmation link!', 'newspack' ) : __( 'Thank you for registering!', 'newspack' )
+		$user_logged_in ? __( 'Thank you for registering!', 'newspack' ) : __( 'Check your email for a confirmation link!', 'newspack' )
 	);
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );

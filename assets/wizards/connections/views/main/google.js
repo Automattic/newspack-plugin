@@ -63,6 +63,8 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
 				.then( data => {
 					setAuthState( data );
+					setError();
+					setLocalError();
 					if ( data?.user_basic_info && typeof onSuccess === 'function' ) {
 						onSuccess( data );
 					}
@@ -122,6 +124,8 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 		} )
 			.then( () => {
 				setAuthState( {} );
+				setError();
+				setLocalError();
 			} )
 			.catch( handleError )
 			.finally( () => setInFlight( false ) );
