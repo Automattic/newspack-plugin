@@ -60,7 +60,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
-			\add_filter( 'newspack_newsletters_active_campaign_add_contact_data', [ __CLASS__, 'newsletters_active_campaign_add_contact_data' ], 10, 3 );
+			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'newspack_newsletters_contact_data' ], 10, 3 );
 		}
 	}
 
@@ -860,34 +860,70 @@ final class Reader_Activation {
 	/**
 	 * Modify metadata for newsletter contact creation.
 	 *
-	 * @param array        $contact  Contact data.
-	 * @param string|false $list_id List ID.
-	 * @param array|false  $existing_contact Existing contact data, if available.
+	 * @param string   $provider The provider name.
+	 * @param array    $contact  {
+	 *    Contact information.
+	 *
+	 *    @type string   $email    Contact email address.
+	 *    @type string   $name     Contact name. Optional.
+	 *    @type string[] $metadata Contact additional metadata. Optional.
+	 * }
+	 * @param string[] $selected_list_ids    Array of list IDs to subscribe the contact to.
 	 */
-	public static function newsletters_active_campaign_add_contact_data( $contact, $list_id, $existing_contact ) {
-		$metadata = [
-			'NP_Newsletter Selection' => $list_id,
-		];
-		if ( is_user_logged_in() ) {
-			$metadata['Account'] = get_current_user_id();
+	public static function newspack_newsletters_contact_data( $provider, $contact, $selected_list_ids ) {
+		switch ( $provider ) {
+			case 'active_campaign':
+				$metadata = [];
+				if ( is_user_logged_in() ) {
+					$metadata['Account'] = get_current_user_id();
+				}
+
+				// If it's a new contact, add a registration or signup date.
+				try {
+					if ( method_exists( '\Newspack_Newsletters_Subscription', 'existing_contact_data' ) ) {
+						$existing_contact = \Newspack_Newsletters_Subscription::existing_contact_data( $contact['email'] );
+						if ( is_wp_error( $existing_contact ) ) {
+							if ( empty( $selected_list_ids ) ) {
+								// Registration only, as a side effect of Reader Activation.
+								$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
+							} else {
+								// Registration and signup, the former implicit.
+								$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
+							}
+						}
+					}
+				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// Move along.
+				}
+
+				// Translate list IDs to list names and store as metadata.
+				try {
+					if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_lists' ) ) {
+						$lists       = \Newspack_Newsletters_Subscription::get_lists();
+						$lists_names = [];
+						foreach ( $selected_list_ids as $selected_list_id ) {
+							foreach ( $lists as $list ) {
+								if ( $list['id'] === $selected_list_id ) {
+									$lists_names[] = $list['name'];
+								}
+							}
+						}
+						$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
+					}
+				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// Move along.
+				}
+
+				if ( isset( $contact['metadata'] ) ) {
+					$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
+				} else {
+					$contact['metadata'] = $metadata;
+				}
+
+				return $contact;
+			default:
+				return $contact;
 		}
-
-		if ( false === $existing_contact ) {
-			if ( false === $list_id ) {
-				$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
-			} else {
-				$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
-			}
-		}
-
-
-		if ( isset( $contact['metadata'] ) ) {
-			$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
-		} else {
-			$contact['metadata'] = $metadata;
-		}
-
-		return $contact;
 	}
 }
 Reader_Activation::init();
