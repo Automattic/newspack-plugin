@@ -22,7 +22,7 @@ class WooCommerce_Connection {
 	 */
 	public static function init() {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
-		\add_action( 'woocommerce_checkout_order_created', [ __CLASS__, 'register_donor' ] );
+		\add_action( 'woocommerce_checkout_order_created', [ __CLASS__, 'register_reader' ] );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class WooCommerce_Connection {
 	 * @param number $amount Donation amount.
 	 */
 	private static function get_donation_order_item( $frequency, $amount = 0 ) {
-		$product_id = \Donations::get_donation_product( $frequency );
+		$product_id = Donations::get_donation_product( $frequency );
 		if ( false === $product_id ) {
 			return false;
 		}
@@ -61,14 +61,13 @@ class WooCommerce_Connection {
 	 *
 	 * @param WC_Order $order Order object.
 	 */
-	public static function register_donor( $order ) {
+	public static function register_reader( $order ) {
 		if ( Reader_Activation::is_enabled() ) {
 			$email_address = $order->get_billing_email();
 			$first_name    = $order->get_billing_first_name();
 			$last_name     = $order->get_billing_last_name();
 			$full_name     = "$first_name $last_name";
 
-			Logger::log( 'Registering Reader 1' );
 			Reader_Activation::register_reader( $email_address, $full_name );
 		}
 	}
@@ -99,7 +98,6 @@ class WooCommerce_Connection {
 		}
 		if ( $should_create_account ) {
 			if ( Reader_Activation::is_enabled() ) {
-				Logger::log( 'Registering Reader 2' );
 				$user_id = Reader_Activation::register_reader( $email_address, $full_name );
 				if ( \is_wp_error( $user_id ) ) {
 					return $user_id;
