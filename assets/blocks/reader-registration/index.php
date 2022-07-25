@@ -78,7 +78,6 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
  * @param array[] $attrs Block attributes.
  */
 function render_block( $attrs ) {
-	$block_id   = \wp_rand( 0, 99999 );
 	$registered = false;
 	$message    = '';
 
@@ -104,10 +103,8 @@ function render_block( $attrs ) {
 
 	/** Setup list subscription */
 	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
-		$list_config     = \Newspack_Newsletters_Subscription::get_lists_config();
-		$lists           = array_keys( $list_config );
-		$list_map        = array_flip( $lists );
-		$available_lists = array_values( array_intersect( $lists, $attrs['lists'] ) );
+		$list_config = \Newspack_Newsletters_Subscription::get_lists_config();
+		$lists       = array_intersect_key( $list_config, array_flip( $attrs['lists'] ) );
 	}
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
@@ -132,77 +129,26 @@ function render_block( $attrs ) {
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<div class="newspack-registration__form-content">
-					<?php if ( isset( $available_lists ) && ! empty( $available_lists ) ) : ?>
-						<div class="newspack-registration__lists">
-							<?php if ( 1 < count( $available_lists ) && ! empty( $attrs['newsletterTitle'] ) ) : ?>
-								<h3><?php echo \esc_html( $attrs['newsletterTitle'] ); ?></h3>
-							<?php endif; ?>
-							<ul>
-								<?php
-								foreach ( $available_lists as $list_id ) :
-									if ( ! isset( $list_config[ $list_id ] ) ) {
-										continue;
-									}
-									$list        = $list_config[ $list_id ];
-									$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $block_id, $list_id );
-									?>
-									<li>
-										<span class="newspack-registration__lists__checkbox">
-											<input
-												type="checkbox"
-												name="lists[]"
-												value="<?php echo \esc_attr( $list_id ); ?>"
-												id="<?php echo \esc_attr( $checkbox_id ); ?>"
-												<?php if ( isset( $list_map[ $list_id ] ) ) : ?>
-													checked
-												<?php endif; ?>
-											/>
-										</span>
-										<span class="newspack-registration__lists__details">
-											<label class="newspack-registration__lists__label" for="<?php echo \esc_attr( $checkbox_id ); ?>">
-												<span class="newspack-registration__lists__title">
-													<?php
-													if ( 1 === count( $available_lists ) ) {
-														echo $attrs['newsletterLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-													} else {
-														echo \esc_html( $list['title'] );
-													}
-													?>
-												</span>
-												<?php if ( $attrs['displayListDescription'] ) : ?>
-													<span class="newspack-registration__lists__description"><?php echo \esc_html( $list['description'] ); ?></span>
-												<?php endif; ?>
-											</label>
-										</span>
-									</li>
-								<?php endforeach; ?>
-							</ul>
-						</div>
-					<?php endif; ?>
+					<?php
+					if ( isset( $lists ) ) {
+						Reader_Activation::render_subscription_lists_inputs(
+							$lists,
+							array_keys( $lists ),
+							[
+								'title'            => $attrs['newsletterTitle'],
+								'single_label'     => $attrs['newsletterLabel'],
+								'show_description' => $attrs['displayListDescription'],
+							]
+						);
+					}
+					?>
 					<div class="newspack-registration__main">
 						<div>
 							<div class="newspack-registration__inputs">
 								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
-
-							<?php if ( Newspack\Google_OAuth::is_oauth_configured() ) : ?>
-								<div class="newspack-registration__logins">
-									<div class="newspack-registration__logins__separator">
-										<div></div>
-										<div>
-											<?php echo \esc_html__( 'OR', 'newspack' ); ?>
-										</div>
-										<div></div>
-									</div>
-									<button class="newspack-registration__logins__google">
-										<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-										<span>
-											<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
-										</span>
-									</button>
-								</div>
-							<?php endif; ?>
+							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__response">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>

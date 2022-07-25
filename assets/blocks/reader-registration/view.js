@@ -25,18 +25,6 @@ function domReady( callback ) {
 	document.addEventListener( 'DOMContentLoaded', callback );
 }
 
-const convertFormDataToObject = formData =>
-	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
-		if ( key.indexOf( '[]' ) > -1 ) {
-			key = key.replace( '[]', '' );
-			acc[ key ] = acc[ key ] || [];
-			acc[ key ].push( val );
-		} else {
-			acc[ key ] = val;
-		}
-		return acc;
-	}, {} );
-
 ( function ( readerActivation ) {
 	domReady( function () {
 		if ( ! readerActivation ) {
@@ -57,13 +45,13 @@ const convertFormDataToObject = formData =>
 				}
 			} );
 
-			const startLoginFlow = () => {
+			form.startLoginFlow = () => {
 				messageElement.innerHTML = '';
 				submitElement.disabled = true;
 				container.classList.add( 'newspack-registration--in-progress' );
 			};
 
-			const endLoginFlow = ( message, status, data ) => {
+			form.endLoginFlow = ( message, status, data ) => {
 				let messageNode;
 				if ( message ) {
 					messageNode = document.createElement( 'div' );
@@ -93,7 +81,7 @@ const convertFormDataToObject = formData =>
 				if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
 					return;
 				}
-				startLoginFlow();
+				form.startLoginFlow();
 				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 					method: 'POST',
 					headers: {
@@ -102,54 +90,12 @@ const convertFormDataToObject = formData =>
 					body,
 				} )
 					.then( res => {
-						res.json().then( ( { message, data } ) => endLoginFlow( message, res.status, data ) );
+						res
+							.json()
+							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
 					} )
-					.finally( endLoginFlow );
+					.finally( form.endLoginFlow );
 			} );
-
-			const googleLoginElement = container.querySelector(
-				'.newspack-registration__logins__google'
-			);
-			if ( googleLoginElement ) {
-				googleLoginElement.addEventListener( 'click', () => {
-					startLoginFlow();
-
-					const metadata = convertFormDataToObject( new FormData( form ) );
-					const checkLoginStatus = () => {
-						fetch(
-							`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
-						).then( res => {
-							res.json().then( ( { message, data } ) => endLoginFlow( message, res.status, data ) );
-						} );
-					};
-					fetch( '/wp-json/newspack/v1/login/google' )
-						.then( res =>
-							res.json().then( data => Promise.resolve( { data, status: res.status } ) )
-						)
-						.then( ( { data, status } ) => {
-							if ( status !== 200 ) {
-								endLoginFlow( data.message, status );
-							} else {
-								const authWindow = window.open(
-									'about:blank',
-									'newspack_google_login',
-									'width=500,height=600'
-								);
-								if ( authWindow ) {
-									authWindow.location = data;
-									const interval = setInterval( () => {
-										if ( authWindow.closed ) {
-											checkLoginStatus();
-											clearInterval( interval );
-										}
-									}, 500 );
-								} else {
-									endLoginFlow();
-								}
-							}
-						} );
-				} );
-			}
 		} );
 	} );
 } )( window.newspackReaderActivation );

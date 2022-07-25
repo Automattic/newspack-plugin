@@ -499,6 +499,10 @@ final class Reader_Activation {
 							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="" />
+						<div data-action="register">
+							<p><?php _e( 'Be the first to know about breaking news, articles and updates.', 'newspack' ); ?></p>
+							<?php self::render_subscription_lists_inputs(); ?>
+						</div>
 						<p>
 							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 						</p>
@@ -538,10 +542,8 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="register">
 							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
-							<p class="small">
-								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></a>
-							</p>
 						</div>
+						<?php self::render_third_party_auth(); ?>
 					</form>
 				</div>
 			</div>
@@ -576,6 +578,127 @@ final class Reader_Activation {
 			);
 			exit;
 		}
+	}
+
+	/**
+	 * Render newsletter subscription lists' form input.
+	 *
+	 * @param array[] $lists   {
+	 *   List config keyed by their ID.
+	 *
+	 *   @type string $title       List title.
+	 *   @type string $description List description.
+	 * }
+	 * @param array   $checked List IDs to pre-select.
+	 * @param array   $config  {
+	 *   Configuration options.
+	 *
+	 *   @type string  $title            Optional title to display above the list.
+	 *   @type string  $name             Name of the input. Default is lists.
+	 *   @type string  $single_label     Label for the input when only one list is present. Default is "Subscribe to our newsletter".
+	 *   @type boolean $show_description Whether to display the list description. Default is true.
+	 * }
+	 */
+	public static function render_subscription_lists_inputs( $lists = [], $checked = [], $config = [] ) {
+		$config = \wp_parse_args(
+			$config,
+			[
+				'title'            => '',
+				'name'             => 'lists',
+				'single_label'     => __( 'Subscribe to our newsletter', 'newspack' ),
+				'show_description' => true,
+			]
+		);
+
+		if ( empty( $lists ) && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
+			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
+		}
+
+		if ( empty( $lists ) ) {
+			return;
+		}
+
+		$id = \wp_rand( 0, 99999 );
+
+		$class = function( ...$parts ) {
+			array_unshift( $parts, 'lists' );
+			return self::get_element_class_name( $parts );
+		};
+
+		$checked_map = array_flip( $checked );
+		?>
+		<div class="<?php echo \esc_attr( $class() ); ?>">
+			<?php if ( 1 < count( $lists ) && ! empty( $config['title'] ) ) : ?>
+				<h3><?php echo \esc_html( $config['title'] ); ?></h3>
+			<?php endif; ?>
+			<ul>
+				<?php
+				foreach ( $lists as $list_id => $list ) :
+					$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $id, $list_id );
+					?>
+					<li>
+						<span class="<?php echo \esc_attr( $class( 'checkbox' ) ); ?>">
+							<input
+								type="checkbox"
+								name="<?php echo \esc_attr( $config['name'] ); ?>[]"
+								value="<?php echo \esc_attr( $list_id ); ?>"
+								id="<?php echo \esc_attr( $checkbox_id ); ?>"
+								<?php if ( isset( $checked_map[ $list_id ] ) ) : ?>
+									checked
+								<?php endif; ?>
+							/>
+						</span>
+						<span class="<?php echo \esc_attr( $class( 'details' ) ); ?>">
+							<label class="<?php echo \esc_attr( $class( 'label' ) ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+								<span class="<?php echo \esc_attr( $class( 'title' ) ); ?>">
+									<?php
+									if ( 1 === count( $lists ) ) {
+										echo $config['single_label']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									} else {
+										echo \esc_html( $list['title'] );
+									}
+									?>
+								</span>
+								<?php if ( $config['show_description'] ) : ?>
+									<span class="<?php echo \esc_attr( $class( 'description' ) ); ?>"><?php echo \esc_html( $list['description'] ); ?></span>
+								<?php endif; ?>
+							</label>
+						</span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render third party auth buttons for an authentication form.
+	 */
+	public static function render_third_party_auth() {
+		if ( ! Google_OAuth::is_oauth_configured() ) {
+			return;
+		}
+		$class = function( ...$parts ) {
+			array_unshift( $parts, 'logins' );
+			return self::get_element_class_name( $parts );
+		};
+		?>
+		<div class="<?php echo \esc_attr( $class() ); ?>">
+			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
+				<div></div>
+				<div>
+					<?php echo \esc_html__( 'OR', 'newspack' ); ?>
+				</div>
+				<div></div>
+			</div>
+			<button class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
+				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span>
+					<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
+				</span>
+			</button>
+		</div>
+		<?php
 	}
 
 	/**
