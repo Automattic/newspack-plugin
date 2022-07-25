@@ -63,10 +63,14 @@ export default function ReaderRegistrationEdit( {
 			template: [
 				// Quirk: this will only get applied to the block (as inner blocks) if it's *rendered* in the editor.
 				// If the user never switches the state view, it will not be applied, so PHP code contains a fallback.
-				[ 'core/paragraph', { content: __( 'Thank you for registering!', 'newspack' ) } ],
 				[
 					'core/paragraph',
-					{ content: __( 'Check your email for a confirmation link.', 'newspack' ) },
+					{
+						content: __(
+							'Thank you for registering! Check your email for a confirmation link.',
+							'newspack'
+						),
+					},
 				],
 			],
 		}
