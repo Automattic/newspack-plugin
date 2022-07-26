@@ -60,6 +60,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
+			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'newspack_newsletters_update_contact_lists' ], 10, 5 );
 			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'newspack_newsletters_contact_data' ], 10, 3 );
 		}
 	}
@@ -855,6 +856,27 @@ final class Reader_Activation {
 	public static function get_client_id() {
 		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		return isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : false;
+	}
+
+	/**
+	 * Update content metadata after a contact's lists are updated.
+	 *
+	 * @param string        $provider        The provider name.
+	 * @param string        $email           Contact email address.
+	 * @param string[]      $lists_to_add    Array of list IDs to subscribe the contact to.
+	 * @param string[]      $lists_to_remove Array of list IDs to remove the contact from.
+	 * @param bool|WP_Error $result          True if the contact was updated or error if failed.
+	 */
+	public static function newspack_newsletters_update_contact_lists( $provider, $email, $lists_to_add, $lists_to_remove, $result ) {
+		switch ( $provider ) {
+			case 'active_campaign':
+				if ( true === $result && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
+					$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email );
+					// The add_contact method is idempotent, effectively being an upsertion.
+					\Newspack_Newsletters_Subscription::add_contact( [ 'email' => $email ], $current_lists );
+				}
+				break;
+		}
 	}
 
 	/**
