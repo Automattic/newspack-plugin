@@ -11,14 +11,31 @@ import { intersection } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-import { Spinner, Notice, TextControl, ToggleControl, PanelBody } from '@wordpress/components';
-import { RichText, useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import {
+	useBlockProps,
+	RichText,
+	InspectorControls,
+	useInnerBlocksProps,
+	InnerBlocks,
+} from '@wordpress/block-editor';
+import {
+	Spinner,
+	Notice,
+	TextControl,
+	ToggleControl,
+	PanelBody,
+	Button,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 
+const editedStateOptions = [
+	{ label: __( 'Initial', 'newspack' ), value: 'initial' },
+	{ label: __( 'Success', 'newspack' ), value: 'success' },
+];
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: {
@@ -36,6 +53,28 @@ export default function ReaderRegistrationEdit( {
 	},
 } ) {
 	const blockProps = useBlockProps();
+	const [ editedState, setEditedState ] = useState( editedStateOptions[ 0 ].value );
+	const isInitial = editedState === 'initial';
+
+	const innerBlocksProps = useInnerBlocksProps(
+		{},
+		{
+			renderAppender: InnerBlocks.ButtonBlockAppender,
+			template: [
+				// Quirk: this will only get applied to the block (as inner blocks) if it's *rendered* in the editor.
+				// If the user never switches the state view, it will not be applied, so PHP code contains a fallback.
+				[
+					'core/paragraph',
+					{
+						content: __(
+							'Thank you for registering! Check your email for a confirmation link.',
+							'newspack'
+						),
+					},
+				],
+			],
+		}
+	);
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ listConfig, setListConfig ] = useState( {} );
 
@@ -133,110 +172,134 @@ export default function ReaderRegistrationEdit( {
 				) }
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className={ `newspack-registration ${ className }` }>
-					<form onSubmit={ ev => ev.preventDefault() }>
-						<div className="newspack-registration__form-content">
-							{ newsletterSubscription && lists.length ? (
-								<div className="newspack-reader__lists">
-									{ lists?.length > 1 && (
-										<RichText
-											onChange={ value => setAttributes( { newsletterTitle: value } ) }
-											placeholder={ __( 'Newsletters title…', 'newspack' ) }
-											value={ newsletterTitle }
-											tagName="h3"
-										/>
-									) }
-									<ul>
-										{ lists.map( listId => (
-											<li key={ listId }>
-												<span className="newspack-reader__lists__checkbox">
-													<input type="checkbox" checked readOnly />
-												</span>
-												<span className="newspack-reader__lists__details">
-													<span className="newspack-reader__lists__label">
-														<span className="newspack-reader__lists__title">
-															{ lists.length === 1 ? (
-																<RichText
-																	onChange={ value => setAttributes( { newsletterLabel: value } ) }
-																	placeholder={ __( 'Subscribe to our newsletter', 'newspack' ) }
-																	value={ newsletterLabel }
-																	tagName="span"
-																/>
-															) : (
-																listConfig[ listId ]?.title
+				<div className="newspack-registration__state-bar">
+					<span>{ __( 'Edited State', 'newspack' ) }</span>
+					<div>
+						<Button
+							data-is-active={ isInitial }
+							editedState="secondary"
+							onClick={ () => setEditedState( 'initial' ) }
+						>
+							{ __( 'Initial', 'newspack' ) }
+						</Button>
+						<Button
+							data-is-active={ ! isInitial }
+							editedState="secondary"
+							onClick={ () => setEditedState( 'success' ) }
+						>
+							{ __( 'Success', 'newspack' ) }
+						</Button>
+					</div>
+				</div>
+				{ editedState === 'initial' && (
+					<div className={ `newspack-registration ${ className }` }>
+						<form onSubmit={ ev => ev.preventDefault() }>
+							<div className="newspack-registration__form-content">
+								{ newsletterSubscription && lists.length ? (
+									<div className="newspack-registration__lists">
+										{ lists?.length > 1 && (
+											<RichText
+												onChange={ value => setAttributes( { newsletterTitle: value } ) }
+												placeholder={ __( 'Newsletters title…', 'newspack' ) }
+												value={ newsletterTitle }
+												tagName="h3"
+											/>
+										) }
+										<ul>
+											{ lists.map( listId => (
+												<li key={ listId }>
+													<span className="newspack-reader__lists__checkbox">
+														<input type="checkbox" checked readOnly />
+													</span>
+													<span className="newspack-reader__lists__details">
+														<span className="newspack-reader__lists__label">
+															<span className="newspack-reader__lists__title">
+																{ lists.length === 1 ? (
+																	<RichText
+																		onChange={ value =>
+																			setAttributes( { newsletterLabel: value } )
+																		}
+																		placeholder={ __( 'Subscribe to our newsletter', 'newspack' ) }
+																		value={ newsletterLabel }
+																		tagName="span"
+																	/>
+																) : (
+																	listConfig[ listId ]?.title
+																) }
+															</span>
+															{ displayListDescription && (
+																<span className="newspack-reader__lists__description">
+																	{ listConfig[ listId ]?.description }
+																</span>
 															) }
 														</span>
-														{ displayListDescription && (
-															<span className="newspack-reader__lists__description">
-																{ listConfig[ listId ]?.description }
-															</span>
-														) }
 													</span>
-												</span>
-											</li>
-										) ) }
-									</ul>
-								</div>
-							) : null }
-							<div className="newspack-registration__main">
-								<div>
-									<div className="newspack-registration__inputs">
-										<input type="email" placeholder={ placeholder } />
-										<button type="submit">
-											<RichText
-												onChange={ value => setAttributes( { label: value } ) }
-												placeholder={ __( 'Sign up', 'newspack' ) }
-												value={ label }
-												tagName="span"
-											/>
-										</button>
+												</li>
+											) ) }
+										</ul>
 									</div>
-									{ newspack_blocks.has_google_oauth && (
-										<div className="newspack-registration__logins">
-											<div className="newspack-registration__logins__separator">
-												<div />
-												<div>{ __( 'OR', 'newspack' ) }</div>
-												<div />
-											</div>
-											<button className="newspack-registration__logins__google">
-												<span
-													dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+								) : null }
+								<div className="newspack-registration__main">
+									<div>
+										<div className="newspack-registration__inputs">
+											<input type="email" placeholder={ placeholder } />
+											<button type="submit">
+												<RichText
+													onChange={ value => setAttributes( { label: value } ) }
+													placeholder={ __( 'Sign up', 'newspack' ) }
+													value={ label }
+													tagName="span"
 												/>
-												<span>{ __( 'Sign in with Google', 'newspack' ) }</span>
 											</button>
 										</div>
-									) }
-									<div className="newspack-registration__response" />
-								</div>
 
-								<div className="newspack-registration__help-text">
-									<RichText
-										onChange={ value => setAttributes( { privacyLabel: value } ) }
-										placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
-										value={ privacyLabel }
-										tagName="p"
-									/>
-									<p>
+										{ newspack_blocks.has_google_oauth && (
+											<div className="newspack-registration__logins">
+												<div className="newspack-registration__logins__separator">
+													<div />
+													<div>{ __( 'OR', 'newspack' ) }</div>
+													<div />
+												</div>
+												<button className="newspack-registration__logins__google">
+													<span
+														dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+													/>
+													<span>{ __( 'Sign in with Google', 'newspack' ) }</span>
+												</button>
+											</div>
+										) }
+										<div className="newspack-registration__response" />
+									</div>
+									<div className="newspack-registration__help-text">
 										<RichText
-											onChange={ value => setAttributes( { haveAccountLabel: value } ) }
-											placeholder={ __( 'Already have an account?', 'newspack' ) }
-											value={ haveAccountLabel }
-											tagName="span"
-										/>{ ' ' }
-										<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+											onChange={ value => setAttributes( { privacyLabel: value } ) }
+											placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
+											value={ privacyLabel }
+											tagName="p"
+										/>
+										<p>
 											<RichText
-												onChange={ value => setAttributes( { signInLabel: value } ) }
-												placeholder={ __( 'Sign In', 'newspack' ) }
-												value={ signInLabel }
+												onChange={ value => setAttributes( { haveAccountLabel: value } ) }
+												placeholder={ __( 'Already have an account?', 'newspack' ) }
+												value={ haveAccountLabel }
 												tagName="span"
-											/>
-										</a>
-									</p>
+											/>{ ' ' }
+											<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+												<RichText
+													onChange={ value => setAttributes( { signInLabel: value } ) }
+													placeholder={ __( 'Sign In', 'newspack' ) }
+													value={ signInLabel }
+													tagName="span"
+												/>
+											</a>
+										</p>
+									</div>
 								</div>
 							</div>
-						</div>
-					</form>
-				</div>
+						</form>
+					</div>
+				) }
+				{ editedState === 'success' && <div { ...innerBlocksProps } /> }
 			</div>
 		</>
 	);

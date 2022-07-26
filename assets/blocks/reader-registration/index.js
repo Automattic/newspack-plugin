@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useInnerBlocksProps, useBlockProps } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 
 /**
@@ -30,4 +31,5 @@ export const settings = {
 		foreground: '#36f',
 	},
 	edit,
+	save: () => <div { ...useInnerBlocksProps.save( useBlockProps.save() ) } />,
 };

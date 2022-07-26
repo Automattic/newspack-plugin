@@ -1,3 +1,43 @@
+# [1.87.0](https://github.com/Automattic/newspack-plugin/compare/v1.86.0...v1.87.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* **donations:** numbers formatting if NRH is the platform ([525c166](https://github.com/Automattic/newspack-plugin/commit/525c16678e3aa14805c76f2657caacd15253e0b6)), closes [#1650](https://github.com/Automattic/newspack-plugin/issues/1650)
+* fatal in RR wizard if not passing all params ([#1777](https://github.com/Automattic/newspack-plugin/issues/1777)) ([de2cfd1](https://github.com/Automattic/newspack-plugin/commit/de2cfd14ca5dd324b1fa64afd54ba3131118d2ce))
+* include blocks' files in release ([a662d91](https://github.com/Automattic/newspack-plugin/commit/a662d91b472ae0fd1f83c46b79ff96a8d88d4466))
+* linking buttons ([00e908a](https://github.com/Automattic/newspack-plugin/commit/00e908a005eac49daa24bd68edd89039941d35df))
+* **woocommerce:** product creation ([#1763](https://github.com/Automattic/newspack-plugin/issues/1763)) ([0fb580d](https://github.com/Automattic/newspack-plugin/commit/0fb580d192c11eddc6651ef229bb83a880921e8c))
+
+
+### Features
+
+* **donations:** amounts and frequencies customisation ([#1753](https://github.com/Automattic/newspack-plugin/issues/1753)) ([cb1f888](https://github.com/Automattic/newspack-plugin/commit/cb1f888c3055e71d9c121fb5823cbdc5de6ff63d))
+* **engagement:** manage newsletters subscription lists ([#1734](https://github.com/Automattic/newspack-plugin/issues/1734)) ([f514935](https://github.com/Automattic/newspack-plugin/commit/f514935e2d11c451c48e3278b425936b9ae18456))
+* **reader-activation:** extended auth expiration ([#1752](https://github.com/Automattic/newspack-plugin/issues/1752)) ([4920a4d](https://github.com/Automattic/newspack-plugin/commit/4920a4d27809dd2ceddac028abe93347076204eb))
+* **reader-activation:** registration block ([#1724](https://github.com/Automattic/newspack-plugin/issues/1724)) ([06e60ab](https://github.com/Automattic/newspack-plugin/commit/06e60aba65bf47d9fdd28c31b2af2fbddd291b55))
+* **reader-activation:** restricted reader roles ([#1770](https://github.com/Automattic/newspack-plugin/issues/1770)) ([41682f2](https://github.com/Automattic/newspack-plugin/commit/41682f28f5f10268d43cc25a1ada481778c02657))
+
+# [1.87.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.86.0...v1.87.0-alpha.1) (2022-07-14)
+
+
+### Bug Fixes
+
+* **donations:** numbers formatting if NRH is the platform ([525c166](https://github.com/Automattic/newspack-plugin/commit/525c16678e3aa14805c76f2657caacd15253e0b6)), closes [#1650](https://github.com/Automattic/newspack-plugin/issues/1650)
+* fatal in RR wizard if not passing all params ([#1777](https://github.com/Automattic/newspack-plugin/issues/1777)) ([de2cfd1](https://github.com/Automattic/newspack-plugin/commit/de2cfd14ca5dd324b1fa64afd54ba3131118d2ce))
+* include blocks' files in release ([a662d91](https://github.com/Automattic/newspack-plugin/commit/a662d91b472ae0fd1f83c46b79ff96a8d88d4466))
+* linking buttons ([00e908a](https://github.com/Automattic/newspack-plugin/commit/00e908a005eac49daa24bd68edd89039941d35df))
+* **woocommerce:** product creation ([#1763](https://github.com/Automattic/newspack-plugin/issues/1763)) ([0fb580d](https://github.com/Automattic/newspack-plugin/commit/0fb580d192c11eddc6651ef229bb83a880921e8c))
+
+
+### Features
+
+* **donations:** amounts and frequencies customisation ([#1753](https://github.com/Automattic/newspack-plugin/issues/1753)) ([cb1f888](https://github.com/Automattic/newspack-plugin/commit/cb1f888c3055e71d9c121fb5823cbdc5de6ff63d))
+* **engagement:** manage newsletters subscription lists ([#1734](https://github.com/Automattic/newspack-plugin/issues/1734)) ([f514935](https://github.com/Automattic/newspack-plugin/commit/f514935e2d11c451c48e3278b425936b9ae18456))
+* **reader-activation:** extended auth expiration ([#1752](https://github.com/Automattic/newspack-plugin/issues/1752)) ([4920a4d](https://github.com/Automattic/newspack-plugin/commit/4920a4d27809dd2ceddac028abe93347076204eb))
+* **reader-activation:** registration block ([#1724](https://github.com/Automattic/newspack-plugin/issues/1724)) ([06e60ab](https://github.com/Automattic/newspack-plugin/commit/06e60aba65bf47d9fdd28c31b2af2fbddd291b55))
+* **reader-activation:** restricted reader roles ([#1770](https://github.com/Automattic/newspack-plugin/issues/1770)) ([41682f2](https://github.com/Automattic/newspack-plugin/commit/41682f28f5f10268d43cc25a1ada481778c02657))
+
 # [1.86.0](https://github.com/Automattic/newspack-plugin/compare/v1.85.2...v1.86.0) (2022-07-11)
 
 
