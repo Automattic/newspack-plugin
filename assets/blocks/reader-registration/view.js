@@ -25,8 +25,11 @@ function domReady( callback ) {
 	document.addEventListener( 'DOMContentLoaded', callback );
 }
 
-const convertFormDataToObject = formData =>
+const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
+		if ( ignoredKeys.includes( key ) ) {
+			return acc;
+		}
 		if ( key.indexOf( '[]' ) > -1 ) {
 			key = key.replace( '[]', '' );
 			acc[ key ] = acc[ key ] || [];
@@ -116,8 +119,12 @@ const convertFormDataToObject = formData =>
 				googleLoginElement.addEventListener( 'click', () => {
 					startLoginFlow();
 
-					const metadata = convertFormDataToObject( new FormData( form ) );
-					metadata.currentUrl = window.location.href;
+					const metadata = convertFormDataToObject( new FormData( form ), [
+						'email',
+						'_wp_http_referer',
+						'newspack_reader_registration',
+					] );
+					metadata.current_page_url = window.location.href;
 					const checkLoginStatus = () => {
 						fetch(
 							`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`

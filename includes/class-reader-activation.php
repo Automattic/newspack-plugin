@@ -928,7 +928,7 @@ final class Reader_Activation {
 				try {
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_lists' ) ) {
 						$lists = \Newspack_Newsletters_Subscription::get_lists();
-						if (! is_wp_error($lists)) {
+						if ( ! is_wp_error( $lists ) ) {
 							$lists_names = [];
 							foreach ( $selected_list_ids as $selected_list_id ) {
 								foreach ( $lists as $list ) {
@@ -946,28 +946,29 @@ final class Reader_Activation {
 				}
 
 				if ( $is_new_contact ) {
-					// It's a form submission, so the URL to look at is the referer.
-					$current_url = isset( $contact['passed_metadata'], $contact['passed_metadata']['currentUrl'] ) ? $contact['passed_metadata']['currentUrl'] : \wp_get_referer();
+					$signup_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
+					if ( $signup_page_url ) {
+						// Rename this metadata field.
+						$metadata['NP_Signup page'] = $signup_page_url;
+						unset( $contact['metadata']['current_page_url'] );
 
-					// Capture current URL.
-					$metadata['NP_Signup page'] = $current_url;
-
-					// Capture UTM params.
-					$parsed_url = \wp_parse_url( $current_url );
-					if ( isset( $parsed_url['query'] ) ) {
-						$url_params = array_reduce(
-							explode( '&', $parsed_url['query'] ),
-							function( $acc, $item ) {
-								$parts            = explode( '=', $item );
-								$acc[ $parts[0] ] = $parts[1];
-								return $acc;
-							},
-							[]
-						);
-						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-							$param = 'utm_' . $value;
-							if ( isset( $url_params[ $param ] ) ) {
-								$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
+						// Capture UTM params.
+						$parsed_url = \wp_parse_url( $signup_page_url );
+						if ( isset( $parsed_url['query'] ) ) {
+							$url_params = array_reduce(
+								explode( '&', $parsed_url['query'] ),
+								function( $acc, $item ) {
+									$parts            = explode( '=', $item );
+									$acc[ $parts[0] ] = $parts[1];
+									return $acc;
+								},
+								[]
+							);
+							foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+								$param = 'utm_' . $value;
+								if ( isset( $url_params[ $param ] ) ) {
+									$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
+								}
 							}
 						}
 					}

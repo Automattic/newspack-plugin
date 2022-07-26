@@ -315,8 +315,9 @@ function process_form() {
 	if ( ! empty( $lists ) ) {
 		$metadata['lists'] = $lists;
 	}
+	$metadata['current_page_url'] = home_url( add_query_arg( array(), \wp_get_referer() ) );
+	$email                        = \sanitize_email( $_REQUEST['email'] );
 
-	$email   = \sanitize_email( $_REQUEST['email'] );
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
 	/**
