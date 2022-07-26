@@ -927,17 +927,19 @@ final class Reader_Activation {
 				// Translate list IDs to list names and store as metadata.
 				try {
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_lists' ) ) {
-						$lists       = \Newspack_Newsletters_Subscription::get_lists();
-						$lists_names = [];
-						foreach ( $selected_list_ids as $selected_list_id ) {
-							foreach ( $lists as $list ) {
-								if ( $list['id'] === $selected_list_id ) {
-									$lists_names[] = $list['name'];
+						$lists = \Newspack_Newsletters_Subscription::get_lists();
+						if (! is_wp_error($lists)) {
+							$lists_names = [];
+							foreach ( $selected_list_ids as $selected_list_id ) {
+								foreach ( $lists as $list ) {
+									if ( $list['id'] === $selected_list_id ) {
+										$lists_names[] = $list['name'];
+									}
 								}
 							}
+							// Note: this field will be overwritten every time it's updated.
+							$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
 						}
-						// Note: this field will be overwritten every time it's updated.
-						$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
 					}
 				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 					// Move along.
