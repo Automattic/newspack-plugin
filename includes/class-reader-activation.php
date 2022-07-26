@@ -59,7 +59,7 @@ final class Reader_Activation {
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
-			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
+			\add_action( 'newspack_newsletters_before_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'newspack_newsletters_update_contact_lists' ], 10, 5 );
 			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'newspack_newsletters_contact_data' ], 10, 3 );
 		}
@@ -905,6 +905,7 @@ final class Reader_Activation {
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'existing_contact_data' ) ) {
 						$existing_contact = \Newspack_Newsletters_Subscription::existing_contact_data( $contact['email'] );
 						if ( is_wp_error( $existing_contact ) ) {
+							Logger::log( 'Adding metadata to a new contact.' );
 							if ( empty( $selected_list_ids ) ) {
 								// Registration only, as a side effect of Reader Activation.
 								$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
@@ -912,6 +913,8 @@ final class Reader_Activation {
 								// Registration and signup, the former implicit.
 								$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
 							}
+						} else {
+							Logger::log( 'Adding metadata to an existing contact.' );
 						}
 					}
 				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
