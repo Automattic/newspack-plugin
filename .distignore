@@ -41,7 +41,8 @@ node_modules
 .circleci
 /tests
 /bin
-/assets
+/assets/**/*.js
+/assets/**/*.scss
 /release
 .cache
 codecov

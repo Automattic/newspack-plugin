@@ -2,12 +2,12 @@
  * Newspack Logo
  */
 
-@import '../../../shared/scss/colors';
+@use '../../../shared/scss/colors';
 
 .newspack-logo {
 	&__svg {
 		display: block;
-		fill: currentColor;
+		fill: currentcolor;
 		margin: 0;
 		padding-bottom: 32px;
 		width: auto;
@@ -19,7 +19,7 @@
 	}
 
 	&__wrapper {
-		background: $primary-500;
+		background: colors.$primary-500;
 		color: white;
 		position: relative;
 
