@@ -76,11 +76,14 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
  * Render Registration Block.
  *
  * @param array[] $attrs Block attributes.
+ * @param string  $content Block content (inner blocks) – success state in this case.
  */
-function render_block( $attrs ) {
-	$block_id   = \wp_rand( 0, 99999 );
-	$registered = false;
-	$message    = '';
+function render_block( $attrs, $content ) {
+	$registered      = false;
+	$message         = '';
+	$success_message = __( 'Thank you for registering! Check your email for a confirmation link.', 'newspack' );
+
+	$block_id = \wp_rand( 0, 99999 );
 
 	/** Handle default attributes. */
 	$default_attrs = [
@@ -116,10 +119,15 @@ function render_block( $attrs ) {
 		( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
 	) {
 		$registered = true;
-		$message    = __( 'Thank you for registering!', 'newspack' );
+		$message    = $success_message;
 	}
 	if ( isset( $_GET['newspack_reader'] ) && isset( $_GET['message'] ) ) {
 		$message = \sanitize_text_field( $_GET['message'] );
+	}
+
+	$success_markup = $content;
+	if ( empty( wp_strip_all_tags( $content ) ) ) {
+		$success_markup = $success_message;
 	}
 	// phpcs:enable
 
@@ -127,7 +135,9 @@ function render_block( $attrs ) {
 	?>
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
-			<p class="message"><?php echo \esc_html( $message ); ?></p>
+			<div class="newspack-registration__success">
+				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
 		<?php else : ?>
 			<form>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
@@ -222,6 +232,9 @@ function render_block( $attrs ) {
 					</div>
 				</div>
 			</form>
+			<div class="newspack-registration__success newspack-registration--hidden">
+				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -328,8 +341,7 @@ function process_form() {
 		[
 			'email'         => $email,
 			'authenticated' => $user_logged_in,
-		],
-		$user_logged_in ? __( 'Thank you for registering!', 'newspack' ) : __( 'Check your email for a confirmation link!', 'newspack' )
+		]
 	);
 }
 add_action( 'template_redirect', __NAMESPACE__ . '\\process_form' );

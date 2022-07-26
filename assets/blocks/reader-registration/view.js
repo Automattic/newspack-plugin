@@ -50,6 +50,7 @@ const convertFormDataToObject = formData =>
 
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'input[type="submit"]' );
+			const successElement = container.querySelector( '.newspack-registration__success' );
 
 			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
 				if ( authenticated ) {
@@ -73,7 +74,8 @@ const convertFormDataToObject = formData =>
 				container.classList.add( `newspack-registration--${ isSuccess ? 'success' : 'error' }` );
 				if ( isSuccess ) {
 					if ( messageNode ) {
-						container.replaceChild( messageNode, form );
+						successElement.classList.remove( 'newspack-registration--hidden' );
+						form.remove();
 					}
 					if ( data?.email ) {
 						readerActivation.setReaderEmail( data.email );

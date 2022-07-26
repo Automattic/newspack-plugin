@@ -1,4 +1,5 @@
 @use './style';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-registration {
 	form {
@@ -29,6 +30,40 @@
 			padding: 0.76rem 1rem;
 			text-decoration: none;
 			vertical-align: bottom;
+		}
+	}
+	&__state-bar {
+		align-items: center;
+		border: 1px solid wp-colors.$gray-900;
+		border-radius: 2px;
+		display: flex;
+		font-family: -apple-system, blinkmacsystemfont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+			'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+		flex-wrap: wrap;
+		font-size: 13px;
+		gap: 8px;
+		justify-content: space-between;
+		line-height: 1.4;
+		margin-bottom: 12px;
+		padding: 7px 8px;
+		button {
+			box-shadow: none !important;
+			color: wp-colors.$gray-900 !important;
+			height: 32px !important;
+			&[data-is-active='true'] {
+				background-color: wp-colors.$gray-900;
+				color: white !important;
+			}
+			&:hover:not( [data-is-active='true'] ) {
+				color: var( --wp-admin-theme-color ) !important;
+			}
+		}
+		span {
+			font-weight: 500;
+		}
+		div {
+			display: flex;
+			gap: 4px;
 		}
 	}
 	&__logins {
