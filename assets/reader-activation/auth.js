@@ -29,7 +29,7 @@ function domReady( callback ) {
  * Converts FormData into an object.
  *
  * @param {FormData} formData The form data to convert.
- * @return object The converted form data.
+ * @return {object} The converted form data.
  */
 const convertFormDataToObject = formData =>
 	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
@@ -181,7 +181,7 @@ const convertFormDataToObject = formData =>
 			form.style.opacity = 0.5;
 		};
 
-		form.endLoginFlow = ( message, status, data ) => {
+		form.endLoginFlow = ( message, status, data, redirect ) => {
 			if ( message ) {
 				const messageNode = document.createElement( 'p' );
 				messageNode.textContent = message;
@@ -192,8 +192,8 @@ const convertFormDataToObject = formData =>
 				readerActivation.setReaderEmail( data.email );
 				readerActivation.setAuthenticated( authenticated );
 				if ( authenticated ) {
-					if ( body.get( 'redirect' ) ) {
-						window.location = body.get( 'redirect' );
+					if ( redirect ) {
+						window.location = redirect;
 					}
 				} else {
 					form.replaceWith( messageContentElement.parentNode );
@@ -226,7 +226,7 @@ const convertFormDataToObject = formData =>
 				.then( res => {
 					container.setAttribute( 'data-form-status', res.status );
 					res.json().then( ( { message, data } ) => {
-						form.endLoginFlow( message, res.status, data );
+						form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
 					} );
 				} )
 				.catch( err => {
