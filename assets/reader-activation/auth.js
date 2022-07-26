@@ -29,7 +29,7 @@ function domReady( callback ) {
  * Converts FormData into an object.
  *
  * @param {FormData} formData The form data to convert.
- * @return {object} The converted form data.
+ * @return {Object} The converted form data.
  */
 const convertFormDataToObject = formData =>
 	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
