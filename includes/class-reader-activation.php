@@ -718,6 +718,7 @@ final class Reader_Activation {
 		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
+		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		// phpcs:enable
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
@@ -763,7 +764,11 @@ final class Reader_Activation {
 				}
 				return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
 			case 'register':
-				$user_id = self::register_reader( $email );
+				$metadata = [];
+				if ( ! empty( $lists ) ) {
+					$metadata['lists'] = $lists;
+				}
+				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
 				}
