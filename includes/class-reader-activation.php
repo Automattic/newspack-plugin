@@ -901,11 +901,13 @@ final class Reader_Activation {
 				}
 
 				// If it's a new contact, add a registration or signup date.
+				$is_new_contact = null;
 				try {
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'existing_contact_data' ) ) {
 						$existing_contact = \Newspack_Newsletters_Subscription::existing_contact_data( $contact['email'] );
 						if ( is_wp_error( $existing_contact ) ) {
 							Logger::log( 'Adding metadata to a new contact.' );
+							$is_new_contact = true;
 							if ( empty( $selected_list_ids ) ) {
 								// Registration only, as a side effect of Reader Activation.
 								$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
@@ -915,6 +917,7 @@ final class Reader_Activation {
 							}
 						} else {
 							Logger::log( 'Adding metadata to an existing contact.' );
+							$is_new_contact = false;
 						}
 					}
 				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -940,9 +943,34 @@ final class Reader_Activation {
 					// Move along.
 				}
 
-				// Capture current URL.
-				global $wp;
-				$metadata['NP_Signup page'] = home_url( add_query_arg( array(), $wp->request ) );
+				if ( $is_new_contact ) {
+					// It's a form submission, so the URL to look at is the referer.
+					$current_url = \wp_get_referer();
+
+					// Capture current URL.
+					$metadata['NP_Signup page'] = $current_url;
+
+					// Capture UTM params.
+					$parsed_url = \wp_parse_url( $current_url );
+					if ( isset( $parsed_url['query'] ) ) {
+						$url_params = array_reduce(
+							explode( '&', $parsed_url['query'] ),
+							function( $acc, $item ) {
+								$parts            = explode( '=', $item );
+								$acc[ $parts[0] ] = $parts[1];
+								return $acc;
+							},
+							[]
+						);
+						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+							$param = 'utm_' . $value;
+							if ( isset( $url_params[ $param ] ) ) {
+								$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
+							}
+						}
+					}
+				}
+
 				if ( isset( $contact['metadata'] ) ) {
 					$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
 				} else {
