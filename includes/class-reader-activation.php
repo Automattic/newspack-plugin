@@ -897,7 +897,7 @@ final class Reader_Activation {
 			case 'active_campaign':
 				$metadata = [];
 				if ( is_user_logged_in() ) {
-					$metadata['Account'] = get_current_user_id();
+					$metadata['NP_Account'] = get_current_user_id();
 				}
 
 				// If it's a new contact, add a registration or signup date.
@@ -930,6 +930,7 @@ final class Reader_Activation {
 								}
 							}
 						}
+						// Note: this field will be overwritten every time it's updated.
 						$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
 					}
 				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
