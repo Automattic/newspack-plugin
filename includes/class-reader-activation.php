@@ -500,7 +500,7 @@ final class Reader_Activation {
 						</p>
 						<input type="hidden" name="redirect" value="" />
 						<div data-action="register">
-							<p><?php _e( 'Be the first to know about breaking news, articles and updates.', 'newspack' ); ?></p>
+							<p><?php _e( 'Subscribe to our newsletters:', 'newspack' ); ?></p>
 							<?php self::render_subscription_lists_inputs(); ?>
 						</div>
 						<p>
