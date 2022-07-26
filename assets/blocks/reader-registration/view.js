@@ -117,6 +117,7 @@ const convertFormDataToObject = formData =>
 					startLoginFlow();
 
 					const metadata = convertFormDataToObject( new FormData( form ) );
+					metadata.currentUrl = window.location.href;
 					const checkLoginStatus = () => {
 						fetch(
 							`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`

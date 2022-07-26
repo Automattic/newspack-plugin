@@ -945,7 +945,7 @@ final class Reader_Activation {
 
 				if ( $is_new_contact ) {
 					// It's a form submission, so the URL to look at is the referer.
-					$current_url = \wp_get_referer();
+					$current_url = isset( $contact['passed_metadata'], $contact['passed_metadata']['currentUrl'] ) ? $contact['passed_metadata']['currentUrl'] : \wp_get_referer();
 
 					// Capture current URL.
 					$metadata['NP_Signup page'] = $current_url;
