@@ -81,7 +81,7 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 function render_block( $attrs, $content ) {
 	$registered      = false;
 	$message         = '';
-	$success_message = __( 'Thank you for registering! Check your email for a confirmation link.', 'newspack' );
+	$success_message = __( 'Thank you for registering!', 'newspack' ) . '<br />' . __( 'Check your email for a confirmation link.', 'newspack' );
 
 	$block_id = \wp_rand( 0, 99999 );
 
@@ -127,7 +127,7 @@ function render_block( $attrs, $content ) {
 
 	$success_markup = $content;
 	if ( empty( wp_strip_all_tags( $content ) ) ) {
-		$success_markup = $success_message;
+		$success_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
 	}
 	// phpcs:enable
 
@@ -136,6 +136,7 @@ function render_block( $attrs, $content ) {
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
 			<div class="newspack-registration__success">
+				<div class="newspack-registration__icon"></div>
 				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
@@ -233,6 +234,7 @@ function render_block( $attrs, $content ) {
 				</div>
 			</form>
 			<div class="newspack-registration__success newspack-registration--hidden">
+				<div class="newspack-registration__icon"></div>
 				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php endif; ?>
