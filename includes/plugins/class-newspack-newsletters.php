@@ -93,8 +93,8 @@ class Newspack_Newsletters {
 				// If it's a new contact, add a registration or signup date.
 				$is_new_contact = null;
 				try {
-					if ( method_exists( '\Newspack_Newsletters_Subscription', 'existing_contact_data' ) ) {
-						$existing_contact = \Newspack_Newsletters_Subscription::existing_contact_data( $contact['email'] );
+					if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_data' ) ) {
+						$existing_contact = \Newspack_Newsletters_Subscription::get_contact_data( $contact['email'] );
 						if ( is_wp_error( $existing_contact ) ) {
 							Logger::log( 'Adding metadata to a new contact.' );
 							$is_new_contact = true;
