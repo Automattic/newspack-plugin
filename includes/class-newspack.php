@@ -303,6 +303,7 @@ final class Newspack {
 			true
 		);
 		wp_enqueue_script( 'newspack_commons' );
+		wp_script_add_data( 'newspack_commons', 'amp-plus', true );
 
 		wp_register_style(
 			'newspack-commons',
