@@ -2,11 +2,11 @@
  * Radio Control
  */
 
-@import '../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-radio-control {
-	color: $gray-700;
+	color: wp-colors.$gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
@@ -19,7 +19,7 @@
 	}
 
 	.components-base-control__label {
-		color: $gray-900;
+		color: wp-colors.$gray-900;
 		font-weight: bold;
 	}
 
@@ -52,8 +52,8 @@
 		}
 
 		&:checked {
-			background-color: $primary-500;
-			border-color: $primary-500;
+			background-color: colors.$primary-500;
+			border-color: colors.$primary-500;
 
 			&::before {
 				border: none;
@@ -61,8 +61,8 @@
 		}
 
 		&:focus {
-			border-color: $primary-500;
-			box-shadow: 0 0 0 2px white, 0 0 0 3.5px $primary-500;
+			border-color: colors.$primary-500;
+			box-shadow: 0 0 0 2px white, 0 0 0 3.5px colors.$primary-500;
 		}
 	}
 

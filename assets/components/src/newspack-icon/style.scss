@@ -2,21 +2,21 @@
  * Newspack Icon
  */
 
-@import '../../../shared/scss/colors';
+@use '../../../shared/scss/colors';
 
 .newspack-icon {
-	background: $primary-500;
+	background: colors.$primary-500;
 	fill: white;
 	padding: 12px;
 
 	&--white {
 		background: white;
-		fill: $primary-500;
+		fill: colors.$primary-500;
 	}
 
 	&--simple {
 		background: none;
-		fill: $primary-500;
+		fill: colors.$primary-500;
 		padding: 0;
 	}
 

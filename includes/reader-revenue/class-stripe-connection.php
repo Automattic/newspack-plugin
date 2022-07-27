@@ -41,14 +41,13 @@ class Stripe_Connection {
 	public static function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/stripe/create-webhooks/',
+			'/stripe/reset-webhooks/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ __CLASS__, 'create_webhooks' ],
+				'callback'            => [ __CLASS__, 'reset_webhooks' ],
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
-
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/stripe/webhook',
@@ -148,18 +147,6 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * List Stripe webhooks.
-	 */
-	public static function list_webhooks() {
-		$stripe = self::get_stripe_client();
-		try {
-			return $stripe->webhookEndpoints->all()['data'];
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch webhooks.', 'newspack' ), $e->getMessage() );
-		}
-	}
-
-	/**
 	 * Get Stripe customer.
 	 *
 	 * @param string $customer_id Customer ID.
@@ -169,7 +156,88 @@ class Stripe_Connection {
 		try {
 			return $stripe->customers->retrieve( $customer_id, [] );
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get Stripe billing portal configuration used for this integration.
+	 * The configuration will disallow the customer to update their email,
+	 * because it has to stay in sync with WP.
+	 */
+	private static function get_billing_portal_configuration_id() {
+		$stripe = self::get_stripe_client();
+		try {
+			$all_configs = $stripe->billingPortal->configurations->all( [ 'active' => true ] );
+			$config_id   = false;
+			foreach ( $all_configs['data'] as $config ) {
+				if ( $config['metadata']['newspack_config'] ) {
+					$config_id = $config['id'];
+				}
+			}
+			if ( ! $config_id ) {
+				$new_config = $stripe->billingPortal->configurations->create(
+					[
+						'features'         => [
+							'customer_update'       => [
+								'allowed_updates' => [ 'tax_id' ],
+								'enabled'         => true,
+							],
+							'invoice_history'       => [
+								'enabled' => true,
+							],
+							'payment_method_update' => [
+								'enabled' => true,
+							],
+							'subscription_cancel'   => [
+								'cancellation_reason' => [
+									'enabled' => true,
+									'options' => [ 'too_expensive', 'unused', 'other' ],
+								],
+								'enabled'             => true,
+								'mode'                => 'at_period_end',
+								'proration_behavior'  => 'none',
+							],
+							'subscription_pause'    => [
+								'enabled' => true,
+							],
+						],
+						'business_profile' => [ 'headline' => '' ],
+						'metadata'         => [
+							'newspack_config' => true,
+						],
+					]
+				);
+				$config_id  = $new_config['id'];
+			}
+			return $config_id;
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not retrieve or create billing portal configuration.', 'newspack' ), $e->getMessage() );
+		}
+	}
+	/**
+	 * Get Stripe customer.
+	 *
+	 * @param string $customer_id Customer ID.
+	 * @param string $return_url Return URL.
+	 */
+	public static function get_billing_portal_url( $customer_id, $return_url = false ) {
+		$stripe = self::get_stripe_client();
+		if ( false === $return_url ) {
+			global $wp;
+			$return_url = home_url( add_query_arg( array(), $wp->request ) );
+		}
+		try {
+			$portal_data = $stripe->billingPortal->sessions->create(
+				[
+					'customer'      => $customer_id,
+					'return_url'    => $return_url,
+					'configuration' => self::get_billing_portal_configuration_id(),
+				]
+			);
+			return $portal_data['url'];
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not create billing portal session.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -198,7 +266,7 @@ class Stripe_Connection {
 		try {
 			return $stripe->invoices->retrieve( $invoice_id, [] );
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -212,7 +280,7 @@ class Stripe_Connection {
 		try {
 			return $stripe->balanceTransactions->retrieve( $transaction_id, [] );
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_webhooks', __( 'Could not fetch balance transaction.', 'newspack' ), $e->getMessage() );
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch balance transaction.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -299,6 +367,7 @@ class Stripe_Connection {
 				$metadata          = $payment['metadata'];
 				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
+				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
 
 				$referer = '';
 				if ( isset( $metadata['referer'] ) ) {
@@ -326,47 +395,46 @@ class Stripe_Connection {
 				$stripe_data                        = self::get_stripe_data();
 				if ( ! empty( $stripe_data['newsletter_list_id'] ) && isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'] ) {
 					$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
-					$newsletters_configuration_manager->add_contact(
-						[
-							'email'    => $customer['email'],
-							'name'     => $customer['name'],
-							'metadata' => [
-								'donation_date'      => gmdate( 'Y-m-d', $payment['created'] ),
-								'donation_amount'    => $amount_normalised,
-								'donation_frequency' => $frequency,
-								'donation_recurring' => 'once' !== $frequency,
-							],
+
+					$contact = [
+						'email'    => $customer['email'],
+						'name'     => $customer['name'],
+						'metadata' => [
+							'donation_date'      => gmdate( 'Y-m-d', $payment['created'] ),
+							'donation_amount'    => $amount_normalised,
+							'donation_frequency' => $frequency,
+							'donation_recurring' => 'once' !== $frequency,
 						],
-						$stripe_data['newsletter_list_id']
-					);
+					];
+
+					if ( ! empty( $client_id ) ) {
+						$contact['client_id'] = $client_id;
+					}
+
+					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
+					$newsletters_configuration_manager->add_contact( $contact, $stripe_data['newsletter_list_id'] );
 					$was_customer_added_to_mailing_list = true;
 				}
 
 				// Update data in Campaigns plugin.
-				if ( isset( $customer['metadata']['clientId'] ) && class_exists( 'Newspack_Popups_Segmentation' ) ) {
-					$client_id = $customer['metadata']['clientId'];
-					if ( ! empty( $client_id ) ) {
-						$donation_data = [
-							'stripe_id'          => $payment['id'],
-							'stripe_customer_id' => $customer['id'],
-							'date'               => $payment['created'],
-							'amount'             => $amount_normalised,
-							'frequency'          => $frequency,
-						];
-						$client_update = [
-							'donation' => $donation_data,
-						];
-						if ( $was_customer_added_to_mailing_list ) {
-							$client_update['email_subscription'] = [
-								'email' => $customer['email'],
-							];
-						}
-						\Newspack_Popups_Segmentation::update_client_data(
-							$client_id,
-							$client_update
-						);
-					}
+				if ( ! empty( $client_id ) ) {
+					$donation_data = [
+						'stripe_id'          => $payment['id'],
+						'stripe_customer_id' => $customer['id'],
+						'date'               => $payment['created'],
+						'amount'             => $amount_normalised,
+						'frequency'          => $frequency,
+					];
+
+					/**
+					 * When a new Stripe transaction occurs that can be associated with a client ID,
+					 * fire an action with the client ID and the relevant donation info.
+					 *
+					 * @param string      $client_id Client ID.
+					 * @param array       $donation_data Info about the transaction.
+					 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
+					 */
+					do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
 				}
 
 				// Send custom event to GA.
@@ -429,31 +497,58 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Create Stripe webhooks.
+	 * Reset Stripe webhooks.
 	 */
-	public static function create_webhooks() {
-		$stripe = self::get_stripe_client();
-		try {
-			$webhook = $stripe->webhookEndpoints->create(
-				[
-					'url'            => self::get_webhook_url(),
-					'enabled_events' => [
-						'charge.failed',
-						'charge.succeeded',
-					],
-				]
-			);
-			update_option(
-				self::STRIPE_WEBHOOK_OPTION_NAME,
-				[
-					'id'     => $webhook->id,
-					'secret' => $webhook->secret,
-				]
-			);
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'newspack_plugin_stripe', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
+	public static function reset_webhooks() {
+		delete_option( self::STRIPE_WEBHOOK_OPTION_NAME );
+		return self::validate_webhooks();
+	}
+
+	/**
+	 * Create Stripe webhooks if they are missing. Otherwise, validate the webhhooks.
+	 */
+	public static function validate_webhooks() {
+		$stripe          = self::get_stripe_client();
+		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
+		if ( ! $created_webhook ) {
+			Logger::log( 'Creating Stripe webhooks…' );
+			try {
+				$webhook = $stripe->webhookEndpoints->create(
+					[
+						'url'            => self::get_webhook_url(),
+						'enabled_events' => [
+							'charge.failed',
+							'charge.succeeded',
+						],
+					]
+				);
+				update_option(
+					self::STRIPE_WEBHOOK_OPTION_NAME,
+					[
+						'id'     => $webhook->id,
+						'secret' => $webhook->secret,
+					]
+				);
+				return true;
+			} catch ( \Throwable $e ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
+			}
+		} elseif ( isset( $created_webhook['id'] ) ) {
+			try {
+				$webhook = $stripe->webhookEndpoints->retrieve( $created_webhook['id'] );
+			} catch ( \Throwable $e ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed:', 'newspack' ) . ' ' . $e->getMessage() );
+			}
+			if ( 'enabled' !== $webhook['status'] ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook is disabled.', 'newspack' ) );
+			}
+			if ( self::get_webhook_url() !== $webhook['url'] ) {
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook has incorrect URL.', 'newspack' ) );
+			}
+			return true;
+		} else {
+			return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Invalid saved webhook.', 'newspack' ) );
 		}
-		return self::list_webhooks();
 	}
 
 	/**

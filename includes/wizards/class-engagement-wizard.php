@@ -273,7 +273,7 @@ class Engagement_Wizard extends Wizard {
 	 *
 	 * @return string URL to the Newspack Newsletters settings page.
 	 */
-	public function newsletters_settings_url( $url ) {
+	public function newsletters_settings_url( $url = '' ) {
 		return admin_url( 'admin.php?page=newspack-engagement-wizard#/newsletters' );
 	}
 }

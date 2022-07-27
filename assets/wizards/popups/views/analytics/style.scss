@@ -2,8 +2,8 @@
  * Popups Analytics
  */
 
-@import '../../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
+@use '../../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-campaigns-wizard-analytics {
 	&__wrapper {
@@ -28,12 +28,12 @@
 				&:focus,
 				&:hover {
 					background: white !important;
-					border-color: $gray-300 !important;
-					color: $gray-900 !important;
+					border-color: wp-colors.$gray-300 !important;
+					color: wp-colors.$gray-900 !important;
 				}
 				&:focus {
-					border-color: $primary-500 !important;
-					box-shadow: inset 0 0 0 2px $primary-500 !important;
+					border-color: colors.$primary-500 !important;
+					box-shadow: inset 0 0 0 2px colors.$primary-500 !important;
 				}
 				svg {
 					order: 2;
@@ -69,13 +69,13 @@
 						position: absolute;
 						height: 100%;
 						width: 1px;
-						background-color: $gray-300;
+						background-color: wp-colors.$gray-300;
 						right: 0;
 						top: 0;
 					}
 				}
 				&--dimmed {
-					color: $gray-600;
+					color: wp-colors.$gray-600;
 					h2 {
 						color: inherit;
 						font-weight: normal;

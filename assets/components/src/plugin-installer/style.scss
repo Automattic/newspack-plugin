@@ -2,7 +2,7 @@
  * Plugin Installer
  */
 
-@import '~@wordpress/base-styles/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-card {
 	.newspack-plugin-installer__status {
@@ -35,10 +35,10 @@
 	}
 
 	&.newspack-plugin-installer__status-active {
-		box-shadow: inset 4px 0 0 $alert-green;
+		box-shadow: inset 4px 0 0 wp-colors.$alert-green;
 
 		.newspack-plugin-installer__checkbox {
-			background: $alert-green;
+			background: wp-colors.$alert-green;
 			box-shadow: none;
 		}
 
@@ -48,12 +48,12 @@
 	}
 
 	&.newspack-plugin-installer__status-error {
-		box-shadow: inset 4px 0 0 $alert-red;
+		box-shadow: inset 4px 0 0 wp-colors.$alert-red;
 	}
 
 	&.newspack-plugin-installer__status-installing,
 	&.newspack-plugin-installer__status-none {
-		box-shadow: inset 4px 0 0 $gray-100;
+		box-shadow: inset 4px 0 0 wp-colors.$gray-100;
 	}
 
 	// Is Small

@@ -1,0 +1,251 @@
+.newspack-reader {
+	/**
+	 * Account Link
+	 */
+	&__account-link {
+		span {
+			display: inline-block;
+		}
+
+		&__mobile {
+			@media screen and ( min-width: 960px ) {
+				display: none;
+			}
+			margin-left: 0.5rem;
+		}
+
+		&__icon {
+			position: relative;
+			width: 24px;
+			svg {
+				position: absolute;
+				top: -17px;
+				left: 0;
+			}
+		}
+
+		&__label {
+			margin-left: 0.2rem;
+			@media screen and ( max-width: 959px ) {
+				border: 0;
+				clip: rect( 1px, 1px, 1px, 1px );
+				clip-path: inset( 50% );
+				height: 1px;
+				margin: -1px;
+				overflow: hidden;
+				padding: 0;
+				position: absolute !important;
+				width: 1px;
+				word-wrap: normal !important;
+			}
+		}
+	}
+
+	/**
+	 * Sign-In/Register Form
+	 */
+	&__auth-form {
+		display: none;
+		background: rgba( 0, 0, 0, 0.75 );
+		position: fixed;
+		width: 100% !important;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		justify-content: center;
+		align-items: center;
+		z-index: 999999;
+		font-size: 0.9em;
+
+		&__visible {
+			display: flex !important;
+		}
+
+		&[data-form-status='200'] {
+			.newspack-reader__auth-form {
+				&__response {
+					background: rgba( 74, 184, 102, 0.1 );
+					text-align: center;
+					padding: 2.5rem;
+					margin: 1rem 0;
+					font-size: 1em;
+					&__icon[data-form-status='200'] {
+						display: flex;
+						margin: 0 auto 2rem;
+						border-radius: 100%;
+						width: 50px;
+						height: 50px;
+						justify-content: center;
+						align-items: center;
+						color: #fff;
+						background: #4ab866;
+					}
+				}
+			}
+		}
+
+		&[data-form-status='400'] {
+			.newspack-reader__auth-form {
+				&__response {
+					width: 100%;
+					margin: 0;
+					padding: 0.5rem;
+					background: rgba( 217, 79, 79, 0.1 );
+					display: flex;
+					justify-content: center;
+					&__icon[data-form-status='400'] {
+						display: flex;
+						flex: 1 1 0;
+						color: #d94f4f;
+						margin: 0 0.25rem 0 0;
+					}
+					&__content {
+						flex: 1 1 100%;
+					}
+				}
+			}
+		}
+
+		@media screen and ( max-width: 744px ) {
+			align-items: flex-end;
+		}
+
+		a {
+			color: #36f;
+			text-decoration: underline;
+		}
+
+		p {
+			margin: 0.5rem 0;
+			&.small {
+				margin: 0;
+				font-size: 0.8em;
+				a {
+					color: inherit;
+				}
+			}
+		}
+
+		&__wrapper {
+			width: 100%;
+			max-width: 544px;
+			background: #fff;
+			position: relative;
+		}
+
+		&__header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			h2 {
+				font-size: 1.3em;
+			}
+			a {
+				font-size: 0.8em;
+				color: #36f;
+				margin-left: 1rem;
+			}
+			@media screen and ( max-width: 744px ) {
+				justify-content: flex-start;
+			}
+		}
+
+		&__content {
+			padding: 64px;
+
+			@media screen and ( max-width: 744px ) {
+				padding: 0 5vw 5vw 5vw;
+			}
+			form {
+				transition: opacity 0.2s ease-in-out;
+			}
+			input[type='email'],
+			input[type='password'] {
+				width: 100%;
+			}
+			[type='submit'] {
+				background-color: var( --newspack-primary-color );
+			}
+		}
+
+		&__actions {
+			display: flex;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			p:not( .small ) {
+				flex: 1 1 100%;
+			}
+			button {
+				display: block;
+				width: 100%;
+			}
+		}
+
+		&__response {
+			font-size: 0.8em;
+			&__content {
+				p {
+					margin: 0;
+				}
+			}
+			&__icon {
+				display: none;
+			}
+		}
+
+		&__close {
+			align-items: center;
+			background: white;
+			border: none;
+			border-radius: 0;
+			box-shadow: none;
+			color: inherit;
+			cursor: pointer;
+			display: flex;
+			font-size: inherit;
+			height: 36px;
+			justify-content: center;
+			margin: 0;
+			padding: 6px;
+			position: absolute;
+			right: 0;
+			top: 0;
+			width: 36px;
+
+			svg {
+				fill: currentcolor;
+				flex: 0 0 24px;
+			}
+
+			&:active,
+			&:hover {
+				opacity: 0.6;
+			}
+
+			&:focus {
+				outline: 1px solid;
+				outline-offset: -1px;
+			}
+		}
+	}
+}
+
+/**
+ * Hide desktop account link on mobile.
+ */
+ul.newspack-reader__account-menu,
+li.menu-item .newspack-reader__account-link {
+	@media screen and ( max-width: 959px ) {
+		display: none !important;
+	}
+}
+
+/**
+ * Handle header with solid background.
+ */
+.h-sb {
+	.newspack-reader__account-link a {
+		color: #fff;
+	}
+}

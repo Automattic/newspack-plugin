@@ -2,8 +2,6 @@
  * Info Button
  */
 
-@import '~@wordpress/base-styles/colors';
-
 .newspack-info-button {
 	display: inline-block;
 	flex: 0 0 24px;
@@ -15,6 +13,6 @@
 
 	svg {
 		display: block;
-		fill: currentColor;
+		fill: currentcolor;
 	}
 }

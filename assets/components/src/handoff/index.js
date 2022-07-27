@@ -95,13 +95,8 @@ class Handoff extends Component {
 			...otherProps
 		} = this.props;
 		const { pluginInfo, showModal } = this.state;
-		const {
-			modalBody,
-			modalTitle,
-			primaryButton,
-			primaryModalButton,
-			dismissModalButton,
-		} = this.textForPlugin( pluginInfo );
+		const { modalBody, modalTitle, primaryButton, primaryModalButton, dismissModalButton } =
+			this.textForPlugin( pluginInfo );
 		const { Configured, Name, Slug, Status } = pluginInfo;
 		const classes = classnames( Configured && 'is-configured', className );
 		return (

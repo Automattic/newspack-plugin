@@ -70,12 +70,8 @@ class EngagementWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const {
-			relatedPostsEnabled,
-			relatedPostsError,
-			relatedPostsMaxAge,
-			relatedPostsUpdated,
-		} = this.state;
+		const { relatedPostsEnabled, relatedPostsError, relatedPostsMaxAge, relatedPostsUpdated } =
+			this.state;
 
 		const defaultPath = newspack_engagement_wizard.has_reader_activation
 			? '/reader-activation'

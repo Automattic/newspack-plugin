@@ -97,18 +97,6 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 	}
 
 	/**
-	 * List webhooks.
-	 */
-	public static function test_stripe_list_webhooks() {
-		self::configure_stripe_as_platform();
-		self::assertEquals(
-			[],
-			Stripe_Connection::list_webhooks(),
-			'Empty webhooks list is initially returned.'
-		);
-	}
-
-	/**
 	 * Handling a donation.
 	 */
 	public static function test_stripe_handle_donation() {
