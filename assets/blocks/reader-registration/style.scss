@@ -188,14 +188,19 @@
 		}
 	}
 
-	&__success:not( [class*='--hidden'] ) {
-		.newspack-registration__icon {
-			animation: fadein 125ms ease-in;
+	&__success {
+		margin: 0 auto;
+		max-width: 780px;
 
-			&::before {
-				animation: bounce 125ms ease-in;
-				animation-delay: 500ms;
-				animation-fill-mode: forwards;
+		&:not( [class*='--hidden'] ) {
+			.newspack-registration__icon {
+				animation: fadein 125ms ease-in;
+
+				&::before {
+					animation: bounce 125ms ease-in;
+					animation-delay: 500ms;
+					animation-fill-mode: forwards;
+				}
 			}
 		}
 	}
