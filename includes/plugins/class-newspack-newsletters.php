@@ -18,34 +18,9 @@ class Newspack_Newsletters {
 	 */
 	public static function init() {
 		if ( Reader_Activation::is_enabled() ) {
-			\add_action( 'newspack_newsletters_before_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'newspack_newsletters_update_contact_lists' ], 10, 5 );
 			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'newspack_newsletters_contact_data' ], 10, 3 );
 		}
-	}
-
-	/**
-	 * Register a reader from newsletter signup.
-	 *
-	 * @param string $provider The provider name.
-	 * @param array  $contact  {
-	 *    Contact information.
-	 *
-	 *    @type string   $email    Contact email address.
-	 *    @type string   $name     Contact name. Optional.
-	 *    @type string[] $metadata Contact additional metadata. Optional.
-	 * }
-	 */
-	public static function register_newsletters_contact( $provider, $contact ) {
-		// Bail if already logged in.
-		if ( \is_user_logged_in() ) {
-			return;
-		}
-
-		Reader_Activation::register_reader(
-			$contact['email'],
-			isset( $contact['name'] ) ? $contact['name'] : ''
-		);
 	}
 
 	/**
