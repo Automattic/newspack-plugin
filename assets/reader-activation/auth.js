@@ -265,13 +265,12 @@ const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 				}
 
 				const metadata = googleLoginForm
-					? convertFormDataToObject(
-							new FormData( googleLoginForm, [
-								'email',
-								'_wp_http_referer',
-								'newspack_reader_registration',
-							] )
-					  )
+					? convertFormDataToObject( new FormData( googleLoginForm ), [
+							'email',
+							'password',
+							'_wp_http_referer',
+							'newspack_reader_registration',
+					  ] )
 					: {};
 				metadata.current_page_url = window.location.href;
 				fetch( '/wp-json/newspack/v1/login/google' )
