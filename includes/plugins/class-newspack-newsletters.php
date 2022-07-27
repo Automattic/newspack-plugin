@@ -135,31 +135,35 @@ class Newspack_Newsletters {
 					// Move along.
 				}
 
+				$signup_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
+				if ( $signup_page_url ) {
+					unset( $contact['metadata']['current_page_url'] );
+				}
+
 				// If it's a new contact, add some context on the signup/registration.
 				if ( $is_new_contact ) {
-					$signup_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
-					if ( $signup_page_url ) {
-						// Rename this metadata field.
-						$metadata['NP_Signup page'] = $signup_page_url;
-						unset( $contact['metadata']['current_page_url'] );
+					if ( ! $signup_page_url ) {
+						global $wp;
+						$signup_page_url = home_url( add_query_arg( array(), $wp->request ) );
+					}
+					$metadata['NP_Signup page'] = $signup_page_url;
 
-						// Capture UTM params.
-						$parsed_url = \wp_parse_url( $signup_page_url );
-						if ( isset( $parsed_url['query'] ) ) {
-							$url_params = array_reduce(
-								explode( '&', $parsed_url['query'] ),
-								function( $acc, $item ) {
-									$parts            = explode( '=', $item );
-									$acc[ $parts[0] ] = $parts[1];
-									return $acc;
-								},
-								[]
-							);
-							foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-								$param = 'utm_' . $value;
-								if ( isset( $url_params[ $param ] ) ) {
-									$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
-								}
+					// Capture UTM params.
+					$parsed_url = \wp_parse_url( $signup_page_url );
+					if ( isset( $parsed_url['query'] ) ) {
+						$url_params = array_reduce(
+							explode( '&', $parsed_url['query'] ),
+							function( $acc, $item ) {
+								$parts            = explode( '=', $item );
+								$acc[ $parts[0] ] = $parts[1];
+								return $acc;
+							},
+							[]
+						);
+						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+							$param = 'utm_' . $value;
+							if ( isset( $url_params[ $param ] ) ) {
+								$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
 							}
 						}
 					}
