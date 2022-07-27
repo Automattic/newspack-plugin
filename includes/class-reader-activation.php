@@ -13,7 +13,6 @@ defined( 'ABSPATH' ) || exit;
  * Reader Activation Class.
  */
 final class Reader_Activation {
-
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
@@ -59,7 +58,6 @@ final class Reader_Activation {
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
-			\add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'register_newsletters_contact' ], 10, 2 );
 		}
 	}
 
@@ -782,29 +780,6 @@ final class Reader_Activation {
 		}
 	}
 
-	/**
-	 * Register a reader from newsletter signup.
-	 *
-	 * @param string $provider The provider name.
-	 * @param array  $contact  {
-	 *    Contact information.
-	 *
-	 *    @type string   $email    Contact email address.
-	 *    @type string   $name     Contact name. Optional.
-	 *    @type string[] $metadata Contact additional metadata. Optional.
-	 * }
-	 */
-	public static function register_newsletters_contact( $provider, $contact ) {
-		// Bail if already logged in.
-		if ( \is_user_logged_in() ) {
-			return;
-		}
-
-		self::register_reader(
-			$contact['email'],
-			isset( $contact['name'] ) ? $contact['name'] : ''
-		);
-	}
 
 	/**
 	 * Check if current reader has its email verified.

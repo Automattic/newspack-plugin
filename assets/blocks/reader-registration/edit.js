@@ -66,8 +66,9 @@ export default function ReaderRegistrationEdit( {
 				[
 					'core/paragraph',
 					{
+						align: 'center',
 						content: __(
-							'Thank you for registering! Check your email for a confirmation link.',
+							'Thank you for registering!<br />Check your email for a confirmation link.',
 							'newspack'
 						),
 					},
@@ -175,18 +176,10 @@ export default function ReaderRegistrationEdit( {
 				<div className="newspack-registration__state-bar">
 					<span>{ __( 'Edited State', 'newspack' ) }</span>
 					<div>
-						<Button
-							data-is-active={ isInitial }
-							editedState="secondary"
-							onClick={ () => setEditedState( 'initial' ) }
-						>
+						<Button data-is-active={ isInitial } onClick={ () => setEditedState( 'initial' ) }>
 							{ __( 'Initial', 'newspack' ) }
 						</Button>
-						<Button
-							data-is-active={ ! isInitial }
-							editedState="secondary"
-							onClick={ () => setEditedState( 'success' ) }
-						>
+						<Button data-is-active={ ! isInitial } onClick={ () => setEditedState( 'success' ) }>
 							{ __( 'Success', 'newspack' ) }
 						</Button>
 					</div>
@@ -299,7 +292,12 @@ export default function ReaderRegistrationEdit( {
 						</form>
 					</div>
 				) }
-				{ editedState === 'success' && <div { ...innerBlocksProps } /> }
+				{ editedState === 'success' && (
+					<>
+						<div className="newspack-registration__icon" />
+						<div { ...innerBlocksProps } />
+					</>
+				) }
 			</div>
 		</>
 	);

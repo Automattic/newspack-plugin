@@ -393,27 +393,38 @@ class Stripe_Connection {
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
-				if ( ! empty( $stripe_data['newsletter_list_id'] ) && isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'] ) {
-					$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-
+				$has_opted_in_to_newsletters        = isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
+				if ( $has_opted_in_to_newsletters || Reader_Activation::is_enabled() ) {
 					$contact = [
 						'email'    => $customer['email'],
 						'name'     => $customer['name'],
 						'metadata' => [
-							'donation_date'      => gmdate( 'Y-m-d', $payment['created'] ),
-							'donation_amount'    => $amount_normalised,
-							'donation_frequency' => $frequency,
-							'donation_recurring' => 'once' !== $frequency,
+							'NP_Last Payment Date'   => gmdate( 'Y-m-d', $payment['created'] ),
+							'NP_Last Payment Amount' => $amount_normalised,
 						],
 					];
+
+					if ( 'once' !== $frequency ) {
+						$contact['metadata']['NP_Billing Cycle']     = $frequency;
+						$contact['metadata']['NP_Recurring Payment'] = $amount_normalised;
+					}
 
 					if ( ! empty( $client_id ) ) {
 						$contact['client_id'] = $client_id;
 					}
+					if ( isset( $customer['metadata']['userId'] ) ) {
+						$contact['metadata']['NP_Account'] = $customer['metadata']['userId'];
+					}
 
-					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
-					$newsletters_configuration_manager->add_contact( $contact, $stripe_data['newsletter_list_id'] );
-					$was_customer_added_to_mailing_list = true;
+					if ( method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+						// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
+						if ( ! empty( $stripe_data['newsletter_list_id'] ) && $has_opted_in_to_newsletters ) {
+							\Newspack_Newsletters_Subscription::add_contact( $contact, $stripe_data['newsletter_list_id'] );
+						} else {
+							\Newspack_Newsletters_Subscription::add_contact( $contact );
+						}
+						$was_customer_added_to_mailing_list = true;
+					}
 				}
 
 				// Update data in Campaigns plugin.
