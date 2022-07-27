@@ -28,11 +28,16 @@ function domReady( callback ) {
 /**
  * Converts FormData into an object.
  *
- * @param {FormData} formData The form data to convert.
+ * @param {FormData} formData    The form data to convert.
+ * @param {Array}    ignoredKeys Keys to ignore.
+ *
  * @return {Object} The converted form data.
  */
-const convertFormDataToObject = formData =>
+const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
+		if ( ignoredKeys.includes( key ) ) {
+			return acc;
+		}
 		if ( key.indexOf( '[]' ) > -1 ) {
 			key = key.replace( '[]', '' );
 			acc[ key ] = acc[ key ] || [];
@@ -260,8 +265,15 @@ const convertFormDataToObject = formData =>
 				}
 
 				const metadata = googleLoginForm
-					? convertFormDataToObject( new FormData( googleLoginForm ) )
+					? convertFormDataToObject(
+							new FormData( googleLoginForm, [
+								'email',
+								'_wp_http_referer',
+								'newspack_reader_registration',
+							] )
+					  )
 					: {};
+				metadata.current_page_url = window.location.href;
 				fetch( '/wp-json/newspack/v1/login/google' )
 					.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
 					.then( ( { data, status } ) => {
