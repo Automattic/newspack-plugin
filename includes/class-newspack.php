@@ -126,10 +126,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-image-credits.php';
 
-		// Integrations w/ third-party plugins.
+		/* Integrations with other plugins. */
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-jetpack.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-gravityforms.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-newsletters.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 
