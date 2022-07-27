@@ -1,5 +1,5 @@
 @use './style';
-@use '../../reader-activation/auth.scss';
+@use '../../reader-activation/auth';
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-registration {
@@ -67,6 +67,9 @@
 			gap: 4px;
 		}
 	}
+}
+
+.newspack-reader {
 	&__logins {
 		button {
 			padding: 0.76rem 1rem;

@@ -89,38 +89,6 @@
 		}
 	}
 
-	&__logins {
-		margin-top: 0.5rem;
-		&__separator {
-			display: flex;
-			margin-bottom: 0.5rem;
-			div {
-				text-align: center;
-				&:nth-child( 2 ) {
-					padding: 0 0.8em;
-					font-size: 16px;
-				}
-				&:first-child,
-				&:last-child {
-					flex: 1;
-					border-top: 1px solid wp-colors.$gray-400;
-					transform: translateY( 0.7em );
-				}
-			}
-		}
-		button {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: 100%;
-			background-color: wp-colors.$gray-100;
-			color: black;
-			span {
-				padding-left: 10px;
-			}
-		}
-	}
-
 	&--hidden {
 		display: none;
 	}
