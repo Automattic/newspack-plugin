@@ -286,7 +286,7 @@ class Engagement_Wizard extends Wizard {
 			'newspack-engagement-wizard',
 			'newspack_engagement_wizard',
 			[
-				'has_reader_activation' => Reader_Activation::is_enabled(),
+				'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
 			]
 		);
 	}
