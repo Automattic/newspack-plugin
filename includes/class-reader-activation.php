@@ -118,7 +118,7 @@ final class Reader_Activation {
 	private static function get_settings_config() {
 		$settings_config = [
 			'enabled'                     => true,
-			'enabled_account_link'        => true,
+			'enabled_account_link'        => false,
 			'account_link_menu_locations' => [ 'tertiary-menu' ],
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
@@ -559,6 +559,8 @@ final class Reader_Activation {
 		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
 			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
 		}
+		$terms_text = self::get_setting( 'terms_text' );
+		$terms_url  = self::get_setting( 'terms_url' );
 		?>
 		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
@@ -640,6 +642,17 @@ final class Reader_Activation {
 							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
 						</div>
 						<?php self::render_third_party_auth(); ?>
+						<?php if ( ! empty( $terms_text ) ) : ?>
+							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
+								<?php if ( ! empty( $terms_url ) ) : ?>
+									<a href="<?php echo \esc_url( $terms_url ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php endif; ?>
+								<?php echo \esc_html( $terms_text ); ?>
+								<?php if ( ! empty( $terms_url ) ) : ?>
+									</a>
+								<?php endif; ?>
+							</p>
+						<?php endif; ?>
 					</form>
 				</div>
 			</div>
