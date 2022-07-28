@@ -203,9 +203,23 @@
 				}
 			}
 		}
+
+		.wp-block-newspack-reader-registration {
+			> *:first-child {
+				margin-top: 0 !important;
+			}
+
+			> *:last-child {
+				margin-bottom: 0 !important;
+			}
+		}
 	}
 
 	&--hidden {
+		display: none;
+	}
+
+	+ div:empty {
 		display: none;
 	}
 }
