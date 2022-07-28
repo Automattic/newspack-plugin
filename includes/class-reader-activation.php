@@ -386,6 +386,10 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
+		if ( ! self::get_setting( 'enabled_account_link' ) ) {
+			return;
+		}
+
 		$locations = self::get_setting( 'account_link_menu_locations' );
 		$self      = new self();
 
