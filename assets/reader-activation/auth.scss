@@ -134,6 +134,8 @@
 			max-width: 544px;
 			background: #fff;
 			position: relative;
+			max-height: 100vh;
+			overflow-y: auto;
 		}
 
 		&__header {
