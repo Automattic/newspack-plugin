@@ -189,7 +189,7 @@ export default function ReaderRegistrationEdit( {
 						<form onSubmit={ ev => ev.preventDefault() }>
 							<div className="newspack-registration__form-content">
 								{ newsletterSubscription && lists.length ? (
-									<div className="newspack-registration__lists">
+									<div className="newspack-reader__lists">
 										{ lists?.length > 1 && (
 											<RichText
 												onChange={ value => setAttributes( { newsletterTitle: value } ) }
@@ -201,12 +201,12 @@ export default function ReaderRegistrationEdit( {
 										<ul>
 											{ lists.map( listId => (
 												<li key={ listId }>
-													<span className="newspack-registration__lists__checkbox">
+													<span className="newspack-reader__lists__checkbox">
 														<input type="checkbox" checked readOnly />
 													</span>
-													<span className="newspack-registration__lists__details">
-														<span className="newspack-registration__lists__label">
-															<span className="newspack-registration__lists__title">
+													<span className="newspack-reader__lists__details">
+														<span className="newspack-reader__lists__label">
+															<span className="newspack-reader__lists__title">
 																{ lists.length === 1 ? (
 																	<RichText
 																		onChange={ value =>
@@ -221,7 +221,7 @@ export default function ReaderRegistrationEdit( {
 																) }
 															</span>
 															{ displayListDescription && (
-																<span className="newspack-registration__lists__description">
+																<span className="newspack-reader__lists__description">
 																	{ listConfig[ listId ]?.description }
 																</span>
 															) }
@@ -247,13 +247,13 @@ export default function ReaderRegistrationEdit( {
 										</div>
 
 										{ newspack_blocks.has_google_oauth && (
-											<div className="newspack-registration__logins">
-												<div className="newspack-registration__logins__separator">
+											<div className="newspack-reader__logins">
+												<div className="newspack-reader__logins__separator">
 													<div />
 													<div>{ __( 'OR', 'newspack' ) }</div>
 													<div />
 												</div>
-												<button className="newspack-registration__logins__google">
+												<button className="newspack-reader__logins__google">
 													<span
 														dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
 													/>

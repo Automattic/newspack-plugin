@@ -484,7 +484,7 @@ final class Reader_Activation {
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
-						<input type="hidden" name="action" value="link" />
+						<input type="hidden" name="action" value="pwd" />
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
 							<a href="#" data-action="pwd link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
@@ -497,6 +497,10 @@ final class Reader_Activation {
 							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="" />
+						<div data-action="register">
+							<p><?php _e( 'Subscribe to our newsletters:', 'newspack' ); ?></p>
+							<?php self::render_subscription_lists_inputs(); ?>
+						</div>
 						<p>
 							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 						</p>
@@ -536,10 +540,8 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="register">
 							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
-							<p class="small">
-								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></a>
-							</p>
 						</div>
+						<?php self::render_third_party_auth(); ?>
 					</form>
 				</div>
 			</div>
@@ -577,6 +579,127 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Render newsletter subscription lists' form input.
+	 *
+	 * @param array[] $lists   {
+	 *   List config keyed by their ID.
+	 *
+	 *   @type string $title       List title.
+	 *   @type string $description List description.
+	 * }
+	 * @param array   $checked List IDs to pre-select.
+	 * @param array   $config  {
+	 *   Configuration options.
+	 *
+	 *   @type string  $title            Optional title to display above the list.
+	 *   @type string  $name             Name of the input. Default is lists.
+	 *   @type string  $single_label     Label for the input when only one list is present. Default is "Subscribe to our newsletter".
+	 *   @type boolean $show_description Whether to display the list description. Default is true.
+	 * }
+	 */
+	public static function render_subscription_lists_inputs( $lists = [], $checked = [], $config = [] ) {
+		$config = \wp_parse_args(
+			$config,
+			[
+				'title'            => '',
+				'name'             => 'lists',
+				'single_label'     => __( 'Subscribe to our newsletter', 'newspack' ),
+				'show_description' => true,
+			]
+		);
+
+		if ( empty( $lists ) && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
+			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
+		}
+
+		if ( empty( $lists ) ) {
+			return;
+		}
+
+		$id = \wp_rand( 0, 99999 );
+
+		$class = function( ...$parts ) {
+			array_unshift( $parts, 'lists' );
+			return self::get_element_class_name( $parts );
+		};
+
+		$checked_map = array_flip( $checked );
+		?>
+		<div class="<?php echo \esc_attr( $class() ); ?>">
+			<?php if ( 1 < count( $lists ) && ! empty( $config['title'] ) ) : ?>
+				<h3><?php echo \esc_html( $config['title'] ); ?></h3>
+			<?php endif; ?>
+			<ul>
+				<?php
+				foreach ( $lists as $list_id => $list ) :
+					$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $id, $list_id );
+					?>
+					<li>
+						<span class="<?php echo \esc_attr( $class( 'checkbox' ) ); ?>">
+							<input
+								type="checkbox"
+								name="<?php echo \esc_attr( $config['name'] ); ?>[]"
+								value="<?php echo \esc_attr( $list_id ); ?>"
+								id="<?php echo \esc_attr( $checkbox_id ); ?>"
+								<?php if ( isset( $checked_map[ $list_id ] ) ) : ?>
+									checked
+								<?php endif; ?>
+							/>
+						</span>
+						<span class="<?php echo \esc_attr( $class( 'details' ) ); ?>">
+							<label class="<?php echo \esc_attr( $class( 'label' ) ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+								<span class="<?php echo \esc_attr( $class( 'title' ) ); ?>">
+									<?php
+									if ( 1 === count( $lists ) ) {
+										echo $config['single_label']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									} else {
+										echo \esc_html( $list['title'] );
+									}
+									?>
+								</span>
+								<?php if ( $config['show_description'] ) : ?>
+									<span class="<?php echo \esc_attr( $class( 'description' ) ); ?>"><?php echo \esc_html( $list['description'] ); ?></span>
+								<?php endif; ?>
+							</label>
+						</span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render third party auth buttons for an authentication form.
+	 */
+	public static function render_third_party_auth() {
+		if ( ! Google_OAuth::is_oauth_configured() ) {
+			return;
+		}
+		$class = function( ...$parts ) {
+			array_unshift( $parts, 'logins' );
+			return self::get_element_class_name( $parts );
+		};
+		?>
+		<div class="<?php echo \esc_attr( $class() ); ?>">
+			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
+				<div></div>
+				<div>
+					<?php echo \esc_html__( 'OR', 'newspack' ); ?>
+				</div>
+				<div></div>
+			</div>
+			<button class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
+				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span>
+					<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
+				</span>
+			</button>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Process reader authentication form.
 	 */
 	public static function process_auth_form() {
@@ -593,6 +716,7 @@ final class Reader_Activation {
 		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
+		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		// phpcs:enable
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
@@ -638,7 +762,11 @@ final class Reader_Activation {
 				}
 				return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
 			case 'register':
-				$user_id = self::register_reader( $email );
+				$metadata = [];
+				if ( ! empty( $lists ) ) {
+					$metadata['lists'] = $lists;
+				}
+				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
 				}

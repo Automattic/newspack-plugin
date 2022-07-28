@@ -25,6 +25,29 @@ function domReady( callback ) {
 	document.addEventListener( 'DOMContentLoaded', callback );
 }
 
+/**
+ * Converts FormData into an object.
+ *
+ * @param {FormData} formData    The form data to convert.
+ * @param {Array}    ignoredKeys Keys to ignore.
+ *
+ * @return {Object} The converted form data.
+ */
+const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
+	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
+		if ( ignoredKeys.includes( key ) ) {
+			return acc;
+		}
+		if ( key.indexOf( '[]' ) > -1 ) {
+			key = key.replace( '[]', '' );
+			acc[ key ] = acc[ key ] || [];
+			acc[ key ].push( val );
+		} else {
+			acc[ key ] = val;
+		}
+		return acc;
+	}, {} );
+
 ( function ( readerActivation ) {
 	domReady( function () {
 		if ( ! readerActivation ) {
@@ -65,8 +88,17 @@ function domReady( callback ) {
 		const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 		authLinkMessage.hidden = true;
 
-		const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-		const triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+		let accountLinks, triggerLinks;
+		const initLinks = function () {
+			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
+			triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+			triggerLinks.forEach( link => {
+				link.addEventListener( 'click', handleAccountLinkClick );
+			} );
+		};
+		initLinks();
+		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
+		setTimeout( initLinks, 1000 );
 
 		/**
 		 * Handle reader changes.
@@ -115,9 +147,6 @@ function domReady( callback ) {
 				emailInput.focus();
 			}
 		}
-		triggerLinks.forEach( link => {
-			link.addEventListener( 'click', handleAccountLinkClick );
-		} );
 
 		/**
 		 * Handle auth form action selection.
@@ -154,22 +183,50 @@ function domReady( callback ) {
 			} );
 		} );
 
-		/**
-		 * Handle auth form submission.
-		 */
-		form.addEventListener( 'submit', function ( ev ) {
-			ev.preventDefault();
+		form.startLoginFlow = () => {
 			container.removeAttribute( 'data-form-status' );
-			const body = new FormData( ev.target );
-			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
-				return;
-			}
 			submitButtons.forEach( button => {
 				button.disabled = true;
 			} );
 			messageContentElement.innerHTML = '';
 			form.style.opacity = 0.5;
+		};
+
+		form.endLoginFlow = ( message, status, data, redirect ) => {
+			if ( message ) {
+				const messageNode = document.createElement( 'p' );
+				messageNode.textContent = message;
+				messageContentElement.appendChild( messageNode );
+			}
+			if ( status === 200 && data ) {
+				const authenticated = !! data?.authenticated;
+				readerActivation.setReaderEmail( data.email );
+				readerActivation.setAuthenticated( authenticated );
+				if ( authenticated ) {
+					if ( redirect ) {
+						window.location = redirect;
+					}
+				} else {
+					form.replaceWith( messageContentElement.parentNode );
+				}
+			}
+			form.style.opacity = 1;
+			submitButtons.forEach( button => {
+				button.disabled = false;
+			} );
+		};
+
+		/**
+		 * Handle auth form submission.
+		 */
+		form.addEventListener( 'submit', function ( ev ) {
+			ev.preventDefault();
+			const body = new FormData( ev.target );
+			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
+				return;
+			}
 			readerActivation.setReaderEmail( body.get( 'email' ) );
+			form.startLoginFlow();
 			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 				method: 'POST',
 				headers: {
@@ -180,32 +237,75 @@ function domReady( callback ) {
 				.then( res => {
 					container.setAttribute( 'data-form-status', res.status );
 					res.json().then( ( { message, data } ) => {
-						const authenticated = !! data?.authenticated;
-						const messageNode = document.createElement( 'p' );
-						messageNode.textContent = message;
-						messageContentElement.appendChild( messageNode );
-						if ( res.status === 200 ) {
-							readerActivation.setReaderEmail( data.email );
-							readerActivation.setAuthenticated( authenticated );
-							if ( authenticated ) {
-								if ( body.get( 'redirect' ) ) {
-									window.location = body.get( 'redirect' );
-								}
-							} else {
-								form.replaceWith( messageContentElement.parentNode );
-							}
-						}
+						form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
 					} );
 				} )
 				.catch( err => {
 					throw err;
 				} )
-				.finally( () => {
-					form.style.opacity = 1;
-					submitButtons.forEach( button => {
-						button.disabled = false;
+				.finally( form.endLoginFlow );
+		} );
+
+		/**
+		 * Third party auth.
+		 */
+		const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
+		googleLoginElements.forEach( googleLoginElement => {
+			const googleLoginForm = googleLoginElement.closest( 'form' );
+
+			const checkLoginStatus = metadata => {
+				fetch(
+					`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
+				).then( res => {
+					res.json().then( ( { message, data } ) => {
+						if ( googleLoginForm.endLoginFlow ) {
+							googleLoginForm.endLoginFlow( message, res.status, data );
+						}
 					} );
 				} );
+			};
+
+			googleLoginElement.addEventListener( 'click', () => {
+				if ( googleLoginForm?.startLoginFlow ) {
+					googleLoginForm.startLoginFlow();
+				}
+
+				const metadata = googleLoginForm
+					? convertFormDataToObject( new FormData( googleLoginForm ), [
+							'email',
+							'password',
+							'_wp_http_referer',
+							'newspack_reader_registration',
+					  ] )
+					: {};
+				metadata.current_page_url = window.location.href;
+				fetch( '/wp-json/newspack/v1/login/google' )
+					.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
+					.then( ( { data, status } ) => {
+						if ( status !== 200 ) {
+							if ( googleLoginForm?.endLoginFlow ) {
+								googleLoginForm.endLoginFlow( data.message, status );
+							}
+						} else {
+							const authWindow = window.open(
+								'about:blank',
+								'newspack_google_login',
+								'width=500,height=600'
+							);
+							if ( authWindow ) {
+								authWindow.location = data;
+								const interval = setInterval( () => {
+									if ( authWindow.closed ) {
+										checkLoginStatus( metadata );
+										clearInterval( interval );
+									}
+								}, 500 );
+							} else if ( googleLoginForm?.endLoginFlow ) {
+								googleLoginForm.endLoginFlow();
+							}
+						}
+					} );
+			} );
 		} );
 	} );
 } )( window.newspackReaderActivation );
