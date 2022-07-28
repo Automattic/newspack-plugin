@@ -13,6 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * Reader Activation Class.
  */
 final class Reader_Activation {
+
+	const OPTIONS_PREFIX = 'newspack_reader_activation_';
+
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
@@ -27,9 +30,8 @@ final class Reader_Activation {
 	/**
 	 * Auth form.
 	 */
-	const ACCOUNT_LINK_MENU_LOCATIONS = [ 'tertiary-menu' ];
-	const AUTH_FORM_ACTION            = 'reader-activation-auth-form';
-	const AUTH_FORM_OPTIONS           = [
+	const AUTH_FORM_ACTION  = 'reader-activation-auth-form';
+	const AUTH_FORM_OPTIONS = [
 		'pwd',
 		'link',
 		'register',
@@ -109,12 +111,85 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get settings config with default values.
+	 *
+	 * @return mixed[] Settings default values keyed by their name.
+	 */
+	private static function get_settings_config() {
+		$settings_config = [
+			'enabled'                     => true,
+			'enabled_account_link'        => true,
+			'account_link_menu_locations' => [ 'tertiary-menu' ],
+			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
+			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
+			'terms_url'                   => '',
+		];
+
+		/**
+		 * Filters the global settings config for reader activation.
+		 *
+		 * @param mixed[] $settings_config Settings default values keyed by their name.
+		 */
+		return apply_filters( 'newspack_reader_activation_settings_config', $settings_config );
+	}
+
+	/**
+	 * Get reader activation global settings.
+	 *
+	 * @return mixed[] Global settings keyed by their option name.
+	 */
+	public static function get_settings() {
+		$config = self::get_settings_config();
+
+		$settings = [];
+		foreach ( $config as $key => $default_value ) {
+			$settings[ $key ] = \get_option( self::OPTIONS_PREFIX . $key, $default_value );
+		}
+		return $settings;
+	}
+
+	/**
+	 * Get a reader activation settings.
+	 *
+	 * @param string $name Setting name.
+	 *
+	 * @return mixed Setting value.
+	 */
+	public static function get_setting( $name ) {
+		$config = self::get_settings_config();
+		if ( ! isset( $config[ $name ] ) ) {
+			return null;
+		}
+		return \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+	}
+
+	/**
+	 * Update a reader activation setting.
+	 *
+	 * @param string $key   Option name.
+	 * @param mixed  $value Option value.
+	 *
+	 * @return bool True if the value was updated, false otherwise.
+	 */
+	public static function update_setting( $key, $value ) {
+		$config = self::get_settings_config();
+		if ( ! isset( $config[ $key ] ) ) {
+			return false;
+		}
+		return \update_option( self::OPTIONS_PREFIX . $key, $value );
+	}
+
+	/**
 	 * Whether reader activation is enabled.
 	 *
 	 * @return bool True if reader activation is enabled.
 	 */
 	public static function is_enabled() {
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
+
+		if ( $is_enabled ) {
+			$is_enabled = self::get_setting( 'enabled' );
+		}
 
 		/**
 		 * Filters whether reader activation is enabled.
@@ -311,13 +386,14 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
-		$self = new self();
+		$locations = self::get_setting( 'account_link_menu_locations' );
+		$self      = new self();
 
 		/** Always have location enabled for account link. */
 		\add_filter(
 			'has_nav_menu',
-			function( $has_nav_menu, $location ) {
-				if ( in_array( $location, self::ACCOUNT_LINK_MENU_LOCATIONS, true ) ) {
+			function( $has_nav_menu, $location ) use ( $locations ) {
+				if ( in_array( $location, $locations, true ) ) {
 					$has_nav_menu = true;
 				}
 				return $has_nav_menu;
@@ -329,8 +405,8 @@ final class Reader_Activation {
 		/** Fallback location to always print nav menu args */
 		\add_filter(
 			'wp_nav_menu_args',
-			function( $args ) use ( $self ) {
-				if ( in_array( $args['theme_location'], self::ACCOUNT_LINK_MENU_LOCATIONS, true ) ) {
+			function( $args ) use ( $self, $locations ) {
+				if ( in_array( $args['theme_location'], $locations, true ) ) {
 					$args['fallback_cb'] = function( $args ) use ( $self ) {
 						echo $self->nav_menu_items( '', $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					};
@@ -364,7 +440,8 @@ final class Reader_Activation {
 	 * @return string The HTML list content for the menu items.
 	 */
 	public static function nav_menu_items( $output, $args = [] ) {
-		$args = (object) $args;
+		$args      = (object) $args;
+		$locations = self::get_setting( 'account_link_menu_locations' );
 
 		/** Do not alter items for authenticated non-readers */
 		if ( \is_user_logged_in() && ! self::is_user_reader( \wp_get_current_user() ) ) {
@@ -374,7 +451,7 @@ final class Reader_Activation {
 		/**
 		 * Menu locations to add the account menu items to.
 		 */
-		if ( ! in_array( $args->theme_location, self::ACCOUNT_LINK_MENU_LOCATIONS, true ) ) {
+		if ( ! in_array( $args->theme_location, $locations, true ) ) {
 			return $output;
 		}
 
@@ -473,6 +550,11 @@ final class Reader_Activation {
 			$classnames[] = $class( 'visible' );
 		}
 		// phpcs:enable
+
+		$newsletters_label = self::get_setting( 'newsletters_label' );
+		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
+			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
+		}
 		?>
 		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
@@ -497,10 +579,22 @@ final class Reader_Activation {
 							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="" />
-						<div data-action="register">
-							<p><?php _e( 'Subscribe to our newsletters:', 'newspack' ); ?></p>
-							<?php self::render_subscription_lists_inputs(); ?>
-						</div>
+						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
+							<div data-action="register">
+								<?php if ( 1 < count( $lists ) ) : ?>
+									<p><?php echo \esc_html( $newsletters_label ); ?></p>
+								<?php endif; ?>
+								<?php
+								self::render_subscription_lists_inputs(
+									$lists,
+									[],
+									[
+										'single_label' => $newsletters_label,
+									]
+								);
+								?>
+							</div>
+						<?php endif; ?>
 						<p>
 							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 						</p>
