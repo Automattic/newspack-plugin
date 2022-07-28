@@ -249,6 +249,10 @@ const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 		/**
 		 * Third party auth.
 		 */
+		const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );
+		[ ...loginsElements ].forEach( element => {
+			element.classList.remove( 'newspack-reader__logins--disabled' );
+		} );
 		const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
 		googleLoginElements.forEach( googleLoginElement => {
 			const googleLoginForm = googleLoginElement.closest( 'form' );
