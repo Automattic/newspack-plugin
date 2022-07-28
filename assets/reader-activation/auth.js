@@ -88,8 +88,17 @@ const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 		const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 		authLinkMessage.hidden = true;
 
-		const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-		const triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+		let accountLinks, triggerLinks;
+		const initLinks = function () {
+			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
+			triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+			triggerLinks.forEach( link => {
+				link.addEventListener( 'click', handleAccountLinkClick );
+			} );
+		};
+		initLinks();
+		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
+		setTimeout( initLinks, 1000 );
 
 		/**
 		 * Handle reader changes.
@@ -138,9 +147,6 @@ const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 				emailInput.focus();
 			}
 		}
-		triggerLinks.forEach( link => {
-			link.addEventListener( 'click', handleAccountLinkClick );
-		} );
 
 		/**
 		 * Handle auth form action selection.
