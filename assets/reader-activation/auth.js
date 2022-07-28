@@ -98,9 +98,7 @@ const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 		};
 		initLinks();
 		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
-		setTimeout( () => {
-			initLinks();
-		}, 1000 );
+		setTimeout( initLinks, 1000 );
 
 		/**
 		 * Handle reader changes.
