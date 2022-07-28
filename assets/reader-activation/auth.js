@@ -28,14 +28,14 @@ function domReady( callback ) {
 /**
  * Converts FormData into an object.
  *
- * @param {FormData} formData    The form data to convert.
- * @param {Array}    ignoredKeys Keys to ignore.
+ * @param {FormData} formData       The form data to convert.
+ * @param {Array}    includedFields Form fields to include.
  *
  * @return {Object} The converted form data.
  */
-const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
+const convertFormDataToObject = ( formData, includedFields = [] ) =>
 	Array.from( formData.entries() ).reduce( ( acc, [ key, val ] ) => {
-		if ( ignoredKeys.includes( key ) ) {
+		if ( ! includedFields.includes( key ) ) {
 			return acc;
 		}
 		if ( key.indexOf( '[]' ) > -1 ) {
@@ -275,12 +275,7 @@ const convertFormDataToObject = ( formData, ignoredKeys = [] ) =>
 				}
 
 				const metadata = googleLoginForm
-					? convertFormDataToObject( new FormData( googleLoginForm ), [
-							'email',
-							'password',
-							'_wp_http_referer',
-							'newspack_reader_registration',
-					  ] )
+					? convertFormDataToObject( new FormData( googleLoginForm ), [ 'lists[]' ] )
 					: {};
 				metadata.current_page_url = window.location.href;
 				fetch( '/wp-json/newspack/v1/login/google' )
