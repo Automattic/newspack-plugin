@@ -31,7 +31,13 @@ class Logger {
 				$backtrace = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 				if ( 2 < count( $backtrace ) ) {
 					$caller_frame = $backtrace[1];
-					$caller       = $caller_frame['class'] . $caller_frame['type'] . $caller_frame['function'];
+					if ( stripos( $caller_frame['class'], 'Logger' ) !== false ) {
+						// Logger was called by another *Logger class, let's move the backtrace one level up.
+						if ( isset( $backtrace[2] ) ) {
+							$caller_frame = $backtrace[2];
+						}
+					}
+					$caller = $caller_frame['class'] . $caller_frame['type'] . $caller_frame['function'];
 				}
 			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// Fail silently.
