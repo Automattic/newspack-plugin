@@ -39,6 +39,7 @@ class WooCommerce_My_Account {
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 		add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 	}
 
@@ -222,6 +223,21 @@ class WooCommerce_My_Account {
 			return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
 		}
 		return $template;
+	}
+
+	/**
+	 * Prevent updating email via Edit Account page.
+	 */
+	public static function edit_account_prevent_email_update() {
+		if (
+			! Donations::is_platform_stripe()
+			|| empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			|| ! \is_user_logged_in()
+			|| ! Reader_Activation::is_enabled()
+		) {
+			return;
+		}
+		$_POST['account_email'] = wp_get_current_user()->user_email;
 	}
 }
 
