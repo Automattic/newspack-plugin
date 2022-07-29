@@ -47,15 +47,15 @@ class Newspack_Newsletters {
 	/**
 	 * Modify metadata for newsletter contact creation.
 	 *
-	 * @param string   $provider The provider name.
-	 * @param array    $contact  {
-	 *    Contact information.
+	 * @param string         $provider The provider name.
+	 * @param array          $contact  {
+	 *          Contact information.
 	 *
 	 *    @type string   $email    Contact email address.
 	 *    @type string   $name     Contact name. Optional.
 	 *    @type string[] $metadata Contact additional metadata. Optional.
 	 * }
-	 * @param string[] $selected_list_ids    Array of list IDs to subscribe the contact to.
+	 * @param string[]|false $selected_list_ids    Array of list IDs the contact will be susbscribed to, or false.
 	 */
 	public static function newspack_newsletters_contact_data( $provider, $contact, $selected_list_ids ) {
 		switch ( $provider ) {
@@ -73,7 +73,7 @@ class Newspack_Newsletters {
 						if ( is_wp_error( $existing_contact ) ) {
 							Logger::log( 'Adding metadata to a new contact.' );
 							$is_new_contact = true;
-							if ( empty( $selected_list_ids ) ) {
+							if ( false === $selected_list_ids || empty( $selected_list_ids ) ) {
 								// Registration only, as a side effect of Reader Activation.
 								$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
 							} else {
@@ -89,25 +89,28 @@ class Newspack_Newsletters {
 					// Move along.
 				}
 
-				// Translate list IDs to list names and store as metadata.
-				try {
-					if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_lists' ) ) {
-						$lists = \Newspack_Newsletters_Subscription::get_lists();
-						if ( ! is_wp_error( $lists ) ) {
-							$lists_names = [];
-							foreach ( $selected_list_ids as $selected_list_id ) {
-								foreach ( $lists as $list ) {
-									if ( $list['id'] === $selected_list_id ) {
-										$lists_names[] = $list['name'];
+				// Translate list IDs to list names and store as metadata, if lists are supplied.
+				// The list ids can be an empty array, which means the contact has been unsubscribed from all lists.
+				if ( false !== $selected_list_ids ) {
+					try {
+						if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_lists' ) ) {
+							$lists = \Newspack_Newsletters_Subscription::get_lists();
+							if ( ! is_wp_error( $lists ) ) {
+								$lists_names = [];
+								foreach ( $selected_list_ids as $selected_list_id ) {
+									foreach ( $lists as $list ) {
+										if ( $list['id'] === $selected_list_id ) {
+											$lists_names[] = $list['name'];
+										}
 									}
 								}
+								// Note: this field will be overwritten every time it's updated.
+								$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
 							}
-							// Note: this field will be overwritten every time it's updated.
-							$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
 						}
+					} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+						// Move along.
 					}
-				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// Move along.
 				}
 
 				$signup_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
