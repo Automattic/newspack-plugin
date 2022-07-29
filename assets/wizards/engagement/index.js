@@ -113,15 +113,17 @@ class EngagementWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route
-							path="/reader-activation"
-							render={ () => (
-								<ReaderActivation
-									subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
-									{ ...props }
-								/>
-							) }
-						/>
+						{ newspack_engagement_wizard.has_reader_activation && (
+							<Route
+								path="/reader-activation"
+								render={ () => (
+									<ReaderActivation
+										subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+										{ ...props }
+									/>
+								) }
+							/>
+						) }
 						<Route
 							path="/newsletters"
 							render={ () => (
