@@ -20,7 +20,7 @@ class Logger {
 	 * @param string $header Log message header.
 	 */
 	public static function log( $payload, $header = 'NEWSPACK' ) {
-		if ( ! defined( 'NEWSPACK_LOG_LEVEL' ) || 0 > (int) NEWSPACK_LOG_LEVEL ) {
+		if ( ! defined( 'NEWSPACK_LOG_LEVEL' ) || 0 >= (int) NEWSPACK_LOG_LEVEL ) {
 			return;
 		}
 		$caller = null;
