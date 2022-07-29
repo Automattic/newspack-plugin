@@ -83,6 +83,24 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_reader_activation_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_reader_activation_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -108,6 +126,30 @@ class Engagement_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+	}
+
+	/**
+	 * Get reader activation settings.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_get_reader_activation_settings() {
+		return rest_ensure_response( Reader_Activation::get_settings() );
+	}
+
+	/**
+	 * Update reader activation settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_update_reader_activation_settings( $request ) {
+		$args = $request->get_params();
+		foreach ( $args as $key => $value ) {
+			Reader_Activation::update_setting( $key, $value );
+		}
+		return rest_ensure_response( Reader_Activation::get_settings() );
 	}
 
 	/**
@@ -238,6 +280,14 @@ class Engagement_Wizard extends Wizard {
 			$this->get_script_dependencies( array( 'wp-html-entities' ) ),
 			NEWSPACK_PLUGIN_VERSION,
 			true
+		);
+
+		\wp_localize_script(
+			'newspack-engagement-wizard',
+			'newspack_engagement_wizard',
+			[
+				'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
+			]
 		);
 	}
 
