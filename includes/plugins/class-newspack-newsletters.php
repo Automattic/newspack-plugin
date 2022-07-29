@@ -73,7 +73,7 @@ class Newspack_Newsletters {
 						if ( is_wp_error( $existing_contact ) ) {
 							Logger::log( 'Adding metadata to a new contact.' );
 							$is_new_contact = true;
-							if ( false === $selected_list_ids || empty( $selected_list_ids ) ) {
+							if ( empty( $selected_list_ids ) ) {
 								// Registration only, as a side effect of Reader Activation.
 								$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
 							} else {
