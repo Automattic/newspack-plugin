@@ -787,12 +787,13 @@ final class Reader_Activation {
 		if ( ! Google_OAuth::is_oauth_configured() ) {
 			return;
 		}
-		$class = function( ...$parts ) {
+		$class      = function( ...$parts ) {
 			array_unshift( $parts, 'logins' );
 			return self::get_element_class_name( $parts );
 		};
+		$classnames = implode( ' ', [ $class(), $class() . '--disabled' ] );
 		?>
-		<div class="<?php echo \esc_attr( $class() ); ?>">
+		<div class="<?php echo \esc_attr( $classnames ); ?>">
 			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
 				<div></div>
 				<div>
