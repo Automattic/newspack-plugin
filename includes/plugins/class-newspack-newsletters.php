@@ -18,8 +18,9 @@ class Newspack_Newsletters {
 	 */
 	public static function init() {
 		if ( Reader_Activation::is_enabled() ) {
-			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'newspack_newsletters_update_contact_lists' ], 10, 5 );
-			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'newspack_newsletters_contact_data' ], 10, 3 );
+			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'update_contact_lists' ], 10, 5 );
+			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'contact_data' ], 10, 3 );
+			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
 	}
 
@@ -32,7 +33,7 @@ class Newspack_Newsletters {
 	 * @param string[]      $lists_to_remove Array of list IDs to remove the contact from.
 	 * @param bool|WP_Error $result          True if the contact was updated or error if failed.
 	 */
-	public static function newspack_newsletters_update_contact_lists( $provider, $email, $lists_to_add, $lists_to_remove, $result ) {
+	public static function update_contact_lists( $provider, $email, $lists_to_add, $lists_to_remove, $result ) {
 		switch ( $provider ) {
 			case 'active_campaign':
 				if ( true === $result && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
@@ -47,17 +48,17 @@ class Newspack_Newsletters {
 	/**
 	 * Modify metadata for newsletter contact creation.
 	 *
-	 * @param string         $provider The provider name.
-	 * @param array          $contact  {
+	 * @param array          $contact           {
 	 *          Contact information.
 	 *
 	 *    @type string   $email    Contact email address.
 	 *    @type string   $name     Contact name. Optional.
 	 *    @type string[] $metadata Contact additional metadata. Optional.
 	 * }
-	 * @param string[]|false $selected_list_ids    Array of list IDs the contact will be subscribed to, or false.
+	 * @param string[]|false $selected_list_ids Array of list IDs the contact will be subscribed to, or false.
+	 * @param string         $provider          The provider name.
 	 */
-	public static function newspack_newsletters_contact_data( $provider, $contact, $selected_list_ids ) {
+	public static function contact_data( $contact, $selected_list_ids, $provider ) {
 		switch ( $provider ) {
 			case 'active_campaign':
 				$metadata = [];
@@ -157,6 +158,39 @@ class Newspack_Newsletters {
 			default:
 				return $contact;
 		}
+	}
+
+	/**
+	 * Ensure the contact is always added to ActiveCampaign's selected master
+	 * list.
+	 *
+	 * @param string[]|false $lists    Array of list IDs the contact will be subscribed to, or false.
+	 * @param array          $contact  {
+	 *          Contact information.
+	 *
+	 *    @type string   $email    Contact email address.
+	 *    @type string   $name     Contact name. Optional.
+	 *    @type string[] $metadata Contact additional metadata. Optional.
+	 * }
+	 * @param string         $provider The provider name.
+	 *
+	 * @return string[]|false
+	 */
+	public static function add_activecampaign_master_list( $lists, $contact, $provider ) {
+		if ( 'active_campaign' !== $provider ) {
+			return $lists;
+		}
+		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
+		if ( ! $master_list_id ) {
+			return $lists;
+		}
+		if ( empty( $lists ) ) {
+			return [ $master_list_id ];
+		}
+		if ( array_search( $master_list_id, $lists ) === false ) {
+			$lists[] = $master_list_id;
+		}
+		return $lists;
 	}
 }
 Newspack_Newsletters::init();
