@@ -10,11 +10,11 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import {
-	Notice,
-	Grid,
-	Card,
+	ActionCard,
 	Button,
-	SectionHeader,
+	Card,
+	Grid,
+	Notice,
 	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
@@ -55,18 +55,14 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
+			<ActionCard
+				isMedium
+				title={ __( 'Reader Activation', 'newspack' ) }
+				description={ __( 'Configure a set of features for reader activation.', 'newspack' ) }
+				toggleChecked={ !! config.enabled }
+				toggleOnChange={ value => updateConfig( 'enabled', value ) }
+			/>
 			<Card noBorder>
-				<SectionHeader
-					title={ __( 'Reader Activation', 'newspack' ) }
-					description={ __( 'Configure a set of features for reader activation.', 'newspack' ) }
-				/>
-				<CheckboxControl
-					label={ __( 'Enable Reader Activation', 'newspack' ) }
-					help={ __( 'Whether to enable reader activation features for your site.', 'newspack' ) }
-					checked={ !! config.enabled }
-					onChange={ value => updateConfig( 'enabled', value ) }
-				/>
-				<hr />
 				<CheckboxControl
 					label={ __( 'Enable Sign In/Account link', 'newspack' ) }
 					help={ __(
@@ -102,7 +98,7 @@ export default withWizardScreen( () => {
 			</Card>
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
-					{ __( 'Save Changes', 'newspack' ) }
+					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</div>
 		</>
