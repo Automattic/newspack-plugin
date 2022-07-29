@@ -70,7 +70,7 @@ export default withWizardScreen( () => {
 				<CheckboxControl
 					label={ __( 'Enable Sign In/Account link', 'newspack' ) }
 					help={ __(
-						'Display an always-visible sign in/account menu link in the header. This link triggers a modal for signing in or registration.',
+						'Display an account link in the site header. It will allow readers to register and access their account.',
 						'newspack'
 					) }
 					checked={ !! config.enabled_account_link }
