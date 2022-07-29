@@ -191,10 +191,6 @@ class Reader_Revenue_Wizard extends Wizard {
 						'required'          => false,
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'defaultFrequency'    => [
-						'required'          => false,
-						'sanitize_callback' => 'sanitize_text_field',
-					],
 					'disabledFrequencies' => [
 						'required' => false,
 					],

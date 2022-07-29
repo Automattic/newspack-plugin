@@ -39,7 +39,6 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 			[
 				'amounts',
 				'tiered',
-				'defaultFrequency',
 				'disabledFrequencies',
 				'platform',
 				'currencySymbol',
