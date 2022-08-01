@@ -557,7 +557,10 @@ final class Reader_Activation {
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
 		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
-			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
+			$lists_config = \Newspack_Newsletters_Subscription::get_lists_config();
+			if ( ! \is_wp_error( $lists_config ) ) {
+				$lists = $lists_config;
+			}
 		}
 		$terms_text = self::get_setting( 'terms_text' );
 		$terms_url  = self::get_setting( 'terms_url' );
@@ -723,7 +726,7 @@ final class Reader_Activation {
 			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
 		}
 
-		if ( empty( $lists ) ) {
+		if ( empty( $lists ) || is_wp_error( $lists ) ) {
 			return;
 		}
 
