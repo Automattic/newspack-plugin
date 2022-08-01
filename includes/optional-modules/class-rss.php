@@ -28,6 +28,10 @@ class RSS {
 	 * Initialise.
 	 */
 	public static function init() {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		// If the standalone plugin is active, deactivate it and activate as a module.
 		if ( is_plugin_active( 'newspack-rss-enhancements/newspack-rss-enhancements.php' ) ) {
 			deactivate_plugins( 'newspack-rss-enhancements/newspack-rss-enhancements.php' );
