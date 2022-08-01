@@ -65,7 +65,22 @@ class WooCommerce_My_Account {
 		if ( ! Donations::is_platform_stripe() ) {
 			return $items;
 		}
-		$disabled_wc_menu_items = apply_filters( 'newspack_my_account_disabled_pages', [ 'dashboard', 'downloads', 'members-area', 'subscriptions', 'edit-address', 'orders', 'payment-methods' ] );
+		$default_disabled_items = [ 'dashboard', 'downloads', 'members-area', 'edit-address' ];
+		if ( function_exists( 'wcs_user_has_subscription' ) && ! wcs_user_has_subscription() ) {
+			$default_disabled_items[] = 'subscriptions';
+		}
+		if ( function_exists( 'wc_get_orders' ) ) {
+			$wc_non_newspack_orders = array_filter(
+				wc_get_orders( [ 'customer' => get_current_user_id() ] ),
+				function ( $order ) {
+					return WooCommerce_Connection::CREATED_VIA_NAME !== $order->get_created_via();
+				}
+			);
+			if ( empty( $wc_non_newspack_orders ) ) {
+				$default_disabled_items = array_merge( $default_disabled_items, [ 'orders', 'payment-methods' ] );
+			}
+		}
+		$disabled_wc_menu_items = apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
 		foreach ( $disabled_wc_menu_items as $key ) {
 			if ( isset( $items[ $key ] ) ) {
 				unset( $items[ $key ] );
