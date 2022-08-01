@@ -123,6 +123,7 @@ final class Reader_Activation {
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
 			'terms_url'                   => '',
+			'active_campaign_master_list' => '',
 		];
 
 		/**

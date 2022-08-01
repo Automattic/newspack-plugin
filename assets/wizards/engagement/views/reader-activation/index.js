@@ -18,15 +18,18 @@ import {
 	TextControl,
 	withWizardScreen,
 } from '../../../../components/src';
+import ActiveCampaign from './active-campaign';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
-	const [ error, setError ] = useState( null );
+	const [ error, setError ] = useState( false );
+	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
 	const fetchConfig = () => {
+		setError( false );
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
@@ -36,6 +39,7 @@ export default withWizardScreen( () => {
 			.finally( () => setInFlight( false ) );
 	};
 	const saveConfig = () => {
+		setError( false );
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
@@ -47,6 +51,15 @@ export default withWizardScreen( () => {
 			.finally( () => setInFlight( false ) );
 	};
 	useEffect( fetchConfig, [] );
+	useEffect( () => {
+		apiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
+		} ).then( data => {
+			setIsActiveCampaign(
+				data?.settings?.newspack_newsletters_service_provider?.value === 'active_campaign'
+			);
+		} );
+	}, [] );
 	return (
 		<>
 			{ error && (
@@ -100,6 +113,16 @@ export default withWizardScreen( () => {
 					/>
 				</Grid>
 			</Card>
+			{ isActiveCampaign && (
+				<ActiveCampaign
+					value={ { masterList: config.active_campaign_master_list } }
+					onChange={ ( key, value ) => {
+						if ( key === 'masterList' ) {
+							updateConfig( 'active_campaign_master_list', value );
+						}
+					} }
+				/>
+			) }
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
 					{ __( 'Save Changes', 'newspack' ) }
