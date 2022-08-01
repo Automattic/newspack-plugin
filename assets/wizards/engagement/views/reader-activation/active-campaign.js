@@ -40,7 +40,7 @@ export default function ActiveCampaign( { value, onChange } ) {
 			/>
 			<SelectControl
 				label={ __( 'Master List', 'newspack' ) }
-				help={ __( 'The list to which all registered readers will be added.', 'newspack' ) }
+				help={ __( 'Choose a list to which all registered readers will be added.', 'newspack' ) }
 				disabled={ inFlight }
 				value={ value.masterList }
 				onChange={ handleChange( 'masterList' ) }
