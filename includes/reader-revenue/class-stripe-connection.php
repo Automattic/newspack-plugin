@@ -449,27 +449,15 @@ class Stripe_Connection {
 				}
 
 				// Send custom event to GA.
-				$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
-				if ( $analytics->is_connected() ) {
-					$tracking_id        = $analytics->get_settings()->get()['propertyID'];
-					$analytics_ping_url = 'https://www.google-analytics.com/collect?v=1';
-
-					// Params docs: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters.
-					$analytics_ping_params = array(
-						'tid' => $tracking_id, // Tracking ID/ Web Property ID.
-						'cid' => '555', // Client ID.
-						't'   => 'event', // Hit type.
-						'an'  => 'Newspack', // Application Name.
-						'ec'  => __( 'Newspack Donation', 'newspack' ), // Event Category.
-						'ea'  => __( 'Stripe', 'newspack' ), // Event Action.
-						'el'  => $frequency, // Event Label.
-						'ev'  => $amount_normalised, // Event Value.
-						'dr'  => $referer, // Document Referrer.
-					);
-
-					wp_remote_post( $analytics_ping_url . '&' . http_build_query( $analytics_ping_params ) );
-				}
-
+				\Newspack\Google_Services_Connection::send_custom_event(
+					[
+						'category' => __( 'Newspack Donation', 'newspack' ),
+						'action'   => __( 'Stripe', 'newspack' ),
+						'label'    => $frequency,
+						'value'    => $amount_normalised,
+						'referer'  => $referer,
+					]
+				);
 
 				// Add a transaction to WooCommerce.
 				if ( Donations::is_woocommerce_suite_active() ) {

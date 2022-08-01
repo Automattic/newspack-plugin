@@ -70,4 +70,53 @@ class Google_Services_Connection {
 	public static function get_oauth2_credentials() {
 		return \Newspack\Google_OAuth::get_oauth2_credentials();
 	}
+
+	/**
+	 * Send a custom event to GA.
+	 *
+	 * @param array $event_spec Event details.
+	 */
+	public static function send_custom_event( $event_spec ) {
+		Logger::log( 'Sending custom event of category "' . $event_spec['category'] . '" to GA.' );
+		try {
+			$analytics = self::get_site_kit_analytics_module();
+			if ( $analytics->is_connected() ) {
+				$tracking_id        = $analytics->get_settings()->get()['propertyID'];
+				$analytics_ping_url = 'https://www.google-analytics.com/collect?v=1';
+
+				// Params docs: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters.
+				$analytics_ping_params = array(
+					'tid' => $tracking_id, // Tracking ID/ Web Property ID.
+					't'   => 'event', // Hit type.
+					'an'  => 'Newspack', // Application Name.
+					'ec'  => $event_spec['category'], // Event Category.
+					'ea'  => $event_spec['action'], // Event Action.
+					'el'  => $event_spec['label'], // Event Label.
+				);
+
+				// Client ID.
+				if ( isset( $event_spec['cid'] ) ) {
+					$analytics_ping_params['cid'] = $event_spec['cid'];
+				} else {
+					$analytics_ping_params['cid'] = '555'; // Anonymous client.
+				}
+
+				if ( isset( $event_spec['referer'] ) ) {
+					$analytics_ping_params['dr'] = $event_spec['referer']; // Document Referrer.
+				}
+				if ( isset( $event_spec['value'] ) ) {
+					$analytics_ping_params['ev'] = $event_spec['value']; // Event value.
+				}
+
+				$ga_url = $analytics_ping_url . '&' . http_build_query( $analytics_ping_params );
+				if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
+					return vip_safe_wp_remote_get( $ga_url );
+				} else {
+					return wp_remote_get( $ga_url ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
+				}
+			}
+		} catch ( \Throwable $th ) {
+			Logger::log( 'Failed sending custom event to GA: ' . $th->getMessage() );
+		}
+	}
 }
