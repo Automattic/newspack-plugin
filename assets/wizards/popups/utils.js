@@ -237,10 +237,10 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
 	}
 	if ( is_logged_in ) {
-		descriptionMessages.push( __( 'Is logged in', 'newspack' ) );
+		descriptionMessages.push( __( 'Has user account', 'newspack' ) );
 	}
 	if ( is_not_logged_in ) {
-		descriptionMessages.push( __( 'Is not logged in', 'newspack' ) );
+		descriptionMessages.push( __( 'Does not have user account', 'newspack' ) );
 	}
 
 	// Messages for referrer sources.
