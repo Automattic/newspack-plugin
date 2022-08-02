@@ -82,33 +82,45 @@ class Google_Services_Connection {
 			$analytics = self::get_site_kit_analytics_module();
 			if ( $analytics->is_connected() ) {
 				$tracking_id        = $analytics->get_settings()->get()['propertyID'];
-				$analytics_ping_url = 'https://www.google-analytics.com/collect?v=1';
+				$analytics_ping_url = 'https://www.google-analytics.com/collect';
 
 				// Params docs: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters.
 				$analytics_ping_params = array(
+					'v'   => 1,
 					'tid' => $tracking_id, // Tracking ID/ Web Property ID.
 					't'   => 'event', // Hit type.
 					'an'  => 'Newspack', // Application Name.
 					'ec'  => $event_spec['category'], // Event Category.
 					'ea'  => $event_spec['action'], // Event Action.
-					'el'  => $event_spec['label'], // Event Label.
 				);
 
 				// Client ID.
 				if ( isset( $event_spec['cid'] ) ) {
 					$analytics_ping_params['cid'] = $event_spec['cid'];
+				} elseif ( isset( $_COOKIE['_ga'] ) ) {
+					list($version, $domain_depth, $cid1, $cid2) = explode( '.', $_COOKIE['_ga'], 4 ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+					$analytics_ping_params['cid']               = $cid1 . '.' . $cid2;
 				} else {
 					$analytics_ping_params['cid'] = '555'; // Anonymous client.
 				}
 
-				if ( isset( $event_spec['referer'] ) ) {
-					$analytics_ping_params['dr'] = $event_spec['referer']; // Document Referrer.
+				if ( isset( $event_spec['label'] ) ) {
+					$analytics_ping_params['el'] = $event_spec['label']; // Event label.
 				}
 				if ( isset( $event_spec['value'] ) ) {
 					$analytics_ping_params['ev'] = $event_spec['value']; // Event value.
 				}
+				if ( isset( $event_spec['referer'] ) ) {
+					$analytics_ping_params['dr'] = $event_spec['referer']; // Document Referrer.
+				}
+				if ( isset( $event_spec['host'] ) ) {
+					$analytics_ping_params['dh'] = $event_spec['host']; // Document Host.
+				}
+				if ( isset( $event_spec['path'] ) ) {
+					$analytics_ping_params['dp'] = $event_spec['path']; // Document Page.
+				}
 
-				$ga_url = $analytics_ping_url . '&' . http_build_query( $analytics_ping_params );
+				$ga_url = $analytics_ping_url . '?' . http_build_query( $analytics_ping_params );
 				if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 					return vip_safe_wp_remote_get( $ga_url );
 				} else {

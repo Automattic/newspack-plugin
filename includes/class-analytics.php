@@ -54,6 +54,9 @@ class Analytics {
 		add_action( 'woocommerce_login_form_end', [ __CLASS__, 'prepare_login_events' ] );
 		add_action( 'woocommerce_register_form_end', [ __CLASS__, 'prepare_registration_events' ] );
 		add_action( 'woocommerce_after_checkout_registration_form', [ __CLASS__, 'prepare_checkout_registration_events' ] );
+
+		// Reader Activation hooks.
+		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
 	}
 
 	/**
@@ -862,6 +865,44 @@ class Analytics {
 			} )();
 		</script>
 		<?php
+	}
+
+	/**
+	 * When a new reader registers, sent an event to GA.
+	 *
+	 * @param string         $email         Email address.
+	 * @param bool           $authenticate  Whether to authenticate after registering.
+	 * @param false|int      $user_id       The created user id.
+	 * @param false|\WP_User $existing_user The existing user object.
+	 * @param array          $metadata      Metadata.
+	 */
+	public static function newspack_registered_reader( $email, $authenticate, $user_id, $existing_user, $metadata ) {
+		if ( $existing_user ) {
+			return;
+		}
+		$event_spec = [
+			'category' => __( 'Newspack Reader Activation', 'newspack' ),
+			'action'   => __( 'Registration', 'newspack' ),
+		];
+
+		if ( isset( $metadata['lists'] ) ) {
+			$event_spec['label'] = __( 'Signed up for lists:', 'newspack' ) . ' ' . implode( ', ', $metadata['lists'] );
+		}
+
+		if ( isset( $metadata['current_page_url'] ) ) {
+			$parsed_url = \wp_parse_url( $metadata['current_page_url'] );
+			if ( $parsed_url ) {
+				if ( isset( $parsed_url['host'] ) ) {
+					$event_spec['host'] = $parsed_url['host'];
+				}
+				if ( isset( $parsed_url['path'] ) ) {
+					$event_spec['path'] = $parsed_url['path'];
+				}
+			}
+		}
+
+		// Send custom event to GA.
+		\Newspack\Google_Services_Connection::send_custom_event( $event_spec );
 	}
 }
 new Analytics();
