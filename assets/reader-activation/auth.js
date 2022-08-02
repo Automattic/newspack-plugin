@@ -299,8 +299,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 										clearInterval( interval );
 									}
 								}, 500 );
-							} else if ( googleLoginForm?.endLoginFlow ) {
-								googleLoginForm.endLoginFlow();
 							}
 						}
 					} );
