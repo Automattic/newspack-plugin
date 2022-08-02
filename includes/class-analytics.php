@@ -885,6 +885,10 @@ class Analytics {
 			'action'   => __( 'Registration', 'newspack' ),
 		];
 
+		if ( isset( $metadata['registration_method'] ) ) {
+			$event_spec['action'] .= ' (' . $metadata['registration_method'] . ')';
+		}
+
 		if ( isset( $metadata['lists'] ) ) {
 			$event_spec['label'] = __( 'Signed up for lists:', 'newspack' ) . ' ' . implode( ', ', $metadata['lists'] );
 		}

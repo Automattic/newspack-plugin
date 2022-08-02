@@ -69,8 +69,9 @@ class WooCommerce_Connection {
 			$first_name    = $order->get_billing_first_name();
 			$last_name     = $order->get_billing_last_name();
 			$full_name     = "$first_name $last_name";
+			$metadata      = [ 'registration_method' => 'woocommerce-order' ];
 
-			Reader_Activation::register_reader( $email_address, $full_name );
+			Reader_Activation::register_reader( $email_address, $full_name, true, $metadata );
 		}
 	}
 
@@ -100,16 +101,8 @@ class WooCommerce_Connection {
 		}
 		if ( $should_create_account ) {
 			if ( Reader_Activation::is_enabled() ) {
-				$user_id = Reader_Activation::register_reader( $email_address, $full_name );
-				if ( \is_wp_error( $user_id ) ) {
-					return $user_id;
-				}
-				if ( absint( $user_id ) ) {
-					Reader_Activation::save_user_login_method( $user_id, 'woocommerce' );
-				} else {
-					$user_id = null;
-				}
-
+				$metadata = [ 'registration_method' => 'woocommerce-memberships' ];
+				$user_id  = Reader_Activation::register_reader( $email_address, $full_name, true, $metadata );
 				return $user_id;
 			}
 

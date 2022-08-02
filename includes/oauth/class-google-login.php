@@ -167,6 +167,7 @@ class Google_Login {
 				// Fail silently.
 			}
 		}
+		$metadata['registration_method'] = 'google';
 		if ( $email ) {
 			$existing_user = \get_user_by( 'email', $email );
 			$message       = __( 'Thank you for registering!', 'newspack' );
@@ -181,7 +182,6 @@ class Google_Login {
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
-			Reader_Activation::save_current_user_login_method( 'google' );
 
 			return \rest_ensure_response(
 				[
