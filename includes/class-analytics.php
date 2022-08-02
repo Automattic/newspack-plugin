@@ -57,6 +57,7 @@ class Analytics {
 
 		// Reader Activation hooks.
 		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
+		add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'newspack_newsletters_add_contact' ], 10, 4 );
 	}
 
 	/**
@@ -905,8 +906,51 @@ class Analytics {
 			}
 		}
 
-		// Send custom event to GA.
 		\Newspack\Google_Services_Connection::send_custom_event( $event_spec );
+
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			\Newspack\Google_Services_Connection::send_custom_event(
+				[
+					'category' => __( 'NTG account', 'newspack' ),
+					'action'   => __( 'registration', 'newspack' ),
+					'label'    => 'success',
+				]
+			);
+		}
+	}
+
+	/**
+	 * When a reader signs up for the newsletter, send an event to GA.
+	 *
+	 * @param string         $provider The provider name.
+	 * @param array          $contact  {
+	 *    Contact information.
+	 *
+	 *    @type string   $email                 Contact email address.
+	 *    @type string   $name                  Contact name. Optional.
+	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
+	 *    @type string[] $metadata              Contact additional metadata. Optional.
+	 * }
+	 * @param string[]|false $lists    Array of list IDs to subscribe the contact to.
+	 * @param bool|WP_Error  $result   True if the contact was added or error if failed.
+	 */
+	public static function newspack_newsletters_add_contact( $provider, $contact, $lists, $result ) {
+		if (
+			! Analytics_Wizard::ntg_events_enabled()
+			|| ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_data' )
+			// Don't send events for updates to a contact.
+			|| $contact['existing_contact_data']
+		) {
+			return;
+		}
+
+		\Newspack\Google_Services_Connection::send_custom_event(
+			[
+				'category' => __( 'NTG newsletter', 'newspack' ),
+				'action'   => __( 'newsletter signup', 'newspack' ),
+				'label'    => 'success',
+			]
+		);
 	}
 }
 new Analytics();
