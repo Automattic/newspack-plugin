@@ -173,8 +173,8 @@ function render_block( $attrs, $content ) {
 								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</p>
 							<p>
-								<?php echo \esc_html( $attrs['haveAccountLabel'] ); ?>
-								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo \esc_html( $attrs['signInLabel'] ); ?></a>
+								<?php echo $attrs['haveAccountLabel']; // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo $attrs['signInLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
 							</p>
 						</div>
 					</div>
