@@ -135,7 +135,7 @@ function render_block( $attrs, $content ) {
 		<?php if ( $registered ) : ?>
 			<div class="newspack-registration__success">
 				<div class="newspack-registration__icon"></div>
-				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo \wp_kses_post( $success_markup ); ?>
 			</div>
 		<?php else : ?>
 			<form>
@@ -170,11 +170,13 @@ function render_block( $attrs, $content ) {
 
 						<div class="newspack-registration__help-text">
 							<p>
-								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php echo \wp_kses_post( $attrs['privacyLabel'] ); ?>
 							</p>
 							<p>
-								<?php echo $attrs['haveAccountLabel']; // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo $attrs['signInLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
+								<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
+								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
+									<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
+								</a>
 							</p>
 						</div>
 					</div>
@@ -182,7 +184,7 @@ function render_block( $attrs, $content ) {
 			</form>
 			<div class="newspack-registration__success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo \wp_kses_post( $success_markup ); ?>
 			</div>
 		<?php endif; ?>
 	</div>
