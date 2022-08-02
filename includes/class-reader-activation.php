@@ -766,7 +766,7 @@ final class Reader_Activation {
 								<span class="<?php echo \esc_attr( $class( 'title' ) ); ?>">
 									<?php
 									if ( 1 === count( $lists ) ) {
-										echo $config['single_label']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+										echo \wp_kses_post( $config['single_label'] );
 									} else {
 										echo \esc_html( $list['title'] );
 									}
