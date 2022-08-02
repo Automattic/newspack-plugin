@@ -94,9 +94,7 @@ export const DonationAmounts = () => {
 				/>
 				<SelectControl
 					label={ __( 'Donation Type', 'newspack' ) }
-					onChange={ () =>
-						changeHandler( [ 'tiered' ] )( ! tiered )
-					}
+					onChange={ () => changeHandler( [ 'tiered' ] )( ! tiered ) }
 					buttonOptions={ [
 						{ value: true, label: __( 'Tiered', 'newspack' ) },
 						{ value: false, label: __( 'Untiered', 'newspack' ) },
@@ -114,13 +112,14 @@ export const DonationAmounts = () => {
 							Object.values( disabledFrequencies ).filter( Boolean ).length ===
 							FREQUENCY_SLUGS.length - 1;
 						return (
-							<Card isMedium>
-								<Grid columns={1} gutter={ 16 }>
+							<Card isMedium key={ section.key }>
+								<Grid columns={ 1 } gutter={ 16 }>
 									<ToggleControl
-										key={ section.key }
 										checked={ ! isFrequencyDisabled }
 										onChange={ () =>
-											changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled )
+											changeHandler( [ 'disabledFrequencies', section.key ] )(
+												! isFrequencyDisabled
+											)
 										}
 										label={ section.tieredLabel }
 										disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
