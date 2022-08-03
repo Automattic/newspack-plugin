@@ -99,13 +99,7 @@ class Newspack_Newsletters {
 
 				$is_new_contact = ! $contact['existing_contact_data'];
 				if ( $is_new_contact ) {
-					if ( empty( $selected_list_ids ) ) {
-						// Registration only, as a side effect of Reader Activation.
-						$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
-					} else {
-						// Registration and signup, the former implicit.
-						$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
-					}
+					$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
 
 					// Add some context on the signup/registration.
 					if ( ! $signup_page_url ) {
