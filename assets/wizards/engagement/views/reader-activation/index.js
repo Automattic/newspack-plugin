@@ -76,9 +76,9 @@ export default withWizardScreen( () => {
 				hasGreyHeader={ !! config.enabled }
 				disabled={ inFlight }
 				actionContent={
-						<Button variant="primary" disabled={ inFlight } onClick={ saveConfig }>
-							{ __( 'Save Settings', 'newspack' ) }
-						</Button>
+					<Button variant="primary" disabled={ inFlight } onClick={ saveConfig }>
+						{ __( 'Save Settings', 'newspack' ) }
+					</Button>
 				}
 			>
 				{ !! config.enabled && (
