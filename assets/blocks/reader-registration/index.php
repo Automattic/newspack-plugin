@@ -113,8 +113,11 @@ function render_block( $attrs, $content ) {
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
-		\is_user_logged_in() ||
-		( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
+		! \is_preview() &&
+		(
+			\is_user_logged_in() ||
+			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
+		)
 	) {
 		$registered = true;
 		$message    = $success_message;
