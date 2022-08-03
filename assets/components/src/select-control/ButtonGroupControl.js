@@ -16,6 +16,7 @@ import { hooks } from '..';
 
 const ButtonGroupControl = ( {
 	buttonOptions,
+	buttonSmall,
 	className,
 	hideLabelFromVision,
 	label,
@@ -42,7 +43,9 @@ const ButtonGroupControl = ( {
 						<Button
 							key={ option.value }
 							variant={ isSelected ? 'primary' : null }
+							isPressed={ isSelected }
 							onClick={ () => onChange( option.value ) }
+							isSmall={ buttonSmall }
 						>
 							<Label />
 						</Button>
