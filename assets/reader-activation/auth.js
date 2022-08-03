@@ -73,6 +73,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		const actionInput = form.querySelector( 'input[name="action"]' );
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
+		const redirectInput = form.querySelector( 'input[name="redirect"]' );
 		const submitButtons = form.querySelectorAll( '[type="submit"]' );
 
 		container.querySelector( 'button[data-close]' ).addEventListener( 'click', function ( ev ) {
@@ -103,21 +104,30 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		/**
 		 * Handle reader changes.
 		 */
-		readerActivation.on( 'reader', ( { detail: { email, authenticated } } ) => {
-			emailInput.value = email || '';
+		function handleReaderChanges() {
+			const reader = readerActivation.getReader();
+			emailInput.value = reader?.email || '';
 			if ( accountLinks?.length ) {
 				accountLinks.forEach( link => {
+					/** If there's a pre-auth, signing in redirects to the reader account. */
+					if ( reader?.email && ! reader?.authenticated ) {
+						link.setAttribute( 'data-redirect', link.getAttribute( 'href' ) );
+					} else {
+						link.removeAttribute( 'data-redirect' );
+					}
 					try {
 						const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
 						link.querySelector( '.newspack-reader__account-link__label' ).textContent =
-							authenticated ? labels.signedin : labels.signedout;
+							reader?.email ? labels.signedin : labels.signedout;
 					} catch {}
 				} );
 			}
-			if ( authenticated ) {
+			if ( reader?.authenticated ) {
 				container.style.display = 'none';
 			}
-		} );
+		}
+		readerActivation.on( 'reader', handleReaderChanges );
+		handleReaderChanges();
 
 		/**
 		 * Handle account links.
@@ -137,6 +147,10 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			}
 
 			emailInput.value = reader?.email || '';
+
+			if ( ev.target.getAttribute( 'data-redirect' ) ) {
+				redirectInput.value = ev.target.getAttribute( 'data-redirect' );
+			}
 
 			container.hidden = false;
 			container.style.display = 'flex';
@@ -236,14 +250,18 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			} )
 				.then( res => {
 					container.setAttribute( 'data-form-status', res.status );
-					res.json().then( ( { message, data } ) => {
-						form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
-					} );
+					res
+						.json()
+						.then( ( { message, data } ) => {
+							form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+						} )
+						.catch( () => {
+							form.endLoginFlow();
+						} );
 				} )
-				.catch( err => {
-					throw err;
-				} )
-				.finally( form.endLoginFlow );
+				.catch( () => {
+					form.endLoginFlow();
+				} );
 		} );
 
 		/**
