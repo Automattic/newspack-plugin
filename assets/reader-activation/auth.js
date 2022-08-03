@@ -70,6 +70,16 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			form = initialForm;
 		}
 
+		let currentlyOpenOverlayPrompts = [];
+		const hideCurrentlyOpenOverlayPrompts = () =>
+			currentlyOpenOverlayPrompts.forEach( promptElement =>
+				promptElement.setAttribute( 'amp-access-hide', '' )
+			);
+		const displayCurrentlyOpenOverlayPrompts = () =>
+			currentlyOpenOverlayPrompts.forEach( promptElement =>
+				promptElement.removeAttribute( 'amp-access-hide' )
+			);
+
 		const actionInput = form.querySelector( 'input[name="action"]' );
 		const emailInput = form.querySelector( 'input[name="email"]' );
 		const passwordInput = form.querySelector( 'input[name="password"]' );
@@ -79,6 +89,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			ev.preventDefault();
 			container.classList.remove( 'newspack-reader__auth-form__visible' );
 			container.style.display = 'none';
+			displayCurrentlyOpenOverlayPrompts();
 		} );
 
 		const messageContentElement = container.querySelector(
@@ -140,6 +151,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			container.hidden = false;
 			container.style.display = 'flex';
+
+			currentlyOpenOverlayPrompts = document.querySelectorAll(
+				'.newspack-lightbox:not([amp-access-hide])'
+			);
+			hideCurrentlyOpenOverlayPrompts();
 
 			if ( emailInput.value && 'pwd' === actionInput.value ) {
 				passwordInput.focus();
