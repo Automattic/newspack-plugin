@@ -114,6 +114,7 @@ function render_block( $attrs, $content ) {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		! \is_preview() &&
+		( ! method_exists( '\Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
 		(
 			\is_user_logged_in() ||
 			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
