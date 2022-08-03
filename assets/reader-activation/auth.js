@@ -278,28 +278,34 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					? convertFormDataToObject( new FormData( googleLoginForm ), [ 'lists[]' ] )
 					: {};
 				metadata.current_page_url = window.location.href;
+				const authWindow = window.open(
+					'about:blank',
+					'newspack_google_login',
+					'width=500,height=600'
+				);
 				fetch( '/wp-json/newspack/v1/login/google' )
 					.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
 					.then( ( { data, status } ) => {
 						if ( status !== 200 ) {
+							if ( authWindow ) {
+								authWindow.close();
+							}
 							if ( googleLoginForm?.endLoginFlow ) {
 								googleLoginForm.endLoginFlow( data.message, status );
 							}
-						} else {
-							const authWindow = window.open(
-								'about:blank',
-								'newspack_google_login',
-								'width=500,height=600'
-							);
-							if ( authWindow ) {
-								authWindow.location = data;
-								const interval = setInterval( () => {
-									if ( authWindow.closed ) {
-										checkLoginStatus( metadata );
-										clearInterval( interval );
-									}
-								}, 500 );
-							}
+						} else if ( authWindow ) {
+							authWindow.location = data;
+							const interval = setInterval( () => {
+								if ( authWindow.closed ) {
+									checkLoginStatus( metadata );
+									clearInterval( interval );
+								}
+							}, 500 );
+						}
+					} )
+					.catch( () => {
+						if ( authWindow ) {
+							authWindow.close();
 						}
 					} );
 			} );
