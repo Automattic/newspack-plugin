@@ -98,6 +98,10 @@ class Newspack_Newsletters {
 				}
 
 				$is_new_contact = ! $contact['existing_contact_data'];
+				// If the contact exists, but has no account metadata, treat it as a new contact.
+				if ( $contact && isset( $contact['metadata'] ) && ! isset( $contact['metadata']['NP_ACCOUNT'] ) ) {
+					$is_new_contact = true;
+				}
 				if ( $is_new_contact ) {
 					if ( empty( $selected_list_ids ) ) {
 						// Registration only, as a side effect of Reader Activation.
