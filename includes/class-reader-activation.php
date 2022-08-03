@@ -87,7 +87,6 @@ final class Reader_Activation {
 				'authenticated_email'   => $authenticated_email,
 			]
 		);
-		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
 		/**
