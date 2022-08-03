@@ -804,7 +804,7 @@ class Stripe_Connection {
 			$payment_method_id = $config['payment_method_id'];
 
 			if ( ! isset( $client_metadata['userId'] ) && Reader_Activation::is_enabled() ) {
-				$user_id = Reader_Activation::register_reader( $email_address, $full_name, true, false );
+				$user_id = Reader_Activation::register_reader( $email_address, $full_name, true, $client_metadata );
 				if ( ! \is_wp_error( $user_id ) && false !== $user_id ) {
 					$client_metadata['userId'] = $user_id;
 				}
