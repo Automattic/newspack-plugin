@@ -85,13 +85,16 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		const passwordInput = form.querySelector( 'input[name="password"]' );
 		const redirectInput = form.querySelector( 'input[name="redirect"]' );
 		const submitButtons = form.querySelectorAll( '[type="submit"]' );
+		const closeButton = container.querySelector( 'button[data-close]' );
 
-		container.querySelector( 'button[data-close]' ).addEventListener( 'click', function ( ev ) {
-			ev.preventDefault();
-			container.classList.remove( 'newspack-reader__auth-form__visible' );
-			container.style.display = 'none';
-			displayCurrentlyOpenOverlayPrompts();
-		} );
+		if ( closeButton ) {
+			closeButton.addEventListener( 'click', function ( ev ) {
+				ev.preventDefault();
+				container.classList.remove( 'newspack-reader__auth-form__visible' );
+				container.style.display = 'none';
+				displayCurrentlyOpenOverlayPrompts();
+			} );
+		}
 
 		const messageContentElement = container.querySelector(
 			'.newspack-reader__auth-form__response__content'

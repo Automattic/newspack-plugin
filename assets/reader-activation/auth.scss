@@ -64,6 +64,14 @@
 			display: flex !important;
 		}
 
+		&__inline {
+			display: block;
+			background: none;
+			position: relative;
+			width: auto;
+			z-index: auto;
+		}
+
 		&[data-form-status='200'] {
 			.newspack-reader__auth-form {
 				&__response {
@@ -136,6 +144,11 @@
 			position: relative;
 			max-height: 100vh;
 			overflow-y: auto;
+
+			.newspack-reader__auth-form__inline & {
+				margin: auto;
+				max-width: 780px;
+			}
 		}
 
 		&__header {

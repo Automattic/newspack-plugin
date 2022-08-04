@@ -56,8 +56,8 @@ final class Reader_Activation {
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
-			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
-			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'setup_nav_menu' ] );
+			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 		}
@@ -386,6 +386,11 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
+		$account_page = \wc_get_page_id( 'myaccount' );
+		if ( get_the_ID() === $account_page ) {
+			return;
+		}
+
 		if ( ! self::get_setting( 'enabled_account_link' ) ) {
 			return;
 		}
@@ -433,6 +438,9 @@ final class Reader_Activation {
 				<?php
 			}
 		);
+
+		/** Render auth form */
+		\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 	}
 
 	/**
@@ -529,10 +537,14 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Renders reader authentication form
+	 * Renders reader authentication form.
+	 *
+	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
 	 */
-	public static function render_auth_form() {
-		if ( \is_user_logged_in() ) {
+	public static function render_auth_form( $is_inline = false ) {
+		// No need to render auth modal on My Account pages or when logged in.
+		$account_page = \wc_get_page_id( 'myaccount' );
+		if ( \is_user_logged_in() || ( ! $is_inline && get_the_ID() === $account_page ) ) {
 			return;
 		}
 
@@ -555,6 +567,10 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
+		if ( $is_inline ) {
+			$classnames[] = 'newspack-reader__auth-form__inline';
+		}
+
 		$newsletters_label = self::get_setting( 'newsletters_label' );
 		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
 			$lists_config = \Newspack_Newsletters_Subscription::get_lists_config();
@@ -564,14 +580,17 @@ final class Reader_Activation {
 		}
 		$terms_text = self::get_setting( 'terms_text' );
 		$terms_url  = self::get_setting( 'terms_url' );
+		$redirect   = $is_inline ? home_url( '/my-account/edit-account/' ) : '';
 		?>
 		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
+				<?php if ( ! $is_inline ) : ?>
 				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack' ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
 					</svg>
 				</button>
+				<?php endif; ?>
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
@@ -579,7 +598,7 @@ final class Reader_Activation {
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
 							<a href="#" data-action="pwd link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
-							<a href="#" data-action="register" data-set-action="link"><?php \esc_html_e( 'I already have an account', 'newspack' ); ?></a>
+							<a href="#" data-action="register" data-set-action="pwd"><?php \esc_html_e( 'I already have an account', 'newspack' ); ?></a>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
@@ -587,7 +606,7 @@ final class Reader_Activation {
 						<p data-action="pwd">
 							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
-						<input type="hidden" name="redirect" value="" />
+						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
 							<div data-action="register">
 								<?php if ( 1 < count( $lists ) ) : ?>
@@ -812,6 +831,24 @@ final class Reader_Activation {
 			</button>
 		</div>
 		<?php
+	}
+
+	/**
+	 * If rendering the WooCommerce login form template, trick it into rendering nothing
+	 * and replace it with our own login form.
+	 *
+	 * @param string $template Full template path.
+	 * @param string $template_name Template name.
+	 *
+	 * @return string Filtered template path.
+	 */
+	public static function replace_woocommerce_auth_form( $template, $template_name ) {
+		if ( 'myaccount/form-login.php' === $template_name ) {
+			$template = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation/login-form.php';
+			self::render_auth_form( true );
+		}
+
+		return $template;
 	}
 
 	/**
