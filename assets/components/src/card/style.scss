@@ -30,12 +30,19 @@
 		align-items: center;
 		display: flex;
 		flex-wrap: wrap;
+		gap: 8px;
 		justify-content: space-between;
 		margin-bottom: -16px;
 
 		> * {
 			margin-bottom: 0 !important;
 			margin-top: 0 !important;
+		}
+
+		.newspack-select-control {
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
 		}
 	}
 

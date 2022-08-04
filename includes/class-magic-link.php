@@ -284,7 +284,7 @@ final class Magic_Link {
 		return \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => $user->user_email,
+				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
 			],
 			! empty( $url ) ? $url : \home_url()
