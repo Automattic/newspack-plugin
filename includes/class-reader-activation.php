@@ -845,7 +845,6 @@ final class Reader_Activation {
 	public static function replace_woocommerce_auth_form( $template, $template_name ) {
 		if ( 'myaccount/form-login.php' === $template_name ) {
 			$template = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation/login-form.php';
-			self::render_auth_form( true );
 		}
 
 		return $template;

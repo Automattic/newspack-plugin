@@ -8,3 +8,5 @@
  */
 
 namespace Newspack;
+
+Reader_Activation::render_auth_form( true );
