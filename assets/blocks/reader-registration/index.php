@@ -303,7 +303,7 @@ function process_form() {
 		[
 			'email'         => $email,
 			'authenticated' => $user_logged_in,
-			'existing_user' => false === $user_id,
+			'existing_user' => ! $user_logged_in,
 		]
 	);
 }
