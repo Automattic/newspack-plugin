@@ -38,7 +38,7 @@ function domReady( callback ) {
 
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'input[type="submit"]' );
-			const successElement = container.querySelector( '.newspack-registration__success' );
+			let successElement = container.querySelector( '.newspack-registration__success' );
 
 			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
 				if ( authenticated ) {
@@ -58,6 +58,10 @@ function domReady( callback ) {
 					messageNode = document.createElement( 'div' );
 					messageNode.textContent = message;
 				}
+				if ( data?.existing_user ) {
+					successElement = document.querySelector( '.newspack-login__success' );
+				}
+
 				const isSuccess = status === 200;
 				container.classList.add( `newspack-registration--${ isSuccess ? 'success' : 'error' }` );
 				if ( isSuccess ) {

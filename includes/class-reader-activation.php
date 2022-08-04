@@ -984,6 +984,7 @@ final class Reader_Activation {
 		$user_id = false;
 
 		if ( $existing_user ) {
+			Logger::log( "User with $email already exists. Sending magic link." );
 			Magic_Link::send_email( $existing_user );
 		} else {
 			/**
