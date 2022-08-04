@@ -305,7 +305,10 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							googleLoginForm.endLoginFlow();
 						}
 					} )
-					.catch( () => {
+					.catch( error => {
+						if ( googleLoginForm?.endLoginFlow ) {
+							googleLoginForm.endLoginFlow( error.message );
+						}
 						if ( authWindow ) {
 							authWindow.close();
 						}
