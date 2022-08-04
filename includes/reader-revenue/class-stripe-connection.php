@@ -399,7 +399,7 @@ class Stripe_Connection {
 						'email'    => $customer['email'],
 						'name'     => $customer['name'],
 						'metadata' => [
-							Newspack_Newsletters::$metadata_keys['last_payment_date']   => gmdate( 'Y-m-d', $payment['created'] ),
+							Newspack_Newsletters::$metadata_keys['last_payment_date']   => gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] ),
 							Newspack_Newsletters::$metadata_keys['last_payment_amount'] => $amount_normalised,
 						],
 					];
@@ -417,7 +417,7 @@ class Stripe_Connection {
 								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
 								break;
 						}
-						$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), 'Y-m-d' );
+						$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
 					}
 

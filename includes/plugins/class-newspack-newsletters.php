@@ -13,6 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * Main class.
  */
 class Newspack_Newsletters {
+	const METADATA_DATE_FORMAT = 'm/d/Y';
+
 	/**
 	 * Metadata keys map for Reader Activation.
 	 *
@@ -123,7 +125,7 @@ class Newspack_Newsletters {
 
 				$is_new_contact = ! $contact['existing_contact_data'];
 				if ( $is_new_contact ) {
-					$contact['metadata'][ self::$metadata_keys['registration_date'] ] = gmdate( 'm/d/Y' );
+					$contact['metadata'][ self::$metadata_keys['registration_date'] ] = gmdate( self::METADATA_DATE_FORMAT );
 					$metadata[ self::$metadata_keys['signup_page'] ]                  = $current_page_url;
 
 					// Capture UTM params.
