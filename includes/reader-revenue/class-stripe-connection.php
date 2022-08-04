@@ -399,21 +399,46 @@ class Stripe_Connection {
 						'email'    => $customer['email'],
 						'name'     => $customer['name'],
 						'metadata' => [
-							'NP_Last Payment Date'   => gmdate( 'Y-m-d', $payment['created'] ),
-							'NP_Last Payment Amount' => $amount_normalised,
+							Newspack_Newsletters::$metadata_keys['last_payment_date']   => gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] ),
+							Newspack_Newsletters::$metadata_keys['last_payment_amount'] => $amount_normalised,
 						],
 					];
 
-					if ( 'once' !== $frequency ) {
-						$contact['metadata']['NP_Billing Cycle']     = $frequency;
-						$contact['metadata']['NP_Recurring Payment'] = $amount_normalised;
+					if ( 'once' === $frequency ) {
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Donor';
+					} else {
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
+						switch ( $frequency ) {
+							case 'year':
+								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Yearly Donor';
+								break;
+							case 'month':
+								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
+								break;
+						}
+						$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
 					}
 
 					if ( ! empty( $client_id ) ) {
 						$contact['client_id'] = $client_id;
 					}
 					if ( isset( $customer['metadata']['userId'] ) ) {
-						$contact['metadata']['NP_Account'] = $customer['metadata']['userId'];
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['account'] ] = $customer['metadata']['userId'];
+					}
+					if ( isset( $customer['metadata']['current_page_url'] ) ) {
+						$contact['metadata']['current_page_url'] = $customer['metadata']['current_page_url'];
+					}
+
+					if ( Donations::is_woocommerce_suite_active() ) {
+						$wc_product_id = Donations::get_donation_product( $frequency );
+						try {
+							$wc_product = \wc_get_product( $wc_product_id );
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['product_name'] ] = $wc_product->get_name();
+						} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+							// Fail silently.
+						}
 					}
 
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {

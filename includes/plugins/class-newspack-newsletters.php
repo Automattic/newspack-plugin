@@ -13,6 +13,30 @@ defined( 'ABSPATH' ) || exit;
  * Main class.
  */
 class Newspack_Newsletters {
+	const METADATA_DATE_FORMAT = 'm/d/Y';
+
+	/**
+	 * Metadata keys map for Reader Activation.
+	 *
+	 * @var array
+	 */
+	public static $metadata_keys = [
+		'account'              => 'NP_Account',
+		'registration_date'    => 'NP_Registration Date',
+		'signup_page'          => 'NP_Signup Page',
+		'signup_page_utm'      => 'NP_Signup UTM: ',
+		'payment_page'         => 'NP_Payment Page',
+		'payment_page_utm'     => 'NP_Payment UTM: ',
+		'newsletter_selection' => 'NP_Newsletter Selection',
+		'membership_status'    => 'NP_Membership Status',
+		'billing_cycle'        => 'NP_Billing Cycle',
+		'recurring_payment'    => 'NP_Recurring Payment',
+		'last_payment_date'    => 'NP_Last Payment Date',
+		'last_payment_amount'  => 'NP_Last Payment Amount',
+		'product_name'         => 'NP_Product Name',
+		'next_payment_date'    => 'NP_Next Payment Date',
+	];
+
 	/**
 	 * Initialize hooks and filters.
 	 */
@@ -64,7 +88,7 @@ class Newspack_Newsletters {
 			case 'active_campaign':
 				$metadata = [];
 				if ( is_user_logged_in() ) {
-					$metadata['NP_Account'] = get_current_user_id();
+					$metadata[ self::$metadata_keys['account'] ] = get_current_user_id();
 				}
 
 				// Translate list IDs to list names and store as metadata, if lists are supplied.
@@ -83,7 +107,7 @@ class Newspack_Newsletters {
 									}
 								}
 								// Note: this field will be overwritten every time it's updated.
-								$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
+								$metadata[ self::$metadata_keys['newsletter_selection'] ] = implode( ', ', $lists_names );
 							}
 						}
 					} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -92,10 +116,12 @@ class Newspack_Newsletters {
 					}
 				}
 
-				$signup_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
-				if ( $signup_page_url ) {
-					unset( $contact['metadata']['current_page_url'] );
+				$current_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
+				if ( ! $current_page_url ) {
+					global $wp;
+					$current_page_url = home_url( add_query_arg( array(), $wp->request ) );
 				}
+				$current_page_url_params = self::get_url_params( $current_page_url );
 
 				$is_new_contact = ! $contact['existing_contact_data'];
 				// If the contact exists, but has no account metadata, treat it as a new contact.
@@ -103,38 +129,24 @@ class Newspack_Newsletters {
 					$is_new_contact = true;
 				}
 				if ( $is_new_contact ) {
-					if ( empty( $selected_list_ids ) ) {
-						// Registration only, as a side effect of Reader Activation.
-						$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
-					} else {
-						// Registration and signup, the former implicit.
-						$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
-					}
-
-					// Add some context on the signup/registration.
-					if ( ! $signup_page_url ) {
-						global $wp;
-						$signup_page_url = home_url( add_query_arg( array(), $wp->request ) );
-					}
-					$metadata['NP_Signup page'] = $signup_page_url;
+					$contact['metadata'][ self::$metadata_keys['registration_date'] ] = gmdate( self::METADATA_DATE_FORMAT );
+					$metadata[ self::$metadata_keys['signup_page'] ]                  = $current_page_url;
 
 					// Capture UTM params.
-					$parsed_url = \wp_parse_url( $signup_page_url );
-					if ( isset( $parsed_url['query'] ) ) {
-						$url_params = array_reduce(
-							explode( '&', $parsed_url['query'] ),
-							function( $acc, $item ) {
-								$parts            = explode( '=', $item );
-								$acc[ $parts[0] ] = $parts[1];
-								return $acc;
-							},
-							[]
-						);
-						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-							$param = 'utm_' . $value;
-							if ( isset( $url_params[ $param ] ) ) {
-								$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
-							}
+					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+						$param = 'utm_' . $value;
+						if ( isset( $current_page_url_params[ $param ] ) ) {
+							$metadata[ self::$metadata_keys['signup_page_utm'] . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
+						}
+					}
+				}
+
+				if ( isset( $contact['metadata'], $contact['metadata'][ self::$metadata_keys['last_payment_amount'] ] ) ) {
+					$metadata[ self::$metadata_keys['payment_page'] ] = $current_page_url;
+					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+						$param = 'utm_' . $value;
+						if ( isset( $current_page_url_params[ $param ] ) ) {
+							$metadata[ self::$metadata_keys['payment_page_utm'] . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
 						}
 					}
 				}
@@ -145,10 +157,39 @@ class Newspack_Newsletters {
 					$contact['metadata'] = $metadata;
 				}
 
+				// Ensure only the prefixed metadata is passed along to the ESP.
+				foreach ( $contact['metadata'] as $key => $value ) {
+					if ( strpos( $key, 'NP_' ) !== 0 ) {
+						unset( $contact['metadata'][ $key ] );
+					}
+				}
+
 				return $contact;
 			default:
 				return $contact;
 		}
+	}
+
+	/**
+	 * Parse params from a URL.
+	 *
+	 * @param string $url URL to parse.
+	 * @return array Associative array of params.
+	 */
+	private static function get_url_params( $url ) {
+		$parsed_url = \wp_parse_url( $url );
+		if ( isset( $parsed_url['query'] ) ) {
+			return array_reduce(
+				explode( '&', $parsed_url['query'] ),
+				function( $acc, $item ) {
+					$parts            = explode( '=', $item );
+					$acc[ $parts[0] ] = count( $parts ) === 2 ? $parts[1] : '';
+					return $acc;
+				},
+				[]
+			);
+		}
+		return [];
 	}
 
 	/**
