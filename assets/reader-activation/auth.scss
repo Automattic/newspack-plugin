@@ -184,6 +184,10 @@
 			[type='submit'] {
 				background-color: var( --newspack-primary-color );
 			}
+
+			.newspack-reader__auth-form__inline & {
+				padding: 0;
+			}
 		}
 
 		&__actions {
