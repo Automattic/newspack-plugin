@@ -92,10 +92,12 @@ class Newspack_Newsletters {
 					}
 				}
 
-				$signup_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
-				if ( $signup_page_url ) {
-					unset( $contact['metadata']['current_page_url'] );
+				$current_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
+				if ( ! $current_page_url ) {
+					global $wp;
+					$current_page_url = home_url( add_query_arg( array(), $wp->request ) );
 				}
+				$current_page_url_params = self::get_url_params( $current_page_url );
 
 				$is_new_contact = ! $contact['existing_contact_data'];
 				if ( $is_new_contact ) {
@@ -107,30 +109,13 @@ class Newspack_Newsletters {
 						$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
 					}
 
-					// Add some context on the signup/registration.
-					if ( ! $signup_page_url ) {
-						global $wp;
-						$signup_page_url = home_url( add_query_arg( array(), $wp->request ) );
-					}
-					$metadata['NP_Signup page'] = $signup_page_url;
+					$metadata['NP_Signup page'] = $current_page_url;
 
 					// Capture UTM params.
-					$parsed_url = \wp_parse_url( $signup_page_url );
-					if ( isset( $parsed_url['query'] ) ) {
-						$url_params = array_reduce(
-							explode( '&', $parsed_url['query'] ),
-							function( $acc, $item ) {
-								$parts            = explode( '=', $item );
-								$acc[ $parts[0] ] = $parts[1];
-								return $acc;
-							},
-							[]
-						);
-						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-							$param = 'utm_' . $value;
-							if ( isset( $url_params[ $param ] ) ) {
-								$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $url_params[ $param ] );
-							}
+					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+						$param = 'utm_' . $value;
+						if ( isset( $current_page_url_params[ $param ] ) ) {
+							$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
 						}
 					}
 				}
@@ -141,10 +126,39 @@ class Newspack_Newsletters {
 					$contact['metadata'] = $metadata;
 				}
 
+				// Ensure only the prefixed metadata is passed along to the ESP.
+				foreach ( $contact['metadata'] as $key => $value ) {
+					if ( strpos( $key, 'NP_' ) !== 0 ) {
+						unset( $contact['metadata'][ $key ] );
+					}
+				}
+
 				return $contact;
 			default:
 				return $contact;
 		}
+	}
+
+	/**
+	 * Parse params from a URL.
+	 *
+	 * @param string $url URL to parse.
+	 * @return array Associative array of params.
+	 */
+	private static function get_url_params( $url ) {
+		$parsed_url = \wp_parse_url( $url );
+		if ( isset( $parsed_url['query'] ) ) {
+			return array_reduce(
+				explode( '&', $parsed_url['query'] ),
+				function( $acc, $item ) {
+					$parts            = explode( '=', $item );
+					$acc[ $parts[0] ] = count( $parts ) === 2 ? $parts[1] : '';
+					return $acc;
+				},
+				[]
+			);
+		}
+		return [];
 	}
 
 	/**
