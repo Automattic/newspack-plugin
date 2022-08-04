@@ -87,6 +87,7 @@ class Newspack_Newsletters {
 							}
 						}
 					} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+						Logger::log( 'Error in getting contact lists: ' . $e->getMessage() );
 						// Move along.
 					}
 				}
@@ -134,7 +135,7 @@ class Newspack_Newsletters {
 					}
 				}
 
-				if ( isset( $contact['metadata'] ) ) {
+				if ( isset( $contact['metadata'] ) && is_array( $contact['metadata'] ) ) {
 					$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
 				} else {
 					$contact['metadata'] = $metadata;
