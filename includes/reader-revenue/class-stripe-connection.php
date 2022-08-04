@@ -419,6 +419,16 @@ class Stripe_Connection {
 						$contact['metadata']['current_page_url'] = $customer['metadata']['current_page_url'];
 					}
 
+					if ( Donations::is_woocommerce_suite_active() ) {
+						$wc_product_id = Donations::get_donation_product( $frequency );
+						try {
+							$wc_product                             = \wc_get_product( $wc_product_id );
+							$contact['metadata']['NP_Product Name'] = $wc_product->get_name();
+						} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+							// Fail silently.
+						}
+					}
+
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
 						// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
 						if ( ! empty( $stripe_data['newsletter_list_id'] ) && $has_opted_in_to_newsletters ) {
