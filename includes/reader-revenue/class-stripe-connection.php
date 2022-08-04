@@ -41,15 +41,6 @@ class Stripe_Connection {
 	public static function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/stripe/reset-webhooks/',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ __CLASS__, 'reset_webhooks' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/stripe/webhook',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -523,15 +514,33 @@ class Stripe_Connection {
 	/**
 	 * Reset Stripe webhooks.
 	 */
-	public static function reset_webhooks() {
+	private static function reset_webhooks() {
+		Logger::log( 'Resetting Stripe webhooks…' );
 		delete_option( self::STRIPE_WEBHOOK_OPTION_NAME );
-		return self::validate_webhooks();
+		try {
+			$stripe   = self::get_stripe_client();
+			$webhooks = $stripe->webhookEndpoints->all( [ 'limit' => 100 ] );
+			foreach ( $webhooks as $webhook ) {
+				if ( self::get_webhook_url() === $webhook->url ) {
+					$stripe->webhookEndpoints->delete( $webhook->id );
+				}
+			}
+			return true;
+		} catch ( \Throwable $th ) {
+			Logger::log( 'Could not reset Stripe webhooks: ' . $th->getMessage() );
+			return false;
+		}
 	}
 
 	/**
 	 * Create Stripe webhooks if they are missing. Otherwise, validate the webhhooks.
 	 */
-	public static function validate_webhooks() {
+	public static function validate_or_create_webhooks() {
+		$is_valid        = true;
+		$webhook_events  = [
+			'charge.failed',
+			'charge.succeeded',
+		];
 		$stripe          = self::get_stripe_client();
 		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
 		if ( ! $created_webhook ) {
@@ -540,10 +549,7 @@ class Stripe_Connection {
 				$webhook = $stripe->webhookEndpoints->create(
 					[
 						'url'            => self::get_webhook_url(),
-						'enabled_events' => [
-							'charge.failed',
-							'charge.succeeded',
-						],
+						'enabled_events' => $webhook_events,
 					]
 				);
 				update_option(
@@ -555,23 +561,28 @@ class Stripe_Connection {
 				);
 				return true;
 			} catch ( \Throwable $e ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed: ', 'newspack' ) . $e->getMessage() );
 			}
 		} elseif ( isset( $created_webhook['id'] ) ) {
 			try {
 				$webhook = $stripe->webhookEndpoints->retrieve( $created_webhook['id'] );
+				if ( $webhook->enabled_events !== $webhook_events ) {
+					$is_valid = false;
+				}
+				if ( 'enabled' !== $webhook['status'] ) {
+					$is_valid = false;
+				}
+				if ( self::get_webhook_url() !== $webhook['url'] ) {
+					$is_valid = false;
+				}
 			} catch ( \Throwable $e ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed:', 'newspack' ) . ' ' . $e->getMessage() );
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed: ', 'newspack' ) . $e->getMessage() );
 			}
-			if ( 'enabled' !== $webhook['status'] ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook is disabled.', 'newspack' ) );
-			}
-			if ( self::get_webhook_url() !== $webhook['url'] ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook has incorrect URL.', 'newspack' ) );
-			}
-			return true;
 		} else {
-			return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Invalid saved webhook.', 'newspack' ) );
+			$is_valid = false;
+		}
+		if ( ! $is_valid ) {
+			self::reset_webhooks();
 		}
 	}
 

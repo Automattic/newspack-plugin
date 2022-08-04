@@ -4,7 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
@@ -109,13 +108,6 @@ const StripeSetup = () => {
 		errors = [],
 	} = Wizard.useWizardData( 'reader-revenue' );
 
-	const resetWebhooks = () => {
-		apiFetch( {
-			path: '/newspack/v1/stripe/reset-webhooks',
-		} ).then( () => {
-			window.location.reload();
-		} );
-	};
 	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
 
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
@@ -138,20 +130,7 @@ const StripeSetup = () => {
 		<>
 			{ errors.length > 0 &&
 				errors.map( ( error, index ) => (
-					<Notice
-						isError
-						key={ index }
-						noticeText={
-							<span>
-								{ error.message }{ ' ' }
-								{ error.code === 'newspack_plugin_stripe_webhooks' && (
-									<Button isLink onClick={ resetWebhooks }>
-										{ __( 'Reset webhooks', 'newspack' ) }
-									</Button>
-								) }
-							</span>
-						}
-					/>
+					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
 				) ) }
 			{ is_ssl === false && (
 				<Notice
