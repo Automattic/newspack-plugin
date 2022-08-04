@@ -904,7 +904,7 @@ final class Reader_Activation {
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
+				return self::send_auth_form_response( $payload, __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ), $redirect );
 			case 'register':
 				$metadata = [];
 				if ( ! empty( $lists ) ) {
@@ -912,7 +912,7 @@ final class Reader_Activation {
 				}
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
-					return self::send_auth_form_response( $payload, __( "We've sent you an authentication link, please check your inbox.", 'newspack' ), $redirect );
+					return self::send_auth_form_response( $payload, __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ), $redirect );
 				}
 				if ( \is_wp_error( $user_id ) ) {
 					return self::send_auth_form_response(
