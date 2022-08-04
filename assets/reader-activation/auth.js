@@ -95,7 +95,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				const emailInput = container.querySelector( 'input[name="email"]' );
 				const redirectInput = container.querySelector( 'input[name="redirect"]' );
 				const reader = readerActivation.getReader();
-				let redirectAfterLogin = !! redirectInput.value;
+				let redirectAfterLogin = redirectInput && !! redirectInput.value;
 				emailInput.value = reader?.email || '';
 				if ( accountLinks?.length ) {
 					accountLinks.forEach( link => {
