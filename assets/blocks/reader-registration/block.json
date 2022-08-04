@@ -39,7 +39,9 @@
 		"lists": {
 			"type": "array",
 			"default": [],
-			"items": { "type": "string" }
+			"items": {
+				"type": "string"
+			}
 		},
 		"haveAccountLabel": {
 			"type": "string",
@@ -48,6 +50,10 @@
 		"signInLabel": {
 			"type": "string",
 			"default": "Sign in"
+		},
+		"signedInLabel": {
+			"type": "string",
+			"default": "An account was already registered with this email. Please check your inbox for an authentication link."
 		}
 	},
 	"supports": {

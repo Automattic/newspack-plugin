@@ -34,7 +34,8 @@ import './editor.scss';
 
 const editedStateOptions = [
 	{ label: __( 'Initial', 'newspack' ), value: 'initial' },
-	{ label: __( 'Success', 'newspack' ), value: 'success' },
+	{ label: __( 'Registration Success', 'newspack' ), value: 'registration' },
+	{ label: __( 'Login Success', 'newspack' ), value: 'login' },
 ];
 export default function ReaderRegistrationEdit( {
 	setAttributes,
@@ -48,13 +49,13 @@ export default function ReaderRegistrationEdit( {
 		newsletterLabel,
 		haveAccountLabel,
 		signInLabel,
+		signedInLabel,
 		lists,
 		className,
 	},
 } ) {
 	const blockProps = useBlockProps();
 	const [ editedState, setEditedState ] = useState( editedStateOptions[ 0 ].value );
-	const isInitial = editedState === 'initial';
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
@@ -176,12 +177,15 @@ export default function ReaderRegistrationEdit( {
 				<div className="newspack-registration__state-bar">
 					<span>{ __( 'Edited State', 'newspack' ) }</span>
 					<div>
-						<Button data-is-active={ isInitial } onClick={ () => setEditedState( 'initial' ) }>
-							{ __( 'Initial', 'newspack' ) }
-						</Button>
-						<Button data-is-active={ ! isInitial } onClick={ () => setEditedState( 'success' ) }>
-							{ __( 'Success', 'newspack' ) }
-						</Button>
+						{ editedStateOptions.map( option => (
+							<Button
+								key={ option.value }
+								data-is-active={ editedState === option.value }
+								onClick={ () => setEditedState( option.value ) }
+							>
+								{ option.label }
+							</Button>
+						) ) }
 					</div>
 				</div>
 				{ editedState === 'initial' && (
@@ -292,10 +296,22 @@ export default function ReaderRegistrationEdit( {
 						</form>
 					</div>
 				) }
-				{ editedState === 'success' && (
+				{ editedState === 'registration' && (
 					<>
 						<div className="newspack-registration__icon" />
 						<div { ...innerBlocksProps } />
+					</>
+				) }
+				{ editedState === 'login' && (
+					<>
+						<div className="newspack-registration__icon" />
+						<RichText
+							align="center"
+							onChange={ value => setAttributes( { signedInLabel: value } ) }
+							placeholder={ __( 'Logged in message…', 'newspack' ) }
+							value={ signedInLabel }
+							tagName="p"
+						/>
 					</>
 				) }
 			</div>

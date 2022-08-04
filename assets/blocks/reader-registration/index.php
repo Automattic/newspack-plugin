@@ -90,6 +90,7 @@ function render_block( $attrs, $content ) {
 		'newsletterLabel'  => __( 'Subscribe to our newsletter', 'newspack' ),
 		'haveAccountLabel' => __( 'Already have an account?', 'newspack' ),
 		'signInLabel'      => __( 'Sign in', 'newspack' ),
+		'signedInLabel'    => __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ),
 	];
 	$attrs         = \wp_parse_args( $attrs, $default_attrs );
 	foreach ( $default_attrs as $key => $value ) {
@@ -190,6 +191,10 @@ function render_block( $attrs, $content ) {
 				<div class="newspack-registration__icon"></div>
 				<?php echo \wp_kses_post( $success_markup ); ?>
 			</div>
+			<div class="newspack-login__success newspack-registration--hidden">
+				<div class="newspack-registration__icon"></div>
+				<p class="has-text-align-center"><?php echo \wp_kses_post( $attrs['signedInLabel'] ); ?></p>
+			</div>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -245,6 +250,7 @@ function send_form_response( $data, $message = '' ) {
 				[
 					'newspack_reader' => $is_error ? '0' : '1',
 					'message'         => $message,
+					'existing_user'   => isset( $data['existing_user'] ) && boolval( $data['existing_user'] ) ? 1 : 0,
 				],
 				\remove_query_arg( $args_to_remove )
 			)
@@ -294,6 +300,7 @@ function process_form() {
 		[
 			'email'         => $email,
 			'authenticated' => $user_logged_in,
+			'existing_user' => ! $user_logged_in,
 		]
 	);
 }
