@@ -23,9 +23,9 @@ final class Reader_Activation {
 	/**
 	 * Reader user meta keys.
 	 */
-	const READER         = 'np_reader';
-	const EMAIL_VERIFIED = 'np_reader_email_verified';
-	const LOGIN_METHOD   = 'np_reader_login_method';
+	const READER              = 'np_reader';
+	const EMAIL_VERIFIED      = 'np_reader_email_verified';
+	const REGISTRATION_METHOD = 'np_reader_registration_method';
 
 	/**
 	 * Auth form.
@@ -1033,6 +1033,11 @@ final class Reader_Activation {
 			}
 		}
 
+		// Note the user's login method for later use.
+		if ( isset( $metadata['registration_method'] ) ) {
+			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
+		}
+
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
@@ -1045,25 +1050,6 @@ final class Reader_Activation {
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user, $metadata );
 
 		return $user_id;
-	}
-
-	/**
-	 * Note reader's login method.
-	 *
-	 * @param int    $user_id User ID.
-	 * @param string $login_method Login method used.
-	 */
-	public static function save_user_login_method( $user_id, $login_method ) {
-		\update_user_meta( $user_id, self::LOGIN_METHOD, $login_method );
-	}
-
-	/**
-	 * Note current reader's login method.
-	 *
-	 * @param string $login_method Login method used.
-	 */
-	public static function save_current_user_login_method( $login_method ) {
-		self::save_user_login_method( \get_current_user_id(), $login_method );
 	}
 
 	/**

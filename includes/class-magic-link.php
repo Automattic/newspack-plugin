@@ -486,7 +486,6 @@ final class Magic_Link {
 
 		Reader_Activation::set_reader_verified( $user );
 		Reader_Activation::set_current_reader( $user->ID );
-		Reader_Activation::save_current_user_login_method( 'magic-link' );
 
 		/**
 		 * Fires after a reader has been authenticated via magic link.

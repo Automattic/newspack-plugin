@@ -270,8 +270,9 @@ function process_form() {
 	if ( ! empty( $lists ) ) {
 		$metadata['lists'] = $lists;
 	}
-	$metadata['current_page_url'] = home_url( add_query_arg( array(), \wp_get_referer() ) );
-	$email                        = \sanitize_email( $_REQUEST['email'] );
+	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
+	$metadata['registration_method'] = 'registration-block';
+	$email                           = \sanitize_email( $_REQUEST['email'] );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
@@ -288,10 +289,6 @@ function process_form() {
 	}
 
 	$user_logged_in = false !== $user_id;
-
-	if ( $user_logged_in ) {
-		Reader_Activation::save_current_user_login_method( 'registration-block' );
-	}
 
 	return send_form_response(
 		[
