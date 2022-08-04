@@ -54,20 +54,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			return;
 		}
 
-		const container = document.querySelector( '#newspack-reader-auth' );
-		if ( ! container ) {
+		const containers = [ ...document.querySelectorAll( '.newspack-reader-auth' ) ];
+		if ( ! containers.length ) {
 			return;
-		}
-
-		const initialForm = container.querySelector( 'form' );
-		let form;
-		/** Workaround AMP's enforced XHR strategy. */
-		if ( initialForm.getAttribute( 'action-xhr' ) ) {
-			initialForm.removeAttribute( 'action-xhr' );
-			form = initialForm.cloneNode( true );
-			initialForm.replaceWith( form );
-		} else {
-			form = initialForm;
 		}
 
 		let currentlyOpenOverlayPrompts = [];
@@ -79,26 +68,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			currentlyOpenOverlayPrompts.forEach( promptElement =>
 				promptElement.removeAttribute( 'amp-access-hide' )
 			);
-
-		const actionInput = form.querySelector( 'input[name="action"]' );
-		const emailInput = form.querySelector( 'input[name="email"]' );
-		const passwordInput = form.querySelector( 'input[name="password"]' );
-		const redirectInput = form.querySelector( 'input[name="redirect"]' );
-		const submitButtons = form.querySelectorAll( '[type="submit"]' );
-
-		container.querySelector( 'button[data-close]' ).addEventListener( 'click', function ( ev ) {
-			ev.preventDefault();
-			container.classList.remove( 'newspack-reader__auth-form__visible' );
-			container.style.display = 'none';
-			displayCurrentlyOpenOverlayPrompts();
-		} );
-
-		const messageContentElement = container.querySelector(
-			'.newspack-reader__auth-form__response__content'
-		);
-
-		const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
-		authLinkMessage.hidden = true;
 
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
@@ -116,26 +85,41 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		 * Handle reader changes.
 		 */
 		function handleReaderChanges() {
-			const reader = readerActivation.getReader();
-			emailInput.value = reader?.email || '';
-			if ( accountLinks?.length ) {
-				accountLinks.forEach( link => {
-					/** If there's a pre-auth, signing in redirects to the reader account. */
-					if ( reader?.email && ! reader?.authenticated ) {
-						link.setAttribute( 'data-redirect', link.getAttribute( 'href' ) );
-					} else {
-						link.removeAttribute( 'data-redirect' );
-					}
-					try {
-						const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
-						link.querySelector( '.newspack-reader__account-link__label' ).textContent =
-							reader?.email ? labels.signedin : labels.signedout;
-					} catch {}
-				} );
+			const allContainers = [ ...document.querySelectorAll( '.newspack-reader-auth' ) ];
+			/** If no modal login form, bail. */
+			if ( ! allContainers.length ) {
+				return;
 			}
-			if ( reader?.authenticated ) {
-				container.style.display = 'none';
-			}
+
+			allContainers.forEach( container => {
+				const emailInput = container.querySelector( 'input[name="email"]' );
+				const redirectInput = container.querySelector( 'input[name="redirect"]' );
+				const reader = readerActivation.getReader();
+				let redirectAfterLogin = redirectInput && !! redirectInput.value;
+				if ( emailInput ) {
+					emailInput.value = reader?.email || '';
+				}
+
+				if ( accountLinks?.length ) {
+					accountLinks.forEach( link => {
+						/** If there's a pre-auth, signing in redirects to the reader account. */
+						if ( reader?.email && ! reader?.authenticated ) {
+							link.setAttribute( 'data-redirect', link.getAttribute( 'href' ) );
+							redirectAfterLogin = true;
+						} else {
+							link.removeAttribute( 'data-redirect' );
+						}
+						try {
+							const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
+							link.querySelector( '.newspack-reader__account-link__label' ).textContent =
+								reader?.email ? labels.signedin : labels.signedout;
+						} catch {}
+					} );
+				}
+				if ( reader?.authenticated && ! redirectAfterLogin ) {
+					container.style.display = 'none';
+				}
+			} );
 		}
 		readerActivation.on( 'reader', handleReaderChanges );
 		handleReaderChanges();
@@ -149,7 +133,22 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			if ( reader?.authenticated ) {
 				return;
 			}
+
+			const container = document.querySelector(
+				'.newspack-reader-auth:not(.newspack-reader__auth-form__inline)'
+			);
+			/** If no modal login form, bail. */
+			if ( ! container ) {
+				return;
+			}
+
 			ev.preventDefault();
+
+			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
+			const emailInput = container.querySelector( 'input[name="email"]' );
+			const redirectInput = container.querySelector( 'input[name="redirect"]' );
+			const passwordInput = container.querySelector( 'input[name="password"]' );
+			const actionInput = container.querySelector( 'input[name="action"]' );
 
 			if ( readerActivation.hasAuthLink() ) {
 				authLinkMessage.style.display = 'block';
@@ -178,106 +177,141 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			}
 		}
 
-		/**
-		 * Handle auth form action selection.
-		 */
-		function setFormAction( action ) {
-			actionInput.value = action;
-			container.removeAttribute( 'data-form-status' );
-			messageContentElement.innerHTML = '';
-			container.querySelectorAll( '[data-action]' ).forEach( item => {
-				if ( 'none' !== item.style.display ) {
-					item.prevDisplay = item.style.display;
-				}
-				item.style.display = 'none';
-			} );
-			container.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
-				item.style.display = item.prevDisplay;
-			} );
-			try {
-				const labels = JSON.parse( container.getAttribute( 'data-labels' ) );
-				const label = 'register' === action ? labels.register : labels.signin;
-				container.querySelector( 'h2' ).textContent = label;
-			} catch {}
-			if ( action === 'pwd' && emailInput.value ) {
-				passwordInput.focus();
+		containers.forEach( container => {
+			const initialForm = container.querySelector( 'form' );
+			let form;
+			/** Workaround AMP's enforced XHR strategy. */
+			if ( initialForm.getAttribute( 'action-xhr' ) ) {
+				initialForm.removeAttribute( 'action-xhr' );
+				form = initialForm.cloneNode( true );
+				initialForm.replaceWith( form );
 			} else {
-				emailInput.focus();
+				form = initialForm;
 			}
-		}
-		setFormAction( actionInput.value );
-		container.querySelectorAll( '[data-set-action]' ).forEach( item => {
-			item.addEventListener( 'click', function ( ev ) {
-				ev.preventDefault();
-				setFormAction( ev.target.getAttribute( 'data-set-action' ) );
-			} );
-		} );
 
-		form.startLoginFlow = () => {
-			container.removeAttribute( 'data-form-status' );
-			submitButtons.forEach( button => {
-				button.disabled = true;
-			} );
-			messageContentElement.innerHTML = '';
-			form.style.opacity = 0.5;
-		};
+			const actionInput = form.querySelector( 'input[name="action"]' );
+			const emailInput = form.querySelector( 'input[name="email"]' );
+			const passwordInput = form.querySelector( 'input[name="password"]' );
+			const submitButtons = form.querySelectorAll( '[type="submit"]' );
+			const closeButton = container.querySelector( 'button[data-close]' );
 
-		form.endLoginFlow = ( message, status, data, redirect ) => {
-			if ( message ) {
-				const messageNode = document.createElement( 'p' );
-				messageNode.textContent = message;
-				messageContentElement.appendChild( messageNode );
+			if ( closeButton ) {
+				closeButton.addEventListener( 'click', function ( ev ) {
+					ev.preventDefault();
+					container.classList.remove( 'newspack-reader__auth-form__visible' );
+					container.style.display = 'none';
+					displayCurrentlyOpenOverlayPrompts();
+				} );
 			}
-			if ( status === 200 && data ) {
-				const authenticated = !! data?.authenticated;
-				readerActivation.setReaderEmail( data.email );
-				readerActivation.setAuthenticated( authenticated );
-				if ( authenticated ) {
-					if ( redirect ) {
-						window.location = redirect;
+
+			const messageContentElement = container.querySelector(
+				'.newspack-reader__auth-form__response__content'
+			);
+
+			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
+			authLinkMessage.hidden = true;
+
+			/**
+			 * Handle auth form action selection.
+			 */
+			function setFormAction( action ) {
+				actionInput.value = action;
+				container.removeAttribute( 'data-form-status' );
+				messageContentElement.innerHTML = '';
+				container.querySelectorAll( '[data-action]' ).forEach( item => {
+					if ( 'none' !== item.style.display ) {
+						item.prevDisplay = item.style.display;
 					}
+					item.style.display = 'none';
+				} );
+				container.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
+					item.style.display = item.prevDisplay;
+				} );
+				try {
+					const labels = JSON.parse( container.getAttribute( 'data-labels' ) );
+					const label = 'register' === action ? labels.register : labels.signin;
+					container.querySelector( 'h2' ).textContent = label;
+				} catch {}
+				if ( action === 'pwd' && emailInput.value ) {
+					passwordInput.focus();
 				} else {
-					form.replaceWith( messageContentElement.parentNode );
+					emailInput.focus();
 				}
 			}
-			form.style.opacity = 1;
-			submitButtons.forEach( button => {
-				button.disabled = false;
-			} );
-		};
-
-		/**
-		 * Handle auth form submission.
-		 */
-		form.addEventListener( 'submit', function ( ev ) {
-			ev.preventDefault();
-			const body = new FormData( ev.target );
-			if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
-				return;
-			}
-			readerActivation.setReaderEmail( body.get( 'email' ) );
-			form.startLoginFlow();
-			fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-				method: 'POST',
-				headers: {
-					Accept: 'application/json',
-				},
-				body,
-			} )
-				.then( res => {
-					container.setAttribute( 'data-form-status', res.status );
-					res
-						.json()
-						.then( ( { message, data } ) => {
-							form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
-						} )
-						.catch( () => {
-							form.endLoginFlow();
-						} );
-				} )
-				.catch( () => {
-					form.endLoginFlow();
+			setFormAction( actionInput.value );
+			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
+				item.addEventListener( 'click', function ( ev ) {
+					ev.preventDefault();
+					setFormAction( ev.target.getAttribute( 'data-set-action' ) );
 				} );
+			} );
+
+			form.startLoginFlow = () => {
+				container.removeAttribute( 'data-form-status' );
+				submitButtons.forEach( button => {
+					button.disabled = true;
+				} );
+				messageContentElement.innerHTML = '';
+				form.style.opacity = 0.5;
+			};
+
+			form.endLoginFlow = ( message, status, data, redirect ) => {
+				if ( message ) {
+					const messageNode = document.createElement( 'p' );
+					messageNode.textContent = message;
+					messageContentElement.appendChild( messageNode );
+				}
+				if ( status === 200 && data ) {
+					const authenticated = !! data?.authenticated;
+					readerActivation.setReaderEmail( data.email );
+					readerActivation.setAuthenticated( authenticated );
+					if ( authenticated ) {
+						if ( redirect ) {
+							window.location = redirect;
+						}
+					} else {
+						form.replaceWith( messageContentElement.parentNode );
+					}
+				}
+				form.style.opacity = 1;
+				submitButtons.forEach( button => {
+					button.disabled = false;
+				} );
+			};
+
+			/**
+			 * Handle auth form submission.
+			 */
+			form.addEventListener( 'submit', function ( ev ) {
+				ev.preventDefault();
+				const body = new FormData( ev.target );
+				if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
+					return;
+				}
+				readerActivation.setReaderEmail( body.get( 'email' ) );
+				form.startLoginFlow();
+				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+					},
+					body,
+				} )
+					.then( res => {
+						container.setAttribute( 'data-form-status', res.status );
+						res
+							.json()
+							.then( ( { message, data } ) => {
+								form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+							} )
+							.catch( () => {
+								form.endLoginFlow();
+							} );
+					} )
+					.catch( () => {
+						form.endLoginFlow();
+					} );
+			} );
 		} );
 
 		/**
