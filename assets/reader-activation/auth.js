@@ -59,8 +59,122 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			return;
 		}
 
+		let currentlyOpenOverlayPrompts = [];
+		const hideCurrentlyOpenOverlayPrompts = () =>
+			currentlyOpenOverlayPrompts.forEach( promptElement =>
+				promptElement.setAttribute( 'amp-access-hide', '' )
+			);
+		const displayCurrentlyOpenOverlayPrompts = () =>
+			currentlyOpenOverlayPrompts.forEach( promptElement =>
+				promptElement.removeAttribute( 'amp-access-hide' )
+			);
+
+		let accountLinks, triggerLinks;
+		const initLinks = function () {
+			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
+			triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+			triggerLinks.forEach( link => {
+				link.addEventListener( 'click', handleAccountLinkClick );
+			} );
+		};
+		initLinks();
+		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
+		setTimeout( initLinks, 1000 );
+
+		/**
+		 * Handle reader changes.
+		 */
+		function handleReaderChanges() {
+			const allContainers = [ ...document.querySelectorAll( '.newspack-reader-auth' ) ];
+			/** If no modal login form, bail. */
+			if ( ! allContainers.length ) {
+				return;
+			}
+
+			allContainers.forEach( container => {
+				const emailInput = container.querySelector( 'input[name="email"]' );
+				const redirectInput = container.querySelector( 'input[name="redirect"]' );
+				const reader = readerActivation.getReader();
+				let redirectAfterLogin = !! redirectInput.value;
+				emailInput.value = reader?.email || '';
+				if ( accountLinks?.length ) {
+					accountLinks.forEach( link => {
+						/** If there's a pre-auth, signing in redirects to the reader account. */
+						if ( reader?.email && ! reader?.authenticated ) {
+							link.setAttribute( 'data-redirect', link.getAttribute( 'href' ) );
+							redirectAfterLogin = true;
+						} else {
+							link.removeAttribute( 'data-redirect' );
+						}
+						try {
+							const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
+							link.querySelector( '.newspack-reader__account-link__label' ).textContent =
+								reader?.email ? labels.signedin : labels.signedout;
+						} catch {}
+					} );
+				}
+				if ( reader?.authenticated && ! redirectAfterLogin ) {
+					container.style.display = 'none';
+				}
+			} );
+		}
+		readerActivation.on( 'reader', handleReaderChanges );
+		handleReaderChanges();
+
+		/**
+		 * Handle account links.
+		 */
+		function handleAccountLinkClick( ev ) {
+			const reader = readerActivation.getReader();
+			/** If logged in, bail and allow page redirection. */
+			if ( reader?.authenticated ) {
+				return;
+			}
+
+			const container = document.querySelector(
+				'.newspack-reader-auth:not(.newspack-reader__auth-form__inline)'
+			);
+			/** If no modal login form, bail. */
+			if ( ! container ) {
+				return;
+			}
+
+			ev.preventDefault();
+
+			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
+			const emailInput = container.querySelector( 'input[name="email"]' );
+			const redirectInput = container.querySelector( 'input[name="redirect"]' );
+			const passwordInput = container.querySelector( 'input[name="password"]' );
+			const actionInput = container.querySelector( 'input[name="action"]' );
+
+			if ( readerActivation.hasAuthLink() ) {
+				authLinkMessage.style.display = 'block';
+			} else {
+				authLinkMessage.style.display = 'none';
+			}
+
+			emailInput.value = reader?.email || '';
+
+			if ( ev.target.getAttribute( 'data-redirect' ) ) {
+				redirectInput.value = ev.target.getAttribute( 'data-redirect' );
+			}
+
+			container.hidden = false;
+			container.style.display = 'flex';
+
+			currentlyOpenOverlayPrompts = document.querySelectorAll(
+				'.newspack-lightbox:not([amp-access-hide])'
+			);
+			hideCurrentlyOpenOverlayPrompts();
+
+			if ( emailInput.value && 'pwd' === actionInput.value ) {
+				passwordInput.focus();
+			} else {
+				emailInput.focus();
+			}
+		}
+
 		containers.forEach( container => {
-			const isInline = container.classList.contains( 'newspack-reader__auth-form__inline' );
 			const initialForm = container.querySelector( 'form' );
 			let form;
 			/** Workaround AMP's enforced XHR strategy. */
@@ -72,20 +186,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				form = initialForm;
 			}
 
-			let currentlyOpenOverlayPrompts = [];
-			const hideCurrentlyOpenOverlayPrompts = () =>
-				currentlyOpenOverlayPrompts.forEach( promptElement =>
-					promptElement.setAttribute( 'amp-access-hide', '' )
-				);
-			const displayCurrentlyOpenOverlayPrompts = () =>
-				currentlyOpenOverlayPrompts.forEach( promptElement =>
-					promptElement.removeAttribute( 'amp-access-hide' )
-				);
-
 			const actionInput = form.querySelector( 'input[name="action"]' );
 			const emailInput = form.querySelector( 'input[name="email"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
-			const redirectInput = form.querySelector( 'input[name="redirect"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
 
@@ -104,84 +207,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 			authLinkMessage.hidden = true;
-
-			let accountLinks, triggerLinks;
-			const initLinks = function () {
-				accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-				triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
-				triggerLinks.forEach( link => {
-					link.addEventListener( 'click', handleAccountLinkClick );
-				} );
-			};
-			initLinks();
-			/** Re-initialize links in case the navigation DOM was modified by a third-party. */
-			setTimeout( initLinks, 1000 );
-
-			/**
-			 * Handle reader changes.
-			 */
-			function handleReaderChanges() {
-				const reader = readerActivation.getReader();
-				emailInput.value = reader?.email || '';
-				if ( accountLinks?.length ) {
-					accountLinks.forEach( link => {
-						/** If there's a pre-auth, signing in redirects to the reader account. */
-						if ( reader?.email && ! reader?.authenticated ) {
-							link.setAttribute( 'data-redirect', link.getAttribute( 'href' ) );
-						} else {
-							link.removeAttribute( 'data-redirect' );
-						}
-						try {
-							const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
-							link.querySelector( '.newspack-reader__account-link__label' ).textContent =
-								reader?.email ? labels.signedin : labels.signedout;
-						} catch {}
-					} );
-				}
-				if ( reader?.authenticated && ! isInline ) {
-					container.style.display = 'none';
-				}
-			}
-			readerActivation.on( 'reader', handleReaderChanges );
-			handleReaderChanges();
-
-			/**
-			 * Handle account links.
-			 */
-			function handleAccountLinkClick( ev ) {
-				const reader = readerActivation.getReader();
-				/** If logged in, bail and allow page redirection. */
-				if ( reader?.authenticated ) {
-					return;
-				}
-				ev.preventDefault();
-
-				if ( readerActivation.hasAuthLink() ) {
-					authLinkMessage.style.display = 'block';
-				} else {
-					authLinkMessage.style.display = 'none';
-				}
-
-				emailInput.value = reader?.email || '';
-
-				if ( ev.target.getAttribute( 'data-redirect' ) ) {
-					redirectInput.value = ev.target.getAttribute( 'data-redirect' );
-				}
-
-				container.hidden = false;
-				container.style.display = 'flex';
-
-				currentlyOpenOverlayPrompts = document.querySelectorAll(
-					'.newspack-lightbox:not([amp-access-hide])'
-				);
-				hideCurrentlyOpenOverlayPrompts();
-
-				if ( emailInput.value && 'pwd' === actionInput.value ) {
-					passwordInput.focus();
-				} else {
-					emailInput.focus();
-				}
-			}
 
 			/**
 			 * Handle auth form action selection.
@@ -284,77 +309,75 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						form.endLoginFlow();
 					} );
 			} );
+		} );
 
-			/**
-			 * Third party auth.
-			 */
-			const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );
-			[ ...loginsElements ].forEach( element => {
-				element.classList.remove( 'newspack-reader__logins--disabled' );
-			} );
-			const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
-			googleLoginElements.forEach( googleLoginElement => {
-				const googleLoginForm = googleLoginElement.closest( 'form' );
+		/**
+		 * Third party auth.
+		 */
+		const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );
+		[ ...loginsElements ].forEach( element => {
+			element.classList.remove( 'newspack-reader__logins--disabled' );
+		} );
+		const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
+		googleLoginElements.forEach( googleLoginElement => {
+			const googleLoginForm = googleLoginElement.closest( 'form' );
 
-				const checkLoginStatus = metadata => {
-					fetch(
-						`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
-					).then( res => {
-						res.json().then( ( { message, data } ) => {
-							if ( googleLoginForm.endLoginFlow ) {
-								googleLoginForm.endLoginFlow( message, res.status, data );
-							}
-						} );
+			const checkLoginStatus = metadata => {
+				fetch(
+					`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
+				).then( res => {
+					res.json().then( ( { message, data } ) => {
+						if ( googleLoginForm.endLoginFlow ) {
+							googleLoginForm.endLoginFlow( message, res.status, data );
+						}
 					} );
-				};
+				} );
+			};
 
-				googleLoginElement.addEventListener( 'click', () => {
-					if ( googleLoginForm?.startLoginFlow ) {
-						googleLoginForm.startLoginFlow();
-					}
+			googleLoginElement.addEventListener( 'click', () => {
+				if ( googleLoginForm?.startLoginFlow ) {
+					googleLoginForm.startLoginFlow();
+				}
 
-					const metadata = googleLoginForm
-						? convertFormDataToObject( new FormData( googleLoginForm ), [ 'lists[]' ] )
-						: {};
-					metadata.current_page_url = window.location.href;
-					const authWindow = window.open(
-						'about:blank',
-						'newspack_google_login',
-						'width=500,height=600'
-					);
-					fetch( '/wp-json/newspack/v1/login/google' )
-						.then( res =>
-							res.json().then( data => Promise.resolve( { data, status: res.status } ) )
-						)
-						.then( ( { data, status } ) => {
-							if ( status !== 200 ) {
-								if ( authWindow ) {
-									authWindow.close();
-								}
-								if ( googleLoginForm?.endLoginFlow ) {
-									googleLoginForm.endLoginFlow( data.message, status );
-								}
-							} else if ( authWindow ) {
-								authWindow.location = data;
-								const interval = setInterval( () => {
-									if ( authWindow.closed ) {
-										checkLoginStatus( metadata );
-										clearInterval( interval );
-									}
-								}, 500 );
-							} else if ( googleLoginForm?.endLoginFlow ) {
-								googleLoginForm.endLoginFlow();
-							}
-						} )
-						.catch( error => {
-							if ( googleLoginForm?.endLoginFlow ) {
-								googleLoginForm.endLoginFlow( error.message );
-							}
+				const metadata = googleLoginForm
+					? convertFormDataToObject( new FormData( googleLoginForm ), [ 'lists[]' ] )
+					: {};
+				metadata.current_page_url = window.location.href;
+				const authWindow = window.open(
+					'about:blank',
+					'newspack_google_login',
+					'width=500,height=600'
+				);
+				fetch( '/wp-json/newspack/v1/login/google' )
+					.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
+					.then( ( { data, status } ) => {
+						if ( status !== 200 ) {
 							if ( authWindow ) {
 								authWindow.close();
 							}
-						} );
-				} );
+							if ( googleLoginForm?.endLoginFlow ) {
+								googleLoginForm.endLoginFlow( data.message, status );
+							}
+						} else if ( authWindow ) {
+							authWindow.location = data;
+							const interval = setInterval( () => {
+								if ( authWindow.closed ) {
+									checkLoginStatus( metadata );
+									clearInterval( interval );
+								}
+							}, 500 );
+						} else if ( googleLoginForm?.endLoginFlow ) {
+							googleLoginForm.endLoginFlow();
+						}
+					} )
+					.catch( error => {
+						if ( googleLoginForm?.endLoginFlow ) {
+							googleLoginForm.endLoginFlow( error.message );
+						}
+						if ( authWindow ) {
+							authWindow.close();
+						}
+					} );
 			} );
 		} );
 	} );
