@@ -23,9 +23,9 @@ final class Reader_Activation {
 	/**
 	 * Reader user meta keys.
 	 */
-	const READER         = 'np_reader';
-	const EMAIL_VERIFIED = 'np_reader_email_verified';
-	const LOGIN_METHOD   = 'np_reader_login_method';
+	const READER              = 'np_reader';
+	const EMAIL_VERIFIED      = 'np_reader_email_verified';
+	const REGISTRATION_METHOD = 'np_reader_registration_method';
 
 	/**
 	 * Auth form.
@@ -87,7 +87,6 @@ final class Reader_Activation {
 				'authenticated_email'   => $authenticated_email,
 			]
 		);
-		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
 		/**
@@ -558,7 +557,10 @@ final class Reader_Activation {
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
 		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
-			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
+			$lists_config = \Newspack_Newsletters_Subscription::get_lists_config();
+			if ( ! \is_wp_error( $lists_config ) ) {
+				$lists = $lists_config;
+			}
 		}
 		$terms_text = self::get_setting( 'terms_text' );
 		$terms_url  = self::get_setting( 'terms_url' );
@@ -724,7 +726,7 @@ final class Reader_Activation {
 			$lists = \Newspack_Newsletters_Subscription::get_lists_config();
 		}
 
-		if ( empty( $lists ) ) {
+		if ( empty( $lists ) || is_wp_error( $lists ) ) {
 			return;
 		}
 
@@ -763,7 +765,7 @@ final class Reader_Activation {
 								<span class="<?php echo \esc_attr( $class( 'title' ) ); ?>">
 									<?php
 									if ( 1 === count( $lists ) ) {
-										echo $config['single_label']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+										echo \wp_kses_post( $config['single_label'] );
 									} else {
 										echo \esc_html( $list['title'] );
 									}
@@ -802,7 +804,7 @@ final class Reader_Activation {
 				</div>
 				<div></div>
 			</div>
-			<button class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
+			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
 				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<span>
 					<?php echo \esc_html__( 'Sign in with Google', 'newspack' ); ?>
@@ -1031,6 +1033,11 @@ final class Reader_Activation {
 			}
 		}
 
+		// Note the user's login method for later use.
+		if ( isset( $metadata['registration_method'] ) ) {
+			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
+		}
+
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
@@ -1043,25 +1050,6 @@ final class Reader_Activation {
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user, $metadata );
 
 		return $user_id;
-	}
-
-	/**
-	 * Note reader's login method.
-	 *
-	 * @param int    $user_id User ID.
-	 * @param string $login_method Login method used.
-	 */
-	public static function save_user_login_method( $user_id, $login_method ) {
-		\update_user_meta( $user_id, self::LOGIN_METHOD, $login_method );
-	}
-
-	/**
-	 * Note current reader's login method.
-	 *
-	 * @param string $login_method Login method used.
-	 */
-	public static function save_current_user_login_method( $login_method ) {
-		self::save_user_login_method( \get_current_user_id(), $login_method );
 	}
 
 	/**

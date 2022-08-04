@@ -106,13 +106,19 @@ function render_block( $attrs, $content ) {
 	/** Setup list subscription */
 	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
 		$list_config = \Newspack_Newsletters_Subscription::get_lists_config();
-		$lists       = array_intersect_key( $list_config, array_flip( $attrs['lists'] ) );
+		if ( ! \is_wp_error( $list_config ) ) {
+			$lists = array_intersect_key( $list_config, array_flip( $attrs['lists'] ) );
+		}
 	}
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
-		\is_user_logged_in() ||
-		( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
+		! \is_preview() &&
+		( ! method_exists( '\Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
+		(
+			\is_user_logged_in() ||
+			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
+		)
 	) {
 		$registered = true;
 		$message    = $success_message;
@@ -133,7 +139,7 @@ function render_block( $attrs, $content ) {
 		<?php if ( $registered ) : ?>
 			<div class="newspack-registration__success">
 				<div class="newspack-registration__icon"></div>
-				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo \wp_kses_post( $success_markup ); ?>
 			</div>
 		<?php else : ?>
 			<form>
@@ -168,11 +174,13 @@ function render_block( $attrs, $content ) {
 
 						<div class="newspack-registration__help-text">
 							<p>
-								<?php echo $attrs['privacyLabel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php echo \wp_kses_post( $attrs['privacyLabel'] ); ?>
 							</p>
 							<p>
-								<?php echo \esc_html( $attrs['haveAccountLabel'] ); ?>
-								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link><?php echo \esc_html( $attrs['signInLabel'] ); ?></a>
+								<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
+								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
+									<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
+								</a>
 							</p>
 						</div>
 					</div>
@@ -180,7 +188,7 @@ function render_block( $attrs, $content ) {
 			</form>
 			<div class="newspack-registration__success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<?php echo $success_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo \wp_kses_post( $success_markup ); ?>
 			</div>
 		<?php endif; ?>
 	</div>
@@ -262,8 +270,9 @@ function process_form() {
 	if ( ! empty( $lists ) ) {
 		$metadata['lists'] = $lists;
 	}
-	$metadata['current_page_url'] = home_url( add_query_arg( array(), \wp_get_referer() ) );
-	$email                        = \sanitize_email( $_REQUEST['email'] );
+	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
+	$metadata['registration_method'] = 'registration-block';
+	$email                           = \sanitize_email( $_REQUEST['email'] );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
@@ -280,10 +289,6 @@ function process_form() {
 	}
 
 	$user_logged_in = false !== $user_id;
-
-	if ( $user_logged_in ) {
-		Reader_Activation::save_current_user_login_method( 'registration-block' );
-	}
 
 	return send_form_response(
 		[

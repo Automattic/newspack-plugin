@@ -284,7 +284,7 @@ final class Magic_Link {
 		return \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => $user->user_email,
+				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
 			],
 			! empty( $url ) ? $url : \home_url()
@@ -486,7 +486,6 @@ final class Magic_Link {
 
 		Reader_Activation::set_reader_verified( $user );
 		Reader_Activation::set_current_reader( $user->ID );
-		Reader_Activation::save_current_user_login_method( 'magic-link' );
 
 		/**
 		 * Fires after a reader has been authenticated via magic link.

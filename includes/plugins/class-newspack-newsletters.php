@@ -51,9 +51,10 @@ class Newspack_Newsletters {
 	 * @param array          $contact           {
 	 *          Contact information.
 	 *
-	 *    @type string   $email    Contact email address.
-	 *    @type string   $name     Contact name. Optional.
-	 *    @type string[] $metadata Contact additional metadata. Optional.
+	 *    @type string   $email                 Contact email address.
+	 *    @type string   $name                  Contact name. Optional.
+	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
+	 *    @type string[] $metadata              Contact additional metadata. Optional.
 	 * }
 	 * @param string[]|false $selected_list_ids Array of list IDs the contact will be subscribed to, or false.
 	 * @param string         $provider          The provider name.
@@ -64,31 +65,6 @@ class Newspack_Newsletters {
 				$metadata = [];
 				if ( is_user_logged_in() ) {
 					$metadata['NP_Account'] = get_current_user_id();
-				}
-
-				// If it's a new contact, add a registration or signup date.
-				$is_new_contact = null;
-				try {
-					if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_data' ) ) {
-						$existing_contact = \Newspack_Newsletters_Subscription::get_contact_data( $contact['email'] );
-						if ( is_wp_error( $existing_contact ) ) {
-							Logger::log( 'Adding metadata to a new contact.' );
-							$is_new_contact = true;
-							if ( empty( $selected_list_ids ) ) {
-								// Registration only, as a side effect of Reader Activation.
-								$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
-							} else {
-								// Registration and signup, the former implicit.
-								$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
-							}
-						} else {
-							Logger::log( 'Adding metadata to an existing contact.' );
-							$is_new_contact = false;
-						}
-					}
-				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					Logger::log( 'Error in getting contact data: ' . $e->getMessage() );
-					// Move along.
 				}
 
 				// Translate list IDs to list names and store as metadata, if lists are supplied.
@@ -121,8 +97,17 @@ class Newspack_Newsletters {
 					unset( $contact['metadata']['current_page_url'] );
 				}
 
-				// If it's a new contact, add some context on the signup/registration.
+				$is_new_contact = ! $contact['existing_contact_data'];
 				if ( $is_new_contact ) {
+					if ( empty( $selected_list_ids ) ) {
+						// Registration only, as a side effect of Reader Activation.
+						$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
+					} else {
+						// Registration and signup, the former implicit.
+						$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
+					}
+
+					// Add some context on the signup/registration.
 					if ( ! $signup_page_url ) {
 						global $wp;
 						$signup_page_url = home_url( add_query_arg( array(), $wp->request ) );
@@ -168,11 +153,12 @@ class Newspack_Newsletters {
 	 *
 	 * @param string[]|false $lists    Array of list IDs the contact will be subscribed to, or false.
 	 * @param array          $contact  {
-	 *          Contact information.
+	 *    Contact information.
 	 *
-	 *    @type string   $email    Contact email address.
-	 *    @type string   $name     Contact name. Optional.
-	 *    @type string[] $metadata Contact additional metadata. Optional.
+	 *    @type string   $email                 Contact email address.
+	 *    @type string   $name                  Contact name. Optional.
+	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
+	 *    @type string[] $metadata              Contact additional metadata. Optional.
 	 * }
 	 * @param string         $provider The provider name.
 	 *
