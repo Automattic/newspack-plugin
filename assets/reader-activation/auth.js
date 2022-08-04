@@ -96,7 +96,10 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				const redirectInput = container.querySelector( 'input[name="redirect"]' );
 				const reader = readerActivation.getReader();
 				let redirectAfterLogin = redirectInput && !! redirectInput.value;
-				emailInput.value = reader?.email || '';
+				if ( emailInput ) {
+					emailInput.value = reader?.email || '';
+				}
+
 				if ( accountLinks?.length ) {
 					accountLinks.forEach( link => {
 						/** If there's a pre-auth, signing in redirects to the reader account. */
