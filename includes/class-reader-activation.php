@@ -560,7 +560,7 @@ final class Reader_Activation {
 		// phpcs:enable
 
 		if ( $is_inline ) {
-			$classnames[] = 'newspack-reader__auth-form__inline';
+			$classnames[] = $class( 'inline' );
 		}
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
