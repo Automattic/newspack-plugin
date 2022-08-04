@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Main class.
  */
 class Newspack_Newsletters {
-	const METADATA_DATE_FORMAT = 'm/d/Y';
+	const METADATA_DATE_FORMAT = 'Y-m-d';
 
 	/**
 	 * Metadata keys map for Reader Activation.
