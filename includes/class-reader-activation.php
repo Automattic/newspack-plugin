@@ -580,7 +580,7 @@ final class Reader_Activation {
 		}
 		$terms_text = self::get_setting( 'terms_text' );
 		$terms_url  = self::get_setting( 'terms_url' );
-		$redirect   = $is_inline ? home_url( '/my-account/edit-account/' ) : '';
+		$redirect   = $is_inline ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		?>
 		<div id="newspack-reader-auth" class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
