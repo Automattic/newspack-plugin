@@ -363,3 +363,10 @@ li.menu-item .newspack-reader__account-link {
 		color: #fff;
 	}
 }
+
+/**
+ * Hide WooCommerce page title on My Account pages.
+ */
+.woocommerce-account .entry-header .entry-title {
+	display: none;
+}
