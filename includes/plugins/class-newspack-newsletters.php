@@ -14,6 +14,28 @@ defined( 'ABSPATH' ) || exit;
  */
 class Newspack_Newsletters {
 	/**
+	 * Metadata keys map for Reader Activation.
+	 *
+	 * @var array
+	 */
+	public static $metadata_keys = [
+		'account'              => 'NP_Account',
+		'registration_date'    => 'NP_Registration Date',
+		'signup_page'          => 'NP_Signup Page',
+		'signup_page_utm'      => 'NP_Signup UTM: ',
+		'payment_page'         => 'NP_Payment Page',
+		'payment_page_utm'     => 'NP_Payment UTM: ',
+		'newsletter_selection' => 'NP_Newsletter Selection',
+		'membership_status'    => 'NP_Membership Status',
+		'billing_cycle'        => 'NP_Billing Cycle',
+		'recurring_payment'    => 'NP_Recurring Payment',
+		'last_payment_date'    => 'NP_Last Payment Date',
+		'last_payment_amount'  => 'NP_Last Payment Amount',
+		'product_name'         => 'NP_Product Name',
+		'next_payment_date'    => 'NP_Next Payment Date',
+	];
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -64,7 +86,7 @@ class Newspack_Newsletters {
 			case 'active_campaign':
 				$metadata = [];
 				if ( is_user_logged_in() ) {
-					$metadata['NP_Account'] = get_current_user_id();
+					$metadata[ self::$metadata_keys['account'] ] = get_current_user_id();
 				}
 
 				// Translate list IDs to list names and store as metadata, if lists are supplied.
@@ -83,7 +105,7 @@ class Newspack_Newsletters {
 									}
 								}
 								// Note: this field will be overwritten every time it's updated.
-								$metadata['NP_Newsletter Selection'] = implode( ', ', $lists_names );
+								$metadata[ self::$metadata_keys['newsletter_selection'] ] = implode( ', ', $lists_names );
 							}
 						}
 					} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -101,31 +123,24 @@ class Newspack_Newsletters {
 
 				$is_new_contact = ! $contact['existing_contact_data'];
 				if ( $is_new_contact ) {
-					if ( empty( $selected_list_ids ) ) {
-						// Registration only, as a side effect of Reader Activation.
-						$contact['metadata']['NP_Registration Date'] = gmdate( 'm/d/Y' );
-					} else {
-						// Registration and signup, the former implicit.
-						$contact['metadata']['NP_Newsletter Signup Date'] = gmdate( 'm/d/Y' );
-					}
-
-					$metadata['NP_Signup page'] = $current_page_url;
+					$contact['metadata'][ self::$metadata_keys['registration_date'] ] = gmdate( 'm/d/Y' );
+					$metadata[ self::$metadata_keys['signup_page'] ]                  = $current_page_url;
 
 					// Capture UTM params.
 					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
 						$param = 'utm_' . $value;
 						if ( isset( $current_page_url_params[ $param ] ) ) {
-							$metadata[ 'NP_Signup UTM: ' . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
+							$metadata[ self::$metadata_keys['signup_page_utm'] . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
 						}
 					}
 				}
 
-				if ( isset( $contact['metadata'], $contact['metadata']['NP_Last Payment Amount'] ) ) {
-					$metadata['NP_Payment location'] = $current_page_url;
+				if ( isset( $contact['metadata'], $contact['metadata'][ self::$metadata_keys['last_payment_amount'] ] ) ) {
+					$metadata[ self::$metadata_keys['payment_page'] ] = $current_page_url;
 					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
 						$param = 'utm_' . $value;
 						if ( isset( $current_page_url_params[ $param ] ) ) {
-							$metadata[ 'NP_Payment UTM: ' . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
+							$metadata[ self::$metadata_keys['payment_page_utm'] . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
 						}
 					}
 				}
