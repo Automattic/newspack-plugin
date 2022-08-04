@@ -120,6 +120,16 @@ class Newspack_Newsletters {
 					}
 				}
 
+				if ( isset( $contact['metadata'], $contact['metadata']['NP_Last Payment Amount'] ) ) {
+					$metadata['NP_Payment location'] = $current_page_url;
+					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+						$param = 'utm_' . $value;
+						if ( isset( $current_page_url_params[ $param ] ) ) {
+							$metadata[ 'NP_Payment UTM: ' . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
+						}
+					}
+				}
+
 				if ( isset( $contact['metadata'] ) && is_array( $contact['metadata'] ) ) {
 					$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
 				} else {

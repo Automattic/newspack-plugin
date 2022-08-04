@@ -415,6 +415,9 @@ class Stripe_Connection {
 					if ( isset( $customer['metadata']['userId'] ) ) {
 						$contact['metadata']['NP_Account'] = $customer['metadata']['userId'];
 					}
+					if ( isset( $customer['metadata']['current_page_url'] ) ) {
+						$contact['metadata']['current_page_url'] = $customer['metadata']['current_page_url'];
+					}
 
 					if ( method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
 						// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
