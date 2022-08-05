@@ -157,12 +157,13 @@ class Stripe_Connection {
 	 * because it has to stay in sync with WP.
 	 */
 	private static function get_billing_portal_configuration_id() {
-		$stripe = self::get_stripe_client();
+		$config_meta_key = 'newspack_config_v1';
+		$stripe          = self::get_stripe_client();
 		try {
 			$all_configs = $stripe->billingPortal->configurations->all( [ 'active' => true ] );
 			$config_id   = false;
 			foreach ( $all_configs['data'] as $config ) {
-				if ( $config['metadata']['newspack_config'] ) {
+				if ( $config['metadata'][ $config_meta_key ] ) {
 					$config_id = $config['id'];
 				}
 			}
@@ -180,6 +181,9 @@ class Stripe_Connection {
 							'payment_method_update' => [
 								'enabled' => true,
 							],
+							'subscription_pause'    => [
+								'enabled' => false,
+							],
 							'subscription_cancel'   => [
 								'cancellation_reason' => [
 									'enabled' => true,
@@ -195,14 +199,16 @@ class Stripe_Connection {
 						],
 						'business_profile' => [ 'headline' => '' ],
 						'metadata'         => [
-							'newspack_config' => true,
+							$config_meta_key => true,
 						],
 					]
 				);
 				$config_id  = $new_config['id'];
+				Logger::log( 'Created a new Stripe billing portal configuration, id is: ' . $config_id );
 			}
 			return $config_id;
 		} catch ( \Throwable $e ) {
+			Logger::log( 'Failed at creating Stripe billing portal configuration: ' . $e->getMessage() );
 			return new \WP_Error( 'stripe_newspack', __( 'Could not retrieve or create billing portal configuration.', 'newspack' ), $e->getMessage() );
 		}
 	}
