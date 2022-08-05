@@ -171,22 +171,37 @@ final class Magic_Link {
 
 		$hash_args = [];
 
-		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-			$hash_args['ip'] = \wp_unslash( $_SERVER['REMOTE_ADDR'] );
+		/**
+		 * Filters whether to use IP as hash argument.
+		 *
+		 * @param bool $use_ip
+		 */
+		if ( true === \apply_filters( 'newspack_magic_link_hash_use_ip', true ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+			if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+				$hash_args['ip'] = \wp_unslash( $_SERVER['REMOTE_ADDR'] );
+			}
 		}
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
-			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
+
+		/**
+		 * Filters whether to use user agent as hash argument.
+		 *
+		 * @param bool $use_user_agent
+		 */
+		if ( true === \apply_filters( 'newspack_magic_link_hash_use_user_agent', false ) ) {
+			if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+				$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
+			}
 		}
 
 		/**
 		 * Filters whether to use a locally stored secret as a client hash argument.
 		 *
-		 * @param bool $use_secret Whether to use a locally stored secret as a client hash argument.
+		 * @param bool $use_secret
 		 */
-		if ( true === \apply_filters( 'newspack_magic_link_use_secret', true ) ) {
+		if ( true === \apply_filters( 'newspack_magic_link_hash_use_secret', false ) ) {
 			$hash_args['secret'] = self::get_client_secret( $reset_secret );
 		}
 
