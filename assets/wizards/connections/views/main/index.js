@@ -9,7 +9,7 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Notice, SectionHeader, Waiting } from '../../../../components/src';
+import { Notice, SectionHeader } from '../../../../components/src';
 import Plugins from './plugins';
 import GoogleAuth from './google';
 import Mailchimp from './mailchimp';

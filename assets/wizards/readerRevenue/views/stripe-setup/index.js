@@ -2,22 +2,15 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
 import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-
-/**
- * External dependencies
- */
-import { values } from 'lodash';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import {
 	Button,
-	Card,
 	Grid,
 	Notice,
 	Settings,
@@ -113,23 +106,16 @@ const StripeSetup = () => {
 		is_ssl,
 		currency_fields = [],
 		country_state_fields = [],
+		errors = [],
 	} = Wizard.useWizardData( 'reader-revenue' );
 
-	const hasWebhook =
-		data.webhook_url &&
-		Array.isArray( data.webhooks ) &&
-		data.webhooks.filter( webhook => webhook.url === data.webhook_url ).length > 0;
-
-	const [ isLoading, setIsLoading ] = useState( false );
-	const createWebhooks = () => {
-		setIsLoading( true );
+	const resetWebhooks = () => {
 		apiFetch( {
-			path: '/newspack/v1/stripe/create-webhooks',
+			path: '/newspack/v1/stripe/reset-webhooks',
 		} ).then( () => {
 			window.location.reload();
 		} );
 	};
-
 	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
 
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
@@ -150,6 +136,23 @@ const StripeSetup = () => {
 
 	return (
 		<>
+			{ errors.length > 0 &&
+				errors.map( ( error, index ) => (
+					<Notice
+						isError
+						key={ index }
+						noticeText={
+							<span>
+								{ error.message }{ ' ' }
+								{ error.code === 'newspack_plugin_stripe_webhooks' && (
+									<Button isLink onClick={ resetWebhooks }>
+										{ __( 'Reset webhooks', 'newspack' ) }
+									</Button>
+								) }
+							</span>
+						}
+					/>
+				) ) }
 			{ is_ssl === false && (
 				<Notice
 					isWarning
@@ -234,49 +237,6 @@ const StripeSetup = () => {
 								onChange={ changeHandler( 'fee_static' ) }
 							/>
 						</Grid>
-					</SettingsCard>
-					<SettingsCard
-						title={ __( 'Webhooks', 'newspack' ) }
-						description={ __(
-							'These need to be configured to allow Stripe to communicate with the site.',
-							'newspack'
-						) }
-						columns={ 1 }
-						gutter={ 16 }
-						noBorder
-					>
-						<>
-							{ data.webhooks?.errors ? (
-								<Notice isError noticeText={ values( data.webhooks?.errors ).join( ', ' ) } />
-							) : (
-								<>
-									{ data.webhooks.length ? (
-										<ul>
-											{ data.webhooks.map( ( webhook, i ) => (
-												<li key={ i }>
-													- <code>{ webhook.url }</code>
-												</li>
-											) ) }
-										</ul>
-									) : (
-										<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
-									) }
-									<Card noBorder buttonsCard>
-										{ hasWebhook && (
-											<p>{ __( 'Webhooks have already been created.', 'newspack' ) }</p>
-										) }
-										<Button
-											isLink
-											disabled={ isLoading || hasWebhook }
-											onClick={ createWebhooks }
-											isSecondary
-										>
-											{ __( 'Create Webhook', 'newspack' ) }
-										</Button>
-									</Card>
-								</>
-							) }
-						</>
 					</SettingsCard>
 				</>
 			) : (

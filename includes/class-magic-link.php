@@ -171,22 +171,37 @@ final class Magic_Link {
 
 		$hash_args = [];
 
-		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-		if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-			$hash_args['ip'] = \wp_unslash( $_SERVER['REMOTE_ADDR'] );
+		/**
+		 * Filters whether to use IP as hash argument.
+		 *
+		 * @param bool $use_ip
+		 */
+		if ( true === \apply_filters( 'newspack_magic_link_hash_use_ip', true ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+			if ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+				// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+				$hash_args['ip'] = \wp_unslash( $_SERVER['REMOTE_ADDR'] );
+			}
 		}
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
-			$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
+
+		/**
+		 * Filters whether to use user agent as hash argument.
+		 *
+		 * @param bool $use_user_agent
+		 */
+		if ( true === \apply_filters( 'newspack_magic_link_hash_use_user_agent', false ) ) {
+			if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+				$hash_args['user_agent'] = \wp_unslash( $_SERVER['HTTP_USER_AGENT'] );
+			}
 		}
 
 		/**
 		 * Filters whether to use a locally stored secret as a client hash argument.
 		 *
-		 * @param bool $use_secret Whether to use a locally stored secret as a client hash argument.
+		 * @param bool $use_secret
 		 */
-		if ( true === \apply_filters( 'newspack_magic_link_use_secret', true ) ) {
+		if ( true === \apply_filters( 'newspack_magic_link_hash_use_secret', false ) ) {
 			$hash_args['secret'] = self::get_client_secret( $reset_secret );
 		}
 
@@ -284,7 +299,7 @@ final class Magic_Link {
 		return \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => $user->user_email,
+				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
 			],
 			! empty( $url ) ? $url : \home_url()
@@ -379,6 +394,7 @@ final class Magic_Link {
 			$email['message'],
 			$email['headers']
 		);
+		Logger::log( 'Sending magic link to ' . $email['to'] );
 
 		return $sent;
 	}
@@ -461,7 +477,8 @@ final class Magic_Link {
 	 * @return bool|\WP_Error Whether the user was authenticated or WP_Error.
 	 */
 	private static function authenticate( $user_id, $token ) {
-		if ( \is_user_logged_in() ) {
+		/** Refresh reader session if same reader is already authenticated. */
+		if ( \is_user_logged_in() && \get_current_user_id() !== $user_id ) {
 			return false;
 		}
 
@@ -500,10 +517,6 @@ final class Magic_Link {
 	 */
 	public static function process_token_request() {
 		if ( ! Reader_Activation::is_enabled() ) {
-			return;
-		}
-
-		if ( \is_user_logged_in() ) {
 			return;
 		}
 

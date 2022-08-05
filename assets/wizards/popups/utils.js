@@ -92,14 +92,29 @@ export const placementsForPopups = prompt => {
 };
 
 const frequencyMap = {
-	once: __( 'Once', 'newspack' ),
+	once: __( 'Once a month', 'newspack' ),
+	weekly: __( 'Once a week', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page view', 'newspack' ),
+	always: __( 'Every pageview', 'newspack' ),
+	preset_1: __( 'Every 4th pageview, up to 5x per month', 'newspack' ),
+	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack' ),
 };
 
 export const frequenciesForPopup = popup => {
+	const { experimental } = window.newspack_popups_wizard_data;
+	const standardKeys = [ 'once', 'daily', 'always' ];
 	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
+		.filter( key => {
+			if ( experimental ) {
+				return true;
+			}
+
+			if ( isOverlay( popup ) && 'always' === key ) {
+				return false;
+			}
+
+			return -1 < standardKeys.indexOf( key );
+		} )
 		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
@@ -222,10 +237,10 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
 	}
 	if ( is_logged_in ) {
-		descriptionMessages.push( __( 'Is logged in', 'newspack' ) );
+		descriptionMessages.push( __( 'Has user account', 'newspack' ) );
 	}
 	if ( is_not_logged_in ) {
-		descriptionMessages.push( __( 'Is not logged in', 'newspack' ) );
+		descriptionMessages.push( __( 'Does not have user account', 'newspack' ) );
 	}
 
 	// Messages for referrer sources.

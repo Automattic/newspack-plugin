@@ -469,6 +469,7 @@ class Popups_Wizard extends Wizard {
 				'overlay_placements' => $overlay_placements,
 				'overlay_sizes'      => $overlay_sizes,
 				'preview_query_keys' => $preview_query_keys,
+				'experimental'       => Reader_Activation::is_enabled(),
 			]
 		);
 
