@@ -386,11 +386,12 @@ class Stripe_Connection {
 				$stripe_data                        = self::get_stripe_data();
 				$has_opted_in_to_newsletters        = isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
 				if ( $has_opted_in_to_newsletters || Reader_Activation::is_enabled() ) {
-					$contact = [
+					$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
+					$contact      = [
 						'email'    => $customer['email'],
 						'name'     => $customer['name'],
 						'metadata' => [
-							Newspack_Newsletters::$metadata_keys['last_payment_date']   => gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] ),
+							Newspack_Newsletters::$metadata_keys['last_payment_date']   => $payment_date,
 							Newspack_Newsletters::$metadata_keys['last_payment_amount'] => $amount_normalised,
 						],
 					];
@@ -410,6 +411,7 @@ class Stripe_Connection {
 						}
 						$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
 					}
 
 					if ( ! empty( $client_id ) ) {

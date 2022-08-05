@@ -29,6 +29,7 @@ class Newspack_Newsletters {
 		'payment_page_utm'     => 'NP_Payment UTM: ',
 		'newsletter_selection' => 'NP_Newsletter Selection',
 		'membership_status'    => 'NP_Membership Status',
+		'sub_start_date'       => 'NP_Current Subscription Start Date',
 		'billing_cycle'        => 'NP_Billing Cycle',
 		'recurring_payment'    => 'NP_Recurring Payment',
 		'last_payment_date'    => 'NP_Last Payment Date',
