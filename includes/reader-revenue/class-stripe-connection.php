@@ -20,6 +20,14 @@ class Stripe_Connection {
 	const STRIPE_DATA_OPTION_NAME        = 'newspack_stripe_data';
 	const STRIPE_WEBHOOK_OPTION_NAME     = 'newspack_stripe_webhook';
 	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
+	const STRIPE_CUSTOMER_ID_USER_META   = '_newspack_stripe_customer_id';
+
+	/**
+	 * Ensures the customer ID lookup is run only once per request.
+	 *
+	 * @var bool
+	 */
+	private static $is_looking_up_customer_id = false;
 
 	/**
 	 * Initialize.
@@ -31,6 +39,7 @@ class Stripe_Connection {
 		add_action( 'init', [ __CLASS__, 'handle_merchant_id_file_request' ] );
 		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
 		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
+		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
 	}
 
 	/**
@@ -1010,6 +1019,42 @@ class Stripe_Connection {
 			$is_enabled = false;
 		}
 		return $is_enabled;
+	}
+
+	/**
+	 * Handle the newspack_registered_reader hook.
+	 *
+	 * @param string         $email_address   Email address.
+	 * @param bool           $authenticate    Whether to authenticate after registering.
+	 * @param false|int      $user_id         The created user id.
+	 * @param false|\WP_User $existing_user   The existing user object.
+	 * @param array          $metadata        Metadata.
+	 */
+	public static function newspack_registered_reader( $email_address, $authenticate, $user_id, $existing_user, $metadata ) {
+		if ( false !== $existing_user ) {
+			// Fetch data only if it's a new user registration.
+			return;
+		}
+		self::sync_customer_id( $email_address );
+	}
+
+	/**
+	 * Lookup the customer ID for a given email address.
+	 *
+	 * @param string $email_address   Email address.
+	 */
+	private static function sync_customer_id( $email_address ) {
+		if ( self::$is_looking_up_customer_id ) {
+			return;
+		}
+		self::$is_looking_up_customer_id = true;
+		if ( ! $email_address ) {
+			return;
+		}
+		$customer = self::get_customer_by_email( $email_address );
+		if ( $customer ) {
+			update_user_meta( get_current_user_id(), self::STRIPE_CUSTOMER_ID_USER_META, $customer['id'] );
+		}
 	}
 }
 
