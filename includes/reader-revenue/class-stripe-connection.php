@@ -327,6 +327,36 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Create metadata for a recurring payment.
+	 *
+	 * @param string $frequency Frequency.
+	 * @param string $amount Amount.
+	 * @param string $currency Currency.
+	 * @param int    $date Date.
+	 */
+	private static function create_recurring_payment_metadata( $frequency, $amount, $currency, $date ) {
+		$metadata          = [];
+		$amount_normalised = self::normalise_amount( $amount, $currency );
+		$payment_date      = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $date );
+		$metadata[ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
+		$metadata[ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
+		switch ( $frequency ) {
+			case 'year':
+				$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Yearly Donor';
+				break;
+			case 'month':
+				$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
+				break;
+		}
+		$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
+		$metadata[ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
+		$metadata[ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
+		// In case this was previously set after a previous cancelled subscription, clear it.
+		$metadata[ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = '-';
+		return $metadata;
+	}
+
+	/**
 	 * Receive Stripe webhook.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -352,9 +382,11 @@ class Stripe_Connection {
 			return new \WP_Error( 'newspack_webhook_error' );
 		}
 
+		$payload = $request['data']['object'];
+
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
-				$payment           = $request['data']['object'];
+				$payment           = $payload;
 				$metadata          = $payment['metadata'];
 				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
@@ -399,19 +431,10 @@ class Stripe_Connection {
 					if ( 'once' === $frequency ) {
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Donor';
 					} else {
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
-						switch ( $frequency ) {
-							case 'year':
-								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Yearly Donor';
-								break;
-							case 'month':
-								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
-								break;
-						}
-						$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
+						$contact['metadata'] = array_merge(
+							self::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
+							$contact['metadata']
+						);
 					}
 
 					if ( ! empty( $client_id ) ) {
@@ -501,6 +524,52 @@ class Stripe_Connection {
 				break;
 			case 'charge.failed':
 				break;
+			case 'customer.subscription.deleted':
+				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+					$customer     = self::get_customer_by_id( $payload['customer'] );
+					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+					$contact      = [
+						'email'    => $customer['email'],
+						'metadata' => [
+							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
+						],
+					];
+					switch ( $payload['plan']['interval'] ) {
+						case 'year':
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Ex-Yearly Donor';
+							break;
+						case 'month':
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Ex-Monthly Donor';
+							break;
+					}
+					\Newspack_Newsletters_Subscription::add_contact( $contact );
+				}
+				break;
+			case 'customer.subscription.updated':
+				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+					$customer     = self::get_customer_by_id( $payload['customer'] );
+					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+					$contact      = [
+						'email'    => $customer['email'],
+						'metadata' => [],
+					];
+					if ( $payload['cancel_at'] ) {
+						// Cancellation was scheduled.
+						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['cancel_at'] );
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = $sub_end_date;
+					} elseif ( 'active' === $payload['status'] ) {
+						// An update to an active subscription (or activation of it).
+						$plan                = $payload['plan'];
+						$contact['metadata'] = array_merge(
+							self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
+							$contact['metadata']
+						);
+					}
+					if ( count( $contact['metadata'] ) ) {
+						\Newspack_Newsletters_Subscription::add_contact( $contact );
+					}
+				}
+				break;
 			default:
 				return new \WP_Error( 'newspack_unsupported_webhook' );
 		}
@@ -542,6 +611,8 @@ class Stripe_Connection {
 		$webhook_events  = [
 			'charge.failed',
 			'charge.succeeded',
+			'customer.subscription.deleted',
+			'customer.subscription.updated',
 		];
 		$stripe          = self::get_stripe_client();
 		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
