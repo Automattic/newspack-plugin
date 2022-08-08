@@ -328,13 +328,26 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			const checkLoginStatus = metadata => {
 				fetch(
 					`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
-				).then( res => {
-					res.json().then( ( { message, data } ) => {
-						if ( googleLoginForm.endLoginFlow ) {
-							googleLoginForm.endLoginFlow( message, res.status, data );
+				)
+					.then( res => {
+						res
+							.json()
+							.then( ( { message, data } ) => {
+								if ( googleLoginForm?.endLoginFlow ) {
+									googleLoginForm.endLoginFlow( message, res.status, data );
+								}
+							} )
+							.catch( error => {
+								if ( googleLoginForm?.endLoginFlow ) {
+									googleLoginForm.endLoginFlow( error?.message );
+								}
+							} );
+					} )
+					.catch( error => {
+						if ( googleLoginForm?.endLoginFlow ) {
+							googleLoginForm.endLoginFlow( error?.message );
 						}
 					} );
-				} );
 			};
 
 			googleLoginElement.addEventListener( 'click', () => {
@@ -375,7 +388,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					} )
 					.catch( error => {
 						if ( googleLoginForm?.endLoginFlow ) {
-							googleLoginForm.endLoginFlow( error.message );
+							googleLoginForm.endLoginFlow( error?.message );
 						}
 						if ( authWindow ) {
 							authWindow.close();
