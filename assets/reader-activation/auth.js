@@ -187,11 +187,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			hideCurrentlyOpenOverlayPrompts();
 
 			if (
-				emailInput &&
 				passwordInput &&
-				actionInput &&
-				emailInput.value &&
-				'pwd' === actionInput.value
+				emailInput?.value &&
+				'pwd' === actionInput?.value
 			) {
 				passwordInput.focus();
 			} else {
