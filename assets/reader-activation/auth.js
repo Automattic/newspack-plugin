@@ -96,6 +96,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				const emailInput = container.querySelector( 'input[name="email"]' );
 				const redirectInput = container.querySelector( 'input[name="redirect"]' );
 				const reader = readerActivation.getReader();
+
 				if ( emailInput ) {
 					emailInput.value = reader?.email || '';
 				}
@@ -117,7 +118,12 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					} );
 				}
 				if ( reader?.authenticated ) {
-					form.style.display = 'none';
+					const messageContentElement = container.querySelector(
+						'.newspack-reader__auth-form__response__content'
+					);
+					if ( messageContentElement ) {
+						form.replaceWith( messageContentElement.parentNode );
+					}
 				}
 			} );
 		}
@@ -144,27 +150,15 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			ev.preventDefault();
 
-			const form = container.querySelector( 'form' );
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 			const emailInput = container.querySelector( 'input[name="email"]' );
 			const redirectInput = container.querySelector( 'input[name="redirect"]' );
 			const passwordInput = container.querySelector( 'input[name="password"]' );
 			const actionInput = container.querySelector( 'input[name="action"]' );
-			const messageContentWrapper = container.querySelector(
-				'.newspack-reader__auth-form__response'
-			);
-
-			if ( form ) {
-				form.style.display = 'block';
-			}
-
-			if ( messageContentWrapper ) {
-				messageContentWrapper.style.display = 'none';
-			}
 
 			if ( authLinkMessage ) {
 				if ( readerActivation.hasAuthLink() ) {
-					authLinkMessage.style.display = 'block';
+					authLinkMessage.style.display = 'flex';
 				} else {
 					authLinkMessage.style.display = 'none';
 				}
@@ -276,7 +270,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					const messageNode = document.createElement( 'p' );
 					messageNode.textContent = message;
 					messageContentElement.appendChild( messageNode );
-					messageContentElement.parentElement.style.display = 'block';
 				}
 				if ( status === 200 && data ) {
 					const authenticated = !! data?.authenticated;
@@ -287,7 +280,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							window.location = redirect;
 						}
 					} else {
-						form.style.display = 'none';
+						form.replaceWith( messageContentElement.parentNode );
 					}
 				}
 				form.style.opacity = 1;
