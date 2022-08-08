@@ -320,7 +320,7 @@ final class Reader_Activation {
 	 * @return bool Whether the email address was verified.
 	 */
 	public static function set_reader_verified( $user_or_user_id ) {
-		if ( $user_or_user_id instanceof WP_User ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
 			$user = $user_or_user_id;
 		} elseif ( absint( $user_or_user_id ) ) {
 			$user = get_user_by( 'id', $user_or_user_id );
