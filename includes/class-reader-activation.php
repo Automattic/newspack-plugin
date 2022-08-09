@@ -502,6 +502,24 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get the error icon SVG markup.
+	 *
+	 * @return string The error icon SVG markup.
+	 */
+	private static function get_error_icon() {
+		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20.8C16.8 20.8 20.8 16.9 20.8 12C20.8 7.2 16.9 3.2 12 3.2C7.2 3.2 3.2 7.1 3.2 12C3.2 16.8 7.2 20.8 12 20.8V20.8ZM12 4.8C16 4.8 19.2 8.1 19.2 12C19.2 16 16 19.2 12 19.2C8 19.2 4.8 15.9 4.8 12C4.8 8 8 4.8 12 4.8ZM13 7H11V13H13L13 7ZM13 15H11V17H13V15Z" /></svg>';
+	}
+
+	/**
+	 * Get the check icon SVG markup.
+	 *
+	 * @return string The check icon SVG markup.
+	 */
+	private static function get_check_icon() {
+		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" /></svg>';
+	}
+
+	/**
 	 * Get account link.
 	 *
 	 * @return string Account link HTML or empty string.
@@ -611,7 +629,10 @@ final class Reader_Activation {
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
 						<p data-action="pwd">
-							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+							<?php \esc_html_e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+						</p>
+						<p data-action="link">
+							<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without a password.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
@@ -630,20 +651,18 @@ final class Reader_Activation {
 								?>
 							</div>
 						<?php endif; ?>
-						<p>
+						<div class="components-form__field">
 							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
-						</p>
-						<div data-action="pwd">
-							<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
+						</div>
+						<div class="components-form__field" data-action="pwd">
+							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
 							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="-2 -2 24 24" role="img" aria-hidden="true" focusable="false">
-									<path d="M10 2c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zm1.13 9.38l.35-6.46H8.52l.35 6.46h2.26zm-.09 3.36c.24-.23.37-.55.37-.96 0-.42-.12-.74-.36-.97s-.59-.35-1.06-.35-.82.12-1.07.35-.37.55-.37.97c0 .41.13.73.38.96.26.23.61.34 1.06.34s.8-.11 1.05-.34z" />
-								</svg>
+								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</span>
 							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
-								<?php echo self::get_account_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</span>
 							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
 								<?php if ( ! empty( $message ) ) : ?>
@@ -652,23 +671,32 @@ final class Reader_Activation {
 							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
-							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
-							<p class="small">
-								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
-							</p>
-							<p class="small">
-								<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
-							</p>
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></button>
+							</div>
+							<div class="components-form__help">
+								<p class="small">
+									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
+								</p>
+								<p class="small">
+									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
+								</p>
+							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
-							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
-							<p class="small">
-								<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?><br/>
-								<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password instead', 'newspack' ); ?></a>.
-							</p>
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button>
+							</div>
+							<div class="components-form__help">
+								<p class="small">
+									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>.
+								</p>
+							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="register">
-							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Sign up', 'newspack' ); ?></button>
+							</div>
 						</div>
 						<?php self::render_third_party_auth(); ?>
 						<?php if ( ! empty( $terms_text ) ) : ?>

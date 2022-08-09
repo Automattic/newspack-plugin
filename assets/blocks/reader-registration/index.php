@@ -166,7 +166,7 @@ function render_block( $attrs, $content ) {
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
 							<?php Reader_Activation::render_third_party_auth(); ?>
-							<div class="newspack-registration__response">
+							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
