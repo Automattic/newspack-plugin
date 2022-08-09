@@ -509,16 +509,6 @@ final class Magic_Link {
 			return false;
 		}
 
-		if ( ! Reader_Activation::is_reader_verified( $user ) ) {
-			Reader_Activation::set_reader_verified( $user );
-
-			if ( function_exists( '\wc_add_notice' ) ) {
-				\wc_add_notice( __( 'Thank you for verifying your account!', 'newspack' ), 'success' );
-			}
-		}
-
-		Reader_Activation::set_current_reader( $user->ID );
-
 		/**
 		 * Fires after a reader has been authenticated via magic link.
 		 *

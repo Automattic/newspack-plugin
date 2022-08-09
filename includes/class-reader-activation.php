@@ -62,6 +62,8 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
+			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_current_reader' ] );
 		}
 	}
 
@@ -327,7 +329,7 @@ final class Reader_Activation {
 			$user = get_user_by( 'id', $user_or_user_id );
 		}
 
-		if ( ! isset( $user ) || ! $user ) {
+		if ( ! isset( $user ) || ! $user || self::is_reader_verified( $user ) ) {
 			return false;
 		}
 
@@ -337,6 +339,10 @@ final class Reader_Activation {
 		}
 
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+
+		if ( function_exists( '\wc_add_notice' ) ) {
+			\wc_add_notice( __( 'Thank you for verifying your account!', 'newspack' ), 'success' );
+		}
 
 		/**
 		 * Fires after a reader's email address is verified.
@@ -960,19 +966,24 @@ final class Reader_Activation {
 	 * Warning: this method will only verify if the user is a reader in order to
 	 * authenticate. It will not check for any credentials.
 	 *
-	 * @param int $user_id User ID.
+	 * @param \WP_User|int $user_or_user_id User object.
 	 *
 	 * @return \WP_User|\WP_Error The authenticated reader or WP_Error if authentication failed.
 	 */
-	public static function set_current_reader( $user_id ) {
-		$user_id = \absint( $user_id );
-		if ( empty( $user_id ) ) {
-			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
+	public static function set_current_reader( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
 		}
 
-		$user = \get_user_by( 'id', $user_id );
 		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
+		}
+
+		$user_id = \absint( $user->ID );
+		if ( empty( $user_id ) ) {
+			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
 		}
 
 		\wp_clear_auth_cookie();
