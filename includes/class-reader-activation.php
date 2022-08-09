@@ -315,12 +315,18 @@ final class Reader_Activation {
 	/**
 	 * Verify email address of a reader given the user.
 	 *
-	 * @param \WP_User $user User object.
+	 * @param \WP_User|int $user_or_user_id User object.
 	 *
 	 * @return bool Whether the email address was verified.
 	 */
-	public static function set_reader_verified( $user ) {
-		if ( ! $user ) {
+	public static function set_reader_verified( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
+		}
+
+		if ( ! isset( $user ) || ! $user ) {
 			return false;
 		}
 
@@ -329,12 +335,14 @@ final class Reader_Activation {
 			return false;
 		}
 
-		$verified = \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
-		if ( $verified ) {
-			return true;
-		}
-
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+
+		/**
+		 * Fires after a reader's email address is verified.
+		 *
+		 * @param \WP_User $user User object.
+		 */
+		do_action( 'newspack_reader_verified', $user );
 
 		return true;
 	}
@@ -1063,9 +1071,15 @@ final class Reader_Activation {
 			}
 		}
 
+		/** Registration methods that don't require account verification. */
+		$verified_registration_methods = [ 'google' ];
+
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
+			if ( in_array( $metadata['registration_method'], $verified_registration_methods, true ) ) {
+				self::set_reader_verified( $user_id );
+			}
 		}
 
 		/**
