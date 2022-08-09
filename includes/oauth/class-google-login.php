@@ -175,13 +175,13 @@ class Google_Login {
 				'email'         => $email,
 				'authenticated' => true,
 				'sso'           => true,
+				'existing_user' => $existing_user ? true : false,
 			];
 
 			if ( $existing_user ) {
 				// Log the user in.
-				$result                = Reader_Activation::set_current_reader( $existing_user->ID );
-				$message               = __( 'Thank you for signing in!', 'newspack' );
-				$data['existing_user'] = $existing_user;
+				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
+				$message = __( 'Thank you for signing in!', 'newspack' );
 			} else {
 				$result = Reader_Activation::register_reader( $email, '', true, $metadata );
 				// At this point the user will be logged in.
