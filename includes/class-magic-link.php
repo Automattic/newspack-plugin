@@ -318,6 +318,7 @@ final class Magic_Link {
 	 *   Used to build wp_mail().
 	 *
 	 *   @type string $to      The intended recipient - New user email address.
+	 *   @type string $subject The subject of the email.
 	 *   @type string $message The body of the email.
 	 *   @type string $headers The headers of the email.
 	 * }
