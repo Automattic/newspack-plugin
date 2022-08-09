@@ -266,7 +266,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			};
 
 			form.endLoginFlow = ( message = null, status = 500, data = null, redirect ) => {
-				const registrationSuccess =
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.textContent = message;
