@@ -61,6 +61,7 @@ final class Reader_Activation {
 			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
+			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 		}
 	}
 
@@ -1102,6 +1103,26 @@ final class Reader_Activation {
 	public static function get_client_id() {
 		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		return isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : false;
+	}
+
+	/**
+	 * Disable the standard WooCommerce "new customer welcome" email.
+	 *
+	 * @param array $emails Types of transactional emails sent by WooCommerce.
+	 *
+	 * @return array Filtered array of transactional email types.
+	 */
+	public static function disable_woocommerce_new_user_email( $emails ) {
+		$emails = array_values(
+			array_filter(
+				$emails,
+				function( $type ) {
+					return 'woocommerce_created_customer' !== $type;
+				}
+			)
+		);
+
+		return $emails;
 	}
 }
 Reader_Activation::init();
