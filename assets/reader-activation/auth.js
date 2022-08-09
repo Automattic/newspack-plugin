@@ -225,6 +225,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			 * Handle auth form action selection.
 			 */
 			function setFormAction( action ) {
+				if ( [ 'link', 'pwd' ].includes( action ) ) {
+					readerActivation.setAuthStrategy( action );
+				}
 				actionInput.value = action;
 				container.removeAttribute( 'data-form-status' );
 				messageContentElement.innerHTML = '';
@@ -248,7 +251,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					emailInput.focus();
 				}
 			}
-			setFormAction( actionInput.value );
+			setFormAction( readerActivation.getAuthStrategy() || 'pwd' );
 			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
 				item.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();

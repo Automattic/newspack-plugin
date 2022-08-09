@@ -541,7 +541,7 @@ final class Reader_Activation {
 		};
 
 		$labels = [
-			'signedin'  => \__( 'Account', 'newspack' ),
+			'signedin'  => \__( 'My Account', 'newspack' ),
 			'signedout' => \__( 'Sign In', 'newspack' ),
 		];
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
