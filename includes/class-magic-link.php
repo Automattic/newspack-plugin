@@ -311,6 +311,8 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user        User to generate the magic link for.
 	 * @param string   $redirect_to Which page to redirect the reader after authenticating.
+	 * @param string   $subject     The subject of the email.
+	 * @param string   $message     Message to show in body of email.
 	 *
 	 * @return array|\WP_Error $email Email arguments or error. {
 	 *   Used to build wp_mail().
@@ -321,7 +323,7 @@ final class Magic_Link {
 	 *   @type string $headers The headers of the email.
 	 * }
 	 */
-	public static function generate_email( $user, $redirect_to = '' ) {
+	public static function generate_email( $user, $redirect_to = '', $subject, $message = '' ) {
 		if ( ! self::can_magic_link( $user->ID ) ) {
 			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack' ) );
 		}
@@ -336,15 +338,22 @@ final class Magic_Link {
 
 		$switched_locale = \switch_to_locale( \get_user_locale( $user ) );
 
-		/* translators: %s: Site title. */
-		$message  = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
-		$message .= __( 'Authenticate your account by visiting the following address:', 'newspack' ) . "\r\n\r\n";
+		if ( empty( $subject ) ) {
+			$subject = __( 'Authentication link', 'newspack' );
+		}
+
+		if ( empty( $message ) ) {
+			/* translators: %s: Site title. */
+			$message  = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
+			$message .= __( 'Authenticate your account by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+		}
+
 		$message .= $magic_link_url . "\r\n";
 
 		$email = [
 			'to'      => $user->user_email,
 			/* translators: %s Site title. */
-			'subject' => __( '[%s] Authentication link', 'newspack' ),
+			'subject' => __( '[%s] ', 'newspack' ) . $subject,
 			'message' => $message,
 			'headers' => '',
 		];
@@ -375,11 +384,13 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user        User to send the magic link to.
 	 * @param string   $redirect_to Which page to redirect the reader after authenticating.
+	 * @param string   $subject     Subject linke for the email.
+	 * @param string   $message     Message to show in body of email.
 	 *
 	 * @return bool|\WP_Error Whether the email was sent or WP_Error if sending failed.
 	 */
-	public static function send_email( $user, $redirect_to = '' ) {
-		$email = self::generate_email( $user, $redirect_to );
+	public static function send_email( $user, $redirect_to = '', $subject = '', $message = '' ) {
+		$email = self::generate_email( $user, $redirect_to, $subject, $message );
 
 		if ( \is_wp_error( $email ) ) {
 			return $email;
@@ -499,7 +510,7 @@ final class Magic_Link {
 			return false;
 		}
 
-		Reader_Activation::set_reader_verified( $user );
+		// Authenticate the reader.
 		Reader_Activation::set_current_reader( $user->ID );
 
 		/**
