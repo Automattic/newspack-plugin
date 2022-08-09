@@ -190,6 +190,11 @@ class WooCommerce_My_Account {
 	 * Check if the user is logged in and verified.
 	 */
 	public static function is_reader_verified() {
+		// Don't lock access if Reader Activation features aren't enabled.
+		if ( ! Reader_Activation::is_enabled() ) {
+			return true;
+		}
+
 		return \is_user_logged_in() && Reader_Activation::is_reader_verified( \wp_get_current_user() );
 	}
 
