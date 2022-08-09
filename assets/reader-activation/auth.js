@@ -357,7 +357,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					} )
 					.catch( error => {
 						if ( googleLoginForm?.endLoginFlow ) {
-							googleLoginForm.endLoginFlow( error?.message, res.status );
+							googleLoginForm.endLoginFlow( error?.message );
 						}
 					} );
 			};
