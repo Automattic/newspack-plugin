@@ -65,7 +65,7 @@ function domReady( callback ) {
 					messageNode.textContent = message;
 
 					const defaultMessage = successElement.querySelector( 'p' );
-					if ( defaultMessage ) {
+					if ( defaultMessage && data?.sso ) {
 						defaultMessage.replaceWith( messageNode );
 					}
 				}

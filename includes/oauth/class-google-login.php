@@ -174,6 +174,7 @@ class Google_Login {
 			$data          = [
 				'email'         => $email,
 				'authenticated' => true,
+				'sso'           => true,
 			];
 
 			if ( $existing_user ) {
