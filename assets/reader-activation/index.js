@@ -160,6 +160,32 @@ export function hasAuthLink() {
 	return !! ( reader?.email && emailLinkSecret );
 }
 
+const authStrategies = [ 'pwd', 'link' ];
+
+/**
+ * Set the reader preferred authentication strategy.
+ *
+ * @param {string} strategy Authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function setAuthStrategy( strategy ) {
+	if ( ! authStrategies.includes( strategy ) ) {
+		throw 'Invalid authentication strategy';
+	}
+	setCookie( 'np_auth_strategy', strategy );
+	return strategy;
+}
+
+/**
+ * Get the reader preferred authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function getAuthStrategy() {
+	return getCookie( 'np_auth_strategy' );
+}
+
 /**
  * Initialize store data.
  */
@@ -180,6 +206,8 @@ const readerActivation = {
 	setAuthenticated,
 	getReader,
 	hasAuthLink,
+	setAuthStrategy,
+	getAuthStrategy,
 };
 window.newspackReaderActivation = readerActivation;
 
