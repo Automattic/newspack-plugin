@@ -580,7 +580,7 @@ final class Reader_Activation {
 		}
 		$terms_text      = self::get_setting( 'terms_text' );
 		$terms_url       = self::get_setting( 'terms_url' );
-		$is_account_page = \get_the_ID() === \wc_get_page_id( 'myaccount' );
+		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
 		$redirect        = $is_account_page ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		?>
 		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
@@ -693,7 +693,7 @@ final class Reader_Activation {
 	private static function send_auth_form_response( $data = [], $message = false, $redirect_url = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
-			$message = $is_error ? $data->get_error_message() : __( 'You are authenticated!', 'newspack' );
+			$message = $is_error ? $data->get_error_message() : __( 'Login successful!', 'newspack' );
 		}
 		if ( \wp_is_json_request() ) {
 			\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
@@ -912,7 +912,7 @@ final class Reader_Activation {
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ), $redirect );
+				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack' ), $redirect );
 			case 'register':
 				$metadata = [];
 				if ( ! empty( $lists ) ) {

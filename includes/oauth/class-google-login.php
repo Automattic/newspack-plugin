@@ -171,6 +171,13 @@ class Google_Login {
 		if ( $email ) {
 			$existing_user = \get_user_by( 'email', $email );
 			$message       = __( 'Thank you for registering!', 'newspack' );
+			$data          = [
+				'email'         => $email,
+				'authenticated' => true,
+				'sso'           => true,
+				'existing_user' => $existing_user ? true : false,
+			];
+
 			if ( $existing_user ) {
 				// Log the user in.
 				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
@@ -185,10 +192,7 @@ class Google_Login {
 
 			return \rest_ensure_response(
 				[
-					'data'    => [
-						'email'         => $email,
-						'authenticated' => true,
-					],
+					'data'    => $data,
 					'message' => $message,
 				]
 			);
