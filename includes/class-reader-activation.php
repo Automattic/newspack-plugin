@@ -55,6 +55,7 @@ final class Reader_Activation {
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
@@ -62,8 +63,6 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
-			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
-			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_current_reader' ] );
 		}
 	}
 
@@ -982,9 +981,6 @@ final class Reader_Activation {
 		}
 
 		$user_id = \absint( $user->ID );
-		if ( empty( $user_id ) ) {
-			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
-		}
 
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );

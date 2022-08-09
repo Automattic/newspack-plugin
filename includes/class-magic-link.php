@@ -509,6 +509,9 @@ final class Magic_Link {
 			return false;
 		}
 
+		// Authenticate the reader.
+		Reader_Activation::set_current_reader( $user->ID );
+
 		/**
 		 * Fires after a reader has been authenticated via magic link.
 		 *
