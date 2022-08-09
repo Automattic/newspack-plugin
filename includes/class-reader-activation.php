@@ -618,7 +618,7 @@ final class Reader_Activation {
 							<?php \esc_html_e( 'Sign in below to verify your identity.', 'newspack' ); ?>
 						</p>
 						<p data-action="link">
-							<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?>
+							<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without a password.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
