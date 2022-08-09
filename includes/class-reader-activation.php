@@ -1083,6 +1083,22 @@ final class Reader_Activation {
 			}
 		}
 
+		// Send a magic link to new, unverified readers to verify their email address.
+		$user = \get_user_by( 'id', $user_id );
+		if ( ! $existing_user && ! self::is_reader_verified( $user ) ) {
+			$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
+			$blogname    = \wp_specialchars_decode( \get_option( 'blogname' ), ENT_QUOTES );
+
+			$subject = __( 'Please verify your account', 'newspack' );
+
+			/* translators: %s: Site title. */
+			$message  = sprintf( __( 'Welcome to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
+			$message .= __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+
+			Magic_Link::send_email( $user, $redirect_to, $subject, $message );
+			Logger::log( 'Sent verification email to new user ' . $email );
+		}
+
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
