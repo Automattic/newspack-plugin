@@ -311,7 +311,7 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user        User to generate the magic link for.
 	 * @param string   $redirect_to Which page to redirect the reader after authenticating.
-	 * @param string   $subject The subject of the email.
+	 * @param string   $subject     The subject of the email.
 	 * @param string   $message     Message to show in body of email.
 	 *
 	 * @return array|\WP_Error $email Email arguments or error. {
