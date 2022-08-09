@@ -95,7 +95,8 @@
 			}
 		}
 
-		&[data-form-status='400'] {
+		&[data-form-status='400'],
+		&[data-form-status='500'] {
 			.newspack-reader__auth-form {
 				&__response {
 					width: 100%;

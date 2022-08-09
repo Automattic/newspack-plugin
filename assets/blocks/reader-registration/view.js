@@ -54,21 +54,27 @@ function domReady( callback ) {
 
 			form.endLoginFlow = ( message, status, data ) => {
 				let messageNode;
-				if ( message ) {
-					messageNode = document.createElement( 'div' );
-					messageNode.textContent = message;
-				}
+
 				if ( data?.existing_user ) {
 					successElement = document.querySelector( '.newspack-login__success' );
+				}
+
+				if ( message ) {
+					messageNode = document.createElement( 'p' );
+					messageNode.classList.add( 'has-text-align-center' );
+					messageNode.textContent = message;
+
+					const defaultMessage = successElement.querySelector( 'p' );
+					if ( defaultMessage ) {
+						defaultMessage.replaceWith( messageNode );
+					}
 				}
 
 				const isSuccess = status === 200;
 				container.classList.add( `newspack-registration--${ isSuccess ? 'success' : 'error' }` );
 				if ( isSuccess ) {
-					if ( messageNode ) {
-						successElement.classList.remove( 'newspack-registration--hidden' );
-						form.remove();
-					}
+					successElement.classList.remove( 'newspack-registration--hidden' );
+					form.remove();
 					if ( data?.email ) {
 						readerActivation.setReaderEmail( data.email );
 						// Set authenticated only if email is set, otherwise an error will be thrown.

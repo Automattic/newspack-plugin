@@ -265,7 +265,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				form.style.opacity = 0.5;
 			};
 
-			form.endLoginFlow = ( message, status, data, redirect ) => {
+			form.endLoginFlow = ( message = null, status = 500, data = null, redirect ) => {
+				const registrationSuccess =
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.textContent = message;
@@ -283,6 +284,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						form.replaceWith( messageContentElement.parentNode );
 					}
 				}
+				container.setAttribute( 'data-form-status', status );
 				form.style.opacity = 1;
 				submitButtons.forEach( button => {
 					button.disabled = false;
@@ -334,7 +336,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
 		googleLoginElements.forEach( googleLoginElement => {
 			const googleLoginForm = googleLoginElement.closest( 'form' );
-
+			const redirectInput = googleLoginForm.querySelector( 'input[name="redirect"]' );
 			const checkLoginStatus = metadata => {
 				fetch(
 					`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
@@ -343,19 +345,20 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						res
 							.json()
 							.then( ( { message, data } ) => {
+								const redirect = redirectInput?.value || null;
 								if ( googleLoginForm?.endLoginFlow ) {
-									googleLoginForm.endLoginFlow( message, res.status, data );
+									googleLoginForm.endLoginFlow( message, res.status, data, redirect );
 								}
 							} )
 							.catch( error => {
 								if ( googleLoginForm?.endLoginFlow ) {
-									googleLoginForm.endLoginFlow( error?.message );
+									googleLoginForm.endLoginFlow( error?.message, res.status );
 								}
 							} );
 					} )
 					.catch( error => {
 						if ( googleLoginForm?.endLoginFlow ) {
-							googleLoginForm.endLoginFlow( error?.message );
+							googleLoginForm.endLoginFlow( error?.message, res.status );
 						}
 					} );
 			};
@@ -397,8 +400,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						}
 					} )
 					.catch( error => {
+						console.log( error );
 						if ( googleLoginForm?.endLoginFlow ) {
-							googleLoginForm.endLoginFlow( error?.message );
+							googleLoginForm.endLoginFlow( error?.message, 400 );
 						}
 						if ( authWindow ) {
 							authWindow.close();
