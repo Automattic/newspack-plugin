@@ -194,6 +194,10 @@ class WooCommerce_My_Account {
 		if ( ! Reader_Activation::is_enabled() ) {
 			return true;
 		}
+		// Don't lock access if the user is not a reader.
+		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( wp_get_current_user() ) ) {
+			return true;
+		}
 
 		return \is_user_logged_in() && Reader_Activation::is_reader_verified( \wp_get_current_user() );
 	}
