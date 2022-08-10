@@ -303,8 +303,6 @@ class WooCommerce_My_Account {
 	 */
 	public static function wc_get_template( $template, $template_name ) {
 		if ( 'myaccount/form-edit-account.php' === $template_name ) {
-			global $newspack_reset_password_arg;
-			global $newspack_send_magic_link_arg;
 			$newspack_reset_password_arg  = self::RESET_PASSWORD_URL_PARAM;
 			$newspack_send_magic_link_arg = self::SEND_MAGIC_LINK_PARAM;
 
