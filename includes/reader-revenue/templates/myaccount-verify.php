@@ -20,7 +20,7 @@ if ( isset( $_GET['message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerif
 
 $is_error = false;
 if ( isset( $_GET['is_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$is_error = sanitize_text_field( $_GET['is_error'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$is_error = boolval( $_GET['is_error'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 }
 ?>
 
