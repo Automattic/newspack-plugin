@@ -109,6 +109,9 @@ class Stripe_Connection {
 			'secretKey'          => '',
 			'testPublishableKey' => '',
 			'testSecretKey'      => '',
+			'useCaptcha'         => false,
+			'captchaSiteKey'     => '',
+			'captchaSiteSecret'  => '',
 			'currency'           => $currency,
 			'location_code'      => $location_code,
 			'newsletter_list_id' => '',
@@ -121,6 +124,20 @@ class Stripe_Connection {
 	public static function get_stripe_data() {
 		$stripe_data = self::get_saved_stripe_data();
 		return $stripe_data;
+	}
+
+	/**
+	 * Check whether reCaptcha is enabled and that we have all required settings.
+	 *
+	 * @return boolean True if we can use reCaptcha to secure checkout requests.
+	 */
+	public static function can_use_captcha() {
+		$settings = self::get_stripe_data();
+		if ( empty( $settings['useCaptcha'] ) || empty( $settings['captchaSiteKey'] ) || empty( $settings['captchaSiteSecret'] ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
