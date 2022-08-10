@@ -208,8 +208,7 @@ class WooCommerce_My_Account {
 			$my_account_page_permalink    = wc_get_page_permalink( 'myaccount' );
 			$my_account_details_permalink = wc_get_account_endpoint_url( 'edit-account' );
 			$is_my_account_root           = trailingslashit( $current_url ) === trailingslashit( $my_account_page_permalink );
-			$is_my_account_details        = trailingslashit( $current_url ) === trailingslashit( $my_account_details_permalink );
-			if ( $is_my_account_root || ( ! $is_my_account_details && ! self::is_reader_verified() ) ) {
+			if ( $is_my_account_root && ! self::is_reader_verified() ) {
 				wp_safe_redirect( $my_account_details_permalink );
 				exit;
 			}
