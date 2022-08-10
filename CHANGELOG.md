@@ -1,3 +1,15 @@
+# [1.88.0](https://github.com/Automattic/newspack-plugin/compare/v1.87.0...v1.88.0) (2022-08-10)
+
+
+### Bug Fixes
+
+* trigger ci ([e8bf33a](https://github.com/Automattic/newspack-plugin/commit/e8bf33aa5bcfb7bac71a68daa06038b3a6ce6f7c))
+
+
+### Features
+
+* add UI to manage reCaptcha v3 settings in Reader Revenue wizard ([9b88366](https://github.com/Automattic/newspack-plugin/commit/9b88366303b181c61860c2626811c863663b066b))
+
 # [1.88.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.87.0...v1.88.0-hotfix.1) (2022-08-10)
 
 
