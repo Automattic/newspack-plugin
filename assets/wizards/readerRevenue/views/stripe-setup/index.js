@@ -106,6 +106,74 @@ export const StripeKeysSettings = () => {
 	);
 };
 
+export const StripeCaptchaSettings = () => {
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const {
+		useCaptcha = false,
+		captchaSiteKey = '',
+		captchaSiteSecret = '',
+	} = wizardData.stripe_data || {};
+
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'stripe_data', key ],
+			value,
+		} );
+
+	return (
+		<Grid columns={ 1 } gutter={ 16 }>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<p className="newspack-payment-setup-screen__api-keys-instruction">
+					{ __(
+						'Enabling reCaptcha for Stripe checkouts makes your site more secure.',
+						'newspack'
+					) }
+					{ ' – ' }
+					<ExternalLink href="https://www.google.com/recaptcha/admin/create">
+						{ __( 'get started' ) }
+					</ExternalLink>
+				</p>
+				<CheckboxControl
+					label={ __( 'Use reCaptcha v3 to secure Stripe checkout', 'newspack' ) }
+					checked={ useCaptcha }
+					onChange={ changeHandler( 'useCaptcha' ) }
+					help={ __(
+						'Without reCaptcha, your Stripe checkout process may be vulnerable to bot attacks and card testing.',
+						'newspack-blocks'
+					) }
+				/>
+			</Grid>
+			{ useCaptcha && ( ! captchaSiteKey || ! captchaSiteSecret ) && (
+				<Notice
+					noticeText={ __(
+						'You must enter a valid site key and secret to use reCaptcha.',
+						'newspack'
+					) }
+				/>
+			) }
+			<Grid noMargin rowGap={ 16 }>
+				{ useCaptcha && (
+					<>
+						<TextControl
+							value={ captchaSiteKey }
+							label={ __( 'Site Key', 'newspack' ) }
+							onChange={ changeHandler( 'captchaSiteKey' ) }
+						/>
+						<TextControl
+							type="password"
+							value={ captchaSiteSecret }
+							label={ __( 'Site Secret', 'newspack' ) }
+							onChange={ changeHandler( 'captchaSiteSecret' ) }
+						/>
+					</>
+				) }
+			</Grid>
+		</Grid>
+	);
+};
+
 const StripeSetup = () => {
 	const {
 		stripe_data: data = {},
@@ -193,6 +261,23 @@ const StripeSetup = () => {
 								onChange={ changeHandler( 'currency' ) }
 							/>
 						</Grid>
+					</SettingsCard>
+					<SettingsCard
+						title={ __( 'reCaptcha v3 Settings', 'newspack' ) }
+						columns={ 1 }
+						gutter={ 16 }
+						noBorder
+					>
+						{ data.can_use_stripe_platform === false && (
+							<Notice
+								isError
+								noticeText={ __(
+									'The Stripe platform will not work properly on this site.',
+									'newspack'
+								) }
+							/>
+						) }
+						<StripeCaptchaSettings />
 					</SettingsCard>
 					<SettingsCard
 						title={ __( 'Newsletters', 'newspack' ) }
