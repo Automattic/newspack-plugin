@@ -74,7 +74,7 @@ class WooCommerce_My_Account {
 		}
 
 		// If the reader hasn't verified their account, only show options to verify or log out.
-		if ( ! self::is_reader_verified() ) {
+		if ( ! self::is_user_verified() ) {
 			$minimum_items = [ 'edit-account', 'customer-logout' ];
 			foreach ( $items as $key => $label ) {
 				if ( ! in_array( $key, $minimum_items, true ) ) {
@@ -189,7 +189,7 @@ class WooCommerce_My_Account {
 	/**
 	 * Check if the user is logged in and verified.
 	 */
-	public static function is_reader_verified() {
+	public static function is_user_verified() {
 		// Don't lock access if Reader Activation features aren't enabled.
 		if ( ! Reader_Activation::is_enabled() ) {
 			return true;
@@ -209,7 +209,7 @@ class WooCommerce_My_Account {
 			$my_account_details_permalink = wc_get_account_endpoint_url( 'edit-account' );
 			$is_my_account_root           = trailingslashit( $current_url ) === trailingslashit( $my_account_page_permalink );
 			$is_my_account_details        = trailingslashit( $current_url ) === trailingslashit( $my_account_details_permalink );
-			if ( $is_my_account_root || ( ! $is_my_account_details && is_account_page() && ! self::is_reader_verified() ) ) {
+			if ( $is_my_account_root || ( ! $is_my_account_details && is_account_page() && ! self::is_user_verified() ) ) {
 				wp_safe_redirect( $my_account_details_permalink );
 				exit;
 			}
@@ -306,7 +306,7 @@ class WooCommerce_My_Account {
 			$newspack_reset_password_arg  = self::RESET_PASSWORD_URL_PARAM;
 			$newspack_send_magic_link_arg = self::SEND_MAGIC_LINK_PARAM;
 
-			if ( ! self::is_reader_verified() ) {
+			if ( ! self::is_user_verified() ) {
 				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-verify.php';
 			}
 
