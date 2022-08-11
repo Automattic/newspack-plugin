@@ -162,15 +162,16 @@ function render_block( $attrs, $content ) {
 					<div class="newspack-registration__main">
 						<div>
 							<div class="newspack-registration__inputs">
-								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<input type="email" name="npe" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<input class="nphp" tabindex="-1" aria-hidden="true" type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
-							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
 							</div>
+							<?php Reader_Activation::render_third_party_auth(); ?>
 						</div>
 
 						<div class="newspack-registration__help-text">
@@ -267,7 +268,12 @@ function process_form() {
 		return;
 	}
 
-	if ( ! isset( $_REQUEST['email'] ) || empty( $_REQUEST['email'] ) ) {
+	// Honeypot trap.
+	if ( ! empty( $_REQUEST['email'] ) ) {
+		return send_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
+	}
+
+	if ( ! isset( $_REQUEST['npe'] ) || empty( $_REQUEST['npe'] ) ) {
 		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 	}
 
@@ -278,7 +284,7 @@ function process_form() {
 	}
 	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
 	$metadata['registration_method'] = 'registration-block';
-	$email                           = \sanitize_email( $_REQUEST['email'] );
+	$email                           = \sanitize_email( $_REQUEST['npe'] );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 

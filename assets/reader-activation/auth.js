@@ -93,7 +93,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			allContainers.forEach( container => {
 				const form = container.querySelector( 'form' );
-				const emailInput = container.querySelector( 'input[name="email"]' );
+				const emailInput = container.querySelector( 'input[name="npe"]' );
 				const redirectInput = container.querySelector( 'input[name="redirect"]' );
 				const reader = readerActivation.getReader();
 
@@ -151,7 +151,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			ev.preventDefault();
 
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
-			const emailInput = container.querySelector( 'input[name="email"]' );
+			const emailInput = container.querySelector( 'input[name="npe"]' );
 			const redirectInput = container.querySelector( 'input[name="redirect"]' );
 			const passwordInput = container.querySelector( 'input[name="password"]' );
 			const actionInput = container.querySelector( 'input[name="action"]' );
@@ -200,7 +200,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			}
 
 			const actionInput = form.querySelector( 'input[name="action"]' );
-			const emailInput = form.querySelector( 'input[name="email"]' );
+			const emailInput = form.querySelector( 'input[name="npe"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
@@ -299,10 +299,10 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			form.addEventListener( 'submit', function ( ev ) {
 				ev.preventDefault();
 				const body = new FormData( ev.target );
-				if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
+				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 					return;
 				}
-				readerActivation.setReaderEmail( body.get( 'email' ) );
+				readerActivation.setReaderEmail( body.get( 'npe' ) );
 				form.startLoginFlow();
 				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 					method: 'POST',

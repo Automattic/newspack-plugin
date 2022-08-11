@@ -652,7 +652,8 @@ final class Reader_Activation {
 							</div>
 						<?php endif; ?>
 						<div class="components-form__field">
-							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+							<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
@@ -899,11 +900,17 @@ final class Reader_Activation {
 			return;
 		}
 		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
-		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
+		$email    = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
+		$honeypot = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
 		// phpcs:enable
+
+		// Honeypot trap.
+		if ( ! empty( $honeypot ) ) {
+			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
+		}
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );

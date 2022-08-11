@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../shared/scss/mixins';
 
 .newspack-reader {
 	/**
@@ -30,16 +31,7 @@
 		&__label {
 			margin-left: 0.2rem;
 			@media screen and ( max-width: 959px ) {
-				border: 0;
-				clip: rect( 1px, 1px, 1px, 1px );
-				clip-path: inset( 50% );
-				height: 1px;
-				margin: -1px;
-				overflow: hidden;
-				padding: 0;
-				position: absolute !important;
-				width: 1px;
-				word-wrap: normal !important;
+				@include mixins.visuallyHidden;
 			}
 		}
 	}
@@ -75,6 +67,10 @@
 			position: relative;
 			width: auto;
 			z-index: auto;
+		}
+
+		.nphp {
+			@include mixins.visuallyHidden;
 		}
 
 		&[data-form-status='200'] {
