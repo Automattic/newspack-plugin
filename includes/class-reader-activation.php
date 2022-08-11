@@ -275,15 +275,16 @@ final class Reader_Activation {
 	/**
 	 * Whether the user is a reader.
 	 *
-	 * @param \WP_User $user User object.
+	 * @param \WP_User $user   User object.
+	 * @param bool     $strict Whether to check if the user was created through reader registration. Default false.
 	 *
 	 * @return bool Whether the user is a reader.
 	 */
-	public static function is_user_reader( $user ) {
+	public static function is_user_reader( $user, $strict = false ) {
 		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
 		$user_data = \get_userdata( $user->ID );
 
-		if ( false === $is_reader ) {
+		if ( false === $is_reader && false === $strict ) {
 			/**
 			 * Filters the roles that can determine if a user is a reader.
 			 *

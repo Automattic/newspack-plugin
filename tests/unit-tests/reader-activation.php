@@ -115,6 +115,25 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test strict argument on method that validates if user is a reader.
+	 */
+	public function test_strict_reader() {
+		$reader_id = self::register_sample_reader();
+		$this->assertTrue( Reader_Activation::is_user_reader( get_user_by( 'id', $reader_id ), true ) );
+		wp_delete_user( $reader_id ); // Clean up.
+
+		$subscriber_id = wp_insert_user(
+			[
+				'user_login' => 'sample-subscriber',
+				'user_pass'  => wp_generate_password(),
+				'user_email' => 'subscriber@test.com',
+			]
+		);
+		$this->assertFalse( Reader_Activation::is_user_reader( get_user_by( 'id', $subscriber_id ), true ) );
+		wp_delete_user( $subscriber_id ); // Clean up.
+	}
+
+	/**
 	 * Test restricted roles for reader.
 	 */
 	public function test_restricted_roles() {
