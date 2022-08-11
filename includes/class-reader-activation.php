@@ -1150,7 +1150,7 @@ final class Reader_Activation {
 		$subject = __( 'Please verify your account', 'newspack' );
 
 		/* translators: %s: Site title. */
-		$message .= __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+		$message  = __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
 		$message .= Magic_Link::MAGIC_LINK_PLACEHOLDER . "\r\n\r\n";
 
 		if ( $redirect_to ) {
