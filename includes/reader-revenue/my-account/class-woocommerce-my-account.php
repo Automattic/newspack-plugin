@@ -36,12 +36,13 @@ class WooCommerce_My_Account {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
-		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 100, 5 );
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
+		add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 		add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 	}
 
@@ -195,7 +196,7 @@ class WooCommerce_My_Account {
 			return true;
 		}
 		// Don't lock access if the user is not a reader.
-		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( wp_get_current_user() ) ) {
+		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( wp_get_current_user(), true ) ) {
 			return true;
 		}
 
@@ -208,13 +209,11 @@ class WooCommerce_My_Account {
 	public static function redirect_to_account_details() {
 		if ( Donations::is_platform_stripe() && function_exists( 'wc_get_page_permalink' ) ) {
 			global $wp;
-			$current_url                  = home_url( $wp->request );
-			$my_account_page_permalink    = wc_get_page_permalink( 'myaccount' );
-			$my_account_details_permalink = wc_get_account_endpoint_url( 'edit-account' );
-			$is_my_account_root           = trailingslashit( $current_url ) === trailingslashit( $my_account_page_permalink );
-			$is_my_account_details        = trailingslashit( $current_url ) === trailingslashit( $my_account_details_permalink );
-			if ( $is_my_account_root || ( ! $is_my_account_details && is_account_page() && ! self::is_user_verified() ) ) {
-				wp_safe_redirect( $my_account_details_permalink );
+			$current_url               = home_url( $wp->request );
+			$my_account_page_permalink = wc_get_page_permalink( 'myaccount' );
+			$logout_url                = wc_get_account_endpoint_url( 'customer-logout' );
+			if ( trailingslashit( $current_url ) === trailingslashit( $my_account_page_permalink ) ) {
+				wp_safe_redirect( wc_get_account_endpoint_url( 'edit-account' ) );
 				exit;
 			}
 		}
@@ -302,21 +301,29 @@ class WooCommerce_My_Account {
 	/**
 	 * Filter WC's template getting to remove Edit Account page's default rendering.
 	 *
-	 * @param string $template Template path.
+	 * @param string $template      Template path.
 	 * @param string $template_name Template name.
 	 */
 	public static function wc_get_template( $template, $template_name ) {
 		if ( 'myaccount/form-edit-account.php' === $template_name ) {
-			$newspack_reset_password_arg  = self::RESET_PASSWORD_URL_PARAM;
-			$newspack_send_magic_link_arg = self::SEND_MAGIC_LINK_PARAM;
-
-			if ( ! self::is_user_verified() ) {
-				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-verify.php';
-			}
-
 			return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
 		}
 		return $template;
+	}
+
+	/**
+	 * Restrict account content for unverified readers.
+	 */
+	public static function restrict_account_content() {
+		if ( \is_user_logged_in() && ! self::is_user_verified() ) {
+			\remove_all_actions( 'woocommerce_account_content' );
+			\add_action(
+				'woocommerce_account_content',
+				function() {
+					include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-verify.php';
+				}
+			);
+		}
 	}
 
 	/**
