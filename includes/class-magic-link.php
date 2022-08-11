@@ -363,7 +363,13 @@ final class Magic_Link {
 			/* translators: %s Site title. */
 			'subject' => __( '[%s] ', 'newspack' ) . $subject,
 			'message' => $message,
-			'headers' => '',
+			'headers' => [
+				sprintf(
+					'From: %1$s <%2$s>',
+					Reader_Activation::get_from_name(),
+					Reader_Activation::get_from_email()
+				),
+			],
 		];
 
 		if ( $switched_locale ) {

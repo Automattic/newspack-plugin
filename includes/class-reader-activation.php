@@ -1189,5 +1189,37 @@ final class Reader_Activation {
 
 		return $emails;
 	}
+
+	/**
+	 * Get the from email address used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from` hook because we only want to
+	 * set the email address for Reader Activation emails, not all emails
+	 * sent via wp_mail.
+	 */
+	public static function get_from_email() {
+		// Get the site domain and get rid of www.
+		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
+		$from_email = 'no-reply@';
+
+		if ( null !== $sitename ) {
+			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email .= $sitename;
+		}
+
+		return apply_filters( 'newspack_reader_activation_from_email', $from_email );
+	}
+
+	/**
+	 * Get the from from name used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from_name` hook because we only want
+	 * to set the name for Reader Activation emails, not all emails
+	 * sent via wp_mail.
+	 */
+	public static function get_from_name() {
+		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
+	}
 }
 Reader_Activation::init();
