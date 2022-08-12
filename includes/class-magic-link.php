@@ -28,6 +28,8 @@ final class Magic_Link {
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
 	const COOKIE             = 'np_auth_link';
 
+	const MAGIC_LINK_PLACEHOLDER = '%MAGIC_LINK_URL%';
+
 	/**
 	 * Current session secret.
 	 *
@@ -345,17 +347,29 @@ final class Magic_Link {
 		if ( empty( $message ) ) {
 			/* translators: %s: Site title. */
 			$message  = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
-			$message .= __( 'Authenticate your account by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+			$message .= __( 'Log into your account by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
 		}
 
-		$message .= $magic_link_url . "\r\n";
+		// If the message contains a magic link placeholder, populate the magic link there.
+		if ( false !== strpos( $message, self::MAGIC_LINK_PLACEHOLDER ) ) {
+			$message = str_replace( self::MAGIC_LINK_PLACEHOLDER, $magic_link_url, $message );
+		} else {
+			// Otherwise, append it to the end of the message.
+			$message .= $magic_link_url . "\r\n";
+		}
 
 		$email = [
 			'to'      => $user->user_email,
 			/* translators: %s Site title. */
 			'subject' => __( '[%s] ', 'newspack' ) . $subject,
 			'message' => $message,
-			'headers' => '',
+			'headers' => [
+				sprintf(
+					'From: %1$s <%2$s>',
+					Reader_Activation::get_from_name(),
+					Reader_Activation::get_from_email()
+				),
+			],
 		];
 
 		if ( $switched_locale ) {
