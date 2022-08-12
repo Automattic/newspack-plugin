@@ -269,10 +269,12 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Set cookie to indicate the reader is authenticated.
+	 * Set cookie to indicate the reader has been authenticated.
 	 *
-	 * This cookie expiration doesn't matter, as it's intended to be reader right
+	 * This cookie expiration doesn't matter, as it's intended to be read right
 	 * after a frontend action that might have registered/authenticated a reader.
+	 *
+	 * Do not use this cookie for validation.
 	 *
 	 * @param \WP_User $user User object.
 	 */
