@@ -1057,6 +1057,45 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Delete a reader.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return bool|\WP_Error Whether the user was deleted or error.
+	 */
+	public static function delete_reader( $user_id ) {
+
+		/** Make sure `wp_delete_user()` is available. */
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+
+		$user = get_user_by( 'id', $user_id );
+
+		if ( ! $user || ! self::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_delete_reader_invalid_user', __( 'Invalid user.', 'newspack' ) );
+		}
+
+		/**
+		 * Fires before a reader is deleted.
+		 *
+		 * @param int      $user_id User ID.
+		 * @param \WP_User $user    User object.
+		 */
+		do_action( 'newspack_reader_before_delete', $user_id, $user );
+
+		$result = \wp_delete_user( $user_id );
+
+		/**
+		 * Fires after a reader is deleted.
+		 *
+		 * @param int      $user_id User ID.
+		 * @param \WP_User $user    User object.
+		 */
+		do_action( 'newspack_reader_after_delete', $user_id, $user );
+
+		return $result;
+	}
+
+	/**
 	 * Register a reader given its email.
 	 *
 	 * Due to authentication or auth intention, this method should be used
