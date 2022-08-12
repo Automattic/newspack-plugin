@@ -48,7 +48,7 @@ class OAuth {
 	public static function generate_csrf_token( $namespace ) {
 		$csrf_token     = sha1( openssl_random_pseudo_bytes( 1024 ) );
 		$transient_name = self::CSRF_TOKEN_TRANSIENT_NAME_BASE . $namespace . self::get_unique_id();
-		set_transient( $transient_name, $csrf_token, 60 );
+		set_transient( $transient_name, $csrf_token, 5 * MINUTE_IN_SECONDS );
 		return $csrf_token;
 	}
 

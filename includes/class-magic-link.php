@@ -28,6 +28,8 @@ final class Magic_Link {
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
 	const COOKIE             = 'np_auth_link';
 
+	const MAGIC_LINK_PLACEHOLDER = '%MAGIC_LINK_URL%';
+
 	/**
 	 * Current session secret.
 	 *
@@ -311,6 +313,8 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user        User to generate the magic link for.
 	 * @param string   $redirect_to Which page to redirect the reader after authenticating.
+	 * @param string   $subject     The subject of the email.
+	 * @param string   $message     Message to show in body of email.
 	 *
 	 * @return array|\WP_Error $email Email arguments or error. {
 	 *   Used to build wp_mail().
@@ -321,7 +325,7 @@ final class Magic_Link {
 	 *   @type string $headers The headers of the email.
 	 * }
 	 */
-	public static function generate_email( $user, $redirect_to = '' ) {
+	public static function generate_email( $user, $redirect_to = '', $subject, $message = '' ) {
 		if ( ! self::can_magic_link( $user->ID ) ) {
 			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack' ) );
 		}
@@ -336,17 +340,36 @@ final class Magic_Link {
 
 		$switched_locale = \switch_to_locale( \get_user_locale( $user ) );
 
-		/* translators: %s: Site title. */
-		$message  = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
-		$message .= __( 'Authenticate your account by visiting the following address:', 'newspack' ) . "\r\n\r\n";
-		$message .= $magic_link_url . "\r\n";
+		if ( empty( $subject ) ) {
+			$subject = __( 'Authentication link', 'newspack' );
+		}
+
+		if ( empty( $message ) ) {
+			/* translators: %s: Site title. */
+			$message  = sprintf( __( 'Welcome back to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
+			$message .= __( 'Log into your account by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+		}
+
+		// If the message contains a magic link placeholder, populate the magic link there.
+		if ( false !== strpos( $message, self::MAGIC_LINK_PLACEHOLDER ) ) {
+			$message = str_replace( self::MAGIC_LINK_PLACEHOLDER, $magic_link_url, $message );
+		} else {
+			// Otherwise, append it to the end of the message.
+			$message .= $magic_link_url . "\r\n";
+		}
 
 		$email = [
 			'to'      => $user->user_email,
 			/* translators: %s Site title. */
-			'subject' => __( '[%s] Authentication link', 'newspack' ),
+			'subject' => __( '[%s] ', 'newspack' ) . $subject,
 			'message' => $message,
-			'headers' => '',
+			'headers' => [
+				sprintf(
+					'From: %1$s <%2$s>',
+					Reader_Activation::get_from_name(),
+					Reader_Activation::get_from_email()
+				),
+			],
 		];
 
 		if ( $switched_locale ) {
@@ -375,11 +398,13 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user        User to send the magic link to.
 	 * @param string   $redirect_to Which page to redirect the reader after authenticating.
+	 * @param string   $subject     Subject linke for the email.
+	 * @param string   $message     Message to show in body of email.
 	 *
 	 * @return bool|\WP_Error Whether the email was sent or WP_Error if sending failed.
 	 */
-	public static function send_email( $user, $redirect_to = '' ) {
-		$email = self::generate_email( $user, $redirect_to );
+	public static function send_email( $user, $redirect_to = '', $subject = '', $message = '' ) {
+		$email = self::generate_email( $user, $redirect_to, $subject, $message );
 
 		if ( \is_wp_error( $email ) ) {
 			return $email;
@@ -499,7 +524,7 @@ final class Magic_Link {
 			return false;
 		}
 
-		Reader_Activation::set_reader_verified( $user );
+		// Authenticate the reader.
 		Reader_Activation::set_current_reader( $user->ID );
 
 		/**
