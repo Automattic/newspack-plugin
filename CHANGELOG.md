@@ -1,3 +1,23 @@
+# [1.89.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.89.0-alpha.1...v1.89.0-alpha.2) (2022-08-12)
+
+
+### Bug Fixes
+
+* **google-auth:** catch and display errors ([#1871](https://github.com/Automattic/newspack-plugin/issues/1871)) ([67cbcfd](https://github.com/Automattic/newspack-plugin/commit/67cbcfdbe53ec48539a1f1fb4d9af4b81ab9ca12))
+* **oauth:** csrf token lifespan ([#1869](https://github.com/Automattic/newspack-plugin/issues/1869)) ([52e0f8b](https://github.com/Automattic/newspack-plugin/commit/52e0f8bf1dba1a9ac887727e8a90d7912d4b5109))
+* parse CID from _ga cookie if it only contains CID string ([#1874](https://github.com/Automattic/newspack-plugin/issues/1874)) ([dc1fb52](https://github.com/Automattic/newspack-plugin/commit/dc1fb5265ac240b071b792e5ad97b1770a8d3133))
+* redirecting to My Account after logging in while pre-authed ([#1863](https://github.com/Automattic/newspack-plugin/issues/1863)) ([ddf111e](https://github.com/Automattic/newspack-plugin/commit/ddf111ec302e4d571c96369dd145b3292134fed9))
+* verify reader on google authentication ([#1873](https://github.com/Automattic/newspack-plugin/issues/1873)) ([c9c4eef](https://github.com/Automattic/newspack-plugin/commit/c9c4eef03ac27cf6110a1c1b7a0ae45898b30ae1))
+
+
+### Features
+
+* authenticated reader cookie ([#1882](https://github.com/Automattic/newspack-plugin/issues/1882)) ([352316b](https://github.com/Automattic/newspack-plugin/commit/352316b0e589db4f83b841d57cf1aab701947487))
+* better welcome email copy for initial verification ([#1880](https://github.com/Automattic/newspack-plugin/issues/1880)) ([604ebf7](https://github.com/Automattic/newspack-plugin/commit/604ebf7bd4d99d1503b1b46ec60035e95d3c33d6))
+* cookie reader's preferred auth strategy ([#1875](https://github.com/Automattic/newspack-plugin/issues/1875)) ([fc47f41](https://github.com/Automattic/newspack-plugin/commit/fc47f41d93eeb028d862838c75b6bbad996e4f8d))
+* disable woocomerce welcome emails in favor of verification email ([#1876](https://github.com/Automattic/newspack-plugin/issues/1876)) ([1e470e3](https://github.com/Automattic/newspack-plugin/commit/1e470e349f5467dc54e09e7358339f15edf970a4))
+* lock access to My Account UI until account is verified ([#1877](https://github.com/Automattic/newspack-plugin/issues/1877)) ([a850f48](https://github.com/Automattic/newspack-plugin/commit/a850f4898ea83b0e358a763f4e4eefaf7d2ea97e))
+
 # [1.89.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.88.0...v1.89.0-alpha.1) (2022-08-10)
 
 
