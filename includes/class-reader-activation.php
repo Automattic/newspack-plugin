@@ -1149,8 +1149,9 @@ final class Reader_Activation {
 
 		$subject = __( 'Please verify your account', 'newspack' );
 
+		$message = __( 'Hi there!', 'newspack' ) . "\r\n\r\n";
 		/* translators: %s: Site title. */
-		$message  = __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+		$message .= __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
 		$message .= Magic_Link::MAGIC_LINK_PLACEHOLDER . "\r\n\r\n";
 
 		if ( $redirect_to ) {
@@ -1195,6 +1196,8 @@ final class Reader_Activation {
 	 * We avoid use of the `wp_mail_from` hook because we only want to
 	 * set the email address for Reader Activation emails, not all emails
 	 * sent via wp_mail.
+	 *
+	 * @return string Email address used as the sender for Reader Activation emails.
 	 */
 	public static function get_from_email() {
 		// Get the site domain and get rid of www.
@@ -1217,6 +1220,8 @@ final class Reader_Activation {
 	 * We avoid use of the `wp_mail_from_name` hook because we only want
 	 * to set the name for Reader Activation emails, not all emails
 	 * sent via wp_mail.
+	 *
+	 * @return string Name used as the sender for Reader Activation emails.
 	 */
 	public static function get_from_name() {
 		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
