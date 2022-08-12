@@ -141,6 +141,17 @@ export function setAuthenticated( authenticated = true ) {
 }
 
 /**
+ * Detect whether the current reader is authenticated.
+ */
+export function refreshAuthentication() {
+	const email = getCookie( 'np_auth_reader' );
+	if ( email ) {
+		setReaderEmail( email );
+		setAuthenticated( true );
+	}
+}
+
+/**
  * Get the current reader.
  *
  * @return {Object} Reader data.
@@ -204,6 +215,7 @@ const readerActivation = {
 	off,
 	setReaderEmail,
 	setAuthenticated,
+	refreshAuthentication,
 	getReader,
 	hasAuthLink,
 	setAuthStrategy,
