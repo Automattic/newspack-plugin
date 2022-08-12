@@ -16,6 +16,7 @@ final class Reader_Activation {
 
 	const OPTIONS_PREFIX = 'newspack_reader_activation_';
 
+	const AUTH_READER_COOKIE    = 'np_auth_reader';
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
@@ -51,6 +52,7 @@ final class Reader_Activation {
 		if ( self::is_enabled() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
@@ -251,6 +253,39 @@ final class Reader_Activation {
 		$expire = time() + \apply_filters( 'newspack_auth_intention_expiration', 30 * DAY_IN_SECONDS, $email );
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
 		setcookie( self::AUTH_INTENTION_COOKIE, $email, $expire, COOKIEPATH, COOKIE_DOMAIN, true );
+	}
+
+	/**
+	 * Clear cookie that indicates the reader is authenticated.
+	 */
+	public static function clear_auth_reader_cookie() {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_READER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Set cookie to indicate the reader has been authenticated.
+	 *
+	 * This cookie expiration doesn't matter, as it's intended to be read right
+	 * after a frontend action that might have registered/authenticated a reader.
+	 *
+	 * Do not use this cookie for validation.
+	 *
+	 * @param \WP_User $user User object.
+	 */
+	public static function set_auth_reader_cookie( $user ) {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_READER_COOKIE, $user->user_email, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true );
 	}
 
 	/**
@@ -1014,6 +1049,7 @@ final class Reader_Activation {
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
+		self::set_auth_reader_cookie( $user );
 		\do_action( 'wp_login', $user->user_login, $user );
 		Logger::log( 'Logged in user ' . $user->ID );
 
