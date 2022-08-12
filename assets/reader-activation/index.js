@@ -148,6 +148,8 @@ export function refreshAuthentication() {
 	if ( email ) {
 		setReaderEmail( email );
 		setAuthenticated( true );
+	} else {
+		setReaderEmail( getCookie( 'np_auth_intention' ) );
 	}
 }
 
