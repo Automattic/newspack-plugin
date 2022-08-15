@@ -1,7 +1,6 @@
 <?php
 /**
- * My Account page before account has been verified.
- * The user will be asked to verify before they can manage account settings.
+ * My Account page for reader account deletion.
  *
  * @package Newspack
  */
