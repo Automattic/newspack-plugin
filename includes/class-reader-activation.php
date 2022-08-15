@@ -167,7 +167,12 @@ final class Reader_Activation {
 		if ( ! isset( $config[ $name ] ) ) {
 			return null;
 		}
-		return \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+		// Use default value type for casting bool option value.
+		if ( is_bool( $config[ $name ] ) ) {
+			$value = (bool) $value;
+		}
+		return $value;
 	}
 
 	/**
@@ -182,6 +187,9 @@ final class Reader_Activation {
 		$config = self::get_settings_config();
 		if ( ! isset( $config[ $key ] ) ) {
 			return false;
+		}
+		if ( is_bool( $value ) ) {
+			$value = intval( $value );
 		}
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
 	}
