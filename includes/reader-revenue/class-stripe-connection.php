@@ -358,7 +358,7 @@ class Stripe_Connection {
 		$metadata[ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
 		$metadata[ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
 		// In case this was previously set after a previous cancelled subscription, clear it.
-		$metadata[ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = '-';
+		$metadata[ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = '';
 		return $metadata;
 	}
 
