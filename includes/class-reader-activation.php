@@ -16,6 +16,7 @@ final class Reader_Activation {
 
 	const OPTIONS_PREFIX = 'newspack_reader_activation_';
 
+	const AUTH_READER_COOKIE    = 'np_auth_reader';
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
@@ -51,6 +52,7 @@ final class Reader_Activation {
 		if ( self::is_enabled() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
@@ -254,6 +256,39 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Clear cookie that indicates the reader is authenticated.
+	 */
+	public static function clear_auth_reader_cookie() {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_READER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Set cookie to indicate the reader has been authenticated.
+	 *
+	 * This cookie expiration doesn't matter, as it's intended to be read right
+	 * after a frontend action that might have registered/authenticated a reader.
+	 *
+	 * Do not use this cookie for validation.
+	 *
+	 * @param \WP_User $user User object.
+	 */
+	public static function set_auth_reader_cookie( $user ) {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_READER_COOKIE, $user->user_email, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true );
+	}
+
+	/**
 	 * Get the auth intention value.
 	 *
 	 * @return string|null Email address or null if not set.
@@ -275,15 +310,16 @@ final class Reader_Activation {
 	/**
 	 * Whether the user is a reader.
 	 *
-	 * @param \WP_User $user User object.
+	 * @param \WP_User $user   User object.
+	 * @param bool     $strict Whether to check if the user was created through reader registration. Default false.
 	 *
 	 * @return bool Whether the user is a reader.
 	 */
-	public static function is_user_reader( $user ) {
+	public static function is_user_reader( $user, $strict = false ) {
 		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
 		$user_data = \get_userdata( $user->ID );
 
-		if ( false === $is_reader ) {
+		if ( false === $is_reader && false === $strict ) {
 			/**
 			 * Filters the roles that can determine if a user is a reader.
 			 *
@@ -1020,6 +1056,7 @@ final class Reader_Activation {
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
+		self::set_auth_reader_cookie( $user );
 		\do_action( 'wp_login', $user->user_login, $user );
 		Logger::log( 'Logged in user ' . $user->ID );
 
@@ -1156,9 +1193,14 @@ final class Reader_Activation {
 
 		$subject = __( 'Please verify your account', 'newspack' );
 
-		/* translators: %s: Site title. */
-		$message  = sprintf( __( 'Welcome to %s!', 'newspack' ), $blogname ) . "\r\n\r\n";
+		$message  = __( 'Hi there!', 'newspack' ) . "\r\n\r\n";
 		$message .= __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+		$message .= Magic_Link::MAGIC_LINK_PLACEHOLDER . "\r\n\r\n";
+
+		if ( $redirect_to ) {
+			/* translators: %s: My Account URL. */
+			$message .= sprintf( __( 'Once verified, visit %s to edit your profile, set a password for easier access, and manage your newsletter subscriptions and billing information.', 'newspack' ), $redirect_to ) . "\r\n";
+		}
 
 		Logger::log( 'Sending verification email to new user ' . $user->user_email );
 		return Magic_Link::send_email( $user, $redirect_to, $subject, $message );
@@ -1190,6 +1232,42 @@ final class Reader_Activation {
 		);
 
 		return $emails;
+	}
+
+	/**
+	 * Get the from email address used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from` hook because we only want to
+	 * set the email address for Reader Activation emails, not all emails
+	 * sent via wp_mail.
+	 *
+	 * @return string Email address used as the sender for Reader Activation emails.
+	 */
+	public static function get_from_email() {
+		// Get the site domain and get rid of www.
+		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
+		$from_email = 'no-reply@';
+
+		if ( null !== $sitename ) {
+			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email .= $sitename;
+		}
+
+		return apply_filters( 'newspack_reader_activation_from_email', $from_email );
+	}
+
+	/**
+	 * Get the from from name used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from_name` hook because we only want
+	 * to set the name for Reader Activation emails, not all emails
+	 * sent via wp_mail.
+	 *
+	 * @return string Name used as the sender for Reader Activation emails.
+	 */
+	public static function get_from_name() {
+		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
 	}
 }
 Reader_Activation::init();

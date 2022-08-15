@@ -6,7 +6,9 @@
  * @package Newspack
  */
 
-use \Newspack\WooCommerce_My_Account;
+namespace Newspack;
+
+use Newspack\WooCommerce_My_Account;
 
 defined( 'ABSPATH' ) || exit;
 
