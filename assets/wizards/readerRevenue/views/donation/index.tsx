@@ -132,21 +132,33 @@ export const DonationAmounts = () => {
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'Low-tier' ) }
-												value={ amounts[ section.key ][ 0 ] }
+												value={
+													amounts[ section.key ][ 0 ] >= minimumDonation
+														? amounts[ section.key ][ 0 ]
+														: minimumDonation
+												}
 												min={ minimumDonation }
 												onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
 											/>
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'Mid-tier' ) }
-												value={ amounts[ section.key ][ 1 ] }
+												value={
+													amounts[ section.key ][ 1 ] >= minimumDonation
+														? amounts[ section.key ][ 1 ]
+														: minimumDonation
+												}
 												min={ minimumDonation }
 												onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
 											/>
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'High-tier' ) }
-												value={ amounts[ section.key ][ 2 ] }
+												value={
+													amounts[ section.key ][ 2 ] >= minimumDonation
+														? amounts[ section.key ][ 2 ]
+														: minimumDonation
+												}
 												min={ minimumDonation }
 												onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
 											/>
@@ -165,7 +177,11 @@ export const DonationAmounts = () => {
 								currencySymbol={ currencySymbol }
 								label={ section.staticLabel }
 								value={ amounts[ section.key ][ 3 ] }
-								min={ minimumDonation }
+								min={
+									amounts[ section.key ][ 3 ] >= minimumDonation
+										? amounts[ section.key ][ 3 ]
+										: minimumDonation
+								}
 								onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
 								key={ section.key }
 							/>
