@@ -131,7 +131,7 @@ export default withWizardScreen( () => {
 						<CheckboxControl
 							label={ __( 'Delete contact on reader deletion', 'newspack' ) }
 							help={ __(
-								"If the reader's email is verified, permanently delete contact from ESP on reader deletion. ESP synchronization must be enabled.",
+								"If the reader's email is verified, delete contact from ESP on reader deletion. ESP synchronization must be enabled.",
 								'newspack'
 							) }
 							checked={ !! config.sync_esp_delete }
