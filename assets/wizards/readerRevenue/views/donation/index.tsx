@@ -16,6 +16,7 @@ import {
 	Notice,
 	SectionHeader,
 	SelectControl,
+	TextControl,
 	Wizard,
 } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
@@ -52,6 +53,7 @@ type WizardData = {
 				};
 				currencySymbol: string;
 				tiered: boolean;
+				minimumDonation: number;
 		  };
 	donation_page: {
 		editUrl: string;
@@ -67,7 +69,8 @@ export const DonationAmounts = () => {
 		return null;
 	}
 
-	const { amounts, currencySymbol, tiered, disabledFrequencies } = wizardData.donation_data;
+	const { amounts, currencySymbol, tiered, disabledFrequencies, minimumDonation } =
+		wizardData.donation_data;
 
 	const changeHandler = path => value =>
 		updateWizardSettings( {
@@ -166,6 +169,23 @@ export const DonationAmounts = () => {
 					</Grid>
 				</Card>
 			) }
+			<Card headerActions noBorder>
+				<SectionHeader
+					title={ __( 'Minimum Donation', 'newspack' ) }
+					description={ __(
+						'Set minimum donation amount. Setting a reasonable minimum donation amount can help protect your site from bot attacks.',
+						'newspack'
+					) }
+					noMargin
+				/>
+				<TextControl
+					label={ __( 'Minimum donation', 'newspack' ) }
+					type="number"
+					min={ 1 }
+					value={ minimumDonation }
+					onChange={ value => changeHandler( [ 'minimumDonation' ] )( value ) }
+				/>
+			</Card>
 		</>
 	);
 };
