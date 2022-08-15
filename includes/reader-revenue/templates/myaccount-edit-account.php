@@ -88,6 +88,4 @@ endif;
 	</a>
 </p>
 
-<?php \do_action( 'woocommerce_delete_account_form' ); ?>
-
 <?php \do_action( 'woocommerce_after_edit_account_form' ); ?>
