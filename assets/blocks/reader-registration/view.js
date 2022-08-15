@@ -110,7 +110,6 @@ function domReady( callback ) {
 							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
 					} )
 					.catch( e => {
-						console.log( e );
 						form.endLoginFlow( e, 400 );
 					} );
 			} );
