@@ -1,4 +1,5 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../../shared/scss/mixins';
 
 .newspack-registration {
 	@media ( min-width: 782px ) {
@@ -151,6 +152,10 @@
 
 	+ div:empty {
 		display: none;
+	}
+
+	.nphp {
+		@include mixins.visuallyHidden;
 	}
 }
 

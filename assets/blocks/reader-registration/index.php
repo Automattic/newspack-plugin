@@ -162,7 +162,8 @@ function render_block( $attrs, $content ) {
 					<div class="newspack-registration__main">
 						<div>
 							<div class="newspack-registration__inputs">
-								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<input type="email" name="npe" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
 							<?php Reader_Activation::render_third_party_auth(); ?>
@@ -267,7 +268,21 @@ function process_form() {
 		return;
 	}
 
-	if ( ! isset( $_REQUEST['email'] ) || empty( $_REQUEST['email'] ) ) {
+	// Honeypot trap.
+	if ( ! empty( $_REQUEST['email'] ) ) {
+		return send_form_response(
+			[
+				'email'         => \sanitize_email( $_REQUEST['email'] ),
+				'authenticated' => true,
+				'existing_user' => false,
+			]
+		);
+	}
+
+	// Note that that the "true" email address field is called `npe` due to the honeypot strategy.
+	// The honeypot field is called `email` to hopefully capture bots that might be looking for such a field.
+	$email = isset( $_REQUEST['npe'] ) ? \sanitize_email( $_REQUEST['npe'] ) : '';
+	if ( empty( $email ) ) {
 		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 	}
 
@@ -278,7 +293,6 @@ function process_form() {
 	}
 	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
 	$metadata['registration_method'] = 'registration-block';
-	$email                           = \sanitize_email( $_REQUEST['email'] );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
