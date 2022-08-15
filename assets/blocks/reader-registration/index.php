@@ -163,7 +163,7 @@ function render_block( $attrs, $content ) {
 						<div>
 							<div class="newspack-registration__inputs">
 								<input type="email" name="npe" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
-								<input class="nphp" tabindex="-1" aria-hidden="true" type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">

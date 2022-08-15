@@ -598,6 +598,22 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Render a honeypot field to guard against bot form submissions. Note that
+	 * this field is named `email` to hopefully catch more bots who might be
+	 * looking for such fields, where as the "real" field is named "npe".
+	 *
+	 * @param string $placeholder Placeholder text to render in the field.
+	 */
+	public static function render_honeypot_field( $placeholder = '' ) {
+		if ( empty( $placeholder ) ) {
+			$placeholder = __( 'Enter your email address', 'newspack' );
+		}
+		?>
+		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
+		<?php
+	}
+
+	/**
 	 * Renders reader authentication form.
 	 *
 	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
@@ -689,7 +705,7 @@ final class Reader_Activation {
 						<?php endif; ?>
 						<div class="components-form__field">
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
-							<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+							<?php self::render_honeypot_field(); ?>
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
