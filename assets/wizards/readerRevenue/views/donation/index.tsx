@@ -133,18 +133,21 @@ export const DonationAmounts = () => {
 												currencySymbol={ currencySymbol }
 												label={ __( 'Low-tier' ) }
 												value={ amounts[ section.key ][ 0 ] }
+												min={ minimumDonation }
 												onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
 											/>
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'Mid-tier' ) }
 												value={ amounts[ section.key ][ 1 ] }
+												min={ minimumDonation }
 												onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
 											/>
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'High-tier' ) }
 												value={ amounts[ section.key ][ 2 ] }
+												min={ minimumDonation }
 												onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
 											/>
 										</Grid>
@@ -162,6 +165,7 @@ export const DonationAmounts = () => {
 								currencySymbol={ currencySymbol }
 								label={ section.staticLabel }
 								value={ amounts[ section.key ][ 3 ] }
+								min={ minimumDonation }
 								onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
 								key={ section.key }
 							/>
