@@ -956,7 +956,7 @@ final class Reader_Activation {
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
-		$honeypot = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
+		$honeypot = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
 		// phpcs:enable
 
 		// Honeypot trap.
