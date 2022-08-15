@@ -89,15 +89,6 @@ export default withWizardScreen( () => {
 					checked={ !! config.enabled_account_link }
 					onChange={ value => updateConfig( 'enabled_account_link', value ) }
 				/>
-				<TextControl
-					label={ __( 'Newsletter subscription text on registration', 'newspack' ) }
-					help={ __(
-						'The text to display while subscribing to newsletters on the registration modal.',
-						'newspack'
-					) }
-					value={ config.newsletters_label }
-					onChange={ value => updateConfig( 'newsletters_label', value ) }
-				/>
 				<Grid columns={ 2 } gutter={ 16 }>
 					<TextControl
 						label={ __( 'Terms & Conditions Text', 'newspack' ) }
@@ -112,17 +103,53 @@ export default withWizardScreen( () => {
 						onChange={ value => updateConfig( 'terms_url', value ) }
 					/>
 				</Grid>
-			</Card>
-			{ isActiveCampaign && (
-				<ActiveCampaign
-					value={ { masterList: config.active_campaign_master_list } }
-					onChange={ ( key, value ) => {
-						if ( key === 'masterList' ) {
-							updateConfig( 'active_campaign_master_list', value );
-						}
-					} }
+				<hr />
+				<SectionHeader
+					title={ __( 'Email Service Provider and Newsletters Integration', 'newspack' ) }
+					description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 				/>
-			) }
+				<TextControl
+					label={ __( 'Newsletter subscription text on registration', 'newspack' ) }
+					help={ __(
+						'The text to display while subscribing to newsletters on the registration modal.',
+						'newspack'
+					) }
+					value={ config.newsletters_label }
+					onChange={ value => updateConfig( 'newsletters_label', value ) }
+				/>
+				<CheckboxControl
+					label={ __( 'Synchronize reader to ESP', 'newspack' ) }
+					help={ __(
+						'Whether to synchronize reader data to the ESP. A contact will be created on reader registration if the ESP supports contacts without a list subscription.',
+						'newspack'
+					) }
+					checked={ !! config.sync_esp }
+					onChange={ value => updateConfig( 'sync_esp', value ) }
+				/>
+				{ config.sync_esp && (
+					<>
+						<CheckboxControl
+							label={ __( 'Delete contact on reader deletion', 'newspack' ) }
+							help={ __(
+								"If the reader's email is verified, permanently delete contact from ESP on reader deletion. ESP synchronization must be enabled.",
+								'newspack'
+							) }
+							checked={ !! config.sync_esp_delete }
+							onChange={ value => updateConfig( 'sync_esp_delete', value ) }
+						/>
+						{ isActiveCampaign && (
+							<ActiveCampaign
+								value={ { masterList: config.active_campaign_master_list } }
+								onChange={ ( key, value ) => {
+									if ( key === 'masterList' ) {
+										updateConfig( 'active_campaign_master_list', value );
+									}
+								} }
+							/>
+						) }
+					</>
+				) }
+			</Card>
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
 					{ __( 'Save Changes', 'newspack' ) }

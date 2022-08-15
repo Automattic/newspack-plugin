@@ -127,6 +127,8 @@ final class Reader_Activation {
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
 			'terms_url'                   => '',
+			'sync_esp'                    => true,
+			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 		];
 
@@ -148,7 +150,7 @@ final class Reader_Activation {
 
 		$settings = [];
 		foreach ( $config as $key => $default_value ) {
-			$settings[ $key ] = \get_option( self::OPTIONS_PREFIX . $key, $default_value );
+			$settings[ $key ] = self::get_setting( $key );
 		}
 		return $settings;
 	}
@@ -1081,6 +1083,8 @@ final class Reader_Activation {
 		 * @param \WP_User $user    User object.
 		 */
 		do_action( 'newspack_reader_before_delete', $user_id, $user );
+
+		Logger::log( 'Deleting reader with ID ' . $user->ID . ' (' . $user->user_email . ')' );
 
 		$result = \wp_delete_user( $user_id );
 
