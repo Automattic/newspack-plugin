@@ -945,7 +945,12 @@ final class Reader_Activation {
 
 		// Honeypot trap.
 		if ( ! empty( $honeypot ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
+			return self::send_auth_form_response(
+				[
+					'email'         => $honeypot,
+					'authenticated' => \wp_rand( 1000000 ),
+				]
+			);
 		}
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
