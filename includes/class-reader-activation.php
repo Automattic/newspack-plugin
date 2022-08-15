@@ -948,7 +948,7 @@ final class Reader_Activation {
 			return self::send_auth_form_response(
 				[
 					'email'         => $honeypot,
-					'authenticated' => \wp_rand( 1000000 ),
+					'authenticated' => \wp_rand( 1000000, PHP_INT_MAX ),
 				]
 			);
 		}
