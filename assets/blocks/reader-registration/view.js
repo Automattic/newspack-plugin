@@ -54,7 +54,6 @@ function domReady( callback ) {
 			};
 
 			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
-				console.log( message, status );
 				let messageNode;
 
 				if ( data?.existing_user ) {
