@@ -279,7 +279,10 @@ function process_form() {
 		);
 	}
 
-	if ( ! isset( $_REQUEST['npe'] ) || empty( $_REQUEST['npe'] ) ) {
+	// Note that that the "true" email address field is called `npe` due to the honeypot strategy.
+	// The honeypot field is called `email` to hopefully capture bots that might be looking for such a field.
+	$email = isset( $_REQUEST['npe'] ) ? \sanitize_email( $_REQUEST['npe'] ) : '';
+	if ( empty( $email ) ) {
 		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 	}
 
@@ -290,7 +293,6 @@ function process_form() {
 	}
 	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
 	$metadata['registration_method'] = 'registration-block';
-	$email                           = \sanitize_email( $_REQUEST['npe'] );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
