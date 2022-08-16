@@ -252,6 +252,10 @@ class WooCommerce_My_Account {
 	 * Handle delete account confirmation.
 	 */
 	public static function handle_delete_account() {
+
+		/** Make sure `wp_delete_user()` is available. */
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+
 		if ( ! isset( $_POST[ self::DELETE_ACCOUNT_FORM ] ) ) {
 			return;
 		}
