@@ -98,8 +98,13 @@ class Google_Services_Connection {
 				if ( isset( $event_spec['cid'] ) ) {
 					$analytics_ping_params['cid'] = $event_spec['cid'];
 				} elseif ( isset( $_COOKIE['_ga'] ) ) {
-					list($version, $domain_depth, $cid1, $cid2) = explode( '.', $_COOKIE['_ga'], 4 ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-					$analytics_ping_params['cid']               = $cid1 . '.' . $cid2;
+					$cookie_pieces = explode( '.', $_COOKIE['_ga'], 3 ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+					if ( 1 === count( $cookie_pieces ) ) {
+						$cid = reset( $cookie_pieces );
+					} else {
+						list( $version, $domain_depth, $cid ) = $cookie_pieces;
+					}
+					$analytics_ping_params['cid'] = $cid;
 				} else {
 					$analytics_ping_params['cid'] = '555'; // Anonymous client.
 				}

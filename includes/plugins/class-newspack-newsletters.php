@@ -124,8 +124,8 @@ class Newspack_Newsletters {
 				$current_page_url_params = self::get_url_params( $current_page_url );
 
 				$is_new_contact = ! $contact['existing_contact_data'];
-				// If the contact exists, but has no account metadata, treat it as a new contact.
-				if ( $contact && isset( $contact['metadata'] ) && ! isset( $contact['metadata']['NP_ACCOUNT'] ) ) {
+				// If the contact exists, but has no account metadata (or any metadata), treat it as a new contact.
+				if ( $contact['existing_contact_data'] && ! isset( $contact['existing_contact_data']['metadata'], $contact['existing_contact_data']['metadata']['NP_ACCOUNT'] ) ) {
 					$is_new_contact = true;
 				}
 				if ( $is_new_contact ) {

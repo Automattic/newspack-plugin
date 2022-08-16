@@ -1,4 +1,6 @@
+@use 'sass:color';
 @use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../shared/scss/mixins';
 
 .newspack-reader {
 	/**
@@ -29,16 +31,7 @@
 		&__label {
 			margin-left: 0.2rem;
 			@media screen and ( max-width: 959px ) {
-				border: 0;
-				clip: rect( 1px, 1px, 1px, 1px );
-				clip-path: inset( 50% );
-				height: 1px;
-				margin: -1px;
-				overflow: hidden;
-				padding: 0;
-				position: absolute !important;
-				width: 1px;
-				word-wrap: normal !important;
+				@include mixins.visuallyHidden;
 			}
 		}
 	}
@@ -58,7 +51,11 @@
 		justify-content: center;
 		align-items: center;
 		z-index: 999999;
-		font-size: 0.9em;
+		font-size: 0.8888em;
+
+		@media screen and ( min-width: 600px ) {
+			font-size: 0.8em;
+		}
 
 		&__visible {
 			display: flex !important;
@@ -72,45 +69,50 @@
 			z-index: auto;
 		}
 
+		.nphp {
+			@include mixins.visuallyHidden;
+		}
+
 		&[data-form-status='200'] {
 			.newspack-reader__auth-form {
 				&__response {
-					background: rgba( 74, 184, 102, 0.1 );
 					text-align: center;
-					padding: 2.5rem;
-					margin: 1rem 0;
 					font-size: 1em;
 					&__icon[data-form-status='200'] {
 						display: flex;
-						margin: 0 auto 2rem;
+						margin: 0 auto 1em;
 						border-radius: 100%;
-						width: 50px;
-						height: 50px;
+						width: 40px;
+						height: 40px;
 						justify-content: center;
 						align-items: center;
-						color: #fff;
-						background: #4ab866;
+						color: white;
+						background: wp-colors.$alert-green;
 					}
 				}
 			}
 		}
 
-		&[data-form-status='400'] {
+		&[data-form-status='400'],
+		&[data-form-status='500'] {
 			.newspack-reader__auth-form {
 				&__response {
-					width: 100%;
-					margin: 0;
-					padding: 0.5rem;
-					background: rgba( 217, 79, 79, 0.1 );
+					background: color.adjust( wp-colors.$alert-red, $lightness: 51% );
+					border-radius: 3px;
 					display: flex;
 					justify-content: center;
+					margin: 0 0 0.4rem;
+					padding: 0.4rem;
+					width: 100%;
 					&__icon[data-form-status='400'] {
 						display: flex;
 						flex: 1 1 0;
-						color: #d94f4f;
-						margin: 0 0.25rem 0 0;
+						color: wp-colors.$alert-red;
+						margin: 0 0.4rem 0 0;
 					}
 					&__content {
+						align-items: center;
+						display: flex;
 						flex: 1 1 100%;
 					}
 				}
@@ -122,15 +124,43 @@
 		}
 
 		a {
-			color: #36f;
 			text-decoration: underline;
 		}
 
 		p {
-			margin: 0.5rem 0;
+			line-height: 1.5;
+			margin: 0.8rem 0;
 			&.small {
 				margin: 0;
-				font-size: 0.8em;
+				font-size: 0.8125em;
+				line-height: 1.2307692308;
+				a {
+					color: inherit;
+				}
+			}
+		}
+
+		.components-form {
+			&__field {
+				font-size: 1rem;
+				margin: 0.4rem 0;
+			}
+
+			&__submit {
+				flex: 1 1 100%;
+				font-size: 1rem;
+				margin: 0;
+			}
+
+			&__help {
+				color: wp-colors.$gray-700;
+				display: flex;
+				flex: 1 1 100%;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				justify-content: space-between;
+				margin: 0.4rem 0 0;
+
 				a {
 					color: inherit;
 				}
@@ -140,10 +170,12 @@
 		&__wrapper {
 			width: 100%;
 			max-width: 544px;
-			background: #fff;
+			background: white;
 			position: relative;
 			max-height: 100vh;
 			overflow-y: auto;
+
+			transition: height 125ms ease-in-out;
 
 			.newspack-reader__auth-form__inline & {
 				margin: auto;
@@ -152,39 +184,56 @@
 		}
 
 		&__header {
+			align-items: baseline;
 			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5em;
 			justify-content: space-between;
-			align-items: center;
+			margin: 0 0 1em;
+			padding-right: 40px;
+
+			@media screen and ( min-width: 600px ) {
+				padding-right: 0;
+			}
+
 			h2 {
-				font-size: 1.3em;
+				font-size: 1em;
+				line-height: 1.5;
+				margin: 0;
+
+				@media screen and ( min-width: 782px ) {
+					font-size: 1.3125em;
+					line-height: 1.523809;
+				}
 			}
 			a {
-				font-size: 0.8em;
-				color: #36f;
-				margin-left: 1rem;
-			}
-			@media screen and ( max-width: 744px ) {
-				justify-content: flex-start;
+				font-size: 0.8125em;
+				line-height: 1.2307692308;
 			}
 		}
 
 		&__content {
-			padding: 64px;
+			padding: 16px;
 
-			@media screen and ( max-width: 744px ) {
-				padding: 0 5vw 5vw 5vw;
+			@media screen and ( min-width: 600px ) {
+				padding: 32px;
 			}
+
+			@media screen and ( min-width: 782px ) {
+				padding: 64px;
+			}
+
 			form {
 				transition: opacity 0.2s ease-in-out;
+
+				> *:last-child {
+					margin-bottom: 0 !important;
+				}
 			}
 			input[type='email'],
 			input[type='password'] {
 				width: 100%;
 			}
-			[type='submit'] {
-				background-color: var( --newspack-primary-color );
-			}
-
 			.newspack-reader__auth-form__inline & {
 				padding: 0;
 			}
@@ -194,9 +243,6 @@
 			display: flex;
 			justify-content: space-between;
 			flex-wrap: wrap;
-			p:not( .small ) {
-				flex: 1 1 100%;
-			}
 			button {
 				display: block;
 				width: 100%;
@@ -204,7 +250,8 @@
 		}
 
 		&__response {
-			font-size: 0.8em;
+			font-size: 0.8125em;
+			line-height: 1.2307692308;
 			&__content {
 				p {
 					margin: 0;
@@ -219,41 +266,48 @@
 			align-items: center;
 			background: white;
 			border: none;
-			border-radius: 0;
+			border-radius: 3px;
 			box-shadow: none;
 			color: inherit;
 			cursor: pointer;
 			display: flex;
 			font-size: inherit;
-			height: 36px;
+			height: 40px;
 			justify-content: center;
-			margin: 0;
-			padding: 6px;
+			margin: 8px;
+			padding: 0;
 			position: absolute;
 			right: 0;
 			top: 0;
-			width: 36px;
+			width: 40px;
+
+			@media screen and ( min-width: 600px ) {
+				height: 30px;
+				margin: 2px;
+				width: 30px;
+			}
+
+			@media screen and ( min-width: 782px ) {
+				height: 48px;
+				margin: 8px;
+				width: 48px;
+			}
 
 			svg {
 				fill: currentcolor;
 				flex: 0 0 24px;
 			}
 
-			&:active,
-			&:hover {
-				opacity: 0.6;
-			}
-
 			&:focus {
-				outline: 1px solid;
-				outline-offset: -1px;
+				outline: 1.5px solid #111;
+				outline-offset: 2px;
 			}
 		}
 
 		&__terms-text {
-			font-size: 0.8em;
-			margin: 0.5rem 0;
-			color: #757575;
+			font-size: 0.6875em;
+			line-height: 1.45454545 !important;
+			color: wp-colors.$gray-700;
 			a {
 				color: inherit;
 			}
@@ -268,7 +322,7 @@
 		font-size: 0.8rem;
 		border: 1px solid wp-colors.$gray-200;
 		border-radius: 2px;
-		padding: 0.5rem 0 0.5rem 1rem;
+		padding: 0.5em;
 		h3 {
 			display: none;
 		}
@@ -278,14 +332,14 @@
 			padding: 0;
 			display: flex;
 			flex-wrap: wrap;
-			min-width: 250px;
+			min-width: 100%;
 			li {
 				flex: 1 1 33.3333%;
 				display: flex;
-				min-width: 200px;
+				min-width: 142px;
 				box-sizing: border-box;
-				margin: 0;
-				padding: 0.5rem 1rem 0.5rem 0;
+				margin: 0.5em;
+				padding: 0;
 			}
 		}
 
@@ -310,21 +364,23 @@
 	 * Third party auth.
 	 */
 	&__logins {
-		margin-top: 0.5rem;
+		font-size: 1rem;
+		margin-top: 0.8rem;
 		&__separator {
+			align-items: center;
 			display: flex;
-			margin-bottom: 0.5rem;
+			margin-bottom: 0.8rem;
 			div {
 				text-align: center;
 				&:nth-child( 2 ) {
-					padding: 0 0.8em;
-					font-size: 16px;
+					font-size: 0.8rem;
+					line-height: 1.5;
+					padding: 0 0.5em;
 				}
 				&:first-child,
 				&:last-child {
 					flex: 1;
-					border-top: 1px solid wp-colors.$gray-400;
-					transform: translateY( 0.7em );
+					border-top: 1px solid wp-colors.$gray-200;
 				}
 			}
 		}

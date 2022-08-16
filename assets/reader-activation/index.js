@@ -141,6 +141,19 @@ export function setAuthenticated( authenticated = true ) {
 }
 
 /**
+ * Detect whether the current reader is authenticated.
+ */
+export function refreshAuthentication() {
+	const email = getCookie( 'np_auth_reader' );
+	if ( email ) {
+		setReaderEmail( email );
+		setAuthenticated( true );
+	} else {
+		setReaderEmail( getCookie( 'np_auth_intention' ) );
+	}
+}
+
+/**
  * Get the current reader.
  *
  * @return {Object} Reader data.
@@ -158,6 +171,32 @@ export function hasAuthLink() {
 	const reader = getReader();
 	const emailLinkSecret = getCookie( 'np_auth_link' );
 	return !! ( reader?.email && emailLinkSecret );
+}
+
+const authStrategies = [ 'pwd', 'link' ];
+
+/**
+ * Set the reader preferred authentication strategy.
+ *
+ * @param {string} strategy Authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function setAuthStrategy( strategy ) {
+	if ( ! authStrategies.includes( strategy ) ) {
+		throw 'Invalid authentication strategy';
+	}
+	setCookie( 'np_auth_strategy', strategy );
+	return strategy;
+}
+
+/**
+ * Get the reader preferred authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function getAuthStrategy() {
+	return getCookie( 'np_auth_strategy' );
 }
 
 /**
@@ -178,8 +217,11 @@ const readerActivation = {
 	off,
 	setReaderEmail,
 	setAuthenticated,
+	refreshAuthentication,
 	getReader,
 	hasAuthLink,
+	setAuthStrategy,
+	getAuthStrategy,
 };
 window.newspackReaderActivation = readerActivation;
 

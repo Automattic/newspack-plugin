@@ -47,28 +47,35 @@ function domReady( callback ) {
 			} );
 
 			form.startLoginFlow = () => {
+				messageElement.classList.add( 'newspack-registration--hidden' );
 				messageElement.innerHTML = '';
 				submitElement.disabled = true;
 				container.classList.add( 'newspack-registration--in-progress' );
 			};
 
-			form.endLoginFlow = ( message, status, data ) => {
+			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
 				let messageNode;
-				if ( message ) {
-					messageNode = document.createElement( 'div' );
-					messageNode.textContent = message;
-				}
+
 				if ( data?.existing_user ) {
 					successElement = document.querySelector( '.newspack-login__success' );
+				}
+
+				if ( message ) {
+					messageNode = document.createElement( 'p' );
+					messageNode.classList.add( 'has-text-align-center' );
+					messageNode.textContent = message;
+
+					const defaultMessage = successElement.querySelector( 'p' );
+					if ( defaultMessage && data?.sso ) {
+						defaultMessage.replaceWith( messageNode );
+					}
 				}
 
 				const isSuccess = status === 200;
 				container.classList.add( `newspack-registration--${ isSuccess ? 'success' : 'error' }` );
 				if ( isSuccess ) {
-					if ( messageNode ) {
-						successElement.classList.remove( 'newspack-registration--hidden' );
-						form.remove();
-					}
+					successElement.classList.remove( 'newspack-registration--hidden' );
+					form.remove();
 					if ( data?.email ) {
 						readerActivation.setReaderEmail( data.email );
 						// Set authenticated only if email is set, otherwise an error will be thrown.
@@ -76,6 +83,7 @@ function domReady( callback ) {
 					}
 				} else if ( messageNode ) {
 					messageElement.appendChild( messageNode );
+					messageElement.classList.remove( 'newspack-registration--hidden' );
 				}
 				submitElement.disabled = false;
 				container.classList.remove( 'newspack-registration--in-progress' );
@@ -84,7 +92,7 @@ function domReady( callback ) {
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
 				const body = new FormData( form );
-				if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
+				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 					return;
 				}
 				form.startLoginFlow();
@@ -100,7 +108,9 @@ function domReady( callback ) {
 							.json()
 							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
 					} )
-					.finally( form.endLoginFlow );
+					.catch( e => {
+						form.endLoginFlow( e, 400 );
+					} );
 			} );
 		} );
 	} );

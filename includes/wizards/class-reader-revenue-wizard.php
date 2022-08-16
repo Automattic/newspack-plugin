@@ -150,6 +150,15 @@ class Reader_Revenue_Wizard extends Wizard {
 					'testSecretKey'      => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
+					'useCaptcha'         => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'captchaSiteKey'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'captchaSiteSecret'  => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
 					'newsletter_list_id' => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
@@ -190,10 +199,6 @@ class Reader_Revenue_Wizard extends Wizard {
 					'tiered'              => [
 						'required'          => false,
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'defaultFrequency'    => [
-						'required'          => false,
-						'sanitize_callback' => 'sanitize_text_field',
 					],
 					'disabledFrequencies' => [
 						'required' => false,

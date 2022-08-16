@@ -16,6 +16,7 @@ final class Reader_Activation {
 
 	const OPTIONS_PREFIX = 'newspack_reader_activation_';
 
+	const AUTH_READER_COOKIE    = 'np_auth_reader';
 	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
 	const SCRIPT_HANDLE         = 'newspack-reader-activation';
 	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
@@ -51,16 +52,19 @@ final class Reader_Activation {
 		if ( self::is_enabled() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
+			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
 			\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
 			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
+			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 		}
 	}
 
@@ -252,6 +256,39 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Clear cookie that indicates the reader is authenticated.
+	 */
+	public static function clear_auth_reader_cookie() {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_READER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Set cookie to indicate the reader has been authenticated.
+	 *
+	 * This cookie expiration doesn't matter, as it's intended to be read right
+	 * after a frontend action that might have registered/authenticated a reader.
+	 *
+	 * Do not use this cookie for validation.
+	 *
+	 * @param \WP_User $user User object.
+	 */
+	public static function set_auth_reader_cookie( $user ) {
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( ! apply_filters( 'send_auth_cookies', true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+		setcookie( self::AUTH_READER_COOKIE, $user->user_email, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true );
+	}
+
+	/**
 	 * Get the auth intention value.
 	 *
 	 * @return string|null Email address or null if not set.
@@ -273,15 +310,16 @@ final class Reader_Activation {
 	/**
 	 * Whether the user is a reader.
 	 *
-	 * @param \WP_User $user User object.
+	 * @param \WP_User $user   User object.
+	 * @param bool     $strict Whether to check if the user was created through reader registration. Default false.
 	 *
 	 * @return bool Whether the user is a reader.
 	 */
-	public static function is_user_reader( $user ) {
+	public static function is_user_reader( $user, $strict = false ) {
 		$is_reader = (bool) \get_user_meta( $user->ID, self::READER, true );
 		$user_data = \get_userdata( $user->ID );
 
-		if ( false === $is_reader ) {
+		if ( false === $is_reader && false === $strict ) {
 			/**
 			 * Filters the roles that can determine if a user is a reader.
 			 *
@@ -315,12 +353,18 @@ final class Reader_Activation {
 	/**
 	 * Verify email address of a reader given the user.
 	 *
-	 * @param \WP_User $user User object.
+	 * @param \WP_User|int $user_or_user_id User object.
 	 *
 	 * @return bool Whether the email address was verified.
 	 */
-	public static function set_reader_verified( $user ) {
-		if ( ! $user ) {
+	public static function set_reader_verified( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
+		}
+
+		if ( ! isset( $user ) || ! $user || self::is_reader_verified( $user ) ) {
 			return false;
 		}
 
@@ -329,12 +373,18 @@ final class Reader_Activation {
 			return false;
 		}
 
-		$verified = \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
-		if ( $verified ) {
-			return true;
+		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+
+		if ( function_exists( '\wc_add_notice' ) ) {
+			\wc_add_notice( __( 'Thank you for verifying your account!', 'newspack' ), 'success' );
 		}
 
-		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
+		/**
+		 * Fires after a reader's email address is verified.
+		 *
+		 * @param \WP_User $user User object.
+		 */
+		do_action( 'newspack_reader_verified', $user );
 
 		return true;
 	}
@@ -488,6 +538,24 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get the error icon SVG markup.
+	 *
+	 * @return string The error icon SVG markup.
+	 */
+	private static function get_error_icon() {
+		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20.8C16.8 20.8 20.8 16.9 20.8 12C20.8 7.2 16.9 3.2 12 3.2C7.2 3.2 3.2 7.1 3.2 12C3.2 16.8 7.2 20.8 12 20.8V20.8ZM12 4.8C16 4.8 19.2 8.1 19.2 12C19.2 16 16 19.2 12 19.2C8 19.2 4.8 15.9 4.8 12C4.8 8 8 4.8 12 4.8ZM13 7H11V13H13L13 7ZM13 15H11V17H13V15Z" /></svg>';
+	}
+
+	/**
+	 * Get the check icon SVG markup.
+	 *
+	 * @return string The check icon SVG markup.
+	 */
+	private static function get_check_icon() {
+		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" /></svg>';
+	}
+
+	/**
 	 * Get account link.
 	 *
 	 * @return string Account link HTML or empty string.
@@ -509,7 +577,7 @@ final class Reader_Activation {
 		};
 
 		$labels = [
-			'signedin'  => \__( 'Account', 'newspack' ),
+			'signedin'  => \__( 'My Account', 'newspack' ),
 			'signedout' => \__( 'Sign In', 'newspack' ),
 		];
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
@@ -527,6 +595,22 @@ final class Reader_Activation {
 		 * @param string $link HTML for the reader account link.
 		 */
 		return apply_filters( 'newspack_reader_account_link', $link );
+	}
+
+	/**
+	 * Render a honeypot field to guard against bot form submissions. Note that
+	 * this field is named `email` to hopefully catch more bots who might be
+	 * looking for such fields, where as the "real" field is named "npe".
+	 *
+	 * @param string $placeholder Placeholder text to render in the field.
+	 */
+	public static function render_honeypot_field( $placeholder = '' ) {
+		if ( empty( $placeholder ) ) {
+			$placeholder = __( 'Enter your email address', 'newspack' );
+		}
+		?>
+		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
+		<?php
 	}
 
 	/**
@@ -572,7 +656,7 @@ final class Reader_Activation {
 		}
 		$terms_text      = self::get_setting( 'terms_text' );
 		$terms_url       = self::get_setting( 'terms_url' );
-		$is_account_page = \get_the_ID() === \wc_get_page_id( 'myaccount' );
+		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
 		$redirect        = $is_account_page ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		?>
 		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
@@ -597,7 +681,10 @@ final class Reader_Activation {
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
 						<p data-action="pwd">
-							<?php _e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+							<?php \esc_html_e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+						</p>
+						<p data-action="link">
+							<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without a password.', 'newspack' ); ?>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
@@ -616,20 +703,19 @@ final class Reader_Activation {
 								?>
 							</div>
 						<?php endif; ?>
-						<p>
-							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
-						</p>
-						<div data-action="pwd">
-							<p><input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" /></p>
+						<div class="components-form__field">
+							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+							<?php self::render_honeypot_field(); ?>
+						</div>
+						<div class="components-form__field" data-action="pwd">
+							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
 							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="-2 -2 24 24" role="img" aria-hidden="true" focusable="false">
-									<path d="M10 2c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zm1.13 9.38l.35-6.46H8.52l.35 6.46h2.26zm-.09 3.36c.24-.23.37-.55.37-.96 0-.42-.12-.74-.36-.97s-.59-.35-1.06-.35-.82.12-1.07.35-.37.55-.37.97c0 .41.13.73.38.96.26.23.61.34 1.06.34s.8-.11 1.05-.34z" />
-								</svg>
+								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</span>
 							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
-								<?php echo self::get_account_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</span>
 							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
 								<?php if ( ! empty( $message ) ) : ?>
@@ -638,23 +724,32 @@ final class Reader_Activation {
 							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
-							<p><button type="submit"><?php \esc_html_e( 'Sign In', 'newspack' ); ?></button></p>
-							<p class="small">
-								<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
-							</p>
-							<p class="small">
-								<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
-							</p>
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></button>
+							</div>
+							<div class="components-form__help">
+								<p class="small">
+									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
+								</p>
+								<p class="small">
+									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
+								</p>
+							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
-							<p><button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button></p>
-							<p class="small">
-								<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without your password.', 'newspack' ); ?><br/>
-								<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password instead', 'newspack' ); ?></a>.
-							</p>
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button>
+							</div>
+							<div class="components-form__help">
+								<p class="small">
+									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>.
+								</p>
+							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="register">
-							<p><button type="submit"><?php \esc_html_e( 'Register', 'newspack' ); ?></button></p>
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Sign up', 'newspack' ); ?></button>
+							</div>
 						</div>
 						<?php self::render_third_party_auth(); ?>
 						<?php if ( ! empty( $terms_text ) ) : ?>
@@ -685,7 +780,7 @@ final class Reader_Activation {
 	private static function send_auth_form_response( $data = [], $message = false, $redirect_url = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
-			$message = $is_error ? $data->get_error_message() : __( 'You are authenticated!', 'newspack' );
+			$message = $is_error ? $data->get_error_message() : __( 'Login successful!', 'newspack' );
 		}
 		if ( \wp_is_json_request() ) {
 			\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
@@ -857,11 +952,22 @@ final class Reader_Activation {
 			return;
 		}
 		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
-		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
+		$email    = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
 		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
+		$honeypot = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
 		// phpcs:enable
+
+		// Honeypot trap.
+		if ( ! empty( $honeypot ) ) {
+			return self::send_auth_form_response(
+				[
+					'email'         => $honeypot,
+					'authenticated' => 1,
+				]
+			);
+		}
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
@@ -904,7 +1010,7 @@ final class Reader_Activation {
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ), $redirect );
+				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack' ), $redirect );
 			case 'register':
 				$metadata = [];
 				if ( ! empty( $lists ) ) {
@@ -951,24 +1057,27 @@ final class Reader_Activation {
 	 * Warning: this method will only verify if the user is a reader in order to
 	 * authenticate. It will not check for any credentials.
 	 *
-	 * @param int $user_id User ID.
+	 * @param \WP_User|int $user_or_user_id User object.
 	 *
 	 * @return \WP_User|\WP_Error The authenticated reader or WP_Error if authentication failed.
 	 */
-	public static function set_current_reader( $user_id ) {
-		$user_id = \absint( $user_id );
-		if ( empty( $user_id ) ) {
-			return new \WP_Error( 'newspack_authenticate_invalid_user_id', __( 'Invalid user id.', 'newspack' ) );
+	public static function set_current_reader( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
 		}
 
-		$user = \get_user_by( 'id', $user_id );
 		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
 		}
 
+		$user_id = \absint( $user->ID );
+
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
+		self::set_auth_reader_cookie( $user );
 		\do_action( 'wp_login', $user->user_login, $user );
 		Logger::log( 'Logged in user ' . $user->ID );
 
@@ -1063,9 +1172,21 @@ final class Reader_Activation {
 			}
 		}
 
+		/** Registration methods that don't require account verification. */
+		$verified_registration_methods = [ 'google' ];
+
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
+			if ( in_array( $metadata['registration_method'], $verified_registration_methods, true ) ) {
+				self::set_reader_verified( $user_id );
+			}
+		}
+
+		// Send a magic link to new, unverified readers to verify their email address.
+		$user = \get_user_by( 'id', $user_id );
+		if ( ! $existing_user && ! self::is_reader_verified( $user ) ) {
+			self::send_verification_email( $user );
 		}
 
 		/**
@@ -1083,11 +1204,91 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Send a magic link with special messaging to verify the user.
+	 *
+	 * @param WP_User $user WP_User object to be verified.
+	 */
+	public static function send_verification_email( $user ) {
+		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
+		$blogname    = \wp_specialchars_decode( \get_option( 'blogname' ), ENT_QUOTES );
+
+		$subject = __( 'Please verify your account', 'newspack' );
+
+		$message  = __( 'Hi there!', 'newspack' ) . "\r\n\r\n";
+		$message .= __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
+		$message .= Magic_Link::MAGIC_LINK_PLACEHOLDER . "\r\n\r\n";
+
+		if ( $redirect_to ) {
+			/* translators: %s: My Account URL. */
+			$message .= sprintf( __( 'Once verified, visit %s to edit your profile, set a password for easier access, and manage your newsletter subscriptions and billing information.', 'newspack' ), $redirect_to ) . "\r\n";
+		}
+
+		Logger::log( 'Sending verification email to new user ' . $user->user_email );
+		return Magic_Link::send_email( $user, $redirect_to, $subject, $message );
+	}
+
+	/**
 	 * Get value of the client ID bearing cookie.
 	 */
 	public static function get_client_id() {
 		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE
 		return isset( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) ? sanitize_text_field( $_COOKIE[ NEWSPACK_CLIENT_ID_COOKIE_NAME ] ) : false;
+	}
+
+	/**
+	 * Disable the standard WooCommerce "new customer welcome" email.
+	 *
+	 * @param array $emails Types of transactional emails sent by WooCommerce.
+	 *
+	 * @return array Filtered array of transactional email types.
+	 */
+	public static function disable_woocommerce_new_user_email( $emails ) {
+		$emails = array_values(
+			array_filter(
+				$emails,
+				function( $type ) {
+					return 'woocommerce_created_customer' !== $type;
+				}
+			)
+		);
+
+		return $emails;
+	}
+
+	/**
+	 * Get the from email address used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from` hook because we only want to
+	 * set the email address for Reader Activation emails, not all emails
+	 * sent via wp_mail.
+	 *
+	 * @return string Email address used as the sender for Reader Activation emails.
+	 */
+	public static function get_from_email() {
+		// Get the site domain and get rid of www.
+		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
+		$from_email = 'no-reply@';
+
+		if ( null !== $sitename ) {
+			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email .= $sitename;
+		}
+
+		return apply_filters( 'newspack_reader_activation_from_email', $from_email );
+	}
+
+	/**
+	 * Get the from from name used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from_name` hook because we only want
+	 * to set the name for Reader Activation emails, not all emails
+	 * sent via wp_mail.
+	 *
+	 * @return string Name used as the sender for Reader Activation emails.
+	 */
+	public static function get_from_name() {
+		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
 	}
 }
 Reader_Activation::init();

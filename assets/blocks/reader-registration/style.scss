@@ -1,21 +1,22 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../../shared/scss/mixins';
 
 .newspack-registration {
 	@media ( min-width: 782px ) {
 		&.is-style-columns {
 			.newspack-registration__main {
-				flex: 1 1 55%;
+				flex: 1 1 63.4146%;
 			}
 			.newspack-reader__lists {
-				flex: 1 1 35%;
-				padding: 2rem 0 2rem 2rem;
+				flex: 1 1 31.70731%;
+				padding: 1.2rem;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				align-items: flex-start;
 				h3 {
 					display: block;
-					margin: 0 0 1rem;
+					margin: 0.4rem 0.4rem 0.8rem;
 				}
 				ul li {
 					flex: 1 1 100%;
@@ -29,7 +30,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		flex-direction: row-reverse;
-		row-gap: 1rem;
+		row-gap: 0.8rem;
 		column-gap: 1.6rem;
 		margin: 0;
 		transition: opacity 200ms ease-in-out;
@@ -52,16 +53,21 @@
 			flex: 1 1 auto;
 		}
 		[type='submit'] {
-			margin-left: 0.5rem;
+			margin-left: 0.4rem;
 		}
 	}
 
 	&__help-text {
-		margin-top: 0.3rem;
+		margin-top: 0.8rem;
 		p {
-			color: #757575;
+			color: wp-colors.$gray-700;
 			margin: 0;
-			font-size: 0.8em !important;
+			font-size: 0.65em !important;
+			line-height: 1.2307692308;
+
+			+ p {
+				margin-top: 0.4rem;
+			}
 		}
 	}
 
@@ -146,6 +152,10 @@
 
 	+ div:empty {
 		display: none;
+	}
+
+	.nphp {
+		@include mixins.visuallyHidden;
 	}
 }
 
