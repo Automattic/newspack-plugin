@@ -131,6 +131,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-gravityforms.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-newsletters.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-mailchimp-for-woocommerce.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 
@@ -140,8 +141,6 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-configuration-managers.php';
 
-		/* Plugin compatibility/tweaks */
-		include_once NEWSPACK_ABSPATH . 'includes/compat/mailchimp-for-woocommerce.php';
 		// Scheduled post checker cron job.
 		include_once NEWSPACK_ABSPATH . 'includes/scheduled-post-checker/scheduled-post-checker.php';
 	}
