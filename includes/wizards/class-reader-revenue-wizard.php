@@ -277,7 +277,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		}
 
 		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
-		if ( 'wc' === $platform ) {
+		if ( Donations::is_platform_wc() ) {
 			Donations::update_donation_product( Donations::get_donation_settings() );
 		}
 
