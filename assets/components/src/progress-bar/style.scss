@@ -2,15 +2,13 @@
  * Progress Bar
  */
 
-@import '../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-progress-bar {
 	margin: 32px 0;
-	position: relative;
-	z-index: 1;
 
-	.newspack-progress-bar__headings {
+	& &__headings {
 		align-items: center;
 		display: flex;
 		justify-content: space-between;
@@ -18,23 +16,27 @@
 
 		h2,
 		p {
-			margin: 0;
+			margin-bottom: 0;
+			margin-top: 0;
+		}
+
+		p {
+			margin-left: auto;
 		}
 	}
 
-	.newspack-progress-bar__bar {
-		background-color: $primary-500;
-		height: 4px;
-		transition: width 125ms ease-in-out;
+	&__container {
+		background-color: wp-colors.$gray-100;
+		border-radius: 4px;
+		height: 8px;
+		overflow: hidden;
+		position: relative;
+		z-index: 1;
+	}
 
-		&::before {
-			background-color: $light-gray-200;
-			content: '';
-			height: 4px;
-			left: 0;
-			position: absolute;
-			width: 100%;
-			z-index: -1;
-		}
+	&__bar {
+		background-color: colors.$primary-500;
+		height: 8px;
+		transition: width 125ms ease-in-out;
 	}
 }

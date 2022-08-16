@@ -38,6 +38,7 @@ class SEO_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_filter( 'wpseo_image_image_weight_limit', [ $this, 'ignore_yoast_weight_limit' ] );
 	}
 
 	/**
@@ -47,24 +48,6 @@ class SEO_Wizard extends Wizard {
 	 */
 	public function get_name() {
 		return \esc_html__( 'SEO', 'newspack' );
-	}
-
-	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Search engine and social optimization.', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
 	}
 
 	/**
@@ -154,7 +137,9 @@ class SEO_Wizard extends Wizard {
 		}
 		if ( isset( $request['under_construction'] ) ) {
 			$environment_type = absint( $request['under_construction'] ) ? 'staging' : 'production';
+			$blog_public      = absint( $request['under_construction'] ) ? 0 : 1;
 			$cm->set_option( 'environment_type', $environment_type );
+			update_option( 'blog_public', $blog_public );
 		}
 		$response = $this->get_seo_settings();
 		return rest_ensure_response( $response );
@@ -201,17 +186,20 @@ class SEO_Wizard extends Wizard {
 			'newspack-seo-wizard',
 			Newspack::plugin_url() . '/dist/seo.js',
 			$this->get_script_dependencies( [ 'wp-html-entities' ] ),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/seo.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
+	}
 
-		\wp_register_style(
-			'newspack-seo-wizard',
-			Newspack::plugin_url() . '/dist/seo.css',
-			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/seo.css' )
-		);
-		\wp_style_add_data( 'newspack-seo-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-seo-wizard' );
+	/**
+	 * We don't want Yoast to exclude large images from og:image tags for 2 reasons:
+	 * 1. Yoast cannot calculate the image size for images served via Jetpack CDN, so any calculations will be incorrect.
+	 * 2. It increases support burden since Yoast doesn't provide the user any explanation for why the image was excluded.
+	 *
+	 * @param int $limit Max image size in bytes.
+	 * @return int Modified $limit.
+	 */
+	public function ignore_yoast_weight_limit( $limit ) {
+		return PHP_INT_MAX;
 	}
 }

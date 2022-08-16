@@ -1,7 +1,8 @@
-/**
- * Stripe Setup
- */
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
-.newspack-payment-setup-screen {
-	margin-top: 32px;
+.newspack-card.newspack-action-card.newspack-settings__card {
+	.newspack-payment-setup-screen__api-keys-instruction {
+		color: wp-colors.$gray-700;
+		margin-top: -8px !important;
+	}
 }

@@ -1,125 +1,359 @@
 /**
- * Stripe Setup Screen
- */
-
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import {
-	CheckboxControl,
+	Button,
+	Grid,
+	Notice,
+	Settings,
+	SelectControl,
 	TextControl,
-	ToggleControl,
-	withWizardScreen,
+	Wizard,
 } from '../../../../components/src';
+import NewsletterSettings from './newsletter-settings';
+import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
 import './style.scss';
 
-/**
- * Stripe Setup Screen Component
- */
-class StripeSetup extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, onChange } = this.props;
-		const {
-			enabled = false,
-			testMode = false,
-			publishableKey = '',
-			secretKey = '',
-			testPublishableKey = '',
-			testSecretKey = '',
-		} = data;
-		return (
-			<div className="newspack-payment-setup-screen">
-				<ToggleControl
-					label={ __( 'Enable Stripe' ) }
-					checked={ enabled }
-					onChange={ _enabled => onChange( { ...data, enabled: _enabled } ) }
+const { SettingsCard } = Settings;
+
+export const StripeKeysSettings = () => {
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const {
+		testMode = false,
+		publishableKey = '',
+		secretKey = '',
+		testPublishableKey = '',
+		testSecretKey = '',
+	} = wizardData.stripe_data || {};
+
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'stripe_data', key ],
+			value,
+		} );
+
+	return (
+		<Grid columns={ 1 } gutter={ 16 }>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<p className="newspack-payment-setup-screen__api-keys-instruction">
+					{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
+					{ ' – ' }
+					<ExternalLink href="https://stripe.com/docs/keys#api-keys">
+						{ __( 'learn how' ) }
+					</ExternalLink>
+				</p>
+				<CheckboxControl
+					label={ __( 'Use Stripe in test mode', 'newspack' ) }
+					checked={ testMode }
+					onChange={ changeHandler( 'testMode' ) }
+					help={ __(
+						'Test mode will not capture real payments. Use it for testing your purchase flow.',
+						'newspack'
+					) }
 				/>
-				{ enabled && (
-					<Fragment>
-						<h2 className="newspack-payment-setup-screen__settings-heading">
-							{ __( 'Stripe settings' ) }
-						</h2>
-						<CheckboxControl
-							label={ __( 'Use Stripe in test mode' ) }
-							checked={ testMode }
-							onChange={ _testMode => onChange( { ...data, testMode: _testMode } ) }
-							tooltip="Test mode will not capture real payments. Use it for testing your purchase flow."
+			</Grid>
+			<Grid noMargin rowGap={ 16 }>
+				{ testMode ? (
+					<>
+						<TextControl
+							type="password"
+							value={ testPublishableKey }
+							label={ __( 'Test Publishable Key', 'newspack' ) }
+							onChange={ changeHandler( 'testPublishableKey' ) }
 						/>
-						<div className="newspack-payment-setup-screen__api-keys-heading">
-							<p className="newspack-payment-setup-screen__api-keys-instruction">
-								{ __( 'Get your API keys from your Stripe account.' ) }{' '}
-								<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-									{ __( 'Learn how' ) }
-								</ExternalLink>
-							</p>
-
-							{ testMode && (
-								<Fragment>
-									<TextControl
-										type="password"
-										value={ testPublishableKey }
-										label={ __( 'Test Publishable Key' ) }
-										onChange={ _testPublishableKey =>
-											onChange( { ...data, testPublishableKey: _testPublishableKey } )
-										}
-									/>
-									<TextControl
-										type="password"
-										value={ testSecretKey }
-										label={ __( 'Test Secret Key' ) }
-										onChange={ _testSecretKey =>
-											onChange( { ...data, testSecretKey: _testSecretKey } )
-										}
-									/>
-								</Fragment>
-							) }
-							{ ! testMode && (
-								<Fragment>
-									<TextControl
-										type="password"
-										value={ publishableKey }
-										label={ __( 'Publishable Key' ) }
-										onChange={ _publishableKey =>
-											onChange( { ...data, publishableKey: _publishableKey } )
-										}
-									/>
-									<TextControl
-										type="password"
-										value={ secretKey }
-										label={ __( 'Secret Key' ) }
-										onChange={ _secretKey => onChange( { ...data, secretKey: _secretKey } ) }
-									/>
-								</Fragment>
-							) }
-						</div>
-					</Fragment>
+						<TextControl
+							type="password"
+							value={ testSecretKey }
+							label={ __( 'Test Secret Key', 'newspack' ) }
+							onChange={ changeHandler( 'testSecretKey' ) }
+						/>
+					</>
+				) : (
+					<>
+						<TextControl
+							type="password"
+							value={ publishableKey }
+							label={ __( 'Publishable Key', 'newspack' ) }
+							onChange={ changeHandler( 'publishableKey' ) }
+						/>
+						<TextControl
+							type="password"
+							value={ secretKey }
+							label={ __( 'Secret Key', 'newspack' ) }
+							onChange={ changeHandler( 'secretKey' ) }
+						/>
+					</>
 				) }
-				{ ! enabled && (
-					<p className="newspack-payment-setup-screen__info">
-						{ __( 'Other gateways can be enabled and set up in the ' ) }
-						<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-							{ __( 'WooCommerce payment gateway settings' ) }
-						</ExternalLink>
-					</p>
-				) }
-			</div>
-		);
-	}
-}
-
-StripeSetup.defaultProps = {
-	data: {},
-	onChange: () => null,
+			</Grid>
+		</Grid>
+	);
 };
 
-export default withWizardScreen( StripeSetup );
+export const StripeCaptchaSettings = () => {
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const {
+		useCaptcha = false,
+		captchaSiteKey = '',
+		captchaSiteSecret = '',
+	} = wizardData.stripe_data || {};
+
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'stripe_data', key ],
+			value,
+		} );
+
+	return (
+		<Grid columns={ 1 } gutter={ 16 }>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<p className="newspack-payment-setup-screen__api-keys-instruction">
+					{ __(
+						'Enabling reCaptcha for Stripe checkouts makes your site more secure.',
+						'newspack'
+					) }
+					{ ' – ' }
+					<ExternalLink href="https://www.google.com/recaptcha/admin/create">
+						{ __( 'get started' ) }
+					</ExternalLink>
+				</p>
+				<CheckboxControl
+					label={ __( 'Use reCaptcha v3 to secure Stripe checkout', 'newspack' ) }
+					checked={ useCaptcha }
+					onChange={ changeHandler( 'useCaptcha' ) }
+					help={ __(
+						'Without reCaptcha, your Stripe checkout process may be vulnerable to bot attacks and card testing.',
+						'newspack-blocks'
+					) }
+				/>
+			</Grid>
+			{ useCaptcha && ( ! captchaSiteKey || ! captchaSiteSecret ) && (
+				<Notice
+					noticeText={ __(
+						'You must enter a valid site key and secret to use reCaptcha.',
+						'newspack'
+					) }
+				/>
+			) }
+			<Grid noMargin rowGap={ 16 }>
+				{ useCaptcha && (
+					<>
+						<TextControl
+							value={ captchaSiteKey }
+							label={ __( 'Site Key', 'newspack' ) }
+							onChange={ changeHandler( 'captchaSiteKey' ) }
+						/>
+						<TextControl
+							type="password"
+							value={ captchaSiteSecret }
+							label={ __( 'Site Secret', 'newspack' ) }
+							onChange={ changeHandler( 'captchaSiteSecret' ) }
+						/>
+					</>
+				) }
+			</Grid>
+		</Grid>
+	);
+};
+
+const StripeSetup = () => {
+	const {
+		stripe_data: data = {},
+		platform_data,
+		is_ssl,
+		currency_fields = [],
+		country_state_fields = [],
+		errors = [],
+	} = Wizard.useWizardData( 'reader-revenue' );
+
+	const resetWebhooks = () => {
+		apiFetch( {
+			path: '/newspack/v1/stripe/reset-webhooks',
+		} ).then( () => {
+			window.location.reload();
+		} );
+	};
+	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
+
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'stripe_data', key ],
+			value,
+		} );
+
+	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const onSave = () =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			section: 'stripe',
+			payloadPath: [ 'stripe_data' ],
+		} );
+
+	return (
+		<>
+			{ errors.length > 0 &&
+				errors.map( ( error, index ) => (
+					<Notice
+						isError
+						key={ index }
+						noticeText={
+							<span>
+								{ error.message }{ ' ' }
+								{ error.code === 'newspack_plugin_stripe_webhooks' && (
+									<Button isLink onClick={ resetWebhooks }>
+										{ __( 'Reset webhooks', 'newspack' ) }
+									</Button>
+								) }
+							</span>
+						}
+					/>
+				) ) }
+			{ is_ssl === false && (
+				<Notice
+					isWarning
+					noticeText={
+						<a href="https://stripe.com/docs/security/guide">
+							{ __(
+								'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
+								'newspack'
+							) }
+						</a>
+					}
+				/>
+			) }
+			{ displayStripeSettingsOnly ? (
+				<>
+					{ data.connection_error !== false && (
+						<Notice isError noticeText={ data.connection_error } />
+					) }
+					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 } gutter={ 16 } noBorder>
+						{ data.can_use_stripe_platform === false && (
+							<Notice
+								isError
+								noticeText={ __(
+									'The Stripe platform will not work properly on this site.',
+									'newspack'
+								) }
+							/>
+						) }
+						<StripeKeysSettings />
+						<Grid rowGap={ 16 }>
+							<SelectControl
+								label={ __( 'Country', 'newspack' ) }
+								value={ data.location_code }
+								options={ country_state_fields }
+								onChange={ changeHandler( 'location_code' ) }
+							/>
+							<SelectControl
+								label={ __( 'Currency', 'newspack' ) }
+								value={ data.currency }
+								options={ currency_fields }
+								onChange={ changeHandler( 'currency' ) }
+							/>
+						</Grid>
+					</SettingsCard>
+					<SettingsCard
+						title={ __( 'reCaptcha v3 Settings', 'newspack' ) }
+						columns={ 1 }
+						gutter={ 16 }
+						noBorder
+					>
+						{ data.can_use_stripe_platform === false && (
+							<Notice
+								isError
+								noticeText={ __(
+									'The Stripe platform will not work properly on this site.',
+									'newspack'
+								) }
+							/>
+						) }
+						<StripeCaptchaSettings />
+					</SettingsCard>
+					<SettingsCard
+						title={ __( 'Newsletters', 'newspack' ) }
+						description={ __(
+							'Allow donors to sign up to your newsletter when donating.',
+							'newspack'
+						) }
+						columns={ 1 }
+						gutter={ 16 }
+						noBorder
+					>
+						<NewsletterSettings
+							listId={ data.newsletter_list_id }
+							onChange={ changeHandler( 'newsletter_list_id' ) }
+						/>
+					</SettingsCard>
+					<SettingsCard
+						title={ __( 'Fee', 'newspack' ) }
+						description={ __(
+							'If you have a non-default or negotiated fee with Stripe, update its parameters here.',
+							'newspack'
+						) }
+						columns={ 1 }
+						noBorder
+					>
+						<Grid noMargin rowGap={ 16 }>
+							<TextControl
+								type="number"
+								step="0.1"
+								value={ data.fee_multiplier }
+								label={ __( 'Fee multiplier', 'newspack' ) }
+								onChange={ changeHandler( 'fee_multiplier' ) }
+							/>
+							<TextControl
+								type="number"
+								step="0.1"
+								value={ data.fee_static }
+								label={ __( 'Fee static portion', 'newspack' ) }
+								onChange={ changeHandler( 'fee_static' ) }
+							/>
+						</Grid>
+					</SettingsCard>
+				</>
+			) : (
+				<>
+					<Grid>
+						<ToggleControl
+							label={ __( 'Enable Stripe', 'newspack' ) }
+							checked={ data.enabled }
+							onChange={ changeHandler( 'enabled' ) }
+						/>
+					</Grid>
+					{ data.enabled ? (
+						<StripeKeysSettings />
+					) : (
+						<Grid>
+							<p className="newspack-payment-setup-screen__info">
+								{ __( 'Other gateways can be enabled and set up in the ', 'newspack' ) }
+								<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+									{ __( 'WooCommerce payment gateway settings', 'newspack' ) }
+								</ExternalLink>
+							</p>
+						</Grid>
+					) }
+				</>
+			) }
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ onSave }>
+					{ __( 'Save Settings', 'newspack' ) }
+				</Button>
+			</div>
+		</>
+	);
+};
+
+export default StripeSetup;

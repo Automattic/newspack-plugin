@@ -51,24 +51,6 @@ class Health_Check_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Verify and improve the health of the site.', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
-	}
-
-	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
@@ -134,7 +116,7 @@ class Health_Check_Wizard extends Wizard {
 	 * Delete all unsupported plugins
 	 */
 	public function api_delete_unsupported_plugins() {
-		$unsupported_plugins = Plugin_Manager::get_unmanaged_plugins();
+		$unsupported_plugins = Plugin_Manager::get_unsupported_plugins();
 		foreach ( $unsupported_plugins as $slug => $data ) {
 			Plugin_Manager::deactivate( $slug );
 		}
@@ -152,7 +134,8 @@ class Health_Check_Wizard extends Wizard {
 		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
 
 		return array(
-			'unsupported_plugins'  => Plugin_Manager::get_unmanaged_plugins(),
+			'unsupported_plugins'  => Plugin_Manager::get_unsupported_plugins(),
+			'missing_plugins'      => Plugin_Manager::get_missing_plugins(),
 			'configuration_status' => [
 				'amp'     => $amp_manager->is_standard_mode(),
 				'jetpack' => $jetpack_manager->is_configured(),
@@ -175,7 +158,7 @@ class Health_Check_Wizard extends Wizard {
 			'newspack-health-check-wizard',
 			Newspack::plugin_url() . '/dist/health-check.js',
 			[ 'wp-components', 'wp-api-fetch' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/health-check.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 	}

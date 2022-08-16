@@ -6,11 +6,7 @@
  * WordPress dependencies.
  */
 import { Component } from '@wordpress/element';
-
-/**
- * Material UI dependencies.
- */
-import LoopIcon from '@material-ui/icons/Loop';
+import { Spinner } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -20,21 +16,20 @@ import './style.scss';
 /**
  * External dependencies.
  */
-import classNames from 'classnames';
+import classnames from 'classnames';
 
 class Waiting extends Component {
 	/**
 	 * Render
 	 */
 	render() {
-		const { className, isRight, isLeft } = this.props;
-		const classes = classNames(
-			'newspack-is-waiting',
-			className,
-			isRight && 'newspack-is-waiting__is-right',
-			isLeft && 'newspack-is-waiting__is-left'
-		);
-		return <LoopIcon className={ classes } />;
+		const { className, isRight, isLeft, isCenter, ...otherProps } = this.props;
+		const classes = classnames( 'newspack-waiting', className, {
+			'is-right': isRight,
+			'is-left': isLeft,
+			'is-center': isCenter,
+		} );
+		return <Spinner className={ classes } { ...otherProps } />;
 	}
 }
 

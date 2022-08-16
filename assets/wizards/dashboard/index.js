@@ -5,82 +5,37 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, render } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import ViewListIcon from '@material-ui/icons/ViewList';
-import ViewModuleIcon from '@material-ui/icons/ViewModule';
+import { Fragment, render } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { Button, Card, Grid, NewspackLogo } from '../../components/src';
+import { GlobalNotices, Footer, Grid, NewspackIcon, Notice } from '../../components/src';
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
-/**
- * Newspack Dashboard.
- */
-class Dashboard extends Component {
-	state = {
-		view: 'list',
-	};
-
-	componentDidMount = () => {
-		const view = localStorage.getItem( 'newspack-plugin-dashboard-view' );
-		if ( 'list' === view || 'grid' === view ) {
-			this.setState( { view } );
-		}
-	};
-
-	/**
-	 * Render.
-	 */
-	render() {
-		const { items } = this.props;
-		const { view } = this.state;
-
-		return (
-			<Fragment>
-				<div className="newspack-logo-wrapper">
-					<NewspackLogo />
+const Dashboard = ( { items } ) => {
+	return (
+		<Fragment>
+			<GlobalNotices />
+			{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
+			<div className="newspack-wizard__header">
+				<div className="newspack-wizard__header__inner">
+					<div className="newspack-wizard__title">
+						<NewspackIcon size={ 36 } />
+					</div>
 				</div>
-				<Grid className={ 'view-' + view } isWide={ view === 'grid' && true }>
-					<Card noBackground className="newspack-dashboard-card__views">
-						<Button
-							icon={ <ViewListIcon /> }
-							label={ __( 'List view' ) }
-							isPrimary={ 'list' === view }
-							isLink={ 'list' !== view }
-							isSmall
-							onClick={ () =>
-								this.setState( { view: 'list' }, () =>
-									localStorage.setItem( 'newspack-plugin-dashboard-view', 'list' )
-								)
-							}
-						></Button>
-						<Button
-							icon={ <ViewModuleIcon /> }
-							label={ __( 'Grid view' ) }
-							isPrimary={ 'grid' === view }
-							isLink={ 'grid' !== view }
-							isSmall
-							onClick={ () =>
-								this.setState( { view: 'grid' }, () =>
-									localStorage.setItem( 'newspack-plugin-dashboard-view', 'grid' )
-								)
-							}
-						></Button>
-					</Card>
+			</div>
+
+			<div className="newspack-wizard newspack-wizard__content">
+				<Grid columns={ 3 } gutter={ 32 }>
 					{ items.map( card => (
 						<DashboardCard { ...card } key={ card.slug } />
 					) ) }
 				</Grid>
-			</Fragment>
-		);
-	}
-}
+			</div>
+			<Footer />
+		</Fragment>
+	);
+};
 render( <Dashboard items={ newspack_dashboard } />, document.getElementById( 'newspack' ) );

@@ -4,37 +4,22 @@
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-
-/**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Warning';
+import { home } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Card,
-	FormattedHeader,
-	Modal,
-	NewspackLogo,
-	Notice,
-	PluginInstaller,
-	Grid,
-} from '../';
+import { Button, Card, Modal, NewspackIcon, Notice, PluginInstaller } from '../';
 import Router from '../proxied-imports/router';
-import { buttonProps } from '../../../shared/js/';
+import Footer from '../footer';
 import './style.scss';
 
 const { Redirect, Route } = Router;
 
-const NEWSPACK_SITE_URL = 'https://newspack.pub';
-
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizard( WrappedComponent, requiredPlugins, options = {} ) {
+export default function withWizard( WrappedComponent, requiredPlugins ) {
 	return class WrappedWithWizard extends Component {
 		constructor( props ) {
 			super( props );
@@ -42,6 +27,7 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 				complete: null,
 				error: null,
 				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
+				quietLoading: false,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -94,7 +80,9 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 		 */
 		getErrorNotice = error => {
 			const { message } = error;
-			return <Notice noticeText={ message } isError rawHTML />;
+			return (
+				<Notice isError className="newspack-wizard__above-header" noticeText={ message } rawHTML />
+			);
 		};
 
 		/**
@@ -115,11 +103,11 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 					onRequestClose={ () => ( window.location = fallbackURL ) }
 				>
 					<Notice noticeText={ message } isError rawHTML />
-					<div className="newspack-buttons-card">
+					<Card buttonsCard noBorder className="justify-end">
 						<Button isPrimary href={ fallbackURL }>
-							{ __( 'Return to dashboard' ) }
+							{ __( 'Return to Dashboard', 'newspack' ) }
 						</Button>
-					</div>
+					</Card>
 				</Modal>
 			);
 		};
@@ -162,34 +150,47 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 		/**
 		 * Begin loading.
 		 */
-		startLoading = () => {
-			this.setState( state => ( {
-				loading: state.loading + 1,
-			} ) );
+		startLoading = quiet => {
+			if ( quiet ) {
+				this.setState( state => ( {
+					quietLoading: state.quietLoading + 1,
+				} ) );
+			} else {
+				this.setState( state => ( {
+					loading: state.loading + 1,
+				} ) );
+			}
 		};
 
 		/**
 		 * End loading.
 		 */
-		doneLoading = () => {
-			this.setState( state => ( {
-				loading: state.loading - 1,
-			} ) );
+		doneLoading = quiet => {
+			if ( quiet ) {
+				this.setState( state => ( {
+					quietLoading: state.quietLoading - 1,
+				} ) );
+			} else {
+				this.setState( state => ( {
+					loading: state.loading - 1,
+				} ) );
+			}
 		};
 
 		/**
 		 * Replacement for core apiFetch that automatically manages wizard loading UI.
 		 */
 		wizardApiFetch = args => {
-			this.startLoading();
+			const { quiet } = args;
+			this.startLoading( quiet );
 			return new Promise( ( resolve, reject ) => {
 				apiFetch( args )
 					.then( response => {
-						this.doneLoading();
+						this.doneLoading( quiet );
 						resolve( response );
 					} )
 					.catch( error => {
-						this.doneLoading();
+						this.doneLoading( quiet );
 						reject( error );
 					} );
 			} );
@@ -210,27 +211,39 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 				<Route
 					path="/"
 					render={ () => (
-						<Grid>
-							<Card noBackground>
-								{ complete !== null && (
-									<FormattedHeader
-										headerIcon={ <HeaderIcon /> }
-										headerText={
-											requiredPlugins.length > 1
-												? __( 'Required plugins' )
-												: __( 'Required plugin' )
-										}
-										subHeaderText={ __( 'This feature requires the following plugin.' ) }
-									/>
-								) }
-							</Card>
-							<Card>
+						<Fragment>
+							{ complete !== null && (
+								<div className="newspack-wizard__header">
+									<div className="newspack-wizard__header__inner">
+										<div className="newspack-wizard__title">
+											<Button
+												isLink
+												href={ newspack_urls.dashboard }
+												label={ __( 'Return to Dashboard', 'newspack' ) }
+												showTooltip={ true }
+												icon={ home }
+												iconSize={ 36 }
+											>
+												<NewspackIcon size={ 36 } />
+											</Button>
+											<div>
+												<h2>
+													{ requiredPlugins.length > 1
+														? __( 'Required plugins', 'newspack' )
+														: __( 'Required plugin', 'newspack' ) }
+												</h2>
+											</div>
+										</div>
+									</div>
+								</div>
+							) }
+							<div className="newspack-wizard newspack-wizard__content">
 								<PluginInstaller
 									plugins={ requiredPlugins }
 									onStatus={ status => this.pluginInstallationStatus( status ) }
 								/>
-							</Card>
-						</Grid>
+							</div>
+						</Fragment>
 					) }
 				/>
 			);
@@ -246,24 +259,18 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 		 * Render.
 		 */
 		render() {
-			const { buttonText, buttonAction, logoLink } = this.props;
-			const { loading, error } = this.state;
-			const logoURL = logoLink || this.getFallbackURL() || NEWSPACK_SITE_URL;
+			const { simpleFooter } = this.props;
+			const { loading, quietLoading, error } = this.state;
+			const loadingClasses = [
+				loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded',
+			];
+			if ( quietLoading ) {
+				loadingClasses.push( 'newspack-wizard__is-loading-quiet' );
+			}
 			return (
 				<Fragment>
 					{ this.getError() }
-					<div className="newspack-logo-wrapper">
-						{ ! options.suppressLogoLink && logoURL ? (
-							<a href={ logoURL } target={ logoURL === NEWSPACK_SITE_URL ? '_blank' : undefined }>
-								<NewspackLogo />
-							</a>
-						) : (
-							<NewspackLogo />
-						) }
-					</div>
-					<div
-						className={ !! loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded' }
-					>
+					<div className={ loadingClasses.join( ' ' ) }>
 						<WrappedComponent
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
@@ -277,18 +284,8 @@ export default function withWizard( WrappedComponent, requiredPlugins, options =
 							ref={ this.wrappedComponentRef }
 							{ ...this.props }
 						/>
-						{ buttonText && buttonAction && (
-							<Grid>
-								<Card noBackground>
-									<div className="newspack-buttons-card">
-										<Button isPrimary { ...buttonProps( buttonAction ) }>
-											{ buttonText }
-										</Button>
-									</div>
-								</Card>
-							</Grid>
-						) }
 					</div>
+					{ ! loading && <Footer simple={ simpleFooter } /> }
 				</Fragment>
 			);
 		}

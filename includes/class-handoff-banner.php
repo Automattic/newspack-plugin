@@ -25,7 +25,7 @@ class Handoff_Banner {
 		add_action( 'current_screen', [ $this, 'clear_handoff_url' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ], 1 );
 		add_action( 'enqueue_block_editor_assets', [ $this, 'insert_block_editor_handoff_banner' ] );
-		add_action( 'admin_notices', [ $this, 'insert_handoff_banner' ], -10000 );
+		add_action( 'admin_notices', [ $this, 'insert_handoff_banner' ], -9998 );
 	}
 
 	/**
@@ -34,18 +34,11 @@ class Handoff_Banner {
 	 * @return void.
 	 */
 	public function insert_handoff_banner() {
-		$classes        = [];
-		$screen         = get_current_screen();
-		$help_tab_count = count( $screen->get_help_tabs() );
-		$is_jetpack     = strrpos( $screen->base, 'jetpack' );
-		if ( $help_tab_count > 0 && false === $is_jetpack ) {
-			$classes[] = 'has-help-tabs';
-		}
 		if ( ! self::needs_handoff_return_ui() ) {
 			return;
 		}
-		$newspack_handoff_return_url = get_option( NEWSPACK_HANDOFF_RETURN_URL );
-		echo sprintf( "<div id='newspack-handoff-banner' data-primary_button_url='%s' class='%s'></div>", esc_attr( $newspack_handoff_return_url ), esc_attr( implode( ' ', $classes ) ) );
+
+		echo sprintf( "<div id='newspack-handoff-banner' data-primary_button_url='%s'></div>", esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL ) ) );
 	}
 
 	/**
@@ -63,12 +56,12 @@ class Handoff_Banner {
 			$handle,
 			Newspack::plugin_url() . '/assets/wizards/handoff-banner/block-editor.js',
 			[ 'wp-element', 'wp-editor', 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/wizards/handoff-banner/block-editor.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 
 		$script_info = [
-			'text'       => __( 'Click to return to Newspack after completing configuration.', 'newspack' ),
+			'text'       => __( 'Return to Newspack after completing configuration', 'newspack' ),
 			'buttonText' => __( 'Back to Newspack', 'newspack' ),
 			'returnURL'  => esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL, '' ) ),
 		];
@@ -88,33 +81,17 @@ class Handoff_Banner {
 			$handle,
 			Newspack::plugin_url() . '/dist/handoff-banner.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/handoff-banner.css' )
+			NEWSPACK_PLUGIN_VERSION
 		);
 		wp_enqueue_style( $handle );
 
-		wp_register_script(
-			'newspack_commons',
-			Newspack::plugin_url() . '/dist/commons.js',
-			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.js' ),
-			true
-		);
-		wp_enqueue_script( 'newspack_commons' );
-
-		wp_register_style(
-			'newspack-commons',
-			Newspack::plugin_url() . '/dist/commons.css',
-			[ 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/commons.css' )
-		);
-		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-commons' );
+		Newspack::load_common_assets();
 
 		wp_register_script(
 			$handle,
 			Newspack::plugin_url() . '/dist/handoff-banner.js',
 			[ 'wp-element', 'wp-editor', 'wp-components' ],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/handoff-banner.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 		wp_enqueue_script( $handle );

@@ -2,35 +2,26 @@
  * Waiting
  */
 
-@import '~@wordpress/base-styles/colors';
+.newspack-waiting.components-spinner {
+	flex: 0 0 auto;
+	margin: 0;
 
-.newspack-is-waiting {
-	animation: newspack-is-waiting__animation 1s infinite linear;
-	display: block;
-	fill: $light-gray-900;
-	flex: 0 0 24px;
-
-	&.newspack-is-waiting__is-left {
-		margin-right: 4px;
+	&.is-left {
+		margin-right: 8px;
 	}
 
-	&.newspack-is-waiting__is-right {
-		margin-right: 4px;
+	&.is-right {
+		margin-right: 8px;
 		order: -1;
 
 		@media screen and ( min-width: 744px ) {
-			margin-left: 4px;
+			margin-left: 8px;
 			margin-right: 0;
 			order: 1;
 		}
 	}
-}
 
-@keyframes newspack-is-waiting__animation {
-	from {
-		transform: rotate( 360deg );
-	}
-	to {
-		transform: rotate( 0deg );
+	&.is-center {
+		margin: auto;
 	}
 }

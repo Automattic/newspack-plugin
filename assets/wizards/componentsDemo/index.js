@@ -11,36 +11,31 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Dashboard';
+import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
 import {
 	ActionCard,
-	ColorPicker,
-	ImageUpload,
-	CheckboxControl,
-	Card,
+	AutocompleteWithSuggestions,
 	Button,
-	FormattedHeader,
+	ButtonCard,
+	Card,
+	ColorPicker,
+	Footer,
+	Grid,
 	Handoff,
-	NewspackLogo,
+	ImageUpload,
+	Modal,
+	NewspackIcon,
 	Notice,
-	TextControl,
 	PluginInstaller,
+	PluginSettings,
 	PluginToggle,
 	ProgressBar,
-	Checklist,
-	Task,
 	SelectControl,
-	Modal,
-	Grid,
-	ToggleGroup,
+	Waiting,
 	WebPreview,
 } from '../../components/src';
 
@@ -51,68 +46,98 @@ class ComponentsDemo extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
-			checklistProgress: 0,
-			inputTextValue1: 'Input value',
-			inputTextValue2: '',
-			inputNumValue: 0,
+			selectedPostForAutocompleteWithSuggestions: [],
+			selectedPostsForAutocompleteWithSuggestionsMultiSelect: [],
 			image: null,
 			selectValue1: '2nd',
 			selectValue2: '',
+			selectValue3: '',
+			selectValues: [],
 			modalShown: false,
-			showPluginInstallerWithProgressBar: false,
-			toggleGroupChecked: false,
 			color1: '#3366ff',
-			color2: '#4ab866',
-			color3: '#d94f4f',
 		};
 	}
-
-	performCheckListItem = index => {
-		const { checklistProgress } = this.state;
-		console.log( 'Perform checklist item: ' + index );
-		this.setState( { checklistProgress: Math.max( checklistProgress, index + 1 ) } );
-	};
-
-	dismissCheckListItem = index => {
-		const { checklistProgress } = this.state;
-		console.log( 'Skip checklist item: ' + index );
-		this.setState( { checklistProgress: Math.max( checklistProgress, index + 1 ) } );
-	};
 
 	/**
 	 * Render the example stub.
 	 */
 	render() {
 		const {
-			checklistProgress,
-			inputTextValue1,
-			inputTextValue2,
-			inputNumValue,
+			selectedPostForAutocompleteWithSuggestions,
+			selectedPostsForAutocompleteWithSuggestionsMultiSelect,
 			selectValue1,
 			selectValue2,
+			selectValue3,
 			modalShown,
-			showPluginInstallerWithProgressBar,
 			actionCardToggleChecked,
-			toggleGroupChecked,
 			color1,
-			color2,
-			color3,
 		} = this.state;
+
 		return (
 			<Fragment>
-				<div className="newspack-logo-wrapper">
-					<a href={ newspack_urls && newspack_urls.dashboard }>
-						<NewspackLogo />
-					</a>
+				{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
+				<div className="newspack-wizard__header">
+					<div className="newspack-wizard__header__inner">
+						<div className="newspack-wizard__title">
+							<Button
+								isLink
+								href={ newspack_urls.dashboard }
+								label={ __( 'Return to Dashboard', 'newspack' ) }
+								showTooltip={ true }
+								icon={ home }
+								iconSize={ 36 }
+							>
+								<NewspackIcon size={ 36 } />
+							</Button>
+							<div>
+								<h2>{ __( 'Components Demo', 'newspack' ) }</h2>
+								<span>
+									{ __( 'Simple components used for composing the UI of Newspack', 'newspack' ) }
+								</span>
+							</div>
+						</div>
+					</div>
 				</div>
-				<FormattedHeader
-					headerIcon={ <HeaderIcon /> }
-					headerText={ __( 'Newspack Components' ) }
-					subHeaderText={ __( 'Demo of all the Newspack components' ) }
-				/>
-				<Grid>
+				<div className="newspack-wizard newspack-wizard__content">
 					<Card>
-						<FormattedHeader headerText={ __( 'Plugin toggles' ) } />
+						<h2>{ __( 'Autocomplete with Suggestions (single-select)', 'newspack' ) }</h2>
+						<AutocompleteWithSuggestions
+							label={ __( 'Search for a post', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							onChange={ items =>
+								this.setState( { selectedPostForAutocompleteWithSuggestions: items } )
+							}
+							selectedItems={ selectedPostForAutocompleteWithSuggestions }
+						/>
+
+						<hr />
+
+						<h2>{ __( 'Autocomplete with Suggestions (multi-select)', 'newspack' ) }</h2>
+						<AutocompleteWithSuggestions
+							hideHelp
+							multiSelect
+							label={ __( 'Search widgets', 'newspack' ) }
+							help={ __(
+								'Begin typing post title, click autocomplete result to select.',
+								'newspack'
+							) }
+							onChange={ items =>
+								this.setState( { selectedPostsForAutocompleteWithSuggestionsMultiSelect: items } )
+							}
+							postTypes={ [
+								{ slug: 'page', label: 'Pages' },
+								{ slug: 'post', label: 'Posts' },
+							] }
+							postTypeLabel={ 'widget' }
+							postTypeLabelPlural={ 'widgets' }
+							selectedItems={ selectedPostsForAutocompleteWithSuggestionsMultiSelect }
+						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Plugin toggles', 'newspack' ) }</h2>
 						<PluginToggle
 							plugins={ {
 								woocommerce: {
@@ -126,15 +151,15 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Web Previews' ) } />
-						<Card noBackground buttonsCard>
+						<h2>{ __( 'Web Previews', 'newspack' ) }</h2>
+						<Card buttonsCard noBorder className="items-center">
 							<WebPreview
-								url="//newspack.blog"
+								url="//newspack.pub/"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
-								isPrimary
+								variant="primary"
 							/>
 							<WebPreview
-								url="//newspack.blog"
+								url="//newspack.pub/"
 								renderButton={ ( { showPreview } ) => (
 									<a href="#" onClick={ showPreview }>
 										{ __( 'Preview Newspack Blog', 'newspack' ) }
@@ -144,89 +169,39 @@ class ComponentsDemo extends Component {
 						</Card>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Color picker' ) } />
+						<h2>{ __( 'Waiting', 'newspack' ) }</h2>
+						<Card buttonsCard noBorder>
+							<Grid columns={ 1 } gutter={ 16 } className="w-100">
+								<Waiting />
+								<div className="flex items-center">
+									<Waiting isLeft />
+									{ __( 'Spinner on the left', 'newspack' ) }
+								</div>
+								<div className="flex items-center">
+									<Waiting isRight />
+									{ __( 'Spinner on the right', 'newspack' ) }
+								</div>
+								<Waiting isCenter />
+							</Grid>
+						</Card>
+					</Card>
+					<Card>
+						<h2>{ __( 'Color picker', 'newspack' ) }</h2>
 						<ColorPicker
-							label={ __( 'Color Picker' ) }
+							label={ __( 'Color Picker', 'newspack' ) }
 							color={ color1 }
 							onChange={ color => this.setState( { color1: color } ) }
 						/>
-						<hr />
-						<ColorPicker
-							hasDefaultColors
-							label={ __( 'Color Picker with default colors' ) }
-							color={ color2 }
-							onChange={ color => this.setState( { color2: color } ) }
-						/>
-						<hr />
-						<ColorPicker
-							suggestedColors={ [
-								{
-									name: __( 'pale pink' ),
-									color: '#f78da7',
-								},
-								{ name: __( 'vivid red' ), color: '#cf2e2e' },
-								{
-									name: __( 'luminous vivid orange' ),
-									color: '#ff6900',
-								},
-								{
-									name: __( 'luminous vivid amber' ),
-									color: '#fcb900',
-								},
-								{
-									name: __( 'light green cyan' ),
-									color: '#7bdcb5',
-								},
-								{
-									name: __( 'vivid green cyan' ),
-									color: '#00d084',
-								},
-								{
-									name: __( 'pale cyan blue' ),
-									color: '#8ed1fc',
-								},
-								{
-									name: __( 'vivid cyan blue' ),
-									color: '#0693e3',
-								},
-								{
-									name: __( 'vivid purple' ),
-									color: '#9b51e0',
-								},
-								{
-									name: __( 'very light gray' ),
-									color: '#eeeeee',
-								},
-								{
-									name: __( 'cyan bluish gray' ),
-									color: '#abb8c3',
-								},
-								{
-									name: __( 'very dark gray' ),
-									color: '#313131',
-								},
-							] }
-							label={ __( 'Color Picker with suggested colors' ) }
-							color={ color3 }
-							onChange={ color => this.setState( { color3: color } ) }
-						/>
 					</Card>
 					<Card>
-						<ToggleGroup
-							title={ __( 'Example Toggle Group' ) }
-							description={ __( 'This is the description of a toggle group.' ) }
-							checked={ toggleGroupChecked }
-							onChange={ checked => this.setState( { toggleGroupChecked: checked } ) }
-						>
-							<p>{ __( 'This is the content of the toggle group' ) }</p>
-						</ToggleGroup>
-					</Card>
-					<Card>
-						<FormattedHeader headerText={ __( 'Handoff Buttons' ) } />
-						<Card noBackground buttonsCard>
+						<h2>{ __( 'Handoff Buttons', 'newspack' ) }</h2>
+						<Card buttonsCard noBorder>
 							<Handoff
-								modalTitle="Manage AMP"
-								modalBody="Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack."
+								modalTitle={ __( 'Manage AMP', 'newspack' ) }
+								modalBody={ __(
+									'Click to go to the AMP dashboard. There will be a notification bar at the top with a link to return to Newspack.',
+									'newspack'
+								) }
 								plugin="amp"
 								isTertiary
 							/>
@@ -238,69 +213,49 @@ class ComponentsDemo extends Component {
 								isPrimary
 								editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features"
 							>
-								{ __( 'Specific Yoast Page' ) }
+								{ __( 'Specific Yoast Page', 'newspack' ) }
 							</Handoff>
 						</Card>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Modal' ) } />
-						<Card noBackground buttonsCard>
+						<h2>{ __( 'Modal', 'newspack' ) }</h2>
+						<Card buttonsCard noBorder>
 							<Button isPrimary onClick={ () => this.setState( { modalShown: true } ) }>
-								{ __( 'Open modal' ) }
+								{ __( 'Open modal', 'newspack' ) }
 							</Button>
 						</Card>
 						{ modalShown && (
 							<Modal
-								title="This is the modal title"
+								title={ __( 'This is the modal title', 'newspack' ) }
 								onRequestClose={ () => this.setState( { modalShown: false } ) }
 							>
 								<p>
 									{ __(
-										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.'
+										'Based on industry research, we advise to test the modal component, and continuing this sentence so we can see how the text wraps is one good way of doing that.',
+										'newspack'
 									) }
 								</p>
-								<Card noBackground buttonsCard>
+								<Card buttonsCard noBorder className="justify-end">
 									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
-										{ __( 'Dismiss' ) }
+										{ __( 'Dismiss', 'newspack' ) }
 									</Button>
-									<Button isDefault onClick={ () => this.setState( { modalShown: false } ) }>
-										{ __( 'Also dismiss' ) }
+									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
+										{ __( 'Also dismiss', 'newspack' ) }
 									</Button>
 								</Card>
 							</Modal>
 						) }
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Notice' ) } />
-						<Notice noticeText={ __( 'This is a Primary info notice.' ) } isPrimary />
-						<Notice noticeText={ __( 'This is an info notice.' ) } />
-						<Notice noticeText={ __( 'This is a Primary error notice.' ) } isError isPrimary />
-						<Notice noticeText={ __( 'This is an error notice.' ) } isError />
-						<Notice noticeText={ __( 'This is a Primary success notice.' ) } isSuccess isPrimary />
-						<Notice noticeText={ __( 'This is a success notice.' ) } isSuccess />
-						<Notice noticeText={ __( 'This is a Primary warning notice.' ) } isWarning isPrimary />
-						<Notice noticeText={ __( 'This is a warning notice.' ) } isWarning />
+						<h2>{ __( 'Notice', 'newspack' ) }</h2>
+						<Notice noticeText={ __( 'This is an info notice.', 'newspack' ) } />
+						<Notice noticeText={ __( 'This is an error notice.', 'newspack' ) } isError />
+						<Notice noticeText={ __( 'This is a help notice.', 'newspack' ) } isHelp />
+						<Notice noticeText={ __( 'This is a success notice.', 'newspack' ) } isSuccess />
+						<Notice noticeText={ __( 'This is a warning notice.', 'newspack' ) } isWarning />
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer: Progress Bar' ) } />
-						<Card noBackground buttonsCard>
-							<Button
-								onClick={ () => this.setState( { showPluginInstallerWithProgressBar: true } ) }
-								className="is-centered"
-								isPrimary
-							>
-								{ __( 'Show Plugin Installer w/Progress Bar' ) }
-							</Button>
-						</Card>
-						{ showPluginInstallerWithProgressBar && (
-							<PluginInstaller
-								plugins={ [ 'woocommerce', 'amp', 'wordpress-seo', 'google-site-kit' ] }
-								asProgressBar
-							/>
-						) }
-					</Card>
-					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer' ) } />
+						<h2>{ __( 'Plugin installer', 'newspack' ) }</h2>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							canUninstall
@@ -315,7 +270,7 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Plugin installer (small)' ) } />
+						<h2>{ __( 'Plugin installer (small)', 'newspack' ) }</h2>
 						<PluginInstaller
 							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
 							isSmall
@@ -330,47 +285,20 @@ class ComponentsDemo extends Component {
 							} }
 						/>
 					</Card>
-					<Card noBackground>
-						<PluginInstaller
-							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log(
-									complete
-										? 'All plugins installed successfully'
-										: 'Plugin installation incomplete',
-									pluginInfo
-								);
-							} }
-						/>
-					</Card>
-					<Card noBackground>
-						<PluginInstaller
-							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
-							isSmall
-							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log(
-									complete
-										? 'All plugins installed successfully'
-										: 'Plugin installation incomplete',
-									pluginInfo
-								);
-							} }
-						/>
-					</Card>
-					<FormattedHeader headerText={ __( 'Action cards' ) } />
 					<ActionCard
-						title="Example One"
-						description="Has an action button."
-						actionText="Install"
+						title={ __( 'Example One', 'newspack' ) }
+						description={ __( 'Has an action button.', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
 					/>
 					<ActionCard
-						title="Example Two"
-						description="Has action button and secondary button (visible on hover)."
-						actionText={ __( 'Edit' ) }
-						secondaryActionText={ __( 'Delete' ) }
+						title={ __( 'Example Two', 'newspack' ) }
+						description={ __( 'Has action button and secondary button.', 'newspack' ) }
+						actionText={ __( 'Edit', 'newspack' ) }
+						secondaryActionText={ __( 'Delete', 'newspack' ) }
+						secondaryDestructive
 						onClick={ () => {
 							console.log( 'Edit clicked' );
 						} }
@@ -379,15 +307,15 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
-						title="Example Three"
-						description="Waiting/in-progress state, no action button."
-						actionText="Installing..."
+						title={ __( 'Example Three', 'newspack' ) }
+						description={ __( 'Waiting/in-progress state, no action button.', 'newspack' ) }
+						actionText={ __( 'Installing…', 'newspack' ) }
 						isWaiting
 					/>
 					<ActionCard
-						title="Example Four"
-						description="Error notification"
-						actionText="Install"
+						title={ __( 'Example Four', 'newspack' ) }
+						description={ __( 'Error notification', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
@@ -399,153 +327,114 @@ class ComponentsDemo extends Component {
 						notificationLevel="error"
 					/>
 					<ActionCard
-						title="Example Five"
-						description="Warning notification, action button"
+						title={ __( 'Example Five', 'newspack' ) }
+						description={ __( 'Warning notification, action button', 'newspack' ) }
 						notification={
 							<Fragment>
-								There is a new version available. <a href="#">View details</a> or{' '}
+								There is a new version available. <a href="#">View details</a> or{ ' ' }
 								<a href="#">update now</a>
 							</Fragment>
 						}
 						notificationLevel="warning"
 					/>
 					<ActionCard
-						title="Example Six"
-						description="Static text, no button"
-						actionText="Active"
+						title={ __( 'Example Six', 'newspack' ) }
+						description={ __( 'Static text, no button', 'newspack' ) }
+						actionText={ __( 'Active', 'newspack' ) }
 					/>
 					<ActionCard
-						title="Example Seven"
-						description="Static text, secondary action button."
-						actionText="Active"
-						secondaryActionText={ __( 'Delete' ) }
+						title={ __( 'Example Seven', 'newspack' ) }
+						description={ __( 'Static text, secondary action button.', 'newspack' ) }
+						actionText={ __( 'Active', 'newspack' ) }
+						secondaryActionText={ __( 'Delete', 'newspack' ) }
+						secondaryDestructive
 						onSecondaryActionClick={ () => {
 							console.log( 'Delete clicked' );
 						} }
 					/>
 					<ActionCard
-						title="Example Eight"
-						description="Image with link and action button."
-						actionText="Set Up"
+						title={ __( 'Example Eight', 'newspack' ) }
+						description={ __( 'Image with link and action button.', 'newspack' ) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						onClick={ () => {
-							console.log( 'Set Up' );
+							console.log( 'Configure clicked' );
 						} }
-						image="//s1.wp.com/wp-content/themes/h4/landing/marketing/pages/hp-jan-2019/media/man-with-shadow.jpg"
-						imageLink="https://wordpress.com"
+						image="https://i0.wp.com/newspack.pub/wp-content/uploads/2020/06/pexels-photo-3183150.jpeg"
+						imageLink="https://newspack.pub"
 					/>
 					<ActionCard
-						title="Example Nine"
-						description="Action Card with Toggle Control."
-						actionText={ actionCardToggleChecked && 'Set Up' }
+						title={ __( 'Example Nine', 'newspack' ) }
+						description={ __( 'Action Card with Toggle Control.', 'newspack' ) }
+						actionText={ actionCardToggleChecked && __( 'Configure', 'newspack' ) }
 						onClick={ () => {
-							console.log( 'Set Up' );
+							console.log( 'Configure clicked' );
 						} }
 						toggleOnChange={ checked => this.setState( { actionCardToggleChecked: checked } ) }
 						toggleChecked={ actionCardToggleChecked }
 					/>
 					<ActionCard
-						badge="Premium"
-						title="Example Ten"
-						description="An example of an action card with a badge."
-						actionText="Install"
+						badge={ __( 'Premium', 'newspack' ) }
+						title={ __( 'Example Ten', 'newspack' ) }
+						description={ __( 'An example of an action card with a badge.', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
 					/>
 					<ActionCard
 						isSmall
-						title="Example Eleven (small)"
-						description="An example of a small action card."
-						actionText="Install"
+						title={ __( 'Example Eleven', 'newspack' ) }
+						description={ __( 'An example of a small action card.', 'newspack' ) }
+						actionText={ __( 'Installing', 'newspack' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
 						} }
 					/>
 					<ActionCard
-						title="Handoff"
-						description="An example of an action card with Handoff."
-						actionText="Configure"
+						title={ __( 'Example Twelve', 'newspack' ) }
+						description={ __( 'Action card with an unchecked checkbox.', 'newspack' ) }
+						actionText={ __( 'Configure', 'newspack' ) }
+						onClick={ () => {
+							console.log( 'Configure' );
+						} }
+						checkbox="unchecked"
+					/>
+					<ActionCard
+						title={ __( 'Example Thirteen', 'newspack' ) }
+						description={ __( 'Action card with a checked checkbox.', 'newspack' ) }
+						secondaryActionText={ __( 'Disconnect', 'newspack' ) }
+						onSecondaryActionClick={ () => {
+							console.log( 'Disconnect' );
+						} }
+						checkbox="checked"
+					/>
+					<ActionCard
+						badge={ [ __( 'Premium', 'newspack' ), __( 'Archived', 'newspack' ) ] }
+						title={ __( 'Example Fourteen', 'newspack' ) }
+						description={ __( 'An example of an action card with two badges.', 'newspack' ) }
+						actionText={ __( 'Install', 'newspack' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
+						title={ __( 'Handoff', 'newspack' ) }
+						description={ __( 'An example of an action card with Handoff.', 'newspack' ) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						handoff="jetpack"
 					/>
 					<ActionCard
-						title="Handoff"
-						description="An example of an action card with Handoff and EditLink."
-						actionText="Configure"
+						title={ __( 'Handoff', 'newspack' ) }
+						description={ __(
+							' An example of an action card with Handoff and EditLink.',
+							'newspack'
+						) }
+						actionText={ __( 'Configure', 'newspack' ) }
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
 					/>
-					<FormattedHeader headerText={ __( 'Checklist' ) } />
-					<Checklist progressBarText={ __( 'Your setup list' ) }>
-						<Task
-							title={ __( 'Set up membership' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 0 }
-							completed={ checklistProgress > 0 }
-							onClick={ () => this.performCheckListItem( 0 ) }
-							onDismiss={ () => this.dismissCheckListItem( 0 ) }
-						/>
-						<Task
-							title={ __( 'Set up your paywall' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 1 }
-							completed={ checklistProgress > 1 }
-							onClick={ () => this.performCheckListItem( 1 ) }
-							onDismiss={ () => this.dismissCheckListItem( 1 ) }
-						/>
-						<Task
-							title={ __( 'Customize your donations page' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 2 }
-							completed={ checklistProgress > 2 }
-							onClick={ () => this.performCheckListItem( 2 ) }
-							onDismiss={ () => this.dismissCheckListItem( 2 ) }
-						/>
-						<Task
-							title={ __( 'Set up call to action block' ) }
-							description={ __(
-								"Optimize your site for search engines and social media by taking advantage of our SEO tools. We'll walk you through important SEO strategies to get more exposure for your business."
-							) }
-							buttonText={ __( 'Do it' ) }
-							active={ checklistProgress === 3 }
-							completed={ checklistProgress > 3 }
-							onClick={ () => this.performCheckListItem( 3 ) }
-							onDismiss={ () => this.dismissCheckListItem( 3 ) }
-						/>
-					</Checklist>
 					<Card>
-						<FormattedHeader headerText={ __( 'Checkboxes' ) } />
-						<CheckboxControl
-							label={ __( 'Checkbox is tested?' ) }
-							onChange={ function() {
-								console.log( "Yep, it's tested" );
-							} }
-						/>
-						<CheckboxControl
-							label={ __( 'Checkbox w/Tooltip' ) }
-							onChange={ function() {
-								console.log( "Yep, it's tested" );
-							} }
-							tooltip="This is tooltip text"
-						/>
-						<CheckboxControl
-							label={ __( 'Checkbox w/Help' ) }
-							onChange={ function() {
-								console.log( "Yep, it's tested" );
-							} }
-							help="This is help text"
-						/>
-					</Card>
-					<Card>
-						<FormattedHeader headerText={ __( 'Image Uploader' ) } />
+						<h2>{ __( 'Image Uploader', 'newspack' ) }</h2>
 						<ImageUpload
 							image={ this.state.image }
 							onChange={ image => {
@@ -556,103 +445,253 @@ class ComponentsDemo extends Component {
 						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText={ __( 'Text Inputs' ) } />
-						<TextControl
-							label={ __( 'Text Input with value' ) }
-							value={ inputTextValue1 }
-							onChange={ value => this.setState( { inputTextValue1: value } ) }
-						/>
-						<TextControl
-							label={ __( 'Text Input empty' ) }
-							value={ inputTextValue2 }
-							onChange={ value => this.setState( { inputTextValue2: value } ) }
-						/>
-						<TextControl
-							type="number"
-							label={ __( 'Number Input' ) }
-							value={ inputNumValue }
-							onChange={ value => this.setState( { inputNumValue: value } ) }
-						/>
-						<TextControl label={ __( 'Text Input disabled' ) } disabled />
-					</Card>
-					<Card>
-						<FormattedHeader headerText={ __( 'Progress bar' ) } />
+						<h2>{ __( 'Progress bar', 'newspack' ) }</h2>
 						<ProgressBar completed="2" total="3" />
-						<ProgressBar completed="2" total="5" label={ __( 'Progress made' ) } />
+						<ProgressBar completed="2" total="5" label={ __( 'Progress made', 'newspack' ) } />
 						<ProgressBar completed="0" total="5" displayFraction />
-						<ProgressBar completed="3" total="8" label={ __( 'Progress made' ) } displayFraction />
+						<ProgressBar
+							completed="3"
+							total="8"
+							label={ __( 'Progress made', 'newspack' ) }
+							displayFraction
+						/>
 					</Card>
 					<Card>
-						<FormattedHeader headerText="Select dropdowns" />
-						<SelectControl
-							label={ __( 'Label for Select with a preselection' ) }
-							value={ selectValue1 }
-							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								{ value: '1st', label: __( 'First' ) },
-								{ value: '2nd', label: __( 'Second' ) },
-								{ value: '3rd', label: __( 'Third' ) },
-							] }
-							onChange={ value => this.setState( { selectValue1: value } ) }
+						<h2>{ __( 'Select dropdowns', 'newspack' ) }</h2>
+						<Grid columns={ 1 } gutter={ 16 }>
+							<SelectControl
+								label={ __( 'Label for Select with a preselection', 'newspack' ) }
+								value={ selectValue1 }
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+								onChange={ value => this.setState( { selectValue1: value } ) }
+							/>
+							<SelectControl
+								label={ __( 'Label for Select with no preselection', 'newspack' ) }
+								value={ selectValue2 }
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+								onChange={ value => this.setState( { selectValue2: value } ) }
+							/>
+							<SelectControl
+								label={ __( 'Label for disabled Select', 'newspack' ) }
+								disabled
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+							/>
+							<SelectControl
+								label={ __( 'Small', 'newspack' ) }
+								value={ selectValue3 }
+								isSmall
+								options={ [
+									{ value: null, label: __( '- Select -', 'newspack' ), disabled: true },
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+								] }
+								onChange={ value => this.setState( { selectValue3: value } ) }
+							/>
+							<SelectControl
+								multiple
+								label={ __( 'Multi-select', 'newspack' ) }
+								value={ this.state.selectValues }
+								options={ [
+									{ value: '1st', label: __( 'First', 'newspack' ) },
+									{ value: '2nd', label: __( 'Second', 'newspack' ) },
+									{ value: '3rd', label: __( 'Third', 'newspack' ) },
+									{ value: '4th', label: __( 'Fourth', 'newspack' ) },
+									{ value: '5th', label: __( 'Fifth', 'newspack' ) },
+									{ value: '6th', label: __( 'Sixth', 'newspack' ) },
+									{ value: '7th', label: __( 'Seventh', 'newspack' ) },
+								] }
+								onChange={ selectValues => this.setState( { selectValues } ) }
+							/>
+							<Notice
+								noticeText={
+									<>
+										{ __( 'Selected:', 'newspack' ) }{ ' ' }
+										{ this.state.selectValues.length > 0
+											? this.state.selectValues.join( ', ' )
+											: __( 'none', 'newspack' ) }
+									</>
+								}
+							/>
+						</Grid>
+					</Card>
+					<Card>
+						<h2>{ __( 'Buttons', 'newspack' ) }</h2>
+						<Grid columns={ 1 } gutter={ 16 }>
+							<p>
+								<strong>{ __( 'Default', 'newspack' ) }</strong>
+							</p>
+							<Card buttonsCard noBorder>
+								<Button variant="primary">Primary</Button>
+								<Button variant="secondary">Secondary</Button>
+								<Button variant="tertiary">Tertiary</Button>
+								<Button>Default</Button>
+								<Button isLink>isLink</Button>
+							</Card>
+							<p>
+								<strong>{ __( 'Disabled', 'newspack' ) }</strong>
+							</p>
+							<Card buttonsCard noBorder>
+								<Button variant="primary" disabled>
+									Primary
+								</Button>
+								<Button variant="secondary" disabled>
+									Secondary
+								</Button>
+								<Button variant="tertiary" disabled>
+									Tertiary
+								</Button>
+								<Button disabled>Default</Button>
+								<Button isLink disabled>
+									isLink
+								</Button>
+							</Card>
+							<p>
+								<strong>{ __( 'Small', 'newspack' ) }</strong>
+							</p>
+							<Card buttonsCard noBorder>
+								<Button variant="primary" isSmall>
+									isPrimary
+								</Button>
+								<Button variant="secondary" isSmall>
+									isSecondary
+								</Button>
+								<Button variant="tertiary" isSmall>
+									isTertiary
+								</Button>
+								<Button isSmall>Default</Button>
+								<Button isLink isSmall>
+									isLink
+								</Button>
+							</Card>
+						</Grid>
+					</Card>
+					<Card>
+						<h2>ButtonCard</h2>
+						<ButtonCard
+							href="admin.php?page=newspack-site-design-wizard"
+							title={ __( 'Site Design', 'newspack' ) }
+							desc={ __( 'Customize the look and feel of your site', 'newspack' ) }
+							icon={ typography }
+							chevron
 						/>
-						<SelectControl
-							label={ __( 'Label for Select with no preselection' ) }
-							value={ selectValue2 }
-							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								{ value: '1st', label: __( 'First' ) },
-								{ value: '2nd', label: __( 'Second' ) },
-								{ value: '3rd', label: __( 'Third' ) },
-							] }
-							onChange={ value => this.setState( { selectValue2: value } ) }
+						<ButtonCard
+							href="#"
+							title={ __( 'Start a new site', 'newspack' ) }
+							desc={ __( "You don't have content to import", 'newspack' ) }
+							icon={ plus }
+							className="br--top"
+							grouped
 						/>
-						<SelectControl
-							label={ __( 'Label for disabled Select' ) }
-							disabled
-							options={ [
-								{ value: '', label: __( '- Select -' ), disabled: true },
-								{ value: '1st', label: __( 'First' ) },
-								{ value: '2nd', label: __( 'Second' ) },
-								{ value: '3rd', label: __( 'Third' ) },
-							] }
+						<ButtonCard
+							href="#"
+							title={ __( 'Migrate an existing site', 'newspack' ) }
+							desc={ __( 'You have content to import', 'newspack' ) }
+							icon={ reusableBlock }
+							className="br--bottom"
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Podcast', 'newspack' ) }
+							desc={ ( 'Small', 'newspack' ) }
+							icon={ audio }
+							className="br--top"
+							isSmall
+							grouped
+						/>
+						<ButtonCard
+							href="#"
+							title={ __( 'Add a new Font', 'newspack' ) }
+							desc={ ( 'Small + chevron', 'newspack' ) }
+							icon={ typography }
+							className="br--bottom"
+							chevron
+							isSmall
+							grouped
 						/>
 					</Card>
-					<Card className="newspack-components-demo__buttons">
-						<FormattedHeader headerText="Buttons" />
-						<Card noBackground buttonsCard>
-							<Button isPrimary>isPrimary</Button>
-							<Button isDefault>isDefault</Button>
-							<Button isTertiary>isTertiary</Button>
-							<Button isLink>isLink</Button>
-						</Card>
-						<hr />
-						<h2>isLarge</h2>
-						<Card noBackground buttonsCard>
-							<Button isPrimary isLarge>
-								isPrimary
-							</Button>
-							<Button isDefault isLarge>
-								isDefault
-							</Button>
-							<Button isTertiary isLarge>
-								isTertiary
-							</Button>
-						</Card>
-						<hr />
-						<h2>isSmall</h2>
-						<Card noBackground buttonsCard>
-							<Button isPrimary isSmall>
-								isPrimary
-							</Button>
-							<Button isDefault isSmall>
-								isDefault
-							</Button>
-							<Button isTertiary isSmall>
-								isTertiary
-							</Button>
-						</Card>
+					<Card>
+						<h2>{ __( 'Plugin Settings Section', 'newspack' ) }</h2>
+						<PluginSettings.Section
+							sectionKey="example"
+							title={ __( 'Example plugin settings', 'newspack' ) }
+							description={ __( 'Example plugin settings description', 'newspack' ) }
+							active={ true }
+							fields={ [
+								{
+									key: 'example_field',
+									type: 'string',
+									description: 'Example Text Field',
+									help: 'Example text field help text',
+									value: 'Example Value',
+								},
+								{
+									key: 'example_checkbox_field',
+									type: 'boolean',
+									description: 'Example checkbox Field',
+									help: 'Example checkbox field help text',
+									value: false,
+								},
+								{
+									key: 'example_options_field',
+									type: 'string',
+									description: 'Example options field',
+									help: 'Example options field help text',
+									options: [
+										{
+											value: 'example_value_1',
+											name: 'Example Value 1',
+										},
+										{
+											value: 'example_value_2',
+											name: 'Example Value 2',
+										},
+									],
+								},
+								{
+									key: 'example_multi_options_field',
+									type: 'string',
+									description: 'Example multiple options field',
+									help: 'Example multiple options field help text',
+									multiple: true,
+									options: [
+										{
+											value: 'example_value_1',
+											name: 'Example Value 1',
+										},
+										{
+											value: 'example_value_2',
+											name: 'Example Value 2',
+										},
+									],
+								},
+							] }
+							onUpdate={ data => {
+								console.log( 'Plugin Settings Section Updated', data );
+							} }
+							onChange={ ( key, val ) => {
+								console.log( 'Plugin Settings Section Changed', { key, val } );
+							} }
+						/>
 					</Card>
-				</Grid>
+				</div>
+				<Footer />
 			</Fragment>
 		);
 	}

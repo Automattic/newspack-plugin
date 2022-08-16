@@ -11,16 +11,11 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Search';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Environment, Separator, Social, Tools } from './views';
+import { Settings } from './views';
 
 /**
  * External dependencies.
@@ -32,7 +27,6 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 class SEOWizard extends Component {
 	state = {
-		titleSeparator: '',
 		underConstruction: false,
 		urls: {
 			facebook: '',
@@ -70,6 +64,7 @@ class SEOWizard extends Component {
 			path: '/newspack/v1/wizard/newspack-seo-wizard/settings',
 			method: 'POST',
 			data: deepMapKeys( this.state, key => snakeCase( key ) ),
+			quiet: true,
 		} )
 			.then( response => this.setState( this.sanitizeResponse( response ) ) )
 			.catch( error => setError( error ) );
@@ -87,38 +82,14 @@ class SEOWizard extends Component {
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const headerIcon = <HeaderIcon />;
 		const headerText = __( 'SEO', 'newspack' );
-		const subHeaderText = __( 'Search engine and social optimization', 'newspack' );
-		const tabbedNavigation = [
-			{
-				label: __( 'Environment', 'newspack' ),
-				path: '/',
-				exact: true,
-			},
-			{
-				label: __( 'Separator', 'newspack' ),
-				path: '/separator',
-				exact: true,
-			},
-			{
-				label: __( 'Tools', 'newspack' ),
-				path: '/tools',
-				exact: true,
-			},
-			{
-				label: __( 'Social', 'newspack' ),
-				path: '/social',
-			},
-		];
-		const buttonText = __( 'Save settings', 'newspack' );
-		const secondaryButtonText = __( 'Advanced settings', 'newspack' );
+		const subHeaderText = __( 'Configure basic SEO settings', 'newspack' );
+		const buttonText = __( 'Save Settings', 'newspack' );
+		const secondaryButtonText = __( 'Advanced Settings', 'newspack' );
 		const screenParams = {
 			data: this.state,
-			headerIcon,
 			headerText,
 			subHeaderText,
-			tabbedNavigation,
 		};
 		return (
 			<Fragment>
@@ -129,65 +100,11 @@ class SEOWizard extends Component {
 							exact
 							path="/"
 							render={ () => (
-								<Environment
+								<Settings
 									{ ...screenParams }
 									buttonAction={ () => this.update() }
 									buttonText={ buttonText }
 									onChange={ settings => this.setState( settings ) }
-									secondaryButtonAction={ {
-										handoff: 'wordpress-seo',
-									} }
-									secondaryButtonText={ secondaryButtonText }
-								/>
-							) }
-						/>
-						<Route
-							exact
-							path="/separator"
-							render={ () => (
-								<Separator
-									{ ...screenParams }
-									buttonAction={ () => this.update() }
-									buttonText={ buttonText }
-									onChange={ settings => this.setState( settings ) }
-									secondaryButtonAction={ {
-										editLink: 'admin.php?page=wpseo_titles',
-										handoff: 'wordpress-seo',
-									} }
-									secondaryButtonText={ secondaryButtonText }
-								/>
-							) }
-						/>
-						<Route
-							exact
-							path="/social"
-							render={ () => (
-								<Social
-									{ ...screenParams }
-									buttonAction={ () => this.update() }
-									buttonText={ buttonText }
-									onChange={ settings => this.setState( settings ) }
-									secondaryButtonAction={ {
-										editLink: 'admin.php?page=wpseo_social',
-										handoff: 'wordpress-seo',
-									} }
-									secondaryButtonText={ secondaryButtonText }
-								/>
-							) }
-						/>
-						<Route
-							exact
-							path="/tools"
-							render={ () => (
-								<Tools
-									{ ...screenParams }
-									buttonAction={ () => this.update() }
-									buttonText={ buttonText }
-									onChange={ settings => this.setState( settings ) }
-									secondaryButtonAction={ {
-										editLink: 'admin.php?page=wpseo_dashboard#top#webmaster-tools',
-										handoff: 'wordpress-seo',
-									} }
 									secondaryButtonText={ secondaryButtonText }
 								/>
 							) }

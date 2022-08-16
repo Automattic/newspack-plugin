@@ -51,13 +51,27 @@ class PluginToggle extends Component {
 				pluginInfo: { ...pluginInfo, [ plugin ]: { ...pluginInfo[ plugin ], inFlight: action } },
 			},
 			() => {
-				apiFetch( params ).then( response => {
-					const { shouldRefreshAfterUpdate } = plugins[ plugin ];
-					this.setState(
-						{ pluginInfo: { ...pluginInfo, [ plugin ]: response } },
-						() => shouldRefreshAfterUpdate && location.reload()
-					);
-				} );
+				apiFetch( params )
+					.then( response => {
+						const { shouldRefreshAfterUpdate } = plugins[ plugin ];
+						this.setState(
+							( { pluginInfo: currentPluginInfo } ) => ( {
+								pluginInfo: { ...currentPluginInfo, [ plugin ]: response },
+							} ),
+							() => shouldRefreshAfterUpdate && location.reload()
+						);
+					} )
+					.catch( e => {
+						this.setState( {
+							pluginInfo: {
+								...pluginInfo,
+								[ plugin ]: {
+									...pluginInfo[ plugin ],
+									error: e.message || __( 'There was an error managing this plugin.', 'newspack' ),
+								},
+							},
+						} );
+					} );
 			}
 		);
 	};
@@ -72,6 +86,7 @@ class PluginToggle extends Component {
 			const { name, description, href, slug, editPath } = plugin;
 			const pluginStatus = this.isPluginInstalledAndActive( plugin );
 			const handoff = ! href && pluginStatus && editPath ? slug : null;
+			const error = this.errorForPlugin( plugin );
 			return (
 				<ActionCard
 					key={ index }
@@ -84,6 +99,9 @@ class PluginToggle extends Component {
 					toggle
 					toggleChecked={ this.isPluginInstalledAndActive( plugin ) }
 					toggleOnChange={ value => this.managePlugin( slug, value ) }
+					notification={ error }
+					notificationHTML={ error }
+					notificationLevel="error"
 				/>
 			);
 		} );
@@ -99,9 +117,8 @@ class PluginToggle extends Component {
 					? Object.keys( pluginsFromAPI[ pluginSlug ] ).reduce(
 							( accumulator, key ) => ( {
 								...accumulator,
-								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]: pluginsFromAPI[ pluginSlug ][
-									key
-								],
+								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]:
+									pluginsFromAPI[ pluginSlug ][ key ],
 							} ),
 							{}
 					  )
@@ -131,21 +148,21 @@ class PluginToggle extends Component {
 		if ( 'configure' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Installing...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Installing…', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
 		if ( 'deactivate' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Deactivating...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Deactivating…', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
 		if ( ! name ) {
 			return (
 				<Fragment>
-					{ __( 'Loading...', 'newspack' ) } <Waiting isRight />
+					{ __( 'Loading…', 'newspack' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
@@ -156,6 +173,16 @@ class PluginToggle extends Component {
 		if ( href || editPath ) {
 			return actionText ? actionText : __( 'Configure', 'newspack' );
 		}
+	};
+
+	/**
+	 * Get error message for this plugin.
+	 */
+	errorForPlugin = plugin => {
+		const { slug } = plugin;
+		const { pluginInfo } = this.state;
+
+		return pluginInfo[ slug ]?.error || null;
 	};
 
 	/**

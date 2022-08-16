@@ -5,20 +5,22 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import DeleteIcon from '@material-ui/icons/Delete';
-import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import { trash } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { Button, TextControl, withWizardScreen } from '../../../../components/src';
-import './style.scss';
+import {
+	Button,
+	Card,
+	Grid,
+	Notice,
+	TextControl,
+	withWizardScreen,
+} from '../../../../components/src';
+import AdUnitSizeControl, { getSizes } from '../../components/ad-unit-size-control';
 
 /**
  * New/Edit Ad Unit Screen.
@@ -27,85 +29,164 @@ class AdUnit extends Component {
 	/**
 	 * Handle an update to an ad unit field.
 	 *
-	 * @param {string} key Ad Unit field
-	 * @param {any}  value New value for field
+	 * @param {string|Object} adUnitChangesOrKey Ad Unit field name or object containing changes.
+	 * @param {any}           value              New value for field.
 	 *
 	 */
-	handleOnChange( key, value ) {
+	handleOnChange( adUnitChangesOrKey, value ) {
 		const { adUnit, onChange, service } = this.props;
-		onChange( { ...adUnit, ad_service: service, [ key ]: value } );
+		const adUnitChanges =
+			typeof adUnitChangesOrKey === 'string'
+				? { [ adUnitChangesOrKey ]: value }
+				: adUnitChangesOrKey;
+		onChange( { ...adUnit, ad_service: service, ...adUnitChanges } );
+	}
+
+	getSizeOptions() {
+		const { adUnit } = this.props;
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
+		let sizeOptions = [ ...sizes ];
+		if ( adUnit.fluid ) {
+			sizeOptions = [ ...sizeOptions, 'fluid' ];
+		}
+		return sizeOptions;
+	}
+
+	getNextAvailableSize() {
+		const sizes = getSizes();
+		const options = this.getSizeOptions().map( size => size.toString() );
+		const index = sizes
+			.map( size => size.toString() )
+			.findIndex( size => ! options.includes( size ) );
+		return sizes[ index ] || [ 0, 0 ];
 	}
 
 	/**
 	 * Render.
 	 */
 	render() {
-		const { adUnit, onSave, service } = this.props;
-		const { id, code, name } = adUnit;
-		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [ [ 120, 120 ] ];
+		const { adUnit, service, onSave } = this.props;
+		const { id, code, fluid = false, name = '' } = adUnit;
+		const isLegacy = adUnit.is_legacy;
+		const isExistingAdUnit = id !== 0;
+		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
+		const isInvalidSize = ! fluid && sizes.length === 0;
+		const sizeOptions = this.getSizeOptions();
 		return (
-			<Fragment>
-				<TextControl
-					label={ __( 'Ad unit name' ) }
-					value={ name || '' }
-					onChange={ value => this.handleOnChange( 'name', value ) }
-				/>
-				<TextControl
-					label={ __( 'Ad unit code' ) }
-					value={ code || '' }
-					onChange={ value => this.handleOnChange( 'code', value ) }
-				/>
-				{ sizes.map( ( size, index ) => (
-					<div className="newspack_ad_unit__sizes" key={ index }>
+			<>
+				<Card headerActions noBorder>
+					<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+				</Card>
+
+				<Grid gutter={ 32 }>
+					<TextControl
+						label={ __( 'Name', 'newspack' ) }
+						value={ name || '' }
+						onChange={ value => this.handleOnChange( 'name', value ) }
+					/>
+					{ ( isExistingAdUnit || isLegacy ) && (
 						<TextControl
-							label={ __( 'Width' ) }
-							value={ size[ 0 ] }
-							type="number"
+							label={ __( 'Code', 'newspack' ) }
+							value={ code || '' }
+							className="code"
+							help={
+								isLegacy
+									? undefined
+									: __(
+											"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
+											'newspack'
+									  )
+							}
+							disabled={ ! isLegacy }
+							onChange={ value => this.handleOnChange( 'code', value ) }
+						/>
+					) }
+				</Grid>
+
+				<Card headerActions noBorder>
+					<h2>
+						{ sizeOptions.length > 1
+							? __( 'Ad Unit Sizes', 'newspack' )
+							: __( 'Ad Unit Size', 'newspack' ) }
+					</h2>
+					<Button
+						variant="secondary"
+						onClick={ () =>
+							this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] )
+						}
+					>
+						{ __( 'Add New Size', 'newspack' ) }
+					</Button>
+				</Card>
+
+				{ isInvalidSize && (
+					<Notice
+						isWarning
+						noticeText={ __(
+							'The ad unit must have at least one valid size or fluid size enabled.',
+							'newspack'
+						) }
+					/>
+				) }
+
+				<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__thead">
+					<span>{ __( 'Size', 'newspack' ) }</span>
+					<span>{ __( 'Width', 'newspack' ) }</span>
+					<span>{ __( 'Height', 'newspack' ) }</span>
+					<span className="screen-reader-text">{ __( 'Action', 'newspack' ) }</span>
+				</Grid>
+
+				{ sizeOptions.map( ( size, index ) => (
+					<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__tbody" key={ index }>
+						<AdUnitSizeControl
+							selectedOptions={ sizeOptions }
+							value={ size }
 							onChange={ value => {
-								sizes[ index ][ 0 ] = value;
-								this.handleOnChange( 'sizes', sizes );
+								const adUnitChanges = {};
+								const prevValue = sizeOptions[ index ];
+								if ( prevValue === 'fluid' ) {
+									adUnitChanges.fluid = false;
+								}
+								if ( value === 'fluid' ) {
+									sizes.splice( index, 1 );
+									adUnitChanges.fluid = true;
+								} else {
+									sizes[ index ] = value;
+								}
+								adUnitChanges.sizes = sizes;
+								this.handleOnChange( adUnitChanges );
 							} }
 						/>
-						<TextControl
-							label={ __( 'Height' ) }
-							value={ size[ 1 ] }
-							type="number"
-							onChange={ value => {
-								sizes[ index ][ 1 ] = value;
-								this.handleOnChange( 'sizes', sizes );
-							} }
-						/>
-						{ sizes.length > 1 && (
-							<Button
-								isTertiary
-								onClick={ () => {
+						<Button
+							onClick={ () => {
+								if ( size === 'fluid' ) {
+									this.handleOnChange( 'fluid', false );
+								} else {
 									sizes.splice( index, 1 );
 									this.handleOnChange( 'sizes', sizes );
-								} }
-							>
-								<DeleteIcon />
-							</Button>
-						) }
-					</div>
+								}
+							} }
+							icon={ trash }
+							disabled={ sizeOptions.length <= 1 }
+							label={ __( 'Delete', 'newspack' ) }
+							showTooltip={ true }
+						/>
+					</Grid>
 				) ) }
-				<Button
-					isTertiary
-					className="newspack-button__add-size"
-					onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, [ 120, 120 ] ] ) }
-				>
-					<LibraryAddIcon />
-					{ __( 'Add Size', 'newspack' ) }
-				</Button>
-				<div className="clear" />
+
 				<div className="newspack-buttons-card">
-					<Button isPrimary onClick={ () => onSave( id ) }>
-						{ __( 'Save' ) }
+					<Button
+						disabled={ name.length === 0 || ( isLegacy && code.length === 0 ) || isInvalidSize }
+						variant="primary"
+						onClick={ () => onSave( id ) }
+					>
+						{ __( 'Save', 'newspack' ) }
 					</Button>
-					<Button isDefault href={ `#/${ service }` }>
-						{ __( 'Cancel' ) }
+					<Button variant="secondary" href={ `#/${ service }` }>
+						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>
-			</Fragment>
+			</>
 		);
 	}
 }

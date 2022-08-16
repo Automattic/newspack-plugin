@@ -1,2 +1,2 @@
-export { default as ThemeSelection } from './theme-selection';
-export { default as ThemeMods } from './theme-mods';
+export { default as Main } from './main';
+export { default as ThemeSettings } from './theme-settings';

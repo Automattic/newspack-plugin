@@ -6,6 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
+import { Spinner } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -13,11 +14,13 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies.
  */
 import { FormTokenField } from '../';
+import './style.scss';
 
 /**
  * External dependencies
  */
-import { debounce } from 'lodash';
+import { debounce, find, filter } from 'lodash';
+import classnames from 'classnames';
 
 /**
  * Category autocomplete field component.
@@ -25,6 +28,8 @@ import { debounce } from 'lodash';
 class CategoryAutocomplete extends Component {
 	state = {
 		suggestions: {},
+		allCategories: {},
+		isLoading: false,
 	};
 
 	/**
@@ -33,6 +38,18 @@ class CategoryAutocomplete extends Component {
 	constructor( props ) {
 		super( props );
 		this.debouncedUpdateSuggestions = debounce( this.updateSuggestions, 100 );
+	}
+
+	componentDidMount() {
+		this.setState( { isLoading: true } );
+		apiFetch( {
+			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
+				per_page: -1,
+				_fields: 'id,name',
+			} ),
+		} )
+			.then( categories => this.setState( { allCategories: categories } ) )
+			.finally( () => this.setState( { isLoading: false } ) );
 	}
 
 	/**
@@ -48,22 +65,25 @@ class CategoryAutocomplete extends Component {
 	 * @param {string} search The typed text to search for.
 	 */
 	updateSuggestions( search ) {
+		this.setState( { isLoading: true } );
 		apiFetch( {
-			path: addQueryArgs( '/wp/v2/categories', {
+			path: addQueryArgs( `/wp/v2/${ this.props.taxonomy }`, {
 				search,
 				per_page: 20,
 				_fields: 'id,name',
 				orderby: 'count',
 				order: 'desc',
 			} ),
-		} ).then( categories => {
-			this.setState( {
-				suggestions: categories.reduce(
-					( accumulator, category ) => ( { ...accumulator, [ category.name ]: category } ),
-					{}
-				),
-			} );
-		} );
+		} )
+			.then( categories => {
+				this.setState( {
+					suggestions: categories.reduce(
+						( accumulator, category ) => ( { ...accumulator, [ category.name ]: category } ),
+						{}
+					),
+				} );
+			} )
+			.finally( () => this.setState( { isLoading: false } ) );
 	}
 
 	/**
@@ -76,27 +96,79 @@ class CategoryAutocomplete extends Component {
 		const { suggestions } = this.state;
 		// Categories that are already will be objects, while new additions will be strings (the name).
 		// allValues nomalizes the array so that they are all objects.
-		const allValues = tokens.map( token =>
-			typeof token === 'string' ? suggestions[ token ] : token
-		);
+		const allValues = tokens
+			.filter( token => 'undefined' !== typeof token ) // Ensure each token is a valid value.
+			.map( token => ( 'string' === typeof token ? suggestions[ token ] : token ) )
+			.filter( Boolean );
 		onChange( allValues );
+	};
+
+	getAvailableSuggestions = () => {
+		const { value } = this.props;
+		const { suggestions } = this.state;
+		const selectedIds = value.reduce( ( acc, item ) => {
+			if ( item?.id ) {
+				acc.push( item.id );
+			}
+			return acc;
+		}, [] );
+		const availableSuggestions = filter(
+			suggestions,
+			( { id } ) => selectedIds.indexOf( id ) === -1
+		);
+		return availableSuggestions.map( v => v.name );
 	};
 
 	/**
 	 * Render the component.
 	 */
 	render() {
-		const { value, label } = this.props;
-		const { suggestions } = this.state;
+		const {
+			className,
+			disabled,
+			description,
+			hideHelpFromVision,
+			hideLabelFromVision,
+			label,
+			value,
+		} = this.props;
+		const { allCategories, isLoading } = this.state;
+		const classes = classnames( 'newspack-category-autocomplete', className );
 		return (
-			<FormTokenField
-				onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
-				value={ value.map( item => ( { id: item.term_id, value: item.name } ) ) }
-				suggestions={ Object.keys( suggestions ) }
-				onChange={ this.handleOnChange }
-				label={ label }
-			/>
+			<div className={ classes }>
+				<FormTokenField
+					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
+					value={ value.reduce( ( acc, item ) => {
+						const categoryOrItem =
+							typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
+						if ( categoryOrItem ) {
+							acc.push( {
+								id: categoryOrItem.term_id || categoryOrItem.id,
+								value: categoryOrItem.value || categoryOrItem.name,
+							} );
+						}
+						return acc;
+					}, [] ) }
+					suggestions={ this.getAvailableSuggestions() }
+					onChange={ this.handleOnChange }
+					label={ label }
+					disabled={ disabled }
+					description={ description }
+					hideHelpFromVision={ hideHelpFromVision }
+					hideLabelFromVision={ hideLabelFromVision }
+				/>
+				{ isLoading ? (
+					<span className="newspack-category-autocomplete__suggestions-spinner">
+						<Spinner />
+					</span>
+				) : null }
+			</div>
 		);
 	}
 }
+
+CategoryAutocomplete.defaultProps = {
+	taxonomy: 'categories',
+};
+
 export default CategoryAutocomplete;

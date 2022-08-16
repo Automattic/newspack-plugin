@@ -7,6 +7,11 @@
 
 namespace Newspack;
 
+use \WP_Error;
+
+use Newspack_Ads\Providers\GAM_Model;
+use Newspack_Ads\Providers\GAM_API;
+
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/configuration_managers/class-configuration-manager.php';
@@ -29,31 +34,41 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Whether Newspack Ads is installed and activated.
 	 */
 	public function is_configured() {
-		return class_exists( 'Newspack_Ads_Model' );
+		return class_exists( '\Newspack_Ads\Providers\GAM_Model' );
 	}
 
 	/**
-	 * Get Network Code for ad service.
+	 * Initial GAM setup
 	 *
-	 * @param string $service The service to retrieve.
-	 * @return string | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.
+	 * @return object|WP_Error Setup results or error if it fails.
 	 */
-	public function get_network_code( $service ) {
+	public function setup_gam() {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::get_network_code( $service ) :
+			GAM_Model::setup_gam() :
 			$this->unconfigured_error();
 	}
 
 	/**
-	 * Create/update header code for ad service.
+	 * Update GAM credentials.
 	 *
-	 * @param string $service The service to retrieve.
-	 * @param string $network_code The code.
-	 * @return bool | WP_Error Array of ad units or WP_Error if Newspack Ads isn't installed and activated.
+	 * @param array $credentials Credentials to update.
+	 *
+	 * @return object|WP_Error Connection status or error if it fails.
 	 */
-	public function set_network_code( $service, $network_code ) {
+	public function update_gam_credentials( $credentials ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::set_network_code( $service, $network_code ) :
+			GAM_API::update_gam_credentials( $credentials ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Remove GAM credentials.
+	 *
+	 * @return object|WP_Error Connection status or error if it fails.
+	 */
+	public function remove_gam_credentials() {
+		return $this->is_configured() ?
+			GAM_API::remove_gam_credentials() :
 			$this->unconfigured_error();
 	}
 
@@ -64,7 +79,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_ad_units() {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::get_ad_units() :
+			GAM_Model::get_ad_units() :
 			$this->unconfigured_error();
 	}
 
@@ -75,9 +90,9 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * @param string $placement The id of the placement region.
 	 * @return array | WP_Error Returns ad unit or error if the plugin is not active or the ad unit doesn't exist.
 	 */
-	public function get_ad_unit( $id, $placement = null ) {
+	public function get_ad_unit_for_display( $id, $placement = null ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::get_ad_unit( $id, $placement ) :
+			GAM_Model::get_ad_unit_for_display( $id, $placement ) :
 			$this->unconfigured_error();
 	}
 
@@ -89,7 +104,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function add_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::add_ad_unit( $ad_unit ) :
+			GAM_Model::add_ad_unit( $ad_unit ) :
 			$this->unconfigured_error();
 	}
 
@@ -101,7 +116,7 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function update_ad_unit( $ad_unit ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::update_ad_unit( $ad_unit ) :
+			GAM_Model::update_ad_unit( $ad_unit ) :
 			$this->unconfigured_error();
 	}
 
@@ -109,21 +124,68 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 * Delete an ad unit
 	 *
 	 * @param integer $id The id of the ad unit to delete.
-	 * @return bool | WP_Error Returns true if deletion is successful, of error if the plugin is not active or the ad unit doesn't exist.
+	 * @return bool | WP_Error Returns true if deletion is successful, or error if the plugin is not active or the ad unit doesn't exist.
 	 */
 	public function delete_ad_unit( $id ) {
 		return $this->is_configured() ?
-			\Newspack_Ads_Model::delete_ad_unit( $id ) :
+			GAM_Model::delete_ad_unit( $id ) :
 			$this->unconfigured_error();
 	}
 
 	/**
-	 * Check whether the current screen should show ads.
+	 * Is GAM connected?
 	 *
-	 * @return bool Returns true if ads should be shown.
+	 * @return bool | WP_Error Returns true if GAM is not connected, or error if the plugin is not active.
 	 */
-	public function should_show_ads() {
-		return $this->is_configured() && function_exists( 'newspack_ads_should_show_ads' ) ? newspack_ads_should_show_ads() : false;
+	public function is_gam_connected() {
+		return $this->is_configured() ?
+			GAM_Model::is_gam_connected() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get GAM connection status.
+	 *
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function get_gam_connection_status() {
+		return $this->is_configured() ?
+			GAM_Model::get_gam_connection_status() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get GAM available networks.
+	 *
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function get_gam_available_networks() {
+		return $this->is_configured() ?
+			GAM_Model::get_gam_available_networks() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get ad suppression config.
+	 *
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function get_suppression_config() {
+		return $this->is_configured() ?
+			GAM_Model::get_suppression_config() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Update ad suppression config.
+	 *
+	 * @param array $config Updated config.
+	 * @return bool | WP_Error Returns object, or error if the plugin is not active.
+	 */
+	public function update_suppression_config( $config ) {
+		return $this->is_configured() ?
+			GAM_Model::update_suppression_config( $config ) :
+			$this->unconfigured_error();
 	}
 
 	/**
@@ -140,6 +202,16 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 				'level'  => 'fatal',
 			]
 		);
+	}
+
+	/**
+	 * Check if a service is enabled.
+	 *
+	 * @param string $service Service name.
+	 * @return bool Is the service enabled.
+	 */
+	public function is_service_enabled( $service ) {
+		return get_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, false );
 	}
 
 	/**

@@ -19,7 +19,7 @@ class Analytics {
 	 *
 	 * @var array
 	 */
-	public static $block_events = [];
+	public static $ntg_block_events = [];
 
 	/**
 	 * An integer to indicate the context a block is rendered in, e.g. content|overlay campaign|inline campaign.
@@ -29,11 +29,21 @@ class Analytics {
 	public static $block_render_context = 3;
 
 	/**
+	 * Config for the injected amp-analytics tag.
+	 *
+	 * @var array
+	 */
+	public static $amp_analytics_config_base = [];
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'inject_amp_events' ] );
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'handle_category_reporting' ] );
+		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'read_amp_analytics_config' ] );
+		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'set_extra_analytics_config_options' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ], 99 ); // This has to be run after the filter above steals the analytics config.
+
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'handle_custom_dimensions_reporting' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
 		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_events' ], 10, 2 );
 		add_action( 'newspack_campaigns_before_campaign_render', [ __CLASS__, 'set_campaign_render_context' ], 10, 1 );
@@ -44,50 +54,103 @@ class Analytics {
 		add_action( 'woocommerce_login_form_end', [ __CLASS__, 'prepare_login_events' ] );
 		add_action( 'woocommerce_register_form_end', [ __CLASS__, 'prepare_registration_events' ] );
 		add_action( 'woocommerce_after_checkout_registration_form', [ __CLASS__, 'prepare_checkout_registration_events' ] );
+
+		// Reader Activation hooks.
+		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
+		add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'newspack_newsletters_add_contact' ], 10, 4 );
 	}
 
 	/**
-	 * Tell Site Kit to report the article's category as custom dimension.
-	 * More about custom dimensions:
-	 * https://support.google.com/analytics/answer/2709828.
+	 * Tell Site Kit to report the article's data as custom dimensions.
+	 * More about custom dimensions: https://support.google.com/analytics/answer/2709828.
 	 */
-	public static function handle_category_reporting() {
-		$category_dimension_id = get_option( Analytics_Wizard::$category_dimension_option_name );
-		if ( ! $category_dimension_id ) {
-			return;
+	public static function handle_custom_dimensions_reporting() {
+		$custom_dimensions_values = self::get_custom_dimensions_values( get_the_ID() );
+		foreach ( $custom_dimensions_values as $key => $value ) {
+			self::add_custom_dimension_to_ga_config( $key, $value );
 		}
-		// Remove `ga:` prefix.
-		$category_dimension_id = substr( $category_dimension_id, 3 );
+	}
 
-		$categories = get_the_category();
-		if ( ! empty( $categories ) ) {
-			$categories_slugs = implode(
-				',',
-				array_map(
-					function( $cat ) {
-						return $cat->slug;
-					},
-					$categories
-				)
-			);
-			// Non-AMP.
-			add_filter(
-				'googlesitekit_gtag_opt',
-				function ( $gtag_opt ) use ( $categories_slugs, $category_dimension_id ) {
-					$gtag_opt[ $category_dimension_id ] = $categories_slugs;
-					return $gtag_opt;
+	/**
+	 * Get values for custom dimensions to be sent to GA.
+	 *
+	 * @param string $post_id Post ID.
+	 */
+	public static function get_custom_dimensions_values( $post_id ) {
+		$custom_dimensions        = Analytics_Wizard::list_configured_custom_dimensions();
+		$custom_dimensions_values = [];
+		foreach ( $custom_dimensions as $dimension ) {
+			$dimension_role = $dimension['role'];
+			// Remove `ga:` prefix.
+			$dimension_id = substr( $dimension['gaID'], 3 );
+
+			$post = get_post( $post_id );
+			if ( $post ) {
+				if ( 'category' === $dimension_role ) {
+					$categories       = get_the_category( $post_id );
+					$primary_category = get_post_meta( $post_id, '_yoast_wpseo_primary_category', true );
+					if ( $primary_category ) {
+						foreach ( $categories as $category ) {
+							if ( $category->term_id === (int) $primary_category ) {
+								$categories = [ $category ];
+							}
+						}
+					}
+					if ( ! empty( $categories ) ) {
+						$categories_slugs                          = implode(
+							',',
+							array_map(
+								function( $cat ) {
+									return $cat->slug;
+								},
+								$categories
+							)
+						);
+						$custom_dimensions_values[ $dimension_id ] = $categories_slugs;
+					}
 				}
-			);
-			// AMP.
-			add_filter(
-				'googlesitekit_amp_gtag_opt',
-				function ( $gtag_amp_opt ) use ( $categories_slugs, $category_dimension_id ) {
-					$tracking_id = $gtag_amp_opt['vars']['gtag_id'];
-					$gtag_amp_opt['vars']['config'][ $tracking_id ][ $category_dimension_id ] = $categories_slugs;
-					return $gtag_amp_opt;
+
+				if ( 'author' === $dimension_role ) {
+					$author_id                                 = $post->post_author;
+					$custom_dimensions_values[ $dimension_id ] = get_the_author_meta( 'display_name', $author_id );
 				}
-			);
+
+				if ( 'word_count' === $dimension_role ) {
+					$custom_dimensions_values[ $dimension_id ] = count( explode( ' ', wp_strip_all_tags( $post->post_content ) ) );
+				}
+
+				if ( 'publish_date' === $dimension_role ) {
+					$custom_dimensions_values[ $dimension_id ] = get_the_time( 'Y-m-d H:i', $post->ID );
+				}
+			}
 		}
+		return $custom_dimensions_values;
+	}
+
+	/**
+	 * Add custom dimension to GA config via Site Kit filters.
+	 *
+	 * @param string $dimension_id Dimension ID.
+	 * @param string $payload Payload.
+	 */
+	public static function add_custom_dimension_to_ga_config( $dimension_id, $payload ) {
+		// Non-AMP.
+		add_filter(
+			'googlesitekit_gtag_opt',
+			function ( $gtag_opt ) use ( $payload, $dimension_id ) {
+				$gtag_opt[ $dimension_id ] = $payload;
+				return $gtag_opt;
+			}
+		);
+		// AMP.
+		add_filter(
+			'googlesitekit_amp_gtag_opt',
+			function ( $gtag_amp_opt ) use ( $payload, $dimension_id ) {
+				$tracking_id = $gtag_amp_opt['vars']['gtag_id'];
+				$gtag_amp_opt['vars']['config'][ $tracking_id ][ $dimension_id ] = $payload;
+				return $gtag_amp_opt;
+			}
+		);
 	}
 
 	/**
@@ -117,6 +180,15 @@ class Analytics {
 	}
 
 	/**
+	 * Get a unique id.
+	 *
+	 * @return string Unique id.
+	 */
+	private static function get_uniqid() {
+		return 'n' . substr( uniqid(), 10 );
+	}
+
+	/**
 	 * Get data about all events.
 	 *
 	 * An event is largely based on the AMP analytics event spec and should contain the following fields:
@@ -127,92 +199,132 @@ class Analytics {
 	 *    'amp_element'    => string CSS selector for AMP version of element if different.
 	 *    'event_name'     => string Name for event in GA (e.g. 'Clicked').
 	 *    'event_label'    => string Label for event in GA (e.g. 'Popup 1')
-	 *    'event_category' => string Category for event in GA (e.g. 'Newspack Announcements').
+	 *    'event_category' => string Category for event in GA (e.g. 'User Interaction').
 	 * There can also be other fields specific for certain events (e.g. 'scrollSpec' for 'scroll' event listener).
 	 */
 	public static function get_events() {
-		$events = [
-			[
-				'id'             => 'socialShareClickedFacebook',
-				'on'             => 'click',
-				'element'        => 'a.share-facebook',
-				'amp_element'    => 'amp-social-share[type="facebook"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'facebook',
-				'event_category' => 'NTG social',
-			],
-			[
-				'id'             => 'socialShareClickedTwitter',
-				'on'             => 'click',
-				'element'        => 'a.share-twitter',
-				'amp_element'    => 'amp-social-share[type="twitter"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'twitter',
-				'event_category' => 'NTG social',
-			],
-			[
-				'id'             => 'socialShareClickedWhatsApp',
-				'on'             => 'click',
-				'element'        => 'a.share-jetpack-whatsapp',
-				'amp_element'    => 'amp-social-share[type="whatsapp"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'whatsapp',
-				'event_category' => 'NTG social',
-			],
-			[
-				'id'             => 'socialShareClickedLinkedIn',
-				'on'             => 'click',
-				'element'        => 'a.share-linkedin',
-				'amp_element'    => 'amp-social-share[type="linkedin"]',
-				'event_name'     => 'social share',
-				'event_label'    => 'linkedin',
-				'event_category' => 'NTG social',
-			],
-		];
-
-		if ( ! is_front_page() && ! is_archive() ) {
-			$events = array_merge(
-				$events,
+		$events = [];
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			$events = [
 				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-facebook',
+					'amp_element'    => 'amp-social-share[type="facebook"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'facebook',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-twitter',
+					'amp_element'    => 'amp-social-share[type="twitter"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'twitter',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-jetpack-whatsapp',
+					'amp_element'    => 'amp-social-share[type="whatsapp"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'whatsapp',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-linkedin',
+					'amp_element'    => 'amp-social-share[type="linkedin"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'linkedin',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-reddit',
+					'amp_element'    => 'amp-social-share[type="reddit"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'reddit',
+					'event_category' => 'NTG social',
+				],
+				[
+					'id'             => self::get_uniqid(),
+					'on'             => 'click',
+					'element'        => 'a.share-telegram',
+					'amp_element'    => 'amp-social-share[type="telegram"]',
+					'event_name'     => 'social share',
+					'event_label'    => 'telegram',
+					'event_category' => 'NTG social',
+				],
+			];
+
+			if ( ! is_front_page() && ! is_archive() ) {
+				$events = array_merge(
+					$events,
 					[
-						'id'              => 'articleRead25',
-						'on'              => 'scroll',
-						'event_name'      => '25%',
-						'event_value'     => 25,
-						'event_label'     => get_the_title(),
-						'event_category'  => 'NTG article milestone',
-						'non_interaction' => true,
-						'scrollSpec'      => [
-							'verticalBoundaries' => [ 25 ],
+						[
+							'id'              => self::get_uniqid(),
+							'on'              => 'scroll',
+							'event_name'      => '25%',
+							'event_value'     => 25,
+							'event_label'     => get_the_title(),
+							'event_category'  => 'NTG article milestone',
+							'non_interaction' => true,
+							'scrollSpec'      => [
+								'verticalBoundaries' => [ 25 ],
+							],
 						],
-					],
-					[
-						'id'              => 'articleRead50',
-						'on'              => 'scroll',
-						'event_name'      => '50%',
-						'event_value'     => 50,
-						'event_label'     => get_the_title(),
-						'event_category'  => 'NTG article milestone',
-						'non_interaction' => true,
-						'scrollSpec'      => [
-							'verticalBoundaries' => [ 50 ],
+						[
+							'id'              => self::get_uniqid(),
+							'on'              => 'scroll',
+							'event_name'      => '50%',
+							'event_value'     => 50,
+							'event_label'     => get_the_title(),
+							'event_category'  => 'NTG article milestone',
+							'non_interaction' => true,
+							'scrollSpec'      => [
+								'verticalBoundaries' => [ 50 ],
+							],
 						],
-					],
-					[
-						'id'              => 'articleRead100',
-						'on'              => 'scroll',
-						'event_name'      => '100%',
-						'event_value'     => 100,
-						'event_label'     => get_the_title(),
-						'event_category'  => 'NTG article milestone',
-						'non_interaction' => true,
-						'scrollSpec'      => [
-							'verticalBoundaries' => [ 100 ],
+						[
+							'id'              => self::get_uniqid(),
+							'on'              => 'scroll',
+							'event_name'      => '100%',
+							'event_value'     => 100,
+							'event_label'     => get_the_title(),
+							'event_category'  => 'NTG article milestone',
+							'non_interaction' => true,
+							'scrollSpec'      => [
+								'verticalBoundaries' => [ 100 ],
+							],
 						],
-					],
-				]
-			);
+					]
+				);
+			}
 		}
+
+		$custom_events = array_reduce(
+			json_decode( get_option( Analytics_Wizard::$custom_events_option_name, '[]' ) ),
+			function ( $all_custom_events, $event ) {
+				$event = (array) $event;
+				if ( $event['is_active'] ) {
+					if ( 'submit' === $event['on'] ) {
+						$event['amp_on'] = 'amp-form-submit-success';
+					}
+					if ( '' === $event['amp_element'] ) {
+						unset( $event['amp_element'] );
+					}
+					$all_custom_events[] = $event;
+				}
+				return $all_custom_events;
+			},
+			[]
+		);
+		$events        = array_merge( $events, $custom_events );
 
 		/**
 		 * Other integrations can add events to track using this filter.
@@ -245,13 +357,13 @@ class Analytics {
 	 * @param string $content The block content about to be appended.
 	 */
 	public static function prepare_jetpack_mailchimp_block( $content ) {
-		$block_unique_id = sprintf( 'wp-block-jetpack-mailchimp-%s', uniqid() );
+		$block_unique_id = self::get_uniqid();
 
 		// Wrap the block in amp-layout to enable visibility tracking. Sugggested here: https://github.com/ampproject/amphtml/issues/11678.
 		$content = sprintf( '<amp-layout id="%s">%s</amp-layout>', $block_unique_id, $content );
 
-		self::$block_events[] = [
-			'id'             => 'newsletterSignup-' . $block_unique_id,
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#' . $block_unique_id . ' form',
@@ -262,8 +374,8 @@ class Analytics {
 				'totalTimeMin' => 500,
 			],
 		];
-		self::$block_events[] = [
-			'id'              => 'newsletterImpression-' . $block_unique_id,
+		self::$ntg_block_events[] = [
+			'id'              => self::get_uniqid(),
 			'on'              => 'visible',
 			'element'         => '#' . $block_unique_id,
 			'event_name'      => 'newsletter modal impression ' . self::$block_render_context,
@@ -281,8 +393,8 @@ class Analytics {
 	 * Prepare event triggers on user commenting.
 	 */
 	public static function prepare_comment_events() {
-		self::$block_events[] = [
-			'id'             => 'addComment',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp_on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '#commentform',
@@ -296,8 +408,8 @@ class Analytics {
 	 * Add login event triggers for the WooCommerce My Account and Checkout pages.
 	 */
 	public static function prepare_login_events() {
-		self::$block_events[] = [
-			'id'             => 'loginSuccess',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-form-login',
@@ -311,8 +423,8 @@ class Analytics {
 	 * Add registration event triggers for the WooCommerce My Account page.
 	 */
 	public static function prepare_registration_events() {
-		self::$block_events[] = [
-			'id'             => 'registrationSuccess',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-form-register',
@@ -326,8 +438,8 @@ class Analytics {
 	 * Add a registration event trigger for the WooCommerce Checkout page.
 	 */
 	public static function prepare_checkout_registration_events() {
-		self::$block_events[] = [
-			'id'             => 'registrationSuccess',
+		self::$ntg_block_events[] = [
+			'id'             => self::get_uniqid(),
 			'amp-on'         => 'amp-form-submit-success',
 			'on'             => 'submit',
 			'element'        => '.woocommerce-checkout',
@@ -338,26 +450,81 @@ class Analytics {
 	}
 
 	/**
-	 * Inject event listeners on AMP pages.
+	 * Read the amp-analytics config that Site Kit will insert on the page.
+	 * Site Kit will place its amp-analytics tag on the page, and this
+	 * plugin will place other amp-analytics tags.
 	 *
 	 * @param array $config AMP Analytics config from Site Kit.
 	 * @return array Modified $config.
 	 */
-	public static function inject_amp_events( $config ) {
-		$all_events = array_merge( self::get_events(), self::$block_events );
+	public static function read_amp_analytics_config( $config ) {
+		if ( is_user_logged_in() ) {
+			$config['vars']['user_id'] = get_current_user_id();
+		}
+		self::$amp_analytics_config_base = $config;
+		return $config;
+	}
+
+	/**
+	 * Filter the Google Analytics config options via Site Kit.
+	 * Allows us to update or set additional config options for GA.
+	 *
+	 * @param array $gtag_opt gtag config options.
+	 *
+	 * @return array Filtered config options.
+	 */
+	public static function set_extra_analytics_config_options( $gtag_opt ) {
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+			return $gtag_opt;
+		}
+
+		if ( ! self::can_use_site_kits_analytics() ) {
+			return $gtag_opt;
+		}
+
+		// Set transport type to 'beacon' to allow async requests to complete after a new page is loaded.
+		// See: https://developers.google.com/analytics/devguides/collection/gtagjs/sending-data#specify_different_transport_mechanisms.
+		$gtag_opt['transport_type'] = 'beacon';
+
+		return $gtag_opt;
+	}
+
+	/**
+	 * Insert amp-analytics tag/s into the footer of the page.
+	 * The tag/s will contain the custom events to be sent to GA.
+	 * This is to avoid the gtag endpoint limitation occuring with a single large config.
+	 * More: https://github.com/ampproject/amphtml/issues/32911.
+	 */
+	public static function insert_gtag_amp_analytics() {
+		$config = self::$amp_analytics_config_base;
+		if ( empty( $config ) ) {
+			// Apparently not a page-rendering request - the Site Kit filter (googlesitekit_amp_gtag_opt) was not executed.
+			return;
+		}
+
+		// Gather all custom events.
+		$all_events = self::get_events();
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			$all_events = array_merge( $all_events, self::$ntg_block_events );
+		}
+		$custom_events = [];
 		foreach ( $all_events as $event ) {
 			$event_config = [
 				'request' => 'event',
 				'on'      => isset( $event['amp_on'] ) ? $event['amp_on'] : $event['on'],
 				'vars'    => [
-					'event_name'      => $event['event_name'],
-					'event_label'     => $event['event_label'],
-					'event_category'  => $event['event_category'],
-					'non_interaction' => ! empty( $event['non_interaction'] ) ? $event['non_interaction'] : false,
+					'event_name'     => $event['event_name'],
+					'event_category' => $event['event_category'],
 				],
 			];
+			if ( isset( $event['non_interaction'] ) && true === $event['non_interaction'] ) {
+				$event_config['vars']['non_interaction'] = $event['non_interaction'];
+			}
 			if ( isset( $event['event_value'] ) ) {
 				$event_config['vars']['value'] = $event['event_value'];
+			}
+			if ( isset( $event['event_label'] ) && ! empty( $event['event_label'] ) ) {
+				$event_config['vars']['event_label'] = $event['event_label'];
 			}
 
 			if ( isset( $event['amp_element'] ) || isset( $event['element'] ) ) {
@@ -366,20 +533,55 @@ class Analytics {
 
 			// Handle other config params e.g. 'scrollSpec'.
 			foreach ( $event as $key => $val ) {
-				if ( ! in_array( $key, [ 'id', 'on', 'amp_on', 'element', 'amp_element', 'event_name', 'event_label', 'event_category' ] ) ) {
+				if ( ! in_array( $key, [ 'id', 'on', 'amp_on', 'element', 'amp_element', 'event_name', 'event_label', 'event_category', 'is_active', 'non_interaction' ] ) ) {
 					$event_config[ $key ] = $val;
 				}
 			}
 
-			if ( ! isset( $config['triggers'] ) ) {
-				$config['triggers'] = [];
-			}
-
 			// Other integrations can use this filter if they need to modify the AMP-specific event config.
-			$config['triggers'][ $event['id'] ] = apply_filters( 'newspack_analytics_amp_event_config', $event_config, $event );
+			$custom_events[] = [
+				'id'     => $event['id'],
+				'config' => apply_filters( 'newspack_analytics_amp_event_config', $event_config, $event ),
+			];
 		}
 
-		return $config;
+		if ( 0 === count( $custom_events ) ) {
+			// Nothing to do here if no custom events are defined.
+			return;
+		}
+
+		// Disable pageview reporting in this tag. Pageview is already handled by the tag
+		// inserted by Site Kit.
+		$tracking_id = $config['vars']['gtag_id'];
+		$config['vars']['config'][ $tracking_id ]['send_page_view'] = false;
+
+		// Divide the custom events into batches.
+		$custom_events_batches = array_chunk( $custom_events, 10 );
+
+		foreach ( $custom_events_batches as $events_batch ) {
+			$config['triggers'] = [];
+			foreach ( $events_batch as $event ) {
+				$config['triggers'][ $event['id'] ] = $event['config'];
+			}
+			?>
+				<amp-analytics type="gtag">
+					<script type="application/json">
+						<?php echo wp_json_encode( $config ); ?>
+					</script>
+				</amp-analytics>
+			<?php
+		}
+	}
+
+	/**
+	 * Can we rely on Site Kit's Analytics module?
+	 */
+	private static function can_use_site_kits_analytics() {
+		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
+		return $sitekit_manager->is_module_active( 'analytics' )
+		// If Google Tag Manager module is active, it supersedes the Analytics module.
+		// This means that effectively GTM module being active equals Analytics module being inactive.
+		&& false === $sitekit_manager->is_module_active( 'tagmanager' );
 	}
 
 	/**
@@ -390,13 +592,12 @@ class Analytics {
 			return;
 		}
 
-		$sitekit_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-		if ( ! $sitekit_manager->is_module_active( 'analytics' ) ) {
+		if ( ! self::can_use_site_kits_analytics() ) {
 			return;
 		}
 
 		// Discard events with duplicate ids.
-		$all_events   = array_merge( self::get_events(), self::$block_events );
+		$all_events   = array_merge( self::get_events(), self::$ntg_block_events );
 		$unique_array = [];
 		foreach ( $all_events as $element ) {
 			$hash                  = $element['id'];
@@ -440,19 +641,24 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
+				var elementSelector = '<?php echo str_replace( '&quot;', '"', esc_attr( $event['element'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Allow quotes for CSS selectors validity. ?>';
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'click', function() {
-						gtag(
-							'event',
-							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-							}
-						);
+					elements[i].addEventListener( 'click', function( event ) {
+						<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
+						if (event.currentTarget.matches(elementSelector)) {
+							gtag(
+								'event',
+								'<?php echo esc_attr( $event['event_name'] ); ?>',
+								{
+									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+									<?php if ( isset( $event['event_label'] ) ) : ?>
+										event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+									<?php endif; ?>
+								}
+							);
+						};
 					} );
 				}
 			} )();
@@ -488,7 +694,9 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( isset( $event['event_label'] ) ) : ?>
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php endif; ?>
 								value: scrollPercent,
 								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 							}
@@ -522,7 +730,9 @@ class Analytics {
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
 							{
 								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php if ( isset( $event['event_label'] ) ) : ?>
+									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+								<?php endif; ?>
 							}
 						);
 					} );
@@ -586,7 +796,9 @@ class Analytics {
 										'<?php echo esc_attr( $event['event_name'] ); ?>',
 										{
 											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-											event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											<?php if ( isset( $event['event_label'] ) ) : ?>
+												event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+											<?php endif; ?>
 											non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 										}
 									);
@@ -621,7 +833,9 @@ class Analytics {
 						'<?php echo esc_attr( $event['event_name'] ); ?>',
 						{
 							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							<?php if ( isset( $event['event_label'] ) ) : ?>
+								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+							<?php endif; ?>
 							non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 						}
 					);
@@ -652,6 +866,91 @@ class Analytics {
 			} )();
 		</script>
 		<?php
+	}
+
+	/**
+	 * When a new reader registers, sent an event to GA.
+	 *
+	 * @param string         $email         Email address.
+	 * @param bool           $authenticate  Whether to authenticate after registering.
+	 * @param false|int      $user_id       The created user id.
+	 * @param false|\WP_User $existing_user The existing user object.
+	 * @param array          $metadata      Metadata.
+	 */
+	public static function newspack_registered_reader( $email, $authenticate, $user_id, $existing_user, $metadata ) {
+		if ( $existing_user ) {
+			return;
+		}
+		$event_spec = [
+			'category' => __( 'Newspack Reader Activation', 'newspack' ),
+			'action'   => __( 'Registration', 'newspack' ),
+		];
+
+		if ( isset( $metadata['registration_method'] ) ) {
+			$event_spec['action'] .= ' (' . $metadata['registration_method'] . ')';
+		}
+
+		if ( isset( $metadata['lists'] ) ) {
+			$event_spec['label'] = __( 'Signed up for lists:', 'newspack' ) . ' ' . implode( ', ', $metadata['lists'] );
+		}
+
+		if ( isset( $metadata['current_page_url'] ) ) {
+			$parsed_url = \wp_parse_url( $metadata['current_page_url'] );
+			if ( $parsed_url ) {
+				if ( isset( $parsed_url['host'] ) ) {
+					$event_spec['host'] = $parsed_url['host'];
+				}
+				if ( isset( $parsed_url['path'] ) ) {
+					$event_spec['path'] = $parsed_url['path'];
+				}
+			}
+		}
+
+		\Newspack\Google_Services_Connection::send_custom_event( $event_spec );
+
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			\Newspack\Google_Services_Connection::send_custom_event(
+				[
+					'category' => __( 'NTG account', 'newspack' ),
+					'action'   => __( 'registration', 'newspack' ),
+					'label'    => 'success',
+				]
+			);
+		}
+	}
+
+	/**
+	 * When a reader signs up for the newsletter, send an event to GA.
+	 *
+	 * @param string         $provider The provider name.
+	 * @param array          $contact  {
+	 *    Contact information.
+	 *
+	 *    @type string   $email                 Contact email address.
+	 *    @type string   $name                  Contact name. Optional.
+	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
+	 *    @type string[] $metadata              Contact additional metadata. Optional.
+	 * }
+	 * @param string[]|false $lists    Array of list IDs to subscribe the contact to.
+	 * @param bool|WP_Error  $result   True if the contact was added or error if failed.
+	 */
+	public static function newspack_newsletters_add_contact( $provider, $contact, $lists, $result ) {
+		if (
+			! Analytics_Wizard::ntg_events_enabled()
+			|| ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_data' )
+			// Don't send events for updates to a contact.
+			|| $contact['existing_contact_data']
+		) {
+			return;
+		}
+
+		\Newspack\Google_Services_Connection::send_custom_event(
+			[
+				'category' => __( 'NTG newsletter', 'newspack' ),
+				'action'   => __( 'newsletter signup', 'newspack' ),
+				'label'    => 'success',
+			]
+		);
 	}
 }
 new Analytics();

@@ -42,24 +42,6 @@ class Site_Design_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Branding, color, typography, layouts.', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '5 minutes', 'newspack' );
-	}
-
-	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
@@ -73,7 +55,7 @@ class Site_Design_Wizard extends Wizard {
 			'newspack-site-design-wizard',
 			Newspack::plugin_url() . '/dist/site-design.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/site-design.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 
@@ -81,7 +63,7 @@ class Site_Design_Wizard extends Wizard {
 			'newspack-site-design-wizard',
 			Newspack::plugin_url() . '/dist/site-design.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/site-design.css' )
+			NEWSPACK_PLUGIN_VERSION
 		);
 		\wp_style_add_data( 'newspack-site-design-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-site-design-wizard' );

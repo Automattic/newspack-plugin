@@ -8,8 +8,10 @@
 			"issues": "https://github.com/Automattic/newspack-plugin/issues"
 	},
 	"require"    : {
-			"composer/installers": "~1.6",
-      "joshtronic/php-loremipsum": "^1.0"
+		"composer/installers": "~2.0",
+		"joshtronic/php-loremipsum": "^2.1",
+		"google/auth": "^1.15",
+		"stripe/stripe-php": "^8.6"
 	},
 	"require-dev": {
 		"brainmaestro/composer-git-hooks": "^2.6",
@@ -31,7 +33,7 @@
 		"hooks": {
 			"pre-commit": "DEV_LIB_SKIP=eslint ./vendor/xwp/wp-dev-lib/scripts/pre-commit && ./node_modules/.bin/lint-staged",
 			"commit-msg": [
-				"cat $1 | ./node_modules/.bin/commitlint"
+				"cat $1 | ./node_modules/.bin/newspack-scripts commitlint"
 			]
 		}
 	}

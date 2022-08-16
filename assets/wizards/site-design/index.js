@@ -7,17 +7,11 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import SettingsIcon from '@material-ui/icons/Settings';
-import StyleIcon from '@material-ui/icons/Style';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ThemeMods, ThemeSelection } from './views';
+import { ThemeSettings, Main } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -26,41 +20,14 @@ const { HashRouter, Redirect, Route, Switch } = Router;
  */
 class SiteDesignWizard extends Component {
 	componentDidMount = () => {
-		this.retrieveTheme();
-	};
-
-	retrieveTheme = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 			method: 'GET',
 		};
 		wizardApiFetch( params )
-			.then( response => {
-				const { theme, theme_mods: themeMods } = response;
-				this.setState( { theme, themeMods } );
-			} )
-			.catch( error => {
-				console.log( '[Theme Fetch Error]', error );
-				setError( { error } );
-			} );
-	};
-
-	updateTheme = newTheme => {
-		const { setError, wizardApiFetch } = this.props;
-		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/' + newTheme,
-			method: 'POST',
-		};
-		wizardApiFetch( params )
-			.then( response => {
-				const { theme, theme_mods: themeMods } = response;
-				this.setState( { theme, themeMods } );
-			} )
-			.catch( error => {
-				console.log( '[Theme Update Error]', error );
-				setError( { error } );
-			} );
+			.then( response => this.setState( { themeMods: response.theme_mods } ) )
+			.catch( setError );
 	};
 
 	setThemeMods = themeModUpdates =>
@@ -70,9 +37,10 @@ class SiteDesignWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		const { themeMods } = this.state;
 		const params = {
-			path: '/newspack/v1/wizard/newspack-setup-wizard/theme-mods/',
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
 			data: { theme_mods: themeMods },
+			quiet: true,
 		};
 		wizardApiFetch( params )
 			.then( response => {
@@ -85,18 +53,16 @@ class SiteDesignWizard extends Component {
 			} );
 	};
 
-	state = {
-		theme: null,
-	};
+	state = {};
 
 	/**
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch, setError } = this.props;
 		const tabbedNavigation = [
 			{
-				label: __( 'Theme' ),
+				label: __( 'Design' ),
 				path: '/',
 				exact: true,
 			},
@@ -115,18 +81,14 @@ class SiteDesignWizard extends Component {
 							path="/"
 							exact
 							render={ () => {
-								const { theme } = this.state;
 								return (
-									<ThemeSelection
-										headerIcon={ <StyleIcon /> }
-										headerText={ __( 'Theme', 'newspack' ) }
-										subHeaderText={ __( 'Choose a Newspack theme', 'newspack' ) }
+									<Main
+										headerText={ __( 'Site Design', 'newspack' ) }
+										subHeaderText={ __( 'Customize the look and feel of your site', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
-										buttonText={ __( 'Configure', 'newspack' ) }
-										buttonAction="#/settings"
-										updateTheme={ this.updateTheme }
-										theme={ theme }
-										isWide
+										wizardApiFetch={ wizardApiFetch }
+										setError={ setError }
+										isPartOfSetup={ false }
 									/>
 								);
 							} }
@@ -137,16 +99,15 @@ class SiteDesignWizard extends Component {
 							render={ () => {
 								const { themeMods } = this.state;
 								return (
-									<ThemeMods
-										headerIcon={ <SettingsIcon /> }
-										headerText={ __( 'Settings', 'newspack' ) }
+									<ThemeSettings
+										headerText={ __( 'Site Design', 'newspack' ) }
 										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
 										tabbedNavigation={ tabbedNavigation }
 										themeMods={ themeMods }
 										setThemeMods={ this.setThemeMods }
 										buttonText={ __( 'Save', 'newspack' ) }
 										buttonAction={ this.updateThemeMods }
-										secondaryButtonText={ __( 'Advanced settings', 'newspack' ) }
+										secondaryButtonText={ __( 'Advanced Settings', 'newspack' ) }
 										secondaryButtonAction="/wp-admin/customize.php"
 									/>
 								);

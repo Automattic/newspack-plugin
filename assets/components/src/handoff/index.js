@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Button, Modal, Waiting } from '../';
+import { Button, Card, Modal, Waiting } from '../';
 
 /**
  * External dependencies.
@@ -52,10 +52,10 @@ class Handoff extends Component {
 	textForPlugin = pluginInfo => {
 		const defaults = {
 			modalBody: null,
-			modalTitle: pluginInfo.Name && `${ __( 'Manage' ) } ${ pluginInfo.Name }`,
-			primaryButton: pluginInfo.Name && `${ __( 'Manage' ) } ${ pluginInfo.Name }`,
-			primaryModalButton: __( 'Manage' ),
-			dismissModalButton: __( 'Dismiss' ),
+			modalTitle: pluginInfo.Name && `${ __( 'Manage', 'newspack' ) } ${ pluginInfo.Name }`,
+			primaryButton: pluginInfo.Name && `${ __( 'Manage', 'newspack' ) } ${ pluginInfo.Name }`,
+			primaryModalButton: __( 'Manage', 'newspack' ),
+			dismissModalButton: __( 'Dismiss', 'newspack' ),
 		};
 		return assign( defaults, this.props );
 	};
@@ -79,16 +79,24 @@ class Handoff extends Component {
 	 * Render.
 	 */
 	render() {
-		// eslint-disable-next-line no-unused-vars
-		const { className, children, compact, useModal, onReady, ...otherProps } = this.props;
-		const { pluginInfo, showModal } = this.state;
 		const {
-			modalBody,
-			modalTitle,
-			primaryButton,
-			primaryModalButton,
-			dismissModalButton,
-		} = this.textForPlugin( pluginInfo );
+			className,
+			children,
+			compact,
+			useModal,
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+			modalTitle: _modalTitle,
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+			modalBody: _modalBody,
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+			onReady,
+			// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+			editLink,
+			...otherProps
+		} = this.props;
+		const { pluginInfo, showModal } = this.state;
+		const { modalBody, modalTitle, primaryButton, primaryModalButton, dismissModalButton } =
+			this.textForPlugin( pluginInfo );
 		const { Configured, Name, Slug, Status } = pluginInfo;
 		const classes = classnames( Configured && 'is-configured', className );
 		return (
@@ -96,7 +104,7 @@ class Handoff extends Component {
 				{ Name && 'active' === Status && (
 					<Button
 						className={ classes }
-						isDefault={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
 						onClick={ () =>
 							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
@@ -106,19 +114,19 @@ class Handoff extends Component {
 					</Button>
 				) }
 				{ Name && 'active' !== Status && (
-					<Button className={ classes } isDefault disabled { ...otherProps }>
-						{ Name + __( ' not installed' ) }
+					<Button className={ classes } variant="secondary" disabled { ...otherProps }>
+						{ Name + __( ' not installed', 'newspack' ) }
 					</Button>
 				) }
 				{ ! Name && (
 					<Button
 						className={ classes }
-						isDefault={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
 						{ ...otherProps }
 					>
 						<Fragment>
 							{ ! compact && <Waiting isLeft /> }
-							{ __( 'Retrieving Plugin Info' ) }
+							{ __( 'Retrieving Plugin Info', 'newspack' ) }
 						</Fragment>
 					</Button>
 				) }
@@ -128,12 +136,14 @@ class Handoff extends Component {
 						onRequestClose={ () => this.setState( { showModal: false } ) }
 					>
 						<p>{ modalBody }</p>
-						<Button isPrimary onClick={ () => this.goToPlugin( Slug ) }>
-							{ primaryModalButton }
-						</Button>
-						<Button isDefault onClick={ () => this.setState( { showModal: false } ) }>
-							{ dismissModalButton }
-						</Button>
+						<Card buttonsCard noBorder className="justify-end">
+							<Button variant="secondary" onClick={ () => this.setState( { showModal: false } ) }>
+								{ dismissModalButton }
+							</Button>
+							<Button variant="primary" onClick={ () => this.goToPlugin( Slug ) }>
+								{ primaryModalButton }
+							</Button>
+						</Card>
 					</Modal>
 				) }
 			</Fragment>

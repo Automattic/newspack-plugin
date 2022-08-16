@@ -8,17 +8,12 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, ProgressBar, Waiting } from '../';
+import { ActionCard, Button, Waiting } from '../';
 import './style.scss';
 
 const PLUGIN_STATE_NONE = 0;
@@ -46,8 +41,7 @@ class PluginInstaller extends Component {
 	componentDidMount = () => {
 		const { plugins } = this.props;
 		this.retrievePluginInfo( plugins ).then( () => {
-			const { asProgressBar, autoInstall } = this.props;
-			if ( asProgressBar || autoInstall ) {
+			if ( this.props.autoInstall ) {
 				this.installAllPlugins();
 			}
 		} );
@@ -105,6 +99,7 @@ class PluginInstaller extends Component {
 		return apiFetch( params )
 			.then( response => {
 				const { pluginInfo } = this.state;
+				this.props.onInstalled( slug );
 				this.updatePluginInfo( {
 					...pluginInfo,
 					[ slug ]: { ...response, installationStatus: PLUGIN_STATE_ACTIVE },
@@ -158,7 +153,7 @@ class PluginInstaller extends Component {
 	 * Render.
 	 */
 	render() {
-		const { asProgressBar, autoInstall, isSmall } = this.props;
+		const { autoInstall, isSmall, withoutFooterButton } = this.props;
 		const { pluginInfo } = this.state;
 		const slugs = Object.keys( pluginInfo );
 
@@ -174,17 +169,8 @@ class PluginInstaller extends Component {
 			currentStatus === 'active' || currentStatus === 'inactive';
 
 		const buttonText = currentPluginStatuses.every( pluginInstalled )
-			? __( 'Activate' )
-			: __( 'Install' );
-
-		if ( asProgressBar ) {
-			const completed = slugs.reduce(
-				( _completed, slug ) =>
-					'active' === pluginInfo[ slug ].Status ? _completed + 1 : _completed,
-				0
-			);
-			return slugs.length > 0 && <ProgressBar completed={ completed } total={ slugs.length } />;
-		}
+			? __( 'Activate', 'newspack' )
+			: __( 'Install', 'newspack' );
 
 		const needsInstall = slugs.some( slug => {
 			const plugin = pluginInfo[ slug ];
@@ -192,11 +178,11 @@ class PluginInstaller extends Component {
 		} );
 
 		return (
-			<div>
+			<>
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
 					<div className="newspack-plugin-installer_is-waiting">
 						<Waiting isLeft />
-						{ __( 'Retrieving plugin information...' ) }
+						{ __( 'Retrieving plugin information…' ) }
 					</div>
 				) }
 				{ pluginInfo &&
@@ -208,26 +194,28 @@ class PluginInstaller extends Component {
 						const isButton = ! isWaiting && Status !== 'active';
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing...' );
+							actionText = __( 'Installing…' );
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Install' ) }
-									<RadioButtonUncheckedIcon />
+									{ __( 'Install', 'newspack' ) }
+									<span className="newspack-checkbox-icon" />
 								</span>
 							);
 						} else if ( Status === 'inactive' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Activate' ) }
-									<RadioButtonUncheckedIcon />
+									{ __( 'Activate', 'newspack' ) }
+									<span className="newspack-checkbox-icon" />
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Installed' ) }
-									<CheckCircleIcon />
+									{ __( 'Installed', 'newspack' ) }
+									<span className="newspack-checkbox-icon newspack-checkbox-icon--checked">
+										<Icon icon={ check } />
+									</span>
 								</span>
 							);
 						}
@@ -253,20 +241,21 @@ class PluginInstaller extends Component {
 							/>
 						);
 					} ) }
-				{ ! autoInstall && pluginInfo && slugs.length > 0 && (
+				{ ! withoutFooterButton && ! autoInstall && pluginInfo && slugs.length > 0 && (
 					<div className="newspack-buttons-card">
 						<Button disabled={ ! needsInstall } isPrimary onClick={ this.installAllPlugins }>
 							{ buttonText }
 						</Button>
 					</div>
 				) }
-			</div>
+			</>
 		);
 	}
 }
 
 PluginInstaller.defaultProps = {
 	onStatus: () => {},
+	onInstalled: () => {},
 };
 
 export default PluginInstaller;

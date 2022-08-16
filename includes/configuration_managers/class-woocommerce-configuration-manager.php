@@ -51,8 +51,15 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return Array Array of objects formatted for use in a SelectControl.
 	 */
 	public function country_state_fields() {
-		$countries     = WC()->countries->get_countries();
-		$states        = WC()->countries->get_states();
+		if ( ! function_exists( 'WC' ) ) {
+			return [];
+		}
+		$wc_countries = WC()->countries;
+		if ( null == $wc_countries ) {
+			return [];
+		}
+		$countries     = $wc_countries->get_countries();
+		$states        = $wc_countries->get_states();
 		$location_info = [];
 		foreach ( $countries as $country_code => $country ) {
 			if ( ! empty( $states[ $country_code ] ) ) {
@@ -73,41 +80,20 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Retrieve WooCommerce currency fields to populate Select
-	 *
-	 * @return Array Array of objects formatted for use in a SelectControl.
-	 */
-	public function currency_fields() {
-		$currencies    = get_woocommerce_currencies();
-		$currency_info = [];
-		foreach ( $currencies as $code => $currency ) {
-			$currency_info[] = [
-				'value' => $code,
-				'label' => html_entity_decode( $currency ),
-			];
-		}
-		return $currency_info;
-	}
-
-	/**
 	 * Retrieve Stripe data
 	 *
 	 * @return Array Array of Stripe data.
 	 */
 	public function stripe_data() {
+		if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
+			return Stripe_Connection::get_default_stripe_data();
+		}
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
-			return [
-				'enabled'            => false,
-				'testMode'           => false,
-				'publishableKey'     => '',
-				'secretKey'          => '',
-				'testPublishableKey' => '',
-				'testSecretKey'      => '',
-			];
+			return Stripe_Connection::get_default_stripe_data();
 		}
-		$stripe = $gateways['stripe'];
-		return [
+		$stripe      = $gateways['stripe'];
+		$stripe_data = [
 			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
 			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
 			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
@@ -115,6 +101,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
 			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
 		];
+		return $stripe_data;
 	}
 
 	/**
@@ -123,13 +110,28 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return Array Array of data.
 	 */
 	public function location_data() {
+		$default = [
+			'countrystate' => '',
+			'address1'     => '',
+			'address2'     => '',
+			'city'         => '',
+			'postcode'     => '',
+			'currency'     => '',
+		];
+		if ( ! function_exists( 'WC' ) ) {
+			return $default;
+		}
+		$wc_countries = WC()->countries;
+		if ( null == $wc_countries ) {
+			return $default;
+		}
 		$countrystate_raw = wc_get_base_location();
 		return [
 			'countrystate' => ( empty( $countrystate_raw['state'] ) || '*' === $countrystate_raw['state'] ) ? $countrystate_raw['country'] : $countrystate_raw['country'] . ':' . $countrystate_raw['state'],
-			'address1'     => WC()->countries->get_base_address(),
-			'address2'     => WC()->countries->get_base_address_2(),
-			'city'         => WC()->countries->get_base_city(),
-			'postcode'     => WC()->countries->get_base_postcode(),
+			'address1'     => $wc_countries->get_base_address(),
+			'address2'     => $wc_countries->get_base_address_2(),
+			'city'         => $wc_countries->get_base_city(),
+			'postcode'     => $wc_countries->get_base_postcode(),
 			'currency'     => get_woocommerce_currency(),
 		];
 	}
@@ -141,12 +143,12 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return Array The data that was updated.
 	 */
 	public function update_location( $args ) {
-		update_option( 'woocommerce_store_address', $args['address1'] );
-		update_option( 'woocommerce_store_address_2', $args['address2'] );
-		update_option( 'woocommerce_store_city', $args['city'] );
-		update_option( 'woocommerce_default_country', $args['countrystate'] );
-		update_option( 'woocommerce_store_postcode', $args['postcode'] );
-		update_option( 'woocommerce_currency', $args['currency'] );
+		isset( $args['address1'] ) ? update_option( 'woocommerce_store_address', $args['address1'] ) : null;
+		isset( $args['address2'] ) ? update_option( 'woocommerce_store_address_2', $args['address2'] ) : null;
+		isset( $args['city'] ) ? update_option( 'woocommerce_store_city', $args['city'] ) : null;
+		isset( $args['countrystate'] ) ? update_option( 'woocommerce_default_country', $args['countrystate'] ) : null;
+		isset( $args['postcode'] ) ? update_option( 'woocommerce_store_postcode', $args['postcode'] ) : null;
+		isset( $args['currency'] ) ? update_option( 'woocommerce_currency', $args['currency'] ) : null;
 		return true;
 	}
 
@@ -156,7 +158,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @param Array $args Address data.
 	 * @return Array|WP_Error The data that was updated or an error.
 	 */
-	public function update_stripe_settings( $args ) {
+	public function update_wc_stripe_settings( $args ) {
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
 			if ( $args['enabled'] ) {
@@ -178,6 +180,10 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		$stripe->update_option( 'secret_key', $args['secretKey'] );
 		$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
 		$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+
+		// @todo when is the best time to do this?
+		$this->set_smart_defaults();
+
 		return true;
 	}
 
@@ -191,5 +197,9 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		// Disable coupons and reviews.
 		update_option( 'woocommerce_enable_coupons', 'no' );
 		update_option( 'woocommerce_enable_reviews', 'no' );
+
+		// Enables checkout without login.
+		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
+		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
 	}
 }

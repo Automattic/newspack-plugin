@@ -48,7 +48,7 @@ class Dashboard extends Wizard {
 	/**
 	 * Get the information required to build the dashboard.
 	 * Each tier of the dashboard is an array.
-	 * Each card within the tier is an array of [slug, name, url, description, status].
+	 * Each card within the tier is an array of [slug, name, url, description].
 	 *
 	 * @return array
 	 */
@@ -58,76 +58,61 @@ class Dashboard extends Wizard {
 				'slug'        => 'site-design',
 				'name'        => Wizards::get_name( 'site-design' ),
 				'url'         => Wizards::get_url( 'site-design' ),
-				'description' => esc_html__( 'Branding, color, typography, layouts', 'newspack' ),
-				'status'      => 'enabled',
+				'description' => esc_html__( 'Customize the look and feel of your site', 'newspack' ),
 			],
 			[
 				'slug'        => 'reader-revenue',
 				'name'        => Wizards::get_name( 'reader-revenue' ),
 				'url'         => Wizards::get_url( 'reader-revenue' ),
-				'description' => esc_html__( 'Membership, paywall, subscriptions', 'newspack' ),
-				'status'      => Checklists::get_status( 'reader-revenue' ),
+				'description' => esc_html__( 'Generate revenue from your customers', 'newspack' ),
 			],
 			[
 				'slug'        => 'advertising',
 				'name'        => Wizards::get_name( 'advertising' ),
 				'url'         => Wizards::get_url( 'advertising' ),
-				'description' => esc_html__( 'Content monetization', 'newspack' ),
-				'status'      => Checklists::get_status( 'advertising' ),
+				'description' => esc_html__( 'Monetize your content through ads', 'newspack' ),
 			],
 			[
 				'slug'        => 'syndication',
 				'name'        => Wizards::get_name( 'syndication' ),
 				'url'         => Wizards::get_url( 'syndication' ),
-				'description' => esc_html__( 'Apple News, Facebook Instant Articles', 'newspack' ),
-				'status'      => Checklists::get_status( 'syndication' ),
+				'description' => esc_html__( 'Distribute your content across multiple websites', 'newspack' ),
 			],
 			[
 				'slug'        => 'analytics',
 				'name'        => Wizards::get_name( 'analytics' ),
 				'url'         => Wizards::get_url( 'analytics' ),
 				'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
-				'status'      => 'enabled',
-			],
-			[
-				'slug'        => 'performance',
-				'name'        => Wizards::get_name( 'performance' ),
-				'url'         => Wizards::get_url( 'performance' ),
-				'description' => esc_html__( 'Page Speed, AMP, Progressive Web App', 'newspack' ),
 			],
 			[
 				'slug'        => 'seo',
 				'name'        => Wizards::get_name( 'seo' ),
 				'url'         => Wizards::get_url( 'seo' ),
-				'description' => esc_html__( 'Search engine and social optimization', 'newspack' ),
+				'description' => esc_html__( 'Configure basic SEO settings', 'newspack' ),
 			],
 			[
 				'slug'        => 'health-check',
 				'name'        => Wizards::get_name( 'health-check' ),
 				'url'         => Wizards::get_url( 'health-check' ),
 				'description' => esc_html__( 'Verify and correct site health issues', 'newspack' ),
-				'status'      => 'enabled',
 			],
 			[
 				'slug'        => 'engagement',
 				'name'        => Wizards::get_name( 'engagement' ),
 				'url'         => Wizards::get_url( 'engagement' ),
-				'description' => Wizards::get_description( 'engagement' ),
-				'status'      => 'enabled',
+				'description' => esc_html__( 'Newsletters, commenting, social, recirculation', 'newspack' ),
 			],
 			[
 				'slug'        => 'popups',
 				'name'        => Wizards::get_name( 'popups' ),
 				'url'         => Wizards::get_url( 'popups' ),
-				'description' => Wizards::get_description( 'popups' ),
-				'status'      => 'enabled',
+				'description' => esc_html__( 'Reach your readers with configurable campaigns', 'newspack' ),
 			],
 			[
-				'slug'        => 'updates',
-				'name'        => Wizards::get_name( 'updates' ),
-				'url'         => Wizards::get_url( 'updates' ),
-				'description' => Wizards::get_description( 'updates' ),
-				'status'      => 'enabled',
+				'slug'        => 'connections',
+				'name'        => Wizards::get_name( 'connections' ),
+				'url'         => Wizards::get_url( 'connections' ),
+				'description' => esc_html__( 'Connections to third-party services', 'newspack' ),
 			],
 		];
 
@@ -144,24 +129,6 @@ class Dashboard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return esc_html__( 'The Newspack hub', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '1 day', 'newspack' );
-	}
-
-	/**
 	 * Add an admin page for the wizard to live on.
 	 */
 	public function add_page() {
@@ -175,7 +142,7 @@ class Dashboard extends Wizard {
 			$icon,
 			3
 		);
-		$first_subnav_title = get_option( NEWSPACK_SETUP_COMPLETE ) ? __( 'Dashboard' ) : __( 'Setup' );
+		$first_subnav_title = get_option( NEWSPACK_SETUP_COMPLETE ) ? __( 'Dashboard', 'newspack' ) : __( 'Setup', 'newspack' );
 		add_submenu_page(
 			$this->slug,
 			$first_subnav_title,
@@ -200,7 +167,7 @@ class Dashboard extends Wizard {
 			'newspack-dashboard',
 			Newspack::plugin_url() . '/dist/dashboard.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/dashboard.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 		wp_localize_script( 'newspack-dashboard', 'newspack_dashboard', $this->get_dashboard() );
@@ -210,7 +177,7 @@ class Dashboard extends Wizard {
 			'newspack-dashboard',
 			Newspack::plugin_url() . '/dist/dashboard.css',
 			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/dashboard.css' )
+			NEWSPACK_PLUGIN_VERSION
 		);
 		wp_style_add_data( 'newspack-dashboard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-dashboard' );

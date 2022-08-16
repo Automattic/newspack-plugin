@@ -38,9 +38,6 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 	 * @return bool Plugin ready state.
 	 */
 	public function is_configured() {
-		if ( ( defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG ) || get_option( 'newspack_debug', false ) ) {
-			return true;
-		}
 		if ( $this->is_active() && class_exists( 'Jetpack' ) && \Jetpack::is_active() ) {
 			return true;
 		}
@@ -96,41 +93,11 @@ class Jetpack_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Is WordAds enabled
+	 * Is Related Posts module active?
 	 *
-	 * @return bool Whether WordAds is enabled.
+	 * @return bool Returns true if the module is currently active.
 	 */
-	public function is_wordads_enabled() {
-		return class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'wordads' );
-	}
-
-	/**
-	 * Is WordAds available at the current plan level.
-	 *
-	 * @return bool Returns true if the customer is in a paid Jetpack plan.
-	 */
-	public function is_wordads_available_at_plan_level() {
-		return class_exists( 'Jetpack_Plan' ) && \Jetpack_Plan::supports( 'wordads' );
-	}
-
-	/**
-	 * Activate the Jetpack WordAds module
-	 *
-	 * @return bool Returns true if the module was successfully activated.
-	 */
-	public function activate_wordads() {
-		return class_exists( 'Jetpack' ) && \Jetpack::activate_module( 'wordads', false, false );
-	}
-
-	/**
-	 * Deactivate the Jetpack WordAds module
-	 *
-	 * @return bool Returns true if the module was successfully deactivated.
-	 */
-	public function deactivate_wordads() {
-		return class_exists( 'Jetpack' ) && \Jetpack::deactivate_module( 'wordads' );
+	public function is_related_posts_enabled() {
+		return class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'related-posts' );
 	}
 }
-
-
-

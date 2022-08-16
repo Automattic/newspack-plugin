@@ -1,3 +1,4 @@
+/* global newspack_engagement_wizard */
 import '../../shared/js/public-path';
 
 /**
@@ -11,23 +12,11 @@ import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Material UI dependencies.
- */
-import HeaderIcon from '@material-ui/icons/Forum';
-
-/**
  * Internal dependencies.
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import {
-	CommentingDisqus,
-	CommentingNative,
-	CommentingCoral,
-	Newsletters,
-	Social,
-	UGC,
-} from './views';
+import { ReaderActivation, Commenting, Newsletters, Social, RelatedContent } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -35,10 +24,10 @@ class EngagementWizard extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			apiKey: '',
-			connected: false,
-			connectURL: '',
-			wcConnected: false,
+			relatedPostsEnabled: false,
+			relatedPostsMaxAge: 0,
+			relatedPostsUpdated: false,
+			relatedPostsError: null,
 		};
 	}
 
@@ -46,160 +35,144 @@ class EngagementWizard extends Component {
 	 * Figure out whether to use the WooCommerce or Jetpack Mailchimp wizards and get appropriate settings.
 	 */
 	onWizardReady = () => {
-		this.getSettings();
-	};
-
-	/**
-	 * Get settings for the current wizard.
-	 */
-	getSettings() {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/related-content',
 		} )
 			.then( data => this.setState( data ) )
 			.catch( error => setError( error ) );
-	}
+	};
+
+	/**
+	 * Update Related Content settings.
+	 */
+	updatedRelatedContentSettings = async () => {
+		const { wizardApiFetch } = this.props;
+		const { relatedPostsMaxAge } = this.state;
+
+		try {
+			await wizardApiFetch( {
+				path: '/newspack/v1/wizard/newspack-engagement-wizard/related-posts-max-age',
+				method: 'POST',
+				data: { relatedPostsMaxAge },
+			} );
+			this.setState( { relatedPostsError: null, relatedPostsUpdated: false } );
+		} catch ( e ) {
+			this.setState( {
+				relatedPostsError:
+					e.message || __( 'There was an error saving settings. Please try again.', 'newspack' ),
+			} );
+		}
+	};
 
 	/**
 	 * Render
 	 */
 	render() {
 		const { pluginRequirements } = this.props;
-		const { apiKey, connected, connectURL, wcConnected } = this.state;
+		const { relatedPostsEnabled, relatedPostsError, relatedPostsMaxAge, relatedPostsUpdated } =
+			this.state;
+
+		const defaultPath = newspack_engagement_wizard.has_reader_activation
+			? '/reader-activation'
+			: '/newsletters';
+
 		const tabbed_navigation = [
 			{
-				label: __( 'Newsletters' ),
+				label: __( 'Newsletters', 'newspack' ),
 				path: '/newsletters',
 				exact: true,
 			},
 			{
-				label: __( 'Social' ),
+				label: __( 'Commenting', 'newspack' ),
+				path: '/commenting',
+			},
+			{
+				label: __( 'Social', 'newspack' ),
 				path: '/social',
 				exact: true,
 			},
 			{
-				label: __( 'Commenting' ),
-				path: '/commenting/',
-			},
-			{
-				label: __( 'UGC' ),
-				path: '/user-generated-content',
+				label: __( 'Recirculation', 'newspack' ),
+				path: '/recirculation',
 			},
 		];
-		const commentingSecondaryNavigation = [
-			{
-				label: __( 'Disqus' ),
-				path: '/commenting/disqus',
+		if ( newspack_engagement_wizard.has_reader_activation ) {
+			tabbed_navigation.unshift( {
+				label: __( 'Reader Activation', 'newspack' ),
+				path: '/reader-activation',
 				exact: true,
-			},
-			{
-				label: __( 'WordPress Discussion' ),
-				path: '/commenting/native',
-				exact: true,
-			},
-			{
-				label: __( 'The Coral Project' ),
-				path: '/commenting/coral',
-				exact: true,
-			},
-		];
-		const subheader = __( 'Newsletters, social, commenting, UGC' );
+			} );
+		}
+		const props = {
+			headerText: __( 'Engagement', 'newspack' ),
+			tabbedNavigation: tabbed_navigation,
+		};
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
+						{ newspack_engagement_wizard.has_reader_activation && (
+							<Route
+								path="/reader-activation"
+								render={ () => (
+									<ReaderActivation
+										subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+										{ ...props }
+									/>
+								) }
+							/>
+						) }
 						<Route
 							path="/newsletters"
 							render={ () => (
 								<Newsletters
-									noBackground
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									apiKey={ apiKey }
-									connected={ connected }
-									connectURL={ connectURL }
-									wcConnected={ wcConnected }
-									onChange={ _apiKey => this.setState( { apiKey: _apiKey } ) }
+									subHeaderText={ __( 'Configure your newsletter settings', 'newspack' ) }
+									{ ...props }
 								/>
 							) }
 						/>
 						<Route
 							path="/social"
 							exact
-							render={ () => {
-								return (
-									<Social
-										headerIcon={ <HeaderIcon /> }
-										headerText={ __( 'Engagement', 'newspack' ) }
-										subHeaderText={ subheader }
-										tabbedNavigation={ tabbed_navigation }
-									/>
-								);
-							} }
-						/>
-						<Route path="/commenting" exact render={ () => <Redirect to="/commenting/disqus" /> } />
-						<Route
-							path="/commenting/disqus"
-							exact
 							render={ () => (
-								<CommentingDisqus
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									connected={ connected }
-									connectURL={ connectURL }
-									secondaryNavigation={ commentingSecondaryNavigation }
+								<Social
+									subHeaderText={ __( 'Share your content to social media', 'newspack' ) }
+									{ ...props }
 								/>
 							) }
 						/>
 						<Route
-							path="/commenting/native"
+							path="/commenting"
 							exact
 							render={ () => (
-								<CommentingNative
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									connected={ connected }
-									connectURL={ connectURL }
-									secondaryNavigation={ commentingSecondaryNavigation }
+								<Commenting
+									subHeaderText={ __( 'Set up the commenting system for your site', 'newspack' ) }
+									{ ...props }
 								/>
 							) }
 						/>
 						<Route
-							path="/commenting/coral"
+							path="/recirculation"
 							exact
 							render={ () => (
-								<CommentingCoral
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-									connected={ connected }
-									connectURL={ connectURL }
-									secondaryNavigation={ commentingSecondaryNavigation }
+								<RelatedContent
+									{ ...props }
+									subHeaderText={ __( 'Engage visitors with related content', 'newspack' ) }
+									relatedPostsEnabled={ relatedPostsEnabled }
+									relatedPostsError={ relatedPostsError }
+									buttonAction={ () => this.updatedRelatedContentSettings() }
+									buttonText={ __( 'Save Settings', 'newspack' ) }
+									buttonDisabled={ ! relatedPostsEnabled || ! relatedPostsUpdated }
+									relatedPostsMaxAge={ relatedPostsMaxAge }
+									onChange={ value => {
+										this.setState( { relatedPostsMaxAge: value, relatedPostsUpdated: true } );
+									} }
 								/>
 							) }
 						/>
-						<Route
-							path="/user-generated-content"
-							exact
-							render={ () => (
-								<UGC
-									headerIcon={ <HeaderIcon /> }
-									headerText={ __( 'Engagement', 'newspack' ) }
-									subHeaderText={ subheader }
-									tabbedNavigation={ tabbed_navigation }
-								/>
-							) }
-						/>
-						<Redirect to="/newsletters" />
+						<Redirect to={ defaultPath } />
 					</Switch>
 				</HashRouter>
 			</Fragment>

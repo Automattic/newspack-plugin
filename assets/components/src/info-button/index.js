@@ -7,11 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import { Tooltip } from '@wordpress/components';
-
-/**
- * Material UI dependencies.
- */
-import InfoIcon from '@material-ui/icons/Info';
+import { Icon, info } from '@wordpress/icons';
 
 /**
  * External dependencies.
@@ -31,9 +27,9 @@ class InfoButton extends Component {
 		const { className, ...otherProps } = this.props;
 		return (
 			<Tooltip { ...otherProps }>
-				<div className={ classnames( 'newspack-info-button', className ) }>
-					<InfoIcon />
-				</div>
+				<span className={ classnames( 'newspack-info-button', className ) }>
+					<Icon icon={ info } />
+				</span>
 			</Tooltip>
 		);
 	}

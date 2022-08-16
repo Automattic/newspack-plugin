@@ -35,19 +35,13 @@ class Wizards {
 			'syndication'     => new Syndication_Wizard(),
 			'analytics'       => new Analytics_Wizard(),
 			'components-demo' => new Components_Demo(),
-			'performance'     => new Performance_Wizard(),
 			'seo'             => new SEO_Wizard(),
 			'health-check'    => new Health_Check_Wizard(),
 			'engagement'      => new Engagement_Wizard(),
 			'popups'          => new Popups_Wizard(),
-			'updates'         => new Updates_Wizard(),
+			'connections'     => new Connections_Wizard(),
+			'settings'        => new Settings(),
 		];
-		if ( Support_Wizard::configured() ) {
-			self::$wizards['support'] = new Support_Wizard();
-		}
-		if ( Payment_Wizard::configured() ) {
-			self::$wizards['payments'] = new Payment_Wizard();
-		}
 	}
 
 	/**
@@ -103,21 +97,6 @@ class Wizards {
 		$wizard = self::get_wizard( $wizard_slug );
 		if ( $wizard ) {
 			return $wizard->get_name();
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get a wizard's description.
-	 *
-	 * @param string $wizard_slug The wizard to get description for. Use slug from self::$wizards.
-	 * @return string | bool The description on success, false on failure.
-	 */
-	public static function get_description( $wizard_slug ) {
-		$wizard = self::get_wizard( $wizard_slug );
-		if ( $wizard ) {
-			return $wizard->get_description();
 		}
 
 		return false;

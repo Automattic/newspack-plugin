@@ -1,0 +1,43 @@
+@use '~@wordpress/base-styles/colors' as wp-colors;
+
+// Buttons Card
+
+.newspack-buttons-card {
+	display: flex;
+	flex-direction: row-reverse;
+	gap: 16px;
+	justify-content: flex-start;
+	align-items: center;
+	margin: 64px 0 32px;
+
+	&:empty {
+		display: none;
+	}
+}
+
+// Checkbox Icon
+
+.newspack-checkbox-icon {
+	background: white;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 1px wp-colors.$gray-300;
+	display: block;
+	height: 24px;
+	width: 24px;
+
+	svg {
+		fill: wp-colors.$gray-700;
+	}
+
+	&--checked {
+		background: wp-colors.$alert-green;
+		box-shadow: none;
+
+		svg {
+			fill: white;
+		}
+	}
+	&--pending {
+		background: wp-colors.$alert-yellow;
+	}
+}

@@ -33,11 +33,20 @@ class Engagement_Wizard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * The name of the option for Related Posts max age.
+	 *
+	 * @var string
+	 */
+	protected $related_posts_option = 'newspack_related_posts_max_age';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_filter( 'jetpack_relatedposts_filter_date_range', [ $this, 'restrict_age_of_related_posts' ] );
+		add_filter( 'newspack_newsletters_settings_url', [ $this, 'newsletters_settings_url' ] );
 	}
 
 	/**
@@ -50,61 +59,209 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Newsletters, social, commenting, UGC', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
-	}
-
-	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug,
+			'/wizard/' . $this->slug . '/related-content',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_engagement_settings' ],
+				'callback'            => [ $this, 'api_get_related_content_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/related-posts-max-age',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_related_posts_max_age' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'sanitize_callback'   => 'sanitize_text_field',
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_reader_activation_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_reader_activation_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/newsletters',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_newsletters_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/newsletters',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_newsletters_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/newsletters/lists',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_newsletters_lists' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
 	}
 
 	/**
-	 * Get the Jetpack-Mailchimp connection settings.
+	 * Get reader activation settings.
 	 *
-	 * @see jetpack/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-mailchimp.php
+	 * @return WP_REST_Response
+	 */
+	public function api_get_reader_activation_settings() {
+		return rest_ensure_response( Reader_Activation::get_settings() );
+	}
+
+	/**
+	 * Update reader activation settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_update_reader_activation_settings( $request ) {
+		$args = $request->get_params();
+		foreach ( $args as $key => $value ) {
+			Reader_Activation::update_setting( $key, $value );
+		}
+		return rest_ensure_response( Reader_Activation::get_settings() );
+	}
+
+	/**
+	 * Get lists of configured ESP.
+	 */
+	public static function api_get_newsletters_lists() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		return $newsletters_configuration_manager->get_lists();
+	}
+
+	/**
+	 * Get Newspack Newsletters setttings.
+	 *
+	 * @return object with the info.
+	 */
+	private static function get_newsletters_settings() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		$settings                          = array_reduce(
+			$newsletters_configuration_manager->get_settings(),
+			function ( $acc, $value ) {
+				$acc[ $value['key'] ] = $value;
+				return $acc;
+			},
+			[]
+		);
+		return [
+			'configured' => $newsletters_configuration_manager->is_configured(),
+			'settings'   => $settings,
+		];
+	}
+
+	/**
+	 * Get Newspack Newsletters setttings API response.
+	 *
 	 * @return WP_REST_Response with the info.
 	 */
-	public function api_get_engagement_settings() {
-		$jetpack_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
-		$wc_configuration_manager      = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+	public function api_get_newsletters_settings() {
+		return rest_ensure_response( self::get_newsletters_settings() );
+	}
 
-		$response = array(
-			'connected'   => false,
-			'connectURL'  => null,
-			'wcConnected' => false,
-		);
+	/**
+	 * Get Newspack Newsletters setttings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_update_newsletters_settings( $request ) {
+		$args                              = $request->get_params();
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		$newsletters_configuration_manager->update_settings( $args );
+		return $this->api_get_newsletters_settings();
+	}
 
-		$jetpack_status = $jetpack_configuration_manager->get_mailchimp_connection_status();
-		if ( ! is_wp_error( $jetpack_status ) ) {
-			$response['connected']   = $jetpack_status['connected'];
-			$response['connectURL']  = $jetpack_status['connectURL'];
-			$response['wcConnected'] = $wc_configuration_manager->is_active();
+	/**
+	 * Update the Related Posts Max Age setting.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Updated value, if successful, or WP_Error.
+	 */
+	public function api_update_related_posts_max_age( $request ) {
+		$args = $request->get_params();
+
+		if ( is_numeric( $args['relatedPostsMaxAge'] ) && 0 <= $args['relatedPostsMaxAge'] ) {
+			update_option( $this->related_posts_option, $args['relatedPostsMaxAge'] );
+		} else {
+			return new WP_Error(
+				'newspack_related_posts_invalid_arg',
+				esc_html__( 'Invalid argument: max age must be a number greater than zero.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
 		}
-		return rest_ensure_response( $response );
+
+		return \rest_ensure_response(
+			[
+				'relatedPostsMaxAge' => $args['relatedPostsMaxAge'],
+			]
+		);
+	}
+
+	/**
+	 * Restrict the age of related content shown by Jetpack Related Posts.
+	 *
+	 * @param array $date_range Array of start and end dates.
+	 * @return array Filtered array of start/end dates.
+	 */
+	public function restrict_age_of_related_posts( $date_range ) {
+		$related_posts_max_age = get_option( $this->related_posts_option );
+
+		if ( is_numeric( $related_posts_max_age ) && 0 < $related_posts_max_age ) {
+			$date_range['from'] = strtotime( '-' . $related_posts_max_age . ' months' );
+			$date_range['to']   = time();
+		}
+
+		return $date_range;
+	}
+
+	/**
+	 * Get the Jetpack connection settings.
+	 *
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_get_related_content_settings() {
+		$jetpack_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'jetpack' );
+		return rest_ensure_response(
+			[
+				'relatedPostsEnabled' => $jetpack_configuration_manager->is_related_posts_enabled(),
+				'relatedPostsMaxAge'  => get_option( $this->related_posts_option, 0 ),
+			]
+		);
 	}
 
 	/**
@@ -121,18 +278,17 @@ class Engagement_Wizard extends Wizard {
 			'newspack-engagement-wizard',
 			Newspack::plugin_url() . '/dist/engagement.js',
 			$this->get_script_dependencies( array( 'wp-html-entities' ) ),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/engagement.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 
-		\wp_register_style(
+		\wp_localize_script(
 			'newspack-engagement-wizard',
-			Newspack::plugin_url() . '/dist/engagement.css',
-			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/engagement.css' )
+			'newspack_engagement_wizard',
+			[
+				'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
+			]
 		);
-		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-engagement-wizard' );
 	}
 
 	/**
@@ -150,5 +306,16 @@ class Engagement_Wizard extends Wizard {
 			$sanitized[]      = $category;
 		}
 		return $sanitized;
+	}
+
+	/**
+	 * Set the newsletters settings url
+	 *
+	 * @param string $url URL to the Newspack Newsletters settings page.
+	 *
+	 * @return string URL to the Newspack Newsletters settings page.
+	 */
+	public function newsletters_settings_url( $url = '' ) {
+		return admin_url( 'admin.php?page=newspack-engagement-wizard#/newsletters' );
 	}
 }

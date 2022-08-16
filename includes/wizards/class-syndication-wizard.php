@@ -50,24 +50,6 @@ class Syndication_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Distribute your content.', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
-	}
-
-	/**
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {}
@@ -86,17 +68,8 @@ class Syndication_Wizard extends Wizard {
 			'newspack-syndication-wizard',
 			Newspack::plugin_url() . '/dist/syndication.js',
 			$this->get_script_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/syndication.js' ),
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-
-		\wp_register_style(
-			'newspack-syndication-wizard',
-			Newspack::plugin_url() . '/dist/syndication.css',
-			$this->get_style_dependencies(),
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/syndication.css' )
-		);
-		\wp_style_add_data( 'newspack-syndication-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-syndication-wizard' );
 	}
 }

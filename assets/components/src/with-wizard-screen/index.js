@@ -1,20 +1,13 @@
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
-import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { category } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import {
-	Button,
-	Card,
-	FormattedHeader,
-	Handoff,
-	Grid,
-	SecondaryNavigation,
-	TabbedNavigation,
-} from '../';
+import { Button, Handoff, NewspackIcon, Notice, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -26,107 +19,90 @@ import classnames from 'classnames';
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizardScreen( WrappedComponent ) {
-	return class WrappedWithWizardScreen extends Component {
-		render() {
-			const {
-				className,
-				buttonText,
-				buttonAction,
-				buttonDisabled,
-				headerIcon,
-				headerText,
-				subHeaderText,
-				noBackground,
-				noCard,
-				isWide,
-				tabbedNavigation,
-				secondaryNavigation,
-				footer,
-				notice,
-				secondaryButtonText,
-				secondaryButtonAction,
-				secondaryButtonStyle,
-				hidden,
-			} = this.props;
-			const classes = classnames(
-				'newspack-wizard',
-				className,
-				hidden ? 'newspack-wizard__is-hidden' : ''
+export default function withWizardScreen( WrappedComponent, { hidePrimaryButton } = {} ) {
+	const WrappedWithWizardScreen = props => {
+		const {
+			className,
+			buttonText,
+			buttonAction,
+			buttonDisabled,
+			headerText,
+			subHeaderText,
+			tabbedNavigation,
+			secondaryButtonText,
+			secondaryButtonAction,
+			renderAboveContent,
+			disableUpcomingInTabbedNavigation,
+		} = props;
+		const retrievedButtonProps = buttonProps( buttonAction );
+		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
+		const SecondaryCTAComponent = retrievedSecondaryButtonProps.plugin ? Handoff : Button;
+		const shouldRenderPrimaryButton = buttonText && buttonAction;
+		const shouldRenderSecondaryButton = secondaryButtonText && secondaryButtonAction;
+		const renderPrimaryButton = ( overridingProps = {} ) =>
+			retrievedButtonProps.plugin ? (
+				<Handoff isPrimary { ...retrievedButtonProps } { ...overridingProps }>
+					{ buttonText }
+				</Handoff>
+			) : (
+				<Button
+					isPrimary={ ! buttonDisabled }
+					isSecondary={ !! buttonDisabled }
+					disabled={ buttonDisabled }
+					// Allow overridingProps to set children.
+					// eslint-disable-next-line react/no-children-prop
+					children={ buttonText }
+					{ ...retrievedButtonProps }
+					{ ...overridingProps }
+				/>
 			);
-			const content = <WrappedComponent { ...this.props } />;
-			const retrievedButtonProps = buttonProps( buttonAction );
-			const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
-			return (
-				<Fragment>
-					{ ! hidden && (
-						<Grid>
-							<Card noBackground>
-								{ headerText && (
-									<FormattedHeader
-										headerIcon={ headerIcon }
-										headerText={ headerText }
-										subHeaderText={ subHeaderText }
-									/>
-								) }
-							</Card>
-							{ tabbedNavigation && (
-								<Card noBackground>
-									<TabbedNavigation items={ tabbedNavigation } />
-									{ secondaryNavigation && <SecondaryNavigation items={ secondaryNavigation } /> }
-								</Card>
+		return (
+			<>
+				{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
+				<div className="newspack-wizard__header">
+					<div className="newspack-wizard__header__inner">
+						<div className="newspack-wizard__title">
+							<Button
+								isLink
+								href={ newspack_urls.dashboard }
+								label={ __( 'Return to Dashboard', 'newspack' ) }
+								showTooltip={ true }
+								icon={ category }
+								iconSize={ 36 }
+							>
+								<NewspackIcon size={ 36 } />
+							</Button>
+							<div>
+								{ headerText && <h2>{ headerText }</h2> }
+								{ subHeaderText && <span>{ subHeaderText }</span> }
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{ tabbedNavigation && (
+					<TabbedNavigation
+						disableUpcoming={ disableUpcomingInTabbedNavigation }
+						items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
+					/>
+				) }
+
+				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
+					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }
+					{ <WrappedComponent { ...props } renderPrimaryButton={ renderPrimaryButton } /> }
+					{ ( shouldRenderPrimaryButton || shouldRenderSecondaryButton ) && (
+						<div className="newspack-buttons-card">
+							{ shouldRenderPrimaryButton && ! hidePrimaryButton && renderPrimaryButton() }
+							{ shouldRenderSecondaryButton && (
+								<SecondaryCTAComponent isSecondary { ...retrievedSecondaryButtonProps }>
+									{ secondaryButtonText }
+								</SecondaryCTAComponent>
 							) }
-						</Grid>
+						</div>
 					) }
-					{ !! noCard && content }
-					{ ! noCard && (
-						<Grid isWide={ isWide }>
-							<Card className={ classes } noBackground={ noBackground }>
-								{ content }
-								{ ! hidden && (
-									<div className="newspack-buttons-card">
-										{ buttonText && buttonAction && !! retrievedButtonProps.plugin && (
-											<Handoff isPrimary { ...retrievedButtonProps }>
-												{ buttonText }
-											</Handoff>
-										) }
-										{ notice }
-										{ buttonText && buttonAction && ! retrievedButtonProps.plugin && (
-											<Button
-												isPrimary={ ! buttonDisabled }
-												isDefault={ !! buttonDisabled }
-												disabled={ buttonDisabled }
-												{ ...retrievedButtonProps }
-											>
-												{ buttonText }
-											</Button>
-										) }
-										{ footer }
-										{ secondaryButtonText &&
-											secondaryButtonAction &&
-											!! retrievedSecondaryButtonProps.plugin && (
-												<Handoff isDefault { ...retrievedSecondaryButtonProps }>
-													{ secondaryButtonText }
-												</Handoff>
-											) }
-										{ secondaryButtonText &&
-											secondaryButtonAction &&
-											! retrievedSecondaryButtonProps.plugin && (
-												<Button
-													{ ...secondaryButtonStyle }
-													isDefault
-													{ ...retrievedSecondaryButtonProps }
-												>
-													{ secondaryButtonText }
-												</Button>
-											) }
-									</div>
-								) }
-							</Card>
-						</Grid>
-					) }
-				</Fragment>
-			);
-		}
+				</div>
+			</>
+		);
 	};
+	return WrappedWithWizardScreen;
 }

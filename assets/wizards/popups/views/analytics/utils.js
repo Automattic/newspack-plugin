@@ -2,27 +2,26 @@
  * External dependencies.
  */
 import { uniqBy } from 'lodash';
+import { subDays } from 'date-fns';
 
 /**
  * WordPress dependencies.
  */
 import { useReducer } from '@wordpress/element';
 
-/**
- * Internal dependencies.
- */
-import { DEFAULT_OFFSET } from './consts';
+import { formatDate } from '../../utils';
 
 const filtersInitialState = {
 	event_label_id: '',
 	event_action: '',
-	offset: DEFAULT_OFFSET.value,
+	start_date: formatDate( subDays( new Date(), 7 ) ),
+	end_date: formatDate(),
 };
 
 const filtersReducer = ( state, action ) => {
 	switch ( action.type ) {
-		case 'SET_OFFSET_FILTER':
-			return { ...state, offset: action.payload };
+		case 'SET_RANGE_FILTER':
+			return { ...state, start_date: action.payload.start_date, end_date: action.payload.end_date };
 		case 'SET_EVENT_LABEL_FILTER':
 			return { ...state, event_label_id: action.payload };
 		case 'SET_EVENT_ACTION_FILTER':
@@ -37,7 +36,6 @@ export const useFiltersState = () => useReducer( filtersReducer, filtersInitialS
 const analyticsInitialState = {
 	labels: [],
 	actions: [],
-	hasFetchedOnce: false,
 };
 
 const analyticsReducer = ( state, action ) => {
@@ -51,9 +49,6 @@ const analyticsReducer = ( state, action ) => {
 				labels: uniqBy( [ ...state.labels, ...labels ], 'value' ),
 				actions: uniqBy( [ ...state.actions, ...actions ], 'value' ),
 			};
-			if ( ! state.hasFetchedOnce ) {
-				newState.hasFetchedOnce = true;
-			}
 			return newState;
 		default:
 			return state;

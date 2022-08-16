@@ -1,8 +1,4 @@
 /**
- * Salesforce Settings Screen
- */
-
-/**
  * External dependencies
  */
 import { parse } from 'qs';
@@ -11,63 +7,35 @@ import { parse } from 'qs';
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import { Component, Fragment } from '@wordpress/element';
+import { ClipboardButton, ExternalLink } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies.
  */
-import './style.scss';
-import { Notice, TextControl, withWizardScreen } from '../../../../components/src';
+import { PluginSettings, Notice, Wizard } from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-/**
- * Salesforce Settings Screen Component
- */
-class Salesforce extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			error: null,
-		};
-	}
+const Salesforce = () => {
+	const { salesforce_redirect_url: redirectUrl } = window?.newspack_reader_revenue || {};
+	const [ hasCopied, setHasCopied ] = useState( false );
+	const { salesforce_settings: salesforceData = {} } = Wizard.useWizardData( 'reader-revenue' );
+	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );
+	const [ error, setError ] = useState( null );
 
-	/**
-	 * On component mount.
-	 */
-	componentDidMount() {
-		const query = parse( window.location.search );
-		const authorizationCode = query.code;
-		const redirectURI =
-			window.location.origin +
-			window.location.pathname +
-			'?page=' +
-			query[ '?page' ] +
-			window.location.hash;
-
-		if ( authorizationCode ) {
-			// Remove `code` param from URL without adding history.
-			window.history.replaceState( {}, '', redirectURI );
-
-			this.getTokens( authorizationCode, redirectURI );
-		}
-	}
-
-	/**
-	 * On component update.
-	 */
-	componentDidUpdate( prevProps ) {
-		const { isConnected } = this.props;
-
-		// Clear any state errors on reset.
-		if ( prevProps.isConnected && ! isConnected ) {
-			return this.setState( { error: null } );
-		}
-
-		// If we're already connected, check status of refresh token.
-		if ( ! prevProps.isConnected && isConnected ) {
-			return this.checkToken();
-		}
-	}
+	const { saveWizardSettings, wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
+	const saveAllSettings = value =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			section: 'salesforce',
+			payloadPath: [ 'salesforce_settings' ],
+			updatePayload: {
+				path: [ 'salesforce_settings' ],
+				value,
+			},
+		} );
 
 	/**
 	 * Use auth code to request access and refresh tokens for Salesforce API.
@@ -77,26 +45,22 @@ class Salesforce extends Component {
 	 * @param {string} authorizationCode Auth code fetched from Salesforce.
 	 * @return {void}
 	 */
-	async getTokens( authorizationCode, redirectURI ) {
-		const { data, onChange, wizardApiFetch } = this.props;
-
+	const getTokens = async authorizationCode => {
 		try {
 			// Get the tokens.
 			const response = await wizardApiFetch( {
-				path: '/newspack/v1/wizard/salesforce/tokens',
+				path: '/newspack/salesforce/v1/tokens',
 				method: 'POST',
 				data: {
 					code: authorizationCode,
-					redirect_uri: redirectURI,
+					redirect_uri: redirectUrl,
 				},
 			} );
 
 			const { access_token, client_id, client_secret, instance_url, refresh_token } = response;
 
-			// Update values in parent state.
 			if ( access_token && refresh_token ) {
-				return onChange( {
-					...data,
+				saveAllSettings( {
 					access_token,
 					client_id,
 					client_secret,
@@ -104,142 +68,122 @@ class Salesforce extends Component {
 					refresh_token,
 				} );
 			}
+			setIsConnected( true );
 		} catch ( e ) {
-			console.error( e );
-			this.setState( {
-				error: __(
+			setError(
+				__(
 					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.',
 					'newspack'
-				),
-			} );
+				)
+			);
 		}
-	}
+	};
 
 	/**
 	 * Check validity of refresh token and show an error message if it's no longer active.
 	 * The refresh token is valid until it's manually revoked in the Salesforce dashboard,
 	 * or the Connected App is deleted there.
 	 */
-	async checkToken() {
-		const { wizardApiFetch } = this.props;
-		const error = __(
-			'We couldn’t validate the connection with Salesforce. Please verify the status of the Connected App in Salesforce.',
-			'newspack'
-		);
-
-		try {
-			const response = await wizardApiFetch( {
-				path: '/newspack/v1/wizard/salesforce/introspect',
-				method: 'POST',
-			} );
-
-			if ( true !== response.active ) {
-				this.setState( { error } );
-			}
-		} catch ( e ) {
-			console.error( e );
-			this.setState( { error } );
+	const checkConnectionStatus = async () => {
+		const response = await wizardApiFetch( {
+			path: '/newspack/salesforce/v1/connection-status',
+			method: 'POST',
+			isQuietFetch: true,
+		} );
+		if ( response.error ) {
+			setError( response.error );
 		}
-	}
+	};
 
-	/**
-	 * Render.
-	 */
-	render() {
-		const { data, isConnected, onChange } = this.props;
-		const { client_id, client_secret, error } = data;
+	useEffect( () => {
+		const query = parse( window.location.search );
+		const authorizationCode = query.code;
+		if ( authorizationCode ) {
+			// Remove `code` param from URL without adding history.
+			window.history.replaceState( {}, '', redirectUrl );
+			getTokens( authorizationCode, redirectUrl );
+		}
+	}, [] );
 
-		return (
-			<div className="newspack-salesforce-wizard">
-				<Fragment>
-					<h2>{ __( 'Connected App settings', 'newspack' ) }</h2>
+	useEffect( () => {
+		if ( isConnected ) {
+			checkConnectionStatus();
+		} else {
+			setError( null );
+		}
+	}, [ isConnected ] );
 
-					{ this.state.error && <Notice noticeText={ this.state.error } isWarning /> }
-
-					{ isConnected && ! this.state.error && (
-						<Notice
-							noticeText={ __( 'Your site is connected to Salesforce.', 'newspack' ) }
-							isSuccess
-						/>
-					) }
-
-					{ ! isConnected && ! this.state.error && (
-						<Fragment>
-							<p>
-								{ __(
-									'To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the the full URL for this page into the “Callback URL” field in the Connected App’s settings. ',
-									'newspack'
-								) }
-								<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
-									{ __( 'Learn how to create a Connected App', 'newspack' ) }
-								</ExternalLink>
-							</p>
-
-							<p>
-								{ __(
-									'Enter your Consumer Key and Secret below, then click “Connect” to authorize access to your Salesforce account.',
-									'newspack'
-								) }
-							</p>
-						</Fragment>
-					) }
-
-					{ isConnected && (
-						<p>
-							{ __(
-								'To reconnect your site in case of issues, or to connect to a different Salesforce account, click “Reset" below. You will need to re-enter your Consumer Key and Secret before you can re-connect to Salesforce.',
-								'newspack'
-							) }
-						</p>
-					) }
-
-					{ error && (
-						<Notice
-							noticeText={ __(
-								'We couldn’t connect to Salesforce. Please verify that you entered the correct Consumer Key and Secret and try again. If you just created your Connected App or edited the Callback URL settings, it may take up to an hour before we can establish a connection.',
-								'newspack'
-							) }
-							isWarning
-						/>
-					) }
-
-					<TextControl
-						disabled={ isConnected }
-						label={
-							( isConnected ? __( 'Your', 'newspack' ) : __( 'Enter your', 'newspack' ) ) +
-							__( ' Salesforce Consumer Key', 'newspack' )
+	return (
+		<>
+			<PluginSettings
+				afterUpdate={ settings => {
+					let clientId, clientSecret;
+					( settings?.salesforce || [] ).forEach( setting => {
+						if ( 'newspack_salesforce_client_id' === setting.key ) {
+							clientId = setting.value;
+						} else if ( 'newspack_salesforce_client_secret' === setting.key ) {
+							clientSecret = setting.value;
 						}
-						value={ client_id }
-						onChange={ value => {
-							if ( isConnected ) {
-								return;
-							}
-							onChange( { ...data, client_id: value } );
-						} }
-					/>
-					<TextControl
-						disabled={ isConnected }
-						label={
-							( isConnected ? __( 'Your', 'newspack' ) : __( 'Enter your', 'newspack' ) ) +
-							__( ' Salesforce Consumer Secret', 'newspack' )
-						}
-						value={ client_secret }
-						onChange={ value => {
-							if ( isConnected ) {
-								return;
-							}
-							onChange( { ...data, client_secret: value } );
-						} }
-					/>
-				</Fragment>
-			</div>
-		);
-	}
-}
+					} );
 
-Salesforce.defaultProps = {
-	data: {},
-	onChange: () => null,
+					if ( clientId && clientSecret && redirectUrl ) {
+						const loginUrl = addQueryArgs(
+							'https://login.salesforce.com/services/oauth2/authorize',
+							{
+								response_type: 'code',
+								client_id: encodeURIComponent( clientId ),
+								client_secret: encodeURIComponent( clientSecret ),
+								redirect_uri: encodeURI( redirectUrl ),
+							}
+						);
+
+						window.location.assign( loginUrl );
+					} else {
+						setIsConnected( false );
+					}
+				} }
+				pluginSlug="newspack/salesforce"
+				title={ __( 'Salesforce Settings', 'newspack' ) }
+				description={ () => (
+					<>
+						{ error && <Notice noticeText={ error } isWarning /> }
+
+						{ isConnected && ! error && (
+							<Notice
+								noticeText={ __( 'Your site is connected to Salesforce.', 'newspack' ) }
+								isSuccess
+							/>
+						) }
+
+						{ __(
+							'Establish a connection to sync WooCommerce order data to Salesforce. To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the full URL for this page (',
+							'newspack'
+						) }
+
+						<ClipboardButton
+							className="newspack-button is-link"
+							text={ redirectUrl }
+							onCopy={ () => setHasCopied( true ) }
+							onFinishCopy={ () => setHasCopied( false ) }
+						>
+							{ hasCopied
+								? __( 'copied to clipboard!', 'newspack' )
+								: __( 'copy to clipboard', 'newspack' ) }
+						</ClipboardButton>
+
+						{ __(
+							') into the “Callback URL” field in the Connected App’s settings. ',
+							'newspack'
+						) }
+
+						<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
+							{ __( 'Learn how to create a Connected App', 'newspack' ) }
+						</ExternalLink>
+					</>
+				) }
+			/>
+		</>
+	);
 };
 
-export default withWizardScreen( Salesforce );
+export default Salesforce;

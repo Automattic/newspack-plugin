@@ -35,10 +35,15 @@ yarn.lock
 
 # directories
 node_modules
+.cache
 .git
-src
 .github
 .circleci
-tests
-bin
-assets
+/tests
+/bin
+/assets/**/*.js
+/assets/**/*.scss
+/release
+.cache
+codecov
+__mocks__

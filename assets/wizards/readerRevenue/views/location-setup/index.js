@@ -1,79 +1,80 @@
 /**
- * Location Setup Screen
- */
-
-/**
  * WordPress dependencies
  */
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { SelectControl, TextControl, withWizardScreen } from '../../../../components/src';
+import { Button, Grid, SelectControl, TextControl, Wizard } from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-/**
- * Location Setup Screen Component
- */
-class LocationSetup extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { countryStateFields, currencyFields, data, onChange } = this.props;
-		const {
-			address1 = '',
-			address2 = '',
-			city = '',
-			countrystate = '',
-			currency = '',
-			postcode = '',
-		} = data;
-		return (
-			<Fragment>
-				<SelectControl
-					label={ __( 'Where is your business based?' ) }
-					value={ countrystate }
-					options={ countryStateFields }
-					onChange={ _countrystate => onChange( { ...data, countrystate: _countrystate } ) }
-				/>
-				<TextControl
-					label={ __( 'Address' ) }
-					value={ address1 }
-					onChange={ _address1 => onChange( { ...data, address1: _address1 } ) }
-				/>
-				<TextControl
-					label={ __( 'Address line 2' ) }
-					value={ address2 }
-					onChange={ _address2 => onChange( { ...data, address2: _address2 } ) }
-				/>
-				<TextControl
-					label={ __( 'City' ) }
-					value={ city }
-					onChange={ _city => onChange( { ...data, city: _city } ) }
-				/>
-				<TextControl
-					label={ __( 'Postcode / Zip' ) }
-					value={ postcode }
-					onChange={ _postcode => onChange( { ...data, postcode: _postcode } ) }
-				/>
-				<SelectControl
-					label={ 'Which currency does your business use?' }
-					value={ currency }
-					options={ currencyFields }
-					onChange={ _currency => onChange( { ...data, currency: _currency } ) }
-				/>
-			</Fragment>
-		);
-	}
-}
+const LocationSetup = () => {
+	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
-LocationSetup.defaultProps = {
-	countryStateFields: [ {} ],
-	currencyFields: [ {} ],
-	data: {},
-	onChange: () => null,
+	const changeHandler = key => value =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'location_data', key ],
+			value,
+		} );
+
+	const onSave = () =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			section: 'location',
+			payloadPath: [ 'location_data' ],
+		} );
+
+	return (
+		<>
+			<Grid columns={ 1 } gutter={ 16 }>
+				<Grid columns={ 1 } gutter={ 16 }>
+					<TextControl
+						label={ __( 'Address', 'newspack' ) }
+						value={ wizardData.location_data?.address1 || '' }
+						onChange={ changeHandler( 'address1' ) }
+					/>
+					<TextControl
+						label={ __( 'Address line 2', 'newspack' ) }
+						value={ wizardData.location_data?.address2 || '' }
+						onChange={ changeHandler( 'address2' ) }
+					/>
+				</Grid>
+				<Grid rowGap={ 16 }>
+					<TextControl
+						label={ __( 'City', 'newspack' ) }
+						value={ wizardData.location_data?.city || '' }
+						onChange={ changeHandler( 'city' ) }
+					/>
+					<TextControl
+						label={ __( 'Postcode / Zip', 'newspack' ) }
+						value={ wizardData.location_data?.postcode || '' }
+						onChange={ changeHandler( 'postcode' ) }
+					/>
+					<SelectControl
+						label={ __( 'Country', 'newspack' ) }
+						value={ wizardData.location_data?.countrystate || '' }
+						options={ wizardData.country_state_fields || [] }
+						onChange={ changeHandler( 'countrystate' ) }
+					/>
+					<SelectControl
+						label={ __( 'Currency', 'newspack' ) }
+						value={ wizardData.location_data?.currency || '' }
+						options={ wizardData.currency_fields || [] }
+						onChange={ changeHandler( 'currency' ) }
+					/>
+				</Grid>
+			</Grid>
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ onSave }>
+					{ __( 'Save Settings' ) }
+				</Button>
+			</div>
+		</>
+	);
 };
 
-export default withWizardScreen( LocationSetup );
+export default LocationSetup;

@@ -2,24 +2,24 @@
  * Radio Control
  */
 
-@import '../../../shared/scss/colors';
-@import '~@wordpress/base-styles/colors';
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-radio-control {
-	color: $dark-gray-300;
+	color: wp-colors.$gray-700;
 	font-size: 14px;
 	line-height: 24px;
 	margin: 32px 0;
 
 	label {
 		color: inherit;
-		font-size: inherit;
-		line-height: inherit;
+		font-size: 14px;
+		line-height: 24px;
 		margin: 0;
 	}
 
 	.components-base-control__label {
-		color: $dark-gray-900;
+		color: wp-colors.$gray-900;
 		font-weight: bold;
 	}
 
@@ -42,31 +42,31 @@
 	// Radio
 
 	input[type='radio'] {
-		border: 2px solid $light-gray-900;
-		box-shadow: none;
-		height: 20px;
-		margin: 2px;
-		width: 20px;
-		transition: box-shadow 125ms ease-in-out;
+		height: 24px;
+		margin-right: 8px;
+		width: 24px;
+
+		@media screen and ( min-width: 782px ) {
+			height: 20px;
+			width: 20px;
+		}
+
+		&:checked {
+			background-color: colors.$primary-500;
+			border-color: colors.$primary-500;
+
+			&::before {
+				border: none;
+			}
+		}
 
 		&:focus {
-			box-shadow: 0 0 0 2px white, 0 0 0 4px $primary-500;
-			outline: 0;
-		}
-
-		&:checked::before {
-			background: $primary-500;
-			height: 10px;
-			margin: 3px;
-			width: 10px;
-		}
-
-		+ label {
-			padding-left: 4px;
+			border-color: colors.$primary-500;
+			box-shadow: 0 0 0 2px white, 0 0 0 3.5px colors.$primary-500;
 		}
 	}
 
-	// Multiple Text Controls
+	// Multiple Radio Controls
 
 	& + & {
 		margin-bottom: 32px;
@@ -76,8 +76,7 @@
 	// Multiple Controls
 
 	+ .newspack-select-control,
-	+ .newspack-text-control,
-	+ .newspack-textarea-control {
+	+ .newspack-text-control {
 		margin-bottom: 32px;
 		margin-top: -16px;
 	}

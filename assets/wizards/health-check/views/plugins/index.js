@@ -5,13 +5,20 @@
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Notice, withWizardScreen } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	Grid,
+	PluginInstaller,
+	Notice,
+	withWizardScreen,
+} from '../../../../components/src';
 
 /**
  * SEO Intro screen.
@@ -21,12 +28,21 @@ class Plugins extends Component {
 	 * Render.
 	 */
 	render() {
-		const { unsupportedPlugins, deactivateAllPlugins } = this.props;
+		const { unsupportedPlugins, missingPlugins, deactivateAllPlugins } = this.props;
 		return (
-			<Fragment>
-				{ unsupportedPlugins && unsupportedPlugins.length > 0 && (
-					<Fragment>
-						<Notice noticeText={ __( 'Newspack does not support these plugins:' ) } isError />
+			<Grid columns={ 1 } gutter={ 64 }>
+				{ missingPlugins.length ? (
+					<Grid columns={ 1 } gutter={ 16 }>
+						<Notice noticeText={ __( 'These plugins shoud be active:', 'newspack' ) } isWarning />
+						<PluginInstaller plugins={ missingPlugins } />
+					</Grid>
+				) : null }
+				{ unsupportedPlugins.length ? (
+					<Grid columns={ 1 } gutter={ 16 }>
+						<Notice
+							noticeText={ __( 'Newspack does not support these plugins:', 'newspack' ) }
+							isError
+						/>
 						{ unsupportedPlugins.map( unsupportedPlugin => (
 							<ActionCard
 								title={ unsupportedPlugin.Name }
@@ -37,17 +53,14 @@ class Plugins extends Component {
 						) ) }
 						<div className="newspack-buttons-card">
 							<Button isPrimary onClick={ deactivateAllPlugins }>
-								{ __( 'Deactivate All' ) }
+								{ __( 'Deactivate All', 'newspack' ) }
 							</Button>
 						</div>
-					</Fragment>
+					</Grid>
+				) : (
+					<Notice noticeText={ __( 'No unsupported plugins found.', 'newspack' ) } isSuccess />
 				) }
-				{ unsupportedPlugins && unsupportedPlugins.length === 0 && (
-					<Fragment>
-						<Notice noticeText={ __( 'No unsupported plugins found.' ) } isSuccess />
-					</Fragment>
-				) }
-			</Fragment>
+			</Grid>
 		);
 	}
 }

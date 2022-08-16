@@ -1,45 +1,50 @@
 /**
- * Syndication Intro View
- */
-
-/**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, withWizardScreen } from '../../../../components/src';
+import { PluginToggle, ActionCard, Wizard } from '../../../../components/src';
 
-/**
- * Syndication Intro screen.
- */
-class Intro extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		return (
-			<Fragment>
-				<ActionCard
-					title={ __( 'Apple News' ) }
-					description={ __( 'Export and sync posts to Apple format.' ) }
-					actionText={ __( 'Configure' ) }
-					handoff="publish-to-apple-news"
-				/>
-				<ActionCard
-					title={ __( 'Facebook Instant Articles' ) }
-					description={ __(
-						'Add support for Instant Articles for Facebook to your WordPress site.'
-					) }
-					actionText={ __( 'Configure' ) }
-					handoff="fb-instant-articles"
-				/>
-			</Fragment>
-		);
-	}
-}
+const Intro = () => {
+	const settingsData = Wizard.useWizardData( 'settings' );
+	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	return (
+		<>
+			<ActionCard
+				title={ __( 'RSS Enhancements', 'newspack' ) }
+				description={ __(
+					'Create and manage customized RSS feeds for syndication partners',
+					'newspack'
+				) }
+				toggleChecked={ Boolean( settingsData.module_enabled_rss ) }
+				toggleOnChange={ value => {
+					saveWizardSettings( {
+						slug: 'newspack-settings-wizard',
+						updatePayload: {
+							path: [ 'module_enabled_rss' ],
+							value,
+						},
+					} ).then( () => {
+						window.location.reload( true );
+					} );
+				} }
+			/>
+			<PluginToggle
+				plugins={ {
+					'publish-to-apple-news': {
+						name: __( 'Apple News', 'newspack' ),
+					},
+					'distributor-stable': {
+						name: __( 'Distributor', 'newspack' ),
+					},
+				} }
+			/>
+		</>
+	);
+};
 
-export default withWizardScreen( Intro );
+export default Intro;

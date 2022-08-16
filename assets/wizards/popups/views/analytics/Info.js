@@ -27,29 +27,42 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 
 	const hasConversionRate = form_submissions >= 0 && seen > 0;
 	const hasClickThroughRate = link_clicks >= 0 && seen > 0;
-	const notApplicable = __( 'n/a', 'newspack' );
+	const isAllEventFilterOn = filtersState.event_action === '';
 
+	if ( ! isAllEventFilterOn ) {
+		return (
+			<Notice noticeText={ __( 'Choose "All Events" filter to see key metrics.', 'newspack' ) } />
+		);
+	}
+
+	const notApplicable = __( 'n/a', 'newspack' );
+	const limitDecimals = n => ( 1000000 <= seen ? Math.round( n * 100 ) / 100 : Math.round( n ) );
+	const formatNumber = n => ( 10000 < n ? humanNumber( n, limitDecimals ) : n.toLocaleString() );
 	return (
 		<div className="newspack-campaigns-wizard-analytics__info">
 			<h2>
 				{ nameFilter ? `${ nameFilter.label }:` : __( 'All:', 'newspack' ) }
 				{ postEditLink && (
 					<Fragment>
-						{' '}
+						{ ' ' }
 						(<a href={ unescape( postEditLink ) }>edit</a>)
 					</Fragment>
 				) }
 			</h2>
 			<div className="newspack-campaigns-wizard-analytics__info__sections">
 				{ [
-					{ label: __( 'Seen', 'newspack' ), value: humanNumber( seen ), withSeparator: true },
+					{
+						label: __( 'Seen', 'newspack' ),
+						value: formatNumber( seen ),
+						withSeparator: true,
+					},
 					{
 						label: __( 'Conversion Rate', 'newspack' ),
 						value: hasConversionRate ? formatPercentage( form_submissions / seen ) : notApplicable,
 					},
 					{
 						label: __( 'Form Submissions', 'newspack' ),
-						value: hasConversionRate ? form_submissions : notApplicable,
+						value: hasConversionRate ? formatNumber( form_submissions ) : notApplicable,
 						withSeparator: true,
 					},
 					{
@@ -58,7 +71,7 @@ const Info = ( { keyMetrics, filtersState, labelFilters, isLoading, postEditLink
 					},
 					{
 						label: __( 'Link Clicks', 'newspack' ),
-						value: hasClickThroughRate ? link_clicks : notApplicable,
+						value: hasClickThroughRate ? formatNumber( link_clicks ) : notApplicable,
 					},
 				].map( ( section, i ) => (
 					<div

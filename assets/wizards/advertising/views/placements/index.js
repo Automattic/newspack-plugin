@@ -1,141 +1,255 @@
 /**
- * Ad Services view.
+ * Ads Global Placements Settings.
  */
+
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
+import { set } from 'lodash/fp';
 
 /**
  * WordPress dependencies
  */
-import { Component, Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
+import { Fragment, useState, useEffect } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { settings } from '@wordpress/icons';
+import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { ToggleGroup, withWizardScreen } from '../../../../components/src';
-import AdPicker from './ad-picker';
+import {
+	ActionCard,
+	Button,
+	Card,
+	Modal,
+	Notice,
+	withWizardScreen,
+} from '../../../../components/src';
+import PlacementControl from '../../components/placement-control';
 
 /**
- * Advertising management screen.
+ * Advertising Placements management screen.
  */
-class Placements extends Component {
-	adUnitsForSelect = adUnits => {
-		return [
-			{
-				label: __( 'Select an ad unit' ),
-				value: null,
+const Placements = () => {
+	const [ initialized, setInitialized ] = useState( false );
+	const [ inFlight, setInFlight ] = useState( false );
+	const [ error, setError ] = useState( null );
+	const [ providers, setProviders ] = useState( [] );
+	const [ editingPlacement, setEditingPlacement ] = useState( null );
+	const [ placements, setPlacements ] = useState( {} );
+	const [ bidders, setBidders ] = useState( {} );
+	const [ biddersError, setBiddersError ] = useState( null );
+
+	const placementsApiFetch = async options => {
+		try {
+			const data = await apiFetch( options );
+			setPlacements( data );
+			setError( null );
+		} catch ( err ) {
+			setError( err );
+		}
+	};
+	const handlePlacementToggle = placement => async value => {
+		await placementsApiFetch( {
+			path: `/newspack-ads/v1/placements/${ placement }`,
+			method: value ? 'POST' : 'DELETE',
+		} );
+		if ( value ) {
+			setEditingPlacement( placement );
+		}
+	};
+	const handlePlacementChange = ( placementKey, hookKey ) => value => {
+		const placementData = placements[ placementKey ]?.data;
+		let data = {
+			...placementData,
+			...value,
+		};
+		if ( hookKey ) {
+			data = {
+				...placementData,
+				hooks: {
+					...placementData.hooks,
+					[ hookKey ]: value,
+				},
+			};
+		}
+		setPlacements( {
+			...placements,
+			[ placementKey ]: {
+				...placements[ placementKey ],
+				data,
 			},
-			...Object.values( adUnits ).map( adUnit => {
-				return {
-					label: adUnit.name,
-					value: adUnit.id,
-				};
-			} ),
-		];
+		} );
+	};
+	const updatePlacement = async placementKey => {
+		setInFlight( true );
+		await placementsApiFetch( {
+			path: `/newspack-ads/v1/placements/${ placementKey }`,
+			method: 'POST',
+			data: placements[ placementKey ].data,
+		} );
+		setInFlight( false );
+	};
+	const isEnabled = placementKey => {
+		return placements[ placementKey ].data?.enabled;
 	};
 
-	adServicesForSelect = services => {
-		return [
-			{
-				label: __( 'Select an ad provider' ),
-				value: null,
-			},
-			...Object.keys( services ).map( key => {
-				return {
-					label: services[ key ].label,
-					value: key,
-				};
-			} ),
-		];
-	};
+	// Fetch placements, providers and bidders.
+	useEffect( async () => {
+		setInFlight( true );
+		await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+		try {
+			const data = await apiFetch( { path: '/newspack-ads/v1/providers' } );
+			setProviders( data );
+		} catch ( err ) {
+			setError( err );
+		}
+		try {
+			const data = await apiFetch( { path: '/newspack-ads/v1/bidders' } );
+			setBidders( data );
+		} catch ( err ) {
+			setBiddersError( err );
+		}
+		setInitialized( true );
+		setInFlight( false );
+	}, [] );
 
-	/**
-	 * Render.
-	 */
-	render() {
-		const { togglePlacement, placements, adUnits, services, onChange } = this.props;
-		const {
-			global_above_header,
-			global_below_header,
-			global_above_footer,
-			archives,
-			search_results,
-		} = placements;
-		return (
-			<Fragment>
-				<h2>{ __( 'Pre-defined ad placements' ) }</h2>
-				<p>
-					{ __(
-						'Define global advertising placements to serve ad units on your site. Enable the individual pre-defined ad placements to select which ads to serve.'
+	// Silently refetch placements data when exiting edit modal.
+	useEffect( () => {
+		if ( ! editingPlacement && initialized ) {
+			placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+		}
+	}, [ editingPlacement ] );
+
+	const placement = editingPlacement ? placements[ editingPlacement ] : null;
+
+	return (
+		<Fragment>
+			{ ! inFlight && ! providers.length && (
+				<Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack' ) } />
+			) }
+			<div
+				className={ classnames( {
+					'newspack-wizard-ads-placements': true,
+					'newspack-wizard-section__is-loading': inFlight && ! Object.keys( placements ).length,
+				} ) }
+			>
+				{ Object.keys( placements ).map( key => {
+					return (
+						<ActionCard
+							key={ key }
+							isSmall
+							disabled={ inFlight || ! providers.length }
+							title={ placements[ key ].name }
+							description={ placements[ key ].description }
+							toggleOnChange={ handlePlacementToggle( key ) }
+							toggleChecked={ isEnabled( key ) }
+							actionText={
+								isEnabled( key ) ? (
+									<Button
+										disabled={ inFlight || ! providers.length }
+										onClick={ () => setEditingPlacement( key ) }
+										icon={ settings }
+										label={ __( 'Placement settings', 'newspack' ) }
+										tooltipPosition="bottom center"
+									/>
+								) : null
+							}
+						/>
+					);
+				} ) }
+			</div>
+			{ editingPlacement && placement && (
+				<Modal
+					title={ sprintf(
+						// translators: %s is the name of the placement
+						__( '%s placement settings', 'newspack' ),
+						placement.name
 					) }
-				</p>
-				<ToggleGroup
-					title={ __( 'Global: Above Header' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ global_above_header && global_above_header.enabled }
-					onChange={ value => togglePlacement( 'global_above_header', value ) }
+					onRequestClose={ () => setEditingPlacement( null ) }
 				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ global_above_header }
-						onChange={ value => onChange( 'global_above_header', value ) }
+					{ error && <Notice isError noticeText={ error.message } /> }
+					{ biddersError && <Notice isWarning noticeText={ biddersError.message } /> }
+					{ isEnabled( editingPlacement ) && placement.hook_name && (
+						<PlacementControl
+							providers={ providers }
+							bidders={ bidders }
+							value={ placement.data }
+							disabled={ inFlight }
+							onChange={ handlePlacementChange( editingPlacement ) }
+						/>
+					) }
+					{ placement.hooks &&
+						Object.keys( placement.hooks ).map( hookKey => {
+							const hook = {
+								hookKey,
+								...placement.hooks[ hookKey ],
+							};
+							return (
+								<Card noBorder key={ hookKey }>
+									<PlacementControl
+										label={ hook.name + ' ' + __( 'Ad Unit', 'newspack' ) }
+										providers={ providers }
+										bidders={ bidders }
+										value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
+										disabled={ inFlight }
+										onChange={ handlePlacementChange( editingPlacement, hookKey ) }
+									/>
+								</Card>
+							);
+						} ) }
+					<ToggleControl
+						label={ __( 'Use fixed height', 'newspack' ) }
+						help={ __(
+							'Avoid content layout shift by using the ad unit height as fixed height for this placement. This is recommended if an ad is guaranteed to be shown across all devices.',
+							'newspack'
+						) }
+						checked={ !! placement.data?.fixed_height }
+						onChange={ value => {
+							setPlacements(
+								set( [ editingPlacement, 'data', 'fixed_height' ], value, placements )
+							);
+						} }
 					/>
-				</ToggleGroup>
-				<ToggleGroup
-					title={ __( 'Global: Below Header' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ global_below_header && global_below_header.enabled }
-					onChange={ value => togglePlacement( 'global_below_header', value ) }
-				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ global_below_header }
-						onChange={ value => onChange( 'global_below_header', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
-					title={ __( 'Global: Above Footer' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ global_above_footer && global_above_footer.enabled }
-					onChange={ value => togglePlacement( 'global_above_footer', value ) }
-				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ global_above_footer }
-						onChange={ value => onChange( 'global_above_footer', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
-					title={ __( 'Archives' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ archives && archives.enabled }
-					onChange={ value => togglePlacement( 'archives', value ) }
-				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ archives }
-						onChange={ value => onChange( 'archives', value ) }
-					/>
-				</ToggleGroup>
-				<ToggleGroup
-					title={ __( 'Search Results' ) }
-					description={ __( 'Choose an ad unit to display above the header' ) }
-					checked={ search_results && search_results.enabled }
-					onChange={ value => togglePlacement( 'search_results', value ) }
-				>
-					<AdPicker
-						adUnits={ adUnits }
-						services={ services }
-						value={ search_results }
-						onChange={ value => onChange( 'search_results', value ) }
-					/>
-				</ToggleGroup>
-			</Fragment>
-		);
-	}
-}
+					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
+						<ToggleControl
+							label={ __( 'Stick to Top', 'newspack' ) }
+							checked={ !! placement.data?.stick_to_top }
+							onChange={ value => {
+								setPlacements(
+									set( [ editingPlacement, 'data', 'stick_to_top' ], value, placements )
+								);
+							} }
+						/>
+					) }
+					<Card buttonsCard noBorder className="justify-end">
+						<Button
+							isSecondary
+							disabled={ inFlight }
+							onClick={ () => {
+								setEditingPlacement( null );
+							} }
+						>
+							{ __( 'Cancel', 'newspack' ) }
+						</Button>
+						<Button
+							isPrimary
+							disabled={ inFlight }
+							onClick={ async () => {
+								await updatePlacement( editingPlacement );
+								setEditingPlacement( null );
+							} }
+						>
+							{ __( 'Save', 'newspack' ) }
+						</Button>
+					</Card>
+				</Modal>
+			) }
+		</Fragment>
+	);
+};
 
 export default withWizardScreen( Placements );

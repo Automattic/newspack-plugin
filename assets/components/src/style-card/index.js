@@ -7,11 +7,12 @@
  */
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Button, WebPreview } from '../';
+import { WebPreview } from '../';
 import './style.scss';
 
 /**
@@ -24,31 +25,42 @@ class StyleCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, cardTitle, url, image, isActive, onClick, id } = this.props;
+		const { ariaLabel, className, cardTitle, url, image, imageType, isActive, onClick, id } =
+			this.props;
 		const classes = classnames(
 			'newspack-style-card',
 			isActive && 'newspack-style-card__is-active',
 			className
 		);
 		return (
-			<div className={ classes } tabIndex="0" id={ id }>
+			<div className={ classes } id={ id }>
 				<div className="newspack-style-card__image">
-					{ image && <img src={ image } alt="style-card" /> }
+					{ imageType === 'html' ? (
+						<div dangerouslySetInnerHTML={ image } />
+					) : (
+						<img src={ image } alt={ cardTitle + ' ' + __( 'Thumbnail', 'newspack' ) } />
+					) }
 					<div className="newspack-style-card__actions">
-						{ ! isActive && (
-							<Button isPrimary isSmall onClick={ onClick }>
-								{ __( 'Activate' ) }
+						{ isActive ? (
+							<span className="newspack-style-card__actions__badge">
+								{ __( 'Selected', 'newspack' ) }
+							</span>
+						) : (
+							<Button
+								variant="link"
+								onClick={ onClick }
+								aria-label={ ariaLabel ? ariaLabel : __( 'Select', 'newspack' ) + ' ' + cardTitle }
+								tabIndex="0"
+							>
+								{ __( 'Select', 'newspack' ) }
 							</Button>
 						) }
-						{ url && <WebPreview url={ url } label={ __( 'View Demo' ) } isSmall isSecondary /> }
+						{ url && (
+							<WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } variant="link" />
+						) }
 					</div>
 				</div>
-				<div className="newspack-style-card__content">
-					<h2 className="newspack-style-card__heading">
-						<span className="newspack-style-card__title">{ cardTitle }</span>
-						{ isActive && <span className="newspack-style-card__status">{ __( 'Active' ) }</span> }
-					</h2>
-				</div>
+				{ cardTitle && <div className="newspack-style-card__title">{ cardTitle }</div> }
 			</div>
 		);
 	}

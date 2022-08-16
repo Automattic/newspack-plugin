@@ -6,11 +6,13 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { Button, Card, Handoff, Notice, ToggleControl, Waiting } from '../';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { Icon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
+import { Button, Card, Grid, Handoff, Notice, Waiting } from '../';
 import './style.scss';
 
 /**
@@ -30,7 +32,9 @@ class ActionCard extends Component {
 		const {
 			badge,
 			className,
+			checkbox,
 			children,
+			disabled,
 			title,
 			description,
 			handoff,
@@ -39,29 +43,52 @@ class ActionCard extends Component {
 			notification,
 			notificationLevel,
 			notificationHTML,
+			actionContent,
 			actionText,
 			secondaryActionText,
+			secondaryDestructive,
 			image,
 			imageLink,
+			indent,
 			isSmall,
+			isMedium,
 			simple,
 			onClick,
 			onSecondaryActionClick,
 			isWaiting,
+			titleLink,
 			toggleChecked,
 			toggleOnChange,
+			hasGreyHeader,
+			isPending,
 		} = this.props;
+		const hasChildren = notification || children;
 		const classes = classnames(
 			'newspack-action-card',
-			simple && 'newspack-card__is-clickable',
+			simple && 'newspack-card--is-clickable',
+			hasGreyHeader && 'newspack-card--has-grey-header',
+			hasChildren && 'newspack-card--has-children',
+			indent && 'newspack-card--indent',
 			isSmall && 'is-small',
+			isMedium && 'is-medium',
 			className
 		);
+		const titleProps =
+			toggleOnChange && ! titleLink && ! disabled
+				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
+				: {};
+		const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
+		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
+		const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 		return (
 			<Card className={ classes } onClick={ simple && onClick }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
-						<ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } />
+						<ToggleControl
+							checked={ toggleChecked }
+							onChange={ toggleOnChange }
+							disabled={ disabled }
+						/>
 					) }
 					{ image && ! toggleOnChange && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
@@ -73,42 +100,76 @@ class ActionCard extends Component {
 							</a>
 						</div>
 					) }
+					{ checkbox && ! toggleOnChange && (
+						<div className="newspack-action-card__region newspack-action-card__region-left">
+							<span
+								className={ classnames(
+									'newspack-checkbox-icon',
+									'is-primary',
+									'checked' === checkbox && 'newspack-checkbox-icon--checked',
+									isPending && 'newspack-checkbox-icon--pending'
+								) }
+							>
+								{ 'checked' === checkbox && <Icon icon={ check } /> }
+							</span>
+						</div>
+					) }
 					<div className="newspack-action-card__region newspack-action-card__region-center">
-						<h2>
-							<span className="newspack-action-card__title">{ title }</span>
-							{ badge && <span className="newspack-action-card__badge">{ badge }</span> }
-						</h2>
-						<p>{ description }</p>
+						<Grid columns={ 1 } gutter={ 8 } noMargin>
+							<h2>
+								<span className="newspack-action-card__title" { ...titleProps }>
+									{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
+								</span>
+								{ badges?.length &&
+									badges.map( ( badgeText, i ) => (
+										<span key={ `badge-${ i }` } className="newspack-action-card__badge">
+											{ badgeText }
+										</span>
+									) ) }
+							</h2>
+							{ description && (
+								<p>
+									{ typeof description === 'string' && description }
+									{ typeof description === 'function' && description() }
+								</p>
+							) }
+						</Grid>
 					</div>
-					{ actionText && (
+					{ ( actionText || isDisplayingSecondaryAction || actionContent ) && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
-							{ handoff && (
-								<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
-									{ actionText }
-								</Handoff>
-							) }
-							{ ( !! onClick || !! href ) && ! handoff && (
-								<Button
-									isLink
-									href={ href }
-									onClick={ onClick }
-									className="newspack-action-card__primary_button"
-								>
-									{ actionText }
-								</Button>
-							) }
-							{ ! handoff && ! onClick && ! href && (
-								<div className="newspack-action-card__container">
-									{ actionText }
-									{ isWaiting && <Waiting isRight /> }
-								</div>
-							) }
-
-							{ secondaryActionText && onSecondaryActionClick && (
+							{ /* eslint-disable no-nested-ternary */ }
+							{ actionContent && actionContent }
+							{ actionText &&
+								( handoff ? (
+									<Handoff plugin={ handoff } editLink={ editLink } compact isLink>
+										{ actionText }
+									</Handoff>
+								) : onClick || hasInternalLink ? (
+									<Button
+										isLink
+										href={ href }
+										onClick={ onClick }
+										className="newspack-action-card__primary_button"
+									>
+										{ actionText }
+									</Button>
+								) : href ? (
+									<ExternalLink href={ href } className="newspack-action-card__primary_button">
+										{ actionText }
+									</ExternalLink>
+								) : (
+									<div className="newspack-action-card__container">
+										{ actionText }
+										{ isWaiting && <Waiting isRight /> }
+									</div>
+								) ) }
+							{ /* eslint-enable no-nested-ternary */ }
+							{ isDisplayingSecondaryAction && (
 								<Button
 									isLink
 									onClick={ onSecondaryActionClick }
 									className="newspack-action-card__secondary_button"
+									isDestructive={ secondaryDestructive }
 								>
 									{ secondaryActionText }
 								</Button>
@@ -117,12 +178,12 @@ class ActionCard extends Component {
 					) }
 				</div>
 				{ notification && (
-					<div className="newspack-action-card__notification">
+					<div className="newspack-action-card__notification newspack-action-card__region-children">
 						{ 'error' === notificationLevel && (
 							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
 						) }
 						{ 'info' === notificationLevel && (
-							<Notice noticeText={ notification } isPrimary rawHTML={ notificationHTML } />
+							<Notice noticeText={ notification } rawHTML={ notificationHTML } />
 						) }
 						{ 'success' === notificationLevel && (
 							<Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } />
@@ -132,7 +193,7 @@ class ActionCard extends Component {
 						) }
 					</div>
 				) }
-				{ children && <div>{ children }</div> }
+				{ children && <div className="newspack-action-card__region-children">{ children }</div> }
 			</Card>
 		);
 	}

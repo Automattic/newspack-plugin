@@ -1,21 +1,15 @@
 /**
  * WordPress dependencies.
  */
-import { Component, Fragment, createPortal } from '@wordpress/element';
+import { Component, createRef, Fragment, createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Material UI dependencies.
- */
-import CloseIcon from '@material-ui/icons/Close';
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
-import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
-import TabletAndroidIcon from '@material-ui/icons/TabletAndroid';
+import { closeSmall, desktop, mobile, tablet } from '@wordpress/icons';
+import { Button, ButtonGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { Button, Waiting } from '../';
+import { Waiting } from '../';
 import './style.scss';
 
 /**
@@ -35,6 +29,11 @@ class WebPreview extends Component {
 		isPreviewVisible: false,
 	};
 
+	constructor( props ) {
+		super( props );
+		this.iframeRef = createRef();
+	}
+
 	/**
 	 * If a div with id PORTAL_PARENT_ID exists, assign it to class field.
 	 * If not, create it and append to the body.
@@ -53,9 +52,9 @@ class WebPreview extends Component {
 	 */
 	componentDidUpdate() {
 		if ( this.state.isPreviewVisible === true ) {
-			document.body.classList.add( 'newspack-web-preview__open' );
+			document.body.classList.add( 'newspack-web-preview--open' );
 		} else {
-			document.body.classList.remove( 'newspack-web-preview__open' );
+			document.body.classList.remove( 'newspack-web-preview--open' );
 		}
 	}
 
@@ -63,70 +62,67 @@ class WebPreview extends Component {
 	 * Create JSX for the modal
 	 */
 	getWebPreviewModal = () => {
-		const { url } = this.props;
+		const { beforeLoad = () => {}, onClose = () => {}, url } = this.props;
 		const { device, loaded, isPreviewVisible } = this.state;
 
 		if ( ! this.modalDOMElement || ! isPreviewVisible ) {
 			return null;
 		}
 
-		const classes = classnames(
-			'newspack-web-preview__container',
-			device,
-			loaded && 'newspack-web-preview__is-loaded'
-		);
-
+		const classes = classnames( 'newspack-web-preview', device, loaded && 'is-loaded' );
+		beforeLoad();
 		return createPortal(
 			<div className={ classes }>
 				<div className="newspack-web-preview__interior">
 					<div className="newspack-web-preview__toolbar">
 						<div className="newspack-web-preview__toolbar-left">
-							<Button
-								onClick={ () => this.setState( { device: 'desktop' } ) }
-								isPrimary={ 'desktop' === device }
-								isSecondary={ 'desktop' !== device }
-								className="is-desktop"
-							>
-								<DesktopWindowsIcon />
-								<span className="screen-reader-text">{ __( 'Preview desktop size' ) }</span>
-							</Button>
-							<Button
-								onClick={ () => this.setState( { device: 'tablet' } ) }
-								isPrimary={ 'tablet' === device }
-								isSecondary={ 'tablet' !== device }
-								className="is-tablet"
-							>
-								<TabletAndroidIcon />
-								<span className="screen-reader-text">{ __( 'Preview tablet size' ) }</span>
-							</Button>
-							<Button
-								onClick={ () => this.setState( { device: 'phone' } ) }
-								isPrimary={ 'phone' === device }
-								isSecondary={ 'phone' !== device }
-								className="is-phone"
-							>
-								<PhoneAndroidIcon />
-								<span className="screen-reader-text">{ __( 'Preview phone size' ) }</span>
-							</Button>
+							<ButtonGroup>
+								<Button
+									onClick={ () => this.setState( { device: 'desktop' } ) }
+									variant={ 'desktop' === device && 'primary' }
+									icon={ desktop }
+									label={ __( 'Preview Desktop Size', 'newspack' ) }
+								/>
+								<Button
+									onClick={ () => this.setState( { device: 'tablet' } ) }
+									variant={ 'tablet' === device && 'primary' }
+									icon={ tablet }
+									label={ __( 'Preview Tablet Size', 'newspack' ) }
+								/>
+								<Button
+									onClick={ () => this.setState( { device: 'phone' } ) }
+									variant={ 'phone' === device && 'primary' }
+									icon={ mobile }
+									label={ __( 'Preview Phone Size', 'newspack' ) }
+								/>
+							</ButtonGroup>
 						</div>
 						<div className="newspack-web-preview__toolbar-right">
-							<Button onClick={ () => this.setState( { isPreviewVisible: false, loaded: false } ) }>
-								<CloseIcon />
-								<span className="screen-reader-text">{ __( 'Close preview' ) }</span>
-							</Button>
+							<Button
+								onClick={ () => {
+									onClose();
+									this.setState( { isPreviewVisible: false, loaded: false } );
+								} }
+								icon={ closeSmall }
+								label={ __( 'Close Preview', 'newspack' ) }
+							/>
 						</div>
 					</div>
 					<div className="newspack-web-preview__content">
 						{ ! loaded && (
 							<div className="newspack-web-preview__is-waiting">
 								<Waiting isLeft />
-								{ __( 'Loading...' ) }
+								{ __( 'Loading…', 'newspack' ) }
 							</div>
 						) }
 						<iframe
+							ref={ this.iframeRef }
 							title="web-preview"
 							src={ url }
-							onLoad={ () => this.setState( { loaded: true } ) }
+							onLoad={ () => {
+								this.setState( { loaded: true } );
+								this.props.onLoad( this.iframeRef.current );
+							} }
 						/>
 					</div>
 				</div>
@@ -145,12 +141,7 @@ class WebPreview extends Component {
 	render() {
 		const {
 			label,
-			isPrimary,
-			isSecondary,
-			isTertiary,
-			isLink,
-			isLarge,
-			isSmall,
+			variant,
 			/**
 			 * Inversion of control - let the caller render
 			 * the button that will trigger the modal
@@ -163,15 +154,7 @@ class WebPreview extends Component {
 				{ renderButton ? (
 					renderButton( { showPreview: this.showPreview } )
 				) : (
-					<Button
-						isPrimary={ isPrimary }
-						isSecondary={ isSecondary }
-						isTertiary={ isTertiary }
-						isLink={ isLink }
-						isLarge={ isLarge }
-						isSmall={ isSmall }
-						onClick={ this.showPreview }
-					>
+					<Button variant={ variant } onClick={ this.showPreview } tabIndex="0">
 						{ label }
 					</Button>
 				) }
@@ -182,8 +165,9 @@ class WebPreview extends Component {
 }
 
 WebPreview.defaultProps = {
-	url: '//newspack.blog',
+	url: '//newspack.pub',
 	label: __( 'Preview', 'newspack' ),
+	onLoad: () => {},
 };
 
 export default WebPreview;
