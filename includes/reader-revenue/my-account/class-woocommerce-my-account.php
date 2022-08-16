@@ -282,13 +282,9 @@ class WooCommerce_My_Account {
 		}
 		\delete_transient( 'np_reader_account_delete_' . $user_id );
 
-		$result = Reader_Activation::delete_reader( $user_id );
+		\wp_delete_user( $user_id );
 
-		if ( \is_wp_error( $result ) ) {
-			\wc_add_notice( $result->get_error_message(), 'error' );
-		} else {
-			\wc_add_notice( __( 'Your account has been deleted.', 'newspack' ), 'success' );
-		}
+		\wc_add_notice( __( 'Your account has been deleted.', 'newspack' ), 'success' );
 		\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
 		exit;
 	}
