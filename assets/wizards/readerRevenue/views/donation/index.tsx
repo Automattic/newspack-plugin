@@ -12,10 +12,11 @@ import { MoneyInput } from '../../components';
 import {
 	Button,
 	Card,
+	Grid,
 	Notice,
 	SectionHeader,
+	SelectControl,
 	Wizard,
-	ActionCard,
 } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
@@ -82,71 +83,88 @@ export const DonationAmounts = () => {
 
 	return (
 		<>
-			<SectionHeader
-				title={ __( 'Suggested Donations', 'newspack' ) }
-				description={ __(
-					'Set suggested donation amounts. These will be the default settings for the Donate block.',
-					'newspack'
-				) }
-			/>
-			<ToggleControl
-				label={ __( 'Tiered', 'newspack' ) }
-				checked={ tiered }
-				onChange={ changeHandler( [ 'tiered' ] ) }
-			/>
+			<Card headerActions noBorder>
+				<SectionHeader
+					title={ __( 'Suggested Donations', 'newspack' ) }
+					description={ __(
+						'Set suggested donation amounts. These will be the default settings for the Donate block.',
+						'newspack'
+					) }
+					noMargin
+				/>
+				<SelectControl
+					label={ __( 'Donation Type', 'newspack' ) }
+					onChange={ () => changeHandler( [ 'tiered' ] )( ! tiered ) }
+					buttonOptions={ [
+						{ value: true, label: __( 'Tiered', 'newspack' ) },
+						{ value: false, label: __( 'Untiered', 'newspack' ) },
+					] }
+					buttonSmall
+					value={ tiered }
+					hideLabelFromVision
+				/>
+			</Card>
 			{ tiered ? (
-				availableFrequencies.map( section => {
-					const isFrequencyDisabled = disabledFrequencies[ section.key ];
-					const isOneFrequencyActive =
-						Object.values( disabledFrequencies ).filter( Boolean ).length ===
-						FREQUENCY_SLUGS.length - 1;
-					return (
-						<ActionCard
-							key={ section.key }
-							toggleChecked={ ! isFrequencyDisabled }
-							toggleOnChange={ () =>
-								changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled )
-							}
-							title={ section.tieredLabel }
-							disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
-						>
-							{ ! isFrequencyDisabled && (
-								<div className="flex-ns">
-									<MoneyInput
-										currencySymbol={ currencySymbol }
-										label={ __( 'Low-tier' ) }
-										value={ amounts[ section.key ][ 0 ] }
-										onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
+				<Grid columns={ 1 } gutter={ 16 }>
+					{ availableFrequencies.map( section => {
+						const isFrequencyDisabled = disabledFrequencies[ section.key ];
+						const isOneFrequencyActive =
+							Object.values( disabledFrequencies ).filter( Boolean ).length ===
+							FREQUENCY_SLUGS.length - 1;
+						return (
+							<Card isMedium key={ section.key }>
+								<Grid columns={ 1 } gutter={ 16 }>
+									<ToggleControl
+										checked={ ! isFrequencyDisabled }
+										onChange={ () =>
+											changeHandler( [ 'disabledFrequencies', section.key ] )(
+												! isFrequencyDisabled
+											)
+										}
+										label={ section.tieredLabel }
+										disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
 									/>
-									<MoneyInput
-										currencySymbol={ currencySymbol }
-										label={ __( 'Mid-tier' ) }
-										value={ amounts[ section.key ][ 1 ] }
-										onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
-									/>
-									<MoneyInput
-										currencySymbol={ currencySymbol }
-										label={ __( 'High-tier' ) }
-										value={ amounts[ section.key ][ 2 ] }
-										onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
-									/>
-								</div>
-							) }
-						</ActionCard>
-					);
-				} )
+									{ ! isFrequencyDisabled && (
+										<Grid columns={ 3 } rowGap={ 16 }>
+											<MoneyInput
+												currencySymbol={ currencySymbol }
+												label={ __( 'Low-tier' ) }
+												value={ amounts[ section.key ][ 0 ] }
+												onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
+											/>
+											<MoneyInput
+												currencySymbol={ currencySymbol }
+												label={ __( 'Mid-tier' ) }
+												value={ amounts[ section.key ][ 1 ] }
+												onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
+											/>
+											<MoneyInput
+												currencySymbol={ currencySymbol }
+												label={ __( 'High-tier' ) }
+												value={ amounts[ section.key ][ 2 ] }
+												onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
+											/>
+										</Grid>
+									) }
+								</Grid>
+							</Card>
+						);
+					} ) }
+				</Grid>
 			) : (
-				<div className="flex-ns">
-					{ availableFrequencies.map( section => (
-						<MoneyInput
-							currencySymbol={ currencySymbol }
-							label={ section.staticLabel }
-							value={ amounts[ section.key ][ 3 ] }
-							onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
-							key={ section.key }
-						/>
-					) ) }
-				</div>
+				<Card isMedium>
+					<Grid columns={ 3 } rowGap={ 16 }>
+						{ availableFrequencies.map( section => (
+							<MoneyInput
+								currencySymbol={ currencySymbol }
+								label={ section.staticLabel }
+								value={ amounts[ section.key ][ 3 ] }
+								onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
+								key={ section.key }
+							/>
+						) ) }
+					</Grid>
+				</Card>
 			) }
 		</>
 	);

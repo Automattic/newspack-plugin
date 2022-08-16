@@ -25,7 +25,7 @@ class SelectControl extends Component {
 	 * Render.
 	 */
 	render() {
-		const { className, optgroups, buttonOptions, ...otherProps } = this.props;
+		const { className, optgroups, buttonOptions, buttonSmall, ...otherProps } = this.props;
 		const classes = classNames(
 			'newspack-select-control',
 			optgroups && 'newspack-grouped-select-control',
@@ -38,7 +38,11 @@ class SelectControl extends Component {
 				{ optgroups ? (
 					<GroupedSelectControl optgroups={ optgroups } { ...otherProps } />
 				) : buttonOptions ? (
-					<ButtonGroupControl buttonOptions={ buttonOptions } { ...otherProps } />
+					<ButtonGroupControl
+						buttonOptions={ buttonOptions }
+						buttonSmall={ buttonSmall }
+						{ ...otherProps }
+					/>
 				) : (
 					<BaseComponent { ...otherProps } />
 				) }

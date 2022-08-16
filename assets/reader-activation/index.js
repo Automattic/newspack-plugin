@@ -34,15 +34,17 @@ function getCookie( name ) {
 }
 
 /**
- * Initialize store data.
+ * Set a cookie.
+ *
+ * @param {string} name           Cookie name.
+ * @param {string} value          Cookie value.
+ * @param {number} expirationDays Expiration in days from now.
  */
-function init() {
-	const data = window.newspack_reader_activation_data;
-	const initialEmail = data?.reader_email || getCookie( data?.auth_intention_cookie );
-	store.reader = initialEmail ? { email: initialEmail } : null;
+function setCookie( name, value, expirationDays = 365 ) {
+	const date = new Date();
+	date.setTime( date.getTime() + expirationDays * 24 * 60 * 60 * 1000 );
+	document.cookie = `${ name }=${ value }; expires=${ date.toUTCString() }; path=/`;
 }
-
-init();
 
 /**
  * Handling events.
@@ -114,13 +116,41 @@ export function off( event, callback ) {
  *
  * @param {string} email Email.
  */
-export function setReader( email ) {
-	store.reader = null;
+export function setReaderEmail( email ) {
 	if ( ! email ) {
 		return;
 	}
-	store.reader = { email };
+	if ( ! store.reader ) {
+		store.reader = {};
+	}
+	store.reader.email = email;
 	emit( EVENTS.reader, store.reader );
+}
+
+/**
+ * Set whether the current reader is authenticated.
+ *
+ * @param {boolean} authenticated Whether the current reader is authenticated. Default is true.
+ */
+export function setAuthenticated( authenticated = true ) {
+	if ( ! store.reader?.email ) {
+		throw 'Reader email not set';
+	}
+	store.reader.authenticated = Boolean( authenticated );
+	emit( EVENTS.reader, store.reader );
+}
+
+/**
+ * Detect whether the current reader is authenticated.
+ */
+export function refreshAuthentication() {
+	const email = getCookie( 'np_auth_reader' );
+	if ( email ) {
+		setReaderEmail( email );
+		setAuthenticated( true );
+	} else {
+		setReaderEmail( getCookie( 'np_auth_intention' ) );
+	}
 }
 
 /**
@@ -132,7 +162,74 @@ export function getReader() {
 	return store.reader;
 }
 
-const readerActivation = { on, off, setReader, getReader };
+/**
+ * Whether the current reader has a valid email link attached to the session.
+ *
+ * @return {boolean} Whether the current reader has a valid email link attached to the session.
+ */
+export function hasAuthLink() {
+	const reader = getReader();
+	const emailLinkSecret = getCookie( 'np_auth_link' );
+	return !! ( reader?.email && emailLinkSecret );
+}
+
+const authStrategies = [ 'pwd', 'link' ];
+
+/**
+ * Set the reader preferred authentication strategy.
+ *
+ * @param {string} strategy Authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function setAuthStrategy( strategy ) {
+	if ( ! authStrategies.includes( strategy ) ) {
+		throw 'Invalid authentication strategy';
+	}
+	setCookie( 'np_auth_strategy', strategy );
+	return strategy;
+}
+
+/**
+ * Get the reader preferred authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function getAuthStrategy() {
+	return getCookie( 'np_auth_strategy' );
+}
+
+/**
+ * Initialize store data.
+ */
+function init() {
+	const data = window.newspack_reader_activation_data;
+	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
+	const authenticated = !! data?.authenticated_email;
+	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
+	emit( EVENTS.reader, store.reader );
+}
+
+init();
+
+const readerActivation = {
+	on,
+	off,
+	setReaderEmail,
+	setAuthenticated,
+	refreshAuthentication,
+	getReader,
+	hasAuthLink,
+	setAuthStrategy,
+	getAuthStrategy,
+};
 window.newspackReaderActivation = readerActivation;
+
+const clientIDCookieName = window.newspack_reader_activation_data.cid_cookie;
+if ( ! getCookie( clientIDCookieName ) ) {
+	// If entropy is an issue, https://www.npmjs.com/package/nanoid can be used.
+	const getShortStringId = () => Math.floor( Math.random() * 999999999 ).toString( 36 );
+	setCookie( clientIDCookieName, `${ getShortStringId() }${ getShortStringId() }` );
+}
 
 export default readerActivation;
