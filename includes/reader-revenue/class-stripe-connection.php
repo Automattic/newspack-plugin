@@ -39,7 +39,7 @@ class Stripe_Connection {
 		add_action( 'init', [ __CLASS__, 'handle_merchant_id_file_request' ] );
 		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
 		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
-		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
+		add_action( 'newspack_reader_verified', [ __CLASS__, 'newspack_reader_verified' ] );
 	}
 
 	/**
@@ -1039,20 +1039,12 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Handle the newspack_registered_reader hook.
+	 * Handle the newspack_reader_verified hook.
 	 *
-	 * @param string         $email_address   Email address.
-	 * @param bool           $authenticate    Whether to authenticate after registering.
-	 * @param false|int      $user_id         The created user id.
-	 * @param false|\WP_User $existing_user   The existing user object.
-	 * @param array          $metadata        Metadata.
+	 * @param \WP_User $user   The user object.
 	 */
-	public static function newspack_registered_reader( $email_address, $authenticate, $user_id, $existing_user, $metadata ) {
-		if ( false !== $existing_user ) {
-			// Fetch data only if it's a new user registration.
-			return;
-		}
-		self::sync_customer_id( $email_address );
+	public static function newspack_reader_verified( $user ) {
+		self::sync_customer_id( $user->user_email );
 	}
 
 	/**
