@@ -157,7 +157,7 @@ class Stripe_Connection {
 	 * because it has to stay in sync with WP.
 	 */
 	private static function get_billing_portal_configuration_id() {
-		$config_meta_key = 'newspack_config_v1';
+		$config_meta_key = 'newspack_config_v2';
 		$stripe          = self::get_stripe_client();
 		try {
 			$all_configs = $stripe->billingPortal->configurations->all( [ 'active' => true ] );
@@ -192,9 +192,6 @@ class Stripe_Connection {
 								'enabled'             => true,
 								'mode'                => 'at_period_end',
 								'proration_behavior'  => 'none',
-							],
-							'subscription_pause'    => [
-								'enabled' => true,
 							],
 						],
 						'business_profile' => [ 'headline' => '' ],
