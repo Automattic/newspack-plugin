@@ -21,7 +21,7 @@ class MoneyInput extends Component {
 	 * Render.
 	 */
 	render() {
-		const { currencySymbol, label, value, onChange, min } = this.props;
+		const { currencySymbol, error, label, min, value, onChange } = this.props;
 
 		return (
 			<div className="newspack-donations-wizard__money-input-container">
@@ -30,13 +30,14 @@ class MoneyInput extends Component {
 					<div className="currency">{ currencySymbol }</div>
 					<TextControl
 						type="number"
-						min={ min }
-						label={ label }
 						hideLabelFromVision
+						label={ label }
+						min={ min }
 						value={ value }
 						onChange={ onChange }
 					/>
 				</div>
+				{ error && <p className="newspack-donations-wizard__money-input-error">{ error }</p> }
 			</div>
 		);
 	}

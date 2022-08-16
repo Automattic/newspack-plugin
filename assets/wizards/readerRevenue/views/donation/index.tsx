@@ -53,7 +53,7 @@ type WizardData = {
 				};
 				currencySymbol: string;
 				tiered: boolean;
-				minimumDonation: number;
+				minimumDonation: string;
 		  };
 	donation_page: {
 		editUrl: string;
@@ -83,6 +83,9 @@ export const DonationAmounts = () => {
 		key: slug,
 		...FREQUENCIES[ slug ],
 	} ) );
+
+	// Minimum donation is returned by the REST API as a string.
+	const minimumDonationFloat = parseFloat( minimumDonation );
 
 	return (
 		<>
@@ -132,34 +135,46 @@ export const DonationAmounts = () => {
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'Low-tier' ) }
-												value={
-													amounts[ section.key ][ 0 ] >= minimumDonation
-														? amounts[ section.key ][ 0 ]
-														: minimumDonation
+												error={
+													amounts[ section.key ][ 0 ] < minimumDonationFloat
+														? __(
+																'Warning: suggested donations should be at least the minimum donation amount.',
+																'newspack'
+														  )
+														: null
 												}
-												min={ minimumDonation }
+												value={ amounts[ section.key ][ 0 ] }
+												min={ minimumDonationFloat }
 												onChange={ changeHandler( [ 'amounts', section.key, 0 ] ) }
 											/>
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'Mid-tier' ) }
-												value={
-													amounts[ section.key ][ 1 ] >= minimumDonation
-														? amounts[ section.key ][ 1 ]
-														: minimumDonation
+												error={
+													amounts[ section.key ][ 1 ] < minimumDonationFloat
+														? __(
+																'Warning: suggested donations should be at least the minimum donation amount.',
+																'newspack'
+														  )
+														: null
 												}
-												min={ minimumDonation }
+												value={ amounts[ section.key ][ 1 ] }
+												min={ minimumDonationFloat }
 												onChange={ changeHandler( [ 'amounts', section.key, 1 ] ) }
 											/>
 											<MoneyInput
 												currencySymbol={ currencySymbol }
 												label={ __( 'High-tier' ) }
-												value={
-													amounts[ section.key ][ 2 ] >= minimumDonation
-														? amounts[ section.key ][ 2 ]
-														: minimumDonation
+												error={
+													amounts[ section.key ][ 2 ] < minimumDonationFloat
+														? __(
+																'Warning: suggested donations should be at least the minimum donation amount.',
+																'newspack'
+														  )
+														: null
 												}
-												min={ minimumDonation }
+												value={ amounts[ section.key ][ 2 ] }
+												min={ minimumDonationFloat }
 												onChange={ changeHandler( [ 'amounts', section.key, 2 ] ) }
 											/>
 										</Grid>
@@ -178,9 +193,9 @@ export const DonationAmounts = () => {
 								label={ section.staticLabel }
 								value={ amounts[ section.key ][ 3 ] }
 								min={
-									amounts[ section.key ][ 3 ] >= minimumDonation
+									amounts[ section.key ][ 3 ] >= minimumDonationFloat
 										? amounts[ section.key ][ 3 ]
-										: minimumDonation
+										: minimumDonationFloat
 								}
 								onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
 								key={ section.key }
@@ -202,7 +217,7 @@ export const DonationAmounts = () => {
 					label={ __( 'Minimum donation', 'newspack' ) }
 					type="number"
 					min={ 1 }
-					value={ minimumDonation }
+					value={ minimumDonationFloat }
 					onChange={ value => changeHandler( [ 'minimumDonation' ] )( value ) }
 				/>
 			</Card>
