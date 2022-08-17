@@ -256,6 +256,10 @@ class WooCommerce_My_Account {
 		/** Make sure `wp_delete_user()` is available. */
 		require_once ABSPATH . 'wp-admin/includes/user.php';
 
+		if ( isset( $_GET['account_deleted'] ) && function_exists( 'wc_add_notice' ) ) {
+			\wc_add_notice( __( 'Your account has been deleted.', 'newspack' ), 'success' );
+		}
+
 		if ( ! isset( $_POST[ self::DELETE_ACCOUNT_FORM ] ) ) {
 			return;
 		}
@@ -287,9 +291,7 @@ class WooCommerce_My_Account {
 		\delete_transient( 'np_reader_account_delete_' . $user_id );
 
 		\wp_delete_user( $user_id );
-
-		\wc_add_notice( __( 'Your account has been deleted.', 'newspack' ), 'success' );
-		\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
+		\wp_safe_redirect( add_query_arg( 'account_deleted', 1, \wc_get_account_endpoint_url( 'edit-account' ) ) );
 		exit;
 	}
 
