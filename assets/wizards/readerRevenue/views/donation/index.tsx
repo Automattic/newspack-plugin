@@ -192,10 +192,14 @@ export const DonationAmounts = () => {
 								currencySymbol={ currencySymbol }
 								label={ section.staticLabel }
 								value={ amounts[ section.key ][ 3 ] }
-								min={
-									amounts[ section.key ][ 3 ] >= minimumDonationFloat
-										? amounts[ section.key ][ 3 ]
-										: minimumDonationFloat
+								min={ minimumDonationFloat }
+								error={
+									amounts[ section.key ][ 3 ] < minimumDonationFloat
+										? __(
+												'Warning: suggested donations should be at least the minimum donation amount.',
+												'newspack'
+										  )
+										: null
 								}
 								onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
 								key={ section.key }
