@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 \do_action( 'woocommerce_before_edit_account_form' );
 
 $newspack_reset_password_arg = WooCommerce_My_Account::RESET_PASSWORD_URL_PARAM;
+$newspack_delete_account_arg = WooCommerce_My_Account::DELETE_ACCOUNT_URL_PARAM;
 
 $message = false;
 if ( isset( $_GET['message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -67,9 +68,23 @@ endif;
 	<?php \do_action( 'woocommerce_edit_account_form_end' ); ?>
 </form>
 
+<hr />
+
+<h3><?php \esc_html_e( 'Reset Password', 'newspack' ); ?></h3>
+
 <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 	<a href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
 		<?php \esc_html_e( 'Email me a password reset link', 'newspack' ); ?>
+	</a>
+</p>
+
+<hr />
+
+<h3><?php \esc_html_e( 'Delete Account', 'newspack' ); ?></h3>
+
+<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+	<a href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_delete_account_arg ) ); ?>">
+		<?php \esc_html_e( 'Request account deletion', 'newspack' ); ?>
 	</a>
 </p>
 
