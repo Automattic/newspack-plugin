@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -10,10 +10,11 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import {
-	Notice,
-	Grid,
-	Card,
+	ActionCard,
 	Button,
+	Card,
+	Grid,
+	Notice,
 	SectionHeader,
 	TextControl,
 	withWizardScreen,
@@ -150,6 +151,54 @@ export default withWizardScreen( () => {
 					</>
 				) }
 			</Card>
+
+			<hr />
+
+			<ActionCard
+				isMedium
+				title={ __( 'reCAPTCHA v3 Settings', 'newspack' ) }
+				description={ () => (
+					<p>
+						{ __(
+							'Enabling reCAPTCHA can help protect your site against bot attacks and credit card testing.',
+							'newspack'
+						) }{ ' ' }
+						<ExternalLink href="https://www.google.com/recaptcha/admin/create">
+							{ __( 'Get started' ) }
+						</ExternalLink>
+					</p>
+				) }
+				hasGreyHeader={ !! config.useCaptcha }
+				toggleChecked={ !! config.useCaptcha }
+				toggleOnChange={ value => updateConfig( 'useCaptcha', value ) }
+				disabled={ inFlight }
+			>
+				{ config.useCaptcha && (
+					<>
+						{ config.useCaptcha && ( ! config.captchaSiteKey || ! config.captchaSiteSecret ) && (
+							<Notice
+								noticeText={ __(
+									'You must enter a valid site key and secret to use reCAPTCHA.',
+									'newspack'
+								) }
+							/>
+						) }
+						<Grid noMargin rowGap={ 16 }>
+							<TextControl
+								value={ config.captchaSiteKey }
+								label={ __( 'Site Key', 'newspack' ) }
+								onChange={ value => updateConfig( 'captchaSiteKey', value ) }
+							/>
+							<TextControl
+								type="password"
+								value={ config.captchaSiteSecret }
+								label={ __( 'Site Secret', 'newspack' ) }
+								onChange={ value => updateConfig( 'captchaSiteSecret', value ) }
+							/>
+						</Grid>
+					</>
+				) }
+			</ActionCard>
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
 					{ __( 'Save Changes', 'newspack' ) }

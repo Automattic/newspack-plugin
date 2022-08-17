@@ -89,8 +89,22 @@ function domReady( callback ) {
 				container.classList.remove( 'newspack-registration--in-progress' );
 			};
 
-			form.addEventListener( 'submit', ev => {
+			form.addEventListener( 'submit', async ev => {
 				ev.preventDefault();
+
+				try {
+					const captchaToken = await readerActivation.getCaptchaToken();
+					if ( captchaToken ) {
+						const tokenField = document.createElement( 'input' );
+						tokenField.setAttribute( 'type', 'hidden' );
+						tokenField.setAttribute( 'name', 'captcha_token' );
+						tokenField.value = captchaToken;
+						form.appendChild( tokenField );
+					}
+				} catch ( e ) {
+					form.endLoginFlow( e, 400 );
+				}
+
 				const body = new FormData( form );
 				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 					return;

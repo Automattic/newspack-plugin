@@ -279,6 +279,15 @@ function process_form() {
 		);
 	}
 
+	// reCAPTCHA test.
+	if ( ! empty( $_REQUEST['captcha_token'] ) ) {
+		$captcha_token  = \sanitize_text_field( $_REQUEST['captcha_token'] );
+		$captcha_result = Reader_Activation::verify_captcha( $captcha_token );
+		if ( \is_wp_error( $captcha_result ) ) {
+			return send_form_response( $captcha_result );
+		}
+	}
+
 	// Note that that the "true" email address field is called `npe` due to the honeypot strategy.
 	// The honeypot field is called `email` to hopefully capture bots that might be looking for such a field.
 	$email = isset( $_REQUEST['npe'] ) ? \sanitize_email( $_REQUEST['npe'] ) : '';

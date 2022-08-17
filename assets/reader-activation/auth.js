@@ -296,8 +296,22 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			/**
 			 * Handle auth form submission.
 			 */
-			form.addEventListener( 'submit', function ( ev ) {
+			form.addEventListener( 'submit', async ev => {
 				ev.preventDefault();
+
+				try {
+					const captchaToken = await readerActivation.getCaptchaToken();
+					if ( captchaToken ) {
+						const tokenField = document.createElement( 'input' );
+						tokenField.setAttribute( 'type', 'hidden' );
+						tokenField.setAttribute( 'name', 'captcha_token' );
+						tokenField.value = captchaToken;
+						form.appendChild( tokenField );
+					}
+				} catch ( e ) {
+					form.endLoginFlow( e, 400 );
+				}
+
 				const body = new FormData( ev.target );
 				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 					return;

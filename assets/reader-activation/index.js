@@ -200,6 +200,32 @@ export function getAuthStrategy() {
 }
 
 /**
+ * Get a captcha token based on user input
+ */
+export async function getCaptchaToken( action = 'submit' ) {
+	return new Promise( ( res, rej ) => {
+		const { grecaptcha, newspack_reader_activation_data } = window;
+		if ( ! grecaptcha || ! newspack_reader_activation_data ) {
+			return res( '' );
+		}
+
+		const { captcha_site_key: captchaSiteKey } = newspack_reader_activation_data;
+		if ( ! grecaptcha?.ready || ! captchaSiteKey ) {
+			rej( 'Error loading the reCaptcha library.' );
+		}
+
+		grecaptcha.ready( async () => {
+			try {
+				const token = await grecaptcha.execute( captchaSiteKey, { action } );
+				return res( token );
+			} catch ( e ) {
+				rej( e );
+			}
+		} );
+	} );
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -222,6 +248,7 @@ const readerActivation = {
 	hasAuthLink,
 	setAuthStrategy,
 	getAuthStrategy,
+	getCaptchaToken,
 };
 window.newspackReaderActivation = readerActivation;
 
