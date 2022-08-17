@@ -50,15 +50,6 @@ class Stripe_Connection {
 	public static function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/stripe/reset-webhooks/',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ __CLASS__, 'reset_webhooks' ],
-				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/stripe/webhook',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -192,12 +183,13 @@ class Stripe_Connection {
 	 * because it has to stay in sync with WP.
 	 */
 	private static function get_billing_portal_configuration_id() {
-		$stripe = self::get_stripe_client();
+		$config_meta_key = 'newspack_config_v2';
+		$stripe          = self::get_stripe_client();
 		try {
 			$all_configs = $stripe->billingPortal->configurations->all( [ 'active' => true ] );
 			$config_id   = false;
 			foreach ( $all_configs['data'] as $config ) {
-				if ( $config['metadata']['newspack_config'] ) {
+				if ( $config['metadata'][ $config_meta_key ] ) {
 					$config_id = $config['id'];
 				}
 			}
@@ -215,6 +207,9 @@ class Stripe_Connection {
 							'payment_method_update' => [
 								'enabled' => true,
 							],
+							'subscription_pause'    => [
+								'enabled' => false,
+							],
 							'subscription_cancel'   => [
 								'cancellation_reason' => [
 									'enabled' => true,
@@ -224,20 +219,19 @@ class Stripe_Connection {
 								'mode'                => 'at_period_end',
 								'proration_behavior'  => 'none',
 							],
-							'subscription_pause'    => [
-								'enabled' => true,
-							],
 						],
 						'business_profile' => [ 'headline' => '' ],
 						'metadata'         => [
-							'newspack_config' => true,
+							$config_meta_key => true,
 						],
 					]
 				);
 				$config_id  = $new_config['id'];
+				Logger::log( 'Created a new Stripe billing portal configuration, id is: ' . $config_id );
 			}
 			return $config_id;
 		} catch ( \Throwable $e ) {
+			Logger::log( 'Failed at creating Stripe billing portal configuration: ' . $e->getMessage() );
 			return new \WP_Error( 'stripe_newspack', __( 'Could not retrieve or create billing portal configuration.', 'newspack' ), $e->getMessage() );
 		}
 	}
@@ -362,6 +356,36 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Create metadata for a recurring payment.
+	 *
+	 * @param string $frequency Frequency.
+	 * @param string $amount Amount.
+	 * @param string $currency Currency.
+	 * @param int    $date Date.
+	 */
+	private static function create_recurring_payment_metadata( $frequency, $amount, $currency, $date ) {
+		$metadata          = [];
+		$amount_normalised = self::normalise_amount( $amount, $currency );
+		$payment_date      = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $date );
+		$metadata[ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
+		$metadata[ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
+		switch ( $frequency ) {
+			case 'year':
+				$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Yearly Donor';
+				break;
+			case 'month':
+				$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
+				break;
+		}
+		$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
+		$metadata[ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
+		$metadata[ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
+		// In case this was previously set after a previous cancelled subscription, clear it.
+		$metadata[ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = '';
+		return $metadata;
+	}
+
+	/**
 	 * Receive Stripe webhook.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -387,9 +411,11 @@ class Stripe_Connection {
 			return new \WP_Error( 'newspack_webhook_error' );
 		}
 
+		$payload = $request['data']['object'];
+
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
-				$payment           = $request['data']['object'];
+				$payment           = $payload;
 				$metadata          = $payment['metadata'];
 				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
@@ -421,11 +447,12 @@ class Stripe_Connection {
 				$stripe_data                        = self::get_stripe_data();
 				$has_opted_in_to_newsletters        = isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
 				if ( $has_opted_in_to_newsletters || Reader_Activation::is_enabled() ) {
-					$contact = [
+					$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
+					$contact      = [
 						'email'    => $customer['email'],
 						'name'     => $customer['name'],
 						'metadata' => [
-							Newspack_Newsletters::$metadata_keys['last_payment_date']   => gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] ),
+							Newspack_Newsletters::$metadata_keys['last_payment_date']   => $payment_date,
 							Newspack_Newsletters::$metadata_keys['last_payment_amount'] => $amount_normalised,
 						],
 					];
@@ -433,18 +460,10 @@ class Stripe_Connection {
 					if ( 'once' === $frequency ) {
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Donor';
 					} else {
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
-						switch ( $frequency ) {
-							case 'year':
-								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Yearly Donor';
-								break;
-							case 'month':
-								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
-								break;
-						}
-						$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
+						$contact['metadata'] = array_merge(
+							self::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
+							$contact['metadata']
+						);
 					}
 
 					if ( ! empty( $client_id ) ) {
@@ -534,6 +553,52 @@ class Stripe_Connection {
 				break;
 			case 'charge.failed':
 				break;
+			case 'customer.subscription.deleted':
+				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+					$customer     = self::get_customer_by_id( $payload['customer'] );
+					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+					$contact      = [
+						'email'    => $customer['email'],
+						'metadata' => [
+							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
+						],
+					];
+					switch ( $payload['plan']['interval'] ) {
+						case 'year':
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Ex-Yearly Donor';
+							break;
+						case 'month':
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Ex-Monthly Donor';
+							break;
+					}
+					\Newspack_Newsletters_Subscription::add_contact( $contact );
+				}
+				break;
+			case 'customer.subscription.updated':
+				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+					$customer     = self::get_customer_by_id( $payload['customer'] );
+					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+					$contact      = [
+						'email'    => $customer['email'],
+						'metadata' => [],
+					];
+					if ( $payload['cancel_at'] ) {
+						// Cancellation was scheduled.
+						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['cancel_at'] );
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = $sub_end_date;
+					} elseif ( 'active' === $payload['status'] ) {
+						// An update to an active subscription (or activation of it).
+						$plan                = $payload['plan'];
+						$contact['metadata'] = array_merge(
+							self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
+							$contact['metadata']
+						);
+					}
+					if ( count( $contact['metadata'] ) ) {
+						\Newspack_Newsletters_Subscription::add_contact( $contact );
+					}
+				}
+				break;
 			default:
 				return new \WP_Error( 'newspack_unsupported_webhook' );
 		}
@@ -549,15 +614,35 @@ class Stripe_Connection {
 	/**
 	 * Reset Stripe webhooks.
 	 */
-	public static function reset_webhooks() {
+	private static function reset_webhooks() {
+		Logger::log( 'Resetting Stripe webhooks…' );
 		delete_option( self::STRIPE_WEBHOOK_OPTION_NAME );
-		return self::validate_webhooks();
+		try {
+			$stripe   = self::get_stripe_client();
+			$webhooks = $stripe->webhookEndpoints->all( [ 'limit' => 100 ] );
+			foreach ( $webhooks as $webhook ) {
+				if ( self::get_webhook_url() === $webhook->url ) {
+					$stripe->webhookEndpoints->delete( $webhook->id );
+				}
+			}
+			return true;
+		} catch ( \Throwable $th ) {
+			Logger::log( 'Could not reset Stripe webhooks: ' . $th->getMessage() );
+			return false;
+		}
 	}
 
 	/**
 	 * Create Stripe webhooks if they are missing. Otherwise, validate the webhhooks.
 	 */
-	public static function validate_webhooks() {
+	public static function validate_or_create_webhooks() {
+		$is_valid        = true;
+		$webhook_events  = [
+			'charge.failed',
+			'charge.succeeded',
+			'customer.subscription.deleted',
+			'customer.subscription.updated',
+		];
 		$stripe          = self::get_stripe_client();
 		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
 		if ( ! $created_webhook ) {
@@ -566,10 +651,7 @@ class Stripe_Connection {
 				$webhook = $stripe->webhookEndpoints->create(
 					[
 						'url'            => self::get_webhook_url(),
-						'enabled_events' => [
-							'charge.failed',
-							'charge.succeeded',
-						],
+						'enabled_events' => $webhook_events,
 					]
 				);
 				update_option(
@@ -581,23 +663,28 @@ class Stripe_Connection {
 				);
 				return true;
 			} catch ( \Throwable $e ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed.', 'newspack' ), $e->getMessage() );
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed: ', 'newspack' ) . $e->getMessage() );
 			}
 		} elseif ( isset( $created_webhook['id'] ) ) {
 			try {
 				$webhook = $stripe->webhookEndpoints->retrieve( $created_webhook['id'] );
+				if ( $webhook->enabled_events !== $webhook_events ) {
+					$is_valid = false;
+				}
+				if ( 'enabled' !== $webhook['status'] ) {
+					$is_valid = false;
+				}
+				if ( self::get_webhook_url() !== $webhook['url'] ) {
+					$is_valid = false;
+				}
 			} catch ( \Throwable $e ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed:', 'newspack' ) . ' ' . $e->getMessage() );
+				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed: ', 'newspack' ) . $e->getMessage() );
 			}
-			if ( 'enabled' !== $webhook['status'] ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook is disabled.', 'newspack' ) );
-			}
-			if ( self::get_webhook_url() !== $webhook['url'] ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook has incorrect URL.', 'newspack' ) );
-			}
-			return true;
 		} else {
-			return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Invalid saved webhook.', 'newspack' ) );
+			$is_valid = false;
+		}
+		if ( ! $is_valid ) {
+			self::reset_webhooks();
 		}
 	}
 
