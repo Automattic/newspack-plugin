@@ -105,7 +105,7 @@ export default withWizardScreen( () => {
 				</Grid>
 				<hr />
 				<SectionHeader
-					title={ __( 'Email Service Provider and Newsletters Integration', 'newspack' ) }
+					title={ __( 'Email Service Provider Settings', 'newspack' ) }
 					description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 				/>
 				<TextControl
