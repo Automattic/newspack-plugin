@@ -84,7 +84,7 @@ endif;
 
 <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 	<a href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_delete_account_arg ) ); ?>">
-		<?php \esc_html_e( 'Email me a link for account deletion', 'newspack' ); ?>
+		<?php \esc_html_e( 'Request account deletion', 'newspack' ); ?>
 	</a>
 </p>
 
