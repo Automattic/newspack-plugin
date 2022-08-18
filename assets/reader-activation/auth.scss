@@ -184,6 +184,7 @@
 			position: relative;
 			max-height: 100vh;
 			overflow-y: auto;
+			overflow-x: hidden;
 
 			transition: height 125ms ease-in-out;
 
