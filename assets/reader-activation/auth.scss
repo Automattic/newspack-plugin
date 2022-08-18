@@ -334,6 +334,7 @@
 		border: 1px solid wp-colors.$gray-200;
 		border-radius: 2px;
 		padding: 0.5em;
+		box-sizing: border-box;
 		h3 {
 			display: none;
 		}
