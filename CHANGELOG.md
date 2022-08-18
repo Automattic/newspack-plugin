@@ -1,3 +1,10 @@
+## [1.89.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.89.0...v1.89.1-hotfix.1) (2022-08-18)
+
+
+### Bug Fixes
+
+* version for cache busting ([1db4ee2](https://github.com/Automattic/newspack-plugin/commit/1db4ee255d0131c1713cbae6a37eaed9d9447603))
+
 # [1.89.0](https://github.com/Automattic/newspack-plugin/compare/v1.88.0...v1.89.0) (2022-08-16)
 
 
