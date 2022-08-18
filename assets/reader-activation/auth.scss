@@ -50,7 +50,7 @@
 		bottom: 0;
 		justify-content: center;
 		align-items: center;
-		z-index: 999999;
+		z-index: 9999999999;
 		font-size: 0.8888em;
 
 		@media screen and ( min-width: 600px ) {
@@ -150,6 +150,16 @@
 				flex: 1 1 100%;
 				font-size: 1rem;
 				margin: 0;
+
+				button[type='submit'] {
+					background-color: #d33;
+					transition: background-color 150ms ease-in-out;
+
+					&:hover,
+					&:focus {
+						background-color: #111;
+					}
+				}
 			}
 
 			&__help {
