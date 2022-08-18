@@ -67,6 +67,20 @@
 			gap: 4px;
 		}
 	}
+	& &__have-account {
+		p {
+			font-size: inherit;
+		}
+	}
+	&__response {
+		display: none;
+	}
+	&__icon {
+		+ .block-editor-block-list__layout p,
+		+ .block-editor-rich-text__editable {
+			font-size: 0.8em;
+		}
+	}
 }
 
 .newspack-reader {
@@ -89,6 +103,23 @@
 
 		.block-list-appender {
 			position: relative;
+		}
+	}
+
+	.newspack-registration {
+		div {
+			a {
+				color: inherit;
+				cursor: pointer;
+				text-decoration: underline;
+
+				&:active,
+				&:focus,
+				&:hover {
+					color: inherit;
+					text-decoration: none;
+				}
+			}
 		}
 	}
 }
