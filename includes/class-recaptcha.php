@@ -274,8 +274,8 @@ final class Recaptcha {
 		}
 
 		$captcha_secret = self::get_setting( 'captchaSiteSecret' );
-		$captcha_verify = wp_safe_remote_post(
-			add_query_arg(
+		$captcha_verify = \wp_safe_remote_post(
+			\add_query_arg(
 				[
 					'secret'   => $captcha_secret,
 					'response' => $captcha_token,
@@ -285,7 +285,7 @@ final class Recaptcha {
 		);
 
 		// If the reCaptcha verification request fails.
-		if ( is_wp_error( $captcha_verify ) ) {
+		if ( \is_wp_error( $captcha_verify ) ) {
 			return $captcha_verify;
 		}
 
