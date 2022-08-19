@@ -75,7 +75,7 @@ final class Recaptcha {
 			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			\wp_register_script(
 				self::RECAPTCHA_SCRIPT_HANDLE,
-				esc_url( 'https://www.google.com/recaptcha/api.js?render=' . $captcha_site_key ),
+				\esc_url( 'https://www.google.com/recaptcha/api.js?render=' . $captcha_site_key ),
 				null,
 				null,
 				true
@@ -91,38 +91,16 @@ final class Recaptcha {
 	 * @return bool|WP_Error
 	 */
 	public static function api_permissions_check() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! \current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				\esc_html__( 'You cannot use this resource.', 'newspack' ),
 				[
 					'status' => 403,
 				]
 			);
 		}
 		return true;
-	}
-
-	/**
-	 * Sanitize an array of text or number values.
-	 *
-	 * @param array $array Array of text or boolean values to be sanitized.
-	 * @return array Sanitized array.
-	 */
-	public static function sanitize_array( $array ) {
-		foreach ( $array as $value ) {
-			if ( is_array( $value ) ) {
-				$value = self::sanitize_array( $value );
-			} else {
-				if ( is_string( $value ) ) {
-					$value = sanitize_text_field( $value );
-				} else {
-					$value = boolval( $value );
-				}
-			}
-		}
-
-		return $array;
 	}
 
 	/**
