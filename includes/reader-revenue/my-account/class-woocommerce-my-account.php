@@ -7,6 +7,7 @@
 
 namespace Newspack;
 
+use Newspack\Reader_Activation;
 use \WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -18,6 +19,8 @@ class WooCommerce_My_Account {
 	const BILLING_ENDPOINT             = 'billing';
 	const STRIPE_CUSTOMER_ID_USER_META = '_newspack_stripe_customer_id';
 	const RESET_PASSWORD_URL_PARAM     = 'reset-password';
+	const DELETE_ACCOUNT_URL_PARAM     = 'delete-account';
+	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
 	const SEND_MAGIC_LINK_PARAM        = 'magic-link';
 
 	/**
@@ -36,9 +39,11 @@ class WooCommerce_My_Account {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
-		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 100, 5 );
+		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
 		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account_request' ] );
+		add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
@@ -122,33 +127,172 @@ class WooCommerce_My_Account {
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
-		$nonce = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_STRING );
 
-		if ( $nonce ) {
-			$is_error = false;
-			if ( wp_verify_nonce( $nonce, self::RESET_PASSWORD_URL_PARAM ) ) {
-				$result  = retrieve_password( wp_get_current_user()->user_email );
-				$message = __( 'Please check your email inbox for instructions on how to set a new password.', 'newspack' );
-				if ( is_wp_error( $result ) ) {
-					Logger::log( 'Error resetting password: ' . $result->get_error_message() );
-					$message  = __( 'Something went wrong.', 'newspack' );
-					$is_error = true;
-				}
-			} else {
+		$nonce = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_STRING );
+		if ( ! $nonce ) {
+			return;
+		}
+
+		$is_error = false;
+		if ( wp_verify_nonce( $nonce, self::RESET_PASSWORD_URL_PARAM ) ) {
+			$result  = retrieve_password( wp_get_current_user()->user_email );
+			$message = __( 'Please check your email inbox for instructions on how to set a new password.', 'newspack' );
+			if ( is_wp_error( $result ) ) {
+				Logger::log( 'Error resetting password: ' . $result->get_error_message() );
 				$message  = __( 'Something went wrong.', 'newspack' );
 				$is_error = true;
 			}
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'message'  => $message,
-						'is_error' => $is_error,
-					],
-					remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
-				)
-			);
-			exit;
+		} else {
+			$message  = __( 'Something went wrong.', 'newspack' );
+			$is_error = true;
 		}
+
+		if ( $is_error ) {
+			\wc_add_notice( $message, 'error' );
+		} else {
+			\wc_add_notice( $message, 'success' );
+		}
+		wp_safe_redirect( remove_query_arg( self::RESET_PASSWORD_URL_PARAM ) );
+		exit;
+	}
+
+	/**
+	 * Handle delete account request.
+	 */
+	public static function handle_delete_account_request() {
+		if ( ! \is_user_logged_in() ) {
+			return;
+		}
+
+		$user_id = \get_current_user_id();
+		$user    = \wp_get_current_user();
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return;
+		}
+
+		$nonce = filter_input( INPUT_GET, self::DELETE_ACCOUNT_URL_PARAM, FILTER_SANITIZE_STRING );
+		if ( ! $nonce || ! \wp_verify_nonce( $nonce, self::DELETE_ACCOUNT_URL_PARAM ) ) {
+			return;
+		}
+
+		$token      = \wp_generate_password( 43, false, false );
+		$form_nonce = \wp_create_nonce( self::DELETE_ACCOUNT_FORM );
+
+		$url = \add_query_arg(
+			[
+				self::DELETE_ACCOUNT_FORM => $form_nonce,
+				'token'                   => $token,
+			],
+			\wc_get_account_endpoint_url( 'edit-account' )
+		);
+		\set_transient( 'np_reader_account_delete_' . $user_id, $token, DAY_IN_SECONDS );
+
+		/* translators: %s User display name. */
+		$message  = sprintf( __( 'Hello, %s!', 'newspack' ), $user->display_name ) . "\r\n\r\n";
+		$message .= __( 'To delete your account, follow the instructions in the following address:', 'newspack' ) . "\r\n\r\n";
+		$message .= $url . "\r\n";
+
+		$blogname = \wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+
+		$switched_locale = \switch_to_locale( get_user_locale( $user ) );
+
+		$email = [
+			'to'      => $user->user_email,
+			/* translators: %s Site title. */
+			'subject' => __( '[%s] Account deletion request', 'newspack' ),
+			'message' => $message,
+			'headers' => [
+				sprintf(
+					'From: %1$s <%2$s>',
+					Reader_Activation::get_from_name(),
+					Reader_Activation::get_from_email()
+				),
+			],
+		];
+
+		/**
+		 * Filters the account deletion email.
+		 *
+		 * @param array    $email Email arguments. {
+		 *   Used to build wp_mail().
+		 *
+		 *   @type string $to      The intended recipient - New user email address.
+		 *   @type string $subject The subject of the email.
+		 *   @type string $message The body of the email.
+		 *   @type string $headers The headers of the email.
+		 * }
+		 * @param \WP_User $user  User to send the magic link to.
+		 * @param string   $url   Account deletion form url.
+		 */
+		$email = \apply_filters( 'newspack_reader_account_delete_email', $email, $user, $url );
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
+		$sent = \wp_mail(
+			$email['to'],
+			\wp_specialchars_decode( sprintf( $email['subject'], $blogname ) ),
+			$email['message'],
+			$email['headers']
+		);
+
+		if ( $switched_locale ) {
+			\restore_previous_locale();
+		}
+
+		if ( $sent ) {
+			wc_add_notice( __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack' ), 'success' );
+		} else {
+			wc_add_notice( __( 'Something went wrong.', 'newspack' ), 'error' );
+		}
+
+		\wp_safe_redirect( \remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM ) );
+		exit;
+	}
+
+	/**
+	 * Handle delete account confirmation.
+	 */
+	public static function handle_delete_account() {
+
+		/** Make sure `wp_delete_user()` is available. */
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+
+		if ( isset( $_GET['account_deleted'] ) && function_exists( 'wc_add_notice' ) ) {
+			\wc_add_notice( __( 'Your account has been deleted.', 'newspack' ), 'success' );
+		}
+
+		if ( ! isset( $_POST[ self::DELETE_ACCOUNT_FORM ] ) ) {
+			return;
+		}
+
+		$form_nonce = \sanitize_text_field( $_POST[ self::DELETE_ACCOUNT_FORM ] );
+		if ( ! $form_nonce || ! \wp_verify_nonce( $form_nonce, self::DELETE_ACCOUNT_FORM ) ) {
+			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
+		}
+
+		if ( ! isset( $_POST['confirm_delete'] ) ) {
+			return;
+		}
+
+		if ( ! \is_user_logged_in() ) {
+			return;
+		}
+
+		$user_id = \get_current_user_id();
+		$user    = \wp_get_current_user();
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return;
+		}
+
+		$token           = isset( $_POST['token'] ) ? \sanitize_text_field( $_POST['token'] ) : '';
+		$transient_token = \get_transient( 'np_reader_account_delete_' . $user_id );
+		if ( ! $token || ! $transient_token || $token !== $transient_token ) {
+			wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
+		}
+		\delete_transient( 'np_reader_account_delete_' . $user_id );
+
+		\wp_delete_user( $user_id );
+		\wp_safe_redirect( add_query_arg( 'account_deleted', 1, \wc_get_account_endpoint_url( 'edit-account' ) ) );
+		exit;
 	}
 
 	/**
@@ -306,6 +450,9 @@ class WooCommerce_My_Account {
 	 */
 	public static function wc_get_template( $template, $template_name ) {
 		if ( 'myaccount/form-edit-account.php' === $template_name ) {
+			if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-delete-account.php';
+			}
 			return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
 		}
 		return $template;

@@ -275,6 +275,12 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 			update_option( NEWSPACK_NRH_CONFIG, $nrh_config );
 		}
+
+		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
+		if ( Donations::is_platform_wc() ) {
+			Donations::update_donation_product( Donations::get_donation_settings() );
+		}
+
 		return \rest_ensure_response( $this->fetch_all_data() );
 	}
 

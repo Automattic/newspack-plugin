@@ -127,6 +127,8 @@ final class Reader_Activation {
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
 			'terms_url'                   => '',
+			'sync_esp'                    => true,
+			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 		];
 
@@ -148,7 +150,7 @@ final class Reader_Activation {
 
 		$settings = [];
 		foreach ( $config as $key => $default_value ) {
-			$settings[ $key ] = \get_option( self::OPTIONS_PREFIX . $key, $default_value );
+			$settings[ $key ] = self::get_setting( $key );
 		}
 		return $settings;
 	}
@@ -165,7 +167,12 @@ final class Reader_Activation {
 		if ( ! isset( $config[ $name ] ) ) {
 			return null;
 		}
-		return \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+		// Use default value type for casting bool option value.
+		if ( is_bool( $config[ $name ] ) ) {
+			$value = (bool) $value;
+		}
+		return $value;
 	}
 
 	/**
@@ -180,6 +187,9 @@ final class Reader_Activation {
 		$config = self::get_settings_config();
 		if ( ! isset( $config[ $key ] ) ) {
 			return false;
+		}
+		if ( is_bool( $value ) ) {
+			$value = intval( $value );
 		}
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
 	}
