@@ -3,11 +3,14 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-registration {
+	font-size: inherit;
+
 	form {
 		input[type='email'] {
 			background: #fff;
 			border: solid 1px #ccc;
 			box-sizing: border-box;
+			font-size: inherit;
 			outline: none;
 			padding: 0.36rem 0.66rem;
 			-webkit-appearance: none;
@@ -68,8 +71,15 @@
 		}
 	}
 	& &__have-account {
+		font-size: 0.65em;
+
 		p {
-			font-size: inherit;
+			font-size: 1em;
+		}
+	}
+	&__help-text {
+		p {
+			font-size: 0.55em !important;
 		}
 	}
 	&__response {
