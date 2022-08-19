@@ -45,14 +45,20 @@ final class Recaptcha {
 			'/recaptcha',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ __CLASS__, 'api_update_setting' ],
+				'callback'            => [ __CLASS__, 'api_update_settings' ],
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 				'args'                => [
-					'key'   => [
+					'use_captcha' => [
+						'required'          => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					],
+					'site_key'    => [
+						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					],
-					'value' => [
-						'sanitize_callback' => [ __CLASS__, 'sanitize_text_or_boolean' ],
+					'site_secret' => [
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -64,7 +70,7 @@ final class Recaptcha {
 	 */
 	public static function register_script() {
 		if ( self::can_use_captcha() ) {
-			$captcha_site_key = self::get_setting( 'captchaSiteKey' );
+			$captcha_site_key = self::get_setting( 'site_key' );
 
 			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			\wp_register_script(
@@ -98,18 +104,25 @@ final class Recaptcha {
 	}
 
 	/**
-	 * Sanitize a text string or boolean value.
+	 * Sanitize an array of text or number values.
 	 *
-	 * @param string|boolean $value String or boolean value.
-	 *
-	 * @return string|boolean Sanitized value.
+	 * @param array $array Array of text or boolean values to be sanitized.
+	 * @return array Sanitized array.
 	 */
-	public static function sanitize_text_or_boolean( $value ) {
-		if ( is_numeric( $value ) || is_bool( $value ) ) {
-			return boolval( $value );
+	public static function sanitize_array( $array ) {
+		foreach ( $array as $value ) {
+			if ( is_array( $value ) ) {
+				$value = self::sanitize_array( $value );
+			} else {
+				if ( is_string( $value ) ) {
+					$value = sanitize_text_field( $value );
+				} else {
+					$value = boolval( $value );
+				}
+			}
 		}
 
-		return \sanitize_text_field( $value );
+		return $array;
 	}
 
 	/**
@@ -119,9 +132,9 @@ final class Recaptcha {
 	 */
 	public static function get_settings_config() {
 		return [
-			'useCaptcha'        => false,
-			'captchaSiteKey'    => '',
-			'captchaSiteSecret' => '',
+			'use_captcha' => false,
+			'site_key'    => '',
+			'site_secret' => '',
 		];
 	}
 
@@ -141,14 +154,8 @@ final class Recaptcha {
 	 *
 	 * @return WP_REST_Response containing the settings list.
 	 */
-	public static function api_update_setting( $request ) {
-		$key   = $request->get_param( 'key' );
-		$value = $request->get_param( 'value' );
-
-		$setting_to_update         = [];
-		$setting_to_update[ $key ] = $value;
-
-		return \rest_ensure_response( self::update_settings( $setting_to_update ) );
+	public static function api_update_settings( $request ) {
+		return \rest_ensure_response( self::update_settings( $request->get_params() ) );
 	}
 
 	/**
@@ -164,21 +171,21 @@ final class Recaptcha {
 		}
 
 		// Migrate reCAPTCHA settings from Stripe wizard, for more generalized usage.
-		if ( ! $settings['useCaptcha'] && empty( $settings['captchaSiteKey'] ) && empty( $settings['captchaSiteSecret'] ) ) {
+		if ( ! $settings['use_captcha'] && empty( $settings['site_key'] ) && empty( $settings['site_secret'] ) ) {
 			$stripe_settings = Stripe_Connection::get_stripe_data();
 			if ( ! empty( $stripe_settings['useCaptcha'] ) && ! empty( $stripe_settings['captchaSiteKey'] ) && ! empty( $stripe_settings['captchaSiteSecret'] ) ) {
 				// If we have all of the required settings in Stripe settings, migrate them here.
 				self::update_settings(
 					[
-						'useCaptcha'        => $stripe_settings['useCaptcha'],
-						'captchaSiteKey'    => $stripe_settings['captchaSiteKey'],
-						'captchaSiteSecret' => $stripe_settings['captchaSiteSecret'],
+						'use_captcha' => $stripe_settings['useCaptcha'],
+						'site_key'    => $stripe_settings['captchaSiteKey'],
+						'site_secret' => $stripe_settings['captchaSiteSecret'],
 					]
 				);
 
-				$settings['useCaptcha']        = $stripe_settings['useCaptcha'];
-				$settings['captchaSiteKey']    = $stripe_settings['captchaSiteKey'];
-				$settings['captchaSiteSecret'] = $stripe_settings['captchaSiteSecret'];
+				$settings['use_captcha'] = $stripe_settings['useCaptcha'];
+				$settings['site_key']    = $stripe_settings['captchaSiteKey'];
+				$settings['site_secret'] = $stripe_settings['captchaSiteSecret'];
 
 				// Delete the legacy settings from Stripe settings and apply the settings to the return value.
 				unset( $stripe_settings['useCaptcha'] );
@@ -219,21 +226,9 @@ final class Recaptcha {
 	 * @return mixed[] Updated settings, or WP_Error.
 	 */
 	public static function update_settings( $settings ) {
-		$config = self::get_settings_config();
 		foreach ( $settings as $key => $value ) {
-			if ( ! isset( $config[ $key ] ) ) {
-				return new \WP_Error(
-					'newspack_recaptcha_update_settings_error',
-					__( 'Invalid settings key: ', 'newspack' ) . $key
-				);
-			}
-
-			$updated = \update_option( self::OPTIONS_PREFIX . $key, $value );
-			if ( ! $updated ) {
-				return new \WP_Error(
-					'newspack_recaptcha_update_settings_error',
-					__( 'Error updating setting: ', 'newspack' ) . $key
-				);
+			if ( in_array( $key, array_keys( self::get_settings_config() ), true ) ) {
+				\update_option( self::OPTIONS_PREFIX . $key, $value );
 			}
 		}
 
@@ -247,7 +242,7 @@ final class Recaptcha {
 	 */
 	public static function can_use_captcha() {
 		$settings = self::get_settings();
-		if ( empty( $settings['useCaptcha'] ) || empty( $settings['captchaSiteKey'] ) || empty( $settings['captchaSiteSecret'] ) ) {
+		if ( empty( $settings['use_captcha'] ) || empty( $settings['site_key'] ) || empty( $settings['site_secret'] ) ) {
 			return false;
 		}
 
@@ -273,7 +268,7 @@ final class Recaptcha {
 			);
 		}
 
-		$captcha_secret = self::get_setting( 'captchaSiteSecret' );
+		$captcha_secret = self::get_setting( 'site_secret' );
 		$captcha_verify = \wp_safe_remote_post(
 			\add_query_arg(
 				[

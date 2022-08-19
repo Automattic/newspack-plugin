@@ -87,7 +87,7 @@ final class Reader_Activation {
 
 		if ( Recaptcha::can_use_captcha() ) {
 			$script_dependencies[]           = Recaptcha::RECAPTCHA_SCRIPT_HANDLE;
-			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'captchaSiteKey' );
+			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
 		}
 
 		\wp_register_script(

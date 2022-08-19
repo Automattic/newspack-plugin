@@ -9,11 +9,20 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, Grid, Notice, SectionHeader, TextControl } from '../../../../components/src';
+import {
+	ActionCard,
+	Button,
+	Grid,
+	Notice,
+	SectionHeader,
+	TextControl,
+} from '../../../../components/src';
 
-const Recaptcha = ( { setError } ) => {
+const Recaptcha = () => {
+	const [ error, setError ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ settings, setSettings ] = useState( {} );
+	const [ settingsToUpdate, setSettingsToUpdate ] = useState( {} );
 
 	// Check the Mailchimp connectivity status.
 	useEffect( async () => {
@@ -27,22 +36,20 @@ const Recaptcha = ( { setError } ) => {
 		}
 	}, [] );
 
-	const updateSetting = ( key, value ) => {
-		setError();
+	const updateSettings = async data => {
+		setError( null );
 		setIsLoading( true );
 		try {
 			setSettings(
-				apiFetch( {
+				await apiFetch( {
 					path: '/newspack/v1/recaptcha',
 					method: 'POST',
-					data: {
-						key,
-						value,
-					},
+					data,
 				} )
 			);
+			setSettingsToUpdate( {} );
 		} catch ( e ) {
-			setError( e.message || __( 'Error updating settings.', 'newspack' ) );
+			setError( e?.message || __( 'Error updating settings.', 'newspack' ) );
 		} finally {
 			setIsLoading( false );
 		}
@@ -65,33 +72,50 @@ const Recaptcha = ( { setError } ) => {
 						</ExternalLink>
 					</p>
 				) }
-				hasGreyHeader={ !! settings.useCaptcha }
-				toggleChecked={ !! settings.useCaptcha }
-				toggleOnChange={ () => updateSetting( 'useCaptcha', ! settings.useCaptcha ) }
+				hasGreyHeader={ !! settings.use_captcha }
+				toggleChecked={ !! settings.use_captcha }
+				toggleOnChange={ () => updateSettings( { use_captcha: ! settings.use_captcha } ) }
+				actionContent={
+					settings.use_captcha && (
+						<Button
+							variant="primary"
+							disabled={ isLoading || ! Object.keys( settingsToUpdate ).length }
+							onClick={ () => updateSettings( settingsToUpdate ) }
+						>
+							{ __( 'Save Settings', 'newspack' ) }
+						</Button>
+					)
+				}
 				disabled={ isLoading }
 			>
-				{ settings.useCaptcha && (
+				{ settings.use_captcha && (
 					<>
-						{ settings.useCaptcha &&
-							( ! settings.captchaSiteKey || ! settings.captchaSiteSecret ) && (
-								<Notice
-									noticeText={ __(
-										'You must enter a valid site key and secret to use reCAPTCHA.',
-										'newspack'
-									) }
-								/>
-							) }
+						{ error && <Notice isError noticeText={ error } /> }
+						{ settings.use_captcha && ( ! settings.site_key || ! settings.site_secret ) && (
+							<Notice
+								noticeText={ __(
+									'You must enter a valid site key and secret to use reCAPTCHA.',
+									'newspack'
+								) }
+							/>
+						) }
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
-								value={ settings.captchaSiteKey }
+								value={ settingsToUpdate?.site_key || settings.site_key }
 								label={ __( 'Site Key', 'newspack' ) }
-								onChange={ value => updateSetting( 'captchaSiteKey', value ) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
+								}
+								disabled={ isLoading }
 							/>
 							<TextControl
 								type="password"
-								value={ settings.captchaSiteSecret }
+								value={ settingsToUpdate?.site_secret || settings.site_secret }
 								label={ __( 'Site Secret', 'newspack' ) }
-								onChange={ value => updateSetting( 'captchaSiteSecret', value ) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
+								}
+								disabled={ isLoading }
 							/>
 						</Grid>
 					</>
