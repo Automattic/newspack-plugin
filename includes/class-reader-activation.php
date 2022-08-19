@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Recaptcha;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -16,12 +18,10 @@ final class Reader_Activation {
 
 	const OPTIONS_PREFIX = 'newspack_reader_activation_';
 
-	const AUTH_READER_COOKIE      = 'np_auth_reader';
-	const AUTH_INTENTION_COOKIE   = 'np_auth_intention';
-	const SCRIPT_HANDLE           = 'newspack-reader-activation';
-	const AUTH_SCRIPT_HANDLE      = 'newspack-reader-auth';
-	const RECAPTCHA_SCRIPT_HANDLE = 'newspack-recaptcha';
-	const RECAPTCHA_THRESHOLD     = 0.5;
+	const AUTH_READER_COOKIE    = 'np_auth_reader';
+	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
+	const SCRIPT_HANDLE         = 'newspack-reader-activation';
+	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
 
 	/**
 	 * Reader user meta keys.
@@ -51,8 +51,6 @@ final class Reader_Activation {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_recaptcha' ] );
-
 		if ( self::is_enabled() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -73,26 +71,6 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Register the reCAPTCHA v3 script.
-	 * Does not require Reader Activation features to be active.
-	 */
-	public static function register_recaptcha() {
-		if ( self::can_use_captcha() ) {
-			$captcha_site_key = self::get_setting( 'captchaSiteKey' );
-
-			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-			wp_register_script(
-				self::RECAPTCHA_SCRIPT_HANDLE,
-				esc_url( 'https://www.google.com/recaptcha/api.js?render=' . $captcha_site_key ),
-				null,
-				null,
-				true
-			);
-			\wp_script_add_data( self::RECAPTCHA_SCRIPT_HANDLE, 'amp-plus', true );
-		}
-	}
-
-	/**
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
@@ -107,9 +85,9 @@ final class Reader_Activation {
 			'authenticated_email'   => $authenticated_email,
 		];
 
-		if ( self::can_use_captcha() ) {
-			$script_dependencies[]           = self::RECAPTCHA_SCRIPT_HANDLE;
-			$script_data['captcha_site_key'] = self::get_setting( 'captchaSiteKey' );
+		if ( Recaptcha::can_use_captcha() ) {
+			$script_dependencies[]           = Recaptcha::RECAPTCHA_SCRIPT_HANDLE;
+			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'captchaSiteKey' );
 		}
 
 		\wp_register_script(
@@ -162,9 +140,6 @@ final class Reader_Activation {
 			'sync_esp'                    => true,
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
-			'useCaptcha'                  => false,
-			'captchaSiteKey'              => '',
-			'captchaSiteSecret'           => '',
 		];
 
 		/**
@@ -186,27 +161,6 @@ final class Reader_Activation {
 		$settings = [];
 		foreach ( $config as $key => $default_value ) {
 			$settings[ $key ] = self::get_setting( $key );
-		}
-
-		// Migrate reCAPTCHA settings from Stripe wizard to Reader Activation, for more generalized usage.
-		if ( ! $settings['useCaptcha'] && empty( $stripe_settings['captchaSiteKey'] ) && empty( $stripe_settings['captchaSiteSecret'] ) ) {
-			$stripe_settings = Stripe_Connection::get_stripe_data();
-			if ( ! empty( $stripe_settings['useCaptcha'] ) && ! empty( $stripe_settings['captchaSiteKey'] ) && ! empty( $stripe_settings['captchaSiteSecret'] ) ) {
-				// If we have all of the required settings in Stripe settings, migrate them here.
-				self::update_setting( 'useCaptcha', $stripe_settings['useCaptcha'] );
-				self::update_setting( 'captchaSiteKey', $stripe_settings['captchaSiteKey'] );
-				self::update_setting( 'captchaSiteSecret', $stripe_settings['captchaSiteSecret'] );
-
-				// Delete the legacy settings from Stripe settings and apply the settings to the return value.
-				unset( $stripe_settings['useCaptcha'] );
-				unset( $stripe_settings['captchaSiteKey'] );
-				unset( $stripe_settings['captchaSiteSecret'] );
-				Stripe_Connection::update_stripe_data( $stripe_settings );
-
-				$settings['useCaptcha']        = $stripe_settings['useCaptcha'];
-				$settings['captchaSiteKey']    = $stripe_settings['captchaSiteKey'];
-				$settings['captchaSiteSecret'] = $stripe_settings['captchaSiteSecret'];
-			}
 		}
 
 		return $settings;
@@ -1038,8 +992,8 @@ final class Reader_Activation {
 		}
 
 		// reCAPTCHA test.
-		if ( ! empty( $captcha_token ) ) {
-			$captcha_result = self::verify_captcha( $captcha_token );
+		if ( Recaptcha::can_use_captcha() ) {
+			$captcha_result = Recaptcha::verify_captcha( $captcha_token );
 			if ( \is_wp_error( $captcha_result ) ) {
 				return self::send_auth_form_response( $captcha_result );
 			}
@@ -1365,81 +1319,6 @@ final class Reader_Activation {
 	 */
 	public static function get_from_name() {
 		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
-	}
-
-	/**
-	 * Check whether reCaptcha is enabled and that we have all required settings.
-	 *
-	 * @return boolean True if we can use reCaptcha to secure checkout requests.
-	 */
-	public static function can_use_captcha() {
-		$settings = self::get_settings();
-		if ( empty( $settings['useCaptcha'] ) || empty( $settings['captchaSiteKey'] ) || empty( $settings['captchaSiteSecret'] ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Verify a REST API request using reCAPTCHA v3.
-	 *
-	 * @param string $captcha_token Token to verify.
-	 *
-	 * @return boolean|WP_Error True if the request passes the CAPTCHA test, or WP_Error.
-	 */
-	public static function verify_captcha( $captcha_token ) {
-		if ( ! self::can_use_captcha() ) {
-			return true;
-		}
-
-		if ( ! $captcha_token ) {
-			return new \WP_Error(
-				'newspack_recaptcha_invalid_token',
-				__( 'Missing or invalid captcha token.', 'newspack' )
-			);
-		}
-
-		$captcha_secret = self::get_setting( 'captchaSiteSecret' );
-		$captcha_verify = wp_safe_remote_post(
-			add_query_arg(
-				[
-					'secret'   => $captcha_secret,
-					'response' => $captcha_token,
-				],
-				'https://www.google.com/recaptcha/api/siteverify'
-			)
-		);
-
-		// If the reCaptcha verification request fails.
-		if ( is_wp_error( $captcha_verify ) ) {
-			return $captcha_verify;
-		}
-
-		$captcha_verify = json_decode( $captcha_verify['body'], true );
-
-		// If the reCaptcha verification request succeeds, but with error.
-		if ( ! boolval( $captcha_verify['success'] ) ) {
-			$error = isset( $captcha_verify['error-codes'] ) ? reset( $captcha_verify['error-codes'] ) : __( 'Error validating captcha.', 'newspack' );
-			return new \WP_Error(
-				'newspack_recaptcha_error',
-				// Translators: error message for reCaptcha.
-				sprintf( __( 'reCaptcha error: %s', 'newspack' ), $error )
-			);
-		}
-
-		// If the reCaptcha verification score is below our threshold for valid user input.
-		if (
-			isset( $captcha_verify['score'] ) &&
-			self::RECAPTCHA_THRESHOLD > floatval( $captcha_verify['score'] )
-		) {
-			return new \WP_Error(
-				'newspack_recaptcha_failure',
-				__( 'User action failed captcha challenge.', 'newspack' )
-			);
-		}
-
-		return true;
 	}
 }
 Reader_Activation::init();

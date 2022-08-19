@@ -1,0 +1,104 @@
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+
+/**
+ * Internal dependencies
+ */
+import { ActionCard, Grid, Notice, SectionHeader, TextControl } from '../../../../components/src';
+
+const Recaptcha = ( { setError } ) => {
+	const [ isLoading, setIsLoading ] = useState( false );
+	const [ settings, setSettings ] = useState( {} );
+
+	// Check the Mailchimp connectivity status.
+	useEffect( async () => {
+		setIsLoading( true );
+		try {
+			setSettings( await apiFetch( { path: '/newspack/v1/recaptcha' } ) );
+		} catch ( e ) {
+			setError( e.message || __( 'Error fetching settings.', 'newspack' ) );
+		} finally {
+			setIsLoading( false );
+		}
+	}, [] );
+
+	const updateSetting = ( key, value ) => {
+		setError();
+		setIsLoading( true );
+		try {
+			setSettings(
+				apiFetch( {
+					path: '/newspack/v1/recaptcha',
+					method: 'POST',
+					data: {
+						key,
+						value,
+					},
+				} )
+			);
+		} catch ( e ) {
+			setError( e.message || __( 'Error updating settings.', 'newspack' ) );
+		} finally {
+			setIsLoading( false );
+		}
+	};
+
+	return (
+		<>
+			<SectionHeader title={ __( 'reCAPTCHA v3', 'newspack' ) } />
+			<ActionCard
+				isMedium
+				title={ __( 'Enable reCAPTCHA', 'newspack' ) }
+				description={ () => (
+					<p>
+						{ __(
+							'Enabling reCAPTCHA can help protect your site against bot attacks and credit card testing.',
+							'newspack'
+						) }{ ' ' }
+						<ExternalLink href="https://www.google.com/recaptcha/admin/create">
+							{ __( 'Get started' ) }
+						</ExternalLink>
+					</p>
+				) }
+				hasGreyHeader={ !! settings.useCaptcha }
+				toggleChecked={ !! settings.useCaptcha }
+				toggleOnChange={ () => updateSetting( 'useCaptcha', ! settings.useCaptcha ) }
+				disabled={ isLoading }
+			>
+				{ settings.useCaptcha && (
+					<>
+						{ settings.useCaptcha &&
+							( ! settings.captchaSiteKey || ! settings.captchaSiteSecret ) && (
+								<Notice
+									noticeText={ __(
+										'You must enter a valid site key and secret to use reCAPTCHA.',
+										'newspack'
+									) }
+								/>
+							) }
+						<Grid noMargin rowGap={ 16 }>
+							<TextControl
+								value={ settings.captchaSiteKey }
+								label={ __( 'Site Key', 'newspack' ) }
+								onChange={ value => updateSetting( 'captchaSiteKey', value ) }
+							/>
+							<TextControl
+								type="password"
+								value={ settings.captchaSiteSecret }
+								label={ __( 'Site Secret', 'newspack' ) }
+								onChange={ value => updateSetting( 'captchaSiteSecret', value ) }
+							/>
+						</Grid>
+					</>
+				) }
+			</ActionCard>
+		</>
+	);
+};
+
+export default Recaptcha;
