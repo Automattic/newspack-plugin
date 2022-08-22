@@ -202,7 +202,7 @@ export function getAuthStrategy() {
 /**
  * Get a captcha token based on user input
  */
-export async function getCaptchaToken( action = 'submit' ) {
+export function getCaptchaToken( action = 'submit' ) {
 	return new Promise( ( res, rej ) => {
 		const { grecaptcha, newspack_reader_activation_data } = window;
 		if ( ! grecaptcha || ! newspack_reader_activation_data ) {
@@ -214,13 +214,11 @@ export async function getCaptchaToken( action = 'submit' ) {
 			rej( 'Error loading the reCaptcha library.' );
 		}
 
-		grecaptcha.ready( async () => {
-			try {
-				const token = await grecaptcha.execute( captchaSiteKey, { action } );
-				return res( token );
-			} catch ( e ) {
-				rej( e );
-			}
+		grecaptcha.ready( () => {
+			grecaptcha
+				.execute( captchaSiteKey, { action } )
+				.then( token => res( token ) )
+				.catch( e => rej( e ) );
 		} );
 	} );
 }
