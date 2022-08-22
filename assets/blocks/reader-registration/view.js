@@ -38,7 +38,9 @@ function domReady( callback ) {
 
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'input[type="submit"]' );
-			let successElement = container.querySelector( '.newspack-registration__success' );
+			let successElement = container.querySelector(
+				'.newspack-registration__registration-success'
+			);
 
 			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
 				if ( authenticated ) {
@@ -57,7 +59,7 @@ function domReady( callback ) {
 				let messageNode;
 
 				if ( data?.existing_user ) {
-					successElement = document.querySelector( '.newspack-login__success' );
+					successElement = container.querySelector( '.newspack-registration__login-success' );
 				}
 
 				if ( message ) {
