@@ -172,17 +172,19 @@ function render_block( $attrs, $content ) {
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
 							</div>
+							<div class="newspack-registration__have-account">
+								<p>
+									<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
+									<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
+										<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
+									</a>
+								</p>
+							</div>
 						</div>
 
 						<div class="newspack-registration__help-text">
 							<p>
 								<?php echo \wp_kses_post( $attrs['privacyLabel'] ); ?>
-							</p>
-							<p>
-								<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
-								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
-									<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
-								</a>
 							</p>
 						</div>
 					</div>
