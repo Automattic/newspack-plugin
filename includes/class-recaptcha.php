@@ -13,10 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * Class for reCAPTCHA integration.
  */
 final class Recaptcha {
-	const SCRIPT_HANDLE           = 'newspack-recaptcha';
-	const THRESHOLD               = 0.5;
-	const RECAPTCHA_API_NAMESPACE = 'newspack/v1';
-	const OPTIONS_PREFIX          = 'newspack_recaptcha_';
+	const SCRIPT_HANDLE  = 'newspack-recaptcha';
+	const THRESHOLD      = 0.5;
+	const OPTIONS_PREFIX = 'newspack_recaptcha_';
 
 	/**
 	 * Initialize hooks.
@@ -31,7 +30,7 @@ final class Recaptcha {
 	 */
 	public static function register_api_endpoints() {
 		\register_rest_route(
-			self::RECAPTCHA_API_NAMESPACE,
+			NEWSPACK_API_NAMESPACE,
 			'/recaptcha',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -41,7 +40,7 @@ final class Recaptcha {
 		);
 
 		\register_rest_route(
-			self::RECAPTCHA_API_NAMESPACE,
+			NEWSPACK_API_NAMESPACE,
 			'/recaptcha',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
