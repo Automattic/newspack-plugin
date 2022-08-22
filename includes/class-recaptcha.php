@@ -13,8 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * Class for reCAPTCHA integration.
  */
 final class Recaptcha {
-	const RECAPTCHA_SCRIPT_HANDLE = 'newspack-recaptcha';
-	const RECAPTCHA_THRESHOLD     = 0.5;
+	const SCRIPT_HANDLE           = 'newspack-recaptcha';
+	const THRESHOLD               = 0.5;
 	const RECAPTCHA_API_NAMESPACE = 'newspack/v1';
 	const OPTIONS_PREFIX          = 'newspack_recaptcha_';
 
@@ -74,14 +74,14 @@ final class Recaptcha {
 
 			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			\wp_register_script(
-				self::RECAPTCHA_SCRIPT_HANDLE,
+				self::SCRIPT_HANDLE,
 				\esc_url( 'https://www.google.com/recaptcha/api.js?render=' . $captcha_site_key ),
 				null,
 				null,
 				true
 			);
-			\wp_script_add_data( self::RECAPTCHA_SCRIPT_HANDLE, 'async', true );
-			\wp_script_add_data( self::RECAPTCHA_SCRIPT_HANDLE, 'amp-plus', true );
+			\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
+			\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 		}
 	}
 
@@ -277,7 +277,7 @@ final class Recaptcha {
 		// If the reCaptcha verification score is below our threshold for valid user input.
 		if (
 			isset( $captcha_verify['score'] ) &&
-			self::RECAPTCHA_THRESHOLD > floatval( $captcha_verify['score'] )
+			self::THRESHOLD > floatval( $captcha_verify['score'] )
 		) {
 			return new \WP_Error(
 				'newspack_recaptcha_failure',
