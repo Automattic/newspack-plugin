@@ -127,23 +127,34 @@ function render_block( $attrs, $content ) {
 	if ( isset( $_GET['newspack_reader'] ) && isset( $_GET['message'] ) ) {
 		$message = \sanitize_text_field( $_GET['message'] );
 	}
-
-	$success_markup = $content;
-	if ( empty( wp_strip_all_tags( $content ) ) ) {
-		$success_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
-	}
 	// phpcs:enable
+
+	$success_registration_markup = $content;
+	if ( ! empty( \wp_strip_all_tags( $content ) ) ) {
+		$success_registration_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
+	}
+
+	$success_login_markup = $attrs['signedInLabel'];
+	if ( ! empty( \wp_strip_all_tags( $attrs['signedInLabel'] ) ) ) {
+		$success_login_markup = '<p class="has-text-align-center">' . $attrs['signedInLabel'] . '</p>';
+	}
 
 	ob_start();
 	?>
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
-			<div class="newspack-registration__success">
+			<div class="newspack-registration__registration-success">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_markup ); ?>
+				<?php echo \wp_kses_post( $success_registration_markup ); ?>
 			</div>
 		<?php else : ?>
 			<form>
+				<?php if ( ! empty( $attrs['title'] ) ) : ?>
+					<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>
+				<?php endif; ?>
+				<?php if ( ! empty( $attrs['description'] ) ) : ?>
+					<p class="newspack-registration__description"><?php echo \wp_kses_post( $attrs['description'] ); ?></p>
+				<?php endif; ?>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<div class="newspack-registration__form-content">
 					<?php
@@ -190,13 +201,13 @@ function render_block( $attrs, $content ) {
 					</div>
 				</div>
 			</form>
-			<div class="newspack-registration__success newspack-registration--hidden">
+			<div class="newspack-registration__registration-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_markup ); ?>
+				<?php echo \wp_kses_post( $success_registration_markup ); ?>
 			</div>
-			<div class="newspack-login__success newspack-registration--hidden">
+			<div class="newspack-registration__login-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<p class="has-text-align-center"><?php echo \wp_kses_post( $attrs['signedInLabel'] ); ?></p>
+				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
 		<?php endif; ?>
 	</div>

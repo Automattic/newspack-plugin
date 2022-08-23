@@ -40,6 +40,8 @@ const editedStateOptions = [
 export default function ReaderRegistrationEdit( {
 	setAttributes,
 	attributes: {
+		title,
+		description,
 		placeholder,
 		label,
 		privacyLabel,
@@ -191,6 +193,18 @@ export default function ReaderRegistrationEdit( {
 				{ editedState === 'initial' && (
 					<div className={ `newspack-registration ${ className }` }>
 						<form onSubmit={ ev => ev.preventDefault() }>
+							<RichText
+								onChange={ value => setAttributes( { title: value } ) }
+								placeholder={ __( 'Block title…', 'newspack' ) }
+								value={ title }
+								tagName="h2"
+							/>
+							<RichText
+								onChange={ value => setAttributes( { description: value } ) }
+								placeholder={ __( 'Block description…', 'newspack' ) }
+								value={ description }
+								tagName="p"
+							/>
 							<div className="newspack-registration__form-content">
 								{ newsletterSubscription && lists.length ? (
 									<div className="newspack-reader__lists">
