@@ -67,6 +67,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
+			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_email_from' ] );
 		}
 	}
 
@@ -1318,6 +1319,23 @@ final class Reader_Activation {
 	 */
 	public static function get_from_name() {
 		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
+	}
+
+	/**
+	 * Filters args sent to wp_mail when a password change email is sent.
+	 *
+	 * @param array $args The default notification email arguments. Used to build wp_mail().
+	 *
+	 * @return array The filtered $args.
+	 */
+	public static function password_reset_email_from( $args ) {
+		$args['headers'] = sprintf(
+			'From: %1$s <%2$s>',
+			self::get_from_name(),
+			self::get_from_email()
+		);
+
+		return $args;
 	}
 }
 Reader_Activation::init();
