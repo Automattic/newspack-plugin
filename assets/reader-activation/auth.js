@@ -67,9 +67,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			);
 		const displayCurrentlyOpenOverlayPrompts = () => {
 			const reader = readerActivation.getReader();
-			const authenticatedFromPrompt = reader?.authenticated && overlayPromptOrigin;
+			const loginFromPrompt = reader?.email && overlayPromptOrigin;
 			currentlyOpenOverlayPrompts.forEach( promptElement => {
-				if ( authenticatedFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
+				if ( loginFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
 					promptElement.setAttribute( 'amp-access-hide', '' );
 				} else {
 					promptElement.removeAttribute( 'amp-access-hide' );
