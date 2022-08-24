@@ -1,8 +1,9 @@
 .newspack-wc-message {
-	position: relative;
-	padding: 1px 28px;
-	border-radius: 5px;
 	border: 1px solid var( --newspack-primary-color );
+	border-radius: 5px;
+	margin-bottom: 28px;
+	padding: 1px 28px;
+	position: relative;
 	&::before {
 		content: '';
 		width: 100%;
