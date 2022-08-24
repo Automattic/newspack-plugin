@@ -396,6 +396,14 @@ class Stripe_Connection {
 
 		$payload = $request['data']['object'];
 
+		// If order_id is set in the metadata, this was not created by this integration.
+		// This can happen when WC Subscriptions w/ Stripe Gateway was active before using this integration.
+		// In such a situation, WCS continues to charge subscribers, but since the platform is set to this integration,
+		// the webhook will still be exectuted for these payments, resulting in duplicate WC orders.
+		if ( isset( $payload['metadata']['order_id'] ) ) {
+			return;
+		}
+
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
 				$payment           = $payload;
