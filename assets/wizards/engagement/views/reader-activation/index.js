@@ -17,6 +17,7 @@ import {
 	SectionHeader,
 	TextControl,
 	withWizardScreen,
+	ActionCard,
 } from '../../../../components/src';
 import ActiveCampaign from './active-campaign';
 
@@ -79,6 +80,8 @@ export default withWizardScreen( () => {
 		return props;
 	};
 
+	const emails = Object.values( config.emails || {} );
+
 	return (
 		<>
 			{ error && (
@@ -119,6 +122,26 @@ export default withWizardScreen( () => {
 					/>
 				</Grid>
 				<hr />
+				{ emails?.length > 0 && (
+					<>
+						<SectionHeader
+							title={ __( 'Emails', 'newspack' ) }
+							description={ __( 'Customize emails sent to readers.', 'newspack' ) }
+						/>
+						{ emails.map( email => (
+							<ActionCard
+								key={ email.post_id }
+								title={ email.label }
+								titleLink={ email.edit_link }
+								href={ email.edit_link }
+								description={ email.description }
+								actionText={ __( 'Edit', 'newspack' ) }
+							/>
+						) ) }
+						<hr />
+					</>
+				) }
+
 				<SectionHeader
 					title={ __( 'Email Service Provider Settings', 'newspack' ) }
 					description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }

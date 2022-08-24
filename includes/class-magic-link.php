@@ -28,8 +28,6 @@ final class Magic_Link {
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
 	const COOKIE             = 'np_auth_link';
 
-	const MAGIC_LINK_PLACEHOLDER = '%MAGIC_LINK_URL%';
-
 	/**
 	 * Current session secret.
 	 *
@@ -291,7 +289,7 @@ final class Magic_Link {
 	 *
 	 * @return string|\WP_Error Magic link url or WP_Error if token generation failed.
 	 */
-	private static function generate_url( $user, $url = '' ) {
+	public static function generate_url( $user, $url = '' ) {
 		$token_data = self::generate_token( $user );
 
 		if ( \is_wp_error( $token_data ) ) {
@@ -350,13 +348,7 @@ final class Magic_Link {
 			$message .= __( 'Log into your account by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
 		}
 
-		// If the message contains a magic link placeholder, populate the magic link there.
-		if ( false !== strpos( $message, self::MAGIC_LINK_PLACEHOLDER ) ) {
-			$message = str_replace( self::MAGIC_LINK_PLACEHOLDER, $magic_link_url, $message );
-		} else {
-			// Otherwise, append it to the end of the message.
-			$message .= $magic_link_url . "\r\n";
-		}
+		$message .= $magic_link_url . "\r\n";
 
 		$email = [
 			'to'      => $user->user_email,

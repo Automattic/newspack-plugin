@@ -192,6 +192,9 @@ class Emails {
 		if ( ! self::supports_emails() ) {
 			return false;
 		}
+
+		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
+
 		if ( 'string' === gettype( $type_or_post_id ) ) {
 			$email_config = self::get_email_config_by_type( $type_or_post_id );
 		} elseif ( 'integer' === gettype( $type_or_post_id ) ) {
@@ -218,6 +221,7 @@ class Emails {
 		$email_content_type = function() {
 			return 'text/html';
 		};
+
 		add_filter( 'wp_mail_content_type', $email_content_type );
 		$email_send_result = wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 			$to,
@@ -228,6 +232,11 @@ class Emails {
 			]
 		);
 		remove_filter( 'wp_mail_content_type', $email_content_type );
+
+		if ( $switched_locale ) {
+			\restore_previous_locale();
+		}
+
 		return $email_send_result;
 	}
 
@@ -288,6 +297,7 @@ class Emails {
 		if ( ! self::supports_emails() ) {
 			return false;
 		}
+
 		if ( null !== $type ) {
 			$configs = self::get_email_configs();
 			if ( ! isset( $configs[ $type ] ) ) {
@@ -316,6 +326,7 @@ class Emails {
 			'status'       => get_post_status( $post_id ),
 			'html_payload' => $html_payload,
 		];
+
 		return $serialized_email;
 	}
 
@@ -362,8 +373,9 @@ class Emails {
 	 * Get the emails per-purpose.
 	 *
 	 * @param string[] $config_names Configuration names of the emails.
+	 * @param bool     $get_full_configs Whether to get the full configs or just the minimum amount of data.
 	 */
-	public static function get_emails( $config_names = [] ) {
+	public static function get_emails( $config_names = [], $get_full_configs = true ) {
 		$emails = [];
 		if ( ! self::supports_emails() ) {
 			return $emails;
@@ -375,6 +387,9 @@ class Emails {
 			}
 			$found_config = self::get_email_config_by_type( $type );
 			if ( $found_config ) {
+				if ( false == $get_full_configs ) {
+					unset( $found_config['html_payload'] );
+				}
 				$emails[ $type ] = $found_config;
 			}
 		}
