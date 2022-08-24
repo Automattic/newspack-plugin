@@ -244,8 +244,8 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			add_query_arg(
 				[
-					'message'  => $is_error ? __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack' ) : __( 'Something went wrong.', 'newspack' ),
-					'is_error' => $is_error,
+					'message'  => $sent ? __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack' ) : __( 'Something went wrong.', 'newspack' ),
+					'is_error' => ! $sent,
 				],
 				remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM )
 			)
