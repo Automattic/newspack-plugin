@@ -296,34 +296,52 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			/**
 			 * Handle auth form submission.
 			 */
-			form.addEventListener( 'submit', function ( ev ) {
+			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				const body = new FormData( ev.target );
-				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-					return;
-				}
-				readerActivation.setReaderEmail( body.get( 'npe' ) );
-				form.startLoginFlow();
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						container.setAttribute( 'data-form-status', res.status );
-						res
-							.json()
-							.then( ( { message, data } ) => {
-								form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+
+				readerActivation
+					.getCaptchaToken()
+					.then( captchaToken => {
+						if ( ! captchaToken ) {
+							return;
+						}
+						const tokenField = document.createElement( 'input' );
+						tokenField.setAttribute( 'type', 'hidden' );
+						tokenField.setAttribute( 'name', 'captcha_token' );
+						tokenField.value = captchaToken;
+						form.appendChild( tokenField );
+					} )
+					.catch( e => {
+						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( ev.target );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return;
+						}
+						readerActivation.setReaderEmail( body.get( 'npe' ) );
+						form.startLoginFlow();
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( res => {
+								container.setAttribute( 'data-form-status', res.status );
+								res
+									.json()
+									.then( ( { message, data } ) => {
+										form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+									} )
+									.catch( () => {
+										form.endLoginFlow();
+									} );
 							} )
 							.catch( () => {
 								form.endLoginFlow();
 							} );
-					} )
-					.catch( () => {
-						form.endLoginFlow();
 					} );
 			} );
 		} );

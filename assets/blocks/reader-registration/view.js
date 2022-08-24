@@ -93,25 +93,43 @@ function domReady( callback ) {
 
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				const body = new FormData( form );
-				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-					return;
-				}
-				form.startLoginFlow();
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						res
-							.json()
-							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+
+				readerActivation
+					.getCaptchaToken()
+					.then( captchaToken => {
+						if ( ! captchaToken ) {
+							return;
+						}
+						const tokenField = document.createElement( 'input' );
+						tokenField.setAttribute( 'type', 'hidden' );
+						tokenField.setAttribute( 'name', 'captcha_token' );
+						tokenField.value = captchaToken;
+						form.appendChild( tokenField );
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( form );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return;
+						}
+						form.startLoginFlow();
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( res => {
+								res
+									.json()
+									.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+							} )
+							.catch( e => {
+								form.endLoginFlow( e, 400 );
+							} );
 					} );
 			} );
 		} );

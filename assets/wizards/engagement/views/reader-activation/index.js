@@ -10,10 +10,10 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import {
-	Notice,
-	Grid,
-	Card,
 	Button,
+	Card,
+	Grid,
+	Notice,
 	SectionHeader,
 	TextControl,
 	withWizardScreen,

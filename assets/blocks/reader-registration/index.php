@@ -9,6 +9,7 @@ namespace Newspack\Blocks\ReaderRegistration;
 
 use Newspack;
 use Newspack\Reader_Activation;
+use Newspack\Recaptcha;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -290,6 +291,15 @@ function process_form() {
 				'existing_user' => false,
 			]
 		);
+	}
+
+	// reCAPTCHA test.
+	if ( Recaptcha::can_use_captcha() ) {
+		$captcha_token  = isset( $_REQUEST['captcha_token'] ) ? \sanitize_text_field( $_REQUEST['captcha_token'] ) : '';
+		$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		if ( \is_wp_error( $captcha_result ) ) {
+			return send_form_response( $captcha_result );
+		}
 	}
 
 	// Note that that the "true" email address field is called `npe` due to the honeypot strategy.

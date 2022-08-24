@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Recaptcha;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -72,25 +74,33 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		\wp_register_script(
-			self::SCRIPT_HANDLE,
-			Newspack::plugin_url() . '/dist/reader-activation.js',
-			[],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
 		$authenticated_email = '';
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
 			$authenticated_email = \wp_get_current_user()->user_email;
 		}
+		$script_dependencies = [];
+		$script_data         = [
+			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+			'authenticated_email'   => $authenticated_email,
+		];
+
+		if ( Recaptcha::can_use_captcha() ) {
+			$script_dependencies[]           = Recaptcha::SCRIPT_HANDLE;
+			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
+		}
+
+		\wp_register_script(
+			self::SCRIPT_HANDLE,
+			Newspack::plugin_url() . '/dist/reader-activation.js',
+			$script_dependencies,
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 		\wp_localize_script(
 			self::SCRIPT_HANDLE,
 			'newspack_reader_activation_data',
-			[
-				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
-				'authenticated_email'   => $authenticated_email,
-			]
+			$script_data
 		);
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
@@ -153,6 +163,7 @@ final class Reader_Activation {
 		foreach ( $config as $key => $default_value ) {
 			$settings[ $key ] = self::get_setting( $key );
 		}
+
 		return $settings;
 	}
 
@@ -962,12 +973,13 @@ final class Reader_Activation {
 		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) ) {
 			return;
 		}
-		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
-		$email    = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
-		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
-		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
-		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
-		$honeypot = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
+		$action        = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
+		$email         = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
+		$password      = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
+		$redirect      = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
+		$lists         = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
+		$honeypot      = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
+		$captcha_token = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
 		// phpcs:enable
 
 		// Honeypot trap.
@@ -978,6 +990,14 @@ final class Reader_Activation {
 					'authenticated' => 1,
 				]
 			);
+		}
+
+		// reCAPTCHA test.
+		if ( Recaptcha::can_use_captcha() ) {
+			$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+			if ( \is_wp_error( $captcha_result ) ) {
+				return self::send_auth_form_response( $captcha_result );
+			}
 		}
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
