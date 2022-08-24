@@ -403,6 +403,7 @@ class Stripe_Connection {
 				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
 				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
+				$origin            = isset( $customer['metadata']['origin'] ) ? $customer['metadata']['origin'] : null;
 
 				$referer = '';
 				if ( isset( $metadata['referer'] ) ) {
@@ -501,12 +502,17 @@ class Stripe_Connection {
 					do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
 				}
 
+				$label = $frequency;
+				if ( ! empty( $origin ) ) {
+					$label .= ' - ' . $origin;
+				}
+
 				// Send custom event to GA.
 				\Newspack\Google_Services_Connection::send_custom_event(
 					[
 						'category' => __( 'Newspack Donation', 'newspack' ),
 						'action'   => __( 'Stripe', 'newspack' ),
-						'label'    => $frequency,
+						'label'    => $label,
 						'value'    => $amount_normalised,
 						'referer'  => $referer,
 					]
