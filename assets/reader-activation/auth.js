@@ -60,14 +60,22 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		}
 
 		let currentlyOpenOverlayPrompts = [];
+		let overlayPromptOrigin = null;
 		const hideCurrentlyOpenOverlayPrompts = () =>
 			currentlyOpenOverlayPrompts.forEach( promptElement =>
 				promptElement.setAttribute( 'amp-access-hide', '' )
 			);
-		const displayCurrentlyOpenOverlayPrompts = () =>
-			currentlyOpenOverlayPrompts.forEach( promptElement =>
-				promptElement.removeAttribute( 'amp-access-hide' )
-			);
+		const displayCurrentlyOpenOverlayPrompts = () => {
+			const reader = readerActivation.getReader();
+			const loginFromPrompt = reader?.email && overlayPromptOrigin;
+			currentlyOpenOverlayPrompts.forEach( promptElement => {
+				if ( loginFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
+					promptElement.setAttribute( 'amp-access-hide', '' );
+				} else {
+					promptElement.removeAttribute( 'amp-access-hide' );
+				}
+			} );
+		};
 
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
@@ -178,6 +186,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			currentlyOpenOverlayPrompts = document.querySelectorAll(
 				'.newspack-lightbox:not([amp-access-hide])'
 			);
+			overlayPromptOrigin = ev.currentTarget.closest( '.newspack-lightbox' );
+
 			hideCurrentlyOpenOverlayPrompts();
 
 			if ( passwordInput && emailInput?.value && 'pwd' === actionInput?.value ) {
