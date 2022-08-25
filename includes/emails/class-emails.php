@@ -205,12 +205,25 @@ class Emails {
 		if ( ! $to || ! $email_config || 'publish' !== $email_config['status'] ) {
 			return false;
 		}
-		$html           = $email_config['html_payload'];
-		$from_email     = $email_config['from_email'];
-		$placeholders[] = [
-			'template' => '*CONTACT_EMAIL*',
-			'value'    => sprintf( '<a href="mailto:%s">%s</a>', $from_email, $from_email ),
-		];
+		$html         = $email_config['html_payload'];
+		$from_email   = $email_config['from_email'];
+		$placeholders = array_merge(
+			[
+				[
+					'template' => '*CONTACT_EMAIL*',
+					'value'    => sprintf( '<a href="mailto:%s">%s</a>', $from_email, $from_email ),
+				],
+				[
+					'template' => '*SITE_URL*',
+					'value'    => get_site_url(),
+				],
+				[
+					'template' => '*SITE_LOGO*',
+					'value'    => esc_url( wp_get_attachment_url( get_theme_mod( 'custom_logo' ) ) ),
+				],
+			],
+			$placeholders
+		);
 		foreach ( $placeholders as $value ) {
 			$html = str_replace(
 				$value['template'],
