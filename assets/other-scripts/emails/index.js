@@ -106,14 +106,26 @@ const ReaderRevenueEmailSidebar = compose( [
 				/>
 				<TextControl
 					label={ __( '"From" name', 'newspack' ) }
-					value={ postMeta.from_name }
+					value={ config.from_name || postMeta.from_name }
 					onChange={ updatePostMeta( 'from_name' ) }
+					disabled={ config.from_name }
+					help={
+						config.from_name
+							? __( '"From" name is not editable because of the email configuration.', 'newspack' )
+							: undefined
+					}
 				/>
 				<TextControl
 					label={ __( '"From" email address', 'newspack' ) }
-					value={ postMeta.from_email }
+					value={ config.from_email || postMeta.from_email }
 					type="email"
 					onChange={ updatePostMeta( 'from_email' ) }
+					disabled={ config.from_email }
+					help={
+						config.from_email
+							? __( '"From" email is not editable because of the email configuration.', 'newspack' )
+							: undefined
+					}
 				/>
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack' ) }>

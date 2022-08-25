@@ -334,8 +334,8 @@ class Emails {
 			// Make the edit link relative.
 			'edit_link'    => str_replace( site_url(), '', get_edit_post_link( $post_id, '' ) ),
 			'subject'      => get_the_title( $post_id ),
-			'from_name'    => get_post_meta( $post_id, 'from_name', true ),
-			'from_email'   => get_post_meta( $post_id, 'from_email', true ),
+			'from_name'    => isset( $email_config['from_name'] ) ? $email_config['from_name'] : get_post_meta( $post_id, 'from_name', true ),
+			'from_email'   => isset( $email_config['from_email'] ) ? $email_config['from_email'] : get_post_meta( $post_id, 'from_email', true ),
 			'status'       => get_post_status( $post_id ),
 			'html_payload' => $html_payload,
 		];
