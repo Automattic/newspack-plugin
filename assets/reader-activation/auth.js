@@ -308,6 +308,15 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			 */
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
+				form.startLoginFlow();
+
+				if ( ! form.npe?.value ) {
+					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
+				}
+
+				if ( 'pwd' === actionInput?.value && ! form.password?.value ) {
+					return form.endLoginFlow( 'Please enter a password.', 400 );
+				}
 
 				readerActivation
 					.getCaptchaToken()
@@ -315,11 +324,14 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						if ( ! captchaToken ) {
 							return;
 						}
-						const tokenField = document.createElement( 'input' );
-						tokenField.setAttribute( 'type', 'hidden' );
-						tokenField.setAttribute( 'name', 'captcha_token' );
+						let tokenField = form.captcha_token;
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'captcha_token' );
+							form.appendChild( tokenField );
+						}
 						tokenField.value = captchaToken;
-						form.appendChild( tokenField );
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );
@@ -330,7 +342,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							return;
 						}
 						readerActivation.setReaderEmail( body.get( 'npe' ) );
-						form.startLoginFlow();
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 							method: 'POST',
 							headers: {

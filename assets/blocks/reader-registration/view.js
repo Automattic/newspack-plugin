@@ -93,6 +93,11 @@ function domReady( callback ) {
 
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
+				form.startLoginFlow();
+
+				if ( ! form.npe?.value ) {
+					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
+				}
 
 				readerActivation
 					.getCaptchaToken()
@@ -100,11 +105,14 @@ function domReady( callback ) {
 						if ( ! captchaToken ) {
 							return;
 						}
-						const tokenField = document.createElement( 'input' );
-						tokenField.setAttribute( 'type', 'hidden' );
-						tokenField.setAttribute( 'name', 'captcha_token' );
+						let tokenField = form.captcha_token;
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'captcha_token' );
+							form.appendChild( tokenField );
+						}
 						tokenField.value = captchaToken;
-						form.appendChild( tokenField );
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );
@@ -114,7 +122,6 @@ function domReady( callback ) {
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 							return;
 						}
-						form.startLoginFlow();
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 							method: 'POST',
 							headers: {
