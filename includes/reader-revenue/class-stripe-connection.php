@@ -332,7 +332,7 @@ class Stripe_Connection {
 		];
 
 		Emails::send_email(
-			'receipt',
+			Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'],
 			$customer['email'],
 			$placeholders
 		);
@@ -960,7 +960,7 @@ class Stripe_Connection {
 						'metadata' => $payment_metadata,
 					]
 				);
-				if ( ! Emails::can_send_email( 'receipt' ) ) {
+				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
 					$intent['receipt_email'] = $email_address;
 				}
@@ -1102,7 +1102,7 @@ class Stripe_Connection {
 	 * @param bool $is_enabled True if enabled.
 	 */
 	public static function is_wc_complete_order_email_enabled( $is_enabled ) {
-		if ( Donations::is_platform_stripe() && Emails::can_send_email( 'receipt' ) ) {
+		if ( Donations::is_platform_stripe() && Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 			$is_enabled = false;
 		}
 		return $is_enabled;
