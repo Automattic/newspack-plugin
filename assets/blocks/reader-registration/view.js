@@ -120,7 +120,7 @@ function domReady( callback ) {
 					.finally( () => {
 						const body = new FormData( form );
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-							return;
+							return form.endFlow( 'Please enter a vaild email address.', 400 );
 						}
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 							method: 'POST',

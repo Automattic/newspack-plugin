@@ -201,6 +201,15 @@
 			gap: 0.5em;
 			justify-content: space-between;
 			margin: 0 0 1em;
+			padding-right: 40px;
+
+			.newspack-reader__auth-form__inline & {
+				padding-right: 0;
+			}
+
+			@media screen and ( min-width: 600px ) {
+				padding-right: 0;
+			}
 
 			h2 {
 				font-size: 1em;

@@ -339,7 +339,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					.finally( () => {
 						const body = new FormData( ev.target );
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-							return;
+							return form.endFlow( 'Please enter a vaild email address.', 400 );
 						}
 						readerActivation.setReaderEmail( body.get( 'npe' ) );
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
