@@ -36,19 +36,19 @@ class WooCommerce_My_Account {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
-		add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
-		add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
-		add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
-		add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account_request' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
-		add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
-		add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
+		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
+		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
+		\add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
+		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		\add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account_request' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
+		\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
+		\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 	}
 
 	/**
@@ -96,7 +96,7 @@ class WooCommerce_My_Account {
 		}
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$wc_non_newspack_orders = array_filter(
-				wc_get_orders( [ 'customer' => get_current_user_id() ] ),
+				\wc_get_orders( [ 'customer' => \get_current_user_id() ] ),
 				function ( $order ) {
 					return WooCommerce_Connection::CREATED_VIA_NAME !== $order->get_created_via();
 				}
@@ -105,7 +105,7 @@ class WooCommerce_My_Account {
 				$default_disabled_items = array_merge( $default_disabled_items, [ 'orders', 'payment-methods' ] );
 			}
 		}
-		$disabled_wc_menu_items = apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
+		$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
 		foreach ( $disabled_wc_menu_items as $key ) {
 			if ( isset( $items[ $key ] ) ) {
 				unset( $items[ $key ] );
@@ -124,7 +124,7 @@ class WooCommerce_My_Account {
 	 * Handle password reset request.
 	 */
 	public static function handle_password_reset_request() {
-		if ( ! is_user_logged_in() ) {
+		if ( ! \is_user_logged_in() ) {
 			return;
 		}
 
@@ -134,10 +134,10 @@ class WooCommerce_My_Account {
 		}
 
 		$is_error = false;
-		if ( wp_verify_nonce( $nonce, self::RESET_PASSWORD_URL_PARAM ) ) {
-			$result  = retrieve_password( wp_get_current_user()->user_email );
+		if ( \wp_verify_nonce( $nonce, self::RESET_PASSWORD_URL_PARAM ) ) {
+			$result  = \retrieve_password( \wp_get_current_user()->user_email );
 			$message = __( 'Please check your email inbox for instructions on how to set a new password.', 'newspack' );
-			if ( is_wp_error( $result ) ) {
+			if ( \is_wp_error( $result ) ) {
 				Logger::log( 'Error resetting password: ' . $result->get_error_message() );
 				$message  = __( 'Something went wrong.', 'newspack' );
 				$is_error = true;
@@ -148,12 +148,12 @@ class WooCommerce_My_Account {
 		}
 
 		\wp_safe_redirect(
-			add_query_arg(
+			\add_query_arg(
 				[
 					'message'  => $message,
 					'is_error' => $is_error,
 				],
-				remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
+				\remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
 			)
 		);
 		exit;
@@ -242,12 +242,12 @@ class WooCommerce_My_Account {
 		}
 
 		\wp_safe_redirect(
-			add_query_arg(
+			\add_query_arg(
 				[
 					'message'  => $sent ? __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack' ) : __( 'Something went wrong.', 'newspack' ),
 					'is_error' => ! $sent,
 				],
-				remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM )
+				\remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM )
 			)
 		);
 		exit;
@@ -291,7 +291,7 @@ class WooCommerce_My_Account {
 		$token           = isset( $_POST['token'] ) ? \sanitize_text_field( $_POST['token'] ) : '';
 		$transient_token = \get_transient( 'np_reader_account_delete_' . $user_id );
 		if ( ! $token || ! $transient_token || $token !== $transient_token ) {
-			wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
+			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
 		}
 		\delete_transient( 'np_reader_account_delete_' . $user_id );
 
@@ -304,17 +304,17 @@ class WooCommerce_My_Account {
 	 * Handle magic link request.
 	 */
 	public static function handle_magic_link_request() {
-		if ( ! is_user_logged_in() ) {
+		if ( ! \is_user_logged_in() ) {
 			return;
 		}
 		$nonce = filter_input( INPUT_GET, self::SEND_MAGIC_LINK_PARAM, FILTER_SANITIZE_STRING );
 
 		if ( $nonce ) {
 			$is_error = false;
-			if ( wp_verify_nonce( $nonce, self::SEND_MAGIC_LINK_PARAM ) ) {
-				$result  = Reader_Activation::send_verification_email( wp_get_current_user() );
+			if ( \wp_verify_nonce( $nonce, self::SEND_MAGIC_LINK_PARAM ) ) {
+				$result  = Reader_Activation::send_verification_email( \wp_get_current_user() );
 				$message = __( 'Please check your email inbox for a link to verify your account.', 'newspack' );
-				if ( is_wp_error( $result ) ) {
+				if ( \is_wp_error( $result ) ) {
 					Logger::log( 'Error sending verification email: ' . $result->get_error_message() );
 					$message  = __( 'Something went wrong.', 'newspack' );
 					$is_error = true;
@@ -324,12 +324,12 @@ class WooCommerce_My_Account {
 				$is_error = true;
 			}
 			wp_safe_redirect(
-				add_query_arg(
+				\add_query_arg(
 					[
 						'message'  => $message,
 						'is_error' => $is_error,
 					],
-					remove_query_arg( self::SEND_MAGIC_LINK_PARAM )
+					\remove_query_arg( self::SEND_MAGIC_LINK_PARAM )
 				)
 			);
 			exit;
@@ -345,7 +345,7 @@ class WooCommerce_My_Account {
 			return true;
 		}
 		// Don't lock access if the user is not a reader.
-		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( wp_get_current_user(), true ) ) {
+		if ( \is_user_logged_in() && ! Reader_Activation::is_user_reader( \wp_get_current_user(), true ) ) {
 			return true;
 		}
 
@@ -358,11 +358,11 @@ class WooCommerce_My_Account {
 	public static function redirect_to_account_details() {
 		if ( Donations::is_platform_stripe() && function_exists( 'wc_get_page_permalink' ) ) {
 			global $wp;
-			$current_url               = home_url( $wp->request );
-			$my_account_page_permalink = wc_get_page_permalink( 'myaccount' );
-			$logout_url                = wc_get_account_endpoint_url( 'customer-logout' );
-			if ( trailingslashit( $current_url ) === trailingslashit( $my_account_page_permalink ) ) {
-				wp_safe_redirect( wc_get_account_endpoint_url( 'edit-account' ) );
+			$current_url               = \home_url( $wp->request );
+			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
+			$logout_url                = \wc_get_account_endpoint_url( 'customer-logout' );
+			if ( \trailingslashit( $current_url ) === \trailingslashit( $my_account_page_permalink ) ) {
+				\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
 				exit;
 			}
 		}
@@ -375,13 +375,13 @@ class WooCommerce_My_Account {
 		if ( self::$stripe_customer_id ) {
 			return self::$stripe_customer_id;
 		}
-		$user_id               = get_current_user_id();
-		$user_meta_customer_id = get_user_meta( $user_id, Stripe_Connection::STRIPE_CUSTOMER_ID_USER_META, true );
+		$user_id               = \get_current_user_id();
+		$user_meta_customer_id = \get_user_meta( $user_id, Stripe_Connection::STRIPE_CUSTOMER_ID_USER_META, true );
 		if ( $user_meta_customer_id ) {
 			self::$stripe_customer_id = $user_meta_customer_id;
 			return $user_meta_customer_id;
 		}
-		$customer_orders     = wc_get_orders(
+		$customer_orders     = \wc_get_orders(
 			[
 				'customer_id' => $user_id,
 				'created_via' => WooCommerce_Connection::CREATED_VIA_NAME,
@@ -400,7 +400,7 @@ class WooCommerce_My_Account {
 			self::$stripe_customer_id = false;
 		} else {
 			self::$stripe_customer_id = $stripe_customer_ids[0];
-			update_user_meta( $user_id, Stripe_Connection::STRIPE_CUSTOMER_ID_USER_META, self::$stripe_customer_id );
+			\update_user_meta( $user_id, Stripe_Connection::STRIPE_CUSTOMER_ID_USER_META, self::$stripe_customer_id );
 		}
 		return self::$stripe_customer_id;
 	}
@@ -412,9 +412,9 @@ class WooCommerce_My_Account {
 		$stripe_customer_id        = self::get_current_user_stripe_id();
 		$stripe_billing_portal_url = Stripe_Connection::get_billing_portal_url( $stripe_customer_id );
 		$error_message             = false;
-		if ( is_wp_error( $stripe_billing_portal_url ) ) {
+		if ( \is_wp_error( $stripe_billing_portal_url ) ) {
 			$error_message = $stripe_billing_portal_url->get_error_message();
-			Logger::log( 'Error getting Stripe billing portal URL: ' . wp_json_encode( $stripe_billing_portal_url ) );
+			Logger::log( 'Error getting Stripe billing portal URL: ' . \wp_json_encode( $stripe_billing_portal_url ) );
 		}
 
 		include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-billing.php';
@@ -427,11 +427,11 @@ class WooCommerce_My_Account {
 		if ( ! Donations::is_platform_stripe() ) {
 			return;
 		}
-		add_rewrite_endpoint( self::BILLING_ENDPOINT, EP_PAGES );
-		if ( ! get_option( '_newspack_has_set_up_custom_billing_endpoint' ) ) {
-			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
+		\add_rewrite_endpoint( self::BILLING_ENDPOINT, EP_PAGES );
+		if ( ! \get_option( '_newspack_has_set_up_custom_billing_endpoint' ) ) {
+			\flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 			Logger::log( 'Flushed rewrite rules to add billing endpoint' );
-			update_option( '_newspack_has_set_up_custom_billing_endpoint', true );
+			\update_option( '_newspack_has_set_up_custom_billing_endpoint', true );
 		}
 	}
 
@@ -490,7 +490,7 @@ class WooCommerce_My_Account {
 		) {
 			return;
 		}
-		$_POST['account_email'] = wp_get_current_user()->user_email;
+		$_POST['account_email'] = \wp_get_current_user()->user_email;
 	}
 }
 
