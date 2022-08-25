@@ -147,12 +147,15 @@ class WooCommerce_My_Account {
 			$is_error = true;
 		}
 
-		if ( $is_error ) {
-			\wc_add_notice( $message, 'error' );
-		} else {
-			\wc_add_notice( $message, 'success' );
-		}
-		wp_safe_redirect( remove_query_arg( self::RESET_PASSWORD_URL_PARAM ) );
+		\wp_safe_redirect(
+			add_query_arg(
+				[
+					'message'  => $message,
+					'is_error' => $is_error,
+				],
+				remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
+			)
+		);
 		exit;
 	}
 
@@ -238,13 +241,15 @@ class WooCommerce_My_Account {
 			\restore_previous_locale();
 		}
 
-		if ( $sent ) {
-			wc_add_notice( __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack' ), 'success' );
-		} else {
-			wc_add_notice( __( 'Something went wrong.', 'newspack' ), 'error' );
-		}
-
-		\wp_safe_redirect( \remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM ) );
+		\wp_safe_redirect(
+			add_query_arg(
+				[
+					'message'  => $sent ? __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack' ) : __( 'Something went wrong.', 'newspack' ),
+					'is_error' => ! $sent,
+				],
+				remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM )
+			)
+		);
 		exit;
 	}
 
