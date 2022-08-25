@@ -717,7 +717,7 @@ final class Reader_Activation {
 								<?php
 								self::render_subscription_lists_inputs(
 									$lists,
-									[],
+									array_keys( $lists ),
 									[
 										'single_label' => $newsletters_label,
 									]
