@@ -49,6 +49,8 @@ class WooCommerce_My_Account {
 		\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 		\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 		\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
+		\add_action( 'logout_redirect', [ __CLASS__, 'add_param_after_logout' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'show_message_after_logout' ] );
 	}
 
 	/**
@@ -356,7 +358,7 @@ class WooCommerce_My_Account {
 	 * Redirect to "Account details" if accessing "My Account" directly.
 	 */
 	public static function redirect_to_account_details() {
-		if ( Donations::is_platform_stripe() && function_exists( 'wc_get_page_permalink' ) ) {
+		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) ) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
 			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
@@ -491,6 +493,37 @@ class WooCommerce_My_Account {
 			return;
 		}
 		$_POST['account_email'] = \wp_get_current_user()->user_email;
+	}
+
+	/**
+	 * Append a logout param after a reader logs out from My Account.
+	 *
+	 * @param string $redirect_to The redirect destination URL.
+	 *
+	 * @return string The filtered destination URL.
+	 */
+	public static function add_param_after_logout( $redirect_to ) {
+		if ( ! function_exists( 'wc_get_page_permalink' ) ) {
+			return;
+		}
+
+		if ( \wc_get_page_permalink( 'myaccount' ) === $redirect_to ) {
+			$redirect_to = \add_query_arg(
+				[ 'logged_out' => 1 ],
+				$redirect_to
+			);
+		}
+
+		return $redirect_to;
+	}
+
+	/**
+	 * Show a logout success message to readers after logging out via My Account.
+	 */
+	public static function show_message_after_logout() {
+		if ( isset( $_GET['logged_out'] ) && function_exists( 'wc_add_notice' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			\wc_add_notice( __( 'You have successfully logged out.', 'newspack' ), 'success' );
+		}
 	}
 }
 

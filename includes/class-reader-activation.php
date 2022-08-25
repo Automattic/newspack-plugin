@@ -703,10 +703,26 @@ final class Reader_Activation {
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
 						<p data-action="pwd">
-							<?php \esc_html_e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+							<?php
+								echo wp_kses_post(
+									sprintf(
+										// Translators: %s is the link to sign in via magic link instead.
+										__( 'Sign in with a password below, or %s.', 'newspack' ),
+										'<a href="#" data-set-action="link">' . __( 'sign in using a link', 'newspack' ) . '</a>'
+									)
+								);
+							?>
 						</p>
 						<p data-action="link">
-							<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without a password.', 'newspack' ); ?>
+							<?php
+								echo wp_kses_post(
+									sprintf(
+										// Translators: %s is the link to sign in via password instead.
+										__( 'Get a link sent to your email to sign in instantly, or %s.', 'newspack' ),
+										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack' ) . '</a>'
+									)
+								);
+							?>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
@@ -751,7 +767,7 @@ final class Reader_Activation {
 							</div>
 							<div class="components-form__help">
 								<p class="small">
-									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
+									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with a link', 'newspack' ); ?></a>
 								</p>
 								<p class="small">
 									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
@@ -764,7 +780,7 @@ final class Reader_Activation {
 							</div>
 							<div class="components-form__help">
 								<p class="small">
-									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>.
+									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
 								</p>
 							</div>
 						</div>
