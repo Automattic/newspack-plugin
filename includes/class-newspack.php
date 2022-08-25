@@ -256,7 +256,12 @@ final class Newspack {
 	 * @param WP_Screen $current_screen Current WP_Screen object.
 	 */
 	public function wizard_redirect( $current_screen ) {
-		$post_type_mapping = [];
+		$post_type_mapping = [
+			Emails::POST_TYPE => [
+				'base' => 'edit',
+				'url'  => esc_url( admin_url( 'admin.php?page=newspack' ) ),
+			],
+		];
 
 		// Map custom post types to their wizard screen URLs.
 		if ( class_exists( '\Newspack_Popups' ) ) {
