@@ -396,6 +396,14 @@ class Stripe_Connection {
 
 		$payload = $request['data']['object'];
 
+		// If order_id is set in the metadata, this was not created by this integration.
+		// This can happen when WC Subscriptions w/ Stripe Gateway was active before using this integration.
+		// In such a situation, WCS continues to charge subscribers, but since the platform is set to this integration,
+		// the webhook will still be exectuted for these payments, resulting in duplicate WC orders.
+		if ( isset( $payload['metadata']['order_id'] ) ) {
+			return;
+		}
+
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
 				$payment           = $payload;
@@ -403,6 +411,7 @@ class Stripe_Connection {
 				$customer          = self::get_customer_by_id( $payment['customer'] );
 				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
 				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
+				$origin            = isset( $customer['metadata']['origin'] ) ? $customer['metadata']['origin'] : null;
 
 				$referer = '';
 				if ( isset( $metadata['referer'] ) ) {
@@ -501,12 +510,17 @@ class Stripe_Connection {
 					do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
 				}
 
+				$label = $frequency;
+				if ( ! empty( $origin ) ) {
+					$label .= ' - ' . $origin;
+				}
+
 				// Send custom event to GA.
 				\Newspack\Google_Services_Connection::send_custom_event(
 					[
 						'category' => __( 'Newspack Donation', 'newspack' ),
 						'action'   => __( 'Stripe', 'newspack' ),
-						'label'    => $frequency,
+						'label'    => $label,
 						'value'    => $amount_normalised,
 						'referer'  => $referer,
 					]
