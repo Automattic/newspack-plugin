@@ -9,6 +9,7 @@ namespace Newspack\Blocks\ReaderRegistration;
 
 use Newspack;
 use Newspack\Reader_Activation;
+use Newspack\Recaptcha;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -127,23 +128,34 @@ function render_block( $attrs, $content ) {
 	if ( isset( $_GET['newspack_reader'] ) && isset( $_GET['message'] ) ) {
 		$message = \sanitize_text_field( $_GET['message'] );
 	}
-
-	$success_markup = $content;
-	if ( empty( wp_strip_all_tags( $content ) ) ) {
-		$success_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
-	}
 	// phpcs:enable
+
+	$success_registration_markup = $content;
+	if ( ! empty( \wp_strip_all_tags( $content ) ) ) {
+		$success_registration_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
+	}
+
+	$success_login_markup = $attrs['signedInLabel'];
+	if ( ! empty( \wp_strip_all_tags( $attrs['signedInLabel'] ) ) ) {
+		$success_login_markup = '<p class="has-text-align-center">' . $attrs['signedInLabel'] . '</p>';
+	}
 
 	ob_start();
 	?>
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
-			<div class="newspack-registration__success">
+			<div class="newspack-registration__registration-success">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_markup ); ?>
+				<?php echo \wp_kses_post( $success_registration_markup ); ?>
 			</div>
 		<?php else : ?>
 			<form>
+				<?php if ( ! empty( $attrs['title'] ) ) : ?>
+					<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>
+				<?php endif; ?>
+				<?php if ( ! empty( $attrs['description'] ) ) : ?>
+					<p class="newspack-registration__description"><?php echo \wp_kses_post( $attrs['description'] ); ?></p>
+				<?php endif; ?>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<div class="newspack-registration__form-content">
 					<?php
@@ -162,7 +174,8 @@ function render_block( $attrs, $content ) {
 					<div class="newspack-registration__main">
 						<div>
 							<div class="newspack-registration__inputs">
-								<input type="email" name="email" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<input type="email" name="npe" autocomplete="email" placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>" />
+								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
 								<input type="submit" value="<?php echo \esc_attr( $attrs['label'] ); ?>" />
 							</div>
 							<?php Reader_Activation::render_third_party_auth(); ?>
@@ -171,29 +184,31 @@ function render_block( $attrs, $content ) {
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
 							</div>
+							<div class="newspack-registration__have-account">
+								<p>
+									<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
+									<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
+										<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
+									</a>
+								</p>
+							</div>
 						</div>
 
 						<div class="newspack-registration__help-text">
 							<p>
 								<?php echo \wp_kses_post( $attrs['privacyLabel'] ); ?>
 							</p>
-							<p>
-								<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
-								<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
-									<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
-								</a>
-							</p>
 						</div>
 					</div>
 				</div>
 			</form>
-			<div class="newspack-registration__success newspack-registration--hidden">
+			<div class="newspack-registration__registration-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_markup ); ?>
+				<?php echo \wp_kses_post( $success_registration_markup ); ?>
 			</div>
-			<div class="newspack-login__success newspack-registration--hidden">
+			<div class="newspack-registration__login-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<p class="has-text-align-center"><?php echo \wp_kses_post( $attrs['signedInLabel'] ); ?></p>
+				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
 		<?php endif; ?>
 	</div>
@@ -267,7 +282,30 @@ function process_form() {
 		return;
 	}
 
-	if ( ! isset( $_REQUEST['email'] ) || empty( $_REQUEST['email'] ) ) {
+	// Honeypot trap.
+	if ( ! empty( $_REQUEST['email'] ) ) {
+		return send_form_response(
+			[
+				'email'         => \sanitize_email( $_REQUEST['email'] ),
+				'authenticated' => true,
+				'existing_user' => false,
+			]
+		);
+	}
+
+	// reCAPTCHA test.
+	if ( Recaptcha::can_use_captcha() ) {
+		$captcha_token  = isset( $_REQUEST['captcha_token'] ) ? \sanitize_text_field( $_REQUEST['captcha_token'] ) : '';
+		$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		if ( \is_wp_error( $captcha_result ) ) {
+			return send_form_response( $captcha_result );
+		}
+	}
+
+	// Note that that the "true" email address field is called `npe` due to the honeypot strategy.
+	// The honeypot field is called `email` to hopefully capture bots that might be looking for such a field.
+	$email = isset( $_REQUEST['npe'] ) ? \sanitize_email( $_REQUEST['npe'] ) : '';
+	if ( empty( $email ) ) {
 		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
 	}
 
@@ -278,7 +316,6 @@ function process_form() {
 	}
 	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
 	$metadata['registration_method'] = 'registration-block';
-	$email                           = \sanitize_email( $_REQUEST['email'] );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 

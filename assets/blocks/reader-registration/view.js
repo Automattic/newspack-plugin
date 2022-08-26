@@ -38,7 +38,9 @@ function domReady( callback ) {
 
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'input[type="submit"]' );
-			let successElement = container.querySelector( '.newspack-registration__success' );
+			let successElement = container.querySelector(
+				'.newspack-registration__registration-success'
+			);
 
 			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
 				if ( authenticated ) {
@@ -47,16 +49,17 @@ function domReady( callback ) {
 			} );
 
 			form.startLoginFlow = () => {
+				messageElement.classList.add( 'newspack-registration--hidden' );
 				messageElement.innerHTML = '';
 				submitElement.disabled = true;
 				container.classList.add( 'newspack-registration--in-progress' );
 			};
 
-			form.endLoginFlow = ( message, status, data ) => {
+			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
 				let messageNode;
 
 				if ( data?.existing_user ) {
-					successElement = document.querySelector( '.newspack-login__success' );
+					successElement = container.querySelector( '.newspack-registration__login-success' );
 				}
 
 				if ( message ) {
@@ -82,6 +85,7 @@ function domReady( callback ) {
 					}
 				} else if ( messageNode ) {
 					messageElement.appendChild( messageNode );
+					messageElement.classList.remove( 'newspack-registration--hidden' );
 				}
 				submitElement.disabled = false;
 				container.classList.remove( 'newspack-registration--in-progress' );
@@ -89,24 +93,51 @@ function domReady( callback ) {
 
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				const body = new FormData( form );
-				if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
-					return;
-				}
 				form.startLoginFlow();
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						res
-							.json()
-							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+
+				if ( ! form.npe?.value ) {
+					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
+				}
+
+				readerActivation
+					.getCaptchaToken()
+					.then( captchaToken => {
+						if ( ! captchaToken ) {
+							return;
+						}
+						let tokenField = form.captcha_token;
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'captcha_token' );
+							form.appendChild( tokenField );
+						}
+						tokenField.value = captchaToken;
 					} )
-					.finally( form.endLoginFlow );
+					.catch( e => {
+						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( form );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return form.endFlow( 'Please enter a vaild email address.', 400 );
+						}
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( res => {
+								res
+									.json()
+									.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+							} )
+							.catch( e => {
+								form.endLoginFlow( e, 400 );
+							} );
+					} );
 			} );
 		} );
 	} );

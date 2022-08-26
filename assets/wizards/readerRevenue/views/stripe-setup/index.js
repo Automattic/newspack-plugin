@@ -4,7 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
@@ -99,74 +98,6 @@ export const StripeKeysSettings = () => {
 	);
 };
 
-export const StripeCaptchaSettings = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
-	const {
-		useCaptcha = false,
-		captchaSiteKey = '',
-		captchaSiteSecret = '',
-	} = wizardData.stripe_data || {};
-
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
-	const changeHandler = key => value =>
-		updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			path: [ 'stripe_data', key ],
-			value,
-		} );
-
-	return (
-		<Grid columns={ 1 } gutter={ 16 }>
-			<Grid columns={ 1 } gutter={ 16 }>
-				<p className="newspack-payment-setup-screen__api-keys-instruction">
-					{ __(
-						'Enabling reCaptcha for Stripe checkouts makes your site more secure.',
-						'newspack'
-					) }
-					{ ' – ' }
-					<ExternalLink href="https://www.google.com/recaptcha/admin/create">
-						{ __( 'get started' ) }
-					</ExternalLink>
-				</p>
-				<CheckboxControl
-					label={ __( 'Use reCaptcha v3 to secure Stripe checkout', 'newspack' ) }
-					checked={ useCaptcha }
-					onChange={ changeHandler( 'useCaptcha' ) }
-					help={ __(
-						'Without reCaptcha, your Stripe checkout process may be vulnerable to bot attacks and card testing.',
-						'newspack-blocks'
-					) }
-				/>
-			</Grid>
-			{ useCaptcha && ( ! captchaSiteKey || ! captchaSiteSecret ) && (
-				<Notice
-					noticeText={ __(
-						'You must enter a valid site key and secret to use reCaptcha.',
-						'newspack'
-					) }
-				/>
-			) }
-			<Grid noMargin rowGap={ 16 }>
-				{ useCaptcha && (
-					<>
-						<TextControl
-							value={ captchaSiteKey }
-							label={ __( 'Site Key', 'newspack' ) }
-							onChange={ changeHandler( 'captchaSiteKey' ) }
-						/>
-						<TextControl
-							type="password"
-							value={ captchaSiteSecret }
-							label={ __( 'Site Secret', 'newspack' ) }
-							onChange={ changeHandler( 'captchaSiteSecret' ) }
-						/>
-					</>
-				) }
-			</Grid>
-		</Grid>
-	);
-};
-
 const StripeSetup = () => {
 	const {
 		stripe_data: data = {},
@@ -177,13 +108,6 @@ const StripeSetup = () => {
 		errors = [],
 	} = Wizard.useWizardData( 'reader-revenue' );
 
-	const resetWebhooks = () => {
-		apiFetch( {
-			path: '/newspack/v1/stripe/reset-webhooks',
-		} ).then( () => {
-			window.location.reload();
-		} );
-	};
 	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
 
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
@@ -206,20 +130,7 @@ const StripeSetup = () => {
 		<>
 			{ errors.length > 0 &&
 				errors.map( ( error, index ) => (
-					<Notice
-						isError
-						key={ index }
-						noticeText={
-							<span>
-								{ error.message }{ ' ' }
-								{ error.code === 'newspack_plugin_stripe_webhooks' && (
-									<Button isLink onClick={ resetWebhooks }>
-										{ __( 'Reset webhooks', 'newspack' ) }
-									</Button>
-								) }
-							</span>
-						}
-					/>
+					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
 				) ) }
 			{ is_ssl === false && (
 				<Notice
@@ -264,23 +175,6 @@ const StripeSetup = () => {
 								onChange={ changeHandler( 'currency' ) }
 							/>
 						</Grid>
-					</SettingsCard>
-					<SettingsCard
-						title={ __( 'reCaptcha v3 Settings', 'newspack' ) }
-						columns={ 1 }
-						gutter={ 16 }
-						noBorder
-					>
-						{ data.can_use_stripe_platform === false && (
-							<Notice
-								isError
-								noticeText={ __(
-									'The Stripe platform will not work properly on this site.',
-									'newspack'
-								) }
-							/>
-						) }
-						<StripeCaptchaSettings />
 					</SettingsCard>
 					<SettingsCard
 						title={ __( 'Newsletters', 'newspack' ) }

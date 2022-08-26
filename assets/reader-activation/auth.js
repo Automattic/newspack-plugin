@@ -60,14 +60,22 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		}
 
 		let currentlyOpenOverlayPrompts = [];
+		let overlayPromptOrigin = null;
 		const hideCurrentlyOpenOverlayPrompts = () =>
 			currentlyOpenOverlayPrompts.forEach( promptElement =>
 				promptElement.setAttribute( 'amp-access-hide', '' )
 			);
-		const displayCurrentlyOpenOverlayPrompts = () =>
-			currentlyOpenOverlayPrompts.forEach( promptElement =>
-				promptElement.removeAttribute( 'amp-access-hide' )
-			);
+		const displayCurrentlyOpenOverlayPrompts = () => {
+			const reader = readerActivation.getReader();
+			const loginFromPrompt = reader?.email && overlayPromptOrigin;
+			currentlyOpenOverlayPrompts.forEach( promptElement => {
+				if ( loginFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
+					promptElement.setAttribute( 'amp-access-hide', '' );
+				} else {
+					promptElement.removeAttribute( 'amp-access-hide' );
+				}
+			} );
+		};
 
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
@@ -93,7 +101,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			allContainers.forEach( container => {
 				const form = container.querySelector( 'form' );
-				const emailInput = container.querySelector( 'input[name="email"]' );
+				const emailInput = container.querySelector( 'input[name="npe"]' );
 				const redirectInput = container.querySelector( 'input[name="redirect"]' );
 				const reader = readerActivation.getReader();
 
@@ -151,7 +159,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			ev.preventDefault();
 
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
-			const emailInput = container.querySelector( 'input[name="email"]' );
+			const emailInput = container.querySelector( 'input[name="npe"]' );
 			const redirectInput = container.querySelector( 'input[name="redirect"]' );
 			const passwordInput = container.querySelector( 'input[name="password"]' );
 			const actionInput = container.querySelector( 'input[name="action"]' );
@@ -178,6 +186,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			currentlyOpenOverlayPrompts = document.querySelectorAll(
 				'.newspack-lightbox:not([amp-access-hide])'
 			);
+			overlayPromptOrigin = ev.currentTarget.closest( '.newspack-lightbox' );
+
 			hideCurrentlyOpenOverlayPrompts();
 
 			if ( passwordInput && emailInput?.value && 'pwd' === actionInput?.value ) {
@@ -200,7 +210,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			}
 
 			const actionInput = form.querySelector( 'input[name="action"]' );
-			const emailInput = form.querySelector( 'input[name="email"]' );
+			const emailInput = form.querySelector( 'input[name="npe"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
@@ -296,34 +306,63 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			/**
 			 * Handle auth form submission.
 			 */
-			form.addEventListener( 'submit', function ( ev ) {
+			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				const body = new FormData( ev.target );
-				if ( ! body.has( 'email' ) || ! body.get( 'email' ) ) {
-					return;
-				}
-				readerActivation.setReaderEmail( body.get( 'email' ) );
 				form.startLoginFlow();
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						container.setAttribute( 'data-form-status', res.status );
-						res
-							.json()
-							.then( ( { message, data } ) => {
-								form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+
+				if ( ! form.npe?.value ) {
+					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
+				}
+
+				if ( 'pwd' === actionInput?.value && ! form.password?.value ) {
+					return form.endLoginFlow( 'Please enter a password.', 400 );
+				}
+
+				readerActivation
+					.getCaptchaToken()
+					.then( captchaToken => {
+						if ( ! captchaToken ) {
+							return;
+						}
+						let tokenField = form.captcha_token;
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'captcha_token' );
+							form.appendChild( tokenField );
+						}
+						tokenField.value = captchaToken;
+					} )
+					.catch( e => {
+						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( ev.target );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return form.endFlow( 'Please enter a vaild email address.', 400 );
+						}
+						readerActivation.setReaderEmail( body.get( 'npe' ) );
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( res => {
+								container.setAttribute( 'data-form-status', res.status );
+								res
+									.json()
+									.then( ( { message, data } ) => {
+										form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+									} )
+									.catch( () => {
+										form.endLoginFlow();
+									} );
 							} )
 							.catch( () => {
 								form.endLoginFlow();
 							} );
-					} )
-					.catch( () => {
-						form.endLoginFlow();
 					} );
 			} );
 		} );

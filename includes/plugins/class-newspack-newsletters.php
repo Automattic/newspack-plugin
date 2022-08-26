@@ -29,6 +29,8 @@ class Newspack_Newsletters {
 		'payment_page_utm'     => 'NP_Payment UTM: ',
 		'newsletter_selection' => 'NP_Newsletter Selection',
 		'membership_status'    => 'NP_Membership Status',
+		'sub_start_date'       => 'NP_Current Subscription Start Date',
+		'sub_end_date'         => 'NP_Current Subscription End Date',
 		'billing_cycle'        => 'NP_Billing Cycle',
 		'recurring_payment'    => 'NP_Recurring Payment',
 		'last_payment_date'    => 'NP_Last Payment Date',
@@ -41,7 +43,7 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		if ( Reader_Activation::is_enabled() ) {
+		if ( Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' ) ) {
 			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'update_contact_lists' ], 10, 5 );
 			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'contact_data' ], 10, 3 );
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );

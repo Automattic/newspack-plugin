@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Recaptcha;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -65,6 +67,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
+			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_email_from' ] );
 		}
 	}
 
@@ -72,25 +75,33 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		\wp_register_script(
-			self::SCRIPT_HANDLE,
-			Newspack::plugin_url() . '/dist/reader-activation.js',
-			[],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
 		$authenticated_email = '';
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
 			$authenticated_email = \wp_get_current_user()->user_email;
 		}
+		$script_dependencies = [];
+		$script_data         = [
+			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+			'authenticated_email'   => $authenticated_email,
+		];
+
+		if ( Recaptcha::can_use_captcha() ) {
+			$script_dependencies[]           = Recaptcha::SCRIPT_HANDLE;
+			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
+		}
+
+		\wp_register_script(
+			self::SCRIPT_HANDLE,
+			Newspack::plugin_url() . '/dist/reader-activation.js',
+			$script_dependencies,
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 		\wp_localize_script(
 			self::SCRIPT_HANDLE,
 			'newspack_reader_activation_data',
-			[
-				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
-				'authenticated_email'   => $authenticated_email,
-			]
+			$script_data
 		);
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
@@ -127,6 +138,8 @@ final class Reader_Activation {
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
 			'terms_url'                   => '',
+			'sync_esp'                    => true,
+			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 		];
 
@@ -148,8 +161,9 @@ final class Reader_Activation {
 
 		$settings = [];
 		foreach ( $config as $key => $default_value ) {
-			$settings[ $key ] = \get_option( self::OPTIONS_PREFIX . $key, $default_value );
+			$settings[ $key ] = self::get_setting( $key );
 		}
+
 		return $settings;
 	}
 
@@ -165,7 +179,12 @@ final class Reader_Activation {
 		if ( ! isset( $config[ $name ] ) ) {
 			return null;
 		}
-		return \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
+		// Use default value type for casting bool option value.
+		if ( is_bool( $config[ $name ] ) ) {
+			$value = (bool) $value;
+		}
+		return $value;
 	}
 
 	/**
@@ -180,6 +199,9 @@ final class Reader_Activation {
 		$config = self::get_settings_config();
 		if ( ! isset( $config[ $key ] ) ) {
 			return false;
+		}
+		if ( is_bool( $value ) ) {
+			$value = intval( $value );
 		}
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
 	}
@@ -598,6 +620,22 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Render a honeypot field to guard against bot form submissions. Note that
+	 * this field is named `email` to hopefully catch more bots who might be
+	 * looking for such fields, where as the "real" field is named "npe".
+	 *
+	 * @param string $placeholder Placeholder text to render in the field.
+	 */
+	public static function render_honeypot_field( $placeholder = '' ) {
+		if ( empty( $placeholder ) ) {
+			$placeholder = __( 'Enter your email address', 'newspack' );
+		}
+		?>
+		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
+		<?php
+	}
+
+	/**
 	 * Renders reader authentication form.
 	 *
 	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
@@ -665,10 +703,26 @@ final class Reader_Activation {
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
 						<p data-action="pwd">
-							<?php \esc_html_e( 'Sign in below to verify your identity.', 'newspack' ); ?>
+							<?php
+								echo wp_kses_post(
+									sprintf(
+										// Translators: %s is the link to sign in via magic link instead.
+										__( 'Sign in with a password below, or %s.', 'newspack' ),
+										'<a href="#" data-set-action="link">' . __( 'sign in using a link', 'newspack' ) . '</a>'
+									)
+								);
+							?>
 						</p>
 						<p data-action="link">
-							<?php \esc_html_e( 'Get a link sent to your email address to sign in instantly without a password.', 'newspack' ); ?>
+							<?php
+								echo wp_kses_post(
+									sprintf(
+										// Translators: %s is the link to sign in via password instead.
+										__( 'Get a link sent to your email to sign in instantly, or %s.', 'newspack' ),
+										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack' ) . '</a>'
+									)
+								);
+							?>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
@@ -679,7 +733,7 @@ final class Reader_Activation {
 								<?php
 								self::render_subscription_lists_inputs(
 									$lists,
-									[],
+									array_keys( $lists ),
 									[
 										'single_label' => $newsletters_label,
 									]
@@ -688,7 +742,8 @@ final class Reader_Activation {
 							</div>
 						<?php endif; ?>
 						<div class="components-form__field">
-							<input name="email" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
+							<?php self::render_honeypot_field(); ?>
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
@@ -712,7 +767,7 @@ final class Reader_Activation {
 							</div>
 							<div class="components-form__help">
 								<p class="small">
-									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in using a link', 'newspack' ); ?></a>
+									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with a link', 'newspack' ); ?></a>
 								</p>
 								<p class="small">
 									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
@@ -725,7 +780,7 @@ final class Reader_Activation {
 							</div>
 							<div class="components-form__help">
 								<p class="small">
-									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>.
+									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack' ); ?></a>
 								</p>
 							</div>
 						</div>
@@ -934,12 +989,32 @@ final class Reader_Activation {
 		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) ) {
 			return;
 		}
-		$action   = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
-		$email    = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
-		$password = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
-		$redirect = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
-		$lists    = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
+		$action        = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
+		$email         = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
+		$password      = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
+		$redirect      = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
+		$lists         = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
+		$honeypot      = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
+		$captcha_token = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
 		// phpcs:enable
+
+		// Honeypot trap.
+		if ( ! empty( $honeypot ) ) {
+			return self::send_auth_form_response(
+				[
+					'email'         => $honeypot,
+					'authenticated' => 1,
+				]
+			);
+		}
+
+		// reCAPTCHA test.
+		if ( Recaptcha::can_use_captcha() ) {
+			$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+			if ( \is_wp_error( $captcha_result ) ) {
+				return self::send_auth_form_response( $captcha_result );
+			}
+		}
 
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack' ) ) );
@@ -957,7 +1032,7 @@ final class Reader_Activation {
 
 		$user = \get_user_by( 'email', $email );
 		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
+			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( "We couldn't find an account registered to this email address. Please confirm that you entered the correct email, or sign up for a new account.", 'newspack' ) ) );
 		}
 
 		$payload = [
@@ -980,7 +1055,7 @@ final class Reader_Activation {
 			case 'link':
 				$sent = Magic_Link::send_email( $user );
 				if ( true !== $sent ) {
-					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid account.', 'newspack' ) ) );
+					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'We encountered an error sending an authentication link. Please try again.', 'newspack' ) ) );
 				}
 				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack' ), $redirect );
 			case 'register':
@@ -1261,6 +1336,23 @@ final class Reader_Activation {
 	 */
 	public static function get_from_name() {
 		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
+	}
+
+	/**
+	 * Filters args sent to wp_mail when a password change email is sent.
+	 *
+	 * @param array $args The default notification email arguments. Used to build wp_mail().
+	 *
+	 * @return array The filtered $args.
+	 */
+	public static function password_reset_email_from( $args ) {
+		$args['headers'] = sprintf(
+			'From: %1$s <%2$s>',
+			self::get_from_name(),
+			self::get_from_email()
+		);
+
+		return $args;
 	}
 }
 Reader_Activation::init();
