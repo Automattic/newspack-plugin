@@ -137,7 +137,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 			'Sent email has the expected subject'
 		);
 		self::assertContains(
-			'From: Test Blog <admin@example.org>',
+			'From: Test Blog <no-reply@example.org>',
 			$mailer->get_sent()->header,
 			'Sent email has the expected "From" header'
 		);

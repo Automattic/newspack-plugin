@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Emails {
 	const POST_TYPE              = 'newspack_rr_email'; // "Reader Revenue" emails, for legacy reasons.
-	const EMAIL_CONFIG_NAME_META = 'newspack_email_type'; // "ype" for legacy reasons.
+	const EMAIL_CONFIG_NAME_META = 'newspack_email_type'; // "type" for legacy reasons.
 
 	/**
 	 * Initialize.
@@ -162,21 +162,23 @@ class Emails {
 	/**
 	 * Send an HTML email.
 	 *
-	 * @param string|int $type_or_post_id Email type or email post ID.
+	 * @param string|int $config_name_or_post_id Email config name or email post ID.
 	 * @param string     $to Recipient's email addesss.
 	 * @param array      $placeholders Dynamic content substitutions.
 	 */
-	public static function send_email( $type_or_post_id, $to, $placeholders = [] ) {
+	public static function send_email( $config_name_or_post_id, $to, $placeholders = [] ) {
 		if ( ! self::supports_emails() ) {
 			return false;
 		}
 
-		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
+		$switched_locale   = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
+		$email_config_name = $config_name_or_post_id;
 
-		if ( 'string' === gettype( $type_or_post_id ) ) {
-			$email_config = self::get_email_config_by_type( $type_or_post_id );
-		} elseif ( 'integer' === gettype( $type_or_post_id ) ) {
-			$email_config = self::serialize_email( null, $type_or_post_id );
+		if ( 'string' === gettype( $config_name_or_post_id ) ) {
+			$email_config = self::get_email_config_by_type( $config_name_or_post_id );
+		} elseif ( 'integer' === gettype( $config_name_or_post_id ) ) {
+			$email_config      = self::serialize_email( null, $config_name_or_post_id );
+			$email_config_name = \get_post_meta( $config_name_or_post_id, self::EMAIL_CONFIG_NAME_META, true );
 		} else {
 			return false;
 		}
@@ -227,6 +229,8 @@ class Emails {
 		if ( $switched_locale ) {
 			\restore_previous_locale();
 		}
+
+		Logger::log( 'Sending "' . $email_config_name . '" email to: ' . $to );
 
 		return $email_send_result;
 	}

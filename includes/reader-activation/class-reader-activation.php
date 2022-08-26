@@ -141,7 +141,7 @@ final class Reader_Activation {
 			'sync_esp'                    => true,
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
-			'emails'                      => Emails::get_emails( [ Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'] ], false ),
+			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
 		];
 
 		/**
@@ -1259,8 +1259,6 @@ final class Reader_Activation {
 	public static function send_verification_email( $user ) {
 		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 
-
-		Logger::log( 'Sending verification email to new user ' . $user->user_email );
 		return Emails::send_email(
 			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
 			$user->user_email,

@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 class Reader_Activation_Emails {
 	const EMAIL_TYPES = [
 		'VERIFICATION' => 'reader-activation-verification',
+		'MAGIC_LINK'   => 'reader-activation-magic-link',
 	];
 
 	/**
@@ -42,6 +43,19 @@ class Reader_Activation_Emails {
 				[
 					'label'    => __( 'the verification link', 'newspack' ),
 					'template' => '*VERIFICATION_URL*',
+				],
+			],
+		];
+		$configs[ self::EMAIL_TYPES['MAGIC_LINK'] ]   = [
+			'name'                   => self::EMAIL_TYPES['MAGIC_LINK'],
+			'label'                  => __( 'Login link', 'newspack' ),
+			'description'            => __( 'Email with a login link.', 'newspack' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/magic-link.php',
+			'editor_notice'          => __( 'This email will be sent to a reader when they request a login link.', 'newspack' ),
+			'available_placeholders' => [
+				[
+					'label'    => __( 'the login link', 'newspack' ),
+					'template' => '*MAGIC_LINK_URL*',
 				],
 			],
 		];
