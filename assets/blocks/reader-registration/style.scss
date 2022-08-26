@@ -70,7 +70,14 @@
 		}
 		[type='submit'] {
 			background-color: #d33;
-			margin-left: 0.4rem;
+			margin-top: 0.5rem;
+			width: 100%;
+
+			@media ( min-width: 782px ) {
+				margin-left: 0.4rem;
+				margin-top: 0;
+				width: auto;
+			}
 		}
 	}
 
