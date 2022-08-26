@@ -124,6 +124,8 @@ class Emails {
 				'current_user_email'     => wp_get_current_user()->user_email,
 				'configs'                => self::get_email_configs(),
 				'email_config_name_meta' => self::EMAIL_CONFIG_NAME_META,
+				'from_name'              => self::get_from_name(),
+				'from_email'             => self::get_from_email(),
 			]
 		);
 		wp_enqueue_script( $handle );
@@ -153,30 +155,6 @@ class Emails {
 				'type'           => 'string',
 				'single'         => true,
 				'auth_callback'  => '__return_true',
-			]
-		);
-		\register_meta(
-			'post',
-			'from_name',
-			[
-				'object_subtype' => self::POST_TYPE,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'single'         => true,
-				'auth_callback'  => '__return_true',
-				'default'        => get_bloginfo( 'name' ),
-			]
-		);
-		\register_meta(
-			'post',
-			'from_email',
-			[
-				'object_subtype' => self::POST_TYPE,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'single'         => true,
-				'auth_callback'  => '__return_true',
-				'default'        => get_bloginfo( 'admin_email' ),
 			]
 		);
 	}
@@ -334,13 +312,47 @@ class Emails {
 			// Make the edit link relative.
 			'edit_link'    => str_replace( site_url(), '', get_edit_post_link( $post_id, '' ) ),
 			'subject'      => get_the_title( $post_id ),
-			'from_name'    => isset( $email_config['from_name'] ) ? $email_config['from_name'] : get_post_meta( $post_id, 'from_name', true ),
-			'from_email'   => isset( $email_config['from_email'] ) ? $email_config['from_email'] : get_post_meta( $post_id, 'from_email', true ),
+			'from_name'    => isset( $email_config['from_name'] ) ? $email_config['from_name'] : self::get_from_name(),
+			'from_email'   => isset( $email_config['from_email'] ) ? $email_config['from_email'] : self::get_from_email(),
 			'status'       => get_post_status( $post_id ),
 			'html_payload' => $html_payload,
 		];
 
 		return $serialized_email;
+	}
+
+	/**
+	 * Get the from email address used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from` hook because we only want to
+	 * set the email address for Newspack emails, not all emails sent via wp_mail.
+	 *
+	 * @return string Email address used as the sender for Newspack emails.
+	 */
+	public static function get_from_email() {
+		// Get the site domain and get rid of www.
+		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
+		$from_email = 'no-reply@';
+
+		if ( null !== $sitename ) {
+			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email .= $sitename;
+		}
+
+		return apply_filters( 'newspack_from_email', $from_email );
+	}
+
+	/**
+	 * Get the from from name used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from_name` hook because we only want
+	 * to set the name for Newspack emails, not all emails sent via wp_mail.
+	 *
+	 * @return string Name used as the sender for Newspack emails.
+	 */
+	public static function get_from_name() {
+		return apply_filters( 'newspack_from_name', get_bloginfo( 'name' ) );
 	}
 
 	/**

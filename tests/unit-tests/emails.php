@@ -44,12 +44,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * @param string $type Email type.
 	 */
 	private static function get_test_email( $type ) {
-		$email = Emails::get_emails()[ $type ];
-		// Mitigate a weird issue with PHPUnit – when running the whole test suite (as opposed to a
-		// single run with `--filter` flag), the default values from `register_meta` calls are ignored.
-		update_post_meta( $email['post_id'], 'from_name', get_bloginfo( 'name' ) );
-		update_post_meta( $email['post_id'], 'from_email', get_bloginfo( 'admin_email' ) );
-		// Return the updated version.
 		return Emails::get_emails()[ $type ];
 	}
 

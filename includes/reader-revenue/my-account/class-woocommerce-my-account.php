@@ -209,8 +209,8 @@ class WooCommerce_My_Account {
 			'headers' => [
 				sprintf(
 					'From: %1$s <%2$s>',
-					Reader_Activation::get_from_name(),
-					Reader_Activation::get_from_email()
+					Emails::get_from_name(),
+					Emails::get_from_email()
 				),
 			],
 		];

@@ -4,7 +4,7 @@
  * WordPress dependencies
  */
 import { useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Button, Spinner, TextControl } from '@wordpress/components';
@@ -38,7 +38,7 @@ const ReaderRevenueEmailSidebar = compose( [
 			updatePostTitle: title => editPost( { title } ),
 		};
 	} ),
-] )( ( { postId, savePost, title, postMeta, updatePostTitle, updatePostMeta, createNotice } ) => {
+] )( ( { postId, savePost, title, postMeta, updatePostTitle, createNotice } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ settings, updateSettings ] = hooks.useObjectState( {
 		testRecipient: newspack_emails.current_user_email,
@@ -52,6 +52,18 @@ const ReaderRevenueEmailSidebar = compose( [
 				isDismissible: false,
 			} );
 		}
+		createNotice(
+			'info',
+			sprintf(
+				/* translators: 1: "From" email address 2: "From" email name */
+				__( 'This email will appear as sent from "%1$s" email address, by "%2$s".', 'newspack' ),
+				config.from_email || newspack_emails.from_email,
+				config.from_name || newspack_emails.from_name
+			),
+			{
+				isDismissible: false,
+			}
+		);
 	}, [] );
 
 	const sendTestEmail = async () => {
@@ -103,29 +115,6 @@ const ReaderRevenueEmailSidebar = compose( [
 					label={ __( 'Subject', 'newspack' ) }
 					value={ title }
 					onChange={ updatePostTitle }
-				/>
-				<TextControl
-					label={ __( '"From" name', 'newspack' ) }
-					value={ config.from_name || postMeta.from_name }
-					onChange={ updatePostMeta( 'from_name' ) }
-					disabled={ config.from_name }
-					help={
-						config.from_name
-							? __( '"From" name is not editable because of the email configuration.', 'newspack' )
-							: undefined
-					}
-				/>
-				<TextControl
-					label={ __( '"From" email address', 'newspack' ) }
-					value={ config.from_email || postMeta.from_email }
-					type="email"
-					onChange={ updatePostMeta( 'from_email' ) }
-					disabled={ config.from_email }
-					help={
-						config.from_email
-							? __( '"From" email is not editable because of the email configuration.', 'newspack' )
-							: undefined
-					}
 				/>
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack' ) }>

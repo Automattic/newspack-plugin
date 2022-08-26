@@ -1301,41 +1301,6 @@ final class Reader_Activation {
 		return $emails;
 	}
 
-	/**
-	 * Get the from email address used to send all transactional emails.
-	 * We avoid use of the `wp_mail_from` hook because we only want to
-	 * set the email address for Reader Activation emails, not all emails
-	 * sent via wp_mail.
-	 *
-	 * @return string Email address used as the sender for Reader Activation emails.
-	 */
-	public static function get_from_email() {
-		// Get the site domain and get rid of www.
-		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
-		$from_email = 'no-reply@';
-
-		if ( null !== $sitename ) {
-			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
-				$sitename = substr( $sitename, 4 );
-			}
-
-			$from_email .= $sitename;
-		}
-
-		return apply_filters( 'newspack_reader_activation_from_email', $from_email );
-	}
-
-	/**
-	 * Get the from from name used to send all transactional emails.
-	 * We avoid use of the `wp_mail_from_name` hook because we only want
-	 * to set the name for Reader Activation emails, not all emails
-	 * sent via wp_mail.
-	 *
-	 * @return string Name used as the sender for Reader Activation emails.
-	 */
-	public static function get_from_name() {
-		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
-	}
 
 	/**
 	 * Filters args sent to wp_mail when a password change email is sent.
@@ -1347,8 +1312,8 @@ final class Reader_Activation {
 	public static function password_reset_email_from( $args ) {
 		$args['headers'] = sprintf(
 			'From: %1$s <%2$s>',
-			self::get_from_name(),
-			self::get_from_email()
+			Emails::get_from_name(),
+			Emails::get_from_email()
 		);
 
 		return $args;

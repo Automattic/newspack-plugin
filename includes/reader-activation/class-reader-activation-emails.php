@@ -34,8 +34,6 @@ class Reader_Activation_Emails {
 	public static function add_email_configs( $configs ) {
 		$configs[ self::EMAIL_TYPES['VERIFICATION'] ] = [
 			'name'                   => self::EMAIL_TYPES['VERIFICATION'],
-			'from_name'              => Reader_Activation::get_from_name(),
-			'from_email'             => Reader_Activation::get_from_email(),
 			'label'                  => __( 'Verification', 'newspack' ),
 			'description'            => __( "Email sent to the reader after they've registered.", 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/verification.php',
