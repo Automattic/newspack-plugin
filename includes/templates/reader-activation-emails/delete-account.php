@@ -1,6 +1,6 @@
 <?php
 /**
- * Homepage Pattern.
+ * Template.
  *
  * @package Newspack
  */

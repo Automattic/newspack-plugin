@@ -16,6 +16,7 @@ class Reader_Activation_Emails {
 	const EMAIL_TYPES = [
 		'VERIFICATION'   => 'reader-activation-verification',
 		'MAGIC_LINK'     => 'reader-activation-magic-link',
+		'RESET_PASSWORD' => 'reader-activation-reset-password',
 		'DELETE_ACCOUNT' => 'reader-activation-delete-account',
 	];
 
@@ -57,6 +58,19 @@ class Reader_Activation_Emails {
 				[
 					'label'    => __( 'the login link', 'newspack' ),
 					'template' => '*MAGIC_LINK_URL*',
+				],
+			],
+		];
+		$configs[ self::EMAIL_TYPES['RESET_PASSWORD'] ] = [
+			'name'                   => self::EMAIL_TYPES['RESET_PASSWORD'],
+			'label'                  => __( 'Reset Password', 'newspack' ),
+			'description'            => __( 'Email with password reset link.', 'newspack' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/password-reset.php',
+			'editor_notice'          => __( 'This email will be sent to a reader when they request a password reset.', 'newspack' ),
+			'available_placeholders' => [
+				[
+					'label'    => __( 'the password reset link', 'newspack' ),
+					'template' => '*PASSWORD_RESET_LINK*',
 				],
 			],
 		];
