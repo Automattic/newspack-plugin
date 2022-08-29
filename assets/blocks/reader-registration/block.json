@@ -34,6 +34,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"hideSubscriptionInput": {
+			"type": "boolean",
+			"default": false
+		},
 		"newsletterTitle": {
 			"type": "string",
 			"default": "Newsletters"

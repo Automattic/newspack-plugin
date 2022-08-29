@@ -47,6 +47,7 @@ export default function ReaderRegistrationEdit( {
 		privacyLabel,
 		newsletterSubscription,
 		displayListDescription,
+		hideSubscriptionInput,
 		newsletterTitle,
 		newsletterLabel,
 		haveAccountLabel,
@@ -103,6 +104,10 @@ export default function ReaderRegistrationEdit( {
 		}
 	}, [ listConfig ] );
 
+	const shouldHideSubscribeInput = () => {
+		return lists.length === 1 && hideSubscriptionInput;
+	};
+
 	return (
 		<>
 			<InspectorControls>
@@ -140,6 +145,14 @@ export default function ReaderRegistrationEdit( {
 									disabled={ inFlight }
 									onChange={ () =>
 										setAttributes( { displayListDescription: ! displayListDescription } )
+									}
+								/>
+								<ToggleControl
+									label={ __( 'Hide input and always subscribe', 'newspack' ) }
+									checked={ hideSubscriptionInput }
+									disabled={ inFlight || lists.length !== 1 }
+									onChange={ () =>
+										setAttributes( { hideSubscriptionInput: ! hideSubscriptionInput } )
 									}
 								/>
 								{ lists.length < 1 && (
@@ -206,7 +219,7 @@ export default function ReaderRegistrationEdit( {
 								tagName="p"
 							/>
 							<div className="newspack-registration__form-content">
-								{ newsletterSubscription && lists.length ? (
+								{ ! shouldHideSubscribeInput() && newsletterSubscription && lists.length ? (
 									<div className="newspack-reader__lists">
 										{ lists?.length > 1 && (
 											<RichText
