@@ -123,7 +123,7 @@ final class Reader_Activation {
 			'newspack_reader_auth_labels',
 			[
 				'invalid_email'    => __( 'Please enter a valid email address.', 'newspack' ),
-				'invalid_password' => __( 'Please enter a valid password.', 'newspack' ),
+				'invalid_password' => __( 'Please enter a password.', 'newspack' ),
 				'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack' ),
 			]
 		);
