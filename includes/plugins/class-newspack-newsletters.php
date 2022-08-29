@@ -195,8 +195,22 @@ class Newspack_Newsletters {
 	}
 
 	/**
-	 * Ensure the contact is always added to ActiveCampaign's selected master
-	 * list.
+	 * Get lists without the master list, if set.
+	 *
+	 * @param int[] $list_ids List IDs to filter.
+	 */
+	public static function get_lists_without_active_campaign_master_list( $list_ids ) {
+		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
+		if ( is_int( intval( $master_list_id ) ) ) {
+			if ( ( $key = array_search( $master_list_id, $list_ids ) ) !== false ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
+				unset( $list_ids[ $key ] );
+			}
+		}
+		return $list_ids;
+	}
+
+	/**
+	 * Ensure the contact is always added to ActiveCampaign's selected master list.
 	 *
 	 * @param string[]|false $lists    Array of list IDs the contact will be subscribed to, or false.
 	 * @param array          $contact  {
