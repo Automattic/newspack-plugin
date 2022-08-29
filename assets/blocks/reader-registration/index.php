@@ -131,7 +131,7 @@ function render_block( $attrs, $content ) {
 	// phpcs:enable
 
 	$success_registration_markup = $content;
-	if ( ! empty( \wp_strip_all_tags( $content ) ) ) {
+	if ( empty( \wp_strip_all_tags( $content ) ) ) {
 		$success_registration_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
 	}
 
