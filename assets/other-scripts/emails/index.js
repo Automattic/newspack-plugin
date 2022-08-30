@@ -43,20 +43,22 @@ const ReaderRevenueEmailSidebar = compose( [
 	const [ settings, updateSettings ] = hooks.useObjectState( {
 		testRecipient: newspack_emails.current_user_email,
 	} );
+	const configMetaName = postMeta[ newspack_emails.email_config_name_meta ];
+	const config = newspack_emails.configs[ configMetaName ];
+
 	useEffect( () => {
-		createNotice(
-			'info',
-			__( 'This email will be sent to a reader after they contribute to your site.', 'newspack' ),
-			{
+		if ( config?.editor_notice ) {
+			createNotice( 'info', config.editor_notice, {
 				isDismissible: false,
-			}
-		);
+			} );
+		}
 	}, [] );
+
 	const sendTestEmail = async () => {
 		setInFlight( true );
 		await savePost();
 		apiFetch( {
-			path: `/newspack/v1/reader-revenue-emails/test`,
+			path: `/newspack/v1/newspack-emails/test`,
 			method: 'POST',
 			data: {
 				recipient: settings.testRecipient,
@@ -75,40 +77,24 @@ const ReaderRevenueEmailSidebar = compose( [
 	};
 	return (
 		<>
-			<PluginDocumentSettingPanel
-				name="email-instructions-panel"
-				title={ __( 'Instructions', 'newspack' ) }
-			>
-				{ __(
-					'Use the following placehoders to insert dynamic content in the email:',
-					'newspack'
-				) }
-				<ul>
-					{ [
-						{ label: __( 'the payment amount', 'newspack' ), template: '*AMOUNT*' },
-						{ label: __( 'payment date', 'newspack' ), template: '*DATE*' },
-						{
-							label: __( 'payment method (last four digits of the card used)', 'newspack' ),
-							template: '*PAYMENT_METHOD*',
-						},
-						{
-							label: __(
-								'the contact email to your site (same as the "From" email address)',
-								'newspack'
-							),
-							template: '*CONTACT_EMAIL*',
-						},
-						{
-							label: __( 'automatically-generated receipt link', 'newspack' ),
-							template: '*RECEIPT_URL*',
-						},
-					].map( ( item, i ) => (
-						<li key={ i }>
-							– <code>{ item.template }</code>: { item.label }
-						</li>
-					) ) }
-				</ul>
-			</PluginDocumentSettingPanel>
+			{ config.available_placeholders?.length && (
+				<PluginDocumentSettingPanel
+					name="email-instructions-panel"
+					title={ __( 'Instructions', 'newspack' ) }
+				>
+					{ __(
+						'Use the following placeholders to insert dynamic content in the email:',
+						'newspack'
+					) }
+					<ul>
+						{ config.available_placeholders.map( ( item, i ) => (
+							<li key={ i }>
+								– <code>{ item.template }</code>: { item.label }
+							</li>
+						) ) }
+					</ul>
+				</PluginDocumentSettingPanel>
+			) }
 			<PluginDocumentSettingPanel
 				name="email-settings-panel"
 				title={ __( 'Settings', 'newspack' ) }
@@ -120,14 +106,26 @@ const ReaderRevenueEmailSidebar = compose( [
 				/>
 				<TextControl
 					label={ __( '"From" name', 'newspack' ) }
-					value={ postMeta.from_name }
+					value={ config.from_name || postMeta.from_name }
 					onChange={ updatePostMeta( 'from_name' ) }
+					disabled={ config.from_name }
+					help={
+						config.from_name
+							? __( '"From" name is not editable because of the email configuration.', 'newspack' )
+							: undefined
+					}
 				/>
 				<TextControl
 					label={ __( '"From" email address', 'newspack' ) }
-					value={ postMeta.from_email }
+					value={ config.from_email || postMeta.from_email }
 					type="email"
 					onChange={ updatePostMeta( 'from_email' ) }
+					disabled={ config.from_email }
+					help={
+						config.from_email
+							? __( '"From" email is not editable because of the email configuration.', 'newspack' )
+							: undefined
+					}
 				/>
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack' ) }>
@@ -148,7 +146,7 @@ const ReaderRevenueEmailSidebar = compose( [
 	);
 } );
 
-registerPlugin( 'newspack-reader-revenue-emails-sidebar', {
+registerPlugin( 'newspack-emails-sidebar', {
 	render: ReaderRevenueEmailSidebar,
 	icon: null,
 } );

@@ -314,25 +314,25 @@ class Stripe_Connection {
 		// Replace content placeholders.
 		$placeholders = [
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['AMOUNT'],
+				'template' => '*AMOUNT*',
 				'value'    => self::format_amount( $amount_normalised, $payment['currency'] ),
 			],
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['DATE'],
+				'template' => '*DATE*',
 				'value'    => gmdate( 'Y-m-d', $payment['created'] ),
 			],
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['PAYMENT_METHOD'],
+				'template' => '*PAYMENT_METHOD*',
 				'value'    => __( 'Card', 'newspack' ) . ' – ' . $payment['payment_method_details']['card']['last4'],
 			],
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['RECEIPT_URL'],
+				'template' => '*RECEIPT_URL*',
 				'value'    => sprintf( '<a href="%s">%s</a>', $payment['receipt_url'], 'stripe.com' ),
 			],
 		];
 
-		Reader_Revenue_Emails::send_email(
-			Reader_Revenue_Emails::EMAIL_TYPE_RECEIPT,
+		Emails::send_email(
+			Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'],
 			$customer['email'],
 			$placeholders
 		);
@@ -974,7 +974,7 @@ class Stripe_Connection {
 						'metadata' => $payment_metadata,
 					]
 				);
-				if ( ! Reader_Revenue_Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPE_RECEIPT ) ) {
+				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
 					$intent['receipt_email'] = $email_address;
 				}
@@ -1116,7 +1116,7 @@ class Stripe_Connection {
 	 * @param bool $is_enabled True if enabled.
 	 */
 	public static function is_wc_complete_order_email_enabled( $is_enabled ) {
-		if ( Donations::is_platform_stripe() && Reader_Revenue_Emails::supports_emails() ) {
+		if ( Donations::is_platform_stripe() && Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 			$is_enabled = false;
 		}
 		return $is_enabled;
