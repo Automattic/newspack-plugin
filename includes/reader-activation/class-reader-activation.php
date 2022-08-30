@@ -91,6 +91,9 @@ final class Reader_Activation {
 			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
 		}
 
+		/**
+		 * Reader Activation Frontend Library.
+		 */
 		\wp_register_script(
 			self::SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
@@ -106,7 +109,7 @@ final class Reader_Activation {
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
 		/**
-		 * Nav menu items script.
+		 * Reader Authentication
 		 */
 		\wp_enqueue_script(
 			self::AUTH_SCRIPT_HANDLE,
@@ -114,6 +117,15 @@ final class Reader_Activation {
 			[ self::SCRIPT_HANDLE ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
+		);
+		\wp_localize_script(
+			self::AUTH_SCRIPT_HANDLE,
+			'newspack_reader_auth_labels',
+			[
+				'invalid_email'    => __( 'Please enter a valid email address.', 'newspack' ),
+				'invalid_password' => __( 'Please enter a password.', 'newspack' ),
+				'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack' ),
+			]
 		);
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );

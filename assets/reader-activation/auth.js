@@ -1,3 +1,5 @@
+/* globals newspack_reader_auth_labels */
+
 /**
  * Internal dependencies.
  */
@@ -311,11 +313,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				form.startLoginFlow();
 
 				if ( ! form.npe?.value ) {
-					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
+					return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );
 				}
 
 				if ( 'pwd' === actionInput?.value && ! form.password?.value ) {
-					return form.endLoginFlow( 'Please enter a password.', 400 );
+					return form.endLoginFlow( newspack_reader_auth_labels.invalid_password, 400 );
 				}
 
 				readerActivation
@@ -339,7 +341,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					.finally( () => {
 						const body = new FormData( ev.target );
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-							return form.endFlow( 'Please enter a vaild email address.', 400 );
+							return form.endFlow( newspack_reader_auth_labels.invalid_email, 400 );
 						}
 						readerActivation.setReaderEmail( body.get( 'npe' ) );
 						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
@@ -437,7 +439,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 								}
 							}, 500 );
 						} else if ( googleLoginForm?.endLoginFlow ) {
-							googleLoginForm.endLoginFlow();
+							googleLoginForm.endLoginFlow( newspack_reader_auth_labels.blocked_popup );
 						}
 					} )
 					.catch( error => {
