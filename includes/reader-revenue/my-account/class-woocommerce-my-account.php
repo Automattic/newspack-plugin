@@ -192,56 +192,16 @@ class WooCommerce_My_Account {
 		);
 		\set_transient( 'np_reader_account_delete_' . $user_id, $token, DAY_IN_SECONDS );
 
-		/* translators: %s User display name. */
-		$message  = sprintf( __( 'Hello, %s!', 'newspack' ), $user->display_name ) . "\r\n\r\n";
-		$message .= __( 'To delete your account, follow the instructions in the following address:', 'newspack' ) . "\r\n\r\n";
-		$message .= $url . "\r\n";
-
-		$blogname = \wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-
-		$switched_locale = \switch_to_locale( get_user_locale( $user ) );
-
-		$email = [
-			'to'      => $user->user_email,
-			/* translators: %s Site title. */
-			'subject' => __( '[%s] Account deletion request', 'newspack' ),
-			'message' => $message,
-			'headers' => [
-				sprintf(
-					'From: %1$s <%2$s>',
-					Emails::get_from_name(),
-					Emails::get_from_email()
-				),
-			],
-		];
-
-		/**
-		 * Filters the account deletion email.
-		 *
-		 * @param array    $email Email arguments. {
-		 *   Used to build wp_mail().
-		 *
-		 *   @type string $to      The intended recipient - New user email address.
-		 *   @type string $subject The subject of the email.
-		 *   @type string $message The body of the email.
-		 *   @type string $headers The headers of the email.
-		 * }
-		 * @param \WP_User $user  User to send the magic link to.
-		 * @param string   $url   Account deletion form url.
-		 */
-		$email = \apply_filters( 'newspack_reader_account_delete_email', $email, $user, $url );
-
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
-		$sent = \wp_mail(
-			$email['to'],
-			\wp_specialchars_decode( sprintf( $email['subject'], $blogname ) ),
-			$email['message'],
-			$email['headers']
+		$sent = Emails::send_email(
+			Reader_Activation_Emails::EMAIL_TYPES['DELETE_ACCOUNT'],
+			$user->user_email,
+			[
+				[
+					'template' => '*DELETION_LINK*',
+					'value'    => $url,
+				],
+			]
 		);
-
-		if ( $switched_locale ) {
-			\restore_previous_locale();
-		}
 
 		\wp_safe_redirect(
 			\add_query_arg(
