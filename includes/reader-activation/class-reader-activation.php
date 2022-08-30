@@ -41,6 +41,11 @@ final class Reader_Activation {
 	];
 
 	/**
+	 * Registration methods that don't require account verification.
+	 */
+	const SSO_REGISTRATION_METHODS = [ 'google' ];
+
+	/**
 	 * Whether the session is authenticating a newly registered reader
 	 *
 	 * @var bool
@@ -1240,13 +1245,10 @@ final class Reader_Activation {
 			}
 		}
 
-		/** Registration methods that don't require account verification. */
-		$verified_registration_methods = [ 'google' ];
-
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
-			if ( in_array( $metadata['registration_method'], $verified_registration_methods, true ) ) {
+			if ( in_array( $metadata['registration_method'], self::SSO_REGISTRATION_METHODS, true ) ) {
 				self::set_reader_verified( $user_id );
 			}
 		}
