@@ -736,18 +736,20 @@ class Analytics {
 								var fields = eventLabel.match( /\${formFields\[(.*?)\]}/g )
 								fields.forEach( function( field ) {
 									var fieldName = field.match( /\${formFields\[(.*?)\]}/ )[1];
-									var fieldValues = [];
-									if ( form[ fieldName ].length ) {
-										for ( var j = 0; j < form[ fieldName ].length; j++ ) {
-											if ( form[ fieldName ][ j ].checked ) {
-												fieldValues.push( form[ fieldName ][ j ].value );
+									if ( form[ fieldName ] ) {
+										var fieldValues = [];
+										if ( form[ fieldName ].length ) {
+											for ( var j = 0; j < form[ fieldName ].length; j++ ) {
+												if ( form[ fieldName ][ j ].checked ) {
+													fieldValues.push( form[ fieldName ][ j ].value );
+												}
 											}
+										} else {
+											fieldValues.push( form[ fieldName ].value );
 										}
-									} else {
-										fieldValues.push( form[ fieldName ].value );
-									}
 
-									eventLabel = eventLabel.replace( field, fieldValues.join( ',' ) );
+										eventLabel = eventLabel.replace( field, fieldValues.join( ',' ) );
+									}
 								} );
 							<?php endif; ?>
 							eventInfo.event_label = eventLabel;
