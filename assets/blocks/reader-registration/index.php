@@ -74,6 +74,15 @@ function enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 
 /**
+ * Generate a unique ID for each registration form.
+ *
+ * @return string A unique ID string to identify the form.
+ */
+function get_form_id() {
+	return \wp_unique_id( 'newspack-register-' );
+}
+
+/**
  * Render Registration Block.
  *
  * @param array[] $attrs Block attributes.
@@ -149,7 +158,7 @@ function render_block( $attrs, $content ) {
 				<?php echo \wp_kses_post( $success_registration_markup ); ?>
 			</div>
 		<?php else : ?>
-			<form>
+			<form id="<?php echo esc_attr( get_form_id() ); ?>">
 				<?php if ( ! empty( $attrs['title'] ) ) : ?>
 					<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>
 				<?php endif; ?>
