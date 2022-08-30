@@ -37,6 +37,7 @@ class Newspack_Newsletters {
 		'last_payment_amount'  => 'NP_Last Payment Amount',
 		'product_name'         => 'NP_Product Name',
 		'next_payment_date'    => 'NP_Next Payment Date',
+		'connected_account'    => 'NP_Connected Account',
 	];
 
 	/**
@@ -143,12 +144,21 @@ class Newspack_Newsletters {
 					}
 				}
 
-				if ( isset( $contact['metadata'], $contact['metadata'][ self::$metadata_keys['last_payment_amount'] ] ) ) {
-					$metadata[ self::$metadata_keys['payment_page'] ] = $current_page_url;
-					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-						$param = 'utm_' . $value;
-						if ( isset( $current_page_url_params[ $param ] ) ) {
-							$metadata[ self::$metadata_keys['payment_page_utm'] . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
+				if ( isset( $contact['metadata'] ) ) {
+					if ( isset( $contact['metadata'][ self::$metadata_keys['last_payment_amount'] ] ) ) {
+						$metadata[ self::$metadata_keys['payment_page'] ] = $current_page_url;
+						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
+							$param = 'utm_' . $value;
+							if ( isset( $current_page_url_params[ $param ] ) ) {
+								$metadata[ self::$metadata_keys['payment_page_utm'] . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
+							}
+						}
+					}
+
+					if ( isset( $contact['metadata']['registration_method'] ) ) {
+						$registration_method = $contact['metadata']['registration_method'];
+						if ( in_array( $registration_method, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+							$contact['metadata'][ self::$metadata_keys['connected_account'] ] = $registration_method;
 						}
 					}
 				}
