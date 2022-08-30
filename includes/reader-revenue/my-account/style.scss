@@ -6,10 +6,12 @@
 		background: none;
 		border: 1px solid var( --newspack-primary-color );
 		border-radius: 5px;
+		display: block;
 		font-family: inherit;
 		font-size: inherit;
 		margin-bottom: 28px;
-		padding: 1px 28px;
+		margin-top: 0;
+		padding: 28px;
 		position: relative;
 		&::before {
 			content: '';
@@ -28,6 +30,15 @@
 			color: inherit;
 			&::before {
 				background: #ff000038;
+			}
+		}
+
+		p {
+			margin-bottom: 0;
+			margin-top: 0;
+
+			+ p {
+				margin-top: 1rem;
 			}
 		}
 	}
