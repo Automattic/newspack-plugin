@@ -25,6 +25,7 @@
 		&--error,
 		&.woocommerce-error {
 			border: 1px solid #ff4364;
+			color: inherit;
 			&::before {
 				background: #ff000038;
 			}
