@@ -37,6 +37,7 @@ class Newspack_Newsletters {
 		'last_payment_amount'  => 'NP_Last Payment Amount',
 		'product_name'         => 'NP_Product Name',
 		'next_payment_date'    => 'NP_Next Payment Date',
+		'total_paid'           => 'NP_Total Paid',
 		'connected_account'    => 'NP_Connected Account',
 	];
 
