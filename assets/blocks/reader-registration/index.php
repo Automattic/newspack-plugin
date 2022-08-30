@@ -131,7 +131,7 @@ function render_block( $attrs, $content ) {
 	// phpcs:enable
 
 	$success_registration_markup = $content;
-	if ( ! empty( \wp_strip_all_tags( $content ) ) ) {
+	if ( empty( \wp_strip_all_tags( $content ) ) ) {
 		$success_registration_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
 	}
 
@@ -159,16 +159,22 @@ function render_block( $attrs, $content ) {
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<div class="newspack-registration__form-content">
 					<?php
-					if ( isset( $lists ) ) {
-						Reader_Activation::render_subscription_lists_inputs(
-							$lists,
-							array_keys( $lists ),
-							[
-								'title'            => $attrs['newsletterTitle'],
-								'single_label'     => $attrs['newsletterLabel'],
-								'show_description' => $attrs['displayListDescription'],
-							]
-						);
+					if ( ! empty( $lists ) ) {
+						if ( 1 === count( $lists ) && $attrs['hideSubscriptionInput'] ) {
+							?>
+							<input type="hidden" name="lists[]" value="<?php echo \esc_attr( key( $lists ) ); ?>">
+							<?php
+						} else {
+							Reader_Activation::render_subscription_lists_inputs(
+								$lists,
+								array_keys( $lists ),
+								[
+									'title'            => $attrs['newsletterTitle'],
+									'single_label'     => $attrs['newsletterLabel'],
+									'show_description' => $attrs['displayListDescription'],
+								]
+							);
+						}
 					}
 					?>
 					<div class="newspack-registration__main">

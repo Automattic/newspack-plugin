@@ -153,6 +153,7 @@ final class Reader_Activation {
 			'sync_esp'                    => true,
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
+			'emails'                      => Emails::get_emails( [ Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'] ], false ),
 		];
 
 		/**
@@ -1269,21 +1270,19 @@ final class Reader_Activation {
 	 */
 	public static function send_verification_email( $user ) {
 		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
-		$blogname    = \wp_specialchars_decode( \get_option( 'blogname' ), ENT_QUOTES );
 
-		$subject = __( 'Please verify your account', 'newspack' );
-
-		$message  = __( 'Hi there!', 'newspack' ) . "\r\n\r\n";
-		$message .= __( 'To manage your account, please verify your email address by visiting the following URL:', 'newspack' ) . "\r\n\r\n";
-		$message .= Magic_Link::MAGIC_LINK_PLACEHOLDER . "\r\n\r\n";
-
-		if ( $redirect_to ) {
-			/* translators: %s: My Account URL. */
-			$message .= sprintf( __( 'Once verified, visit %s to edit your profile, set a password for easier access, and manage your newsletter subscriptions and billing information.', 'newspack' ), $redirect_to ) . "\r\n";
-		}
 
 		Logger::log( 'Sending verification email to new user ' . $user->user_email );
-		return Magic_Link::send_email( $user, $redirect_to, $subject, $message );
+		return Emails::send_email(
+			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
+			$user->user_email,
+			[
+				[
+					'template' => '*VERIFICATION_URL*',
+					'value'    => Magic_Link::generate_url( $user, $redirect_to ),
+				],
+			]
+		);
 	}
 
 	/**
