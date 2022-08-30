@@ -148,7 +148,7 @@ export default function ReaderRegistrationEdit( {
 									}
 								/>
 								<ToggleControl
-									label={ __( 'Hide input and always subscribe', 'newspack' ) }
+									label={ __( 'Hide newsletter selection and always subscribe', 'newspack' ) }
 									checked={ hideSubscriptionInput }
 									disabled={ inFlight || lists.length !== 1 }
 									onChange={ () =>
