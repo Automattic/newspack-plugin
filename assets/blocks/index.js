@@ -1,3 +1,5 @@
+/* globals newspack_blocks */
+
 /**
  * WordPress dependencies
  */
@@ -9,6 +11,8 @@ import { registerBlockType } from '@wordpress/blocks';
 import * as readerRegistration from './reader-registration';
 
 export const blocks = [ readerRegistration ];
+
+const readerActivationBlocks = [ 'newspack/reader-registration' ];
 
 /**
  * Function to register an individual block.
@@ -22,6 +26,12 @@ const registerBlock = block => {
 	}
 
 	const { metadata, settings, name } = block;
+
+	/** Do not register reader activation blocks if it's disabled. */
+	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
+		return;
+	}
+
 	registerBlockType( { name, ...metadata }, settings );
 };
 
