@@ -22,6 +22,7 @@ class WooCommerce_My_Account {
 	const DELETE_ACCOUNT_URL_PARAM     = 'delete-account';
 	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
 	const SEND_MAGIC_LINK_PARAM        = 'magic-link';
+	const AFTER_ACCOUNT_DELETION_PARAM = 'account-deleted';
 
 	/**
 	 * Cached Stripe customer ID of the current user.
@@ -263,10 +264,6 @@ class WooCommerce_My_Account {
 		/** Make sure `wp_delete_user()` is available. */
 		require_once ABSPATH . 'wp-admin/includes/user.php';
 
-		if ( isset( $_GET['account_deleted'] ) && function_exists( 'wc_add_notice' ) ) {
-			\wc_add_notice( __( 'Your account has been deleted.', 'newspack' ), 'success' );
-		}
-
 		if ( ! isset( $_POST[ self::DELETE_ACCOUNT_FORM ] ) ) {
 			return;
 		}
@@ -298,7 +295,7 @@ class WooCommerce_My_Account {
 		\delete_transient( 'np_reader_account_delete_' . $user_id );
 
 		\wp_delete_user( $user_id );
-		\wp_safe_redirect( add_query_arg( 'account_deleted', 1, \wc_get_account_endpoint_url( 'edit-account' ) ) );
+		\wp_safe_redirect( add_query_arg( self::AFTER_ACCOUNT_DELETION_PARAM, 1, \wc_get_account_endpoint_url( 'edit-account' ) ) );
 		exit;
 	}
 
@@ -450,19 +447,26 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Filter WC's template getting to remove Edit Account page's default rendering.
+	 * WC's page templates hijacking.
 	 *
 	 * @param string $template      Template path.
 	 * @param string $template_name Template name.
 	 */
 	public static function wc_get_template( $template, $template_name ) {
-		if ( 'myaccount/form-edit-account.php' === $template_name ) {
-			if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-delete-account.php';
-			}
-			return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
+		switch ( $template_name ) {
+			case 'myaccount/form-login.php':
+				if ( isset( $_GET[ self::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-after-delete-account.php';
+				}
+				return $template;
+			case 'myaccount/form-edit-account.php':
+				if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-delete-account.php';
+				}
+				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
+			default:
+				return $template;
 		}
-		return $template;
 	}
 
 	/**
