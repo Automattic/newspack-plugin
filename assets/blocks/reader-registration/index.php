@@ -16,22 +16,22 @@ defined( 'ABSPATH' ) || exit;
 const FORM_ACTION = 'newspack_reader_registration';
 
 /**
- * Do not register block hooks if Reader Activation is not enabled.
- */
-if ( ! Reader_Activation::is_enabled() ) {
-	return;
-}
-
-/**
  * Register block from metadata.
  */
 function register_block() {
+	// Allow render_block callback to run so we can ensure it renders nothing.
 	\register_block_type_from_metadata(
 		__DIR__ . '/block.json',
 		array(
 			'render_callback' => __NAMESPACE__ . '\\render_block',
 		)
 	);
+
+	// No need to register block styles if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return '';
+	}
+
 	\register_block_style(
 		'newspack/reader-registration',
 		[
@@ -54,6 +54,11 @@ add_action( 'init', __NAMESPACE__ . '\\register_block' );
  * Enqueue front-end scripts.
  */
 function enqueue_scripts() {
+	// No need to enqueue scripts if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return;
+	}
+
 	$handle = 'newspack-reader-registration-block';
 	\wp_enqueue_style(
 		$handle,
@@ -80,6 +85,11 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
  * @param string  $content Block content (inner blocks) – success state in this case.
  */
 function render_block( $attrs, $content ) {
+	// Render nothing if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return '';
+	}
+
 	$registered      = false;
 	$message         = '';
 	$success_message = __( 'Thank you for registering!', 'newspack' ) . '<br />' . __( 'Check your email for a confirmation link.', 'newspack' );
