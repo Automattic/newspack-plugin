@@ -76,6 +76,11 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 /**
  * Generate a unique ID for each registration form.
  *
+ * The ID for each form instance is unique only for each page render.
+ * The main intent is to be able to pass this ID to analytics so we
+ * can identify what type of form it is, so the ID doesn't need to be
+ * predictable nor consistent across page renders.
+ *
  * @return string A unique ID string to identify the form.
  */
 function get_form_id() {
