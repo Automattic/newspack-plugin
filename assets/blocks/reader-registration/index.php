@@ -294,7 +294,7 @@ function send_form_response( $data, $message = '' ) {
  * Process registration form.
  */
 function process_form() {
-	if ( ! isset( $_REQUEST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST[ FORM_ACTION ] ), FORM_ACTION ) ) {
+	if ( ! Reader_Activation::is_enabled() || ! isset( $_REQUEST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST[ FORM_ACTION ] ), FORM_ACTION ) ) {
 		return;
 	}
 
