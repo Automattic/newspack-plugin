@@ -57,8 +57,8 @@ const ReaderRevenueEmailSidebar = compose( [
 			sprintf(
 				/* translators: 1: "From" email address 2: "From" email name */
 				__( 'This email will be sent from %1$s <%2$s>.', 'newspack' ),
-				config.from_email || newspack_emails.from_email,
-				config.from_name || newspack_emails.from_name
+				config.from_name || newspack_emails.from_name,
+				config.from_email || newspack_emails.from_email
 			),
 			{
 				isDismissible: false,
