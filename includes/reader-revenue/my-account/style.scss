@@ -6,8 +6,9 @@
 	.woocommerce-message,
 	.woocommerce-info,
 	.woocommerce-error {
-		background: none;
-		border: 1px solid var( --newspack-primary-color );
+		background: color.adjust( wp-colors.$alert-green, $lightness: 42% );
+		border: 1px solid wp-colors.$alert-green;
+		color: inherit;
 		display: block;
 		font-family: inherit;
 		font-size: 0.8rem;
@@ -38,10 +39,9 @@
 		margin-top: 8px;
 	}
 
-	.woocommerce-message {
-		background: color.adjust( wp-colors.$alert-green, $lightness: 42% );
-		border-color: wp-colors.$alert-green;
-		color: inherit;
+	.woocommerce-info {
+		background: white;
+		border-color: var( --newspack-primary-color );
 	}
 
 	.edit-account {
