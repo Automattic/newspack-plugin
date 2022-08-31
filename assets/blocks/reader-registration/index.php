@@ -146,7 +146,7 @@ function render_block( $attrs, $content ) {
 		<?php if ( $registered ) : ?>
 			<div class="newspack-registration__registration-success">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_registration_markup ); ?>
+				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
 			<form>
@@ -210,7 +210,7 @@ function render_block( $attrs, $content ) {
 			</form>
 			<div class="newspack-registration__registration-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_registration_markup ); ?>
+				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 			<div class="newspack-registration__login-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
