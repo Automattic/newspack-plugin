@@ -206,7 +206,7 @@ class Newspack_Newsletters {
 				unset( $list_ids[ $key ] );
 			}
 		}
-		return $list_ids;
+		return array_values( $list_ids ); // Reset keys.
 	}
 
 	/**
