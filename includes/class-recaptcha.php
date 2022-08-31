@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Recaptcha {
 	const SCRIPT_HANDLE  = 'newspack-recaptcha';
-	const THRESHOLD      = 0.5;
+	const THRESHOLD      = 0.25;
 	const OPTIONS_PREFIX = 'newspack_recaptcha_';
 
 	/**
