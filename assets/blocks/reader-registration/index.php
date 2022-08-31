@@ -294,7 +294,13 @@ function send_form_response( $data, $message = '' ) {
  * Process registration form.
  */
 function process_form() {
-	if ( ! Reader_Activation::is_enabled() || ! isset( $_REQUEST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST[ FORM_ACTION ] ), FORM_ACTION ) ) {
+	// No need to process form values if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return;
+	}
+
+	// No need to proceed if we don't have the required params.
+	if ( ! isset( $_REQUEST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST[ FORM_ACTION ] ), FORM_ACTION ) ) {
 		return;
 	}
 
