@@ -202,11 +202,16 @@ class Newspack_Newsletters {
 	public static function get_lists_without_active_campaign_master_list( $list_ids ) {
 		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
 		if ( is_int( intval( $master_list_id ) ) ) {
-			if ( ( $key = array_search( $master_list_id, $list_ids ) ) !== false ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
-				unset( $list_ids[ $key ] );
-			}
+			return array_values( // Reset keys.
+				array_filter(
+					$list_ids,
+					function( $id ) use ( $master_list_id ) {
+						return $id !== $master_list_id;
+					}
+				)
+			);
 		}
-		return array_values( $list_ids ); // Reset keys.
+		return $list_ids;
 	}
 
 	/**
