@@ -27,6 +27,8 @@ $is_error = false;
 if ( isset( $_GET['is_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$is_error = $_GET['is_error']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 }
+
+$without_password = true === Reader_Activation::is_reader_without_password( $user );
 ?>
 
 <?php
@@ -71,16 +73,25 @@ endif;
 
 <hr />
 
-<?php if ( Reader_Activation::is_reader_without_password( $user ) ) : ?>
-	<h3><?php \esc_html_e( 'Create a Password', 'newspack' ); ?></h3>
-	<p><?php \esc_html_e( 'In order to create your first password, you must request a password reset link below:', 'newspack' ); ?></p>
-<?php else : ?>
-	<h3><?php \esc_html_e( 'Reset Password', 'newspack' ); ?></h3>
-<?php endif; ?>
+<h3>
+	<?php
+	if ( $without_password ) {
+		\esc_html_e( 'Create a Password', 'newspack' );
+	} else {
+		\esc_html_e( 'Reset Password', 'newspack' );
+	}
+	?>
+</h3>
 
 <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 	<a href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
-		<?php \esc_html_e( 'Email me a password reset link', 'newspack' ); ?>
+		<?php
+		if ( $without_password ) {
+			\esc_html_e( 'Email me a link to set my password', 'newspack' );
+		} else {
+			\esc_html_e( 'Email me a password reset link', 'newspack' );
+		}
+		?>
 	</a>
 </p>
 

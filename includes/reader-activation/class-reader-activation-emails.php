@@ -63,10 +63,10 @@ class Reader_Activation_Emails {
 		];
 		$configs[ self::EMAIL_TYPES['RESET_PASSWORD'] ] = [
 			'name'                   => self::EMAIL_TYPES['RESET_PASSWORD'],
-			'label'                  => __( 'Reset Password', 'newspack' ),
+			'label'                  => __( 'Set a New Password', 'newspack' ),
 			'description'            => __( 'Email with password reset link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/password-reset.php',
-			'editor_notice'          => __( 'This email will be sent to a reader when they request a password reset.', 'newspack' ),
+			'editor_notice'          => __( 'This email will be sent to a reader when they request a password creation or reset.', 'newspack' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the password reset link', 'newspack' ),
