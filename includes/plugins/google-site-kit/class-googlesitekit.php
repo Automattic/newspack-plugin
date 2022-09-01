@@ -101,11 +101,11 @@ class GoogleSiteKit {
 	 * Get Site Kit's GA4 settings.
 	 */
 	private static function get_sitekit_ga4_settings() {
-		$googlesitekit_analytics_settingsion_name = self::get_sitekit_ga4_settings_option_name();
-		if ( false === $googlesitekit_analytics_settingsion_name ) {
+		$option_name = self::get_sitekit_ga4_settings_option_name();
+		if ( false === $option_name ) {
 			return false;
 		}
-		return get_option( $googlesitekit_analytics_settingsion_name, false );
+		return get_option( $option_name, false );
 	}
 
 	/**
