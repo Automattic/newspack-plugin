@@ -149,26 +149,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Sending by email id.
-	 */
-	public function test_emails_send_by_id() {
-		Plugin_Manager::activate( 'newspack-newsletters' );
-		$test_email = self::get_test_email( 'test-email-config' );
-
-		$send_result = Emails::send_email(
-			$test_email['post_id'],
-			'someone@example.com'
-		);
-		self::assertTrue( $send_result, 'Email has been sent.' );
-
-		$send_result = Emails::send_email(
-			9999,
-			'someone@example.com'
-		);
-		self::assertFalse( $send_result, 'Non-existent email is not sent.' );
-	}
-
-	/**
 	 * Email post status handling.
 	 */
 	public function test_emails_status() {
@@ -183,10 +163,10 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 
 		self::assertFalse( Emails::can_send_email( 'test-email-config' ), 'Email can\'t be sent – it\'s not published.' );
 		$send_result = Emails::send_email(
-			$test_email['post_id'],
+			'test-email-config',
 			'someone@example.com'
 		);
 
-		self::assertFalse( $send_result, 'Email has been sent.' );
+		self::assertFalse( $send_result, 'Email has not been sent.' );
 	}
 }
