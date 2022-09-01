@@ -28,6 +28,7 @@ final class Reader_Activation {
 	 */
 	const READER              = 'np_reader';
 	const EMAIL_VERIFIED      = 'np_reader_email_verified';
+	const WITHOUT_PASSWORD    = 'np_reader_without_password';
 	const REGISTRATION_METHOD = 'np_reader_registration_method';
 
 	/**
@@ -59,6 +60,7 @@ final class Reader_Activation {
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'password_reset', [ __CLASS__, 'set_reader_has_password' ] );
 			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
@@ -423,6 +425,49 @@ final class Reader_Activation {
 		do_action( 'newspack_reader_verified', $user );
 
 		return true;
+	}
+
+	/**
+	 * Remove "without password" meta from user.
+	 *
+	 * @param \WP_User|int $user_or_user_id User object or user ID.
+	 *
+	 * @return bool Whether the meta was removed.
+	 */
+	public static function set_reader_has_password( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
+		}
+
+		if ( ! isset( $user ) || ! $user ) {
+			return false;
+		}
+
+		delete_user_meta( $user->ID, self::WITHOUT_PASSWORD );
+		return true;
+	}
+
+	/**
+	 * Whether the reader hasn't set its own password.
+	 *
+	 * @param \WP_User|int $user_or_user_id User object or user ID.
+	 *
+	 * @return bool|WP_Error Whether the reader hasn't set its password or error.
+	 */
+	public static function is_reader_without_password( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
+		}
+
+		if ( ! isset( $user ) || ! $user || ! self::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_is_reader_without_password', __( 'Invalid user.', 'newspack' ) );
+		}
+
+		return (bool) \get_user_meta( $user->ID, self::WITHOUT_PASSWORD, false );
 	}
 
 	/**
@@ -1221,9 +1266,14 @@ final class Reader_Activation {
 				return $user_id;
 			}
 
-			/** Add default reader related meta. */
+			/**
+			 * Add default reader related meta.
+			 */
 			\update_user_meta( $user_id, self::READER, true );
+			/** Email is not yet verified. */
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
+			/** User hasn't set its own password yet. */
+			\update_user_meta( $user_id, self::WITHOUT_PASSWORD, true );
 
 			Logger::log( 'Created new reader user with ID ' . $user_id );
 

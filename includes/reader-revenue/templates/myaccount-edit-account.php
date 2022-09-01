@@ -9,6 +9,7 @@
 namespace Newspack;
 
 use Newspack\WooCommerce_My_Account;
+use Newspack\Reader_Activation;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -70,7 +71,12 @@ endif;
 
 <hr />
 
-<h3><?php \esc_html_e( 'Reset Password', 'newspack' ); ?></h3>
+<?php if ( Reader_Activation::is_reader_without_password( $user ) ) : ?>
+	<h3><?php \esc_html_e( 'Create a Password', 'newspack' ); ?></h3>
+	<p><?php \esc_html_e( 'In order to create your first password, you must request a password reset link below:', 'newspack' ); ?></p>
+<?php else : ?>
+	<h3><?php \esc_html_e( 'Reset Password', 'newspack' ); ?></h3>
+<?php endif; ?>
 
 <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 	<a href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
