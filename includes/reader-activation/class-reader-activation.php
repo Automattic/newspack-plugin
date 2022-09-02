@@ -1272,7 +1272,7 @@ final class Reader_Activation {
 			\update_user_meta( $user_id, self::READER, true );
 			/** Email is not yet verified. */
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
-			/** User hasn't set its own password yet. */
+			/** User hasn't set their own password yet. */
 			\update_user_meta( $user_id, self::WITHOUT_PASSWORD, true );
 
 			Logger::log( 'Created new reader user with ID ' . $user_id );
