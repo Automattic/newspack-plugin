@@ -161,6 +161,50 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Get customer's charges.
+	 *
+	 * @param string $customer_id Customer ID.
+	 * @param int    $page Page of results.
+	 */
+	private static function get_customer_charges( $customer_id, $page = false ) {
+		$stripe = self::get_stripe_client();
+		try {
+			$all_charges = [];
+			$params      = [ 'query' => 'customer:"' . $customer_id . '"' ];
+			if ( $page ) {
+				$params['page'] = $page;
+			}
+			$response    = $stripe->charges->search( $params );
+			$all_charges = $response['data'];
+			if ( $response['has_more'] ) {
+				$all_charges = array_merge( $all_charges, self::get_customer_charges( $customer_id, $response['next_page'] ) );
+			}
+			return $all_charges;
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch customer\'s charges.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get the sum of all customer's charges (Lifetime Value).
+	 *
+	 * @param string $customer_id Customer ID.
+	 */
+	private static function get_customer_ltv( $customer_id ) {
+		$all_charges = self::get_customer_charges( $customer_id );
+		if ( \is_wp_error( $all_charges ) ) {
+			return $all_charges;
+		}
+		return array_reduce(
+			$all_charges,
+			function( $total, $charge ) {
+				return $total + self::normalise_amount( $charge['amount'], $charge['currency'] );
+			},
+			0
+		);
+	}
+
+	/**
 	 * Get Stripe billing portal configuration used for this integration.
 	 * The configuration will disallow the customer to update their email,
 	 * because it has to stay in sync with WP.
@@ -452,7 +496,11 @@ class Stripe_Connection {
 					];
 
 					if ( Reader_Activation::is_enabled() ) {
-						$payment_date        = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
+						$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
+						$customer_ltv = self::get_customer_ltv( $customer['id'] );
+						$total_paid   = $customer_ltv + $amount_normalised;
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['total_paid'] ] = $total_paid;
+
 						$contact['metadata'] = array_merge(
 							$contact['metadata'],
 							[

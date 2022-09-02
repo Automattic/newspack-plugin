@@ -41,6 +41,11 @@ final class Reader_Activation {
 	];
 
 	/**
+	 * Registration methods that don't require account verification.
+	 */
+	const SSO_REGISTRATION_METHODS = [ 'google' ];
+
+	/**
 	 * Whether the session is authenticating a newly registered reader
 	 *
 	 * @var bool
@@ -67,7 +72,8 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
-			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_email_from' ] );
+			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ] );
+			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 		}
 	}
 
@@ -222,10 +228,17 @@ final class Reader_Activation {
 	/**
 	 * Whether reader activation is enabled.
 	 *
+	 * @param bool $strict If true, check both the environment constant and the setting.
+	 *                     If false, only check for the constant.
+	 *
 	 * @return bool True if reader activation is enabled.
 	 */
-	public static function is_enabled() {
+	public static function is_enabled( $strict = true ) {
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
+
+		if ( ! $strict ) {
+			return $is_enabled;
+		}
 
 		if ( $is_enabled ) {
 			$is_enabled = self::get_setting( 'enabled' );
@@ -1232,13 +1245,10 @@ final class Reader_Activation {
 			}
 		}
 
-		/** Registration methods that don't require account verification. */
-		$verified_registration_methods = [ 'google' ];
-
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
-			if ( in_array( $metadata['registration_method'], $verified_registration_methods, true ) ) {
+			if ( in_array( $metadata['registration_method'], self::SSO_REGISTRATION_METHODS, true ) ) {
 				self::set_reader_verified( $user_id );
 			}
 		}
@@ -1319,14 +1329,47 @@ final class Reader_Activation {
 	 *
 	 * @return array The filtered $args.
 	 */
-	public static function password_reset_email_from( $args ) {
+	public static function password_reset_configuration( $args ) {
+		$config_name  = Reader_Activation_Emails::EMAIL_TYPES['RESET_PASSWORD'];
+		$email_config = Emails::get_email_config_by_type( $config_name );
+
 		$args['headers'] = sprintf(
 			'From: %1$s <%2$s>',
-			Emails::get_from_name(),
-			Emails::get_from_email()
+			$email_config['from_name'],
+			$email_config['from_email']
 		);
 
+		$args['subject'] = $email_config['subject'];
+
+		$found_the_link = \preg_match(
+			'/.*wp-login\.php\?action=rp.*/',
+			$args['message'],
+			$matches
+		);
+		if ( $found_the_link ) {
+			$password_reset_url = $matches[0];
+			$args['message']    = Emails::get_email_payload(
+				$config_name,
+				[
+					[
+						'template' => '*PASSWORD_RESET_LINK*',
+						'value'    => $password_reset_url,
+					],
+				]
+			);
+		}
+
 		return $args;
+	}
+
+	/**
+	 * Set email content type when a password reset email is about to be sent.
+	 */
+	public static function set_password_reset_mail_content_type() {
+		$email_content_type = function() {
+			return 'text/html';
+		};
+		add_filter( 'wp_mail_content_type', $email_content_type );
 	}
 }
 Reader_Activation::init();

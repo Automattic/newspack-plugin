@@ -160,31 +160,13 @@ class Emails {
 	}
 
 	/**
-	 * Send an HTML email.
+	 * Get email payload by config name.
 	 *
-	 * @param string|int $config_name_or_post_id Email config name or email post ID.
-	 * @param string     $to Recipient's email addesss.
-	 * @param array      $placeholders Dynamic content substitutions.
+	 * @param string $config_name Name of email config.
+	 * @param array  $placeholders Placeholders to replace in email.
 	 */
-	public static function send_email( $config_name_or_post_id, $to, $placeholders = [] ) {
-		if ( ! self::supports_emails() ) {
-			return false;
-		}
-
-		$switched_locale   = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
-		$email_config_name = $config_name_or_post_id;
-
-		if ( 'string' === gettype( $config_name_or_post_id ) ) {
-			$email_config = self::get_email_config_by_type( $config_name_or_post_id );
-		} elseif ( 'integer' === gettype( $config_name_or_post_id ) ) {
-			$email_config      = self::serialize_email( null, $config_name_or_post_id );
-			$email_config_name = \get_post_meta( $config_name_or_post_id, self::EMAIL_CONFIG_NAME_META, true );
-		} else {
-			return false;
-		}
-		if ( ! $to || ! $email_config || 'publish' !== $email_config['status'] ) {
-			return false;
-		}
+	public static function get_email_payload( $config_name, $placeholders = [] ) {
+		$email_config = self::get_email_config_by_type( $config_name );
 		$html         = $email_config['html_payload'];
 		$from_email   = $email_config['from_email'];
 		$placeholders = array_merge(
@@ -211,6 +193,32 @@ class Emails {
 				$html
 			);
 		}
+		return $html;
+	}
+
+	/**
+	 * Send an HTML email.
+	 *
+	 * @param string $config_name Email config name.
+	 * @param string $to Recipient's email addesss.
+	 * @param array  $placeholders Dynamic content substitutions.
+	 */
+	public static function send_email( $config_name, $to, $placeholders = [] ) {
+		if ( ! self::supports_emails() ) {
+			return false;
+		}
+
+		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
+
+		if ( 'string' === gettype( $config_name ) ) {
+			$email_config = self::get_email_config_by_type( $config_name );
+		} else {
+			return false;
+		}
+		if ( ! $to || ! $email_config || 'publish' !== $email_config['status'] ) {
+			return false;
+		}
+
 		$email_content_type = function() {
 			return 'text/html';
 		};
@@ -219,9 +227,9 @@ class Emails {
 		$email_send_result = wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 			$to,
 			$email_config['subject'],
-			$html,
+			self::get_email_payload( $config_name, $placeholders ),
 			[
-				sprintf( 'From: %s <%s>', $email_config['from_name'], $from_email ),
+				sprintf( 'From: %s <%s>', $email_config['from_name'], $email_config['from_email'] ),
 			]
 		);
 		remove_filter( 'wp_mail_content_type', $email_content_type );
@@ -230,7 +238,7 @@ class Emails {
 			\restore_previous_locale();
 		}
 
-		Logger::log( 'Sending "' . $email_config_name . '" email to: ' . $to );
+		Logger::log( 'Sending "' . $config_name . '" email to: ' . $to );
 
 		return $email_send_result;
 	}
@@ -365,7 +373,7 @@ class Emails {
 	 *
 	 * @param string $type Type of the email.
 	 */
-	private static function get_email_config_by_type( $type ) {
+	public static function get_email_config_by_type( $type ) {
 		$emails_query = new \WP_Query(
 			[
 				'post_type'      => self::POST_TYPE,

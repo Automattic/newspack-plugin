@@ -944,6 +944,12 @@ class Analytics {
 			return;
 		}
 
+		// If the user is only being subscribed to the master list, they did not sign up for the newsletter explicitly.
+		$lists = Newspack_Newsletters::get_lists_without_active_campaign_master_list( $lists );
+		if ( empty( $lists ) ) {
+			return;
+		}
+
 		\Newspack\Google_Services_Connection::send_custom_event(
 			[
 				'category' => __( 'NTG newsletter', 'newspack' ),
