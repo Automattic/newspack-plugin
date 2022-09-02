@@ -16,6 +16,18 @@
 		}
 	}
 
+	h2 {
+		margin-top: 0;
+	}
+
+	form {
+		padding-top: 36px;
+
+		> p {
+			margin: 1em 0;
+		}
+	}
+
 	@media ( min-width: 782px ) {
 		&.is-style-columns {
 			.newspack-registration__main {
@@ -69,7 +81,8 @@
 			flex: 1 1 auto;
 		}
 		[type='submit'] {
-			background-color: #d33;
+			background-color: var( --newspack-cta-color );
+			color: var( --newspack-cta-contrast-color );
 			margin-top: 0.5rem;
 			width: 100%;
 
@@ -82,19 +95,35 @@
 	}
 
 	&__have-account {
-		font-size: 0.8125em;
-		line-height: 1.2307692308;
-		margin: 0.8rem 0;
+		align-items: center;
+		background: var( --newspack-secondary-color );
+		color: var( --newspack-secondary-contrast-color );
+		display: flex;
+		font-size: 1em;
+		justify-content: center;
+		left: 0;
+		line-height: 1.5;
+		min-height: 36px;
+		padding: 0 16px;
+		position: absolute;
+		right: 0;
+		top: 0;
+
+		@media only screen and ( min-width: 600px ) {
+			padding-left: 32px;
+			padding-right: 32px;
+		}
 
 		p {
 			margin: 0;
+			padding: 0.375em 0;
 		}
 	}
 
 	&__help-text {
 		p {
 			color: wp-colors.$gray-700;
-			margin: 0;
+			margin: 0.8rem 0 0;
 			font-size: 0.6875em !important;
 			line-height: 1.45454545;
 		}
@@ -103,6 +132,12 @@
 	&__response {
 		margin-top: 0.5rem;
 		font-size: 0.8em;
+	}
+
+	&__registration-success {
+		> *:last-child {
+			margin-bottom: 0;
+		}
 	}
 
 	&--error {
@@ -187,6 +222,27 @@
 
 	.nphp {
 		@include mixins.visuallyHidden;
+	}
+}
+
+/* Sepcific styles to apply to .newspack-popup when Reader Registration is displayed */
+.newspack-popup {
+	&__content {
+		position: relative;
+	}
+
+	&.newspack-lightbox {
+		.newspack-lightbox__close {
+			top: 36px;
+		}
+	}
+
+	&.newspack-lightbox-featured-image {
+		.newspack-lightbox__close {
+			@media only screen and ( min-width: 782px ) {
+				top: 0;
+			}
+		}
 	}
 }
 
