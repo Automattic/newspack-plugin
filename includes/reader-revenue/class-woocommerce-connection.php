@@ -36,7 +36,7 @@ class WooCommerce_Connection {
 	 *
 	 * @return bool True if enabled. False if not.
 	 */
-	protected function can_sync_customers() {
+	protected static function can_sync_customers() {
 		return Reader_Activation::is_enabled() && class_exists( 'WC_Customer' ) && function_exists( 'wcs_get_users_subscriptions' );
 	}
 
