@@ -120,6 +120,11 @@ class WooCommerce_Connection {
 			return;
 		}
 
+		if ( self::CREATED_VIA_NAME === $order->get_created_via() ) {
+			// Only sync orders not created via the Stripe integration.
+			return;
+		}
+
 		$metadata_keys = Newspack_Newsletters::$metadata_keys;
 		$user_id       = $order->get_customer_id();
 		if ( ! $user_id ) {
