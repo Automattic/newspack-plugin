@@ -74,7 +74,7 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
-			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ] );
+			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 		}
 	}
@@ -1375,41 +1375,41 @@ final class Reader_Activation {
 	/**
 	 * Filters args sent to wp_mail when a password change email is sent.
 	 *
-	 * @param array $args The default notification email arguments. Used to build wp_mail().
+	 * @param array   $defaults {
+	 *       The default notification email arguments. Used to build wp_mail().
 	 *
-	 * @return array The filtered $args.
+	 *     @type string $to      The intended recipient - user email address.
+	 *     @type string $subject The subject of the email.
+	 *     @type string $message The body of the email.
+	 *     @type string $headers The headers of the email.
+	 * }
+	 * @param string  $key        The activation key.
+	 * @param string  $user_login The username for the user.
+	 * @param WP_User $user       WP_User object.
+	 *
+	 * @return array The filtered $defaults.
 	 */
-	public static function password_reset_configuration( $args ) {
+	public static function password_reset_configuration( $defaults, $key, $user_login, $user ) {
 		$config_name  = Reader_Activation_Emails::EMAIL_TYPES['RESET_PASSWORD'];
 		$email_config = Emails::get_email_config_by_type( $config_name );
 
-		$args['headers'] = sprintf(
+		$defaults['headers'] = sprintf(
 			'From: %1$s <%2$s>',
 			$email_config['from_name'],
 			$email_config['from_email']
 		);
-
-		$args['subject'] = $email_config['subject'];
-
-		$found_the_link = \preg_match(
-			'/.*wp-login\.php\?action=rp.*/',
-			$args['message'],
-			$matches
-		);
-		if ( $found_the_link ) {
-			$password_reset_url = $matches[0];
-			$args['message']    = Emails::get_email_payload(
-				$config_name,
+		$defaults['subject'] = $email_config['subject'];
+		$defaults['message'] = Emails::get_email_payload(
+			$config_name,
+			[
 				[
-					[
-						'template' => '*PASSWORD_RESET_LINK*',
-						'value'    => $password_reset_url,
-					],
-				]
-			);
-		}
+					'template' => '*PASSWORD_RESET_LINK*',
+					'value'    => Emails::get_password_reset_url( $user, $key ),
+				],
+			]
+		);
 
-		return $args;
+		return $defaults;
 	}
 
 	/**
