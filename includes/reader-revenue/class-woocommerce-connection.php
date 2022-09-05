@@ -24,7 +24,7 @@ class WooCommerce_Connection {
 	 */
 	public static function init() {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
-		
+
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
 
@@ -32,7 +32,7 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Check whether everything is set up to enable customer syncinc to ESP.
+	 * Check whether everything is set up to enable customer syncing to ESP.
 	 *
 	 * @return bool True if enabled. False if not.
 	 */
@@ -125,11 +125,10 @@ class WooCommerce_Connection {
 		if ( ! $user_id ) {
 			return;
 		}
-		
-		$customer      = new \WC_Customer( $user_id );
-		$email_address = $order->get_billing_email();
-		$metadata      = [ 
-			'registration_method' => 'woocommerce-order', 
+
+		$customer = new \WC_Customer( $user_id );
+		$metadata = [
+			'registration_method' => 'woocommerce-order',
 		];
 
 		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
@@ -171,7 +170,7 @@ class WooCommerce_Connection {
 					$metadata[ $metadata_keys['membership_status'] ] = 'Ex-Yearly Donor';
 				}
 			}
-			
+
 			$metadata[ $metadata_keys['sub_start_date'] ]      = $current_subscription->get_date( 'start' );
 			$metadata[ $metadata_keys['sub_end_date'] ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
 			$metadata[ $metadata_keys['billing_cycle'] ]       = $current_subscription->get_billing_period();
@@ -189,18 +188,14 @@ class WooCommerce_Connection {
 			}
 		}
 
-		\update_user_meta( $user_id, Reader_Activation::READER, true );
-
-		/**
-		 * Action after registering and authenticating a reader.
-		 *
-		 * @param string         $email_address Email address.
-		 * @param bool           $authenticate  Whether to authenticate after registering.
-		 * @param false|int      $user_id       The created user id.
-		 * @param false|\WP_User $existing_user The existing user object.
-		 * @param array          $metadata      Metadata.
-		 */
-		\do_action( 'newspack_registered_reader', $email_address, true, $user_id, get_user_by( 'id', $user_id ), $metadata );
+		$first_name = $order->get_billing_first_name();
+		$last_name  = $order->get_billing_last_name();
+		$contact    = [
+			'email'    => $order->get_billing_email(),
+			'name'     => "$first_name $last_name",
+			'metadata' => $metadata,
+		];
+		\Newspack_Newsletters_Subscription::add_contact( $contact );
 	}
 
 	/**
