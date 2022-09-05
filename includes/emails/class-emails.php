@@ -497,5 +497,21 @@ class Emails {
 		}
 		return true;
 	}
+
+	/**
+	 * Get a password reset URL.
+	 *
+	 * @param WP_User $user WP user object.
+	 * @param string  $key Reset key.
+	 */
+	public static function get_password_reset_url( $user, $key ) {
+		return add_query_arg(
+			[
+				'key' => $key,
+				'id'  => $user->ID,
+			],
+			wc_get_account_endpoint_url( 'lost-password' )
+		);
+	}
 }
 Emails::init();

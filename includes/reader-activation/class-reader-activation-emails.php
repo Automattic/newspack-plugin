@@ -27,6 +27,10 @@ class Reader_Activation_Emails {
 	 */
 	public static function init() {
 		add_filter( 'newspack_email_configs', [ __CLASS__, 'add_email_configs' ] );
+
+		// Disable the default WC password reset email and replace it with ours.
+		add_filter( 'woocommerce_email_enabled_customer_reset_password', '__return_false' );
+		add_action( 'woocommerce_reset_password_notification', [ __CLASS__, 'send_reset_password_email' ], 10, 2 );
 	}
 
 	/**
@@ -88,6 +92,26 @@ class Reader_Activation_Emails {
 			],
 		];
 		return $configs;
+	}
+
+	/**
+	 * Send password reset email.
+	 *
+	 * @param string $user_login User login.
+	 * @param string $key Password reset key.
+	 */
+	public static function send_reset_password_email( $user_login, $key ) {
+		$user = get_user_by( 'login', $user_login );
+		Emails::send_email(
+			self::EMAIL_TYPES['RESET_PASSWORD'],
+			$user->data->user_email,
+			[
+				[
+					'template' => '*PASSWORD_RESET_LINK*',
+					'value'    => Emails::get_password_reset_url( $user, $key ),
+				],
+			]
+		);
 	}
 }
 Reader_Activation_Emails::init();
