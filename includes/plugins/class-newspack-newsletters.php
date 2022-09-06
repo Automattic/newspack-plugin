@@ -212,7 +212,7 @@ class Newspack_Newsletters {
 	 */
 	public static function get_lists_without_active_campaign_master_list( $list_ids ) {
 		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
-		if ( is_int( intval( $master_list_id ) ) ) {
+		if ( is_int( intval( $master_list_id ) ) && is_array( $list_ids ) ) {
 			return array_values( // Reset keys.
 				array_filter(
 					$list_ids,
