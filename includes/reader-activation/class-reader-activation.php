@@ -28,6 +28,7 @@ final class Reader_Activation {
 	 */
 	const READER              = 'np_reader';
 	const EMAIL_VERIFIED      = 'np_reader_email_verified';
+	const WITHOUT_PASSWORD    = 'np_reader_without_password';
 	const REGISTRATION_METHOD = 'np_reader_registration_method';
 
 	/**
@@ -39,6 +40,11 @@ final class Reader_Activation {
 		'link',
 		'register',
 	];
+
+	/**
+	 * Registration methods that don't require account verification.
+	 */
+	const SSO_REGISTRATION_METHODS = [ 'google' ];
 
 	/**
 	 * Whether the session is authenticating a newly registered reader
@@ -59,6 +65,7 @@ final class Reader_Activation {
 			\add_filter( 'login_form_defaults', [ __CLASS__, 'add_auth_intention_to_login_form' ], 20 );
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
+			\add_action( 'password_reset', [ __CLASS__, 'set_reader_has_password' ] );
 			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
@@ -67,7 +74,8 @@ final class Reader_Activation {
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
-			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_email_from' ] );
+			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
+			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 		}
 	}
 
@@ -153,7 +161,7 @@ final class Reader_Activation {
 			'sync_esp'                    => true,
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
-			'emails'                      => Emails::get_emails( [ Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'] ], false ),
+			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
 		];
 
 		/**
@@ -222,10 +230,17 @@ final class Reader_Activation {
 	/**
 	 * Whether reader activation is enabled.
 	 *
+	 * @param bool $strict If true, check both the environment constant and the setting.
+	 *                     If false, only check for the constant.
+	 *
 	 * @return bool True if reader activation is enabled.
 	 */
-	public static function is_enabled() {
+	public static function is_enabled( $strict = true ) {
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
+
+		if ( ! $strict ) {
+			return $is_enabled;
+		}
 
 		if ( $is_enabled ) {
 			$is_enabled = self::get_setting( 'enabled' );
@@ -422,6 +437,49 @@ final class Reader_Activation {
 		do_action( 'newspack_reader_verified', $user );
 
 		return true;
+	}
+
+	/**
+	 * Remove "without password" meta from user.
+	 *
+	 * @param \WP_User|int $user_or_user_id User object or user ID.
+	 *
+	 * @return bool Whether the meta was removed.
+	 */
+	public static function set_reader_has_password( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
+		}
+
+		if ( ! isset( $user ) || ! $user ) {
+			return false;
+		}
+
+		delete_user_meta( $user->ID, self::WITHOUT_PASSWORD );
+		return true;
+	}
+
+	/**
+	 * Whether the reader hasn't set its own password.
+	 *
+	 * @param \WP_User|int $user_or_user_id User object or user ID.
+	 *
+	 * @return bool|WP_Error Whether the reader hasn't set its password or error.
+	 */
+	public static function is_reader_without_password( $user_or_user_id ) {
+		if ( $user_or_user_id instanceof \WP_User ) {
+			$user = $user_or_user_id;
+		} elseif ( absint( $user_or_user_id ) ) {
+			$user = get_user_by( 'id', $user_or_user_id );
+		}
+
+		if ( ! isset( $user ) || ! $user || ! self::is_user_reader( $user ) ) {
+			return new \WP_Error( 'newspack_is_reader_without_password', __( 'Invalid user.', 'newspack' ) );
+		}
+
+		return (bool) \get_user_meta( $user->ID, self::WITHOUT_PASSWORD, false );
 	}
 
 	/**
@@ -1220,9 +1278,14 @@ final class Reader_Activation {
 				return $user_id;
 			}
 
-			/** Add default reader related meta. */
+			/**
+			 * Add default reader related meta.
+			 */
 			\update_user_meta( $user_id, self::READER, true );
+			/** Email is not yet verified. */
 			\update_user_meta( $user_id, self::EMAIL_VERIFIED, false );
+			/** User hasn't set their own password yet. */
+			\update_user_meta( $user_id, self::WITHOUT_PASSWORD, true );
 
 			Logger::log( 'Created new reader user with ID ' . $user_id );
 
@@ -1232,13 +1295,10 @@ final class Reader_Activation {
 			}
 		}
 
-		/** Registration methods that don't require account verification. */
-		$verified_registration_methods = [ 'google' ];
-
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
-			if ( in_array( $metadata['registration_method'], $verified_registration_methods, true ) ) {
+			if ( in_array( $metadata['registration_method'], self::SSO_REGISTRATION_METHODS, true ) ) {
 				self::set_reader_verified( $user_id );
 			}
 		}
@@ -1271,8 +1331,6 @@ final class Reader_Activation {
 	public static function send_verification_email( $user ) {
 		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 
-
-		Logger::log( 'Sending verification email to new user ' . $user->user_email );
 		return Emails::send_email(
 			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
 			$user->user_email,
@@ -1313,57 +1371,55 @@ final class Reader_Activation {
 		return $emails;
 	}
 
-	/**
-	 * Get the from email address used to send all transactional emails.
-	 * We avoid use of the `wp_mail_from` hook because we only want to
-	 * set the email address for Reader Activation emails, not all emails
-	 * sent via wp_mail.
-	 *
-	 * @return string Email address used as the sender for Reader Activation emails.
-	 */
-	public static function get_from_email() {
-		// Get the site domain and get rid of www.
-		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
-		$from_email = 'no-reply@';
-
-		if ( null !== $sitename ) {
-			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
-				$sitename = substr( $sitename, 4 );
-			}
-
-			$from_email .= $sitename;
-		}
-
-		return apply_filters( 'newspack_reader_activation_from_email', $from_email );
-	}
-
-	/**
-	 * Get the from from name used to send all transactional emails.
-	 * We avoid use of the `wp_mail_from_name` hook because we only want
-	 * to set the name for Reader Activation emails, not all emails
-	 * sent via wp_mail.
-	 *
-	 * @return string Name used as the sender for Reader Activation emails.
-	 */
-	public static function get_from_name() {
-		return apply_filters( 'newspack_reader_activation_from_name', get_bloginfo( 'name' ) );
-	}
 
 	/**
 	 * Filters args sent to wp_mail when a password change email is sent.
 	 *
-	 * @param array $args The default notification email arguments. Used to build wp_mail().
+	 * @param array   $defaults {
+	 *       The default notification email arguments. Used to build wp_mail().
 	 *
-	 * @return array The filtered $args.
+	 *     @type string $to      The intended recipient - user email address.
+	 *     @type string $subject The subject of the email.
+	 *     @type string $message The body of the email.
+	 *     @type string $headers The headers of the email.
+	 * }
+	 * @param string  $key        The activation key.
+	 * @param string  $user_login The username for the user.
+	 * @param WP_User $user       WP_User object.
+	 *
+	 * @return array The filtered $defaults.
 	 */
-	public static function password_reset_email_from( $args ) {
-		$args['headers'] = sprintf(
+	public static function password_reset_configuration( $defaults, $key, $user_login, $user ) {
+		$config_name  = Reader_Activation_Emails::EMAIL_TYPES['RESET_PASSWORD'];
+		$email_config = Emails::get_email_config_by_type( $config_name );
+
+		$defaults['headers'] = sprintf(
 			'From: %1$s <%2$s>',
-			self::get_from_name(),
-			self::get_from_email()
+			$email_config['from_name'],
+			$email_config['from_email']
+		);
+		$defaults['subject'] = $email_config['subject'];
+		$defaults['message'] = Emails::get_email_payload(
+			$config_name,
+			[
+				[
+					'template' => '*PASSWORD_RESET_LINK*',
+					'value'    => Emails::get_password_reset_url( $user, $key ),
+				],
+			]
 		);
 
-		return $args;
+		return $defaults;
+	}
+
+	/**
+	 * Set email content type when a password reset email is about to be sent.
+	 */
+	public static function set_password_reset_mail_content_type() {
+		$email_content_type = function() {
+			return 'text/html';
+		};
+		add_filter( 'wp_mail_content_type', $email_content_type );
 	}
 }
 Reader_Activation::init();

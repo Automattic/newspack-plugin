@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Emails {
 	const POST_TYPE              = 'newspack_rr_email'; // "Reader Revenue" emails, for legacy reasons.
-	const EMAIL_CONFIG_NAME_META = 'newspack_email_type'; // "ype" for legacy reasons.
+	const EMAIL_CONFIG_NAME_META = 'newspack_email_type'; // "type" for legacy reasons.
 
 	/**
 	 * Initialize.
@@ -124,6 +124,8 @@ class Emails {
 				'current_user_email'     => wp_get_current_user()->user_email,
 				'configs'                => self::get_email_configs(),
 				'email_config_name_meta' => self::EMAIL_CONFIG_NAME_META,
+				'from_name'              => self::get_from_name(),
+				'from_email'             => self::get_from_email(),
 			]
 		);
 		wp_enqueue_script( $handle );
@@ -155,56 +157,16 @@ class Emails {
 				'auth_callback'  => '__return_true',
 			]
 		);
-		\register_meta(
-			'post',
-			'from_name',
-			[
-				'object_subtype' => self::POST_TYPE,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'single'         => true,
-				'auth_callback'  => '__return_true',
-				'default'        => get_bloginfo( 'name' ),
-			]
-		);
-		\register_meta(
-			'post',
-			'from_email',
-			[
-				'object_subtype' => self::POST_TYPE,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'single'         => true,
-				'auth_callback'  => '__return_true',
-				'default'        => get_bloginfo( 'admin_email' ),
-			]
-		);
 	}
 
 	/**
-	 * Send an HTML email.
+	 * Get email payload by config name.
 	 *
-	 * @param string|int $type_or_post_id Email type or email post ID.
-	 * @param string     $to Recipient's email addesss.
-	 * @param array      $placeholders Dynamic content substitutions.
+	 * @param string $config_name Name of email config.
+	 * @param array  $placeholders Placeholders to replace in email.
 	 */
-	public static function send_email( $type_or_post_id, $to, $placeholders = [] ) {
-		if ( ! self::supports_emails() ) {
-			return false;
-		}
-
-		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
-
-		if ( 'string' === gettype( $type_or_post_id ) ) {
-			$email_config = self::get_email_config_by_type( $type_or_post_id );
-		} elseif ( 'integer' === gettype( $type_or_post_id ) ) {
-			$email_config = self::serialize_email( null, $type_or_post_id );
-		} else {
-			return false;
-		}
-		if ( ! $to || ! $email_config || 'publish' !== $email_config['status'] ) {
-			return false;
-		}
+	public static function get_email_payload( $config_name, $placeholders = [] ) {
+		$email_config = self::get_email_config_by_type( $config_name );
 		$html         = $email_config['html_payload'];
 		$from_email   = $email_config['from_email'];
 		$placeholders = array_merge(
@@ -231,6 +193,32 @@ class Emails {
 				$html
 			);
 		}
+		return $html;
+	}
+
+	/**
+	 * Send an HTML email.
+	 *
+	 * @param string $config_name Email config name.
+	 * @param string $to Recipient's email addesss.
+	 * @param array  $placeholders Dynamic content substitutions.
+	 */
+	public static function send_email( $config_name, $to, $placeholders = [] ) {
+		if ( ! self::supports_emails() ) {
+			return false;
+		}
+
+		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
+
+		if ( 'string' === gettype( $config_name ) ) {
+			$email_config = self::get_email_config_by_type( $config_name );
+		} else {
+			return false;
+		}
+		if ( ! $to || ! $email_config || 'publish' !== $email_config['status'] ) {
+			return false;
+		}
+
 		$email_content_type = function() {
 			return 'text/html';
 		};
@@ -239,9 +227,9 @@ class Emails {
 		$email_send_result = wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
 			$to,
 			$email_config['subject'],
-			$html,
+			self::get_email_payload( $config_name, $placeholders ),
 			[
-				sprintf( 'From: %s <%s>', $email_config['from_name'], $from_email ),
+				sprintf( 'From: %s <%s>', $email_config['from_name'], $email_config['from_email'] ),
 			]
 		);
 		remove_filter( 'wp_mail_content_type', $email_content_type );
@@ -249,6 +237,8 @@ class Emails {
 		if ( $switched_locale ) {
 			\restore_previous_locale();
 		}
+
+		Logger::log( 'Sending "' . $config_name . '" email to: ' . $to );
 
 		return $email_send_result;
 	}
@@ -334,8 +324,8 @@ class Emails {
 			// Make the edit link relative.
 			'edit_link'    => str_replace( site_url(), '', get_edit_post_link( $post_id, '' ) ),
 			'subject'      => get_the_title( $post_id ),
-			'from_name'    => isset( $email_config['from_name'] ) ? $email_config['from_name'] : get_post_meta( $post_id, 'from_name', true ),
-			'from_email'   => isset( $email_config['from_email'] ) ? $email_config['from_email'] : get_post_meta( $post_id, 'from_email', true ),
+			'from_name'    => isset( $email_config['from_name'] ) ? $email_config['from_name'] : self::get_from_name(),
+			'from_email'   => isset( $email_config['from_email'] ) ? $email_config['from_email'] : self::get_from_email(),
 			'status'       => get_post_status( $post_id ),
 			'html_payload' => $html_payload,
 		];
@@ -344,12 +334,46 @@ class Emails {
 	}
 
 	/**
+	 * Get the from email address used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from` hook because we only want to
+	 * set the email address for Newspack emails, not all emails sent via wp_mail.
+	 *
+	 * @return string Email address used as the sender for Newspack emails.
+	 */
+	public static function get_from_email() {
+		// Get the site domain and get rid of www.
+		$sitename   = wp_parse_url( network_home_url(), PHP_URL_HOST );
+		$from_email = 'no-reply@';
+
+		if ( null !== $sitename ) {
+			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email .= $sitename;
+		}
+
+		return apply_filters( 'newspack_from_email', $from_email );
+	}
+
+	/**
+	 * Get the from from name used to send all transactional emails.
+	 * We avoid use of the `wp_mail_from_name` hook because we only want
+	 * to set the name for Newspack emails, not all emails sent via wp_mail.
+	 *
+	 * @return string Name used as the sender for Newspack emails.
+	 */
+	public static function get_from_name() {
+		return apply_filters( 'newspack_from_name', get_bloginfo( 'name' ) );
+	}
+
+	/**
 	 * Get the email for a specific type.
 	 * If the email does not exist, it will be created based on default template.
 	 *
 	 * @param string $type Type of the email.
 	 */
-	private static function get_email_config_by_type( $type ) {
+	public static function get_email_config_by_type( $type ) {
 		$emails_query = new \WP_Query(
 			[
 				'post_type'      => self::POST_TYPE,
@@ -472,6 +496,22 @@ class Emails {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Get a password reset URL.
+	 *
+	 * @param WP_User $user WP user object.
+	 * @param string  $key Reset key.
+	 */
+	public static function get_password_reset_url( $user, $key ) {
+		return add_query_arg(
+			[
+				'key' => $key,
+				'id'  => $user->ID,
+			],
+			wc_get_account_endpoint_url( 'lost-password' )
+		);
 	}
 }
 Emails::init();

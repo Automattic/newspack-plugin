@@ -44,12 +44,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * @param string $type Email type.
 	 */
 	private static function get_test_email( $type ) {
-		$email = Emails::get_emails()[ $type ];
-		// Mitigate a weird issue with PHPUnit – when running the whole test suite (as opposed to a
-		// single run with `--filter` flag), the default values from `register_meta` calls are ignored.
-		update_post_meta( $email['post_id'], 'from_name', get_bloginfo( 'name' ) );
-		update_post_meta( $email['post_id'], 'from_email', get_bloginfo( 'admin_email' ) );
-		// Return the updated version.
 		return Emails::get_emails()[ $type ];
 	}
 
@@ -143,7 +137,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 			'Sent email has the expected subject'
 		);
 		self::assertContains(
-			'From: Test Blog <admin@example.org>',
+			'From: Test Blog <no-reply@example.org>',
 			$mailer->get_sent()->header,
 			'Sent email has the expected "From" header'
 		);
@@ -152,26 +146,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 			$mailer->get_sent()->body,
 			'Sent email contains the replaced placeholder content'
 		);
-	}
-
-	/**
-	 * Sending by email id.
-	 */
-	public function test_emails_send_by_id() {
-		Plugin_Manager::activate( 'newspack-newsletters' );
-		$test_email = self::get_test_email( 'test-email-config' );
-
-		$send_result = Emails::send_email(
-			$test_email['post_id'],
-			'someone@example.com'
-		);
-		self::assertTrue( $send_result, 'Email has been sent.' );
-
-		$send_result = Emails::send_email(
-			9999,
-			'someone@example.com'
-		);
-		self::assertFalse( $send_result, 'Non-existent email is not sent.' );
 	}
 
 	/**
@@ -189,10 +163,10 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 
 		self::assertFalse( Emails::can_send_email( 'test-email-config' ), 'Email can\'t be sent – it\'s not published.' );
 		$send_result = Emails::send_email(
-			$test_email['post_id'],
+			'test-email-config',
 			'someone@example.com'
 		);
 
-		self::assertFalse( $send_result, 'Email has been sent.' );
+		self::assertFalse( $send_result, 'Email has not been sent.' );
 	}
 }
