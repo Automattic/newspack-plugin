@@ -79,6 +79,20 @@ function enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 
 /**
+ * Generate a unique ID for each registration form.
+ *
+ * The ID for each form instance is unique only for each page render.
+ * The main intent is to be able to pass this ID to analytics so we
+ * can identify what type of form it is, so the ID doesn't need to be
+ * predictable nor consistent across page renders.
+ *
+ * @return string A unique ID string to identify the form.
+ */
+function get_form_id() {
+	return \wp_unique_id( 'newspack-register-' );
+}
+
+/**
  * Render Registration Block.
  *
  * @param array[] $attrs Block attributes.
@@ -159,7 +173,7 @@ function render_block( $attrs, $content ) {
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
-			<form>
+			<form id="<?php echo esc_attr( get_form_id() ); ?>">
 				<div class="newspack-registration__header">
 					<?php if ( ! empty( $attrs['title'] ) ) : ?>
 						<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>

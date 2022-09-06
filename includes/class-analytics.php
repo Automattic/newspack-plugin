@@ -724,16 +724,41 @@ class Analytics {
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'submit', function() {
+					elements[i].addEventListener( 'submit', function(e) {
+						var eventInfo = {
+								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>'
+						};
+						<?php if ( isset( $event['event_label'] ) ) : ?>
+							var form = e.currentTarget;
+							var eventLabel = '<?php echo isset( $event['event_label'] ) ? esc_attr( $event['event_label'] ) : ''; ?>';
+							<?php if ( preg_match( '/(\${formId}|\${formFields\[(.*?)\]})/', $event['event_label'] ) ) : ?>
+								eventLabel = eventLabel.replace( '${formId}', form.id );
+								var fields = eventLabel.match( /\${formFields\[(.*?)\]}/g )
+								fields.forEach( function( field ) {
+									var fieldName = field.match( /\${formFields\[(.*?)\]}/ )[1];
+									if ( form[ fieldName ] ) {
+										var fieldValues = [];
+										if ( form[ fieldName ].length ) {
+											for ( var j = 0; j < form[ fieldName ].length; j++ ) {
+												if ( form[ fieldName ][ j ].checked ) {
+													fieldValues.push( form[ fieldName ][ j ].value );
+												}
+											}
+										} else {
+											fieldValues.push( form[ fieldName ].value );
+										}
+
+										eventLabel = eventLabel.replace( field, fieldValues.join( ',' ) );
+									}
+								} );
+							<?php endif; ?>
+							eventInfo.event_label = eventLabel;
+						<?php endif; ?>
+
 						gtag(
 							'event',
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								<?php if ( isset( $event['event_label'] ) ) : ?>
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-								<?php endif; ?>
-							}
+							eventInfo
 						);
 					} );
 				}
