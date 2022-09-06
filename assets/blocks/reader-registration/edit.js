@@ -206,33 +206,35 @@ export default function ReaderRegistrationEdit( {
 				{ editedState === 'initial' && (
 					<div className={ `newspack-registration ${ className }` }>
 						<form onSubmit={ ev => ev.preventDefault() }>
-							<div className="newspack-registration__have-account">
-								<p>
-									<RichText
-										onChange={ value => setAttributes( { haveAccountLabel: value } ) }
-										placeholder={ __( 'Already have an account?', 'newspack' ) }
-										value={ haveAccountLabel }
-										tagName="span"
-									/>{ ' ' }
-									<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+							<div className="newspack-registration__header">
+								<RichText
+									onChange={ value => setAttributes( { title: value } ) }
+									placeholder={ __( 'Write title…', 'newspack' ) }
+									value={ title }
+									tagName="h2"
+								/>
+								<div className="newspack-registration__have-account">
+									<p>
 										<RichText
-											onChange={ value => setAttributes( { signInLabel: value } ) }
-											placeholder={ __( 'Sign In', 'newspack' ) }
-											value={ signInLabel }
+											onChange={ value => setAttributes( { haveAccountLabel: value } ) }
+											placeholder={ __( 'Already have an account?', 'newspack' ) }
+											value={ haveAccountLabel }
 											tagName="span"
-										/>
-									</a>
-								</p>
+										/>{ ' ' }
+										<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+											<RichText
+												onChange={ value => setAttributes( { signInLabel: value } ) }
+												placeholder={ __( 'Sign In', 'newspack' ) }
+												value={ signInLabel }
+												tagName="span"
+											/>
+										</a>
+									</p>
+								</div>
 							</div>
 							<RichText
-								onChange={ value => setAttributes( { title: value } ) }
-								placeholder={ __( 'Block title…', 'newspack' ) }
-								value={ title }
-								tagName="h2"
-							/>
-							<RichText
 								onChange={ value => setAttributes( { description: value } ) }
-								placeholder={ __( 'Block description…', 'newspack' ) }
+								placeholder={ __( 'Write description…', 'newspack' ) }
 								value={ description }
 								tagName="p"
 							/>

@@ -152,12 +152,14 @@
 				margin: 0;
 
 				button[type='submit'] {
-					background-color: #d33;
+					background-color: var( --newspack-cta-color );
+					color: var( --newspack-cta-contrast-color );
 					transition: background-color 150ms ease-in-out;
 
 					&:hover,
 					&:focus {
 						background-color: #111;
+						color: white;
 					}
 				}
 			}
@@ -212,18 +214,28 @@
 			}
 
 			h2 {
-				font-size: 1em;
-				line-height: 1.5;
+				font-size: 1rem;
+				line-height: 1.3333333333;
 				margin: 0;
 
-				@media screen and ( min-width: 782px ) {
+				@media screen and ( min-width: 600px ) {
 					font-size: 1.3125em;
 					line-height: 1.523809;
 				}
 			}
+		}
+
+		& &__header {
 			a {
+				color: wp-colors.$gray-700;
 				font-size: 0.8125em;
 				line-height: 1.2307692308;
+
+				&:active,
+				&:focus,
+				&:hover {
+					text-decoration: none;
+				}
 			}
 		}
 
@@ -320,9 +332,9 @@
 		}
 
 		&__terms-text {
-			font-size: 0.6875em;
-			line-height: 1.45454545 !important;
 			color: wp-colors.$gray-700;
+			font-size: 0.8125em;
+			line-height: 1.2307692308 !important;
 			a {
 				color: inherit;
 			}

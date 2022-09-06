@@ -16,19 +16,13 @@
 		}
 	}
 
-	h2 {
-		margin-top: 0;
-	}
-
 	form {
-		padding-top: 36px;
-
 		> p {
 			margin: 1em 0;
 		}
 	}
 
-	@media ( min-width: 782px ) {
+	@media only screen and ( min-width: 782px ) {
 		&.is-style-columns {
 			.newspack-registration__main {
 				flex: 1 1 63.4146%;
@@ -86,7 +80,7 @@
 			margin-top: 0.5rem;
 			width: 100%;
 
-			@media ( min-width: 782px ) {
+			@media only screen and ( min-width: 782px ) {
 				margin-left: 0.4rem;
 				margin-top: 0;
 				width: auto;
@@ -94,38 +88,44 @@
 		}
 	}
 
-	&__have-account {
-		align-items: center;
-		background: var( --newspack-secondary-color );
-		color: var( --newspack-secondary-contrast-color );
+	&__header {
+		align-items: baseline;
+		column-gap: 2em;
 		display: flex;
-		font-size: 1em;
-		justify-content: center;
-		left: 0;
-		line-height: 1.5;
-		min-height: 36px;
-		padding: 0 16px;
-		position: absolute;
-		right: 0;
-		top: 0;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		margin-bottom: 1em;
+		row-gap: 0.5em;
 
-		@media only screen and ( min-width: 600px ) {
-			padding-left: 32px;
-			padding-right: 32px;
-		}
-
+		h2,
 		p {
 			margin: 0;
-			padding: 0.375em 0;
 		}
+
+		h2 {
+			font-size: 1rem;
+			line-height: 1.3333333333;
+
+			@media screen and ( min-width: 600px ) {
+				font-size: 1.3125em;
+				line-height: 1.523809;
+			}
+		}
+	}
+
+	&__have-account {
+		color: wp-colors.$gray-700;
+		font-size: 0.8125em;
+		justify-self: flex-end;
+		line-height: 1.2307692308;
 	}
 
 	&__help-text {
 		p {
 			color: wp-colors.$gray-700;
+			font-size: 0.8125em !important;
+			line-height: 1.2307692308;
 			margin: 0.8rem 0 0;
-			font-size: 0.6875em !important;
-			line-height: 1.45454545;
 		}
 	}
 
@@ -225,23 +225,13 @@
 	}
 }
 
-/* Sepcific styles to apply to .newspack-popup when Reader Registration is displayed */
-.newspack-popup {
-	&__content {
-		position: relative;
-	}
+/* Sepcific styles to apply to Reader Registration when part of a Prompt */
+.newspack-popup__content {
+	.newspack-registration__header {
+		padding-right: 36px;
 
-	&.newspack-lightbox {
-		.newspack-lightbox__close {
-			top: 36px;
-		}
-	}
-
-	&.newspack-lightbox-featured-image {
-		.newspack-lightbox__close {
-			@media only screen and ( min-width: 782px ) {
-				top: 0;
-			}
+		@media screen and ( min-width: 600px ) {
+			padding-right: 0;
 		}
 	}
 }

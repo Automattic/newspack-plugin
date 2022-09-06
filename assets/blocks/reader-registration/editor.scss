@@ -72,11 +72,18 @@
 			gap: 4px;
 		}
 	}
-	& &__have-account {
-		background: var( --wp--preset--color--secondary );
+	& &__header {
 		font-size: 0.8em;
-		margin-bottom: 32px;
-		position: relative;
+
+		h2 {
+			font-size: 1rem;
+			line-height: 1.3333333333;
+
+			@media screen and ( min-width: 600px ) {
+				font-size: 1.3125em;
+				line-height: 1.523809;
+			}
+		}
 
 		p {
 			font-size: 1em;
