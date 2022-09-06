@@ -1,3 +1,37 @@
+# [1.90.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.90.0-alpha.1...v1.90.0-alpha.2) (2022-09-06)
+
+
+### Bug Fixes
+
+* allow Register block to be edited even if RAS is not enabled ([#1962](https://github.com/Automattic/newspack-plugin/issues/1962)) ([649f47b](https://github.com/Automattic/newspack-plugin/commit/649f47b57965121aa0b11f11a7e1c3aaeebd00f1))
+* **emails:** editor message ([62dec52](https://github.com/Automattic/newspack-plugin/commit/62dec5226b7413afd62da173ace49624425cc0a8))
+* localized reader auth error messages ([#1948](https://github.com/Automattic/newspack-plugin/issues/1948)) ([fb58a7f](https://github.com/Automattic/newspack-plugin/commit/fb58a7f6b7b2cfdfe13845330de9ed87f83e8f8b))
+* **reader-activation:** send payment contact metadata only if RA is enabled ([#1957](https://github.com/Automattic/newspack-plugin/issues/1957)) ([3e14777](https://github.com/Automattic/newspack-plugin/commit/3e1477742f1c8cc6819282054c99f35e36b47803))
+* **registration-block:** allow any markup in the success state ([977e77a](https://github.com/Automattic/newspack-plugin/commit/977e77a75c266e636cf764bc67061b7d51f563f1))
+* **registration-block:** fix empty success state ([272aee5](https://github.com/Automattic/newspack-plugin/commit/272aee5c7b291240beb067afcc2401c3992264f4))
+* **WooCommerce:** error notice text color ([#1954](https://github.com/Automattic/newspack-plugin/issues/1954)) ([2e4b95f](https://github.com/Automattic/newspack-plugin/commit/2e4b95f52602529faef051c804d95891f02ed6e2))
+
+
+### Features
+
+* **ac-metadata:** send SSO provider name as "NP_Connected Account" field ([56b6597](https://github.com/Automattic/newspack-plugin/commit/56b6597426f75b75205490acad7284119045b03d))
+* **ac-metadata:** send Stripe customer LTV as "NP_Total Paid" field ([5f6da59](https://github.com/Automattic/newspack-plugin/commit/5f6da59f02897284ea5cefdc45d5dfb4a2e5bbd1))
+* after account deletion message ([2547b76](https://github.com/Automattic/newspack-plugin/commit/2547b76373b620e9852040bdcb68c28e49a3657d))
+* **analytics:** prevent sending NTG newsletter event if subscribing to master list ([#1946](https://github.com/Automattic/newspack-plugin/issues/1946)) ([806a8b0](https://github.com/Automattic/newspack-plugin/commit/806a8b0a07c4496fd2f209536d0b78ad42b7ce1a))
+* custom messaging for reader without password ([#1965](https://github.com/Automattic/newspack-plugin/issues/1965)) ([a584b59](https://github.com/Automattic/newspack-plugin/commit/a584b597f6d0e067e60734c42b9b03eac1346e4c))
+* give each registration form a unique ID ([#1953](https://github.com/Automattic/newspack-plugin/issues/1953)) ([29fb515](https://github.com/Automattic/newspack-plugin/commit/29fb515534ff5036b7c734de1267d8e5f3f3c05d))
+* **google-sitekit:** prevent excluding logged-in users from GA if RA is enabled ([#1960](https://github.com/Automattic/newspack-plugin/issues/1960)) ([3b18bcc](https://github.com/Automattic/newspack-plugin/commit/3b18bcc400439b0036440994f0db226ce7eee559))
+* **reader-activation:** customizable account deletion, password reset emails ([#1938](https://github.com/Automattic/newspack-plugin/issues/1938)) ([c121e5c](https://github.com/Automattic/newspack-plugin/commit/c121e5c3ceb531fae58154585f85d2978b4f187e))
+* **reader-activation:** customizable verification email ([#1929](https://github.com/Automattic/newspack-plugin/issues/1929)) ([d293701](https://github.com/Automattic/newspack-plugin/commit/d2937017d15b4e49070de2342384d1ebefcce01f))
+* **reader-activation:** handle global auth success in registration block ([debf5d2](https://github.com/Automattic/newspack-plugin/commit/debf5d2da397a24362134020959cf6a85c942b39))
+* **reader-activation:** improve password reset flow ([a05a9b6](https://github.com/Automattic/newspack-plugin/commit/a05a9b6cea9d4d1a15918d0e88848b97423655fb))
+* **registration-block:** hidden input for subscription ([#1949](https://github.com/Automattic/newspack-plugin/issues/1949)) ([fc4f4d5](https://github.com/Automattic/newspack-plugin/commit/fc4f4d5725d557086acbcbf35051ce4ad067c863))
+* reorganise reader registration header section ([#1967](https://github.com/Automattic/newspack-plugin/issues/1967)) ([f3f54e1](https://github.com/Automattic/newspack-plugin/commit/f3f54e109fab6fcb18c5e664a4c9a6205de80fe7))
+* update billing portal copy ([8040b80](https://github.com/Automattic/newspack-plugin/commit/8040b80d2d2567885d3a97e2292ad91b8488e525))
+* update reader-facing language on auth fail ([#1974](https://github.com/Automattic/newspack-plugin/issues/1974)) ([a05ca37](https://github.com/Automattic/newspack-plugin/commit/a05ca37f84574a21f040c278ffcf75982d66e1db))
+* update woocommerce account message/notice ([#1956](https://github.com/Automattic/newspack-plugin/issues/1956)) ([db18b95](https://github.com/Automattic/newspack-plugin/commit/db18b9546d3ca73e6fb35d6355669e718fbb6232))
+* use universal "from" email, customizable magic link email ([#1937](https://github.com/Automattic/newspack-plugin/issues/1937)) ([3b269aa](https://github.com/Automattic/newspack-plugin/commit/3b269aa6e62a3edc936c94d2af7fac78e536ccbc))
+
 # [1.90.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.89.1...v1.90.0-alpha.1) (2022-08-26)
 
 
