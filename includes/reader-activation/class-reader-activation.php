@@ -1426,12 +1426,12 @@ final class Reader_Activation {
 	/**
 	 * Gets the URL to redirect the user after logging out from the My Account page
 	 *
-	 * @param string  $redirect_to           The redirect destination URL.
-	 * @param string  $requested_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @param string $redirect_to           The redirect destination URL.
+	 * @param string $requested_redirect_to The requested redirect destination URL passed as a parameter.
 	 * @return string
 	 */
 	public static function get_logout_redirect_url( $redirect_to, $requested_redirect_to ) {
-		if ( function_exists( 'wc_get_page_permalink') && wc_get_page_permalink( 'myaccount' ) === $requested_redirect_to ) {
+		if ( function_exists( 'wc_get_page_permalink' ) && wc_get_page_permalink( 'myaccount' ) === $requested_redirect_to ) {
 			return site_url();
 		}
 		return $redirect_to;
