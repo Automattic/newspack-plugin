@@ -209,7 +209,7 @@ export default function ReaderRegistrationEdit( {
 							<div className="newspack-registration__header">
 								<RichText
 									onChange={ value => setAttributes( { title: value } ) }
-									placeholder={ __( 'Write title…', 'newspack' ) }
+									placeholder={ __( 'Add title', 'newspack' ) }
 									value={ title }
 									tagName="h2"
 								/>
@@ -234,7 +234,7 @@ export default function ReaderRegistrationEdit( {
 							</div>
 							<RichText
 								onChange={ value => setAttributes( { description: value } ) }
-								placeholder={ __( 'Write description…', 'newspack' ) }
+								placeholder={ __( 'Add description', 'newspack' ) }
 								value={ description }
 								tagName="p"
 							/>
