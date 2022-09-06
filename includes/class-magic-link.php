@@ -465,7 +465,7 @@ final class Magic_Link {
 						}
 					</style>
 					<div class="newspack-magic-link-error">
-						<?php \esc_html_e( 'We were not able to authenticate your account through this link. Please generate a new one.', 'newspack' ); ?>
+						<?php \esc_html_e( 'We were not able to authenticate your account. Please try logging in again.', 'newspack' ); ?>
 					</div>
 					<?php
 				},
