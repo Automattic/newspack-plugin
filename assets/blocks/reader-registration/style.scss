@@ -16,7 +16,13 @@
 		}
 	}
 
-	@media ( min-width: 782px ) {
+	form {
+		> p {
+			margin: 1em 0;
+		}
+	}
+
+	@media only screen and ( min-width: 782px ) {
 		&.is-style-columns {
 			.newspack-registration__main {
 				flex: 1 1 63.4146%;
@@ -69,11 +75,12 @@
 			flex: 1 1 auto;
 		}
 		[type='submit'] {
-			background-color: #d33;
+			background-color: var( --newspack-cta-color );
+			color: var( --newspack-cta-contrast-color );
 			margin-top: 0.5rem;
 			width: 100%;
 
-			@media ( min-width: 782px ) {
+			@media only screen and ( min-width: 782px ) {
 				margin-left: 0.4rem;
 				margin-top: 0;
 				width: auto;
@@ -81,28 +88,56 @@
 		}
 	}
 
-	&__have-account {
-		font-size: 0.8125em;
-		line-height: 1.2307692308;
-		margin: 0.8rem 0;
+	&__header {
+		align-items: baseline;
+		column-gap: 2em;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		margin-bottom: 1em;
+		row-gap: 0.5em;
 
+		h2,
 		p {
 			margin: 0;
 		}
+
+		h2 {
+			font-size: 1rem;
+			line-height: 1.3333333333;
+
+			@media screen and ( min-width: 600px ) {
+				font-size: 1.3125em;
+				line-height: 1.523809;
+			}
+		}
+	}
+
+	&__have-account {
+		color: wp-colors.$gray-700;
+		font-size: 0.8125em;
+		justify-self: flex-end;
+		line-height: 1.2307692308;
 	}
 
 	&__help-text {
 		p {
 			color: wp-colors.$gray-700;
-			margin: 0;
-			font-size: 0.6875em !important;
-			line-height: 1.45454545;
+			font-size: 0.8125em !important;
+			line-height: 1.2307692308;
+			margin: 0.8rem 0 0;
 		}
 	}
 
 	&__response {
 		margin-top: 0.5rem;
 		font-size: 0.8em;
+	}
+
+	&__registration-success {
+		> *:last-child {
+			margin-bottom: 0;
+		}
 	}
 
 	&--error {
@@ -187,6 +222,17 @@
 
 	.nphp {
 		@include mixins.visuallyHidden;
+	}
+}
+
+/* Sepcific styles to apply to Reader Registration when part of a Prompt */
+.newspack-popup__content {
+	.newspack-registration__header {
+		padding-right: 36px;
+
+		@media screen and ( min-width: 600px ) {
+			padding-right: 0;
+		}
 	}
 }
 

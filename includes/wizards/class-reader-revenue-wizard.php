@@ -525,7 +525,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack-reader-revenue-wizard',
 			'newspack_reader_revenue',
 			[
-				'emails'                  => Reader_Revenue_Emails::get_emails(),
+				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 			]
 		);

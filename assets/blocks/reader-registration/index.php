@@ -16,22 +16,22 @@ defined( 'ABSPATH' ) || exit;
 const FORM_ACTION = 'newspack_reader_registration';
 
 /**
- * Do not register block hooks if Reader Activation is not enabled.
- */
-if ( ! Reader_Activation::is_enabled() ) {
-	return;
-}
-
-/**
  * Register block from metadata.
  */
 function register_block() {
+	// Allow render_block callback to run so we can ensure it renders nothing.
 	\register_block_type_from_metadata(
 		__DIR__ . '/block.json',
 		array(
 			'render_callback' => __NAMESPACE__ . '\\render_block',
 		)
 	);
+
+	// No need to register block styles if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return;
+	}
+
 	\register_block_style(
 		'newspack/reader-registration',
 		[
@@ -54,6 +54,11 @@ add_action( 'init', __NAMESPACE__ . '\\register_block' );
  * Enqueue front-end scripts.
  */
 function enqueue_scripts() {
+	// No need to enqueue scripts if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return;
+	}
+
 	$handle = 'newspack-reader-registration-block';
 	\wp_enqueue_style(
 		$handle,
@@ -74,12 +79,31 @@ function enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_scripts' );
 
 /**
+ * Generate a unique ID for each registration form.
+ *
+ * The ID for each form instance is unique only for each page render.
+ * The main intent is to be able to pass this ID to analytics so we
+ * can identify what type of form it is, so the ID doesn't need to be
+ * predictable nor consistent across page renders.
+ *
+ * @return string A unique ID string to identify the form.
+ */
+function get_form_id() {
+	return \wp_unique_id( 'newspack-register-' );
+}
+
+/**
  * Render Registration Block.
  *
  * @param array[] $attrs Block attributes.
  * @param string  $content Block content (inner blocks) – success state in this case.
  */
 function render_block( $attrs, $content ) {
+	// Render nothing if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return '';
+	}
+
 	$registered      = false;
 	$message         = '';
 	$success_message = __( 'Thank you for registering!', 'newspack' ) . '<br />' . __( 'Check your email for a confirmation link.', 'newspack' );
@@ -131,7 +155,7 @@ function render_block( $attrs, $content ) {
 	// phpcs:enable
 
 	$success_registration_markup = $content;
-	if ( ! empty( \wp_strip_all_tags( $content ) ) ) {
+	if ( empty( \wp_strip_all_tags( $content ) ) ) {
 		$success_registration_markup = '<p class="has-text-align-center">' . $success_message . '</p>';
 	}
 
@@ -146,29 +170,45 @@ function render_block( $attrs, $content ) {
 		<?php if ( $registered ) : ?>
 			<div class="newspack-registration__registration-success">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_registration_markup ); ?>
+				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
-			<form>
-				<?php if ( ! empty( $attrs['title'] ) ) : ?>
-					<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>
-				<?php endif; ?>
+			<form id="<?php echo esc_attr( get_form_id() ); ?>">
+				<div class="newspack-registration__header">
+					<?php if ( ! empty( $attrs['title'] ) ) : ?>
+						<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>
+					<?php endif; ?>
+					<div class="newspack-registration__have-account">
+						<p>
+							<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
+							<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
+								<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
+							</a>
+						</p>
+					</div>
+				</div>
 				<?php if ( ! empty( $attrs['description'] ) ) : ?>
 					<p class="newspack-registration__description"><?php echo \wp_kses_post( $attrs['description'] ); ?></p>
 				<?php endif; ?>
 				<?php \wp_nonce_field( FORM_ACTION, FORM_ACTION ); ?>
 				<div class="newspack-registration__form-content">
 					<?php
-					if ( isset( $lists ) ) {
-						Reader_Activation::render_subscription_lists_inputs(
-							$lists,
-							array_keys( $lists ),
-							[
-								'title'            => $attrs['newsletterTitle'],
-								'single_label'     => $attrs['newsletterLabel'],
-								'show_description' => $attrs['displayListDescription'],
-							]
-						);
+					if ( ! empty( $lists ) ) {
+						if ( 1 === count( $lists ) && $attrs['hideSubscriptionInput'] ) {
+							?>
+							<input type="hidden" name="lists[]" value="<?php echo \esc_attr( key( $lists ) ); ?>">
+							<?php
+						} else {
+							Reader_Activation::render_subscription_lists_inputs(
+								$lists,
+								array_keys( $lists ),
+								[
+									'title'            => $attrs['newsletterTitle'],
+									'single_label'     => $attrs['newsletterLabel'],
+									'show_description' => $attrs['displayListDescription'],
+								]
+							);
+						}
 					}
 					?>
 					<div class="newspack-registration__main">
@@ -184,14 +224,6 @@ function render_block( $attrs, $content ) {
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
 							</div>
-							<div class="newspack-registration__have-account">
-								<p>
-									<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
-									<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
-										<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
-									</a>
-								</p>
-							</div>
 						</div>
 
 						<div class="newspack-registration__help-text">
@@ -204,7 +236,7 @@ function render_block( $attrs, $content ) {
 			</form>
 			<div class="newspack-registration__registration-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
-				<?php echo \wp_kses_post( $success_registration_markup ); ?>
+				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 			<div class="newspack-registration__login-success newspack-registration--hidden">
 				<div class="newspack-registration__icon"></div>
@@ -278,6 +310,12 @@ function send_form_response( $data, $message = '' ) {
  * Process registration form.
  */
 function process_form() {
+	// No need to process form values if Reader Activation is disabled.
+	if ( ! Reader_Activation::is_enabled() ) {
+		return;
+	}
+
+	// No need to proceed if we don't have the required params.
 	if ( ! isset( $_REQUEST[ FORM_ACTION ] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST[ FORM_ACTION ] ), FORM_ACTION ) ) {
 		return;
 	}

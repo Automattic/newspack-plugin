@@ -161,6 +161,50 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Get customer's charges.
+	 *
+	 * @param string $customer_id Customer ID.
+	 * @param int    $page Page of results.
+	 */
+	private static function get_customer_charges( $customer_id, $page = false ) {
+		$stripe = self::get_stripe_client();
+		try {
+			$all_charges = [];
+			$params      = [ 'query' => 'customer:"' . $customer_id . '"' ];
+			if ( $page ) {
+				$params['page'] = $page;
+			}
+			$response    = $stripe->charges->search( $params );
+			$all_charges = $response['data'];
+			if ( $response['has_more'] ) {
+				$all_charges = array_merge( $all_charges, self::get_customer_charges( $customer_id, $response['next_page'] ) );
+			}
+			return $all_charges;
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch customer\'s charges.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get the sum of all customer's charges (Lifetime Value).
+	 *
+	 * @param string $customer_id Customer ID.
+	 */
+	private static function get_customer_ltv( $customer_id ) {
+		$all_charges = self::get_customer_charges( $customer_id );
+		if ( \is_wp_error( $all_charges ) ) {
+			return $all_charges;
+		}
+		return array_reduce(
+			$all_charges,
+			function( $total, $charge ) {
+				return $total + self::normalise_amount( $charge['amount'], $charge['currency'] );
+			},
+			0
+		);
+	}
+
+	/**
 	 * Get Stripe billing portal configuration used for this integration.
 	 * The configuration will disallow the customer to update their email,
 	 * because it has to stay in sync with WP.
@@ -314,25 +358,25 @@ class Stripe_Connection {
 		// Replace content placeholders.
 		$placeholders = [
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['AMOUNT'],
+				'template' => '*AMOUNT*',
 				'value'    => self::format_amount( $amount_normalised, $payment['currency'] ),
 			],
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['DATE'],
+				'template' => '*DATE*',
 				'value'    => gmdate( 'Y-m-d', $payment['created'] ),
 			],
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['PAYMENT_METHOD'],
+				'template' => '*PAYMENT_METHOD*',
 				'value'    => __( 'Card', 'newspack' ) . ' – ' . $payment['payment_method_details']['card']['last4'],
 			],
 			[
-				'template' => Reader_Revenue_Emails::DYNAMIC_CONTENT_PLACEHOLDERS['RECEIPT_URL'],
+				'template' => '*RECEIPT_URL*',
 				'value'    => sprintf( '<a href="%s">%s</a>', $payment['receipt_url'], 'stripe.com' ),
 			],
 		];
 
-		Reader_Revenue_Emails::send_email(
-			Reader_Revenue_Emails::EMAIL_TYPE_RECEIPT,
+		Emails::send_email(
+			Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'],
 			$customer['email'],
 			$placeholders
 		);
@@ -438,55 +482,70 @@ class Stripe_Connection {
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
 				$has_opted_in_to_newsletters        = isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
-				if ( $has_opted_in_to_newsletters || Reader_Activation::is_enabled() ) {
-					$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
-					$contact      = [
+				if (
+					method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' )
+					&& (
+						$has_opted_in_to_newsletters
+						|| Reader_Activation::is_enabled()
+					)
+				) {
+					$contact = [
 						'email'    => $customer['email'],
 						'name'     => $customer['name'],
-						'metadata' => [
-							Newspack_Newsletters::$metadata_keys['last_payment_date']   => $payment_date,
-							Newspack_Newsletters::$metadata_keys['last_payment_amount'] => $amount_normalised,
-						],
+						'metadata' => [],
 					];
 
-					if ( 'once' === $frequency ) {
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Donor';
-					} else {
+					if ( Reader_Activation::is_enabled() ) {
+						$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
+						$customer_ltv = self::get_customer_ltv( $customer['id'] );
+						$total_paid   = $customer_ltv + $amount_normalised;
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['total_paid'] ] = $total_paid;
+
 						$contact['metadata'] = array_merge(
-							self::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
-							$contact['metadata']
+							$contact['metadata'],
+							[
+								Newspack_Newsletters::$metadata_keys['last_payment_date']   => $payment_date,
+								Newspack_Newsletters::$metadata_keys['last_payment_amount'] => $amount_normalised,
+							]
 						);
+
+						if ( 'once' === $frequency ) {
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Donor';
+						} else {
+							$contact['metadata'] = array_merge(
+								self::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
+								$contact['metadata']
+							);
+						}
+						if ( isset( $customer['metadata']['userId'] ) ) {
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['account'] ] = $customer['metadata']['userId'];
+						}
+						if ( isset( $customer['metadata']['current_page_url'] ) ) {
+							$contact['metadata']['current_page_url'] = $customer['metadata']['current_page_url'];
+						}
+
+						if ( Donations::is_woocommerce_suite_active() ) {
+							$wc_product_id = Donations::get_donation_product( $frequency );
+							try {
+								$wc_product = \wc_get_product( $wc_product_id );
+								$contact['metadata'][ Newspack_Newsletters::$metadata_keys['product_name'] ] = $wc_product->get_name();
+							} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+								// Fail silently.
+							}
+						}
 					}
 
 					if ( ! empty( $client_id ) ) {
 						$contact['client_id'] = $client_id;
 					}
-					if ( isset( $customer['metadata']['userId'] ) ) {
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['account'] ] = $customer['metadata']['userId'];
-					}
-					if ( isset( $customer['metadata']['current_page_url'] ) ) {
-						$contact['metadata']['current_page_url'] = $customer['metadata']['current_page_url'];
-					}
 
-					if ( Donations::is_woocommerce_suite_active() ) {
-						$wc_product_id = Donations::get_donation_product( $frequency );
-						try {
-							$wc_product = \wc_get_product( $wc_product_id );
-							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['product_name'] ] = $wc_product->get_name();
-						} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-							// Fail silently.
-						}
+					// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
+					if ( ! empty( $stripe_data['newsletter_list_id'] ) && $has_opted_in_to_newsletters ) {
+						\Newspack_Newsletters_Subscription::add_contact( $contact, $stripe_data['newsletter_list_id'] );
+					} else {
+						\Newspack_Newsletters_Subscription::add_contact( $contact );
 					}
-
-					if ( method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-						// Note: With Mailchimp, this is adding the contact as 'pending' - the subscriber has to confirm.
-						if ( ! empty( $stripe_data['newsletter_list_id'] ) && $has_opted_in_to_newsletters ) {
-							\Newspack_Newsletters_Subscription::add_contact( $contact, $stripe_data['newsletter_list_id'] );
-						} else {
-							\Newspack_Newsletters_Subscription::add_contact( $contact );
-						}
-						$was_customer_added_to_mailing_list = true;
-					}
+					$was_customer_added_to_mailing_list = true;
 				}
 
 				// Update data in Campaigns plugin.
@@ -974,7 +1033,7 @@ class Stripe_Connection {
 						'metadata' => $payment_metadata,
 					]
 				);
-				if ( ! Reader_Revenue_Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPE_RECEIPT ) ) {
+				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
 					$intent['receipt_email'] = $email_address;
 				}
@@ -1116,7 +1175,7 @@ class Stripe_Connection {
 	 * @param bool $is_enabled True if enabled.
 	 */
 	public static function is_wc_complete_order_email_enabled( $is_enabled ) {
-		if ( Donations::is_platform_stripe() && Reader_Revenue_Emails::supports_emails() ) {
+		if ( Donations::is_platform_stripe() && Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 			$is_enabled = false;
 		}
 		return $is_enabled;

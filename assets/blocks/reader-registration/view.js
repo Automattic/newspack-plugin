@@ -42,12 +42,6 @@ function domReady( callback ) {
 				'.newspack-registration__registration-success'
 			);
 
-			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
-				if ( authenticated ) {
-					form.style.display = 'none';
-				}
-			} );
-
 			form.startLoginFlow = () => {
 				messageElement.classList.add( 'newspack-registration--hidden' );
 				messageElement.innerHTML = '';
@@ -138,6 +132,12 @@ function domReady( callback ) {
 								form.endLoginFlow( e, 400 );
 							} );
 					} );
+			} );
+
+			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
+				if ( authenticated ) {
+					form.endLoginFlow( null, 200 );
+				}
 			} );
 		} );
 	} );

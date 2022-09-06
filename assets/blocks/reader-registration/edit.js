@@ -47,6 +47,7 @@ export default function ReaderRegistrationEdit( {
 		privacyLabel,
 		newsletterSubscription,
 		displayListDescription,
+		hideSubscriptionInput,
 		newsletterTitle,
 		newsletterLabel,
 		haveAccountLabel,
@@ -103,6 +104,10 @@ export default function ReaderRegistrationEdit( {
 		}
 	}, [ listConfig ] );
 
+	const shouldHideSubscribeInput = () => {
+		return lists.length === 1 && hideSubscriptionInput;
+	};
+
 	return (
 		<>
 			<InspectorControls>
@@ -140,6 +145,14 @@ export default function ReaderRegistrationEdit( {
 									disabled={ inFlight }
 									onChange={ () =>
 										setAttributes( { displayListDescription: ! displayListDescription } )
+									}
+								/>
+								<ToggleControl
+									label={ __( 'Hide newsletter selection and always subscribe', 'newspack' ) }
+									checked={ hideSubscriptionInput }
+									disabled={ inFlight || lists.length !== 1 }
+									onChange={ () =>
+										setAttributes( { hideSubscriptionInput: ! hideSubscriptionInput } )
 									}
 								/>
 								{ lists.length < 1 && (
@@ -193,20 +206,40 @@ export default function ReaderRegistrationEdit( {
 				{ editedState === 'initial' && (
 					<div className={ `newspack-registration ${ className }` }>
 						<form onSubmit={ ev => ev.preventDefault() }>
-							<RichText
-								onChange={ value => setAttributes( { title: value } ) }
-								placeholder={ __( 'Block title…', 'newspack' ) }
-								value={ title }
-								tagName="h2"
-							/>
+							<div className="newspack-registration__header">
+								<RichText
+									onChange={ value => setAttributes( { title: value } ) }
+									placeholder={ __( 'Add title', 'newspack' ) }
+									value={ title }
+									tagName="h2"
+								/>
+								<div className="newspack-registration__have-account">
+									<p>
+										<RichText
+											onChange={ value => setAttributes( { haveAccountLabel: value } ) }
+											placeholder={ __( 'Already have an account?', 'newspack' ) }
+											value={ haveAccountLabel }
+											tagName="span"
+										/>{ ' ' }
+										<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+											<RichText
+												onChange={ value => setAttributes( { signInLabel: value } ) }
+												placeholder={ __( 'Sign In', 'newspack' ) }
+												value={ signInLabel }
+												tagName="span"
+											/>
+										</a>
+									</p>
+								</div>
+							</div>
 							<RichText
 								onChange={ value => setAttributes( { description: value } ) }
-								placeholder={ __( 'Block description…', 'newspack' ) }
+								placeholder={ __( 'Add description', 'newspack' ) }
 								value={ description }
 								tagName="p"
 							/>
 							<div className="newspack-registration__form-content">
-								{ newsletterSubscription && lists.length ? (
+								{ ! shouldHideSubscribeInput() && newsletterSubscription && lists.length ? (
 									<div className="newspack-reader__lists">
 										{ lists?.length > 1 && (
 											<RichText
@@ -280,24 +313,6 @@ export default function ReaderRegistrationEdit( {
 											</div>
 										) }
 										<div className="newspack-registration__response" />
-										<div className="newspack-registration__have-account">
-											<p>
-												<RichText
-													onChange={ value => setAttributes( { haveAccountLabel: value } ) }
-													placeholder={ __( 'Already have an account?', 'newspack' ) }
-													value={ haveAccountLabel }
-													tagName="span"
-												/>{ ' ' }
-												<a href="/my-account" onClick={ ev => ev.preventDefault() }>
-													<RichText
-														onChange={ value => setAttributes( { signInLabel: value } ) }
-														placeholder={ __( 'Sign In', 'newspack' ) }
-														value={ signInLabel }
-														tagName="span"
-													/>
-												</a>
-											</p>
-										</div>
 									</div>
 									<div className="newspack-registration__help-text">
 										<RichText
