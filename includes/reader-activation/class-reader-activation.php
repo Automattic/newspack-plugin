@@ -76,6 +76,7 @@ final class Reader_Activation {
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ] );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
+			\add_filter( 'logout_redirect', [ __CLASS__, 'get_logout_redirect_url' ], 10, 2 );
 		}
 	}
 
@@ -1420,6 +1421,20 @@ final class Reader_Activation {
 			return 'text/html';
 		};
 		add_filter( 'wp_mail_content_type', $email_content_type );
+	}
+
+	/**
+	 * Gets the URL to redirect the user after logging out from the My Account page
+	 *
+	 * @param string  $redirect_to           The redirect destination URL.
+	 * @param string  $requested_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @return string
+	 */
+	public static function get_logout_redirect_url( $redirect_to, $requested_redirect_to ) {
+		if ( function_exists( 'wc_get_page_permalink') && wc_get_page_permalink( 'myaccount' ) === $requested_redirect_to ) {
+			return site_url();
+		}
+		return $redirect_to;
 	}
 }
 Reader_Activation::init();
