@@ -295,6 +295,8 @@ class Emails {
 	 *
 	 * @param string $type Type of the email.
 	 * @param int    $post_id Email post id.
+	 *
+	 * @return array|false The serialized email config or false if not available or supported.
 	 */
 	private static function serialize_email( $type = null, $post_id = 0 ) {
 		if ( ! self::supports_emails() ) {
@@ -372,6 +374,8 @@ class Emails {
 	 * If the email does not exist, it will be created based on default template.
 	 *
 	 * @param string $type Type of the email.
+	 *
+	 * @return array|false The serialized email config or false if not available or supported.
 	 */
 	public static function get_email_config_by_type( $type ) {
 		$emails_query = new \WP_Query(
@@ -385,6 +389,9 @@ class Emails {
 		);
 		if ( $emails_query->post ) {
 			return self::serialize_email( $type, $emails_query->post->ID );
+		} elseif ( ! function_exists( 'is_user_logged_in' ) ) {
+			/** Only attempt to create the email post if wp-includes/pluggable.php is loaded. */
+			return false;
 		} else {
 			$email_post_data = self::load_email_template( $type );
 			if ( ! $email_post_data ) {

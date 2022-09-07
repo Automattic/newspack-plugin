@@ -13,7 +13,7 @@ use Newspack\Reader_Activation;
 
 defined( 'ABSPATH' ) || exit;
 
-\do_action( 'woocommerce_before_edit_account_form' );
+\do_action( 'newspack_woocommerce_before_edit_account_form' );
 
 $newspack_reset_password_arg = WooCommerce_My_Account::RESET_PASSWORD_URL_PARAM;
 $newspack_delete_account_arg = WooCommerce_My_Account::DELETE_ACCOUNT_URL_PARAM;
@@ -41,9 +41,9 @@ if ( $message ) :
 endif;
 ?>
 
-<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php \do_action( 'woocommerce_edit_account_form_tag' ); ?> >
+<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php \do_action( 'newspack_woocommerce_edit_account_form_tag' ); ?> >
 
-	<?php \do_action( 'woocommerce_edit_account_form_start' ); ?>
+	<?php \do_action( 'newspack_woocommerce_edit_account_form_start' ); ?>
 
 	<p class="woocommerce-form-row woocommerce-form-row--first form-row form-row-first">
 		<label for="account_first_name"><?php \esc_html_e( 'First name', 'newspack' ); ?>&nbsp;<span class="required">*</span></label>
@@ -60,7 +60,7 @@ endif;
 		<input type="email" disabled class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
 	</p>
 
-	<?php \do_action( 'woocommerce_edit_account_form' ); ?>
+	<?php \do_action( 'newspack_woocommerce_edit_account_form' ); ?>
 
 	<p>
 		<?php \wp_nonce_field( 'save_account_details', 'save-account-details-nonce' ); ?>
@@ -68,7 +68,7 @@ endif;
 		<input type="hidden" name="action" value="save_account_details" />
 	</p>
 
-	<?php \do_action( 'woocommerce_edit_account_form_end' ); ?>
+	<?php \do_action( 'newspack_woocommerce_edit_account_form_end' ); ?>
 </form>
 
 <hr />
@@ -105,4 +105,4 @@ endif;
 	</a>
 </p>
 
-<?php \do_action( 'woocommerce_after_edit_account_form' ); ?>
+<?php \do_action( 'newspack_woocommerce_after_edit_account_form' ); ?>

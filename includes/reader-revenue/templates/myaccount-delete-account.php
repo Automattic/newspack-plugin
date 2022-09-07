@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 $delete_account_form = WooCommerce_My_Account::DELETE_ACCOUNT_FORM;
 
-\do_action( 'woocommerce_before_edit_account_form' );
+\do_action( 'newspack_woocommerce_before_edit_account_form' );
 
 $nonce_value = isset( $_GET[ $delete_account_form ] ) ? \sanitize_text_field( $_GET[ $delete_account_form ] ) : '';
 if ( ! \wp_verify_nonce( $nonce_value, $delete_account_form ) ) {
@@ -51,4 +51,4 @@ if ( ! $transient_token || $transient_token !== $token ) {
 	</form>
 </div>
 
-<?php \do_action( 'woocommerce_after_edit_account_form' ); ?>
+<?php \do_action( 'newspack_woocommerce_after_edit_account_form' ); ?>
