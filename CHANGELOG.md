@@ -1,3 +1,18 @@
+# [1.90.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.90.0-alpha.2...v1.90.0-alpha.3) (2022-09-07)
+
+
+### Bug Fixes
+
+* **ac-master-list:** handle empty lists ([cfabb5a](https://github.com/Automattic/newspack-plugin/commit/cfabb5a7a90848c209c40b35749504f2feaded4c))
+* add check to only change theme if not empty ([#1978](https://github.com/Automattic/newspack-plugin/issues/1978)) ([b9835f1](https://github.com/Automattic/newspack-plugin/commit/b9835f194de5759bf975343e5a3cb9bfe79b8f16))
+* **emails:** don't create post if pluggable functions are not available ([#1979](https://github.com/Automattic/newspack-plugin/issues/1979)) ([d8aac4f](https://github.com/Automattic/newspack-plugin/commit/d8aac4fb7d18313efb025592e25d1187d1a298e3))
+* prefix WC My Account actions so we can decide which hooks to support ([#1963](https://github.com/Automattic/newspack-plugin/issues/1963)) ([0fa8c0a](https://github.com/Automattic/newspack-plugin/commit/0fa8c0ada1d7d5fc9ef8ce2388c48d0fac2d0c4a))
+
+
+### Features
+
+* Woo sync to ActiveCampaign ([#1968](https://github.com/Automattic/newspack-plugin/issues/1968)) ([630b24e](https://github.com/Automattic/newspack-plugin/commit/630b24eb160ee97a554f7d00746c3ac59a118df3))
+
 # [1.90.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.90.0-alpha.1...v1.90.0-alpha.2) (2022-09-06)
 
 
