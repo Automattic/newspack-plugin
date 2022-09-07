@@ -18,6 +18,18 @@ class WooCommerce_Connection {
 	const CREATED_VIA_NAME                = 'newspack-stripe';
 	const SUBSCRIPTION_STRIPE_ID_META_KEY = 'newspack-stripe-subscription-id';
 
+	const DISABLED_SUBSCRIPTION_STATUSES = [
+		'pending',
+		'on-hold',
+		'pending-cancel',
+		'cancelled',
+		'expired',
+		'trash',
+		'deleted',
+		'new-payment-method',
+		'switched',
+	];
+
 	/**
 	 * Initialize.
 	 *
@@ -25,6 +37,14 @@ class WooCommerce_Connection {
 	 */
 	public static function init() {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
+
+		// WooCommerce Subscriptions.
+		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
+		\add_filter( 'wc_order_is_editable', [ __CLASS__, 'make_syncd_subscriptions_uneditable' ], 10, 2 );
+		\add_filter( 'woocommerce_order_actions', [ __CLASS__, 'remove_syncd_subscriptions_order_actions' ], 11, 1 );
+		foreach ( self::DISABLED_SUBSCRIPTION_STATUSES as $status_name ) {
+			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_extra_status_updates' ], 11, 2 );
+		}
 
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
@@ -457,6 +477,74 @@ class WooCommerce_Connection {
 		}
 
 		return $order->get_id();
+	}
+
+	/**
+	 * Is this subscription sync'd with Stripe?
+	 *
+	 * @param \WC_Subscription|int $subscription The subscription object or post ID.
+	 */
+	private static function is_synchronised_with_stripe( $subscription ) {
+		if ( is_numeric( $subscription ) ) {
+			$stripe_subscription_id = get_post_meta( $subscription, self::SUBSCRIPTION_STRIPE_ID_META_KEY, true );
+		} else {
+			$stripe_subscription_id = $subscription->get_meta( self::SUBSCRIPTION_STRIPE_ID_META_KEY );
+		}
+		return boolval( $stripe_subscription_id );
+	}
+
+	/**
+	 * Remove subscription-related meta boxes if the subscription is sync'd with Stripe.
+	 * This is because some subscription variables should not be editable here.
+	 */
+	public static function remove_subscriptions_schedule_meta_box() {
+		global $post_ID;
+		if ( self::is_synchronised_with_stripe( $post_ID ) ) {
+			remove_meta_box( 'woocommerce-subscription-schedule', 'shop_subscription', 'side' );
+		}
+	}
+
+	/**
+	 * Disable editing of subscriptions which are sync'd with Stripe.
+	 *
+	 * @param bool             $is_editable Whether the subscription is editable.
+	 * @param \WC_Subscription $subscription The subscription object.
+	 */
+	public static function make_syncd_subscriptions_uneditable( $is_editable, $subscription ) {
+		if ( self::is_synchronised_with_stripe( $subscription ) ) {
+			return false;
+		}
+		return $is_editable;
+	}
+
+	/**
+	 * Remove WC Subscriptions order actions for the sync'd subscription.
+	 *
+	 * @param array $actions An array of available actions.
+	 */
+	public static function remove_syncd_subscriptions_order_actions( $actions ) {
+		global $theorder;
+		if ( self::is_synchronised_with_stripe( $theorder ) ) {
+			foreach ( $actions as $key => $value ) {
+				if ( strpos( $key, 'wcs_' ) === 0 ) {
+					unset( $actions[ $key ] );
+				}
+			}
+		}
+		return $actions;
+	}
+
+	/**
+	 * Disable an extra status update (e.g. new-payment-method) for sync'd subscriptions.
+	 *
+	 * @param bool             $can_update Whether the status can be updated.
+	 * @param \WC_Subscription $subscription The subscription object.
+	 */
+	public static function disable_extra_status_updates( $can_update, $subscription ) {
+		if ( self::is_synchronised_with_stripe( $subscription ) ) {
+			return false;
+		}
+		return $can_update;
 	}
 }
 
