@@ -462,14 +462,10 @@ class Stripe_Connection {
 					$referer = $metadata['referer'];
 				}
 
-				$frequency = 'once';
+				$frequency = self::get_frequency_of_payment( $payment );
+
 				if ( $payment['invoice'] ) {
-					// A subscription payment will have an invoice.
-					$invoice   = self::get_invoice( $payment['invoice'] );
-					$recurring = $invoice['lines']['data'][0]['price']['recurring'];
-					if ( isset( $recurring['interval'] ) ) {
-						$frequency = $recurring['interval'];
-					}
+					$invoice = self::get_invoice( $payment['invoice'] );
 					if ( isset( $invoice['metadata']['referer'] ) ) {
 						$referer = $invoice['metadata']['referer'];
 					}
@@ -481,7 +477,7 @@ class Stripe_Connection {
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
-				$has_opted_in_to_newsletters        = isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
+				$has_opted_in_to_newsletters        = self::has_customer_opted_in_to_newsletters( $customer );
 				if (
 					method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' )
 					&& (
@@ -587,23 +583,7 @@ class Stripe_Connection {
 
 				// Add a transaction to WooCommerce.
 				if ( Donations::is_woocommerce_suite_active() ) {
-					$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
-					$wc_transaction_payload = [
-						'email'              => $customer['email'],
-						'name'               => $customer['name'],
-						'stripe_id'          => $payment['id'],
-						'stripe_customer_id' => $customer['id'],
-						'stripe_fee'         => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),
-						'stripe_net'         => self::normalise_amount( $balance_transaction['net'], $payment['currency'] ),
-						'date'               => $payment['created'],
-						'amount'             => $amount_normalised,
-						'frequency'          => $frequency,
-						'currency'           => $stripe_data['currency'],
-						'client_id'          => $customer['metadata']['clientId'],
-						'user_id'            => $customer['metadata']['userId'],
-						'subscribed'         => $was_customer_added_to_mailing_list,
-					];
-					WooCommerce_Connection::create_transaction( $wc_transaction_payload );
+					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
 				}
 
 				break;
@@ -1207,6 +1187,60 @@ class Stripe_Connection {
 		if ( $customer ) {
 			update_user_meta( get_current_user_id(), self::STRIPE_CUSTOMER_ID_USER_META, $customer['id'] );
 		}
+	}
+
+	/**
+	 * Get frequency of a payment.
+	 *
+	 * @param array $payment Stripe payment.
+	 */
+	private static function get_frequency_of_payment( $payment ) {
+		$frequency = 'once';
+		if ( $payment['invoice'] ) {
+			// A subscription payment will have an invoice.
+			$invoice   = self::get_invoice( $payment['invoice'] );
+			$recurring = $invoice['lines']['data'][0]['price']['recurring'];
+			if ( isset( $recurring['interval'] ) ) {
+				$frequency = $recurring['interval'];
+			}
+		}
+		return $frequency;
+	}
+
+	/**
+	 * Has this customer opted in to receiving the newsletter?
+	 *
+	 * @param array $customer Stripe customer.
+	 */
+	private static function has_customer_opted_in_to_newsletters( $customer ) {
+		return isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
+	}
+
+	/**
+	 * Create WC transaction payload.
+	 *
+	 * @param array $customer Stripe customer.
+	 * @param array $payment Stripe payment.
+	 */
+	public static function create_wc_transaction_payload( $customer, $payment ) {
+		$balance_transaction = self::get_balance_transaction( $payment['balance_transaction'] );
+		$amount_normalised   = self::normalise_amount( $payment['amount'], $payment['currency'] );
+		$stripe_data         = self::get_stripe_data();
+		return [
+			'email'              => $customer['email'],
+			'name'               => $customer['name'],
+			'stripe_id'          => $payment['id'],
+			'stripe_customer_id' => $customer['id'],
+			'stripe_fee'         => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),
+			'stripe_net'         => self::normalise_amount( $balance_transaction['net'], $payment['currency'] ),
+			'date'               => $payment['created'],
+			'amount'             => $amount_normalised,
+			'frequency'          => self::get_frequency_of_payment( $payment ),
+			'currency'           => $stripe_data['currency'],
+			'client_id'          => $customer['metadata']['clientId'],
+			'user_id'            => $customer['metadata']['userId'],
+			'subscribed'         => self::has_customer_opted_in_to_newsletters( $customer ),
+		];
 	}
 }
 
