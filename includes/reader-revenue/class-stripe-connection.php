@@ -166,7 +166,7 @@ class Stripe_Connection {
 	 * @param string $customer_id Customer ID.
 	 * @param int    $page Page of results.
 	 */
-	private static function get_customer_charges( $customer_id, $page = false ) {
+	public static function get_customer_charges( $customer_id, $page = false ) {
 		$stripe = self::get_stripe_client();
 		try {
 			$all_charges = [];
