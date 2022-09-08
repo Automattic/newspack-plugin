@@ -30,6 +30,8 @@ class WooCommerce_Connection {
 		'switched',
 	];
 
+	private static $created_membership_id; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+
 	/**
 	 * Initialize.
 	 *
@@ -46,6 +48,9 @@ class WooCommerce_Connection {
 			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_extra_status_updates' ], 11, 2 );
 		}
 
+		// WooCommerce Memberships.
+		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
+
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
 
@@ -59,6 +64,16 @@ class WooCommerce_Connection {
 	 */
 	protected static function can_sync_customers() {
 		return Reader_Activation::is_enabled() && class_exists( 'WC_Customer' ) && function_exists( 'wcs_get_users_subscriptions' );
+	}
+
+	/**
+	 * If a membership is created during the request, save its ID.
+	 *
+	 * @param \WC_Memberships_Membership_Plan $membership_plan the plan that user was granted access to.
+	 * @param array                           $args array of User Membership arguments.
+	 */
+	public static function wc_membership_created( $membership_plan, $args ) {
+		self::$created_membership_id = $args['user_membership_id'];
 	}
 
 	/**
@@ -243,7 +258,6 @@ class WooCommerce_Connection {
 		if ( ! class_exists( 'WC_Memberships_Membership_Plans' ) ) {
 			return;
 		}
-		Logger::log( 'Creating a membership' );
 		$wc_memberships_membership_plans = new \WC_Memberships_Membership_Plans();
 		$should_create_account           = false;
 		$membership_plans                = $wc_memberships_membership_plans->get_membership_plans();
@@ -473,8 +487,13 @@ class WooCommerce_Connection {
 					$subscription_id = $subscription->get_id();
 
 					update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
-
 					Logger::log( 'Created WC subscription with id: ' . $subscription_id );
+
+					if ( class_exists( 'WC_Memberships_Integration_Subscriptions_User_Membership' ) && self::$created_membership_id ) {
+						Logger::log( 'Linking membership ' . self::$created_membership_id . ' to subscription ' . $subscription_id );
+						$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( self::$created_membership_id );
+						$subscription_membership->set_subscription_id( $subscription_id );
+					}
 				}
 			}
 		}
