@@ -20,12 +20,12 @@ class Stripe_Sync {
 	 * @codeCoverageIgnore
 	 */
 	private static $results = [
-		'processed'         => 0,
-		'created'           => 0,
-		'found'             => 0,
-		'orders_updated'    => 0,
-		'orders_created'    => 0,
-		'skipped_customers' => 0,
+		'processed'            => 0,
+		'wc_created'           => 0,
+		'wc_found'             => 0,
+		'wc_orders_updated'    => 0,
+		'wc_orders_created'    => 0,
+		'wc_skipped_customers' => 0,
 	];
 
 	/**
@@ -43,7 +43,7 @@ class Stripe_Sync {
 	 * @param array $customer Customer object.
 	 * @param array $args Arguments.
 	 */
-	private static function process_stripe_customer( $customer, $args ) {
+	private static function sync_to_wc( $customer, $args ) {
 		$email_address = $customer->email;
 		$is_dry_run    = false !== $args['dry-run'];
 
@@ -57,7 +57,7 @@ class Stripe_Sync {
 			}
 		);
 		if ( empty( $charges ) ) {
-			self::$results['skipped_customers']++;
+			self::$results['wc_skipped_customers']++;
 			return;
 		}
 
@@ -65,7 +65,7 @@ class Stripe_Sync {
 		$user_id = false;
 		if ( $wp_user ) {
 			$user_id = $wp_user->ID;
-			self::$results['found']++;
+			self::$results['wc_found']++;
 		} else {
 			// Create the WC Customer and update past orders (lookup is done by email).
 			if ( ! $is_dry_run ) {
@@ -79,12 +79,12 @@ class Stripe_Sync {
 					\WP_CLI::warning( __( 'Error processing customer', 'newspack' ) . ' ' . $email_address . ': ' . $user_id->get_error_message() );
 					$user_id = false;
 				} else {
-					$linked_orders_count              = \wc_update_new_customer_past_orders( $user_id );
-					self::$results['orders_updated'] += $linked_orders_count;
+					$linked_orders_count                 = \wc_update_new_customer_past_orders( $user_id );
+					self::$results['wc_orders_updated'] += $linked_orders_count;
 
 					// translators: Customer email, linked orders count.
 					\WP_CLI::success( sprintf( __( 'Created WC Customer with email: %1$s and linked %2$d order(s) to them.', 'newspack' ), $email_address, $linked_orders_count ) );
-					self::$results['created']++;
+					self::$results['wc_created']++;
 				}
 			}
 		}
@@ -102,7 +102,7 @@ class Stripe_Sync {
 							$found_order->save();
 							// translators: Order ID.
 							\WP_CLI::success( sprintf( __( 'Updated WC order: %d.', 'newspack' ), $found_order->get_id() ) );
-							self::$results['orders_updated'] ++;
+							self::$results['wc_orders_updated'] ++;
 						}
 					}
 				} else {
@@ -113,7 +113,7 @@ class Stripe_Sync {
 						$order_id                          = WooCommerce_Connection::create_transaction( $wc_transaction_payload );
 						// translators: Order ID.
 						\WP_CLI::success( sprintf( __( 'Created WC order: %d.', 'newspack' ), $order_id ) );
-						self::$results['orders_created'] ++;
+						self::$results['wc_orders_created'] ++;
 					}
 				}
 			}
@@ -140,7 +140,9 @@ class Stripe_Sync {
 			// translators: Number of customers processed.
 			\WP_CLI::log( sprintf( __( 'Processing a batch of %d Stripe customers.', 'newspack' ), count( $response['data'] ) ) );
 			foreach ( $response['data'] as $customer ) {
-				self::process_stripe_customer( $customer, $args );
+				if ( $args['sync-to-wc'] ) {
+					self::sync_to_wc( $customer, $args );
+				}
 			}
 
 			if ( $response['has_more'] ) {
@@ -165,8 +167,9 @@ class Stripe_Sync {
 
 		$sync_to_wc = function ( $args, $assoc_args ) {
 			$default_args = [
-				'batch-size' => 10,
-				'dry-run'    => false,
+				'batch-size'  => 10,
+				'sync-to-wc'  => true, // Sync data to WooCommerce.
+				'dry-run'     => false,
 			];
 			$passed_args  = array_merge( $default_args, $assoc_args );
 			if ( false !== $passed_args['dry-run'] ) {
@@ -191,16 +194,19 @@ class Stripe_Sync {
 
 			// translators: Number of Stripe customers processed.
 			\WP_CLI::success( sprintf( __( 'Processed %d Stripe customers.', 'newspack' ), self::$results['processed'] ) );
-			// translators: Number of customers found.
-			\WP_CLI::success( sprintf( __( 'Found %d WC customers linked to Stripe customers.', 'newspack' ), self::$results['found'] ) );
-			// translators: Number of customers created.
-			\WP_CLI::success( sprintf( __( 'Created %d WC customers from Stripe customers.', 'newspack' ), self::$results['created'] ) );
-			// translators: Number of orders updated.
-			\WP_CLI::success( sprintf( __( 'Updated %d WC orders linked to Stripe charges.', 'newspack' ), self::$results['orders_updated'] ) );
-			// translators: Number of orders created.
-			\WP_CLI::success( sprintf( __( 'Created %d WC orders from Stripe charges.', 'newspack' ), self::$results['orders_created'] ) );
-			// translators: Number of Stripe customers skipped.
-			\WP_CLI::success( sprintf( __( 'Skipped %d Stripe customers.', 'newspack' ), self::$results['skipped_customers'] ) );
+
+			if ( $passed_args['sync-to-wc'] ) {
+				// translators: Number of customers found.
+				\WP_CLI::success( sprintf( __( 'Found %d WC customers linked to Stripe customers.', 'newspack' ), self::$results['wc_found'] ) );
+				// translators: Number of customers created.
+				\WP_CLI::success( sprintf( __( 'Created %d WC customers from Stripe customers.', 'newspack' ), self::$results['wc_created'] ) );
+				// translators: Number of orders updated.
+				\WP_CLI::success( sprintf( __( 'Updated %d WC orders linked to Stripe charges.', 'newspack' ), self::$results['wc_orders_updated'] ) );
+				// translators: Number of orders created.
+				\WP_CLI::success( sprintf( __( 'Created %d WC orders from Stripe charges.', 'newspack' ), self::$results['wc_orders_created'] ) );
+				// translators: Number of Stripe customers skipped.
+				\WP_CLI::success( sprintf( __( 'Skipped %d Stripe customers.', 'newspack' ), self::$results['wc_skipped_customers'] ) );
+			}
 		};
 
 		\WP_CLI::add_command(
