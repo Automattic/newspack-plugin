@@ -182,9 +182,16 @@ class WooCommerce_Connection {
 			$metadata[ $metadata_keys['recurring_payment'] ]   = $current_subscription->get_total();
 			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( 'Y-m-d' );
 			$metadata[ $metadata_keys['last_payment_amount'] ] = $current_subscription->get_total();
-			$metadata[ $metadata_keys['next_payment_date'] ]   = $current_subscription->get_date( 'next_payment' );
-			$metadata[ $metadata_keys['total_paid'] ]          = (float) $customer->get_total_spent() ? $customer->get_total_spent() : $current_subscription->get_total();
-			$metadata[ $metadata_keys['product_name'] ]        = '';
+
+			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
+			// in the event of cancellation.
+			$next_payment_date = $current_subscription->get_date( 'next_payment' );
+			if ( $next_payment_date ) {
+				$metadata[ $metadata_keys['next_payment_date'] ] = $next_payment_date;
+			}
+
+			$metadata[ $metadata_keys['total_paid'] ]   = (float) $customer->get_total_spent() ? $customer->get_total_spent() : $current_subscription->get_total();
+			$metadata[ $metadata_keys['product_name'] ] = '';
 			if ( $current_subscription ) {
 				$subscription_order_items = $current_subscription->get_items();
 				if ( $subscription_order_items ) {
