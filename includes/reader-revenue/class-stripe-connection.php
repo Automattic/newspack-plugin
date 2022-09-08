@@ -647,12 +647,7 @@ class Stripe_Connection {
 			case 'customer.subscription.updated':
 				if ( Donations::is_woocommerce_suite_active() ) {
 					if ( $payload['cancel_at'] ) {
-						WooCommerce_Connection::update_subscription_dates(
-							$payload['id'],
-							[
-								'end' => $payload['cancel_at'] + 60000, // Add 1 minute to
-							]
-						);
+						WooCommerce_Connection::set_pending_cancellation( $payload['id'], $payload['canceled_at'], $payload['cancel_at'] );
 					} elseif ( 'active' === $payload['status'] ) {
 						// An un-canceled subscription – remove the end date.
 						WooCommerce_Connection::update_subscription_dates(

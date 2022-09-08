@@ -532,6 +532,28 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Set status to pending cancellation.
+	 *
+	 * @param string $stripe_subscription_id Stripe subscription ID.
+	 * @param int    $cancelled_at Timestamp of when the subscription cancellation happened.
+	 * @param int    $end Timestamp of when to cancel the subscription.
+	 */
+	public static function set_pending_cancellation( $stripe_subscription_id, $cancelled_at, $end ) {
+		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+		if ( $subscription ) {
+			$subscription->delete_date( 'next_payment' );
+			self::update_subscription_dates(
+				$stripe_subscription_id,
+				[
+					'cancelled' => $cancelled_at,
+					'end'       => $end,
+				]
+			);
+			Logger::log( 'Set to pending cancallation: WC subscription with id ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
+		}
+	}
+
+	/**
 	 * Schedule a subscriptions for cancellation.
 	 *
 	 * @param string $stripe_subscription_id Stripe subscription ID.
@@ -544,7 +566,7 @@ class WooCommerce_Connection {
 				$dates[ $key ] = self::convert_timestamp_to_date( $value );
 			}
 			$subscription->update_dates( $dates );
-			Logger::log( 'Updated status of WC subscription with id ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
+			Logger::log( 'Updated dates of WC subscription with id ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
 		}
 	}
 
