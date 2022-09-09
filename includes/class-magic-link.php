@@ -502,7 +502,7 @@ final class Magic_Link {
 
 			} elseif ( $token_data['otp']['hash'] === $hash ) {
 
-				if ( $token['otp']['code'] === $code ) {
+				if ( $token_data['otp']['code'] === $code ) {
 
 					$valid_token = $token_data;
 					unset( $tokens[ $index ] );
