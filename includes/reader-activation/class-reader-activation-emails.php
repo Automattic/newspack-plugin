@@ -63,6 +63,10 @@ class Reader_Activation_Emails {
 					'label'    => __( 'the login link', 'newspack' ),
 					'template' => '*MAGIC_LINK_URL*',
 				],
+				[
+					'label'    => __( 'the one-time password', 'newspack' ),
+					'template' => '*MAGIC_LINK_OTP*',
+				],
 			],
 		];
 		$configs[ self::EMAIL_TYPES['RESET_PASSWORD'] ] = [
