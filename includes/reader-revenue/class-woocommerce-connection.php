@@ -137,7 +137,7 @@ class WooCommerce_Connection {
 		];
 
 		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
-		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( 'Y-m-d' );
+		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 		$metadata[ $metadata_keys['payment_page'] ]      = \wc_get_checkout_url();
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );

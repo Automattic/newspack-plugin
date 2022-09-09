@@ -30,6 +30,16 @@ class Stripe_Connection {
 	private static $is_looking_up_customer_id = false;
 
 	/**
+	 * Cache.
+	 *
+	 * @var array
+	 */
+	private static $cache = [
+		'invoices'      => [],
+		'subscriptions' => [],
+	];
+
+	/**
 	 * Initialize.
 	 *
 	 * @codeCoverageIgnore
@@ -165,12 +175,16 @@ class Stripe_Connection {
 	 *
 	 * @param string $customer_id Customer ID.
 	 * @param int    $page Page of results.
+	 * @param int    $limit Limit of results.
 	 */
-	public static function get_customer_charges( $customer_id, $page = false ) {
+	public static function get_customer_charges( $customer_id, $page = false, $limit = 10 ) {
 		$stripe = self::get_stripe_client();
 		try {
 			$all_charges = [];
-			$params      = [ 'query' => 'customer:"' . $customer_id . '"' ];
+			$params      = [
+				'query' => 'customer:"' . $customer_id . '"',
+				'limit' => $limit,
+			];
 			if ( $page ) {
 				$params['page'] = $page;
 			}
@@ -190,7 +204,7 @@ class Stripe_Connection {
 	 *
 	 * @param string $customer_id Customer ID.
 	 */
-	private static function get_customer_ltv( $customer_id ) {
+	public static function get_customer_ltv( $customer_id ) {
 		$all_charges = self::get_customer_charges( $customer_id );
 		if ( \is_wp_error( $all_charges ) ) {
 			return $all_charges;
@@ -308,12 +322,50 @@ class Stripe_Connection {
 	 *
 	 * @param string $invoice_id Invoice ID.
 	 */
-	private static function get_invoice( $invoice_id ) {
+	public static function get_invoice( $invoice_id ) {
+		if ( isset( self::$cache['invoices'][ $invoice_id ] ) ) {
+			return self::$cache['invoices'][ $invoice_id ];
+		}
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->invoices->retrieve( $invoice_id, [] );
+			$result                                 = $stripe->invoices->retrieve( $invoice_id, [] );
+			self::$cache['invoices'][ $invoice_id ] = $result;
+			return $result;
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get Stripe subscription.
+	 *
+	 * @param string $subscription_id Invoice ID.
+	 */
+	public static function get_subscription( $subscription_id ) {
+		if ( isset( self::$cache['subscriptions'][ $subscription_id ] ) ) {
+			return self::$cache['subscriptions'][ $subscription_id ];
+		}
+		$stripe = self::get_stripe_client();
+		try {
+			$result = $stripe->subscriptions->retrieve( $subscription_id, [] );
+			self::$cache['subscriptions'][ $subscription_id ] = $result;
+			return $result;
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch subscription.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Get Subscription from payment, if one exists.
+	 *
+	 * @param array $payment Payment object.
+	 */
+	public static function get_subscription_from_payment( $payment ) {
+		if ( $payment['invoice'] ) {
+			$invoice = self::get_invoice( $payment['invoice'] );
+			if ( $invoice['subscription'] ) {
+				return self::get_subscription( $invoice['subscription'] );
+			}
 		}
 	}
 
@@ -383,6 +435,22 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Determine the memberhip status metadata field value.
+	 *
+	 * @param string $frequency Frequency of payment.
+	 */
+	public static function get_membership_status_field_value( $frequency ) {
+		switch ( $frequency ) {
+			case 'once':
+				return 'Donor';
+			case 'year':
+				return 'Yearly Donor';
+			case 'month':
+				return 'Monthly Donor';
+		}
+	}
+
+	/**
 	 * Create metadata for a recurring payment.
 	 *
 	 * @param string $frequency Frequency.
@@ -390,20 +458,13 @@ class Stripe_Connection {
 	 * @param string $currency Currency.
 	 * @param int    $date Date.
 	 */
-	private static function create_recurring_payment_metadata( $frequency, $amount, $currency, $date ) {
+	public static function create_recurring_payment_metadata( $frequency, $amount, $currency, $date ) {
 		$metadata          = [];
 		$amount_normalised = self::normalise_amount( $amount, $currency );
 		$payment_date      = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $date );
 		$metadata[ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
 		$metadata[ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
-		switch ( $frequency ) {
-			case 'year':
-				$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Yearly Donor';
-				break;
-			case 'month':
-				$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Monthly Donor';
-				break;
-		}
+		$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = self::get_membership_status_field_value( $frequency );
 		$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
 		$metadata[ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
 		$metadata[ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
@@ -505,9 +566,8 @@ class Stripe_Connection {
 							]
 						);
 
-						if ( 'once' === $frequency ) {
-							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Donor';
-						} else {
+						$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = self::get_membership_status_field_value( $frequency );
+						if ( 'once' !== $frequency ) {
 							$contact['metadata'] = array_merge(
 								self::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
 								$contact['metadata']
@@ -602,13 +662,9 @@ class Stripe_Connection {
 							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
 						],
 					];
-					switch ( $payload['plan']['interval'] ) {
-						case 'year':
-							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Ex-Yearly Donor';
-							break;
-						case 'month':
-							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = 'Ex-Monthly Donor';
-							break;
+					if ( in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
+						$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
+						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
 					}
 					\Newspack_Newsletters_Subscription::add_contact( $contact );
 				}
@@ -910,7 +966,7 @@ class Stripe_Connection {
 	 * @param strin  $currency Currency code.
 	 * @return number Amount.
 	 */
-	private static function normalise_amount( $amount, $currency ) {
+	public static function normalise_amount( $amount, $currency ) {
 		if ( self::is_currency_zero_decimal( $currency ) ) {
 			return $amount;
 		}
@@ -1219,7 +1275,7 @@ class Stripe_Connection {
 	 *
 	 * @param array $payment Stripe payment.
 	 */
-	private static function get_frequency_of_payment( $payment ) {
+	public static function get_frequency_of_payment( $payment ) {
 		$frequency = 'once';
 		if ( $payment['invoice'] ) {
 			// A subscription payment will have an invoice.
