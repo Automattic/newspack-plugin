@@ -160,16 +160,6 @@ class Stripe_Sync {
 			return;
 		}
 
-		if ( ! class_exists( 'WC_Stripe_Helper' ) || ! method_exists( 'WC_Stripe_Helper', 'get_order_by_charge_id' ) ) {
-			\WP_CLI::error( __( 'WC Stripe Gateway plugin has to be active.', 'newspack' ) );
-			return;
-		}
-
-		if ( ! function_exists( 'wc_create_new_customer' ) ) {
-			\WP_CLI::error( __( 'WooCommerce plugin has to be active.', 'newspack' ) );
-			return;
-		}
-
 		$sync_to_wc = function ( $args, $assoc_args ) {
 			$default_args = [
 				'batch-size' => 10,
@@ -179,6 +169,17 @@ class Stripe_Sync {
 			if ( false !== $passed_args['dry-run'] ) {
 				\WP_CLI::warning( __( 'This is a dry run, no changes will be made.', 'newspack' ) );
 			}
+
+			if ( ! class_exists( 'WC_Stripe_Helper' ) || ! method_exists( 'WC_Stripe_Helper', 'get_order_by_charge_id' ) ) {
+				\WP_CLI::error( __( 'WC Stripe Gateway plugin has to be active.', 'newspack' ) );
+				return;
+			}
+
+			if ( ! function_exists( 'wc_create_new_customer' ) ) {
+				\WP_CLI::error( __( 'WooCommerce plugin has to be active.', 'newspack' ) );
+				return;
+			}
+
 			$result = self::process_all_stripe_customers( $passed_args );
 
 			if ( \is_wp_error( $result ) ) {
