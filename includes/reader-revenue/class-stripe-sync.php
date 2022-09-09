@@ -71,7 +71,10 @@ class Stripe_Sync {
 			if ( ! $is_dry_run ) {
 				$full_name  = $customer->name;
 				$user_login = \sanitize_title( $full_name );
-				$user_id    = \wc_create_new_customer( $email_address, $user_login, '', [ 'display_name' => $full_name ] );
+				if ( username_exists( $user_login ) ) {
+					$user_login = $user_login . '-' . uniqid();
+				}
+				$user_id = \wc_create_new_customer( $email_address, $user_login, '', [ 'display_name' => $full_name ] );
 				if ( is_wp_error( $user_id ) ) {
 					\WP_CLI::warning( __( 'Error processing customer', 'newspack' ) . ' ' . $email_address . ': ' . $user_id->get_error_message() );
 					$user_id = false;
