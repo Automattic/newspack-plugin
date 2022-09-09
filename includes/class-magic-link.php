@@ -465,9 +465,9 @@ final class Magic_Link {
 	 *   Token data.
 	 *
 	 *   @type string $token  The token.
-	 *   @type array  $otp    The OTP data.
 	 *   @type string $client Client hash.
 	 *   @type string $time   Token creation time.
+	 *   @type array  $otp    The OTP data.
 	 * }
 	 */
 	public static function validate_otp( $user_id, $hash, $code ) {
@@ -483,7 +483,7 @@ final class Magic_Link {
 			$errors->add( 'invalid_user_type', __( 'Not allowed for this user', 'newspack' ) );
 		} else {
 			$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
-			if ( empty( $tokens ) || empty( $otp ) || empty( $hash ) ) {
+			if ( empty( $tokens ) || empty( $hash ) || empty( $code ) ) {
 				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
 			}
 		}
@@ -502,7 +502,7 @@ final class Magic_Link {
 
 			} elseif ( $token_data['otp']['hash'] === $hash ) {
 
-				if ( $token['otp']['code'] === $otp ) {
+				if ( $token['otp']['code'] === $code ) {
 
 					$valid_token = $token_data;
 					unset( $tokens[ $index ] );
