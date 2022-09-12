@@ -31,6 +31,7 @@ final class Magic_Link {
 	const OTP_LENGTH       = 6;
 	const OTP_MAX_ATTEMPTS = 5;
 	const OTP_AUTH_ACTION  = 'np_otp_auth';
+	const OTP_HASH_COOKIE  = 'np_otp_hash';
 
 	/**
 	 * Current session secret.
@@ -92,15 +93,26 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Whether OTP is enabled
+	 * Whether OTP is enabled given a user.
+	 *
+	 * @param \WP_User $user User object.
+	 *
+	 * @return bool Whether OTP is enabled.
 	 */
-	public static function is_otp_enabled() {
+	public static function is_otp_enabled( $user ) {
 		/**
 		 * Filters whether OTP is enabled.
 		 *
-		 * @param bool $is_otp_enabled Whether OTP is enabled.
+		 * @param bool $is_enabled Whether OTP is enabled.
 		 */
-		return apply_filters( 'newspack_magic_link_otp_enabled', true );
+		$is_enabled = apply_filters( 'newspack_magic_link_otp_enabled', true, $user );
+
+		/** Only use OTP if it's a self-served authentication request. */
+		if ( true === $is_enabled && \is_user_logged_in() && \get_current_user_id() !== $user->ID ) {
+			return false;
+		}
+
+		return $is_enabled;
 	}
 
 	/**
@@ -263,6 +275,36 @@ final class Magic_Link {
 	}
 
 	/**
+	 * Generate an OTP to be used as part of a token.
+	 *
+	 * @param \WP_User $user User to generate OTP for.
+	 *
+	 * @return array|null OTP or null if unable to generate one.
+	 */
+	private static function generate_otp( $user ) {
+		if ( ! self::is_otp_enabled( $user ) ) {
+			return null;
+		}
+		$code = self::get_random_otp_code();
+		$hash = \wp_generate_password( 60, false, false );
+
+		/** This filter is documented in wp-includes/pluggable.php */
+		if ( \apply_filters( 'send_auth_cookies', true ) ) {
+			/** Add an extra 5 minutes to the client secret cookie expiration. */
+			$expiration = time() + self::get_token_expiration_period() + ( 5 * MINUTE_IN_SECONDS );
+
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
+			setcookie( self::OTP_HASH_COOKIE, $hash, $expiration, COOKIEPATH, COOKIE_DOMAIN, true );
+		}
+
+		return [
+			'code'     => $code,
+			'hash'     => $hash,
+			'attempts' => 0,
+		];
+	}
+
+	/**
 	 * Generate magic link token.
 	 *
 	 * @param \WP_User $user User to generate the magic link token for.
@@ -306,11 +348,7 @@ final class Magic_Link {
 			'token'  => $token,
 			'client' => ! empty( $client_hash ) ? $client_hash : '',
 			'time'   => $now,
-			'otp'    => self::is_otp_enabled() ? [
-				'code'     => self::get_random_otp_code(),
-				'hash'     => \wp_generate_password( 60, false, false ),
-				'attempts' => 0,
-			] : null,
+			'otp'    => self::generate_otp( $user ),
 		];
 		$tokens[]    = $token_data;
 		\update_user_meta( $user->ID, self::TOKENS_META, $tokens );
@@ -347,17 +385,16 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user        User to send the magic link to.
 	 * @param string   $redirect_to Which page to redirect the reader after authenticating.
-	 * @param string   $subject     Subject linke for the email.
-	 * @param string   $message     Message to show in body of email.
+	 * @param boolean  $use_otp     Whether to attempt the use of OTP.
 	 *
 	 * @return bool|\WP_Error Whether the email was sent or WP_Error if sending failed.
 	 */
-	public static function send_email( $user, $redirect_to = '', $subject = '', $message = '' ) {
+	public static function send_email( $user, $redirect_to = '', $use_otp = true ) {
 		$token_data = self::generate_token( $user );
 		if ( \is_wp_error( $token_data ) ) {
 			return $token_data;
 		}
-		$url = \add_query_arg(
+		$url                = \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
 				'email'  => urlencode( $user->user_email ),
@@ -365,19 +402,24 @@ final class Magic_Link {
 			],
 			! empty( $redirect_to ) ? $redirect_to : \home_url()
 		);
-		return Emails::send_email(
-			Reader_Activation_Emails::EMAIL_TYPES['MAGIC_LINK'],
-			$user->user_email,
+		$email_type         = 'MAGIC_LINK';
+		$email_placeholders = [
 			[
-				[
-					'template' => '*MAGIC_LINK_URL*',
-					'value'    => $url,
-				],
-				[
-					'template' => '*MAGIC_LINK_OTP*',
-					'value'    => $token_data['otp']['code'],
-				],
-			]
+				'template' => '*MAGIC_LINK_URL*',
+				'value'    => $url,
+			],
+		];
+		if ( $use_otp && ! empty( $token_data['otp'] ) ) {
+			$email_type           = 'OTP_AUTH';
+			$email_placeholders[] = [
+				'template' => '*MAGIC_LINK_OTP*',
+				'value'    => $token_data['otp']['code'],
+			];
+		}
+		return Emails::send_email(
+			Reader_Activation_Emails::EMAIL_TYPES[ $email_type ],
+			$user->user_email,
+			$email_placeholders
 		);
 	}
 
@@ -452,7 +494,7 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Verify and returns the valid token given a user and OTP.
+	 * Verify and returns the valid token given a user and an OTP hash and code.
 	 *
 	 * This method cleans up expired tokens and returns the token data for
 	 * immediate use.
@@ -471,9 +513,6 @@ final class Magic_Link {
 	 * }
 	 */
 	public static function validate_otp( $user_id, $hash, $code ) {
-		if ( ! self::is_otp_enabled() ) {
-			return new \WP_Error( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
-		}
 		$errors = new \WP_Error();
 		$user   = \get_user_by( 'id', $user_id );
 
@@ -486,6 +525,10 @@ final class Magic_Link {
 			if ( empty( $tokens ) || empty( $hash ) || empty( $code ) ) {
 				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
 			}
+		}
+
+		if ( ! self::is_otp_enabled( $user ) ) {
+			return new \WP_Error( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
 		}
 
 		$valid_token = false;
@@ -531,12 +574,22 @@ final class Magic_Link {
 	/**
 	 * Handle a reader authentication attempt using magic link token.
 	 *
-	 * @param int    $user_id User ID.
-	 * @param string $token   Token to authenticate.
+	 * @param int    $user_id           User ID.
+	 * @param string $token_or_otp_hash Either token or OTP hash. OTP hash will
+	 *                                  be used if $otp_code is provided.
+	 * @param int    $otp_code          OTP code to authenticate.
 	 *
 	 * @return bool|\WP_Error Whether the user was authenticated or WP_Error.
 	 */
-	private static function authenticate( $user_id, $token ) {
+	private static function authenticate( $user_id, $token_or_otp_hash, $otp_code = null ) {
+		$token    = '';
+		$otp_hash = '';
+		if ( ! empty( $otp_code ) ) {
+			$otp_hash = $token_or_otp_hash;
+		} else {
+			$token = $token_or_otp_hash;
+		}
+
 		/** Refresh reader session if same reader is already authenticated. */
 		if ( \is_user_logged_in() && \get_current_user_id() !== $user_id ) {
 			return false;
@@ -548,15 +601,22 @@ final class Magic_Link {
 			return new \WP_Error( 'invalid_user', __( 'User not found.', 'newspack' ) );
 		}
 
-		$client_hash = self::get_client_hash( $user );
-		$token_data  = self::validate_token( $user_id, $client_hash, $token );
-
-		if ( \is_wp_error( $token_data ) ) {
-			return $token_data;
+		if ( ! empty( $otp_hash ) ) {
+			if ( ! self::is_otp_enabled( $user ) ) {
+				return new \WP_Error( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
+			}
+			$token_data = self::validate_otp( $user_id, $otp_hash, $otp_code );
+		} else {
+			$client_hash = self::get_client_hash( $user );
+			$token_data  = self::validate_token( $user_id, $client_hash, $token );
 		}
 
 		if ( empty( $token_data ) ) {
 			return false;
+		}
+
+		if ( \is_wp_error( $token_data ) ) {
+			return $token_data;
 		}
 
 		// Authenticate the reader.
@@ -645,13 +705,29 @@ final class Magic_Link {
 	}
 
 	/**
+	 * Send JSON response to an OTP authentication request.
+	 *
+	 * @param string $message Message to display to the user.
+	 * @param bool   $success Whether the request was successful.
+	 */
+	private static function send_otp_request_response( $message = '', $success = false ) {
+		if ( ! \wp_is_json_request() ) {
+			\wp_die( \esc_html__( 'Unsupported request method', 'newspack' ) );
+		}
+		\wp_send_json(
+			[
+				'message' => \esc_html( $message ),
+				'success' => (bool) $success,
+			],
+			$success ? 200 : 400
+		);
+	}
+
+	/**
 	 * Process OTP request.
 	 */
 	public static function process_otp_request() {
 		if ( ! Reader_Activation::is_enabled() ) {
-			return;
-		}
-		if ( ! self::is_otp_enabled() ) {
 			return;
 		}
 
@@ -659,36 +735,34 @@ final class Magic_Link {
 		if ( ! isset( $_GET['action'] ) || self::OTP_AUTH_ACTION !== $_GET['action'] ) {
 			return;
 		}
-		$token = isset( $_GET['token'] ) ? \sanitize_text_field( \wp_unslash( $_GET['token'] ) ) : '';
+		$hash  = isset( $_GET['hash'] ) ? \sanitize_text_field( \wp_unslash( $_GET['hash'] ) ) : '';
+		$code  = isset( $_GET['code'] ) ? \absint( $_GET['code'] ) : '';
 		$email = isset( $_GET['email'] ) ? \sanitize_email( $_GET['email'] ) : '';
 		// phpcs:enable
 
 		if ( ! \wp_is_json_request() ) {
-			wp_die( esc_html__( 'Unsupported request method', 'newspack' ) );
+			\wp_die( \esc_html__( 'Unsupported request method', 'newspack' ) );
 		}
 
-		if ( ! isset( $token ) || ! empty( $email ) ) {
-			return \wp_send_json(
-				[
-					'success' => false,
-					'message' => esc_html__( 'Missing token or email', 'newspack' ),
-				],
-				400
-			);
+		if ( empty( $hash ) || empty( $code ) || empty( $email ) ) {
+			return self::send_otp_request_response( __( 'Missing required parameters', 'newspack' ), false );
 		}
 
 		$user = \get_user_by( 'email', $email );
 		if ( ! $user ) {
-			return \wp_send_json(
-				[
-					'success' => false,
-					'message' => esc_html__( 'Invalid user', 'newspack' ),
-				],
-				400
-			);
+			return self::send_otp_request_response( __( 'Invalid user', 'newspack' ), false );
+		}
+		if ( ! self::is_otp_enabled( $user ) ) {
+			return;
 		}
 
-		/** TODO: Validate OTP code with hash. */
+		$authenticated = self::authenticate( $user->ID, $hash, $code );
+
+		if ( true !== $authenticated ) {
+			return self::send_otp_request_response( __( 'Invalid OTP', 'newspack' ), false );
+		}
+
+		return self::send_otp_request_response( __( 'Authenticated', 'newspack' ), true );
 	}
 
 	/**

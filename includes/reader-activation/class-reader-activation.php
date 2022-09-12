@@ -816,6 +816,9 @@ final class Reader_Activation {
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 							<?php self::render_honeypot_field(); ?>
 						</div>
+						<div class="components-form__field" data-action="otp">
+							<input name="otp" type="text" placeholder="<?php \esc_attr_e( 'Enter your code', 'newspack' ); ?>" />
+						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
 						</div>
@@ -842,6 +845,19 @@ final class Reader_Activation {
 								</p>
 								<p class="small">
 									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
+								</p>
+							</div>
+						</div>
+						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="otp">
+							<div class="components-form__submit">
+								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack' ); ?></button>
+							</div>
+							<div class="components-form__help">
+								<p class="small">
+									<a href="#" data-set-action="link"><?php \esc_html_e( 'Try a different email', 'newspack' ); ?></a>
+								</p>
+								<p class="small">
+									<a href="#"><?php _e( 'Send another code', 'newspack' ); ?></a>
 								</p>
 							</div>
 						</div>

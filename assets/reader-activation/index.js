@@ -176,6 +176,27 @@ export function hasAuthLink() {
 const authStrategies = [ 'pwd', 'link' ];
 
 /**
+ * Set the OTP hash for an authentication request.
+ *
+ * @param {string} hash OTP hash.
+ *
+ * @return {string} OTP hash.
+ */
+export function setOTPHash( hash ) {
+	setCookie( 'np_otp_hash', hash );
+	return hash;
+}
+
+/**
+ * Get the reader's OTP hash for the current authentication request.
+ *
+ * @return {string} OTP hash.
+ */
+export function getOTPHash() {
+	return getCookie( 'np_otp_hash' );
+}
+
+/**
  * Set the reader preferred authentication strategy.
  *
  * @param {string} strategy Authentication strategy.
@@ -244,6 +265,8 @@ const readerActivation = {
 	refreshAuthentication,
 	getReader,
 	hasAuthLink,
+	setOTPHash,
+	getOTPHash,
 	setAuthStrategy,
 	getAuthStrategy,
 	getCaptchaToken,

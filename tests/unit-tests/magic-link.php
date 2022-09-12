@@ -218,12 +218,12 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 			$this->assertEquals( 'invalid_otp', $validation->get_error_code() );
 		}
 
-		// After max attempts, hash should be expired.
+		// On the max attempt threshold, hash will expire.
 		$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 123456 );
 		$this->assertTrue( is_wp_error( $validation ) );
 		$this->assertEquals( 'max_otp_attempts', $validation->get_error_code() );
 
-		// Next attempt on the same hash should fail with invalid otp error again (hash was deleted).
+		// Next attempt on the same hash should fail with `invalid_hash` because the hash was deleted.
 		$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 123456 );
 		$this->assertTrue( is_wp_error( $validation ) );
 		$this->assertEquals( 'invalid_hash', $validation->get_error_code() );
