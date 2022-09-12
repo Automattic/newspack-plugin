@@ -104,6 +104,7 @@ final class Magic_Link {
 		 * Filters whether OTP is enabled.
 		 *
 		 * @param bool $is_enabled Whether OTP is enabled.
+		 * @param \WP_User $user User object.
 		 */
 		$is_enabled = apply_filters( 'newspack_magic_link_otp_enabled', true, $user );
 
@@ -279,7 +280,13 @@ final class Magic_Link {
 	 *
 	 * @param \WP_User $user User to generate OTP for.
 	 *
-	 * @return array|null OTP or null if unable to generate one.
+	 * @return array|null {
+	 *   OTP or null if unable to generate one.
+	 *
+	 *   @type int $code     OTP code.
+	 *   @type int $hash     OTP Hash.
+	 *   @type int $attempts Initial value for OTP authentication attempts.
+	 * }
 	 */
 	private static function generate_otp( $user ) {
 		if ( ! self::is_otp_enabled( $user ) ) {
