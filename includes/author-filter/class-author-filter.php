@@ -30,6 +30,25 @@ class Author_Filter {
 	}
 
 	/**
+	 * Checks if the Co Authors Plus plugin is enabled
+	 *
+	 * If $post_type is informed, will check if it is enabled for this specific post type
+	 *
+	 * @param string $post_type The post type you want to check if Co Authors plus is enabled to.
+	 * @return boolean
+	 */
+	private static function is_coauthors_plus_enabled( $post_type = '' ) {
+		global $coauthors_plus;
+		if ( ! is_object( $coauthors_plus ) || ! method_exists( $coauthors_plus, 'search_authors' ) ) {
+			return false;
+		}
+		if ( ! empty( $post_type ) ) {
+			return $coauthors_plus->is_post_type_enabled( $post_type );
+		}
+		return true;
+	}
+
+	/**
 	 * Echoes a User Dropdown to be added to the Filters
 	 *
 	 * @param string $post_type The post type the action is acting on.
@@ -49,20 +68,71 @@ class Author_Filter {
 			return;
 		}
 
-		$capability = $type_object->cap->edit_posts;
+		if ( self::is_coauthors_plus_enabled( $post_type ) ) {
+			// When using Coauthors plugin, dont show the filter if user is browsing the "Mine" tab. It can lead to inconsistent UI.
+			if ( ! empty( $_GET['author'] ) && get_current_user_id() === (int) $_GET['author'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				return;
+			}
+			$value_field = 'user_login';
+			$select_name = 'author_name';
+			$users       = self::get_options_from_coauthors();
+		} else {
+			$value_field = 'ID';
+			$select_name = 'author';
+			$capability  = $type_object->cap->edit_posts;  // only users who can edit posts of this post type.
+			$users       = self::get_options_from_users( $capability );
+		}
 
-		$args = array(
-			'show_option_all'  => __( 'All Authors', 'newspack' ),
-			'orderby'          => 'display_name',
-			'order'            => 'ASC',
-			'name'             => 'author',
-			'capability'       => [ $capability ], // only users who can edit posts of this post type.
-			'include_selected' => true,
-			'selected'         => ! empty( $_GET['author'] ) ? intval( $_GET['author'] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$selected = ! empty( $_GET[ $select_name ] ) ? (string) $_GET[ $select_name ] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$options  = array(
+			sprintf(
+				'<option value="" %s>%s</option>',
+				selected( false, $selected, false ),
+				__( 'All authors', 'newspack' )
+			),
 		);
 
-		wp_dropdown_users( $args );
+		foreach ( $users as $user ) {
+			$options[] = sprintf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $user->$value_field ),
+				selected( $user->$value_field, $selected, false ),
+				esc_attr( $user->display_name )
+			);
+		}
 
+		printf( '<select id="author_filter" name="%s">', esc_attr( $select_name ) );
+		echo implode( "\n", $options );
+		echo '</select>';
+
+	}
+
+	/**
+	 * Get the list of users
+	 *
+	 * @param string $capability The capability users must have to be listed.
+	 * @return array
+	 */
+	private static function get_options_from_users( $capability ) {
+		$args = array(
+			'orderby'          => 'display_name',
+			'order'            => 'ASC',
+			'capability'       => [ $capability ],
+		);
+		$query = new WP_User_Query( $args );
+		return $query->get_results();
+	}
+
+	/**
+	 * Retrieve the list of authors from the Co Authors Plus plugin
+	 *
+	 * This list includes regular and guest users
+	 *
+	 * @return array
+	 */
+	private static function get_options_from_coauthors() {
+		global $coauthors_plus;
+		return $coauthors_plus->search_authors();
 	}
 
 }
