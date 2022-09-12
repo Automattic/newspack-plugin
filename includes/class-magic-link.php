@@ -501,31 +501,26 @@ final class Magic_Link {
 				unset( $tokens[ $index ] );
 
 			} elseif ( $token_data['otp']['hash'] === $hash ) {
+				$valid_token = $token_data;
 
 				if ( $token_data['otp']['code'] === $code ) {
-
-					$valid_token = $token_data;
 					unset( $tokens[ $index ] );
-
 				} else {
-
-					$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
-
 					// Handle OTP attempts from given hash.
 					$tokens[ $index ]['otp']['attempts']++;
 					if ( $token_data['otp']['attempts'] >= self::OTP_MAX_ATTEMPTS ) {
 						$errors->add( 'max_otp_attempts', __( 'Maximum OTP attempts reached.', 'newspack' ) );
 						unset( $tokens[ $index ] );
 					}
+					$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
 				}
 				break;
 			}
 		}
 
 		if ( empty( $valid_token ) ) {
-			$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
+			$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack' ) );
 		}
-		self::clear_client_secret_cookie();
 
 		$tokens = array_values( $tokens );
 		\update_user_meta( $user->ID, self::TOKENS_META, $tokens );
