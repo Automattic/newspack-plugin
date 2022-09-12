@@ -52,13 +52,12 @@ class Author_Filter {
 		$capability = $type_object->cap->edit_posts;
 
 		$args = array(
-			'show_option_all'  => __( 'All Users', 'newspack' ),
+			'show_option_all'  => __( 'All Authors', 'newspack' ),
 			'orderby'          => 'display_name',
 			'order'            => 'ASC',
 			'name'             => 'author',
 			'capability'       => [ $capability ], // only users who can edit posts of this post type.
 			'include_selected' => true,
-			'exclude'          => [ get_current_user_id() ], // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 			'selected'         => ! empty( $_GET['author'] ) ? intval( $_GET['author'] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		);
 
