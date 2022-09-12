@@ -202,7 +202,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$random_hash = wp_generate_password( 32, false );
 		$validation  = Magic_Link::validate_otp( self::$user_id, $random_hash, $otp['code'] );
 		$this->assertTrue( is_wp_error( $validation ) );
-		$this->assertEquals( 'invalid_otp', $validation->get_error_code() );
+		$this->assertEquals( 'invalid_hash', $validation->get_error_code() );
 	}
 
 	/**
