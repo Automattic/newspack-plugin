@@ -67,6 +67,9 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 				]
 			);
 		}
+
+		// Ensure we're logged out before continuing.
+		wp_logout();
 	}
 
 	/**
