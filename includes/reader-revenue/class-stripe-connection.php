@@ -550,14 +550,6 @@ class Stripe_Connection {
 
 				// Update data in Campaigns plugin.
 				if ( ! empty( $client_id ) ) {
-					$donation_data = [
-						'stripe_id'          => $payment['id'],
-						'stripe_customer_id' => $customer['id'],
-						'date'               => $payment['created'],
-						'amount'             => $amount_normalised,
-						'frequency'          => $frequency,
-					];
-
 					/**
 					 * When a new Stripe transaction occurs that can be associated with a client ID,
 					 * fire an action with the client ID and the relevant donation info.
@@ -566,7 +558,17 @@ class Stripe_Connection {
 					 * @param array       $donation_data Info about the transaction.
 					 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
 					 */
-					do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
+					do_action(
+						'newspack_stripe_new_donation',
+						$client_id,
+						[
+							'stripe_id'          => $payment['id'],
+							'stripe_customer_id' => $customer['id'],
+							'amount'             => $amount_normalised,
+							'frequency'          => $frequency,
+						],
+						$was_customer_added_to_mailing_list ? $customer['email'] : null
+					);
 				}
 
 				$label = $frequency;
@@ -610,8 +612,9 @@ class Stripe_Connection {
 			case 'charge.failed':
 				break;
 			case 'customer.subscription.deleted':
+				$customer = self::get_customer_by_id( $payload['customer'] );
+
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-					$customer     = self::get_customer_by_id( $payload['customer'] );
 					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
 					$contact      = [
 						'email'    => $customer['email'],
@@ -629,6 +632,28 @@ class Stripe_Connection {
 					}
 					\Newspack_Newsletters_Subscription::add_contact( $contact );
 				}
+
+				// Update data in Campaigns plugin.
+				$client_id = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
+				if ( ! empty( $client_id ) ) {
+					/**
+					 * When a Stripe subscription is cancelled that can be associated with a client ID,
+					 * fire an action with the client ID and the relevant info.
+					 *
+					 * @param string      $client_id Client ID.
+					 * @param array       $cancellation_data Info about the event.
+					 */
+					do_action(
+						'newspack_stripe_donation_cancellation',
+						$client_id,
+						[
+							'stripe_id'          => $payload['id'],
+							'stripe_customer_id' => $customer['id'],
+							'frequency'          => $payload['plan']['interval'],
+						]
+					);
+				}
+
 				break;
 			case 'customer.subscription.updated':
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {

@@ -29,9 +29,10 @@ const DEFAULT_CONFIG = {
 	min_session_posts: 0,
 	max_session_posts: 0,
 	is_subscribed: false,
-	is_donor: false,
 	is_not_subscribed: false,
+	is_donor: false,
 	is_not_donor: false,
+	is_former_donor: false,
 	is_logged_in: false,
 	is_not_logged_in: false,
 	favorite_categories: [],
@@ -228,30 +229,35 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				</SettingsSection>
 				<SettingsSection
 					title={ __( 'Donation', 'newspack' ) }
-					description={ __( '(if using WooCommerce checkout)', 'newspack' ) }
+					description={ __( '(if the checkout happens on-site)', 'newspack' ) }
 				>
 					<SelectControl
 						isWide
 						onChange={ value => {
 							value = parseInt( value );
-							if ( value === 0 ) {
-								updateSegmentConfig( {
-									is_donor: false,
-									is_not_donor: false,
-								} );
-							} else {
-								updateSegmentConfig( {
-									is_donor: value === 1,
-									is_not_donor: value === 2,
-								} );
-							}
+							updateSegmentConfig( {
+								is_donor: value === 1,
+								is_not_donor: value === 2,
+								is_former_donor: value === 3,
+							} );
 						} }
-						// eslint-disable-next-line no-nested-ternary
-						value={ segmentConfig.is_donor ? 1 : segmentConfig.is_not_donor ? 2 : 0 }
+						value={ [
+							false,
+							segmentConfig.is_donor,
+							segmentConfig.is_not_donor,
+							segmentConfig.is_former_donor,
+						].reduce(
+							( defaultValue, configValue, index ) => ( configValue ? index : defaultValue ),
+							0
+						) }
 						options={ [
 							{ value: 0, label: __( 'Donors and non-donors', 'newspack' ) },
 							{ value: 1, label: __( 'Donors', 'newspack' ) },
 							{ value: 2, label: __( 'Non-donors', 'newspack' ) },
+							{
+								value: 3,
+								label: __( 'Former donors (who cancelled a recurring donation)', 'newspack' ),
+							},
 						] }
 					/>
 				</SettingsSection>
