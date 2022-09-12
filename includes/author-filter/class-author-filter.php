@@ -137,4 +137,6 @@ class Author_Filter {
 
 }
 
-Author_Filter::init();
+if ( ! defined( 'NEWSPACK_DISABLE_AUTHORS_FILTER' ) || ! NEWSPACK_DISABLE_AUTHORS_FILTER ) {
+	Author_Filter::init();
+}
