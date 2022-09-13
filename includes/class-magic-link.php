@@ -553,7 +553,7 @@ final class Magic_Link {
 			if ( $token_data['time'] < $expire ) {
 				unset( $tokens[ $index ] );
 
-			} elseif ( $token_data['otp']['hash'] === $hash ) {
+			} elseif ( ! empty( $token_data['otp'] ) && $token_data['otp']['hash'] === $hash ) {
 				$valid_token = $token_data;
 
 				if ( $token_data['otp']['code'] === $code ) {

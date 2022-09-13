@@ -43,6 +43,8 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		// Create sample reader.
 		if ( empty( self::$user_id ) ) {
 			self::$user_id = Reader_Activation::register_reader( 'reader@test.com', 'Test Reader' );
+			// Ensure we're logged out before continuing.
+			wp_logout();
 		}
 
 		// Create a secondary sample reader.
@@ -67,9 +69,6 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 				]
 			);
 		}
-
-		// Ensure we're logged out before continuing.
-		wp_logout();
 	}
 
 	/**
