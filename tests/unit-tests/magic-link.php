@@ -78,9 +78,9 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	 *   The token data.
 	 *
 	 *   @type string $token  The token.
-	 *   @type string $otp    The OTP.
 	 *   @type string $client Client hash.
 	 *   @type string $time   Token creation time.
+	 *   @type array  $otp    The OTP.
 	 * }
 	 */
 	public function assertTokenIsValid( $token_data ) {
