@@ -20,43 +20,55 @@ class Meta_Pixel {
 	const OPTION_NAME = 'newspack_meta_pixel';
 
 	/**
-	 * Initializes the hooks
+	 * Validates the active argument
 	 *
-	 * @return void
+	 * @param mixed $value The value to be validated.
+	 * @return boolean
 	 */
-	public static function init() {
-		add_action( 'admin_init', [ __CLASS__, 'register_setting' ] );
-		add_action( 'rest_api_init', [ __CLASS__, 'register_setting' ] );
+	public static function validate_active( $value ) {
+		return is_bool( $value );
 	}
 
 	/**
-	 * Register the settings
+	 * Validates the pixel_id argument
 	 *
-	 * @return void
+	 * @param mixed $value The value to be validated.
+	 * @return boolean
 	 */
-	public static function register_setting() {
-		register_setting(
-			'newspack_plugin',
-			self::OPTION_NAME,
-			array(
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'properties' => array(
-							'active'   => array(
-								'type' => 'boolean',
-							),
-							'pixel_id' => array(
-								'type' => 'string',
-							),
-						),
-					),
-				),
-				'type'              => 'object',
-				'sanitize_callback' => [ __CLASS__, 'sanitize_option' ],
-				'default'           => self::get_default_values(),
-			)
-		);
+	public static function validate_pixel_id( $value ) {
+		return ctype_digit( $value ) || is_int( $value );
+	}
+
+	/**
+	 * Callback for the REST API GET method
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function api_get() {
+		return rest_ensure_response( self::get_option() );
+	}
+
+	/**
+	 * Callback for the REST API POST method to save the settings
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function api_save( $request ) {
+		$pixel_id = $request->get_param( 'pixel_id' );
+		$active   = $request->get_param( 'active' );
+		$value    = compact( 'pixel_id', 'active' );
+		update_option( self::OPTION_NAME, self::sanitize_option( $value ) );
+		return rest_ensure_response( self::get_option(), 200 );
+	}
+
+	/**
+	 * Gets the current value of the option
+	 *
+	 * @return array
+	 */
+	public static function get_option() {
+		return get_option( self::OPTION_NAME, self::get_default_values() );
 	}
 
 	/**
@@ -89,12 +101,10 @@ class Meta_Pixel {
 			$sanitized['active'] = $defaults['active'];
 		}
 		if ( isset( $value['pixel_id'] ) ) {
-			$sanitized['pixel_id'] = (string) $value['pixel_id'];
+			$sanitized['pixel_id'] = (string) $value['pixel_id']; // store as string to avoid PHP_INT_MAX problems.
 		} else {
 			$sanitized['pixel_id'] = $defaults['pixel_id'];
 		}
 		return $sanitized;
 	}
 }
-
-Meta_Pixel::init();

@@ -11,7 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { PluginSettings } from '../../../../components/src';
 
 export default function MetaPixel() {
-	const apiEndpoint = '/wp/v2/settings';
+	const apiEndpoint = '/newspack/v1/wizard/newspack-engagement-wizard/social/meta_pixel';
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ settings, setSettings ] = useState( null );
@@ -20,7 +20,7 @@ export default function MetaPixel() {
 		setInFlight( true );
 		try {
 			const response = await apiFetch( { path: apiEndpoint } );
-			setSettings( response.newspack_meta_pixel );
+			setSettings( response );
 		} catch ( err ) {
 			setSettings( null );
 		}
@@ -42,13 +42,11 @@ export default function MetaPixel() {
 				path: apiEndpoint,
 				method: 'POST',
 				data: {
-					newspack_meta_pixel: {
-						...settings,
-						...data,
-					},
+					...settings,
+					...data,
 				},
 			} );
-			setSettings( result.newspack_meta_pixel );
+			setSettings( result );
 		} catch ( err ) {
 			setError( err );
 		}
@@ -58,7 +56,7 @@ export default function MetaPixel() {
 	const fields = [
 		{
 			key: 'pixel_id',
-			type: 'string',
+			type: 'integer',
 			description: __( 'Pixel ID', 'newspack' ),
 			help: __(
 				'The Meta Pixel ID of your account. You can take this information in XXXXXXXX. EXAMPLE.',
@@ -66,6 +64,12 @@ export default function MetaPixel() {
 			),
 		},
 	];
+
+	if ( ! settings ) {
+		return null;
+	}
+
+	fields[0].value = settings.pixel_id;
 
 	return (
 		<PluginSettings.Section
