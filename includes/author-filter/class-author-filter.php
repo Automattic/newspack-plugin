@@ -118,6 +118,7 @@ class Author_Filter {
 			'orderby'          => 'display_name',
 			'order'            => 'ASC',
 			'capability'       => [ $capability ],
+			'fields'           => [ 'ID', 'display_name' ],
 		);
 		$query = new WP_User_Query( $args );
 		return $query->get_results();
