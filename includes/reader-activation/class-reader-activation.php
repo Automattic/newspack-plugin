@@ -830,7 +830,6 @@ final class Reader_Activation {
 						</div>
 						<div class="components-form__field" data-action="otp">
 							<input name="otp_code" type="text" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack' ); ?>" />
-							<input name="otp_hash" value="" type="hidden" />
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
