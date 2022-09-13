@@ -44,7 +44,7 @@ export default function MetaPixel() {
 				data: {
 					newspack_meta_pixel: {
 						...settings,
-						...data
+						...data,
 					},
 				},
 			} );
@@ -61,7 +61,7 @@ export default function MetaPixel() {
 			type: 'string',
 			description: __( 'Pixel ID', 'newspack' ),
 			help: __(
-				"The Meta Pixel ID of your account. You can take this information in XXXXXXXX. EXAMPLE....",
+				'The Meta Pixel ID of your account. You can take this information in XXXXXXXX. EXAMPLE.',
 				'newspack'
 			),
 		},
