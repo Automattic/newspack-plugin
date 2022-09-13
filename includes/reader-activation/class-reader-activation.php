@@ -780,7 +780,7 @@ final class Reader_Activation {
 									sprintf(
 										// Translators: %s is the link to sign in via magic link instead.
 										__( 'Sign in with a password below, or %s.', 'newspack' ),
-										'<a href="#" data-set-action="link">' . __( 'sign in using a link', 'newspack' ) . '</a>'
+										'<a href="#" data-set-action="link">' . __( 'sign in using your email', 'newspack' ) . '</a>'
 									)
 								);
 							?>
@@ -824,7 +824,7 @@ final class Reader_Activation {
 								?>
 							</div>
 						<?php endif; ?>
-						<div class="components-form__field" data-action="pwd link">
+						<div class="components-form__field" data-action="pwd link register">
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 							<?php self::render_honeypot_field(); ?>
 						</div>
@@ -854,7 +854,7 @@ final class Reader_Activation {
 							</div>
 							<div class="components-form__help">
 								<p class="small">
-									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with a link', 'newspack' ); ?></a>
+									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with your email', 'newspack' ); ?></a>
 								</p>
 								<p class="small">
 									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack' ); ?></a>
