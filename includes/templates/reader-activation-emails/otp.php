@@ -8,7 +8,7 @@
 // phpcs:disable WordPressVIPMinimum.Security.Mustache.OutputNotation
 
 return array(
-	'post_title'   => __( 'Authentication code', 'newspack' ),
+	'post_title'   => __( 'Authorization code', 'newspack' ),
 	'post_content' => '<!-- wp:site-logo {"align":"center"} /-->
 
   <!-- wp:heading -->
