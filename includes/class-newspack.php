@@ -95,6 +95,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-login.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-blocks.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-meta-pixel.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
 
