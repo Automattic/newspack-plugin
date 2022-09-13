@@ -1,4 +1,4 @@
-/** globals newspack_reader_activation_data */
+/* globals newspack_reader_activation_data */
 
 /**
  * Reader Activation Frontend Library.
@@ -176,24 +176,63 @@ export function hasAuthLink() {
 const authStrategies = [ 'pwd', 'link' ];
 
 /**
- * Set the OTP hash for an authentication request.
- *
- * @param {string} hash OTP hash.
- *
- * @return {string} OTP hash.
- */
-export function setOTPHash( hash ) {
-	setCookie( 'np_otp_hash', hash );
-	return hash;
-}
-
-/**
  * Get the reader's OTP hash for the current authentication request.
  *
  * @return {string} OTP hash.
  */
 export function getOTPHash() {
 	return getCookie( 'np_otp_hash' );
+}
+
+/**
+ * Authenticate reader using an OTP code.
+ *
+ * @param {number} code OTP code.
+ *
+ * @return {Promise} Promise.
+ */
+export function authenticateOTP( code ) {
+	return new Promise( ( resolve, reject ) => {
+		const hash = getOTPHash();
+		const email = getReader()?.email;
+		if ( ! hash ) {
+			reject( 'No OTP hash' );
+		}
+		if ( ! email ) {
+			reject( 'No email' );
+		}
+		code = parseInt( code );
+		if ( ! code || isNaN( code ) ) {
+			reject( 'Invalid code' );
+		}
+		fetch( '', {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json; charset=utf-8',
+			},
+			body: new URLSearchParams( {
+				action: newspack_reader_activation_data.otp_auth_action,
+				email,
+				hash,
+				code,
+			} ),
+		} )
+			.then( response => response.json() )
+			.then( ( { success, message, data } ) => {
+				const payload = {
+					...data,
+					email,
+					authenticated: true,
+					message,
+				};
+				if ( success ) {
+					setAuthenticated( true );
+					resolve( payload );
+				} else {
+					reject( payload );
+				}
+			} );
+	} );
 }
 
 /**
@@ -217,6 +256,9 @@ export function setAuthStrategy( strategy ) {
  * @return {string} Reader preferred authentication strategy.
  */
 export function getAuthStrategy() {
+	if ( getOTPHash() ) {
+		return 'otp';
+	}
 	return getCookie( 'np_auth_strategy' );
 }
 
@@ -225,7 +267,7 @@ export function getAuthStrategy() {
  */
 export function getCaptchaToken( action = 'submit' ) {
 	return new Promise( ( res, rej ) => {
-		const { grecaptcha, newspack_reader_activation_data } = window;
+		const { grecaptcha } = window;
 		if ( ! grecaptcha || ! newspack_reader_activation_data ) {
 			return res( '' );
 		}
@@ -248,7 +290,7 @@ export function getCaptchaToken( action = 'submit' ) {
  * Initialize store data.
  */
 function init() {
-	const data = window.newspack_reader_activation_data;
+	const data = newspack_reader_activation_data;
 	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
 	const authenticated = !! data?.authenticated_email;
 	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
@@ -265,15 +307,15 @@ const readerActivation = {
 	refreshAuthentication,
 	getReader,
 	hasAuthLink,
-	setOTPHash,
 	getOTPHash,
+	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
 	getCaptchaToken,
 };
 window.newspackReaderActivation = readerActivation;
 
-const clientIDCookieName = window.newspack_reader_activation_data.cid_cookie;
+const clientIDCookieName = newspack_reader_activation_data.cid_cookie;
 if ( ! getCookie( clientIDCookieName ) ) {
 	// If entropy is an issue, https://www.npmjs.com/package/nanoid can be used.
 	const getShortStringId = () => Math.floor( Math.random() * 999999999 ).toString( 36 );

@@ -92,6 +92,7 @@ final class Reader_Activation {
 			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
+			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {
@@ -789,7 +790,18 @@ final class Reader_Activation {
 								echo wp_kses_post(
 									sprintf(
 										// Translators: %s is the link to sign in via password instead.
-										__( 'Get a link sent to your email to sign in instantly, or %s.', 'newspack' ),
+										__( 'Get a code sent to your email to sign in, or %s.', 'newspack' ),
+										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack' ) . '</a>'
+									)
+								);
+							?>
+						</p>
+						<p data-action="otp">
+							<?php
+								echo wp_kses_post(
+									sprintf(
+										// Translators: %s is the link to sign in via password instead.
+										__( 'Enter the code you received via email to sign in, or %s.', 'newspack' ),
 										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack' ) . '</a>'
 									)
 								);
@@ -812,12 +824,13 @@ final class Reader_Activation {
 								?>
 							</div>
 						<?php endif; ?>
-						<div class="components-form__field">
+						<div class="components-form__field" data-action="pwd link">
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 							<?php self::render_honeypot_field(); ?>
 						</div>
 						<div class="components-form__field" data-action="otp">
-							<input name="otp" type="text" placeholder="<?php \esc_attr_e( 'Enter your code', 'newspack' ); ?>" />
+							<input name="otp_code" type="text" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack' ); ?>" />
+							<input name="otp_hash" value="" type="hidden" />
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
@@ -857,13 +870,13 @@ final class Reader_Activation {
 									<a href="#" data-set-action="link"><?php \esc_html_e( 'Try a different email', 'newspack' ); ?></a>
 								</p>
 								<p class="small">
-									<a href="#"><?php _e( 'Send another code', 'newspack' ); ?></a>
+									<a href="#" data-set-action="link"><?php _e( 'Send another code', 'newspack' ); ?></a>
 								</p>
 							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
 							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Send authentication link', 'newspack' ); ?></button>
+								<button type="submit"><?php \esc_html_e( 'Send authorization code', 'newspack' ); ?></button>
 							</div>
 							<div class="components-form__help">
 								<p class="small">
