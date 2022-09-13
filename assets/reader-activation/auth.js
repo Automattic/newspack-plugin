@@ -320,7 +320,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				ev.preventDefault();
 				form.startLoginFlow();
 
-				const action = actionInput?.value;
+				const action = form.action?.value;
 
 				if ( ! form.npe?.value ) {
 					return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );

@@ -268,13 +268,13 @@ final class Magic_Link {
 	/**
 	 * Get a random OTP code.
 	 *
-	 * @return int Random OTP code.
+	 * @return string Random OTP code.
 	 */
 	private static function get_random_otp_code() {
 		$length = self::OTP_LENGTH;
-		$otp    = 0;
+		$otp    = '';
 		for ( $i = 0; $i < $length; $i++ ) {
-			$otp = $otp * 10 + \wp_rand( 0, 9 );
+			$otp .= strval( \wp_rand( 0, 9 ) );
 		}
 		return $otp;
 	}
@@ -287,9 +287,9 @@ final class Magic_Link {
 	 * @return array|null {
 	 *   OTP or null if unable to generate one.
 	 *
-	 *   @type int $code     OTP code.
-	 *   @type int $hash     OTP Hash.
-	 *   @type int $attempts Initial value for OTP authentication attempts.
+	 *   @type string $code     OTP code.
+	 *   @type string $hash     OTP Hash.
+	 *   @type int    $attempts Initial value for OTP authentication attempts.
 	 * }
 	 */
 	private static function generate_otp( $user ) {
@@ -513,15 +513,15 @@ final class Magic_Link {
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $hash    OTP hash.
-	 * @param int    $code    OTP code.
+	 * @param string $code    OTP code.
 	 *
 	 * @return array|\WP_Error {
 	 *   Token data.
 	 *
-	 *   @type string $token  The token.
-	 *   @type string $client Client hash.
-	 *   @type string $time   Token creation time.
-	 *   @type array  $otp    The OTP data.
+	 *   @type string     $token  The token.
+	 *   @type string     $client Client hash.
+	 *   @type string     $time   Token creation time.
+	 *   @type array|null $otp    The OTP data or null if unavailable.
 	 * }
 	 */
 	public static function validate_otp( $user_id, $hash, $code ) {
@@ -589,7 +589,7 @@ final class Magic_Link {
 	 * @param int    $user_id           User ID.
 	 * @param string $token_or_otp_hash Either token or OTP hash. OTP hash will
 	 *                                  be used if $otp_code is provided.
-	 * @param int    $otp_code          OTP code to authenticate.
+	 * @param string $otp_code          OTP code to authenticate.
 	 *
 	 * @return bool|\WP_Error Whether the user was authenticated or WP_Error.
 	 */
@@ -753,7 +753,7 @@ final class Magic_Link {
 			return;
 		}
 		$hash  = isset( $_POST['hash'] ) ? \sanitize_text_field( \wp_unslash( $_POST['hash'] ) ) : '';
-		$code  = isset( $_POST['code'] ) ? \absint( $_POST['code'] ) : '';
+		$code  = isset( $_POST['code'] ) ? \sanitize_text_field( \wp_unslash( $_POST['code'] ) ) : '';
 		$email = isset( $_POST['email'] ) ? \sanitize_email( $_POST['email'] ) : '';
 		// phpcs:enable
 

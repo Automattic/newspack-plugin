@@ -196,14 +196,13 @@ export function authenticateOTP( code ) {
 		const hash = getOTPHash();
 		const email = getReader()?.email;
 		if ( ! hash ) {
-			reject( 'No OTP hash' );
+			reject( { message: 'Code has expired', expired: true } );
 		}
 		if ( ! email ) {
-			reject( 'No email' );
+			reject( { message: 'You must provide an email' } );
 		}
-		code = parseInt( code );
-		if ( ! code || isNaN( code ) ) {
-			reject( 'Invalid code' );
+		if ( ! code ) {
+			reject( { message: 'Invalid code' } );
 		}
 		fetch( '', {
 			method: 'POST',
