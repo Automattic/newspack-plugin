@@ -729,7 +729,7 @@ final class Magic_Link {
 		}
 		\wp_send_json(
 			[
-				'message' => \esc_html( $message ),
+				'message' => $message,
 				'success' => (bool) $success,
 				'data'    => $data,
 			],
@@ -780,12 +780,12 @@ final class Magic_Link {
 				return self::send_otp_request_response( __( "You've reached the maximum attempts for this code. Please try again.", 'newspack' ), false, [ 'expired' => true ] );
 			}
 			if ( 'invalid_otp' === $authenticated->get_error_code() ) {
-				return self::send_otp_request_response( __( 'Invalid code', 'newspack' ), false );
+				return self::send_otp_request_response( __( 'The code does not match.', 'newspack' ), false );
 			}
 		}
 
 		if ( true !== $authenticated ) {
-			return self::send_otp_request_response( __( 'Invalid OTP', 'newspack' ), false );
+			return self::send_otp_request_response( __( 'Unable to authenticated. Please try again.', 'newspack' ), false, [ 'expired' => true ] );
 		}
 
 		return self::send_otp_request_response( __( 'Login successful!', 'newspack' ), true );

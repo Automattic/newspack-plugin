@@ -207,7 +207,7 @@ export function authenticateOTP( code ) {
 		fetch( '', {
 			method: 'POST',
 			headers: {
-				Accept: 'application/json; charset=utf-8',
+				Accept: 'application/json',
 			},
 			body: new URLSearchParams( {
 				action: newspack_reader_activation_data.otp_auth_action,
