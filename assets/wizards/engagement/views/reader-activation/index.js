@@ -10,13 +10,14 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import {
-	Notice,
-	Grid,
-	Card,
 	Button,
+	Card,
+	Grid,
+	Notice,
 	SectionHeader,
 	TextControl,
 	withWizardScreen,
+	ActionCard,
 } from '../../../../components/src';
 import ActiveCampaign from './active-campaign';
 
@@ -60,6 +61,27 @@ export default withWizardScreen( () => {
 			);
 		} );
 	}, [] );
+
+	const getSharedProps = ( configKey, type = 'checkbox' ) => {
+		const props = {
+			onChange: val => updateConfig( configKey, val ),
+		};
+		if ( configKey !== 'enabled' ) {
+			props.disabled = inFlight || ! config.enabled;
+		}
+		switch ( type ) {
+			case 'checkbox':
+				props.checked = Boolean( config[ configKey ] );
+				break;
+			case 'text':
+				props.value = config[ configKey ] || '';
+				break;
+		}
+		return props;
+	};
+
+	const emails = Object.values( config.emails || {} );
+
 	return (
 		<>
 			{ error && (
@@ -76,8 +98,7 @@ export default withWizardScreen( () => {
 				<CheckboxControl
 					label={ __( 'Enable Reader Activation', 'newspack' ) }
 					help={ __( 'Whether to enable reader activation features for your site.', 'newspack' ) }
-					checked={ !! config.enabled }
-					onChange={ value => updateConfig( 'enabled', value ) }
+					{ ...getSharedProps( 'enabled' ) }
 				/>
 				<hr />
 				<CheckboxControl
@@ -86,8 +107,44 @@ export default withWizardScreen( () => {
 						'Display an account link in the site header. It will allow readers to register and access their account.',
 						'newspack'
 					) }
-					checked={ !! config.enabled_account_link }
-					onChange={ value => updateConfig( 'enabled_account_link', value ) }
+					{ ...getSharedProps( 'enabled_account_link' ) }
+				/>
+				<Grid columns={ 2 } gutter={ 16 }>
+					<TextControl
+						label={ __( 'Terms & Conditions Text', 'newspack' ) }
+						help={ __( 'Terms and conditions text to display on registration.', 'newspack' ) }
+						{ ...getSharedProps( 'terms_text', 'text' ) }
+					/>
+					<TextControl
+						label={ __( 'Terms & Conditions URL', 'newspack' ) }
+						help={ __( 'URL to the page containing the terms and conditions.', 'newspack' ) }
+						{ ...getSharedProps( 'terms_url', 'text' ) }
+					/>
+				</Grid>
+				<hr />
+				{ emails?.length > 0 && (
+					<>
+						<SectionHeader
+							title={ __( 'Emails', 'newspack' ) }
+							description={ __( 'Customize emails sent to readers.', 'newspack' ) }
+						/>
+						{ emails.map( email => (
+							<ActionCard
+								key={ email.post_id }
+								title={ email.label }
+								titleLink={ email.edit_link }
+								href={ email.edit_link }
+								description={ email.description }
+								actionText={ __( 'Edit', 'newspack' ) }
+							/>
+						) ) }
+						<hr />
+					</>
+				) }
+
+				<SectionHeader
+					title={ __( 'Email Service Provider Settings', 'newspack' ) }
+					description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 				/>
 				<TextControl
 					label={ __( 'Newsletter subscription text on registration', 'newspack' ) }
@@ -95,34 +152,39 @@ export default withWizardScreen( () => {
 						'The text to display while subscribing to newsletters on the registration modal.',
 						'newspack'
 					) }
-					value={ config.newsletters_label }
-					onChange={ value => updateConfig( 'newsletters_label', value ) }
+					{ ...getSharedProps( 'newsletters_label', 'text' ) }
 				/>
-				<Grid columns={ 2 } gutter={ 16 }>
-					<TextControl
-						label={ __( 'Terms & Conditions Text', 'newspack' ) }
-						help={ __( 'Terms and conditions text to display on registration.', 'newspack' ) }
-						value={ config.terms_text }
-						onChange={ value => updateConfig( 'terms_text', value ) }
-					/>
-					<TextControl
-						label={ __( 'Terms & Conditions URL', 'newspack' ) }
-						help={ __( 'URL to the page containing the terms and conditions.', 'newspack' ) }
-						value={ config.terms_url }
-						onChange={ value => updateConfig( 'terms_url', value ) }
-					/>
-				</Grid>
+				<CheckboxControl
+					label={ __( 'Synchronize reader to ESP', 'newspack' ) }
+					help={ __(
+						'Whether to synchronize reader data to the ESP. A contact will be created on reader registration if the ESP supports contacts without a list subscription.',
+						'newspack'
+					) }
+					{ ...getSharedProps( 'sync_esp' ) }
+				/>
+				{ config.sync_esp && (
+					<>
+						<CheckboxControl
+							label={ __( 'Delete contact on reader deletion', 'newspack' ) }
+							help={ __(
+								"If the reader's email is verified, delete contact from ESP on reader deletion. ESP synchronization must be enabled.",
+								'newspack'
+							) }
+							{ ...getSharedProps( 'sync_esp_delete' ) }
+						/>
+						{ isActiveCampaign && (
+							<ActiveCampaign
+								value={ { masterList: config.active_campaign_master_list } }
+								onChange={ ( key, value ) => {
+									if ( key === 'masterList' ) {
+										updateConfig( 'active_campaign_master_list', value );
+									}
+								} }
+							/>
+						) }
+					</>
+				) }
 			</Card>
-			{ isActiveCampaign && (
-				<ActiveCampaign
-					value={ { masterList: config.active_campaign_master_list } }
-					onChange={ ( key, value ) => {
-						if ( key === 'masterList' ) {
-							updateConfig( 'active_campaign_master_list', value );
-						}
-					} }
-				/>
-			) }
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
 					{ __( 'Save Changes', 'newspack' ) }

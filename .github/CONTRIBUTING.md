@@ -27,19 +27,14 @@ The more information you include, the better we can reproduce and fix the issue.
 
 Feature requests can be [submitted to our issue tracker](https://github.com/Automattic/newspack-plugin/issues/new?template=Feature_request.md). Be sure to include a description of the expected behavior and use case, and before submitting a request, please search for similar ones in the closed issues.
 
-Feature request issues will remain closed until we see sufficient interest via comments and [👍 reactions](https://help.github.com/articles/about-discussions-in-issues-and-pull-requests/) from the community.
-
-You can see a [list of current feature requests which require votes here](https://github.com/Automattic/newspack-plugin/issues?q=label%3A%22votes+needed%22+sort%3Areactions-%2B1-desc+is%3Aclosed).
-
 ## Pull requests
 
 To submit a patch to Newspack, simply create a pull request to the master branch of the Newspack repository. Please test and provide an explanation for your changes. When opening a pull request, please follow these guidelines:
 
 - **Ensure you stick to the [WordPress Coding Standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/php/) and the [VIP Go Coding Standards](https://vip.wordpress.com/documentation/vip-go/code-review-blockers-warnings-notices/)**
-- Install our pre-commit hook using composer. It'll help with the coding standards by automatically checking code when you commit. To install them  run `composer install` from the command line within the Newspack plugin or theme directory.
+- Install our pre-commit hook using composer. It'll help with the coding standards by automatically checking code when you commit. To install them run `composer install` from the command line within the Newspack plugin or theme directory.
 - Ensure you use LF line endings in your code editor. Use [EditorConfig](http://editorconfig.org/) if your editor supports it so that indentation, line endings and other settings are auto configured.
 - When committing, reference your issue number (#1234) and include a note about the fix.
-- Ensure that your code is compatible with PHP 5.6+.
 - Please **don't** modify the changelog or update the .pot files. These will be maintained by the Newspack team.
 
 ### Code review process
@@ -48,7 +43,7 @@ Code reviews are an important part of the Newspack workflow. They help to keep c
 
 Every PR should be reviewed and approved by someone other than the author, even if the author has write access. Fresh eyes can find problems that can hide in the open if you’ve been working on the code for a while.
 
-*Everyone* is encouraged to review PRs and add feedback and ask questions, even people who are new to Newspack. Also, don’t just review PRs about what you’re working on. Reading other people’s code is a great way to learn new techniques, and seeing code outside of your own feature helps you to see patterns across the project. It’s also helpful to see the feedback other contributors are getting on their PRs.
+_Everyone_ is encouraged to review PRs and add feedback and ask questions, even people who are new to Newspack. Also, don’t just review PRs about what you’re working on. Reading other people’s code is a great way to learn new techniques, and seeing code outside of your own feature helps you to see patterns across the project. It’s also helpful to see the feedback other contributors are getting on their PRs.
 
 ### Development Workflow
 
@@ -63,4 +58,4 @@ Newspack is licensed under [GNU General Public License v2 (or later)](../LICENSE
 All materials contributed should be compatible with the GPLv2. This means that if you own the material, you agree to license it under the GPLv2 license. If you are contributing code that is not your own, such as adding a component from another Open Source project, or adding an `npm` package, you need to make sure you follow these steps:
 
 1. Check that the code has a license. If you can't find one, you can try to contact the original author and get permission to use, or ask them to release under a compatible Open Source license.
-2. Check the license is compatible with [GPLv2](http://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses), note that the Apache 2.0 license is *not* compatible.
+2. Check the license is compatible with [GPLv2](http://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses), note that the Apache 2.0 license is _not_ compatible.

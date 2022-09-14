@@ -14,6 +14,7 @@ import Plugins from './plugins';
 import GoogleAuth from './google';
 import Mailchimp from './mailchimp';
 import FivetranConnection from './fivetran';
+import Recaptcha from './recaptcha';
 
 const Main = () => {
 	const [ error, setError ] = useState();
@@ -32,6 +33,7 @@ const Main = () => {
 					<FivetranConnection setError={ setError } />
 				</>
 			) }
+			<Recaptcha setError={ setError } />
 		</>
 	);
 };
