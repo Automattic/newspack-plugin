@@ -147,6 +147,9 @@ final class Newspack {
 
 		// Scheduled post checker cron job.
 		include_once NEWSPACK_ABSPATH . 'includes/scheduled-post-checker/scheduled-post-checker.php';
+
+		// Filter by authors in the Posts page.
+		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
 	}
 
 	/**
