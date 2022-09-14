@@ -96,7 +96,6 @@ const frequencyMap = {
 	weekly: __( 'Once a week', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Every pageview', 'newspack' ),
-	preset_1: __( 'Every 4th pageview, up to 5x per month', 'newspack' ),
 	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack' ),
 };
 
