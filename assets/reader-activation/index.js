@@ -196,13 +196,13 @@ export function authenticateOTP( code ) {
 		const hash = getOTPHash();
 		const email = getReader()?.email;
 		if ( ! hash ) {
-			reject( { message: 'Code has expired', expired: true } );
+			return reject( { message: 'Code has expired', expired: true } );
 		}
 		if ( ! email ) {
-			reject( { message: 'You must provide an email' } );
+			return reject( { message: 'You must provide an email' } );
 		}
 		if ( ! code ) {
-			reject( { message: 'Invalid code' } );
+			return reject( { message: 'Invalid code' } );
 		}
 		fetch( '', {
 			method: 'POST',
@@ -221,11 +221,11 @@ export function authenticateOTP( code ) {
 				const payload = {
 					...data,
 					email,
-					authenticated: true,
+					authenticated: !! success,
 					message,
 				};
+				setAuthenticated( !! success );
 				if ( success ) {
-					setAuthenticated( true );
 					resolve( payload );
 				} else {
 					reject( payload );
