@@ -114,7 +114,7 @@ class Author_Filter {
 	 * @return array
 	 */
 	private static function get_options_from_users( $capability ) {
-		$args = array(
+		$args  = array(
 			'orderby'    => 'display_name',
 			'order'      => 'ASC',
 			'capability' => [ $capability ],
