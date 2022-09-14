@@ -83,7 +83,7 @@ class Author_Filter {
 			$users       = self::get_options_from_users( $capability );
 		}
 
-		$selected = ! empty( $_GET[ $select_name ] ) ? (string) $_GET[ $select_name ] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$selected = ! empty( $_GET[ $select_name ] ) ? sanitize_text_field( $_GET[ $select_name ] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$options  = array(
 			sprintf(
 				'<option value="" %s>%s</option>',
@@ -102,7 +102,7 @@ class Author_Filter {
 		}
 
 		printf( '<select id="author_filter" name="%s">', esc_attr( $select_name ) );
-		echo implode( "\n", $options );
+		echo implode( "\n", $options ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</select>';
 
 	}
@@ -115,10 +115,10 @@ class Author_Filter {
 	 */
 	private static function get_options_from_users( $capability ) {
 		$args = array(
-			'orderby'          => 'display_name',
-			'order'            => 'ASC',
-			'capability'       => [ $capability ],
-			'fields'           => [ 'ID', 'display_name' ],
+			'orderby'    => 'display_name',
+			'order'      => 'ASC',
+			'capability' => [ $capability ],
+			'fields'     => [ 'ID', 'display_name' ],
 		);
 		$query = new WP_User_Query( $args );
 		return $query->get_results();
