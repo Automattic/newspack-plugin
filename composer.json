@@ -19,7 +19,8 @@
 		"automattic/vipwpcs": "^2.0.0",
 		"wp-coding-standards/wpcs": "*",
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
-		"phpcompatibility/phpcompatibility-wp": "*"
+		"phpcompatibility/phpcompatibility-wp": "*",
+		"yoast/phpunit-polyfills": "^1.0"
 	},
 	"scripts": {
 		"post-install-cmd": [
