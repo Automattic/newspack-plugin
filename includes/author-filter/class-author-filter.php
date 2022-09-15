@@ -5,6 +5,11 @@
  * @package Newspack
  */
 
+namespace Newspack;
+
+use WP_Post_Type;
+use WP_User_Query;
+
 /**
  * Author Filter class
  */
