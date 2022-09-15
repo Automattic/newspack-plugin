@@ -1,3 +1,10 @@
+# [1.91.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.90.0...v1.91.0-hotfix.1) (2022-09-15)
+
+
+### Features
+
+* stop auto-email on registration and rate limit unverified accounts ([c6a2566](https://github.com/Automattic/newspack-plugin/commit/c6a256660ffaaeed115a6933377ee768f76e2487))
+
 # [1.90.0](https://github.com/Automattic/newspack-plugin/compare/v1.89.1...v1.90.0) (2022-09-14)
 
 
