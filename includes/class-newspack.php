@@ -86,6 +86,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-magic-link.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-stripe-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-woocommerce-connection.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-stripe-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/my-account/class-woocommerce-my-account.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-reader-revenue-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-oauth.php';
@@ -147,6 +148,9 @@ final class Newspack {
 
 		// Scheduled post checker cron job.
 		include_once NEWSPACK_ABSPATH . 'includes/scheduled-post-checker/scheduled-post-checker.php';
+
+		// Filter by authors in the Posts page.
+		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
 	}
 
 	/**

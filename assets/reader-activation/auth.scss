@@ -258,9 +258,15 @@
 					margin-bottom: 0 !important;
 				}
 			}
+			input[type='text'],
 			input[type='email'],
 			input[type='password'] {
 				width: 100%;
+			}
+			input[name='otp_code'] {
+				font-size: 1.2rem;
+				text-align: center;
+				font-family: monospace;
 			}
 			.newspack-reader__auth-form__inline & {
 				padding: 0;
