@@ -71,10 +71,7 @@ export default function ReaderRegistrationEdit( {
 					'core/paragraph',
 					{
 						align: 'center',
-						content: __(
-							'Thank you for registering!<br />Check your email for a confirmation link.',
-							'newspack'
-						),
+						content: __( 'Thank you for registering!', 'newspack' ),
 					},
 				],
 			],
