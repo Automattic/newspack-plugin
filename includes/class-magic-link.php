@@ -301,7 +301,7 @@ final class Magic_Link {
 
 		/** This filter is documented in wp-includes/pluggable.php */
 		if ( \apply_filters( 'send_auth_cookies', true ) ) {
-			/** Subtract 1 minute to the OTP hash cookie expiration. */
+			/** Subtract 1 minute from the OTP hash cookie expiration. */
 			$expiration = time() + self::get_token_expiration_period() - MINUTE_IN_SECONDS;
 
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.cookies_setcookie
