@@ -217,8 +217,9 @@ class WooCommerce_Connection {
 	 * @param string $email_address Email address.
 	 * @param string $full_name Full name.
 	 * @param string $frequency Donation frequency.
+	 * @param array  $metadata Donor metadata.
 	 */
-	public static function set_up_membership( $email_address, $full_name, $frequency ) {
+	public static function set_up_membership( $email_address, $full_name, $frequency, $metadata = [] ) {
 		if ( ! class_exists( 'WC_Memberships_Membership_Plans' ) ) {
 			return;
 		}
@@ -236,7 +237,7 @@ class WooCommerce_Connection {
 		}
 		if ( $should_create_account ) {
 			if ( Reader_Activation::is_enabled() ) {
-				$metadata = [ 'registration_method' => 'woocommerce-memberships' ];
+				$metadata = array_merge( $metadata, [ 'registration_method' => 'woocommerce-memberships' ] );
 				$user_id  = Reader_Activation::register_reader( $email_address, $full_name, true, $metadata );
 				return $user_id;
 			}
