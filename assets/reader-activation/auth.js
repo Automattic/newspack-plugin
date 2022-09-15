@@ -1,4 +1,4 @@
-/* globals newspack_reader_auth_labels */
+/* globals newspack_reader_activation_data newspack_reader_auth_labels */
 
 /**
  * Internal dependencies.
@@ -312,11 +312,13 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				ev.preventDefault();
 				form.startLoginFlow();
 
+				const action = form.action?.value;
+
 				if ( ! form.npe?.value ) {
 					return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );
 				}
 
-				if ( 'pwd' === actionInput?.value && ! form.password?.value ) {
+				if ( 'pwd' === action && ! form.password?.value ) {
 					return form.endLoginFlow( newspack_reader_auth_labels.invalid_password, 400 );
 				}
 
@@ -353,10 +355,15 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						} )
 							.then( res => {
 								container.setAttribute( 'data-form-status', res.status );
+								let redirect = body.get( 'redirect' );
+								/** Redirect every registration to the account page for verification */
+								if ( action === 'register' ) {
+									redirect = newspack_reader_activation_data.account_url;
+								}
 								res
 									.json()
 									.then( ( { message, data } ) => {
-										form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+										form.endLoginFlow( message, res.status, data, redirect );
 									} )
 									.catch( () => {
 										form.endLoginFlow();

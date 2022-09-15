@@ -100,6 +100,7 @@ final class Reader_Activation {
 			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
+			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {
