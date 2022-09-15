@@ -142,7 +142,7 @@ class WooCommerce_My_Account {
 			$message = __( 'Please check your email inbox for instructions on how to set a new password.', 'newspack' );
 			if ( \is_wp_error( $result ) ) {
 				Logger::log( 'Error resetting password: ' . $result->get_error_message() );
-				$message  = __( 'Something went wrong.', 'newspack' );
+				$message  = $result->get_error_message();
 				$is_error = true;
 			}
 		} else {
@@ -275,7 +275,7 @@ class WooCommerce_My_Account {
 				$message = __( 'Please check your email inbox for a link to verify your account.', 'newspack' );
 				if ( \is_wp_error( $result ) ) {
 					Logger::log( 'Error sending verification email: ' . $result->get_error_message() );
-					$message  = __( 'Something went wrong.', 'newspack' );
+					$message  = $result->get_error_message();
 					$is_error = true;
 				}
 			} else {

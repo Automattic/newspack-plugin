@@ -1,4 +1,4 @@
-/* globals newspack_reader_auth_labels */
+/* globals newspack_reader_activation_data newspack_reader_auth_labels */
 
 /**
  * Internal dependencies.
@@ -384,7 +384,12 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 										res
 											.json()
 											.then( ( { message, data } ) => {
-												form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
+												let redirect = body.get( 'redirect' );
+												/** Redirect every registration to the account page for verification */
+												if ( action === 'register' ) {
+													redirect = newspack_reader_activation_data.account_url;
+												}
+												form.endLoginFlow( message, res.status, data, redirect );
 											} )
 											.catch( () => {
 												form.endLoginFlow();

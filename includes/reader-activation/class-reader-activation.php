@@ -31,6 +31,13 @@ final class Reader_Activation {
 	const WITHOUT_PASSWORD    = 'np_reader_without_password';
 	const REGISTRATION_METHOD = 'np_reader_registration_method';
 
+
+	/**
+	 * Unverified email rate limiting
+	 */
+	const LAST_EMAIL_DATE = 'np_reader_last_email_date';
+	const EMAIL_INTERVAL  = 10; // 10 seconds
+
 	/**
 	 * Auth form.
 	 */
@@ -76,6 +83,7 @@ final class Reader_Activation {
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
+			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 		}
 	}
 
@@ -93,6 +101,7 @@ final class Reader_Activation {
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
+			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {
@@ -1331,12 +1340,6 @@ final class Reader_Activation {
 			}
 		}
 
-		// Send a magic link to new, unverified readers to verify their email address.
-		$user = \get_user_by( 'id', $user_id );
-		if ( ! $existing_user && ! self::is_reader_verified( $user ) ) {
-			self::send_verification_email( $user );
-		}
-
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
@@ -1352,12 +1355,33 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Whether the current reader is rate limited.
+	 *
+	 * @param \WP_User $user WP_User object to be verified.
+	 *
+	 * @return bool
+	 */
+	public static function is_reader_email_rate_limited( $user ) {
+		if ( self::is_reader_verified( $user ) ) {
+			return false;
+		}
+		$last_email = get_user_meta( $user->ID, self::LAST_EMAIL_DATE, true );
+		return $last_email && self::EMAIL_INTERVAL > time() - $last_email;
+	}
+
+	/**
 	 * Send a magic link with special messaging to verify the user.
 	 *
 	 * @param WP_User $user WP_User object to be verified.
 	 */
 	public static function send_verification_email( $user ) {
 		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
+
+		/** Rate limit control */
+		if ( self::is_reader_email_rate_limited( $user ) ) {
+			return new \WP_Error( 'newspack_verification_email_interval', __( 'Please wait before requesting another verification email.', 'newspack' ) );
+		}
+		\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
 
 		return Emails::send_email(
 			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
@@ -1448,6 +1472,24 @@ final class Reader_Activation {
 			return 'text/html';
 		};
 		add_filter( 'wp_mail_content_type', $email_content_type );
+	}
+
+	/**
+	 * Rate limit password reset.
+	 *
+	 * @param \WP_Error      $errors    A WP_Error object containing any errors generated
+	 *                                  by using invalid credentials.
+	 * @param \WP_User|false $user_data WP_User object if found, false if the user does not exist.
+	 *
+	 * @return \WP_Error
+	 */
+	public static function rate_limit_lost_password( $errors, $user_data ) {
+		if ( $user_data && self::is_reader_email_rate_limited( $user_data ) ) {
+			$errors->add( 'newspack_password_reset_interval', __( 'Please wait a moment before requesting another password reset email.', 'newspack' ) );
+		} else {
+			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
+		}
+		return $errors;
 	}
 }
 Reader_Activation::init();
