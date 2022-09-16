@@ -15,7 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's features.
  */
 class WooCommerce_Connection {
-	const CREATED_VIA_NAME = 'newspack-stripe';
+	const CREATED_VIA_NAME                = 'newspack-stripe';
+	const SUBSCRIPTION_STRIPE_ID_META_KEY = 'newspack-stripe-subscription-id';
 
 	/**
 	 * Initialize.
@@ -65,7 +66,7 @@ class WooCommerce_Connection {
 		}
 
 		$item = new \WC_Order_Item_Product();
-		$item->set_product( wc_get_product( $product_id ) );
+		$item->set_product( \wc_get_product( $product_id ) );
 		$item->set_total( $amount );
 		$item->set_subtotal( $amount );
 		return $item;
@@ -258,38 +259,80 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Add a donation transaction to WooCommerce.
+	 * Get a WC Subscription object by Stripe Subscription ID.
 	 *
-	 * @param object $order_data Order data.
+	 * @param string $stripe_subscription_id Stripe Subscription ID.
+	 * @return WC_Subscription|false Subscription object or false.
 	 */
-	public static function create_transaction( $order_data ) {
-		Logger::log( 'Creating an order' );
-
-		$frequency = $order_data['frequency'];
-
-		$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
-		if ( false === $item ) {
-			return new \WP_Error( 'newspack_woocommerce', __( 'Missing donation product.', 'newspack' ) );
+	private static function get_subscription_by_stripe_subscription_id( $stripe_subscription_id ) {
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return false;
 		}
+		global $wpdb;
+		$query           = $wpdb->prepare(
+			'SELECT post_id FROM `wp_postmeta` WHERE `meta_key` = %s AND `meta_value` = %s',
+			self::SUBSCRIPTION_STRIPE_ID_META_KEY,
+			$stripe_subscription_id
+		);
+		$subscription_id           = $wpdb->get_var( $query ); // phpcs:ignore
+		if ( $subscription_id ) {
+			return \wcs_get_subscription( $subscription_id );
+		} else {
+			Logger::log( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
+			return false;
+		}
+	}
 
-		$order = wc_create_order();
-		$order->add_item( $item );
-		$order->calculate_totals();
+	/**
+	 * Add data to an order or subscription.
+	 *
+	 * @param WC_Order $order Order object. Can be a subscription or an order.
+	 * @param array    $order_data Order data.
+	 */
+	private static function add_universal_order_data( $order, $order_data ) {
 		$order->set_currency( $order_data['currency'] );
 		$order->set_date_created( $order_data['date'] );
 		$order->set_billing_email( $order_data['email'] );
 		$order->set_billing_first_name( $order_data['name'] );
 
-		// Add notes to order.
+		if ( $order_data['subscribed'] ) {
+			$order->add_order_note( __( 'Donor has opted-in to your newsletter.', 'newspack' ) );
+		}
+
+		if ( ! empty( $order_data['client_id'] ) ) {
+			$order->add_meta_data( NEWSPACK_CLIENT_ID_COOKIE_NAME, $order_data['client_id'] );
+		}
+
+		if ( ! empty( $order_data['user_id'] ) ) {
+			$order->set_customer_id( $order_data['user_id'] );
+		}
+
+		$order->set_created_via( self::CREATED_VIA_NAME );
+	}
+
+	/**
+	 * Create a WooCommerce order.
+	 *
+	 * @param array         $order_data Order data.
+	 * @param WC_Order_Item $item Order item.
+	 */
+	private static function create_order( $order_data, $item ) {
+		$frequency = $order_data['frequency'];
+		$order     = \wc_create_order();
+
+		self::add_universal_order_data( $order, $order_data );
+
+		// Add notes to the order.
 		if ( 'once' === $frequency ) {
 			$order->add_order_note( __( 'One-time Newspack donation.', 'newspack' ) );
 		} else {
 			/* translators: %s - donation frequency */
-			$order->add_order_note( sprintf( __( 'Newspack donation with frequency: %s. The subscription will be handled directly in Stripe, not via WooCommerce.', 'newspack' ), $frequency ) );
+			$order->add_order_note( sprintf( __( 'Newspack donation with frequency: %s.', 'newspack' ), $frequency ) );
 		}
-		if ( $order_data['subscribed'] ) {
-			$order->add_order_note( __( 'Donor has opted-in to your newsletter.', 'newspack' ) );
-		}
+
+		$order->add_item( $item );
+		$order->calculate_totals();
+		$order->set_status( 'completed' );
 
 		// Metadata for woocommerce-gateway-stripe plugin.
 		$order->set_payment_method( 'stripe' );
@@ -308,20 +351,105 @@ class WooCommerce_Connection {
 			 *
 			 * @param WC_Order    $order Donation order.
 			 * @param string      $client_id Client ID.
-			 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
 			 */
 			do_action( 'newspack_new_donation_woocommerce', $order, $order_data['client_id'] );
 		}
 
-		$has_user_id = ! empty( $order_data['user_id'] );
-		if ( $has_user_id ) {
-			$order->set_customer_id( $order_data['user_id'] );
-		}
-
-		$order->set_created_via( self::CREATED_VIA_NAME );
-		$order->set_status( 'completed' );
 		$order->save();
 
+		Logger::log( 'Created WC order with id: ' . $order->get_id() );
+
+		return $order;
+	}
+
+	/**
+	 * Add a donation transaction to WooCommerce.
+	 *
+	 * @param object $order_data Order data.
+	 */
+	public static function create_transaction( $order_data ) {
+		$frequency              = $order_data['frequency'];
+		$stripe_subscription_id = $order_data['stripe_subscription_id'];
+
+		// Match the Stripe product to WC product.
+		$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
+		if ( false === $item ) {
+			return new \WP_Error( 'newspack_woocommerce', __( 'Missing donation product.', 'newspack' ) );
+		}
+
+		$subscription_status = 'none';
+
+		if (
+			Donations::is_recurring( $frequency )
+			&& function_exists( 'wcs_create_subscription' ) // WC Subscriptions plugin is active.
+			&& isset( $order_data['stripe_invoice_billing_reason'] )
+			&& isset( $order_data['stripe_subscription_id'] ) && is_string( $order_data['stripe_subscription_id'] )
+			&& isset( $order_data['user_id'] ) // Subscription can't be created without a user.
+		) {
+			if ( 'subscription_create' === $order_data['stripe_invoice_billing_reason'] ) {
+				$subscription_status = 'created';
+			} elseif ( 'subscription_cycle' === $order_data['stripe_invoice_billing_reason'] ) {
+				$subscription_status = 'renewed';
+			}
+		}
+
+		if ( 'renewed' === $subscription_status ) {
+			/**
+			 * Handle WooCommerce Subscriptions - subscription renewal. This will create a new order
+			 * and associate it with a subscription.
+			 */
+			$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+			if ( $subscription ) {
+				$order = \wcs_create_renewal_order( $subscription );
+				self::add_universal_order_data( $order, $order_data );
+				$order->set_status( 'completed' );
+				$order->save();
+				Logger::log( 'Updated WC subscription with id: ' . $subscription->get_id() . ' with a new order of id: ' . $order->get_id() );
+			} else {
+				// Linked subscription not found, just create an order.
+				$order = self::create_order( $order_data, $item );
+			}
+		} else {
+			/**
+			 * Create an order for a one-time or subscription-creation donation.
+			 */
+			$order = self::create_order( $order_data, $item );
+
+			/**
+			 * Handle WooCommerce Subscriptions - new subscription.
+			 */
+			if ( 'created' === $subscription_status ) {
+				$subscription = \wcs_create_subscription(
+					[
+						'start_date'       => gmdate( 'Y-m-d H:i:s', $order_data['date'] ),
+						'order_id'         => $order->get_id(),
+						'billing_period'   => $frequency,
+						'billing_interval' => 1, // Every billing period (not e.g. every *second* month).
+					]
+				);
+
+				if ( is_wp_error( $subscription ) ) {
+					Logger::log( 'Error creating WC subscription: ' . $subscription->get_error_message() );
+				} else {
+					self::add_universal_order_data( $subscription, $order_data );
+					/* translators: %s - donation frequency */
+					$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
+					$subscription->update_status( 'active' ); // Settings status via method (not in wcs_create_subscription), to make WCS recalculate dates.
+					$subscription->add_item( $item );
+					$subscription->calculate_totals();
+					$subscription->save();
+					$subscription_id = $subscription->get_id();
+
+					update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
+
+					Logger::log( 'Created WC subscription with id: ' . $subscription_id );
+				}
+			}
+		}
+
+		/**
+		 * Handle WooCommerce Memberships.
+		 */
 		if ( class_exists( 'WC_Memberships_Membership_Plans' ) ) {
 			$wc_memberships_membership_plans = new \WC_Memberships_Membership_Plans();
 			// If the order items are tied to a membership plan, a membership will be created.

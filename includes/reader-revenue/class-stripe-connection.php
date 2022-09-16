@@ -1248,23 +1248,34 @@ class Stripe_Connection {
 	 * @param array $payment Stripe payment.
 	 */
 	public static function create_wc_transaction_payload( $customer, $payment ) {
-		$balance_transaction = self::get_balance_transaction( $payment['balance_transaction'] );
-		$amount_normalised   = self::normalise_amount( $payment['amount'], $payment['currency'] );
-		$stripe_data         = self::get_stripe_data();
+		$balance_transaction     = self::get_balance_transaction( $payment['balance_transaction'] );
+		$amount_normalised       = self::normalise_amount( $payment['amount'], $payment['currency'] );
+		$stripe_data             = self::get_stripe_data();
+		$subscription_id         = null;
+		$$invoice_billing_reason = null;
+		$invoice                 = self::get_invoice( $payment['invoice'] );
+		if ( $invoice ) {
+			$invoice_billing_reason = $invoice['billing_reason'];
+			if ( isset( $invoice['subscription'] ) && is_string( $invoice['subscription'] ) ) {
+				$subscription_id = $invoice['subscription'];
+			}
+		}
 		return [
-			'email'              => $customer['email'],
-			'name'               => $customer['name'],
-			'stripe_id'          => $payment['id'],
-			'stripe_customer_id' => $customer['id'],
-			'stripe_fee'         => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),
-			'stripe_net'         => self::normalise_amount( $balance_transaction['net'], $payment['currency'] ),
-			'date'               => $payment['created'],
-			'amount'             => $amount_normalised,
-			'frequency'          => self::get_frequency_of_payment( $payment ),
-			'currency'           => $stripe_data['currency'],
-			'client_id'          => $customer['metadata']['clientId'],
-			'user_id'            => $customer['metadata']['userId'],
-			'subscribed'         => self::has_customer_opted_in_to_newsletters( $customer ),
+			'email'                         => $customer['email'],
+			'name'                          => $customer['name'],
+			'stripe_id'                     => $payment['id'],
+			'stripe_customer_id'            => $customer['id'],
+			'stripe_fee'                    => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),
+			'stripe_net'                    => self::normalise_amount( $balance_transaction['net'], $payment['currency'] ),
+			'stripe_invoice_billing_reason' => $invoice_billing_reason,
+			'stripe_subscription_id'        => $subscription_id,
+			'date'                          => $payment['created'],
+			'amount'                        => $amount_normalised,
+			'frequency'                     => self::get_frequency_of_payment( $payment ),
+			'currency'                      => $stripe_data['currency'],
+			'client_id'                     => $customer['metadata']['clientId'],
+			'user_id'                       => $customer['metadata']['userId'],
+			'subscribed'                    => self::has_customer_opted_in_to_newsletters( $customer ),
 		];
 	}
 }
