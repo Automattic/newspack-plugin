@@ -137,4 +137,48 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			'The customer has the expected email address.'
 		);
 	}
+
+	/**
+	 * Creating payload for WooCommerce.
+	 */
+	public static function test_stripe_wc_transaction_payload() {
+		self::configure_stripe_as_platform();
+		$customer = [
+			'id'       => 'cus_123',
+			'name'     => 'John Doe',
+			'email'    => 'test@example.com',
+			'metadata' => [
+				'clientId' => 'abc123',
+				'userId'   => 42,
+			],
+		];
+		$payment  = [
+			'id'                  => 'pm_123',
+			'amount'              => 100,
+			'currency'            => 'usd',
+			'invoice'             => 'in_123',
+			'created'             => 1234567890,
+			'balance_transaction' => 'txn_123',
+		];
+		self::assertEquals(
+			Stripe_Connection::create_wc_transaction_payload( $customer, $payment ),
+			[
+				'email'                         => 'test@example.com',
+				'name'                          => 'John Doe',
+				'stripe_id'                     => 'pm_123',
+				'stripe_customer_id'            => 'cus_123',
+				'stripe_fee'                    => 0.01,
+				'stripe_net'                    => 0.02,
+				'stripe_invoice_billing_reason' => 'subscription_create',
+				'stripe_subscription_id'        => 'sub_123',
+				'date'                          => 1234567890,
+				'amount'                        => 1,
+				'frequency'                     => 'month',
+				'currency'                      => 'USD',
+				'client_id'                     => 'abc123',
+				'user_id'                       => 42,
+				'subscribed'                    => null,
+			]
+		);
+	}
 }
