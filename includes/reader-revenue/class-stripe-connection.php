@@ -594,6 +594,15 @@ class Stripe_Connection {
 			case 'customer.subscription.deleted':
 				$customer = self::get_customer_by_id( $payload['customer'] );
 
+				if ( Donations::is_woocommerce_suite_active() ) {
+					if ( $payload['ended_at'] ) {
+						WooCommerce_Connection::end_subscription(
+							$payload['id'],
+							$payload['ended_at']
+						);
+					}
+				}
+
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
 					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
 					$contact      = [
@@ -636,6 +645,23 @@ class Stripe_Connection {
 
 				break;
 			case 'customer.subscription.updated':
+				if ( Donations::is_woocommerce_suite_active() ) {
+					if ( $payload['cancel_at'] ) {
+						WooCommerce_Connection::update_subscription_dates(
+							$payload['id'],
+							[
+								'end' => $payload['cancel_at'] + 60000, // Add 1 minute to
+							]
+						);
+					} elseif ( 'active' === $payload['status'] ) {
+						// An un-canceled subscription – remove the end date.
+						WooCommerce_Connection::update_subscription_dates(
+							$payload['id'],
+							[ 'end' => 0 ]
+						);
+					}
+				}
+
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
 					$customer     = self::get_customer_by_id( $payload['customer'] );
 					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );

@@ -383,6 +383,18 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Convert timestamp to a date string.
+	 *
+	 * @param int $timestamp Timestamp.
+	 */
+	private static function convert_timestamp_to_date( $timestamp ) {
+		if ( 0 === $timestamp ) {
+			return 0;
+		}
+		return gmdate( 'Y-m-d H:i:s', $timestamp );
+	}
+
+	/**
 	 * Add a donation transaction to WooCommerce.
 	 *
 	 * @param object $order_data Order data.
@@ -441,7 +453,7 @@ class WooCommerce_Connection {
 			if ( 'created' === $subscription_status ) {
 				$subscription = \wcs_create_subscription(
 					[
-						'start_date'       => gmdate( 'Y-m-d H:i:s', $order_data['date'] ),
+						'start_date'       => self::convert_timestamp_to_date( $order_data['date'] ),
 						'order_id'         => $order->get_id(),
 						'billing_period'   => $frequency,
 						'billing_interval' => 1, // Every billing period (not e.g. every *second* month).
@@ -453,7 +465,7 @@ class WooCommerce_Connection {
 				} else {
 					self::add_universal_order_data( $subscription, $order_data );
 					/* translators: %s - donation frequency */
-					$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
+					$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment and the subscription will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
 					$subscription->update_status( 'active' ); // Settings status via method (not in wcs_create_subscription), to make WCS recalculate dates.
 					$subscription->add_item( $item );
 					$subscription->calculate_totals();
@@ -477,6 +489,44 @@ class WooCommerce_Connection {
 		}
 
 		return $order->get_id();
+	}
+
+	/**
+	 * Cancel a subscription in WooCommerce.
+	 *
+	 * @param string $stripe_subscription_id Stripe subscription ID.
+	 * @param int    $end_date Timestamp of when to cancel the subscription.
+	 */
+	public static function end_subscription( $stripe_subscription_id, $end_date ) {
+		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+		if ( $subscription ) {
+			$subscription->delete_date( 'next_payment' );
+			$subscription->update_dates(
+				[
+					'end' => self::convert_timestamp_to_date( $end_date ),
+				]
+			);
+			$subscription->set_status( 'cancelled' );
+			$subscription->save();
+			Logger::log( 'Cancelled WC subscription with id: ' . $subscription->get_id() );
+		}
+	}
+
+	/**
+	 * Schedule a subscriptions for cancellation.
+	 *
+	 * @param string $stripe_subscription_id Stripe subscription ID.
+	 * @param array  $dates Dates to update.
+	 */
+	public static function update_subscription_dates( $stripe_subscription_id, $dates ) {
+		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+		if ( $subscription ) {
+			foreach ( $dates as $key => $value ) {
+				$dates[ $key ] = self::convert_timestamp_to_date( $value );
+			}
+			$subscription->update_dates( $dates );
+			Logger::log( 'Updated status of WC subscription with id ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
+		}
 	}
 
 	/**
