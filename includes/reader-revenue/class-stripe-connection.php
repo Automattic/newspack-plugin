@@ -662,12 +662,15 @@ class Stripe_Connection {
 				if ( Donations::is_woocommerce_suite_active() ) {
 					if ( $payload['cancel_at'] ) {
 						WooCommerce_Connection::set_pending_cancellation( $payload['id'], $payload['canceled_at'], $payload['cancel_at'] );
-					} elseif ( 'active' === $payload['status'] ) {
-						// An un-canceled subscription – remove the end date.
-						WooCommerce_Connection::update_subscription_dates(
+					} elseif ( ! empty( $payload['pause_collection'] ) ) {
+						$reactivation_date = $payload['pause_collection']['resumes_at'];
+						WooCommerce_Connection::put_subscription_on_hold(
 							$payload['id'],
-							[ 'end' => 0 ]
+							$payload['pause_collection']['resumes_at']
 						);
+					} elseif ( 'active' === $payload['status'] ) {
+						// An un-canceled subscription, or resumed after pausing.
+						WooCommerce_Connection::reactivate_subscription( $payload['id'] );
 					}
 				}
 

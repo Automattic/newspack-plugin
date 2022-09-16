@@ -554,12 +554,30 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Re-activate a subscription.
+	 *
+	 * @param string $stripe_subscription_id Stripe subscription ID.
+	 */
+	public static function reactivate_subscription( $stripe_subscription_id ) {
+		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+		if ( $subscription ) {
+			$subscription->set_status( 'active' );
+			self::update_subscription_dates(
+				$stripe_subscription_id,
+				[ 'end' => 0 ]
+			);
+			$subscription->save();
+			Logger::log( 'Reactivated WC subscription with id ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
+		}
+	}
+
+	/**
 	 * Schedule a subscriptions for cancellation.
 	 *
 	 * @param string $stripe_subscription_id Stripe subscription ID.
 	 * @param array  $dates Dates to update.
 	 */
-	public static function update_subscription_dates( $stripe_subscription_id, $dates ) {
+	private static function update_subscription_dates( $stripe_subscription_id, $dates ) {
 		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
 		if ( $subscription ) {
 			foreach ( $dates as $key => $value ) {
@@ -567,6 +585,24 @@ class WooCommerce_Connection {
 			}
 			$subscription->update_dates( $dates );
 			Logger::log( 'Updated dates of WC subscription with id ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
+		}
+	}
+
+	/**
+	 * Put a WC subscription on hold.
+	 *
+	 * The $resumes_at parameter is not used, as WC Subscriptions seems to have a different concept
+	 * of subscription pausing – there's no re-activation date prop and instead a "suspension count" is used.
+	 *
+	 * @param string $stripe_subscription_id Stripe subscription ID.
+	 * @param int    $resumes_at Dates at which to resume the subscription. Currently unused.
+	 */
+	public static function put_subscription_on_hold( $stripe_subscription_id, $resumes_at ) {
+		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+		if ( $subscription ) {
+			$subscription->set_status( 'on-hold' );
+			$subscription->save();
+			Logger::log( 'Putting on hold WC subscription with id: ' . $subscription->get_id() . ' by Stripe id: ' . $stripe_subscription_id );
 		}
 	}
 
