@@ -1,6 +1,5 @@
-/**
- * Styles for the WP Admin Plugins screen.
- */
+@use '../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 /**
  * Plugins table.
@@ -9,6 +8,47 @@ table.plugins {
 	.newspack-plugin {
 		&.uninstalled .check-column input[type='checkbox'] {
 			display: none;
+		}
+	}
+}
+
+.newspack-plugin-info-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 9;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: rgba( 0, 0, 0, 0.5 );
+	&--hidden {
+		display: none;
+	}
+	h1 {
+		margin-top: 0;
+	}
+	button {
+		padding: 8px 12px;
+		border-radius: 3px;
+		border: none;
+		color: wp-colors.$white;
+		background-color: colors.$primary-500;
+	}
+	> div {
+		display: flex;
+		flex-direction: column;
+		min-width: 30vw;
+		min-height: 20vw;
+		padding: 46px 50px;
+		background-color: wp-colors.$white;
+		> div:first-child {
+			flex: 1;
+		}
+		> div:last-child {
+			display: flex;
+			justify-content: flex-end;
 		}
 	}
 }
