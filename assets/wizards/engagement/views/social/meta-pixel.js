@@ -68,6 +68,7 @@ export default function MetaPixel() {
 					'newspack'
 				),
 				{
+					/* eslint-disable jsx-a11y/anchor-has-content */
 					linkToFb: (
 						<a
 							href="https://www.facebook.com/ads/manager/pixel/facebook_pixel"
