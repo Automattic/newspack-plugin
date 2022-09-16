@@ -68,7 +68,13 @@ export default function MetaPixel() {
 					'newspack'
 				),
 				{
-					linkToFb: <a href="https://www.facebook.com/ads/manager/pixel/facebook_pixel" target="_blank" />,
+					linkToFb: (
+						<a
+							href="https://www.facebook.com/ads/manager/pixel/facebook_pixel"
+							target="_blank"
+							rel="noopener noreferrer"
+						/>
+					),
 				}
 			),
 			value: settings.pixel_id,
