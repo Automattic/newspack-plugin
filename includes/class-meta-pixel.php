@@ -19,6 +19,11 @@ class Meta_Pixel {
 	 */
 	const OPTION_NAME = 'newspack_meta_pixel';
 
+	/**
+	 * Initialize hooks
+	 *
+	 * @return void
+	 */
 	public static function init() {
 		add_action( 'wp_head', [ __CLASS__, 'print_head_snippet' ], 100 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_footer_snippet' ] );
@@ -158,6 +163,7 @@ class Meta_Pixel {
 	 * @return string
 	 */
 	public static function get_script_snippet() {
+		// phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation
 		return '<script type="text/javascript" id="pys-js-extra">
 		/* <![CDATA[ */
 		var pysOptions = {"staticEvents":{"facebook":{"init_event":[{"delay":0,"type":"static","name":"PageView","pixelIds":["$PIXEL_ID$"],"eventID":"b69f94f7-5424-467e-a856-124844a132e9","params":{"page_title":"Homepage","post_type":"page","post_id":125,"plugin":"PixelYourSite","user_role":"guest","event_url":"leogermani.jurassic.tube\/"},"e_id":"init_event","ids":[],"hasTimeWindow":false,"timeWindow":0,"woo_order":"","edd_order":""}]}},"dynamicEvents":{"woo_add_to_cart_on_button_click":{"facebook":{"delay":0,"type":"dyn","name":"AddToCart","pixelIds":["$PIXEL_ID$"],"eventID":"78439eb7-a9fc-43cd-926e-670d06c4c8f2","params":{"page_title":"Homepage","post_type":"page","post_id":125,"plugin":"PixelYourSite","user_role":"guest","event_url":"leogermani.jurassic.tube\/"},"e_id":"woo_add_to_cart_on_button_click","ids":[],"hasTimeWindow":false,"timeWindow":0,"woo_order":"","edd_order":""}}},"triggerEvents":[],"triggerEventTypes":[],"facebook":{"pixelIds":["$PIXEL_ID$"],"advancedMatching":[],"removeMetadata":false,"contentParams":{"post_type":"page","post_id":125,"content_name":"Homepage"},"commentEventEnabled":true,"wooVariableAsSimple":false,"downloadEnabled":true,"formEventEnabled":true,"ajaxForServerEvent":true,"serverApiEnabled":false,"wooCRSendFromServer":false},"debug":"","siteUrl":"https:\/\/leogermani.jurassic.tube","ajaxUrl":"https:\/\/leogermani.jurassic.tube\/wp-admin\/admin-ajax.php","enable_remove_download_url_param":"1","cookie_duration":"7","last_visit_duration":"60","gdpr":{"ajax_enabled":false,"all_disabled_by_api":false,"facebook_disabled_by_api":false,"analytics_disabled_by_api":false,"google_ads_disabled_by_api":false,"pinterest_disabled_by_api":false,"bing_disabled_by_api":false,"facebook_prior_consent_enabled":true,"analytics_prior_consent_enabled":true,"google_ads_prior_consent_enabled":null,"pinterest_prior_consent_enabled":true,"bing_prior_consent_enabled":true,"cookiebot_integration_enabled":false,"cookiebot_facebook_consent_category":"marketing","cookiebot_analytics_consent_category":"statistics","cookiebot_google_ads_consent_category":null,"cookiebot_pinterest_consent_category":"marketing","cookiebot_bing_consent_category":"marketing","consent_magic_integration_enabled":false,"real_cookie_banner_integration_enabled":false,"cookie_notice_integration_enabled":false,"cookie_law_info_integration_enabled":false},"woo":{"enabled":true,"addToCartOnButtonEnabled":true,"addToCartOnButtonValueEnabled":true,"addToCartOnButtonValueOption":"price","singleProductId":null,"removeFromCartSelector":"form.woocommerce-cart-form .remove","addToCartCatchMethod":"add_cart_js"},"edd":{"enabled":false}};
