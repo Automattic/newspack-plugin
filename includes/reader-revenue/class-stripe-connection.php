@@ -23,6 +23,15 @@ class Stripe_Connection {
 	const STRIPE_CUSTOMER_ID_USER_META   = '_newspack_stripe_customer_id';
 
 	/**
+	 * A cache for retrieved Stripe entities.
+	 *
+	 * @var array
+	 */
+	private static $stripe_entities_cache = [
+		'invoices' => [],
+	];
+
+	/**
 	 * Ensures the customer ID lookup is run only once per request.
 	 *
 	 * @var bool
@@ -309,9 +318,14 @@ class Stripe_Connection {
 	 * @param string $invoice_id Invoice ID.
 	 */
 	private static function get_invoice( $invoice_id ) {
+		if ( isset( self::$stripe_entities_cache['invoices'][ $invoice_id ] ) ) {
+			return self::$stripe_entities_cache['invoices'][ $invoice_id ];
+		}
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->invoices->retrieve( $invoice_id, [] );
+			$invoice = $stripe->invoices->retrieve( $invoice_id, [] );
+			self::$stripe_entities_cache['invoices'][ $invoice_id ] = $invoice;
+			return $invoice;
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
 		}
