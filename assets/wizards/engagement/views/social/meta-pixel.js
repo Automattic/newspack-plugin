@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -53,23 +53,27 @@ export default function MetaPixel() {
 		setInFlight( false );
 	};
 
+	if ( ! settings ) {
+		return null;
+	}
+
 	const fields = [
 		{
 			key: 'pixel_id',
 			type: 'integer',
 			description: __( 'Pixel ID', 'newspack' ),
-			help: __(
-				'The Meta Pixel ID of your account. You can take this information in XXXXXXXX. EXAMPLE.',
-				'newspack'
+			help: createInterpolateElement(
+				__(
+					'The Meta Pixel ID. You only need to add the number, not the full code. Example: 123456789123456789. You can get this information <linkToFb>here</linkToFb>.',
+					'newspack'
+				),
+				{
+					linkToFb: <a href="https://www.facebook.com/ads/manager/pixel/facebook_pixel" target="_blank" />,
+				}
 			),
+			value: settings.pixel_id,
 		},
 	];
-
-	if ( ! settings ) {
-		return null;
-	}
-
-	fields[0].value = settings.pixel_id;
 
 	return (
 		<PluginSettings.Section

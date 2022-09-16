@@ -146,7 +146,7 @@ class Engagement_Wizard extends Wizard {
 							'validate_callback' => [ 'Newspack\Meta_Pixel', 'validate_active' ],
 						],
 						'pixel_id' => [
-							'type'              => 'string',
+							'type'              => [ 'integer', 'string' ],
 							'required'          => true,
 							'validate_callback' => [ 'Newspack\Meta_Pixel', 'validate_pixel_id' ],
 						],
