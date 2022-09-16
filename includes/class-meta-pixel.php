@@ -20,7 +20,7 @@ class Meta_Pixel {
 	const OPTION_NAME = 'newspack_meta_pixel';
 
 	public static function init() {
-		add_action( 'wp_head', [ __CLASS__, 'print_head_snippet' ], 1000 );
+		add_action( 'wp_head', [ __CLASS__, 'print_head_snippet' ], 100 );
 		add_action( 'wp_footer', [ __CLASS__, 'print_footer_snippet' ] );
 	}
 
@@ -171,13 +171,14 @@ class Meta_Pixel {
 	 * @return void
 	 */
 	public static function print_head_snippet() {
+		if ( self::is_amp() ) {
+			return;
+		}
 		$pixel_id = self::get_pixel_id();
 		if ( empty( $pixel_id ) ) {
 			return;
 		}
-		if ( ! self::is_amp() ) {
-			echo str_replace( '$PIXEL_ID$', intval( $pixel_id ), self::get_script_snippet() );
-		}
+		echo str_replace( '$PIXEL_ID$', intval( $pixel_id ), self::get_script_snippet() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -186,15 +187,12 @@ class Meta_Pixel {
 	 * @return void
 	 */
 	public static function print_footer_snippet() {
-		if ( self::is_amp() ) {
-			return;
-		}
 		$pixel_id = self::get_pixel_id();
-
 		if ( empty( $pixel_id ) ) {
 			return;
 		}
-		echo '<noscript>' . str_replace( '$PIXEL_ID$', intval( $pixel_id ), self::get_img_snippet() ) . '</noscript>';
+		// If AMP plugin is enabled, it will convert the image into a <amp-pixel> tag.
+		echo '<noscript>' . str_replace( '$PIXEL_ID$', intval( $pixel_id ), self::get_img_snippet() ) . '</noscript>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 
