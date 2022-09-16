@@ -19,6 +19,7 @@ class WooCommerce_Connection {
 	const SUBSCRIPTION_STRIPE_ID_META_KEY = 'newspack-stripe-subscription-id';
 
 	const DISABLED_SUBSCRIPTION_STATUSES = [
+		'active',
 		'pending',
 		'on-hold',
 		'pending-cancel',
