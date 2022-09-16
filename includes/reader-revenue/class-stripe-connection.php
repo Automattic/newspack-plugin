@@ -166,7 +166,7 @@ class Stripe_Connection {
 	 * @param string $customer_id Customer ID.
 	 * @param int    $page Page of results.
 	 */
-	private static function get_customer_charges( $customer_id, $page = false ) {
+	public static function get_customer_charges( $customer_id, $page = false ) {
 		$stripe = self::get_stripe_client();
 		try {
 			$all_charges = [];
@@ -462,14 +462,10 @@ class Stripe_Connection {
 					$referer = $metadata['referer'];
 				}
 
-				$frequency = 'once';
+				$frequency = self::get_frequency_of_payment( $payment );
+
 				if ( $payment['invoice'] ) {
-					// A subscription payment will have an invoice.
-					$invoice   = self::get_invoice( $payment['invoice'] );
-					$recurring = $invoice['lines']['data'][0]['price']['recurring'];
-					if ( isset( $recurring['interval'] ) ) {
-						$frequency = $recurring['interval'];
-					}
+					$invoice = self::get_invoice( $payment['invoice'] );
 					if ( isset( $invoice['metadata']['referer'] ) ) {
 						$referer = $invoice['metadata']['referer'];
 					}
@@ -481,7 +477,7 @@ class Stripe_Connection {
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
-				$has_opted_in_to_newsletters        = isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
+				$has_opted_in_to_newsletters        = self::has_customer_opted_in_to_newsletters( $customer );
 				if (
 					method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' )
 					&& (
@@ -550,14 +546,6 @@ class Stripe_Connection {
 
 				// Update data in Campaigns plugin.
 				if ( ! empty( $client_id ) ) {
-					$donation_data = [
-						'stripe_id'          => $payment['id'],
-						'stripe_customer_id' => $customer['id'],
-						'date'               => $payment['created'],
-						'amount'             => $amount_normalised,
-						'frequency'          => $frequency,
-					];
-
 					/**
 					 * When a new Stripe transaction occurs that can be associated with a client ID,
 					 * fire an action with the client ID and the relevant donation info.
@@ -566,7 +554,17 @@ class Stripe_Connection {
 					 * @param array       $donation_data Info about the transaction.
 					 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
 					 */
-					do_action( 'newspack_new_donation_stripe', $client_id, $donation_data, $was_customer_added_to_mailing_list ? $customer['email'] : null );
+					do_action(
+						'newspack_stripe_new_donation',
+						$client_id,
+						[
+							'stripe_id'          => $payment['id'],
+							'stripe_customer_id' => $customer['id'],
+							'amount'             => $amount_normalised,
+							'frequency'          => $frequency,
+						],
+						$was_customer_added_to_mailing_list ? $customer['email'] : null
+					);
 				}
 
 				$label = $frequency;
@@ -587,31 +585,16 @@ class Stripe_Connection {
 
 				// Add a transaction to WooCommerce.
 				if ( Donations::is_woocommerce_suite_active() ) {
-					$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
-					$wc_transaction_payload = [
-						'email'              => $customer['email'],
-						'name'               => $customer['name'],
-						'stripe_id'          => $payment['id'],
-						'stripe_customer_id' => $customer['id'],
-						'stripe_fee'         => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),
-						'stripe_net'         => self::normalise_amount( $balance_transaction['net'], $payment['currency'] ),
-						'date'               => $payment['created'],
-						'amount'             => $amount_normalised,
-						'frequency'          => $frequency,
-						'currency'           => $stripe_data['currency'],
-						'client_id'          => $customer['metadata']['clientId'],
-						'user_id'            => $customer['metadata']['userId'],
-						'subscribed'         => $was_customer_added_to_mailing_list,
-					];
-					WooCommerce_Connection::create_transaction( $wc_transaction_payload );
+					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
 				}
 
 				break;
 			case 'charge.failed':
 				break;
 			case 'customer.subscription.deleted':
+				$customer = self::get_customer_by_id( $payload['customer'] );
+
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-					$customer     = self::get_customer_by_id( $payload['customer'] );
 					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
 					$contact      = [
 						'email'    => $customer['email'],
@@ -629,6 +612,28 @@ class Stripe_Connection {
 					}
 					\Newspack_Newsletters_Subscription::add_contact( $contact );
 				}
+
+				// Update data in Campaigns plugin.
+				$client_id = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
+				if ( ! empty( $client_id ) ) {
+					/**
+					 * When a Stripe subscription is cancelled that can be associated with a client ID,
+					 * fire an action with the client ID and the relevant info.
+					 *
+					 * @param string      $client_id Client ID.
+					 * @param array       $cancellation_data Info about the event.
+					 */
+					do_action(
+						'newspack_stripe_donation_cancellation',
+						$client_id,
+						[
+							'stripe_id'          => $payload['id'],
+							'stripe_customer_id' => $customer['id'],
+							'frequency'          => $payload['plan']['interval'],
+						]
+					);
+				}
+
 				break;
 			case 'customer.subscription.updated':
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
@@ -1207,6 +1212,60 @@ class Stripe_Connection {
 		if ( $customer ) {
 			update_user_meta( get_current_user_id(), self::STRIPE_CUSTOMER_ID_USER_META, $customer['id'] );
 		}
+	}
+
+	/**
+	 * Get frequency of a payment.
+	 *
+	 * @param array $payment Stripe payment.
+	 */
+	private static function get_frequency_of_payment( $payment ) {
+		$frequency = 'once';
+		if ( $payment['invoice'] ) {
+			// A subscription payment will have an invoice.
+			$invoice   = self::get_invoice( $payment['invoice'] );
+			$recurring = $invoice['lines']['data'][0]['price']['recurring'];
+			if ( isset( $recurring['interval'] ) ) {
+				$frequency = $recurring['interval'];
+			}
+		}
+		return $frequency;
+	}
+
+	/**
+	 * Has this customer opted in to receiving the newsletter?
+	 *
+	 * @param array $customer Stripe customer.
+	 */
+	private static function has_customer_opted_in_to_newsletters( $customer ) {
+		return isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
+	}
+
+	/**
+	 * Create WC transaction payload.
+	 *
+	 * @param array $customer Stripe customer.
+	 * @param array $payment Stripe payment.
+	 */
+	public static function create_wc_transaction_payload( $customer, $payment ) {
+		$balance_transaction = self::get_balance_transaction( $payment['balance_transaction'] );
+		$amount_normalised   = self::normalise_amount( $payment['amount'], $payment['currency'] );
+		$stripe_data         = self::get_stripe_data();
+		return [
+			'email'              => $customer['email'],
+			'name'               => $customer['name'],
+			'stripe_id'          => $payment['id'],
+			'stripe_customer_id' => $customer['id'],
+			'stripe_fee'         => self::normalise_amount( $balance_transaction['fee'], $payment['currency'] ),
+			'stripe_net'         => self::normalise_amount( $balance_transaction['net'], $payment['currency'] ),
+			'date'               => $payment['created'],
+			'amount'             => $amount_normalised,
+			'frequency'          => self::get_frequency_of_payment( $payment ),
+			'currency'           => $stripe_data['currency'],
+			'client_id'          => $customer['metadata']['clientId'],
+			'user_id'            => $customer['metadata']['userId'],
+			'subscribed'         => self::has_customer_opted_in_to_newsletters( $customer ),
+		];
 	}
 }
 

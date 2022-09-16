@@ -213,6 +213,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			const actionInput = form.querySelector( 'input[name="action"]' );
 			const emailInput = form.querySelector( 'input[name="npe"]' );
+			const otpCodeInput = form.querySelector( 'input[name="otp_code"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
@@ -237,6 +238,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			 * Handle auth form action selection.
 			 */
 			function setFormAction( action ) {
+				if ( 'otp' === action ) {
+					if ( ! readerActivation.getOTPHash() ) {
+						return;
+					}
+				}
 				if ( [ 'link', 'pwd' ].includes( action ) ) {
 					readerActivation.setAuthStrategy( action );
 				}
@@ -259,6 +265,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				} catch {}
 				if ( action === 'pwd' && emailInput.value ) {
 					passwordInput.focus();
+				} else if ( action === 'otp' ) {
+					otpCodeInput.focus();
 				} else {
 					emailInput.focus();
 				}
@@ -346,32 +354,52 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							return form.endFlow( newspack_reader_auth_labels.invalid_email, 400 );
 						}
 						readerActivation.setReaderEmail( body.get( 'npe' ) );
-						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-							method: 'POST',
-							headers: {
-								Accept: 'application/json',
-							},
-							body,
-						} )
-							.then( res => {
-								container.setAttribute( 'data-form-status', res.status );
-								let redirect = body.get( 'redirect' );
-								/** Redirect every registration to the account page for verification */
-								if ( action === 'register' ) {
-									redirect = newspack_reader_activation_data.account_url;
-								}
-								res
-									.json()
-									.then( ( { message, data } ) => {
-										form.endLoginFlow( message, res.status, data, redirect );
-									} )
-									.catch( () => {
-										form.endLoginFlow();
-									} );
+						if ( 'otp' === action ) {
+							readerActivation
+								.authenticateOTP( body.get( 'otp_code' ) )
+								.then( data => {
+									form.endLoginFlow( data.message, 200, data, body.get( 'redirect' ) );
+								} )
+								.catch( data => {
+									if ( data.expired ) {
+										setFormAction( 'link' );
+									}
+									form.endLoginFlow( data.message, 400 );
+								} );
+						} else {
+							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+								method: 'POST',
+								headers: {
+									Accept: 'application/json',
+								},
+								body,
 							} )
-							.catch( () => {
-								form.endLoginFlow();
-							} );
+								.then( res => {
+									const otpHash = readerActivation.getOTPHash();
+									if ( 'link' === action && otpHash ) {
+										form.endLoginFlow( null, 0 );
+										setFormAction( 'otp' );
+									} else {
+										container.setAttribute( 'data-form-status', res.status );
+										res
+											.json()
+											.then( ( { message, data } ) => {
+												let redirect = body.get( 'redirect' );
+												/** Redirect every registration to the account page for verification */
+												if ( action === 'register' ) {
+													redirect = newspack_reader_activation_data.account_url;
+												}
+												form.endLoginFlow( message, res.status, data, redirect );
+											} )
+											.catch( () => {
+												form.endLoginFlow();
+											} );
+									}
+								} )
+								.catch( () => {
+									form.endLoginFlow();
+								} );
+						}
 					} );
 			} );
 		} );
