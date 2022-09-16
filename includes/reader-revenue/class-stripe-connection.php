@@ -1283,12 +1283,12 @@ class Stripe_Connection {
 	 * @param array $payment Stripe payment.
 	 */
 	public static function create_wc_transaction_payload( $customer, $payment ) {
-		$balance_transaction     = self::get_balance_transaction( $payment['balance_transaction'] );
-		$amount_normalised       = self::normalise_amount( $payment['amount'], $payment['currency'] );
-		$stripe_data             = self::get_stripe_data();
-		$subscription_id         = null;
-		$$invoice_billing_reason = null;
-		$invoice                 = self::get_invoice( $payment['invoice'] );
+		$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
+		$amount_normalised      = self::normalise_amount( $payment['amount'], $payment['currency'] );
+		$stripe_data            = self::get_stripe_data();
+		$subscription_id        = null;
+		$invoice_billing_reason = null;
+		$invoice                = self::get_invoice( $payment['invoice'] );
 		if ( $invoice ) {
 			$invoice_billing_reason = $invoice['billing_reason'];
 			if ( isset( $invoice['subscription'] ) && is_string( $invoice['subscription'] ) ) {
