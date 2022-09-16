@@ -46,7 +46,7 @@ class WooCommerce_Connection {
 		\add_filter( 'wc_order_is_editable', [ __CLASS__, 'make_syncd_subscriptions_uneditable' ], 10, 2 );
 		\add_filter( 'woocommerce_order_actions', [ __CLASS__, 'remove_syncd_subscriptions_order_actions' ], 11, 1 );
 		foreach ( self::DISABLED_SUBSCRIPTION_STATUSES as $status_name ) {
-			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_extra_status_updates' ], 11, 2 );
+			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_subscription_status_updates' ], 11, 2 );
 		}
 
 		// WooCommerce Memberships.
@@ -539,7 +539,7 @@ class WooCommerce_Connection {
 	 * @param int    $cancelled_at Timestamp of when the subscription cancellation happened.
 	 * @param int    $end Timestamp of when to cancel the subscription.
 	 */
-	public static function set_pending_cancellation( $stripe_subscription_id, $cancelled_at, $end ) {
+	public static function set_pending_cancellation_subscription( $stripe_subscription_id, $cancelled_at, $end ) {
 		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
 		if ( $subscription ) {
 			$subscription->delete_date( 'next_payment' );
@@ -668,7 +668,7 @@ class WooCommerce_Connection {
 	 * @param bool             $can_update Whether the status can be updated.
 	 * @param \WC_Subscription $subscription The subscription object.
 	 */
-	public static function disable_extra_status_updates( $can_update, $subscription ) {
+	public static function disable_subscription_status_updates( $can_update, $subscription ) {
 		if ( self::is_synchronised_with_stripe( $subscription ) ) {
 			return false;
 		}

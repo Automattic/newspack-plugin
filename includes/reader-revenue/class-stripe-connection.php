@@ -661,7 +661,7 @@ class Stripe_Connection {
 			case 'customer.subscription.updated':
 				if ( Donations::is_woocommerce_suite_active() ) {
 					if ( $payload['cancel_at'] ) {
-						WooCommerce_Connection::set_pending_cancellation( $payload['id'], $payload['canceled_at'], $payload['cancel_at'] );
+						WooCommerce_Connection::set_pending_cancellation_subscription( $payload['id'], $payload['canceled_at'], $payload['cancel_at'] );
 					} elseif ( ! empty( $payload['pause_collection'] ) ) {
 						$reactivation_date = $payload['pause_collection']['resumes_at'];
 						WooCommerce_Connection::put_subscription_on_hold(
