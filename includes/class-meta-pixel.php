@@ -163,7 +163,6 @@ class Meta_Pixel {
 	 * @return string
 	 */
 	public static function get_script_snippet() {
-		// phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation
 		return "
 		<script>
 		!function(f,b,e,v,n,t,s)
