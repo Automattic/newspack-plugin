@@ -494,8 +494,10 @@ class Stripe_Connection {
 					if ( Reader_Activation::is_enabled() ) {
 						$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
 						$customer_ltv = self::get_customer_ltv( $customer['id'] );
-						$total_paid   = $customer_ltv + $amount_normalised;
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['total_paid'] ] = $total_paid;
+						if ( ! \is_wp_error( $customer_ltv ) ) {
+							$total_paid = $customer_ltv + $amount_normalised;
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['total_paid'] ] = $total_paid;
+						}
 
 						$contact['metadata'] = array_merge(
 							$contact['metadata'],
