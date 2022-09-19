@@ -50,7 +50,7 @@
     "@babel/preset-env": "^7.19.1",
     "classnames": "^2.3.2",
     "colord": "^2.9.3",
-    "date-fns": "^2.29.2",
+    "date-fns": "^2.29.3",
     "deep-map-keys": "^2.0.1",
     "human-number": "^2.0.1",
     "js-cookie": "^3.0.1",
