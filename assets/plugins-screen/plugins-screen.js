@@ -18,31 +18,33 @@ import './plugins-screen.scss';
 	) {
 		const modalEl = document.createElement( 'div' );
 		const modalContentEl = document.createElement( 'div' );
-		const modalMessageEl = document.createElement( 'div' );
 		const modalHeadingEl = document.createElement( 'h1' );
 		const modalPEl = document.createElement( 'p' );
-		const modalLinkEl = document.createElement( 'a' );
-		const modalCloseWrapperEl = document.createElement( 'div' );
+		const modalButtonsWrapperEl = document.createElement( 'div' );
+		const modalActionEl = document.createElement( 'button' );
 		const modalCloseEl = document.createElement( 'button' );
 
 		modalEl.classList.add( 'newspack-plugin-info-modal' );
-		modalHeadingEl.innerText = wp.i18n.__( 'Before installing a new plugin', 'newspack' );
-		modalPEl.innerText = wp.i18n.__( 'Please fill out this form:', 'newspack' );
-		modalCloseEl.innerText = wp.i18n.__( 'Close', 'newspack' );
+		modalHeadingEl.innerText = wp.i18n.__( 'Plugin review', 'newspack' );
+		modalPEl.innerText = wp.i18n.__(
+			'Please submit a plugin for review by the Newspack Team before installing it on your website.',
+			'newspack'
+		);
+		modalCloseEl.innerHTML =
+			'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>';
 		modalCloseEl.onclick = () => {
 			modalEl.classList.add( 'newspack-plugin-info-modal--hidden' );
 		};
-		modalLinkEl.setAttribute( 'href', newspack_plugin_info.plugin_review_link );
-		modalLinkEl.setAttribute( 'target', '_blank' );
-		modalLinkEl.innerText = wp.i18n.__( 'Plugin review form', 'newspack' );
+		modalActionEl.setAttribute( 'href', newspack_plugin_info.plugin_review_link );
+		modalActionEl.setAttribute( 'target', '_blank' );
+		modalActionEl.innerText = wp.i18n.__( 'Plugin Review Form', 'newspack' );
 
 		modalEl.appendChild( modalContentEl );
-		modalMessageEl.appendChild( modalHeadingEl );
-		modalMessageEl.appendChild( modalPEl );
-		modalMessageEl.appendChild( modalLinkEl );
-		modalContentEl.appendChild( modalMessageEl );
-		modalCloseWrapperEl.appendChild( modalCloseEl );
-		modalContentEl.appendChild( modalCloseWrapperEl );
+		modalContentEl.appendChild( modalHeadingEl );
+		modalContentEl.appendChild( modalPEl );
+		modalContentEl.appendChild( modalCloseEl );
+		modalButtonsWrapperEl.appendChild( modalActionEl );
+		modalContentEl.appendChild( modalButtonsWrapperEl );
 		document.body.appendChild( modalEl );
 	}
 
