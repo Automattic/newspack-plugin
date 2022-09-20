@@ -46,7 +46,7 @@ class Meta_Pixel {
 	 * @return boolean
 	 */
 	public static function validate_pixel_id( $value ) {
-		return ctype_digit( $value ) || is_int( $value );
+		return '' === $value || ctype_digit( $value ) || is_int( $value );
 	}
 
 	/**
