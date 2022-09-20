@@ -154,7 +154,22 @@ class Meta_Pixel {
 	 * @return string
 	 */
 	public static function get_img_snippet() {
-		return '<img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id=__PIXEL_ID__&ev=PageView&noscript=1&cd%5Bpage_title%5D=Homepage&cd%5Bpost_type%5D=page&cd%5Bpost_id%5D=125&cd%5Bplugin%5D=PixelYourSite&cd%5Buser_role%5D=guest&cd%5Bevent_url%5D=leogermani.jurassic.tube%2F" alt="">';
+		global $wp;
+		$current_user = wp_get_current_user();
+		$event_params = [
+			'page_title' => get_the_title(),
+			'user_role'  => empty( $current_user->roles ) ? 'guest' : $current_user->roles[0],
+			'event_url'  => home_url( $wp->request ),
+		];
+
+		if ( is_single() ) {
+			$event_params['post_type'] = get_post_type();
+			$event_params['post_id']   = get_the_ID();
+		}
+
+		$url_params = http_build_query( [ 'cd' => $event_params ] );
+
+		return '<img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id=__PIXEL_ID__&ev=PageView&noscript=1&' . $url_params . '">';
 	}
 
 	/**
