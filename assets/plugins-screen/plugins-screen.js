@@ -21,7 +21,7 @@ import './plugins-screen.scss';
 		const modalHeadingEl = document.createElement( 'h1' );
 		const modalPEl = document.createElement( 'p' );
 		const modalButtonsWrapperEl = document.createElement( 'div' );
-		const modalActionEl = document.createElement( 'button' );
+		const modalActionEl = document.createElement( 'a' );
 		const modalCloseEl = document.createElement( 'button' );
 
 		modalEl.classList.add( 'newspack-plugin-info-modal' );

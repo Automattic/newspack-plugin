@@ -60,12 +60,13 @@ table.plugins {
 			display: flex;
 			justify-content: flex-end;
 			padding-top: 20px;
-			button {
+			a {
 				padding: 11px 19px;
 				border-radius: 2px;
 				border: none;
 				color: wp-colors.$white;
 				background-color: colors.$primary-500;
+				text-decoration: none;
 			}
 		}
 	}
