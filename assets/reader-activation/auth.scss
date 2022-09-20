@@ -180,13 +180,11 @@
 		}
 
 		&__wrapper {
+			position: relative;
 			width: 100%;
 			max-width: 544px;
 			background: white;
-			position: relative;
 			max-height: 100vh;
-			overflow-y: auto;
-			overflow-x: hidden;
 
 			transition: height 125ms ease-in-out;
 
@@ -197,9 +195,15 @@
 			}
 		}
 		&__have-account {
+			position: absolute;
+			left: 0;
+			width: 100%;
+			top: calc( -1em - 23px );
 			background-color: var( --newspack-cta-color );
 			padding: 4px 15px;
 			margin-bottom: 11px;
+			padding-top: 6px !important;
+			padding-bottom: 8px !important;
 			&,
 			a {
 				color: var( --newspack-cta-contrast-color );
@@ -249,6 +253,7 @@
 			}
 		}
 
+		&__have-account,
 		&__content {
 			padding: 16px;
 
@@ -257,9 +262,11 @@
 			}
 
 			@media screen and ( min-width: 782px ) {
-				padding: 64px;
+				padding: 47px 64px 64px;
 			}
+		}
 
+		&__content {
 			form {
 				transition: opacity 0.2s ease-in-out;
 
