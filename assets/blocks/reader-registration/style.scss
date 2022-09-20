@@ -114,10 +114,13 @@
 	}
 
 	&__have-account {
-		color: wp-colors.$gray-700;
-		font-size: 0.8125em;
-		justify-self: flex-end;
-		line-height: 1.2307692308;
+		background-color: var( --newspack-cta-color );
+		padding: 4px 15px;
+		margin-bottom: 11px;
+		&,
+		a {
+			color: var( --newspack-cta-contrast-color ) !important;
+		}
 	}
 
 	&__help-text {

@@ -174,18 +174,16 @@ function render_block( $attrs, $content ) {
 			</div>
 		<?php else : ?>
 			<form id="<?php echo esc_attr( get_form_id() ); ?>">
+				<div class="newspack-registration__have-account">
+					<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
+					<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
+						<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
+					</a>
+				</div>
 				<div class="newspack-registration__header">
 					<?php if ( ! empty( $attrs['title'] ) ) : ?>
 						<h2 class="newspack-registration__title"><?php echo \wp_kses_post( $attrs['title'] ); ?></h2>
 					<?php endif; ?>
-					<div class="newspack-registration__have-account">
-						<p>
-							<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
-							<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
-								<?php echo \wp_kses_post( $attrs['signInLabel'] ); ?>
-							</a>
-						</p>
-					</div>
 				</div>
 				<?php if ( ! empty( $attrs['description'] ) ) : ?>
 					<p class="newspack-registration__description"><?php echo \wp_kses_post( $attrs['description'] ); ?></p>
