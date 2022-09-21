@@ -1,19 +1,9 @@
-# [1.92.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.91.0...v1.92.0-alpha.1) (2022-09-16)
+## [1.91.1](https://github.com/Automattic/newspack-plugin/compare/v1.91.0...v1.91.1) (2022-09-21)
 
 
 ### Bug Fixes
 
-* **analytics:** remove illegal reference on wizard ([#1996](https://github.com/Automattic/newspack-plugin/issues/1996)) ([bec14a2](https://github.com/Automattic/newspack-plugin/commit/bec14a22ebb6d8c2c37de6bdd920d5fb13e0c440))
-* **wc-to-ac-metadata:** disregard `0` next payment date ([6e43db1](https://github.com/Automattic/newspack-plugin/commit/6e43db1c52f41e51316aa6b5233e8e445d7a506b))
-
-
-### Features
-
-* Adds a filter by Author in the Posts admin page ([bc49686](https://github.com/Automattic/newspack-plugin/commit/bc496868e9a2d438303699db45972f438ad2ff5c))
-* **auth:** otp embedded to magic links ([#1988](https://github.com/Automattic/newspack-plugin/issues/1988)) ([d6e072c](https://github.com/Automattic/newspack-plugin/commit/d6e072ccd18b2cff2e3dda97e371eedb1187afab))
-* do not redirect resubscribe requests ([#1989](https://github.com/Automattic/newspack-plugin/issues/1989)) ([53da790](https://github.com/Automattic/newspack-plugin/commit/53da790dbc0f4b06fb5a18b15f03e7a121a1909d))
-* **plugins:** handle missing organic-profile-block plugin ([2475ad0](https://github.com/Automattic/newspack-plugin/commit/2475ad08f5191608401e2f2b486bd670dd82c732))
-* **stripe:** send data about cancelled subscription to Campaigns ([#1966](https://github.com/Automattic/newspack-plugin/issues/1966)) ([0554487](https://github.com/Automattic/newspack-plugin/commit/055448741cba1e7830fc839bd3a76f5b6521ecf1))
+* move improved frequency options out of experimental state ([45b0fe6](https://github.com/Automattic/newspack-plugin/commit/45b0fe62ae51023a21bf789873fc441d1bbea47d))
 
 # [1.91.0](https://github.com/Automattic/newspack-plugin/compare/v1.90.0...v1.91.0) (2022-09-15)
 
