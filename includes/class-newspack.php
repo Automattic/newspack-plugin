@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack setup
+ * Newspack setup dummy change
  *
  * @package Newspack
  */

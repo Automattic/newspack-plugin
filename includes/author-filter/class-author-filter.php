@@ -44,6 +44,10 @@ class Author_Filter {
 	 */
 	private static function is_coauthors_plus_enabled( $post_type = '' ) {
 		global $coauthors_plus;
+		$x = [
+			'asd'          => 123,
+			'asdas asdasd' => 345,
+		];
 		if ( ! is_object( $coauthors_plus ) || ! method_exists( $coauthors_plus, 'search_authors' ) ) {
 			return false;
 		}
