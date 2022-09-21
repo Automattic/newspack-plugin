@@ -96,26 +96,11 @@ const frequencyMap = {
 	weekly: __( 'Once a week', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Every pageview', 'newspack' ),
-	preset_1: __( 'Every 4th pageview, up to 5x per month', 'newspack' ),
 	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack' ),
 };
 
-export const frequenciesForPopup = popup => {
-	const { experimental } = window.newspack_popups_wizard_data;
-	const standardKeys = [ 'once', 'daily', 'always' ];
-	return Object.keys( frequencyMap )
-		.filter( key => {
-			if ( experimental ) {
-				return true;
-			}
-
-			if ( isOverlay( popup ) && 'always' === key ) {
-				return false;
-			}
-
-			return -1 < standardKeys.indexOf( key );
-		} )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+export const frequenciesForPopup = () => {
+	return Object.keys( frequencyMap ).map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
 export const overlaySizesForPopups = () => {

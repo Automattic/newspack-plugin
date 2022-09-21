@@ -1,3 +1,10 @@
+## [1.91.1](https://github.com/Automattic/newspack-plugin/compare/v1.91.0...v1.91.1) (2022-09-21)
+
+
+### Bug Fixes
+
+* move improved frequency options out of experimental state ([45b0fe6](https://github.com/Automattic/newspack-plugin/commit/45b0fe62ae51023a21bf789873fc441d1bbea47d))
+
 # [1.91.0](https://github.com/Automattic/newspack-plugin/compare/v1.90.0...v1.91.0) (2022-09-15)
 
 
