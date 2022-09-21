@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  newspack: adekbadek/newspack@dev:wp-version-tests-2
+  newspack: adekbadek/newspack@1.4.0
 
 workflows:
   version: 2
