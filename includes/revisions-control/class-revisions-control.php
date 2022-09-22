@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use DateTime;
+use WP_Post;
 /**
  * Revisions Control class
  */
@@ -119,7 +121,7 @@ class Revisions_Control {
 	 * @param \WP_Post $post Post object.
 	 * @return mixed
 	 */
-	public static function pre_delete_revision( $check, \WP_Post $post ) {
+	public static function pre_delete_revision( $check, WP_Post $post ) {
 		if ( ! self::is_active() || 'revision' !== $post->post_type ) {
 			return $check;
 		}
