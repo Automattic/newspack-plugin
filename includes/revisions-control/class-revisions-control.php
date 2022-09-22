@@ -9,6 +9,9 @@ namespace Newspack;
 
 use DateTime;
 use WP_Post;
+
+require_once 'class-relevant-revisions.php';
+
 /**
  * Revisions Control class
  */
@@ -126,6 +129,9 @@ class Revisions_Control {
 			return $check;
 		}
 		if ( $post->post_date > self::get_min_age() ) {
+			return true; // do not delete.
+		}
+		if ( Relevant_Revisions::is_revision_relevant( $post->post_parent, $post->ID ) ) {
 			return true; // do not delete.
 		}
 		return $check;
