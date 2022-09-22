@@ -702,10 +702,10 @@ class Stripe_Connection {
 		$is_valid        = true;
 		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
 
-		if ( $validate_existence_only ) {
+		if ( true === $validate_existence_only ) {
 			if ( false === $created_webhook ) {
 				// If the webhook does not exist, do the full validation & creation.
-				self::validate_or_create_webhooks();
+				self::validate_or_create_webhooks( false );
 			}
 			return;
 		}
