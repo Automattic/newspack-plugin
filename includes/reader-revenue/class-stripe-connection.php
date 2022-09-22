@@ -56,7 +56,7 @@ class Stripe_Connection {
 		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
 		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
 		add_action( 'newspack_reader_verified', [ __CLASS__, 'newspack_reader_verified' ] );
-		add_action( 'delete_user', [ __CLASS__, 'cancel_user_subscriptions' ] );
+		add_action( 'delete_user', [ __CLASS__, 'cancel_user_subscriptions' ], 90 ); // Priority 90 to run after Newsletters deletes the contact in ESP.
 	}
 
 	/**
