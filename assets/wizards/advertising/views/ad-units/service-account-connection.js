@@ -16,14 +16,14 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 
 	const updateGAMCredentials = credentials =>
 		updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/credentials',
+			path: '/newspack/v1/wizard/billboard/credentials',
 			method: 'post',
 			data: { credentials },
 			quiet: true,
 		} );
 	const removeGAMCredentials = () =>
 		updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/credentials',
+			path: '/newspack/v1/wizard/billboard/credentials',
 			method: 'delete',
 			quiet: true,
 		} );

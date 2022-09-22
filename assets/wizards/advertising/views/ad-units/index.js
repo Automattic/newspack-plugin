@@ -45,7 +45,7 @@ const AdUnits = ( {
 
 	const updateNetworkCode = async ( value, isGam ) => {
 		await wizardApiFetch( {
-			path: '/newspack/v1/wizard/advertising/network_code/',
+			path: '/newspack/v1/wizard/billboard/network_code/',
 			method: 'POST',
 			data: { network_code: value, is_gam: isGam },
 			quiet: true,

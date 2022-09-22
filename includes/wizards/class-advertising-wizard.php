@@ -80,7 +80,7 @@ class Advertising_Wizard extends Wizard {
 		// Get all Newspack advertising data.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/',
+			'/wizard/billboard/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_advertising' ],
@@ -91,7 +91,7 @@ class Advertising_Wizard extends Wizard {
 		// Enable one service.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/service/(?P<service>[\a-z]+)',
+			'/wizard/billboard/service/(?P<service>[\a-z]+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_enable_service' ],
@@ -107,7 +107,7 @@ class Advertising_Wizard extends Wizard {
 		// Disable one service.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/service/(?P<service>[\a-z]+)',
+			'/wizard/billboard/service/(?P<service>[\a-z]+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_disable_service' ],
@@ -123,7 +123,7 @@ class Advertising_Wizard extends Wizard {
 		// Update GAM credentials.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/credentials',
+			'/wizard/billboard/credentials',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_gam_credentials' ],
@@ -186,7 +186,7 @@ class Advertising_Wizard extends Wizard {
 		// Remove GAM credentials.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/credentials',
+			'/wizard/billboard/credentials',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_remove_gam_credentials' ],
@@ -197,7 +197,7 @@ class Advertising_Wizard extends Wizard {
 		// Save a ad unit.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/ad_unit/(?P<id>\d+)',
+			'/wizard/billboard/ad_unit/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_adunit' ],
@@ -225,7 +225,7 @@ class Advertising_Wizard extends Wizard {
 		// Delete a ad unit.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/ad_unit/(?P<id>\d+)',
+			'/wizard/billboard/ad_unit/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_delete_adunit' ],
@@ -241,7 +241,7 @@ class Advertising_Wizard extends Wizard {
 		// Update network code.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/network_code',
+			'/wizard/billboard/network_code',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_network_code' ],
@@ -276,7 +276,7 @@ class Advertising_Wizard extends Wizard {
 		// Update global ad suppression.
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/advertising/suppression',
+			'/wizard/billboard/suppression',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_ad_suppression' ],
@@ -553,7 +553,7 @@ class Advertising_Wizard extends Wizard {
 
 		\wp_enqueue_script(
 			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/dist/advertising.js',
+			Newspack::plugin_url() . '/dist/billboard.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
 			true
@@ -561,7 +561,7 @@ class Advertising_Wizard extends Wizard {
 
 		\wp_register_style(
 			'newspack-advertising-wizard',
-			Newspack::plugin_url() . '/dist/advertising.css',
+			Newspack::plugin_url() . '/dist/billboard.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
