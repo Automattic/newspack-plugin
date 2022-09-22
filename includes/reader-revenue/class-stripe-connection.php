@@ -154,7 +154,7 @@ class Stripe_Connection {
 	private static function get_customer_by_id( $customer_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->customers->retrieve( $customer_id, [] );
+			return $stripe->customers->retrieve( $customer_id, [], [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch customer.', 'newspack' ), $e->getMessage() );
 		}
@@ -296,7 +296,7 @@ class Stripe_Connection {
 	private static function get_customer_by_email( $email_address ) {
 		try {
 			$stripe          = self::get_stripe_client();
-			$found_customers = $stripe->customers->all( [ 'email' => $email_address ] )['data'];
+			$found_customers = $stripe->customers->all( [ 'email' => $email_address ], [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] )['data'];
 			return count( $found_customers ) ? $found_customers[0] : null;
 		} catch ( \Throwable $e ) {
 			return null;
@@ -311,7 +311,7 @@ class Stripe_Connection {
 	private static function get_invoice( $invoice_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->invoices->retrieve( $invoice_id, [] );
+			return $stripe->invoices->retrieve( $invoice_id, [], [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
 		}
@@ -325,7 +325,7 @@ class Stripe_Connection {
 	private static function get_balance_transaction( $transaction_id ) {
 		$stripe = self::get_stripe_client();
 		try {
-			return $stripe->balanceTransactions->retrieve( $transaction_id, [] );
+			return $stripe->balanceTransactions->retrieve( $transaction_id, [], [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch balance transaction.', 'newspack' ), $e->getMessage() );
 		}
@@ -813,7 +813,7 @@ class Stripe_Connection {
 
 		$stripe = self::get_stripe_client();
 		// A price has to be assigned to a product.
-		$product = $stripe->products->create( [ 'name' => $name ] );
+		$product = $stripe->products->create( [ 'name' => $name ], [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 		// Tiered volume pricing allows the subscription prices to be arbitrary.
 		$price = $stripe->prices->create(
 			[
@@ -837,7 +837,8 @@ class Stripe_Connection {
 				'metadata'       => [
 					self::STRIPE_DONATION_PRICE_METADATA => $interval,
 				],
-			]
+			],
+			[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 		);
 		return $price;
 	}
@@ -848,7 +849,7 @@ class Stripe_Connection {
 	public static function get_donation_prices() {
 		try {
 			$stripe        = self::get_stripe_client();
-			$all_prices    = $stripe->prices->all()['data'];
+			$all_prices    = $stripe->prices->all( [],[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] )['data'];
 			$prices_mapped = [];
 			$payment_data  = self::get_stripe_data();
 
@@ -896,7 +897,7 @@ class Stripe_Connection {
 		}
 		$stripe = self::get_stripe_client();
 		try {
-			$products = $stripe->products->all( [ 'limit' => 1 ] );
+			$products = $stripe->products->all( [ 'limit' => 1 ], [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 			return false;
 		} catch ( \Throwable $e ) {
 			return $e->getMessage();
@@ -966,11 +967,12 @@ class Stripe_Connection {
 			}
 
 			if ( null === $customer ) {
-				$customer = $stripe->customers->create( $customer_data_payload );
+				$customer = $stripe->customers->create( $customer_data_payload, [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 			} else {
 				$customer = $stripe->customers->update(
 					$customer['id'],
-					$customer_data_payload
+					$customer_data_payload,
+					[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 				);
 			}
 			return $customer;
@@ -1031,7 +1033,8 @@ class Stripe_Connection {
 			// transaction, because the payment methods are not stored on WP.
 			$stripe->paymentMethods->attach( // phpcs:ignore
 				$payment_method_id,
-				[ 'customer' => $customer['id'] ]
+				[ 'customer' => $customer['id'] ],
+				[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 			);
 			// Set the payment method as the default for customer's transactions.
 			$stripe->customers->update(
@@ -1040,7 +1043,8 @@ class Stripe_Connection {
 					'invoice_settings' => [
 						'default_payment_method' => $payment_method_id,
 					],
-				]
+				],
+				[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 			);
 
 			if ( 'once' === $frequency ) {
@@ -1051,7 +1055,8 @@ class Stripe_Connection {
 						'amount'   => $amount_raw,
 						'customer' => $customer['id'],
 						'metadata' => $payment_metadata,
-					]
+					],
+					[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 				);
 				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
@@ -1066,17 +1071,19 @@ class Stripe_Connection {
 
 				$subscription = $stripe->subscriptions->create(
 					[
-						'customer'         => $customer['id'],
-						'items'            => [
+						'customer'                 => $customer['id'],
+						'items'                    => [
 							[
 								'price'    => $price['id'],
 								'quantity' => $amount,
 							],
 						],
-						'payment_behavior' => 'allow_incomplete',
-						'metadata'         => $payment_metadata,
-						'expand'           => [ 'latest_invoice.payment_intent' ],
-					]
+						'payment_behavior'         => 'allow_incomplete',
+						'metadata'                 => $payment_metadata,
+						'expand'                   => [ 'latest_invoice.payment_intent' ],
+						 'application_fee_percent' => 10,
+					],
+					[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 				);
 
 				// Update invoice metadata.
@@ -1084,7 +1091,8 @@ class Stripe_Connection {
 					$subscription->latest_invoice['id'],
 					[
 						'metadata' => $payment_metadata,
-					]
+					],
+					[ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ]
 				);
 
 				if ( 'incomplete' === $subscription->status ) {
@@ -1116,7 +1124,7 @@ class Stripe_Connection {
 			'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
 			'customer'             => $config['customer'],
 		];
-		return $stripe->paymentIntents->create( $intent_data );
+		return $stripe->paymentIntents->create( $intent_data, [ 'stripe_account' => NEWSPACK_STRIPE_CONNECTED_CHILD_ACCOUNT ] );
 	}
 
 	/**
