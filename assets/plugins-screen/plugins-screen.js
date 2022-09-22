@@ -25,7 +25,7 @@ import './plugins-screen.scss';
 		const modalCloseEl = document.createElement( 'button' );
 
 		modalEl.classList.add( 'newspack-plugin-info-modal' );
-		modalHeadingEl.innerText = wp.i18n.__( 'Plugin review', 'newspack' );
+		modalHeadingEl.innerText = wp.i18n.__( 'Plugin review required', 'newspack' );
 		modalPEl.innerText = wp.i18n.__(
 			'Please submit a plugin for review by the Newspack Team before installing it on your website.',
 			'newspack'
