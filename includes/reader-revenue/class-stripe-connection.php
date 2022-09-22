@@ -697,17 +697,28 @@ class Stripe_Connection {
 
 	/**
 	 * Create Stripe webhooks if they are missing. Otherwise, validate the webhhooks.
+	 *
+	 * @param bool $validate_existence_only If true, only validate the existence of the webhooks.
 	 */
-	public static function validate_or_create_webhooks() {
+	public static function validate_or_create_webhooks( $validate_existence_only = false ) {
 		$is_valid        = true;
-		$webhook_events  = [
+		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
+
+		if ( true === $validate_existence_only ) {
+			if ( false === $created_webhook ) {
+				// If the webhook does not exist, do the full validation & creation.
+				self::validate_or_create_webhooks( false );
+			}
+			return;
+		}
+
+		$webhook_events = [
 			'charge.failed',
 			'charge.succeeded',
 			'customer.subscription.deleted',
 			'customer.subscription.updated',
 		];
-		$stripe          = self::get_stripe_client();
-		$created_webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME );
+		$stripe         = self::get_stripe_client();
 		if ( ! $created_webhook ) {
 			Logger::log( 'Creating Stripe webhooks…' );
 			try {
@@ -976,6 +987,8 @@ class Stripe_Connection {
 	 * @param object $config Data about the donation.
 	 */
 	public static function handle_donation( $config ) {
+		self::validate_or_create_webhooks( true );
+
 		$response = [
 			'error'  => null,
 			'status' => null,
