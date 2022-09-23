@@ -25,8 +25,8 @@ export default function AddOns() {
 					href: '#/settings',
 				},
 				'publisher-media-kit': {
-					actionText: __( 'Configure', 'newspack' ),
-					href: '#/settings',
+					actionText: __( 'Learn more', 'newspack' ),
+					href: '#',
 				},
 			} }
 		/>
