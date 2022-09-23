@@ -1,3 +1,10 @@
+## [1.91.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.91.1...v1.91.2-hotfix.1) (2022-09-23)
+
+
+### Bug Fixes
+
+* **analytics:** improve reliability of custom events reporting in AMP ([a3d5982](https://github.com/Automattic/newspack-plugin/commit/a3d59829ed9c53e81f5ca89899b87e68cb19b43e))
+
 ## [1.91.1](https://github.com/Automattic/newspack-plugin/compare/v1.91.0...v1.91.1) (2022-09-21)
 
 
