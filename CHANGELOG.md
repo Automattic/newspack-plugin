@@ -1,3 +1,10 @@
+## [1.91.2-hotfix.2](https://github.com/Automattic/newspack-plugin/compare/v1.91.2-hotfix.1...v1.91.2-hotfix.2) (2022-09-23)
+
+
+### Bug Fixes
+
+* remove filter priority ([92ad712](https://github.com/Automattic/newspack-plugin/commit/92ad71276e78da40ad96486f0036c3101e00a494))
+
 ## [1.91.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.91.1...v1.91.2-hotfix.1) (2022-09-23)
 
 
