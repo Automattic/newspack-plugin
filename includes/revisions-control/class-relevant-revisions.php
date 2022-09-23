@@ -70,7 +70,8 @@ class Relevant_Revisions {
 			'newspack_revisions_control',
 			'newspack_revisions_control',
 			[
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'ajax_url'            => admin_url( 'admin-ajax.php' ),
+				'mark_relevant_nonce' => wp_create_nonce( 'newspack_mark_relevant' ),
 			]
 		);
 	}
@@ -97,8 +98,14 @@ class Relevant_Revisions {
 	 * @return void
 	 */
 	public static function ajax_toggle_relevant() {
-		$revision_id = $_POST['revision_id']; //phpcs:ignore
-		$post_id     = $_POST['post_id']; //phpcs:ignore
+		check_ajax_referer( 'newspack_mark_relevant' );
+
+		$revision_id = ! empty( $_POST['revision_id'] ) ? intval( $_POST['revision_id'] ) : null;
+		$post_id     = ! empty( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : null;
+
+		if ( ! $revision_id || ! $post_id ) {
+			exit;
+		}
 
 		$revision      = new Relevant_Revision( $post_id, $revision_id );
 		$current_state = $revision->toggle();

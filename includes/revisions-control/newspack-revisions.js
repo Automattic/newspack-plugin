@@ -41,7 +41,8 @@
 				{
 					action: 'newspack_toggle_revision_relevant',
 					revision_id: id,
-					post_id: post_id
+					post_id: post_id,
+					_ajax_nonce: newspack_revisions_control.mark_relevant_nonce,
 				},
 				callback
 			);

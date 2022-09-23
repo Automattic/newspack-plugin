@@ -125,13 +125,14 @@ class Revisions_Control {
 	 * @return mixed
 	 */
 	public static function pre_delete_revision( $check, WP_Post $post ) {
-		if ( ! self::is_active() || 'revision' !== $post->post_type ) {
+		if ( ! is_null( $check ) || ! self::is_active() || 'revision' !== $post->post_type ) {
 			return $check;
 		}
 		if ( $post->post_date > self::get_min_age() ) {
 			return true; // do not delete.
 		}
-		if ( Relevant_Revisions::is_revision_relevant( $post->post_parent, $post->ID ) ) {
+		$revision = new Relevant_Revision( $post->post_parent, $post->ID );
+		if ( $revision->is_relevant() ) {
 			return true; // do not delete.
 		}
 		return $check;
