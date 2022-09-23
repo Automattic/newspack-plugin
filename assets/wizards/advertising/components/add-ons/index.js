@@ -24,6 +24,10 @@ export default function AddOns() {
 					actionText: __( 'Configure', 'newspack' ),
 					href: '#/settings',
 				},
+				'publisher-media-kit': {
+					actionText: __( 'Configure', 'newspack' ),
+					href: '#/settings',
+				},
 			} }
 		/>
 	);
