@@ -175,7 +175,7 @@ class Stripe_Sync {
 				[
 					'dry_run'                     => $is_dry_run,
 					'force_subscription_override' => $force_override,
-				] 
+				]
 			);
 
 			// Get the next batch.
@@ -194,10 +194,10 @@ class Stripe_Sync {
 	 * @param string $last_customer_id Stripe ID of customer to get results after, essentially the offset.
 	 * @return array Array of Stripe customers.
 	 */
-	protected function get_batch_of_customers_for_stripe_connect_to_stripe( $limit, $last_customer_id = false ) {
+	protected static function get_batch_of_customers_for_stripe_connect_to_stripe( $limit, $last_customer_id = false ) {
 		$stripe = Stripe_Connection::get_stripe_client();
 		try {
-			$params = [ 
+			$params = [
 				'limit'  => $limit,
 				'expand' => [
 					'data.subscriptions',
@@ -220,7 +220,7 @@ class Stripe_Sync {
 	 * @param Stripe_Customer $customer Stripe customer object.
 	 * @param array           $args Params to control migration behavior.
 	 */
-	protected function process_customer_for_stripe_connect_to_stripe( $customer, $args ) {
+	protected static function process_customer_for_stripe_connect_to_stripe( $customer, $args ) {
 		$dry_run                     = ! empty( $args['dry_run'] );
 		$force_subscription_override = ! empty( $args['force_subscription_override'] );
 
@@ -247,7 +247,7 @@ class Stripe_Sync {
 			foreach ( $existing_subscription->items->data as $existing_subscription_item ) {
 				// Quantity is used here as a fallback because Simplified Donate Block uses quantity * 1 cent to do a variable price subscription.
 				$existing_subscription_item_price = ! empty( $existing_subscription_item->price->unit_amount ) ? $existing_subscription_item->price->unit_amount : $existing_subscription_item->quantity;
-				
+
 				$frequency                = $existing_subscription_item->price->recurring->interval;
 				$new_subscription_items[] = [
 					'price'    => $stripe_prices[ $frequency ]['id'],
