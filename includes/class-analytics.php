@@ -33,7 +33,7 @@ class Analytics {
 	 */
 	public function __construct() {
 		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'set_extra_analytics_config_options' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ], 99 ); // This has to be run after the filter above steals the analytics config.
+		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ] );
 
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'handle_custom_dimensions_reporting' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
@@ -472,7 +472,7 @@ class Analytics {
 	 * More: https://github.com/ampproject/amphtml/issues/32911.
 	 */
 	public static function insert_gtag_amp_analytics() {
-		$analytics = \Newspack\Google_Services_Connection::get_site_kit_analytics_module();
+		$analytics = Google_Services_Connection::get_site_kit_analytics_module();
 		if ( ! $analytics || ! $analytics->is_connected() ) {
 			return;
 		}
