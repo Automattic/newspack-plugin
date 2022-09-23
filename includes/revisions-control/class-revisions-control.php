@@ -39,7 +39,7 @@ class Revisions_Control {
 	 *
 	 * @return array
 	 */
-	public static function get_option() {
+	private static function get_option() {
 		$option = get_option( 'newspack_revisions_control' );
 		// If option does not exist or is invalid, fallback to defaults.
 		if ( empty( $option ) || ! is_array( $option ) || empty( $option['active'] ) || empty( $option['number'] ) || empty( $option['min_age'] ) ) {
@@ -53,7 +53,7 @@ class Revisions_Control {
 	 *
 	 * @return array
 	 */
-	public static function get_status() {
+	private static function get_status() {
 		$option = self::get_option();
 		if ( ! empty( $option ) ) {
 			return $option;
@@ -73,7 +73,7 @@ class Revisions_Control {
 	 *
 	 * @return boolean
 	 */
-	public static function is_active() {
+	private static function is_active() {
 		return self::get_status()['active'];
 	}
 
@@ -82,7 +82,7 @@ class Revisions_Control {
 	 *
 	 * @return ?int
 	 */
-	public static function get_number() {
+	private static function get_number() {
 		if ( self::get_status()['active'] ) {
 			return self::get_status()['number'];
 		}
@@ -93,7 +93,7 @@ class Revisions_Control {
 	 *
 	 * @return ?string
 	 */
-	public static function get_min_age() {
+	private static function get_min_age() {
 		if ( self::get_status()['active'] ) {
 			$min_age = self::get_status()['min_age'];
 			$date    = ( new DateTime() )->modify( $min_age );
