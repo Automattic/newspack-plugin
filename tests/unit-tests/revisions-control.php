@@ -37,6 +37,13 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 		);
 	}
 
+	public function get_private_method( $method_name ) {
+		$class  = new ReflectionClass( 'Newspack\Revisions_Control' );
+		$method = $class->getMethod( $method_name );
+		$method->setAccessible( true );
+		return $method;
+	}
+
 	/**
 	 * Data provider for test_get_option
 	 *
@@ -80,7 +87,8 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 	 */
 	public function test_get_option( $option_value, $expected ) {
 		update_option( 'newspack_revisions_control', $option_value );
-		$this->assertSame( $expected, Revisions_Control::get_option() );
+		$method = $this->get_private_method( 'get_option' );
+		$this->assertSame( $expected, $method->invoke( null ) );
 	}
 
 	/**
@@ -142,10 +150,19 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 	 */
 	public function test_get_status( $option_value, $expected, $active, $number, $min_age ) {
 		update_option( 'newspack_revisions_control', $option_value );
-		$this->assertSame( $expected, Revisions_Control::get_status() );
-		$this->assertSame( $active, Revisions_Control::is_active() );
-		$this->assertSame( $number, Revisions_Control::get_number() );
-		$_min_age = Revisions_Control::get_min_age();
+
+		$get_status = $this->get_private_method( 'get_status' );
+		$this->assertSame( $expected, $get_status->invoke( null ) );
+
+		$is_active = $this->get_private_method( 'is_active' );
+		$this->assertSame( $active, $is_active->invoke( null ) );
+
+		$get_number = $this->get_private_method( 'get_number' );
+		$this->assertSame( $number, $get_number->invoke( null ) );
+
+		$get_min_age = $this->get_private_method( 'get_min_age' );
+		$_min_age    = $get_min_age->invoke( null );
+
 		if ( ! is_null( $min_age ) ) {
 			$diff = date_diff( new DateTime(), new DateTime( $_min_age ) );
 			$this->assertSame( 7, $diff->d );
@@ -216,7 +233,7 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 
 
 	/**
-	 * Undocumented function
+	 * Tests the pre_delete_revision hook when the feature is active
 	 *
 	 * @param WP_Post $post The Post object.
 	 * @param mixed   $expected The expected result.
@@ -231,7 +248,7 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 
 
 	/**
-	 * Undocumented function
+	 * Tests the pre_delete_revision hook when the feature is active
 	 *
 	 * @param WP_Post $post The Post object.
 	 *
