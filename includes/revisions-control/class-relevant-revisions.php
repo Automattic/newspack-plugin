@@ -31,6 +31,13 @@ class Relevant_Revisions {
 	const RELEVANT_IDS_META_KEY = '_relevant_revision';
 
 	/**
+	 * The slug of the post type used to store backups of relevant revisions
+	 *
+	 * @var string
+	 */
+	const BKP_POST_TYPE = 'nwspk-rev_bkp';
+
+	/**
 	 * Initializes the hook
 	 *
 	 * @return void
@@ -40,6 +47,7 @@ class Relevant_Revisions {
 			add_action( 'load-revision.php', array( __CLASS__, 'admin_init' ) );
 			add_action( 'wp_ajax_newspack_toggle_revision_relevant', array( __CLASS__, 'ajax_toggle_relevant' ) );
 			add_filter( 'wp_prepare_revision_for_js', array( __CLASS__, 'filter_revision_for_js' ), 10, 3 );
+			add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 			self::$initiated = true;
 		}
 	}
@@ -51,6 +59,105 @@ class Relevant_Revisions {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+
+		$current_revision = self::get_current_revision_id();
+		if ( $current_revision ) {
+
+			if ( ! empty( $_GET['action'] ) && 'restore_backup' === $_GET['action'] && check_admin_referer( 'newspack_restore_revisions' ) ) {
+				self::restore_backup( $current_revision );
+			} elseif ( ! self::check_revision_backup_integrity( $current_revision ) ) {
+				add_action( 'admin_notices', array( __CLASS__, 'admin_notices' ) );
+			}
+		}
+
+	}
+
+	/**
+	 * Gets the current revision ID from the URL
+	 *
+	 * @return string
+	 */
+	public static function get_current_revision_id() {
+		return ! empty( $_GET['revision'] ) ? intval( $_GET['revision'] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Adds an admin notice with a link to restore the revisions backups
+	 *
+	 * @return void
+	 */
+	public static function admin_notices() {
+		global $pagenow, $typenow;
+		$current_revision = self::get_current_revision_id();
+		echo '<div class="notice notice-error is-dismissible"><p>';
+		echo wp_kses(
+			sprintf(
+				// translators: 1 and 2 are the opening and closing <a> tag with the link to restore revisions.
+				esc_html__(
+					'Revisions marked as relevant were deleted from the database. %1$sRestore relevant revisions.%2$s',
+					'newspack'
+				),
+				sprintf(
+					'<a href="%s">',
+					wp_nonce_url(
+						admin_url( 'revision.php?revision=' . $current_revision . '&action=restore_backup' ),
+						'newspack_restore_revisions'
+					)
+				),
+				'</a>'
+			),
+			[
+				'a' => [ 'href' => [] ],
+			]
+		);
+		echo '</p></div>';
+	}
+
+	/**
+	 * Checks if all relevant revisions of the current post still exist
+	 *
+	 * @param string|int $revision_id The revision ID.
+	 * @return bool
+	 */
+	public static function check_revision_backup_integrity( $revision_id ) {
+		$revision_post = get_post( $revision_id );
+		if ( ! $revision_post ) {
+			// If we can't perform the check, return as success.
+			return true;
+		}
+		$revision           = new Relevant_Revision( $revision_post->post_parent, $revision_id );
+		$relevant_revisions = $revision->get_post_revisions();
+		foreach ( $relevant_revisions as $relevant_r_id ) {
+			if ( ! get_post( $relevant_r_id ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if all relevant revisions of the current post still exist
+	 *
+	 * @param string|int $revision_id The revision ID.
+	 * @param bool       $redirect Redirect the user back to the revisions page.
+	 * @return void
+	 */
+	public static function restore_backup( $revision_id, $redirect = true ) {
+		$revision_post = get_post( $revision_id );
+		if ( $revision_post ) {
+			$revision           = new Relevant_Revision( $revision_post->post_parent, $revision_id );
+			$relevant_revisions = $revision->get_post_revisions();
+			foreach ( $relevant_revisions as $relevant_r_id ) {
+				if ( ! get_post( $relevant_r_id ) ) {
+					$revision_check = new Relevant_Revision( $revision_post->post_parent, $relevant_r_id );
+					$revision_check->restore_backup();
+				}
+			}
+		}
+		if ( $redirect ) {
+			wp_safe_redirect( admin_url( 'revision.php?revision=' . $revision_id ) );
+			exit;
+		}
 	}
 
 	/**
@@ -75,8 +182,6 @@ class Relevant_Revisions {
 			]
 		);
 	}
-
-
 
 	/**
 	 * Filters the revision object used in the Backbone JS app
@@ -112,6 +217,33 @@ class Relevant_Revisions {
 
 		echo wp_json_encode( [ 'relevant' => $current_state ] );
 		die;
+	}
+
+	/**
+	 * Registers the post type used to store backups of relevant revisions
+	 *
+	 * @return void
+	 */
+	public static function register_post_type() {
+		$args = array(
+			'label'               => 'Newspack revisions backups',
+			'description'         => 'Post type used to store backups of relevant revisions',
+			'supports'            => false,
+			'taxonomies'          => array(),
+			'hierarchical'        => true,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => false,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'capability_type'     => 'post',
+			'show_in_rest'        => false,
+		);
+		register_post_type( self::BKP_POST_TYPE, $args );
 	}
 
 }
