@@ -37,6 +37,12 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Gets a ReflecionMethod from one of our private methods so we can test them
+	 *
+	 * @param string $method_name The name of the private method.
+	 * @return ReflectionMethod
+	 */
 	public function get_private_method( $method_name ) {
 		$class  = new ReflectionClass( 'Newspack\Revisions_Control' );
 		$method = $class->getMethod( $method_name );
