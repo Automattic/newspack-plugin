@@ -271,6 +271,7 @@ class Stripe_Sync {
 						'items'                => $new_subscription_items,
 						'payment_behavior'     => 'allow_incomplete',
 						'billing_cycle_anchor' => $existing_subscription->current_period_end,
+						'trial_end'            => $existing_subscription->current_period_end,
 						'metadata'             => [
 							'subscription_migrated_to_newspack' => gmdate( 'c' ),
 						],
