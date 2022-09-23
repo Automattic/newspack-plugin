@@ -3,11 +3,16 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-registration {
+	font-size: inherit;
+
 	form {
+		padding-top: 0;
+
 		input[type='email'] {
 			background: #fff;
 			border: solid 1px #ccc;
 			box-sizing: border-box;
+			font-size: inherit;
 			outline: none;
 			padding: 0.36rem 0.66rem;
 			-webkit-appearance: none;
@@ -67,6 +72,40 @@
 			gap: 4px;
 		}
 	}
+	& &__header {
+		font-size: 0.8em;
+
+		h2 {
+			font-size: 1rem;
+			line-height: 1.3333333333;
+
+			@media screen and ( min-width: 600px ) {
+				font-size: 1.3125em;
+				line-height: 1.523809;
+			}
+		}
+
+		p {
+			font-size: 1em;
+		}
+	}
+	&__help-text {
+		margin-top: 1em;
+
+		p {
+			font-size: 0.55em !important;
+			margin: 0;
+		}
+	}
+	&__response {
+		display: none;
+	}
+	&__icon {
+		+ .block-editor-block-list__layout p,
+		+ .block-editor-rich-text__editable {
+			font-size: 0.8em;
+		}
+	}
 }
 
 .newspack-reader {
@@ -89,6 +128,29 @@
 
 		.block-list-appender {
 			position: relative;
+		}
+	}
+
+	.newspack-registration {
+		div {
+			a {
+				color: inherit;
+				cursor: pointer;
+				text-decoration: underline;
+
+				&:active,
+				&:focus,
+				&:hover {
+					color: inherit;
+					text-decoration: none;
+				}
+			}
+		}
+
+		form {
+			> p {
+				font-size: 0.8em;
+			}
 		}
 	}
 }

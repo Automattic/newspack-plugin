@@ -38,13 +38,9 @@ function domReady( callback ) {
 
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'input[type="submit"]' );
-			let successElement = container.querySelector( '.newspack-registration__success' );
-
-			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
-				if ( authenticated ) {
-					form.style.display = 'none';
-				}
-			} );
+			let successElement = container.querySelector(
+				'.newspack-registration__registration-success'
+			);
 
 			form.startLoginFlow = () => {
 				messageElement.classList.add( 'newspack-registration--hidden' );
@@ -57,7 +53,7 @@ function domReady( callback ) {
 				let messageNode;
 
 				if ( data?.existing_user ) {
-					successElement = document.querySelector( '.newspack-login__success' );
+					successElement = container.querySelector( '.newspack-registration__login-success' );
 				}
 
 				if ( message ) {
@@ -91,26 +87,57 @@ function domReady( callback ) {
 
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				const body = new FormData( form );
-				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-					return;
-				}
 				form.startLoginFlow();
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						res
-							.json()
-							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+
+				if ( ! form.npe?.value ) {
+					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
+				}
+
+				readerActivation
+					.getCaptchaToken()
+					.then( captchaToken => {
+						if ( ! captchaToken ) {
+							return;
+						}
+						let tokenField = form.captcha_token;
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'captcha_token' );
+							form.appendChild( tokenField );
+						}
+						tokenField.value = captchaToken;
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( form );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return form.endFlow( 'Please enter a vaild email address.', 400 );
+						}
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( res => {
+								res
+									.json()
+									.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+							} )
+							.catch( e => {
+								form.endLoginFlow( e, 400 );
+							} );
 					} );
+			} );
+
+			readerActivation.on( 'reader', ( { detail: { authenticated } } ) => {
+				if ( authenticated ) {
+					form.endLoginFlow( null, 200 );
+				}
 			} );
 		} );
 	} );
