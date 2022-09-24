@@ -19,42 +19,20 @@ const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );
 };
 
-export const handleGoogleRedirect = ( { setError } ) => {
-	const params = getURLParams();
-	if ( params.access_token ) {
-		return apiFetch( {
-			path: '/newspack/v1/oauth/google/finish',
-			method: 'POST',
-			data: {
-				access_token: params.access_token,
-				refresh_token: params.refresh_token,
-				csrf_token: params.csrf_token,
-				expires_at: params.expires_at,
-			},
-		} )
-			.then( () => {
-				params.access_token = undefined;
-				params.refresh_token = undefined;
-				params.csrf_token = undefined;
-				params.expires_at = undefined;
-				window.location.search = qs.stringify( params );
-			} )
-			.catch( e => {
-				setError(
-					e.message || __( 'Something went wrong during authentication with Google.', 'newspack' )
-				);
-			} );
-	}
-	return Promise.resolve();
-};
-
-const GoogleOAuth = ( { setError } ) => {
+const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
 
 	const [ inFlight, setInFlight ] = useState( false );
-	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
+	const [ localError, setLocalError ] = useState( null );
+	const handleError = res => {
+		const message = res.message || __( 'Something went wrong.', 'newspack' );
+		setLocalError( message );
+		if ( typeof setError === 'function' ) {
+			setError( message );
+		}
+	};
 
 	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
@@ -77,25 +55,64 @@ const GoogleOAuth = ( { setError } ) => {
 		}
 	}, [ isConnected ] );
 
-	useEffect( () => {
+	const getCurrentAuth = () => {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
+			let error = null;
 			setInFlight( true );
 			apiFetch( { path: '/newspack/v1/oauth/google' } )
-				.then( setAuthState )
-				.catch( handleError )
-				.finally( () => setInFlight( false ) );
+				.then( data => {
+					setAuthState( data );
+					setError();
+					setLocalError();
+					if ( data?.user_basic_info && typeof onSuccess === 'function' ) {
+						onSuccess( data );
+					}
+				} )
+				.catch( err => {
+					error = err;
+					handleError( err );
+				} )
+				.finally( () => {
+					setInFlight( false );
+					if ( typeof onInit === 'function' ) {
+						onInit( error );
+					}
+				} );
 		}
-	}, [] );
+	};
 
-	// Redirect user to Google auth screen.
-	const goToAuthPage = () => {
+	useEffect( getCurrentAuth, [] );
+
+	const openAuth = () => {
+		const authWindow = window.open(
+			'about:blank',
+			'newspack_google_oauth',
+			'width=500,height=600'
+		);
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/oauth/google/start',
 		} )
-			.then( url => ( window.location = url ) )
-			.catch( handleError );
+			.then( url => {
+				/** authWindow can be 'null' due to browser's popup blocker. */
+				if ( authWindow ) {
+					authWindow.location = url;
+					const interval = setInterval( () => {
+						if ( authWindow?.closed ) {
+							clearInterval( interval );
+							getCurrentAuth();
+						}
+					}, 500 );
+				}
+			} )
+			.catch( err => {
+				if ( authWindow ) {
+					authWindow.close();
+				}
+				handleError( err );
+				setInFlight( false );
+			} );
 	};
 
 	// Redirect user to Google auth screen.
@@ -107,12 +124,17 @@ const GoogleOAuth = ( { setError } ) => {
 		} )
 			.then( () => {
 				setAuthState( {} );
-				setInFlight( false );
+				setError();
+				setLocalError();
 			} )
-			.catch( handleError );
+			.catch( handleError )
+			.finally( () => setInFlight( false ) );
 	};
 
 	const getDescription = () => {
+		if ( localError ) {
+			return localError;
+		}
 		if ( inFlight ) {
 			return __( 'Loading…', 'newspack' );
 		}
@@ -125,6 +147,7 @@ const GoogleOAuth = ( { setError } ) => {
 		}
 		return __( 'Not connected', 'newspack' );
 	};
+
 	return (
 		<ActionCard
 			title={ __( 'Google', 'newspack' ) }
@@ -134,7 +157,7 @@ const GoogleOAuth = ( { setError } ) => {
 				<Button
 					isLink
 					isDestructive={ isConnected }
-					onClick={ isConnected ? disconnect : goToAuthPage }
+					onClick={ isConnected ? disconnect : openAuth }
 					disabled={ inFlight }
 				>
 					{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }

@@ -68,7 +68,6 @@ const Emails = () => {
 									),
 									notificationLevel: 'error',
 							  } ) }
-						secondaryActionText={ __( 'Send a test email', 'newspack' ) }
 					/>
 				);
 			} ) }

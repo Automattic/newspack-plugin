@@ -29,18 +29,11 @@ class Analytics {
 	public static $block_render_context = 3;
 
 	/**
-	 * Config for the injected amp-analytics tag.
-	 *
-	 * @var array
-	 */
-	public static $amp_analytics_config_base = [];
-
-	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		add_filter( 'googlesitekit_amp_gtag_opt', [ __CLASS__, 'read_amp_analytics_config' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ], 99 ); // This has to be run after the filter above steals the analytics config.
+		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'set_extra_analytics_config_options' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ] );
 
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'handle_custom_dimensions_reporting' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
@@ -53,6 +46,10 @@ class Analytics {
 		add_action( 'woocommerce_login_form_end', [ __CLASS__, 'prepare_login_events' ] );
 		add_action( 'woocommerce_register_form_end', [ __CLASS__, 'prepare_registration_events' ] );
 		add_action( 'woocommerce_after_checkout_registration_form', [ __CLASS__, 'prepare_checkout_registration_events' ] );
+
+		// Reader Activation hooks.
+		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
+		add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'newspack_newsletters_add_contact' ], 10, 4 );
 	}
 
 	/**
@@ -445,19 +442,27 @@ class Analytics {
 	}
 
 	/**
-	 * Read the amp-analytics config that Site Kit will insert on the page.
-	 * Site Kit will place its amp-analytics tag on the page, and this
-	 * plugin will place other amp-analytics tags.
+	 * Filter the Google Analytics config options via Site Kit.
+	 * Allows us to update or set additional config options for GA.
 	 *
-	 * @param array $config AMP Analytics config from Site Kit.
-	 * @return array Modified $config.
+	 * @param array $gtag_opt gtag config options.
+	 *
+	 * @return array Filtered config options.
 	 */
-	public static function read_amp_analytics_config( $config ) {
-		if ( is_user_logged_in() ) {
-			$config['vars']['user_id'] = get_current_user_id();
+	public static function set_extra_analytics_config_options( $gtag_opt ) {
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+			return $gtag_opt;
 		}
-		self::$amp_analytics_config_base = $config;
-		return $config;
+
+		if ( ! self::can_use_site_kits_analytics() ) {
+			return $gtag_opt;
+		}
+
+		// Set transport type to 'beacon' to allow async requests to complete after a new page is loaded.
+		// See: https://developers.google.com/analytics/devguides/collection/gtagjs/sending-data#specify_different_transport_mechanisms.
+		$gtag_opt['transport_type'] = 'beacon';
+
+		return $gtag_opt;
 	}
 
 	/**
@@ -467,10 +472,36 @@ class Analytics {
 	 * More: https://github.com/ampproject/amphtml/issues/32911.
 	 */
 	public static function insert_gtag_amp_analytics() {
-		$config = self::$amp_analytics_config_base;
-		if ( empty( $config ) ) {
-			// Apparently not a page-rendering request - the Site Kit filter (googlesitekit_amp_gtag_opt) was not executed.
+		$analytics = Google_Services_Connection::get_site_kit_analytics_module();
+		if ( ! $analytics || ! $analytics->is_connected() ) {
 			return;
+		}
+		$analytics_settings = $analytics->get_settings()->get();
+		if ( ! isset( $analytics_settings['propertyID'] ) ) {
+			return;
+		}
+		$tracking_id = $analytics_settings['propertyID'];
+
+		// Config for amp-analytics.
+		$config = [
+			'optoutElementId' => '__gaOptOutExtension',
+			'vars'            => [
+				'gtag_id' => $tracking_id,
+				'config'  => [
+					$tracking_id => [
+						'groups' => 'default',
+						'linker' => [
+							'domains' => [ wp_parse_url( home_url(), PHP_URL_HOST ) ],
+						],
+					],
+				],
+			],
+		];
+
+		// The Google Analytics User ID is used to associate multiple user sessions and activities with a unique ID.
+		// See https://support.google.com/tagmanager/answer/4565987.
+		if ( is_user_logged_in() ) {
+			$config['vars']['user_id'] = get_current_user_id();
 		}
 
 		// Gather all custom events.
@@ -695,16 +726,41 @@ class Analytics {
 				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
 
 				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'submit', function() {
+					elements[i].addEventListener( 'submit', function(e) {
+						var eventInfo = {
+								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>'
+						};
+						<?php if ( isset( $event['event_label'] ) ) : ?>
+							var form = e.currentTarget;
+							var eventLabel = '<?php echo isset( $event['event_label'] ) ? esc_attr( $event['event_label'] ) : ''; ?>';
+							<?php if ( preg_match( '/(\${formId}|\${formFields\[(.*?)\]})/', $event['event_label'] ) ) : ?>
+								eventLabel = eventLabel.replace( '${formId}', form.id );
+								var fields = eventLabel.match( /\${formFields\[(.*?)\]}/g )
+								fields.forEach( function( field ) {
+									var fieldName = field.match( /\${formFields\[(.*?)\]}/ )[1];
+									if ( form[ fieldName ] ) {
+										var fieldValues = [];
+										if ( form[ fieldName ].length ) {
+											for ( var j = 0; j < form[ fieldName ].length; j++ ) {
+												if ( form[ fieldName ][ j ].checked ) {
+													fieldValues.push( form[ fieldName ][ j ].value );
+												}
+											}
+										} else {
+											fieldValues.push( form[ fieldName ].value );
+										}
+
+										eventLabel = eventLabel.replace( field, fieldValues.join( ',' ) );
+									}
+								} );
+							<?php endif; ?>
+							eventInfo.event_label = eventLabel;
+						<?php endif; ?>
+
 						gtag(
 							'event',
 							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								<?php if ( isset( $event['event_label'] ) ) : ?>
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-								<?php endif; ?>
-							}
+							eventInfo
 						);
 					} );
 				}
@@ -837,6 +893,97 @@ class Analytics {
 			} )();
 		</script>
 		<?php
+	}
+
+	/**
+	 * When a new reader registers, sent an event to GA.
+	 *
+	 * @param string         $email         Email address.
+	 * @param bool           $authenticate  Whether to authenticate after registering.
+	 * @param false|int      $user_id       The created user id.
+	 * @param false|\WP_User $existing_user The existing user object.
+	 * @param array          $metadata      Metadata.
+	 */
+	public static function newspack_registered_reader( $email, $authenticate, $user_id, $existing_user, $metadata ) {
+		if ( $existing_user ) {
+			return;
+		}
+		$event_spec = [
+			'category' => __( 'Newspack Reader Activation', 'newspack' ),
+			'action'   => __( 'Registration', 'newspack' ),
+		];
+
+		if ( isset( $metadata['registration_method'] ) ) {
+			$event_spec['action'] .= ' (' . $metadata['registration_method'] . ')';
+		}
+
+		if ( isset( $metadata['lists'] ) ) {
+			$event_spec['label'] = __( 'Signed up for lists:', 'newspack' ) . ' ' . implode( ', ', $metadata['lists'] );
+		}
+
+		if ( isset( $metadata['current_page_url'] ) ) {
+			$parsed_url = \wp_parse_url( $metadata['current_page_url'] );
+			if ( $parsed_url ) {
+				if ( isset( $parsed_url['host'] ) ) {
+					$event_spec['host'] = $parsed_url['host'];
+				}
+				if ( isset( $parsed_url['path'] ) ) {
+					$event_spec['path'] = $parsed_url['path'];
+				}
+			}
+		}
+
+		\Newspack\Google_Services_Connection::send_custom_event( $event_spec );
+
+		if ( Analytics_Wizard::ntg_events_enabled() ) {
+			\Newspack\Google_Services_Connection::send_custom_event(
+				[
+					'category' => __( 'NTG account', 'newspack' ),
+					'action'   => __( 'registration', 'newspack' ),
+					'label'    => 'success',
+				]
+			);
+		}
+	}
+
+	/**
+	 * When a reader signs up for the newsletter, send an event to GA.
+	 *
+	 * @param string         $provider The provider name.
+	 * @param array          $contact  {
+	 *    Contact information.
+	 *
+	 *    @type string   $email                 Contact email address.
+	 *    @type string   $name                  Contact name. Optional.
+	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
+	 *    @type string[] $metadata              Contact additional metadata. Optional.
+	 * }
+	 * @param string[]|false $lists    Array of list IDs to subscribe the contact to.
+	 * @param bool|WP_Error  $result   True if the contact was added or error if failed.
+	 */
+	public static function newspack_newsletters_add_contact( $provider, $contact, $lists, $result ) {
+		if (
+			! Analytics_Wizard::ntg_events_enabled()
+			|| ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_data' )
+			// Don't send events for updates to a contact.
+			|| $contact['existing_contact_data']
+		) {
+			return;
+		}
+
+		// If the user is only being subscribed to the master list, they did not sign up for the newsletter explicitly.
+		$lists = Newspack_Newsletters::get_lists_without_active_campaign_master_list( $lists );
+		if ( empty( $lists ) ) {
+			return;
+		}
+
+		\Newspack\Google_Services_Connection::send_custom_event(
+			[
+				'category' => __( 'NTG newsletter', 'newspack' ),
+				'action'   => __( 'newsletter signup', 'newspack' ),
+				'label'    => 'success',
+			]
+		);
 	}
 }
 new Analytics();

@@ -14,12 +14,12 @@ import './style.scss';
 import classnames from 'classnames';
 
 const SectionHeader = ( {
-	centered,
-	className,
+	centered = false,
+	className = null,
 	description,
-	heading,
-	isWhite,
-	noMargin,
+	heading = 2,
+	isWhite = false,
+	noMargin = false,
 	title,
 } ) => {
 	const classes = classnames(
@@ -40,10 +40,6 @@ const SectionHeader = ( {
 			{ typeof description === 'function' && <p>{ description() }</p> }
 		</Grid>
 	);
-};
-
-SectionHeader.defaultProps = {
-	heading: 2,
 };
 
 export default SectionHeader;

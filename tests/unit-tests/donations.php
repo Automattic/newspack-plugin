@@ -16,7 +16,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 	/**
 	 * Settings.
 	 */
-	public function test_donations_settings() {
+	public function test_donations_settings_wc() {
 		$donation_settings = Donations::get_donation_settings();
 		self::assertTrue(
 			is_wp_error( $donation_settings ),
@@ -26,6 +26,50 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 			'wc',
 			Donations::get_platform_slug(),
 			'WC is the default donations platform.'
+		);
+	}
+
+	/**
+	 * Settings shape.
+	 */
+	public function test_donations_settings() {
+		Donations::set_platform_slug( 'stripe' );
+		$donation_settings = Donations::get_donation_settings();
+		self::assertEquals(
+			[
+				'amounts',
+				'tiered',
+				'disabledFrequencies',
+				'platform',
+				'minimumDonation',
+				'currencySymbol',
+			],
+			array_keys( $donation_settings ),
+			'Donation settings have the expected keys.'
+		);
+	}
+
+	/**
+	 * Settings shape.
+	 */
+	public function test_donations_settings_migration() {
+		Donations::set_platform_slug( 'stripe' );
+		update_option(
+			Donations::DONATION_SETTINGS_OPTION,
+			[
+				'suggestedAmounts'        => [ 1, 2, 3 ],
+				'suggestedAmountUntiered' => 4,
+			]
+		);
+		$donation_settings = Donations::get_donation_settings();
+		self::assertEquals(
+			[
+				'once'  => [ 12, 24, 36, 48 ],
+				'month' => [ 1, 2, 3, 4 ],
+				'year'  => [ 12, 24, 36, 48 ],
+			],
+			$donation_settings['amounts'],
+			'Donation settings are migrated.'
 		);
 	}
 

@@ -41,24 +41,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get the description of this wizard.
-	 *
-	 * @return string The wizard description.
-	 */
-	public function get_description() {
-		return \esc_html__( 'Generate revenue from your customers.', 'newspack' );
-	}
-
-	/**
-	 * Get the duration of this wizard.
-	 *
-	 * @return string A description of the expected duration (e.g. '10 minutes').
-	 */
-	public function get_length() {
-		return esc_html__( '10 minutes', 'newspack' );
-	}
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -202,23 +184,19 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_donation_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'image'               => [
-						'sanitize_callback' => 'absint',
-					],
-					'name'                => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'suggestedAmount'     => [
-						'sanitize_callback' => 'wc_format_decimal',
-					],
-					'suggestedAmountLow'  => [
-						'sanitize_callback' => 'wc_format_decimal',
-					],
-					'suggestedAmountHigh' => [
-						'sanitize_callback' => 'wc_format_decimal',
+					'amounts'             => [
+						'required' => false,
 					],
 					'tiered'              => [
+						'required'          => false,
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'disabledFrequencies' => [
+						'required' => false,
+					],
+					'platform'            => [
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
@@ -251,7 +229,7 @@ class Reader_Revenue_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/newspack-donations-wizard/donation/',
+			'/wizard/' . $this->slug . '/donations/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_donation_settings' ],
@@ -288,6 +266,12 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 			update_option( NEWSPACK_NRH_CONFIG, $nrh_config );
 		}
+
+		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
+		if ( Donations::is_platform_wc() ) {
+			Donations::update_donation_product( Donations::get_donation_settings() );
+		}
+
 		return \rest_ensure_response( $this->fetch_all_data() );
 	}
 
@@ -443,6 +427,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				'platform' => $platform,
 			],
 			'is_ssl'               => is_ssl(),
+			'errors'               => [],
 		];
 		if ( 'wc' === $platform && $wc_installed ) {
 			$plugin_status    = true;
@@ -472,7 +457,13 @@ class Reader_Revenue_Wizard extends Wizard {
 			$nrh_config            = get_option( NEWSPACK_NRH_CONFIG, [] );
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
 		} elseif ( Donations::is_platform_stripe() ) {
-			$args['stripe_data']['webhooks']         = Stripe_Connection::list_webhooks();
+			$are_webhooks_valid = Stripe_Connection::validate_or_create_webhooks();
+			if ( is_wp_error( $are_webhooks_valid ) ) {
+				$args['errors'][] = [
+					'code'    => $are_webhooks_valid->get_error_code(),
+					'message' => $are_webhooks_valid->get_error_message(),
+				];
+			}
 			$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
 		}
 		return $args;
@@ -534,7 +525,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack-reader-revenue-wizard',
 			'newspack_reader_revenue',
 			[
-				'emails'                  => Reader_Revenue_Emails::get_emails(),
+				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 			]
 		);

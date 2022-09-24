@@ -92,15 +92,15 @@ export const placementsForPopups = prompt => {
 };
 
 const frequencyMap = {
-	once: __( 'Once', 'newspack' ),
+	once: __( 'Once a month', 'newspack' ),
+	weekly: __( 'Once a week', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every page view', 'newspack' ),
+	always: __( 'Every pageview', 'newspack' ),
+	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack' ),
 };
 
-export const frequenciesForPopup = popup => {
-	return Object.keys( frequencyMap )
-		.filter( key => ! ( 'always' === key && isOverlay( popup ) ) )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+export const frequenciesForPopup = () => {
+	return Object.keys( frequencyMap ).map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
 export const overlaySizesForPopups = () => {
@@ -173,6 +173,7 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		favorite_categories = [],
 		is_donor = false,
 		is_not_donor = false,
+		is_former_donor = false,
 		is_not_subscribed = false,
 		is_subscribed = false,
 		is_logged_in = false,
@@ -215,6 +216,9 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	if ( is_not_donor ) {
 		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
 	}
+	if ( is_former_donor ) {
+		descriptionMessages.push( __( 'Has cancelled a recurring donation', 'newspack' ) );
+	}
 	if ( is_subscribed ) {
 		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
 	}
@@ -222,10 +226,10 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
 	}
 	if ( is_logged_in ) {
-		descriptionMessages.push( __( 'Is logged in', 'newspack' ) );
+		descriptionMessages.push( __( 'Has user account', 'newspack' ) );
 	}
 	if ( is_not_logged_in ) {
-		descriptionMessages.push( __( 'Is not logged in', 'newspack' ) );
+		descriptionMessages.push( __( 'Does not have user account', 'newspack' ) );
 	}
 
 	// Messages for referrer sources.

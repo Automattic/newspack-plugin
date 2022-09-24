@@ -2,6 +2,7 @@
  **** WARNING: No ES6 modules here. Not transpiled! ****
  */
 /* eslint-disable import/no-nodejs-modules */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 /**
  * External dependencies
@@ -43,7 +44,20 @@ otherScripts.forEach( function ( script ) {
 const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
-		entry: wizardsScriptFiles,
+		entry: {
+			...wizardsScriptFiles,
+			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
+			'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
+			'reader-auth': path.join( __dirname, 'assets', 'reader-activation', 'auth.js' ),
+			'reader-registration-block': path.join(
+				__dirname,
+				'assets',
+				'blocks',
+				'reader-registration',
+				'view.js'
+			),
+			'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
+		},
 	}
 );
 

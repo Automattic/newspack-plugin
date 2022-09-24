@@ -2,22 +2,14 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
 import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-
-/**
- * External dependencies
- */
-import { values } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import {
 	Button,
-	Card,
 	Grid,
 	Notice,
 	Settings,
@@ -113,17 +105,8 @@ const StripeSetup = () => {
 		is_ssl,
 		currency_fields = [],
 		country_state_fields = [],
+		errors = [],
 	} = Wizard.useWizardData( 'reader-revenue' );
-
-	const [ isLoading, setIsLoading ] = useState( false );
-	const createWebhooks = () => {
-		setIsLoading( true );
-		apiFetch( {
-			path: '/newspack/v1/stripe/create-webhooks',
-		} ).then( () => {
-			window.location.reload();
-		} );
-	};
 
 	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
 
@@ -145,6 +128,10 @@ const StripeSetup = () => {
 
 	return (
 		<>
+			{ errors.length > 0 &&
+				errors.map( ( error, index ) => (
+					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
+				) ) }
 			{ is_ssl === false && (
 				<Notice
 					isWarning
@@ -229,41 +216,6 @@ const StripeSetup = () => {
 								onChange={ changeHandler( 'fee_static' ) }
 							/>
 						</Grid>
-					</SettingsCard>
-					<SettingsCard
-						title={ __( 'Webhooks', 'newspack' ) }
-						description={ __(
-							'These need to be configured to allow Stripe to communicate with the site.',
-							'newspack'
-						) }
-						columns={ 1 }
-						gutter={ 16 }
-						noBorder
-					>
-						<>
-							{ data.webhooks?.errors ? (
-								<Notice isError noticeText={ values( data.webhooks?.errors ).join( ', ' ) } />
-							) : (
-								<>
-									{ data.webhooks.length ? (
-										<ul>
-											{ data.webhooks.map( ( webhook, i ) => (
-												<li key={ i }>
-													- <code>{ webhook.url }</code>
-												</li>
-											) ) }
-										</ul>
-									) : (
-										<Notice isInfo noticeText={ __( 'No webhooks defined.', 'newspack' ) } />
-									) }
-									<Card noBorder buttonsCard>
-										<Button isLink disabled={ isLoading } onClick={ createWebhooks } isSecondary>
-											{ __( 'Create Webhooks', 'newspack' ) }
-										</Button>
-									</Card>
-								</>
-							) }
-						</>
 					</SettingsCard>
 				</>
 			) : (
