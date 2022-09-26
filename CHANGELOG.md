@@ -1,3 +1,22 @@
+# [1.92.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.92.0-alpha.3...v1.92.0-alpha.4) (2022-09-26)
+
+
+### Bug Fixes
+
+* **reader-activation-auth:** header link color ([6e85ada](https://github.com/Automattic/newspack-plugin/commit/6e85adafa814e0149062e589d24969467d5b53db))
+* **stripe:** handle error if customer LTV is not retrievable ([2f9f4a4](https://github.com/Automattic/newspack-plugin/commit/2f9f4a44e45c80eb01a326baaa78be866e9b55ab))
+* **stripe:** validate webhook existence on donation ([#2026](https://github.com/Automattic/newspack-plugin/issues/2026)) ([c505fbc](https://github.com/Automattic/newspack-plugin/commit/c505fbcc19a98f73e55fbbd421f343e12ac3dd7f))
+* **wc-to-ac-metadata:** add last payment date field for one-time donors ([0106915](https://github.com/Automattic/newspack-plugin/commit/01069153abfd24dc61f01e82aa43dd6ceb6a5d93))
+
+
+### Features
+
+* enable limit post revisions kept in the database ([#2030](https://github.com/Automattic/newspack-plugin/issues/2030)) ([44680c5](https://github.com/Automattic/newspack-plugin/commit/44680c5c8b43a85de44e8d70d7ffce6a2ef69528))
+* **plugins-screen:** display a plugin review form, if URL supplied ([#2005](https://github.com/Automattic/newspack-plugin/issues/2005)) ([77d3aa0](https://github.com/Automattic/newspack-plugin/commit/77d3aa06054627bd5d6d1d6f2385be6746f02beb))
+* stripe-to-stripe migrator ([a82f326](https://github.com/Automattic/newspack-plugin/commit/a82f326b98bab5b08581dfd347505f7f42f237aa))
+* sync from Stripe to ESP CLI tool ([#1984](https://github.com/Automattic/newspack-plugin/issues/1984)) ([c10fbc7](https://github.com/Automattic/newspack-plugin/commit/c10fbc7c8d17d11dfbffe1a36dc1e4cfa5e6332c))
+* **woocommerce:** handle metadata when creating a membership ([af75438](https://github.com/Automattic/newspack-plugin/commit/af75438dca6305b77d2d034f67199c5ead34dbce))
+
 # [1.92.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.92.0-alpha.2...v1.92.0-alpha.3) (2022-09-23)
 
 
