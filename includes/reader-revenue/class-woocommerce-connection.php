@@ -137,7 +137,7 @@ class WooCommerce_Connection {
 		];
 
 		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
-		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( 'Y-m-d' );
+		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 		$metadata[ $metadata_keys['payment_page'] ]      = \wc_get_checkout_url();
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
@@ -152,6 +152,7 @@ class WooCommerce_Connection {
 				$metadata[ $metadata_keys['product_name'] ] = reset( $order_items )->get_name();
 			}
 			$metadata[ $metadata_keys['last_payment_amount'] ] = $order->get_total();
+			$metadata[ $metadata_keys['last_payment_date'] ]   = $order->get_date_paid()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 
 			// Subscription donation.
 		} else {
@@ -180,7 +181,7 @@ class WooCommerce_Connection {
 			$metadata[ $metadata_keys['sub_end_date'] ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
 			$metadata[ $metadata_keys['billing_cycle'] ]       = $current_subscription->get_billing_period();
 			$metadata[ $metadata_keys['recurring_payment'] ]   = $current_subscription->get_total();
-			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( 'Y-m-d' );
+			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			$metadata[ $metadata_keys['last_payment_amount'] ] = $current_subscription->get_total();
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
@@ -217,8 +218,9 @@ class WooCommerce_Connection {
 	 * @param string $email_address Email address.
 	 * @param string $full_name Full name.
 	 * @param string $frequency Donation frequency.
+	 * @param array  $metadata Donor metadata.
 	 */
-	public static function set_up_membership( $email_address, $full_name, $frequency ) {
+	public static function set_up_membership( $email_address, $full_name, $frequency, $metadata = [] ) {
 		if ( ! class_exists( 'WC_Memberships_Membership_Plans' ) ) {
 			return;
 		}
@@ -236,7 +238,7 @@ class WooCommerce_Connection {
 		}
 		if ( $should_create_account ) {
 			if ( Reader_Activation::is_enabled() ) {
-				$metadata = [ 'registration_method' => 'woocommerce-memberships' ];
+				$metadata = array_merge( $metadata, [ 'registration_method' => 'woocommerce-memberships' ] );
 				$user_id  = Reader_Activation::register_reader( $email_address, $full_name, true, $metadata );
 				return $user_id;
 			}
