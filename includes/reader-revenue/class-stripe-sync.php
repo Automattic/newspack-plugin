@@ -235,6 +235,142 @@ class Stripe_Sync {
 	}
 
 	/**
+	 * CLI command for migrating Stripe Subscriptions from Stripe Connect to a regular Stripe account.
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
+	 */
+	public static function sync_stripe_connect_to_stripe( $args, $assoc_args ) {
+		$is_dry_run     = ! empty( $assoc_args['dry-run'] );
+		$force_override = ! empty( $assoc_args['force'] );
+		$batch_size     = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 10;
+
+		$customers = self::get_batch_of_customers_for_stripe_connect_to_stripe( $batch_size );
+		while ( $customers ) {
+			$customer = array_shift( $customers );
+
+			self::process_customer_for_stripe_connect_to_stripe(
+				$customer,
+				[
+					'dry_run'                     => $is_dry_run,
+					'force_subscription_override' => $force_override,
+				]
+			);
+
+			// Get the next batch.
+			if ( empty( $customers ) ) {
+				$customers = self::get_batch_of_customers_for_stripe_connect_to_stripe( $batch_size, $customer->id );
+			}
+		}
+
+		\WP_CLI::success( 'Finished processing.' );
+	}
+
+	/**
+	 * Get a batch of customers for the Stripe-Connect-to-Stripe CLI tool.
+	 *
+	 * @param int    $limit Number of customers to fetch.
+	 * @param string $last_customer_id Stripe ID of customer to get results after, essentially the offset.
+	 * @return array Array of Stripe customers.
+	 */
+	protected static function get_batch_of_customers_for_stripe_connect_to_stripe( $limit, $last_customer_id = false ) {
+		$stripe = Stripe_Connection::get_stripe_client();
+		try {
+			$params = [
+				'limit'  => $limit,
+				'expand' => [
+					'data.subscriptions',
+				],
+			];
+
+			if ( $last_customer_id ) {
+				$params['starting_after'] = $last_customer_id;
+			}
+
+			return $stripe->customers->all( $params )['data'];
+		} catch ( \Throwable $e ) {
+			\WP_CLI::error( sprintf( 'Could not process all customers: %s', $e->getMessage() ) );
+		}
+	}
+
+	/**
+	 * Process one customer's Stripe subscriptions and migrate them to Newspack Stripe subscriptions.
+	 *
+	 * @param Stripe_Customer $customer Stripe customer object.
+	 * @param array           $args Params to control migration behavior.
+	 */
+	protected static function process_customer_for_stripe_connect_to_stripe( $customer, $args ) {
+		$dry_run                     = ! empty( $args['dry_run'] );
+		$force_subscription_override = ! empty( $args['force_subscription_override'] );
+
+		$stripe        = Stripe_Connection::get_stripe_client();
+		$stripe_prices = Stripe_Connection::get_donation_prices();
+
+		\WP_CLI::log( sprintf( 'Processing customer: %s', $customer->email ) );
+		if ( empty( $customer->subscriptions ) || empty( $customer->subscriptions->data ) ) {
+			\WP_CLI::log( '  - No subscriptions found for customer. Skipping. A future version of this tool will handle the case where we want to turn one-time Stripe payments into Stripe subscriptions.' );
+			return;
+		}
+
+		foreach ( $customer->subscriptions['data'] as $existing_subscription ) {
+			\WP_CLI::log( sprintf( '  - Processing subscription: %s', $existing_subscription->id ) );
+
+			// Skip subscription if it's already migrated.
+			if ( ! empty( $existing_subscription->metadata['subscription_migrated_to_newspack'] && ! $force_subscription_override ) ) {
+				\WP_CLI::log( sprintf( '  - Subscription already migrated to Newspack on %s. Skipping.', $existing_subscription->metadata['subscription_migrated_to_newspack'] ) );
+				continue;
+			}
+
+			$new_subscription_items = [];
+
+			foreach ( $existing_subscription->items->data as $existing_subscription_item ) {
+				// Quantity is used here as a fallback because Simplified Donate Block uses quantity * 1 cent to do a variable price subscription.
+				$existing_subscription_item_price = ! empty( $existing_subscription_item->price->unit_amount ) ? $existing_subscription_item->price->unit_amount : $existing_subscription_item->quantity;
+
+				$frequency                = $existing_subscription_item->price->recurring->interval;
+				$new_subscription_items[] = [
+					'price'    => $stripe_prices[ $frequency ]['id'],
+					'quantity' => $existing_subscription_item_price,
+				];
+
+				\WP_CLI::log( sprintf( '    * Found subscription item: $%s/%s', $existing_subscription_item_price / 100, $frequency ) );
+			}
+
+			if ( $dry_run ) {
+				\WP_CLI::log( sprintf( '    * Would have created subscription with next renewal at %s', gmdate( 'Y-m-d', $existing_subscription->current_period_end ) ) );
+				return;
+
+			}
+
+			// Create new subscriptions.
+			try {
+				$subscription = $stripe->subscriptions->create(
+					[
+						'customer'             => $customer->id,
+						'items'                => $new_subscription_items,
+						'payment_behavior'     => 'allow_incomplete',
+						'billing_cycle_anchor' => $existing_subscription->current_period_end,
+						'trial_end'            => $existing_subscription->current_period_end,
+						'metadata'             => [
+							'subscription_migrated_to_newspack' => gmdate( 'c' ),
+						],
+					]
+				);
+				\WP_CLI::log( sprintf( '    * Created subscription: %s with next renewal at %s', $subscription->id, gmdate( 'Y-m-d', $existing_subscription->current_period_end ) ) );
+			} catch ( \Throwable $e ) {
+				\WP_CLI::error( sprintf( 'Failed to create subscription: %s', $e->getMessage() ) );
+			}
+
+			try {
+				$stripe->subscriptions->cancel( $existing_subscription->id );
+				\WP_CLI::log( sprintf( '    * Cancelled old subscription: %s', $existing_subscription->id ) );
+			} catch ( \Throwable $e ) {
+				\WP_CLI::error( sprintf( 'Failed to cancel subscription: %s', $e->getMessage() ) );
+			}
+		}
+	}
+
+	/**
 	 * Add CLI commands.
 	 */
 	public static function wp_cli() {
@@ -301,6 +437,32 @@ class Stripe_Sync {
 			$sync_to_wc,
 			[
 				'shortdesc' => __( 'Backfill WC Customers from Stripe database.', 'newspack' ),
+			]
+		);
+
+		\WP_CLI::add_command(
+			'newspack stripe sync-stripe-connect-to-stripe',
+			[ __CLASS__, 'sync_stripe_connect_to_stripe' ],
+			[
+				'shortdesc' => __( 'Migrate customers from Stripe Connect to Stripe', 'newspack' ),
+				'synopsis'  => [
+					[
+						'type'     => 'flag',
+						'name'     => 'dry-run',
+						'optional' => true,
+					],
+					[
+						'type'     => 'flag',
+						'name'     => 'force',
+						'optional' => true,
+					],
+					[
+						'type'     => 'flag',
+						'name'     => 'batch-size',
+						'default'  => 10,
+						'optional' => true,
+					],
+				],
 			]
 		);
 	}
