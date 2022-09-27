@@ -483,9 +483,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					}
 					otpCodeInput.value = paste;
 					for ( let j = 0; j < length; j++ ) {
-						const digitInput = inputContainer.querySelector( `[data-index="${ j }"]` );
-						digitInput.value = paste[ j ];
-						values[ j ] = paste[ j ];
+						if ( paste[ j ].match( /[0-9]/ ) ) {
+							const digitInput = inputContainer.querySelector( `[data-index="${ j }"]` );
+							digitInput.value = paste[ j ];
+							values[ j ] = paste[ j ];
+						}
 					}
 				} );
 				inputContainer.appendChild( digit );
