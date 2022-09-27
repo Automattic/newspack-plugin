@@ -267,14 +267,14 @@
 			.otp-field {
 				display: flex;
 				gap: 0.4rem;
-				justify-content: space-between;
+				justify-content: center;
 				margin: 0.8rem 0;
 				input[type='text'] {
 					flex: 1 1 100%;
-					font-size: 1.2rem;
-					text-align: center;
 					font-family: monospace;
-					caret-color: transparent;
+					font-size: 1.2rem;
+					max-width: 2.4rem;
+					text-align: center;
 				}
 			}
 			input[name='otp_code'] {
