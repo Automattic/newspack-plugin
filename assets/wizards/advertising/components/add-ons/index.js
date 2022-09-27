@@ -1,3 +1,4 @@
+/* globals newspack_ads_wizard */
 /**
  * Ad Add-ons component
  */
@@ -25,8 +26,9 @@ export default function AddOns() {
 					href: '#/settings',
 				},
 				'publisher-media-kit': {
-					actionText: __( 'Learn more', 'newspack' ),
-					href: '#',
+					shouldRefreshAfterUpdate: true,
+					actionText: __( 'Edit Media Kit', 'newspack' ),
+					href: newspack_ads_wizard.mediakit_edit_url ? newspack_ads_wizard.mediakit_edit_url : '',
 				},
 			} }
 		/>
