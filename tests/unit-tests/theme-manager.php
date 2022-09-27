@@ -14,7 +14,7 @@ class Newspack_Test_Theme_Controller extends WP_UnitTestCase {
 	/**
 	 * Compatibility checks and clean up.
 	 */
-	public function setUp() {
+	public function set_up() {
 		// These tests can't run on environments where we can't install themes e.g. VIP Go.
 		if ( ! Theme_Manager::can_install_themes() ) {
 			$this->markTestSkipped( 'Plugin installation is not allowed in the environment' );

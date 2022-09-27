@@ -23,7 +23,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 	const updateGAMCredentials = credentials => {
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/advertising/credentials',
+			path: '/newspack/v1/wizard/billboard/credentials',
 			method: 'post',
 			data: { credentials, onboarding: true },
 		} )

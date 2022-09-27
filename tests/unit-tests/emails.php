@@ -15,7 +15,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	/**
 	 * Setup.
 	 */
-	public function setUp() {
+	public function set_up() {
 		reset_phpmailer_instance();
 		add_filter(
 			'newspack_email_configs',
@@ -34,7 +34,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	/**
 	 * Teardown.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		reset_phpmailer_instance();
 	}
 
@@ -93,7 +93,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 			$test_email['subject'],
 			'Test email has the expected subject'
 		);
-		self::assertContains(
+		self::assertStringContainsString(
 			'<!doctype html>',
 			$test_email['html_payload'],
 			'Test email has the HTML payload'
@@ -136,12 +136,12 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 			$mailer->get_sent()->subject,
 			'Sent email has the expected subject'
 		);
-		self::assertContains(
+		self::assertStringContainsString(
 			'From: Test Blog <no-reply@example.org>',
 			$mailer->get_sent()->header,
 			'Sent email has the expected "From" header'
 		);
-		self::assertContains(
+		self::assertStringContainsString(
 			$amount,
 			$mailer->get_sent()->body,
 			'Sent email contains the replaced placeholder content'
