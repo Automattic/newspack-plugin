@@ -9,12 +9,12 @@ namespace Newspack;
 
 use WP_Post;
 
-require_once 'class-relevant-revision.php';
+require_once 'class-significant-revision.php';
 
 /**
  * Author Filter class
  */
-class Relevant_Revisions {
+class Significant_Revisions {
 
 	/**
 	 * Flag to make sure hooks are initialized only once
@@ -24,14 +24,14 @@ class Relevant_Revisions {
 	private static $initiated = false;
 
 	/**
-	 * The name of the post meta that stores the relevant revisions IDs
+	 * The name of the post meta that stores the significant revisions IDs
 	 *
 	 * @var string
 	 */
-	const RELEVANT_IDS_META_KEY = '_relevant_revision';
+	const RELEVANT_IDS_META_KEY = '_significant_revision';
 
 	/**
-	 * The slug of the post type used to store backups of relevant revisions
+	 * The slug of the post type used to store backups of significant revisions
 	 *
 	 * @var string
 	 */
@@ -45,7 +45,7 @@ class Relevant_Revisions {
 	public static function init() {
 		if ( ! self::$initiated ) {
 			add_action( 'load-revision.php', array( __CLASS__, 'admin_init' ) );
-			add_action( 'wp_ajax_newspack_toggle_revision_relevant', array( __CLASS__, 'ajax_toggle_relevant' ) );
+			add_action( 'wp_ajax_newspack_toggle_revision_significant', array( __CLASS__, 'ajax_toggle_significant' ) );
 			add_filter( 'wp_prepare_revision_for_js', array( __CLASS__, 'filter_revision_for_js' ), 10, 3 );
 			add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 			self::$initiated = true;
@@ -94,7 +94,7 @@ class Relevant_Revisions {
 			sprintf(
 				// translators: 1 and 2 are the opening and closing <a> tag with the link to restore revisions.
 				esc_html__(
-					'Revisions marked as relevant were deleted from the database. %1$sRestore relevant revisions.%2$s',
+					'Revisions marked as significant were deleted from the database. %1$sRestore significant revisions.%2$s',
 					'newspack'
 				),
 				sprintf(
@@ -114,7 +114,7 @@ class Relevant_Revisions {
 	}
 
 	/**
-	 * Checks if all relevant revisions of the current post still exist
+	 * Checks if all significant revisions of the current post still exist
 	 *
 	 * @param string|int $revision_id The revision ID.
 	 * @return bool
@@ -125,10 +125,10 @@ class Relevant_Revisions {
 			// If we can't perform the check, return as success.
 			return true;
 		}
-		$revision           = new Relevant_Revision( $revision_post->post_parent, $revision_id );
-		$relevant_revisions = $revision->get_post_revisions();
-		foreach ( $relevant_revisions as $relevant_r_id ) {
-			if ( ! get_post( $relevant_r_id ) ) {
+		$revision              = new Significant_Revision( $revision_post->post_parent, $revision_id );
+		$significant_revisions = $revision->get_post_revisions();
+		foreach ( $significant_revisions as $significant_r_id ) {
+			if ( ! get_post( $significant_r_id ) ) {
 				return false;
 			}
 		}
@@ -136,7 +136,7 @@ class Relevant_Revisions {
 	}
 
 	/**
-	 * Checks if all relevant revisions of the current post still exist
+	 * Checks if all significant revisions of the current post still exist
 	 *
 	 * @param string|int $revision_id The revision ID.
 	 * @param bool       $redirect Redirect the user back to the revisions page.
@@ -145,11 +145,11 @@ class Relevant_Revisions {
 	public static function restore_backup( $revision_id, $redirect = true ) {
 		$revision_post = get_post( $revision_id );
 		if ( $revision_post ) {
-			$revision           = new Relevant_Revision( $revision_post->post_parent, $revision_id );
-			$relevant_revisions = $revision->get_post_revisions();
-			foreach ( $relevant_revisions as $relevant_r_id ) {
-				if ( ! get_post( $relevant_r_id ) ) {
-					$revision_check = new Relevant_Revision( $revision_post->post_parent, $relevant_r_id );
+			$revision              = new Significant_Revision( $revision_post->post_parent, $revision_id );
+			$significant_revisions = $revision->get_post_revisions();
+			foreach ( $significant_revisions as $significant_r_id ) {
+				if ( ! get_post( $significant_r_id ) ) {
+					$revision_check = new Significant_Revision( $revision_post->post_parent, $significant_r_id );
 					$revision_check->restore_backup();
 				}
 			}
@@ -177,8 +177,8 @@ class Relevant_Revisions {
 			'newspack_revisions_control',
 			'newspack_revisions_control',
 			[
-				'ajax_url'            => admin_url( 'admin-ajax.php' ),
-				'mark_relevant_nonce' => wp_create_nonce( 'newspack_mark_relevant' ),
+				'ajax_url'               => admin_url( 'admin-ajax.php' ),
+				'mark_significant_nonce' => wp_create_nonce( 'newspack_mark_significant' ),
 			]
 		);
 	}
@@ -192,8 +192,8 @@ class Relevant_Revisions {
 	 * @return array
 	 */
 	public static function filter_revision_for_js( $revisions_data, $revision, $post ) {
-		$revision                            = new Relevant_Revision( $post->ID, $revision->ID );
-		$revisions_data['newspack_relevant'] = $revision->is_relevant();
+		$revision                               = new Significant_Revision( $post->ID, $revision->ID );
+		$revisions_data['newspack_significant'] = $revision->is_significant();
 		return $revisions_data;
 	}
 
@@ -202,8 +202,8 @@ class Relevant_Revisions {
 	 *
 	 * @return void
 	 */
-	public static function ajax_toggle_relevant() {
-		check_ajax_referer( 'newspack_mark_relevant' );
+	public static function ajax_toggle_significant() {
+		check_ajax_referer( 'newspack_mark_significant' );
 
 		$revision_id = ! empty( $_POST['revision_id'] ) ? intval( $_POST['revision_id'] ) : null;
 		$post_id     = ! empty( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : null;
@@ -212,22 +212,22 @@ class Relevant_Revisions {
 			exit;
 		}
 
-		$revision      = new Relevant_Revision( $post_id, $revision_id );
+		$revision      = new Significant_Revision( $post_id, $revision_id );
 		$current_state = $revision->toggle();
 
-		echo wp_json_encode( [ 'relevant' => $current_state ] );
+		echo wp_json_encode( [ 'significant' => $current_state ] );
 		die;
 	}
 
 	/**
-	 * Registers the post type used to store backups of relevant revisions
+	 * Registers the post type used to store backups of significant revisions
 	 *
 	 * @return void
 	 */
 	public static function register_post_type() {
 		$args = array(
 			'label'               => 'Newspack revisions backups',
-			'description'         => 'Post type used to store backups of relevant revisions',
+			'description'         => 'Post type used to store backups of significant revisions',
 			'supports'            => false,
 			'taxonomies'          => array(),
 			'hierarchical'        => true,
@@ -248,4 +248,4 @@ class Relevant_Revisions {
 
 }
 
-Relevant_Revisions::init();
+Significant_Revisions::init();

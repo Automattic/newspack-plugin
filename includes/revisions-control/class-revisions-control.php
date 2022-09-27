@@ -10,7 +10,7 @@ namespace Newspack;
 use DateTime;
 use WP_Post;
 
-require_once 'class-relevant-revisions.php';
+require_once 'class-significant-revisions.php';
 
 /**
  * Revisions Control class
@@ -131,8 +131,8 @@ class Revisions_Control {
 		if ( $post->post_date > self::get_min_age() ) {
 			return true; // do not delete.
 		}
-		$revision = new Relevant_Revision( $post->post_parent, $post->ID );
-		if ( $revision->is_relevant() ) {
+		$revision = new Significant_Revision( $post->post_parent, $post->ID );
+		if ( $revision->is_significant() ) {
 			return true; // do not delete.
 		}
 		return $check;

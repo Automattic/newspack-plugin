@@ -1,6 +1,6 @@
 <?php
 /**
- * A class to handle relevant revisions checks and actions
+ * A class to handle significant revisions checks and actions
  *
  * @package Newspack
  */
@@ -10,23 +10,23 @@ namespace Newspack;
 use WP_Post;
 
 /**
- * Relevant Revision Object
+ * Significant Revision Object
  */
-class Relevant_Revision {
+class Significant_Revision {
 
 	/**
-	 * The name of the post meta that stores the relevant revisions IDs
+	 * The name of the post meta that stores the significant revisions IDs
 	 *
 	 * @var string
 	 */
-	const RELEVANT_IDS_META_KEY = '_relevant_revision';
+	const RELEVANT_IDS_META_KEY = '_significant_revision';
 
 	/**
 	 * The meta key used to store the information of the ID of the revision a backup is of
 	 *
 	 * @var string
 	 */
-	const BKP_FOR_OF = '_bkp_of';
+	const BKP_OF_META_KEY = '_bkp_of';
 
 	/**
 	 * The revision ID
@@ -55,7 +55,7 @@ class Relevant_Revision {
 	}
 
 	/**
-	 * Gets the relevant revisions ids for the current post
+	 * Gets the significant revisions ids for the current post
 	 *
 	 * @return array
 	 */
@@ -64,33 +64,33 @@ class Relevant_Revision {
 	}
 
 	/**
-	 * Verifies if a given revision of a post is marked as relevant
+	 * Verifies if a given revision of a post is marked as significant
 	 *
 	 * @return boolean
 	 */
-	public function is_relevant() {
+	public function is_significant() {
 		$revisions = $this->get_post_revisions();
 		return in_array( (string) $this->ID, $revisions, true );
 	}
 
 	/**
-	 * Marks the revision as relevant
+	 * Marks the revision as significant
 	 *
 	 * @return void
 	 */
-	public function mark_as_relevant() {
-		if ( ! $this->is_relevant() ) {
+	public function mark_as_significant() {
+		if ( ! $this->is_significant() ) {
 			add_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY, $this->ID );
 			$this->create_backup();
 		}
 	}
 
 	/**
-	 * Unmarks the revision as relevant
+	 * Unmarks the revision as significant
 	 *
 	 * @return void
 	 */
-	public function unmark_as_relevant() {
+	public function unmark_as_significant() {
 		delete_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY, $this->ID );
 		$this->delete_backup();
 	}
@@ -101,11 +101,11 @@ class Relevant_Revision {
 	 * @return bool The resulting state
 	 */
 	public function toggle() {
-		if ( ! $this->is_relevant() ) {
-			$this->mark_as_relevant();
+		if ( ! $this->is_significant() ) {
+			$this->mark_as_significant();
 			return true;
 		}
-		$this->unmark_as_relevant();
+		$this->unmark_as_significant();
 		return false;
 	}
 
@@ -121,10 +121,10 @@ class Relevant_Revision {
 			return false;
 		}
 		unset( $revision->ID );
-		$revision->post_type = Relevant_Revisions::BKP_POST_TYPE;
+		$revision->post_type = Significant_Revisions::BKP_POST_TYPE;
 		$backup              = wp_insert_post( $revision );
 
-		add_post_meta( $backup, self::BKP_FOR_OF, $this->ID );
+		add_post_meta( $backup, self::BKP_OF_META_KEY, $this->ID );
 
 		$this->copy_metadata( $this->ID, $backup );
 		return true;
@@ -140,7 +140,7 @@ class Relevant_Revision {
 	public function copy_metadata( $from, $to ) {
 		$from_meta = get_metadata( 'post', $from );
 		foreach ( $from_meta as $key => $values ) {
-			if ( self::BKP_FOR_OF === $key ) {
+			if ( self::BKP_OF_META_KEY === $key ) {
 				continue;
 			}
 			foreach ( $values as $value ) {
@@ -157,10 +157,11 @@ class Relevant_Revision {
 	 */
 	public function get_backup_id() {
 		global $wpdb;
-		static $backup_id;
+		$cache_key = 'nwspk_rev_bkp_' . $this->ID;
+		$backup_id = wp_cache_get( $cache_key );
 		if ( ! $backup_id ) {
-			// phpcs:ignore
-			$backup_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = %d", self::BKP_FOR_OF, $this->ID ) );
+			$backup_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = %d", self::BKP_OF_META_KEY, $this->ID ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			wp_cache_set( $cache_key, $backup_id );
 		}
 		return $backup_id;
 	}
@@ -191,9 +192,9 @@ class Relevant_Revision {
 
 		$this->copy_metadata( $backup_id, $restore );
 
-		$this->unmark_as_relevant();
-		$new_revision = new Relevant_Revision( $this->post_id, $restore );
-		$new_revision->mark_as_relevant();
+		$this->unmark_as_significant();
+		$new_revision = new Significant_Revision( $this->post_id, $restore );
+		$new_revision->mark_as_significant();
 	}
 
 }
