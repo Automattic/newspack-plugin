@@ -414,6 +414,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				return;
 			}
 			const inputContainer = originalInput.parentNode;
+			inputContainer.removeChild( originalInput );
 			const values = [];
 			const otpCodeInput = document.createElement( 'input' );
 			otpCodeInput.setAttribute( 'type', 'hidden' );
@@ -492,7 +493,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				} );
 				inputContainer.appendChild( digit );
 			}
-			inputContainer.removeChild( originalInput );
 		} );
 
 		/**
