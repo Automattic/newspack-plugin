@@ -37,6 +37,7 @@ import './plugins-screen.scss';
 		};
 		modalActionEl.setAttribute( 'href', newspack_plugin_info.plugin_review_link );
 		modalActionEl.setAttribute( 'target', '_blank' );
+		modalActionEl.classList.add( 'button-primary' );
 		modalActionEl.innerText = wp.i18n.__( 'Plugin Review Form', 'newspack' );
 
 		modalEl.appendChild( modalContentEl );
