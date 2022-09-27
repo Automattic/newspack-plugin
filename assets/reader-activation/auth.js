@@ -405,6 +405,95 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		} );
 
 		/**
+		 * OTP Input
+		 */
+		const otpInputs = document.querySelectorAll( 'input[name="otp_code"]' );
+		otpInputs.forEach( input => {
+			const length = parseInt( input.getAttribute( 'maxlength' ) );
+			if ( ! length ) {
+				return;
+			}
+			const inputContainer = input.parentNode;
+			const values = [];
+			const otpCodeInput = document.createElement( 'input' );
+			otpCodeInput.setAttribute( 'type', 'hidden' );
+			otpCodeInput.setAttribute( 'name', 'otp_code' );
+			inputContainer.appendChild( otpCodeInput );
+			for ( let i = 0; i < length; i++ ) {
+				const digit = document.createElement( 'input' );
+				digit.setAttribute( 'type', 'text' );
+				digit.setAttribute( 'maxlength', '1' );
+				digit.setAttribute( 'pattern', '[0-9]' );
+				digit.setAttribute( 'autocomplete', 'off' );
+				digit.setAttribute( 'inputmode', 'numeric' );
+				digit.setAttribute( 'data-index', i );
+				digit.addEventListener( 'keydown', ev => {
+					const prev = inputContainer.querySelector( `[data-index="${ i - 1 }"]` );
+					const next = inputContainer.querySelector( `[data-index="${ i + 1 }"]` );
+					switch ( ev.key ) {
+						case 'Backspace':
+							ev.preventDefault();
+							ev.target.value = '';
+							if ( prev ) {
+								prev.focus();
+							}
+							break;
+						case 'ArrowLeft':
+							ev.preventDefault();
+							if ( prev ) {
+								prev.focus();
+							}
+							break;
+						case 'ArrowRight':
+							ev.preventDefault();
+							if ( next ) {
+								next.focus();
+							}
+							break;
+						default:
+							if ( ev.key.match( /[0-9]/ ) ) {
+								ev.preventDefault();
+								ev.target.value = ev.key;
+								ev.target.dispatchEvent(
+									new Event( 'input', {
+										bubbles: true,
+										cancelable: true,
+									} )
+								);
+								if ( next ) {
+									next.focus();
+								}
+							}
+							break;
+					}
+				} );
+				digit.addEventListener( 'input', ev => {
+					if ( ev.target.value.match( /[0-9]/ ) ) {
+						values[ i ] = ev.target.value;
+					} else {
+						ev.target.value = '';
+					}
+					otpCodeInput.value = values.join( '' );
+				} );
+				digit.addEventListener( 'paste', ev => {
+					ev.preventDefault();
+					const paste = ( ev.clipboardData || window.clipboardData ).getData( 'text' );
+					if ( paste.length !== length ) {
+						return;
+					}
+					otpCodeInput.value = paste;
+					for ( let j = 0; j < length; j++ ) {
+						const digitInput = inputContainer.querySelector( `[data-index="${ j }"]` );
+						digitInput.value = paste[ j ];
+						values[ j ] = paste[ j ];
+					}
+				} );
+				inputContainer.appendChild( digit );
+			}
+			inputContainer.removeChild( input );
+		} );
+
+		/**
 		 * Third party auth.
 		 */
 		const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );
