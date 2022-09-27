@@ -408,12 +408,12 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		 * OTP Input
 		 */
 		const otpInputs = document.querySelectorAll( 'input[name="otp_code"]' );
-		otpInputs.forEach( input => {
-			const length = parseInt( input.getAttribute( 'maxlength' ) );
+		otpInputs.forEach( originalInput => {
+			const length = parseInt( originalInput.getAttribute( 'maxlength' ) );
 			if ( ! length ) {
 				return;
 			}
-			const inputContainer = input.parentNode;
+			const inputContainer = originalInput.parentNode;
 			const values = [];
 			const otpCodeInput = document.createElement( 'input' );
 			otpCodeInput.setAttribute( 'type', 'hidden' );
@@ -492,7 +492,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				} );
 				inputContainer.appendChild( digit );
 			}
-			inputContainer.removeChild( input );
+			inputContainer.removeChild( originalInput );
 		} );
 
 		/**
