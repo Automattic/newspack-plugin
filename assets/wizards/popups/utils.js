@@ -173,6 +173,7 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		favorite_categories = [],
 		is_donor = false,
 		is_not_donor = false,
+		is_former_donor = false,
 		is_not_subscribed = false,
 		is_subscribed = false,
 		is_logged_in = false,
@@ -214,6 +215,9 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	}
 	if ( is_not_donor ) {
 		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
+	}
+	if ( is_former_donor ) {
+		descriptionMessages.push( __( 'Has cancelled a recurring donation', 'newspack' ) );
 	}
 	if ( is_subscribed ) {
 		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
