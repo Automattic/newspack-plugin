@@ -374,10 +374,7 @@ class Emails {
 	 * @return string
 	 */
 	public static function get_reply_to_email() {
-		$reply_to_email = get_option( Reader_Activation::OPTIONS_PREFIX . 'contact_email_address', '' );
-		if ( empty( $reply_to_email ) ) {
-			$reply_to_email = self::get_from_email();
-		}
+		$reply_to_email = get_option( Reader_Activation::OPTIONS_PREFIX . 'contact_email_address', self::get_from_email() );
 		return apply_filters( 'newspack_reply_to_email', $reply_to_email );
 	}
 
@@ -389,7 +386,8 @@ class Emails {
 	 * @return string Name used as the sender for Newspack emails.
 	 */
 	public static function get_from_name() {
-		return apply_filters( 'newspack_from_name', get_bloginfo( 'name' ) );
+		$from_name = get_option( Reader_Activation::OPTIONS_PREFIX . 'sender_name', get_bloginfo( 'name' ) );
+		return apply_filters( 'newspack_from_name', $from_name );
 	}
 
 	/**
