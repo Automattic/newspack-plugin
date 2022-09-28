@@ -1,3 +1,10 @@
+# [1.93.0](https://github.com/Automattic/newspack-plugin/compare/v1.92.1...v1.93.0) (2022-09-28)
+
+
+### Features
+
+* custom email sender for reader activation ([#2052](https://github.com/Automattic/newspack-plugin/issues/2052)) ([5fde94f](https://github.com/Automattic/newspack-plugin/commit/5fde94f4afb29dedf4ef735ab1a762e401338d91))
+
 # [1.93.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.92.1...v1.93.0-hotfix.1) (2022-09-28)
 
 
