@@ -271,9 +271,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					emailInput.focus();
 				}
 			}
-			setFormAction(
-				readerActivation.getOTPHash() ? 'otp' : readerActivation.getAuthStrategy() || 'pwd'
-			);
+			setFormAction( readerActivation.getAuthStrategy() || 'pwd' );
 			readerActivation.on( 'reader', () => {
 				if ( readerActivation.getOTPHash() ) {
 					setFormAction( 'otp' );
