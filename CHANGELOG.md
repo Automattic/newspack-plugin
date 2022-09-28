@@ -1,3 +1,15 @@
+# [1.93.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.92.0...v1.93.0-hotfix.1) (2022-09-28)
+
+
+### Bug Fixes
+
+* **wizards:** rename advertising scripts and API paths so they're not blocked by adblocker ([dba4119](https://github.com/Automattic/newspack-plugin/commit/dba41193f43481e4182f688893cbf787712e5fcc))
+
+
+### Features
+
+* **plugins-screen:** update button to use primary style ([#2037](https://github.com/Automattic/newspack-plugin/issues/2037)) ([9827ff3](https://github.com/Automattic/newspack-plugin/commit/9827ff311384278fdd7d2f178272b7e476949243))
+
 # [1.92.0](https://github.com/Automattic/newspack-plugin/compare/v1.91.2...v1.92.0) (2022-09-27)
 
 
