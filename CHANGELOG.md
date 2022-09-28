@@ -1,3 +1,10 @@
+## [1.92.1](https://github.com/Automattic/newspack-plugin/compare/v1.92.0...v1.92.1) (2022-09-28)
+
+
+### Bug Fixes
+
+* disable author filter for co-authors ([#2050](https://github.com/Automattic/newspack-plugin/issues/2050)) ([695e16f](https://github.com/Automattic/newspack-plugin/commit/695e16f24a27310df6ceddbbefd311f8572128d2))
+
 # [1.92.0](https://github.com/Automattic/newspack-plugin/compare/v1.91.2...v1.92.0) (2022-09-27)
 
 
