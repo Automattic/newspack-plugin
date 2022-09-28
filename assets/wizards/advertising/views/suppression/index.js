@@ -2,9 +2,10 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Fragment, useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ToggleControl } from '@wordpress/components';
+import { FormTokenField, ToggleControl } from '@wordpress/components';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -21,8 +22,23 @@ import {
 const Suppression = () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( false );
+	const [ postTypes, setPostTypes ] = useState( [] );
 	const fetchConfig = () => {
 		apiFetch( { path: '/newspack-ads/v1/suppression' } ).then( setConfig );
+	};
+	const fetchPostTypes = () => {
+		return apiFetch( {
+			path: addQueryArgs( '/wp/v2/types', { context: 'edit' } ),
+		} ).then( result => {
+			setPostTypes(
+				Object.values( result )
+					.filter( postType => postType.viewable === true && postType.visibility?.show_ui === true )
+					.map( postType => ( {
+						value: postType.slug,
+						label: postType.name,
+					} ) )
+			);
+		} );
 	};
 	const updateConfig = () => {
 		setInFlight( true );
@@ -37,12 +53,27 @@ const Suppression = () => {
 			} );
 	};
 	useEffect( fetchConfig, [] );
+	useEffect( fetchPostTypes, [] );
 	if ( config === false ) {
 		return <Waiting />;
 	}
-	console.log( config );
 	return (
 		<>
+			<SectionHeader
+				title={ __( 'Post Type Archive Pages', 'newspack' ) }
+				description={ __( 'Suppress ads on post type archive pages.', 'newspack' ) }
+			/>
+			<FormTokenField
+				label={ __( 'Post types', 'newspack-newsletters' ) }
+				value={ config.post_types }
+				suggestions={ postTypes.map( postType => postType.label ) }
+				onChange={ selected => {
+					setConfig( {
+						...config,
+						post_types: selected,
+					} );
+				} }
+			/>
 			<SectionHeader
 				title={ __( 'Tag Archive Pages', 'newspack' ) }
 				description={ __(
