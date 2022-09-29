@@ -43,6 +43,9 @@ class Significant_Revisions {
 	 * @return void
 	 */
 	public static function init() {
+		if ( ! Revisions_Control::is_active() ) {
+			return;
+		}
 		if ( ! self::$initiated ) {
 			add_action( 'load-revision.php', array( __CLASS__, 'admin_init' ) );
 			add_action( 'wp_ajax_newspack_toggle_revision_significant', array( __CLASS__, 'ajax_toggle_significant' ) );
@@ -179,6 +182,12 @@ class Significant_Revisions {
 			[
 				'ajax_url'               => admin_url( 'admin-ajax.php' ),
 				'mark_significant_nonce' => wp_create_nonce( 'newspack_mark_significant' ),
+				'labels'                 => [
+					'loading' => __( 'Saving...', 'newspack' ),
+					'saved'   => __( 'Changes applied', 'newspack' ),
+					'unmark'  => __( 'Unmark as significant', 'newspack' ),
+					'mark'    => __( 'Mark as significant', 'newspack' ),
+				],
 			]
 		);
 	}
