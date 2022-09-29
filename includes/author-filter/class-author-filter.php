@@ -61,6 +61,11 @@ class Author_Filter {
 	 */
 	public static function author_filters_admin( $post_type ) {
 
+		// Disable this for sites with co authors plus enabled until we fix its issue with large sites.
+		if ( self::is_coauthors_plus_enabled( $post_type ) ) {
+			return;
+		}
+
 		$excluded_post_types = [ 'attachment', 'revision', 'nav_menu_item' ];
 
 		if ( in_array( $post_type, $excluded_post_types, true ) ) {

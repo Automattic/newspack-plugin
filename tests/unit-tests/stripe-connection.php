@@ -15,7 +15,7 @@ require_once dirname( __FILE__ ) . '/../class-stripemockhttpclient.php';
  * Tests Stripe features.
  */
 class Newspack_Test_Stripe extends WP_UnitTestCase {
-	public function setUp() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+	public function set_up() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		\Stripe\ApiRequestor::setHttpClient( new StripeMockHTTPClient() );
 	}
 

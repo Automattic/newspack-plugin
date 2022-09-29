@@ -128,6 +128,24 @@ export default withWizardScreen( () => {
 							title={ __( 'Emails', 'newspack' ) }
 							description={ __( 'Customize emails sent to readers.', 'newspack' ) }
 						/>
+						<TextControl
+							label={ __( 'Sender name', 'newspack' ) }
+							{ ...getSharedProps( 'sender_name', 'text' ) }
+						/>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<TextControl
+								label={ __( 'Sender email address', 'newspack' ) }
+								{ ...getSharedProps( 'sender_email_address', 'text' ) }
+							/>
+							<TextControl
+								label={ __( 'Contact email address', 'newspack' ) }
+								help={ __(
+									'This email will be used as "Reply-To" for transactional emails as well.',
+									'newspack'
+								) }
+								{ ...getSharedProps( 'contact_email_address', 'text' ) }
+							/>
+						</Grid>
 						{ emails.map( email => (
 							<ActionCard
 								key={ email.post_id }
