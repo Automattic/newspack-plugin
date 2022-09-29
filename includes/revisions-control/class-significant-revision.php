@@ -60,7 +60,11 @@ class Significant_Revision {
 	 * @return array
 	 */
 	public function get_post_revisions() {
-		return get_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY );
+		$ids = get_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY );
+		if ( empty( $ids ) ) {
+			return [];
+		}
+		return $ids;
 	}
 
 	/**
