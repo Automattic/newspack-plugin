@@ -33,6 +33,7 @@ class Revisions_Control {
 		if ( ! self::$initiated ) {
 			add_filter( 'wp_revisions_to_keep', [ __CLASS__, 'filter_revisions_to_keep' ] );
 			add_filter( 'pre_delete_post', [ __CLASS__, 'pre_delete_revision' ], 10, 2 );
+			add_action( 'admin_head-revision.php', [ __CLASS__, 'admin_head' ] );
 			self::$initiated = true;
 		}
 	}
@@ -76,7 +77,7 @@ class Revisions_Control {
 	 *
 	 * @return boolean
 	 */
-	private static function is_active() {
+	public static function is_active() {
 		return self::get_status()['active'];
 	}
 
@@ -136,6 +137,24 @@ class Revisions_Control {
 			return true; // do not delete.
 		}
 		return $check;
+	}
+
+	public static function admin_head() {
+
+		// translators: %d is the maximum number of revisions that will be kept.
+		$help_text  = '<p>' . sprintf( __( '<strong>Newspack</strong> revisions control is active. This means that there is a limit of %d revisions that will be kept.', 'newspack' ), self::get_number() ) . '</p>';
+		$help_text .= '<p>' . __( ' Older revisions that exceed this number will be deleted, except:', 'newspack' ) . '</p>';
+		$help_text .= '<ul><li>' . __( 'Revisions less than one week old', 'newspack' ) . '</li>';
+		$help_text .= '<li>' . __( 'Revisions marked as significant. Use the button on the revision title bar to mark/unmark a revision as significant', 'newspack' ) . '</li></ul>';
+
+
+
+		$help_tab = get_current_screen()->get_help_tab( 'revisions-overview' );
+
+		$help_tab['content'] .= $help_text;
+
+		get_current_screen()->add_help_tab( $help_tab );
+
 	}
 
 }
