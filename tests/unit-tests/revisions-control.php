@@ -160,8 +160,7 @@ class Newspack_Test_Revisions_Control extends WP_UnitTestCase {
 		$get_status = $this->get_private_method( 'get_status' );
 		$this->assertSame( $expected, $get_status->invoke( null ) );
 
-		$is_active = $this->get_private_method( 'is_active' );
-		$this->assertSame( $active, $is_active->invoke( null ) );
+		$this->assertSame( $active, Revisions_Control::is_active() );
 
 		$get_number = $this->get_private_method( 'get_number' );
 		$this->assertSame( $number, $get_number->invoke( null ) );
