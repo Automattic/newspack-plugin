@@ -62,6 +62,7 @@ class Revisions_Control {
 		if ( ! empty( $option ) ) {
 			return $option;
 		}
+		// TODO: When we allow users to modify the min_age via UI or hook, we need to make the Help text in self::admin_head dynamic.
 		if ( defined( 'NEWSPACK_LIMIT_REVISIONS_NUMBER' ) && is_int( NEWSPACK_LIMIT_REVISIONS_NUMBER ) ) {
 			return [
 				'active'  => true,
@@ -139,6 +140,11 @@ class Revisions_Control {
 		return $check;
 	}
 
+	/**
+	 * Admin head callback. Adds an additional section to the Help tab
+	 *
+	 * @return void
+	 */
 	public static function admin_head() {
 
 		// translators: %d is the maximum number of revisions that will be kept.
