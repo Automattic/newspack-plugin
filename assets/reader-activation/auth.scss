@@ -8,29 +8,42 @@
 	 */
 	&__account-link {
 		color: inherit;
+		position: relative;
+
 		span {
 			display: inline-block;
 		}
 
 		&__mobile {
+			display: flex;
+			justify-content: center;
+			margin-left: 0.5rem;
+
 			@media screen and ( min-width: 960px ) {
 				display: none;
 			}
-			margin-left: 0.5rem;
+
+			a {
+				display: flex;
+				padding: 0.4em;
+			}
 		}
 
 		&__icon {
-			position: relative;
+			height: 24px;
 			width: 24px;
-			svg {
+
+			@media screen and ( min-width: 960px ) {
+				margin-left: -4px;
+				margin-top: -12px;
 				position: absolute;
-				top: -17px;
-				left: 0;
+				top: 50%;
 			}
 		}
 
 		&__label {
-			margin-left: 0.2rem;
+			margin-left: calc( 16px + 0.2rem );
+
 			@media screen and ( max-width: 959px ) {
 				@include mixins.visuallyHidden;
 			}
