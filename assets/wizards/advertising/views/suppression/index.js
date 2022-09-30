@@ -91,7 +91,7 @@ const Suppression = () => {
 						tags: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Tags', 'newspack ' ) }
+				label={ __( 'Tags to suppress ads on its archive page and posts', 'newspack ' ) }
 				taxonomy="tags"
 			/>
 			<ToggleControl
@@ -117,7 +117,7 @@ const Suppression = () => {
 						categories: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Categories', 'newspack ' ) }
+				label={ __( 'Categories to suppress ads on its archive page and posts', 'newspack ' ) }
 			/>
 			<ToggleControl
 				disabled={ config === false }
