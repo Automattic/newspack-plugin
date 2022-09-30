@@ -80,22 +80,18 @@ const Suppression = () => {
 				/>
 			) ) }
 			<SectionHeader
-				title={ __( 'Tag Archive Pages', 'newspack' ) }
-				description={ __(
-					'Suppress ads on automatically generated pages displaying a list of posts with a tag.',
-					'newspack'
-				) }
+				title={ __( 'Tags', 'newspack' ) }
+				description={ __( 'Suppress ads on specific tags and its archive pages.', 'newspack' ) }
 			/>
 			<CategoryAutocomplete
-				disabled={ config.tag_archive_pages === true }
-				value={ config.specific_tag_archive_pages.map( v => parseInt( v ) ) }
+				value={ config.tags?.map( v => parseInt( v ) ) || [] }
 				onChange={ selected => {
 					setConfig( {
 						...config,
-						specific_tag_archive_pages: selected.map( item => item.id ),
+						tags: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Specific tags archive pages', 'newspack ' ) }
+				label={ __( 'Tags', 'newspack ' ) }
 				taxonomy="tags"
 			/>
 			<ToggleControl
@@ -107,22 +103,21 @@ const Suppression = () => {
 				label={ __( 'All tag archive pages', 'newspack' ) }
 			/>
 			<SectionHeader
-				title={ __( 'Category Archive Pages', 'newspack' ) }
+				title={ __( 'Categories', 'newspack' ) }
 				description={ __(
-					'Suppress ads on automatically generated pages displaying a list of posts of a category.',
+					'Suppress ads on specific categories and its archive pages.',
 					'newspack'
 				) }
 			/>
 			<CategoryAutocomplete
-				disabled={ config.category_archive_pages === true }
-				value={ config.specific_category_archive_pages.map( v => parseInt( v ) ) }
+				value={ config.categories?.map( v => parseInt( v ) ) || [] }
 				onChange={ selected => {
 					setConfig( {
 						...config,
-						specific_category_archive_pages: selected.map( item => item.id ),
+						categories: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Specific category archive pages', 'newspack ' ) }
+				label={ __( 'Categories', 'newspack ' ) }
 			/>
 			<ToggleControl
 				disabled={ config === false }
