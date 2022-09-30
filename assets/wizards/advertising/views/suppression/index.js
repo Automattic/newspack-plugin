@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { FormTokenField, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -60,20 +60,25 @@ const Suppression = () => {
 	return (
 		<>
 			<SectionHeader
-				title={ __( 'Post Type Archive Pages', 'newspack' ) }
-				description={ __( 'Suppress ads on post type archive pages.', 'newspack' ) }
+				title={ __( 'Post Types', 'newspack' ) }
+				description={ __( 'Suppress ads on specific post types.', 'newspack' ) }
 			/>
-			<FormTokenField
-				label={ __( 'Post types', 'newspack-newsletters' ) }
-				value={ config.post_types }
-				suggestions={ postTypes.map( postType => postType.label ) }
-				onChange={ selected => {
-					setConfig( {
-						...config,
-						post_types: selected,
-					} );
-				} }
-			/>
+			{ postTypes.map( postType => (
+				<ToggleControl
+					key={ postType.value }
+					label={ postType.label }
+					checked={ config?.post_types?.includes( postType.value ) }
+					onChange={ selected => {
+						let newPostTypes = [ ...( config?.post_types || [] ) ];
+						if ( selected && ! newPostTypes.includes( postType.value ) ) {
+							newPostTypes.push( postType.value );
+						} else {
+							newPostTypes = newPostTypes.filter( type => type !== postType.value );
+						}
+						setConfig( { ...config, post_types: newPostTypes } );
+					} }
+				/>
+			) ) }
 			<SectionHeader
 				title={ __( 'Tag Archive Pages', 'newspack' ) }
 				description={ __(
