@@ -380,7 +380,10 @@
 		}
 
 		&__checkbox {
+			align-items: center;
+			display: flex;
 			flex: 0 0 auto;
+			height: 1.6em;
 			margin: 0 0.5rem 0 0;
 		}
 
