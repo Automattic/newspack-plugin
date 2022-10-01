@@ -42,7 +42,7 @@
 		}
 
 		&__label {
-			margin-left: calc( 16px + 0.2rem );
+			margin-left: calc( 16px + 0.4rem );
 
 			@media screen and ( max-width: 959px ) {
 				@include mixins.visuallyHidden;
