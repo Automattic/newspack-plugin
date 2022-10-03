@@ -195,18 +195,23 @@
 			}
 		}
 		&__have-account {
-			position: absolute;
-			left: 0;
-			width: 100%;
-			top: calc( -1em - 23px );
-			background-color: var( --newspack-cta-color );
+			background-color: #111;
 			padding: 4px 15px;
 			margin-bottom: 11px;
 			padding-top: 6px !important;
 			padding-bottom: 8px !important;
+			text-align: center;
+			width: calc( 100% - 37px );
+			@media screen and ( min-width: 600px ) {
+				width: 100%;
+			}
 			&,
 			a {
-				color: var( --newspack-cta-contrast-color );
+				color: #fff;
+			}
+			a:active,
+			a:hover {
+				color: #d6d6d6;
 			}
 		}
 
@@ -253,7 +258,6 @@
 			}
 		}
 
-		&__have-account,
 		&__content {
 			padding: 16px;
 
@@ -264,9 +268,7 @@
 			@media screen and ( min-width: 782px ) {
 				padding: 47px 64px 64px;
 			}
-		}
 
-		&__content {
 			form {
 				transition: opacity 0.2s ease-in-out;
 
@@ -328,7 +330,7 @@
 			padding: 0;
 			position: absolute;
 			right: 0;
-			top: 0;
+			top: 7px;
 			width: 40px;
 
 			@media screen and ( min-width: 600px ) {

@@ -114,12 +114,21 @@
 	}
 
 	&__have-account {
-		background-color: var( --newspack-cta-color );
+		background-color: #111;
 		padding: 4px 15px;
-		margin-bottom: 11px;
+		margin-bottom: 15px;
+		text-align: center;
+		margin-top: 20px;
+		@media screen and ( min-width: 600px ) {
+			margin-top: 0;
+		}
 		&,
 		a {
-			color: var( --newspack-cta-contrast-color ) !important;
+			color: #fff !important;
+		}
+		a:active,
+		a:hover {
+			color: #d6d6d6 !important;
 		}
 	}
 
