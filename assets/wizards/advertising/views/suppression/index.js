@@ -81,7 +81,7 @@ const Suppression = () => {
 			) ) }
 			<SectionHeader
 				title={ __( 'Tags', 'newspack' ) }
-				description={ __( 'Suppress ads on specific tags and its archive pages.', 'newspack' ) }
+				description={ __( 'Suppress ads on specific tags and their archive pages.', 'newspack' ) }
 			/>
 			<CategoryAutocomplete
 				value={ config.tags?.map( v => parseInt( v ) ) || [] }
