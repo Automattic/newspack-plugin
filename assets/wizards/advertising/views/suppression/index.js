@@ -117,7 +117,7 @@ const Suppression = () => {
 						categories: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Categories to suppress ads on its archive page and posts', 'newspack ' ) }
+				label={ __( 'Categories to suppress ads on (archives and posts)', 'newspack ' ) }
 			/>
 			<ToggleControl
 				disabled={ config === false }
