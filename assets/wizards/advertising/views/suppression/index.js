@@ -105,7 +105,7 @@ const Suppression = () => {
 			<SectionHeader
 				title={ __( 'Categories', 'newspack' ) }
 				description={ __(
-					'Suppress ads on specific categories and its archive pages.',
+					'Suppress ads on specific categories and their archive pages.',
 					'newspack'
 				) }
 			/>
