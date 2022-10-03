@@ -11,6 +11,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import {
+	Notice,
 	Card,
 	Button,
 	CategoryAutocomplete,
@@ -20,6 +21,7 @@ import {
 } from '../../../../components/src';
 
 const Suppression = () => {
+	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( false );
 	const [ postTypes, setPostTypes ] = useState( [] );
@@ -29,16 +31,20 @@ const Suppression = () => {
 	const fetchPostTypes = () => {
 		return apiFetch( {
 			path: addQueryArgs( '/wp/v2/types', { context: 'edit' } ),
-		} ).then( result => {
-			setPostTypes(
-				Object.values( result )
-					.filter( postType => postType.viewable === true && postType.visibility?.show_ui === true )
-					.map( postType => ( {
-						value: postType.slug,
-						label: postType.name,
-					} ) )
-			);
-		} );
+		} )
+			.then( result => {
+				setPostTypes(
+					Object.values( result )
+						.filter(
+							postType => postType.viewable === true && postType.visibility?.show_ui === true
+						)
+						.map( postType => ( {
+							value: postType.slug,
+							label: postType.name,
+						} ) )
+				);
+			} )
+			.catch( setError );
 	};
 	const updateConfig = () => {
 		setInFlight( true );
@@ -48,6 +54,7 @@ const Suppression = () => {
 			data: { config },
 		} )
 			.then( setConfig )
+			.catch( setError )
 			.finally( () => {
 				setInFlight( false );
 			} );
@@ -59,6 +66,7 @@ const Suppression = () => {
 	}
 	return (
 		<>
+			{ error && <Notice isError noticeText={ error.message } /> }
 			<SectionHeader
 				title={ __( 'Post Types', 'newspack' ) }
 				description={ __( 'Suppress ads on specific post types.', 'newspack' ) }
