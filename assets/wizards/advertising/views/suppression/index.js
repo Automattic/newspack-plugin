@@ -91,7 +91,7 @@ const Suppression = () => {
 						tags: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Tags to suppress ads on its archive page and posts', 'newspack ' ) }
+				label={ __( 'Tags to suppress ads on (archives and posts)', 'newspack ' ) }
 				taxonomy="tags"
 			/>
 			<ToggleControl
