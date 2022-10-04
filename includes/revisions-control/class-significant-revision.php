@@ -19,7 +19,7 @@ class Significant_Revision {
 	 *
 	 * @var string
 	 */
-	const RELEVANT_IDS_META_KEY = '_significant_revision';
+	const SIGNIFICANT_IDS_META_KEY = '_significant_revision';
 
 	/**
 	 * The meta key used to store the information of the ID of the revision a backup is of
@@ -60,7 +60,7 @@ class Significant_Revision {
 	 * @return array
 	 */
 	public function get_post_revisions() {
-		$ids = get_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY );
+		$ids = get_post_meta( $this->post_id, self::SIGNIFICANT_IDS_META_KEY );
 		if ( empty( $ids ) ) {
 			return [];
 		}
@@ -84,7 +84,7 @@ class Significant_Revision {
 	 */
 	public function mark_as_significant() {
 		if ( ! $this->is_significant() ) {
-			add_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY, $this->ID );
+			add_post_meta( $this->post_id, self::SIGNIFICANT_IDS_META_KEY, $this->ID );
 			$this->create_backup();
 		}
 	}
@@ -95,12 +95,12 @@ class Significant_Revision {
 	 * @return void
 	 */
 	public function unmark_as_significant() {
-		delete_post_meta( $this->post_id, self::RELEVANT_IDS_META_KEY, $this->ID );
+		delete_post_meta( $this->post_id, self::SIGNIFICANT_IDS_META_KEY, $this->ID );
 		$this->delete_backup();
 	}
 
 	/**
-	 * Toggles the revision relevance
+	 * Toggles the revision significance
 	 *
 	 * @return bool The resulting state
 	 */

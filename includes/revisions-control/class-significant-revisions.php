@@ -24,13 +24,6 @@ class Significant_Revisions {
 	private static $initiated = false;
 
 	/**
-	 * The name of the post meta that stores the significant revisions IDs
-	 *
-	 * @var string
-	 */
-	const RELEVANT_IDS_META_KEY = '_significant_revision';
-
-	/**
 	 * The slug of the post type used to store backups of significant revisions
 	 *
 	 * @var string
@@ -207,7 +200,7 @@ class Significant_Revisions {
 	}
 
 	/**
-	 * Ajax callback to toggle the revision relevance
+	 * Ajax callback to toggle the revision significance
 	 *
 	 * @return void
 	 */
