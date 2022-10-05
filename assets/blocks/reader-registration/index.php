@@ -137,13 +137,13 @@ function render_block( $attrs, $content ) {
 		}
 	}
 
-	$is_admin_preview = \method_exists( '\Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin();
+	$is_admin_preview = method_exists( 'Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin();
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if (
 		! \is_preview() &&
 		! $is_admin_preview &&
-		( ! method_exists( '\Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
+		( ! method_exists( 'Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
 		(
 			\is_user_logged_in() ||
 			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
