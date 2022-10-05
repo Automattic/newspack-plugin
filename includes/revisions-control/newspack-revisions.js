@@ -1,5 +1,24 @@
 (function ($) {
 	if (typeof wp.revisions.view.MetaTo != 'undefined') {
+		var TickMarks = wp.revisions.view.Tickmarks, old_ready = TickMarks.prototype.ready;
+
+		TickMarks.prototype.ready = function () {
+
+			old_ready.apply(this);
+
+			// update Tickmarks
+			const tickmarks = $('.revisions-tickmarks > div');
+
+			for (var i = 0; i < tickmarks.length; i++) {
+				// Add the ID to the element so we can manipulate it later.
+				$(tickmarks[i]).attr('id', 'tickmark-' + this.model.revisions.models[i].attributes.id)
+				if (this.model.revisions.models[i].attributes.newspack_major) {
+					$(tickmarks[i]).addClass('newspack_major');
+				}
+			}
+
+		}
+
 		var MetaTo = wp.revisions.view.MetaTo,
 			old_render = MetaTo.prototype.render;
 
@@ -9,6 +28,12 @@
 		MetaTo.prototype.updateRevisionMajor = function (major) {
 			this.model.attributes.to.attributes.newspack_major = major;
 			this.updateToggleMajorButton();
+			var tick = $('#tickmark-' + this.model.attributes.to.attributes.id);
+			if (major) {
+				tick.addClass('newspack_major');
+			} else {
+				tick.removeClass('newspack_major');
+			}
 		}
 
 		/**

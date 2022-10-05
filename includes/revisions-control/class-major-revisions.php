@@ -183,6 +183,12 @@ class Major_Revisions {
 				],
 			]
 		);
+		wp_enqueue_style(
+			'newspack_revisions_control',
+			Newspack::plugin_url() . '/includes/revisions-control/newspack-revisions.css',
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 	}
 
 	/**
