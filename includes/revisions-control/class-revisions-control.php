@@ -10,7 +10,7 @@ namespace Newspack;
 use DateTime;
 use WP_Post;
 
-require_once 'class-significant-revisions.php';
+require_once 'class-major-revisions.php';
 
 /**
  * Revisions Control class
@@ -133,8 +133,8 @@ class Revisions_Control {
 		if ( $post->post_date > self::get_min_age() ) {
 			return true; // do not delete.
 		}
-		$revision = new Significant_Revision( $post->post_parent, $post->ID );
-		if ( $revision->is_significant() ) {
+		$revision = new Major_Revision( $post->post_parent, $post->ID );
+		if ( $revision->is_major() ) {
 			return true; // do not delete.
 		}
 		return $check;
@@ -151,7 +151,7 @@ class Revisions_Control {
 		$help_text  = '<p>' . sprintf( __( '<strong>Newspack</strong> revisions control is active. This means that there is a limit of %d revisions that will be kept.', 'newspack' ), self::get_number() ) . '</p>';
 		$help_text .= '<p>' . __( ' Older revisions that exceed this number will be deleted, except:', 'newspack' ) . '</p>';
 		$help_text .= '<ul><li>' . __( 'Revisions less than one week old', 'newspack' ) . '</li>';
-		$help_text .= '<li>' . __( 'Revisions marked as significant. Use the button on the revision title bar to mark/unmark a revision as significant', 'newspack' ) . '</li></ul>';
+		$help_text .= '<li>' . __( 'Revisions marked as major. Use the button on the revision title bar to mark/unmark a revision as major', 'newspack' ) . '</li></ul>';
 
 
 

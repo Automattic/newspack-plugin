@@ -1,6 +1,6 @@
 <?php
 /**
- * A class to handle significant revisions checks and actions
+ * A class to handle major revisions checks and actions
  *
  * @package Newspack
  */
@@ -10,16 +10,16 @@ namespace Newspack;
 use WP_Post;
 
 /**
- * Significant Revision Object
+ * Major Revision Object
  */
-class Significant_Revision {
+class Major_Revision {
 
 	/**
-	 * The name of the post meta that stores the significant revisions IDs
+	 * The name of the post meta that stores the major revisions IDs
 	 *
 	 * @var string
 	 */
-	const SIGNIFICANT_IDS_META_KEY = '_significant_revision';
+	const MAJOR_IDS_META_KEY = '_major_revision';
 
 	/**
 	 * The meta key used to store the information of the ID of the revision a backup is of
@@ -55,12 +55,12 @@ class Significant_Revision {
 	}
 
 	/**
-	 * Gets the significant revisions ids for the current post
+	 * Gets the major revisions ids for the current post
 	 *
 	 * @return array
 	 */
 	public function get_post_revisions() {
-		$ids = get_post_meta( $this->post_id, self::SIGNIFICANT_IDS_META_KEY );
+		$ids = get_post_meta( $this->post_id, self::MAJOR_IDS_META_KEY );
 		if ( empty( $ids ) ) {
 			return [];
 		}
@@ -68,48 +68,48 @@ class Significant_Revision {
 	}
 
 	/**
-	 * Verifies if a given revision of a post is marked as significant
+	 * Verifies if a given revision of a post is marked as major
 	 *
 	 * @return boolean
 	 */
-	public function is_significant() {
+	public function is_major() {
 		$revisions = $this->get_post_revisions();
 		return in_array( (string) $this->ID, $revisions, true );
 	}
 
 	/**
-	 * Marks the revision as significant
+	 * Marks the revision as major
 	 *
 	 * @return void
 	 */
-	public function mark_as_significant() {
-		if ( ! $this->is_significant() ) {
-			add_post_meta( $this->post_id, self::SIGNIFICANT_IDS_META_KEY, $this->ID );
+	public function mark_as_major() {
+		if ( ! $this->is_major() ) {
+			add_post_meta( $this->post_id, self::MAJOR_IDS_META_KEY, $this->ID );
 			$this->create_backup();
 		}
 	}
 
 	/**
-	 * Unmarks the revision as significant
+	 * Unmarks the revision as major
 	 *
 	 * @return void
 	 */
-	public function unmark_as_significant() {
-		delete_post_meta( $this->post_id, self::SIGNIFICANT_IDS_META_KEY, $this->ID );
+	public function unmark_as_major() {
+		delete_post_meta( $this->post_id, self::MAJOR_IDS_META_KEY, $this->ID );
 		$this->delete_backup();
 	}
 
 	/**
-	 * Toggles the revision significance
+	 * Toggles the revision
 	 *
 	 * @return bool The resulting state
 	 */
 	public function toggle() {
-		if ( ! $this->is_significant() ) {
-			$this->mark_as_significant();
+		if ( ! $this->is_major() ) {
+			$this->mark_as_major();
 			return true;
 		}
-		$this->unmark_as_significant();
+		$this->unmark_as_major();
 		return false;
 	}
 
@@ -125,7 +125,7 @@ class Significant_Revision {
 			return false;
 		}
 		unset( $revision->ID );
-		$revision->post_type = Significant_Revisions::BKP_POST_TYPE;
+		$revision->post_type = Major_Revisions::BKP_POST_TYPE;
 		$backup              = wp_insert_post( $revision );
 
 		add_post_meta( $backup, self::BKP_OF_META_KEY, $this->ID );
@@ -196,9 +196,9 @@ class Significant_Revision {
 
 		$this->copy_metadata( $backup_id, $restore );
 
-		$this->unmark_as_significant();
-		$new_revision = new Significant_Revision( $this->post_id, $restore );
-		$new_revision->mark_as_significant();
+		$this->unmark_as_major();
+		$new_revision = new Major_Revision( $this->post_id, $restore );
+		$new_revision->mark_as_major();
 	}
 
 }

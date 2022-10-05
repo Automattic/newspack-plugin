@@ -6,19 +6,19 @@
 		/**
 		 * Callback after ajax request
 		 */
-		MetaTo.prototype.updateRevisionSignificant = function (significant) {
-			this.model.attributes.to.attributes.newspack_significant = significant;
-			this.updateToggleSignificantButton();
+		MetaTo.prototype.updateRevisionMajor = function (major) {
+			this.model.attributes.to.attributes.newspack_major = major;
+			this.updateToggleMajorButton();
 		}
 
 		/**
-		 * Handles the creation of the button to toggle revivision significance
+		 * Handles the creation of the button to toggle revivision
 		 */
-		MetaTo.prototype.updateToggleSignificantButton = function () {
+		MetaTo.prototype.updateToggleMajorButton = function () {
 			var labels = newspack_revisions_control.labels;
 
-			var button = this.$el.find('.mark-significant');
-			button.prop('value', this.model.attributes.to.attributes.newspack_significant ? labels.unmark : labels.mark);
+			var button = this.$el.find('.mark-major');
+			button.prop('value', this.model.attributes.to.attributes.newspack_major ? labels.unmark : labels.mark);
 
 		}
 
@@ -26,7 +26,7 @@
 		 * Gets the Message element
 		 */
 		MetaTo.prototype.getMessageSpan = function () {
-			return this.$el.find('.mark-significant-message');
+			return this.$el.find('.mark-major-message');
 		}
 
 		/**
@@ -41,8 +41,8 @@
 			// Add button
 			var button = document.createElement('input');
 			button.type = 'button';
-			button.value = this.model.attributes.to.attributes.newspack_significant ? labels.unmark : labels.mark;
-			button.className = 'mark-significant button button-secondary';
+			button.value = this.model.attributes.to.attributes.newspack_major ? labels.unmark : labels.mark;
+			button.className = 'mark-major button button-secondary';
 
 			var t = this;
 			var revision_id = this.model.attributes.to.attributes.id;
@@ -50,35 +50,35 @@
 
 			button.onclick = () => {
 				t.getMessageSpan().html(labels.loading).show();
-				toggleRevisionSignificant(post_id, revision_id, function (data) {
+				toggleRevisionMajor(post_id, revision_id, function (data) {
 					t.getMessageSpan().html(labels.saved).fadeOut(1000);
 					var response = jQuery.parseJSON(data);
-					t.updateRevisionSignificant(response.significant);
+					t.updateRevisionMajor(response.major);
 				});
 			};
 
-			this.$el.find('.mark-significant').remove();
+			this.$el.find('.mark-major').remove();
 			this.$el.append(button);
 
 			// Add feedback message Span
 			var message = document.createElement('span');
-			message.className = 'mark-significant-message';
+			message.className = 'mark-major-message';
 			message.style = 'margin-left:10px';
 			this.$el.append(message);
 
 		};
 
 		/**
-		 * Ajax call to toggle revision significance
+		 * Ajax call to toggle revision
 		 */
-		function toggleRevisionSignificant(post_id, id, callback) {
+		function toggleRevisionMajor(post_id, id, callback) {
 			$.post(
 				newspack_revisions_control.ajax_url,
 				{
-					action: 'newspack_toggle_revision_significant',
+					action: 'newspack_toggle_revision_major',
 					revision_id: id,
 					post_id: post_id,
-					_ajax_nonce: newspack_revisions_control.mark_significant_nonce,
+					_ajax_nonce: newspack_revisions_control.mark_major_nonce,
 				},
 				callback
 			);

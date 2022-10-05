@@ -9,12 +9,12 @@ namespace Newspack;
 
 use WP_Post;
 
-require_once 'class-significant-revision.php';
+require_once 'class-major-revision.php';
 
 /**
  * Author Filter class
  */
-class Significant_Revisions {
+class Major_Revisions {
 
 	/**
 	 * Flag to make sure hooks are initialized only once
@@ -24,7 +24,7 @@ class Significant_Revisions {
 	private static $initiated = false;
 
 	/**
-	 * The slug of the post type used to store backups of significant revisions
+	 * The slug of the post type used to store backups of major revisions
 	 *
 	 * @var string
 	 */
@@ -41,7 +41,7 @@ class Significant_Revisions {
 		}
 		if ( ! self::$initiated ) {
 			add_action( 'load-revision.php', array( __CLASS__, 'admin_init' ) );
-			add_action( 'wp_ajax_newspack_toggle_revision_significant', array( __CLASS__, 'ajax_toggle_significant' ) );
+			add_action( 'wp_ajax_newspack_toggle_revision_major', array( __CLASS__, 'ajax_toggle_major' ) );
 			add_filter( 'wp_prepare_revision_for_js', array( __CLASS__, 'filter_revision_for_js' ), 10, 3 );
 			add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 			self::$initiated = true;
@@ -90,7 +90,7 @@ class Significant_Revisions {
 			sprintf(
 				// translators: 1 and 2 are the opening and closing <a> tag with the link to restore revisions.
 				esc_html__(
-					'Revisions marked as significant were deleted from the database. %1$sRestore significant revisions.%2$s',
+					'Revisions marked as major were deleted from the database. %1$sRestore major revisions.%2$s',
 					'newspack'
 				),
 				sprintf(
@@ -110,7 +110,7 @@ class Significant_Revisions {
 	}
 
 	/**
-	 * Checks if all significant revisions of the current post still exist
+	 * Checks if all major revisions of the current post still exist
 	 *
 	 * @param string|int $revision_id The revision ID.
 	 * @return bool
@@ -121,10 +121,10 @@ class Significant_Revisions {
 			// If we can't perform the check, return as success.
 			return true;
 		}
-		$revision              = new Significant_Revision( $revision_post->post_parent, $revision_id );
-		$significant_revisions = $revision->get_post_revisions();
-		foreach ( $significant_revisions as $significant_r_id ) {
-			if ( ! get_post( $significant_r_id ) ) {
+		$revision        = new Major_Revision( $revision_post->post_parent, $revision_id );
+		$major_revisions = $revision->get_post_revisions();
+		foreach ( $major_revisions as $major_r_id ) {
+			if ( ! get_post( $major_r_id ) ) {
 				return false;
 			}
 		}
@@ -132,7 +132,7 @@ class Significant_Revisions {
 	}
 
 	/**
-	 * Checks if all significant revisions of the current post still exist
+	 * Checks if all major revisions of the current post still exist
 	 *
 	 * @param string|int $revision_id The revision ID.
 	 * @param bool       $redirect Redirect the user back to the revisions page.
@@ -141,11 +141,11 @@ class Significant_Revisions {
 	public static function restore_backup( $revision_id, $redirect = true ) {
 		$revision_post = get_post( $revision_id );
 		if ( $revision_post ) {
-			$revision              = new Significant_Revision( $revision_post->post_parent, $revision_id );
-			$significant_revisions = $revision->get_post_revisions();
-			foreach ( $significant_revisions as $significant_r_id ) {
-				if ( ! get_post( $significant_r_id ) ) {
-					$revision_check = new Significant_Revision( $revision_post->post_parent, $significant_r_id );
+			$revision        = new Major_Revision( $revision_post->post_parent, $revision_id );
+			$major_revisions = $revision->get_post_revisions();
+			foreach ( $major_revisions as $major_r_id ) {
+				if ( ! get_post( $major_r_id ) ) {
+					$revision_check = new Major_Revision( $revision_post->post_parent, $major_r_id );
 					$revision_check->restore_backup();
 				}
 			}
@@ -173,13 +173,13 @@ class Significant_Revisions {
 			'newspack_revisions_control',
 			'newspack_revisions_control',
 			[
-				'ajax_url'               => admin_url( 'admin-ajax.php' ),
-				'mark_significant_nonce' => wp_create_nonce( 'newspack_mark_significant' ),
-				'labels'                 => [
+				'ajax_url'         => admin_url( 'admin-ajax.php' ),
+				'mark_major_nonce' => wp_create_nonce( 'newspack_mark_major' ),
+				'labels'           => [
 					'loading' => __( 'Saving...', 'newspack' ),
 					'saved'   => __( 'Changes applied', 'newspack' ),
-					'unmark'  => __( 'Unmark as significant', 'newspack' ),
-					'mark'    => __( 'Mark as significant', 'newspack' ),
+					'unmark'  => __( 'Unmark as a major revision', 'newspack' ),
+					'mark'    => __( 'Mark as a major revision', 'newspack' ),
 				],
 			]
 		);
@@ -194,18 +194,18 @@ class Significant_Revisions {
 	 * @return array
 	 */
 	public static function filter_revision_for_js( $revisions_data, $revision, $post ) {
-		$revision                               = new Significant_Revision( $post->ID, $revision->ID );
-		$revisions_data['newspack_significant'] = $revision->is_significant();
+		$revision                         = new Major_Revision( $post->ID, $revision->ID );
+		$revisions_data['newspack_major'] = $revision->is_major();
 		return $revisions_data;
 	}
 
 	/**
-	 * Ajax callback to toggle the revision significance
+	 * Ajax callback to toggle the revision
 	 *
 	 * @return void
 	 */
-	public static function ajax_toggle_significant() {
-		check_ajax_referer( 'newspack_mark_significant' );
+	public static function ajax_toggle_major() {
+		check_ajax_referer( 'newspack_mark_major' );
 
 		$revision_id = ! empty( $_POST['revision_id'] ) ? intval( $_POST['revision_id'] ) : null;
 		$post_id     = ! empty( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : null;
@@ -214,22 +214,22 @@ class Significant_Revisions {
 			exit;
 		}
 
-		$revision      = new Significant_Revision( $post_id, $revision_id );
+		$revision      = new Major_Revision( $post_id, $revision_id );
 		$current_state = $revision->toggle();
 
-		echo wp_json_encode( [ 'significant' => $current_state ] );
+		echo wp_json_encode( [ 'major' => $current_state ] );
 		die;
 	}
 
 	/**
-	 * Registers the post type used to store backups of significant revisions
+	 * Registers the post type used to store backups of major revisions
 	 *
 	 * @return void
 	 */
 	public static function register_post_type() {
 		$args = array(
 			'label'               => 'Newspack revisions backups',
-			'description'         => 'Post type used to store backups of significant revisions',
+			'description'         => 'Post type used to store backups of major revisions',
 			'supports'            => false,
 			'taxonomies'          => array(),
 			'hierarchical'        => true,
@@ -250,4 +250,4 @@ class Significant_Revisions {
 
 }
 
-Significant_Revisions::init();
+Major_Revisions::init();
