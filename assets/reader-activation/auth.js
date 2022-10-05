@@ -272,6 +272,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				}
 			}
 			setFormAction( readerActivation.getAuthStrategy() || 'pwd' );
+			readerActivation.on( 'reader', () => {
+				if ( readerActivation.getOTPHash() ) {
+					setFormAction( 'otp' );
+				}
+			} );
 			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
 				item.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
