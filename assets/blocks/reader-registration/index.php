@@ -165,6 +165,8 @@ function render_block( $attrs, $content ) {
 		$success_login_markup = '<p class="has-text-align-center">' . $attrs['signedInLabel'] . '</p>';
 	}
 
+	$is_admin_preview = \method_exists( '\Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin();
+
 	ob_start();
 	?>
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
@@ -199,7 +201,7 @@ function render_block( $attrs, $content ) {
 							?>
 							<input
 							<?php
-							if ( \method_exists( '\Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin() ) :
+							if ( $is_admin_preview ) :
 								?>
 								disabled
 								<?php endif; ?>
@@ -226,7 +228,7 @@ function render_block( $attrs, $content ) {
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
-								if ( \method_exists( '\Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin() ) :
+								if ( $is_admin_preview ) :
 									?>
 									disabled
 									<?php endif; ?>
@@ -236,7 +238,7 @@ function render_block( $attrs, $content ) {
 								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
 								<input
 								<?php
-								if ( \method_exists( '\Newspack_Popups', 'is_user_admin' ) && \Newspack_Popups::is_user_admin() ) :
+								if ( $is_admin_preview ) :
 									?>
 									disabled
 									<?php endif; ?>
