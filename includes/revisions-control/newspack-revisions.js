@@ -11,9 +11,9 @@
 
 			for (var i = 0; i < tickmarks.length; i++) {
 				// Add the ID to the element so we can manipulate it later.
-				$(tickmarks[i]).attr('id', 'tickmark-' + this.model.revisions.models[i].attributes.id)
+				$(tickmarks[i]).attr('id', 'tickmark-' + this.model.revisions.models[i].attributes.id).addClass('newspack-revisions-after-bgcolor');
 				if (this.model.revisions.models[i].attributes.newspack_major) {
-					$(tickmarks[i]).addClass('newspack_major');
+					$(tickmarks[i]).addClass('newspack-major');
 				}
 			}
 
@@ -30,9 +30,11 @@
 			this.updateToggleMajorButton();
 			var tick = $('#tickmark-' + this.model.attributes.to.attributes.id);
 			if (major) {
-				tick.addClass('newspack_major');
+				tick.addClass('newspack-major');
+				this.$el.addClass('newspack-major');
 			} else {
-				tick.removeClass('newspack_major');
+				tick.removeClass('newspack-major');
+				this.$el.removeClass('newspack-major');
 			}
 		}
 
@@ -66,7 +68,7 @@
 			// Add button
 			var button = document.createElement('input');
 			button.type = 'button';
-			button.value = this.model.attributes.to.attributes.newspack_major ? labels.unmark : labels.mark;
+			button.value = '';
 			button.className = 'mark-major button button-secondary';
 
 			var t = this;
@@ -90,6 +92,15 @@
 			message.className = 'mark-major-message';
 			message.style = 'margin-left:10px';
 			this.$el.append(message);
+
+			var label = document.createElement('span');
+			label.className = 'major-label newspack-revisions-color';
+			label.visible = false;
+			label.innerHTML = labels.major_revision;
+			this.$el.find('.author-info').append(label);
+			addedLabel = this.$el.find('.major-label');
+
+			this.updateRevisionMajor(this.model.attributes.to.attributes.newspack_major);
 
 		};
 

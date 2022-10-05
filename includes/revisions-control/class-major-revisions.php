@@ -55,6 +55,7 @@ class Major_Revisions {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+		add_action( 'admin_print_scripts', array( __CLASS__, 'print_scripts' ) );
 
 		$current_revision = self::get_current_revision_id();
 		if ( $current_revision ) {
@@ -176,10 +177,11 @@ class Major_Revisions {
 				'ajax_url'         => admin_url( 'admin-ajax.php' ),
 				'mark_major_nonce' => wp_create_nonce( 'newspack_mark_major' ),
 				'labels'           => [
-					'loading' => __( 'Saving...', 'newspack' ),
-					'saved'   => __( 'Changes applied', 'newspack' ),
-					'unmark'  => __( 'Unmark as a major revision', 'newspack' ),
-					'mark'    => __( 'Mark as a major revision', 'newspack' ),
+					'loading'        => __( 'Saving...', 'newspack' ),
+					'saved'          => __( 'Changes applied', 'newspack' ),
+					'unmark'         => __( 'Unmark as a major revision', 'newspack' ),
+					'mark'           => __( 'Mark as a major revision', 'newspack' ),
+					'major_revision' => __( 'Major revision', 'newspack' ),
 				],
 			]
 		);
@@ -189,6 +191,46 @@ class Major_Revisions {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Print inline CSS for tha admin screen
+	 *
+	 * @return void
+	 */
+	public static function print_scripts() {
+		?>
+		<style>
+			.newspack-revisions-color{ color: <?php echo esc_attr( self::get_admin_color() ); ?>; }
+			.newspack-revisions-after-bgcolor:after{ background-color: <?php echo esc_attr( self::get_admin_color() ); ?>; }
+		</style>
+		<?php
+	}
+
+	/**
+	 * Get the primary color for the current admin theme
+	 *
+	 * @return string
+	 */
+	public static function get_admin_color() {
+		global $_wp_admin_css_colors;
+		$theme           = get_user_option( 'admin_color' );
+		$color           = '#2271b1';
+		$highlight_index = [
+			'fresh'     => 2,
+			'light'     => 2,
+			'modern'    => 1,
+			'blue'      => 0,
+			'coffee'    => 2,
+			'ectoplasm' => 2,
+			'midnight'  => 3,
+			'ocean'     => 2,
+			'sunrise'   => 2,
+		];
+		if ( ! empty( $_wp_admin_css_colors[ $theme ] ) ) {
+			$color = $_wp_admin_css_colors[ $theme ]->colors[ $highlight_index[ $theme ] ];
+		}
+		return $color;
 	}
 
 	/**
