@@ -152,7 +152,10 @@ class WooCommerce_Connection {
 				$metadata[ $metadata_keys['product_name'] ] = reset( $order_items )->get_name();
 			}
 			$metadata[ $metadata_keys['last_payment_amount'] ] = $order->get_total();
-			$metadata[ $metadata_keys['last_payment_date'] ]   = $order->get_date_paid()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			$order_date_paid                                   = $order->get_date_paid();
+			if ( null !== $order_date_paid ) {
+				$metadata[ $metadata_keys['last_payment_date'] ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			}
 
 			// Subscription donation.
 		} else {
