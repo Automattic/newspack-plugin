@@ -1,22 +1,10 @@
-# [1.94.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.93.0...v1.94.0-alpha.1) (2022-10-06)
+## [1.93.1](https://github.com/Automattic/newspack-plugin/compare/v1.93.0...v1.93.1) (2022-10-06)
 
 
 ### Bug Fixes
 
-* **auth:** ensure OTP on reader state changes ([#2053](https://github.com/Automattic/newspack-plugin/issues/2053)) ([0f8d7ed](https://github.com/Automattic/newspack-plugin/commit/0f8d7ed45e9d90beee6d8fde0f34ce7268b74785))
 * fire ini-load analytics events on DOMContentLoaded, not load ([cc2485d](https://github.com/Automattic/newspack-plugin/commit/cc2485d20cc80afabf760fa154d5a198fcb552b5))
-* **reader-activation:** checkbox alignment ([#2057](https://github.com/Automattic/newspack-plugin/issues/2057)) ([6059956](https://github.com/Automattic/newspack-plugin/commit/6059956d77efc4e21106e6ea8069978219c2a79e))
-* **reader-activation:** vertical alignment of the icon ([#2056](https://github.com/Automattic/newspack-plugin/issues/2056)) ([4257f60](https://github.com/Automattic/newspack-plugin/commit/4257f6064857bfd3f415baaac04d7cd078c16a39))
-* **wizards:** rename advertising scripts and API paths so they're not blocked by adblocker ([dba4119](https://github.com/Automattic/newspack-plugin/commit/dba41193f43481e4182f688893cbf787712e5fcc))
-
-
-### Features
-
-* **ads:** expand suppression options ([#1915](https://github.com/Automattic/newspack-plugin/issues/1915)) ([f6e012b](https://github.com/Automattic/newspack-plugin/commit/f6e012bb104ef28d4a3da8d3e08cd9e2428884d8))
-* more prominent already-have-account section ([#2025](https://github.com/Automattic/newspack-plugin/issues/2025)) ([23f5d7f](https://github.com/Automattic/newspack-plugin/commit/23f5d7f6c76e9df6573979d97be1087fd5725a63))
-* **plugins-screen:** update button to use primary style ([#2037](https://github.com/Automattic/newspack-plugin/issues/2037)) ([9827ff3](https://github.com/Automattic/newspack-plugin/commit/9827ff311384278fdd7d2f178272b7e476949243))
-* show unregistered RAS UI to admins ([#2064](https://github.com/Automattic/newspack-plugin/issues/2064)) ([9352c23](https://github.com/Automattic/newspack-plugin/commit/9352c2322059f313b1cea2dc79c37bdc022c4015))
-* update woocommerce account details and use cards ([#2063](https://github.com/Automattic/newspack-plugin/issues/2063)) ([81bb8be](https://github.com/Automattic/newspack-plugin/commit/81bb8bec9608c6f4145cc332bb4931415a456fa4))
+* force hotfix release ([e68b169](https://github.com/Automattic/newspack-plugin/commit/e68b169a5df18bb66c2183f70441cb21ca39fd3f))
 
 # [1.93.0](https://github.com/Automattic/newspack-plugin/compare/v1.92.1...v1.93.0) (2022-09-28)
 
