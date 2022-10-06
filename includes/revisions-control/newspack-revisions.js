@@ -39,7 +39,7 @@
 		}
 
 		/**
-		 * Handles the creation of the button to toggle revivision
+		 * Handles the creation of the button to toggle revision
 		 */
 		MetaTo.prototype.updateToggleMajorButton = function () {
 			var labels = newspack_revisions_control.labels;
