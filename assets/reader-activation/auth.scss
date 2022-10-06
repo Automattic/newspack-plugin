@@ -194,13 +194,11 @@
 		}
 
 		&__wrapper {
+			position: relative;
 			width: 100%;
 			max-width: 544px;
 			background: white;
-			position: relative;
 			max-height: 100vh;
-			overflow-y: auto;
-			overflow-x: hidden;
 
 			transition: height 125ms ease-in-out;
 
@@ -208,6 +206,26 @@
 				margin: auto;
 				max-width: 780px;
 				overflow-y: hidden;
+			}
+		}
+		&__have-account {
+			background-color: #111;
+			padding: 4px 15px;
+			margin-bottom: 11px;
+			padding-top: 6px !important;
+			padding-bottom: 8px !important;
+			text-align: center;
+			width: calc( 100% - 37px );
+			@media screen and ( min-width: 600px ) {
+				width: 100%;
+			}
+			&,
+			a {
+				color: #fff;
+			}
+			a:active,
+			a:hover {
+				color: #d6d6d6;
 			}
 		}
 
@@ -262,7 +280,7 @@
 			}
 
 			@media screen and ( min-width: 782px ) {
-				padding: 64px;
+				padding: 47px 64px 64px;
 			}
 
 			form {
@@ -326,7 +344,7 @@
 			padding: 0;
 			position: absolute;
 			right: 0;
-			top: 0;
+			top: 7px;
 			width: 40px;
 
 			@media screen and ( min-width: 600px ) {
