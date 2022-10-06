@@ -1,3 +1,10 @@
+# [1.94.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.94.0-alpha.1...v1.94.0-alpha.2) (2022-10-06)
+
+
+### Bug Fixes
+
+* force hotfix release ([e68b169](https://github.com/Automattic/newspack-plugin/commit/e68b169a5df18bb66c2183f70441cb21ca39fd3f))
+
 ## [1.93.1](https://github.com/Automattic/newspack-plugin/compare/v1.93.0...v1.93.1) (2022-10-06)
 
 
