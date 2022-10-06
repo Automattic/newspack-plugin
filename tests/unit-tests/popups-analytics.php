@@ -13,7 +13,7 @@ use Newspack\Popups_Analytics_Utils;
 class Newspack_Test_Popups_Analytics extends WP_UnitTestCase {
 	private static $start_date; // phpcs:disable Squiz.Commenting.VariableComment.Missing
 	private static $end_date; // phpcs:disable Squiz.Commenting.VariableComment.Missing
-	public function setUp() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+	public function set_up() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		self::$start_date = ( new \DateTime() )->modify( '-3 days' )->format( 'Y-m-d' );
 		self::$end_date   = ( new \DateTime() )->modify( '-1 days' )->format( 'Y-m-d' );
 	}
