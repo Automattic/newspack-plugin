@@ -1,3 +1,11 @@
+## [1.93.1](https://github.com/Automattic/newspack-plugin/compare/v1.93.0...v1.93.1) (2022-10-06)
+
+
+### Bug Fixes
+
+* fire ini-load analytics events on DOMContentLoaded, not load ([cc2485d](https://github.com/Automattic/newspack-plugin/commit/cc2485d20cc80afabf760fa154d5a198fcb552b5))
+* force hotfix release ([e68b169](https://github.com/Automattic/newspack-plugin/commit/e68b169a5df18bb66c2183f70441cb21ca39fd3f))
+
 # [1.93.0](https://github.com/Automattic/newspack-plugin/compare/v1.92.1...v1.93.0) (2022-09-28)
 
 
