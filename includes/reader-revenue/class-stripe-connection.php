@@ -485,7 +485,7 @@ class Stripe_Connection {
 		// Verify the webhook signature (https://stripe.com/docs/webhooks/signatures).
 		$webhook = get_option( self::STRIPE_WEBHOOK_OPTION_NAME, false );
 		if ( false === $webhook || ! isset( $webhook['secret'], $_SERVER['HTTP_STRIPE_SIGNATURE'] ) ) {
-			return new \WP_Error( 'newspack_webhook_missing_data' );
+			return new \WP_Error( 'newspack_webhook_missing_verification_data' );
 		}
 		try {
 			$sig_header = sanitize_text_field( $_SERVER['HTTP_STRIPE_SIGNATURE'] );
@@ -496,7 +496,7 @@ class Stripe_Connection {
 				$webhook['secret']
 			);
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'newspack_webhook_error' );
+			return new \WP_Error( 'newspack_webhook_verification_error' );
 		}
 
 		$payload = $request['data']['object'];
