@@ -4,7 +4,7 @@
  * WordPress dependencies
  */
 import { useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Button, Spinner, TextControl } from '@wordpress/components';
@@ -38,25 +38,39 @@ const ReaderRevenueEmailSidebar = compose( [
 			updatePostTitle: title => editPost( { title } ),
 		};
 	} ),
-] )( ( { postId, savePost, title, postMeta, updatePostTitle, updatePostMeta, createNotice } ) => {
+] )( ( { postId, savePost, title, postMeta, updatePostTitle, createNotice } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ settings, updateSettings ] = hooks.useObjectState( {
 		testRecipient: newspack_emails.current_user_email,
 	} );
+	const configMetaName = postMeta[ newspack_emails.email_config_name_meta ];
+	const config = newspack_emails.configs[ configMetaName ];
+
 	useEffect( () => {
+		if ( config?.editor_notice ) {
+			createNotice( 'info', config.editor_notice, {
+				isDismissible: false,
+			} );
+		}
 		createNotice(
 			'info',
-			__( 'This email will be sent to a reader after they contribute to your site.', 'newspack' ),
+			sprintf(
+				/* translators: 1: "From" email address 2: "From" email name */
+				__( 'This email will be sent from %1$s <%2$s>.', 'newspack' ),
+				config.from_name || newspack_emails.from_name,
+				config.from_email || newspack_emails.from_email
+			),
 			{
 				isDismissible: false,
 			}
 		);
 	}, [] );
+
 	const sendTestEmail = async () => {
 		setInFlight( true );
 		await savePost();
 		apiFetch( {
-			path: `/newspack/v1/reader-revenue-emails/test`,
+			path: `/newspack/v1/newspack-emails/test`,
 			method: 'POST',
 			data: {
 				recipient: settings.testRecipient,
@@ -75,40 +89,24 @@ const ReaderRevenueEmailSidebar = compose( [
 	};
 	return (
 		<>
-			<PluginDocumentSettingPanel
-				name="email-instructions-panel"
-				title={ __( 'Instructions', 'newspack' ) }
-			>
-				{ __(
-					'Use the following placehoders to insert dynamic content in the email:',
-					'newspack'
-				) }
-				<ul>
-					{ [
-						{ label: __( 'the payment amount', 'newspack' ), template: '*AMOUNT*' },
-						{ label: __( 'payment date', 'newspack' ), template: '*DATE*' },
-						{
-							label: __( 'payment method (last four digits of the card used)', 'newspack' ),
-							template: '*PAYMENT_METHOD*',
-						},
-						{
-							label: __(
-								'the contact email to your site (same as the "From" email address)',
-								'newspack'
-							),
-							template: '*CONTACT_EMAIL*',
-						},
-						{
-							label: __( 'automatically-generated receipt link', 'newspack' ),
-							template: '*RECEIPT_URL*',
-						},
-					].map( ( item, i ) => (
-						<li key={ i }>
-							– <code>{ item.template }</code>: { item.label }
-						</li>
-					) ) }
-				</ul>
-			</PluginDocumentSettingPanel>
+			{ config.available_placeholders?.length && (
+				<PluginDocumentSettingPanel
+					name="email-instructions-panel"
+					title={ __( 'Instructions', 'newspack' ) }
+				>
+					{ __(
+						'Use the following placeholders to insert dynamic content in the email:',
+						'newspack'
+					) }
+					<ul>
+						{ config.available_placeholders.map( ( item, i ) => (
+							<li key={ i }>
+								– <code>{ item.template }</code>: { item.label }
+							</li>
+						) ) }
+					</ul>
+				</PluginDocumentSettingPanel>
+			) }
 			<PluginDocumentSettingPanel
 				name="email-settings-panel"
 				title={ __( 'Settings', 'newspack' ) }
@@ -117,17 +115,6 @@ const ReaderRevenueEmailSidebar = compose( [
 					label={ __( 'Subject', 'newspack' ) }
 					value={ title }
 					onChange={ updatePostTitle }
-				/>
-				<TextControl
-					label={ __( '"From" name', 'newspack' ) }
-					value={ postMeta.from_name }
-					onChange={ updatePostMeta( 'from_name' ) }
-				/>
-				<TextControl
-					label={ __( '"From" email address', 'newspack' ) }
-					value={ postMeta.from_email }
-					type="email"
-					onChange={ updatePostMeta( 'from_email' ) }
 				/>
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack' ) }>
@@ -148,7 +135,7 @@ const ReaderRevenueEmailSidebar = compose( [
 	);
 } );
 
-registerPlugin( 'newspack-reader-revenue-emails-sidebar', {
+registerPlugin( 'newspack-emails-sidebar', {
 	render: ReaderRevenueEmailSidebar,
 	icon: null,
 } );

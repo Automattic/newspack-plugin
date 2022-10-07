@@ -77,11 +77,11 @@ class AdvertisingWizard extends Component {
 			} );
 
 	fetchAdvertisingData = ( quiet = false ) =>
-		this.updateWithAPI( { path: '/newspack/v1/wizard/advertising', quiet } );
+		this.updateWithAPI( { path: '/newspack/v1/wizard/billboard', quiet } );
 
 	toggleService = ( service, enabled ) =>
 		this.updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/service/' + service,
+			path: '/newspack/v1/wizard/billboard/service/' + service,
 			method: enabled ? 'POST' : 'DELETE',
 			quiet: true,
 		} );
@@ -97,7 +97,7 @@ class AdvertisingWizard extends Component {
 
 	saveAdUnit = id =>
 		this.updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/ad_unit/' + ( id || 0 ),
+			path: '/newspack/v1/wizard/billboard/ad_unit/' + ( id || 0 ),
 			method: 'post',
 			data: this.state.advertisingData.adUnits[ id ],
 			quiet: true,
@@ -112,7 +112,7 @@ class AdvertisingWizard extends Component {
 		// eslint-disable-next-line no-alert
 		if ( confirm( __( 'Are you sure you want to archive this ad unit?', 'newspack' ) ) ) {
 			return this.updateWithAPI( {
-				path: '/newspack/v1/wizard/advertising/ad_unit/' + id,
+				path: '/newspack/v1/wizard/billboard/ad_unit/' + id,
 				method: 'delete',
 				quiet: true,
 			} );
@@ -121,7 +121,7 @@ class AdvertisingWizard extends Component {
 
 	updateAdSuppression = suppressionConfig =>
 		this.updateWithAPI( {
-			path: '/newspack/v1/wizard/advertising/suppression',
+			path: '/newspack/v1/wizard/billboard/suppression',
 			method: 'post',
 			data: { config: suppressionConfig },
 			quiet: true,

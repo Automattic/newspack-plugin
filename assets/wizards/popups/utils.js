@@ -96,26 +96,11 @@ const frequencyMap = {
 	weekly: __( 'Once a week', 'newspack' ),
 	daily: __( 'Once a day', 'newspack' ),
 	always: __( 'Every pageview', 'newspack' ),
-	preset_1: __( 'Every 4th pageview, up to 5x per month', 'newspack' ),
 	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack' ),
 };
 
-export const frequenciesForPopup = popup => {
-	const { experimental } = window.newspack_popups_wizard_data;
-	const standardKeys = [ 'once', 'daily', 'always' ];
-	return Object.keys( frequencyMap )
-		.filter( key => {
-			if ( experimental ) {
-				return true;
-			}
-
-			if ( isOverlay( popup ) && 'always' === key ) {
-				return false;
-			}
-
-			return -1 < standardKeys.indexOf( key );
-		} )
-		.map( key => ( { label: frequencyMap[ key ], value: key } ) );
+export const frequenciesForPopup = () => {
+	return Object.keys( frequencyMap ).map( key => ( { label: frequencyMap[ key ], value: key } ) );
 };
 
 export const overlaySizesForPopups = () => {
@@ -188,6 +173,7 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		favorite_categories = [],
 		is_donor = false,
 		is_not_donor = false,
+		is_former_donor = false,
 		is_not_subscribed = false,
 		is_subscribed = false,
 		is_logged_in = false,
@@ -229,6 +215,9 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	}
 	if ( is_not_donor ) {
 		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
+	}
+	if ( is_former_donor ) {
+		descriptionMessages.push( __( 'Has cancelled a recurring donation', 'newspack' ) );
 	}
 	if ( is_subscribed ) {
 		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );

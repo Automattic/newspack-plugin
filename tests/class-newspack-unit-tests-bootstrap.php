@@ -63,6 +63,9 @@ class Newspack_Unit_Tests_Bootstrap {
 		// Install Newspack.
 		tests_add_filter( 'setup_theme', array( $this, 'install_newspack' ) );
 
+		// Load the composer autoloader.
+		require_once __DIR__ . '/../vendor/autoload.php';
+
 		// Load the WP testing environment.
 		require_once $_tests_dir . '/includes/bootstrap.php';
 	}

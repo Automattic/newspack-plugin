@@ -48,5 +48,10 @@
 				margin: 0 0 8px;
 			}
 		}
+
+		&-error {
+			color: wp-colors.$alert-red;
+			padding-top: 8px;
+		}
 	}
 }

@@ -36,13 +36,15 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	/**
 	 * Setup for the tests.
 	 */
-	public function setUp() {
+	public function set_up() {
 		// Enable reader activation.
 		add_filter( 'newspack_reader_activation_enabled', '__return_true' );
 
 		// Create sample reader.
 		if ( empty( self::$user_id ) ) {
 			self::$user_id = Reader_Activation::register_reader( 'reader@test.com', 'Test Reader' );
+			// Ensure we're logged out before continuing.
+			wp_logout();
 		}
 
 		// Create a secondary sample reader.
@@ -78,6 +80,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	 *   @type string $token  The token.
 	 *   @type string $client Client hash.
 	 *   @type string $time   Token creation time.
+	 *   @type array  $otp    The OTP.
 	 * }
 	 */
 	public function assertTokenIsValid( $token_data ) {
@@ -85,6 +88,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$this->assertIsString( $token_data['token'] );
 		$this->assertIsString( $token_data['client'] );
 		$this->assertIsInt( $token_data['time'] );
+		$this->assertIsArray( $token_data['otp'] );
 	}
 
 	/**
@@ -167,6 +171,64 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$validation = Magic_Link::validate_token( self::$secondary_user_id, $token_data['client'], $token_data['token'] );
 		$this->assertTrue( is_wp_error( $validation ) );
 		$this->assertEquals( 'invalid_token', $validation->get_error_code() );
+	}
+
+	/**
+	 * Test token OTP.
+	 */
+	public function test_token_otp() {
+		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$otp        = $token_data['otp'];
+		$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], $otp['code'] );
+		$this->assertTokenIsValid( $validation );
+	}
+
+	/**
+	 * Test invalid OTP code.
+	 */
+	public function test_invalid_otp_code() {
+		$token_data  = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$otp         = $token_data['otp'];
+		$random_code = 123456;
+		$validation  = Magic_Link::validate_otp( self::$user_id, $otp['hash'], $random_code );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_otp', $validation->get_error_code() );
+	}
+
+	/**
+	 * Test invalid OTP hash.
+	 */
+	public function test_invalid_otp_hash() {
+		$token_data  = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$otp         = $token_data['otp'];
+		$random_hash = wp_generate_password( 32, false );
+		$validation  = Magic_Link::validate_otp( self::$user_id, $random_hash, $otp['code'] );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_hash', $validation->get_error_code() );
+	}
+
+	/**
+	 * Test OTP hash expiration.
+	 */
+	public function test_otp_hash_expiration() {
+		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$otp        = $token_data['otp'];
+
+		for ( $i = 0; $i < Magic_Link::OTP_MAX_ATTEMPTS; $i++ ) {
+			$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 12345 );
+			$this->assertTrue( is_wp_error( $validation ) );
+			$this->assertEquals( 'invalid_otp', $validation->get_error_code() );
+		}
+
+		// On the max attempt threshold, hash will expire.
+		$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 123456 );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'max_otp_attempts', $validation->get_error_code() );
+
+		// Next attempt on the same hash should fail with `invalid_hash` because the hash was deleted.
+		$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 123456 );
+		$this->assertTrue( is_wp_error( $validation ) );
+		$this->assertEquals( 'invalid_hash', $validation->get_error_code() );
 	}
 
 	/**

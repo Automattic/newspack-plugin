@@ -1,3 +1,5 @@
+/* globals newspack_reader_activation_data newspack_reader_auth_labels */
+
 /**
  * Internal dependencies.
  */
@@ -60,14 +62,22 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		}
 
 		let currentlyOpenOverlayPrompts = [];
+		let overlayPromptOrigin = null;
 		const hideCurrentlyOpenOverlayPrompts = () =>
 			currentlyOpenOverlayPrompts.forEach( promptElement =>
 				promptElement.setAttribute( 'amp-access-hide', '' )
 			);
-		const displayCurrentlyOpenOverlayPrompts = () =>
-			currentlyOpenOverlayPrompts.forEach( promptElement =>
-				promptElement.removeAttribute( 'amp-access-hide' )
-			);
+		const displayCurrentlyOpenOverlayPrompts = () => {
+			const reader = readerActivation.getReader();
+			const loginFromPrompt = reader?.email && overlayPromptOrigin;
+			currentlyOpenOverlayPrompts.forEach( promptElement => {
+				if ( loginFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
+					promptElement.setAttribute( 'amp-access-hide', '' );
+				} else {
+					promptElement.removeAttribute( 'amp-access-hide' );
+				}
+			} );
+		};
 
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
@@ -178,6 +188,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			currentlyOpenOverlayPrompts = document.querySelectorAll(
 				'.newspack-lightbox:not([amp-access-hide])'
 			);
+			overlayPromptOrigin = ev.currentTarget.closest( '.newspack-lightbox' );
+
 			hideCurrentlyOpenOverlayPrompts();
 
 			if ( passwordInput && emailInput?.value && 'pwd' === actionInput?.value ) {
@@ -201,6 +213,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 			const actionInput = form.querySelector( 'input[name="action"]' );
 			const emailInput = form.querySelector( 'input[name="npe"]' );
+			const otpCodeInput = form.querySelector( 'input[name="otp_code"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
@@ -225,6 +238,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			 * Handle auth form action selection.
 			 */
 			function setFormAction( action ) {
+				if ( 'otp' === action ) {
+					if ( ! readerActivation.getOTPHash() ) {
+						return;
+					}
+				}
 				if ( [ 'link', 'pwd' ].includes( action ) ) {
 					readerActivation.setAuthStrategy( action );
 				}
@@ -247,11 +265,18 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 				} catch {}
 				if ( action === 'pwd' && emailInput.value ) {
 					passwordInput.focus();
+				} else if ( action === 'otp' ) {
+					otpCodeInput.focus();
 				} else {
 					emailInput.focus();
 				}
 			}
 			setFormAction( readerActivation.getAuthStrategy() || 'pwd' );
+			readerActivation.on( 'reader', () => {
+				if ( readerActivation.getOTPHash() ) {
+					setFormAction( 'otp' );
+				}
+			} );
 			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
 				item.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
@@ -296,34 +321,90 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			/**
 			 * Handle auth form submission.
 			 */
-			form.addEventListener( 'submit', function ( ev ) {
+			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				const body = new FormData( ev.target );
-				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-					return;
-				}
-				readerActivation.setReaderEmail( body.get( 'npe' ) );
 				form.startLoginFlow();
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						container.setAttribute( 'data-form-status', res.status );
-						res
-							.json()
-							.then( ( { message, data } ) => {
-								form.endLoginFlow( message, res.status, data, body.get( 'redirect' ) );
-							} )
-							.catch( () => {
-								form.endLoginFlow();
-							} );
+
+				const action = form.action?.value;
+
+				if ( ! form.npe?.value ) {
+					return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );
+				}
+
+				if ( 'pwd' === action && ! form.password?.value ) {
+					return form.endLoginFlow( newspack_reader_auth_labels.invalid_password, 400 );
+				}
+
+				readerActivation
+					.getCaptchaToken()
+					.then( captchaToken => {
+						if ( ! captchaToken ) {
+							return;
+						}
+						let tokenField = form.captcha_token;
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'captcha_token' );
+							form.appendChild( tokenField );
+						}
+						tokenField.value = captchaToken;
 					} )
-					.catch( () => {
-						form.endLoginFlow();
+					.catch( e => {
+						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( ev.target );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return form.endFlow( newspack_reader_auth_labels.invalid_email, 400 );
+						}
+						readerActivation.setReaderEmail( body.get( 'npe' ) );
+						if ( 'otp' === action ) {
+							readerActivation
+								.authenticateOTP( body.get( 'otp_code' ) )
+								.then( data => {
+									form.endLoginFlow( data.message, 200, data, body.get( 'redirect' ) );
+								} )
+								.catch( data => {
+									if ( data.expired ) {
+										setFormAction( 'link' );
+									}
+									form.endLoginFlow( data.message, 400 );
+								} );
+						} else {
+							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+								method: 'POST',
+								headers: {
+									Accept: 'application/json',
+								},
+								body,
+							} )
+								.then( res => {
+									const otpHash = readerActivation.getOTPHash();
+									if ( 'link' === action && otpHash ) {
+										form.endLoginFlow( null, 0 );
+										setFormAction( 'otp' );
+									} else {
+										container.setAttribute( 'data-form-status', res.status );
+										res
+											.json()
+											.then( ( { message, data } ) => {
+												let redirect = body.get( 'redirect' );
+												/** Redirect every registration to the account page for verification */
+												if ( action === 'register' ) {
+													redirect = newspack_reader_activation_data.account_url;
+												}
+												form.endLoginFlow( message, res.status, data, redirect );
+											} )
+											.catch( () => {
+												form.endLoginFlow();
+											} );
+									}
+								} )
+								.catch( () => {
+									form.endLoginFlow();
+								} );
+						}
 					} );
 			} );
 		} );
@@ -398,7 +479,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 								}
 							}, 500 );
 						} else if ( googleLoginForm?.endLoginFlow ) {
-							googleLoginForm.endLoginFlow();
+							googleLoginForm.endLoginFlow( newspack_reader_auth_labels.blocked_popup );
 						}
 					} )
 					.catch( error => {
