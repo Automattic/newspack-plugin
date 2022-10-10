@@ -438,6 +438,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							if ( prev ) {
 								prev.focus();
 							}
+							values[ i ] = '';
+							otpCodeInput.value = values.join( '' );
 							break;
 						case 'ArrowLeft':
 							ev.preventDefault();
