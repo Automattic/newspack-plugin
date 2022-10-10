@@ -94,8 +94,20 @@ class WooCommerce_My_Account {
 		}
 
 		$default_disabled_items = [ 'dashboard', 'downloads', 'members-area', 'edit-address' ];
-		if ( function_exists( 'wcs_user_has_subscription' ) && ! wcs_user_has_subscription() ) {
-			$default_disabled_items[] = 'subscriptions';
+		if ( function_exists( 'wcs_user_has_subscription' ) && function_exists( 'wcs_get_subscriptions' ) ) {
+			$user_subscriptions             = wcs_get_subscriptions( [ 'customer_id' => get_current_user_id() ] );
+			$has_non_newspack_subscriptions = false;
+			foreach ( $user_subscriptions as $subscription ) {
+				if ( ! $subscription->get_meta( WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY ) ) {
+					$has_non_newspack_subscriptions = true;
+					break;
+				}
+			}
+			// Unless user has any subscriptions that aren't tied to a Stripe subscription by Newspack, hide the subscriptions link.
+			// The Stripe-tied subscriptions will be available for management in the "Billing" section.
+			if ( ! $has_non_newspack_subscriptions ) {
+				$default_disabled_items[] = 'subscriptions';
+			}
 		}
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$wc_non_newspack_orders = array_filter(
