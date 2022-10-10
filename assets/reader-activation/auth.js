@@ -454,7 +454,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							}
 							break;
 						default:
-							if ( ev.key.match( /^[0-9]/ ) && ev.key.length === 1 ) {
+							if ( ev.key.match( /^[0-9]$/ ) ) {
 								ev.preventDefault();
 								ev.target.value = ev.key;
 								ev.target.dispatchEvent(
@@ -471,7 +471,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					}
 				} );
 				digit.addEventListener( 'input', ev => {
-					if ( ev.target.value.match( /^[0-9]/ ) && ev.target.value.length === 1 ) {
+					if ( ev.target.value.match( /^[0-9]$/ ) ) {
 						values[ i ] = ev.target.value;
 					} else {
 						ev.target.value = '';
@@ -485,7 +485,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 						return;
 					}
 					for ( let j = 0; j < length; j++ ) {
-						if ( paste[ j ].match( /^[0-9]/ ) ) {
+						if ( paste[ j ].match( /^[0-9]$/ ) ) {
 							const digitInput = inputContainer.querySelector( `[data-index="${ j }"]` );
 							digitInput.value = paste[ j ];
 							values[ j ] = paste[ j ];
