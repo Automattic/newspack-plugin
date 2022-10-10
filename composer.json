@@ -21,7 +21,7 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
 		"yoast/phpunit-polyfills": "^1.0",
-		"phpunit/phpunit": "^7.0"
+		"phpunit/phpunit": "^7.0 || ^9.5"
 	},
 	"scripts": {
 		"post-install-cmd": [
@@ -37,6 +37,15 @@
 			"commit-msg": [
 				"cat $1 | ./node_modules/.bin/newspack-scripts commitlint"
 			]
+		}
+	},
+	"config": {
+    "platform": {
+      "php": "7.4"
+    },
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	}
 }

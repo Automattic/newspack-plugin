@@ -203,6 +203,22 @@ export default function ReaderRegistrationEdit( {
 				{ editedState === 'initial' && (
 					<div className={ `newspack-registration ${ className }` }>
 						<form onSubmit={ ev => ev.preventDefault() }>
+							<div className="newspack-registration__have-account">
+								<RichText
+									onChange={ value => setAttributes( { haveAccountLabel: value } ) }
+									placeholder={ __( 'Already have an account?', 'newspack' ) }
+									value={ haveAccountLabel }
+									tagName="span"
+								/>{ ' ' }
+								<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+									<RichText
+										onChange={ value => setAttributes( { signInLabel: value } ) }
+										placeholder={ __( 'Sign In', 'newspack' ) }
+										value={ signInLabel }
+										tagName="span"
+									/>
+								</a>
+							</div>
 							<div className="newspack-registration__header">
 								<RichText
 									onChange={ value => setAttributes( { title: value } ) }
@@ -210,24 +226,6 @@ export default function ReaderRegistrationEdit( {
 									value={ title }
 									tagName="h2"
 								/>
-								<div className="newspack-registration__have-account">
-									<p>
-										<RichText
-											onChange={ value => setAttributes( { haveAccountLabel: value } ) }
-											placeholder={ __( 'Already have an account?', 'newspack' ) }
-											value={ haveAccountLabel }
-											tagName="span"
-										/>{ ' ' }
-										<a href="/my-account" onClick={ ev => ev.preventDefault() }>
-											<RichText
-												onChange={ value => setAttributes( { signInLabel: value } ) }
-												placeholder={ __( 'Sign In', 'newspack' ) }
-												value={ signInLabel }
-												tagName="span"
-											/>
-										</a>
-									</p>
-								</div>
 							</div>
 							<RichText
 								onChange={ value => setAttributes( { description: value } ) }

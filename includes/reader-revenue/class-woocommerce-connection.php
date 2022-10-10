@@ -174,7 +174,7 @@ class WooCommerce_Connection {
 		];
 
 		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
-		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( 'Y-m-d' );
+		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 		$metadata[ $metadata_keys['payment_page'] ]      = \wc_get_checkout_url();
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
@@ -189,6 +189,10 @@ class WooCommerce_Connection {
 				$metadata[ $metadata_keys['product_name'] ] = reset( $order_items )->get_name();
 			}
 			$metadata[ $metadata_keys['last_payment_amount'] ] = $order->get_total();
+			$order_date_paid                                   = $order->get_date_paid();
+			if ( null !== $order_date_paid ) {
+				$metadata[ $metadata_keys['last_payment_date'] ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			}
 
 			// Subscription donation.
 		} else {
@@ -217,7 +221,7 @@ class WooCommerce_Connection {
 			$metadata[ $metadata_keys['sub_end_date'] ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
 			$metadata[ $metadata_keys['billing_cycle'] ]       = $current_subscription->get_billing_period();
 			$metadata[ $metadata_keys['recurring_payment'] ]   = $current_subscription->get_total();
-			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( 'Y-m-d' );
+			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			$metadata[ $metadata_keys['last_payment_amount'] ] = $current_subscription->get_total();
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
@@ -254,8 +258,9 @@ class WooCommerce_Connection {
 	 * @param string $email_address Email address.
 	 * @param string $full_name Full name.
 	 * @param string $frequency Donation frequency.
+	 * @param array  $metadata Donor metadata.
 	 */
-	public static function set_up_membership( $email_address, $full_name, $frequency ) {
+	public static function set_up_membership( $email_address, $full_name, $frequency, $metadata = [] ) {
 		if ( ! class_exists( 'WC_Memberships_Membership_Plans' ) ) {
 			return;
 		}
@@ -272,7 +277,7 @@ class WooCommerce_Connection {
 		}
 		if ( $should_create_account ) {
 			if ( Reader_Activation::is_enabled() ) {
-				$metadata = [ 'registration_method' => 'woocommerce-memberships' ];
+				$metadata = array_merge( $metadata, [ 'registration_method' => 'woocommerce-memberships' ] );
 				$user_id  = Reader_Activation::register_reader( $email_address, $full_name, true, $metadata );
 				return $user_id;
 			}
@@ -294,10 +299,22 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Find order by Stripe transaction ID.
+	 *
+	 * @param string $transaction_id Transaction ID.
+	 */
+	private static function find_order_by_transaction_id( $transaction_id ) {
+		global $wpdb;
+		return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s AND meta_value=%s;", '_transaction_id', $transaction_id ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			ARRAY_A
+		);
+	}
+
+	/**
 	 * Get a WC Subscription object by Stripe Subscription ID.
 	 *
 	 * @param string $stripe_subscription_id Stripe Subscription ID.
-	 * @return WC_Subscription|false Subscription object or false.
 	 */
 	private static function get_subscription_by_stripe_subscription_id( $stripe_subscription_id ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
@@ -415,6 +432,14 @@ class WooCommerce_Connection {
 	 * @param object $order_data Order data.
 	 */
 	public static function create_transaction( $order_data ) {
+		$transaction_id = $order_data['stripe_id'];
+
+		$found_order = self::find_order_by_transaction_id( $transaction_id );
+		if ( ! empty( $found_order ) ) {
+			Logger::log( 'NOT creating an order, it was already synced.' );
+			return;
+		}
+
 		$frequency              = $order_data['frequency'];
 		$stripe_subscription_id = $order_data['stripe_subscription_id'];
 

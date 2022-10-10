@@ -1,6 +1,6 @@
 {
   "name": "newspack",
-  "version": "1.91.0",
+  "version": "1.93.2",
   "description": "The Newspack plugin. https://newspack.pub",
   "bugs": {
     "url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -11,13 +11,13 @@
     "npm": "8"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.1.4",
+    "@rushstack/eslint-patch": "^1.2.0",
     "@testing-library/react": "^12.1.4",
-    "@wordpress/browserslist-config": "^5.0.0",
+    "@wordpress/browserslist-config": "^5.2.0",
     "eslint": "^7.32.0",
     "lint-staged": "^13.0.3",
     "newspack-scripts": "^4.0.0",
-    "postcss-scss": "^4.0.4",
+    "postcss-scss": "^4.0.5",
     "prettier": "npm:wp-prettier@^2.6.2-beta-1",
     "stylelint": "^14.9.1"
   },
@@ -46,11 +46,11 @@
     "postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
   },
   "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.18.10",
-    "@babel/preset-env": "^7.19.0",
-    "classnames": "^2.3.1",
+    "@babel/plugin-transform-runtime": "^7.19.1",
+    "@babel/preset-env": "^7.19.3",
+    "classnames": "^2.3.2",
     "colord": "^2.9.3",
-    "date-fns": "^2.29.2",
+    "date-fns": "^2.29.3",
     "deep-map-keys": "^2.0.1",
     "human-number": "^2.0.1",
     "js-cookie": "^3.0.1",
@@ -61,7 +61,7 @@
     "react": "^17.0.2",
     "react-daterange-picker": "^2.0.1",
     "react-google-charts": "^4.0.0",
-    "react-router-dom": "^5.3.3",
+    "react-router-dom": "^5.3.4",
     "recursive-copy": "^2.0.14"
   }
 }
