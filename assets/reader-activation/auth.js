@@ -469,7 +469,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 					}
 				} );
 				digit.addEventListener( 'input', ev => {
-					if ( ev.target.value.match( /^[0-9]/ ) && ev.key.length === 1 ) {
+					if ( ev.target.value.match( /^[0-9]/ ) && ev.target.value.length === 1 ) {
 						values[ i ] = ev.target.value;
 					} else {
 						ev.target.value = '';
