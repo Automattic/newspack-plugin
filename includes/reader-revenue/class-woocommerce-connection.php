@@ -315,6 +315,7 @@ class WooCommerce_Connection {
 	 * Get a WC Subscription object by Stripe Subscription ID.
 	 *
 	 * @param string $stripe_subscription_id Stripe Subscription ID.
+	 * @return WC_Subscription|false Subscription object or false.
 	 */
 	private static function get_subscription_by_stripe_subscription_id( $stripe_subscription_id ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
