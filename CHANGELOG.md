@@ -1,3 +1,11 @@
+## [1.93.2](https://github.com/Automattic/newspack-plugin/compare/v1.93.1...v1.93.2) (2022-10-10)
+
+
+### Bug Fixes
+
+* **stripe-wc:** prevent duplicate orders creation ([041d711](https://github.com/Automattic/newspack-plugin/commit/041d7116d0158e3e8e84e4192e98aee00eca7e42))
+* **stripe:** handle sync errors ([329de96](https://github.com/Automattic/newspack-plugin/commit/329de960cae933d1b0341433dd20b71942abfec0))
+
 ## [1.93.1](https://github.com/Automattic/newspack-plugin/compare/v1.93.0...v1.93.1) (2022-10-06)
 
 
