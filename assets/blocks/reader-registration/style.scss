@@ -232,7 +232,8 @@
 		display: none;
 	}
 
-	.nphp {
+	.nphp,
+	input[type='email'].nphp {
 		@include mixins.visuallyHidden;
 	}
 }

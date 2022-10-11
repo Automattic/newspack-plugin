@@ -2,6 +2,7 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../shared/scss/mixins';
 
+.entry-content .newspack-reader,
 .newspack-reader {
 	/**
 	 * Account Link
@@ -83,7 +84,8 @@
 			z-index: auto;
 		}
 
-		.nphp {
+		.nphp,
+		input[type='email'].nphp {
 			@include mixins.visuallyHidden;
 		}
 
