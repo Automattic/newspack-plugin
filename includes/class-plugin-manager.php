@@ -251,7 +251,7 @@ class Plugin_Manager {
 			],
 			'woocommerce-subscriptions'     => [
 				'Name'        => esc_html__( 'WooCommerce Subscriptions', 'newspack' ),
-				'Description' => esc_html__( 'An eCommerce toolkit that helps you sell anything. Beautifully.', 'newspack' ),
+				'Description' => esc_html__( 'Sell products and services with recurring payments in your WooCommerce Store.', 'newspack' ),
 				'Author'      => esc_html__( 'WooCommerce', 'newspack' ),
 				'PluginURI'   => esc_url( 'https://woocommerce.com/products/woocommerce-subscriptions/' ),
 				'AuthorURI'   => esc_url( 'https://woocommerce.com/' ),
