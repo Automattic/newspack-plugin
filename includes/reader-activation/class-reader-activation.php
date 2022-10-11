@@ -259,6 +259,10 @@ final class Reader_Activation {
 	 * @return bool True if reader activation is enabled.
 	 */
 	public static function is_enabled( $strict = true ) {
+		if ( defined( 'IS_TEST_ENV' ) && IS_TEST_ENV ) {
+			return true;
+		}
+
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
 
 		if ( ! $strict ) {
