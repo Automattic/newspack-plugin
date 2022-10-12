@@ -61,8 +61,8 @@ abstract class Starter_Content_Provider {
 		global $wpdb;
 		$post_ids = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQueryWithPlaceholder
 			$wpdb->prepare(
-				"SELECT post_id FROM $wpdb->postmeta WHERE meta_key LIKE %s;",
-				'%' . self::$starter_post_meta_prefix . '%'
+				"SELECT post_id FROM $wpdb->postmeta WHERE meta_key LIKE %s",
+				self::$starter_post_meta_prefix . '%'
 			),
 			ARRAY_A
 		);
@@ -77,8 +77,8 @@ abstract class Starter_Content_Provider {
 
 		$post_ids = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQueryWithPlaceholder
 			$wpdb->prepare(
-				"SELECT post_id FROM $wpdb->postmeta WHERE meta_key LIKE %s;",
-				'%' . self::$starter_post_meta_prefix . '%'
+				"SELECT post_id FROM $wpdb->postmeta WHERE meta_key LIKE %s",
+				self::$starter_post_meta_prefix . '%'
 			),
 			ARRAY_A
 		);
