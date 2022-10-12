@@ -254,7 +254,10 @@ function render_block( $attrs, $content ) {
 
 						<div class="newspack-registration__help-text">
 							<p>
-								<?php echo \wp_kses_post( $attrs['privacyLabel'] ); ?>
+								<?php
+								$terms_text = empty( $attrs['privacyLabel'] ) ? Reader_Activation::get_setting( 'terms_text' ) : $attrs['privacyLabel'];
+								echo \wp_kses_post( $terms_text );
+								?>
 							</p>
 						</div>
 					</div>

@@ -59,6 +59,7 @@ export default function ReaderRegistrationEdit( {
 } ) {
 	const blockProps = useBlockProps();
 	const [ editedState, setEditedState ] = useState( editedStateOptions[ 0 ].value );
+	const { reader_activation_terms: defaultTermsText } = window.newspack_blocks;
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
@@ -313,7 +314,7 @@ export default function ReaderRegistrationEdit( {
 										<RichText
 											onChange={ value => setAttributes( { privacyLabel: value } ) }
 											placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
-											value={ privacyLabel }
+											value={ privacyLabel || defaultTermsText }
 											tagName="p"
 										/>
 									</div>
