@@ -51,8 +51,9 @@ endif;
 	</p>
 
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-		<label for="account_email"><?php \esc_html_e( 'Email address', 'newspack' ); ?>&nbsp;<span class="required">*</span></label>
-		<input type="email" disabled class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
+		<label for="account_email_display"><?php \esc_html_e( 'Email address', 'newspack' ); ?>&nbsp;<span class="required">*</span></label>
+		<input type="email" disabled class="woocommerce-Input woocommerce-Input--email input-text" name="account_email_display" id="account_email_display" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
+		<input type="hidden" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
 	</p>
 
 	<?php \do_action( 'newspack_woocommerce_edit_account_form' ); ?>
