@@ -26,15 +26,6 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	private static $reader_name = 'Reader Test';
 
 	/**
-	 * Setup for the tests.
-	 */
-	public function set_up() {
-		if ( ! defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) ) {
-			define( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION', true );
-		}
-	}
-
-	/**
 	 * Helper function to register sample reader
 	 */
 	private static function register_sample_reader() {

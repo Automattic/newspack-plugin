@@ -175,6 +175,7 @@ final class Reader_Activation {
 			'sender_name'                 => Emails::get_from_name(),
 			'sender_email_address'        => Emails::get_from_email(),
 			'contact_email_address'       => Emails::get_reply_to_email(),
+			'plugins_configured'          => self::is_woocommerce_active(),
 		];
 
 		/**
@@ -241,6 +242,15 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Check if the required Woo plugins are active.
+	 *
+	 * @return boolean True if all required plugins are active, otherwise false.
+	 */
+	public static function is_woocommerce_active() {
+		return class_exists( 'WooCommerce' ) && class_exists( 'WC_Subscriptions' );
+	}
+
+	/**
 	 * Whether reader activation is enabled.
 	 *
 	 * @param bool $strict If true, check both the environment constant and the setting.
@@ -249,6 +259,10 @@ final class Reader_Activation {
 	 * @return bool True if reader activation is enabled.
 	 */
 	public static function is_enabled( $strict = true ) {
+		if ( defined( 'IS_TEST_ENV' ) && IS_TEST_ENV ) {
+			return true;
+		}
+
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
 
 		if ( ! $strict ) {
@@ -257,6 +271,10 @@ final class Reader_Activation {
 
 		if ( $is_enabled ) {
 			$is_enabled = self::get_setting( 'enabled' );
+		}
+
+		if ( $is_enabled ) {
+			$is_enabled = self::is_woocommerce_active();
 		}
 
 		/**
