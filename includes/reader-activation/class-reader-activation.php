@@ -273,10 +273,6 @@ final class Reader_Activation {
 			$is_enabled = self::get_setting( 'enabled' );
 		}
 
-		if ( $is_enabled ) {
-			$is_enabled = self::is_woocommerce_active();
-		}
-
 		/**
 		 * Filters whether reader activation is enabled.
 		 *
@@ -561,7 +557,7 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
-		if ( ! self::get_setting( 'enabled_account_link' ) ) {
+		if ( ! self::get_setting( 'enabled_account_link' ) || ! self::is_woocommerce_active() ) {
 			return;
 		}
 
