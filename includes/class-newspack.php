@@ -97,6 +97,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-login.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-blocks.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-meta-pixel.php';
+		include_once NEWSPACK_ABSPATH . 'includes/revisions-control/class-revisions-control.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
 
@@ -137,6 +138,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-newsletters.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-mailchimp-for-woocommerce.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 

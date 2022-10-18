@@ -35,7 +35,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 	const updateGAMNetworkCode = () => {
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/advertising/network_code/',
+			path: '/newspack/v1/wizard/billboard/network_code/',
 			method: 'POST',
 			data: { network_code: networkCode, is_gam: false },
 			quiet: true,

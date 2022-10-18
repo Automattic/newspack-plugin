@@ -31,6 +31,13 @@ final class Reader_Activation {
 	const WITHOUT_PASSWORD    = 'np_reader_without_password';
 	const REGISTRATION_METHOD = 'np_reader_registration_method';
 
+
+	/**
+	 * Unverified email rate limiting
+	 */
+	const LAST_EMAIL_DATE = 'np_reader_last_email_date';
+	const EMAIL_INTERVAL  = 10; // 10 seconds
+
 	/**
 	 * Auth form.
 	 */
@@ -76,6 +83,7 @@ final class Reader_Activation {
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
+			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 		}
 	}
 
@@ -93,6 +101,7 @@ final class Reader_Activation {
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
+			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {
@@ -163,6 +172,10 @@ final class Reader_Activation {
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
+			'sender_name'                 => Emails::get_from_name(),
+			'sender_email_address'        => Emails::get_from_email(),
+			'contact_email_address'       => Emails::get_reply_to_email(),
+			'plugins_configured'          => self::is_woocommerce_active(),
 		];
 
 		/**
@@ -229,6 +242,15 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Check if the required Woo plugins are active.
+	 *
+	 * @return boolean True if all required plugins are active, otherwise false.
+	 */
+	public static function is_woocommerce_active() {
+		return class_exists( 'WooCommerce' ) && class_exists( 'WC_Subscriptions' );
+	}
+
+	/**
 	 * Whether reader activation is enabled.
 	 *
 	 * @param bool $strict If true, check both the environment constant and the setting.
@@ -237,6 +259,10 @@ final class Reader_Activation {
 	 * @return bool True if reader activation is enabled.
 	 */
 	public static function is_enabled( $strict = true ) {
+		if ( defined( 'IS_TEST_ENV' ) && IS_TEST_ENV ) {
+			return true;
+		}
+
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
 
 		if ( ! $strict ) {
@@ -531,7 +557,7 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
-		if ( ! self::get_setting( 'enabled_account_link' ) ) {
+		if ( ! self::get_setting( 'enabled_account_link' ) || ! self::is_woocommerce_active() ) {
 			return;
 		}
 
@@ -766,10 +792,12 @@ final class Reader_Activation {
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<input type="hidden" name="action" value="pwd" />
-						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
-							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
+						<div class="<?php echo \esc_attr( $class( 'have-account' ) ); ?>">
 							<a href="#" data-action="pwd link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
 							<a href="#" data-action="register" data-set-action="pwd"><?php \esc_html_e( 'I already have an account', 'newspack' ); ?></a>
+						</div>
+						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
+							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
@@ -828,8 +856,8 @@ final class Reader_Activation {
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 							<?php self::render_honeypot_field(); ?>
 						</div>
-						<div class="components-form__field" data-action="otp">
-							<input name="otp_code" type="text" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack' ); ?>" />
+						<div class="components-form__field otp-field" data-action="otp">
+							<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack' ); ?>" />
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
@@ -1331,12 +1359,6 @@ final class Reader_Activation {
 			}
 		}
 
-		// Send a magic link to new, unverified readers to verify their email address.
-		$user = \get_user_by( 'id', $user_id );
-		if ( ! $existing_user && ! self::is_reader_verified( $user ) ) {
-			self::send_verification_email( $user );
-		}
-
 		/**
 		 * Action after registering and authenticating a reader.
 		 *
@@ -1352,12 +1374,33 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Whether the current reader is rate limited.
+	 *
+	 * @param \WP_User $user WP_User object to be verified.
+	 *
+	 * @return bool
+	 */
+	public static function is_reader_email_rate_limited( $user ) {
+		if ( self::is_reader_verified( $user ) ) {
+			return false;
+		}
+		$last_email = get_user_meta( $user->ID, self::LAST_EMAIL_DATE, true );
+		return $last_email && self::EMAIL_INTERVAL > time() - $last_email;
+	}
+
+	/**
 	 * Send a magic link with special messaging to verify the user.
 	 *
 	 * @param WP_User $user WP_User object to be verified.
 	 */
 	public static function send_verification_email( $user ) {
 		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
+
+		/** Rate limit control */
+		if ( self::is_reader_email_rate_limited( $user ) ) {
+			return new \WP_Error( 'newspack_verification_email_interval', __( 'Please wait before requesting another verification email.', 'newspack' ) );
+		}
+		\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
 
 		return Emails::send_email(
 			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
@@ -1448,6 +1491,24 @@ final class Reader_Activation {
 			return 'text/html';
 		};
 		add_filter( 'wp_mail_content_type', $email_content_type );
+	}
+
+	/**
+	 * Rate limit password reset.
+	 *
+	 * @param \WP_Error      $errors    A WP_Error object containing any errors generated
+	 *                                  by using invalid credentials.
+	 * @param \WP_User|false $user_data WP_User object if found, false if the user does not exist.
+	 *
+	 * @return \WP_Error
+	 */
+	public static function rate_limit_lost_password( $errors, $user_data ) {
+		if ( $user_data && self::is_reader_email_rate_limited( $user_data ) ) {
+			$errors->add( 'newspack_password_reset_interval', __( 'Please wait a moment before requesting another password reset email.', 'newspack' ) );
+		} else {
+			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
+		}
+		return $errors;
 	}
 }
 Reader_Activation::init();
