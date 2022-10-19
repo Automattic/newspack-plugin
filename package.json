@@ -1,6 +1,6 @@
 {
   "name": "newspack",
-  "version": "1.94.0-alpha.3",
+  "version": "1.94.0-alpha.4",
   "description": "The Newspack plugin. https://newspack.pub",
   "bugs": {
     "url": "https://github.com/Automattic/newspack-plugin/issues"

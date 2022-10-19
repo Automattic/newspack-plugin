@@ -1,3 +1,10 @@
+# [1.94.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.94.0-alpha.3...v1.94.0-alpha.4) (2022-10-19)
+
+
+### Bug Fixes
+
+* "Sign In" page styles ([#2075](https://github.com/Automattic/newspack-plugin/issues/2075)) ([b7a453a](https://github.com/Automattic/newspack-plugin/commit/b7a453a2be38dd102dcf319f633d663677687012))
+
 # [1.94.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.94.0-alpha.2...v1.94.0-alpha.3) (2022-10-10)
 
 
