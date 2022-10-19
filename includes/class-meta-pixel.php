@@ -149,11 +149,11 @@ class Meta_Pixel {
 	}
 
 	/**
-	 * Gets the template for the img tag snippet
+	 * Gets the event parameters based on the current request
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public static function get_img_snippet() {
+	private static function get_event_params() {
 		global $wp;
 		$current_user = wp_get_current_user();
 		$event_params = [
@@ -167,6 +167,21 @@ class Meta_Pixel {
 			$event_params['post_id']   = get_the_ID();
 		}
 
+		/**
+		 * Filters the event parameters that will be sent added to the Meta Pixel code
+		 *
+		 * @param array $event_params The event parameters based on the current request.
+		 */
+		return apply_filters( 'newspack_meta_pixel_event_params', $event_params );
+	}
+	/**
+	 * Gets the template for the img tag snippet
+	 *
+	 * @return string
+	 */
+	public static function get_img_snippet() {
+		$event_params = self::get_event_params();
+
 		$url_params = http_build_query( [ 'cd' => $event_params ] );
 
 		return '<img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id=__PIXEL_ID__&ev=PageView&noscript=1&' . $url_params . '">';
@@ -178,8 +193,8 @@ class Meta_Pixel {
 	 * @return string
 	 */
 	public static function get_script_snippet() {
-		return "
-		<script>
+		return sprintf(
+			"<script>
 		!function(f,b,e,v,n,t,s)
 		{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 		n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -189,9 +204,10 @@ class Meta_Pixel {
 		s.parentNode.insertBefore(t,s)}(window, document,'script',
 		'https://connect.facebook.net/en_US/fbevents.js');
 		fbq('init', '__PIXEL_ID__');
-		fbq('track', 'PageView');
-		</script>
-		";
+		fbq('track', 'PageView', %s);
+		</script>",
+			wp_json_encode( self::get_event_params() )
+		);
 	}
 
 	/**
