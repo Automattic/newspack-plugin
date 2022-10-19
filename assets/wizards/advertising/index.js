@@ -15,7 +15,16 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression, AddOns } from './views';
+import {
+	AdUnit,
+	AdUnits,
+	Providers,
+	Settings,
+	Placements,
+	Suppression,
+	AddOns,
+	Marketplace,
+} from './views';
 import { getSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -155,6 +164,10 @@ class AdvertisingWizard extends Component {
 			{
 				label: __( 'Add-Ons', 'newspack' ),
 				path: '/addons',
+			},
+			{
+				label: __( 'Marketplace', 'newspack' ),
+				path: '/marketplace',
 			},
 		];
 		return (
@@ -296,6 +309,17 @@ class AdvertisingWizard extends Component {
 									headerText={ __( 'Advertising', 'newspack' ) }
 									subHeaderText={ __( 'Add-ons for enhanced advertising', 'newspack' ) }
 									tabbedNavigation={ tabs }
+								/>
+							) }
+						/>
+						<Route
+							path="/marketplace"
+							render={ () => (
+								<Marketplace
+									headerText={ __( 'Marketplace', 'newspack' ) }
+									subHeaderText={ __( 'Sell your ad placements', 'newspack' ) }
+									tabbedNavigation={ tabs }
+									adUnits={ adUnits }
 								/>
 							) }
 						/>
