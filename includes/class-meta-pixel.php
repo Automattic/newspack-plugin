@@ -195,7 +195,7 @@ class Meta_Pixel {
 	}
 
 	/**
-	 * Prints sinppets in the header
+	 * Prints snippets in the header
 	 *
 	 * @return void
 	 */
