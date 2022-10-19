@@ -22,7 +22,18 @@ const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
 };
 wizardsScripts.forEach( function ( wizard ) {
-	wizardsScriptFiles[ wizard ] = path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' );
+	let wizardFileName = wizard;
+	if ( wizard === 'advertising' ) {
+		// "advertising.js" might be blocked by ad-blocking extensions.
+		wizardFileName = 'billboard';
+	}
+	wizardsScriptFiles[ wizardFileName ] = path.join(
+		__dirname,
+		'assets',
+		'wizards',
+		wizard,
+		'index.js'
+	);
 } );
 
 // Get files for other scripts.

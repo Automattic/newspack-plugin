@@ -22,8 +22,8 @@ class Newspack_Test_Wizards_Controller extends WP_UnitTestCase {
 	/**
 	 * Set up stuff for testing API requests.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();

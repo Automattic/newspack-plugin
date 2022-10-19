@@ -14,7 +14,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 	/**
 	 * Setup for the tests.
 	 */
-	public function setUp() {
+	public function set_up() {
 		delete_option( Settings::SETTINGS_OPTION_NAME );
 	}
 

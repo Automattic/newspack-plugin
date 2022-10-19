@@ -36,7 +36,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	/**
 	 * Setup for the tests.
 	 */
-	public function setUp() {
+	public function set_up() {
 		// Enable reader activation.
 		add_filter( 'newspack_reader_activation_enabled', '__return_true' );
 

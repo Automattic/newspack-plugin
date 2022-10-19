@@ -28,7 +28,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 	/**
 	 * Setup for the tests.
 	 */
-	public function setUp() {
+	public function set_up() {
 		if ( ! defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) ) {
 			define( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION', true );
 		}
