@@ -37,6 +37,10 @@ class WooCommerce_My_Account {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		if ( ! Reader_Activation::is_enabled() ) {
+			return;
+		}
+
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
@@ -93,9 +97,10 @@ class WooCommerce_My_Account {
 			return $items;
 		}
 
-		$default_disabled_items = [ 'dashboard', 'downloads', 'members-area', 'edit-address' ];
+		$default_disabled_items = [ 'dashboard', 'members-area', 'edit-address' ];
+		$customer_id            = \get_current_user_id();
 		if ( function_exists( 'wcs_user_has_subscription' ) && function_exists( 'wcs_get_subscriptions' ) ) {
-			$user_subscriptions             = wcs_get_subscriptions( [ 'customer_id' => get_current_user_id() ] );
+			$user_subscriptions             = wcs_get_subscriptions( [ 'customer_id' => $customer_id ] );
 			$has_non_newspack_subscriptions = false;
 			foreach ( $user_subscriptions as $subscription ) {
 				if ( ! $subscription->get_meta( WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY ) ) {
@@ -111,13 +116,20 @@ class WooCommerce_My_Account {
 		}
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$wc_non_newspack_orders = array_filter(
-				\wc_get_orders( [ 'customer' => \get_current_user_id() ] ),
+				\wc_get_orders( [ 'customer' => $customer_id ] ),
 				function ( $order ) {
 					return WooCommerce_Connection::CREATED_VIA_NAME !== $order->get_created_via();
 				}
 			);
 			if ( empty( $wc_non_newspack_orders ) ) {
 				$default_disabled_items = array_merge( $default_disabled_items, [ 'orders', 'payment-methods' ] );
+			}
+		}
+		if ( function_exists( 'wc_get_customer_available_downloads' ) ) {
+			$wc_customer_downloads = \wc_get_customer_available_downloads( $customer_id );
+
+			if ( empty( $wc_customer_downloads ) ) {
+				$default_disabled_items[] = 'downloads';
 			}
 		}
 		$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
