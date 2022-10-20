@@ -44,6 +44,7 @@ final class Blocks {
 				'has_google_oauth'        => Google_OAuth::is_oauth_configured(),
 				'google_logo_svg'         => file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ),
 				'reader_activation_terms' => Reader_Activation::get_setting( 'terms_text' ),
+				'reader_activation_url'   => Reader_Activation::get_setting( 'terms_url' ),
 			]
 		);
 		\wp_enqueue_style(
