@@ -14,6 +14,7 @@ import {
 	Card,
 	Grid,
 	Notice,
+	PluginInstaller,
 	SectionHeader,
 	TextControl,
 	withWizardScreen,
@@ -81,6 +82,25 @@ export default withWizardScreen( () => {
 	};
 
 	const emails = Object.values( config.emails || {} );
+
+	if ( ! inFlight && false === config.plugins_configured ) {
+		return (
+			<>
+				<Notice isError>
+					{ __(
+						'Please activate WooCommerce and WooCommerce Subscriptions plugins to use Reader Activation features.',
+						'newspack'
+					) }
+				</Notice>
+				<PluginInstaller
+					isWaiting={ inFlight }
+					plugins={ [ 'woocommerce', 'woocommerce-subscriptions' ] }
+					onStatus={ ( { complete } ) => complete && fetchConfig() }
+					withoutFooterButton={ true }
+				/>
+			</>
+		);
+	}
 
 	return (
 		<>
