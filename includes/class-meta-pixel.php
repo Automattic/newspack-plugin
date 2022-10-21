@@ -162,7 +162,7 @@ class Meta_Pixel {
 			'event_url'  => home_url( $wp->request ),
 		];
 
-		if ( is_single() ) {
+		if ( is_singular() ) {
 			$event_params['post_type'] = get_post_type();
 			$event_params['post_id']   = get_the_ID();
 		}
