@@ -650,7 +650,7 @@ class Stripe_Connection {
 
 				// Add a transaction to WooCommerce.
 				if ( Donations::is_woocommerce_suite_active() ) {
-					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
+					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment, $referer ) );
 				}
 
 				break;
@@ -1349,10 +1349,11 @@ class Stripe_Connection {
 	/**
 	 * Create WC transaction payload.
 	 *
-	 * @param array $customer Stripe customer.
-	 * @param array $payment Stripe payment.
+	 * @param array  $customer Stripe customer.
+	 * @param array  $payment Stripe payment.
+	 * @param string $referer Referer URL.
 	 */
-	public static function create_wc_transaction_payload( $customer, $payment ) {
+	public static function create_wc_transaction_payload( $customer, $payment, $referer = '' ) {
 		$balance_transaction    = self::get_balance_transaction( $payment['balance_transaction'] );
 		$amount_normalised      = self::normalise_amount( $payment['amount'], $payment['currency'] );
 		$stripe_data            = self::get_stripe_data();
@@ -1381,6 +1382,7 @@ class Stripe_Connection {
 			'client_id'                     => $customer['metadata']['clientId'],
 			'user_id'                       => $customer['metadata']['userId'],
 			'subscribed'                    => self::has_customer_opted_in_to_newsletters( $customer ),
+			'referer'                       => $referer,
 		];
 	}
 }

@@ -408,6 +408,22 @@ class WooCommerce_Connection {
 			do_action( 'newspack_new_donation_woocommerce', $order, $order_data['client_id'] );
 		}
 
+		/**
+		 * Handle Mailchimp campaign syncing.
+		 */
+		if ( ! empty( $order_data['referer'] ) ) {
+			$url_parts = \wp_parse_url( $order_data['referer'] );
+
+			if ( ! empty( $url_parts['query'] ) ) {
+				\wp_parse_str( $url_parts['query'], $query_parts );
+
+				if ( ! empty( $query_parts['mc_cid'] ) ) {
+					$order->add_meta_data( 'mailchimp_woocommerce_campaign_id', $query_parts['mc_cid'] );
+					$order->add_meta_data( 'mailchimp_woocommerce_landing_site', $referer );
+				}
+			}
+		}
+
 		$order->save();
 
 		Logger::log( 'Created WC order with id: ' . $order->get_id() );
