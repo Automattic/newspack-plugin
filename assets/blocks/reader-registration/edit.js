@@ -311,13 +311,7 @@ export default function ReaderRegistrationEdit( {
 										) }
 										<div className="newspack-registration__response" />
 									</div>
-									<div
-										className={
-											defaultTermsUrl
-												? 'newspack-registration__help-text has-terms-link'
-												: 'newspack-registration__help-text'
-										}
-									>
+									<div className="newspack-registration__help-text">
 										<p>
 											{ defaultTermsUrl ? (
 												<a href={ defaultTermsUrl } onClick={ ev => ev.preventDefault() }>
