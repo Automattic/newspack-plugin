@@ -312,12 +312,25 @@ export default function ReaderRegistrationEdit( {
 										<div className="newspack-registration__response" />
 									</div>
 									<div className="newspack-registration__help-text">
-										<RichText
-											onChange={ value => setAttributes( { privacyLabel: value } ) }
-											placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
-											value={ privacyLabel || defaultTermsText }
-											tagName={ defaultTermsUrl ? 'a' : 'p' }
-										/>
+										<p>
+											{ defaultTermsUrl ? (
+												<a href={ defaultTermsUrl } onClick={ ev => ev.preventDefault() }>
+													<RichText
+														onChange={ value => setAttributes( { privacyLabel: value } ) }
+														placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
+														value={ privacyLabel || defaultTermsText }
+														tagName="span"
+													/>
+												</a>
+											) : (
+												<RichText
+													onChange={ value => setAttributes( { privacyLabel: value } ) }
+													placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
+													value={ privacyLabel || defaultTermsText }
+													tagName="p"
+												/>
+											) }
+										</p>
 									</div>
 								</div>
 							</div>
