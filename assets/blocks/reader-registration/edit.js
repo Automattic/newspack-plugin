@@ -311,7 +311,13 @@ export default function ReaderRegistrationEdit( {
 										) }
 										<div className="newspack-registration__response" />
 									</div>
-									<div className="newspack-registration__help-text">
+									<div
+										className={
+											defaultTermsUrl
+												? 'newspack-registration__help-text has-terms-link'
+												: 'newspack-registration__help-text'
+										}
+									>
 										<p>
 											{ defaultTermsUrl ? (
 												<a href={ defaultTermsUrl } onClick={ ev => ev.preventDefault() }>
@@ -327,7 +333,7 @@ export default function ReaderRegistrationEdit( {
 													onChange={ value => setAttributes( { privacyLabel: value } ) }
 													placeholder={ __( 'Terms & Conditions statement…', 'newspack' ) }
 													value={ privacyLabel || defaultTermsText }
-													tagName="p"
+													tagName="span"
 												/>
 											) }
 										</p>
