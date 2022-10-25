@@ -22,6 +22,12 @@ class Stripe_Connection {
 	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
 	const STRIPE_CUSTOMER_ID_USER_META   = '_newspack_stripe_customer_id';
 
+	const ESP_METADATA_VALUES = [
+		'once_donor'    => 'Donor',
+		'monthly_donor' => 'Monthly Donor',
+		'yearly_donor'  => 'Yearly Donor',
+	];
+
 	/**
 	 * Ensures the customer ID lookup is run only once per request.
 	 *
@@ -442,11 +448,11 @@ class Stripe_Connection {
 	public static function get_membership_status_field_value( $frequency ) {
 		switch ( $frequency ) {
 			case 'once':
-				return 'Donor';
+				return self::ESP_METADATA_VALUES['once_donor'];
 			case 'year':
-				return 'Yearly Donor';
+				return self::ESP_METADATA_VALUES['yearly_donor'];
 			case 'month':
-				return 'Monthly Donor';
+				return self::ESP_METADATA_VALUES['monthly_donor'];
 		}
 	}
 
