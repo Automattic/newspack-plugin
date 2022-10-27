@@ -3,6 +3,11 @@
  */
 
 /**
+ * External dependencies
+ */
+import { omit } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
@@ -72,6 +77,21 @@ const Marketplace = ( { adUnits } ) => {
 		);
 	}, [ isEditing ] );
 	useEffect( fetchPlacements, [] );
+	const saveProduct = () => {
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack-ads/v1/ad-product/${ product.placement }`,
+			method: 'POST',
+			data: omit( product, 'placement' ),
+		} )
+			.then( res => {
+				console.log( 'saved', res );
+				// setIsEditing( false );
+			} )
+			.finally( () => {
+				setInFlight( false );
+			} );
+	};
 	return (
 		<>
 			{ Object.keys( placements ).map( key => (
@@ -108,10 +128,10 @@ const Marketplace = ( { adUnits } ) => {
 					<SelectControl
 						label={ __( 'Event', 'newspack-ads' ) }
 						options={ [
-							{ label: 'Select an event', value: '' },
-							{ label: 'Impressions', value: 'impressions' },
-							{ label: 'Clicks', value: 'clicks' },
-							{ label: 'Viewable Impressions', value: 'viewable_impressions' },
+							{ label: __( 'Select an event', 'newspack' ), value: '' },
+							{ label: __( 'Impressions', 'newspack' ), value: 'impressions' },
+							{ label: __( 'Clicks', 'newspack' ), value: 'clicks' },
+							{ label: __( 'Viewable Impressions', 'newspack' ), value: 'viewable_impressions' },
 						] }
 						onChange={ value => setProduct( { ...product, event: value } ) }
 					/>
@@ -119,38 +139,46 @@ const Marketplace = ( { adUnits } ) => {
 						<>
 							<AdProductValues
 								event={ product.event }
-								onChange={ value => setProduct( { ...product, values: value } ) }
+								onChange={ value => setProduct( { ...product, prices: value } ) }
 							/>
 							<CheckboxControl
-								name="is_size_priced"
+								name="is_per_size"
 								label={ __( 'Set price per size', 'newspack-ads' ) }
-								checked={ product.is_size_priced }
-								onChange={ value => setProduct( { ...product, is_size_priced: value } ) }
+								checked={ product.is_per_size }
+								onChange={ value => setProduct( { ...product, is_per_size: value } ) }
 							/>
-							{ product.is_size_priced && product.ad_unit && adUnits[ product.ad_unit ] && (
-								<div className="sizes">
-									<h3>{ __( 'Sizes', 'newspack-ads' ) }</h3>
-									{ adUnits[ product.ad_unit ].sizes.map( ( size, i ) => (
-										<div className="size" key={ i }>
-											{ size[ 0 ] } x { size[ 1 ] }
-											<AdProductValues
-												event={ product.event }
-												onChange={ value =>
-													setProduct( {
-														...product,
-														per_size: {
-															...product.per_size,
-															[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: value,
-														},
-													} )
-												}
-											/>
-										</div>
-									) ) }
-								</div>
-							) }
+							{ product.is_per_size &&
+								product.ad_unit &&
+								adUnits[ product.ad_unit ]?.sizes?.length && (
+									<div className="sizes">
+										<h3>{ __( 'Sizes', 'newspack-ads' ) }</h3>
+										{ adUnits[ product.ad_unit ].sizes.map( ( size, i ) => (
+											<div className="size" key={ i }>
+												{ size[ 0 ] } x { size[ 1 ] }
+												<AdProductValues
+													event={ product.event }
+													onChange={ value =>
+														setProduct( {
+															...product,
+															per_size: {
+																...product.per_size,
+																[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: {
+																	...product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ],
+																	...{ prices: value },
+																},
+															},
+														} )
+													}
+												/>
+											</div>
+										) ) }
+									</div>
+								) }
 						</>
 					) }
+					<Button disabled={ ! product.event } isPrimary onClick={ saveProduct }>
+						{ __( 'Save Product', 'newspack' ) }
+					</Button>
 				</Modal>
 			) }
 		</>
