@@ -61,32 +61,49 @@ const AdProductValues = ( { event, value = {}, onChange = () => {} } ) => {
 const Marketplace = ( { adUnits } ) => {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ placements, setPlacements ] = useState( {} );
+	const [ products, setProducts ] = useState( {} );
 	const [ product, setProduct ] = useState( {} );
 	const [ inFlight, setInFlight ] = useState( false );
 	const fetchPlacements = () => {
 		apiFetch( {
 			path: `/newspack-ads/v1/placements`,
 		} ).then( data => {
-			console.log( data );
 			setPlacements( data );
 		} );
 	};
+	const fetchProducts = () => {
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack-ads/v1/products`,
+		} )
+			.then( data => {
+				setProducts( data );
+			} )
+			.finally( () => setInFlight( false ) );
+	};
 	useEffect( () => {
 		setProduct(
-			isEditing ? { placement: isEditing, ad_unit: placements[ isEditing ]?.data?.ad_unit } : {}
+			isEditing
+				? {
+						placement: isEditing,
+						ad_unit: placements[ isEditing ]?.data?.ad_unit,
+						...products[ isEditing ],
+				  }
+				: {}
 		);
 	}, [ isEditing ] );
 	useEffect( fetchPlacements, [] );
+	useEffect( fetchProducts, [] );
 	const saveProduct = () => {
 		setInFlight( true );
 		apiFetch( {
-			path: `/newspack-ads/v1/ad-product/${ product.placement }`,
+			path: `/newspack-ads/v1/products/${ product.placement }`,
 			method: 'POST',
 			data: omit( product, 'placement' ),
 		} )
 			.then( res => {
-				console.log( 'saved', res );
-				// setIsEditing( false );
+				setProducts( { ...products, [ product.placement ]: res } );
+				setIsEditing( false );
 			} )
 			.finally( () => {
 				setInFlight( false );
@@ -139,6 +156,7 @@ const Marketplace = ( { adUnits } ) => {
 						<>
 							<AdProductValues
 								event={ product.event }
+								value={ product.prices }
 								onChange={ value => setProduct( { ...product, prices: value } ) }
 							/>
 							<CheckboxControl
@@ -157,6 +175,7 @@ const Marketplace = ( { adUnits } ) => {
 												{ size[ 0 ] } x { size[ 1 ] }
 												<AdProductValues
 													event={ product.event }
+													value={ product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ]?.prices }
 													onChange={ value =>
 														setProduct( {
 															...product,
