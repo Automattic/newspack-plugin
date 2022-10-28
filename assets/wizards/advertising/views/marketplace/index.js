@@ -20,7 +20,7 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { ActionCard, Modal, withWizardScreen } from '../../../../components/src';
 
-const AdProductValues = ( { event, value = {}, onChange = () => {} } ) => {
+const AdProductValues = ( { event, value = {}, onChange = () => {}, ...props } ) => {
 	const [ values, setValues ] = useState( value );
 	useEffect( () => {
 		onChange( values );
@@ -33,6 +33,7 @@ const AdProductValues = ( { event, value = {}, onChange = () => {} } ) => {
 					value={ values?.cpm }
 					name="cpm"
 					onChange={ val => setValues( { ...values, cpm: val } ) }
+					{ ...props }
 				/>
 			) }
 			{ event === 'clicks' && (
@@ -41,6 +42,7 @@ const AdProductValues = ( { event, value = {}, onChange = () => {} } ) => {
 					value={ values?.cpc }
 					name="cpc"
 					onChange={ val => setValues( { ...values, cpc: val } ) }
+					{ ...props }
 				/>
 			) }
 			{ event === 'viewable_impressions' && (
@@ -49,6 +51,7 @@ const AdProductValues = ( { event, value = {}, onChange = () => {} } ) => {
 					value={ values?.viewable_impressions }
 					name="viewable_cpm"
 					onChange={ val => setValues( { ...values, viewable_cpm: val } ) }
+					{ ...props }
 				/>
 			) }
 		</>
@@ -109,6 +112,9 @@ const Marketplace = ( { adUnits } ) => {
 				setInFlight( false );
 			} );
 	};
+	const isPerSize = () => {
+		return product.ad_unit && adUnits[ product.ad_unit ]?.sizes?.length && product.is_per_size;
+	};
 	return (
 		<>
 			{ Object.keys( placements ).map( key => (
@@ -144,6 +150,7 @@ const Marketplace = ( { adUnits } ) => {
 					/>
 					<SelectControl
 						label={ __( 'Event', 'newspack-ads' ) }
+						value={ product?.event }
 						options={ [
 							{ label: __( 'Select an event', 'newspack' ), value: '' },
 							{ label: __( 'Impressions', 'newspack' ), value: 'impressions' },
@@ -157,42 +164,45 @@ const Marketplace = ( { adUnits } ) => {
 							<AdProductValues
 								event={ product.event }
 								value={ product.prices }
+								disabled={ isPerSize() }
 								onChange={ value => setProduct( { ...product, prices: value } ) }
 							/>
-							<CheckboxControl
-								name="is_per_size"
-								label={ __( 'Set price per size', 'newspack-ads' ) }
-								checked={ product.is_per_size }
-								onChange={ value => setProduct( { ...product, is_per_size: value } ) }
-							/>
-							{ product.is_per_size &&
-								product.ad_unit &&
-								adUnits[ product.ad_unit ]?.sizes?.length && (
-									<div className="sizes">
-										<h3>{ __( 'Sizes', 'newspack-ads' ) }</h3>
-										{ adUnits[ product.ad_unit ].sizes.map( ( size, i ) => (
-											<div className="size" key={ i }>
-												{ size[ 0 ] } x { size[ 1 ] }
-												<AdProductValues
-													event={ product.event }
-													value={ product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ]?.prices }
-													onChange={ value =>
-														setProduct( {
-															...product,
-															per_size: {
-																...product.per_size,
-																[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: {
-																	...product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ],
-																	...{ prices: value },
+							{ product.ad_unit && adUnits[ product.ad_unit ]?.sizes?.length && (
+								<>
+									<CheckboxControl
+										name="is_per_size"
+										label={ __( 'Set price per size', 'newspack-ads' ) }
+										checked={ product.is_per_size }
+										onChange={ value => setProduct( { ...product, is_per_size: value } ) }
+									/>
+									{ product.is_per_size && (
+										<div className="sizes">
+											<h3>{ __( 'Sizes', 'newspack-ads' ) }</h3>
+											{ adUnits[ product.ad_unit ].sizes.map( ( size, i ) => (
+												<div className="size" key={ i }>
+													{ size[ 0 ] } x { size[ 1 ] }
+													<AdProductValues
+														event={ product.event }
+														value={ product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ]?.prices }
+														onChange={ value =>
+															setProduct( {
+																...product,
+																per_size: {
+																	...product.per_size,
+																	[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: {
+																		...product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ],
+																		...{ prices: value },
+																	},
 																},
-															},
-														} )
-													}
-												/>
-											</div>
-										) ) }
-									</div>
-								) }
+															} )
+														}
+													/>
+												</div>
+											) ) }
+										</div>
+									) }
+								</>
+							) }
 						</>
 					) }
 					<Button disabled={ ! product.event } isPrimary onClick={ saveProduct }>
