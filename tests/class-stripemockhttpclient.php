@@ -55,8 +55,10 @@ class StripeMockHTTPClient {
 	public function request( $method, $path, $headers, $params ) {
 		$endpoint = str_replace( 'https://api.stripe.com', '', $path );
 		$response = [ 'status' => 'success' ];
-		switch ( $endpoint ) {
-			case '/v1/products':
+		preg_match( '/\/(\w*)\/(\w*)\/?(\w*)/', $endpoint, $matches );
+		[ $match, $api_version, $resource, $id ] = $matches;
+		switch ( $resource ) {
+			case 'products':
 				switch ( $method ) {
 					case 'get':
 						$response = self::list_response( self::$database['products'] );
@@ -65,28 +67,51 @@ class StripeMockHTTPClient {
 						break;
 				}
 				break;
-			case '/v1/customers':
+			case 'customers':
 				switch ( $method ) {
 					case 'get':
 						$response = self::list_response( self::$database['customers'] );
 						break;
 					case 'post':
-						$customer                      = [
-							'object'         => 'customer',
-							'id'             => 'cus_' . wp_rand(),
-							'email'          => $params['email'],
-							'name'           => $params['name'],
-							'default_source' => 'card_number_one',
-						];
-						self::$database['customers'][] = $customer;
-						$response                      = $customer;
-						break;
+						if ( isset( $params['email'], $params['name'] ) ) {
+							$customer                      = [
+								'object'         => 'customer',
+								'id'             => 'cus_' . wp_rand(),
+								'email'          => $params['email'],
+								'name'           => $params['name'],
+								'default_source' => 'card_number_one',
+							];
+							self::$database['customers'][] = $customer;
+							$response                      = $customer;
+							break;
+						}
 				}
 				break;
-			case '/v1/payment_intents':
+			case 'payment_intents':
 				switch ( $method ) {
 					case 'post':
 						$response = [ 'client_secret' => 'pi_number_one' ];
+						break;
+				}
+				break;
+			case 'balance_transactions':
+				switch ( $method ) {
+					case 'get':
+						$response = [
+							'fee' => 1,
+							'net' => 2,
+						];
+						break;
+				}
+				break;
+			case 'invoices':
+				switch ( $method ) {
+					case 'get':
+						$response = [
+							'billing_reason' => 'subscription_create',
+							'subscription'   => 'sub_123',
+							'lines'          => [ 'data' => [ [ 'price' => [ 'recurring' => [ 'interval' => 'month' ] ] ] ] ],
+						];
 						break;
 				}
 		}

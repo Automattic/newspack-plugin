@@ -172,6 +172,10 @@ final class Reader_Activation {
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
+			'sender_name'                 => Emails::get_from_name(),
+			'sender_email_address'        => Emails::get_from_email(),
+			'contact_email_address'       => Emails::get_reply_to_email(),
+			'plugins_configured'          => self::is_woocommerce_active(),
 		];
 
 		/**
@@ -238,6 +242,15 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Check if the required Woo plugins are active.
+	 *
+	 * @return boolean True if all required plugins are active, otherwise false.
+	 */
+	public static function is_woocommerce_active() {
+		return class_exists( 'WooCommerce' ) && class_exists( 'WC_Subscriptions' );
+	}
+
+	/**
 	 * Whether reader activation is enabled.
 	 *
 	 * @param bool $strict If true, check both the environment constant and the setting.
@@ -246,6 +259,10 @@ final class Reader_Activation {
 	 * @return bool True if reader activation is enabled.
 	 */
 	public static function is_enabled( $strict = true ) {
+		if ( defined( 'IS_TEST_ENV' ) && IS_TEST_ENV ) {
+			return true;
+		}
+
 		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
 
 		if ( ! $strict ) {
@@ -540,7 +557,7 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
-		if ( ! self::get_setting( 'enabled_account_link' ) ) {
+		if ( ! self::get_setting( 'enabled_account_link' ) || ! self::is_woocommerce_active() ) {
 			return;
 		}
 
@@ -775,10 +792,12 @@ final class Reader_Activation {
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<input type="hidden" name="action" value="pwd" />
-						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
-							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
+						<div class="<?php echo \esc_attr( $class( 'have-account' ) ); ?>">
 							<a href="#" data-action="pwd link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack' ); ?></a>
 							<a href="#" data-action="register" data-set-action="pwd"><?php \esc_html_e( 'I already have an account', 'newspack' ); ?></a>
+						</div>
+						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
+							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
@@ -837,8 +856,8 @@ final class Reader_Activation {
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack' ); ?>" />
 							<?php self::render_honeypot_field(); ?>
 						</div>
-						<div class="components-form__field" data-action="otp">
-							<input name="otp_code" type="text" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack' ); ?>" />
+						<div class="components-form__field otp-field" data-action="otp">
+							<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack' ); ?>" />
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />

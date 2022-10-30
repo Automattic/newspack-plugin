@@ -114,10 +114,22 @@
 	}
 
 	&__have-account {
-		color: wp-colors.$gray-700;
-		font-size: 0.8125em;
-		justify-self: flex-end;
-		line-height: 1.2307692308;
+		background-color: #111;
+		padding: 4px 15px;
+		margin-bottom: 15px;
+		text-align: center;
+		margin-top: 20px;
+		@media screen and ( min-width: 600px ) {
+			margin-top: 0;
+		}
+		&,
+		a {
+			color: #fff !important;
+		}
+		a:active,
+		a:hover {
+			color: #d6d6d6 !important;
+		}
 	}
 
 	&__help-text {
@@ -220,7 +232,8 @@
 		display: none;
 	}
 
-	.nphp {
+	.nphp,
+	input[type='email'].nphp {
 		@include mixins.visuallyHidden;
 	}
 }
