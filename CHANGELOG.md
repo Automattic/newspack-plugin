@@ -1,3 +1,10 @@
+## [1.95.1](https://github.com/Automattic/newspack-plugin/compare/v1.95.0...v1.95.1) (2022-10-31)
+
+
+### Bug Fixes
+
+* **oauth:** log missing google scopes ([#2099](https://github.com/Automattic/newspack-plugin/issues/2099)) ([642b1c5](https://github.com/Automattic/newspack-plugin/commit/642b1c5a02f45d94fcf5d5173aac9998d4ae4e53))
+
 ## [1.95.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.95.0...v1.95.1-hotfix.1) (2022-10-31)
 
 
