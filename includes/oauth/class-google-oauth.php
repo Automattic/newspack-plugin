@@ -338,6 +338,7 @@ class Google_OAuth {
 			$granted_scopes = explode( ' ', $token_info->scope );
 			$missing_scopes = array_diff( $required_scopes, $granted_scopes );
 			if ( 0 < count( $missing_scopes ) ) {
+				Logger::log( 'OAuth token validation errored with missing scopes: ' . implode( ', ', $missing_scopes ) . '. Granted scopes: ' . $token_info->scope );
 				return new \WP_Error( 'newspack_google_oauth', __( 'Newspack can’t access all necessary data because you haven’t granted all permissions requested during setup. Please reconnect your Google account.', 'newspack' ) );
 			}
 
