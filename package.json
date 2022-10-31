@@ -1,6 +1,6 @@
 {
   "name": "newspack",
-  "version": "1.94.0",
+  "version": "1.95.0-alpha.1",
   "description": "The Newspack plugin. https://newspack.pub",
   "bugs": {
     "url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -13,7 +13,7 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
     "@testing-library/react": "^12.1.4",
-    "@wordpress/browserslist-config": "^5.1.0",
+    "@wordpress/browserslist-config": "^5.2.0",
     "eslint": "^7.32.0",
     "lint-staged": "^13.0.3",
     "newspack-scripts": "^4.0.0",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.19.1",
-    "@babel/preset-env": "^7.19.3",
+    "@babel/preset-env": "^7.19.4",
     "classnames": "^2.3.2",
     "colord": "^2.9.3",
     "date-fns": "^2.29.3",
