@@ -20,41 +20,48 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { ActionCard, Modal, withWizardScreen } from '../../../../components/src';
 
+const payableEvents = {
+	impressions: {
+		label: __( 'Impressions', 'newspack' ),
+		unit: {
+			label: __( 'CPM', 'newspack' ),
+			value: 'cpm',
+		},
+		description: __( 'The number of times your ad is rendered on a page.', 'newspack' ),
+	},
+	clicks: {
+		label: __( 'Clicks', 'newspack' ),
+		unit: {
+			label: __( 'CPC', 'newspack' ),
+			value: 'cpc',
+		},
+		description: __( 'The number of times a user clicks on your ad.', 'newspack' ),
+	},
+	viewable_impressions: {
+		label: __( 'Viewable Impressions', 'newspack' ),
+		unit: {
+			label: __( 'Viewable CPM', 'newspack' ),
+			value: 'viewable_cpm',
+		},
+		description: __( 'The number of times your ad is shown on a page.', 'newspack' ),
+	},
+};
+
 const AdProductValues = ( { event, value = {}, onChange = () => {}, ...props } ) => {
 	const [ values, setValues ] = useState( value );
 	useEffect( () => {
 		onChange( values );
 	}, [ values ] );
+	const eventData = payableEvents[ event ];
+	if ( ! eventData ) return null;
 	return (
-		<>
-			{ event === 'impressions' && (
-				<TextControl
-					label={ __( 'CPM', 'newspack-ads' ) }
-					value={ values?.cpm }
-					name="cpm"
-					onChange={ val => setValues( { ...values, cpm: val } ) }
-					{ ...props }
-				/>
-			) }
-			{ event === 'clicks' && (
-				<TextControl
-					label={ __( 'CPC', 'newspack-ads' ) }
-					value={ values?.cpc }
-					name="cpc"
-					onChange={ val => setValues( { ...values, cpc: val } ) }
-					{ ...props }
-				/>
-			) }
-			{ event === 'viewable_impressions' && (
-				<TextControl
-					label={ __( 'Viewable CPM', 'newspack-ads' ) }
-					value={ values?.viewable_impressions }
-					name="viewable_cpm"
-					onChange={ val => setValues( { ...values, viewable_cpm: val } ) }
-					{ ...props }
-				/>
-			) }
-		</>
+		<TextControl
+			label={ eventData.unit.label }
+			help={ eventData.description }
+			value={ values[ eventData.unit.value ] || 0 }
+			onChange={ val => setValues( { ...values, [ eventData.unit.value ]: val } ) }
+			{ ...props }
+		/>
 	);
 };
 
@@ -134,13 +141,13 @@ const Marketplace = ( { adUnits } ) => {
 				<Modal
 					title={ sprintf(
 						// Translators: placement name.
-						__( 'Sell %s', 'newspack-ads' ),
+						__( 'Sell %s', 'newspack' ),
 						placements[ isEditing ].name
 					) }
 					onRequestClose={ () => ! inFlight && setIsEditing( false ) }
 				>
 					<SelectControl
-						label={ __( 'Ad Unit', 'newspack-ads' ) }
+						label={ __( 'Ad Unit', 'newspack' ) }
 						value={ product?.ad_unit }
 						options={ Object.keys( adUnits ).map( key => ( {
 							label: adUnits[ key ].name,
@@ -149,13 +156,14 @@ const Marketplace = ( { adUnits } ) => {
 						onChange={ val => setProduct( { ...product, ad_unit: val } ) }
 					/>
 					<SelectControl
-						label={ __( 'Event', 'newspack-ads' ) }
+						label={ __( 'Event', 'newspack' ) }
 						value={ product?.event }
 						options={ [
-							{ label: __( 'Select an event', 'newspack' ), value: '' },
-							{ label: __( 'Impressions', 'newspack' ), value: 'impressions' },
-							{ label: __( 'Clicks', 'newspack' ), value: 'clicks' },
-							{ label: __( 'Viewable Impressions', 'newspack' ), value: 'viewable_impressions' },
+							{ label: __( 'Select a payable event', 'newspack' ), value: '' },
+							...Object.keys( payableEvents ).map( key => ( {
+								label: payableEvents[ key ].label,
+								value: key,
+							} ) ),
 						] }
 						onChange={ value => setProduct( { ...product, event: value } ) }
 					/>
@@ -167,17 +175,17 @@ const Marketplace = ( { adUnits } ) => {
 								disabled={ isPerSize() }
 								onChange={ value => setProduct( { ...product, prices: value } ) }
 							/>
-							{ product.ad_unit && adUnits[ product.ad_unit ]?.sizes?.length && (
+							{ product.ad_unit && adUnits[ product.ad_unit ]?.sizes?.length > 1 && (
 								<>
 									<CheckboxControl
 										name="is_per_size"
-										label={ __( 'Set price per size', 'newspack-ads' ) }
+										label={ __( 'Set price per size', 'newspack' ) }
 										checked={ product.is_per_size }
 										onChange={ value => setProduct( { ...product, is_per_size: value } ) }
 									/>
 									{ product.is_per_size && (
 										<div className="sizes">
-											<h3>{ __( 'Sizes', 'newspack-ads' ) }</h3>
+											<h3>{ __( 'Sizes', 'newspack' ) }</h3>
 											{ adUnits[ product.ad_unit ].sizes.map( ( size, i ) => (
 												<div className="size" key={ i }>
 													{ size[ 0 ] } x { size[ 1 ] }
