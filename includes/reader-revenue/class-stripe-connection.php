@@ -662,9 +662,10 @@ class Stripe_Connection {
 					return $customer;
 				}
 
+				$active_subs = 0;
 				if ( Donations::is_woocommerce_suite_active() ) {
 					if ( $payload['ended_at'] ) {
-						WooCommerce_Connection::end_subscription(
+						$active_subs = WooCommerce_Connection::end_subscription(
 							$payload['id'],
 							$payload['ended_at']
 						);
@@ -679,7 +680,7 @@ class Stripe_Connection {
 							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
 						],
 					];
-					if ( in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
+					if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
 						$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
 					}
