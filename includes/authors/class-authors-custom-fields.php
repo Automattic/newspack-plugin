@@ -27,6 +27,7 @@ final class Authors_Custom_Fields {
 		\add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
 		\add_action( 'edit_user_profile_update', [ __CLASS__, 'edit_user_profile_update' ] );
 		\add_filter( 'newspack_author_bio_name', [ __CLASS__, 'newspack_author_bio_name' ], 10, 2 );
+		\add_filter( 'coauthors_guest_author_fields', [ __CLASS__, 'coauthors_guest_author_fields' ], 10, 2 );
 	}
 
 	/**
@@ -107,10 +108,35 @@ final class Authors_Custom_Fields {
 	 */
 	public static function newspack_author_bio_name( $author_name, $author_id ) {
 		$job_title = \get_user_meta( $author_id, self::USER_META_NAMES['job_title'], true );
+
+		// Try a Co-Authors Plus field.
+		if ( empty( $job_title ) ) {
+			$job_title = \get_post_meta( $author_id, 'cap-' . self::USER_META_NAMES['job_title'], true );
+		}
+
 		if ( ! empty( $job_title ) ) {
 			$author_name .= '<span class="author-job-title">' . $job_title . '</span>';
 		}
 		return $author_name;
+	}
+
+	/**
+	 * Add custom fields to the Co-Authors Plus guest author form.
+	 *
+	 * @param array $fields Fields.
+	 * @param array $groups Queried groups.
+	 */
+	public static function coauthors_guest_author_fields( $fields, $groups ) {
+		if ( in_array( 'about', $groups ) || in_array( 'all', $groups ) ) {
+			foreach ( self::get_custom_fields() as $custom_field ) {
+				$fields[] = [
+					'key'   => $custom_field['name'],
+					'label' => $custom_field['label'],
+					'group' => 'about',
+				];
+			}
+		}
+		return $fields;
 	}
 }
 Authors_Custom_Fields::init();
