@@ -57,6 +57,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		}
 
 		const containers = [ ...document.querySelectorAll( '.newspack-reader-auth' ) ];
+		const alerts = [ ...document.querySelectorAll( '.woocommerce-message' ) ];
 		if ( ! containers.length ) {
 			return;
 		}
@@ -324,6 +325,10 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
 				form.startLoginFlow();
+
+				if ( 0 < alerts.length ) {
+					alerts.forEach( alert => ( alert.style.display = 'none' ) );
+				}
 
 				const action = form.action?.value;
 

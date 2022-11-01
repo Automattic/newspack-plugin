@@ -22,6 +22,12 @@ class Stripe_Connection {
 	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
 	const STRIPE_CUSTOMER_ID_USER_META   = '_newspack_stripe_customer_id';
 
+	const ESP_METADATA_VALUES = [
+		'once_donor'    => 'Donor',
+		'monthly_donor' => 'Monthly Donor',
+		'yearly_donor'  => 'Yearly Donor',
+	];
+
 	/**
 	 * Ensures the customer ID lookup is run only once per request.
 	 *
@@ -442,11 +448,11 @@ class Stripe_Connection {
 	public static function get_membership_status_field_value( $frequency ) {
 		switch ( $frequency ) {
 			case 'once':
-				return 'Donor';
+				return self::ESP_METADATA_VALUES['once_donor'];
 			case 'year':
-				return 'Yearly Donor';
+				return self::ESP_METADATA_VALUES['yearly_donor'];
 			case 'month':
-				return 'Monthly Donor';
+				return self::ESP_METADATA_VALUES['monthly_donor'];
 		}
 	}
 
@@ -662,9 +668,10 @@ class Stripe_Connection {
 					return $customer;
 				}
 
+				$active_subs = 0;
 				if ( Donations::is_woocommerce_suite_active() ) {
 					if ( $payload['ended_at'] ) {
-						WooCommerce_Connection::end_subscription(
+						$active_subs = WooCommerce_Connection::end_subscription(
 							$payload['id'],
 							$payload['ended_at']
 						);
@@ -679,7 +686,7 @@ class Stripe_Connection {
 							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
 						],
 					];
-					if ( in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
+					if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
 						$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
 					}
