@@ -146,7 +146,7 @@ class Newspack_Newsletters {
 					}
 				}
 
-				// If the membership status it to be switched from recurring to non-recurring, ignore this change.
+				// If the membership status is to be switched from recurring to non-recurring, ignore this change.
 				if ( $contact['existing_contact_data'] && isset( $contact['metadata'][ self::$metadata_keys['membership_status'] ], $existing_metadata[ self::$metadata_keys['membership_status'] ] ) ) {
 					$existing_metadata  = $contact['existing_contact_data']['metadata'];
 					$becomes_once_donor = Stripe_Connection::ESP_METADATA_VALUES['once_donor'] === $contact['metadata'][ self::$metadata_keys['membership_status'] ];
