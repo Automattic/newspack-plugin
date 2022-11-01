@@ -13,12 +13,20 @@ defined( 'ABSPATH' ) || exit;
  * Newspack Authors Custom Fields class.
  */
 final class Authors_Custom_Fields {
+	const USER_META_NAMES = [
+		'job_title'    => 'newspack_job_title',
+		'role'         => 'newspack_role',
+		'employer'     => 'newspack_employer',
+		'phone_number' => 'newspack_phone_number',
+	];
+
 	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		\add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
 		\add_action( 'edit_user_profile_update', [ __CLASS__, 'edit_user_profile_update' ] );
+		\add_filter( 'newspack_author_bio_name', [ __CLASS__, 'newspack_author_bio_name' ], 10, 2 );
 	}
 
 	/**
@@ -40,19 +48,19 @@ final class Authors_Custom_Fields {
 	public static function get_custom_fields() {
 		$default_fields = [
 			[
-				'name'  => 'newspack_job_title',
+				'name'  => self::USER_META_NAMES['job_title'],
 				'label' => __( 'Job Title', 'newspack' ),
 			],
 			[
-				'name'  => 'newspack_role',
+				'name'  => self::USER_META_NAMES['role'],
 				'label' => __( 'Role', 'newspack' ),
 			],
 			[
-				'name'  => 'newspack_employer',
+				'name'  => self::USER_META_NAMES['employer'],
 				'label' => __( 'Employer/Organization', 'newspack' ),
 			],
 			[
-				'name'  => 'newspack_phone_number',
+				'name'  => self::USER_META_NAMES['phone_number'],
 				'label' => __( 'Phone number', 'newspack' ),
 			],
 		];
@@ -89,6 +97,20 @@ final class Authors_Custom_Fields {
 			</table>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Add custom fields to the author footer in the Newspack theme.
+	 *
+	 * @param string $author_name string The author name.
+	 * @param int    $author_id string The author ID.
+	 */
+	public static function newspack_author_bio_name( $author_name, $author_id ) {
+		$job_title = \get_user_meta( $author_id, self::USER_META_NAMES['job_title'], true );
+		if ( ! empty( $job_title ) ) {
+			$author_name .= '<span class="author-job-title">' . $job_title . '</span>';
+		}
+		return $author_name;
 	}
 }
 Authors_Custom_Fields::init();
