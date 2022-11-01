@@ -1365,11 +1365,13 @@ class Stripe_Connection {
 		$subscription_id        = null;
 		$invoice_billing_reason = null;
 		$invoice                = self::get_invoice( $payment['invoice'] );
-		if ( $invoice ) {
+		if ( $invoice && ! \is_wp_error( $invoice ) ) {
 			$invoice_billing_reason = $invoice['billing_reason'];
 			if ( isset( $invoice['subscription'] ) && is_string( $invoice['subscription'] ) ) {
 				$subscription_id = $invoice['subscription'];
 			}
+		} elseif ( \is_wp_error( $invoice ) ) {
+			Logger::error( 'Invoice error: ' . $invoice->get_error_message() );
 		}
 		return [
 			'email'                         => $customer['email'],
