@@ -25,7 +25,9 @@ final class Authors_Custom_Fields {
 	 */
 	public static function init() {
 		\add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
+		\add_action( 'show_user_profile', [ __CLASS__, 'edit_user_profile' ] );
 		\add_action( 'edit_user_profile_update', [ __CLASS__, 'edit_user_profile_update' ] );
+		\add_action( 'personal_options_update', [ __CLASS__, 'edit_user_profile_update' ] );
 		\add_filter( 'newspack_author_bio_name', [ __CLASS__, 'newspack_author_bio_name' ], 10, 2 );
 		\add_filter( 'coauthors_guest_author_fields', [ __CLASS__, 'coauthors_guest_author_fields' ], 10, 2 );
 	}
