@@ -1,6 +1,7 @@
 <?php
 /**
  * OneSignal integration class.
+ * https://wordpress.org/plugins/onesignal-free-web-push-notifications
  *
  * @package Newspack
  */
