@@ -68,6 +68,8 @@ class Newspack_Unit_Tests_Bootstrap {
 
 		// Load the WP testing environment.
 		require_once $_tests_dir . '/includes/bootstrap.php';
+
+		define( 'IS_TEST_ENV', 1 );
 	}
 
 	/**

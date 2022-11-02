@@ -2,6 +2,7 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../shared/scss/mixins';
 
+.entry-content .newspack-reader,
 .newspack-reader {
 	/**
 	 * Account Link
@@ -83,7 +84,8 @@
 			z-index: auto;
 		}
 
-		.nphp {
+		.nphp,
+		input[type='email'].nphp {
 			@include mixins.visuallyHidden;
 		}
 
@@ -294,6 +296,19 @@
 			input[type='email'],
 			input[type='password'] {
 				width: 100%;
+			}
+			.otp-field {
+				display: flex;
+				gap: 0.4rem;
+				justify-content: center;
+				margin: 0.8rem 0;
+				input[type='text'] {
+					flex: 1 1 100%;
+					font-family: monospace;
+					font-size: 1.2rem;
+					max-width: 2.4rem;
+					text-align: center;
+				}
 			}
 			input[name='otp_code'] {
 				font-size: 1.2rem;
