@@ -369,7 +369,7 @@ class Stripe_Connection {
 	public static function get_subscription_from_payment( $payment ) {
 		if ( $payment['invoice'] ) {
 			$invoice = self::get_invoice( $payment['invoice'] );
-			if ( $invoice['subscription'] ) {
+			if ( ! \is_wp_error( $invoice ) && $invoice['subscription'] ) {
 				return self::get_subscription( $invoice['subscription'] );
 			}
 		}
@@ -536,7 +536,7 @@ class Stripe_Connection {
 
 				if ( $payment['invoice'] ) {
 					$invoice = self::get_invoice( $payment['invoice'] );
-					if ( isset( $invoice['metadata']['referer'] ) ) {
+					if ( ! \is_wp_error( $invoice ) && isset( $invoice['metadata']['referer'] ) ) {
 						$referer = $invoice['metadata']['referer'];
 					}
 				}
@@ -1118,7 +1118,7 @@ class Stripe_Connection {
 					'metadata' => $client_metadata,
 				]
 			);
-			if ( is_wp_error( $customer ) ) {
+			if ( \is_wp_error( $customer ) ) {
 				$response['error'] = $customer->get_error_message();
 				return $response;
 			}
@@ -1335,7 +1335,10 @@ class Stripe_Connection {
 		$frequency = 'once';
 		if ( $payment['invoice'] ) {
 			// A subscription payment will have an invoice.
-			$invoice   = self::get_invoice( $payment['invoice'] );
+			$invoice = self::get_invoice( $payment['invoice'] );
+			if ( \is_wp_error( $invoice ) ) {
+				return $frequency;
+			}
 			$recurring = $invoice['lines']['data'][0]['price']['recurring'];
 			if ( isset( $recurring['interval'] ) ) {
 				$frequency = $recurring['interval'];
@@ -1366,11 +1369,13 @@ class Stripe_Connection {
 		$subscription_id        = null;
 		$invoice_billing_reason = null;
 		$invoice                = self::get_invoice( $payment['invoice'] );
-		if ( $invoice ) {
+		if ( $invoice && ! \is_wp_error( $invoice ) ) {
 			$invoice_billing_reason = $invoice['billing_reason'];
 			if ( isset( $invoice['subscription'] ) && is_string( $invoice['subscription'] ) ) {
 				$subscription_id = $invoice['subscription'];
 			}
+		} elseif ( \is_wp_error( $invoice ) ) {
+			Logger::error( 'Invoice error: ' . $invoice->get_error_message() );
 		}
 		return [
 			'email'                         => $customer['email'],
