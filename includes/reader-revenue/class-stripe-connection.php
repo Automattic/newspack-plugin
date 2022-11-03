@@ -1334,7 +1334,10 @@ class Stripe_Connection {
 		$frequency = 'once';
 		if ( $payment['invoice'] ) {
 			// A subscription payment will have an invoice.
-			$invoice   = self::get_invoice( $payment['invoice'] );
+			$invoice = self::get_invoice( $payment['invoice'] );
+			if ( \is_wp_error( $invoice ) ) {
+				return $frequency;
+			}
 			$recurring = $invoice['lines']['data'][0]['price']['recurring'];
 			if ( isset( $recurring['interval'] ) ) {
 				$frequency = $recurring['interval'];
