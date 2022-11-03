@@ -1,3 +1,17 @@
+## [1.95.2](https://github.com/Automattic/newspack-plugin/compare/v1.95.1...v1.95.2) (2022-11-03)
+
+
+### Bug Fixes
+
+* **oauth:** change Google's `dfp` scope to `admanager` ([#2106](https://github.com/Automattic/newspack-plugin/issues/2106)) ([703623e](https://github.com/Automattic/newspack-plugin/commit/703623ebfa19c2beedb2ae9d1535300c01298a61))
+
+## [1.95.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.95.1...v1.95.2-hotfix.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* **oauth:** change Google's `dfp` scope to `admanager` ([46e5eea](https://github.com/Automattic/newspack-plugin/commit/46e5eea6da738e59c2d56d3d34c2f8c1abe25bc0))
+
 ## [1.95.1](https://github.com/Automattic/newspack-plugin/compare/v1.95.0...v1.95.1) (2022-10-31)
 
 
