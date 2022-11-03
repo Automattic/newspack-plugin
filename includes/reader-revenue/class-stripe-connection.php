@@ -369,7 +369,7 @@ class Stripe_Connection {
 	public static function get_subscription_from_payment( $payment ) {
 		if ( $payment['invoice'] ) {
 			$invoice = self::get_invoice( $payment['invoice'] );
-			if ( $invoice['subscription'] ) {
+			if ( ! \is_wp_error( $invoice ) && $invoice['subscription'] ) {
 				return self::get_subscription( $invoice['subscription'] );
 			}
 		}
@@ -536,7 +536,7 @@ class Stripe_Connection {
 
 				if ( $payment['invoice'] ) {
 					$invoice = self::get_invoice( $payment['invoice'] );
-					if ( isset( $invoice['metadata']['referer'] ) ) {
+					if ( ! \is_wp_error( $invoice ) && isset( $invoice['metadata']['referer'] ) ) {
 						$referer = $invoice['metadata']['referer'];
 					}
 				}
@@ -1117,7 +1117,7 @@ class Stripe_Connection {
 					'metadata' => $client_metadata,
 				]
 			);
-			if ( is_wp_error( $customer ) ) {
+			if ( \is_wp_error( $customer ) ) {
 				$response['error'] = $customer->get_error_message();
 				return $response;
 			}
