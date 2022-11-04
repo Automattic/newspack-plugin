@@ -541,9 +541,6 @@ class Stripe_Connection {
 					}
 				}
 
-				// Send email to the donor.
-				self::send_email_to_customer( $customer, $payment );
-
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
@@ -642,6 +639,9 @@ class Stripe_Connection {
 				if ( ! empty( $origin ) ) {
 					$label .= ' - ' . $origin;
 				}
+
+				// Send email to the donor.
+				self::send_email_to_customer( $customer, $payment );
 
 				// Send custom event to GA.
 				\Newspack\Google_Services_Connection::send_custom_event(
