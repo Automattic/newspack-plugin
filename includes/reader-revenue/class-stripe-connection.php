@@ -640,9 +640,6 @@ class Stripe_Connection {
 					$label .= ' - ' . $origin;
 				}
 
-				// Send email to the donor.
-				self::send_email_to_customer( $customer, $payment );
-
 				// Send custom event to GA.
 				\Newspack\Google_Services_Connection::send_custom_event(
 					[
@@ -658,6 +655,9 @@ class Stripe_Connection {
 				if ( Donations::is_woocommerce_suite_active() ) {
 					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
 				}
+
+				// Send email to the donor.
+				self::send_email_to_customer( $customer, $payment );
 
 				break;
 			case 'charge.failed':
