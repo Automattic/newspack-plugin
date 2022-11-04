@@ -22,6 +22,12 @@ class Stripe_Connection {
 	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
 	const STRIPE_CUSTOMER_ID_USER_META   = '_newspack_stripe_customer_id';
 
+	const ESP_METADATA_VALUES = [
+		'once_donor'    => 'Donor',
+		'monthly_donor' => 'Monthly Donor',
+		'yearly_donor'  => 'Yearly Donor',
+	];
+
 	/**
 	 * Ensures the customer ID lookup is run only once per request.
 	 *
@@ -363,7 +369,7 @@ class Stripe_Connection {
 	public static function get_subscription_from_payment( $payment ) {
 		if ( $payment['invoice'] ) {
 			$invoice = self::get_invoice( $payment['invoice'] );
-			if ( $invoice['subscription'] ) {
+			if ( ! \is_wp_error( $invoice ) && $invoice['subscription'] ) {
 				return self::get_subscription( $invoice['subscription'] );
 			}
 		}
@@ -442,11 +448,11 @@ class Stripe_Connection {
 	public static function get_membership_status_field_value( $frequency ) {
 		switch ( $frequency ) {
 			case 'once':
-				return 'Donor';
+				return self::ESP_METADATA_VALUES['once_donor'];
 			case 'year':
-				return 'Yearly Donor';
+				return self::ESP_METADATA_VALUES['yearly_donor'];
 			case 'month':
-				return 'Monthly Donor';
+				return self::ESP_METADATA_VALUES['monthly_donor'];
 		}
 	}
 
@@ -530,7 +536,7 @@ class Stripe_Connection {
 
 				if ( $payment['invoice'] ) {
 					$invoice = self::get_invoice( $payment['invoice'] );
-					if ( isset( $invoice['metadata']['referer'] ) ) {
+					if ( ! \is_wp_error( $invoice ) && isset( $invoice['metadata']['referer'] ) ) {
 						$referer = $invoice['metadata']['referer'];
 					}
 				}
@@ -662,9 +668,10 @@ class Stripe_Connection {
 					return $customer;
 				}
 
+				$active_subs = 0;
 				if ( Donations::is_woocommerce_suite_active() ) {
 					if ( $payload['ended_at'] ) {
-						WooCommerce_Connection::end_subscription(
+						$active_subs = WooCommerce_Connection::end_subscription(
 							$payload['id'],
 							$payload['ended_at']
 						);
@@ -679,7 +686,7 @@ class Stripe_Connection {
 							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
 						],
 					];
-					if ( in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
+					if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
 						$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
 						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
 					}
@@ -1111,7 +1118,7 @@ class Stripe_Connection {
 					'metadata' => $client_metadata,
 				]
 			);
-			if ( is_wp_error( $customer ) ) {
+			if ( \is_wp_error( $customer ) ) {
 				$response['error'] = $customer->get_error_message();
 				return $response;
 			}
@@ -1328,7 +1335,10 @@ class Stripe_Connection {
 		$frequency = 'once';
 		if ( $payment['invoice'] ) {
 			// A subscription payment will have an invoice.
-			$invoice   = self::get_invoice( $payment['invoice'] );
+			$invoice = self::get_invoice( $payment['invoice'] );
+			if ( \is_wp_error( $invoice ) ) {
+				return $frequency;
+			}
 			$recurring = $invoice['lines']['data'][0]['price']['recurring'];
 			if ( isset( $recurring['interval'] ) ) {
 				$frequency = $recurring['interval'];
@@ -1359,11 +1369,13 @@ class Stripe_Connection {
 		$subscription_id        = null;
 		$invoice_billing_reason = null;
 		$invoice                = self::get_invoice( $payment['invoice'] );
-		if ( $invoice ) {
+		if ( $invoice && ! \is_wp_error( $invoice ) ) {
 			$invoice_billing_reason = $invoice['billing_reason'];
 			if ( isset( $invoice['subscription'] ) && is_string( $invoice['subscription'] ) ) {
 				$subscription_id = $invoice['subscription'];
 			}
+		} elseif ( \is_wp_error( $invoice ) ) {
+			Logger::error( 'Invoice error: ' . $invoice->get_error_message() );
 		}
 		return [
 			'email'                         => $customer['email'],
