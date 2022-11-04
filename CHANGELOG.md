@@ -1,3 +1,10 @@
+## [1.95.3](https://github.com/Automattic/newspack-plugin/compare/v1.95.2...v1.95.3) (2022-11-04)
+
+
+### Bug Fixes
+
+* update newspack-scripts to fix CI builds ([#2110](https://github.com/Automattic/newspack-plugin/issues/2110)) ([c395ddb](https://github.com/Automattic/newspack-plugin/commit/c395ddb84064bc17ed78330ce8b24371455aa083))
+
 ## [1.95.3-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.95.2...v1.95.3-hotfix.1) (2022-11-04)
 
 
