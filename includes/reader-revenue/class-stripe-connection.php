@@ -323,6 +323,9 @@ class Stripe_Connection {
 	 * @param string $invoice_id Invoice ID.
 	 */
 	public static function get_invoice( $invoice_id ) {
+		if ( empty( $invoice_id ) ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Invoice ID is missing.', 'newspack' ) );
+		}
 		if ( isset( self::$cache['invoices'][ $invoice_id ] ) ) {
 			return self::$cache['invoices'][ $invoice_id ];
 		}
@@ -1368,7 +1371,7 @@ class Stripe_Connection {
 				$subscription_id = $invoice['subscription'];
 			}
 		} elseif ( \is_wp_error( $invoice ) ) {
-			Logger::error( 'Invoice error: ' . $invoice->get_error_message() );
+			Logger::log( 'Invoice error: ' . $invoice->get_error_message() );
 		}
 		return [
 			'email'                         => $customer['email'],
