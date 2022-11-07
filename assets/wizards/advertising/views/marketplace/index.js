@@ -48,17 +48,17 @@ const payableEvents = {
 };
 
 const AdProductValues = ( { event, value = {}, onChange = () => {}, ...props } ) => {
-	const [ values, setValues ] = useState( value );
+	const [ values, setValues ] = useState( value || {} );
+	const eventData = payableEvents[ event ];
 	useEffect( () => {
 		onChange( values );
 	}, [ values ] );
-	const eventData = payableEvents[ event ];
 	if ( ! eventData ) return null;
 	return (
 		<TextControl
 			label={ eventData.unit.label }
 			help={ eventData.description }
-			value={ values[ eventData.unit.value ] || 0 }
+			value={ values[ eventData.unit.value ] || '' }
 			onChange={ val => setValues( { ...values, [ eventData.unit.value ]: val } ) }
 			{ ...props }
 		/>
@@ -149,15 +149,19 @@ const Marketplace = ( { adUnits } ) => {
 					<SelectControl
 						label={ __( 'Ad Unit', 'newspack' ) }
 						value={ product?.ad_unit }
-						options={ Object.keys( adUnits ).map( key => ( {
-							label: adUnits[ key ].name,
-							value: key,
-						} ) ) }
+						options={ [
+							{ label: __( 'Select an ad unit', 'newspack' ), value: '' },
+							...Object.keys( adUnits ).map( key => ( {
+								label: adUnits[ key ].name,
+								value: key,
+							} ) ),
+						] }
 						onChange={ val => setProduct( { ...product, ad_unit: val } ) }
 					/>
 					<SelectControl
 						label={ __( 'Event', 'newspack' ) }
 						value={ product?.event }
+						disabled={ ! product?.ad_unit }
 						options={ [
 							{ label: __( 'Select a payable event', 'newspack' ), value: '' },
 							...Object.keys( payableEvents ).map( key => ( {
