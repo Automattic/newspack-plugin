@@ -1,3 +1,12 @@
+# [1.96.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.96.0-alpha.2...v1.96.0-alpha.3) (2022-11-07)
+
+
+### Bug Fixes
+
+* package lock ([8707e53](https://github.com/Automattic/newspack-plugin/commit/8707e53ad0d63daab93d503ecb302240ace40c86))
+* **Stripe:** improve handling of invoice error ([#2117](https://github.com/Automattic/newspack-plugin/issues/2117)) ([609bf7d](https://github.com/Automattic/newspack-plugin/commit/609bf7d9a23afaa92374403c23fec6e072e5e636))
+* update newspack-scripts to fix CI builds ([#2109](https://github.com/Automattic/newspack-plugin/issues/2109)) ([ec1ee7a](https://github.com/Automattic/newspack-plugin/commit/ec1ee7a4abf0964015bb6c2dd7aea5b0424cfc2e))
+
 # [1.96.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.96.0-alpha.1...v1.96.0-alpha.2) (2022-11-04)
 
 
