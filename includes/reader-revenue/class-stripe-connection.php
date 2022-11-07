@@ -538,9 +538,6 @@ class Stripe_Connection {
 					}
 				}
 
-				// Send email to the donor.
-				self::send_email_to_customer( $customer, $payment );
-
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
@@ -655,6 +652,9 @@ class Stripe_Connection {
 				if ( Donations::is_woocommerce_suite_active() ) {
 					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
 				}
+
+				// Send email to the donor.
+				self::send_email_to_customer( $customer, $payment );
 
 				break;
 			case 'charge.failed':
