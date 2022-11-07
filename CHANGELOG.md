@@ -1,3 +1,10 @@
+# [1.96.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.96.0-alpha.3...v1.96.0-alpha.4) (2022-11-07)
+
+
+### Bug Fixes
+
+* **stripe:** invoice error handling ([#2119](https://github.com/Automattic/newspack-plugin/issues/2119)) ([8855681](https://github.com/Automattic/newspack-plugin/commit/8855681d92794c4b01835627328d9a39c8fc2d10))
+
 ## [1.95.4](https://github.com/Automattic/newspack-plugin/compare/v1.95.3...v1.95.4) (2022-11-07)
 
 
