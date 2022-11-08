@@ -8,6 +8,7 @@
 namespace Newspack\CLI;
 
 use WP_CLI;
+use WPConfigTransformer;
 use WP_REST_Request;
 
 defined( 'ABSPATH' ) || exit;
@@ -78,7 +79,7 @@ class Setup {
 		$plugins = $this->get_initial_check();
 
 		foreach ( $plugins as $plugin ) {
-			if ( $plugin['Status'] === 'active' ) {
+			if ( 'active' === $plugin['Status'] ) {
 				WP_CLI::line( $plugin['Name'] . ' is already configured' );
 				continue;
 			}
@@ -118,7 +119,6 @@ class Setup {
 		}
 		WP_CLI::success( 'Posts created' );
 
-
 		$request  = new WP_REST_Request( 'POST', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-setup-wizard/starter-content/homepage' );
 		$response = rest_do_request( $request );
 		WP_CLI::success( 'Home page configured' );
@@ -150,33 +150,10 @@ class Setup {
 			$content .= sprintf( "define( 'DB_PREFIX', '%s' );\n", $table_prefix );
 			$content .= "define( 'NEWSPACK_POPUPS_DEBUG', true );\n";
 
-			file_put_contents( $filename, $content );
+			file_put_contents( $filename, $content ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents
 
 			WP_CLI::success( 'Campaigns config created.' );
 
-		}
-
-	}
-
-	/**
-	 * Adds a new line to wp-config
-	 *
-	 * @param string $line The line to be addeed.
-	 * @return void
-	 */
-	private function add_to_wpconfig( $line ) {
-		$file     = ABSPATH . '/wp-config.php';
-		$string   = '/* Add any custom values between this line and the "stop editing" line. */';
-		$contents = file_get_contents( $file );
-
-		if ( ! strpos( $contents, $line ) ) {
-			$contents = str_replace(
-				$string,
-				$string . "\n" . $line . "\n",
-				$contents
-			);
-
-			file_put_contents( $file, $contents );
 		}
 
 	}
@@ -187,7 +164,8 @@ class Setup {
 	 * @return void
 	 */
 	private function amp_plus() {
-		$this->add_to_wpconfig( "define( 'NEWSPACK_AMP_PLUS_ENABLED', true );" );
+		$wpconfig = new WPConfigTransformer( ABSPATH . '/wp-config.php' );
+		$wpconfig->update( 'constant', 'NEWSPACK_AMP_PLUS_ENABLED', 'true', [ 'raw' => true ] );
 		WP_CLI::success( 'AMP Plus configured.' );
 	}
 
@@ -197,7 +175,8 @@ class Setup {
 	 * @return void
 	 */
 	private function ras_beta() {
-		$this->add_to_wpconfig( "define( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION', true );" );
+		$wpconfig = new WPConfigTransformer( ABSPATH . '/wp-config.php' );
+		$wpconfig->update( 'constant', 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION', 'true', [ 'raw' => true ] );
 		WP_CLI::success( 'RAS enabled.' );
 	}
 }
