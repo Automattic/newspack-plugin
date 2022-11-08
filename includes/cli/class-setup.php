@@ -32,7 +32,15 @@ class Setup {
 	 */
 	public function __invoke( $args, $assoc_args ) {
 		do_action( 'rest_api_init' );
-		wp_set_current_user( 1 );
+		$user_id = 0;
+		while ( ! current_user_can( 'manage_options' ) ) {
+			$user_id++;
+			wp_set_current_user( $user_id );
+		}
+
+		$user_name = wp_get_current_user()->user_login;
+
+		WP_CLI::line( "Logged in as $user_name" );
 
 		$this->plugins();
 
