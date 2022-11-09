@@ -323,7 +323,7 @@ class WooCommerce_Connection {
 		}
 		global $wpdb;
 		$query           = $wpdb->prepare(
-			'SELECT post_id FROM `wp_postmeta` WHERE `meta_key` = %s AND `meta_value` = %s',
+			"SELECT post_id FROM $wpdb->postmeta WHERE `meta_key` = %s AND `meta_value` = %s",
 			self::SUBSCRIPTION_STRIPE_ID_META_KEY,
 			$stripe_subscription_id
 		);
