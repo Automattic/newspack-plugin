@@ -1442,7 +1442,7 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * If a WP user is deleted, cancel their Stripe subscriptions.
+	 * Cancel all Stripe subscriptions of a WP user.
 	 *
 	 * @param int $user_id User ID.
 	 */
