@@ -717,18 +717,22 @@ class Stripe_Connection {
 				}
 
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
-					$contact      = [
-						'email'    => $customer['email'],
-						'metadata' => [
-							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
-						],
-					];
-					if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
-						$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
+					$contact_exists = ! \is_wp_error( \Newspack_Newsletters_Subscription::get_contact_data( $customer['email'] ) );
+					// Only handle subscription deletion of an existing contact.
+					if ( ! $contact_exists ) {
+						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+						$contact      = [
+							'email'    => $customer['email'],
+							'metadata' => [
+								Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
+							],
+						];
+						if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
+							$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
+						}
+						\Newspack_Newsletters_Subscription::add_contact( $contact );
 					}
-					\Newspack_Newsletters_Subscription::add_contact( $contact );
 				}
 
 				// Update data in Campaigns plugin.
@@ -774,26 +778,29 @@ class Stripe_Connection {
 					if ( \is_wp_error( $customer ) ) {
 						return $customer;
 					}
-
-					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
-					$contact      = [
-						'email'    => $customer['email'],
-						'metadata' => [],
-					];
-					if ( $payload['cancel_at'] ) {
-						// Cancellation was scheduled.
-						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['cancel_at'] );
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = $sub_end_date;
-					} elseif ( 'active' === $payload['status'] ) {
-						// An update to an active subscription (or activation of it).
-						$plan                = $payload['plan'];
-						$contact['metadata'] = array_merge(
-							self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
-							$contact['metadata']
-						);
-					}
-					if ( count( $contact['metadata'] ) ) {
-						\Newspack_Newsletters_Subscription::add_contact( $contact );
+					$contact_exists = ! \is_wp_error( \Newspack_Newsletters_Subscription::get_contact_data( $customer['email'] ) );
+					// Only handle subscription update of an existing contact.
+					if ( ! $contact_exists ) {
+						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+						$contact      = [
+							'email'    => $customer['email'],
+							'metadata' => [],
+						];
+						if ( $payload['cancel_at'] ) {
+							// Cancellation was scheduled.
+							$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['cancel_at'] );
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = $sub_end_date;
+						} elseif ( 'active' === $payload['status'] ) {
+							// An update to an active subscription (or activation of it).
+							$plan                = $payload['plan'];
+							$contact['metadata'] = array_merge(
+								self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
+								$contact['metadata']
+							);
+						}
+						if ( count( $contact['metadata'] ) ) {
+							\Newspack_Newsletters_Subscription::add_contact( $contact );
+						}
 					}
 				}
 				break;
