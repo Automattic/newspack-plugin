@@ -479,8 +479,11 @@ class WooCommerce_Connection {
 				$order->save();
 				Logger::log( 'Updated WC subscription with id: ' . $subscription->get_id() . ' with a new order of id: ' . $order->get_id() );
 			} else {
-				// Linked subscription not found, just create an order.
+				// Linked subscription not found, just create an order. Temporarily disable the
+				// "New Order" email, since this is a renewal.
+				\add_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 				$order = self::create_order( $order_data, $item );
+				\remove_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 			}
 		} else {
 			/**
