@@ -542,10 +542,14 @@ class WooCommerce_Connection {
 	 *
 	 * @param string $stripe_subscription_id Stripe subscription ID.
 	 * @param int    $end_date Timestamp of when to cancel the subscription.
+	 *
+	 * @return int Number of remaining active subscriptions for the user.
 	 */
 	public static function end_subscription( $stripe_subscription_id, $end_date ) {
 		$subscription = self::get_subscription_by_stripe_subscription_id( $stripe_subscription_id );
+		$active_subs  = 0;
 		if ( $subscription ) {
+			$wc_user_id = $subscription->get_user_id();
 			$subscription->delete_date( 'next_payment' );
 			$subscription->update_dates(
 				[
@@ -555,7 +559,19 @@ class WooCommerce_Connection {
 			$subscription->set_status( 'cancelled' );
 			$subscription->save();
 			Logger::log( 'Cancelled WC subscription with id: ' . $subscription->get_id() );
+
+			if ( $wc_user_id && function_exists( 'wcs_get_users_subscriptions' ) ) {
+				$all_subs = \wcs_get_users_subscriptions( $wc_user_id );
+
+				foreach ( $all_subs as $sub ) {
+					if ( 'active' === $sub->get_status() ) {
+						$active_subs ++;
+					}
+				}
+			}
 		}
+
+		return $active_subs;
 	}
 
 	/**
