@@ -1,3 +1,23 @@
+# [1.96.0](https://github.com/Automattic/newspack-plugin/compare/v1.95.4...v1.96.0) (2022-11-14)
+
+
+### Bug Fixes
+
+* allow Stripe Billing portal to render without RAS ([b6e22cd](https://github.com/Automattic/newspack-plugin/commit/b6e22cdbc021a475cf2c347513fd9d80b6759082))
+* apply ex-donor status only if user has no active subscriptions ([#2101](https://github.com/Automattic/newspack-plugin/issues/2101)) ([40399ea](https://github.com/Automattic/newspack-plugin/commit/40399eaf763809062ed2248f3837b7c565ece2cd))
+* apply My Account template changes only when RAS is active ([cd7b304](https://github.com/Automattic/newspack-plugin/commit/cd7b30404ce35eed28bb7b2f7de07047077e267b))
+* package lock ([8707e53](https://github.com/Automattic/newspack-plugin/commit/8707e53ad0d63daab93d503ecb302240ace40c86))
+* **stripe:** handle failed invoice fatal error ([#2103](https://github.com/Automattic/newspack-plugin/issues/2103)) ([f865428](https://github.com/Automattic/newspack-plugin/commit/f865428a9a1e2ae5027a19e6461940d4d1b6f4c4))
+* **Stripe:** improve handling of invoice error ([#2117](https://github.com/Automattic/newspack-plugin/issues/2117)) ([609bf7d](https://github.com/Automattic/newspack-plugin/commit/609bf7d9a23afaa92374403c23fec6e072e5e636))
+* update newspack-scripts to fix CI builds ([#2109](https://github.com/Automattic/newspack-plugin/issues/2109)) ([ec1ee7a](https://github.com/Automattic/newspack-plugin/commit/ec1ee7a4abf0964015bb6c2dd7aea5b0424cfc2e))
+* use default terms text in reg block if no text defined ([#2078](https://github.com/Automattic/newspack-plugin/issues/2078)) ([443c59c](https://github.com/Automattic/newspack-plugin/commit/443c59c251f53ac590cd578f50312937eb85cec2))
+
+
+### Features
+
+* enable setting user custom fields for job title etc. ([#2102](https://github.com/Automattic/newspack-plugin/issues/2102)) ([4018af6](https://github.com/Automattic/newspack-plugin/commit/4018af61acbc8a952355a5b138808618de3efc26)), closes [#1723](https://github.com/Automattic/newspack-plugin/issues/1723)
+* **newsletter-contact:** disallow overriding membership status field ([#2093](https://github.com/Automattic/newspack-plugin/issues/2093)) ([8b8e134](https://github.com/Automattic/newspack-plugin/commit/8b8e134c75cfd2ae956e640615106c884d8d3204))
+
 # [1.96.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.96.0-alpha.3...v1.96.0-alpha.4) (2022-11-07)
 
 
