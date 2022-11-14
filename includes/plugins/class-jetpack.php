@@ -33,6 +33,7 @@ class Jetpack {
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
 		add_action( 'wp_head', [ __CLASS__, 'fix_instant_search_sidebar_display' ], 10 );
 		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', [ __CLASS__, 'skip_lazy_loading_on_feeds' ], 10 );
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'disable_google_analytics' ), 10, 2 );
 	}
 
 	/**
@@ -112,6 +113,16 @@ class Jetpack {
 			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Disables Google Analytics module. Users will not be able to activate it.
+	 *
+	 * @param array $modules Array with modules slugs.
+	 * @return array
+	 */
+	public static function disable_google_analytics( $modules ) {
+		return array_diff( $modules, array( 'google-analytics' ) );
 	}
 }
 Jetpack::init();
