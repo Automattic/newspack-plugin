@@ -100,14 +100,14 @@ endif;
 			<h4 class="woocommerce-card__title">
 				<?php \esc_html_e( 'Delete Account', 'newspack' ); ?>
 			</h4>
-			<p>
-				<?php \esc_html_e( 'Deleting your account will also cancel any newsletter subscriptions and recurring payments.', 'newspack' ); ?>
-			</p>
 			<span class="woocommerce-card__description">
 				<?php \esc_html_e( 'Request account deletion', 'newspack' ); ?>
 			</span>
 		</span>
 	</a>
+	<p>
+		<?php \esc_html_e( 'Deleting your account will also cancel any newsletter subscriptions and recurring payments.', 'newspack' ); ?>
+	</p>
 </div>
 
 <?php \do_action( 'newspack_woocommerce_after_edit_account_form' ); ?>
