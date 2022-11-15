@@ -138,7 +138,7 @@ class Jetpack {
 		if ( isset( $modules['google-analytics'] ) ) {
 			unset( $modules['google-analytics'] );
 		}
-		return $module;
+		return $modules;
 	}
 }
 Jetpack::init();
