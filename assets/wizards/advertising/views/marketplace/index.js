@@ -18,7 +18,9 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard, Modal, withWizardScreen } from '../../../../components/src';
+import { Grid, ActionCard, Modal, withWizardScreen } from '../../../../components/src';
+
+const IAB_SIZES = window.newspack_ads_wizard.iab_sizes;
 
 const payableEvents = {
 	impressions: {
@@ -27,7 +29,7 @@ const payableEvents = {
 			label: __( 'CPM', 'newspack' ),
 			value: 'cpm',
 		},
-		description: __( 'The number of times your ad is rendered on a page.', 'newspack' ),
+		description: __( 'The number of times the ad is rendered on a page.', 'newspack' ),
 	},
 	clicks: {
 		label: __( 'Clicks', 'newspack' ),
@@ -35,7 +37,7 @@ const payableEvents = {
 			label: __( 'CPC', 'newspack' ),
 			value: 'cpc',
 		},
-		description: __( 'The number of times a user clicks on your ad.', 'newspack' ),
+		description: __( 'The number of times a user clicks on the ad.', 'newspack' ),
 	},
 	viewable_impressions: {
 		label: __( 'Viewable Impressions', 'newspack' ),
@@ -43,7 +45,7 @@ const payableEvents = {
 			label: __( 'Viewable CPM', 'newspack' ),
 			value: 'viewable_cpm',
 		},
-		description: __( 'The number of times your ad is shown on a page.', 'newspack' ),
+		description: __( 'The number of times the ad is shown on a page.', 'newspack' ),
 	},
 };
 
@@ -62,6 +64,133 @@ const AdProductValues = ( { event, value = {}, onChange = () => {}, ...props } )
 			onChange={ val => setValues( { ...values, [ eventData.unit.value ]: val } ) }
 			{ ...props }
 		/>
+	);
+};
+
+const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () => {} } ) => {
+	const isGlobal = () => {
+		return product.placement === 'global';
+	};
+	const getSizes = () => {
+		let sizes = Object.keys( IAB_SIZES ).map( sizeString => sizeString.split( 'x' ).map( Number ) );
+		if ( product.ad_unit ) {
+			sizes = adUnits[ product.ad_unit ]?.sizes || sizes;
+		}
+		return sizes;
+	};
+	const handlePayableEventsChange = event => () => {
+		const newPayableEvents = [ ...product.payable_events ];
+		if ( newPayableEvents.includes( event ) ) {
+			newPayableEvents.splice( newPayableEvents.indexOf( event ), 1 );
+		} else {
+			newPayableEvents.push( event );
+		}
+		onChange( { ...product, payable_events: newPayableEvents } );
+	};
+	return (
+		<>
+			<p>{ __( 'Payable Events', 'newspack' ) }</p>
+			{ Object.keys( payableEvents ).map( event => (
+				<CheckboxControl
+					key={ event }
+					label={ payableEvents[ event ].label }
+					checked={ product.payable_events?.includes( event ) }
+					onChange={ handlePayableEventsChange( event ) }
+				/>
+			) ) }
+			{ product.payable_events?.length && (
+				<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
+					{ product.payable_events?.map( event => (
+						<AdProductValues
+							key={ event }
+							event={ event }
+							value={ product.prices }
+							disabled={ ! product.is_flat_fee }
+							onChange={ value => onChange( { ...product, prices: value } ) }
+						/>
+					) ) }
+				</Grid>
+			) }
+			{ ! isGlobal() && (
+				<SelectControl
+					label={ __( 'Ad Unit', 'newspack' ) }
+					value={ product?.ad_unit }
+					options={ [
+						{ label: __( 'Select an ad unit', 'newspack' ), value: '' },
+						...Object.keys( adUnits ).map( key => ( {
+							label: adUnits[ key ].name,
+							value: key,
+						} ) ),
+					] }
+					onChange={ val => onChange( { ...product, ad_unit: val } ) }
+				/>
+			) }
+			<CheckboxControl
+				label={ __( 'Flat fee', 'newspack' ) }
+				help={ __(
+					'If checked, the ad will be sold for a flat fee, regardless of the creative size.',
+					'newspack'
+				) }
+				checked={ product.is_flat_fee }
+				value={ product.is_flat_fee }
+				onChange={ is_flat_fee => onChange( { ...product, is_flat_fee } ) }
+			/>
+			{ ! product.is_flat_fee && (
+				<div className="sizes">
+					<h3>{ __( 'Sizes', 'newspack' ) }</h3>
+					{ getSizes().map( ( size, i ) => (
+						<div className="size" key={ i }>
+							{ ! product.ad_unit ? ( // TODO - Better handle of active sizes.
+								<CheckboxControl
+									label={ `${ size[ 0 ] } x ${ size[ 1 ] }` }
+									checked={ product.sizes?.includes( size.join( 'x' ) ) }
+									onChange={ () => {
+										const newSizes = [ ...product.sizes ];
+										if ( newSizes.includes( size.join( 'x' ) ) ) {
+											newSizes.splice( newSizes.indexOf( size.join( 'x' ) ), 1 );
+										} else {
+											newSizes.push( size.join( 'x' ) );
+										}
+										onChange( { ...product, sizes: newSizes } );
+									} }
+								/>
+							) : (
+								<span>
+									{ size[ 0 ] } x { size[ 1 ] }
+								</span>
+							) }
+							{ product.payable_events?.length && (
+								<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
+									{ product.payable_events?.map( event => (
+										<AdProductValues
+											key={ event }
+											event={ event }
+											value={ product.size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ]?.prices }
+											disabled={ ! product.is_flat_fee }
+											onChange={ value =>
+												onChange( {
+													...product,
+													size: {
+														...product.size,
+														[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: {
+															...product.size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ],
+															...{ prices: value },
+														},
+													},
+												} )
+											}
+										/>
+									) ) }
+								</Grid>
+							) }
+						</div>
+					) ) }
+				</div>
+			) }
+			<Button disabled={ ! product.event } isPrimary onClick={ onSave }>
+				{ __( 'Save Product', 'newspack' ) }
+			</Button>
+		</>
 	);
 };
 
@@ -96,7 +225,9 @@ const Marketplace = ( { adUnits } ) => {
 			isEditing
 				? {
 						placement: isEditing,
-						ad_unit: placements[ isEditing ]?.data?.ad_unit,
+						ad_unit: placements[ isEditing ]?.data?.ad_unit || null,
+						payable_events: [ 'impressions' ],
+						is_flat_fee: true,
 						...products[ isEditing ],
 				  }
 				: {}
@@ -104,6 +235,12 @@ const Marketplace = ( { adUnits } ) => {
 	}, [ isEditing ] );
 	useEffect( fetchPlacements, [] );
 	useEffect( fetchProducts, [] );
+	const getPlacementName = key => {
+		if ( key === 'global' ) {
+			return __( 'Global', 'newspack' );
+		}
+		return placements[ key ]?.name || key;
+	};
 	const saveProduct = () => {
 		setInFlight( true );
 		apiFetch( {
@@ -119,11 +256,18 @@ const Marketplace = ( { adUnits } ) => {
 				setInFlight( false );
 			} );
 	};
-	const isPerSize = () => {
-		return product.ad_unit && adUnits[ product.ad_unit ]?.sizes?.length && product.is_per_size;
-	};
 	return (
 		<>
+			<ActionCard
+				isSmall
+				disabled={ inFlight }
+				title={ __( 'Global', 'newspack' ) }
+				actionText={
+					<Button disabled={ inFlight } onClick={ () => setIsEditing( 'global' ) }>
+						{ __( 'Sell', 'newspack' ) }
+					</Button>
+				}
+			/>
 			{ Object.keys( placements ).map( key => (
 				<ActionCard
 					key={ key }
@@ -142,84 +286,16 @@ const Marketplace = ( { adUnits } ) => {
 					title={ sprintf(
 						// Translators: placement name.
 						__( 'Sell %s', 'newspack' ),
-						placements[ isEditing ].name
+						getPlacementName( isEditing )
 					) }
 					onRequestClose={ () => ! inFlight && setIsEditing( false ) }
 				>
-					<SelectControl
-						label={ __( 'Ad Unit', 'newspack' ) }
-						value={ product?.ad_unit }
-						options={ [
-							{ label: __( 'Select an ad unit', 'newspack' ), value: '' },
-							...Object.keys( adUnits ).map( key => ( {
-								label: adUnits[ key ].name,
-								value: key,
-							} ) ),
-						] }
-						onChange={ val => setProduct( { ...product, ad_unit: val } ) }
+					<AdProductEditor
+						adUnits={ adUnits }
+						product={ product }
+						onChange={ setProduct }
+						onSave={ saveProduct }
 					/>
-					<SelectControl
-						label={ __( 'Event', 'newspack' ) }
-						value={ product?.event }
-						disabled={ ! product?.ad_unit }
-						options={ [
-							{ label: __( 'Select a payable event', 'newspack' ), value: '' },
-							...Object.keys( payableEvents ).map( key => ( {
-								label: payableEvents[ key ].label,
-								value: key,
-							} ) ),
-						] }
-						onChange={ value => setProduct( { ...product, event: value } ) }
-					/>
-					{ product.event && (
-						<>
-							<AdProductValues
-								event={ product.event }
-								value={ product.prices }
-								disabled={ isPerSize() }
-								onChange={ value => setProduct( { ...product, prices: value } ) }
-							/>
-							{ product.ad_unit && adUnits[ product.ad_unit ]?.sizes?.length > 1 && (
-								<>
-									<CheckboxControl
-										name="is_per_size"
-										label={ __( 'Set price per size', 'newspack' ) }
-										checked={ product.is_per_size }
-										onChange={ value => setProduct( { ...product, is_per_size: value } ) }
-									/>
-									{ product.is_per_size && (
-										<div className="sizes">
-											<h3>{ __( 'Sizes', 'newspack' ) }</h3>
-											{ adUnits[ product.ad_unit ].sizes.map( ( size, i ) => (
-												<div className="size" key={ i }>
-													{ size[ 0 ] } x { size[ 1 ] }
-													<AdProductValues
-														event={ product.event }
-														value={ product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ]?.prices }
-														onChange={ value =>
-															setProduct( {
-																...product,
-																per_size: {
-																	...product.per_size,
-																	[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: {
-																		...product.per_size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ],
-																		...{ prices: value },
-																	},
-																},
-															} )
-														}
-													/>
-												</div>
-											) ) }
-										</div>
-									) }
-								</>
-							) }
-						</>
-					) }
-					<Button disabled={ ! product.event } isPrimary onClick={ saveProduct }>
-						{ __( 'Save Product', 'newspack' ) }
-					</Button>
 				</Modal>
 			) }
 		</>
