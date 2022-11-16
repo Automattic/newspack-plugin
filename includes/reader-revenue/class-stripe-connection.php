@@ -1101,7 +1101,11 @@ class Stripe_Connection {
 			$customer_data_payload = [
 				'email'       => $data['email'],
 				'name'        => $data['name'],
-				'description' => __( 'Newspack Donor', 'newspack-blocks' ),
+				'description' => sprintf(
+					// Translators: %s is the customer's full name.
+					__( 'Name: %s, Description: Newspack Donor', 'newspack-plugin' ),
+					$data['name']
+				),
 			];
 			if ( isset( $data['metadata'] ) ) {
 				$customer_data_payload['metadata'] = $data['metadata'];
