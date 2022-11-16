@@ -1158,7 +1158,7 @@ final class Reader_Activation {
 		self::set_auth_intention_cookie( $email );
 
 		$user = \get_user_by( 'email', $email );
-		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
+		if ( ! $user && 'register' !== $action ) {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( "We couldn't find an account registered to this email address. Please confirm that you entered the correct email, or sign up for a new account.", 'newspack' ) ) );
 		}
 
@@ -1166,6 +1166,11 @@ final class Reader_Activation {
 			'email'         => $email,
 			'authenticated' => 0,
 		];
+
+		if ( $user && 'register' !== $action && ! self::is_user_reader( $user ) ) {
+			$redirect               = \get_admin_url();
+			$payload['redirect_to'] = $redirect;
+		}
 
 		switch ( $action ) {
 			case 'pwd':
@@ -1204,7 +1209,6 @@ final class Reader_Activation {
 		}
 	}
 
-
 	/**
 	 * Check if current reader has its email verified.
 	 *
@@ -1242,7 +1246,7 @@ final class Reader_Activation {
 			$user = get_user_by( 'id', $user_or_user_id );
 		}
 
-		if ( ! $user || \is_wp_error( $user ) || ! self::is_user_reader( $user ) ) {
+		if ( ! $user || \is_wp_error( $user ) ) {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack' ) );
 		}
 

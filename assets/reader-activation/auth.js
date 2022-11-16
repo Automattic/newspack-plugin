@@ -368,7 +368,11 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )
 								.then( data => {
-									form.endLoginFlow( data.message, 200, data, body.get( 'redirect' ) );
+									let redirect = body.get( 'redirect' );
+									if ( data.redirect_to ) {
+										redirect = data.redirect_to;
+									}
+									form.endLoginFlow( data.message, 200, data, redirect );
 								} )
 								.catch( data => {
 									if ( data.expired ) {
@@ -398,6 +402,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 												/** Redirect every registration to the account page for verification */
 												if ( action === 'register' ) {
 													redirect = newspack_reader_activation_data.account_url;
+												}
+												if ( action !== 'register' && data.redirect_to ) {
+													redirect = data.redirect_to;
 												}
 												form.endLoginFlow( message, res.status, data, redirect );
 											} )
