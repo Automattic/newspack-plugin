@@ -1,3 +1,24 @@
+## [1.95.4](https://github.com/Automattic/newspack-plugin/compare/v1.95.3...v1.95.4) (2022-11-07)
+
+
+### Bug Fixes
+
+* **stripe:** invoice error handling ([#2119](https://github.com/Automattic/newspack-plugin/issues/2119)) ([8855681](https://github.com/Automattic/newspack-plugin/commit/8855681d92794c4b01835627328d9a39c8fc2d10))
+
+## [1.95.3](https://github.com/Automattic/newspack-plugin/compare/v1.95.2...v1.95.3) (2022-11-04)
+
+
+### Bug Fixes
+
+* update newspack-scripts to fix CI builds ([#2110](https://github.com/Automattic/newspack-plugin/issues/2110)) ([c395ddb](https://github.com/Automattic/newspack-plugin/commit/c395ddb84064bc17ed78330ce8b24371455aa083))
+
+## [1.95.3-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.95.2...v1.95.3-hotfix.1) (2022-11-04)
+
+
+### Bug Fixes
+
+* update newspack-scripts to fix CI builds ([#2109](https://github.com/Automattic/newspack-plugin/issues/2109)) ([bc1e44a](https://github.com/Automattic/newspack-plugin/commit/bc1e44a6cf9eb561b08a7b717c9de7d2c9bb160b))
+
 ## [1.95.2](https://github.com/Automattic/newspack-plugin/compare/v1.95.1...v1.95.2) (2022-11-03)
 
 

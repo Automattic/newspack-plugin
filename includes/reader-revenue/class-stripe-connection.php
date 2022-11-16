@@ -56,6 +56,7 @@ class Stripe_Connection {
 		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
 		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
 		add_action( 'newspack_reader_verified', [ __CLASS__, 'newspack_reader_verified' ] );
+		add_action( 'delete_user', [ __CLASS__, 'cancel_user_subscriptions' ], 90 ); // Priority 90 to run after Newsletters deletes the contact in ESP.
 	}
 
 	/**
@@ -329,6 +330,9 @@ class Stripe_Connection {
 	 * @param string $invoice_id Invoice ID.
 	 */
 	public static function get_invoice( $invoice_id ) {
+		if ( empty( $invoice_id ) ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Invoice ID is missing.', 'newspack' ) );
+		}
 		if ( isset( self::$cache['invoices'][ $invoice_id ] ) ) {
 			return self::$cache['invoices'][ $invoice_id ];
 		}
@@ -362,6 +366,25 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Get Stripe customer's subscriptions.
+	 *
+	 * @param string $customer_id Customer ID.
+	 */
+	private static function get_subscriptions_of_customer( $customer_id ) {
+		$stripe = self::get_stripe_client();
+		try {
+			return $stripe->subscriptions->all(
+				[
+					'customer' => $customer_id,
+					'limit'    => 100,
+				]
+			);
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch subscriptions.', 'newspack' ), $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Get Subscription from payment, if one exists.
 	 *
 	 * @param array $payment Payment object.
@@ -372,6 +395,21 @@ class Stripe_Connection {
 			if ( ! \is_wp_error( $invoice ) && $invoice['subscription'] ) {
 				return self::get_subscription( $invoice['subscription'] );
 			}
+		}
+	}
+
+	/**
+	 * Cancel a Stripe subscription.
+	 *
+	 * @param string $subscription_id Subscription ID.
+	 */
+	private static function cancel_subscription( $subscription_id ) {
+		$stripe = self::get_stripe_client();
+		Logger::log( 'Cancelling Stripe subscription with id: ' . $subscription_id );
+		try {
+			return $stripe->subscriptions->cancel( $subscription_id, [] );
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'stripe_newspack', __( 'Could not cancel subscription.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -541,9 +579,6 @@ class Stripe_Connection {
 					}
 				}
 
-				// Send email to the donor.
-				self::send_email_to_customer( $customer, $payment );
-
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
 				$stripe_data                        = self::get_stripe_data();
@@ -659,6 +694,9 @@ class Stripe_Connection {
 					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
 				}
 
+				// Send email to the donor.
+				self::send_email_to_customer( $customer, $payment );
+
 				break;
 			case 'charge.failed':
 				break;
@@ -679,18 +717,22 @@ class Stripe_Connection {
 				}
 
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
-					$contact      = [
-						'email'    => $customer['email'],
-						'metadata' => [
-							Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
-						],
-					];
-					if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
-						$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
+					$contact_exists = ! \is_wp_error( \Newspack_Newsletters_Subscription::get_contact_data( $customer['email'] ) );
+					// Only handle subscription deletion of an existing contact.
+					if ( ! $contact_exists ) {
+						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+						$contact      = [
+							'email'    => $customer['email'],
+							'metadata' => [
+								Newspack_Newsletters::$metadata_keys['sub_end_date']   => $sub_end_date,
+							],
+						];
+						if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
+							$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
+						}
+						\Newspack_Newsletters_Subscription::add_contact( $contact );
 					}
-					\Newspack_Newsletters_Subscription::add_contact( $contact );
 				}
 
 				// Update data in Campaigns plugin.
@@ -736,26 +778,29 @@ class Stripe_Connection {
 					if ( \is_wp_error( $customer ) ) {
 						return $customer;
 					}
-
-					$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
-					$contact      = [
-						'email'    => $customer['email'],
-						'metadata' => [],
-					];
-					if ( $payload['cancel_at'] ) {
-						// Cancellation was scheduled.
-						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['cancel_at'] );
-						$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = $sub_end_date;
-					} elseif ( 'active' === $payload['status'] ) {
-						// An update to an active subscription (or activation of it).
-						$plan                = $payload['plan'];
-						$contact['metadata'] = array_merge(
-							self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
-							$contact['metadata']
-						);
-					}
-					if ( count( $contact['metadata'] ) ) {
-						\Newspack_Newsletters_Subscription::add_contact( $contact );
+					$contact_exists = ! \is_wp_error( \Newspack_Newsletters_Subscription::get_contact_data( $customer['email'] ) );
+					// Only handle subscription update of an existing contact.
+					if ( ! $contact_exists ) {
+						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
+						$contact      = [
+							'email'    => $customer['email'],
+							'metadata' => [],
+						];
+						if ( $payload['cancel_at'] ) {
+							// Cancellation was scheduled.
+							$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['cancel_at'] );
+							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = $sub_end_date;
+						} elseif ( 'active' === $payload['status'] ) {
+							// An update to an active subscription (or activation of it).
+							$plan                = $payload['plan'];
+							$contact['metadata'] = array_merge(
+								self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
+								$contact['metadata']
+							);
+						}
+						if ( count( $contact['metadata'] ) ) {
+							\Newspack_Newsletters_Subscription::add_contact( $contact );
+						}
 					}
 				}
 				break;
@@ -1056,7 +1101,11 @@ class Stripe_Connection {
 			$customer_data_payload = [
 				'email'       => $data['email'],
 				'name'        => $data['name'],
-				'description' => __( 'Newspack Donor', 'newspack-blocks' ),
+				'description' => sprintf(
+					// Translators: %s is the customer's full name.
+					__( 'Name: %s, Description: Newspack Donor', 'newspack-plugin' ),
+					$data['name']
+				),
 			];
 			if ( isset( $data['metadata'] ) ) {
 				$customer_data_payload['metadata'] = $data['metadata'];
@@ -1375,7 +1424,7 @@ class Stripe_Connection {
 				$subscription_id = $invoice['subscription'];
 			}
 		} elseif ( \is_wp_error( $invoice ) ) {
-			Logger::error( 'Invoice error: ' . $invoice->get_error_message() );
+			Logger::log( 'Invoice error: ' . $invoice->get_error_message() );
 		}
 		return [
 			'email'                         => $customer['email'],
@@ -1394,6 +1443,24 @@ class Stripe_Connection {
 			'user_id'                       => $customer['metadata']['userId'],
 			'subscribed'                    => self::has_customer_opted_in_to_newsletters( $customer ),
 		];
+	}
+
+	/**
+	 * Cancel all Stripe subscriptions of a WP user.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public static function cancel_user_subscriptions( $user_id ) {
+		$customer_id = get_user_meta( $user_id, self::STRIPE_CUSTOMER_ID_USER_META, true );
+		if ( $customer_id ) {
+			$subscriptions = self::get_subscriptions_of_customer( $customer_id );
+			if ( \is_wp_error( $subscriptions ) ) {
+				return $subscriptions;
+			}
+			foreach ( $subscriptions as $subscription ) {
+				self::cancel_subscription( $subscription['id'] );
+			}
+		}
 	}
 }
 

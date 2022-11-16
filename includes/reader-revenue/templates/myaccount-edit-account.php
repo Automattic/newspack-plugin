@@ -105,6 +105,9 @@ endif;
 			</span>
 		</span>
 	</a>
+	<p>
+		<?php \esc_html_e( 'Deleting your account will also cancel any newsletter subscriptions and recurring payments.', 'newspack' ); ?>
+	</p>
 </div>
 
 <?php \do_action( 'newspack_woocommerce_after_edit_account_form' ); ?>

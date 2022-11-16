@@ -215,10 +215,11 @@ class Admin_Plugins_Screen {
 		$installed_plugins[] = 'newspack';
 
 		$newspack_plugin_info = [
-			'plugins'            => $plugins,
-			'installed_plugins'  => $installed_plugins,
-			'screen'             => $hook,
-			'plugin_review_link' => defined( 'NEWSPACK_PLUGIN_REVIEW_FORM_URL' ) ? NEWSPACK_PLUGIN_REVIEW_FORM_URL : null,
+			'plugins'                    => $plugins,
+			'installed_plugins'          => $installed_plugins,
+			'screen'                     => $hook,
+			'plugin_review_link'         => defined( 'NEWSPACK_PLUGIN_REVIEW_FORM_URL' ) ? NEWSPACK_PLUGIN_REVIEW_FORM_URL : null,
+			'approved_plugins_list_link' => defined( 'NEWSPACK_APPROVED_PLUGINS_LIST_LINK' ) ? NEWSPACK_APPROVED_PLUGINS_LIST_LINK : null,
 		];
 
 		wp_localize_script( 'newspack_plugins_screen', 'newspack_plugin_info', $newspack_plugin_info );
