@@ -77,6 +77,10 @@ final class Magic_Link {
 			return false;
 		}
 
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return false;
+		}
+
 		$can_magic_link = ! (bool) \get_user_meta( $user_id, self::DISABLED_META, true );
 
 		/**
@@ -784,12 +788,7 @@ final class Magic_Link {
 			return self::send_otp_request_response( __( 'Unable to authenticated. Please try again.', 'newspack' ), false, [ 'expired' => true ] );
 		}
 
-		$data = [];
-		if ( ! Reader_Activation::is_user_reader( $user ) ) {
-			$data['redirect_to'] = \get_admin_url();
-		}
-
-		return self::send_otp_request_response( __( 'Login successful!', 'newspack' ), true, $data );
+		return self::send_otp_request_response( __( 'Login successful!', 'newspack' ), true );
 	}
 
 	/**
