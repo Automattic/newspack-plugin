@@ -660,8 +660,10 @@ class WooCommerce_Connection {
 	private static function is_synchronised_with_stripe( $subscription ) {
 		if ( is_numeric( $subscription ) ) {
 			$stripe_subscription_id = get_post_meta( $subscription, self::SUBSCRIPTION_STRIPE_ID_META_KEY, true );
-		} else {
+		} elseif ( ! empty( $subscription ) ) {
 			$stripe_subscription_id = $subscription->get_meta( self::SUBSCRIPTION_STRIPE_ID_META_KEY );
+		} else {
+			return false;
 		}
 		return boolval( $stripe_subscription_id );
 	}
