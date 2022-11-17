@@ -68,15 +68,12 @@ const AdProductValues = ( { event, value = {}, onChange = () => {}, ...props } )
 };
 
 const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () => {} } ) => {
-	const isGlobal = () => {
-		return product.placement === 'global';
-	};
 	const getSizes = () => {
 		let sizes = Object.keys( IAB_SIZES ).map( sizeString => sizeString.split( 'x' ).map( Number ) );
 		if ( product.ad_unit ) {
 			sizes = adUnits[ product.ad_unit ]?.sizes || sizes;
 		}
-		return sizes;
+		return sizes.map( size => size.join( 'x' ) );
 	};
 	const handlePayableEventsChange = event => () => {
 		const newPayableEvents = [ ...product.payable_events ];
@@ -89,7 +86,7 @@ const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () =
 	};
 	return (
 		<>
-			<p>{ __( 'Payable Events', 'newspack' ) }</p>
+			<h3>{ __( 'Payable Events', 'newspack' ) }</h3>
 			{ Object.keys( payableEvents ).map( event => (
 				<CheckboxControl
 					key={ event }
@@ -98,94 +95,90 @@ const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () =
 					onChange={ handlePayableEventsChange( event ) }
 				/>
 			) ) }
-			{ product.payable_events?.length && (
-				<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
-					{ product.payable_events?.map( event => (
-						<AdProductValues
-							key={ event }
-							event={ event }
-							value={ product.prices }
-							disabled={ ! product.is_flat_fee }
-							onChange={ value => onChange( { ...product, prices: value } ) }
-						/>
-					) ) }
-				</Grid>
-			) }
-			{ ! isGlobal() && (
-				<SelectControl
-					label={ __( 'Ad Unit', 'newspack' ) }
-					value={ product?.ad_unit }
-					options={ [
-						{ label: __( 'Select an ad unit', 'newspack' ), value: '' },
-						...Object.keys( adUnits ).map( key => ( {
-							label: adUnits[ key ].name,
-							value: key,
-						} ) ),
-					] }
-					onChange={ val => onChange( { ...product, ad_unit: val } ) }
-				/>
-			) }
-			<CheckboxControl
-				label={ __( 'Flat fee', 'newspack' ) }
-				help={ __(
-					'If checked, the ad will be sold for a flat fee, regardless of the creative size.',
-					'newspack'
-				) }
-				checked={ product.is_flat_fee }
-				value={ product.is_flat_fee }
-				onChange={ is_flat_fee => onChange( { ...product, is_flat_fee } ) }
-			/>
-			{ ! product.is_flat_fee && (
-				<div className="sizes">
-					<h3>{ __( 'Sizes', 'newspack' ) }</h3>
-					{ getSizes().map( ( size, i ) => (
-						<div className="size" key={ i }>
-							{ ! product.ad_unit ? ( // TODO - Better handle of active sizes.
-								<CheckboxControl
-									label={ `${ size[ 0 ] } x ${ size[ 1 ] }` }
-									checked={ product.sizes?.includes( size.join( 'x' ) ) }
-									onChange={ () => {
-										const newSizes = [ ...product.sizes ];
-										if ( newSizes.includes( size.join( 'x' ) ) ) {
-											newSizes.splice( newSizes.indexOf( size.join( 'x' ) ), 1 );
-										} else {
-											newSizes.push( size.join( 'x' ) );
-										}
-										onChange( { ...product, sizes: newSizes } );
-									} }
+			<hr />
+			<h3>{ __( 'Allowed Sizes', 'newspack' ) }</h3>
+			<Grid columns={ 4 } gutter={ 8 }>
+				{ getSizes().map( size => (
+					<CheckboxControl
+						key={ size }
+						label={ size }
+						checked={ product.allowed_sizes?.includes( size ) }
+						onChange={ () => {
+							const newSizes = [ ...product.allowed_sizes ];
+							if ( newSizes.includes( size ) ) {
+								newSizes.splice( newSizes.indexOf( size ), 1 );
+							} else {
+								newSizes.push( size );
+							}
+							onChange( { ...product, allowed_sizes: newSizes } );
+						} }
+					/>
+				) ) }
+			</Grid>
+			<hr />
+			{ product.payable_events?.length > 0 && product.allowed_sizes?.length > 0 && (
+				<>
+					<h3>{ __( 'Pricing', 'newspack' ) }</h3>
+					<CheckboxControl
+						label={ __( 'Flat fee', 'newspack' ) }
+						help={ __(
+							'If checked, the ad will be sold for a flat fee, regardless of the creative size.',
+							'newspack'
+						) }
+						checked={ product.is_flat_fee }
+						value={ product.is_flat_fee }
+						onChange={ is_flat_fee => onChange( { ...product, is_flat_fee } ) }
+					/>
+					{ product.is_flat_fee ? (
+						<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
+							{ product.payable_events?.map( event => (
+								<AdProductValues
+									key={ event }
+									event={ event }
+									value={ product.prices }
+									onChange={ value => onChange( { ...product, prices: value } ) }
 								/>
-							) : (
-								<span>
-									{ size[ 0 ] } x { size[ 1 ] }
-								</span>
-							) }
-							{ product.payable_events?.length && (
-								<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
-									{ product.payable_events?.map( event => (
-										<AdProductValues
-											key={ event }
-											event={ event }
-											value={ product.size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ]?.prices }
-											disabled={ ! product.is_flat_fee }
-											onChange={ value =>
-												onChange( {
-													...product,
-													size: {
-														...product.size,
-														[ `${ size[ 0 ] }x${ size[ 1 ] }` ]: {
-															...product.size?.[ `${ size[ 0 ] }x${ size[ 1 ] }` ],
-															...{ prices: value },
-														},
-													},
-												} )
-											}
-										/>
-									) ) }
-								</Grid>
-							) }
+							) ) }
+						</Grid>
+					) : (
+						<div className="sizes">
+							{ product.allowed_sizes?.map( ( size, i ) => (
+								<div className="size" key={ i }>
+									<h4>
+										{ sprintf(
+											// Translators: size name.
+											__( 'Pricing for %s', 'newspack' ),
+											size
+										) }
+									</h4>
+									{ product.payable_events?.length && (
+										<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
+											{ product.payable_events?.map( event => (
+												<AdProductValues
+													key={ event }
+													event={ event }
+													value={ product.size?.[ size ]?.prices }
+													onChange={ value =>
+														onChange( {
+															...product,
+															size: {
+																...product.size,
+																[ size ]: {
+																	...product.size?.[ size ],
+																	...{ prices: value },
+																},
+															},
+														} )
+													}
+												/>
+											) ) }
+										</Grid>
+									) }
+								</div>
+							) ) }
 						</div>
-					) ) }
-				</div>
+					) }
+				</>
 			) }
 			<Button disabled={ ! product.event } isPrimary onClick={ onSave }>
 				{ __( 'Save Product', 'newspack' ) }
@@ -207,6 +200,11 @@ const Marketplace = ( { adUnits } ) => {
 		apiFetch( {
 			path: `/newspack-ads/v1/placements`,
 		} ).then( data => {
+			for ( const key in data ) {
+				if ( ! data[ key ].data?.ad_unit ) {
+					delete data[ key ];
+				}
+			}
 			setPlacements( data );
 		} );
 	};
@@ -228,6 +226,7 @@ const Marketplace = ( { adUnits } ) => {
 						ad_unit: placements[ isEditing ]?.data?.ad_unit || null,
 						payable_events: [ 'impressions' ],
 						is_flat_fee: true,
+						allowed_sizes: [],
 						...products[ isEditing ],
 				  }
 				: {}
