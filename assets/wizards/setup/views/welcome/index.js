@@ -39,7 +39,7 @@ const STARTER_CONTENT_REQUEST_COUNT = POST_COUNT + 3;
 
 const ERROR_TYPES = {
 	plugin_configuration: { message: __( 'Installation', 'newspack' ) },
-	starter_content: { message: __( 'Demo content', 'newspack' ) },
+	starter_content: { message: __( 'Starter content', 'newspack' ) },
 };
 
 const starterContentInit = ( approach, site = '' ) =>
@@ -366,7 +366,7 @@ const Welcome = ( { buttonAction } ) => {
 								{ isInit && isSetupApproachNew && (
 									<CheckboxControl
 										checked={ shouldInstallStarterContent }
-										label={ __( 'Install demo content', 'newspack' ) }
+										label={ __( 'Install starter content', 'newspack' ) }
 										onChange={ setShouldInstallStarterContent }
 									/>
 								) }
