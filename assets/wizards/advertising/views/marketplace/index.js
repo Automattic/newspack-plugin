@@ -12,7 +12,7 @@ import { omit } from 'lodash';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
+import { Button, TextControl, CheckboxControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -49,21 +49,35 @@ const payableEvents = {
 	},
 };
 
-const AdProductValues = ( { event, value = {}, onChange = () => {}, ...props } ) => {
+const AdProductValues = ( {
+	selectedPayableEvents,
+	value = {},
+	onChange = () => {},
+	...props
+} ) => {
 	const [ values, setValues ] = useState( value || {} );
-	const eventData = payableEvents[ event ];
 	useEffect( () => {
 		onChange( values );
 	}, [ values ] );
-	if ( ! eventData ) return null;
+	if ( ! selectedPayableEvents?.length ) {
+		return null;
+	}
 	return (
-		<TextControl
-			label={ eventData.unit.label }
-			help={ eventData.description }
-			value={ values[ eventData.unit.value ] || '' }
-			onChange={ val => setValues( { ...values, [ eventData.unit.value ]: val } ) }
-			{ ...props }
-		/>
+		<Grid columns={ selectedPayableEvents.length } gutter={ 8 }>
+			{ selectedPayableEvents.map( event => {
+				const eventData = payableEvents[ event ];
+				return (
+					<TextControl
+						key={ event }
+						label={ eventData.unit.label }
+						help={ eventData.description }
+						value={ values[ eventData.unit.value ] || '' }
+						onChange={ val => setValues( { ...values, [ eventData.unit.value ]: val } ) }
+						{ ...props }
+					/>
+				);
+			} ) }
+		</Grid>
 	);
 };
 
@@ -83,6 +97,9 @@ const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () =
 			newPayableEvents.push( event );
 		}
 		onChange( { ...product, payable_events: newPayableEvents } );
+	};
+	const isValid = () => {
+		return product.allowed_sizes?.length && product.payable_events?.length;
 	};
 	return (
 		<>
@@ -130,16 +147,11 @@ const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () =
 						onChange={ is_flat_fee => onChange( { ...product, is_flat_fee } ) }
 					/>
 					{ product.is_flat_fee ? (
-						<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
-							{ product.payable_events?.map( event => (
-								<AdProductValues
-									key={ event }
-									event={ event }
-									value={ product.prices }
-									onChange={ value => onChange( { ...product, prices: value } ) }
-								/>
-							) ) }
-						</Grid>
+						<AdProductValues
+							selectedPayableEvents={ product.payable_events }
+							value={ product.prices }
+							onChange={ value => onChange( { ...product, prices: value } ) }
+						/>
 					) : (
 						<div className="sizes">
 							{ product.allowed_sizes?.map( ( size, i ) => (
@@ -151,36 +163,29 @@ const AdProductEditor = ( { adUnits, product, onChange = () => {}, onSave = () =
 											size
 										) }
 									</h4>
-									{ product.payable_events?.length && (
-										<Grid columns={ product.payable_events?.length || 1 } gutter={ 8 }>
-											{ product.payable_events?.map( event => (
-												<AdProductValues
-													key={ event }
-													event={ event }
-													value={ product.size?.[ size ]?.prices }
-													onChange={ value =>
-														onChange( {
-															...product,
-															size: {
-																...product.size,
-																[ size ]: {
-																	...product.size?.[ size ],
-																	...{ prices: value },
-																},
-															},
-														} )
-													}
-												/>
-											) ) }
-										</Grid>
-									) }
+									<AdProductValues
+										selectedPayableEvents={ product.payable_events }
+										value={ product.size?.[ size ]?.prices }
+										onChange={ value =>
+											onChange( {
+												...product,
+												size: {
+													...product.size,
+													[ size ]: {
+														...product.size?.[ size ],
+														...{ prices: value },
+													},
+												},
+											} )
+										}
+									/>
 								</div>
 							) ) }
 						</div>
 					) }
 				</>
 			) }
-			<Button disabled={ ! product.event } isPrimary onClick={ onSave }>
+			<Button disabled={ ! isValid() } isPrimary onClick={ onSave }>
 				{ __( 'Save Product', 'newspack' ) }
 			</Button>
 		</>
