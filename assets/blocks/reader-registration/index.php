@@ -323,19 +323,21 @@ function send_form_response( $data, $message = '' ) {
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
 		exit;
 	} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
-		$args_to_remove = [
+		$args_to_remove   = [
 			'_wp_http_referer',
 			FORM_ACTION,
 		];
+		$is_existing_user = 0;
 		if ( ! $is_error ) {
-			$args_to_remove = array_merge( $args_to_remove, [ 'email', 'lists' ] );
+			$args_to_remove   = array_merge( $args_to_remove, [ 'email', 'lists' ] );
+			$is_existing_user = isset( $data['existing_user'] ) && boolval( $data['existing_user'] ) ? 1 : 0;
 		}
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
 					'newspack_reader' => $is_error ? '0' : '1',
 					'message'         => $message,
-					'existing_user'   => isset( $data['existing_user'] ) && boolval( $data['existing_user'] ) ? 1 : 0,
+					'existing_user'   => $is_existing_user,
 				],
 				\remove_query_arg( $args_to_remove )
 			)
