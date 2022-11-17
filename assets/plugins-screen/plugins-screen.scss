@@ -44,6 +44,10 @@ table.plugins {
 		flex-direction: column;
 		background-color: wp-colors.$white;
 		box-shadow: 0 10px 10px rgb( 0 0 0 / 25% );
+		max-width: 80vw;
+		@media screen and ( min-width: 700px ) {
+			max-width: 570px;
+		}
 		> button {
 			position: absolute;
 			top: 14px;
@@ -57,8 +61,11 @@ table.plugins {
 		}
 		> div:last-child {
 			display: flex;
-			justify-content: flex-end;
-			padding-top: 20px;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			> a {
+				margin-top: 20px;
+			}
 		}
 	}
 }
