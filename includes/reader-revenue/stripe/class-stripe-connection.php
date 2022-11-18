@@ -134,14 +134,16 @@ class Stripe_Connection {
 		}
 		if ( isset( $updated_stripe_data['fee_multiplier'] ) ) {
 			update_option( 'newspack_blocks_donate_fee_multiplier', $updated_stripe_data['fee_multiplier'] );
-			unset( $updated_stripe_data['fee_multiplier'] );
 		}
 		if ( isset( $updated_stripe_data['fee_static'] ) ) {
 			update_option( 'newspack_blocks_donate_fee_static', $updated_stripe_data['fee_static'] );
-			unset( $updated_stripe_data['fee_static'] );
 		}
+
+		$valid_keys     = array_keys( self::get_default_stripe_data() );
+		$validated_data = array_intersect_key( $updated_stripe_data, array_flip( $valid_keys ) );
+
 		// Save it in options table.
-		return update_option( self::STRIPE_DATA_OPTION_NAME, $updated_stripe_data );
+		return update_option( self::STRIPE_DATA_OPTION_NAME, $validated_data );
 	}
 
 	/**
