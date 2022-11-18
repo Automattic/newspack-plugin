@@ -533,6 +533,13 @@ class Stripe_Connection {
 	}
 
 	/**
+	 * Is Stripe configured?
+	 */
+	public static function is_configured() {
+		return (bool) self::get_stripe_secret_key();
+	}
+
+	/**
 	 * Get Stripe secret key.
 	 */
 	private static function get_stripe_secret_key() {

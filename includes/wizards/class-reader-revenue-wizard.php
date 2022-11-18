@@ -464,7 +464,9 @@ class Reader_Revenue_Wizard extends Wizard {
 					'message' => $are_webhooks_valid->get_error_message(),
 				];
 			}
-			$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
+			if ( Stripe_Connection::is_configured() ) {
+				$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
+			}
 		}
 		return $args;
 	}
