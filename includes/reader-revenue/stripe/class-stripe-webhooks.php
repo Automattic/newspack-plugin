@@ -349,7 +349,10 @@ class Stripe_Webhooks extends Stripe_Connection {
 		Logger::log( 'Resetting Stripe webhooks…' );
 		delete_option( self::STRIPE_WEBHOOK_OPTION_NAME );
 		try {
-			$stripe   = self::get_stripe_client();
+			$stripe = self::get_stripe_client();
+			if ( ! $stripe ) {
+				return false;
+			}
 			$webhooks = $stripe->webhookEndpoints->all( [ 'limit' => 100 ] );
 			foreach ( $webhooks as $webhook ) {
 				if ( self::get_webhook_url() === $webhook->url ) {
@@ -380,13 +383,16 @@ class Stripe_Webhooks extends Stripe_Connection {
 			return;
 		}
 
+		$stripe = self::get_stripe_client();
+		if ( ! $stripe ) {
+			return;
+		}
 		$webhook_events = [
 			'charge.failed',
 			'charge.succeeded',
 			'customer.subscription.deleted',
 			'customer.subscription.updated',
 		];
-		$stripe         = self::get_stripe_client();
 		if ( ! $created_webhook ) {
 			Logger::log( 'Creating Stripe webhooks…' );
 			try {
