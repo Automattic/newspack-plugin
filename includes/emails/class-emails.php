@@ -325,12 +325,17 @@ class Emails {
 		if ( ! $html_payload || empty( $html_payload ) ) {
 			return false;
 		}
+		$edit_link = '';
+		$post_link = get_edit_post_link( $post_id, '' );
+		if ( $post_link ) {
+			// Make the edit link relative.
+			$edit_link = str_replace( site_url(), '', $post_link );
+		}
 		$serialized_email = [
 			'label'          => $email_config['label'],
 			'description'    => $email_config['description'],
 			'post_id'        => $post_id,
-			// Make the edit link relative.
-			'edit_link'      => str_replace( site_url(), '', get_edit_post_link( $post_id, '' ) ),
+			'edit_link'      => $edit_link,
 			'subject'        => get_the_title( $post_id ),
 			'from_name'      => isset( $email_config['from_name'] ) ? $email_config['from_name'] : self::get_from_name(),
 			'from_email'     => isset( $email_config['from_email'] ) ? $email_config['from_email'] : self::get_from_email(),
