@@ -160,7 +160,7 @@ class WooCommerce_My_Account {
 			return;
 		}
 
-		$nonce = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_STRING );
+		$nonce = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $nonce ) {
 			return;
 		}
@@ -205,7 +205,7 @@ class WooCommerce_My_Account {
 			return;
 		}
 
-		$nonce = filter_input( INPUT_GET, self::DELETE_ACCOUNT_URL_PARAM, FILTER_SANITIZE_STRING );
+		$nonce = filter_input( INPUT_GET, self::DELETE_ACCOUNT_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $nonce || ! \wp_verify_nonce( $nonce, self::DELETE_ACCOUNT_URL_PARAM ) ) {
 			return;
 		}
@@ -295,7 +295,7 @@ class WooCommerce_My_Account {
 		if ( ! \is_user_logged_in() ) {
 			return;
 		}
-		$nonce = filter_input( INPUT_GET, self::SEND_MAGIC_LINK_PARAM, FILTER_SANITIZE_STRING );
+		$nonce = filter_input( INPUT_GET, self::SEND_MAGIC_LINK_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( $nonce ) {
 			$is_error = false;

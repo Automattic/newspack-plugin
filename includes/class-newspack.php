@@ -184,7 +184,7 @@ final class Newspack {
 	 */
 	public function handle_resets() {
 		$redirect_url   = admin_url( 'admin.php?page=newspack' );
-		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_STRING );
+		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'starter-content' === $newspack_reset ) {
 			Starter_Content::remove_starter_content();
 			$redirect_url = add_query_arg( 'newspack-notice', __( 'Starter content removed.', 'newspack' ), $redirect_url );
