@@ -26,6 +26,13 @@ class Stripe_Webhooks {
 
 	const STRIPE_WEBHOOK_OPTION_NAME = 'newspack_stripe_webhook';
 
+	const WEBHOOK_EVENTS = [
+		'charge.failed',
+		'charge.succeeded',
+		'customer.subscription.deleted',
+		'customer.subscription.updated',
+	];
+
 	/**
 	 * Initialize.
 	 *
@@ -33,6 +40,21 @@ class Stripe_Webhooks {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+	}
+
+	/**
+	 * Serialize a webhook for the API.
+	 *
+	 * @param array $webhook Webhook.
+	 */
+	private static function serialize_webhook( $webhook ) {
+		return [
+			'id'          => $webhook->id,
+			'url'         => $webhook->url,
+			'status'      => $webhook->status,
+			'livemode'    => $webhook->livemode,
+			'matches_url' => self::get_webhook_url() === $webhook->url,
+		];
 	}
 
 	/**
@@ -52,13 +74,7 @@ class Stripe_Webhooks {
 			}
 			$webhooks = $stripe->webhookEndpoints->all( [ 'limit' => 100 ] );
 			foreach ( $webhooks as $webhook ) {
-				$response[] = [
-					'id'          => $webhook->id,
-					'url'         => $webhook->url,
-					'status'      => $webhook->status,
-					'livemode'    => $webhook->livemode,
-					'matches_url' => self::get_webhook_url() === $webhook->url,
-				];
+				$response[] = self::serialize_webhook( $webhook );
 			}
 			return $response;
 		} catch ( \Throwable $th ) {
@@ -143,9 +159,9 @@ class Stripe_Webhooks {
 	public static function update_webhook( $request ) {
 		$id = $request->get_param( 'id' );
 		try {
-			$stripe   = self::get_stripe_client();
+			$stripe   = Stripe_Connection::get_stripe_client();
 			$response = $stripe->webhookEndpoints->update( $id, [ 'disabled' => 'disabled' === $request->get_param( 'status' ) ] );
-			return rest_ensure_response( $response );
+			return rest_ensure_response( self::serialize_webhook( $response ) );
 		} catch ( \Throwable $th ) {
 			Logger::log( 'Could not update Stripe webhook: ' . $th->getMessage() );
 			return self::get_error( __( 'Could not update Stripe webhook:', 'newspack' ) . ' ' . $th->getMessage() );
@@ -160,7 +176,7 @@ class Stripe_Webhooks {
 	public static function delete_webhook( $request ) {
 		$id = $request->get_param( 'id' );
 		try {
-			$stripe   = self::get_stripe_client();
+			$stripe   = Stripe_Connection::get_stripe_client();
 			$response = $stripe->webhookEndpoints->delete( $id );
 			if ( $response->deleted ) {
 				return rest_ensure_response( [ 'id' => $id ] );
@@ -489,10 +505,39 @@ class Stripe_Webhooks {
 					$stripe->webhookEndpoints->delete( $webhook->id );
 				}
 			}
-			return true;
+			return self::create_webhooks();
 		} catch ( \Throwable $th ) {
 			Logger::log( 'Could not reset Stripe webhooks: ' . $th->getMessage() );
 			return false;
+		}
+	}
+
+	/**
+	 * Create the necessary webhooks.
+	 */
+	private static function create_webhooks() {
+		$stripe = Stripe_Connection::get_stripe_client();
+		if ( ! $stripe ) {
+			return;
+		}
+		Logger::log( 'Creating Stripe webhooks…' );
+		try {
+			$webhook = $stripe->webhookEndpoints->create(
+				[
+					'url'            => self::get_webhook_url(),
+					'enabled_events' => self::WEBHOOK_EVENTS,
+				]
+			);
+			update_option(
+				self::STRIPE_WEBHOOK_OPTION_NAME,
+				[
+					'id'     => $webhook->id,
+					'secret' => $webhook->secret,
+				]
+			);
+			return true;
+		} catch ( \Throwable $e ) {
+			return self::get_error( __( 'Webhook creation failed: ', 'newspack' ) . $e->getMessage(), 'newspack_plugin_stripe_webhooks' );
 		}
 	}
 
@@ -517,36 +562,12 @@ class Stripe_Webhooks {
 		if ( ! $stripe ) {
 			return;
 		}
-		$webhook_events = [
-			'charge.failed',
-			'charge.succeeded',
-			'customer.subscription.deleted',
-			'customer.subscription.updated',
-		];
 		if ( ! $created_webhook ) {
-			Logger::log( 'Creating Stripe webhooks…' );
-			try {
-				$webhook = $stripe->webhookEndpoints->create(
-					[
-						'url'            => self::get_webhook_url(),
-						'enabled_events' => $webhook_events,
-					]
-				);
-				update_option(
-					self::STRIPE_WEBHOOK_OPTION_NAME,
-					[
-						'id'     => $webhook->id,
-						'secret' => $webhook->secret,
-					]
-				);
-				return true;
-			} catch ( \Throwable $e ) {
-				return self::get_error( __( 'Webhook creation failed: ', 'newspack' ) . $e->getMessage(), 'newspack_plugin_stripe_webhooks' );
-			}
+			return self::create_webhooks();
 		} elseif ( isset( $created_webhook['id'] ) ) {
 			try {
 				$webhook = $stripe->webhookEndpoints->retrieve( $created_webhook['id'] );
-				if ( $webhook->enabled_events !== $webhook_events ) {
+				if ( self::WEBHOOK_EVENTS !== $webhook->enabled_events ) {
 					$is_valid = false;
 				}
 				if ( 'enabled' !== $webhook['status'] ) {
