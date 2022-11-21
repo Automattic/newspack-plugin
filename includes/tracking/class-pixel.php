@@ -72,7 +72,7 @@ abstract class Pixel {
 	}
 
 	/**
-	 * Checks if Meta pixel option is active
+	 * Checks if option is active
 	 *
 	 * @return boolean
 	 */
@@ -81,7 +81,7 @@ abstract class Pixel {
 	}
 
 	/**
-	 * Gets the stored pixel ID. If Meta Pixel option is not active, ignore the saved option
+	 * Gets the stored pixel ID. If option is not active, ignore the saved option
 	 *
 	 * @return string
 	 */

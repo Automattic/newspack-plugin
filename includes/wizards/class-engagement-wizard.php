@@ -156,6 +156,36 @@ class Engagement_Wizard extends Wizard {
 				],
 			]
 		);
+
+		$twitter_pixel = new Twitter_Pixel();
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/social/twitter_pixel',
+			[
+				[
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => [ $twitter_pixel, 'api_get' ],
+					'permission_callback' => [ $this, 'api_permissions_check' ],
+				],
+				[
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => [ $twitter_pixel, 'api_save' ],
+					'permission_callback' => [ $this, 'api_permissions_check' ],
+					'args'                => [
+						'active'   => [
+							'type'              => 'boolean',
+							'required'          => true,
+							'validate_callback' => [ $twitter_pixel, 'validate_active' ],
+						],
+						'pixel_id' => [
+							'type'              => [ 'integer', 'string' ],
+							'required'          => true,
+							'validate_callback' => [ $twitter_pixel, 'validate_pixel_id' ],
+						],
+					],
+				],
+			]
+		);
 	}
 
 	/**
