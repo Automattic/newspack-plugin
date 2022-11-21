@@ -70,7 +70,7 @@ const actions = {
 			data: payloadPath ? get( wizardState, payloadPath ) : wizardState,
 			isQuietFetch: true,
 		} );
-		if ( ! isEmpty( updatedData ) ) {
+		if ( ! isEmpty( updatedData ) && ! updatedData.error ) {
 			return actions.setAPIDataForWizard( { slug, data: updatedData } );
 		}
 	},
