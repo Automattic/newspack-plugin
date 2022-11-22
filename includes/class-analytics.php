@@ -57,7 +57,10 @@ class Analytics {
 	 * More about custom dimensions: https://support.google.com/analytics/answer/2709828.
 	 */
 	public static function handle_custom_dimensions_reporting() {
-		$custom_dimensions_values = self::get_custom_dimensions_values( get_the_ID() );
+		$custom_dimensions_values = apply_filters(
+			'newspack_custom_dimensions_values',
+			self::get_custom_dimensions_values( get_the_ID() )
+		);
 		foreach ( $custom_dimensions_values as $key => $value ) {
 			self::add_custom_dimension_to_ga_config( $key, $value );
 		}
