@@ -37,7 +37,7 @@ const AdProductEditor = ( {
 				sizes.push( ...adUnit.sizes );
 			}
 		} );
-		return uniq( sizes ).map( size => size.join( 'x' ) );
+		return uniq( sizes.map( size => size.join( 'x' ) ) );
 	};
 	const isValid = () => {
 		return product.placements?.length && product.required_sizes?.length;
