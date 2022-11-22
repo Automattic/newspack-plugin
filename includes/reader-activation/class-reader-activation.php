@@ -729,7 +729,7 @@ final class Reader_Activation {
 			$placeholder = __( 'Enter your email address', 'newspack' );
 		}
 		?>
-		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
+		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" autocomplete="off" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
 		<?php
 	}
 
