@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Stripe Webhooks.
  */
-class Stripe_Webhooks extends Stripe_Connection {
+class Stripe_Webhooks {
 	const STRIPE_WEBHOOK_OPTION_NAME = 'newspack_stripe_webhook';
 
 	/**
@@ -83,11 +83,11 @@ class Stripe_Webhooks extends Stripe_Connection {
 			case 'charge.succeeded':
 				$payment  = $payload;
 				$metadata = $payment['metadata'];
-				$customer = self::get_customer_by_id( $payment['customer'] );
+				$customer = Stripe_Connection::get_customer_by_id( $payment['customer'] );
 				if ( \is_wp_error( $customer ) ) {
 					return $customer;
 				}
-				$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
+				$amount_normalised = Stripe_Connection::normalise_amount( $payment['amount'], $payment['currency'] );
 				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
 				$origin            = isset( $customer['metadata']['origin'] ) ? $customer['metadata']['origin'] : null;
 
@@ -96,10 +96,10 @@ class Stripe_Webhooks extends Stripe_Connection {
 					$referer = $metadata['referer'];
 				}
 
-				$frequency = self::get_frequency_of_payment( $payment );
+				$frequency = Stripe_Connection::get_frequency_of_payment( $payment );
 
 				if ( $payment['invoice'] ) {
-					$invoice = self::get_invoice( $payment['invoice'] );
+					$invoice = Stripe_Connection::get_invoice( $payment['invoice'] );
 					if ( ! \is_wp_error( $invoice ) && isset( $invoice['metadata']['referer'] ) ) {
 						$referer = $invoice['metadata']['referer'];
 					}
@@ -107,8 +107,8 @@ class Stripe_Webhooks extends Stripe_Connection {
 
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;
-				$stripe_data                        = self::get_stripe_data();
-				$has_opted_in_to_newsletters        = self::has_customer_opted_in_to_newsletters( $customer );
+				$stripe_data                        = Stripe_Connection::get_stripe_data();
+				$has_opted_in_to_newsletters        = Stripe_Connection::has_customer_opted_in_to_newsletters( $customer );
 				if (
 					method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' )
 					&& (
@@ -124,7 +124,7 @@ class Stripe_Webhooks extends Stripe_Connection {
 
 					if ( Reader_Activation::is_enabled() ) {
 						$payment_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
-						$customer_ltv = self::get_customer_ltv( $customer['id'] );
+						$customer_ltv = Stripe_Connection::get_customer_ltv( $customer['id'] );
 						if ( ! \is_wp_error( $customer_ltv ) ) {
 							$total_paid = $customer_ltv + $amount_normalised;
 							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['total_paid'] ] = $total_paid;
@@ -138,10 +138,10 @@ class Stripe_Webhooks extends Stripe_Connection {
 							]
 						);
 
-						$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = self::get_membership_status_field_value( $frequency );
+						$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = Stripe_Connection::get_membership_status_field_value( $frequency );
 						if ( 'once' !== $frequency ) {
 							$contact['metadata'] = array_merge(
-								self::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
+								Stripe_Connection::create_recurring_payment_metadata( $frequency, $payment['amount'], $payment['currency'], $payment['created'] ),
 								$contact['metadata']
 							);
 						}
@@ -217,17 +217,17 @@ class Stripe_Webhooks extends Stripe_Connection {
 
 				// Add a transaction to WooCommerce.
 				if ( Donations::is_woocommerce_suite_active() ) {
-					WooCommerce_Connection::create_transaction( self::create_wc_transaction_payload( $customer, $payment ) );
+					WooCommerce_Connection::create_transaction( Stripe_Connection::create_wc_transaction_payload( $customer, $payment ) );
 				}
 
 				// Send email to the donor.
-				self::send_email_to_customer( $customer, $payment );
+				Stripe_Connection::send_email_to_customer( $customer, $payment );
 
 				break;
 			case 'charge.failed':
 				break;
 			case 'customer.subscription.deleted':
-				$customer = self::get_customer_by_id( $payload['customer'] );
+				$customer = Stripe_Connection::get_customer_by_id( $payload['customer'] );
 				if ( \is_wp_error( $customer ) ) {
 					return $customer;
 				}
@@ -254,7 +254,7 @@ class Stripe_Webhooks extends Stripe_Connection {
 							],
 						];
 						if ( 0 === $active_subs && in_array( $payload['plan']['interval'], [ 'month', 'year' ] ) ) {
-							$membership_status = 'Ex-' . self::get_membership_status_field_value( $payload['plan']['interval'] );
+							$membership_status = 'Ex-' . Stripe_Connection::get_membership_status_field_value( $payload['plan']['interval'] );
 							$contact['metadata'][ Newspack_Newsletters::$metadata_keys['membership_status'] ] = $membership_status;
 						}
 						\Newspack_Newsletters_Subscription::add_contact( $contact );
@@ -300,7 +300,7 @@ class Stripe_Webhooks extends Stripe_Connection {
 				}
 
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-					$customer = self::get_customer_by_id( $payload['customer'] );
+					$customer = Stripe_Connection::get_customer_by_id( $payload['customer'] );
 					if ( \is_wp_error( $customer ) ) {
 						return $customer;
 					}
@@ -320,7 +320,7 @@ class Stripe_Webhooks extends Stripe_Connection {
 							// An update to an active subscription (or activation of it).
 							$plan                = $payload['plan'];
 							$contact['metadata'] = array_merge(
-								self::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
+								Stripe_Connection::create_recurring_payment_metadata( $plan['interval'], $payload['quantity'], $payload['currency'], $payload['start_date'] ),
 								$contact['metadata']
 							);
 						}
@@ -349,7 +349,7 @@ class Stripe_Webhooks extends Stripe_Connection {
 		Logger::log( 'Resetting Stripe webhooks…' );
 		delete_option( self::STRIPE_WEBHOOK_OPTION_NAME );
 		try {
-			$stripe = self::get_stripe_client();
+			$stripe = Stripe_Connection::get_stripe_client();
 			if ( ! $stripe ) {
 				return false;
 			}
@@ -383,7 +383,7 @@ class Stripe_Webhooks extends Stripe_Connection {
 			return;
 		}
 
-		$stripe = self::get_stripe_client();
+		$stripe = Stripe_Connection::get_stripe_client();
 		if ( ! $stripe ) {
 			return;
 		}
