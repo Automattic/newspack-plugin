@@ -99,6 +99,10 @@ const store = createReduxStore( WIZARD_STORE_NAMESPACE, {
 				isQuietLoading: Boolean( action.payload.isQuietFetch ),
 			} );
 			return apiFetch( action.payload )
+				.then( data => {
+					dispatch( WIZARD_STORE_NAMESPACE ).setError( null );
+					return data;
+				} )
 				.catch( error => {
 					dispatch( WIZARD_STORE_NAMESPACE ).setError( error );
 					return { error };
