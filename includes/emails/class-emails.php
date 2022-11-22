@@ -213,6 +213,9 @@ class Emails {
 
 		if ( 'string' === gettype( $config_name ) ) {
 			$email_config = self::get_email_config_by_type( $config_name );
+		} elseif ( 'integer' === gettype( $config_name ) ) {
+			$email_config = self::serialize_email( null, $config_name );
+			$config_name  = \get_post_meta( $config_name, self::EMAIL_CONFIG_NAME_META, true );
 		} else {
 			return false;
 		}
@@ -479,7 +482,7 @@ class Emails {
 		if ( $was_sent ) {
 			return \rest_ensure_response( [] );
 		} else {
-			return new WP_Error(
+			return new \WP_Error(
 				'newspack_test_email_not_sent',
 				__( 'Test email was not sent.', 'newspack' )
 			);
