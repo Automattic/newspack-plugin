@@ -32,7 +32,6 @@ const AdProductEditor = ( {
 		const sizes = [];
 		productPlacements.forEach( placement => {
 			const adUnit = adUnits[ placements[ placement ].data.ad_unit ];
-			console.log( adUnits );
 			if ( adUnit ) {
 				sizes.push( ...adUnit.sizes );
 			}
@@ -63,26 +62,29 @@ const AdProductEditor = ( {
 					/>
 				) ) }
 			</Grid>
-			<h3>{ __( 'Required Sizes', 'newspack' ) }</h3>
-			<Grid columns={ 4 } gutter={ 8 }>
-				{ getSizes().map( size => (
-					<CheckboxControl
-						key={ size }
-						label={ size }
-						checked={ product.required_sizes?.includes( size ) }
-						onChange={ () => {
-							const newSizes = [ ...product.required_sizes ];
-							if ( newSizes.includes( size ) ) {
-								newSizes.splice( newSizes.indexOf( size ), 1 );
-							} else {
-								newSizes.push( size );
-							}
-							onChange( { ...product, required_sizes: newSizes } );
-						} }
-					/>
-				) ) }
-			</Grid>
-			<hr />
+			{ getSizes().length > 0 && (
+				<>
+					<h3>{ __( 'Required Sizes', 'newspack' ) }</h3>
+					<Grid columns={ 4 } gutter={ 8 }>
+						{ getSizes().map( size => (
+							<CheckboxControl
+								key={ size }
+								label={ size }
+								checked={ product.required_sizes?.includes( size ) }
+								onChange={ () => {
+									const newSizes = [ ...product.required_sizes ];
+									if ( newSizes.includes( size ) ) {
+										newSizes.splice( newSizes.indexOf( size ), 1 );
+									} else {
+										newSizes.push( size );
+									}
+									onChange( { ...product, required_sizes: newSizes } );
+								} }
+							/>
+						) ) }
+					</Grid>
+				</>
+			) }
 			{ product.placements?.length > 0 && product.required_sizes?.length > 0 && (
 				<>
 					<h3>{ __( 'Pricing', 'newspack' ) }</h3>
@@ -144,6 +146,18 @@ const Marketplace = ( { adUnits } ) => {
 	}, [ isEditing ] );
 	useEffect( fetchPlacements, [] );
 	useEffect( fetchProducts, [] );
+	const getProductTitle = ( { placements: productPlacements } ) => {
+		const productPlacementsNames = productPlacements.map( key => placements[ key ].name );
+		return productPlacementsNames.join( ', ' );
+	};
+	const getProductDescription = ( { price, required_sizes: productSizes } ) => {
+		return sprintf(
+			/* translators: 1: price, 2: list of required sizes. */
+			__( 'CPD: %1$s - Required Sizes: %2$s', 'newspack' ),
+			price,
+			productSizes.join( ', ' )
+		);
+	};
 	const saveProduct = () => {
 		setInFlight( true );
 		let path = `/newspack-ads/v1/products`;
@@ -177,7 +191,8 @@ const Marketplace = ( { adUnits } ) => {
 					key={ p.id }
 					isSmall
 					disabled={ inFlight }
-					title={ p.id }
+					title={ getProductTitle( p ) }
+					description={ getProductDescription( p ) }
 					actionText={
 						<Button disabled={ inFlight } onClick={ () => setIsEditing( i ) }>
 							{ __( 'Sell', 'newspack' ) }
