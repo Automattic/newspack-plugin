@@ -577,7 +577,12 @@ class Stripe_Webhooks {
 					$is_valid = false;
 				}
 			} catch ( \Throwable $e ) {
-				return self::get_error( __( 'Webhook validation failed: ', 'newspack' ) . $e->getMessage(), 'newspack_plugin_stripe_webhooks' );
+				$message = $e->getMessage();
+				if ( strpos( $message, 'No such webhook endpoint' ) !== false ) {
+					$is_valid = false;
+				} else {
+					return self::get_error( __( 'Webhook validation failed: ', 'newspack' ) . $message, 'newspack_plugin_stripe_webhooks' );
+				}
 			}
 		} else {
 			$is_valid = false;
