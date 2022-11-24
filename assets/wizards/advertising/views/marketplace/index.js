@@ -14,6 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { Button, TextControl, CheckboxControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { settings, trash } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -39,7 +40,11 @@ const AdProductEditor = ( {
 		return uniq( sizes.map( size => size.join( 'x' ) ) );
 	};
 	const isValid = () => {
-		return product.placements?.length && product.required_sizes?.length;
+		return (
+			product.placements?.length &&
+			product.required_sizes?.length &&
+			parseFloat( product.price ) > 0
+		);
 	};
 	return (
 		<>
@@ -184,6 +189,24 @@ const Marketplace = ( { adUnits } ) => {
 				setInFlight( false );
 			} );
 	};
+	const deleteProduct = id => {
+		// eslint-disable-next-line no-alert
+		if ( ! confirm( __( 'Are you sure you want to delete this product?', 'newspack' ) ) ) {
+			return;
+		}
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack-ads/v1/products/${ id }`,
+			method: 'DELETE',
+		} )
+			.then( data => {
+				setProducts( data );
+				setIsEditing( false );
+			} )
+			.finally( () => {
+				setInFlight( false );
+			} );
+	};
 	return (
 		<>
 			{ products.map( ( p, i ) => (
@@ -194,22 +217,35 @@ const Marketplace = ( { adUnits } ) => {
 					title={ getProductTitle( p ) }
 					description={ getProductDescription( p ) }
 					actionText={
-						<Button disabled={ inFlight } onClick={ () => setIsEditing( i ) }>
-							{ __( 'Sell', 'newspack' ) }
-						</Button>
+						<>
+							<Button
+								disabled={ inFlight }
+								onClick={ () => setIsEditing( i ) }
+								icon={ settings }
+								label={ __( 'Edit product', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
+							<Button
+								disabled={ inFlight }
+								onClick={ () => deleteProduct( p.id ) }
+								icon={ trash }
+								label={ __( 'Delete product', 'newspack' ) }
+								tooltipPosition="bottom center"
+							/>
+						</>
 					}
 				/>
 			) ) }
 			<Button isPrimary onClick={ () => setIsEditing( true ) }>
-				{ __( 'Add Product', 'newspack' ) }
+				{ __( 'Create New Product', 'newspack' ) }
 			</Button>
 			{ false !== isEditing && (
 				<Modal
-					title={ sprintf(
-						// Translators: placement name.
-						__( 'Sell %s', 'newspack' ),
-						''
-					) }
+					title={
+						product.id
+							? __( 'Edit ad product', 'newspack' )
+							: __( 'Create new ad product', 'newspack' )
+					}
 					onRequestClose={ () => ! inFlight && setIsEditing( false ) }
 				>
 					<AdProductEditor
