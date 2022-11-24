@@ -457,14 +457,16 @@ class Reader_Revenue_Wizard extends Wizard {
 			$nrh_config            = get_option( NEWSPACK_NRH_CONFIG, [] );
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
 		} elseif ( Donations::is_platform_stripe() ) {
-			$are_webhooks_valid = Stripe_Connection::validate_or_create_webhooks();
+			$are_webhooks_valid = Stripe_Webhooks::validate_or_create_webhooks();
 			if ( is_wp_error( $are_webhooks_valid ) ) {
 				$args['errors'][] = [
 					'code'    => $are_webhooks_valid->get_error_code(),
 					'message' => $are_webhooks_valid->get_error_message(),
 				];
 			}
-			$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
+			if ( Stripe_Connection::is_configured() ) {
+				$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
+			}
 		}
 		return $args;
 	}
