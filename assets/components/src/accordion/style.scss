@@ -1,0 +1,19 @@
+.newspack-accordion {
+	&__icon {
+		transition: transform 200ms ease-out;
+	}
+
+	&--is-open {
+		.newspack-accordion {
+			&__icon {
+				transform: rotate( -180deg );
+			}
+		}
+	}
+	summary {
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+		font-weight: bold;
+	}
+}
