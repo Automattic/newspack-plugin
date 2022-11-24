@@ -151,7 +151,7 @@ class Stripe_Connection {
 	 *
 	 * @param string $customer_id Customer ID.
 	 */
-	protected static function get_customer_by_id( $customer_id ) {
+	public static function get_customer_by_id( $customer_id ) {
 		$stripe = self::get_stripe_client();
 		try {
 			return $stripe->customers->retrieve( $customer_id, [] );
@@ -297,7 +297,7 @@ class Stripe_Connection {
 	 *
 	 * @param string $email_address Email address.
 	 */
-	protected static function get_customer_by_email( $email_address ) {
+	private static function get_customer_by_email( $email_address ) {
 		try {
 			$stripe          = self::get_stripe_client();
 			$found_customers = $stripe->customers->all( [ 'email' => $email_address ] )['data'];
@@ -401,7 +401,7 @@ class Stripe_Connection {
 	 *
 	 * @param string $transaction_id Transaction ID.
 	 */
-	protected static function get_balance_transaction( $transaction_id ) {
+	private static function get_balance_transaction( $transaction_id ) {
 		$stripe = self::get_stripe_client();
 		try {
 			return $stripe->balanceTransactions->retrieve( $transaction_id, [] );
@@ -416,7 +416,7 @@ class Stripe_Connection {
 	 * @param number $amount Amount.
 	 * @param string $currency Currency code.
 	 */
-	protected static function format_amount( $amount, $currency ) {
+	private static function format_amount( $amount, $currency ) {
 		$symbol = newspack_get_currency_symbol( strtoupper( $currency ) );
 		if ( 'USD' === strtoupper( $currency ) ) {
 			return $symbol . $amount;
@@ -431,7 +431,7 @@ class Stripe_Connection {
 	 * @param object $customer Stripe customer.
 	 * @param object $payment Stripe payment.
 	 */
-	protected static function send_email_to_customer( $customer, $payment ) {
+	public static function send_email_to_customer( $customer, $payment ) {
 		$amount_normalised = self::normalise_amount( $payment['amount'], $payment['currency'] );
 
 		// Replace content placeholders.
@@ -685,7 +685,7 @@ class Stripe_Connection {
 	 * @param strin  $currency Currency code.
 	 * @return number Amount.
 	 */
-	protected static function get_amount( $amount, $currency ) {
+	private static function get_amount( $amount, $currency ) {
 		if ( self::is_currency_zero_decimal( $currency ) ) {
 			return $amount;
 		}
@@ -1005,7 +1005,7 @@ class Stripe_Connection {
 	 *
 	 * @param array $customer Stripe customer.
 	 */
-	protected static function has_customer_opted_in_to_newsletters( $customer ) {
+	public static function has_customer_opted_in_to_newsletters( $customer ) {
 		return isset( $customer['metadata']['newsletterOptIn'] ) && 'true' === $customer['metadata']['newsletterOptIn'];
 	}
 
