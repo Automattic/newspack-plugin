@@ -6,3 +6,43 @@
 		margin-top: -8px !important;
 	}
 }
+
+.newspack-payment-setup-screen {
+	&__webhooks {
+		.newspack-notice {
+			margin-top: 0;
+		}
+		li {
+			margin: 0;
+			padding: 18px 24px;
+			border: 1px solid wp-colors.$gray-300;
+			+ li {
+				border-top: 0;
+			}
+			&:first-child {
+				border-top-left-radius: 2px;
+				border-top-right-radius: 2px;
+			}
+			&:last-child {
+				border-bottom-left-radius: 2px;
+				border-bottom-right-radius: 2px;
+			}
+			&,
+			> span {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			code {
+				margin-left: 10px;
+			}
+		}
+		.components-toggle-control {
+			margin: 0;
+			display: inline-block;
+		}
+		.components-button {
+			box-shadow: none;
+		}
+	}
+}

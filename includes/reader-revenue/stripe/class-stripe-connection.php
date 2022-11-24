@@ -58,26 +58,6 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Check capabilities for using API.
-	 *
-	 * @codeCoverageIgnore
-	 * @param WP_REST_Request $request API request object.
-	 * @return bool|WP_Error
-	 */
-	public static function api_permissions_check( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return new \WP_Error(
-				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
-				[
-					'status' => 403,
-				]
-			);
-		}
-		return true;
-	}
-
-	/**
 	 * Get Stripe data blueprint.
 	 */
 	public static function get_default_stripe_data() {

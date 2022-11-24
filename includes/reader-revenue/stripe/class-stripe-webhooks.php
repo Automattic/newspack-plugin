@@ -15,6 +15,15 @@ defined( 'ABSPATH' ) || exit;
  * Stripe Webhooks.
  */
 class Stripe_Webhooks {
+	/**
+	 * Cache.
+	 *
+	 * @var array
+	 */
+	private static $cache = [
+		'webhooks' => false,
+	];
+
 	const STRIPE_WEBHOOK_OPTION_NAME = 'newspack_stripe_webhook';
 
 	/**
@@ -24,6 +33,38 @@ class Stripe_Webhooks {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
+	}
+
+	/**
+	 * Get all (first 100) Stripe webhooks.
+	 */
+	public static function get_all_webhooks() {
+		if ( false !== self::$cache['webhooks'] ) {
+			return self::$cache['webhooks'];
+		}
+		$response    = [];
+		$stripe_data = Stripe_Connection::get_stripe_data();
+
+		try {
+			$stripe = Stripe_Connection::get_stripe_client();
+			if ( ! $stripe ) {
+				return $response;
+			}
+			$webhooks = $stripe->webhookEndpoints->all( [ 'limit' => 100 ] );
+			foreach ( $webhooks as $webhook ) {
+				$response[] = [
+					'id'          => $webhook->id,
+					'url'         => $webhook->url,
+					'status'      => $webhook->status,
+					'livemode'    => $webhook->livemode,
+					'matches_url' => self::get_webhook_url() === $webhook->url,
+				];
+			}
+			return $response;
+		} catch ( \Throwable $th ) {
+			Logger::log( 'Could not reset Stripe webhooks: ' . $th->getMessage() );
+			return self::get_error( __( 'Could not fetch webhooks:', 'newspack' ) . ' ' . $th->getMessage(), 'newspack_stripe_webhook_list_error' );
+		}
 	}
 
 	/**
@@ -41,6 +82,95 @@ class Stripe_Webhooks {
 				'permission_callback' => '__return_true',
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/stripe/webhook/(?P<id>[\w_]+)',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'update_webhook' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'id'     => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'status' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/stripe/webhook/(?P<id>[\w_]+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ __CLASS__, 'delete_webhook' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+				'args'                => [
+					'id' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Check capabilities for using API.
+	 *
+	 * @codeCoverageIgnore
+	 * @param WP_REST_Request $request API request object.
+	 * @return bool|WP_Error
+	 */
+	public static function api_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) || ! Donations::is_platform_stripe() ) {
+			return new \WP_Error(
+				'newspack_rest_forbidden',
+				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				[
+					'status' => 403,
+				]
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Update Stripe webhook.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public static function update_webhook( $request ) {
+		$id = $request->get_param( 'id' );
+		try {
+			$stripe   = self::get_stripe_client();
+			$response = $stripe->webhookEndpoints->update( $id, [ 'disabled' => 'disabled' === $request->get_param( 'status' ) ] );
+			return rest_ensure_response( $response );
+		} catch ( \Throwable $th ) {
+			Logger::log( 'Could not update Stripe webhook: ' . $th->getMessage() );
+			return self::get_error( __( 'Could not update Stripe webhook:', 'newspack' ) . ' ' . $th->getMessage() );
+		}
+	}
+
+	/**
+	 * Delete Stripe webhook.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public static function delete_webhook( $request ) {
+		$id = $request->get_param( 'id' );
+		try {
+			$stripe   = self::get_stripe_client();
+			$response = $stripe->webhookEndpoints->delete( $id );
+			if ( $response->deleted ) {
+				return rest_ensure_response( [ 'id' => $id ] );
+			} else {
+				return self::get_error( __( 'Could not delete Stripe webhook.', 'newspack' ) );
+			}
+		} catch ( \Throwable $th ) {
+			Logger::log( 'Could not delete Stripe webhook: ' . $th->getMessage() );
+			return self::get_error( __( 'Could not delete Stripe webhook:', 'newspack' ) . ' ' . $th->getMessage() );
+		}
 	}
 
 	/**
@@ -411,7 +541,7 @@ class Stripe_Webhooks {
 				);
 				return true;
 			} catch ( \Throwable $e ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook creation failed: ', 'newspack' ) . $e->getMessage() );
+				return self::get_error( __( 'Webhook creation failed: ', 'newspack' ) . $e->getMessage(), 'newspack_plugin_stripe_webhooks' );
 			}
 		} elseif ( isset( $created_webhook['id'] ) ) {
 			try {
@@ -426,7 +556,7 @@ class Stripe_Webhooks {
 					$is_valid = false;
 				}
 			} catch ( \Throwable $e ) {
-				return new \WP_Error( 'newspack_plugin_stripe_webhooks', __( 'Webhook validation failed: ', 'newspack' ) . $e->getMessage() );
+				return self::get_error( __( 'Webhook validation failed: ', 'newspack' ) . $e->getMessage(), 'newspack_plugin_stripe_webhooks' );
 			}
 		} else {
 			$is_valid = false;
@@ -434,6 +564,22 @@ class Stripe_Webhooks {
 		if ( ! $is_valid ) {
 			self::reset_webhooks();
 		}
+	}
+
+	/**
+	 * Get error response.
+	 *
+	 * @param string $message Error message.
+	 * @param string $code Error code.
+	 */
+	private static function get_error( $message, $code = 'newspack_stripe_webhooks' ) {
+		return new \WP_Error(
+			$code,
+			$message,
+			[
+				'level' => 'notice',
+			]
+		);
 	}
 }
 
