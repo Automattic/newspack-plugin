@@ -66,7 +66,6 @@ const Wizard = ( {
 
 	return (
 		<>
-			<WizardError />
 			<div
 				className={ classnames(
 					isLoading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded',
@@ -98,7 +97,11 @@ const Wizard = ( {
 						</div>
 					</div>
 
-					{ displayedSections.length > 1 && <TabbedNavigation items={ displayedSections } /> }
+					{ displayedSections.length > 1 && (
+						<TabbedNavigation items={ displayedSections }>
+							<WizardError />
+						</TabbedNavigation>
+					) }
 
 					<Switch>
 						{ displayedSections.map( ( section, index ) => {

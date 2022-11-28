@@ -5,6 +5,24 @@
  */
 import './plugins-screen.scss';
 
+const getCreateButton =
+	targetEl =>
+	( text, hrefOrCallback, isPrimary = false ) => {
+		const buttonEl = document.createElement( 'a' );
+		if ( typeof hrefOrCallback === 'string' ) {
+			buttonEl.setAttribute( 'href', hrefOrCallback );
+		} else if ( typeof hrefOrCallback === 'function' ) {
+			buttonEl.onclick = hrefOrCallback;
+		} else {
+			return;
+		}
+		buttonEl.setAttribute( 'target', '_blank' );
+		buttonEl.classList.add( `button-${ isPrimary ? 'primary' : 'secondary' }` );
+		buttonEl.innerText = text;
+		targetEl.appendChild( buttonEl );
+		return buttonEl;
+	};
+
 /**
  * Extra zazz for the WP Admin Plugins page.
  *
@@ -21,30 +39,38 @@ import './plugins-screen.scss';
 		const modalHeadingEl = document.createElement( 'h1' );
 		const modalPEl = document.createElement( 'p' );
 		const modalButtonsWrapperEl = document.createElement( 'div' );
-		const modalActionEl = document.createElement( 'a' );
 		const modalCloseEl = document.createElement( 'button' );
+		const createButton = getCreateButton( modalButtonsWrapperEl );
+
+		const closeModal = () => {
+			modalEl.classList.add( 'newspack-plugin-info-modal--hidden' );
+		};
 
 		modalEl.classList.add( 'newspack-plugin-info-modal' );
 		modalHeadingEl.innerText = wp.i18n.__( 'Plugin review required', 'newspack' );
 		modalPEl.innerText = wp.i18n.__(
-			'Please submit a plugin for review by the Newspack Team before installing it on your website.',
+			'Please submit a plugin for review by the Newspack Team before installing it on your website. If you plan to install an approved plugin, feel free to close this message.',
 			'newspack'
 		);
 		modalCloseEl.innerHTML =
 			'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>';
-		modalCloseEl.onclick = () => {
-			modalEl.classList.add( 'newspack-plugin-info-modal--hidden' );
-		};
-		modalActionEl.setAttribute( 'href', newspack_plugin_info.plugin_review_link );
-		modalActionEl.setAttribute( 'target', '_blank' );
-		modalActionEl.classList.add( 'button-primary' );
-		modalActionEl.innerText = wp.i18n.__( 'Plugin Review Form', 'newspack' );
+		modalCloseEl.onclick = closeModal;
+
+		createButton(
+			wp.i18n.__( 'Plugin Review Form', 'newspack' ),
+			newspack_plugin_info.plugin_review_link,
+			true
+		);
+		createButton(
+			wp.i18n.__( 'Approved Plugins List', 'newspack' ),
+			newspack_plugin_info.approved_plugins_list_link
+		);
+		createButton( wp.i18n.__( 'Close this message', 'newspack' ), closeModal );
 
 		modalEl.appendChild( modalContentEl );
 		modalContentEl.appendChild( modalHeadingEl );
 		modalContentEl.appendChild( modalPEl );
 		modalContentEl.appendChild( modalCloseEl );
-		modalButtonsWrapperEl.appendChild( modalActionEl );
 		modalContentEl.appendChild( modalButtonsWrapperEl );
 		document.body.appendChild( modalEl );
 	}

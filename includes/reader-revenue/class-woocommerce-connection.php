@@ -323,7 +323,7 @@ class WooCommerce_Connection {
 		}
 		global $wpdb;
 		$query           = $wpdb->prepare(
-			'SELECT post_id FROM `wp_postmeta` WHERE `meta_key` = %s AND `meta_value` = %s',
+			"SELECT post_id FROM $wpdb->postmeta WHERE `meta_key` = %s AND `meta_value` = %s",
 			self::SUBSCRIPTION_STRIPE_ID_META_KEY,
 			$stripe_subscription_id
 		);
@@ -479,8 +479,11 @@ class WooCommerce_Connection {
 				$order->save();
 				Logger::log( 'Updated WC subscription with id: ' . $subscription->get_id() . ' with a new order of id: ' . $order->get_id() );
 			} else {
-				// Linked subscription not found, just create an order.
+				// Linked subscription not found, just create an order. Temporarily disable the
+				// "New Order" email, since this is a renewal.
+				\add_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 				$order = self::create_order( $order_data, $item );
+				\remove_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 			}
 		} else {
 			/**
@@ -657,8 +660,10 @@ class WooCommerce_Connection {
 	private static function is_synchronised_with_stripe( $subscription ) {
 		if ( is_numeric( $subscription ) ) {
 			$stripe_subscription_id = get_post_meta( $subscription, self::SUBSCRIPTION_STRIPE_ID_META_KEY, true );
-		} else {
+		} elseif ( $subscription ) {
 			$stripe_subscription_id = $subscription->get_meta( self::SUBSCRIPTION_STRIPE_ID_META_KEY );
+		} else {
+			$stripe_subscription_id = false;
 		}
 		return boolval( $stripe_subscription_id );
 	}
@@ -666,10 +671,12 @@ class WooCommerce_Connection {
 	/**
 	 * Remove subscription-related meta boxes if the subscription is sync'd with Stripe.
 	 * This is because some subscription variables should not be editable here.
+	 *
+	 * @param string $post_type Post type of current screen.
 	 */
-	public static function remove_subscriptions_schedule_meta_box() {
+	public static function remove_subscriptions_schedule_meta_box( $post_type ) {
 		global $post_ID;
-		if ( self::is_synchronised_with_stripe( $post_ID ) ) {
+		if ( 'shop_subscription' === $post_type && self::is_synchronised_with_stripe( $post_ID ) ) {
 			remove_meta_box( 'woocommerce-subscription-schedule', 'shop_subscription', 'side' );
 		}
 	}

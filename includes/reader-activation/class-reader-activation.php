@@ -729,7 +729,7 @@ final class Reader_Activation {
 			$placeholder = __( 'Enter your email address', 'newspack' );
 		}
 		?>
-		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
+		<input class="nphp" tabindex="-1" aria-hidden="true" name="email" type="email" autocomplete="off" placeholder="<?php echo \esc_attr( $placeholder ); ?>" />
 		<?php
 	}
 
@@ -1159,7 +1159,7 @@ final class Reader_Activation {
 
 		$user = \get_user_by( 'email', $email );
 		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( "We couldn't find an account registered to this email address. Please confirm that you entered the correct email, or sign up for a new account.", 'newspack' ) ) );
+			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( "We couldn't find a reader account registered to this email address. Please confirm that you entered the correct email, or sign up for a new account.", 'newspack' ) ) );
 		}
 
 		$payload = [

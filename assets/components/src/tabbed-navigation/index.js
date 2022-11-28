@@ -12,7 +12,7 @@ import './style.scss';
 
 const { NavLink, useHistory } = Router;
 
-const TabbedNavigation = ( { items, className, disableUpcoming } ) => {
+const TabbedNavigation = ( { items, className, disableUpcoming, children = null } ) => {
 	const { location } = useHistory();
 	const currentIndex = findIndex( items, [ 'path', location.pathname ] );
 	return (
@@ -33,6 +33,7 @@ const TabbedNavigation = ( { items, className, disableUpcoming } ) => {
 					</li>
 				) ) }
 			</ul>
+			{ children }
 		</div>
 	);
 };
