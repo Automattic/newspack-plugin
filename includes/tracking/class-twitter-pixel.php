@@ -18,6 +18,13 @@ class Twitter_Pixel extends Pixel {
 	 */
 	public function __construct() {
 		parent::__construct( 'newspack_twitter_pixel' );
+	}
+
+
+	/**
+	 * Print the pixels' codes.
+	 */
+	public function print_codes() {
 		add_action( 'wp_head', [ $this, 'print_head_snippet' ], 100 );
 		add_action( 'wp_footer', [ $this, 'print_footer_snippet' ] );
 	}
@@ -59,4 +66,5 @@ class Twitter_Pixel extends Pixel {
 	}
 }
 
-$meta_pixel = new Twitter_Pixel();
+$pixel = new Twitter_Pixel();
+$pixel->print_codes();

@@ -18,6 +18,12 @@ class Meta_Pixel extends Pixel {
 	 */
 	public function __construct() {
 		parent::__construct( 'newspack_meta_pixel' );
+	}
+
+	/**
+	 * Print the pixels' codes.
+	 */
+	public function print_codes() {
 		add_action( 'wp_head', [ $this, 'print_head_snippet' ], 100 );
 		add_action( 'wp_footer', [ $this, 'print_footer_snippet' ] );
 	}
@@ -96,4 +102,5 @@ class Meta_Pixel extends Pixel {
 	}
 }
 
-$meta_pixel = new Meta_Pixel();
+$pixel = new Meta_Pixel();
+$pixel->print_codes();
