@@ -1,3 +1,21 @@
+# [1.97.0](https://github.com/Automattic/newspack-plugin/compare/v1.96.0...v1.97.0) (2022-11-28)
+
+
+### Bug Fixes
+
+* delay receipt sending until Stripe webhook handler succeeds ([#2112](https://github.com/Automattic/newspack-plugin/issues/2112)) ([3f49eca](https://github.com/Automattic/newspack-plugin/commit/3f49ecad75287675929ee2d0cfe800c69e54ba99))
+* revert non reader login ([#2133](https://github.com/Automattic/newspack-plugin/issues/2133)) ([3da696b](https://github.com/Automattic/newspack-plugin/commit/3da696b8e74815bbaa8941d3487b1fe16b553ab9)), closes [#2131](https://github.com/Automattic/newspack-plugin/issues/2131)
+* update CI orb newspack-scripts ([a474dc7](https://github.com/Automattic/newspack-plugin/commit/a474dc7314006357646324170d8bed8e118df1ac))
+* **woo:** disable new order email on subscription renewals ([2fee169](https://github.com/Automattic/newspack-plugin/commit/2fee169d9c7be1cd3af49b7d76a690afea7ea863))
+* **woo:** use variable post meta table name ([203593f](https://github.com/Automattic/newspack-plugin/commit/203593fabc894e57d132a46dad2201693aba7bab))
+
+
+### Features
+
+* capture donor names in Stripe description field ([#2130](https://github.com/Automattic/newspack-plugin/issues/2130)) ([f1e16c8](https://github.com/Automattic/newspack-plugin/commit/f1e16c8a1fb446b7c6fbeadc44b56aff9535e324))
+* **plugin-screen:** improve the pre-install prompt ([20e5dc5](https://github.com/Automattic/newspack-plugin/commit/20e5dc5c7c2be15c30ac63ec493e3f560ff9b994))
+* remove Stripe subscriptions on WP account deletion ([#2021](https://github.com/Automattic/newspack-plugin/issues/2021)) ([0acbed5](https://github.com/Automattic/newspack-plugin/commit/0acbed5f30cf7128ee02c82c7c45b98ed3a2cc31))
+
 # [1.97.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.96.0...v1.97.0-alpha.1) (2022-11-17)
 
 
