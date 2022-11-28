@@ -180,7 +180,7 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 			{ lists.map( ( list, index ) => (
 				<Card key={ list.id } isSmall>
 					<ToggleControl
-						label={ list.name }
+						label={ list?.type_label ? `${ list.name } (${ list.type_label })` : list.name }
 						checked={ list.active }
 						disabled={ inFlight }
 						onChange={ handleChange( index, 'active' ) }
@@ -190,15 +190,22 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 							<TextControl
 								label={ __( 'List title', 'newspack' ) }
 								value={ list.title }
-								disabled={ inFlight }
+								disabled={ inFlight || 'local' === list?.type }
 								onChange={ handleChange( index, 'title' ) }
 							/>
 							<TextareaControl
 								label={ __( 'List description', 'newspack' ) }
 								value={ list.description }
-								disabled={ inFlight }
+								disabled={ inFlight || 'local' === list?.type }
 								onChange={ handleChange( index, 'description' ) }
 							/>
+							{ list?.edit_link && (
+								<p>
+									<ExternalLink href={ list.edit_link }>
+										{ __( 'Edit', 'newspack_newsletters' ) }
+									</ExternalLink>
+								</p>
+							) }
 						</>
 					) }
 				</Card>
