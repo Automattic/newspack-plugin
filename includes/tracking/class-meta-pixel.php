@@ -23,7 +23,7 @@ class Meta_Pixel extends Pixel {
 	/**
 	 * Print the pixels' codes.
 	 */
-	public function print_codes() {
+	public function print_code_snippets() {
 		add_action( 'wp_head', [ $this, 'print_head_snippet' ], 100 );
 		add_action( 'wp_footer', [ $this, 'print_footer_snippet' ] );
 	}
@@ -103,4 +103,4 @@ class Meta_Pixel extends Pixel {
 }
 
 $pixel = new Meta_Pixel();
-$pixel->print_codes();
+$pixel->print_code_snippets();
