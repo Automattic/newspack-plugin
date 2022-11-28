@@ -331,7 +331,7 @@ class WooCommerce_Connection {
 		if ( $subscription_id ) {
 			return \wcs_get_subscription( $subscription_id );
 		} else {
-			Logger::log( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
+			Logger::error( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
 			return false;
 		}
 	}
@@ -505,7 +505,7 @@ class WooCommerce_Connection {
 				);
 
 				if ( is_wp_error( $subscription ) ) {
-					Logger::log( 'Error creating WC subscription: ' . $subscription->get_error_message() );
+					Logger::error( 'Error creating WC subscription: ' . $subscription->get_error_message() );
 				} else {
 					self::add_universal_order_data( $subscription, $order_data );
 					/* translators: %s - donation frequency */

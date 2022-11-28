@@ -262,7 +262,7 @@ class Stripe_Connection {
 			}
 			return $config_id;
 		} catch ( \Throwable $e ) {
-			Logger::log( 'Failed at creating Stripe billing portal configuration: ' . $e->getMessage() );
+			Logger::error( 'Failed at creating Stripe billing portal configuration: ' . $e->getMessage() );
 			return new \WP_Error( 'stripe_newspack', __( 'Could not retrieve or create billing portal configuration.', 'newspack' ), $e->getMessage() );
 		}
 	}
@@ -499,7 +499,6 @@ class Stripe_Connection {
 		$metadata[ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = '';
 		return $metadata;
 	}
-
 
 	/**
 	 * Get saved Stripe data.

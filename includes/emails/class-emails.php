@@ -424,7 +424,7 @@ class Emails {
 		} else {
 			$email_post_data = self::load_email_template( $type );
 			if ( ! $email_post_data ) {
-				Logger::log( 'Error: could not retrieve template for type: ' . $type );
+				Logger::error( 'Error: could not retrieve template for type: ' . $type );
 				return false;
 			}
 			$email_post_data['post_status'] = 'publish';

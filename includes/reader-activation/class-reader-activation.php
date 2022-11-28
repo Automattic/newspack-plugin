@@ -1330,7 +1330,7 @@ final class Reader_Activation {
 			}
 
 			if ( \is_wp_error( $user_id ) ) {
-				Logger::log( 'User registration failed: ' . $user_id->get_error_message() );
+				Logger::error( 'User registration failed: ' . $user_id->get_error_message() );
 				return $user_id;
 			}
 
