@@ -85,7 +85,7 @@ class Jetpack {
 		if ( ! self::should_amp_plus_modules() ) {
 			return $is_sanitized;
 		}
-		if ( AMP_Enhancements::is_script_id_matching_strings( self::$scripts_handles, $error ) ) {
+		if ( AMP_Enhancements::is_script_attribute_matching_strings( self::$scripts_handles, $error ) ) {
 			$is_sanitized = false;
 		}
 
