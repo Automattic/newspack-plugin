@@ -62,14 +62,15 @@ class WooCommerce_My_Account {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		\wp_enqueue_style(
-			'my-account',
-			\Newspack\Newspack::plugin_url() . '/dist/my-account.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			\wp_enqueue_style(
+				'my-account',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
+		}
 	}
-
 
 	/**
 	 * Filter "My Account" items, if Stripe is the donations platform.
