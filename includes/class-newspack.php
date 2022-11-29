@@ -142,6 +142,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-mailchimp-for-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-onesignal.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 
