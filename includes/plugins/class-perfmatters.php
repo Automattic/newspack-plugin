@@ -46,6 +46,7 @@ class Perfmatters {
 			"ga( '",
 			"ga('",
 			'google-analytics.com/analytics.js',
+			'googletag.pubads',
 			// Google Tag Manager.
 			'/gtm.js',
 			'/gtag/js',
