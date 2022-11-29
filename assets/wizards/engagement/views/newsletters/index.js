@@ -9,12 +9,7 @@ import { values, mapValues, property, isEmpty } from 'lodash';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import {
-	CheckboxControl,
-	ToggleControl,
-	TextareaControl,
-	ExternalLink,
-} from '@wordpress/components';
+import { CheckboxControl, TextareaControl, ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -22,6 +17,7 @@ import {
 import {
 	Button,
 	Card,
+	ActionCard,
 	Grid,
 	Notice,
 	PluginInstaller,
@@ -178,30 +174,38 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 				/>
 			) }
 			{ lists.map( ( list, index ) => (
-				<Card key={ list.id } isSmall>
-					<ToggleControl
-						label={ list.name }
-						checked={ list.active }
-						disabled={ inFlight }
-						onChange={ handleChange( index, 'active' ) }
-					/>
-					{ list.active && (
+				<ActionCard
+					key={ list.id }
+					title={ list.name }
+					description={ list?.type_label ? list.type_label : null }
+					disabled={ inFlight }
+					toggleOnChange={ handleChange( index, 'active' ) }
+					toggleChecked={ list.active }
+					actionText={
+						list?.edit_link ? (
+							<ExternalLink href={ list.edit_link }>
+								{ __( 'Edit', 'newspack_newsletters' ) }
+							</ExternalLink>
+						) : null
+					}
+				>
+					{ list.active && 'local' !== list?.type && (
 						<>
 							<TextControl
 								label={ __( 'List title', 'newspack' ) }
 								value={ list.title }
-								disabled={ inFlight }
+								disabled={ inFlight || 'local' === list?.type }
 								onChange={ handleChange( index, 'title' ) }
 							/>
 							<TextareaControl
 								label={ __( 'List description', 'newspack' ) }
 								value={ list.description }
-								disabled={ inFlight }
+								disabled={ inFlight || 'local' === list?.type }
 								onChange={ handleChange( index, 'description' ) }
 							/>
 						</>
 					) }
-				</Card>
+				</ActionCard>
 			) ) }
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ saveLists } disabled={ inFlight }>
