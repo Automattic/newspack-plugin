@@ -102,6 +102,10 @@ class Perfmatters {
 	 * @param array $options Perfmatters options.
 	 */
 	public static function set_defaults( $options = [] ) {
+		if ( ! is_admin() && ! isset( $_GET['newspack-perfmatters-defaults'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return $options;
+		}
+
 		// Basic options.
 		$options['disable_emojis']              = true;
 		$options['disable_dashicons']           = true;
