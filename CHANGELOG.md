@@ -1,3 +1,11 @@
+## [1.97.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.0...v1.97.1) (2022-11-30)
+
+
+### Bug Fixes
+
+* force release build ([04c20ff](https://github.com/Automattic/newspack-plugin/commit/04c20ffb595d4e418471781013928353629e2147))
+* override woo subscriptions login requirement on checkout ([#2158](https://github.com/Automattic/newspack-plugin/issues/2158)) ([3b17690](https://github.com/Automattic/newspack-plugin/commit/3b17690165635171bd2a273865fcf26f3118a9d1))
+
 ## [1.97.1-hotfix.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1-hotfix.1...v1.97.1-hotfix.2) (2022-11-30)
 
 
