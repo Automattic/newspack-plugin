@@ -476,8 +476,15 @@ class Analytics_Events {
 				self::$js_events[ $event['on'] ] += 1;
 			}
 
+			// Remove unnecessary whitespace.
+			$html = preg_replace(
+				[ '/(<script>|,|\(|\)|\{|\}|;|\&\&)\s+/', '/\s+(<script>|,|\(|\)|\{|\}|;|\&\&)/' ],
+				'\1',
+				ob_get_clean()
+			);
+
 			// Other integrations can use this filter if they need to add a custom JS event handler.
-			$event_js = apply_filters( 'newspack_analytics_event_js', ob_get_clean(), $event );
+			$event_js = apply_filters( 'newspack_analytics_event_js', $html, $event );
 			echo $event_js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
@@ -488,28 +495,35 @@ class Analytics_Events {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_click_event( $event ) {
+		if ( 0 === self::$js_events['click'] ) {
+			?>
+			<script>
+				window.newspackHandleClickEvent = (elementSelector, name, spec) => {
+					Array.prototype.slice.call( document.querySelectorAll( elementSelector ) ).forEach(element => {
+						element.addEventListener( 'click', ( event ) => {
+							<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
+							if ( event.currentTarget.matches(elementSelector) ) {
+								gtag( 'event', name, spec );
+							};
+						} );
+					})
+				};
+			</script>
+			<?php
+		}
+
 		?>
 		<script>
-			( function() {
-				const elementSelector = '<?php echo str_replace( '&quot;', '"', esc_attr( $event['element'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Allow quotes for CSS selectors validity. ?>';
-				Array.prototype.slice.call( document.querySelectorAll( elementSelector ) ).forEach(element => {
-					element.addEventListener( 'click', ( event ) => {
-						<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
-						if (event.currentTarget.matches(elementSelector)) {
-							gtag(
-								'event',
-								'<?php echo esc_attr( $event['event_name'] ); ?>',
-								{
-									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-									<?php if ( isset( $event['event_label'] ) ) : ?>
-										event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-									<?php endif; ?>
-								}
-							);
-						};
-					} );
-				})
-			} )();
+			window.newspackHandleClickEvent(
+				'<?php echo str_replace( '&quot;', '"', esc_attr( $event['element'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Allow quotes for CSS selectors validity. ?>',
+				'<?php echo esc_attr( $event['event_name'] ); ?>',
+				{
+					event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+					<?php if ( isset( $event['event_label'] ) ) : ?>
+						event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+					<?php endif; ?>
+				}
+			);
 		</script>
 		<?php
 	}
@@ -520,37 +534,44 @@ class Analytics_Events {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_scroll_event( $event ) {
+		if ( 0 === self::$js_events['scroll'] ) {
+			?>
+			<script>
+				window.newspackHandleScrollEvent = (scrollPercent, name, spec) => {
+					let eventSent = false;
+					const reportEvent = () => {
+						if ( eventSent ) {
+							window.removeEventListener( 'scroll', reportEvent );
+							return;
+						};
+						const scrollPos = ( window.pageYOffset || window.scrollY ) + window.innerHeight;
+						if ( ( ( scrollPos / document.body.clientHeight ) * 100 ) >= scrollPercent ) {
+							eventSent = true;
+							gtag( 'event', name, spec );
+						};
+					};
+					<?php // Fire initially - page might be loaded with scroll offset. ?>
+					window.addEventListener( 'DOMContentLoaded', reportEvent );
+					window.addEventListener( 'scroll', reportEvent );
+				};
+			</script>
+			<?php
+		}
+
 		?>
 		<script>
-			( function() {
-				const scrollPercent = <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>;
-				let eventSent = false;
-				const reportEvent = () => {
-					if ( eventSent ) {
-						window.removeEventListener( 'scroll', reportEvent );
-						return;
-					}
-					const scrollPos = ( window.pageYOffset || window.scrollY ) + window.innerHeight;
-					if ( ( ( scrollPos / document.body.clientHeight ) * 100 ) >= scrollPercent ) {
-						eventSent = true;
-						gtag(
-							'event',
-							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								<?php if ( isset( $event['event_label'] ) ) : ?>
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-								<?php endif; ?>
-								value: scrollPercent,
-								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
-							}
-						);
-					}
+			window.newspackHandleScrollEvent(
+				<?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>,
+				'<?php echo esc_attr( $event['event_name'] ); ?>',
+				{
+					event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+					<?php if ( isset( $event['event_label'] ) ) : ?>
+						event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+					<?php endif; ?>
+					value: <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>,
+					non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 				}
-				// Fire initially - page might be loaded with scroll offset.
-				window.addEventListener( 'DOMContentLoaded', reportEvent );
-				window.addEventListener( 'scroll', reportEvent );
-			} )();
+			);
 		</script>
 		<?php
 	}
@@ -586,8 +607,7 @@ class Analytics_Events {
 											}
 										} else {
 											fieldValues.push( form[ fieldName ].value );
-										}
-
+										};
 										eventLabel = eventLabel.replace( field, fieldValues.join( ',' ) );
 									}
 								} );
@@ -618,64 +638,64 @@ class Analytics_Events {
 		if ( 0 === self::$js_events['visible'] ) {
 			?>
 			<script>
-				window.newspackViewedElements = [];
-				window.newspackCheckVisibility = ( el ) => {
-					const elementHeight = el.offsetHeight;
-					const elementWidth = el.offsetWidth;
-					if ( elementHeight === 0 || elementWidth === 0 ) {
-						return false;
-					}
-					const rect = el.getBoundingClientRect();
-					return (
-						rect.top >= -elementHeight &&
-						rect.left >= -elementWidth &&
-						rect.right <= ( window.innerWidth || document.documentElement.clientWidth ) + elementWidth &&
-						rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) + elementHeight
-					);
-				};
+				( function() {
+					const viewedElements = [];
+					const checkVisibility = ( el ) => {
+						const elementHeight = el.offsetHeight;
+						const elementWidth = el.offsetWidth;
+						if ( elementHeight === 0 || elementWidth === 0 ) {
+							return false;
+						};
+						const rect = el.getBoundingClientRect();
+						return (
+							rect.top >= -elementHeight &&
+							rect.left >= -elementWidth &&
+							rect.right <= ( window.innerWidth || document.documentElement.clientWidth ) + elementWidth &&
+							rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) + elementHeight
+						);
+					};
+					window.newspackHandleVisibleEvent = (selector, name, spec, delay) => {
+						const elements = Array.prototype.slice.call( document.querySelectorAll( selector ) );
+						const reportEvent = () => {
+							elements.forEach(element => {
+								<?php // Stop tracking scroll after visibility has been reported. ?>
+								if ( -1 !== viewedElements.indexOf( element ) ) {
+									window.removeEventListener( 'scroll', reportEvent );
+									return;
+								}
+								if ( checkVisibility( element ) && -1 === viewedElements.indexOf( element ) ) {
+									viewedElements.push( element );
+									const totalTimeMin = window.setTimeout( () => {
+										if ( checkVisibility( element ) ) {
+											return gtag( 'event', name, spec );
+										}
+										window.clearTimeout( totalTimeMin );
+									}, delay );
+								}
+							});
+						};
+
+						<?php // Fire initially - page might be loaded with scroll offset. ?>
+						window.addEventListener( 'DOMContentLoaded', reportEvent );
+						window.addEventListener( 'scroll', reportEvent );
+					};
+				} )();
 			</script>
 			<?php
 		}
 
 		?>
 		<script>
-			( function() {
-				const elements = Array.prototype.slice.call( document.querySelectorAll( '<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>' ) );
-				const reportEvent = () => {
-					elements.forEach(element => {
-						// Stop tracking scroll after visibility has been reported.
-						if ( -1 !== window.newspackViewedElements.indexOf( element ) ) {
-							window.removeEventListener( 'scroll', reportEvent );
-							return;
-						}
-
-						if ( window.newspackCheckVisibility( element ) && -1 === window.newspackViewedElements.indexOf( element ) ) {
-							window.newspackViewedElements.push( element );
-							const totalTimeMin = window.setTimeout( () => {
-								// If element is still in viewport after <?php echo esc_attr( $delay ); ?>ms
-								if ( window.newspackCheckVisibility( element ) ) {
-									return gtag(
-										'event',
-										'<?php echo esc_attr( $event['event_name'] ); ?>',
-										{
-											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-											<?php if ( isset( $event['event_label'] ) ) : ?>
-												event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-											<?php endif; ?>
-											non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
-										}
-									);
-								}
-								window.clearTimeout( totalTimeMin );
-							}, <?php echo esc_attr( $delay ); ?> );
-						}
-					});
-				};
-
-				// Fire initially - page might be loaded with scroll offset.
-				window.addEventListener( 'DOMContentLoaded', reportEvent );
-				window.addEventListener( 'scroll', reportEvent );
-			} )();
+			window.newspackHandleVisibleEvent(
+				'<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>',
+				'<?php echo esc_attr( $event['event_name'] ); ?>',
+				{
+					event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+					<?php if ( isset( $event['event_label'] ) ) : ?>
+						event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+					<?php endif; ?>
+					non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
+				}, <?php echo esc_attr( $delay ); ?>);
 		</script>
 		<?php
 	}
@@ -686,51 +706,47 @@ class Analytics_Events {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_ini_load_event( $event ) {
-		$element = isset( $event['element'] ) ? $event['element'] : '';
-
 		if ( 0 === self::$js_events['ini-load'] ) {
 			?>
 			<script>
-				window.newspackGetObserver = (handleEvent) => new MutationObserver((mutations) => {
-					mutations.forEach((mutation) => {
-						if (
-							mutation.attributeName === 'amp-access-hide' &&
-							mutation.type == "attributes" &&
-							! mutation.target.hasAttribute('amp-access-hide')
-						) {
-							handleEvent()
-						}
+				( function() {
+					const getObserver = (handleEvent) => new MutationObserver((mutations) => {
+						mutations.forEach((mutation) => {
+							if (
+								mutation.attributeName === 'amp-access-hide' &&
+								mutation.type == "attributes" &&
+								! mutation.target.hasAttribute('amp-access-hide')
+							) {
+								handleEvent()
+							}
+						});
 					});
-				});
+					window.newspackHandleIniLoadEvent = ( selector, name, spec, observe ) => {
+						const handleEvent = () => gtag('event', name, spec);
+						if (observe) {
+							Array.prototype.slice.call( document.querySelectorAll( selector ) ).forEach(( element ) => {
+								getObserver(handleEvent).observe(element, { attributes: true });
+							});
+						}else{
+							window.addEventListener('DOMContentLoaded', handleEvent)
+						}
+					};
+				} )();
 			</script>
 			<?php
 		}
 
+		$element_selector = isset( $event['element'] ) ? $event['element'] : '';
+
 		?>
 		<script>
-			( function() {
-				const handleEvent = () => {
-					gtag(
-						'event',
-						'<?php echo esc_attr( $event['event_name'] ); ?>',
-						{
-							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-							<?php if ( isset( $event['event_label'] ) ) : ?>
-							event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-							<?php endif; ?>
-							non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
-						}
-					);
-				};
-
-				<?php if ( isset( $event['element'] ) ) : ?>
-					Array.prototype.slice.call( document.querySelectorAll( '<?php echo esc_attr( $element ); ?>' ) ).forEach(( element ) => {
-						window.newspackGetObserver(handleEvent).observe(element, { attributes: true });
-					});
-				<?php else : ?>
-					window.addEventListener('DOMContentLoaded', handleEvent)
+			window.newspackHandleIniLoadEvent('<?php echo esc_attr( $element_selector ); ?>', '<?php echo esc_attr( $event['event_name'] ); ?>', {
+				event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+				<?php if ( isset( $event['event_label'] ) ) : ?>
+				event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
 				<?php endif; ?>
-			} )();
+				non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
+			}, <?php echo isset( $event['element'] ) ? 'true' : 'false'; ?>);
 		</script>
 		<?php
 	}
