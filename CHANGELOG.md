@@ -1,3 +1,18 @@
+## [1.97.1-hotfix.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1-hotfix.1...v1.97.1-hotfix.2) (2022-11-30)
+
+
+### Bug Fixes
+
+* only do temp login if Woo intends to create an account ([1fbe56c](https://github.com/Automattic/newspack-plugin/commit/1fbe56c33c08c3fae714de152a92aaab881e0f9d))
+
+## [1.97.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.0...v1.97.1-hotfix.1) (2022-11-30)
+
+
+### Bug Fixes
+
+* allow WC subscription purchase without logging in ([7362c56](https://github.com/Automattic/newspack-plugin/commit/7362c562104e5c410417752e0e7e1502d14b5a9e))
+* update default registration success message ([c971b14](https://github.com/Automattic/newspack-plugin/commit/c971b14bf70d940b091fbc347bc2a6f0c1cbc67b))
+
 # [1.97.0](https://github.com/Automattic/newspack-plugin/compare/v1.96.0...v1.97.0) (2022-11-28)
 
 
