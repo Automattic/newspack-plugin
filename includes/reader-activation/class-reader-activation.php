@@ -1526,7 +1526,7 @@ final class Reader_Activation {
 		$wc_checkout = new \WC_Checkout();
 		$posted_data = $wc_checkout->get_posted_data();
 
-		if ( empty( $posted_data ) || empty( $posted_data['billing_email'] ) ) {
+		if ( empty( $posted_data ) || empty( $posted_data['billing_email'] || empty( $posted_data['createaccount'] ) ) ) {
 			return;
 		}
 
