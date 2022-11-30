@@ -1,3 +1,10 @@
+## [1.97.1-hotfix.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1-hotfix.1...v1.97.1-hotfix.2) (2022-11-30)
+
+
+### Bug Fixes
+
+* only do temp login if Woo intends to create an account ([1fbe56c](https://github.com/Automattic/newspack-plugin/commit/1fbe56c33c08c3fae714de152a92aaab881e0f9d))
+
 ## [1.97.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.0...v1.97.1-hotfix.1) (2022-11-30)
 
 
