@@ -1542,7 +1542,7 @@ final class Reader_Activation {
 		$customer = \get_user_by( 'email', $email );
 		if ( $customer ) {
 			$data['createaccount'] = 0;
-			\add_filter( 'woocommerce_checkout_registration_required', '__return_false', 99 );
+			\add_filter( 'woocommerce_checkout_registration_required', '__return_false', 9999 );
 		}
 
 		return $data;
