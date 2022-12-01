@@ -1,7 +1,7 @@
 {
 	"name"       : "automattic/newspack-plugin",
 	"description": "An advanced open-source publishing and revenue-generating platform for news organizations",
-	"homepage"   : "https://newspack.blog/",
+	"homepage"   : "https://newspack.com/",
 	"type"       : "wordpress-plugin",
 	"license"    : "GPL-2.0-or-later",
 	"support": {

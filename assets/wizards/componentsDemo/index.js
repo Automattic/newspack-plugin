@@ -154,12 +154,12 @@ class ComponentsDemo extends Component {
 						<h2>{ __( 'Web Previews', 'newspack' ) }</h2>
 						<Card buttonsCard noBorder className="items-center">
 							<WebPreview
-								url="//newspack.pub/"
+								url="//newspack.com/"
 								label={ __( 'Preview Newspack Blog', 'newspack' ) }
 								variant="primary"
 							/>
 							<WebPreview
-								url="//newspack.pub/"
+								url="//newspack.com/"
 								renderButton={ ( { showPreview } ) => (
 									<a href="#" onClick={ showPreview }>
 										{ __( 'Preview Newspack Blog', 'newspack' ) }
@@ -359,8 +359,8 @@ class ComponentsDemo extends Component {
 						onClick={ () => {
 							console.log( 'Configure clicked' );
 						} }
-						image="https://i0.wp.com/newspack.pub/wp-content/uploads/2020/06/pexels-photo-3183150.jpeg"
-						imageLink="https://newspack.pub"
+						image="https://i0.wp.com/newspack.com/wp-content/uploads/2020/06/pexels-photo-3183150.jpeg"
+						imageLink="https://newspack.com"
 					/>
 					<ActionCard
 						title={ __( 'Example Nine', 'newspack' ) }

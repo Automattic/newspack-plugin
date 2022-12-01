@@ -331,7 +331,7 @@ class WooCommerce_Connection {
 		if ( $subscription_id ) {
 			return \wcs_get_subscription( $subscription_id );
 		} else {
-			Logger::log( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
+			Logger::error( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
 			return false;
 		}
 	}
@@ -505,7 +505,7 @@ class WooCommerce_Connection {
 				);
 
 				if ( is_wp_error( $subscription ) ) {
-					Logger::log( 'Error creating WC subscription: ' . $subscription->get_error_message() );
+					Logger::error( 'Error creating WC subscription: ' . $subscription->get_error_message() );
 				} else {
 					self::add_universal_order_data( $subscription, $order_data );
 					/* translators: %s - donation frequency */
@@ -660,8 +660,10 @@ class WooCommerce_Connection {
 	private static function is_synchronised_with_stripe( $subscription ) {
 		if ( is_numeric( $subscription ) ) {
 			$stripe_subscription_id = get_post_meta( $subscription, self::SUBSCRIPTION_STRIPE_ID_META_KEY, true );
-		} else {
+		} elseif ( $subscription ) {
 			$stripe_subscription_id = $subscription->get_meta( self::SUBSCRIPTION_STRIPE_ID_META_KEY );
+		} else {
+			$stripe_subscription_id = false;
 		}
 		return boolval( $stripe_subscription_id );
 	}
@@ -669,10 +671,12 @@ class WooCommerce_Connection {
 	/**
 	 * Remove subscription-related meta boxes if the subscription is sync'd with Stripe.
 	 * This is because some subscription variables should not be editable here.
+	 *
+	 * @param string $post_type Post type of current screen.
 	 */
-	public static function remove_subscriptions_schedule_meta_box() {
+	public static function remove_subscriptions_schedule_meta_box( $post_type ) {
 		global $post_ID;
-		if ( self::is_synchronised_with_stripe( $post_ID ) ) {
+		if ( 'shop_subscription' === $post_type && self::is_synchronised_with_stripe( $post_ID ) ) {
 			remove_meta_box( 'woocommerce-subscription-schedule', 'shop_subscription', 'side' );
 		}
 	}

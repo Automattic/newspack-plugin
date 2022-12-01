@@ -28,12 +28,12 @@ const Footer = ( { simple } ) => {
 	const footerElements = [
 		{
 			label: pluginVersion.label,
-			url: 'https://newspack.pub/category/release-notes/',
+			url: 'https://newspack.com/category/release-notes/',
 			external: true,
 		},
 		{
 			label: __( 'About', 'newspack' ),
-			url: 'https://newspack.pub/',
+			url: 'https://newspack.com/',
 			external: true,
 		},
 		{
