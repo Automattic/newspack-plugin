@@ -541,6 +541,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return bool
 	 */
 	public function api_validate_platform( $value ) {
-		return in_array( $value, [ 'nrh', 'wc', 'stripe' ] );
+		return in_array( $value, [ 'nrh', 'wc', 'stripe', 'other' ] );
 	}
 }

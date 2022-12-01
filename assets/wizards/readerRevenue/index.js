@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Wizard, Notice } from '../../components/src';
 import * as Views from './views';
-import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, STRIPE } from './constants';
+import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, STRIPE, OTHER } from './constants';
 
 const ReaderRevenueWizard = () => {
 	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData( 'reader-revenue' );
@@ -31,6 +31,7 @@ const ReaderRevenueWizard = () => {
 			label: __( 'Donations', 'newspack' ),
 			path: '/donations',
 			render: Views.Donation,
+			isHidden: usedPlatform === OTHER,
 		},
 		{
 			label:

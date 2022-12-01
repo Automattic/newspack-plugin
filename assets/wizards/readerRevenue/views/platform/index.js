@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
-import { NEWSPACK, NRH, STRIPE } from '../../constants';
+import { NEWSPACK, NRH, STRIPE, OTHER } from '../../constants';
 
 /**
  * Platform Selection  Screen Component
@@ -24,6 +24,10 @@ const Platform = () => {
 					label={ __( 'Select Reader Revenue Platform', 'newspack' ) }
 					value={ wizardData.platform_data?.platform }
 					options={ [
+						{
+							label: __( 'Other', 'newspack' ),
+							value: OTHER,
+						},
 						{
 							label: __( 'Newspack', 'newspack' ),
 							value: NEWSPACK,
