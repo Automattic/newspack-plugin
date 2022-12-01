@@ -84,7 +84,8 @@ final class Reader_Activation {
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
-			\add_action( 'woocommerce_checkout_process', [ __CLASS__, 'allow_subscription_purchase_without_login' ] );
+			\add_filter( 'woocommerce_checkout_customer_id', [ __CLASS__, 'associate_existing_woo_users_with_transactions_on_checkout' ] );
+			\add_filter( 'woocommerce_checkout_posted_data', [ __CLASS__, 'dont_force_registration_for_existing_woo_users' ] );
 		}
 	}
 
@@ -1514,32 +1515,37 @@ final class Reader_Activation {
 
 	/**
 	 * If a reader tries to make a recurring donation with an email address that
-	 * has been previously registered, force Woo to allow the subscription to
-	 * be created and associated with the existing account without requiring the
-	 * reader to log in.
+	 * has been previously registered, automatically associate the transaction with the user.
+	 *
+	 * @param int $customer_id Current customer ID.
+	 * @return int Modified $customer_id
 	 */
-	public static function allow_subscription_purchase_without_login() {
-		if ( ! class_exists( '\WC_Checkout' ) ) {
-			return;
+	public static function associate_existing_woo_users_with_transactions_on_checkout( $customer_id ) {
+		$billing_email = filter_input( INPUT_POST, 'billing_email', FILTER_SANITIZE_EMAIL );
+		if ( $billing_email ) {
+			$customer = \get_user_by( 'email', $billing_email );
+			if ( $customer ) {
+				$customer_id = $customer->ID;
+			}
+		}
+		return $customer_id;
+	}
+
+	/**
+	 * Don't force account registration/login on Woo purchases for existing users.
+	 *
+	 * @param array $data Array of Woo checkout data.
+	 * @return array Modified $data.
+	 */
+	public static function dont_force_registration_for_existing_woo_users( $data ) {
+		$email    = $data['billing_email'];
+		$customer = \get_user_by( 'email', $email );
+		if ( $customer ) {
+			$data['createaccount'] = 0;
+			\add_filter( 'woocommerce_checkout_registration_required', '__return_false', 99 );
 		}
 
-		$wc_checkout = new \WC_Checkout();
-		$posted_data = $wc_checkout->get_posted_data();
-
-		if ( empty( $posted_data ) || empty( $posted_data['billing_email'] || empty( $posted_data['createaccount'] ) ) ) {
-			return;
-		}
-
-		// If the reader account already exists, and they're not already logged in.
-		$user_id = \email_exists( $posted_data['billing_email'] );
-		if ( $user_id && ! \is_user_logged_in() && self::is_user_reader( \get_user_by( 'id', $user_id ) ) ) {
-
-			// Temporarily log in the user to let the transaction happen.
-			self::set_current_reader( $user_id );
-
-			// Log out the user once the transaction is complete.
-			\add_action( 'woocommerce_checkout_order_processed', '\wp_logout' );
-		}
+		return $data;
 	}
 }
 Reader_Activation::init();
