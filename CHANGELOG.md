@@ -1,3 +1,18 @@
+## [1.97.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.97.2) (2022-12-02)
+
+
+### Bug Fixes
+
+* fatal if no woo ([#2163](https://github.com/Automattic/newspack-plugin/issues/2163)) ([5284e5b](https://github.com/Automattic/newspack-plugin/commit/5284e5b7dcef6e94fa857ce4631f732e55a29d20))
+* force release ([4cb3762](https://github.com/Automattic/newspack-plugin/commit/4cb37621dd768d508e18db1c93ec075efea04cc9))
+
+## [1.97.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.97.2-hotfix.1) (2022-12-01)
+
+
+### Bug Fixes
+
+* fatal if no woo ([54fe144](https://github.com/Automattic/newspack-plugin/commit/54fe14461d50d52eb53e8249bddd7e050be7b42e))
+
 ## [1.97.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.0...v1.97.1) (2022-11-30)
 
 
