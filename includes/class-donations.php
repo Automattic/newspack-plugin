@@ -521,6 +521,13 @@ class Donations {
 	}
 
 	/**
+	 * Is the donation platform set to 'other'?
+	 */
+	public static function is_platform_other() {
+		return 'other' === self::get_platform_slug();
+	}
+
+	/**
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
