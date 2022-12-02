@@ -17,20 +17,6 @@ defined( 'ABSPATH' ) || exit;
 class WooCommerce_Connection {
 	const CREATED_VIA_NAME                = 'newspack-stripe';
 	const SUBSCRIPTION_STRIPE_ID_META_KEY = 'newspack-stripe-subscription-id';
-
-	const DISABLED_SUBSCRIPTION_STATUSES = [
-		'active',
-		'pending',
-		'on-hold',
-		'pending-cancel',
-		'cancelled',
-		'expired',
-		'trash',
-		'deleted',
-		'new-payment-method',
-		'switched',
-	];
-
 	private static $created_membership_id; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
@@ -45,9 +31,6 @@ class WooCommerce_Connection {
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
 		\add_filter( 'wc_order_is_editable', [ __CLASS__, 'make_syncd_subscriptions_uneditable' ], 10, 2 );
 		\add_filter( 'woocommerce_order_actions', [ __CLASS__, 'remove_syncd_subscriptions_order_actions' ], 11, 1 );
-		foreach ( self::DISABLED_SUBSCRIPTION_STATUSES as $status_name ) {
-			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_subscription_status_updates' ], 11, 2 );
-		}
 
 		// WooCommerce Memberships.
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
@@ -658,6 +641,10 @@ class WooCommerce_Connection {
 	 * @param \WC_Subscription|int $subscription The subscription object or post ID.
 	 */
 	private static function is_synchronised_with_stripe( $subscription ) {
+		// Only if the current platform is Stripe.
+		if ( ! Donations::is_platform_stripe() ) {
+			return false;
+		}
 		if ( is_numeric( $subscription ) ) {
 			$stripe_subscription_id = get_post_meta( $subscription, self::SUBSCRIPTION_STRIPE_ID_META_KEY, true );
 		} else {
