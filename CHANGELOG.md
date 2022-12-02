@@ -1,25 +1,17 @@
-# [1.98.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.98.0-alpha.1) (2022-12-01)
+## [1.97.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.97.2) (2022-12-02)
 
 
 ### Bug Fixes
 
-* **analytics:** improve the condition for using Site Kit's Analytics module ([5bc1c36](https://github.com/Automattic/newspack-plugin/commit/5bc1c36f5612896d624ed5ba3089d948c2c7c5a2))
-* **auth:** prevent autocomplete for honeypot field ([#2145](https://github.com/Automattic/newspack-plugin/issues/2145)) ([9225726](https://github.com/Automattic/newspack-plugin/commit/92257269ae76f7204878973434e73ff8b270594c))
-* harden subs meta box logic ([#2146](https://github.com/Automattic/newspack-plugin/issues/2146)) ([35ea9fe](https://github.com/Automattic/newspack-plugin/commit/35ea9fed48dfbd41a0949b59d7f5dfe270f890f7))
-* **my-account:** hide account deletion for non-reader users ([85b2267](https://github.com/Automattic/newspack-plugin/commit/85b226740014252f8bcc26ea18db16127f71092a))
-* **stripe:** wizard interaction issues ([#2142](https://github.com/Automattic/newspack-plugin/issues/2142)) ([87918a7](https://github.com/Automattic/newspack-plugin/commit/87918a7c2d47b6769f522e47b8206e166db44707))
-* test emails ([11ea35a](https://github.com/Automattic/newspack-plugin/commit/11ea35a2acda851c2499392476436028e3e83cee))
+* fatal if no woo ([#2163](https://github.com/Automattic/newspack-plugin/issues/2163)) ([5284e5b](https://github.com/Automattic/newspack-plugin/commit/5284e5b7dcef6e94fa857ce4631f732e55a29d20))
+* force release ([4cb3762](https://github.com/Automattic/newspack-plugin/commit/4cb37621dd768d508e18db1c93ec075efea04cc9))
+
+## [1.97.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.97.2-hotfix.1) (2022-12-01)
 
 
-### Features
+### Bug Fixes
 
-* add support to local lists in the newsletters wizard ([#2153](https://github.com/Automattic/newspack-plugin/issues/2153)) ([9f81194](https://github.com/Automattic/newspack-plugin/commit/9f81194a4072553d734a9686186c447c7b356e36))
-* add twitter pixel field ([#2144](https://github.com/Automattic/newspack-plugin/issues/2144)) ([ee30061](https://github.com/Automattic/newspack-plugin/commit/ee30061ac65aefe1aa53c12ed34ffbb9928a573a))
-* **amp-plus:** allow OneSignal ([#1076](https://github.com/Automattic/newspack-plugin/issues/1076)) ([790439a](https://github.com/Automattic/newspack-plugin/commit/790439a81444e2db840a74246aa0fe05bcbc2187))
-* **analytics:** allow adding custom dimensions' values via filter ([1e20268](https://github.com/Automattic/newspack-plugin/commit/1e202689600b54f94b264eefd85d89104c8a4f41))
-* disable jetpack's google analytics ([#2129](https://github.com/Automattic/newspack-plugin/issues/2129)) ([1435b2a](https://github.com/Automattic/newspack-plugin/commit/1435b2a994126c4fb46742fbae4b70f5e813042a))
-* perfmatters plugin defaults (with a special URL param) ([#2156](https://github.com/Automattic/newspack-plugin/issues/2156)) ([da00a9b](https://github.com/Automattic/newspack-plugin/commit/da00a9beba8fdb611d8a6cf35b7792754d17fbda))
-* **setup-wizard:** disambiguate starter vs. demo content ([ef125ca](https://github.com/Automattic/newspack-plugin/commit/ef125ca2f0fa2d68057d63a7747629083f8988b0)), closes [#1701](https://github.com/Automattic/newspack-plugin/issues/1701)
+* fatal if no woo ([54fe144](https://github.com/Automattic/newspack-plugin/commit/54fe14461d50d52eb53e8249bddd7e050be7b42e))
 
 ## [1.97.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.0...v1.97.1) (2022-11-30)
 
