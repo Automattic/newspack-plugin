@@ -1,3 +1,12 @@
+# [1.98.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.98.0-alpha.1...v1.98.0-alpha.2) (2022-12-02)
+
+
+### Bug Fixes
+
+* fatal if no woo ([#2163](https://github.com/Automattic/newspack-plugin/issues/2163)) ([5284e5b](https://github.com/Automattic/newspack-plugin/commit/5284e5b7dcef6e94fa857ce4631f732e55a29d20))
+* force release ([4cb3762](https://github.com/Automattic/newspack-plugin/commit/4cb37621dd768d508e18db1c93ec075efea04cc9))
+* improved existing Woo user subs handling ([#2162](https://github.com/Automattic/newspack-plugin/issues/2162)) ([bdc25f5](https://github.com/Automattic/newspack-plugin/commit/bdc25f586ea2e8d989edd5e63cd718f2d6785f7d))
+
 ## [1.97.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.97.2) (2022-12-02)
 
 
