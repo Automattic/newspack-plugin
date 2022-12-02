@@ -245,7 +245,7 @@ class Stripe_Webhooks {
 				if ( Reader_Activation::is_enabled() && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
 					$contact_exists = ! \is_wp_error( \Newspack_Newsletters_Subscription::get_contact_data( $customer['email'] ) );
 					// Only handle subscription deletion of an existing contact.
-					if ( ! $contact_exists ) {
+					if ( $contact_exists ) {
 						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
 						$contact      = [
 							'email'    => $customer['email'],
@@ -306,7 +306,7 @@ class Stripe_Webhooks {
 					}
 					$contact_exists = ! \is_wp_error( \Newspack_Newsletters_Subscription::get_contact_data( $customer['email'] ) );
 					// Only handle subscription update of an existing contact.
-					if ( ! $contact_exists ) {
+					if ( $contact_exists ) {
 						$sub_end_date = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payload['ended_at'] );
 						$contact      = [
 							'email'    => $customer['email'],
