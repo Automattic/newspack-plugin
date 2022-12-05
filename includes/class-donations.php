@@ -350,6 +350,8 @@ class Donations {
 			self::update_donation_product( [ 'minimumDonation' => $settings['minimumDonation'] ] );
 		}
 
+		$parsed_settings['platform'] = self::get_platform_slug();
+
 		return $parsed_settings;
 	}
 
