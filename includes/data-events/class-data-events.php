@@ -52,7 +52,7 @@ final class Data_Events {
 	/**
 	 * Handle an event.
 	 */
-	public static function handle() {
+	private static function handle() {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce already verified.
 		$action_name = isset( $_POST['action_name'] ) ? sanitize_text_field( wp_unslash( $_POST['action_name'] ) ) : null;
@@ -61,13 +61,19 @@ final class Data_Events {
 		$data        = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// phpcs:enable
 
-		do_action( self::ACTION, $action_name, $timestamp, $data, $client_id );
-
-		do_action( self::ACTION . '_' . $action_name, $timestamp, $data, $client_id );
-
+		// Execute registered handlers.
 		foreach ( self::$actions[ $action_name ] as $action ) {
-			call_user_func( $action, $timestamp, $data, $client_id );
+			try {
+				call_user_func( $action, $timestamp, $data, $client_id );
+			} catch ( \Throwable $e ) {
+				// Catch fatal errors so it doesn't disrupt other handlers.
+				Logger::error( $e->getMessage() );
+			}
 		}
+
+		// Execute WP hooks.
+		do_action( self::ACTION, $action_name, $timestamp, $data, $client_id );
+		do_action( self::ACTION . '_' . $action_name, $timestamp, $data, $client_id );
 	}
 
 	/**
@@ -121,7 +127,7 @@ final class Data_Events {
 	/**
 	 * Get dispatch request url.
 	 */
-	public static function get_dispatch_url() {
+	private static function get_dispatch_url() {
 		$url  = \admin_url( 'admin-ajax.php' );
 		$args = [
 			'action' => self::ACTION,
