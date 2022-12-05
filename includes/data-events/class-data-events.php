@@ -14,13 +14,16 @@ use WP_Error;
  */
 final class Data_Events {
 	/**
-	 * Registered triggerable actions.
+	 * Asynchronous action name.
+	 */
+	const ACTION = 'newspack_data_event';
+
+	/**
+	 * Registered callable handlers, keyed by their action name.
 	 *
-	 * @var string[]
+	 * @var callable[]
 	 */
 	private static $actions = [];
-
-	const ACTION = 'newspack_data_event';
 
 	/**
 	 * Initialize hooks.
@@ -44,24 +47,26 @@ final class Data_Events {
 			wp_die();
 		}
 
-		self::handle();
+		self::handle( $action_name );
 
 		wp_die();
 	}
 
 	/**
 	 * Handle an event.
+	 *
+	 * @param string $action_name Action name.
 	 */
-	private static function handle() {
+	private static function handle( $action_name ) {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce already verified.
-		$action_name = isset( $_POST['action_name'] ) ? sanitize_text_field( wp_unslash( $_POST['action_name'] ) ) : null;
-		$timestamp   = isset( $_POST['timestamp'] ) ? sanitize_text_field( wp_unslash( $_POST['timestamp'] ) ) : null;
-		$client_id   = isset( $_POST['client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['client_id'] ) ) : null;
-		$data        = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$timestamp = isset( $_POST['timestamp'] ) ? sanitize_text_field( wp_unslash( $_POST['timestamp'] ) ) : null;
+		$client_id = isset( $_POST['client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['client_id'] ) ) : null;
+		$data      = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// phpcs:enable
 
 		// Execute registered handlers.
+		Logger::log( 'Executing action handler: ' . $action_name );
 		foreach ( self::$actions[ $action_name ] as $action ) {
 			try {
 				call_user_func( $action, $timestamp, $data, $client_id );
