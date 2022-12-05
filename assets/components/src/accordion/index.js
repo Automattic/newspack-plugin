@@ -15,14 +15,14 @@ import classNames from 'classnames';
  */
 import './style.scss';
 
-const Accordion = ( { children } ) => {
+const Accordion = ( { children, title } ) => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	return (
 		<details
 			className={ classNames( 'newspack-accordion', { 'newspack-accordion--is-open': isOpen } ) }
 		>
 			<summary onClick={ () => setIsOpen( ! isOpen ) }>
-				{ __( 'Webhooks not connected to this site.', 'newspack' ) }
+				{ title }
 				<Icon className="newspack-accordion__icon" icon={ chevronDown } size={ 24 } />
 			</summary>
 			{ children }
