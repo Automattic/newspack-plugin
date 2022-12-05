@@ -1,3 +1,10 @@
+# [1.98.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.98.0-alpha.2...v1.98.0-alpha.3) (2022-12-05)
+
+
+### Bug Fixes
+
+* logic to update existing contact on subscription cancellation or deletion ([#2165](https://github.com/Automattic/newspack-plugin/issues/2165)) ([68d7d30](https://github.com/Automattic/newspack-plugin/commit/68d7d3093701635a85a4f2a4a70b5e7ee528ad1c))
+
 # [1.98.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.98.0-alpha.1...v1.98.0-alpha.2) (2022-12-02)
 
 
