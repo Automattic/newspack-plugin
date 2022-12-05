@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89d65971629c27d2d3f267affadfe1c7",
+    "content-hash": "e1d58aa1d4bcc6771ecdef4f90ff8129",
     "packages": [
         {
             "name": "composer/installers",
@@ -153,16 +153,16 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v6.3.0",
+            "version": "v6.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "018dfc4e1da92ad8a1b90adc4893f476a3b41cb8"
+                "reference": "ddfaddcb520488b42bca3a75e17e9dd53c3667da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/018dfc4e1da92ad8a1b90adc4893f476a3b41cb8",
-                "reference": "018dfc4e1da92ad8a1b90adc4893f476a3b41cb8",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/ddfaddcb520488b42bca3a75e17e9dd53c3667da",
+                "reference": "ddfaddcb520488b42bca3a75e17e9dd53c3667da",
                 "shasum": ""
             },
             "require": {
@@ -209,22 +209,22 @@
             ],
             "support": {
                 "issues": "https://github.com/firebase/php-jwt/issues",
-                "source": "https://github.com/firebase/php-jwt/tree/v6.3.0"
+                "source": "https://github.com/firebase/php-jwt/tree/v6.3.1"
             },
-            "time": "2022-07-15T16:48:45+00:00"
+            "time": "2022-11-01T21:20:08+00:00"
         },
         {
             "name": "google/auth",
-            "version": "v1.23.1",
+            "version": "v1.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-auth-library-php.git",
-                "reference": "cb43cb8ccde76ace65ec40130a9e9c2a15ecfe17"
+                "reference": "1f8cff5aa324700d041efd2df1a0855112a2e7ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/cb43cb8ccde76ace65ec40130a9e9c2a15ecfe17",
-                "reference": "cb43cb8ccde76ace65ec40130a9e9c2a15ecfe17",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/1f8cff5aa324700d041efd2df1a0855112a2e7ae",
+                "reference": "1f8cff5aa324700d041efd2df1a0855112a2e7ae",
                 "shasum": ""
             },
             "require": {
@@ -239,8 +239,8 @@
                 "guzzlehttp/promises": "0.1.1|^1.3",
                 "kelvinmo/simplejwt": "^0.2.5|^0.5.1",
                 "phpseclib/phpseclib": "^2.0.31",
-                "phpspec/prophecy-phpunit": "^1.1",
-                "phpunit/phpunit": "^7.5||^8.5",
+                "phpspec/prophecy-phpunit": "^1.1||^2.0",
+                "phpunit/phpunit": "^7.5||^9.0.0",
                 "sebastian/comparator": ">=1.2.3",
                 "squizlabs/php_codesniffer": "^3.5"
             },
@@ -267,9 +267,9 @@
             "support": {
                 "docs": "https://googleapis.github.io/google-auth-library-php/main/",
                 "issues": "https://github.com/googleapis/google-auth-library-php/issues",
-                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.23.1"
+                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.24.0"
             },
-            "time": "2022-10-26T20:30:45+00:00"
+            "time": "2022-11-28T18:29:23+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -907,16 +907,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v9.9.0",
+            "version": "v10.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "479b5c2136fde0debb93d290ceaf20dd161c358f"
+                "reference": "a895466e5208cc7974bc3bed80abe825418ce0b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/479b5c2136fde0debb93d290ceaf20dd161c358f",
-                "reference": "479b5c2136fde0debb93d290ceaf20dd161c358f",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/a895466e5208cc7974bc3bed80abe825418ce0b0",
+                "reference": "a895466e5208cc7974bc3bed80abe825418ce0b0",
                 "shasum": ""
             },
             "require": {
@@ -962,9 +962,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v9.9.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v10.0.0"
             },
-            "time": "2022-11-08T20:25:52+00:00"
+            "time": "2022-11-16T20:15:30+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -3515,16 +3515,16 @@
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
-                "reference": "219aa369ceff116e673852dce47c3a41794c14bd"
+                "reference": "19bd1e4fcd5b91116f14d8533c57831ed00571b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/219aa369ceff116e673852dce47c3a41794c14bd",
-                "reference": "219aa369ceff116e673852dce47c3a41794c14bd",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/19bd1e4fcd5b91116f14d8533c57831ed00571b6",
+                "reference": "19bd1e4fcd5b91116f14d8533c57831ed00571b6",
                 "shasum": ""
             },
             "require": {
@@ -3536,7 +3536,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -3579,7 +3579,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -3595,20 +3595,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e"
+                "reference": "8ad114f6b39e2c98a8b0e3bd907732c207c2b534"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e",
-                "reference": "9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/8ad114f6b39e2c98a8b0e3bd907732c207c2b534",
+                "reference": "8ad114f6b39e2c98a8b0e3bd907732c207c2b534",
                 "shasum": ""
             },
             "require": {
@@ -3623,7 +3623,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -3662,7 +3662,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -3678,7 +3678,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-php73",
