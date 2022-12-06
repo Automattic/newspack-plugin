@@ -93,11 +93,10 @@ final class Data_Events {
 	 * @return void|WP_Error Error if action already registered.
 	 */
 	public static function register_action( $action_name ) {
-		if ( ! isset( self::$actions[ $action_name ] ) ) {
-			self::$actions[ $action_name ] = [];
-		} else {
+		if ( isset( self::$actions[ $action_name ] ) ) {
 			return new WP_Error( 'action_already_registered', __( 'Action already registered.', 'newspack' ) );
 		}
+		self::$actions[ $action_name ] = [];
 	}
 
 	/**
@@ -156,18 +155,6 @@ final class Data_Events {
 	}
 
 	/**
-	 * Get dispatch request url.
-	 */
-	private static function get_dispatch_url() {
-		$url  = \admin_url( 'admin-ajax.php' );
-		$args = [
-			'action' => self::ACTION,
-			'nonce'  => \wp_create_nonce( self::ACTION ),
-		];
-		return \add_query_arg( $args, $url );
-	}
-
-	/**
 	 * Dispatch an action event.
 	 *
 	 * @param string  $action_name   Action name.
@@ -191,7 +178,13 @@ final class Data_Events {
 
 		do_action( "newspack_data_event_dispatch_{$action_name}", $timestamp, $data, $client_id );
 
-		$url = self::get_dispatch_url();
+		$url = \add_query_arg(
+			[
+				'action' => self::ACTION,
+				'nonce'  => \wp_create_nonce( self::ACTION ),
+			],
+			\admin_url( 'admin-ajax.php' )
+		);
 
 		$body = [
 			'action_name' => $action_name,
