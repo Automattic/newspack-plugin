@@ -70,7 +70,8 @@ final class Data_Events {
 
 		// Execute registered handlers.
 		Logger::log( 'Executing action handler: ' . $action_name );
-		foreach ( self::$actions[ $action_name ] as $handler ) {
+		$handlers = self::get_action_handlers( $action_name );
+		foreach ( $handlers as $handler ) {
 			try {
 				call_user_func( $handler, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {

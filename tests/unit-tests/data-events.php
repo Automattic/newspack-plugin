@@ -85,9 +85,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	 */
 	public function test_handler() {
 		$action_name = 'test_action';
-		$timestamp   = time();
-		$data        = [ 'test' => 'data' ];
-		$client_id   = 'test-client-id';
 
 		Data_Events::register_action( $action_name );
 
@@ -105,6 +102,9 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		add_action( 'newspack_data_event_test_action', $handler, 10, 3 );
 
 		// Manual trigger.
+		$timestamp = time();
+		$data      = [ 'test' => 'data' ];
+		$client_id = 'test-client-id';
 		Data_Events::handle( $action_name, $timestamp, $data, $client_id );
 
 		// Should have been called twice.
@@ -114,5 +114,37 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertEquals( $timestamp, $handler_data['args'][0] );
 		$this->assertEquals( $data, $handler_data['args'][1] );
 		$this->assertEquals( $client_id, $handler_data['args'][2] );
+	}
+
+	/**
+	 * Test that a handler can throw an exception without disrupting other handler.
+	 */
+	public function test_handler_exception() {
+		$action_name = 'test_action';
+
+		Data_Events::register_action( $action_name );
+
+		$handler_called = 0;
+
+		$handler1 = function( ...$handler_args ) use ( &$handler_called ) {
+			$handler_called++;
+			throw new Exception( 'Test exception' );
+		};
+		$handler2 = function( ...$handler_args ) use ( &$handler_called ) {
+			$handler_called++;
+		};
+
+		// Attach the handlers through the Data_Events API.
+		Data_Events::register_action_handler( $action_name, $handler1 );
+		Data_Events::register_action_handler( $action_name, $handler2 );
+
+		// Manual trigger.
+		$timestamp = time();
+		$data      = [ 'test' => 'data' ];
+		$client_id = 'test-client-id';
+		Data_Events::handle( $action_name, $timestamp, $data, $client_id );
+
+		// Should have been called twice.
+		$this->assertEquals( 2, $handler_called );
 	}
 }
