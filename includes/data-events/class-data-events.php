@@ -40,14 +40,20 @@ final class Data_Events {
 		// Don't lock up other requests while processing.
 		session_write_close(); // phpcs:ignore
 
-		check_ajax_referer( self::ACTION, 'nonce' );
+		if ( ! isset( $_REQUEST['nonce'] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST['nonce'] ), self::ACTION ) ) {
+			wp_die();
+		}
 
-		$action_name = isset( $_POST['action_name'] ) ? sanitize_text_field( wp_unslash( $_POST['action_name'] ) ) : null;
+		$action_name = isset( $_POST['action_name'] ) ? \sanitize_text_field( \wp_unslash( $_POST['action_name'] ) ) : null;
 		if ( ! $action_name || ! isset( self::$actions[ $action_name ] ) ) {
 			wp_die();
 		}
 
-		self::handle( $action_name );
+		$timestamp = isset( $_POST['timestamp'] ) ? \sanitize_text_field( \wp_unslash( $_POST['timestamp'] ) ) : null;
+		$data      = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$client_id = isset( $_POST['client_id'] ) ? \sanitize_text_field( \wp_unslash( $_POST['client_id'] ) ) : null;
+
+		self::handle( $action_name, $timestamp, $data, $client_id );
 
 		wp_die();
 	}
@@ -56,20 +62,17 @@ final class Data_Events {
 	 * Handle an event.
 	 *
 	 * @param string $action_name Action name.
+	 * @param int    $timestamp   Timestamp.
+	 * @param mixed  $data        Data.
+	 * @param string $client_id   Client ID.
 	 */
-	private static function handle( $action_name ) {
-
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce already verified.
-		$timestamp = isset( $_POST['timestamp'] ) ? sanitize_text_field( wp_unslash( $_POST['timestamp'] ) ) : null;
-		$client_id = isset( $_POST['client_id'] ) ? sanitize_text_field( wp_unslash( $_POST['client_id'] ) ) : null;
-		$data      = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		// phpcs:enable
+	public static function handle( $action_name, $timestamp, $data, $client_id ) {
 
 		// Execute registered handlers.
 		Logger::log( 'Executing action handler: ' . $action_name );
-		foreach ( self::$actions[ $action_name ] as $action ) {
+		foreach ( self::$actions[ $action_name ] as $handler ) {
 			try {
-				call_user_func( $action, $timestamp, $data, $client_id );
+				call_user_func( $handler, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
 				// Catch fatal errors so it doesn't disrupt other handlers.
 				Logger::error( $e->getMessage() );
@@ -115,7 +118,21 @@ final class Data_Events {
 	 * @return string[] Registered actions.
 	 */
 	public static function get_actions() {
-		return array_keys( $actions );
+		return array_keys( self::$actions );
+	}
+
+	/**
+	 * Get a list of all registered action handlers.
+	 *
+	 * @param string $action_name Action name.
+	 *
+	 * @return callable[] Registered action handlers.
+	 */
+	public static function get_action_handlers( $action_name ) {
+		if ( ! isset( self::$actions[ $action_name ] ) ) {
+			return [];
+		}
+		return self::$actions[ $action_name ];
 	}
 
 	/**
@@ -174,7 +191,7 @@ final class Data_Events {
 			'client_id'   => $client_id,
 		];
 
-		\wp_remote_post(
+		return \wp_remote_post(
 			$url,
 			[
 				'timeout'   => 0.01,
