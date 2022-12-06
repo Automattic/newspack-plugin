@@ -95,6 +95,8 @@ final class Data_Events {
 	public static function register_action( $action_name ) {
 		if ( ! isset( self::$actions[ $action_name ] ) ) {
 			self::$actions[ $action_name ] = [];
+		} else {
+			return new WP_Error( 'action_already_registered', __( 'Action already registered.', 'newspack' ) );
 		}
 	}
 
@@ -104,11 +106,17 @@ final class Data_Events {
 	 * @param string   $action_name Action name.
 	 * @param callable $handler     Action handler.
 	 *
-	 * @return void|WP_Error Error if action not registered.
+	 * @return void|WP_Error Error if action not registered, handler already reigstered or is not callable.
 	 */
-	public static function register_action_handler( $action_name, $handler ) {
+	public static function register_handler( $action_name, $handler ) {
 		if ( ! isset( self::$actions[ $action_name ] ) ) {
 			return new WP_Error( 'action_not_registered', __( 'Action not registered.', 'newspack' ) );
+		}
+		if ( ! is_callable( $handler ) ) {
+			return new WP_Error( 'handler_not_callable', __( 'Handler is not callable.', 'newspack' ) );
+		}
+		if ( in_array( $handler, self::$actions[ $action_name ], true ) ) {
+			return new WP_Error( 'handler_already_registered', __( 'Handler already registered.', 'newspack' ) );
 		}
 		self::$actions[ $action_name ][] = $handler;
 	}
