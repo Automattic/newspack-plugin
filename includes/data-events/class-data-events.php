@@ -26,6 +26,13 @@ final class Data_Events {
 	private static $actions = [];
 
 	/**
+	 * Registered global callable handlers to be executed on all actions.
+	 *
+	 * @var callable[]
+	 */
+	private static $global_handlers = [];
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -67,8 +74,18 @@ final class Data_Events {
 	 * @param string $client_id   Client ID.
 	 */
 	public static function handle( $action_name, $timestamp, $data, $client_id ) {
+		// Execute global handlers.
+		Logger::log( 'Executing global action handlers.' );
+		foreach ( self::$global_handlers as $handler ) {
+			try {
+				call_user_func( $handler, $action_name, $timestamp, $data, $client_id );
+			} catch ( \Throwable $e ) {
+				// Catch fatal errors so it doesn't disrupt other handlers.
+				Logger::error( $e->getMessage() );
+			}
+		}
 
-		// Execute registered handlers.
+		// Execute action handlers.
 		Logger::log( 'Executing action handler: ' . $action_name );
 		$handlers = self::get_action_handlers( $action_name );
 		foreach ( $handlers as $handler ) {
@@ -105,9 +122,14 @@ final class Data_Events {
 	 * @param string   $action_name Action name.
 	 * @param callable $handler     Action handler.
 	 *
-	 * @return void|WP_Error Error if action not registered, handler already reigstered or is not callable.
+	 * @return void|WP_Error Error if action not registered, handler already registered or is not callable.
 	 */
-	public static function register_handler( $action_name, $handler ) {
+	public static function register_handler( $action_name, $handler = null ) {
+		/** If first argument is callable, treat as global handler. */
+		if ( is_callable( $action_name ) ) {
+			self::$global_handlers[] = $action_name;
+			return;
+		}
 		if ( ! isset( self::$actions[ $action_name ] ) ) {
 			return new WP_Error( 'action_not_registered', __( 'Action not registered.', 'newspack' ) );
 		}

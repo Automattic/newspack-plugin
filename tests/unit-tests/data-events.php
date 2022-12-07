@@ -147,4 +147,36 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		// Should have been called twice.
 		$this->assertEquals( 2, $handler_called );
 	}
+
+	/**
+	 * Test global handler execution.
+	 */
+	public function test_global_handler() {
+		$action_name = 'test_action';
+
+		Data_Events::register_action( $action_name );
+
+		$handler_data = [
+			'called' => 0,
+			'args'   => [],
+		];
+		$handler      = function( ...$handler_args ) use ( &$handler_data ) {
+			$handler_data['called']++;
+			$handler_data['args'] = $handler_args;
+		};
+		Data_Events::register_handler( $handler );
+
+		// Manual trigger.
+		$timestamp = time();
+		$data      = [ 'test' => 'data' ];
+		$client_id = 'test-client-id';
+		Data_Events::handle( $action_name, $timestamp, $data, $client_id );
+
+		// Should have been called twice.
+		$this->assertEquals( 1, $handler_data['called'] );
+		$this->assertEquals( $action_name, $handler_data['args'][0] );
+		$this->assertEquals( $timestamp, $handler_data['args'][1] );
+		$this->assertEquals( $data, $handler_data['args'][2] );
+		$this->assertEquals( $client_id, $handler_data['args'][3] );
+	}
 }
