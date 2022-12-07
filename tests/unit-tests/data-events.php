@@ -27,7 +27,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	 */
 	public function test_register_missing_action_handler() {
 		$handler = function() {};
-		$result  = Data_Events::register_handler( 'missing_action', $handler );
+		$result  = Data_Events::register_handler( $handler, 'missing_action' );
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
 
@@ -48,7 +48,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$action_name = 'test_action';
 		$handler     = function () {};
 		Data_Events::register_action( $action_name );
-		$result = Data_Events::register_handler( $action_name, $handler );
+		$result = Data_Events::register_handler( $handler, $action_name );
 		$this->assertEquals( null, $result );
 		$action_handlers = Data_Events::get_action_handlers( $action_name );
 		$this->assertContains( $handler, $action_handlers );
@@ -97,7 +97,7 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			$handler_data['args'] = $handler_args;
 		};
 		// Attach the handler through the Data_Events API.
-		Data_Events::register_handler( $action_name, $handler );
+		Data_Events::register_handler( $handler, $action_name );
 		// Attach the handler through a WP action.
 		add_action( 'newspack_data_event_test_action', $handler, 10, 3 );
 
@@ -135,8 +135,8 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		};
 
 		// Attach the handlers through the Data_Events API.
-		Data_Events::register_handler( $action_name, $handler1 );
-		Data_Events::register_handler( $action_name, $handler2 );
+		Data_Events::register_handler( $handler1, $action_name );
+		Data_Events::register_handler( $handler2, $action_name );
 
 		// Manual trigger.
 		$timestamp = time();

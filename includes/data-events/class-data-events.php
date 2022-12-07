@@ -119,15 +119,15 @@ final class Data_Events {
 	/**
 	 * Register a handler for a triggerable action.
 	 *
-	 * @param string   $action_name Action name.
 	 * @param callable $handler     Action handler.
+	 * @param string   $action_name Action name.
 	 *
 	 * @return void|WP_Error Error if action not registered, handler already registered or is not callable.
 	 */
-	public static function register_handler( $action_name, $handler = null ) {
+	public static function register_handler( $handler, $action_name = null ) {
 		/** If first argument is callable, treat as global handler. */
-		if ( is_callable( $action_name ) ) {
-			self::$global_handlers[] = $action_name;
+		if ( empty( $action_name ) ) {
+			self::$global_handlers[] = $handler;
 			return;
 		}
 		if ( ! isset( self::$actions[ $action_name ] ) ) {
