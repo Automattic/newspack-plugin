@@ -166,13 +166,11 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		};
 		Data_Events::register_handler( $handler );
 
-		// Manual trigger.
 		$timestamp = time();
 		$data      = [ 'test' => 'data' ];
 		$client_id = 'test-client-id';
 		Data_Events::handle( $action_name, $timestamp, $data, $client_id );
 
-		// Should have been called twice.
 		$this->assertEquals( 1, $handler_data['called'] );
 		$this->assertEquals( $action_name, $handler_data['args'][0] );
 		$this->assertEquals( $timestamp, $handler_data['args'][1] );
