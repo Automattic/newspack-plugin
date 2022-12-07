@@ -54,6 +54,7 @@ class WooCommerce_Connection {
 
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
+		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_renewal_errors' ] );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
 	}
@@ -331,7 +332,7 @@ class WooCommerce_Connection {
 		if ( $subscription_id ) {
 			return \wcs_get_subscription( $subscription_id );
 		} else {
-			Logger::log( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
+			Logger::error( 'Error: could not find WC subscription by Stripe id: ' . $stripe_subscription_id );
 			return false;
 		}
 	}
@@ -505,7 +506,7 @@ class WooCommerce_Connection {
 				);
 
 				if ( is_wp_error( $subscription ) ) {
-					Logger::log( 'Error creating WC subscription: ' . $subscription->get_error_message() );
+					Logger::error( 'Error creating WC subscription: ' . $subscription->get_error_message() );
 				} else {
 					self::add_universal_order_data( $subscription, $order_data );
 					/* translators: %s - donation frequency */
@@ -660,10 +661,10 @@ class WooCommerce_Connection {
 	private static function is_synchronised_with_stripe( $subscription ) {
 		if ( is_numeric( $subscription ) ) {
 			$stripe_subscription_id = get_post_meta( $subscription, self::SUBSCRIPTION_STRIPE_ID_META_KEY, true );
-		} elseif ( ! empty( $subscription ) ) {
+		} elseif ( $subscription ) {
 			$stripe_subscription_id = $subscription->get_meta( self::SUBSCRIPTION_STRIPE_ID_META_KEY );
 		} else {
-			return false;
+			$stripe_subscription_id = false;
 		}
 		return boolval( $stripe_subscription_id );
 	}
@@ -671,10 +672,12 @@ class WooCommerce_Connection {
 	/**
 	 * Remove subscription-related meta boxes if the subscription is sync'd with Stripe.
 	 * This is because some subscription variables should not be editable here.
+	 *
+	 * @param string $post_type Post type of current screen.
 	 */
-	public static function remove_subscriptions_schedule_meta_box() {
+	public static function remove_subscriptions_schedule_meta_box( $post_type ) {
 		global $post_ID;
-		if ( self::is_synchronised_with_stripe( $post_ID ) ) {
+		if ( 'shop_subscription' === $post_type && self::is_synchronised_with_stripe( $post_ID ) ) {
 			remove_meta_box( 'woocommerce-subscription-schedule', 'shop_subscription', 'side' );
 		}
 	}
@@ -720,6 +723,26 @@ class WooCommerce_Connection {
 			return false;
 		}
 		return $can_update;
+	}
+
+	/**
+	 * Filter WC Subscriptions' renewal errors. If a subscription is only sync'd,
+	 * it won't be renewed by WC Subscriptions, so we don't want to show an error.
+	 *
+	 * @param array $renewal_errors An associative array of errors.
+	 */
+	public static function filter_subscription_renewal_errors( $renewal_errors ) {
+		if ( is_array( $renewal_errors ) ) {
+			foreach ( $renewal_errors as $key => $error ) {
+				if ( isset( $error['args'], $error['args']['subscription_id'], $error['type'] ) ) {
+					$subscription_id = $error['args']['subscription_id'];
+					if ( 'subscription payment' === $error['type'] && self::is_synchronised_with_stripe( $subscription_id ) ) {
+						unset( $renewal_errors[ $key ] );
+					}
+				}
+			}
+		}
+		return $renewal_errors;
 	}
 }
 

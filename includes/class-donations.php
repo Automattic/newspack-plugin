@@ -350,6 +350,8 @@ class Donations {
 			self::update_donation_product( [ 'minimumDonation' => $settings['minimumDonation'] ] );
 		}
 
+		$parsed_settings['platform'] = self::get_platform_slug();
+
 		return $parsed_settings;
 	}
 
@@ -521,6 +523,13 @@ class Donations {
 	}
 
 	/**
+	 * Is the donation platform set to 'other'?
+	 */
+	public static function is_platform_other() {
+		return 'other' === self::get_platform_slug();
+	}
+
+	/**
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
@@ -532,20 +541,20 @@ class Donations {
 		}
 
 		// Parse values from the form.
-		$donation_frequency = filter_input( INPUT_GET, 'donation_frequency', FILTER_SANITIZE_STRING );
+		$donation_frequency = filter_input( INPUT_GET, 'donation_frequency', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $donation_frequency ) {
 			return;
 		}
-		$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency, FILTER_SANITIZE_STRING );
+		$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $donation_value ) {
-			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_untiered', FILTER_SANITIZE_STRING );
+			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_untiered', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( ! $donation_value ) {
 				return;
 			}
 		}
 		if ( 'other' === $donation_value ) {
-			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_other', FILTER_SANITIZE_STRING );
+			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_other', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			if ( ! $donation_value ) {
 				return;
 			}
@@ -764,7 +773,7 @@ class Donations {
 	 * @param Array $form_fields WC form fields.
 	 */
 	public static function woocommerce_billing_fields( $form_fields ) {
-		$params = filter_input_array( INPUT_GET, FILTER_SANITIZE_STRING );
+		$params = filter_input_array( INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( is_array( $params ) ) {
 			foreach ( $params as $param => $value ) {
@@ -803,7 +812,7 @@ class Donations {
 	 * @param String $order_id WC order id.
 	 */
 	public static function woocommerce_checkout_update_order_meta( $order_id ) {
-		$params = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
+		$params = filter_input_array( INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( is_array( $params ) ) {
 			foreach ( $params as $param => $value ) {

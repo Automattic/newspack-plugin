@@ -134,7 +134,7 @@ class Admin_Plugins_Screen {
 			wp_die( esc_html__( 'Sorry, you are not allowed to install plugins.', 'newspack' ) );
 		}
 
-		$plugin = filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_STRING );
+		$plugin = filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $plugin ) {
 			wp_die( esc_html__( 'Invalid plugin.', 'newspack' ) );
 		}
@@ -175,10 +175,10 @@ class Admin_Plugins_Screen {
 				</button>
 			</div>
 			<?php
-		} elseif ( filter_input( INPUT_GET, 'newspack_install_error', FILTER_VALIDATE_BOOLEAN ) && filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_STRING ) && filter_input( INPUT_GET, 'message', FILTER_SANITIZE_STRING ) ) {
-			$plugin = filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_STRING );
+		} elseif ( filter_input( INPUT_GET, 'newspack_install_error', FILTER_VALIDATE_BOOLEAN ) && filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) && filter_input( INPUT_GET, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) {
+			$plugin = filter_input( INPUT_GET, 'plugin', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			check_admin_referer( 'newspack-install-error_' . $plugin, '_error_nonce' );
-			$message = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_STRING );
+			$message = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			?>
 			<div class="notice notice-error is-dismissible">
 				<p><strong><?php echo esc_html__( 'Failed to install plugin:', 'newspack' ); ?></strong> <?php echo esc_html( $message ); ?></p>
