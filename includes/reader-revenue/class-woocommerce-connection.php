@@ -48,6 +48,8 @@ class WooCommerce_Connection {
 		foreach ( self::DISABLED_SUBSCRIPTION_STATUSES as $status_name ) {
 			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_subscription_status_updates' ], 11, 2 );
 		}
+		\add_filter( 'woocommerce_subscriptions_can_user_renew_early', [ __CLASS__, 'prevent_subscription_early_renewal' ], 11, 2 );
+		\add_filter( 'woocommerce_subscription_is_manual', [ __CLASS__, 'set_syncd_subscriptions_as_manual' ], 11, 2 );
 
 		// WooCommerce Memberships.
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
@@ -688,6 +690,32 @@ class WooCommerce_Connection {
 			return false;
 		}
 		return $is_editable;
+	}
+
+	/**
+	 * Disable early renewal of subscriptions which are sync'd with Stripe.
+	 *
+	 * @param bool             $can_renew_early Whether the subscription can be renewed early.
+	 * @param \WC_Subscription $subscription The subscription object.
+	 */
+	public static function prevent_subscription_early_renewal( $can_renew_early, $subscription ) {
+		if ( self::is_synchronised_with_stripe( $subscription ) ) {
+			return false;
+		}
+		return $can_renew_early;
+	}
+
+	/**
+	 * Force sync'd subscriptions to manual-renewal state.
+	 *
+	 * @param bool             $is_manual Whether the subscription is manually-renewed.
+	 * @param \WC_Subscription $subscription The subscription object.
+	 */
+	public static function set_syncd_subscriptions_as_manual( $is_manual, $subscription ) {
+		if ( self::is_synchronised_with_stripe( $subscription ) ) {
+			return true;
+		}
+		return $is_manual;
 	}
 
 	/**
