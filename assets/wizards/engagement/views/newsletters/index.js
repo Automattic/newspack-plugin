@@ -293,7 +293,7 @@ const Newsletters = () => {
 						) }
 					</p>
 					<Button isSecondary onClick={ handleAuth }>
-						Authorize
+						{ __( 'Authorize', 'newspack' ) }
 					</Button>
 				</Card>
 			) }
