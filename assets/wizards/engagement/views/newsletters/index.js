@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { values, mapValues, property, isEmpty } from 'lodash';
+import { values, mapValues, property, isEmpty, once } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -220,6 +220,7 @@ const Newsletters = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
 	const [ initialProvider, setInitialProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
+	const [ authUrl, setAuthUrl ] = useState( false );
 
 	useEffect( () => {
 		const provider = newslettersConfig?.newspack_newsletters_service_provider;
@@ -233,6 +234,36 @@ const Newsletters = () => {
 		}
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 
+	const verifyToken = provider => {
+		setAuthUrl( false );
+		if ( ! provider ) {
+			return;
+		}
+		apiFetch( { path: `/newspack-newsletters/v1/${ provider }/verify_token` } )
+			.then( response => {
+				if ( ! response.valid && response.auth_url ) {
+					setAuthUrl( response.auth_url );
+				} else {
+					setAuthUrl( false );
+				}
+			} )
+			.catch( () => {
+				setAuthUrl( false );
+			} );
+	};
+	const onAuthorize = () => {
+		location.reload();
+	};
+	const handleAuth = () => {
+		if ( authUrl ) {
+			const authWindow = window.open( authUrl, 'esp_oauth', 'width=500,height=600' );
+			authWindow.opener = { verify: once( onAuthorize ) };
+		}
+	};
+	useEffect( () => {
+		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
+	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
+
 	const saveNewslettersData = async () =>
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
@@ -240,6 +271,7 @@ const Newsletters = () => {
 			data: newslettersConfig,
 		} ).finally( () => {
 			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
 			setLockedLists( false );
 		} );
 
@@ -251,6 +283,20 @@ const Newsletters = () => {
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</Card>
+			{ false !== authUrl && (
+				<Card isSmall>
+					<h3>{ __( 'Authorize Application', 'newspack' ) }</h3>
+					<p>
+						{ __(
+							'To use this provider, you must first authorize the application.',
+							'newspack-newsletters'
+						) }
+					</p>
+					<Button isSecondary onClick={ handleAuth }>
+						Authorize
+					</Button>
+				</Card>
+			) }
 			<NewspackNewsletters
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
