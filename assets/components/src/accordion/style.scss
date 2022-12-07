@@ -1,4 +1,8 @@
+@use '~@wordpress/base-styles/colors' as wp-colors;
+
 .newspack-accordion {
+	border: 1px solid wp-colors.$gray-300;
+
 	&__icon {
 		transition: transform 200ms ease-out;
 	}
@@ -11,9 +15,10 @@
 		}
 	}
 	summary {
+		padding: 18px 24px;
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		cursor: pointer;
-		font-weight: bold;
 	}
 }

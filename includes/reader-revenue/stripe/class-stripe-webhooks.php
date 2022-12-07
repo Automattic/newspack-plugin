@@ -98,6 +98,16 @@ class Stripe_Webhooks {
 				'permission_callback' => '__return_true',
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/stripe/webhooks',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_get_all_webhooks' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
+			]
+		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/stripe/webhook/(?P<id>[\w_]+)',
@@ -127,6 +137,15 @@ class Stripe_Webhooks {
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/stripe/reset-webhook',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ __CLASS__, 'api_reset_webhoooks' ],
+				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
 	}
@@ -509,6 +528,25 @@ class Stripe_Webhooks {
 		} catch ( \Throwable $th ) {
 			Logger::log( 'Could not reset Stripe webhooks: ' . $th->getMessage() );
 			return false;
+		}
+	}
+
+	/**
+	 * Get all webhooks.
+	 */
+	public static function api_get_all_webhooks() {
+		return rest_ensure_response( self::get_all_webhooks() );
+	}
+
+	/**
+	 * Handle webhook reset API request.
+	 */
+	public static function api_reset_webhoooks() {
+		$result = self::reset_webhooks();
+		if ( true === $result ) {
+			return self::api_get_all_webhooks();
+		} else {
+			return self::get_error( __( 'Webhook reset failed ', 'newspack' ) );
 		}
 	}
 

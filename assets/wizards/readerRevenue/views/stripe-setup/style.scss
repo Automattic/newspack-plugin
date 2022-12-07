@@ -36,13 +36,19 @@
 			code {
 				margin-left: 10px;
 			}
+			.components-button {
+				box-shadow: none;
+			}
 		}
 		.components-toggle-control {
 			margin: 0;
 			display: inline-block;
 		}
-		.components-button {
-			box-shadow: none;
+		.newspack-buttons-card {
+			margin: 20px 0 30px;
+		}
+		.newspack-settings__no-border {
+			margin-bottom: 0;
 		}
 	}
 }

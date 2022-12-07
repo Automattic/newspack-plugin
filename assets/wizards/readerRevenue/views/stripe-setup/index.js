@@ -3,8 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { trash } from '@wordpress/icons';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * External dependencies
@@ -22,7 +21,7 @@ import {
 	SelectControl,
 	TextControl,
 	Wizard,
-	Accordion,
+	ActionCard,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';
 import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
@@ -102,115 +101,6 @@ export const StripeKeysSettings = () => {
 				) }
 			</Grid>
 		</Grid>
-	);
-};
-
-const WebhooksList = ( { webhooks, onUpdate } ) => {
-	const { wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
-	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isQuietLoading() );
-
-	const handleChange = ( webhook, method, payload ) => {
-		const args = {
-			path: `/newspack/v1/stripe/webhook/${ webhook.id }`,
-			method,
-			data: payload,
-			isQuietFetch: true,
-		};
-		if ( payload ) {
-			args.data = payload;
-		}
-		wizardApiFetch( args ).then( onUpdate( method ) );
-	};
-
-	return (
-		<ul>
-			{ webhooks.map( webhook => {
-				return (
-					<li key={ webhook.id }>
-						<span>
-							<ToggleControl
-								checked={ webhook.status === 'enabled' }
-								disabled={ isLoading }
-								onChange={ () =>
-									handleChange( webhook, 'POST', {
-										status: webhook.status === 'enabled' ? 'disabled' : 'enabled',
-									} )
-								}
-							/>
-							<code>{ webhook.url }</code>
-						</span>
-
-						<Button
-							isDestructive
-							icon={ trash }
-							disabled={ isLoading }
-							onClick={ () => handleChange( webhook, 'DELETE' ) }
-						/>
-					</li>
-				);
-			} ) }
-		</ul>
-	);
-};
-
-const StripeWebhooksSettings = () => {
-	const { stripe_data: data = {} } = Wizard.useWizardData( 'reader-revenue' );
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
-	const webhooksList = data.webhooks_list || [];
-
-	const [ thisSiteWebhooks, otherWebhooks ] = webhooksList.reduce(
-		( acc, webhook ) => {
-			if ( webhook.matches_url ) {
-				acc[ 0 ].push( webhook );
-			} else {
-				acc[ 1 ].push( webhook );
-			}
-			return acc;
-		},
-		[ [], [] ]
-	);
-	const activeThisSiteWebhooks = thisSiteWebhooks.filter( webhook => webhook.status === 'enabled' );
-
-	const handleWebhooksListUpdate = method => payload => {
-		let newList = webhooksList;
-		switch ( method ) {
-			case 'POST':
-				newList = webhooksList.map( webhook => ( payload.id === webhook.id ? payload : webhook ) );
-				break;
-			case 'DELETE':
-				newList = webhooksList.filter( webhook => payload.id !== webhook.id );
-				break;
-		}
-		updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			path: [ 'stripe_data', 'webhooks_list' ],
-			value: newList,
-		} );
-	};
-	return (
-		<div className="newspack-payment-setup-screen__webhooks">
-			{ activeThisSiteWebhooks.length > 1 && (
-				<Notice
-					isError
-					noticeText={ __(
-						'There are too many webhoooks for this site. Please delete or disable the extra ones.',
-						'newspack'
-					) }
-				/>
-			) }
-			{ activeThisSiteWebhooks.length === 0 && (
-				<Notice
-					isError
-					noticeText={ __( 'There are no active webhoooks for this site.', 'newspack' ) }
-				/>
-			) }
-			<WebhooksList webhooks={ thisSiteWebhooks } onUpdate={ handleWebhooksListUpdate } />
-			{ otherWebhooks.length ? (
-				<Accordion title={ __( 'Webhooks not connected to this site.', 'newspack' ) }>
-					<WebhooksList webhooks={ otherWebhooks } onUpdate={ handleWebhooksListUpdate } />
-				</Accordion>
-			) : null }
-		</div>
 	);
 };
 
@@ -333,17 +223,6 @@ const StripeSetup = () => {
 							/>
 						</Grid>
 					</SettingsCard>
-					<SettingsCard
-						title={ __( 'Webhooks', 'newspack' ) }
-						description={ __(
-							'Manage the webhooks Stripe uses to communicate with your site.',
-							'newspack'
-						) }
-						columns={ 1 }
-						noBorder
-					>
-						<StripeWebhooksSettings />
-					</SettingsCard>
 				</>
 			) : (
 				<>
@@ -373,6 +252,18 @@ const StripeSetup = () => {
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</div>
+			{ displayStripeSettingsOnly && (
+				<ActionCard
+					title={ __( 'Webhooks', 'newspack' ) }
+					titleLink="#/stripe-webhooks"
+					href="#/stripe-webhooks"
+					description={ __(
+						'Manage the webhooks Stripe uses to communicate with your site.',
+						'newspack'
+					) }
+					actionText={ __( 'Edit', 'newspack' ) }
+				/>
+			) }
 		</>
 	);
 };

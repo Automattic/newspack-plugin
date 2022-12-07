@@ -42,6 +42,13 @@ const ReaderRevenueWizard = () => {
 			isHidden: usedPlatform !== NEWSPACK && usedPlatform !== STRIPE,
 		},
 		{
+			label: __( 'Stripe Webhooks', 'newspack' ),
+			path: '/stripe-webhooks',
+			render: Views.StripeWebhooksSettings,
+			isHidden: usedPlatform !== STRIPE,
+			isHiddenInTabbedNavigation: true,
+		},
+		{
 			label: __( 'Emails', 'newspack' ),
 			path: '/emails',
 			render: Views.Emails,
