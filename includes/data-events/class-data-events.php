@@ -110,7 +110,7 @@ final class Data_Events {
 		/**
 		 * Fires after all global and action-specific handlers have been executed.
 		 *
-		 * The dynamic portion of the hook name, `$action_name`, refers to th name
+		 * The dynamic portion of the hook name, `$action_name`, refers to the name
 		 * of the action being fired.
 		 *
 		 * @param int    $timestamp   Timestamp.
@@ -215,7 +215,7 @@ final class Data_Events {
 		}
 
 		/**
-		 * Fires when and action is dispatched. This occurs before any handlers are
+		 * Fires when an action is dispatched. This occurs before any handlers are
 		 * executed.
 		 *
 		 * @param string $action_name Action name.
@@ -226,10 +226,10 @@ final class Data_Events {
 		do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
 
 		/**
-		 * Fires when and action is dispatched. This occurs before any handlers are
+		 * Fires when an action is dispatched. This occurs before any handlers are
 		 * executed.
 		 *
-		 * The dynamic portion of the hook name, `$action_name`, refers to th name
+		 * The dynamic portion of the hook name, `$action_name`, refers to the name
 		 * of the action being fired.
 		 *
 		 * @param string $action_name Action name.
