@@ -261,7 +261,7 @@ final class Data_Events {
 				'blocking'  => false,
 				'body'      => $body,
 				'cookies'   => $_COOKIE, // phpcs:ignore
-				'sslverify' => false,
+				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
 			]
 		);
 	}
