@@ -19,6 +19,11 @@ final class Data_Events {
 	const ACTION = 'newspack_data_event';
 
 	/**
+	 * Header to be used while logging.
+	 */
+	const LOGGER_HEADER = 'NEWSPACK-DATA-EVENTS';
+
+	/**
 	 * Registered callable handlers, keyed by their action name.
 	 *
 	 * @var callable[]
@@ -75,25 +80,31 @@ final class Data_Events {
 	 */
 	public static function handle( $action_name, $timestamp, $data, $client_id ) {
 		// Execute global handlers.
-		Logger::log( 'Executing global action handlers.' );
+		Logger::log(
+			sprintf( 'Executing global action handlers for %s.', $action_name ),
+			self::LOGGER_HEADER
+		);
 		foreach ( self::$global_handlers as $handler ) {
 			try {
 				call_user_func( $handler, $action_name, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
 				// Catch fatal errors so it doesn't disrupt other handlers.
-				Logger::error( $e->getMessage() );
+				Logger::error( $e->getMessage(), self::LOGGER_HEADER );
 			}
 		}
 
 		// Execute action handlers.
-		Logger::log( 'Executing action handler: ' . $action_name );
+		Logger::log(
+			sprintf( 'Executing action handlers for %s.', $action_name ),
+			self::LOGGER_HEADER
+		);
 		$handlers = self::get_action_handlers( $action_name );
 		foreach ( $handlers as $handler ) {
 			try {
 				call_user_func( $handler, $timestamp, $data, $client_id );
 			} catch ( \Throwable $e ) {
 				// Catch fatal errors so it doesn't disrupt other handlers.
-				Logger::error( $e->getMessage() );
+				Logger::error( $e->getMessage(), self::LOGGER_HEADER );
 			}
 		}
 
@@ -238,6 +249,11 @@ final class Data_Events {
 		if ( $use_client_id ) {
 			$client_id = Reader_Activation::get_client_id();
 		}
+
+		Logger::log(
+			sprintf( 'Dispatching action %s ', $action_name ),
+			self::LOGGER_HEADER
+		);
 
 		/**
 		 * Fires when an action is dispatched. This occurs before any handlers are
