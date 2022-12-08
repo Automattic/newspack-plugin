@@ -97,9 +97,27 @@ final class Data_Events {
 			}
 		}
 
-		// Execute WP hooks.
-		do_action( self::ACTION, $action_name, $timestamp, $data, $client_id );
-		do_action( self::ACTION . '_' . $action_name, $timestamp, $data, $client_id );
+		/**
+		 * Fires after all global and action-specific handlers have been executed.
+		 *
+		 * @param string $action_name Action name.
+		 * @param int    $timestamp   Timestamp.
+		 * @param mixed  $data        Data.
+		 * @param string $client_id   Client ID.
+		 */
+		do_action( 'newspack_data_event', $action_name, $timestamp, $data, $client_id );
+
+		/**
+		 * Fires after all global and action-specific handlers have been executed.
+		 *
+		 * The dynamic portion of the hook name, `$action_name`, refers to th name
+		 * of the action being fired.
+		 *
+		 * @param int    $timestamp   Timestamp.
+		 * @param mixed  $data        Data.
+		 * @param string $client_id   Client ID.
+		 */
+		do_action( 'newspack_data_event_' . $action_name, $timestamp, $data, $client_id );
 	}
 
 	/**
@@ -196,8 +214,29 @@ final class Data_Events {
 			$client_id = Reader_Activation::get_client_id();
 		}
 
+		/**
+		 * Fires when and action is dispatched. This occurs before any handlers are
+		 * executed.
+		 *
+		 * @param string $action_name Action name.
+		 * @param int    $timestamp   Timestamp.
+		 * @param mixed  $data        Data.
+		 * @param string $client_id   Client ID.
+		 */
 		do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
 
+		/**
+		 * Fires when and action is dispatched. This occurs before any handlers are
+		 * executed.
+		 *
+		 * The dynamic portion of the hook name, `$action_name`, refers to th name
+		 * of the action being fired.
+		 *
+		 * @param string $action_name Action name.
+		 * @param int    $timestamp   Timestamp.
+		 * @param mixed  $data        Data.
+		 * @param string $client_id   Client ID.
+		 */
 		do_action( "newspack_data_event_dispatch_{$action_name}", $timestamp, $data, $client_id );
 
 		$url = \add_query_arg(
