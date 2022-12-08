@@ -81,7 +81,7 @@ final class Data_Events {
 	public static function handle( $action_name, $timestamp, $data, $client_id ) {
 		// Execute global handlers.
 		Logger::log(
-			sprintf( 'Executing global action handlers for %s.', $action_name ),
+			sprintf( 'Executing global action handlers for "%s".', $action_name ),
 			self::LOGGER_HEADER
 		);
 		foreach ( self::$global_handlers as $handler ) {
@@ -95,7 +95,7 @@ final class Data_Events {
 
 		// Execute action handlers.
 		Logger::log(
-			sprintf( 'Executing action handlers for %s.', $action_name ),
+			sprintf( 'Executing action handlers for "%s".', $action_name ),
 			self::LOGGER_HEADER
 		);
 		$handlers = self::get_action_handlers( $action_name );
@@ -191,8 +191,8 @@ final class Data_Events {
 				}
 				self::dispatch( $action_name, $data );
 			},
-			10,
-			PHP_INT_MAX
+			PHP_INT_MAX, // We want dispatches to be executed last so that any modified data is available.
+			PHP_INT_MAX // The handler should receive all arguments of a hook.
 		);
 	}
 
@@ -251,7 +251,7 @@ final class Data_Events {
 		}
 
 		Logger::log(
-			sprintf( 'Dispatching action %s ', $action_name ),
+			sprintf( 'Dispatching action "%s".', $action_name ),
 			self::LOGGER_HEADER
 		);
 
