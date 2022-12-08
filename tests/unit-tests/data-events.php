@@ -177,4 +177,42 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		$this->assertEquals( $data, $handler_data['args'][2] );
 		$this->assertEquals( $client_id, $handler_data['args'][3] );
 	}
+
+	/**
+	 * Test registering a listener.
+	 */
+	public function test_register_listener() {
+		$action_name = 'test_action';
+		Data_Events::register_listener( 'some_actionable_thing', $action_name );
+		do_action( 'some_actionable_thing', 'data' );
+		$this->assertEquals( 1, did_action( "newspack_data_event_dispatch_$action_name" ) );
+	}
+
+	/**
+	 * Test registering a listener with a filter.
+	 */
+	public function test_register_listener_with_filter() {
+		$action_name = 'test_action';
+		Data_Events::register_listener(
+			'some_actionable_thing',
+			$action_name,
+			function( $data ) {
+				return $data . ' was parsed';
+			}
+		);
+
+		$parsed_data = '';
+		add_action(
+			"newspack_data_event_dispatch_$action_name",
+			function( $timestamp, $data, $client_id ) use ( &$parsed_data ) {
+				$parsed_data = $data;
+			},
+			10,
+			3
+		);
+
+		do_action( 'some_actionable_thing', 'data' );
+
+		$this->assertEquals( 'data was parsed', $parsed_data );
+	}
 }

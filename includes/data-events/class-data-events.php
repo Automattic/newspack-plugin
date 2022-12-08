@@ -161,6 +161,31 @@ final class Data_Events {
 	}
 
 	/**
+	 * Register a listener so it dispatches an action when a WordPress hook is fired.
+	 *
+	 * @param string   $hook_name   WordPress hook name.
+	 * @param string   $action_name Action name.
+	 * @param callable $callable    Optional callable to filter the data passed to dispatch.
+	 */
+	public static function register_listener( $hook_name, $action_name, $callable = null ) {
+		self::register_action( $action_name );
+		\add_action(
+			$hook_name,
+			function() use ( $action_name, $callable ) {
+				$args = func_get_args();
+				if ( is_callable( $callable ) ) {
+					$data = call_user_func_array( $callable, $args );
+				} else {
+					$data = $args;
+				}
+				self::dispatch( $action_name, $data );
+			},
+			10,
+			PHP_INT_MAX
+		);
+	}
+
+	/**
 	 * Get a list of all registered actions.
 	 *
 	 * @return string[] Registered actions.
