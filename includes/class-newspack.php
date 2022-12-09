@@ -336,6 +336,14 @@ final class Newspack {
 		);
 		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-commons' );
+
+		\wp_enqueue_style(
+			'newspack-admin',
+			self::plugin_url() . '/dist/admin.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+
 	}
 }
 Newspack::instance();
