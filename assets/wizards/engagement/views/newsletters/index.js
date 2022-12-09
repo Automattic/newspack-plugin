@@ -8,7 +8,7 @@ import { values, mapValues, property, isEmpty, once } from 'lodash';
  */
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { CheckboxControl, TextareaControl, ExternalLink } from '@wordpress/components';
 
 /**
@@ -29,7 +29,12 @@ import {
 	withWizardScreen,
 } from '../../../../components/src';
 
-export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true } ) => {
+export const NewspackNewsletters = ( {
+	className,
+	onUpdate,
+	authUrl = false,
+	isOnboarding = true,
+} ) => {
 	const [ error, setError ] = useState();
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
 	const performConfigUpdate = update => {
@@ -44,6 +49,21 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 		} )
 			.then( performConfigUpdate )
 			.catch( setError );
+	};
+	const getSelectedProviderName = () => {
+		const configItem = config.settings.newspack_newsletters_service_provider;
+		const value = configItem?.value;
+		return configItem?.options?.find( option => option.value === value )?.name;
+	};
+	const handleAuth = () => {
+		if ( authUrl ) {
+			const authWindow = window.open( authUrl, 'esp_oauth', 'width=500,height=600' );
+			authWindow.opener = {
+				verify: once( () => {
+					window.location.reload();
+				} ),
+			};
+		}
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
@@ -63,6 +83,21 @@ export const NewspackNewsletters = ( { className, onUpdate, isOnboarding = true 
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
 			<Grid gutter={ 16 } columns={ 1 }>
+				{ false !== authUrl && (
+					<Card isSmall>
+						<h3>{ __( 'Authorize Application', 'newspack' ) }</h3>
+						<p>
+							{ sprintf(
+								// translators: %s is the name of the ESP.
+								__( 'Authorize %s to connect to Newspack.', 'newspack-newsletters' ),
+								getSelectedProviderName()
+							) }
+						</p>
+						<Button isSecondary onClick={ handleAuth }>
+							{ __( 'Authorize', 'newspack' ) }
+						</Button>
+					</Card>
+				) }
 				{ values( config.settings )
 					.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
 					.map( setting => {
@@ -251,15 +286,6 @@ const Newsletters = () => {
 				setAuthUrl( false );
 			} );
 	};
-	const onAuthorize = () => {
-		location.reload();
-	};
-	const handleAuth = () => {
-		if ( authUrl ) {
-			const authWindow = window.open( authUrl, 'esp_oauth', 'width=500,height=600' );
-			authWindow.opener = { verify: once( onAuthorize ) };
-		}
-	};
 	useEffect( () => {
 		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
@@ -283,23 +309,10 @@ const Newsletters = () => {
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</Card>
-			{ false !== authUrl && (
-				<Card isSmall>
-					<h3>{ __( 'Authorize Application', 'newspack' ) }</h3>
-					<p>
-						{ __(
-							'To use this provider, you must first authorize the application.',
-							'newspack-newsletters'
-						) }
-					</p>
-					<Button isSecondary onClick={ handleAuth }>
-						{ __( 'Authorize', 'newspack' ) }
-					</Button>
-				</Card>
-			) }
 			<NewspackNewsletters
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
+				authUrl={ authUrl }
 			/>
 			{ lockedLists ? (
 				<Notice
