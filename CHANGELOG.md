@@ -1,18 +1,16 @@
-# [1.98.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.98.0-alpha.2...v1.98.0-alpha.3) (2022-12-05)
+## [1.97.3](https://github.com/Automattic/newspack-plugin/compare/v1.97.2...v1.97.3) (2022-12-09)
 
 
 ### Bug Fixes
 
-* logic to update existing contact on subscription cancellation or deletion ([#2165](https://github.com/Automattic/newspack-plugin/issues/2165)) ([68d7d30](https://github.com/Automattic/newspack-plugin/commit/68d7d3093701635a85a4f2a4a70b5e7ee528ad1c))
+* **stripe:** force sync'd subscriptions to manual renewal ([7151986](https://github.com/Automattic/newspack-plugin/commit/715198610d0139fa74181cc2b8cb54c7ad64c085))
 
-# [1.98.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.98.0-alpha.1...v1.98.0-alpha.2) (2022-12-02)
+## [1.97.3-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.97.2...v1.97.3-hotfix.1) (2022-12-07)
 
 
 ### Bug Fixes
 
-* fatal if no woo ([#2163](https://github.com/Automattic/newspack-plugin/issues/2163)) ([5284e5b](https://github.com/Automattic/newspack-plugin/commit/5284e5b7dcef6e94fa857ce4631f732e55a29d20))
-* force release ([4cb3762](https://github.com/Automattic/newspack-plugin/commit/4cb37621dd768d508e18db1c93ec075efea04cc9))
-* improved existing Woo user subs handling ([#2162](https://github.com/Automattic/newspack-plugin/issues/2162)) ([bdc25f5](https://github.com/Automattic/newspack-plugin/commit/bdc25f586ea2e8d989edd5e63cd718f2d6785f7d))
+* **stripe:** force sync'd subscriptions to manual renewal ([7151986](https://github.com/Automattic/newspack-plugin/commit/715198610d0139fa74181cc2b8cb54c7ad64c085))
 
 ## [1.97.2](https://github.com/Automattic/newspack-plugin/compare/v1.97.1...v1.97.2) (2022-12-02)
 
