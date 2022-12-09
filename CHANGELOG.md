@@ -1,3 +1,10 @@
+# [1.98.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.98.0-alpha.3...v1.98.0-alpha.4) (2022-12-09)
+
+
+### Bug Fixes
+
+* **stripe:** force sync'd subscriptions to manual renewal ([7151986](https://github.com/Automattic/newspack-plugin/commit/715198610d0139fa74181cc2b8cb54c7ad64c085))
+
 ## [1.97.3](https://github.com/Automattic/newspack-plugin/compare/v1.97.2...v1.97.3) (2022-12-09)
 
 
