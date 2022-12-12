@@ -277,8 +277,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 
 		add_filter(
 			'pre_http_request',
-			function() use ( &$retries ) {
-				$retries++;
+			function() {
 				return [
 					'response' => [
 						'code' => 500,
@@ -297,9 +296,13 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 					'edit_date'     => true,
 				]
 			);
+			$status = 'future';
+			if ( $max_retries === $retries ) {
+				$status = 'trash';
+			}
+			$this->assertEquals( $status, get_post_status( $requests[0] ) );
+			$retries++;
 		}
-
-		$this->assertEquals( 'trash', get_post_status( $requests[0] ) );
 
 		$endpoints = Data_Events\Webhooks::get_endpoints();
 		$this->assertTrue( $endpoints[0]['disabled'] );
