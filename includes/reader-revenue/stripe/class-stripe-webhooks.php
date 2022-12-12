@@ -151,6 +151,16 @@ class Stripe_Webhooks {
 						if ( isset( $customer['metadata']['current_page_url'] ) ) {
 							$contact['metadata']['current_page_url'] = $customer['metadata']['current_page_url'];
 						}
+						if ( isset( $customer['metadata']['_additional_fields'] ) ) {
+							try {
+								$additional_fields = json_decode( $customer['metadata']['_additional_fields'], true );
+								foreach ( $additional_fields as $key => $value ) {
+									$contact['metadata'][ $key ] = $value;
+								}
+							} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+								// Fail silently.
+							}
+						}
 
 						if ( Donations::is_woocommerce_suite_active() ) {
 							$wc_product_id = Donations::get_donation_product( $frequency );
