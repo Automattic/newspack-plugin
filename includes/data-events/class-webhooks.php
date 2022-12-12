@@ -413,9 +413,10 @@ final class Webhooks {
 	 * @param int $delay      Delay in minutes. Default is 1 minute.
 	 */
 	private static function schedule_request( $request_id, $delay = 1 ) {
-		$date     = date( 'Y-m-d H:i:s', strtotime( "+{$delay} minutes" ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$time     = strtotime( sprintf( '+%d minutes', \absint( $delay ) ) );
+		$date     = date( 'Y-m-d H:i:s', $time ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		$date_gmt = gmdate( 'Y-m-d H:i:s', strtotime( $date ) );
-		Logger::log( "Scheduling request {$request_id} for {$date}.", self::LOGGER_HEADER );
+		Logger::log( "Scheduling request {$request_id} for {$date_gmt}.", self::LOGGER_HEADER );
 		\wp_update_post(
 			[
 				'ID'            => $request_id,
