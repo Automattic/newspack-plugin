@@ -340,14 +340,15 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 
 		$this->assertEquals( 10, count( $requests ) );
 
-		// Manually publish each request and pretend it happened 10 days ago.
-		foreach ( $requests as $request ) {
+		// Manually publish each request and pretend half happened 10 days ago.
+		foreach ( $requests as $i => $request ) {
+			$date = gmdate( 'Y-m-d H:i:s', $i % 2 ? strtotime( '10 days ago' ) : time() );
 			wp_update_post(
 				[
 					'ID'            => $request->ID,
 					'post_status'   => 'publish',
-					'post_date'     => gmdate( 'Y-m-d H:i:s', strtotime( '-10 days' ) ),
-					'post_date_gmt' => gmdate( 'Y-m-d H:i:s', strtotime( '-10 days' ) ),
+					'post_date'     => $date, // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+					'post_date_gmt' => $date,
 					'edit_date'     => true,
 				]
 			);
@@ -363,6 +364,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			]
 		);
 
-		$this->assertEquals( 0, count( $requests ) );
+		// Half should've been deleted.
+		$this->assertEquals( 5, count( $requests ) );
 	}
 }

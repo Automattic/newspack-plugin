@@ -131,8 +131,10 @@ final class Webhooks {
 				'posts_per_page' => 100,
 				'fields'         => 'ids',
 				'date_query'     => [
-					'column' => 'post_date_gmt',
-					'before' => self::DELETE_REQUESTS_BEFORE,
+					[
+						'column' => 'post_date_gmt',
+						'before' => self::DELETE_REQUESTS_BEFORE,
+					],
 				],
 			]
 		);
