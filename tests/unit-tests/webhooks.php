@@ -347,7 +347,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 				[
 					'ID'            => $request->ID,
 					'post_status'   => 'publish',
-					'post_date'     => $date, // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+					'post_date'     => $date,
 					'post_date_gmt' => $date,
 					'edit_date'     => true,
 				]
