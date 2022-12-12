@@ -24,6 +24,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		$requests = get_posts(
 			[
 				'post_type'      => Data_Events\Webhooks::REQUEST_POST_TYPE,
+				'post_status'    => 'any',
 				'posts_per_page' => -1,
 			]
 		);
@@ -302,5 +303,63 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 
 		$endpoints = Data_Events\Webhooks::get_endpoints();
 		$this->assertTrue( $endpoints[0]['disabled'] );
+	}
+
+	/**
+	 * Test that finished requests older than 7 days should be deleted.
+	 */
+	public function test_finished_request_deletion() {
+		// Create an endpoint.
+		$endpoint_id = $this->test_create_endpoint();
+
+		add_filter(
+			'pre_http_request',
+			function() {
+				return [
+					'response' => [
+						'code' => 200,
+					],
+				];
+			}
+		);
+
+		for ( $i = 0; $i < 10; $i++ ) {
+			$this->dispatch_event();
+		}
+
+		$requests = get_posts(
+			[
+				'post_type'      => Data_Events\Webhooks::REQUEST_POST_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+			]
+		);
+
+		$this->assertEquals( 10, count( $requests ) );
+
+		// Manually publish each request and pretend it happened 10 days ago.
+		foreach ( $requests as $request ) {
+			wp_update_post(
+				[
+					'ID'            => $request->ID,
+					'post_status'   => 'publish',
+					'post_date'     => gmdate( 'Y-m-d H:i:s', strtotime( '-10 days' ) ),
+					'post_date_gmt' => gmdate( 'Y-m-d H:i:s', strtotime( '-10 days' ) ),
+					'edit_date'     => true,
+				]
+			);
+		}
+
+		Data_Events\Webhooks::clear_finished();
+
+		$requests = get_posts(
+			[
+				'post_type'      => Data_Events\Webhooks::REQUEST_POST_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+			]
+		);
+
+		$this->assertEquals( 0, count( $requests ) );
 	}
 }

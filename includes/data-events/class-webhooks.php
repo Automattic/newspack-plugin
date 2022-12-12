@@ -31,6 +31,11 @@ final class Webhooks {
 	const MAX_RETRIES = 12;
 
 	/**
+	 * Time to retain finished requests.
+	 */
+	const DELETE_REQUESTS_BEFORE = '7 days ago';
+
+	/**
 	 * Header to be used while logging.
 	 */
 	const LOGGER_HEADER = 'NEWSPACK-WEBHOOKS';
@@ -41,6 +46,7 @@ final class Webhooks {
 	public static function init() {
 		\add_action( 'init', [ __CLASS__, 'register_request_post_type' ] );
 		\add_action( 'init', [ __CLASS__, 'register_endpoint_taxonomy' ] );
+		\add_action( 'init', [ __CLASS__, 'register_cron_events' ] );
 		\add_action( 'newspack_data_event_dispatch', [ __CLASS__, 'handle_dispatch' ], 10, 4 );
 		\add_action( 'transition_post_status', [ __CLASS__, 'transition_post_status' ], 10, 3 );
 	}
@@ -89,6 +95,52 @@ final class Webhooks {
 				'show_in_rest' => false,
 			]
 		);
+	}
+
+	/**
+	 * Register webhook cron events.
+	 *
+	 * "clear_finished": Twice a day will permanently delete finished webhook
+	 * requests older than 7 days.
+	 */
+	public static function register_cron_events() {
+		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
+		\add_action( 'newspack_data_events_webhooks_clear_finished', [ __CLASS__, 'clear_finished' ] );
+		if ( ! \wp_next_scheduled( 'newspack_data_events_webhooks_clear_finished' ) ) {
+			\wp_schedule_event( time(), 'twicedaily', 'newspack_data_events_webhooks_clear_finished' );
+		}
+	}
+
+	/**
+	 * Clear cron events.
+	 */
+	public static function clear_cron_events() {
+		$timestamp = \wp_next_scheduled( 'newspack_data_events_webhooks_clear_finished' );
+		\wp_unschedule_event( $timestamp, 'newspack_data_events_webhooks_clear_finished' );
+	}
+
+	/**
+	 * Permanently delete finished webhook requests older than
+	 * "DELETE_REQUESTS_BEFORE".
+	 */
+	public static function clear_finished() {
+		$requests = \get_posts(
+			[
+				'post_type'      => self::REQUEST_POST_TYPE,
+				'post_status'    => 'publish',
+				'posts_per_page' => 100,
+				'fields'         => 'ids',
+				'date_query'     => [
+					'column' => 'post_date_gmt',
+					'before' => self::DELETE_REQUESTS_BEFORE,
+				],
+			]
+		);
+		foreach ( $requests as $request_id ) {
+			if ( 'finished' === \get_post_meta( $request_id, 'status', true ) ) {
+				\wp_delete_post( $request_id, true );
+			}
+		}
 	}
 
 	/**
