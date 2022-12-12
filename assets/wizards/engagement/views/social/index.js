@@ -13,6 +13,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { ActionCard, withWizardScreen } from '../../../../components/src';
 import MetaPixel from './meta-pixel';
+import TwitterPixel from './twitter-pixel';
+
 /**
  * Social Screen
  */
@@ -34,6 +36,7 @@ class Social extends Component {
 					editLink="admin.php?page=jetpack#/sharing"
 				/>
 				<MetaPixel />
+				<TwitterPixel />
 			</>
 		);
 	}

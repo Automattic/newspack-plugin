@@ -6,6 +6,11 @@ import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/compone
 import { useDispatch } from '@wordpress/data';
 
 /**
+ * External dependencies
+ */
+import { isEmpty } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import {
@@ -147,7 +152,7 @@ const StripeSetup = () => {
 			) }
 			{ displayStripeSettingsOnly ? (
 				<>
-					{ data.connection_error !== false && (
+					{ ! isEmpty( data.connection_error ) && (
 						<Notice isError noticeText={ data.connection_error } />
 					) }
 					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 } gutter={ 16 } noBorder>

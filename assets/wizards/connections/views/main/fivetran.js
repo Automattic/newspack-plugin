@@ -104,7 +104,7 @@ const FivetranConnection = ( { setError } ) => {
 		<>
 			<div>
 				{ __( 'In order to use the this features, you must read and accept', 'newspack' ) }{ ' ' }
-				<a href="https://newspack.pub/terms-of-service/">
+				<a href="https://newspack.com/terms-of-service/">
 					{ __( 'Newspack Terms of Service', 'newspack' ) }
 				</a>
 				:
