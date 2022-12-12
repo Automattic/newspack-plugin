@@ -8,16 +8,32 @@
 namespace Newspack\Data_Events;
 
 use Newspack\Logger;
+use WP_Error;
 
 /**
  * Main class.
  */
 final class Webhooks {
 
+	/**
+	 * Webhook request post type.
+	 */
 	const REQUEST_POST_TYPE = 'np_webhook_request';
+
+	/**
+	 * Webhook endpoint taxonomy.
+	 */
 	const ENDPOINT_TAXONOMY = 'np_webhook_endpoint';
-	const MAX_RETRIES       = 12;
-	const LOGGER_HEADER     = 'NEWSPACK-WEBHOOKS';
+
+	/**
+	 * Maximum number of request retries before disabling the endpoint.
+	 */
+	const MAX_RETRIES = 12;
+
+	/**
+	 * Header to be used while logging.
+	 */
+	const LOGGER_HEADER = 'NEWSPACK-WEBHOOKS';
 
 	/**
 	 * Initialize hooks.
@@ -76,44 +92,102 @@ final class Webhooks {
 	}
 
 	/**
-	 * Update a webhook endpoint.
+	 * Create a webhook endpoint.
 	 *
 	 * @param string $url     Endpoint URL.
 	 * @param array  $actions Array of action names.
 	 * @param bool   $global  Whether the endpoint should be triggered for all actions.
 	 *
-	 * @return array|\WP_Error
+	 * @return int|WP_Error Endpoint ID or error.
 	 */
-	public static function update_endpoint( $url, $actions = [], $global = false ) {
-		$endpoint = get_term_by( 'name', $url, self::ENDPOINT_TAXONOMY, ARRAY_A );
-		if ( ! $endpoint ) {
-			$endpoint = \wp_insert_term(
-				$url,
-				self::ENDPOINT_TAXONOMY,
-				[
-					'description' => $url,
-				]
-			);
+	public static function create_endpoint( $url, $actions = [], $global = false ) {
+		$endpoint = \wp_insert_term(
+			$url,
+			self::ENDPOINT_TAXONOMY,
+			[
+				'description' => $url,
+			]
+		);
+		if ( is_wp_error( $endpoint ) ) {
+			return $endpoint;
 		}
 		\update_term_meta( $endpoint['term_id'], 'actions', $actions );
 		\update_term_meta( $endpoint['term_id'], 'global', $global );
+		return $endpoint['term_id'];
+	}
+
+	/**
+	 * Update a webhook endpoint.
+	 *
+	 * @param int    $id       Endpoint ID.
+	 * @param string $url      Endpoint URL.
+	 * @param array  $actions  Array of action names.
+	 * @param bool   $global   Whether the endpoint should be triggered for all actions.
+	 * @param bool   $disabled Whether the endpoint is disabled.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function update_endpoint( $id, $url, $actions = [], $global = false, $disabled = false ) {
+		$endpoint = \get_term( $id, self::ENDPOINT_TAXONOMY, ARRAY_A );
+		if ( ! $endpoint ) {
+			return new WP_Error( 'newspack_webhook_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+		}
+		$endpoint = \wp_update_term(
+			$id,
+			self::ENDPOINT_TAXONOMY,
+			[
+				'name'        => $url,
+				'description' => $url,
+			]
+		);
+		\update_term_meta( $endpoint['term_id'], 'actions', $actions );
+		\update_term_meta( $endpoint['term_id'], 'global', $global );
+		\update_term_meta( $endpoint['term_id'], 'disabled', $disabled );
 		return $endpoint;
 	}
 
 	/**
 	 * Delete a webhook endpoint.
 	 *
+	 * @param int $id Endpoint ID.
+	 *
+	 * @return void|WP_Error Error if endpoint not found.
+	 */
+	public static function delete_endpoint( $id ) {
+		$endpoint = get_term( $id, self::ENDPOINT_TAXONOMY );
+		if ( ! $endpoint ) {
+			return new WP_Error( 'newspack_webhook_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+		}
+		\wp_delete_term( $id, self::ENDPOINT_TAXONOMY );
+	}
+
+	/**
+	 * Disable a webhook endpoint.
+	 *
+	 * @param int $id Endpoint ID.
+	 */
+	public static function disable_endpoint( $id ) {
+		$endpoint = \get_term( $id, self::ENDPOINT_TAXONOMY );
+		if ( ! $endpoint ) {
+			return;
+		}
+		\update_term_meta( $id, 'disabled', true );
+	}
+
+	/**
+	 * Whether an endpoint is disabled.
+	 *
 	 * @param string $url Endpoint URL.
 	 *
-	 * @return void|\WP_Error Error if endpoint not found.
+	 * @return bool
 	 */
-	public static function delete_endpoint( $url ) {
-		$endpoint = get_term_by( 'name', $url, self::ENDPOINT_TAXONOMY );
+	public static function is_endpoint_disabled( $url ) {
+		$endpoint = \get_term_by( 'name', $url, self::ENDPOINT_TAXONOMY );
 		if ( ! $endpoint ) {
-			return new \WP_Error( 'newspack_webhook_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+			return false;
 		}
 		$endpoint_id = $endpoint->term_id;
-		\wp_delete_term( $endpoint_id, self::ENDPOINT_TAXONOMY );
+		return (bool) \get_term_meta( $endpoint_id, 'disabled', true );
 	}
 
 	/**
@@ -122,14 +196,15 @@ final class Webhooks {
 	 * @return array Array of endpoints.
 	 */
 	public static function get_endpoints() {
-		$endpoints = get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
+		$endpoints = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
 		return array_map(
 			function( $endpoint ) {
 				return [
-					'id'      => $endpoint->term_id,
-					'url'     => $endpoint->name,
-					'actions' => get_term_meta( $endpoint->term_id, 'actions', true ),
-					'global'  => get_term_meta( $endpoint->term_id, 'global', true ),
+					'id'       => $endpoint->term_id,
+					'url'      => $endpoint->name,
+					'actions'  => \get_term_meta( $endpoint->term_id, 'actions', true ),
+					'global'   => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
+					'disabled' => (bool) \get_term_meta( $endpoint->term_id, 'disabled', true ),
 				];
 			},
 			$endpoints
@@ -149,7 +224,7 @@ final class Webhooks {
 			array_filter(
 				$endpoints,
 				function( $endpoint ) use ( $action_name ) {
-					return $endpoint['global'] || in_array( $action_name, $endpoint['actions'], true );
+					return ! $endpoint['disabled'] && ( $endpoint['global'] || in_array( $action_name, $endpoint['actions'], true ) );
 				}
 			)
 		);
@@ -164,7 +239,7 @@ final class Webhooks {
 	 * @param array  $data        Data.
 	 * @param string $client_id   Client ID.
 	 *
-	 * @return int|\WP_Error.
+	 * @return int|WP_Error.
 	 */
 	private static function create_request( $endpoint_id, $action_name, $timestamp, $data, $client_id ) {
 		$request_id = \wp_insert_post(
@@ -175,19 +250,21 @@ final class Webhooks {
 			true
 		);
 
-		if ( is_wp_error( $request_id ) ) {
+		if ( \is_wp_error( $request_id ) ) {
+			Logger::error( 'Error creating webhook request: ' . $request_id->get_error_message(), self::LOGGER_HEADER );
 			return $request_id;
 		}
 
 		\wp_set_object_terms( $request_id, $endpoint_id, self::ENDPOINT_TAXONOMY );
 
 		$body = [
-			'timestamp' => $timestamp,
-			'action'    => $action_name,
-			'data'      => $data,
-			'client_id' => $client_id,
+			'request_id' => $request_id,
+			'timestamp'  => $timestamp,
+			'action'     => $action_name,
+			'data'       => $data,
+			'client_id'  => $client_id,
 		];
-		\update_post_meta( $request_id, 'body', wp_json_encode( $body ) );
+		\update_post_meta( $request_id, 'body', \wp_json_encode( $body ) );
 		\update_post_meta( $request_id, 'action_name', $action_name );
 		\update_post_meta( $request_id, 'client_id', $action_name );
 
@@ -245,24 +322,18 @@ final class Webhooks {
 	}
 
 	/**
-	 * Handle post status transition for scheduled requests.
-	 *
-	 * This is executed after the post is updated.
-	 *
-	 * Scheduling a post (future -> publish) does not trigger the
-	 * `pre_post_update` action hook because it uses the `wp_publish_post()`
-	 * function. Unfortunately, this function does not fire any action hook prior
-	 * to updating the post, so we need to handle it after the post is published.
+	 * Handle webhook request status transition for processing scheduled requests.
 	 *
 	 * @param string  $new_status New post status.
 	 * @param string  $old_status Old post status.
 	 * @param WP_Post $post       Post object.
 	 */
 	public static function transition_post_status( $new_status, $old_status, $post ) {
-		if ( self::REQUEST_POST_TYPE !== $post->post_type ) {
-			return;
-		}
-		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
+		if (
+			self::REQUEST_POST_TYPE === $post->post_type &&
+			'publish' === $new_status &&
+			'publish' !== $old_status
+		) {
 			self::process_request( $post->ID );
 		}
 	}
@@ -320,6 +391,7 @@ final class Webhooks {
 	private static function process_request( $request_id ) {
 		$endpoint = self::get_request_endpoint( $request_id );
 		if ( ! $endpoint ) {
+			self::add_request_error( $request_id, __( 'Endpoint not found.', 'newspack' ) );
 			self::kill_request( $request_id );
 		}
 
@@ -349,24 +421,31 @@ final class Webhooks {
 	 *
 	 * @param int $request_id Request ID.
 	 *
-	 * @return array|WP_Error
+	 * @return true|WP_Error True if successful, WP_Error if not.
 	 */
 	private static function send_request( $request_id ) {
 		Logger::log( "Sending request {$request_id}", self::LOGGER_HEADER );
 		$endpoint = self::get_request_endpoint( $request_id );
 		if ( ! $endpoint ) {
-			return new \WP_Error( 'endpoint_not_found', __( 'Endpoint not registered', 'newspack' ) );
+			return new WP_Error( 'endpoint_not_found', __( 'Endpoint not registered', 'newspack' ) );
 		}
 
 		$url  = $endpoint['url'];
 		$body = \get_post_meta( $request_id, 'body', true );
+
+		/**
+		 * Filters the timeout for webhook requests.
+		 *
+		 * @param int $request_timeout Timeout in seconds. Default is 10.
+		 */
+		$timeout = apply_filters( 'newspack_webhook_request_timeout', 10 );
 
 		$args = [
 			'method'  => 'POST',
 			'headers' => [
 				'Content-Type' => 'application/json',
 			],
-			'timeout' => apply_filters( 'newspack_webhook_request_timeout', 10 ),
+			'timeout' => $timeout,
 			'body'    => $body,
 		];
 
@@ -376,10 +455,10 @@ final class Webhooks {
 		}
 
 		if ( ! $response['response']['code'] || $response['response']['code'] < 200 || $response['response']['code'] >= 300 ) {
-			return new \WP_Error( 'request_failed', __( 'Client did not respond with 2xx code.', 'newspack' ) );
+			return new WP_Error( 'request_failed', __( 'Client did not respond with 2xx code.', 'newspack' ) );
 		}
 
-		return $response;
+		return true;
 	}
 
 	/**
@@ -401,6 +480,11 @@ final class Webhooks {
 			$requests[] = self::create_request( $endpoint['id'], $action_name, $timestamp, $data, $client_id );
 		}
 
+		/**
+		 * Fires after webhook requests are created for a data event dispatch.
+		 *
+		 * @param int|WP_Error[] $requests Array of request IDs.
+		 */
 		\do_action( 'newspack_data_events_webhook_requests_created', $requests );
 	}
 }
