@@ -105,9 +105,9 @@ final class Webhooks {
 	 */
 	public static function register_cron_events() {
 		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
-		\add_action( 'newspack_data_events_webhooks_clear_finished', [ __CLASS__, 'clear_finished' ] );
-		if ( ! \wp_next_scheduled( 'newspack_data_events_webhooks_clear_finished' ) ) {
-			\wp_schedule_event( time(), 'twicedaily', 'newspack_data_events_webhooks_clear_finished' );
+		\add_action( 'newspack_webhooks_clear_finished', [ __CLASS__, 'clear_finished' ] );
+		if ( ! \wp_next_scheduled( 'newspack_webhooks_clear_finished' ) ) {
+			\wp_schedule_event( time(), 'twicedaily', 'newspack_webhooks_clear_finished' );
 		}
 	}
 
@@ -115,8 +115,8 @@ final class Webhooks {
 	 * Clear cron events.
 	 */
 	public static function clear_cron_events() {
-		$timestamp = \wp_next_scheduled( 'newspack_data_events_webhooks_clear_finished' );
-		\wp_unschedule_event( $timestamp, 'newspack_data_events_webhooks_clear_finished' );
+		$timestamp = \wp_next_scheduled( 'newspack_webhooks_clear_finished' );
+		\wp_unschedule_event( $timestamp, 'newspack_webhooks_clear_finished' );
 	}
 
 	/**
@@ -184,7 +184,7 @@ final class Webhooks {
 	public static function update_endpoint( $id, $url, $actions = [], $global = false, $disabled = false ) {
 		$endpoint = \get_term( $id, self::ENDPOINT_TAXONOMY, ARRAY_A );
 		if ( ! $endpoint ) {
-			return new WP_Error( 'newspack_webhook_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+			return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
 		}
 		$endpoint = \wp_update_term(
 			$id,
@@ -210,7 +210,7 @@ final class Webhooks {
 	public static function delete_endpoint( $id ) {
 		$endpoint = get_term( $id, self::ENDPOINT_TAXONOMY );
 		if ( ! $endpoint ) {
-			return new WP_Error( 'newspack_webhook_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+			return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
 		}
 		\wp_delete_term( $id, self::ENDPOINT_TAXONOMY );
 	}
@@ -482,7 +482,7 @@ final class Webhooks {
 		Logger::log( "Sending request {$request_id}", self::LOGGER_HEADER );
 		$endpoint = self::get_request_endpoint( $request_id );
 		if ( ! $endpoint ) {
-			return new WP_Error( 'endpoint_not_found', __( 'Endpoint not registered', 'newspack' ) );
+			return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Endpoint not registered', 'newspack' ) );
 		}
 
 		$url  = $endpoint['url'];
@@ -510,7 +510,7 @@ final class Webhooks {
 		}
 
 		if ( ! $response['response']['code'] || $response['response']['code'] < 200 || $response['response']['code'] >= 300 ) {
-			return new WP_Error( 'request_failed', __( 'Client did not respond with 2xx code.', 'newspack' ) );
+			return new WP_Error( 'newspack_webhooks_request_failed', __( 'Client did not respond with 2xx code.', 'newspack' ) );
 		}
 
 		return true;
@@ -540,7 +540,7 @@ final class Webhooks {
 		 *
 		 * @param int|WP_Error[] $requests Array of request IDs.
 		 */
-		\do_action( 'newspack_data_events_webhook_requests_created', $requests );
+		\do_action( 'newspack_webhooks_requests_created', $requests );
 	}
 }
 Webhooks::init();

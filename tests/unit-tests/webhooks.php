@@ -100,7 +100,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Hook into webhook's handler to assert that the request was created.
 		$requests = [];
 		add_action(
-			'newspack_data_events_webhook_requests_created',
+			'newspack_webhooks_requests_created',
 			function() use ( &$requests ) {
 				$requests = func_get_args()[0];
 			}
@@ -124,7 +124,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Hook into webhook's handler to assert that the request was created.
 		$requests = [];
 		add_action(
-			'newspack_data_events_webhook_requests_created',
+			'newspack_webhooks_requests_created',
 			function() use ( &$requests ) {
 				$requests = func_get_args()[0];
 			}
@@ -145,7 +145,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Hook into webhook's handler to fetch the created request ID.
 		$requests = [];
 		add_action(
-			'newspack_data_events_webhook_requests_created',
+			'newspack_webhooks_requests_created',
 			function() use ( &$requests ) {
 				$requests = func_get_args()[0];
 			}
@@ -168,7 +168,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Hook into webhook's handler to fetch the created request ID.
 		$requests = [];
 		add_action(
-			'newspack_data_events_webhook_requests_created',
+			'newspack_webhooks_requests_created',
 			function() use ( &$requests ) {
 				$requests = func_get_args()[0];
 			}
@@ -220,7 +220,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Hook into webhook's handler to fetch the created request ID.
 		$requests = [];
 		add_action(
-			'newspack_data_events_webhook_requests_created',
+			'newspack_webhooks_requests_created',
 			function() use ( &$requests ) {
 				$requests = func_get_args()[0];
 			}
@@ -264,7 +264,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Hook into webhook's handler to fetch the created request ID.
 		$requests = [];
 		add_action(
-			'newspack_data_events_webhook_requests_created',
+			'newspack_webhooks_requests_created',
 			function() use ( &$requests ) {
 				$requests = func_get_args()[0];
 			}
