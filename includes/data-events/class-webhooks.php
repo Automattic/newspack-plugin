@@ -245,6 +245,29 @@ final class Webhooks {
 	}
 
 	/**
+	 * Get a webhook endpoint array.
+	 *
+	 * @param int|WP_Term $endpoint Endpoint ID or term object.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_endpoint( $endpoint ) {
+		if ( is_int( $endpoint ) ) {
+			$endpoint = \get_term( $endpoint, self::ENDPOINT_TAXONOMY );
+		}
+		if ( ! $endpoint || \is_wp_error( $endpoint ) ) {
+			return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+		}
+		return [
+			'id'       => $endpoint->term_id,
+			'url'      => $endpoint->name,
+			'actions'  => \get_term_meta( $endpoint->term_id, 'actions', true ),
+			'global'   => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
+			'disabled' => (bool) \get_term_meta( $endpoint->term_id, 'disabled', true ),
+		];
+	}
+
+	/**
 	 * Get all webhook endpoints.
 	 *
 	 * @return array Array of endpoints.
@@ -253,13 +276,7 @@ final class Webhooks {
 		$endpoints = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
 		return array_map(
 			function( $endpoint ) {
-				return [
-					'id'       => $endpoint->term_id,
-					'url'      => $endpoint->name,
-					'actions'  => \get_term_meta( $endpoint->term_id, 'actions', true ),
-					'global'   => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
-					'disabled' => (bool) \get_term_meta( $endpoint->term_id, 'disabled', true ),
-				];
+				return self::get_endpoint( $endpoint );
 			},
 			$endpoints
 		);
@@ -352,14 +369,7 @@ final class Webhooks {
 		if ( ! $endpoint_id ) {
 			return null;
 		}
-		$endpoints = self::get_endpoints();
-		$endpoint  = array_filter(
-			$endpoints,
-			function( $endpoint ) use ( $endpoint_id ) {
-				return $endpoint['id'] === $endpoint_id;
-			}
-		);
-		return $endpoint ? array_values( $endpoint )[0] : null;
+		return self::get_endpoint( $endpoint_id );
 	}
 
 	/**
