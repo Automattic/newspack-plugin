@@ -172,11 +172,14 @@ final class Data_Events {
 	}
 
 	/**
-	 * Register a listener so it dispatches an action when a WordPress hook is fired.
+	 * Register a listener so it dispatches an action when a WordPress hook is
+	 * fired.
 	 *
-	 * @param string   $hook_name   WordPress hook name.
-	 * @param string   $action_name Action name.
-	 * @param callable $callable    Optional callable to filter the data passed to dispatch.
+	 * @param string         $hook_name   WordPress hook name.
+	 * @param string         $action_name Action name.
+	 * @param callable|array $callable    Optional callable to filter the data
+	 *                                    passed to dispatch or an array of
+	 *                                    strings to map argument names.
 	 */
 	public static function register_listener( $hook_name, $action_name, $callable = null ) {
 		self::register_action( $action_name );
@@ -186,6 +189,13 @@ final class Data_Events {
 				$args = func_get_args();
 				if ( is_callable( $callable ) ) {
 					$data = call_user_func_array( $callable, $args );
+				} elseif ( is_array( $callable ) ) {
+					$data = [];
+					foreach ( $callable as $i => $key ) {
+						if ( isset( $args[ $i ] ) ) {
+							$data[ $key ] = $args[ $i ];
+						}
+					}
 				} else {
 					$data = $args;
 				}
