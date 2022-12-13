@@ -105,7 +105,7 @@ final class Webhooks {
 	 *
 	 * "send_late_requests": Hourly will send webhook requests that are late.
 	 *
-	 * @return array
+	 * @return array Schedules keyed by the class method that should be called.
 	 */
 	private static function get_cron_config() {
 		return [
@@ -146,10 +146,10 @@ final class Webhooks {
 	public static function clear_finished() {
 		$requests = \get_posts(
 			[
+				'fields'         => 'ids',
 				'post_type'      => self::REQUEST_POST_TYPE,
 				'post_status'    => 'publish',
 				'posts_per_page' => 100,
-				'fields'         => 'ids',
 				'date_query'     => [
 					[
 						'column' => 'post_date_gmt',
@@ -323,6 +323,32 @@ final class Webhooks {
 				return self::get_endpoint( $endpoint );
 			},
 			$endpoints
+		);
+	}
+
+	/**
+	 * Get all webhook requests for an endpoint.
+	 *
+	 * This executes a potentially slow query, use with caution.
+	 *
+	 * @param int $endpoint_id Endpoint ID.
+	 *
+	 * @return WP_Post[] Array of request posts.
+	 */
+	public static function get_endpoint_requests( $endpoint_id ) {
+		return \get_posts(
+			[
+				'post_type'      => self::REQUEST_POST_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'tax_query'      => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					[
+						'taxonomy' => self::ENDPOINT_TAXONOMY,
+						'field'    => 'term_id',
+						'terms'    => $endpoint_id,
+					],
+				],
+			]
 		);
 	}
 
