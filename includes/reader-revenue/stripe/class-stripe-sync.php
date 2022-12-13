@@ -49,7 +49,11 @@ class Stripe_Sync {
 		$email_address = $customer->email;
 		$is_dry_run    = false !== $args['dry-run'];
 
-		$all_invoices            = Stripe_Connection::get_customer_transactions( $customer->id, false, false, 'invoice' );
+		$all_invoices = Stripe_Connection::get_customer_transactions( $customer->id, false, false, 'invoice' );
+		if ( \is_wp_error( $all_charges ) ) {
+			\WP_CLI::warning( __( 'Error fetching customer transactions: ', 'newspack' ) . $all_charges->get_error_message() );
+			return;
+		}
 		$processed_charges_ids   = [];
 		$wc_transaction_payloads = [];
 		foreach ( $all_invoices as $invoice ) {
