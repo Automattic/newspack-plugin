@@ -100,6 +100,11 @@ final class Webhooks {
 	/**
 	 * Get cron configuration.
 	 *
+	 * "clear_finished": Twice a day will permanently delete finished webhook
+	 * requests older than 7 days.
+	 *
+	 * "send_late_requests": Hourly will send webhook requests that are late.
+	 *
 	 * @return array
 	 */
 	private static function get_cron_config() {
@@ -111,11 +116,6 @@ final class Webhooks {
 
 	/**
 	 * Register webhook cron events.
-	 *
-	 * "clear_finished": Twice a day will permanently delete finished webhook
-	 * requests older than 7 days.
-	 *
-	 * "send_late_requests": Hourly will send webhook requests that are late.
 	 */
 	public static function register_cron_events() {
 		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
