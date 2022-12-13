@@ -98,6 +98,18 @@ final class Webhooks {
 	}
 
 	/**
+	 * Get cron configuration.
+	 *
+	 * @return array
+	 */
+	private static function get_cron_config() {
+		return [
+			'clear_finished'     => 'twicedaily',
+			'send_late_requests' => 'hourly',
+		];
+	}
+
+	/**
 	 * Register webhook cron events.
 	 *
 	 * "clear_finished": Twice a day will permanently delete finished webhook
@@ -107,13 +119,12 @@ final class Webhooks {
 	 */
 	public static function register_cron_events() {
 		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
-		\add_action( 'newspack_webhooks_cron_clear_finished', [ __CLASS__, 'clear_finished' ] );
-		if ( ! \wp_next_scheduled( 'newspack_webhooks_cron_clear_finished' ) ) {
-			\wp_schedule_event( time(), 'twicedaily', 'newspack_webhooks_cron_clear_finished' );
-		}
-		\add_action( 'newspack_webhooks_cron_send_late_requests', [ __CLASS__, 'send_late_requests' ] );
-		if ( ! \wp_next_scheduled( 'newspack_webhooks_cron_send_late_requests' ) ) {
-			\wp_schedule_event( time(), 'hourly', 'newspack_webhooks_cron_send_late_requests' );
+		$config = self::get_cron_config();
+		foreach ( $config as $event => $schedule ) {
+			\add_action( "newspack_webhooks_cron_{$event}", [ __CLASS__, $event ] );
+			if ( ! \wp_next_scheduled( "newspack_webhooks_cron_{$event}" ) ) {
+				\wp_schedule_event( time(), $schedule, "newspack_webhooks_cron_{$event}" );
+			}
 		}
 	}
 
@@ -121,8 +132,11 @@ final class Webhooks {
 	 * Clear cron events.
 	 */
 	public static function clear_cron_events() {
-		\wp_unschedule_event( \wp_next_scheduled( 'newspack_webhooks_cron_clear_finished' ), 'newspack_webhooks_cron_clear_finished' );
-		\wp_unschedule_event( \wp_next_scheduled( 'newspack_webhooks_cron_send_late_requests' ), 'newspack_webhooks_cron_send_late_requests' );
+		$config = self::get_cron_config();
+		foreach ( $config as $event => $schedule ) {
+			$hook = "newspack_webhooks_cron_{$event}";
+			\wp_unschedule_event( \wp_next_scheduled( $hook ), $hook );
+		}
 	}
 
 	/**
