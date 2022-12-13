@@ -192,6 +192,7 @@ final class Data_Events {
 				if ( ! empty( $data ) ) {
 					self::dispatch( $action_name, $data );
 				}
+				return $args[0];
 			},
 			PHP_INT_MAX, // We want dispatches to be executed last so that any modified data is available.
 			PHP_INT_MAX // The handler should receive all arguments of a hook.
