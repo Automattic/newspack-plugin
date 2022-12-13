@@ -102,12 +102,18 @@ final class Webhooks {
 	 *
 	 * "clear_finished": Twice a day will permanently delete finished webhook
 	 * requests older than 7 days.
+	 *
+	 * "send_late_requests": Hourly will send webhook requests that are late.
 	 */
 	public static function register_cron_events() {
 		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
-		\add_action( 'newspack_webhooks_clear_finished', [ __CLASS__, 'clear_finished' ] );
-		if ( ! \wp_next_scheduled( 'newspack_webhooks_clear_finished' ) ) {
-			\wp_schedule_event( time(), 'twicedaily', 'newspack_webhooks_clear_finished' );
+		\add_action( 'newspack_webhooks_cron_clear_finished', [ __CLASS__, 'clear_finished' ] );
+		if ( ! \wp_next_scheduled( 'newspack_webhooks_cron_clear_finished' ) ) {
+			\wp_schedule_event( time(), 'twicedaily', 'newspack_webhooks_cron_clear_finished' );
+		}
+		\add_action( 'newspack_webhooks_cron_send_late_requests', [ __CLASS__, 'send_late_requests' ] );
+		if ( ! \wp_next_scheduled( 'newspack_webhooks_cron_send_late_requests' ) ) {
+			\wp_schedule_event( time(), 'hourly', 'newspack_webhooks_cron_send_late_requests' );
 		}
 	}
 
@@ -115,8 +121,8 @@ final class Webhooks {
 	 * Clear cron events.
 	 */
 	public static function clear_cron_events() {
-		$timestamp = \wp_next_scheduled( 'newspack_webhooks_clear_finished' );
-		\wp_unschedule_event( $timestamp, 'newspack_webhooks_clear_finished' );
+		\wp_unschedule_event( \wp_next_scheduled( 'newspack_webhooks_cron_clear_finished' ), 'newspack_webhooks_cron_clear_finished' );
+		\wp_unschedule_event( \wp_next_scheduled( 'newspack_webhooks_cron_send_late_requests' ), 'newspack_webhooks_cron_send_late_requests' );
 	}
 
 	/**
@@ -142,6 +148,30 @@ final class Webhooks {
 			if ( 'finished' === \get_post_meta( $request_id, 'status', true ) ) {
 				\wp_delete_post( $request_id, true );
 			}
+		}
+	}
+
+	/**
+	 * Send webhook requests that should've been sent but are still pending at
+	 * 'future' status.
+	 */
+	public static function send_late_requests() {
+		$requests = \get_posts(
+			[
+				'post_type'      => self::REQUEST_POST_TYPE,
+				'post_status'    => 'future',
+				'posts_per_page' => 100,
+				'fields'         => 'ids',
+				'date_query'     => [
+					[
+						'column' => 'post_date_gmt',
+						'before' => '1 minute ago',
+					],
+				],
+			]
+		);
+		foreach ( $requests as $request_id ) {
+			\wp_publish_post( $request_id );
 		}
 	}
 
