@@ -121,9 +121,10 @@ final class Webhooks {
 		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
 		$config = self::get_cron_config();
 		foreach ( $config as $event => $schedule ) {
-			\add_action( "newspack_webhooks_cron_{$event}", [ __CLASS__, $event ] );
-			if ( ! \wp_next_scheduled( "newspack_webhooks_cron_{$event}" ) ) {
-				\wp_schedule_event( time(), $schedule, "newspack_webhooks_cron_{$event}" );
+			$hook = "newspack_webhooks_cron_{$event}";
+			\add_action( $hook, [ __CLASS__, $event ] );
+			if ( ! \wp_next_scheduled( $hook ) ) {
+				\wp_schedule_event( time(), $schedule, $hook );
 			}
 		}
 	}
@@ -478,6 +479,7 @@ final class Webhooks {
 	 * @param int $request_id Request ID.
 	 */
 	private static function kill_request( $request_id ) {
+		\update_post_meta( $request_id, 'status', 'killed' );
 		\wp_update_post(
 			[
 				'ID'          => $request_id,
