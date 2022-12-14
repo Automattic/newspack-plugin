@@ -479,6 +479,7 @@ final class Webhooks {
 	 * @param int $request_id Request ID.
 	 */
 	private static function kill_request( $request_id ) {
+		Logger::log( "Killing request {$request_id}.", self::LOGGER_HEADER );
 		\update_post_meta( $request_id, 'status', 'killed' );
 		\wp_update_post(
 			[
@@ -529,6 +530,10 @@ final class Webhooks {
 		$endpoint = self::get_request_endpoint( $request_id );
 		if ( ! $endpoint ) {
 			self::add_request_error( $request_id, __( 'Endpoint not found.', 'newspack' ) );
+			self::kill_request( $request_id );
+		}
+		if ( $endpoint['disabled'] ) {
+			self::add_request_error( $request_id, __( 'Endpoint is disabled.', 'newspack' ) );
 			self::kill_request( $request_id );
 		}
 
