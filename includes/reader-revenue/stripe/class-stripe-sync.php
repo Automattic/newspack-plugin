@@ -68,8 +68,8 @@ class Stripe_Sync {
 			}
 			// Construct the payment object expected by the Stripe_Connection::create_wc_transaction_payload method.
 			$stripe_payment = [
-				'id'      => $invoice->id,
-				'created' => $invoice->created,
+				'id'      => $charge->id,
+				'created' => $charge->created,
 			];
 
 			$processed_charges_ids[] = $invoice->charge;
@@ -134,14 +134,13 @@ class Stripe_Sync {
 		}
 
 		foreach ( $charges as $charge ) {
-			$wc_transaction_payload            = Stripe_Connection::create_wc_transaction_payload( $customer, $charge );
-			$wc_transaction_payload['user_id'] = $user_id;
-			$wc_transaction_payloads[]         = $wc_transaction_payload;
+			$wc_transaction_payloads[] = Stripe_Connection::create_wc_transaction_payload( $customer, $charge );
 			self::$results['wc_stripe_one_time_charges_processed']++;
 		}
 
 		foreach ( $wc_transaction_payloads as $transation_payload ) {
-			$charge_id = $transation_payload['stripe_id'];
+			$charge_id                     = $transation_payload['stripe_id'];
+			$transation_payload['user_id'] = $user_id;
 			// Find the order associated with this charge.
 			$found_order = \WC_Stripe_Helper::get_order_by_charge_id( $charge_id );
 			if ( $found_order ) {
