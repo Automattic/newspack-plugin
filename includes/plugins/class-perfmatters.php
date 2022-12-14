@@ -106,6 +106,9 @@ class Perfmatters {
 		if ( ! isset( $_GET['newspack-perfmatters-defaults'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return $options;
 		}
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
+			return $options;
+		}
 
 		// Basic options.
 		$options['disable_emojis']              = true;
