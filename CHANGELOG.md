@@ -1,3 +1,15 @@
+# [1.99.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.98.0...v1.99.0-hotfix.1) (2022-12-14)
+
+
+### Bug Fixes
+
+* **perfmatters:** display defaults for admin only if URL param is set ([ecca448](https://github.com/Automattic/newspack-plugin/commit/ecca448b9c788d473694960fa890ad023e05ee8c))
+
+
+### Features
+
+* **perfmatters:** add an environment feature flag ([774a710](https://github.com/Automattic/newspack-plugin/commit/774a7109ee750dc22d8812d3ce53a7b2687f0dbd))
+
 # [1.98.0](https://github.com/Automattic/newspack-plugin/compare/v1.97.3...v1.98.0) (2022-12-12)
 
 
