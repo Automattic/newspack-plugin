@@ -274,22 +274,6 @@ final class Webhooks {
 	}
 
 	/**
-	 * Whether an endpoint is disabled.
-	 *
-	 * @param string $url Endpoint URL.
-	 *
-	 * @return bool
-	 */
-	public static function is_endpoint_disabled( $url ) {
-		$endpoint = \get_term_by( 'name', $url, self::ENDPOINT_TAXONOMY );
-		if ( ! $endpoint ) {
-			return false;
-		}
-		$endpoint_id = $endpoint->term_id;
-		return (bool) \get_term_meta( $endpoint_id, 'disabled', true );
-	}
-
-	/**
 	 * Get a webhook endpoint array.
 	 *
 	 * @param int|WP_Term $endpoint Endpoint ID or term object.
