@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies.
  */
+import { CheckboxControl } from '@wordpress/components';
 import { useMemo, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
@@ -19,6 +20,7 @@ import {
 	TextControl,
 	hooks,
 } from '../../../../components/src';
+import { overlayWallEnabled } from '../../utils';
 
 const { useHistory } = Router;
 const { SettingsCard, SettingsSection, MinMaxSetting } = Settings;
@@ -33,11 +35,14 @@ const DEFAULT_CONFIG = {
 	is_donor: false,
 	is_not_donor: false,
 	is_former_donor: false,
+	has_user_account: false,
+	no_user_account: false,
 	is_logged_in: false,
 	is_not_logged_in: false,
 	favorite_categories: [],
 	referrers: '',
 	referrers_not: '',
+	undismissible: false,
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
@@ -268,18 +273,24 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 							value = parseInt( value );
 							if ( value === 0 ) {
 								updateSegmentConfig( {
-									is_logged_in: false,
-									is_not_logged_in: false,
+									has_user_account: false,
+									no_user_account: false,
 								} );
 							} else {
 								updateSegmentConfig( {
-									is_logged_in: value === 1,
-									is_not_logged_in: value === 2,
+									has_user_account: value === 1,
+									no_user_account: value === 2,
 								} );
 							}
 						} }
-						// eslint-disable-next-line no-nested-ternary
-						value={ segmentConfig.is_logged_in ? 1 : segmentConfig.is_not_logged_in ? 2 : 0 }
+						value={
+							// eslint-disable-next-line no-nested-ternary
+							segmentConfig.is_logged_in || segmentConfig.has_user_account
+								? 1
+								: segmentConfig.is_not_logged_in || segmentConfig.no_user_account
+								? 2
+								: 0
+						}
 						options={ [
 							{ value: 0, label: __( 'All users', 'newspack' ) },
 							{ value: 1, label: __( 'Has user account', 'newspack' ) },
@@ -288,6 +299,24 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					/>
 				</SettingsSection>
 			</SettingsCard>
+			{ overlayWallEnabled( segmentConfig ) && (
+				<SettingsCard
+					title={ __( 'Overlay Wall', 'newspack' ) }
+					description={ __( 'Force overlays in this segment to be undismissible', 'newspack' ) }
+					columns={ 1 }
+					noBorder
+				>
+					<CheckboxControl
+						label={ __( 'Enable overlay wall' ) }
+						checked={ segmentConfig.undismissible }
+						onChange={ () =>
+							updateSegmentConfig( {
+								undismissible: ! segmentConfig.undismissible,
+							} )
+						}
+					/>
+				</SettingsCard>
+			) }
 			<SettingsCard
 				title={ __( 'Referrer Sources', 'newspack' ) }
 				description={ __( 'Target readers based on where they’re coming from', 'newspack' ) }

@@ -167,6 +167,17 @@ const getFavoriteCategoryNamesFn = async favoriteCategories => {
 };
 export const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
 
+export const overlayWallEnabled = configuration => {
+	const {
+		no_user_account = false,
+		is_not_logged_in = false,
+		min_posts = 0,
+		min_session_posts = 0,
+	} = configuration;
+
+	return ( 0 < min_posts || 0 < min_session_posts ) && ( is_not_logged_in || no_user_account );
+};
+
 export const descriptionForSegment = ( segment, categories = [] ) => {
 	const { configuration } = segment;
 	const {
@@ -176,6 +187,8 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		is_former_donor = false,
 		is_not_subscribed = false,
 		is_subscribed = false,
+		has_user_account = false,
+		no_user_account = false,
 		is_logged_in = false,
 		is_not_logged_in = false,
 		max_posts = 0,
@@ -184,6 +197,7 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		min_session_posts = 0,
 		referrers = '',
 		referrers_not = '',
+		undismissible = false,
 	} = configuration;
 	const descriptionMessages = [];
 
@@ -225,11 +239,15 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 	if ( is_not_subscribed ) {
 		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
 	}
-	if ( is_logged_in ) {
+	if ( is_logged_in || has_user_account ) {
 		descriptionMessages.push( __( 'Has user account', 'newspack' ) );
 	}
-	if ( is_not_logged_in ) {
+	if ( is_not_logged_in || no_user_account ) {
 		descriptionMessages.push( __( 'Does not have user account', 'newspack' ) );
+	}
+
+	if ( undismissible && overlayWallEnabled( configuration ) ) {
+		descriptionMessages.push( __( 'Overlay wall enabled', 'newspack' ) );
 	}
 
 	// Messages for referrer sources.
