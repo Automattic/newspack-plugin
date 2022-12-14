@@ -51,7 +51,7 @@ class Stripe_Sync {
 
 		$all_invoices = Stripe_Connection::get_customer_transactions( $customer->id, false, false, 'invoice' );
 		if ( \is_wp_error( $all_invoices ) ) {
-			\WP_CLI::warning( __( 'Error fetching customer transactions: ', 'newspack' ) . $all_invoices->get_error_message() );
+			\WP_CLI::warning( __( 'Error fetching customer invoices: ', 'newspack' ) . $all_invoices->get_error_message() );
 			return;
 		}
 		$processed_charges_ids   = [];
@@ -90,6 +90,10 @@ class Stripe_Sync {
 		}
 
 		$all_charges = Stripe_Connection::get_customer_transactions( $customer->id );
+		if ( \is_wp_error( $all_charges ) ) {
+			\WP_CLI::warning( __( 'Error fetching customer charges: ', 'newspack' ) . $all_charges->get_error_message() );
+			return;
+		}
 		// Skip charges created by WC and those already processed from invoices.
 		$charges = array_filter(
 			$all_charges,
@@ -184,6 +188,11 @@ class Stripe_Sync {
 		];
 
 		$last_payments = Stripe_Connection::get_customer_transactions( $customer->id, false, 1 );
+		if ( \is_wp_error( $last_payments ) ) {
+			\WP_CLI::warning( __( 'Error fetching customer charges: ', 'newspack' ) . $last_payments->get_error_message() );
+			return;
+		}
+
 		if ( ! empty( $last_payments ) ) {
 			$payment           = $last_payments[0];
 			$amount_normalised = Stripe_Connection::normalise_amount( $payment['amount'], $payment['currency'] );
