@@ -64,8 +64,11 @@ Data_Events::register_listener(
 Data_Events::register_listener(
 	'newspack_newsletters_add_contact',
 	'newsletter_subscribed',
-	function( $provider, $contact, $lists ) {
+	function( $provider, $contact, $lists, $result ) {
 		if ( empty( $lists ) ) {
+			return;
+		}
+		if ( true !== $result ) {
 			return;
 		}
 		return [
@@ -82,5 +85,18 @@ Data_Events::register_listener(
 Data_Events::register_listener(
 	'newspack_newsletters_update_contact_lists',
 	'newsletter_updated',
-	[ 'provider', 'email', 'lists_added', 'lists_removed' ]
+	function( $provider, $email, $lists_added, $lists_removed, $result ) {
+		if ( empty( $lists_added ) && empty( $lists_removed ) ) {
+			return;
+		}
+		if ( true !== $result ) {
+			return;
+		}
+		return [
+			'provider'      => $provider,
+			'email'         => $email,
+			'lists_added'   => $lists_added,
+			'lists_removed' => $lists_removed,
+		];
+	}
 );
