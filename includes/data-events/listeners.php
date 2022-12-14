@@ -70,7 +70,7 @@ Data_Events::register_listener(
 		}
 		return [
 			'provider' => $provider,
-			'email'    => $contact['email'],
+			'contact'  => $contact,
 			'lists'    => $lists,
 		];
 	}
