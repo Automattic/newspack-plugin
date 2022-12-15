@@ -13,6 +13,8 @@ import { withWizard, withWizardScreen } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Main } from './views';
 
+import './style.scss';
+
 const { HashRouter, Redirect, Route, Switch } = Router;
 
 const MainScreen = withWizardScreen( Main );

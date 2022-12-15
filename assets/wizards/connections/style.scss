@@ -1,0 +1,47 @@
+@use 'sass:color';
+@use '~@wordpress/base-styles/colors' as wp-colors;
+
+.newspack-webhooks {
+	&__requests {
+		border-collapse: collapse;
+		white-space: nowrap;
+		width: 100%;
+		th {
+			text-align: left;
+		}
+		tr:nth-child( odd ) td {
+			background-color: #f6f6f6;
+		}
+		th,
+		td {
+			border-bottom: 1px solid #ddd;
+			padding: 8px;
+		}
+		td {
+			font-size: 0.9em;
+		}
+		.status {
+			&.status--finished {
+				fill: wp-colors.$alert-green;
+			}
+			&.status--killed {
+				fill: wp-colors.$alert-red;
+			}
+			&.status--pending {
+				fill: wp-colors.$alert-yellow;
+			}
+			svg {
+				width: 20px;
+				height: 20px;
+			}
+		}
+		.action-name {
+			font-weight: 700;
+			font-family: Consolas, monaco, monospace;
+		}
+		.error {
+			width: 100%;
+			white-space: normal;
+		}
+	}
+}

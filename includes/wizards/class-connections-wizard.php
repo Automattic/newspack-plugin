@@ -67,5 +67,14 @@ class Connections_Wizard extends Wizard {
 			]
 		);
 		\wp_enqueue_script( 'newspack-connections-wizard' );
+
+		\wp_register_style(
+			'newspack-connections-wizard',
+			Newspack::plugin_url() . '/dist/connections.css',
+			$this->get_style_dependencies(),
+			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_style_add_data( 'newspack-connections-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-connections-wizard' );
 	}
 }
