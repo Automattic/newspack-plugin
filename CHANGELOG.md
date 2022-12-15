@@ -1,3 +1,27 @@
+# [1.99.0](https://github.com/Automattic/newspack-plugin/compare/v1.98.0...v1.99.0) (2022-12-15)
+
+
+### Bug Fixes
+
+* **perfmatters:** display defaults for admin only if URL param is set ([1d53a37](https://github.com/Automattic/newspack-plugin/commit/1d53a374f6e5006b0560f097bd9e45fe31b8c31a))
+
+
+### Features
+
+* **perfmatters:** add an environment feature flag ([b7fcec3](https://github.com/Automattic/newspack-plugin/commit/b7fcec3e46c0d31269ebe8ecc3de1bcb3d62a2fd))
+
+# [1.99.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.98.0...v1.99.0-hotfix.1) (2022-12-15)
+
+
+### Bug Fixes
+
+* **perfmatters:** display defaults for admin only if URL param is set ([1d53a37](https://github.com/Automattic/newspack-plugin/commit/1d53a374f6e5006b0560f097bd9e45fe31b8c31a))
+
+
+### Features
+
+* **perfmatters:** add an environment feature flag ([b7fcec3](https://github.com/Automattic/newspack-plugin/commit/b7fcec3e46c0d31269ebe8ecc3de1bcb3d62a2fd))
+
 # [1.98.0](https://github.com/Automattic/newspack-plugin/compare/v1.97.3...v1.98.0) (2022-12-12)
 
 
