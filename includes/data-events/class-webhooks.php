@@ -557,9 +557,11 @@ final class Webhooks {
 		/**
 		 * Filters the timeout for webhook requests.
 		 *
-		 * @param int $request_timeout Timeout in seconds. Default is 10.
+		 * @param int   $request_timeout Timeout in seconds. Default is 10.
+		 * @param int   $request_id      Request ID.
+		 * @param array $endpoint        Endpoint data.
 		 */
-		$timeout = apply_filters( 'newspack_webhook_request_timeout', 10 );
+		$timeout = apply_filters( 'newspack_webhooks_request_timeout', 10, $request_id, $endpoint );
 
 		$args = [
 			'method'  => 'POST',
