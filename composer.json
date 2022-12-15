@@ -23,11 +23,6 @@
 		"yoast/phpunit-polyfills": "^1.0",
 		"phpunit/phpunit": "^7.0 || ^9.5"
 	},
-  "autoload": {
-		"classmap": [
-			"includes"
-		]
-	},
 	"scripts": {
 		"post-install-cmd": [
 			"vendor/bin/cghooks add --no-lock"

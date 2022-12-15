@@ -24,8 +24,6 @@ if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
 	define( 'NEWSPACK_PLUGIN_FILE', __FILE__ );
 }
 
-require_once 'vendor/autoload.php';
-
 // Include the main Newspack class.
 if ( ! class_exists( 'Newspack' ) ) {
 	include_once dirname( __FILE__ ) . '/includes/class-newspack.php';
