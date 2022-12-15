@@ -28,7 +28,7 @@ final class Webhooks {
 	/**
 	 * Maximum number of request retries before disabling the endpoint.
 	 */
-	const MAX_RETRIES = 12;
+	const MAX_RETRIES = 15;
 
 	/**
 	 * Time to retain finished requests.
@@ -530,7 +530,8 @@ final class Webhooks {
 
 			self::add_request_error( $request_id, $response->get_error_message() );
 
-			$delay = pow( 2, count( $errors ) );
+			// Schedule a retry with exponential backoff maxed to 12 hours.
+			$delay = min( 720, pow( 2, count( $errors ) ) );
 			self::schedule_request( $request_id, $delay );
 		} else {
 			self::finish_request( $request_id );
