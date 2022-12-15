@@ -33,7 +33,7 @@
 		"moment-range": "^3.1.1",
 		"qs": "^6.10.1",
 		"react-daterange-picker": "^2.0.1",
-		"react-router-dom": "^5.3.0"
+		"react-router-dom": "^6.4.5"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "^10.0.0",
