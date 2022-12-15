@@ -15,10 +15,12 @@
 		}
 	}
 	summary {
-		padding: 18px 24px;
+		padding: 16px 32px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		cursor: pointer;
+		font-size: 14px;
+		font-weight: bold;
 	}
 }

@@ -2,17 +2,21 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trash } from '@wordpress/icons';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { ToggleControl } from '@wordpress/components';
+import { ToggleControl, ExternalLink } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
+
+/**
+ * External dependencies
+ */
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
 import { Button, Wizard, Accordion, ActionCard, Notice, utils } from '../../../../components/src';
 
-const WebhooksList = ( { title, webhooks, onUpdate } ) => {
+const WebhooksList = ( { title, webhooks, onUpdate, withBorder, className } ) => {
 	const { wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
 	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isQuietLoading() );
 
@@ -30,41 +34,47 @@ const WebhooksList = ( { title, webhooks, onUpdate } ) => {
 	};
 
 	return (
-		<div>
-			<h4>{ title }</h4>
+		<div
+			className={ classNames( className, 'newspack-webhooks-list', {
+				'newspack-webhooks-list--border': withBorder,
+			} ) }
+		>
+			{ 'function' === typeof title && (
+				<div className="newspack-webhooks-list__title">{ title() }</div>
+			) }
 			<ul>
-				{ webhooks.map( webhook => {
-					return (
-						<li key={ webhook.id }>
-							<span>
-								<ToggleControl
-									checked={ webhook.status === 'enabled' }
-									disabled={ isLoading }
-									onChange={ () =>
-										handleChange( webhook, 'POST', {
-											status: webhook.status === 'enabled' ? 'disabled' : 'enabled',
-										} )
-									}
-								/>
-								<code>{ webhook.url }</code>
-							</span>
-							<Button
-								isDestructive
-								icon={ trash }
+				{ webhooks.map( webhook => (
+					<li key={ webhook.id }>
+						<span>
+							<ToggleControl
+								checked={ webhook.status === 'enabled' }
 								disabled={ isLoading }
-								onClick={ () => {
-									if (
-										utils.confirmAction(
-											__( 'Are you sure you want to remove this webhook?', 'newspack' )
-										)
-									) {
-										handleChange( webhook, 'DELETE' );
-									}
-								} }
+								onChange={ () =>
+									handleChange( webhook, 'POST', {
+										status: webhook.status === 'enabled' ? 'disabled' : 'enabled',
+									} )
+								}
 							/>
-						</li>
-					);
-				} ) }
+							<code className="mr3">{ webhook.url }</code>
+						</span>
+						<Button
+							isDestructive
+							isLink
+							disabled={ isLoading }
+							onClick={ () => {
+								if (
+									utils.confirmAction(
+										__( 'Are you sure you want to remove this webhook?', 'newspack' )
+									)
+								) {
+									handleChange( webhook, 'DELETE' );
+								}
+							} }
+						>
+							{ __( 'Delete', 'newspack' ) }
+						</Button>
+					</li>
+				) ) }
 			</ul>
 		</div>
 	);
@@ -138,32 +148,44 @@ const WebhooksSettings = () => {
 				) }
 			/>
 			<WebhooksList
-				title={ __( 'Webhooks connected to this site', 'newspack' ) }
+				withBorder
+				className="mb4"
+				title={ () => (
+					<div className="flex justify-between items-center">
+						<h4 className="b f6 ma0">{ __( 'Webhooks connected to this site', 'newspack' ) }</h4>
+						<Button
+							variant="secondary"
+							isSmall
+							onClick={ () => {
+								if (
+									utils.confirmAction(
+										__( 'Are you sure you want to reset all webhooks?', 'newspack' )
+									)
+								) {
+									resetWebhooks();
+								}
+							} }
+						>
+							{ __( 'Reset', 'newspack' ) }
+						</Button>
+					</div>
+				) }
 				webhooks={ thisSiteWebhooks }
 				onUpdate={ handleWebhooksListUpdate }
 			/>
-			<div className="newspack-buttons-card">
-				<Button
-					variant="secondary"
-					isDestructive
-					onClick={ () => {
-						if (
-							utils.confirmAction(
-								__( 'Are you sure you want to reset all webhooks?', 'newspack' )
-							)
-						) {
-							resetWebhooks();
-						}
-					} }
-				>
-					{ __( 'Reset Webhooks', 'newspack' ) }
-				</Button>
-			</div>
 			{ otherWebhooks.length ? (
 				<Accordion title={ __( 'Webhooks not connected to this site.', 'newspack' ) }>
 					<WebhooksList webhooks={ otherWebhooks } onUpdate={ handleWebhooksListUpdate } />
 				</Accordion>
 			) : null }
+			<div className="newspack-buttons-card">
+				<Button href="#/stripe-setup" isPrimary>
+					{ __( 'Back to Stripe Settings', 'newspack' ) }
+				</Button>
+				<ExternalLink href="https://dashboard.stripe.com/webhooks">
+					{ __( 'Stripe Dashboard', 'newspack' ) }
+				</ExternalLink>
+			</div>
 		</div>
 	);
 };
