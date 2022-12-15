@@ -160,6 +160,8 @@ final class Newspack {
 
 		// Filter by authors in the Posts page.
 		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
+
+		\Newspack\CLI\Initializer::init();
 	}
 
 	/**
