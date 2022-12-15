@@ -579,8 +579,8 @@ final class Webhooks {
 
 			self::add_request_error( $request_id, $error_message );
 
-			// Schedule a retry with exponential backoff maxed to 1 day.
-			$delay = min( 1440, pow( 2, count( $errors ) ) );
+			// Schedule a retry with exponential backoff maxed to 12 hours.
+			$delay = min( 720, pow( 2, count( $errors ) ) );
 			self::schedule_request( $request_id, $delay );
 		} else {
 			self::finish_request( $request_id );
