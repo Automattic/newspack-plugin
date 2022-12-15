@@ -139,7 +139,7 @@ class Setup {
 	 */
 	private function campaigns_config() {
 		global $table_prefix;
-		$filename = WP_CONTENT_DIR . '/newspack-popups.config.php';
+		$filename = WP_CONTENT_DIR . '/newspack-popups-config.php';
 		if ( ! file_exists( $filename ) ) {
 			$content  = "<?php \n";
 			$content .= sprintf( "define( 'DB_NAME', '%s' );\n", DB_NAME );
