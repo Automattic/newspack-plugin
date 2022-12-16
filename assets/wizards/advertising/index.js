@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, utils } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression, AddOns } from './views';
 import { getSizes } from './components/ad-unit-size-control';
@@ -109,8 +109,9 @@ class AdvertisingWizard extends Component {
 	 * @param {number} id Ad Unit ID.
 	 */
 	deleteAdUnit = id => {
-		// eslint-disable-next-line no-alert
-		if ( confirm( __( 'Are you sure you want to archive this ad unit?', 'newspack' ) ) ) {
+		if (
+			utils.confirmAction( __( 'Are you sure you want to archive this ad unit?', 'newspack' ) )
+		) {
 			return this.updateWithAPI( {
 				path: '/newspack/v1/wizard/billboard/ad_unit/' + id,
 				method: 'delete',
