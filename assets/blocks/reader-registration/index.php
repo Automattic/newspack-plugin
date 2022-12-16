@@ -105,8 +105,17 @@ function render_block( $attrs, $content ) {
 	}
 
 	$registered      = false;
+	$my_account_url  = function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : false;
 	$message         = '';
-	$success_message = __( 'Thank you for registering!', 'newspack' ) . '<br />' . __( 'Check your email for a confirmation link.', 'newspack' );
+	$success_message = __( 'Thank you for registering!', 'newspack' ) . '<br />';
+
+	if ( $my_account_url ) {
+		$success_message .= sprintf(
+			// Translators: %s is a link to My Account.
+			__( 'Please visit %s to verify and manage your account.', 'newspack' ),
+			'<a href="' . esc_url( $my_account_url ) . '">' . __( 'My Account', 'newspack' ) . '</a>'
+		);
+	}
 
 	/** Handle default attributes. */
 	$default_attrs = [
@@ -126,7 +135,7 @@ function render_block( $attrs, $content ) {
 
 	$sign_in_url = \wp_login_url();
 	if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
-		$sign_in_url = \wc_get_account_endpoint_url( 'dashboard' );
+		$sign_in_url = $my_account_url;
 	}
 
 	/** Setup list subscription */

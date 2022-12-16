@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Wizard, Notice } from '../../components/src';
 import * as Views from './views';
-import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, STRIPE } from './constants';
+import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, STRIPE, OTHER } from './constants';
 
 const ReaderRevenueWizard = () => {
 	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData( 'reader-revenue' );
@@ -31,6 +31,7 @@ const ReaderRevenueWizard = () => {
 			label: __( 'Donations', 'newspack' ),
 			path: '/donations',
 			render: Views.Donation,
+			isHidden: usedPlatform === OTHER,
 		},
 		{
 			label:
@@ -38,8 +39,16 @@ const ReaderRevenueWizard = () => {
 					? __( 'Stripe Gateway', 'newspack' )
 					: __( 'Stripe Settings', 'newspack' ),
 			path: '/stripe-setup',
+			activeTabPaths: [ '/stripe-setup', '/stripe-webhooks' ],
 			render: Views.StripeSetup,
 			isHidden: usedPlatform !== NEWSPACK && usedPlatform !== STRIPE,
+		},
+		{
+			label: __( 'Stripe Webhooks', 'newspack' ),
+			path: '/stripe-webhooks',
+			render: Views.StripeWebhooksSettings,
+			isHidden: usedPlatform !== STRIPE,
+			isHiddenInTabbedNavigation: true,
 		},
 		{
 			label: __( 'Emails', 'newspack' ),

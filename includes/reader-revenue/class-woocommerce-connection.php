@@ -48,12 +48,15 @@ class WooCommerce_Connection {
 		foreach ( self::DISABLED_SUBSCRIPTION_STATUSES as $status_name ) {
 			\add_filter( 'woocommerce_can_subscription_be_updated_to_' . $status_name, [ __CLASS__, 'disable_subscription_status_updates' ], 11, 2 );
 		}
+		\add_filter( 'woocommerce_subscriptions_can_user_renew_early', [ __CLASS__, 'prevent_subscription_early_renewal' ], 11, 2 );
+		\add_filter( 'woocommerce_subscription_is_manual', [ __CLASS__, 'set_syncd_subscriptions_as_manual' ], 11, 2 );
 
 		// WooCommerce Memberships.
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
 
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
+		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_renewal_errors' ] );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
 	}
@@ -695,6 +698,32 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Disable early renewal of subscriptions which are sync'd with Stripe.
+	 *
+	 * @param bool             $can_renew_early Whether the subscription can be renewed early.
+	 * @param \WC_Subscription $subscription The subscription object.
+	 */
+	public static function prevent_subscription_early_renewal( $can_renew_early, $subscription ) {
+		if ( self::is_synchronised_with_stripe( $subscription ) ) {
+			return false;
+		}
+		return $can_renew_early;
+	}
+
+	/**
+	 * Force sync'd subscriptions to manual-renewal state.
+	 *
+	 * @param bool             $is_manual Whether the subscription is manually-renewed.
+	 * @param \WC_Subscription $subscription The subscription object.
+	 */
+	public static function set_syncd_subscriptions_as_manual( $is_manual, $subscription ) {
+		if ( self::is_synchronised_with_stripe( $subscription ) ) {
+			return true;
+		}
+		return $is_manual;
+	}
+
+	/**
 	 * Remove WC Subscriptions order actions for the sync'd subscription.
 	 *
 	 * @param array $actions An array of available actions.
@@ -722,6 +751,26 @@ class WooCommerce_Connection {
 			return false;
 		}
 		return $can_update;
+	}
+
+	/**
+	 * Filter WC Subscriptions' renewal errors. If a subscription is only sync'd,
+	 * it won't be renewed by WC Subscriptions, so we don't want to show an error.
+	 *
+	 * @param array $renewal_errors An associative array of errors.
+	 */
+	public static function filter_subscription_renewal_errors( $renewal_errors ) {
+		if ( is_array( $renewal_errors ) ) {
+			foreach ( $renewal_errors as $key => $error ) {
+				if ( isset( $error['args'], $error['args']['subscription_id'], $error['type'] ) ) {
+					$subscription_id = $error['args']['subscription_id'];
+					if ( 'subscription payment' === $error['type'] && self::is_synchronised_with_stripe( $subscription_id ) ) {
+						unset( $renewal_errors[ $key ] );
+					}
+				}
+			}
+		}
+		return $renewal_errors;
 	}
 }
 
