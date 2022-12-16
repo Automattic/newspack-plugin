@@ -2,6 +2,37 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-webhooks {
+	&__endpoint {
+		&__action {
+			font-weight: 700;
+			font-family: Consolas, monaco, monospace;
+			background: #f6f6f6;
+			display: inline-block;
+			margin-right: 4px;
+			padding: 2px 4px;
+			font-size: 0.8em;
+		}
+	}
+	&__test-response {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: Consolas, monaco, monospace;
+		font-size: 0.8em;
+		&.status--success {
+			.code {
+				color: wp-colors.$alert-green;
+			}
+		}
+		&.status--error {
+			.code {
+				color: wp-colors.$alert-red;
+			}
+		}
+		.code {
+			margin-left: 8px;
+		}
+	}
 	&__requests {
 		border-collapse: collapse;
 		white-space: nowrap;

@@ -36,6 +36,21 @@ final class Api {
 		);
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/webhooks/test',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ __CLASS__, 'test_url' ],
+				'permission_callback' => [ __CLASS__, 'permission_callback' ],
+				'args'                => [
+					'url' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/webhooks/endpoints',
 			[
 				'methods'             => 'GET',
@@ -129,6 +144,51 @@ final class Api {
 	}
 
 	/**
+	 * Test an endpoint URL.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 */
+	public static function test_url( $request ) {
+		$url = $request->get_param( 'url' );
+		if ( empty( $url ) || \esc_url_raw( $url, [ 'https' ] ) !== $url ) {
+			return \rest_ensure_response(
+				[
+					'success' => false,
+					'code'    => false,
+					'message' => esc_html__( 'Invalid URL.', 'newspack' ),
+				]
+			);
+		}
+		$body     = [
+			'request_id' => 0,
+			'timestamp'  => time(),
+			'action'     => 'test',
+			'data'       => [ 'test' => true ],
+			'client_id'  => 'test',
+		];
+		$args     = [
+			'method'  => 'POST',
+			'headers' => [
+				'Content-Type' => 'application/json',
+			],
+			'body'    => \wp_json_encode( $body ),
+		];
+		$response = \wp_safe_remote_request( $url, $args );
+		$code     = \wp_remote_retrieve_response_code( $response );
+		$message  = \wp_remote_retrieve_response_message( $response );
+		if ( ! $message && \is_wp_error( $response ) ) {
+			$message = $response->get_error_message();
+		}
+		return \rest_ensure_response(
+			[
+				'success' => $code && 200 >= $code && 300 > $code,
+				'code'    => $code,
+				'message' => $message,
+			]
+		);
+	}
+
+	/**
 	 * Get webhooks endpoints
 	 */
 	public static function get_endpoints() {
@@ -182,7 +242,7 @@ final class Api {
 		if ( ! $args['global'] && empty( $args['actions'] ) ) {
 			return new \WP_Error(
 				'newspack_webhooks_invalid_actions',
-				esc_html__( 'You must select actions to trigger this endpoint. Set it to "global" if this endpoint is meant for all actions.', 'newspack' ),
+				esc_html__( 'You must select actions to trigger this endpoint. Set it to global if this endpoint is meant for all actions.', 'newspack' ),
 				[
 					'status' => 400,
 				]

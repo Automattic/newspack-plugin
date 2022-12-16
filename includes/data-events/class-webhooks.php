@@ -609,14 +609,14 @@ final class Webhooks {
 		];
 
 		$response = \wp_safe_remote_request( $url, $args );
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
-
-		if ( ! $response['response']['code'] || $response['response']['code'] < 200 || $response['response']['code'] >= 300 ) {
-			return new WP_Error( 'newspack_webhooks_request_failed', __( 'Client did not respond with 2xx code.', 'newspack' ) );
+		$code    = \wp_remote_retrieve_response_code( $response );
+		$message = \wp_remote_retrieve_response_message( $response );
+		if ( ! $code || $code < 200 || $code >= 300 ) {
+			return new WP_Error( 'newspack_webhooks_request_failed', $message ?? __( 'Request failed', 'newspack' ) );
 		}
-
 		return true;
 	}
 

@@ -26,14 +26,27 @@ import {
 	TextControl,
 } from '../../../../components/src';
 
+const getEndpointTitle = endpoint => {
+	if ( endpoint.url.length > 45 ) {
+		return `${ endpoint.url.slice( 8, 38 ) }...${ endpoint.url.slice( -10 ) }`;
+	}
+	return endpoint.url.slice( 8 );
+};
+
+const getRequestStatusIcon = status => {
+	const icons = {
+		pending: update,
+		finished: check,
+		killed: cancelCircleFilled,
+	};
+	return icons[ status ] || settings;
+};
+
 const Webhooks = () => {
 	const [ inFlight, setInFlight ] = useState( false );
-	const [ actions, setActions ] = useState( [] );
-	const [ endpoints, setEndpoints ] = useState( [] );
-	const [ editing, setEditing ] = useState( false );
-	const [ viewing, setViewing ] = useState( false );
 	const [ error, setError ] = useState( false );
-	const [ editingError, setEditingError ] = useState( false );
+
+	const [ actions, setActions ] = useState( [] );
 	const fetchActions = () => {
 		apiFetch( { path: '/newspack/v1/data-events/actions' } )
 			.then( response => {
@@ -43,6 +56,12 @@ const Webhooks = () => {
 				setError( err );
 			} );
 	};
+
+	const [ endpoints, setEndpoints ] = useState( [] );
+	const [ viewing, setViewing ] = useState( false );
+	const [ editing, setEditing ] = useState( false );
+	const [ editingError, setEditingError ] = useState( false );
+
 	const fetchEndpoints = () => {
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/webhooks/endpoints' } )
@@ -100,13 +119,13 @@ const Webhooks = () => {
 	};
 	const upsertEndpoint = endpoint => {
 		setInFlight( true );
+		setEditingError( false );
 		apiFetch( {
 			path: `/newspack/v1/webhooks/endpoints/${ endpoint.id || '' }`,
 			method: 'POST',
 			data: endpoint,
 		} )
 			.then( response => {
-				setEditingError( false );
 				setEndpoints( response );
 				setEditing( false );
 			} )
@@ -117,27 +136,47 @@ const Webhooks = () => {
 				setInFlight( false );
 			} );
 	};
+
+	const [ testResponse, setTestResponse ] = useState( false );
+	const [ testError, setTestError ] = useState( false );
+	const sendTestRequest = url => {
+		setInFlight( true );
+		setTestError( false );
+		apiFetch( {
+			path: '/newspack/v1/webhooks/test',
+			method: 'POST',
+			data: { url },
+		} )
+			.then( response => {
+				setTestResponse( response );
+			} )
+			.catch( err => {
+				setTestError( err );
+			} )
+			.finally( () => {
+				setInFlight( false );
+			} );
+	};
+
 	useEffect( fetchActions, [] );
 	useEffect( fetchEndpoints, [] );
 
-	const getEndpointTitle = endpoint => {
-		if ( endpoint.url.length > 45 ) {
-			return `${ endpoint.url.slice( 8, 38 ) }...${ endpoint.url.slice( -10 ) }`;
-		}
-		return endpoint.url.slice( 8 );
-	};
-	const getRequestStatusIcon = status => {
-		const icons = {
-			pending: update,
-			finished: check,
-			killed: cancelCircleFilled,
-		};
-		return icons[ status ] || settings;
-	};
+	useEffect( () => {
+		setTestResponse( false );
+		setEditingError( false );
+		setTestError( false );
+	}, [ editing ] );
+
 	return (
 		<>
 			{ false !== error && <Notice isError noticeText={ error.message } /> }
 			<SectionHeader title={ __( 'Webhook Endpoints', 'newspack' ) } />
+			<p>
+				{ __(
+					'Register webhook endpoints to integrate reader activity data to third-party services or private APIs.',
+					'newspack'
+				) }
+			</p>
 			{ endpoints.map( endpoint => (
 				<ActionCard
 					className="newspack-webhooks__endpoint"
@@ -153,13 +192,18 @@ const Webhooks = () => {
 								endpoint.disabled_error
 							);
 						}
-						return endpoint.global
-							? __( 'This endpoint is triggered on any action.', 'newspack' )
-							: sprintf(
-									// translators: %s is a comma-separated list of actions.
-									__( 'This endpoint is triggered on the following actions: %s', 'newspack' ),
-									endpoint.actions.join( ', ' )
-							  );
+						return endpoint.global ? (
+							__( 'This endpoint is called on any action.', 'newspack' )
+						) : (
+							<>
+								{ __( 'Actions:', 'newspack' ) }{ ' ' }
+								{ endpoint.actions.map( action => (
+									<span key={ action } className="newspack-webhooks__endpoint__action">
+										{ action }
+									</span>
+								) ) }
+							</>
+						);
 					} }
 					actionText={
 						<>
@@ -205,37 +249,43 @@ const Webhooks = () => {
 							getEndpointTitle( viewing )
 						) }
 					</p>
-					<table className="newspack-webhooks__requests">
-						<tr>
-							<th />
-							<th colSpan="2">{ __( 'Action', 'newspack' ) }</th>
-							<th>{ __( 'Error', 'newspack' ) }</th>
-						</tr>
-						{ viewing.requests.map( request => (
-							<tr key={ request.id }>
-								<td className={ `status status--${ request.status }` }>
-									{ getRequestStatusIcon( request.status ) }
-								</td>
-								<td className="action-name">{ request.action_name }</td>
-								<td className="scheduled">
-									{ 'pending' === request.status
-										? sprintf(
-												// translators: %s is a human-readable time difference.
-												__( 'scheduled for %s', 'newspack' ),
-												moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
-										  )
-										: sprintf(
-												// translators: %s is a human-readable time difference.
-												__( 'processed %s', 'newspack' ),
-												moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
-										  ) }
-								</td>
-								<td className="error">
-									{ request.errors ? request.errors[ request.errors.length - 1 ] : '--' }
-								</td>
+					{ viewing.requests.length > 0 ? (
+						<table className="newspack-webhooks__requests">
+							<tr>
+								<th />
+								<th colSpan="2">{ __( 'Action', 'newspack' ) }</th>
+								<th>{ __( 'Error', 'newspack' ) }</th>
 							</tr>
-						) ) }
-					</table>
+							{ viewing.requests.map( request => (
+								<tr key={ request.id }>
+									<td className={ `status status--${ request.status }` }>
+										{ getRequestStatusIcon( request.status ) }
+									</td>
+									<td className="action-name">{ request.action_name }</td>
+									<td className="scheduled">
+										{ 'pending' === request.status
+											? sprintf(
+													// translators: %s is a human-readable time difference.
+													__( 'scheduled for %s', 'newspack' ),
+													moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
+											  )
+											: sprintf(
+													// translators: %s is a human-readable time difference.
+													__( 'processed %s', 'newspack' ),
+													moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
+											  ) }
+									</td>
+									<td className="error">
+										{ request.errors ? request.errors[ request.errors.length - 1 ] : '--' }
+									</td>
+								</tr>
+							) ) }
+						</table>
+					) : (
+						<Notice
+							noticeText={ __( "This endpoint didn't received any requests yet.", 'newspack' ) }
+						/>
+					) }
 				</Modal>
 			) }
 			{ false !== editing && (
@@ -258,12 +308,40 @@ const Webhooks = () => {
 							noticeText={ __( 'Request Error: ', 'newspack' ) + editing.disabled_error }
 						/>
 					) }
+					{ testError && (
+						<Notice isError noticeText={ __( 'Test Error: ', 'newspack' ) + testError.message } />
+					) }
 					<TextControl
 						label={ __( 'URL', 'newspack' ) }
+						help={ __(
+							"The URL to send requests to. It's required to be under TLS/SSL encryption. You can use the test button to verify the endpoint is working.",
+							'newspack'
+						) }
 						value={ editing.url }
 						onChange={ value => setEditing( { ...editing, url: value } ) }
 						disabled={ inFlight }
 					/>
+					<Card buttonsCard noBorder className="justify-end">
+						{ testResponse && (
+							<div
+								className={ `newspack-webhooks__test-response status--${
+									testResponse.success ? 'success' : 'error'
+								}` }
+							>
+								<span className="message">{ testResponse.message }</span>
+								<span className="code">{ testResponse.code }</span>
+							</div>
+						) }
+						<Button
+							isSecondary
+							onClick={ () => sendTestRequest( editing.url ) }
+							disabled={ inFlight }
+						>
+							{ __( 'Send a test request', 'newspack' ) }
+						</Button>
+					</Card>
+					<hr />
+					<h3>{ __( 'Actions', 'newspack' ) }</h3>
 					<CheckboxControl
 						checked={ editing.global }
 						onChange={ value => setEditing( { ...editing, global: value } ) }
@@ -274,9 +352,12 @@ const Webhooks = () => {
 						) }
 						disabled={ inFlight }
 					/>
-					<hr />
-					<h3>{ __( 'Actions', 'newspack' ) }</h3>
-					<p>{ __( 'Select which actions should trigger this endpoint.', 'newspack' ) }</p>
+					<p>
+						{ __(
+							'If this endpoint is not global, select which actions should trigger this endpoint:',
+							'newspack'
+						) }
+					</p>
 					<Grid columns={ 3 } gutter={ 16 }>
 						{ actions.map( ( action, i ) => (
 							<CheckboxControl
