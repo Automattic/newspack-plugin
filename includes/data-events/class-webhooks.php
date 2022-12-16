@@ -278,20 +278,6 @@ final class Webhooks {
 	}
 
 	/**
-	 * Disable a webhook endpoint.
-	 *
-	 * @param int $id Endpoint ID.
-	 */
-	public static function enable_endpoint( $id ) {
-		$endpoint = \get_term( $id, self::ENDPOINT_TAXONOMY );
-		if ( ! $endpoint ) {
-			return;
-		}
-		\update_term_meta( $id, 'disabled', false );
-		\delete_term_meta( $id, 'disabled_error' );
-	}
-
-	/**
 	 * Get a webhook endpoint array.
 	 *
 	 * @param int|WP_Term $endpoint Endpoint ID or term object.

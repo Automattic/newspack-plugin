@@ -147,9 +147,9 @@ const Webhooks = () => {
 					title={ getEndpointTitle( endpoint ) }
 					badge={ endpoint.global ? __( 'Global', 'newspack' ) : null }
 					description={ () => {
-						if ( endpoint.disabled_error ) {
+						if ( endpoint.disabled && endpoint.disabled_error ) {
 							return (
-								__( 'This endpoint is disabled due to a request error: ', 'newspack' ) +
+								__( 'This endpoint is disabled due excessive request errors: ', 'newspack' ) +
 								endpoint.disabled_error
 							);
 						}
@@ -252,7 +252,7 @@ const Webhooks = () => {
 							noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack' ) }
 						/>
 					) }
-					{ editing.disabled_error && (
+					{ editing.disabled && editing.disabled_error && (
 						<Notice
 							isError
 							noticeText={ __( 'Request Error: ', 'newspack' ) + editing.disabled_error }

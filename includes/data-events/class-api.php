@@ -120,6 +120,26 @@ final class Api {
 	}
 
 	/**
+	 * Get data events actions
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 */
+	public static function get_actions( $request ) {
+		return \rest_ensure_response( Data_Events::get_actions() );
+	}
+
+	/**
+	 * Get webhooks endpoints
+	 */
+	public static function get_endpoints() {
+		$endpoints = Webhooks::get_endpoints();
+		foreach ( $endpoints as &$endpoint ) {
+			$endpoint['requests'] = Webhooks::get_endpoint_requests( $endpoint['id'], 10 );
+		}
+		return \rest_ensure_response( $endpoints );
+	}
+
+	/**
 	 * Get endpoint arguments values from rest request.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -141,26 +161,6 @@ final class Api {
 			}
 		}
 		return $values;
-	}
-
-	/**
-	 * Get data events actions
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 */
-	public static function get_actions( $request ) {
-		return \rest_ensure_response( Data_Events::get_actions() );
-	}
-
-	/**
-	 * Get webhooks endpoints
-	 */
-	public static function get_endpoints() {
-		$endpoints = Webhooks::get_endpoints();
-		foreach ( $endpoints as &$endpoint ) {
-			$endpoint['requests'] = Webhooks::get_endpoint_requests( $endpoint['id'], 10 );
-		}
-		return \rest_ensure_response( $endpoints );
 	}
 
 	/**
