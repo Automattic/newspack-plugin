@@ -17,14 +17,20 @@ defined( 'ABSPATH' ) || exit;
 class Initializer {
 
 	/**
+	 * Initialized this class and adds hooks to register CLI commands
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		add_action( 'init', [ __CLASS__, 'register_comands' ] );
+	}
+
+	/**
 	 * Adds CLI commands. Do not call directly or before init hooks
 	 *
 	 * @return void
 	 */
 	public static function register_comands() {
-
-		require_once dirname( __FILE__ ) . '/class-setup.php';
-
 		if ( ! defined( 'WP_CLI' ) ) {
 			return;
 		}
@@ -34,5 +40,3 @@ class Initializer {
 	}
 
 }
-
-add_action( 'cli_init', [ Initializer::class, 'register_comands' ] );
