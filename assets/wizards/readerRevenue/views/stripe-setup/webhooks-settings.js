@@ -159,7 +159,10 @@ const WebhooksSettings = () => {
 							onClick={ () => {
 								if (
 									utils.confirmAction(
-										__( 'Are you sure you want to reset all webhooks connected to this site?', 'newspack' )
+										__(
+											'Are you sure you want to reset all webhooks connected to this site?',
+											'newspack'
+										)
 									)
 								) {
 									resetWebhooks();
