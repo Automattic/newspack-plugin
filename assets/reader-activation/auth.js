@@ -143,7 +143,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 		 * Handle account links.
 		 */
 		function handleAccountLinkClick( ev ) {
-			console.log( ev );
 			const reader = readerActivation.getReader();
 			/** If logged in, bail and allow page redirection. */
 			if ( reader?.authenticated ) {
