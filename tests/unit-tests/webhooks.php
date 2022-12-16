@@ -175,7 +175,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		$this->dispatch_event();
 		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
 		$post     = get_post( $requests[0]['id'] );
-		$this->assertEquals( 'pending', $post->post_status );
+		$this->assertEquals( 'future', $post->post_status );
 		$this->assertGreaterThan( time(), strtotime( $post->post_date ) );
 	}
 
