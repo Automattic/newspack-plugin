@@ -1,6 +1,6 @@
 {
   "name": "newspack",
-  "version": "1.97.2",
+  "version": "1.99.0",
   "description": "The Newspack plugin. https://newspack.pub",
   "bugs": {
     "url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -62,6 +62,7 @@
     "react-daterange-picker": "^2.0.1",
     "react-google-charts": "^4.0.0",
     "react-router-dom": "^5.3.4",
-    "recursive-copy": "^2.0.14"
+    "recursive-copy": "^2.0.14",
+    "tachyons": "^4.12.0"
   }
 }

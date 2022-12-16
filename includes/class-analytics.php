@@ -475,6 +475,13 @@ class Analytics {
 	 * More: https://github.com/ampproject/amphtml/issues/32911.
 	 */
 	public static function insert_gtag_amp_analytics() {
+		// If this is a request to verify the tag (from Site Kit), don't insert the amp-analytics tag.
+		// Site Kit will only check if the tag is present, not if the send_page_view parameter is true.
+		// In this case, the tag won't send page views – but only events. Thus it is not duplicating Site Kit's tag.
+		if ( isset( $_GET['tagverify'] ) && $_GET['tagverify'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			return;
+		}
+
 		$analytics = Google_Services_Connection::get_site_kit_analytics_module();
 		if ( ! $analytics || ! $analytics->is_connected() ) {
 			return;

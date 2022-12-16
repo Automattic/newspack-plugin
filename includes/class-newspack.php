@@ -77,6 +77,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-theme-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-analytics.php';
@@ -159,6 +160,8 @@ final class Newspack {
 
 		// Filter by authors in the Posts page.
 		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
+
+		\Newspack\CLI\Initializer::init();
 	}
 
 	/**
@@ -335,6 +338,14 @@ final class Newspack {
 		);
 		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-commons' );
+
+		\wp_enqueue_style(
+			'newspack-admin',
+			self::plugin_url() . '/dist/admin.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+
 	}
 }
 Newspack::instance();
