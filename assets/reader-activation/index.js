@@ -322,9 +322,7 @@ if ( ! getCookie( clientIDCookieName ) ) {
 }
 
 window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.forEach( fn => {
-	fn( readerActivation );
-} );
+window.newspackRAS.forEach( fn => fn( readerActivation ) );
 window.newspackRAS.push = fn => fn( readerActivation );
 
 export default readerActivation;
