@@ -180,7 +180,7 @@ final class Webhooks {
 				'date_query'     => [
 					[
 						'column' => 'post_date_gmt',
-						'before' => '1 minute ago',
+						'before' => gmdate( 'Y-m-d H:i:s' ),
 					],
 				],
 			]

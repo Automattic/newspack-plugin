@@ -178,66 +178,74 @@ const Webhooks = () => {
 					'newspack'
 				) }
 			</p>
-			{ endpoints.map( endpoint => (
-				<ActionCard
-					className="newspack-webhooks__endpoint"
-					toggleChecked={ ! endpoint.disabled }
-					toggleOnChange={ () => toggleEndpoint( endpoint ) }
-					key={ endpoint.id }
-					title={ getEndpointTitle( endpoint ) }
-					badge={ endpoint.global ? __( 'Global', 'newspack' ) : null }
-					description={ () => {
-						if ( endpoint.disabled && endpoint.disabled_error ) {
-							return (
-								__( 'This endpoint is disabled due excessive request errors: ', 'newspack' ) +
-								endpoint.disabled_error
-							);
-						}
-						return endpoint.global ? (
-							__( 'This endpoint is called on any action.', 'newspack' )
-						) : (
-							<>
-								{ __( 'Actions:', 'newspack' ) }{ ' ' }
-								{ endpoint.actions.map( action => (
-									<span key={ action } className="newspack-webhooks__endpoint__action">
-										{ action }
-									</span>
-								) ) }
-							</>
-						);
-					} }
-					actionText={
-						<>
-							<Button
-								onClick={ () => removeEndpoint( endpoint ) }
-								icon={ trash }
-								disabled={ inFlight }
-								label={ __( 'Remove endpoint', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
-							<Button
-								onClick={ () => setViewing( endpoint ) }
-								icon={ info }
-								disabled={ inFlight }
-								label={ __( 'View endpoint requests', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
-							<Button
-								onClick={ () => setEditing( { ...endpoint } ) }
-								icon={ settings }
-								disabled={ inFlight }
-								label={ __( 'Edit endpoint', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
-						</>
-					}
-				/>
-			) ) }
-			<Card buttonsCard noBorder className="justify-end">
+			{ endpoints.length > 0 ? (
+				<>
+					{ endpoints.map( endpoint => (
+						<ActionCard
+							className="newspack-webhooks__endpoint"
+							toggleChecked={ ! endpoint.disabled }
+							toggleOnChange={ () => toggleEndpoint( endpoint ) }
+							key={ endpoint.id }
+							title={ getEndpointTitle( endpoint ) }
+							badge={ endpoint.global ? __( 'Global', 'newspack' ) : null }
+							description={ () => {
+								if ( endpoint.disabled && endpoint.disabled_error ) {
+									return (
+										__( 'This endpoint is disabled due excessive request errors: ', 'newspack' ) +
+										endpoint.disabled_error
+									);
+								}
+								return endpoint.global ? (
+									__( 'This endpoint is called on any action.', 'newspack' )
+								) : (
+									<>
+										{ __( 'Actions:', 'newspack' ) }{ ' ' }
+										{ endpoint.actions.map( action => (
+											<span key={ action } className="newspack-webhooks__endpoint__action">
+												{ action }
+											</span>
+										) ) }
+									</>
+								);
+							} }
+							actionText={
+								<>
+									<Button
+										onClick={ () => removeEndpoint( endpoint ) }
+										icon={ trash }
+										disabled={ inFlight }
+										label={ __( 'Remove endpoint', 'newspack' ) }
+										tooltipPosition="bottom center"
+									/>
+									<Button
+										onClick={ () => setViewing( endpoint ) }
+										icon={ info }
+										disabled={ inFlight }
+										label={ __( 'View endpoint requests', 'newspack' ) }
+										tooltipPosition="bottom center"
+									/>
+									<Button
+										onClick={ () => setEditing( { ...endpoint } ) }
+										icon={ settings }
+										disabled={ inFlight }
+										label={ __( 'Edit endpoint', 'newspack' ) }
+										tooltipPosition="bottom center"
+									/>
+								</>
+							}
+						/>
+					) ) }
+					<Card buttonsCard noBorder className="justify-end">
+						<Button isPrimary onClick={ () => setEditing( { global: true } ) }>
+							{ __( 'New Endpoint', 'newspack' ) }
+						</Button>
+					</Card>
+				</>
+			) : (
 				<Button isPrimary onClick={ () => setEditing( { global: true } ) }>
-					{ __( 'New Endpoint', 'newspack' ) }
+					{ __( 'Register my first endpoint', 'newspack' ) }
 				</Button>
-			</Card>
+			) }
 			{ false !== viewing && (
 				<Modal
 					title={ __( 'Latest Requests', 'newspack' ) }
@@ -315,7 +323,7 @@ const Webhooks = () => {
 					<TextControl
 						label={ __( 'URL', 'newspack' ) }
 						help={ __(
-							"The URL to send requests to. It's required to be under TLS/SSL encryption. You can use the test button to verify the endpoint is working.",
+							"The URL to send requests to. It's required for the URL to be under a valid TLS/SSL certificate. You can use the test button below to verify the endpoint response.",
 							'newspack'
 						) }
 						value={ editing.url }
@@ -336,7 +344,7 @@ const Webhooks = () => {
 						<Button
 							isSecondary
 							onClick={ () => sendTestRequest( editing.url ) }
-							disabled={ inFlight }
+							disabled={ inFlight || ! editing.url }
 						>
 							{ __( 'Send a test request', 'newspack' ) }
 						</Button>
