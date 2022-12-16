@@ -57,9 +57,6 @@ final class Newspack {
 	private function define_constants() {
 		define( 'NEWSPACK_VERSION', '0.0.1' );
 		define( 'NEWSPACK_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/' );
-		if ( ! defined( 'NEWSPACK_COMPOSER_ABSPATH' ) ) {
-			define( 'NEWSPACK_COMPOSER_ABSPATH', dirname( NEWSPACK_PLUGIN_FILE ) . '/vendor/' );
-		}
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
 		define( 'NEWSPACK_CLIENT_ID_COOKIE_NAME', 'newspack-cid' );
