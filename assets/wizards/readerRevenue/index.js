@@ -38,6 +38,7 @@ const ReaderRevenueWizard = () => {
 					? __( 'Stripe Gateway', 'newspack' )
 					: __( 'Stripe Settings', 'newspack' ),
 			path: '/stripe-setup',
+			activeTabPaths: [ '/stripe-setup', '/stripe-webhooks' ],
 			render: Views.StripeSetup,
 			isHidden: usedPlatform !== NEWSPACK && usedPlatform !== STRIPE,
 		},

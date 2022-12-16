@@ -23,6 +23,12 @@ const TabbedNavigation = ( { items, className, disableUpcoming, children = null 
 					<li key={ index }>
 						<NavLink
 							to={ item.path }
+							isActive={ ( match, { pathname } ) => {
+								if ( item.activeTabPaths ) {
+									return item.activeTabPaths.includes( pathname );
+								}
+								return match;
+							} }
 							exact
 							activeClassName={ 'selected' }
 							className={ classnames( {
