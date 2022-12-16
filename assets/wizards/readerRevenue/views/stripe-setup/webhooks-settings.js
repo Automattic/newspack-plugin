@@ -159,7 +159,7 @@ const WebhooksSettings = () => {
 							onClick={ () => {
 								if (
 									utils.confirmAction(
-										__( 'Are you sure you want to reset all webhooks?', 'newspack' )
+										__( 'Are you sure you want to reset all webhooks connected to this site?', 'newspack' )
 									)
 								) {
 									resetWebhooks();
@@ -174,7 +174,7 @@ const WebhooksSettings = () => {
 				onUpdate={ handleWebhooksListUpdate }
 			/>
 			{ otherWebhooks.length ? (
-				<Accordion title={ __( 'Webhooks not connected to this site.', 'newspack' ) }>
+				<Accordion title={ __( 'Webhooks not connected to this site', 'newspack' ) }>
 					<WebhooksList webhooks={ otherWebhooks } onUpdate={ handleWebhooksListUpdate } />
 				</Accordion>
 			) : null }
