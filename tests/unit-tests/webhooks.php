@@ -193,7 +193,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 				$http_url  = $url;
 				return [
 					'response' => [
-						'code' => 200,
+						'code'    => 200,
+						'message' => 'OK',
 					],
 				];
 			},
@@ -218,7 +219,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			function() {
 				return [
 					'response' => [
-						'code' => 500,
+						'code'    => 500,
+						'message' => 'Internal Server Error',
 					],
 				];
 			}
@@ -243,7 +245,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			function() {
 				return [
 					'response' => [
-						'code' => 500,
+						'code'    => 500,
+						'message' => 'Internal Server Error',
 					],
 				];
 			}
@@ -289,7 +292,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			function() {
 				return [
 					'response' => [
-						'code' => 200,
+						'code'    => 200,
+						'message' => 'OK',
 					],
 				];
 			}
