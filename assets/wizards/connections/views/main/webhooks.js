@@ -142,6 +142,7 @@ const Webhooks = () => {
 	const sendTestRequest = url => {
 		setInFlight( true );
 		setTestError( false );
+		setTestResponse( false );
 		apiFetch( {
 			path: '/newspack/v1/webhooks/test',
 			method: 'POST',
