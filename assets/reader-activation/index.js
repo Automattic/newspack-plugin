@@ -321,4 +321,12 @@ if ( ! getCookie( clientIDCookieName ) ) {
 	setCookie( clientIDCookieName, `${ getShortStringId() }${ getShortStringId() }` );
 }
 
+window.newspackRAS = window.newspackRAS || [];
+window.newspackRAS.forEach( fn => {
+	fn( readerActivation );
+} );
+if ( typeof window.newspackRAS.push === 'function' ) {
+	window.newspackRAS.push = fn => fn( readerActivation );
+}
+
 export default readerActivation;

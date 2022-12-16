@@ -50,12 +50,10 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		return acc;
 	}, {} );
 
-( function ( readerActivation ) {
-	domReady( function () {
-		if ( ! readerActivation ) {
-			return;
-		}
+window.newspackRAS = window.newspackRAS || [];
 
+window.newspackRAS.push( function ( readerActivation ) {
+	domReady( function () {
 		const containers = [ ...document.querySelectorAll( '.newspack-reader-auth' ) ];
 		const alerts = [ ...document.querySelectorAll( '.woocommerce-message' ) ];
 		if ( ! containers.length ) {
@@ -145,6 +143,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		 * Handle account links.
 		 */
 		function handleAccountLinkClick( ev ) {
+			console.log( ev );
 			const reader = readerActivation.getReader();
 			/** If logged in, bail and allow page redirection. */
 			if ( reader?.authenticated ) {
@@ -592,4 +591,4 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 			} );
 		} );
 	} );
-} )( window.newspackReaderActivation );
+} );
