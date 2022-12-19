@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack Analytics features.
+ * Newspack Analytics events features.
  *
  * @package Newspack
  */
@@ -10,9 +10,22 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Manages Analytics integrations.
+ * Manages Analytics Events integrations.
  */
-class Analytics {
+class Analytics_Events {
+
+	/**
+	 * JS event handlers counts.
+	 *
+	 * @var array
+	 */
+	public static $js_events = [
+		'click'    => 0,
+		'scroll'   => 0,
+		'submit'   => 0,
+		'visible'  => 0,
+		'ini-load' => 0,
+	];
 
 	/**
 	 * Events accumulated by block render callbacks.
@@ -22,24 +35,10 @@ class Analytics {
 	public static $ntg_block_events = [];
 
 	/**
-	 * An integer to indicate the context a block is rendered in, e.g. content|overlay campaign|inline campaign.
-	 *
-	 * @var integer
-	 */
-	public static $block_render_context = 3;
-
-	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'set_extra_analytics_config_options' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ] );
-
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'handle_custom_dimensions_reporting' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
 		add_filter( 'render_block', [ __CLASS__, 'prepare_blocks_for_events' ], 10, 2 );
-		add_action( 'newspack_campaigns_before_campaign_render', [ __CLASS__, 'set_campaign_render_context' ], 10, 1 );
-		add_action( 'newspack_campaigns_after_campaign_render', [ __CLASS__, 'reset_render_context' ], 10, 1 );
 		add_action( 'comment_form', [ __CLASS__, 'prepare_comment_events' ] );
 
 		// WooCommerce hooks. https://docs.woocommerce.com/wc-apidocs/hook-docs.html.
@@ -47,131 +46,9 @@ class Analytics {
 		add_action( 'woocommerce_register_form_end', [ __CLASS__, 'prepare_registration_events' ] );
 		add_action( 'woocommerce_after_checkout_registration_form', [ __CLASS__, 'prepare_checkout_registration_events' ] );
 
-		// Reader Activation hooks.
-		add_action( 'newspack_registered_reader', [ __CLASS__, 'newspack_registered_reader' ], 10, 5 );
-		add_action( 'newspack_newsletters_add_contact', [ __CLASS__, 'newspack_newsletters_add_contact' ], 10, 4 );
-	}
-
-	/**
-	 * Tell Site Kit to report the article's data as custom dimensions.
-	 * More about custom dimensions: https://support.google.com/analytics/answer/2709828.
-	 */
-	public static function handle_custom_dimensions_reporting() {
-		$custom_dimensions_values = apply_filters(
-			'newspack_custom_dimensions_values',
-			self::get_custom_dimensions_values( get_the_ID() )
-		);
-		foreach ( $custom_dimensions_values as $key => $value ) {
-			self::add_custom_dimension_to_ga_config( $key, $value );
-		}
-	}
-
-	/**
-	 * Get values for custom dimensions to be sent to GA.
-	 *
-	 * @param string $post_id Post ID.
-	 */
-	public static function get_custom_dimensions_values( $post_id ) {
-		$custom_dimensions        = Analytics_Wizard::list_configured_custom_dimensions();
-		$custom_dimensions_values = [];
-		foreach ( $custom_dimensions as $dimension ) {
-			$dimension_role = $dimension['role'];
-			// Remove `ga:` prefix.
-			$dimension_id = substr( $dimension['gaID'], 3 );
-
-			$post = get_post( $post_id );
-			if ( $post ) {
-				if ( 'category' === $dimension_role ) {
-					$categories       = get_the_category( $post_id );
-					$primary_category = get_post_meta( $post_id, '_yoast_wpseo_primary_category', true );
-					if ( $primary_category ) {
-						foreach ( $categories as $category ) {
-							if ( $category->term_id === (int) $primary_category ) {
-								$categories = [ $category ];
-							}
-						}
-					}
-					if ( ! empty( $categories ) ) {
-						$categories_slugs                          = implode(
-							',',
-							array_map(
-								function( $cat ) {
-									return $cat->slug;
-								},
-								$categories
-							)
-						);
-						$custom_dimensions_values[ $dimension_id ] = $categories_slugs;
-					}
-				}
-
-				if ( 'author' === $dimension_role ) {
-					$author_id                                 = $post->post_author;
-					$custom_dimensions_values[ $dimension_id ] = get_the_author_meta( 'display_name', $author_id );
-				}
-
-				if ( 'word_count' === $dimension_role ) {
-					$custom_dimensions_values[ $dimension_id ] = count( explode( ' ', wp_strip_all_tags( $post->post_content ) ) );
-				}
-
-				if ( 'publish_date' === $dimension_role ) {
-					$custom_dimensions_values[ $dimension_id ] = get_the_time( 'Y-m-d H:i', $post->ID );
-				}
-			}
-		}
-		return $custom_dimensions_values;
-	}
-
-	/**
-	 * Add custom dimension to GA config via Site Kit filters.
-	 *
-	 * @param string $dimension_id Dimension ID.
-	 * @param string $payload Payload.
-	 */
-	public static function add_custom_dimension_to_ga_config( $dimension_id, $payload ) {
-		// Non-AMP.
-		add_filter(
-			'googlesitekit_gtag_opt',
-			function ( $gtag_opt ) use ( $payload, $dimension_id ) {
-				$gtag_opt[ $dimension_id ] = $payload;
-				return $gtag_opt;
-			}
-		);
-		// AMP.
-		add_filter(
-			'googlesitekit_amp_gtag_opt',
-			function ( $gtag_amp_opt ) use ( $payload, $dimension_id ) {
-				$tracking_id = $gtag_amp_opt['vars']['gtag_id'];
-				$gtag_amp_opt['vars']['config'][ $tracking_id ][ $dimension_id ] = $payload;
-				return $gtag_amp_opt;
-			}
-		);
-	}
-
-	/**
-	 * When a Newspack Campaign is being rendered, set the block rendering context based on whether campaign is inline or overlay.
-	 *
-	 * @param object $campaign The campaign object.
-	 */
-	public static function set_campaign_render_context( $campaign ) {
-		$placement = isset( $campaign['options'], $campaign['options']['placement'] ) ? $campaign['options']['placement'] : null;
-		switch ( $placement ) {
-			case 'inline':
-				self::$block_render_context = 1;
-				break;
-			default: // All other placement options are overlays.
-				self::$block_render_context = 2;
-				break;
-		}
-	}
-
-	/**
-	 * Reset rendering context after campaign rendering is complete.
-	 *
-	 * @param object $campaign The campaign object.
-	 */
-	public static function reset_render_context( $campaign ) {
-		self::$block_render_context = 3;
+		// Insert event tracking code.
+		add_action( 'wp_footer', [ __CLASS__, 'insert_gtag_amp_analytics' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'inject_non_amp_events' ] );
 	}
 
 	/**
@@ -445,30 +322,6 @@ class Analytics {
 	}
 
 	/**
-	 * Filter the Google Analytics config options via Site Kit.
-	 * Allows us to update or set additional config options for GA.
-	 *
-	 * @param array $gtag_opt gtag config options.
-	 *
-	 * @return array Filtered config options.
-	 */
-	public static function set_extra_analytics_config_options( $gtag_opt ) {
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return $gtag_opt;
-		}
-
-		if ( ! self::can_use_site_kits_analytics() ) {
-			return $gtag_opt;
-		}
-
-		// Set transport type to 'beacon' to allow async requests to complete after a new page is loaded.
-		// See: https://developers.google.com/analytics/devguides/collection/gtagjs/sending-data#specify_different_transport_mechanisms.
-		$gtag_opt['transport_type'] = 'beacon';
-
-		return $gtag_opt;
-	}
-
-	/**
 	 * Insert amp-analytics tag/s into the footer of the page.
 	 * The tag/s will contain the custom events to be sent to GA.
 	 * This is to avoid the gtag endpoint limitation occuring with a single large config.
@@ -586,18 +439,6 @@ class Analytics {
 	}
 
 	/**
-	 * Can we rely on Site Kit's Analytics module?
-	 */
-	private static function can_use_site_kits_analytics() {
-		if ( ! class_exists( '\Google\Site_Kit\Modules\Analytics\Settings' ) ) {
-			return false;
-		}
-		$sitekit_manager     = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'google-site-kit' );
-		$sitekit_ga_settings = get_option( \Google\Site_Kit\Modules\Analytics\Settings::OPTION, false );
-		return (bool) $sitekit_manager->is_module_active( 'analytics' ) && $sitekit_ga_settings['canUseSnippet'];
-	}
-
-	/**
 	 * Inject event listeners on non-AMP pages.
 	 */
 	public static function inject_non_amp_events() {
@@ -605,7 +446,7 @@ class Analytics {
 			return;
 		}
 
-		if ( ! self::can_use_site_kits_analytics() ) {
+		if ( ! Analytics::can_use_site_kits_analytics() ) {
 			return;
 		}
 
@@ -638,9 +479,19 @@ class Analytics {
 				default:
 					break;
 			}
+			if ( isset( self::$js_events[ $event['on'] ] ) ) {
+				self::$js_events[ $event['on'] ] += 1;
+			}
+
+			// Remove unnecessary whitespace.
+			$html = preg_replace(
+				[ '/(<script>|,|\(|\)|\{|\}|;|\&\&)\s+/', '/\s+(<script>|,|\(|\)|\{|\}|;|\&\&)/' ],
+				'\1',
+				ob_get_clean()
+			);
 
 			// Other integrations can use this filter if they need to add a custom JS event handler.
-			$event_js = apply_filters( 'newspack_analytics_event_js', ob_get_clean(), $event );
+			$event_js = apply_filters( 'newspack_analytics_event_js', $html, $event );
 			echo $event_js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
@@ -651,30 +502,35 @@ class Analytics {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_click_event( $event ) {
+		if ( 0 === self::$js_events['click'] ) {
+			?>
+			<script>
+				window.newspackHandleClickEvent = (elementSelector, name, spec) => {
+					Array.prototype.slice.call( document.querySelectorAll( elementSelector ) ).forEach(element => {
+						element.addEventListener( 'click', ( event ) => {
+							<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
+							if ( event.currentTarget.matches(elementSelector) ) {
+								gtag( 'event', name, spec );
+							};
+						} );
+					})
+				};
+			</script>
+			<?php
+		}
+
 		?>
 		<script>
-			( function() {
-				var elementSelector = '<?php echo str_replace( '&quot;', '"', esc_attr( $event['element'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Allow quotes for CSS selectors validity. ?>';
-				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
-
-				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'click', function( event ) {
-						<?php // Ensure the clicked element still matches the selector. For example an aria attribue might've changed. ?>
-						if (event.currentTarget.matches(elementSelector)) {
-							gtag(
-								'event',
-								'<?php echo esc_attr( $event['event_name'] ); ?>',
-								{
-									event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-									<?php if ( isset( $event['event_label'] ) ) : ?>
-										event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-									<?php endif; ?>
-								}
-							);
-						};
-					} );
+			window.newspackHandleClickEvent(
+				'<?php echo str_replace( '&quot;', '"', esc_attr( $event['element'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Allow quotes for CSS selectors validity. ?>',
+				'<?php echo esc_attr( $event['event_name'] ); ?>',
+				{
+					event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+					<?php if ( isset( $event['event_label'] ) ) : ?>
+						event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+					<?php endif; ?>
 				}
-			} )();
+			);
 		</script>
 		<?php
 	}
@@ -685,41 +541,44 @@ class Analytics {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_scroll_event( $event ) {
+		if ( 0 === self::$js_events['scroll'] ) {
+			?>
+			<script>
+				window.newspackHandleScrollEvent = (scrollPercent, name, spec) => {
+					let eventSent = false;
+					const reportEvent = () => {
+						if ( eventSent ) {
+							window.removeEventListener( 'scroll', reportEvent );
+							return;
+						};
+						const scrollPos = ( window.pageYOffset || window.scrollY ) + window.innerHeight;
+						if ( ( ( scrollPos / document.body.clientHeight ) * 100 ) >= scrollPercent ) {
+							eventSent = true;
+							gtag( 'event', name, spec );
+						};
+					};
+					<?php // Fire initially - page might be loaded with scroll offset. ?>
+					window.addEventListener( 'DOMContentLoaded', reportEvent );
+					window.addEventListener( 'scroll', reportEvent );
+				};
+			</script>
+			<?php
+		}
+
 		?>
 		<script>
-			( function() {
-				var scrollPercent = <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>;
-
-				var eventSent = false;
-				var reportEvent = function(){
-					if ( eventSent ) {
-						window.removeEventListener( 'scroll', reportEvent );
-						return;
-					}
-
-					var scrollPos = ( window.pageYOffset || window.scrollY ) + window.innerHeight;
-					var documentHeight = document.body.clientHeight;
-
-					if ( ( ( scrollPos / documentHeight ) * 100 ) >= scrollPercent ) {
-						eventSent = true;
-						gtag(
-							'event',
-							'<?php echo esc_attr( $event['event_name'] ); ?>',
-							{
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-								<?php if ( isset( $event['event_label'] ) ) : ?>
-									event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-								<?php endif; ?>
-								value: scrollPercent,
-								non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
-							}
-						);
-					}
+			window.newspackHandleScrollEvent(
+				<?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>,
+				'<?php echo esc_attr( $event['event_name'] ); ?>',
+				{
+					event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+					<?php if ( isset( $event['event_label'] ) ) : ?>
+						event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+					<?php endif; ?>
+					value: <?php echo (int) $event['scrollSpec']['verticalBoundaries'][0]; ?>,
+					non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
 				}
-				// Fire initially - page might be loaded with scroll offset.
-				window.addEventListener( 'DOMContentLoaded', reportEvent );
-				window.addEventListener( 'scroll', reportEvent );
-			} )();
+			);
 		</script>
 		<?php
 	}
@@ -733,34 +592,29 @@ class Analytics {
 		?>
 		<script>
 			( function() {
-				var elementSelector = '<?php echo esc_attr( $event['element'] ); ?>';
-				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
-
-				for ( var i = 0; i < elements.length; ++i ) {
-					elements[i].addEventListener( 'submit', function(e) {
-						var eventInfo = {
-								event_category: '<?php echo esc_attr( $event['event_category'] ); ?>'
+				Array.prototype.slice.call( document.querySelectorAll( '<?php echo esc_attr( $event['element'] ); ?>' ) ).forEach(element => {
+					element.addEventListener( 'submit', (e) => {
+						const eventInfo = {
+							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>'
 						};
 						<?php if ( isset( $event['event_label'] ) ) : ?>
-							var form = e.currentTarget;
-							var eventLabel = '<?php echo isset( $event['event_label'] ) ? esc_attr( $event['event_label'] ) : ''; ?>';
+							const form = e.currentTarget;
+							let eventLabel = '<?php echo isset( $event['event_label'] ) ? esc_attr( $event['event_label'] ) : ''; ?>';
 							<?php if ( preg_match( '/(\${formId}|\${formFields\[(.*?)\]})/', $event['event_label'] ) ) : ?>
 								eventLabel = eventLabel.replace( '${formId}', form.id );
-								var fields = eventLabel.match( /\${formFields\[(.*?)\]}/g )
-								fields.forEach( function( field ) {
-									var fieldName = field.match( /\${formFields\[(.*?)\]}/ )[1];
+								eventLabel.match( /\${formFields\[(.*?)\]}/g ).forEach( ( field ) => {
+									const fieldName = field.match( /\${formFields\[(.*?)\]}/ )[1];
 									if ( form[ fieldName ] ) {
-										var fieldValues = [];
+										const fieldValues = [];
 										if ( form[ fieldName ].length ) {
-											for ( var j = 0; j < form[ fieldName ].length; j++ ) {
+											for ( let j = 0; j < form[ fieldName ].length; j++ ) {
 												if ( form[ fieldName ][ j ].checked ) {
 													fieldValues.push( form[ fieldName ][ j ].value );
 												}
 											}
 										} else {
 											fieldValues.push( form[ fieldName ].value );
-										}
-
+										};
 										eventLabel = eventLabel.replace( field, fieldValues.join( ',' ) );
 									}
 								} );
@@ -774,7 +628,7 @@ class Analytics {
 							eventInfo
 						);
 					} );
-				}
+				})
 			} )();
 		</script>
 		<?php
@@ -787,70 +641,68 @@ class Analytics {
 	 */
 	protected static function output_js_visible_event( $event ) {
 		$delay = ! empty( $event['visibilitySpec'] ) && ! empty( $event['visibilitySpec']['totalTimeMin'] ) ? $event['visibilitySpec']['totalTimeMin'] : 0;
+
+		if ( 0 === self::$js_events['visible'] ) {
+			?>
+			<script>
+				( function() {
+					const viewedElements = [];
+					const checkVisibility = ( el ) => {
+						const elementHeight = el.offsetHeight;
+						const elementWidth = el.offsetWidth;
+						if ( elementHeight === 0 || elementWidth === 0 ) {
+							return false;
+						};
+						const rect = el.getBoundingClientRect();
+						return (
+							rect.top >= -elementHeight &&
+							rect.left >= -elementWidth &&
+							rect.right <= ( window.innerWidth || document.documentElement.clientWidth ) + elementWidth &&
+							rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) + elementHeight
+						);
+					};
+					window.newspackHandleVisibleEvent = (selector, name, spec, delay) => {
+						const elements = Array.prototype.slice.call( document.querySelectorAll( selector ) );
+						const reportEvent = () => {
+							elements.forEach(element => {
+								<?php // Stop tracking scroll after visibility has been reported. ?>
+								if ( -1 !== viewedElements.indexOf( element ) ) {
+									window.removeEventListener( 'scroll', reportEvent );
+									return;
+								}
+								if ( checkVisibility( element ) && -1 === viewedElements.indexOf( element ) ) {
+									viewedElements.push( element );
+									const totalTimeMin = window.setTimeout( () => {
+										if ( checkVisibility( element ) ) {
+											return gtag( 'event', name, spec );
+										}
+										window.clearTimeout( totalTimeMin );
+									}, delay );
+								}
+							});
+						};
+
+						<?php // Fire initially - page might be loaded with scroll offset. ?>
+						window.addEventListener( 'DOMContentLoaded', reportEvent );
+						window.addEventListener( 'scroll', reportEvent );
+					};
+				} )();
+			</script>
+			<?php
+		}
+
 		?>
 		<script>
-			( function() {
-				window.newspackViewedElements = window.newspackViewedElements || [];
-				window.newspackCheckVisibility = window.newspackCheckVisibility || function( el ) {
-					var elementHeight = el.offsetHeight;
-					var elementWidth = el.offsetWidth;
-
-					if ( elementHeight === 0 || elementWidth === 0 ) {
-						return false;
-					}
-
-					var rect = el.getBoundingClientRect();
-
-					return (
-						rect.top >= -elementHeight &&
-						rect.left >= -elementWidth &&
-						rect.right <= ( window.innerWidth || document.documentElement.clientWidth ) + elementWidth &&
-						rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) + elementHeight
-					)
-				};
-
-				var elementSelector = '<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
-				var elements        = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
-
-				var reportEvent = function() {
-					for ( var i = 0; i < elements.length; ++i ) {
-						var elementToCheck = elements[i];
-
-						// Stop tracking scroll after visibility has been reported.
-						if ( -1 !== window.newspackViewedElements.indexOf( elementToCheck ) ) {
-							window.removeEventListener( 'scroll', reportEvent );
-							return;
-						}
-
-						if ( window.newspackCheckVisibility( elementToCheck ) && -1 === window.newspackViewedElements.indexOf( elementToCheck ) ) {
-							window.newspackViewedElements.push( elementToCheck );
-
-							var totalTimeMin = window.setTimeout( function() {
-
-								// If element is still in viewport after <?php echo esc_attr( $delay ); ?>ms
-								if ( window.newspackCheckVisibility( elementToCheck ) ) {
-									return gtag(
-										'event',
-										'<?php echo esc_attr( $event['event_name'] ); ?>',
-										{
-											event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-											<?php if ( isset( $event['event_label'] ) ) : ?>
-												event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-											<?php endif; ?>
-											non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
-										}
-									);
-								}
-								window.clearTimeout( totalTimeMin );
-							}, <?php echo esc_attr( $delay ); ?> );
-						}
-					}
-				};
-
-				// Fire initially - page might be loaded with scroll offset.
-				window.addEventListener( 'DOMContentLoaded', reportEvent );
-				window.addEventListener( 'scroll', reportEvent );
-			} )();
+			window.newspackHandleVisibleEvent(
+				'<?php echo $event['element']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>',
+				'<?php echo esc_attr( $event['event_name'] ); ?>',
+				{
+					event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+					<?php if ( isset( $event['event_label'] ) ) : ?>
+						event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+					<?php endif; ?>
+					non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
+				}, <?php echo esc_attr( $delay ); ?>);
 		</script>
 		<?php
 	}
@@ -861,140 +713,49 @@ class Analytics {
 	 * @param array $event Event info. See 'get_events'.
 	 */
 	protected static function output_js_ini_load_event( $event ) {
-		$element = isset( $event['element'] ) ? $event['element'] : '';
+		if ( 0 === self::$js_events['ini-load'] ) {
+			?>
+			<script>
+				( function() {
+					const getObserver = (handleEvent) => new MutationObserver((mutations) => {
+						mutations.forEach((mutation) => {
+							if (
+								mutation.attributeName === 'amp-access-hide' &&
+								mutation.type == "attributes" &&
+								! mutation.target.hasAttribute('amp-access-hide')
+							) {
+								handleEvent()
+							}
+						});
+					});
+					window.newspackHandleIniLoadEvent = ( selector, name, spec, observe ) => {
+						const handleEvent = () => gtag('event', name, spec);
+						if (observe) {
+							Array.prototype.slice.call( document.querySelectorAll( selector ) ).forEach(( element ) => {
+								getObserver(handleEvent).observe(element, { attributes: true });
+							});
+						}else{
+							window.addEventListener('DOMContentLoaded', handleEvent)
+						}
+					};
+				} )();
+			</script>
+			<?php
+		}
+
+		$element_selector = isset( $event['element'] ) ? $event['element'] : '';
+
 		?>
 		<script>
-			( function() {
-				var handleEvent = function() {
-					gtag(
-						'event',
-						'<?php echo esc_attr( $event['event_name'] ); ?>',
-						{
-							event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
-							<?php if ( isset( $event['event_label'] ) ) : ?>
-								event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
-							<?php endif; ?>
-							non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
-						}
-					);
-				};
-
-				var elementSelector = '<?php echo esc_attr( $element ); ?>';
-				if (elementSelector) {
-					var elements = Array.prototype.slice.call( document.querySelectorAll( elementSelector ) );
-					for ( var i = 0; i < elements.length; ++i ) {
-
-						var observer = new MutationObserver(function(mutations) {
-							mutations.forEach(function(mutation) {
-								if (
-									mutation.attributeName === 'amp-access-hide' &&
-									mutation.type == "attributes" &&
-									! mutation.target.hasAttribute('amp-access-hide')
-								) {
-									handleEvent()
-								}
-							});
-						});
-
-						observer.observe(elements[i], { attributes: true });
-					}
-				} else {
-					window.addEventListener('DOMContentLoaded', handleEvent)
-				}
-			} )();
+			window.newspackHandleIniLoadEvent('<?php echo esc_attr( $element_selector ); ?>', '<?php echo esc_attr( $event['event_name'] ); ?>', {
+				event_category: '<?php echo esc_attr( $event['event_category'] ); ?>',
+				<?php if ( isset( $event['event_label'] ) ) : ?>
+				event_label: '<?php echo esc_attr( $event['event_label'] ); ?>',
+				<?php endif; ?>
+				non_interaction: <?php echo esc_attr( ! empty( $event['non_interaction'] ) && true === $event['non_interaction'] ? 'true' : 'false' ); ?>,
+			}, <?php echo isset( $event['element'] ) ? 'true' : 'false'; ?>);
 		</script>
 		<?php
 	}
-
-	/**
-	 * When a new reader registers, sent an event to GA.
-	 *
-	 * @param string         $email         Email address.
-	 * @param bool           $authenticate  Whether to authenticate after registering.
-	 * @param false|int      $user_id       The created user id.
-	 * @param false|\WP_User $existing_user The existing user object.
-	 * @param array          $metadata      Metadata.
-	 */
-	public static function newspack_registered_reader( $email, $authenticate, $user_id, $existing_user, $metadata ) {
-		if ( $existing_user ) {
-			return;
-		}
-		$event_spec = [
-			'category' => __( 'Newspack Reader Activation', 'newspack' ),
-			'action'   => __( 'Registration', 'newspack' ),
-		];
-
-		if ( isset( $metadata['registration_method'] ) ) {
-			$event_spec['action'] .= ' (' . $metadata['registration_method'] . ')';
-		}
-
-		if ( isset( $metadata['lists'] ) ) {
-			$event_spec['label'] = __( 'Signed up for lists:', 'newspack' ) . ' ' . implode( ', ', $metadata['lists'] );
-		}
-
-		if ( isset( $metadata['current_page_url'] ) ) {
-			$parsed_url = \wp_parse_url( $metadata['current_page_url'] );
-			if ( $parsed_url ) {
-				if ( isset( $parsed_url['host'] ) ) {
-					$event_spec['host'] = $parsed_url['host'];
-				}
-				if ( isset( $parsed_url['path'] ) ) {
-					$event_spec['path'] = $parsed_url['path'];
-				}
-			}
-		}
-
-		\Newspack\Google_Services_Connection::send_custom_event( $event_spec );
-
-		if ( Analytics_Wizard::ntg_events_enabled() ) {
-			\Newspack\Google_Services_Connection::send_custom_event(
-				[
-					'category' => __( 'NTG account', 'newspack' ),
-					'action'   => __( 'registration', 'newspack' ),
-					'label'    => 'success',
-				]
-			);
-		}
-	}
-
-	/**
-	 * When a reader signs up for the newsletter, send an event to GA.
-	 *
-	 * @param string         $provider The provider name.
-	 * @param array          $contact  {
-	 *    Contact information.
-	 *
-	 *    @type string   $email                 Contact email address.
-	 *    @type string   $name                  Contact name. Optional.
-	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
-	 *    @type string[] $metadata              Contact additional metadata. Optional.
-	 * }
-	 * @param string[]|false $lists    Array of list IDs to subscribe the contact to.
-	 * @param bool|WP_Error  $result   True if the contact was added or error if failed.
-	 */
-	public static function newspack_newsletters_add_contact( $provider, $contact, $lists, $result ) {
-		if (
-			! Analytics_Wizard::ntg_events_enabled()
-			|| ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_data' )
-			// Don't send events for updates to a contact.
-			|| $contact['existing_contact_data']
-		) {
-			return;
-		}
-
-		// If the user is only being subscribed to the master list, they did not sign up for the newsletter explicitly.
-		$lists = Newspack_Newsletters::get_lists_without_active_campaign_master_list( $lists );
-		if ( empty( $lists ) ) {
-			return;
-		}
-
-		\Newspack\Google_Services_Connection::send_custom_event(
-			[
-				'category' => __( 'NTG newsletter', 'newspack' ),
-				'action'   => __( 'newsletter signup', 'newspack' ),
-				'label'    => 'success',
-			]
-		);
-	}
 }
-new Analytics();
+new Analytics_Events();
