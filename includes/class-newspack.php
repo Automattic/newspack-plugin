@@ -49,6 +49,7 @@ final class Newspack {
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'deactivation_hook' ] );
 	}
 
 	/**
@@ -235,6 +236,14 @@ final class Newspack {
 	 */
 	public function activation_hook() {
 		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+		do_action( 'newspack_activation' );
+	}
+
+	/**
+	 * Deactivation Hook
+	 */
+	public function deactivation_hook() {
+		do_action( 'newspack_deactivation' );
 	}
 
 	/**
