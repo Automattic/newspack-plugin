@@ -158,7 +158,7 @@ class Stripe_Webhooks {
 									$contact['metadata'][ $key ] = $value;
 								}
 							} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-								// Fail silently.
+								Logger::error( 'Could not parse additional fields: ' . $th->getMessage() );
 							}
 						}
 
