@@ -1,3 +1,10 @@
+## [1.99.1](https://github.com/Automattic/newspack-plugin/compare/v1.99.0...v1.99.1) (2022-12-19)
+
+
+### Bug Fixes
+
+* **pixel:** proper usage of action hooks ([#2205](https://github.com/Automattic/newspack-plugin/issues/2205)) ([cde052e](https://github.com/Automattic/newspack-plugin/commit/cde052e0fdb0e49297e8016af4cc7760c1ec5147))
+
 # [1.99.0](https://github.com/Automattic/newspack-plugin/compare/v1.98.0...v1.99.0) (2022-12-15)
 
 
