@@ -189,9 +189,9 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test registering a listener with a filter.
+	 * Test registering a listener with a callable.
 	 */
-	public function test_register_listener_with_filter() {
+	public function test_register_listener_with_callable() {
 		$action_name = 'test_action';
 		Data_Events::register_listener(
 			'some_actionable_thing',
@@ -214,5 +214,37 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		do_action( 'some_actionable_thing', 'data' );
 
 		$this->assertEquals( 'data was parsed', $parsed_data );
+	}
+
+	/**
+	 * Test registering a listener with an argument map.
+	 */
+	public function test_register_listener_with_map() {
+		$action_name = 'test_action';
+		Data_Events::register_listener(
+			'some_actionable_thing',
+			$action_name,
+			[ 'key1', 'key2' ]
+		);
+
+		$parsed_data = [];
+		add_action(
+			"newspack_data_event_dispatch_$action_name",
+			function( $timestamp, $data, $client_id ) use ( &$parsed_data ) {
+				$parsed_data = $data;
+			},
+			10,
+			3
+		);
+
+		do_action( 'some_actionable_thing', 'value1', 'value2' );
+
+		$this->assertEquals(
+			[
+				'key1' => 'value1',
+				'key2' => 'value2',
+			],
+			$parsed_data
+		);
 	}
 }

@@ -49,6 +49,7 @@ final class Newspack {
 		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'deactivation_hook' ] );
 	}
 
 	/**
@@ -78,6 +79,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-theme-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/listeners.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics.php';
@@ -237,6 +240,20 @@ final class Newspack {
 	 */
 	public function activation_hook() {
 		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+		/**
+		 * Fires on the newspack plugin activation hook
+		 */
+		do_action( 'newspack_activation' );
+	}
+
+	/**
+	 * Deactivation Hook
+	 */
+	public function deactivation_hook() {
+		/**
+		 * Fires on the newspack plugin deactivation hook
+		 */
+		do_action( 'newspack_deactivation' );
 	}
 
 	/**
