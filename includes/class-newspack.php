@@ -246,6 +246,9 @@ final class Newspack {
 	 * Deactivation Hook
 	 */
 	public function deactivation_hook() {
+		/**
+		 * Fires on the newspack plugin deactivation hook
+		 */
 		do_action( 'newspack_deactivation' );
 	}
 
