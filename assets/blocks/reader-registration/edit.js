@@ -137,54 +137,62 @@ export default function ReaderRegistrationEdit( {
 								{ inFlight && <Spinner /> }
 								{ ! inFlight && ! Object.keys( listConfig ).length && (
 									<div style={ { marginBottom: '1.5rem' } }>
-										<Notice isDismissible={ false } status="error">
-											{ __( 'You must enable lists for subscription.', 'newspack-newsletters' ) }
-										</Notice>
+										{ __(
+											'To enable newsletter subscription, you must configure subscription lists on Newspack Newsletters.',
+											'newspack-newsletters'
+										) }
 									</div>
 								) }
-								<ToggleControl
-									label={ __( 'Display list description', 'newspack-newsletters' ) }
-									checked={ displayListDescription }
-									disabled={ inFlight }
-									onChange={ () =>
-										setAttributes( { displayListDescription: ! displayListDescription } )
-									}
-								/>
-								<ToggleControl
-									label={ __( 'Hide newsletter selection and always subscribe', 'newspack' ) }
-									checked={ hideSubscriptionInput }
-									disabled={ inFlight || lists.length !== 1 }
-									onChange={ () =>
-										setAttributes( { hideSubscriptionInput: ! hideSubscriptionInput } )
-									}
-								/>
-								{ lists.length < 1 && (
-									<div style={ { marginBottom: '1.5rem' } }>
-										<Notice isDismissible={ false } status="error">
-											{ __( 'You must select at least one list.', 'newspack-newsletters' ) }
-										</Notice>
-									</div>
-								) }
-								{ Object.keys( listConfig ).length > 0 && <p>{ __( 'Lists', 'newspack' ) }:</p> }
-								{ Object.keys( listConfig ).map( listId => (
-									<ToggleControl
-										key={ listId }
-										label={ listConfig[ listId ].title }
-										checked={ lists.includes( listId ) }
-										disabled={ inFlight }
-										onChange={ () => {
-											if ( ! lists.includes( listId ) ) {
-												setAttributes( { lists: lists.concat( listId ) } );
-											} else {
-												setAttributes( { lists: lists.filter( id => id !== listId ) } );
+								{ Object.keys( listConfig ).length > 0 && (
+									<>
+										<ToggleControl
+											label={ __( 'Display list description', 'newspack-newsletters' ) }
+											checked={ displayListDescription }
+											disabled={ inFlight }
+											onChange={ () =>
+												setAttributes( { displayListDescription: ! displayListDescription } )
 											}
-										} }
-									/>
-								) ) }
+										/>
+										<ToggleControl
+											label={ __( 'Hide newsletter selection and always subscribe', 'newspack' ) }
+											checked={ hideSubscriptionInput }
+											disabled={ inFlight || lists.length !== 1 }
+											onChange={ () =>
+												setAttributes( { hideSubscriptionInput: ! hideSubscriptionInput } )
+											}
+										/>
+										{ lists.length < 1 && (
+											<div style={ { marginBottom: '1.5rem' } }>
+												<Notice isDismissible={ false } status="error">
+													{ __( 'You must select at least one list.', 'newspack-newsletters' ) }
+												</Notice>
+											</div>
+										) }
+										{ Object.keys( listConfig ).length > 0 && (
+											<p>{ __( 'Lists', 'newspack' ) }:</p>
+										) }
+										{ Object.keys( listConfig ).map( listId => (
+											<ToggleControl
+												key={ listId }
+												label={ listConfig[ listId ].title }
+												checked={ lists.includes( listId ) }
+												disabled={ inFlight }
+												onChange={ () => {
+													if ( ! lists.includes( listId ) ) {
+														setAttributes( { lists: lists.concat( listId ) } );
+													} else {
+														setAttributes( { lists: lists.filter( id => id !== listId ) } );
+													}
+												} }
+											/>
+										) ) }
+									</>
+								) }
 								<p>
 									<a href={ newspack_blocks.newsletters_url }>
-										{ __( 'Manage your subscription lists', 'newspack-newsletters' ) }
+										{ __( 'Configure your subscription lists', 'newspack-newsletters' ) }
 									</a>
+									.
 								</p>
 							</>
 						) }
