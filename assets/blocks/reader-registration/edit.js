@@ -138,7 +138,7 @@ export default function ReaderRegistrationEdit( {
 								{ ! inFlight && ! Object.keys( listConfig ).length && (
 									<div style={ { marginBottom: '1.5rem' } }>
 										{ __(
-											'To enable newsletter subscription, you must enable subscription lists on Newspack Newsletters.',
+											'To enable newsletter subscription, you must configure subscription lists on Newspack Newsletters.',
 											'newspack-newsletters'
 										) }
 									</div>
@@ -190,7 +190,7 @@ export default function ReaderRegistrationEdit( {
 								) }
 								<p>
 									<a href={ newspack_blocks.newsletters_url }>
-										{ __( 'Manage your subscription lists', 'newspack-newsletters' ) }
+										{ __( 'Configure your subscription lists', 'newspack-newsletters' ) }
 									</a>
 									.
 								</p>
