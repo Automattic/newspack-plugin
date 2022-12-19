@@ -47,6 +47,7 @@ final class Webhooks {
 		\add_action( 'init', [ __CLASS__, 'register_request_post_type' ] );
 		\add_action( 'init', [ __CLASS__, 'register_endpoint_taxonomy' ] );
 		\add_action( 'init', [ __CLASS__, 'register_cron_events' ] );
+		\add_action( 'newspack_deactivation', [ __CLASS__, 'clear_cron_events' ] );
 		\add_action( 'newspack_data_event_dispatch', [ __CLASS__, 'handle_dispatch' ], 10, 4 );
 		\add_action( 'transition_post_status', [ __CLASS__, 'transition_post_status' ], 10, 3 );
 	}
@@ -118,7 +119,6 @@ final class Webhooks {
 	 * Register webhook cron events.
 	 */
 	public static function register_cron_events() {
-		\register_deactivation_hook( __FILE__, [ __CLASS__, 'clear_cron_events' ] );
 		$config = self::get_cron_config();
 		foreach ( $config as $event => $schedule ) {
 			$hook = "newspack_webhooks_cron_{$event}";
