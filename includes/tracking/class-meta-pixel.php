@@ -56,21 +56,17 @@ class Meta_Pixel extends Pixel {
 	}
 
 	/**
-	 * Gets the template for the img tag snippet
-	 *
-	 * @return string
+	 * Prints the template for the img tag snippet
 	 */
 	public function print_footer_snippet() {
 		$event_params = self::get_event_params();
 		$url_params   = http_build_query( [ 'cd' => $event_params ] );
 		$snippet      = '<img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id=__PIXEL_ID__&ev=PageView&noscript=1&' . $url_params . '">';
-		return $this->create_noscript_snippet( $snippet );
+		$this->create_noscript_snippet( $snippet );
 	}
 
 	/**
-	 * Gets the template for the script tag snippet
-	 *
-	 * @return string
+	 * Prints the template for the script tag snippet
 	 */
 	public function print_head_snippet() {
 		$snippet = sprintf(
@@ -88,7 +84,7 @@ class Meta_Pixel extends Pixel {
 		</script>",
 			wp_json_encode( self::get_event_params() )
 		);
-		return $this->create_js_snippet( $snippet );
+		$this->create_js_snippet( $snippet );
 	}
 
 	/**

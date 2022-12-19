@@ -31,17 +31,13 @@ class Twitter_Pixel extends Pixel {
 
 	/**
 	 * Gets the template for the img tag snippet
-	 *
-	 * @return string
 	 */
 	public function print_footer_snippet() {
-		return parent::create_noscript_snippet( '<img height="1" width="1" style="display: none;" src="//t.co/i/adsct?txn_id=__PIXEL_ID__&amp;p_id=Twitter">' );
+		parent::create_noscript_snippet( '<img height="1" width="1" style="display: none;" src="//t.co/i/adsct?txn_id=__PIXEL_ID__&amp;p_id=Twitter">' );
 	}
 
 	/**
-	 * Gets the template for the script tag snippet
-	 *
-	 * @return string
+	 * Prints the template for the script tag snippet
 	 */
 	public function print_head_snippet() {
 		$snippet = "<!-- Twitter conversion tracking base code -->
@@ -52,7 +48,7 @@ class Twitter_Pixel extends Pixel {
 			twq('config','__PIXEL_ID__');
 			</script>
 			<!-- End Twitter conversion tracking base code -->";
-		return parent::create_js_snippet( $snippet );
+		parent::create_js_snippet( $snippet );
 	}
 
 	/**
