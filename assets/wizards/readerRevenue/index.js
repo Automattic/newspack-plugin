@@ -39,8 +39,16 @@ const ReaderRevenueWizard = () => {
 					? __( 'Stripe Gateway', 'newspack' )
 					: __( 'Stripe Settings', 'newspack' ),
 			path: '/stripe-setup',
+			activeTabPaths: [ '/stripe-setup', '/stripe-webhooks' ],
 			render: Views.StripeSetup,
 			isHidden: usedPlatform !== NEWSPACK && usedPlatform !== STRIPE,
+		},
+		{
+			label: __( 'Stripe Webhooks', 'newspack' ),
+			path: '/stripe-webhooks',
+			render: Views.StripeWebhooksSettings,
+			isHidden: usedPlatform !== STRIPE,
+			isHiddenInTabbedNavigation: true,
 		},
 		{
 			label: __( 'Emails', 'newspack' ),

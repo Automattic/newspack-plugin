@@ -80,11 +80,12 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
-		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/listeners.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
-		include_once NEWSPACK_ABSPATH . 'includes/class-analytics.php';
+		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics.php';
+		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-events.php';
+		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-dimensions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-recaptcha.php';
@@ -164,6 +165,8 @@ final class Newspack {
 
 		// Filter by authors in the Posts page.
 		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
+
+		\Newspack\CLI\Initializer::init();
 	}
 
 	/**
@@ -237,6 +240,9 @@ final class Newspack {
 	 */
 	public function activation_hook() {
 		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+		/**
+		 * Fires on the newspack plugin activation hook
+		 */
 		do_action( 'newspack_activation' );
 	}
 
@@ -244,6 +250,9 @@ final class Newspack {
 	 * Deactivation Hook
 	 */
 	public function deactivation_hook() {
+		/**
+		 * Fires on the newspack plugin deactivation hook
+		 */
 		do_action( 'newspack_deactivation' );
 	}
 
@@ -348,6 +357,14 @@ final class Newspack {
 		);
 		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-commons' );
+
+		\wp_enqueue_style(
+			'newspack-admin',
+			self::plugin_url() . '/dist/admin.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+
 	}
 }
 Newspack::instance();

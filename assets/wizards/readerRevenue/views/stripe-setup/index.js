@@ -21,6 +21,7 @@ import {
 	SelectControl,
 	TextControl,
 	Wizard,
+	ActionCard,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';
 import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
@@ -251,6 +252,18 @@ const StripeSetup = () => {
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</div>
+			{ displayStripeSettingsOnly && (
+				<ActionCard
+					title={ __( 'Webhooks', 'newspack' ) }
+					titleLink="#/stripe-webhooks"
+					href="#/stripe-webhooks"
+					description={ __(
+						'Manage the webhooks Stripe uses to communicate with your site.',
+						'newspack'
+					) }
+					actionText={ __( 'Edit', 'newspack' ) }
+				/>
+			) }
 		</>
 	);
 };

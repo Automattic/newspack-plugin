@@ -126,6 +126,7 @@ final class Reader_Activation {
 			'newspack_reader_activation_data',
 			$script_data
 		);
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
 		/**

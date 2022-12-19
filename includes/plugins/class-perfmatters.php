@@ -34,6 +34,7 @@ class Perfmatters {
 			'newspack-sponsors',
 			'newspack-listings',
 			'newspack-theme',
+			'window.newspack',
 			// WordPress.
 			'videopress',
 			'related-posts',
@@ -103,7 +104,10 @@ class Perfmatters {
 	 * @param array $options Perfmatters options.
 	 */
 	public static function set_defaults( $options = [] ) {
-		if ( ! is_admin() && ! isset( $_GET['newspack-perfmatters-defaults'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['newspack-perfmatters-defaults'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return $options;
+		}
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
 			return $options;
 		}
 

@@ -1,3 +1,4 @@
+export { default as Accordion } from './accordion';
 export { default as ActionCard } from './action-card';
 export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as AutocompleteWithSuggestions } from './autocomplete-with-suggestions';

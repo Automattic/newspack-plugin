@@ -13,6 +13,15 @@ const InteractiveDiv = ( { style = {}, ...props } ) => (
 	/>
 );
 
+const confirmAction = message => {
+	// eslint-disable-next-line no-alert
+	if ( confirm( message ) ) {
+		return true;
+	}
+	return false;
+};
+
 export default {
 	InteractiveDiv,
+	confirmAction,
 };
