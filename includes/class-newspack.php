@@ -236,6 +236,9 @@ final class Newspack {
 	 */
 	public function activation_hook() {
 		set_transient( NEWSPACK_ACTIVATION_TRANSIENT, 1, 30 );
+		/**
+		 * Fires on the newspack plugin activation hook
+		 */
 		do_action( 'newspack_activation' );
 	}
 
