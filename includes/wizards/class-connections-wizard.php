@@ -64,6 +64,7 @@ class Connections_Wizard extends Wizard {
 			[
 				'can_connect_google'   => OAuth::is_proxy_configured( 'google' ),
 				'can_connect_fivetran' => OAuth::is_proxy_configured( 'fivetran' ),
+				'can_use_webhooks'     => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
 			]
 		);
 		\wp_enqueue_script( 'newspack-connections-wizard' );

@@ -1,3 +1,4 @@
+/* global newspack_connections_data */
 /**
  * External dependencies
  */
@@ -171,6 +172,10 @@ const Webhooks = () => {
 		setEditingError( false );
 		setTestError( false );
 	}, [ editing ] );
+
+	if ( ! newspack_connections_data.can_use_webhooks ) {
+		return null;
+	}
 
 	return (
 		<>

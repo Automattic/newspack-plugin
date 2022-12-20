@@ -52,6 +52,9 @@
 		}
 		td {
 			font-size: 0.9em;
+			&:last-child {
+				text-align: right;
+			}
 		}
 		.status {
 			&--finished {
