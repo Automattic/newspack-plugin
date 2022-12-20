@@ -36,7 +36,7 @@ final class Api {
 		);
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/webhooks/test',
+			'/webhooks/endpoints/test',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ __CLASS__, 'test_url' ],

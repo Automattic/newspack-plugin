@@ -148,7 +148,7 @@ const Webhooks = () => {
 		setTestError( false );
 		setTestResponse( false );
 		apiFetch( {
-			path: '/newspack/v1/webhooks/test',
+			path: '/newspack/v1/webhooks/endpoints/test',
 			method: 'POST',
 			data: { url },
 		} )
