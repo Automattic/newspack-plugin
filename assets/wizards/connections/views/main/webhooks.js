@@ -271,7 +271,9 @@ const Webhooks = () => {
 							<tr>
 								<th />
 								<th colSpan="2">{ __( 'Action', 'newspack' ) }</th>
-								{ hasEndpointErrors( viewing ) && <th>{ __( 'Error', 'newspack' ) }</th> }
+								{ hasEndpointErrors( viewing ) && (
+									<th colSpan="2">{ __( 'Error', 'newspack' ) }</th>
+								) }
 							</tr>
 							{ viewing.requests.map( request => (
 								<tr key={ request.id }>
@@ -283,8 +285,10 @@ const Webhooks = () => {
 										{ 'pending' === request.status
 											? sprintf(
 													// translators: %s is a human-readable time difference.
-													__( 'scheduled for %s', 'newspack' ),
-													moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
+													__( 'sending in %s', 'newspack' ),
+													moment( request.scheduled.date + request.scheduled.timezone ).fromNow(
+														true
+													)
 											  )
 											: sprintf(
 													// translators: %s is a human-readable time difference.
@@ -293,20 +297,22 @@ const Webhooks = () => {
 											  ) }
 									</td>
 									{ hasEndpointErrors( viewing ) && (
-										<td className="error">
-											{ request.errors && request.errors.length > 0 && (
-												<>
-													<span className="error-count">
-														{ sprintf(
-															// translators: %s is the number of errors.
-															__( 'Attempt #%s', 'newspack' ),
-															request.errors.length
-														) }
-													</span>
-													{ request.errors ? request.errors[ request.errors.length - 1 ] : '--' }
-												</>
-											) }
-										</td>
+										<>
+											<td className="error">
+												{ request.errors && request.errors.length > 0
+													? request.errors[ request.errors.length - 1 ]
+													: '--' }
+											</td>
+											<td>
+												<span className="error-count">
+													{ sprintf(
+														// translators: %s is the number of errors.
+														__( 'Attempt #%s', 'newspack' ),
+														request.errors.length
+													) }
+												</span>
+											</td>
+										</>
 									) }
 								</tr>
 							) ) }
