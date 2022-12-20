@@ -250,7 +250,7 @@ class Analytics_Events {
 			'id'              => self::get_uniqid(),
 			'on'              => 'visible',
 			'element'         => '#' . $block_unique_id,
-			'event_name'      => 'newsletter modal impression ' . self::$block_render_context,
+			'event_name'      => 'newsletter modal impression ' . Analytics::$block_render_context,
 			'event_label'     => get_the_title(),
 			'event_category'  => 'NTG newsletter',
 			'non_interaction' => true,
