@@ -42,6 +42,10 @@ const getRequestStatusIcon = status => {
 	return icons[ status ] || settings;
 };
 
+const hasEndpointErrors = endpoint => {
+	return endpoint.requests.some( request => request.errors.length );
+};
+
 const Webhooks = () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
@@ -259,11 +263,15 @@ const Webhooks = () => {
 						) }
 					</p>
 					{ viewing.requests.length > 0 ? (
-						<table className="newspack-webhooks__requests">
+						<table
+							className={ `newspack-webhooks__requests ${
+								hasEndpointErrors( viewing ) ? 'has-error' : ''
+							}` }
+						>
 							<tr>
 								<th />
 								<th colSpan="2">{ __( 'Action', 'newspack' ) }</th>
-								<th>{ __( 'Error', 'newspack' ) }</th>
+								{ hasEndpointErrors( viewing ) && <th>{ __( 'Error', 'newspack' ) }</th> }
 							</tr>
 							{ viewing.requests.map( request => (
 								<tr key={ request.id }>
@@ -284,9 +292,22 @@ const Webhooks = () => {
 													moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
 											  ) }
 									</td>
-									<td className="error">
-										{ request.errors ? request.errors[ request.errors.length - 1 ] : '--' }
-									</td>
+									{ hasEndpointErrors( viewing ) && (
+										<td className="error">
+											{ request.errors && request.errors.length > 0 && (
+												<>
+													<span className="error-count">
+														{ sprintf(
+															// translators: %s is the number of errors.
+															__( 'Attempt #%s', 'newspack' ),
+															request.errors.length
+														) }
+													</span>
+													{ request.errors ? request.errors[ request.errors.length - 1 ] : '--' }
+												</>
+											) }
+										</td>
+									) }
 								</tr>
 							) ) }
 						</table>

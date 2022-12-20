@@ -19,14 +19,16 @@
 		justify-content: center;
 		font-family: Consolas, monaco, monospace;
 		font-size: 0.8em;
-		&.status--success {
-			.code {
-				color: wp-colors.$alert-green;
+		&.status {
+			&--success {
+				.code {
+					color: wp-colors.$alert-green;
+				}
 			}
-		}
-		&.status--error {
-			.code {
-				color: wp-colors.$alert-red;
+			&--error {
+				.code {
+					color: wp-colors.$alert-red;
+				}
 			}
 		}
 		.code {
@@ -52,13 +54,13 @@
 			font-size: 0.9em;
 		}
 		.status {
-			&.status--finished {
+			&--finished {
 				fill: wp-colors.$alert-green;
 			}
-			&.status--killed {
+			&--killed {
 				fill: wp-colors.$alert-red;
 			}
-			&.status--pending {
+			&--pending {
 				fill: wp-colors.$alert-yellow;
 			}
 			svg {
@@ -70,9 +72,25 @@
 			font-weight: 700;
 			font-family: Consolas, monaco, monospace;
 		}
-		.error {
-			width: 100%;
-			white-space: normal;
+		&.has-error {
+			.error {
+				width: 100%;
+				white-space: normal;
+				.error-count {
+					float: right;
+					background: rgba( 0, 0, 0, 0.03 );
+					color: #666;
+					font-size: 0.7em;
+					padding: 2px 6px;
+					margin-right: 4px;
+					border-radius: 2px;
+				}
+			}
+		}
+		&:not( .has-error ) {
+			.action-name {
+				width: 100%;
+			}
 		}
 	}
 }
