@@ -13,15 +13,22 @@ import './style.scss';
 const { NavLink, useHistory } = Router;
 
 const TabbedNavigation = ( { items, className, disableUpcoming, children = null } ) => {
+	const displayedItems = items.filter( item => ! item.isHiddenInTabbedNavigation );
 	const { location } = useHistory();
-	const currentIndex = findIndex( items, [ 'path', location.pathname ] );
+	const currentIndex = findIndex( displayedItems, [ 'path', location.pathname ] );
 	return (
 		<div className={ classnames( 'newspack-tabbed-navigation', className ) }>
 			<ul>
-				{ items.map( ( item, index ) => (
+				{ displayedItems.map( ( item, index ) => (
 					<li key={ index }>
 						<NavLink
 							to={ item.path }
+							isActive={ ( match, { pathname } ) => {
+								if ( item.activeTabPaths ) {
+									return item.activeTabPaths.includes( pathname );
+								}
+								return match;
+							} }
 							exact
 							activeClassName={ 'selected' }
 							className={ classnames( {
