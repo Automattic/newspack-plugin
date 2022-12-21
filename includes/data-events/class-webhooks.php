@@ -295,7 +295,7 @@ final class Webhooks {
 		return [
 			'id'             => $endpoint->term_id,
 			'url'            => $endpoint->name,
-			'actions'        => \get_term_meta( $endpoint->term_id, 'actions', true ),
+			'actions'        => (array) \get_term_meta( $endpoint->term_id, 'actions', true ),
 			'global'         => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
 			'disabled'       => $disabled,
 			'disabled_error' => $disabled ? \get_term_meta( $endpoint->term_id, 'disabled_error', true ) : null,

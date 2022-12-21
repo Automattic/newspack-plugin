@@ -249,9 +249,18 @@ final class Api {
 			);
 		}
 		if ( empty( $args['id'] ) ) {
-			$endpoint = Webhooks::create_endpoint( ...$args );
+			$endpoint = Webhooks::create_endpoint(
+				$args['url'],
+				$args['actions'] ?? [],
+				$args['global']
+			);
 		} else {
-			$endpoint = Webhooks::update_endpoint( ...$args );
+			$endpoint = Webhooks::update_endpoint(
+				$args['id'],
+				$args['url'],
+				$args['actions'] ?? [],
+				$args['global']
+			);
 		}
 		if ( \is_wp_error( $endpoint ) ) {
 			return $endpoint;
