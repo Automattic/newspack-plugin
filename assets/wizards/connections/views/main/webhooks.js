@@ -489,32 +489,36 @@ const Webhooks = () => {
 							) }
 							disabled={ inFlight }
 						/>
-						<p>
-							{ __(
-								'If this endpoint is not global, select which actions should trigger this endpoint:',
-								'newspack'
-							) }
-						</p>
-						<Grid columns={ 3 } gutter={ 16 }>
-							{ actions.map( ( action, i ) => (
-								<CheckboxControl
-									key={ i }
-									disabled={ editing.global || inFlight }
-									label={ action }
-									checked={ editing.actions && editing.actions.includes( action ) }
-									indeterminate={ editing.global }
-									onChange={ () => {
-										const currentActions = editing.actions || [];
-										if ( currentActions.includes( action ) ) {
-											currentActions.splice( currentActions.indexOf( action ), 1 );
-										} else {
-											currentActions.push( action );
-										}
-										setEditing( { ...editing, actions: currentActions } );
-									} }
-								/>
-							) ) }
-						</Grid>
+						{ actions.length > 0 && (
+							<>
+								<p>
+									{ __(
+										'If this endpoint is not global, select which actions should trigger this endpoint:',
+										'newspack'
+									) }
+								</p>
+								<Grid columns={ 3 } gutter={ 16 }>
+									{ actions.map( ( action, i ) => (
+										<CheckboxControl
+											key={ i }
+											disabled={ editing.global || inFlight }
+											label={ action }
+											checked={ editing.actions && editing.actions.includes( action ) }
+											indeterminate={ editing.global }
+											onChange={ () => {
+												const currentActions = editing.actions || [];
+												if ( currentActions.includes( action ) ) {
+													currentActions.splice( currentActions.indexOf( action ), 1 );
+												} else {
+													currentActions.push( action );
+												}
+												setEditing( { ...editing, actions: currentActions } );
+											} }
+										/>
+									) ) }
+								</Grid>
+							</>
+						) }
 						<Card buttonsCard noBorder className="justify-end">
 							<Button
 								isPrimary
