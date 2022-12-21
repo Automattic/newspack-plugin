@@ -94,6 +94,22 @@ const EndpointActions = ( {
 	);
 };
 
+const ConfirmationModal = ( { disabled, onConfirm, onClose, title, description } ) => {
+	return (
+		<Modal title={ title } onRequestClose={ onClose }>
+			<p>{ description }</p>
+			<Card buttonsCard noBorder className="justify-end">
+				<Button isSecondary onClick={ onClose } disabled={ disabled }>
+					{ __( 'Cancel', 'newspack' ) }
+				</Button>
+				<Button isPrimary onClick={ onConfirm } disabled={ disabled }>
+					{ __( 'Confirm', 'newspack' ) }
+				</Button>
+			</Card>
+		</Modal>
+	);
+};
+
 const Webhooks = () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
@@ -110,6 +126,8 @@ const Webhooks = () => {
 	};
 
 	const [ endpoints, setEndpoints ] = useState( [] );
+	const [ deleting, setDeleting ] = useState( false );
+	const [ toggling, setToggling ] = useState( false );
 	const [ viewing, setViewing ] = useState( false );
 	const [ editing, setEditing ] = useState( false );
 	const [ editingError, setEditingError ] = useState( false );
@@ -128,46 +146,39 @@ const Webhooks = () => {
 			} );
 	};
 	const toggleEndpoint = endpoint => {
-		const confirmationText = endpoint.disabled
-			? __( 'Are you sure you want to enable this endpoint?', 'newspack' )
-			: __( 'Are you sure you want to disable this endpoint?', 'newspack' );
-		// eslint-disable-next-line no-alert
-		if ( confirm( confirmationText ) ) {
-			setInFlight( true );
-			apiFetch( {
-				path: `/newspack/v1/webhooks/endpoints/${ endpoint.id }`,
-				method: 'POST',
-				data: { disabled: ! endpoint.disabled },
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack/v1/webhooks/endpoints/${ endpoint.id }`,
+			method: 'POST',
+			data: { disabled: ! endpoint.disabled },
+		} )
+			.then( response => {
+				setEndpoints( response );
 			} )
-				.then( response => {
-					setEndpoints( response );
-				} )
-				.catch( err => {
-					setError( err );
-				} )
-				.finally( () => {
-					setInFlight( false );
-				} );
-		}
+			.catch( err => {
+				setError( err );
+			} )
+			.finally( () => {
+				setInFlight( false );
+				setToggling( false );
+			} );
 	};
 	const deleteEndpoint = endpoint => {
-		// eslint-disable-next-line no-alert
-		if ( confirm( __( 'Are you sure you want to remove this endpoint?', 'newspack' ) ) ) {
-			setInFlight( true );
-			apiFetch( {
-				path: `/newspack/v1/webhooks/endpoints/${ endpoint.id }`,
-				method: 'DELETE',
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack/v1/webhooks/endpoints/${ endpoint.id }`,
+			method: 'DELETE',
+		} )
+			.then( response => {
+				setEndpoints( response );
 			} )
-				.then( response => {
-					setEndpoints( response );
-				} )
-				.catch( err => {
-					setError( err );
-				} )
-				.finally( () => {
-					setInFlight( false );
-				} );
-		}
+			.catch( err => {
+				setError( err );
+			} )
+			.finally( () => {
+				setInFlight( false );
+				setDeleting( false );
+			} );
 	};
 	const upsertEndpoint = endpoint => {
 		setInFlight( true );
@@ -253,7 +264,7 @@ const Webhooks = () => {
 							isMedium
 							className="newspack-webhooks__endpoint mt16"
 							toggleChecked={ ! endpoint.disabled }
-							toggleOnChange={ () => toggleEndpoint( endpoint ) }
+							toggleOnChange={ () => setToggling( endpoint ) }
 							key={ endpoint.id }
 							title={ getEndpointTitle( endpoint ) }
 							description={ () => {
@@ -283,13 +294,52 @@ const Webhooks = () => {
 							actionText={
 								<EndpointActions
 									onEdit={ () => setEditing( endpoint ) }
-									onDelete={ () => deleteEndpoint( endpoint ) }
+									onDelete={ () => setDeleting( endpoint ) }
 									onView={ () => setViewing( endpoint ) }
 								/>
 							}
 						/>
 					) ) }
 				</>
+			) }
+			{ false !== deleting && (
+				<ConfirmationModal
+					title={ __( 'Remove Endpoint', 'newspack' ) }
+					description={ sprintf(
+						/* translators: %s: endpoint title */
+						__( 'Are you sure you want to remove the endpoint %s?', 'newspack' ),
+						`"${ getEndpointTitle( deleting ) }"`
+					) }
+					onClose={ () => setDeleting( false ) }
+					onConfirm={ () => deleteEndpoint( deleting ) }
+					disabled={ inFlight }
+				/>
+			) }
+			{ false !== toggling && (
+				<ConfirmationModal
+					title={
+						toggling.disabled
+							? __( 'Enable Endpoint', 'newspack' )
+							: __( 'Disable Endpoint', 'newspack' )
+					}
+					description={
+						toggling.disabled
+							? sprintf(
+									/* translators: %s: endpoint title */
+									__( 'Are you sure you want to enable the endpoint %s?', 'newspack' ),
+									`"${ getEndpointTitle( toggling ) }"`
+							  )
+							: sprintf(
+									/* translators: %s: endpoint title */
+									__( 'Are you sure you want to disable the endpoint %s?', 'newspack' ),
+									`"${ getEndpointTitle( toggling ) }"`
+							  )
+					}
+					endpoint={ toggling }
+					onClose={ () => setToggling( false ) }
+					onConfirm={ () => toggleEndpoint( toggling ) }
+					disabled={ inFlight }
+				/>
 			) }
 			{ false !== viewing && (
 				<Modal
