@@ -11,7 +11,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { settings, trash, info, check, cancelCircleFilled, update } from '@wordpress/icons';
+import { Icon, settings, trash, info, check, close, reusableBlock } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -36,9 +36,9 @@ const getEndpointTitle = endpoint => {
 
 const getRequestStatusIcon = status => {
 	const icons = {
-		pending: update,
+		pending: reusableBlock,
 		finished: check,
-		killed: cancelCircleFilled,
+		killed: close,
 	};
 	return icons[ status ] || settings;
 };
@@ -178,25 +178,37 @@ const Webhooks = () => {
 	}
 
 	return (
-		<>
+		<Card noBorder className="mt64">
 			{ false !== error && <Notice isError noticeText={ error.message } /> }
-			<SectionHeader title={ __( 'Webhook Endpoints', 'newspack' ) } />
-			<p>
-				{ __(
-					'Register webhook endpoints to integrate reader activity data to third-party services or private APIs.',
-					'newspack'
-				) }
-			</p>
-			{ endpoints.length > 0 ? (
+
+			<div className="flex justify-between items-end">
+				<SectionHeader
+					title={ __( 'Webhook Endpoints', 'newspack' ) }
+					description={ __(
+						'Register webhook endpoints to integrate reader activity data to third-party services or private APIs',
+						'newspack'
+					) }
+					noMargin
+				/>
+				<Button
+					variant="primary"
+					onClick={ () => setEditing( { global: true } ) }
+					disabled={ inFlight }
+				>
+					{ __( 'Add New Endpoint', 'newspack' ) }
+				</Button>
+			</div>
+
+			{ endpoints.length > 0 && (
 				<>
 					{ endpoints.map( endpoint => (
 						<ActionCard
-							className="newspack-webhooks__endpoint"
+							isMedium
+							className="newspack-webhooks__endpoint mt16"
 							toggleChecked={ ! endpoint.disabled }
 							toggleOnChange={ () => toggleEndpoint( endpoint ) }
 							key={ endpoint.id }
 							title={ getEndpointTitle( endpoint ) }
-							badge={ endpoint.global ? __( 'Global', 'newspack' ) : null }
 							description={ () => {
 								if ( endpoint.disabled && endpoint.disabled_error ) {
 									return (
@@ -204,16 +216,20 @@ const Webhooks = () => {
 										endpoint.disabled_error
 									);
 								}
-								return endpoint.global ? (
-									__( 'This endpoint is called on any action.', 'newspack' )
-								) : (
+								return (
 									<>
 										{ __( 'Actions:', 'newspack' ) }{ ' ' }
-										{ endpoint.actions.map( action => (
-											<span key={ action } className="newspack-webhooks__endpoint__action">
-												{ action }
+										{ endpoint.global ? (
+											<span className="newspack-webhooks__endpoint__action">
+												{ __( 'global', 'newspack' ) }
 											</span>
-										) ) }
+										) : (
+											endpoint.actions.map( action => (
+												<span key={ action } className="newspack-webhooks__endpoint__action">
+													{ action }
+												</span>
+											) )
+										) }
 									</>
 								);
 							} }
@@ -244,16 +260,7 @@ const Webhooks = () => {
 							}
 						/>
 					) ) }
-					<Card buttonsCard noBorder className="justify-end">
-						<Button isPrimary onClick={ () => setEditing( { global: true } ) }>
-							{ __( 'New Endpoint', 'newspack' ) }
-						</Button>
-					</Card>
 				</>
-			) : (
-				<Button isPrimary onClick={ () => setEditing( { global: true } ) }>
-					{ __( 'Register my first endpoint', 'newspack' ) }
-				</Button>
 			) }
 			{ false !== viewing && (
 				<Modal
@@ -283,7 +290,7 @@ const Webhooks = () => {
 							{ viewing.requests.map( request => (
 								<tr key={ request.id }>
 									<td className={ `status status--${ request.status }` }>
-										{ getRequestStatusIcon( request.status ) }
+										<Icon icon={ getRequestStatusIcon( request.status ) } />
 									</td>
 									<td className="action-name">{ request.action_name }</td>
 									<td className="scheduled">
@@ -341,98 +348,109 @@ const Webhooks = () => {
 					{ true === editing.disabled && (
 						<Notice
 							noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack' ) }
+							className="mt0"
 						/>
 					) }
 					{ editing.disabled && editing.disabled_error && (
 						<Notice
 							isError
 							noticeText={ __( 'Request Error: ', 'newspack' ) + editing.disabled_error }
+							className="mt0"
 						/>
 					) }
 					{ testError && (
-						<Notice isError noticeText={ __( 'Test Error: ', 'newspack' ) + testError.message } />
+						<Notice
+							isError
+							noticeText={ __( 'Test Error: ', 'newspack' ) + testError.message }
+							className="mt0"
+						/>
 					) }
-					<TextControl
-						label={ __( 'URL', 'newspack' ) }
-						help={ __(
-							"The URL to send requests to. It's required for the URL to be under a valid TLS/SSL certificate. You can use the test button below to verify the endpoint response.",
-							'newspack'
-						) }
-						value={ editing.url }
-						onChange={ value => setEditing( { ...editing, url: value } ) }
-						disabled={ inFlight }
-					/>
-					<Card buttonsCard noBorder className="justify-end">
-						{ testResponse && (
-							<div
-								className={ `newspack-webhooks__test-response status--${
-									testResponse.success ? 'success' : 'error'
-								}` }
-							>
-								<span className="message">{ testResponse.message }</span>
-								<span className="code">{ testResponse.code }</span>
-							</div>
-						) }
-						<Button
-							isSecondary
-							onClick={ () => sendTestRequest( editing.url ) }
-							disabled={ inFlight || ! editing.url }
-						>
-							{ __( 'Send a test request', 'newspack' ) }
-						</Button>
-					</Card>
-					<hr />
-					<h3>{ __( 'Actions', 'newspack' ) }</h3>
-					<CheckboxControl
-						checked={ editing.global }
-						onChange={ value => setEditing( { ...editing, global: value } ) }
-						label={ __( 'Global', 'newspack' ) }
-						help={ __(
-							'Leave this checked if you want this endpoint to receive data from all actions.',
-							'newspack'
-						) }
-						disabled={ inFlight }
-					/>
-					<p>
-						{ __(
-							'If this endpoint is not global, select which actions should trigger this endpoint:',
-							'newspack'
-						) }
-					</p>
-					<Grid columns={ 3 } gutter={ 16 }>
-						{ actions.map( ( action, i ) => (
-							<CheckboxControl
-								key={ i }
-								disabled={ editing.global || inFlight }
-								label={ action }
-								checked={ editing.actions && editing.actions.includes( action ) }
-								indeterminate={ editing.global }
-								onChange={ () => {
-									const currentActions = editing.actions || [];
-									if ( currentActions.includes( action ) ) {
-										currentActions.splice( currentActions.indexOf( action ), 1 );
-									} else {
-										currentActions.push( action );
-									}
-									setEditing( { ...editing, actions: currentActions } );
-								} }
-							/>
-						) ) }
-					</Grid>
-					<Card buttonsCard noBorder className="justify-end">
-						<Button
-							isPrimary
-							onClick={ () => {
-								upsertEndpoint( editing );
-							} }
+					<Grid columns={ 1 } gutter={ 16 } className="mt0">
+						<TextControl
+							label={ __( 'URL', 'newspack' ) }
+							help={ __(
+								"The URL to send requests to. It's required for the URL to be under a valid TLS/SSL certificate. You can use the test button below to verify the endpoint response.",
+								'newspack'
+							) }
+							className="code"
+							value={ editing.url }
+							onChange={ value => setEditing( { ...editing, url: value } ) }
 							disabled={ inFlight }
-						>
-							{ __( 'Save Endpoint', 'newspack' ) }
-						</Button>
-					</Card>
+						/>
+						<Card buttonsCard noBorder className="justify-end">
+							{ testResponse && (
+								<div
+									className={ `newspack-webhooks__test-response status--${
+										testResponse.success ? 'success' : 'error'
+									}` }
+								>
+									<span className="message">{ testResponse.message }</span>
+									<span className="code">{ testResponse.code }</span>
+								</div>
+							) }
+							<Button
+								isSecondary
+								onClick={ () => sendTestRequest( editing.url ) }
+								disabled={ inFlight || ! editing.url }
+							>
+								{ __( 'Send a test request', 'newspack' ) }
+							</Button>
+						</Card>
+					</Grid>
+					<hr />
+					<Grid columns={ 1 } gutter={ 16 }>
+						<h3>{ __( 'Actions', 'newspack' ) }</h3>
+						<CheckboxControl
+							checked={ editing.global }
+							onChange={ value => setEditing( { ...editing, global: value } ) }
+							label={ __( 'Global', 'newspack' ) }
+							help={ __(
+								'Leave this checked if you want this endpoint to receive data from all actions.',
+								'newspack'
+							) }
+							disabled={ inFlight }
+						/>
+						<p>
+							{ __(
+								'If this endpoint is not global, select which actions should trigger this endpoint:',
+								'newspack'
+							) }
+						</p>
+						<Grid columns={ 3 } gutter={ 16 }>
+							{ actions.map( ( action, i ) => (
+								<CheckboxControl
+									key={ i }
+									disabled={ editing.global || inFlight }
+									label={ action }
+									checked={ editing.actions && editing.actions.includes( action ) }
+									indeterminate={ editing.global }
+									onChange={ () => {
+										const currentActions = editing.actions || [];
+										if ( currentActions.includes( action ) ) {
+											currentActions.splice( currentActions.indexOf( action ), 1 );
+										} else {
+											currentActions.push( action );
+										}
+										setEditing( { ...editing, actions: currentActions } );
+									} }
+								/>
+							) ) }
+						</Grid>
+						<Card buttonsCard noBorder className="justify-end">
+							<Button
+								isPrimary
+								onClick={ () => {
+									upsertEndpoint( editing );
+								} }
+								disabled={ inFlight }
+							>
+								{ __( 'Save', 'newspack' ) }
+							</Button>
+						</Card>
+					</Grid>
 				</Modal>
 			) }
-		</>
+		</Card>
 	);
 };
 
