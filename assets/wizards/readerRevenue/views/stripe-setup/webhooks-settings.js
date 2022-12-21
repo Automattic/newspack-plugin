@@ -152,7 +152,9 @@ const WebhooksSettings = () => {
 				className="mb4"
 				title={ () => (
 					<div className="flex justify-between items-center">
-						<h4 className="b f6 ma0">{ __( 'Webhooks connected to this site', 'newspack' ) }</h4>
+						<h4 className="b f6 ma0">
+							{ __( 'Webhooks connected to Newspack on this site', 'newspack' ) }
+						</h4>
 						<Button
 							variant="secondary"
 							isSmall
@@ -177,7 +179,7 @@ const WebhooksSettings = () => {
 				onUpdate={ handleWebhooksListUpdate }
 			/>
 			{ otherWebhooks.length ? (
-				<Accordion title={ __( 'Webhooks not connected to this site', 'newspack' ) }>
+				<Accordion title={ __( 'Webhooks not connected to Newspack on this site', 'newspack' ) }>
 					<WebhooksList webhooks={ otherWebhooks } onUpdate={ handleWebhooksListUpdate } />
 				</Accordion>
 			) : null }
