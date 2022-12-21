@@ -259,7 +259,8 @@ final class Api {
 				$args['id'],
 				$args['url'],
 				$args['actions'] ?? [],
-				$args['global']
+				$args['global'],
+				$args['disabled']
 			);
 		}
 		if ( \is_wp_error( $endpoint ) ) {
