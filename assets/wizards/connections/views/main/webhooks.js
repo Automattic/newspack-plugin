@@ -8,10 +8,11 @@ import moment from 'moment';
  * WordPress dependencies
  */
 import { sprintf, __ } from '@wordpress/i18n';
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, MenuItem } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { Icon, settings, trash, info, check, close, reusableBlock } from '@wordpress/icons';
+import { Icon, settings, check, close, reusableBlock, moreVertical } from '@wordpress/icons';
+import { ESCAPE } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -25,6 +26,7 @@ import {
 	SectionHeader,
 	Modal,
 	TextControl,
+	Popover,
 } from '../../../../components/src';
 
 const getEndpointTitle = endpoint => {
@@ -45,6 +47,51 @@ const getRequestStatusIcon = status => {
 
 const hasEndpointErrors = endpoint => {
 	return endpoint.requests.some( request => request.errors.length );
+};
+
+const EndpointActions = ( {
+	disabled,
+	position = 'bottom left',
+	onEdit = () => {},
+	onDelete = () => {},
+	onView = () => {},
+} ) => {
+	const [ popoverVisible, setPopoverVisible ] = useState( false );
+	useEffect( () => {
+		setPopoverVisible( false );
+	}, [ disabled ] );
+	return (
+		<>
+			<Button
+				className={ popoverVisible && 'popover-active' }
+				onClick={ () => setPopoverVisible( ! popoverVisible ) }
+				icon={ moreVertical }
+				disabled={ disabled }
+				label={ __( 'Endpoint Actions', 'newspack' ) }
+				tooltipPosition={ position }
+			/>
+			{ popoverVisible && (
+				<Popover
+					position={ position }
+					onFocusOutside={ () => setPopoverVisible( false ) }
+					onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisible( false ) }
+				>
+					<MenuItem onClick={ () => setPopoverVisible( false ) } className="screen-reader-text">
+						{ __( 'Close Endpoint Actions', 'newspack' ) }
+					</MenuItem>
+					<MenuItem onClick={ onView } className="newspack-button">
+						{ __( 'View Requests', 'newspack' ) }
+					</MenuItem>
+					<MenuItem onClick={ onEdit } className="newspack-button">
+						{ __( 'Edit', 'newspack' ) }
+					</MenuItem>
+					<MenuItem onClick={ onDelete } className="newspack-button">
+						{ __( 'Remove', 'newspack' ) }
+					</MenuItem>
+				</Popover>
+			) }
+		</>
+	);
 };
 
 const Webhooks = () => {
@@ -103,7 +150,7 @@ const Webhooks = () => {
 				} );
 		}
 	};
-	const removeEndpoint = endpoint => {
+	const deleteEndpoint = endpoint => {
 		// eslint-disable-next-line no-alert
 		if ( confirm( __( 'Are you sure you want to remove this endpoint?', 'newspack' ) ) ) {
 			setInFlight( true );
@@ -234,29 +281,11 @@ const Webhooks = () => {
 								);
 							} }
 							actionText={
-								<>
-									<Button
-										onClick={ () => removeEndpoint( endpoint ) }
-										icon={ trash }
-										disabled={ inFlight }
-										label={ __( 'Remove endpoint', 'newspack' ) }
-										tooltipPosition="bottom center"
-									/>
-									<Button
-										onClick={ () => setViewing( endpoint ) }
-										icon={ info }
-										disabled={ inFlight }
-										label={ __( 'View endpoint requests', 'newspack' ) }
-										tooltipPosition="bottom center"
-									/>
-									<Button
-										onClick={ () => setEditing( { ...endpoint } ) }
-										icon={ settings }
-										disabled={ inFlight }
-										label={ __( 'Edit endpoint', 'newspack' ) }
-										tooltipPosition="bottom center"
-									/>
-								</>
+								<EndpointActions
+									onEdit={ () => setEditing( endpoint ) }
+									onDelete={ () => deleteEndpoint( endpoint ) }
+									onView={ () => setViewing( endpoint ) }
+								/>
 							}
 						/>
 					) ) }
