@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useState } from '@wordpress/element';
-import { Icon, chevronDown } from '@wordpress/icons';
+import { Icon, chevronRight } from '@wordpress/icons';
 
 /**
  * External dependencies
@@ -22,7 +22,7 @@ const Accordion = ( { children, title } ) => {
 		>
 			<summary onClick={ () => setIsOpen( ! isOpen ) }>
 				{ title }
-				<Icon className="newspack-accordion__icon" icon={ chevronDown } size={ 24 } />
+				<Icon className="newspack-accordion__icon" icon={ chevronRight } size={ 24 } />
 			</summary>
 			{ children }
 		</details>
