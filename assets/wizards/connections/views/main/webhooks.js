@@ -85,7 +85,7 @@ const EndpointActions = ( {
 					<MenuItem onClick={ onEdit } className="newspack-button">
 						{ __( 'Edit', 'newspack' ) }
 					</MenuItem>
-					<MenuItem onClick={ onDelete } className="newspack-button">
+					<MenuItem onClick={ onDelete } className="newspack-button" isDestructive>
 						{ __( 'Remove', 'newspack' ) }
 					</MenuItem>
 				</Popover>
