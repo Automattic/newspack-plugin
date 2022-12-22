@@ -174,8 +174,9 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	public function test_request_scheduling() {
 		$this->dispatch_event();
 		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
-		$this->assertEquals( 'future', $requests[0]->post_status );
-		$this->assertGreaterThan( time(), strtotime( $requests[0]->post_date ) );
+		$post     = get_post( $requests[0]['id'] );
+		$this->assertEquals( 'future', $post->post_status );
+		$this->assertGreaterThan( time(), strtotime( $post->post_date ) );
 	}
 
 	/**
@@ -192,14 +193,15 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 				$http_url  = $url;
 				return [
 					'response' => [
-						'code' => 200,
+						'code'    => 200,
+						'message' => 'OK',
 					],
 				];
 			},
 			10,
 			3
 		);
-		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]->ID;
+		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]['id'];
 		wp_publish_post( $request_id );
 		$this->assertEquals( 'https://example.com/webhook', $http_url );
 		$this->assertEquals( 'POST', $http_args['method'] );
@@ -217,12 +219,13 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			function() {
 				return [
 					'response' => [
-						'code' => 500,
+						'code'    => 500,
+						'message' => 'Internal Server Error',
 					],
 				];
 			}
 		);
-		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]->ID;
+		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]['id'];
 		wp_publish_post( $request_id );
 		$this->assertEquals( 'future', get_post_status( $request_id ) );
 		$this->assertGreaterThan( time(), strtotime( get_post( $request_id )->post_date ) );
@@ -242,13 +245,14 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			function() {
 				return [
 					'response' => [
-						'code' => 500,
+						'code'    => 500,
+						'message' => 'Internal Server Error',
 					],
 				];
 			}
 		);
 
-		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]->ID;
+		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]['id'];
 
 		while ( $retries <= $max_retries ) {
 			wp_publish_post( $request_id );
@@ -288,7 +292,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			function() {
 				return [
 					'response' => [
-						'code' => 200,
+						'code'    => 200,
+						'message' => 'OK',
 					],
 				];
 			}

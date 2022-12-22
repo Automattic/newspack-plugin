@@ -7,9 +7,6 @@
 
 .newspack-popover {
 	.components-popover__content {
-		border: 1px solid wp-colors.$gray-300;
-		border-radius: 2px;
-		box-shadow: 0 4px 8px rgba( black, 0.08 );
 		min-width: 238px;
 
 		.newspack-button {
@@ -19,6 +16,8 @@
 			padding: 6px 8px;
 
 			&:hover {
+				color: colors.$primary-500;
+
 				.components-menu-items__item-icon {
 					fill: currentcolor;
 				}
@@ -51,6 +50,10 @@
 				&:focus:enabled {
 					outline: none;
 				}
+			}
+
+			&.is-destructive:not( :focus ) {
+				box-shadow: none !important;
 			}
 
 			.components-menu-items__item-icon {

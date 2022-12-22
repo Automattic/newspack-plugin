@@ -5,12 +5,13 @@
 
 	&__icon {
 		transition: transform 200ms ease-out;
+		transform: rotate( 90deg );
 	}
 
 	&--is-open {
 		.newspack-accordion {
 			&__icon {
-				transform: rotate( -180deg );
+				transform: rotate( -90deg );
 			}
 		}
 	}

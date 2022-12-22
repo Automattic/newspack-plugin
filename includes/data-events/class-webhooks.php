@@ -180,7 +180,7 @@ final class Webhooks {
 				'date_query'     => [
 					[
 						'column' => 'post_date_gmt',
-						'before' => '1 minute ago',
+						'before' => gmdate( 'Y-m-d H:i:s' ),
 					],
 				],
 			]
@@ -263,14 +263,18 @@ final class Webhooks {
 	/**
 	 * Disable a webhook endpoint.
 	 *
-	 * @param int $id Endpoint ID.
+	 * @param int    $id    Endpoint ID.
+	 * @param string $error Error message.
 	 */
-	public static function disable_endpoint( $id ) {
+	public static function disable_endpoint( $id, $error = null ) {
 		$endpoint = \get_term( $id, self::ENDPOINT_TAXONOMY );
 		if ( ! $endpoint ) {
 			return;
 		}
 		\update_term_meta( $id, 'disabled', true );
+		if ( $error ) {
+			\update_term_meta( $id, 'disabled_error', $error );
+		}
 	}
 
 	/**
@@ -287,12 +291,14 @@ final class Webhooks {
 		if ( ! $endpoint || \is_wp_error( $endpoint ) ) {
 			return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
 		}
+		$disabled = (bool) \get_term_meta( $endpoint->term_id, 'disabled', true );
 		return [
-			'id'       => $endpoint->term_id,
-			'url'      => $endpoint->name,
-			'actions'  => \get_term_meta( $endpoint->term_id, 'actions', true ),
-			'global'   => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
-			'disabled' => (bool) \get_term_meta( $endpoint->term_id, 'disabled', true ),
+			'id'             => $endpoint->term_id,
+			'url'            => $endpoint->name,
+			'actions'        => (array) \get_term_meta( $endpoint->term_id, 'actions', true ),
+			'global'         => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
+			'disabled'       => $disabled,
+			'disabled_error' => $disabled ? \get_term_meta( $endpoint->term_id, 'disabled_error', true ) : null,
 		];
 	}
 
@@ -307,20 +313,47 @@ final class Webhooks {
 	}
 
 	/**
+	 * Get a request data.
+	 *
+	 * @param int|WP_Post $request Request ID or post object.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_request( $request ) {
+		if ( is_int( $request ) ) {
+			$request = \get_post( $request );
+		}
+		if ( ! $request || \is_wp_error( $request ) ) {
+			return new WP_Error( 'newspack_webhooks_request_not_found', __( 'Webhook request not found.', 'newspack' ) );
+		}
+		$endpoint = self::get_request_endpoint( $request->ID );
+		return [
+			'id'          => $request->ID,
+			'endpoint'    => $endpoint,
+			'body'        => \get_post_meta( $request->ID, 'body', true ),
+			'action_name' => \get_post_meta( $request->ID, 'action_name', true ),
+			'status'      => \get_post_meta( $request->ID, 'status', true ),
+			'errors'      => \get_post_meta( $request->ID, 'errors', true ),
+			'scheduled'   => \get_post_datetime( $request ),
+		];
+	}
+
+	/**
 	 * Get all webhook requests for an endpoint.
 	 *
 	 * This executes a potentially slow query, use with caution.
 	 *
 	 * @param int $endpoint_id Endpoint ID.
+	 * @param int $amount      Number of requests to return. Default -1 (all).
 	 *
-	 * @return WP_Post[] Array of request posts.
+	 * @return array Array of requests.
 	 */
-	public static function get_endpoint_requests( $endpoint_id ) {
-		return \get_posts(
+	public static function get_endpoint_requests( $endpoint_id, $amount = -1 ) {
+		$posts = \get_posts(
 			[
 				'post_type'      => self::REQUEST_POST_TYPE,
-				'post_status'    => 'any',
-				'posts_per_page' => -1,
+				'post_status'    => [ 'publish', 'draft', 'future', 'trash' ],
+				'posts_per_page' => $amount,
 				'tax_query'      => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 					[
 						'taxonomy' => self::ENDPOINT_TAXONOMY,
@@ -330,6 +363,7 @@ final class Webhooks {
 				],
 			]
 		);
+		return array_map( [ __CLASS__, 'get_request' ], $posts );
 	}
 
 	/**
@@ -521,14 +555,15 @@ final class Webhooks {
 		$response = self::send_request( $request_id );
 
 		if ( is_wp_error( $response ) ) {
+			$error_message = $response->get_error_message();
 
 			if ( count( $errors ) >= self::MAX_RETRIES ) {
 				self::kill_request( $request_id );
-				self::disable_endpoint( $endpoint['id'] );
+				self::disable_endpoint( $endpoint['id'], $error_message );
 				return;
 			}
 
-			self::add_request_error( $request_id, $response->get_error_message() );
+			self::add_request_error( $request_id, $error_message );
 
 			// Schedule a retry with exponential backoff maxed to 12 hours.
 			$delay = min( 720, pow( 2, count( $errors ) ) );
@@ -574,14 +609,14 @@ final class Webhooks {
 		];
 
 		$response = \wp_safe_remote_request( $url, $args );
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
-
-		if ( ! $response['response']['code'] || $response['response']['code'] < 200 || $response['response']['code'] >= 300 ) {
-			return new WP_Error( 'newspack_webhooks_request_failed', __( 'Client did not respond with 2xx code.', 'newspack' ) );
+		$code    = \wp_remote_retrieve_response_code( $response );
+		$message = \wp_remote_retrieve_response_message( $response );
+		if ( ! $code || $code < 200 || $code >= 300 ) {
+			return new WP_Error( 'newspack_webhooks_request_failed', $message ?? __( 'Request failed', 'newspack' ) );
 		}
-
 		return true;
 	}
 

@@ -282,7 +282,7 @@ final class Reader_Activation {
 		}
 
 		if ( $is_enabled ) {
-			$is_enabled = self::get_setting( 'enabled' );
+			$is_enabled = (bool) \get_option( self::OPTIONS_PREFIX . 'enabled', true );
 		}
 
 		/**
