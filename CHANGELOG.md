@@ -1,3 +1,16 @@
+# [1.100.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.100.0-alpha.1...v1.100.0-alpha.2) (2022-12-22)
+
+
+### Bug Fixes
+
+* handle email sender when not under RAS ([#2208](https://github.com/Automattic/newspack-plugin/issues/2208)) ([deb9e02](https://github.com/Automattic/newspack-plugin/commit/deb9e0228859d3c0de716611e2b1ac8d3313a530))
+* webpack build issue ([#2210](https://github.com/Automattic/newspack-plugin/issues/2210)) ([d54bb25](https://github.com/Automattic/newspack-plugin/commit/d54bb2592e660878d07a64bda182c2b3f7f6e9d8))
+
+
+### Features
+
+* **webhooks:** endpoint management ui ([#2197](https://github.com/Automattic/newspack-plugin/issues/2197)) ([f781206](https://github.com/Automattic/newspack-plugin/commit/f781206f4681186cdc35754d2d225f5e34cefe99))
+
 # [1.100.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.99.1...v1.100.0-alpha.1) (2022-12-20)
 
 
