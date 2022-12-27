@@ -25,11 +25,10 @@ function domReady( callback ) {
 	document.addEventListener( 'DOMContentLoaded', callback );
 }
 
-( function ( readerActivation ) {
+window.newspackRAS = window.newspackRAS || [];
+
+window.newspackRAS.push( function ( readerActivation ) {
 	domReady( function () {
-		if ( ! readerActivation ) {
-			return;
-		}
 		document.querySelectorAll( '.newspack-registration' ).forEach( container => {
 			const form = container.querySelector( 'form' );
 			if ( ! form ) {
@@ -141,4 +140,4 @@ function domReady( callback ) {
 			} );
 		} );
 	} );
-} )( window.newspackReaderActivation );
+} );

@@ -126,6 +126,7 @@ final class Reader_Activation {
 			'newspack_reader_activation_data',
 			$script_data
 		);
+		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
 
 		/**
@@ -281,7 +282,7 @@ final class Reader_Activation {
 		}
 
 		if ( $is_enabled ) {
-			$is_enabled = self::get_setting( 'enabled' );
+			$is_enabled = (bool) \get_option( self::OPTIONS_PREFIX . 'enabled', true );
 		}
 
 		/**

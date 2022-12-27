@@ -15,6 +15,7 @@ import GoogleAuth from './google';
 import Mailchimp from './mailchimp';
 import FivetranConnection from './fivetran';
 import Recaptcha from './recaptcha';
+import Webhooks from './webhooks';
 
 const Main = () => {
 	const [ error, setError ] = useState();
@@ -34,6 +35,7 @@ const Main = () => {
 				</>
 			) }
 			<Recaptcha setError={ setError } />
+			<Webhooks />
 		</>
 	);
 };
