@@ -168,6 +168,10 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
 
 		\Newspack\CLI\Initializer::init();
+
+		include_once NEWSPACK_ABSPATH . 'includes/ga4-poc/class-ga4-events.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/consumers/ga-4/class-ga4.php';
+
 	}
 
 	/**
