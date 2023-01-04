@@ -118,7 +118,7 @@ final class Data_Events {
 		 * @param mixed  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
-		do_action( 'newspack_data_event_' . $action_name, $timestamp, $data, $client_id );
+		do_action( "newspack_data_event_{$action_name}", $timestamp, $data, $client_id );
 
 		/**
 		 * Fires after all global and action-specific handlers have been executed.
