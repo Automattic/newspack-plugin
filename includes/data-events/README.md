@@ -90,26 +90,26 @@ The use of client ID, which is `true` by default, will send the `Reader_Activati
 
 ## Listeners
 
-Listeners serve as a shortcut to register and dispatch an action once a WP hook is fired. Example:
+Listeners are a shortcut to dispatch an action on a [WordPress hook](https://developer.wordpress.org/plugins/hooks/). Example:
 
 ```php
 $hook_name   = 'woocommerce_checkout_order_processed';
-$action_name = 'new_purchase';
+$action_name = 'order_processed';
 Newspack\Data_Events::register_listener( $hook_name, $action_name );
 ```
 
-By a registering a listener there's no need to register the action.
+The action is registered with the listener, so there's no need to register the action in this case.
 
-With this listener, every registered handler will receive the `new_purchase` data event.
+With this listener, every registered handler will receive the `order_processed` data event.
 
-The 3rd argument can be either a `callable`, which receives the hook's data for filtering, or a `string[]`, which should be used to map the hook's arguments for an associative array.
+A listener can receive a 3rd argument that can be either `callable`, which receives the hook's data for filtering, or `string[]`, which will be used to map the hook's arguments for an associative array.
 
 Example with a `callable` to process/filter the data from the WP hook:
 
 ```php
 Newspack\Data_Events::register_listener(
 	'woocommerce_checkout_order_processed',
-	'new_purchase',
+	'order_processed',
 	function ( $data ) {
 		// Parse data
 		return $data;
