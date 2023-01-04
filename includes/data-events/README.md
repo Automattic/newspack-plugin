@@ -8,7 +8,67 @@ The non-blocking strategy is inspired by [TechCrunch's `wp-async-task`](https://
 
 ---
 
-## Registering an action
+## Core Actions
+
+### `reader_registered`
+
+When a reader registers.
+
+#### Data
+
+| Name       | Type      |
+| ---------- | --------- |
+| `user_id`  | `integer` |
+| `email`    | `string`  |
+| `metadata` | `array`   |
+
+### `reader_logged_in`
+
+When a reader authenticates.
+
+#### Data
+
+| Name      | Type      |
+| --------- | --------- |
+| `user_id` | `integer` |
+| `email`   | `string`  |
+
+### `reader_verified`
+
+When a reader verifies their email address.
+
+#### Data
+
+| Name      | Type      |
+| --------- | --------- |
+| `user_id` | `integer` |
+
+### `newsletter_subscribed`
+
+When a reader subscribes to newsletter lists from Newspack Newsletters subscription.
+
+#### Data
+
+| Name       | Type       |
+| ---------- | ---------- |
+| `provider` | `string`   |
+| `contact`  | `array`    |
+| `lists`    | `string[]` |
+
+### `newsletter_updated`
+
+When a reader updates their lists subscription from Newspack Newsletters.
+
+#### Data
+
+| Name            | Type       |
+| --------------- | ---------- |
+| `provider`      | `string`   |
+| `email`         | `string`   |
+| `lists_added`   | `string[]` |
+| `lists_removed` | `string[]` |
+
+## Registering a new action
 
 To dispatch an event an action must first be registered with the following:
 
@@ -34,13 +94,13 @@ Listeners serve as a shortcut to register and dispatch an action once a WP hook 
 
 ```php
 $hook_name   = 'woocommerce_checkout_order_processed';
-$action_name = 'wc_new_purchase';
+$action_name = 'new_purchase';
 \Newspack\Data_Events::register_listener( $hook_name, $action_name );
 ```
 
 By a registering a listener there's no need to register the action.
 
-With this listener, every registered handler will receive the `wc_new_purchase` data event.
+With this listener, every registered handler will receive the `new_purchase` data event.
 
 The 3rd argument can be either a `callable`, which receives the hook's data for filtering, or a `string[]`, which should be used to map the hook's arguments for an associative array.
 
@@ -49,7 +109,7 @@ Example with a `callable` to process/filter the data from the WP hook:
 ```php
 \Newspack\Data_Events::register_listener(
 	'woocommerce_checkout_order_processed',
-	'wc_new_purchase',
+	'new_purchase',
 	function ( $data ) {
 		// Parse data
 		return $data;
