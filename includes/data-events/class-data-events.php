@@ -111,16 +111,6 @@ final class Data_Events {
 		/**
 		 * Fires after all global and action-specific handlers have been executed.
 		 *
-		 * @param string $action_name Action name.
-		 * @param int    $timestamp   Timestamp.
-		 * @param mixed  $data        Data.
-		 * @param string $client_id   Client ID.
-		 */
-		do_action( 'newspack_data_event', $action_name, $timestamp, $data, $client_id );
-
-		/**
-		 * Fires after all global and action-specific handlers have been executed.
-		 *
 		 * The dynamic portion of the hook name, `$action_name`, refers to the name
 		 * of the action being fired.
 		 *
@@ -129,6 +119,16 @@ final class Data_Events {
 		 * @param string $client_id   Client ID.
 		 */
 		do_action( 'newspack_data_event_' . $action_name, $timestamp, $data, $client_id );
+
+		/**
+		 * Fires after all global and action-specific handlers have been executed.
+		 *
+		 * @param string $action_name Action name.
+		 * @param int    $timestamp   Timestamp.
+		 * @param mixed  $data        Data.
+		 * @param string $client_id   Client ID.
+		 */
+		do_action( 'newspack_data_event', $action_name, $timestamp, $data, $client_id );
 	}
 
 	/**
@@ -272,17 +272,6 @@ final class Data_Events {
 		 * Fires when an action is dispatched. This occurs before any handlers are
 		 * executed.
 		 *
-		 * @param string $action_name Action name.
-		 * @param int    $timestamp   Timestamp.
-		 * @param mixed  $data        Data.
-		 * @param string $client_id   Client ID.
-		 */
-		do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
-
-		/**
-		 * Fires when an action is dispatched. This occurs before any handlers are
-		 * executed.
-		 *
 		 * The dynamic portion of the hook name, `$action_name`, refers to the name
 		 * of the action being fired.
 		 *
@@ -292,6 +281,17 @@ final class Data_Events {
 		 * @param string $client_id   Client ID.
 		 */
 		do_action( "newspack_data_event_dispatch_{$action_name}", $timestamp, $data, $client_id );
+
+		/**
+		 * Fires when an action is dispatched. This occurs before any handlers are
+		 * executed.
+		 *
+		 * @param string $action_name Action name.
+		 * @param int    $timestamp   Timestamp.
+		 * @param mixed  $data        Data.
+		 * @param string $client_id   Client ID.
+		 */
+		do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
 
 		$url = \add_query_arg(
 			[
