@@ -139,13 +139,13 @@ $action_name = 'my_action';
 function my_action_handler( $timestamp, $data, $client_id ) {
 	// Send data to a third-party.
 }
-Newspack::register_handler( 'my_action_handler', 'my_action' );
+\Newspack\Data_Events::register_handler( 'my_action_handler', 'my_action' );
 
 // Global handler, to be called on every data event
 function my_global_handler( $action_name, $timestamp, $data, $client_id ) {
 	// Do some global analytics.
 }
-Newspack::register_handler( 'my_global_handler' );
+\Newspack\Data_Events::register_handler( 'my_global_handler' );
 ```
 
 It functions similar to the registration of WP action/filter hooks but without a `priority` argument. Handlers are supposed to be independent and the order of execution doesn't matter.
