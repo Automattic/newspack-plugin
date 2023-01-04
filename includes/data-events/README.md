@@ -81,7 +81,7 @@ Newspack\Data_Events::register_action( 'action_name' );
 Once registered, an array with arbitrary payload can be dispatched:
 
 ```php
-$data = [ "test" => "data" ];
+$data          = [ "test" => "data" ];
 $use_client_id = true;
 Newspack\Data_Events::dispatch( 'action_name', $data, $use_client_id );
 ```
@@ -95,7 +95,7 @@ Listeners serve as a shortcut to register and dispatch an action once a WP hook 
 ```php
 $hook_name   = 'woocommerce_checkout_order_processed';
 $action_name = 'new_purchase';
-\Newspack\Data_Events::register_listener( $hook_name, $action_name );
+Newspack\Data_Events::register_listener( $hook_name, $action_name );
 ```
 
 By a registering a listener there's no need to register the action.
@@ -107,7 +107,7 @@ The 3rd argument can be either a `callable`, which receives the hook's data for 
 Example with a `callable` to process/filter the data from the WP hook:
 
 ```php
-\Newspack\Data_Events::register_listener(
+Newspack\Data_Events::register_listener(
 	'woocommerce_checkout_order_processed',
 	'new_purchase',
 	function ( $data ) {
@@ -120,7 +120,7 @@ Example with a `callable` to process/filter the data from the WP hook:
 Example with an array of strings to map the hook's arguments:
 
 ```php
-\Newspack\Data_Events::register_listener(
+Newspack\Data_Events::register_listener(
 	'newspack_newsletters_add_contact',
 	'newsletter_subscribed',
 	[ 'provider', 'contact', 'lists', 'result' ]
@@ -139,13 +139,13 @@ $action_name = 'my_action';
 function my_action_handler( $timestamp, $data, $client_id ) {
 	// Send data to a third-party.
 }
-\Newspack\Data_Events::register_handler( 'my_action_handler', 'my_action' );
+Newspack\Data_Events::register_handler( 'my_action_handler', 'my_action' );
 
 // Global handler, to be called on every data event
 function my_global_handler( $action_name, $timestamp, $data, $client_id ) {
 	// Do some global analytics.
 }
-\Newspack\Data_Events::register_handler( 'my_global_handler' );
+Newspack\Data_Events::register_handler( 'my_global_handler' );
 ```
 
 It functions similar to the registration of WP action/filter hooks but without a `priority` argument. Handlers are supposed to be independent and the order of execution doesn't matter.
