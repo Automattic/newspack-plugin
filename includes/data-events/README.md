@@ -127,9 +127,17 @@ Newspack\Data_Events::register_listener(
 );
 ```
 
-## Registering handlers
+## Handlers
 
-Handlers are triggered by the dispatch of an action or by a listener. Think of it as the actual connector to the third-party, whilst the action/dispatch is the directory of available data provided by Newspack.
+Callbacks triggered by the dispatch of an action or a listener. Think of it as the actual connector/integration to the third-party, whilst the action/dispatch is the directory of available data provided by Newspack.
+
+An action handler receives the following arguments:
+
+| Argument    | Type     | Description                                       |
+| ----------- | -------- | ------------------------------------------------- |
+| `timestamp` | `int`    | The timestamp in which the action was dispatched. |
+| `data`      | `array`  | The action payload.                               |
+| `client_id` | `string` | The client's `newspack-cid`, if available.        |
 
 Registering a handler:
 
@@ -148,6 +156,8 @@ function my_global_handler( $action_name, $timestamp, $data, $client_id ) {
 Newspack\Data_Events::register_handler( 'my_global_handler' );
 ```
 
-It functions similar to the registration of WP action/filter hooks but without a `priority` argument. Handlers are supposed to be independent and the order of execution doesn't matter.
+As you can see in the example above, if the second argument is empty the handler is treated as a **global handler** and will be called for every action dispatch. This is useful for analytics/tracking integrations, which every event should be logged with a generic/abstract approach.
+
+In this case, the first argument sent to the handler is the action name, followed by the other arguments.
 
 Each handler caller is contained in a `try...catch` block so a fatal error caused by a handler never disrupts other handlers.
