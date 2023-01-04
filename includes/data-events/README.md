@@ -70,7 +70,7 @@ When a reader updates their lists subscription from Newspack Newsletters.
 
 ## Registering a new action
 
-To dispatch an event an action must first be registered with the following:
+To dispatch an event, an action must first be registered with the following:
 
 ```php
 Newspack\Data_Events::register_action( 'action_name' );
