@@ -142,7 +142,6 @@ An action handler receives the following arguments:
 Registering a handler:
 
 ```php
-$action_name = 'my_action';
 // Action handler
 function my_action_handler( $timestamp, $data, $client_id ) {
 	// Send data to a third-party.
