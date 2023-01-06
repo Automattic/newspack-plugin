@@ -280,11 +280,6 @@ final class Data_Events {
 			$client_id = Reader_Activation::get_client_id();
 		}
 
-		Logger::log(
-			sprintf( 'Dispatching action "%s".', $action_name ),
-			self::LOGGER_HEADER
-		);
-
 		/**
 		 * Fires when an action is dispatched. This occurs before any handlers are
 		 * executed.
@@ -325,7 +320,6 @@ final class Data_Events {
 		 */
 		$body = apply_filters( 'newspack_data_events_dispatch_body', $body, $action_name );
 
-		/** Prioritize the Action Scheduler tool if available. */
 		if ( self::use_action_scheduler() ) {
 			Logger::log(
 				sprintf( 'Dispatching action "%s" via Action Scheduler.', $action_name ),
@@ -335,6 +329,10 @@ final class Data_Events {
 			\as_enqueue_async_action( 'newspack_data_events_as_dispatch', array_values( $body ), 'newspack-data-events' );
 
 		} else {
+			Logger::log(
+				sprintf( 'Dispatching action "%s" via HTTP request.', $action_name ),
+				self::LOGGER_HEADER
+			);
 
 			$url = \add_query_arg(
 				[
