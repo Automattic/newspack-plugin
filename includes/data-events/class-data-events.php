@@ -318,8 +318,7 @@ final class Data_Events {
 		];
 
 		/**
-		 * Filters the body of the request that is sent to the server to dispatch an
-		 * action.
+		 * Filters the body of the action dispatch request.
 		 *
 		 * @param array  $body        Body.
 		 * @param string $action_name The action name.
