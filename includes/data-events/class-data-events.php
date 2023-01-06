@@ -332,28 +332,30 @@ final class Data_Events {
 				sprintf( 'Dispatching action "%s" via Action Scheduler.', $action_name ),
 				self::LOGGER_HEADER
 			);
+
 			\as_enqueue_async_action( 'newspack_data_events_as_dispatch', array_values( $body ), 'newspack-data-events' );
-			return;
-		}
 
-		$url = \add_query_arg(
-			[
-				'action' => self::ACTION,
-				'nonce'  => \wp_create_nonce( self::ACTION ),
-			],
-			\admin_url( 'admin-ajax.php' )
-		);
+		} else {
 
-		return \wp_remote_post(
-			$url,
-			[
-				'timeout'   => 0.01,
-				'blocking'  => false,
-				'body'      => $body,
+			$url = \add_query_arg(
+				[
+					'action' => self::ACTION,
+					'nonce'  => \wp_create_nonce( self::ACTION ),
+				],
+				\admin_url( 'admin-ajax.php' )
+			);
+
+			return \wp_remote_post(
+				$url,
+				[
+					'timeout'  => 0.01,
+					'blocking' => false,
+					'body'     => $body,
 				'cookies'   => $_COOKIE, // phpcs:ignore
-				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
-			]
-		);
+				'sslverify'    => apply_filters( 'https_local_ssl_verify', false ),
+				]
+			);
+		}
 	}
 }
 Data_Events::init();
