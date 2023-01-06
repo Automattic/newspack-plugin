@@ -1,3 +1,10 @@
+# [1.100.0-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.99.1...v1.100.0-hotfix.1) (2023-01-06)
+
+
+### Features
+
+* test release ([97eab65](https://github.com/Automattic/newspack-plugin/commit/97eab655a1d3ff04d018f25a8a7d1a028112dc6d))
+
 ## [1.99.1](https://github.com/Automattic/newspack-plugin/compare/v1.99.0...v1.99.1) (2022-12-19)
 
 
