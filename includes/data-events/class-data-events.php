@@ -43,6 +43,23 @@ final class Data_Events {
 	public static function init() {
 		\add_action( 'wp_ajax_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'wp_ajax_nopriv_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
+		\add_action( 'newspack_data_events_as_dispatch', [ __CLASS__, 'handle' ], 10, 4 );
+	}
+
+	/**
+	 * Whether to use Action Scheduler if available.
+	 */
+	public static function use_action_scheduler() {
+		$use_action_scheduler = false;
+		if ( function_exists( 'as_enqueue_async_action' ) ) {
+			$use_action_schedueler = true;
+		}
+		/**
+		 * Filters whether to use the Action Scheduler if available.
+		 *
+		 * @param bool $use_action_scheduler
+		 */
+		return apply_filters( 'newspack_data_events_use_action_scheduler', $use_action_scheduler );
 	}
 
 	/**
@@ -57,7 +74,7 @@ final class Data_Events {
 		}
 
 		$action_name = isset( $_POST['action_name'] ) ? \sanitize_text_field( \wp_unslash( $_POST['action_name'] ) ) : null;
-		if ( ! $action_name || ! isset( self::$actions[ $action_name ] ) ) {
+		if ( empty( $action_name ) || ! isset( self::$actions[ $action_name ] ) ) {
 			wp_die();
 		}
 
@@ -75,7 +92,7 @@ final class Data_Events {
 	 *
 	 * @param string $action_name Action name.
 	 * @param int    $timestamp   Timestamp.
-	 * @param mixed  $data        Data.
+	 * @param array  $data        Data.
 	 * @param string $client_id   Client ID.
 	 */
 	public static function handle( $action_name, $timestamp, $data, $client_id ) {
@@ -115,7 +132,7 @@ final class Data_Events {
 		 * of the action being fired.
 		 *
 		 * @param int    $timestamp   Timestamp.
-		 * @param mixed  $data        Data.
+		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
 		do_action( "newspack_data_event_{$action_name}", $timestamp, $data, $client_id );
@@ -125,7 +142,7 @@ final class Data_Events {
 		 *
 		 * @param string $action_name Action name.
 		 * @param int    $timestamp   Timestamp.
-		 * @param mixed  $data        Data.
+		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
 		do_action( 'newspack_data_event', $action_name, $timestamp, $data, $client_id );
@@ -154,7 +171,7 @@ final class Data_Events {
 	 * @return void|WP_Error Error if action not registered, handler already registered or is not callable.
 	 */
 	public static function register_handler( $handler, $action_name = null ) {
-		/** If first argument is callable, treat as global handler. */
+		/** If there's no action name, treat as a global handler. */
 		if ( empty( $action_name ) ) {
 			self::$global_handlers[] = $handler;
 			return;
@@ -277,7 +294,7 @@ final class Data_Events {
 		 *
 		 * @param string $action_name Action name.
 		 * @param int    $timestamp   Timestamp.
-		 * @param mixed  $data        Data.
+		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
 		do_action( "newspack_data_event_dispatch_{$action_name}", $timestamp, $data, $client_id );
@@ -288,10 +305,36 @@ final class Data_Events {
 		 *
 		 * @param string $action_name Action name.
 		 * @param int    $timestamp   Timestamp.
-		 * @param mixed  $data        Data.
+		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
 		do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
+
+		$body = [
+			'action_name' => $action_name,
+			'timestamp'   => $timestamp,
+			'data'        => $data,
+			'client_id'   => $client_id,
+		];
+
+		/**
+		 * Filters the body of the request that is sent to the server to dispatch an
+		 * action.
+		 *
+		 * @param array  $body        Body.
+		 * @param string $action_name The action name.
+		 */
+		$body = apply_filters( 'newspack_data_events_dispatch_body', $body, $action_name );
+
+		/** Prioritize the Action Scheduler tool if available. */
+		if ( self::use_action_scheduler() ) {
+			Logger::log(
+				sprintf( 'Dispatching action "%s" via Action Scheduler.', $action_name ),
+				self::LOGGER_HEADER
+			);
+			\as_enqueue_async_action( 'newspack_data_events_as_dispatch', array_values( $body ), 'newspack-data-events' );
+			return;
+		}
 
 		$url = \add_query_arg(
 			[
@@ -300,13 +343,6 @@ final class Data_Events {
 			],
 			\admin_url( 'admin-ajax.php' )
 		);
-
-		$body = [
-			'action_name' => $action_name,
-			'timestamp'   => $timestamp,
-			'data'        => $data,
-			'client_id'   => $client_id,
-		];
 
 		return \wp_remote_post(
 			$url,

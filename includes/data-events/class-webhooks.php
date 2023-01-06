@@ -7,6 +7,7 @@
 
 namespace Newspack\Data_Events;
 
+use Newspack\Data_Events;
 use Newspack\Logger;
 use WP_Error;
 
@@ -50,6 +51,7 @@ final class Webhooks {
 		\add_action( 'newspack_deactivation', [ __CLASS__, 'clear_cron_events' ] );
 		\add_action( 'newspack_data_event_dispatch', [ __CLASS__, 'handle_dispatch' ], 10, 4 );
 		\add_action( 'transition_post_status', [ __CLASS__, 'transition_post_status' ], 10, 3 );
+		\add_action( 'newspack_webhooks_as_process_request', [ __CLASS__, 'process_request' ] );
 	}
 
 	/**
@@ -482,7 +484,12 @@ final class Webhooks {
 			'publish' === $new_status &&
 			'publish' !== $old_status
 		) {
-			self::process_request( $post->ID );
+			if ( Data_Events::use_action_scheduler() ) {
+				Logger::log( "Processing request {$post->ID} via Action Scheduler.", self::LOGGER_HEADER );
+				\as_enqueue_async_action( 'newspack_webhooks_as_process_request', [ $post->ID ], 'newspack-data-events' );
+			} else {
+				self::process_request( $post->ID );
+			}
 		}
 	}
 
@@ -539,7 +546,7 @@ final class Webhooks {
 	 *
 	 * @param int $request_id Request ID.
 	 */
-	private static function process_request( $request_id ) {
+	public static function process_request( $request_id ) {
 		$endpoint = self::get_request_endpoint( $request_id );
 		if ( ! $endpoint ) {
 			self::add_request_error( $request_id, __( 'Endpoint not found.', 'newspack' ) );
