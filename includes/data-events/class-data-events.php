@@ -54,7 +54,7 @@ final class Data_Events {
 	public static function use_action_scheduler() {
 		$use_action_scheduler = false;
 		if ( function_exists( 'as_enqueue_async_action' ) ) {
-			$use_action_schedueler = true;
+			$use_action_scheduler = true;
 		}
 		/**
 		 * Filters whether to use the Action Scheduler if available.
