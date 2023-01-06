@@ -48,6 +48,8 @@ final class Data_Events {
 
 	/**
 	 * Whether to use Action Scheduler if available.
+	 *
+	 * @return bool
 	 */
 	public static function use_action_scheduler() {
 		$use_action_scheduler = false;
@@ -59,7 +61,7 @@ final class Data_Events {
 		 *
 		 * @param bool $use_action_scheduler
 		 */
-		return apply_filters( 'newspack_data_events_use_action_scheduler', $use_action_scheduler );
+		return \apply_filters( 'newspack_data_events_use_action_scheduler', $use_action_scheduler );
 	}
 
 	/**
@@ -70,12 +72,12 @@ final class Data_Events {
 		session_write_close(); // phpcs:ignore
 
 		if ( ! isset( $_REQUEST['nonce'] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST['nonce'] ), self::ACTION ) ) {
-			wp_die();
+			\wp_die();
 		}
 
 		$action_name = isset( $_POST['action_name'] ) ? \sanitize_text_field( \wp_unslash( $_POST['action_name'] ) ) : null;
 		if ( empty( $action_name ) || ! isset( self::$actions[ $action_name ] ) ) {
-			wp_die();
+			\wp_die();
 		}
 
 		$timestamp = isset( $_POST['timestamp'] ) ? \sanitize_text_field( \wp_unslash( $_POST['timestamp'] ) ) : null;
@@ -84,7 +86,7 @@ final class Data_Events {
 
 		self::handle( $action_name, $timestamp, $data, $client_id );
 
-		wp_die();
+		\wp_die();
 	}
 
 	/**
@@ -135,7 +137,7 @@ final class Data_Events {
 		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
-		do_action( "newspack_data_event_{$action_name}", $timestamp, $data, $client_id );
+		\do_action( "newspack_data_event_{$action_name}", $timestamp, $data, $client_id );
 
 		/**
 		 * Fires after all global and action-specific handlers have been executed.
@@ -145,7 +147,7 @@ final class Data_Events {
 		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
-		do_action( 'newspack_data_event', $action_name, $timestamp, $data, $client_id );
+		\do_action( 'newspack_data_event', $action_name, $timestamp, $data, $client_id );
 	}
 
 	/**
@@ -292,7 +294,7 @@ final class Data_Events {
 		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
-		do_action( "newspack_data_event_dispatch_{$action_name}", $timestamp, $data, $client_id );
+		\do_action( "newspack_data_event_dispatch_{$action_name}", $timestamp, $data, $client_id );
 
 		/**
 		 * Fires when an action is dispatched. This occurs before any handlers are
@@ -303,7 +305,7 @@ final class Data_Events {
 		 * @param array  $data        Data.
 		 * @param string $client_id   Client ID.
 		 */
-		do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
+		\do_action( 'newspack_data_event_dispatch', $action_name, $timestamp, $data, $client_id );
 
 		$body = [
 			'action_name' => $action_name,
