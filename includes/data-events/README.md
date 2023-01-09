@@ -8,7 +8,9 @@ The non-blocking strategy is inspired by [TechCrunch's `wp-async-task`](https://
 
 ---
 
-## Core Actions
+## Newspack Core Actions
+
+These events are registered by the Newspack Plugin and available by default.
 
 ### `reader_registered`
 
