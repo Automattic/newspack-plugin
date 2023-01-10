@@ -309,7 +309,10 @@ final class Webhooks {
 	 */
 	public static function get_endpoints() {
 		$endpoints = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
-		return array_map( [ __CLASS__, 'get_endpoint' ], $endpoints );
+		if ( is_array( $endpoints ) && ! empty( $endpoints ) ) {
+			return array_map( [ __CLASS__, 'get_endpoint' ], $endpoints );
+		}
+		return [];
 	}
 
 	/**
