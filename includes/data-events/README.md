@@ -4,6 +4,10 @@
 
 The purpose of this tool is to unify the strategy for sending reader activity data to third-party services, focused primarily on analytics, ESPs, and CRMs.
 
+<img src="data-events-flow.jpg" width="720" alt="Newspack Data Events Flow" />
+
+Once an action is registered, dispatches can be called with an arbitrary payload. These events will call the registered handlers. Handlers should be created and registered by the third-party integration/connector.
+
 ## Important Technical Notes
 
 The non-blocking strategy implemented in the Data Events dispatch is inspired by [TechCrunch's `wp-async-task`](https://github.com/techcrunch/wp-async-task) and uses an HTTP request to trigger the handlers.
