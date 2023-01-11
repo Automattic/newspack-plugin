@@ -100,3 +100,23 @@ Data_Events::register_listener(
 		];
 	}
 );
+
+/**
+ * For when there's a new donation through the Stripe platform.
+ */
+Data_Events::register_listener(
+	'newspack_stripe_new_donation',
+	'donation_new',
+	function( $client_id, $donation_data, $newsletter_email ) {
+		return [
+			'client_id'     => $client_id,
+			'amount'        => $donation_data['amount'],
+			'platform'      => 'stripe',
+			'platform_data' => [
+				'client_id'        => $client_id,
+				'donation_data'    => $donation_data,
+				'newsletter_email' => $newsletter_email,
+			],
+		];
+	}
+);
