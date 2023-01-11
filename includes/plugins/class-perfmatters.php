@@ -76,6 +76,7 @@ class Perfmatters {
 	private static function unused_css_excluded_stylesheets() {
 		return [
 			'donateStreamlined.css',
+			'/themes/newspack-', // Any Newspack theme stylesheet.
 		];
 	}
 
