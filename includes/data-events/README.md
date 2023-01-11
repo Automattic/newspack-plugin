@@ -2,9 +2,15 @@
 
 ## A tool for non-blocking dispatch of data events to registered handlers.
 
-The purpose of this tool is to unify the strategy for sending reader activity data to third-party services, focused primarily for analytics, ESPs and CRMs.
+The purpose of this tool is to unify the strategy for sending reader activity data to third-party services, focused primarily on analytics, ESPs, and CRMs.
 
-The non-blocking strategy is inspired by [TechCrunch's `wp-async-task`](https://github.com/techcrunch/wp-async-task) and uses an HTTP request to trigger the handlers.
+## Important Technical Notes
+
+The non-blocking strategy implemented in the Data Events dispatch is inspired by [TechCrunch's `wp-async-task`](https://github.com/techcrunch/wp-async-task) and uses an HTTP request to trigger the handlers.
+
+If [WooCommerce's ActionScheduler](https://actionscheduler.org/) is available, the dispatch of a data event will be handled by the tool's `as_enqueue_async_action()`. It'll also be the case for the processing of [webhook](class-webhooks.php) requests, which will be scheduled through `as_schedule_single_action()`. This is the default behavior when WooCommerce is installed and active.
+
+If not using ActionScheduler, it's recommended to use a different strategy for running WP-Cron so you can ensure that webhook requests are processed in a timely fashion and without affecting page load. Read more at [Hooking WP-Cron Into The System Task Scheduler](https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/).
 
 ---
 
