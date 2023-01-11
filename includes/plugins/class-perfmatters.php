@@ -64,7 +64,11 @@ class Perfmatters {
 			'/busting/facebook-tracking/',
 			// Twitter.
 			'ads-twitter.com',
-			// Etc.
+			// Plugins.
+			'gravityforms',
+			'mailchimp-for-woocommerce',
+			'mailchimp-for-wp',
+			// Third-party services.
 			'disqus',
 			'stripe.com',
 		];
