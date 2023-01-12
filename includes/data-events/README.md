@@ -80,6 +80,58 @@ When a reader updates their lists subscription from Newspack Newsletters.
 | `lists_added`   | `string[]` |
 | `lists_removed` | `string[]` |
 
+### `donation_new`
+
+When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
+
+### Data
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `amount`        | `float`  |
+| `currency`      | `string` |
+| `recurrence`    | `string` |
+| `platform`      | `string` |
+| `platform_data` | `array`  |
+
+### `donation_subscription_new`
+
+When there's a new WooCommerce Subscription. This action does not replace the `donation_new` that create the subscription.
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `amount`        | `float`  |
+| `currency`      | `string` |
+| `recurrence`    | `string` |
+| `platform`      | `string` |
+| `platform_data` | `array`  |
+
+### `donation_subscription_cancelled`
+
+When a WooCommerce Subscription is cancelled.
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `subscription_id` | `int`    |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+
+### `donation_subscription_changed`
+
+When a WooCommerce Subscription status changes.
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `subscription_id` | `int`    |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+| `status_before`   | `string` |
+| `status_after`    | `string` |
+
 ## Registering a new action
 
 To dispatch an event, an action must first be registered with the following:

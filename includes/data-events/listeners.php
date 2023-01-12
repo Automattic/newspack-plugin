@@ -166,3 +166,38 @@ Data_Events::register_listener(
 		return $data;
 	}
 );
+
+/**
+ * For when a WooCommerce Subscription is cancelled.
+ */
+Data_Events::register_listener(
+	'woocommerce_subscription_status_updated',
+	'donation_subscription_cancelled',
+	function( $subscription, $status_from, $status_to ) {
+		if ( 'cancelled' !== $status_to ) {
+			return;
+		}
+		return [
+			'subscription_id' => $subscription->get_id(),
+			'user_id'         => $subscription->get_customer_id(),
+			'email'           => $subscription->get_billing_email(),
+		];
+	}
+);
+
+/**
+ * For when a WooCommerce Subscription status changes.
+ */
+Data_Events::register_listener(
+	'woocommerce_subscription_status_updated',
+	'donation_subscription_changed',
+	function( $subscription, $status_from, $status_to ) {
+		return [
+			'subscription_id' => $subscription->get_id(),
+			'user_id'         => $subscription->get_customer_id(),
+			'email'           => $subscription->get_billing_email(),
+			'status_before'   => $status_from,
+			'status_after'    => $status_to,
+		];
+	}
+);
