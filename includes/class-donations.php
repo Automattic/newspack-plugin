@@ -69,7 +69,7 @@ class Donations {
 			add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
 			add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
 			add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
-			add_action( 'woocommerce_before_cart', [ __CLASS__, 'handle_cart' ] );
+			add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
 			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
 		}
 	}
