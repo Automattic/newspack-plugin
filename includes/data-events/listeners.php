@@ -102,21 +102,67 @@ Data_Events::register_listener(
 );
 
 /**
+ * For when there's a new donation through WooCommerce.
+ */
+Data_Events::register_listener(
+	'newspack_donation_order_processed',
+	'donation_new',
+	function( $order_id, $product_id ) {
+		$order = \wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		return [
+			'user_id'       => $order->get_customer_id(),
+			'email'         => $order->get_billing_email(),
+			'amount'        => (float) $order->get_total(),
+			'currency'      => $order->get_currency(),
+			'recurrence'    => get_post_meta( $product_id, '_subscription_period', true ),
+			'platform'      => 'newspack',
+			'platform_data' => [
+				'order_id'   => $order_id,
+				'product_id' => $product_id,
+			],
+		];
+	}
+);
+
+/**
  * For when there's a new donation through the Stripe platform.
  */
 Data_Events::register_listener(
-	'newspack_stripe_new_donation',
+	'newspack_new_donation_woocommerce',
 	'donation_new',
-	function( $client_id, $donation_data, $newsletter_email ) {
+	function( $order, $client_id ) {
+		$order_id = $order->get_id();
 		return [
-			'client_id'     => $client_id,
-			'amount'        => $donation_data['amount'],
+			'user_id'       => $order->get_customer_id(),
+			'email'         => $order->get_billing_email(),
+			'amount'        => (float) $order->get_total(),
+			'currency'      => $order->get_currency(),
+			'recurrence'    => get_post_meta( $product_id, '_subscription_period', true ),
 			'platform'      => 'stripe',
 			'platform_data' => [
-				'client_id'        => $client_id,
-				'donation_data'    => $donation_data,
-				'newsletter_email' => $newsletter_email,
+				'order_id'   => $order_id,
+				'product_id' => \Newspack\Donations::get_order_donation_product_id( $order_id ),
+				'client_id'  => $client_id,
 			],
 		];
+	}
+);
+
+/**
+ * For when there's a new donation subscription.
+ *
+ * This will be fetched from a new donation, so we're hooking into the 'donation_new' dispatch.
+ */
+Data_Events::register_listener(
+	'newspack_data_event_dispatch_donation_new',
+	'donation_subscription_new',
+	function( $timestamp, $data ) {
+		if ( 'once' === $data['recurrence'] ) {
+			return;
+		}
+		return $data;
 	}
 );
