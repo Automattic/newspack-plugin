@@ -185,7 +185,8 @@ class WooCommerce_Connection {
 		// One-time donation.
 		if ( empty( $order_subscriptions ) ) {
 			$metadata[ $metadata_keys['membership_status'] ] = 'Donor';
-			$metadata[ $metadata_keys['total_paid'] ]        = (float) $customer->get_total_spent() ? $customer->get_total_spent() : $order->get_total();
+			$metadata[ $metadata_keys['total_paid'] ]        = (float) $customer->get_total_spent();
+			$metadata[ $metadata_keys['total_paid'] ]       += (float) $order->get_total();
 			$metadata[ $metadata_keys['product_name'] ]      = '';
 			$order_items                                     = $order->get_items();
 			if ( $order_items ) {
@@ -234,7 +235,9 @@ class WooCommerce_Connection {
 				$metadata[ $metadata_keys['next_payment_date'] ] = $next_payment_date;
 			}
 
-			$metadata[ $metadata_keys['total_paid'] ]   = (float) $customer->get_total_spent() ? $customer->get_total_spent() : $current_subscription->get_total();
+			$metadata[ $metadata_keys['total_paid'] ]  = (float) $customer->get_total_spent();
+			$metadata[ $metadata_keys['total_paid'] ] += (float) $current_subscription->get_total();
+
 			$metadata[ $metadata_keys['product_name'] ] = '';
 			if ( $current_subscription ) {
 				$subscription_order_items = $current_subscription->get_items();
