@@ -26,8 +26,6 @@ These events are registered by the Newspack Plugin and available by default.
 
 When a reader registers.
 
-#### Data
-
 | Name       | Type      |
 | ---------- | --------- |
 | `user_id`  | `integer` |
@@ -38,8 +36,6 @@ When a reader registers.
 
 When a reader authenticates.
 
-#### Data
-
 | Name      | Type      |
 | --------- | --------- |
 | `user_id` | `integer` |
@@ -49,8 +45,6 @@ When a reader authenticates.
 
 When a reader verifies their email address.
 
-#### Data
-
 | Name      | Type      |
 | --------- | --------- |
 | `user_id` | `integer` |
@@ -58,8 +52,6 @@ When a reader verifies their email address.
 ### `newsletter_subscribed`
 
 When a reader subscribes to newsletter lists from Newspack Newsletters subscription.
-
-#### Data
 
 | Name       | Type       |
 | ---------- | ---------- |
@@ -70,8 +62,6 @@ When a reader subscribes to newsletter lists from Newspack Newsletters subscript
 ### `newsletter_updated`
 
 When a reader updates their lists subscription from Newspack Newsletters.
-
-#### Data
 
 | Name            | Type       |
 | --------------- | ---------- |
