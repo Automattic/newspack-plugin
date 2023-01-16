@@ -17,9 +17,7 @@ class Patches {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_filter( 'wpseo_enhanced_slack_data', [ __CLASS__, 'use_cap_for_slack_preview' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
-		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
 		add_action( 'pre_get_posts', [ __CLASS__, 'restrict_others_posts' ] );
@@ -86,38 +84,10 @@ class Patches {
 	}
 
 	/**
-	 * Use the Co-Author in Slack preview metadata instead of the regular post author if needed.
-	 *
-	 * @param array $slack_data Array of data which will be output in twitter:data tags.
-	 * @return array Modified $slack_data
-	 */
-	public static function use_cap_for_slack_preview( $slack_data ) {
-		if ( function_exists( 'coauthors' ) && is_single() && isset( $slack_data[ __( 'Written by', 'wordpress-seo' ) ] ) ) {
-			$slack_data[ __( 'Written by', 'wordpress-seo' ) ] = coauthors( null, null, null, null, false );
-		}
-
-		return $slack_data;
-	}
-
-	/**
 	 * Add a menu link in WP Admin to easily edit and manage reusable blocks.
 	 */
 	public static function add_reusable_blocks_menu_link() {
 		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'edit_posts', 'edit.php?post_type=wp_block', '', 2 );
-	}
-
-	/**
-	 * On Atomic infrastructure, URLs are `http` for Facebook requests.
-	 * This forces the `og:url` to `http` for consistency, to prevent 301 redirect loop issues.
-	 *
-	 * @param string $og_url The opengraph URL.
-	 * @return string modified $og_url
-	 */
-	public static function http_ogurls( $og_url ) {
-		if ( defined( 'ATOMIC_SITE_ID' ) && ATOMIC_SITE_ID ) {
-			$og_url = str_replace( 'https:', 'http:', $og_url );
-		}
-		return $og_url;
 	}
 
 	/**
