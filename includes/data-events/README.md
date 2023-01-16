@@ -109,6 +109,10 @@ When a WooCommerce Subscription is cancelled.
 | `subscription_id` | `int`    |
 | `user_id`         | `int`    |
 | `email`           | `string` |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+| `platform`        | `string` |
 
 ### `donation_subscription_changed`
 
@@ -121,6 +125,10 @@ When a WooCommerce Subscription status changes.
 | `email`           | `string` |
 | `status_before`   | `string` |
 | `status_after`    | `string` |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+| `platform`        | `string` |
 
 ## Registering a new action
 
