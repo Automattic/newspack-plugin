@@ -135,17 +135,21 @@ Data_Events::register_listener(
 	'newspack_new_donation_woocommerce',
 	'donation_new',
 	function( $order, $client_id ) {
-		$order_id = $order->get_id();
+		$order_id   = $order->get_id();
+		$product_id = Donations::get_order_donation_product_id( $order_id );
+		if ( ! $product_id ) {
+			return;
+		}
 		return [
 			'user_id'       => $order->get_customer_id(),
 			'email'         => $order->get_billing_email(),
 			'amount'        => (float) $order->get_total(),
 			'currency'      => $order->get_currency(),
-			'recurrence'    => get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'    => \get_post_meta( $product_id, '_subscription_period', true ),
 			'platform'      => 'stripe',
 			'platform_data' => [
 				'order_id'   => $order_id,
-				'product_id' => \Newspack\Donations::get_order_donation_product_id( $order_id ),
+				'product_id' => $product_id,
 				'client_id'  => $client_id,
 			],
 		];
@@ -161,7 +165,7 @@ Data_Events::register_listener(
 	'newspack_data_event_dispatch_donation_new',
 	'donation_subscription_new',
 	function( $timestamp, $data ) {
-		if ( 'once' === $data['recurrence'] ) {
+		if ( ! in_array( $data['recurrence'], [ 'month', 'year' ] ) ) {
 			return;
 		}
 		return $data;
