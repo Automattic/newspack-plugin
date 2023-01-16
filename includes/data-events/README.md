@@ -74,8 +74,6 @@ When a reader updates their lists subscription from Newspack Newsletters.
 
 When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
 
-### Data
-
 | Name            | Type     |
 | --------------- | -------- |
 | `user_id`       | `int`    |
