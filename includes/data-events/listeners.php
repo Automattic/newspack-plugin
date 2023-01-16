@@ -173,7 +173,7 @@ Data_Events::register_listener(
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
 	'donation_subscription_cancelled',
-	function( $subscription, $status_from, $status_to ) {
+	function( $subscription, $status_to, $status_from ) {
 		if ( 'cancelled' !== $status_to ) {
 			return;
 		}
@@ -191,7 +191,7 @@ Data_Events::register_listener(
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
 	'donation_subscription_changed',
-	function( $subscription, $status_from, $status_to ) {
+	function( $subscription, $status_to, $status_from ) {
 		return [
 			'subscription_id' => $subscription->get_id(),
 			'user_id'         => $subscription->get_customer_id(),
