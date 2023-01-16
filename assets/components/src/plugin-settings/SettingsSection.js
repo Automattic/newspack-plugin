@@ -52,8 +52,18 @@ const getControlType = setting => {
 };
 
 const SettingsSection = props => {
-	const { error, sectionKey, active, title, description, fields, disabled, onChange, onUpdate } =
-		props;
+	const {
+		error,
+		sectionKey,
+		active,
+		title,
+		description,
+		fields,
+		disabled,
+		onChange,
+		onUpdate,
+		sectionSettingsButtonDisabled,
+	} = props;
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
@@ -100,7 +110,7 @@ const SettingsSection = props => {
 					'buttons',
 					<Button
 						variant="primary"
-						disabled={ disabled }
+						disabled={ sectionSettingsButtonDisabled }
 						onClick={ () => {
 							onUpdate();
 						} }

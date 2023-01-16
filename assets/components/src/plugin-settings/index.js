@@ -23,6 +23,7 @@ class PluginSettings extends Component {
 			inFlight: false,
 			settings: {},
 			error: null,
+			sectionSettingsButtonDisabled: {},
 		};
 	}
 
@@ -39,6 +40,15 @@ class PluginSettings extends Component {
 				if ( 'function' === typeof afterFetch ) {
 					afterFetch( settings );
 				}
+				let sectionButtonState = {};
+				for ( const sectionkeys in settings ) {
+					Object.assign( sectionButtonState, {
+						[ `${ sectionkeys }` ]: true,
+					} );
+				}
+				this.setState( {
+					sectionSettingsButtonDisabled: sectionButtonState,
+				} );
 			} )
 			.catch( error => {
 				this.setState( { error } );
@@ -73,6 +83,11 @@ class PluginSettings extends Component {
 				...this.state.settings,
 				[ sectionKey ]: sectionSettings,
 			},
+			// When any change in settings happen, Remove disabled from that section.
+			sectionSettingsButtonDisabled: {
+				...this.state.sectionSettingsButtonDisabled,
+				[ sectionKey ]: false,
+			},
 		} );
 	};
 
@@ -90,6 +105,15 @@ class PluginSettings extends Component {
 			},
 		} )
 			.then( settings => {
+				/**
+				 * At this point we have 2 options -
+				 * 1. If we are using settings button individually then no need to update
+				 *    state settings after saving for any one section. This is override
+				 *    the non-saved settings.
+				 * 2. We can assume user changes settings and directly hit save settings
+				 *    button, then we can add below line it won't be affecting anything.
+				 */
+				// Need to check below line based on above comment.
 				this.setState( { settings, error: null } );
 
 				if ( 'function' === typeof afterUpdate ) {
@@ -98,9 +122,22 @@ class PluginSettings extends Component {
 			} )
 			.catch( error => {
 				this.setState( { error } );
+				// On Error, Do not disable button.
+				this.setState( {
+					sectionSettingsButtonDisabled: {
+						...this.state.sectionSettingsButtonDisabled,
+						[ sectionKey ]: false,
+					},
+				} );
 			} )
 			.finally( () => {
 				this.setState( { inFlight: false } );
+				this.setState( {
+					sectionSettingsButtonDisabled: {
+						...this.state.sectionSettingsButtonDisabled,
+						[ sectionKey ]: true,
+					},
+				} );
 			} );
 	};
 
@@ -168,7 +205,7 @@ class PluginSettings extends Component {
 	 */
 	render() {
 		const { title, description, hasGreyHeader, children } = this.props;
-		const { settings, inFlight, error } = this.state;
+		const { settings, inFlight, error, sectionSettingsButtonDisabled } = this.state;
 		return (
 			<Fragment>
 				{ title && <SectionHeader title={ title } description={ description } /> }
@@ -190,6 +227,7 @@ class PluginSettings extends Component {
 							onChange={ this.handleSettingChange( sectionKey ) }
 							onUpdate={ this.handleSectionUpdate( sectionKey ) }
 							hasGreyHeader={ hasGreyHeader }
+							sectionSettingsButtonDisabled={ sectionSettingsButtonDisabled[ `${ sectionKey }` ] }
 						/>
 					) ) }
 					{ children }
