@@ -103,6 +103,10 @@ class AdvertisingWizard extends Component {
 			quiet: true,
 		} );
 
+	onAdUnitCancel = () => {
+		this.fetchAdvertisingData();
+	};
+
 	/**
 	 * Delete an ad unit.
 	 *
@@ -250,6 +254,7 @@ class AdvertisingWizard extends Component {
 											} )
 											.catch( () => {} )
 									}
+									onCancel={ this.onAdUnitCancel }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -270,6 +275,7 @@ class AdvertisingWizard extends Component {
 												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
+										onCancel={ this.onAdUnitCancel }
 										tabbedNavigation={ tabs }
 									/>
 								);
