@@ -175,6 +175,89 @@ class Mailchimp_API {
 		$response_body = json_decode( $response['body'], true );
 		return \rest_ensure_response( [ 'username' => $response_body['username'] ] );
 	}
+
+	/**
+	 * Get the Mailchimp API endpoint.
+	 *
+	 * @return string|WP_Error the API endpoint or an error if the API key is not set.
+	 */
+	public static function get_endpoint() {
+		// 'newspack_mailchimp_api_key' is a new option introduced to manage MC API key accross Newspack plugins.
+		// Keeping the old option for backwards compatibility.
+		$mailchimp_api_key = get_option( 'newspack_mailchimp_api_key', get_option( 'newspack_newsletters_mailchimp_api_key' ) );
+		if ( ! $mailchimp_api_key ) {
+			return new \WP_Error( 'newspack_mailchimp_api', __( 'Mailchimp API key is not set.', 'newspack' ) );
+		}
+		return self::get_api_endpoint_from_key( $mailchimp_api_key );
+	}
+
+	/**
+	 * Perform Mailchimp API Request
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $path API path.
+	 * @param array  $data Data to send.
+	 *
+	 * @return array|WP_Error response body or error.
+	 */
+	public static function request( $method, $path, $data = [] ) {
+		$endpoint = self::get_endpoint();
+		if ( \is_wp_error( $endpoint ) ) {
+			return $endpoint;
+		}
+
+		// 'newspack_mailchimp_api_key' is a new option introduced to manage MC API key accross Newspack plugins.
+		// Keeping the old option for backwards compatibility.
+		$api_key = \get_option( 'newspack_mailchimp_api_key', get_option( 'newspack_newsletters_mailchimp_api_key' ) );
+		$url     = $endpoint . '/' . $path;
+		$config  = [
+			'method'  => $method,
+			'headers' => [
+				'Accept'        => 'application/json',
+				'Content-Type'  => 'application/json',
+				'Authorization' => "Basic $api_key",
+			],
+		];
+		if ( ! empty( $data ) ) {
+			$config['body'] = \wp_json_encode( $data );
+		}
+		$response = \wp_safe_remote_request( $url, $config );
+
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+		$parsed_response = json_decode( $response['body'], true );
+		if ( 200 !== \wp_remote_retrieve_response_code( $response ) ) {
+			return new \WP_Error(
+				'newspack_mailchimp_api',
+				array_key_exists( 'title', $parsed_response ) ? $parsed_response['title'] : __( 'Request failed.', 'newspack' )
+			);
+		}
+		return $parsed_response;
+	}
+
+	/**
+	 * Perform a GET request to Mailchimp's API
+	 *
+	 * @param string $path API path.
+	 *
+	 * @return array|WP_Error API response or error.
+	 */
+	public static function get( $path ) {
+		return self::request( 'GET', $path );
+	}
+
+	/**
+	 * Perform a PUT request to Mailchimp's API
+	 *
+	 * @param string $path API path.
+	 * @param array  $data Data to send.
+	 *
+	 * @return array|WP_Error API response or error.
+	 */
+	public static function put( $path, $data ) {
+		return self::request( 'PUT', $path, $data );
+	}
 }
 
 new Mailchimp_API();
