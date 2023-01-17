@@ -103,6 +103,9 @@ class AdvertisingWizard extends Component {
 			quiet: true,
 		} );
 
+	/**
+	 * On cancel save/update ad unit.
+	 */
 	onAdUnitCancel = () => {
 		this.fetchAdvertisingData();
 	};
