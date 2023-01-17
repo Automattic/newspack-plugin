@@ -472,6 +472,12 @@ class WooCommerce_Connection {
 			}
 		}
 
+		/**
+		 * Disable the emails sent to admin & customer after a subscription renewal order is completed.
+		 */
+		\add_filter( 'woocommerce_email_enabled_customer_completed_renewal_order', '__return_false' );
+		\add_filter( 'woocommerce_email_enabled_new_renewal_order', '__return_false' );
+
 		if ( 'renewed' === $subscription_status ) {
 			/**
 			 * Handle WooCommerce Subscriptions - subscription renewal. This will create a new order
@@ -485,8 +491,8 @@ class WooCommerce_Connection {
 				$order->save();
 				Logger::log( 'Updated WC subscription with id: ' . $subscription->get_id() . ' with a new order of id: ' . $order->get_id() );
 			} else {
-				// Linked subscription not found, just create an order. Temporarily disable the
-				// "New Order" email, since this is a renewal.
+				// Linked subscription not found, just create an order.
+				// Temporarily disable the "New Order" email, since this is a renewal.
 				\add_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 				$order = self::create_order( $order_data, $item );
 				\remove_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
@@ -533,6 +539,9 @@ class WooCommerce_Connection {
 				}
 			}
 		}
+
+		\remove_filter( 'woocommerce_email_enabled_customer_completed_renewal_order', '__return_false' );
+		\remove_filter( 'woocommerce_email_enabled_new_renewal_order', '__return_false' );
 
 		/**
 		 * Handle WooCommerce Memberships.
