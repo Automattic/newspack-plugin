@@ -1,3 +1,10 @@
+## [1.99.2-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.99.1...v1.99.2-hotfix.1) (2023-01-18)
+
+
+### Bug Fixes
+
+* use newer stripe api version ([b5d1fc7](https://github.com/Automattic/newspack-plugin/commit/b5d1fc7804df7329bc3ad43b19341962705e46e8))
+
 ## [1.99.1](https://github.com/Automattic/newspack-plugin/compare/v1.99.0...v1.99.1) (2022-12-19)
 
 
