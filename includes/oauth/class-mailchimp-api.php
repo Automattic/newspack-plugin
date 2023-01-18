@@ -213,6 +213,18 @@ class Mailchimp_API {
 	public static function put( $path = '', $data ) {
 		return self::request( 'PUT', $path, $data );
 	}
+
+	/**
+	 * Perform a POST request to Mailchimp's API
+	 *
+	 * @param string $path API path.
+	 * @param array  $data Data to send.
+	 *
+	 * @return array|WP_Error API response or error.
+	 */
+	public static function post( $path = '', $data ) {
+		return self::request( 'POST', $path, $data );
+	}
 }
 
 new Mailchimp_API();

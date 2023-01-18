@@ -11,6 +11,7 @@ use \Newspack\Data_Events;
 use \Newspack\Mailchimp_API;
 use \Newspack\Newspack_Newsletters;
 use \Newspack\Reader_Activation;
+use \Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,22 +19,12 @@ defined( 'ABSPATH' ) || exit;
  * Main Class.
  */
 class Mailchimp {
-
-	/**
-	 * Merge fields.
-	 *
-	 * @var array
-	 */
-	public static $fields = [
-		'FNAME' => 'first_name',
-		'LNAME' => 'last_name',
-	];
-
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
+		Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 	}
 
 	/**
@@ -41,7 +32,7 @@ class Mailchimp {
 	 *
 	 * @return string|bool Audience ID or false if not set.
 	 */
-	public static function get_audience_id() {
+	private static function get_audience_id() {
 		/** TODO: UI for handling Mailchimp's master list in RAS. */
 		if ( Reader_Activation::is_enabled() ) {
 			$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
@@ -54,6 +45,70 @@ class Mailchimp {
 	}
 
 	/**
+	 * Get merge field type.
+	 *
+	 * @param mixed $value Value to check.
+	 *
+	 * @return string Merge field type.
+	 */
+	private static function get_merge_field_type( $value ) {
+		if ( is_numeric( $value ) ) {
+			return 'number';
+		}
+		if ( is_bool( $value ) ) {
+			return 'boolean';
+		}
+		return 'text';
+	}
+
+	/**
+	 * Update a Mailchimp contact
+	 *
+	 * @param string $email Email address.
+	 * @param array  $data  Data to update.
+	 */
+	private static function put( $email, $data = [] ) {
+		$audience_id = self::get_audience_id();
+		if ( ! $audience_id ) {
+			return;
+		}
+		$hash    = md5( strtolower( $email ) );
+		$payload = [
+			'email_address' => $email,
+			'status_if_new' => 'transactional',
+		];
+		if ( ! empty( $data ) ) {
+			$merge_fields    = [];
+			$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
+			foreach ( $existing_fields['merge_fields'] as $field ) {
+				if ( isset( $data[ $field['name'] ] ) ) {
+					$merge_fields[ $field['tag'] ] = $data[ $field['name'] ];
+					unset( $data[ $field['name'] ] );
+				}
+			}
+			$remaining_fields = array_keys( $data );
+			// Create remaining fields.
+			foreach ( $remaining_fields as $field_name ) {
+				$created_field                         = Mailchimp_API::post(
+					"lists/$audience_id/merge-fields",
+					[
+						'name' => $field_name,
+						'type' => self::get_merge_field_type( $data[ $field_name ] ),
+					]
+				);
+				$merge_fields[ $created_field['tag'] ] = $data[ $field_name ];
+			}
+			if ( ! empty( $merge_fields ) ) {
+				$payload['merge_fields'] = $merge_fields;
+			}
+		}
+		Mailchimp_API::put(
+			"lists/$audience_id/members/$hash",
+			$payload
+		);
+	}
+
+	/**
 	 * Handle a reader registering.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
@@ -61,20 +116,28 @@ class Mailchimp {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$email = $data['email'];
+		self::put( $data['email'], $data['metadata'] );
+	}
 
-		$audience_id = self::get_audience_id();
-		if ( ! $audience_id ) {
+	/**
+	 * Handle a donation being made.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function donation_new( $timestamp, $data, $client_id ) {
+		if ( ! isset( $data['platform_data']['order_id'] ) ) {
 			return;
 		}
-		$hash = md5( strtolower( $email ) );
-		Mailchimp_API::put(
-			"lists/$audience_id/members/$hash",
-			[
-				'email_address' => $email,
-				'status_if_new' => 'transactional',
-			]
-		);
+
+		$order_id = $data['platform_data']['order_id'];
+		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id );
+
+		// We don't want to overwrite the registration method.
+		unset( $contact['metadata']['registration_method'] );
+
+		self::put( $contact['email'], $contact['metadata'] );
 	}
 }
 new Mailchimp();
