@@ -23,8 +23,10 @@ class Mailchimp {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
-		Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
+		if ( true === Reader_Activation::get_setting( 'sync_esp' ) ) {
+			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
+			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
+		}
 	}
 
 	/**
