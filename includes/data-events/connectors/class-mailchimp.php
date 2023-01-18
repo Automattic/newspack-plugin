@@ -147,10 +147,22 @@ class Mailchimp {
 		$order_id = $data['platform_data']['order_id'];
 		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id );
 
-		// We don't want to overwrite the registration method.
-		unset( $contact['metadata']['registration_method'] );
+		if ( ! $contact ) {
+			return;
+		}
 
-		self::put( $contact['email'], $contact['metadata'] );
+		$email    = $contact['email'];
+		$metadata = $contact['metadata'];
+		$keys     = Newspack_Newsletters::$metadata_keys;
+
+		// Only use metadata defined in 'Newspack_Newsletters'.
+		$metadata = array_intersect_key( $metadata, array_flip( $keys ) );
+
+		// Remove "product name" from metadata. This requires a better strategy
+		// since it's updated on every different donation.
+		unset( $metadata[ $keys['product_name'] ] );
+
+		self::put( $email, $metadata );
 	}
 }
 new Mailchimp();
