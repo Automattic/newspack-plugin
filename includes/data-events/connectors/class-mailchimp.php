@@ -92,9 +92,9 @@ class Mailchimp {
 					$fields_ids[ $field['merge_id'] ] = $field_name;
 				}
 				// If field name is found, add it to the payload.
-				if ( ! empty( $field_name ) ) {
+				if ( ! empty( $field_name ) && isset( $data[ $field_name ] ) ) {
 					$merge_fields[ $field['tag'] ] = $data[ $field_name ];
-					unset( $data[ $field['name'] ] );
+					unset( $data[ $field_name ] );
 				}
 			}
 			// Create remaining fields.
