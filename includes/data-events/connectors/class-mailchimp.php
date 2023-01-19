@@ -23,7 +23,7 @@ class Mailchimp {
 	 * Constructor.
 	 */
 	public function __construct() {
-		if ( true === Reader_Activation::get_setting( 'sync_esp' ) ) {
+		if ( Reader_Activation::is_enabled() && true === Reader_Activation::get_setting( 'sync_esp' ) ) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 		}
@@ -36,9 +36,7 @@ class Mailchimp {
 	 */
 	private static function get_audience_id() {
 		/** TODO: UI for handling Mailchimp's master list in RAS. */
-		if ( Reader_Activation::is_enabled() ) {
-			$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
-		}
+		$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
 		/** Attempt to use list ID from "Mailchimp for WooCommerce" */
 		if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
 			$audience_id = mailchimp_get_list_id();
