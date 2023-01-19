@@ -64,6 +64,65 @@ class Mailchimp {
 	}
 
 	/**
+	 * Get merge fields given data.
+	 *
+	 * @param string $audience_id Audience ID.
+	 * @param array  $data        Data to check.
+	 *
+	 * @return array Merge fields.
+	 */
+	private static function get_merge_fields( $audience_id, $data ) {
+		$merge_fields       = [];
+		$fields_option_name = sprintf( 'newspack_data_mailchimp_%s_fields', $audience_id );
+
+		// Strip arrays.
+		$data = array_filter(
+			$data,
+			function( $value ) {
+				return ! is_array( $value );
+			}
+		);
+
+		// Get and match existing merge fields.
+		$fields_ids      = \get_option( $fields_option_name, [] );
+		$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
+		foreach ( $existing_fields['merge_fields'] as $field ) {
+			$field_name = '';
+			if ( isset( $fields_ids[ $field['merge_id'] ] ) ) {
+				// Match locally stored merge field ID.
+				$field_name = $fields_ids[ $field['merge_id'] ];
+			} elseif ( isset( $data[ $field['name'] ] ) ) {
+				// Match by merge field name.
+				$field_name                       = $field['name'];
+				$fields_ids[ $field['merge_id'] ] = $field_name;
+			}
+			// If field name is found, add it to the payload.
+			if ( ! empty( $field_name ) && isset( $data[ $field_name ] ) ) {
+				$merge_fields[ $field['tag'] ] = $data[ $field_name ];
+				unset( $data[ $field_name ] );
+			}
+		}
+
+		// Create remaining fields.
+		$remaining_fields = array_keys( $data );
+		foreach ( $remaining_fields as $field_name ) {
+			$created_field                            = Mailchimp_API::post(
+				"lists/$audience_id/merge-fields",
+				[
+					'name' => $field_name,
+					'type' => self::get_merge_field_type( $data[ $field_name ] ),
+				]
+			);
+			$merge_fields[ $created_field['tag'] ]    = $data[ $field_name ];
+			$fields_ids[ $created_field['merge_id'] ] = $field_name;
+		}
+
+		// Store fields IDs for future use.
+		\update_option( $fields_option_name, $fields_ids );
+		return $merge_fields;
+	}
+
+	/**
 	 * Update a Mailchimp contact
 	 *
 	 * @param string $email Email address.
@@ -79,58 +138,10 @@ class Mailchimp {
 			'email_address' => $email,
 			'status_if_new' => 'transactional',
 		];
-		if ( ! empty( $data ) ) {
-			// Strip arrays.
-			$data = array_filter(
-				$data,
-				function( $value ) {
-					return ! is_array( $value );
-				}
-			);
 
-			$merge_fields = [];
-
-			// Get and match existing merge fields.
-			$fields_ids      = \get_option( 'newspack_data_mailchimp_fields', [] );
-			$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
-			foreach ( $existing_fields['merge_fields'] as $field ) {
-				$field_name = '';
-				if ( isset( $fields_ids[ $field['merge_id'] ] ) ) {
-					// Match locally stored merge field ID.
-					$field_name = $fields_ids[ $field['merge_id'] ];
-				} elseif ( isset( $data[ $field['name'] ] ) ) {
-					// Match by merge field name.
-					$field_name                       = $field['name'];
-					$fields_ids[ $field['merge_id'] ] = $field_name;
-				}
-				// If field name is found, add it to the payload.
-				if ( ! empty( $field_name ) && isset( $data[ $field_name ] ) ) {
-					$merge_fields[ $field['tag'] ] = $data[ $field_name ];
-					unset( $data[ $field_name ] );
-				}
-			}
-
-			// Create remaining fields.
-			$remaining_fields = array_keys( $data );
-			foreach ( $remaining_fields as $field_name ) {
-				$created_field                            = Mailchimp_API::post(
-					"lists/$audience_id/merge-fields",
-					[
-						'name' => $field_name,
-						'type' => self::get_merge_field_type( $data[ $field_name ] ),
-					]
-				);
-				$merge_fields[ $created_field['tag'] ]    = $data[ $field_name ];
-				$fields_ids[ $created_field['merge_id'] ] = $field_name;
-			}
-
-			// Add the merge fields to the payload.
-			if ( ! empty( $merge_fields ) ) {
-				$payload['merge_fields'] = $merge_fields;
-			}
-
-			// Store fields IDs for future use.
-			\update_option( 'newspack_data_mailchimp_fields', $fields_ids );
+		$merge_fields = self::get_merge_fields( $audience_id, $data );
+		if ( ! empty( $merge_fields ) ) {
+			$payload['merge_fields'] = $merge_fields;
 		}
 
 		// Upsert the contact.
