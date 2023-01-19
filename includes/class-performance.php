@@ -36,6 +36,8 @@ class Performance {
 		add_filter( 'newspack_blocks_homepage_posts_block_attributes', [ __CLASS__, 'optimise_homepage_posts_block' ] );
 		add_action( 'newspack_theme_before_page_content', [ __CLASS__, 'mark_page_content_rendering_start' ] );
 		add_filter( 'newspack_analytics_event_js', [ __CLASS__, 'optimize_js' ] );
+		add_filter( 'newspack_ads_frontend_js', [ __CLASS__, 'optimize_js' ] );
+		add_filter( 'newspack_ads_lazy_loading_js', [ __CLASS__, 'optimize_js' ] );
 	}
 
 	/**
