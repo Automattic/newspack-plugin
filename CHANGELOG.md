@@ -1,3 +1,10 @@
+# [1.101.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.101.0-alpha.2...v1.101.0-alpha.3) (2023-01-19)
+
+
+### Bug Fixes
+
+* only enqueue salesforce admin JS when appropriate ([14dfc74](https://github.com/Automattic/newspack-plugin/commit/14dfc7488ae177e824dc712f7a90f0cdc0c8c020))
+
 ## [1.100.2](https://github.com/Automattic/newspack-plugin/compare/v1.100.1...v1.100.2) (2023-01-19)
 
 
