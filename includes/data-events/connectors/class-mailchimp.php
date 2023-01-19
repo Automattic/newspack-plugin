@@ -159,7 +159,16 @@ class Mailchimp {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		self::put( $data['email'], $data['metadata'] );
+		$metadata = [
+			'NP_Account' => $data['user_id'],
+		];
+		if ( isset( $data['metadata']['current_page_url'] ) ) {
+			$metadata['NP_Registration Page'] = $data['metadata']['current_page_url'];
+		}
+		if ( isset( $data['metadata']['registration_method'] ) ) {
+			$metadata['NP_Registration Method'] = $data['metadata']['registration_method'];
+		}
+		self::put( $data['email'], $metadata );
 	}
 
 	/**
