@@ -80,7 +80,17 @@ class Mailchimp {
 			'status_if_new' => 'transactional',
 		];
 		if ( ! empty( $data ) ) {
-			$merge_fields    = [];
+			// Strip arrays.
+			$data = array_filter(
+				$data,
+				function( $value ) {
+					return ! is_array( $value );
+				}
+			);
+
+			$merge_fields = [];
+
+			// Get and match existing merge fields.
 			$fields_ids      = \get_option( 'newspack_data_mailchimp_fields', [] );
 			$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
 			foreach ( $existing_fields['merge_fields'] as $field ) {
@@ -99,6 +109,7 @@ class Mailchimp {
 					unset( $data[ $field_name ] );
 				}
 			}
+
 			// Create remaining fields.
 			$remaining_fields = array_keys( $data );
 			foreach ( $remaining_fields as $field_name ) {
@@ -112,11 +123,17 @@ class Mailchimp {
 				$merge_fields[ $created_field['tag'] ]    = $data[ $field_name ];
 				$fields_ids[ $created_field['merge_id'] ] = $field_name;
 			}
+
+			// Add the merge fields to the payload.
 			if ( ! empty( $merge_fields ) ) {
 				$payload['merge_fields'] = $merge_fields;
 			}
+
+			// Store fields IDs for future use.
 			\update_option( 'newspack_data_mailchimp_fields', $fields_ids );
 		}
+
+		// Upsert the contact.
 		Mailchimp_API::put(
 			"lists/$audience_id/members/$hash",
 			$payload
