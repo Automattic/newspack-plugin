@@ -377,12 +377,14 @@ const Webhooks = () => {
 											? sprintf(
 													// translators: %s is a human-readable time difference.
 													__( 'sending in %s', 'newspack' ),
-													moment( parseInt( request.scheduled ) * 1000 ).fromNow( true )
+													moment( request.scheduled.date + request.scheduled.timezone ).fromNow(
+														true
+													)
 											  )
 											: sprintf(
 													// translators: %s is a human-readable time difference.
 													__( 'processed %s', 'newspack' ),
-													moment( parseInt( request.scheduled ) * 1000 ).fromNow()
+													moment( request.scheduled.date + request.scheduled.timezone ).fromNow()
 											  ) }
 									</td>
 									{ hasEndpointErrors( viewing ) && (

@@ -55,8 +55,8 @@ class WooCommerce_Connection {
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
 
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
-		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'order_processed' ], 101 );
-		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
+		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
+		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_renewal_errors' ] );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
 	}
@@ -112,33 +112,21 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Donations actions when order is processed.
+	 * Sync a reader's info to the ESP when they make an order.
 	 *
-	 * @param int $order_id Order ID.
+	 * @param int $order_id Order post ID.
 	 */
-	public static function order_processed( $order_id ) {
-		$product_id = Donations::get_order_donation_product_id( $order_id );
-
-		/** Bail if not a donation order. */
-		if ( false === $product_id ) {
+	public static function sync_reader_on_order_complete( $order_id ) {
+		if ( ! self::can_sync_customers() ) {
 			return;
 		}
 
-		if ( self::can_sync_customers() ) {
-			$order = new \WC_Order( $order_id );
-			if ( ! $order->get_customer_id() ) {
-				return;
-			}
-			self::sync_reader_from_order( $order );
+		$order = new \WC_Order( $order_id );
+		if ( ! $order->get_customer_id() ) {
+			return;
 		}
 
-		/**
-		 * Fires when a donation order is processed.
-		 *
-		 * @param int $order_id   Order post ID.
-		 * @param int $product_id Donation product post ID.
-		 */
-		\do_action( 'newspack_donation_order_processed', $order_id, $product_id );
+		self::sync_reader_from_order( $order );
 	}
 
 	/**
@@ -197,8 +185,7 @@ class WooCommerce_Connection {
 		// One-time donation.
 		if ( empty( $order_subscriptions ) ) {
 			$metadata[ $metadata_keys['membership_status'] ] = 'Donor';
-			$metadata[ $metadata_keys['total_paid'] ]        = (float) $customer->get_total_spent();
-			$metadata[ $metadata_keys['total_paid'] ]       += (float) $order->get_total();
+			$metadata[ $metadata_keys['total_paid'] ]        = (float) $customer->get_total_spent() ? $customer->get_total_spent() : $order->get_total();
 			$metadata[ $metadata_keys['product_name'] ]      = '';
 			$order_items                                     = $order->get_items();
 			if ( $order_items ) {
@@ -247,9 +234,7 @@ class WooCommerce_Connection {
 				$metadata[ $metadata_keys['next_payment_date'] ] = $next_payment_date;
 			}
 
-			$metadata[ $metadata_keys['total_paid'] ]  = (float) $customer->get_total_spent();
-			$metadata[ $metadata_keys['total_paid'] ] += (float) $current_subscription->get_total();
-
+			$metadata[ $metadata_keys['total_paid'] ]   = (float) $customer->get_total_spent() ? $customer->get_total_spent() : $current_subscription->get_total();
 			$metadata[ $metadata_keys['product_name'] ] = '';
 			if ( $current_subscription ) {
 				$subscription_order_items = $current_subscription->get_items();
@@ -484,12 +469,6 @@ class WooCommerce_Connection {
 			}
 		}
 
-		/**
-		 * Disable the emails sent to admin & customer after a subscription renewal order is completed.
-		 */
-		\add_filter( 'woocommerce_email_enabled_customer_completed_renewal_order', '__return_false' );
-		\add_filter( 'woocommerce_email_enabled_new_renewal_order', '__return_false' );
-
 		if ( 'renewed' === $subscription_status ) {
 			/**
 			 * Handle WooCommerce Subscriptions - subscription renewal. This will create a new order
@@ -503,8 +482,8 @@ class WooCommerce_Connection {
 				$order->save();
 				Logger::log( 'Updated WC subscription with id: ' . $subscription->get_id() . ' with a new order of id: ' . $order->get_id() );
 			} else {
-				// Linked subscription not found, just create an order.
-				// Temporarily disable the "New Order" email, since this is a renewal.
+				// Linked subscription not found, just create an order. Temporarily disable the
+				// "New Order" email, since this is a renewal.
 				\add_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 				$order = self::create_order( $order_data, $item );
 				\remove_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
@@ -551,9 +530,6 @@ class WooCommerce_Connection {
 				}
 			}
 		}
-
-		\remove_filter( 'woocommerce_email_enabled_customer_completed_renewal_order', '__return_false' );
-		\remove_filter( 'woocommerce_email_enabled_new_renewal_order', '__return_false' );
 
 		/**
 		 * Handle WooCommerce Memberships.
@@ -778,17 +754,17 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Filter WC Subscriptions' renewal errors. If a subscription is sync'd,
-	 * it won't be handled by WC Subscriptions, so error can be ignored.
+	 * Filter WC Subscriptions' renewal errors. If a subscription is only sync'd,
+	 * it won't be renewed by WC Subscriptions, so we don't want to show an error.
 	 *
 	 * @param array $renewal_errors An associative array of errors.
 	 */
-	public static function filter_subscription_scheduled_actions_errors( $renewal_errors ) {
+	public static function filter_subscription_renewal_errors( $renewal_errors ) {
 		if ( is_array( $renewal_errors ) ) {
 			foreach ( $renewal_errors as $key => $error ) {
 				if ( isset( $error['args'], $error['args']['subscription_id'], $error['type'] ) ) {
 					$subscription_id = $error['args']['subscription_id'];
-					if ( self::is_synchronised_with_stripe( $subscription_id ) ) {
+					if ( 'subscription payment' === $error['type'] && self::is_synchronised_with_stripe( $subscription_id ) ) {
 						unset( $renewal_errors[ $key ] );
 					}
 				}
