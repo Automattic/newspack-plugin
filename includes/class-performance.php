@@ -35,6 +35,20 @@ class Performance {
 	public static function init() {
 		add_filter( 'newspack_blocks_homepage_posts_block_attributes', [ __CLASS__, 'optimise_homepage_posts_block' ] );
 		add_action( 'newspack_theme_before_page_content', [ __CLASS__, 'mark_page_content_rendering_start' ] );
+		add_filter( 'newspack_analytics_event_js', [ __CLASS__, 'optimize_js' ] );
+	}
+
+	/**
+	 * Optimise JS code.
+	 *
+	 * @param string $js_code JS code.
+	 */
+	public static function optimize_js( $js_code ) {
+		return preg_replace(
+			[ '/(<script>|,|\(|\)|\{|\}|;|\&\&)\s+/', '/\s+(<script>|,|\(|\)|\{|\}|;|\&\&)/' ],
+			'\1',
+			$js_code
+		);
 	}
 
 	/**
