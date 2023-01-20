@@ -276,6 +276,11 @@ final class Data_Events {
 			return new WP_Error( 'newspack_data_events_action_not_registered', __( 'Action not registered.', 'newspack' ) );
 		}
 
+		// Append User Agent to the data so we can identify it in the async requests.
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$data['user_agent'] = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+		}
+
 		$timestamp = time();
 		$client_id = null;
 		if ( $use_client_id ) {
