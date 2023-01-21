@@ -64,7 +64,11 @@ class Perfmatters {
 			'/busting/facebook-tracking/',
 			// Twitter.
 			'ads-twitter.com',
-			// Etc.
+			// Plugins.
+			'gravityforms',
+			'mailchimp-for-woocommerce',
+			'mailchimp-for-wp',
+			// Third-party services.
 			'disqus',
 			'stripe.com',
 		];
@@ -76,6 +80,7 @@ class Perfmatters {
 	private static function unused_css_excluded_stylesheets() {
 		return [
 			'donateStreamlined.css',
+			'/themes/newspack-', // Any Newspack theme stylesheet.
 		];
 	}
 

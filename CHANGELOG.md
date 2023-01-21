@@ -1,3 +1,17 @@
+## [1.100.2](https://github.com/Automattic/newspack-plugin/compare/v1.100.1...v1.100.2) (2023-01-19)
+
+
+### Bug Fixes
+
+* only enqueue salesforce admin JS when appropriate ([14dfc74](https://github.com/Automattic/newspack-plugin/commit/14dfc7488ae177e824dc712f7a90f0cdc0c8c020))
+
+## [1.100.1](https://github.com/Automattic/newspack-plugin/compare/v1.100.0...v1.100.1) (2023-01-18)
+
+
+### Bug Fixes
+
+* use newer stripe api version ([b5d1fc7](https://github.com/Automattic/newspack-plugin/commit/b5d1fc7804df7329bc3ad43b19341962705e46e8))
+
 # [1.100.0](https://github.com/Automattic/newspack-plugin/compare/v1.99.1...v1.100.0) (2023-01-09)
 
 
