@@ -382,6 +382,47 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Update WC Stripe Gateway related metadata to an order or subscription.
+	 * The order has to be saved afterwards.
+	 *
+	 * @param WC_Order $order Order object. Can be a subscription or an order.
+	 * @param array    $metadata Metadata.
+	 */
+	private static function add_wc_stripe_gateway_metadata( $order, $metadata ) {
+		$order->set_payment_method( 'stripe' );
+
+		if ( isset( $metadata['stripe_id'] ) ) {
+			$order->set_transaction_id( $metadata['stripe_id'] );
+		}
+		if ( isset( $metadata['stripe_fee'] ) ) {
+			$order->add_meta_data( '_stripe_fee', $metadata['stripe_fee'] );
+		}
+		if ( isset( $metadata['stripe_net'] ) ) {
+			$order->add_meta_data( '_stripe_net', $metadata['stripe_net'] );
+		}
+		if ( isset( $metadata['payment_method_title'] ) ) {
+			$order->set_payment_method_title( $metadata['payment_method_title'] );
+		} else {
+			$order->set_payment_method_title( __( 'Stripe via Newspack', 'newspack' ) );
+		}
+		if ( isset( $metadata['stripe_customer_id'] ) ) {
+			$order->add_meta_data( '_stripe_customer_id', $metadata['stripe_customer_id'] );
+		}
+		if ( isset( $metadata['currency'] ) ) {
+			$order->add_meta_data( '_stripe_currency', $metadata['currency'] );
+		}
+		if ( isset( $metadata['stripe_source_id'] ) ) {
+			$order->add_meta_data( '_stripe_source_id', $metadata['stripe_source_id'] );
+		}
+		if ( isset( $metadata['stripe_intent_id'] ) ) {
+			$order->add_meta_data( '_stripe_intent_id', $metadata['stripe_intent_id'] );
+		}
+		if ( 'completed' === $order->get_status() ) {
+			$order->add_meta_data( '_stripe_charge_captured', 'yes' );
+		}
+	}
+
+	/**
 	 * Create a WooCommerce order.
 	 *
 	 * @param array         $order_data Order data.
@@ -403,17 +444,15 @@ class WooCommerce_Connection {
 
 		$order->add_item( $item );
 		$order->calculate_totals();
-		$order->set_status( 'completed' );
+
+		$status = 'completed';
+		if ( isset( $order_data['status'] ) && is_string( $order_data['status'] ) ) {
+			$status = $order_data['status'];
+		}
+		$order->set_status( $status );
 
 		// Metadata for woocommerce-gateway-stripe plugin.
-		$order->set_payment_method( 'stripe' );
-		$order->set_payment_method_title( __( 'Stripe via Newspack', 'newspack' ) );
-		$order->set_transaction_id( $order_data['stripe_id'] );
-		$order->add_meta_data( '_stripe_customer_id', $order_data['stripe_customer_id'] );
-		$order->add_meta_data( '_stripe_charge_captured', 'yes' );
-		$order->add_meta_data( '_stripe_fee', $order_data['stripe_fee'] );
-		$order->add_meta_data( '_stripe_net', $order_data['stripe_net'] );
-		$order->add_meta_data( '_stripe_currency', $order_data['currency'] );
+		self::add_wc_stripe_gateway_metadata( $order, $order_data );
 
 		if ( ! empty( $order_data['client_id'] ) ) {
 			/**
@@ -451,16 +490,19 @@ class WooCommerce_Connection {
 	 * @param object $order_data Order data.
 	 */
 	public static function create_transaction( $order_data ) {
-		$transaction_id = $order_data['stripe_id'];
-
-		$found_order = self::find_order_by_transaction_id( $transaction_id );
-		if ( ! empty( $found_order ) ) {
-			Logger::log( 'NOT creating an order, it was already synced.' );
-			return;
+		if ( isset( $order_data['stripe_id'] ) ) {
+			$found_order = self::find_order_by_transaction_id( $order_data['stripe_id'] );
+			if ( ! empty( $found_order ) ) {
+				Logger::log( 'NOT creating an order, it was already synced.' );
+				return;
+			}
 		}
 
 		$frequency              = $order_data['frequency'];
-		$stripe_subscription_id = $order_data['stripe_subscription_id'];
+		$stripe_subscription_id = false;
+		if ( isset( $order_data['stripe_subscription_id'] ) ) {
+			$stripe_subscription_id = $order_data['stripe_subscription_id'];
+		}
 
 		// Match the Stripe product to WC product.
 		$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
@@ -469,6 +511,9 @@ class WooCommerce_Connection {
 		}
 
 		$subscription_status = 'none';
+		if ( isset( $order_data['subscription_status'] ) ) {
+			$subscription_status = $order_data['subscription_status'];
+		}
 
 		if (
 			Donations::is_recurring( $frequency )
@@ -531,16 +576,31 @@ class WooCommerce_Connection {
 				if ( is_wp_error( $subscription ) ) {
 					Logger::error( 'Error creating WC subscription: ' . $subscription->get_error_message() );
 				} else {
+					$subscription_id = $subscription->get_id();
 					self::add_universal_order_data( $subscription, $order_data );
-					/* translators: %s - donation frequency */
-					$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment and the subscription will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
-					$subscription->update_status( 'active' ); // Settings status via method (not in wcs_create_subscription), to make WCS recalculate dates.
+					if ( false === $stripe_subscription_id ) {
+						$subscription->add_order_note( __( 'This subscription was created via Newspack.', 'newspack' ) );
+					} else {
+						/* translators: %s - donation frequency */
+						$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment and the subscription will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
+						$subscription->update_status( 'active' ); // Settings status via method (not in wcs_create_subscription), to make WCS recalculate dates.
+					}
 					$subscription->add_item( $item );
 					$subscription->calculate_totals();
-					$subscription->save();
-					$subscription_id = $subscription->get_id();
 
-					update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
+					if ( false === $stripe_subscription_id ) {
+						$subscription->set_payment_method( 'stripe' );
+						if ( isset( $order_data['payment_method_title'] ) ) {
+							$subscription->set_payment_method_title( $order_data['payment_method_title'] );
+						} else {
+							$subscription->set_payment_method_title( __( 'Stripe', 'newspack' ) );
+						}
+					} else {
+						update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
+					}
+
+					$subscription->save();
+
 					Logger::log( 'Created WC subscription with id: ' . $subscription_id );
 
 					if ( class_exists( 'WC_Memberships_Integration_Subscriptions_User_Membership' ) && self::$created_membership_id ) {
