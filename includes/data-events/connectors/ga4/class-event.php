@@ -94,6 +94,10 @@ class Event {
 	 * @return bool
 	 */
 	public static function validate_param_value( $value ) {
+		// Let's play nice and convert integers.
+		if ( is_int( $value ) ) {
+			$value = (string) $value;
+		}
 		return is_string( $value ) && strlen( $value ) <= 100;
 	}
 

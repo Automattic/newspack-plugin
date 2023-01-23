@@ -37,31 +37,33 @@ class GA4 {
 	 * @param array $data      Data associated with the event.
 	 * @param int   $client_id ID of the client that triggered the event.
 	 *
+	 * @throws \Exception If the event is invalid.
 	 * @return void
 	 */
 	public static function handle_reader_logged_in( $timestamp, $data, $client_id ) {
 
 		$params = array_merge(
-			self::get_default_params( $data['user_agent'] ?? '' ),
+			self::get_default_params(),
 			[ 'user_id' => $data['user_id'] ]
 		);
-		$event  = new Event( 'reader_login', $params );
+
+		$event = new Event( 'reader_login', $params );
 		self::send_event( $event, $client_id );
 	}
 
 	/**
 	 * Get the default parameters that are added to all events
 	 *
-	 * @param string $user_agent User agent header.
 	 * @return array
 	 */
-	private static function get_default_params( $user_agent = '' ) {
+	private static function get_default_params() {
 		$params = [
 			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
 		];
 
-		if ( class_exists( 'Automattic\Jetpack\Device_Detection' ) && $user_agent ) {
-			$device                = Device_Detection::is_phone( $user_agent ) ? 'phone' : ( Device_Detection::is_tablet( $user_agent ) ? 'tablet' : 'desktop' );
+		if ( class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
+			self::log( 'Detecting device using user agent: ' . $_SERVER['HTTP_USER_AGENT'] ?? '(empty)' ); // phpcs:ignore
+			$device                = Device_Detection::is_phone() ? 'phone' : ( Device_Detection::is_tablet() ? 'tablet' : 'desktop' );
 			$params['device_type'] = $device;
 		}
 		return $params;
@@ -104,6 +106,7 @@ class GA4 {
 	 *
 	 * @param Event  $event The event object.
 	 * @param string $user_id User identifier. Use Reader_Activation::get_client_id().
+	 * @throws \Exception If the credentials are missing.
 	 * @return void
 	 */
 	private static function send_event( Event $event, $user_id = null ) {
@@ -111,7 +114,7 @@ class GA4 {
 		$url = self::get_api_url();
 
 		if ( is_wp_error( $url ) ) {
-			return;
+			throw new \Exception( $url->get_error_message() );
 		}
 
 		$client_id = self::extract_cid_from_cookies();
@@ -134,7 +137,7 @@ class GA4 {
 			]
 		);
 
-		self::log( sprintf( 'Event sent - %s', $name ) );
+		self::log( sprintf( 'Event sent - %s', $event->get_name() ) );
 
 	}
 
