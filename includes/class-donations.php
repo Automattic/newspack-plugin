@@ -564,6 +564,8 @@ class Donations {
 			return;
 		}
 
+		$is_modal_checkout = filter_input( INPUT_GET, 'modal_checkout', FILTER_SANITIZE_NUMBER_INT );
+
 		// Parse values from the form.
 		$donation_frequency = filter_input( INPUT_GET, 'donation_frequency', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $donation_frequency ) {
@@ -647,6 +649,9 @@ class Donations {
 		}
 		if ( ! empty( $referer_categories ) ) {
 			$query_args['referer_categories'] = implode( ',', $referer_categories );
+		}
+		if ( $is_modal_checkout ) {
+			$query_args['modal_checkout'] = 1;
 		}
 
 		// Pass through UTM params so they can be forwarded to the WooCommerce checkout flow.
