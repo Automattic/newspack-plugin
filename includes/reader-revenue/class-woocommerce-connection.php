@@ -177,7 +177,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		$metadata_keys = Newspack_Newsletters::$metadata_keys;
+		$metadata_keys = Newspack_Newsletters::get_metadata_keys();
 		$user_id       = $order->get_customer_id();
 		if ( ! $user_id ) {
 			return;

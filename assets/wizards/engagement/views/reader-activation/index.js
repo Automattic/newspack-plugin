@@ -210,6 +210,14 @@ export default withWizardScreen( () => {
 							) }
 							{ ...getSharedProps( 'sync_esp_delete' ) }
 						/>
+						<TextControl
+							label={ __( 'Metadata field prefix', 'newspack' ) }
+							help={ __(
+								'A string to prefix metadata fields attached to each contact synced to the ESP.',
+								'newspack'
+							) }
+							{ ...getSharedProps( 'metadata_prefix', 'text' ) }
+						/>
 						{ isActiveCampaign && (
 							<ActiveCampaign
 								value={ { masterList: config.active_campaign_master_list } }

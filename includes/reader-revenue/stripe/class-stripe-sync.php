@@ -181,7 +181,7 @@ class Stripe_Sync {
 			'name'  => $customer->name,
 		];
 
-		$metadata_keys = Newspack_Newsletters::$metadata_keys;
+		$metadata_keys = Newspack_Newsletters::get_metadata_keys();
 		$metadata      = [
 			$metadata_keys['total_paid'] => Stripe_Connection::get_customer_ltv( $customer->id ),
 		];
@@ -534,4 +534,3 @@ class Stripe_Sync {
 }
 
 Stripe_Sync::init();
-

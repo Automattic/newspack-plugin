@@ -172,6 +172,7 @@ final class Reader_Activation {
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
 			'terms_url'                   => '',
 			'sync_esp'                    => true,
+			'metadata_prefix'             => Newspack_Newsletters::get_metadata_prefix(),
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
@@ -250,6 +251,10 @@ final class Reader_Activation {
 		if ( is_bool( $value ) ) {
 			$value = intval( $value );
 		}
+		if ( 'metadata_prefix' === $key ) {
+			return Newspack_Newsletters::update_metadata_prefix( $value );
+		}
+
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
 	}
 
