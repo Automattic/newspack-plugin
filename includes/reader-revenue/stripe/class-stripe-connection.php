@@ -760,8 +760,7 @@ class Stripe_Connection {
 			$frequency        = $config['frequency'];
 			$email_address    = $config['email_address'];
 			$full_name        = $config['full_name'];
-			$token_data       = $config['token_data'];
-			$source_data      = $config['source_data'];
+			$source_id        = $config['source_id'];
 			$client_metadata  = $config['client_metadata'];
 			$payment_metadata = $config['payment_metadata'];
 
@@ -803,7 +802,7 @@ class Stripe_Connection {
 			// because WC Stripe Gateway is source-based.
 
 			// Mark the payment as coming from Newspack.
-			$payment_metadata['is_newspack']         = true;
+			$payment_metadata['is_newspack'] = true;
 
 			// Data for WC Stripe Gateway.
 			$payment_metadata['payment_type']        = $is_recurring ? 'recurring' : 'once';
@@ -813,22 +812,22 @@ class Stripe_Connection {
 			$stripe->customers->createSource(
 				$customer['id'],
 				[
-					'source' => $source_data['id'],
+					'source' => $source_id,
 				]
 			);
 
 			if ( $is_wc_first || ! $is_recurring ) {
 				// Create a Payment Intent on Stripe. The client secret of this PI has to be
 				// sent back to the front-end to finish processing the transaction.
-				$payment_intent_payload['source'] = $source_data['id'];
+				$payment_intent_payload['source'] = $source_id;
 				if ( $is_recurring ) {
 					// Set up the payment intent for recurring payments via WooCommerce Subscriptions.
 					$payment_intent_payload['setup_future_usage'] = 'off_session';
 				}
 				// Default description, to be updated with order ID once it's created.
 				$payment_intent_payload['description'] = __( 'Newspack Donation', 'newspack' );
-				$payment_intent_payload['metadata'] = $payment_metadata;
-				$payment_intent                     = self::create_payment_intent( $payment_intent_payload );
+				$payment_intent_payload['metadata']    = $payment_metadata;
+				$payment_intent                        = self::create_payment_intent( $payment_intent_payload );
 
 				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
@@ -837,7 +836,7 @@ class Stripe_Connection {
 
 				if ( $is_wc_first ) {
 					$amount_normalised = self::normalise_amount( $payment_intent['amount'], $payment_intent['currency'] );
-					switch ( $token_data['card']['tokenization_method'] ) {
+					switch ( $config['tokenization_method'] ) {
 						case 'apple_pay':
 							$payment_method_title = __( 'Apple Pay (Stripe)', 'newspack' );
 							break;
@@ -853,6 +852,7 @@ class Stripe_Connection {
 						'email'                => $customer['email'],
 						'name'                 => $customer['name'],
 						'stripe_customer_id'   => $customer['id'],
+						'stripe_source_id'     => $source_id,
 						'stripe_intent_id'     => $payment_intent['id'],
 						'payment_method_title' => $payment_method_title,
 						'date'                 => $payment_intent['created'],
@@ -865,9 +865,6 @@ class Stripe_Connection {
 					];
 					if ( $is_recurring ) {
 						$wc_order_payload['subscription_status'] = 'created';
-					}
-					if ( $source_data ) {
-						$wc_order_payload['stripe_source_id'] = $source_data['id'];
 					}
 					$wc_order_id = WooCommerce_Connection::create_transaction( $wc_order_payload );
 
