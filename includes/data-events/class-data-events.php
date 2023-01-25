@@ -43,7 +43,7 @@ final class Data_Events {
 	public static function init() {
 		\add_action( 'wp_ajax_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'wp_ajax_nopriv_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
-		\add_action( 'newspack_data_events_as_dispatch', [ __CLASS__, 'handle' ], 10, 5 );
+		\add_action( 'newspack_data_events_as_dispatch', [ __CLASS__, 'handle' ], 10, 4 );
 	}
 
 	/**
@@ -80,12 +80,11 @@ final class Data_Events {
 			\wp_die();
 		}
 
-		$timestamp  = isset( $_POST['timestamp'] ) ? \sanitize_text_field( \wp_unslash( $_POST['timestamp'] ) ) : null;
-		$data       = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$client_id  = isset( $_POST['client_id'] ) ? \sanitize_text_field( \wp_unslash( $_POST['client_id'] ) ) : null;
-		$user_agent = isset( $_POST['user_agent'] ) ? \sanitize_text_field( \wp_unslash( $_POST['user_agent'] ) ) : null;
+		$timestamp = isset( $_POST['timestamp'] ) ? \sanitize_text_field( \wp_unslash( $_POST['timestamp'] ) ) : null;
+		$data      = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$client_id = isset( $_POST['client_id'] ) ? \sanitize_text_field( \wp_unslash( $_POST['client_id'] ) ) : null;
 
-		self::handle( $action_name, $timestamp, $data, $client_id, $user_agent );
+		self::handle( $action_name, $timestamp, $data, $client_id );
 
 		\wp_die();
 	}
@@ -97,19 +96,13 @@ final class Data_Events {
 	 * @param int    $timestamp   Timestamp.
 	 * @param array  $data        Data.
 	 * @param string $client_id   Client ID.
-	 * @param string $user_agent  The User agent of the original request.
 	 */
-	public static function handle( $action_name, $timestamp, $data, $client_id, $user_agent = null ) {
+	public static function handle( $action_name, $timestamp, $data, $client_id ) {
 		// Execute global handlers.
 		Logger::log(
 			sprintf( 'Executing global action handlers for "%s".', $action_name ),
 			self::LOGGER_HEADER
 		);
-
-		// Override user agent with the user agent of the request that triggered the event.
-		if ( $user_agent ) {
-			$_SERVER['HTTP_USER_AGENT'] = $user_agent; // phpcs:ignore
-		}
 
 		foreach ( self::$global_handlers as $handler ) {
 			try {
@@ -290,12 +283,6 @@ final class Data_Events {
 			$client_id = Reader_Activation::get_client_id();
 		}
 
-		// Append User Agent to the body so we can identify it in the async requests.
-		$user_agent = null;
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$user_agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
-		}
-
 		/**
 		 * Fires when an action is dispatched. This occurs before any handlers are
 		 * executed.
@@ -326,7 +313,6 @@ final class Data_Events {
 			'timestamp'   => $timestamp,
 			'data'        => $data,
 			'client_id'   => $client_id,
-			'user_agent'  => $user_agent,
 		];
 
 		/**

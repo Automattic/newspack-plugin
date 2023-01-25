@@ -61,11 +61,6 @@ class GA4 {
 			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
 		];
 
-		if ( class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
-			self::log( 'Detecting device using user agent: ' . $_SERVER['HTTP_USER_AGENT'] ?? '(empty)' ); // phpcs:ignore
-			$device                = Device_Detection::is_phone() ? 'phone' : ( Device_Detection::is_tablet() ? 'tablet' : 'desktop' );
-			$params['device_type'] = $device;
-		}
 		return $params;
 	}
 
