@@ -584,6 +584,16 @@ class WooCommerce_Connection {
 			 * Handle WooCommerce Subscriptions - new subscription.
 			 */
 			if ( 'created' === $subscription_status ) {
+				// A subscription needs a valid user. If not user ID is provided, attribute the
+				// subscription to the user with the supplied email address.
+				if ( empty( $order_data['user_id'] ) ) {
+					$user = \get_user_by( 'email', $order_data['email'] );
+					if ( ! $user || \is_wp_error( $user ) ) {
+						Logger::error( 'Could not find user by email.' );
+					}
+					$order->set_customer_id( $user->ID );
+					$order->save();
+				}
 				$subscription = \wcs_create_subscription(
 					[
 						'start_date'       => self::convert_timestamp_to_date( $order_data['date'] ),
