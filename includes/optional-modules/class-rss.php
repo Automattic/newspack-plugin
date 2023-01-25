@@ -588,10 +588,8 @@ class RSS {
 				if ( $thumbnail_data ) {
 					$caption = get_the_post_thumbnail_caption();
 					?>
-					<media:content type="image/jpeg" url="<?php echo esc_url( $thumbnail_data[0] ); ?>">
-						<?php
-						if ( ! empty( $caption ) ) :
-							?>
+					<media:content type="<?php echo esc_attr( get_post_mime_type( $thumbnail_id ) ); ?>" url="<?php echo esc_url( $thumbnail_data[0] ); ?>">
+						<?php if ( ! empty( $caption ) ) : ?>
 						<media:description><?php echo esc_html( $caption ); ?></media:description>
 						<?php endif; ?>
 						<media:thumbnail url="<?php echo esc_url( $thumbnail_data[0] ); ?>" width="<?php echo esc_attr( $thumbnail_data[1] ); ?>" height="<?php echo esc_attr( $thumbnail_data[2] ); ?>" />
