@@ -787,28 +787,29 @@ class Stripe_Connection {
 				return $response;
 			}
 
-			// Attach the Payment Method ID to the customer.
-			// A new payment method is created for each one-time or first-in-recurring
-			// transaction, because the payment methods are not stored on WP.
-			$stripe->paymentMethods->attach( // phpcs:ignore
-				$payment_method_id,
-				[ 'customer' => $customer['id'] ]
-			);
-			// Set the payment method as the default for customer's transactions.
-			$stripe->customers->update(
-				$customer['id'],
-				[
-					'invoice_settings' => [
-						'default_payment_method' => $payment_method_id,
-					],
-				]
-			);
 			$is_recurring = 'once' != $frequency;
 
 			// In this mode, WC will create a subscription for the customer, instead of using
 			// native Stripe subscriptions.
 			$is_wc_first_enabled = defined( 'NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM' ) && NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM;
 			$is_wc_first         = $is_wc_first_enabled && Donations::is_woocommerce_suite_active();
+
+			if ( $is_recurring && ! $is_wc_first ) {
+				// Attach the Payment Method ID to the customer, so the Stripe Subscription can be created.
+				$stripe->paymentMethods->attach( // phpcs:ignore
+					$payment_method_id,
+					[ 'customer' => $customer['id'] ]
+				);
+				// Set the payment method as the default for customer's transactions.
+				$stripe->customers->update(
+					$customer['id'],
+					[
+						'invoice_settings' => [
+							'default_payment_method' => $payment_method_id,
+						],
+					]
+				);
+			}
 
 			$payment_intent_payload = [
 				'amount'      => $amount_raw,
